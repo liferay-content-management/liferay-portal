@@ -664,9 +664,10 @@ public class FriendlyURLEntryLocalServiceImpl
 			friendlyURLEntry.getGroupId(), urlTitleMap);
 
 		for (Map.Entry<String, String> entry : urlTitleMap.entrySet()) {
+			String oldURLTitle = entry.getValue();
+
 			String normalizedUrlTitle =
-				FriendlyURLNormalizerUtil.normalizeWithEncoding(
-					entry.getValue());
+				FriendlyURLNormalizerUtil.normalizeWithEncoding(oldURLTitle);
 
 			if (Validator.isNull(normalizedUrlTitle)) {
 				continue;
@@ -688,7 +689,7 @@ public class FriendlyURLEntryLocalServiceImpl
 					String existingUrlTitle =
 						existingFriendlyURLEntryLocalization.getUrlTitle();
 
-					if (existingUrlTitle.equals(entry.getValue())) {
+					if (existingUrlTitle.equals(oldURLTitle)) {
 						existingFriendlyURLEntryLocalization.
 							setFriendlyURLEntryId(
 								friendlyURLEntry.getFriendlyURLEntryId());
