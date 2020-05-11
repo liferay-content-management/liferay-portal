@@ -63,7 +63,8 @@ public class AssetDisplayPagesItemSelectorViewDisplayContext {
 			WebKeys.THEME_DISPLAY);
 	}
 
-	public SearchContainer getAssetDisplayPageSearchContainer()
+	public SearchContainer<LayoutPageTemplateEntry>
+			getAssetDisplayPageSearchContainer()
 		throws PortletException {
 
 		if (_assetDisplayPageSearchContainer != null) {
@@ -213,7 +214,8 @@ public class AssetDisplayPagesItemSelectorViewDisplayContext {
 		return portletURL;
 	}
 
-	private SearchContainer _assetDisplayPageSearchContainer;
+	private SearchContainer<LayoutPageTemplateEntry>
+		_assetDisplayPageSearchContainer;
 	private final AssetDisplayPageSelectorCriterion
 		_assetDisplayPageSelectorCriterion;
 	private final HttpServletRequest _httpServletRequest;

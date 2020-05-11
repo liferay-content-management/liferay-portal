@@ -102,12 +102,12 @@ public class AssetTagsSelectorDisplayContext {
 		return _selectedTagNames;
 	}
 
-	public SearchContainer getTagsSearchContainer() {
+	public SearchContainer<AssetTag> getTagsSearchContainer() {
 		if (_tagsSearchContainer != null) {
 			return _tagsSearchContainer;
 		}
 
-		SearchContainer tagsSearchContainer = new SearchContainer(
+		SearchContainer<AssetTag> tagsSearchContainer = new SearchContainer(
 			_renderRequest, getPortletURL(), null, "there-are-no-tags");
 
 		String orderByCol = _getOrderByCol();
@@ -211,6 +211,6 @@ public class AssetTagsSelectorDisplayContext {
 	private final RenderResponse _renderResponse;
 	private final boolean _rowChecker;
 	private String[] _selectedTagNames;
-	private SearchContainer _tagsSearchContainer;
+	private SearchContainer<AssetTag> _tagsSearchContainer;
 
 }

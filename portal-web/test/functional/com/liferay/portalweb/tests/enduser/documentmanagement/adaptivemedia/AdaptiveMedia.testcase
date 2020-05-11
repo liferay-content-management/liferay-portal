@@ -730,7 +730,7 @@ definition {
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentDescription = "DM Document Description",
 				dmDocumentTitle = "Document_${entryCount}.jpg",
-				groupName = "Guest",
+				groupName = "Site Name",
 				mimeType = "image/jpeg",
 				sourceFileName = "Document_${entryCount}.jpg");
 		}

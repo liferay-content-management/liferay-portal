@@ -210,17 +210,17 @@ public class PageDefinitionResourceImpl extends BasePageDefinitionResourceImpl {
 	private ThemeDisplay _getThemeDisplay(Layout layout) throws Exception {
 		ServicePreAction servicePreAction = new ServicePreAction();
 
-		DummyHttpServletResponse dummyHttpServletResponse =
+		HttpServletResponse httpServletResponse =
 			new DummyHttpServletResponse();
 
 		servicePreAction.servicePre(
-			contextHttpServletRequest, dummyHttpServletResponse, false);
+			contextHttpServletRequest, httpServletResponse, false);
 
 		ThemeServicePreAction themeServicePreAction =
 			new ThemeServicePreAction();
 
 		themeServicePreAction.run(
-			contextHttpServletRequest, dummyHttpServletResponse);
+			contextHttpServletRequest, httpServletResponse);
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)contextHttpServletRequest.getAttribute(

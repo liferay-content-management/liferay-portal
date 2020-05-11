@@ -132,13 +132,15 @@ public class HeadlessDiscoveryAPIApplication extends Application {
 			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		String templateId = "/headless-web.ftl";
+		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
-		URLTemplateResource urlTemplateResource = new URLTemplateResource(
-			templateId, getClass().getResource(templateId));
+		String templateId = "/headless-discovery-web.ftl";
+		Class<?> clazz = getClass();
 
 		Template template = TemplateManagerUtil.getTemplate(
-			TemplateConstants.LANG_TYPE_FTL, urlTemplateResource, false);
+			TemplateConstants.LANG_TYPE_FTL,
+			new URLTemplateResource(templateId, clazz.getResource(templateId)),
+			false);
 
 		ServletContext servletContext = ServletContextPool.get(
 			StringPool.BLANK);
@@ -147,8 +149,6 @@ public class HeadlessDiscoveryAPIApplication extends Application {
 
 		httpServletRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, _getThemeDisplay(httpServletRequest));
-
-		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
 		template.prepare(httpServletRequest);
 
@@ -241,16 +241,16 @@ public class HeadlessDiscoveryAPIApplication extends Application {
 
 		ServicePreAction servicePreAction = new ServicePreAction();
 
-		DummyHttpServletResponse dummyHttpServletResponse =
+		HttpServletResponse httpServletResponse =
 			new DummyHttpServletResponse();
 
 		servicePreAction.servicePre(
-			httpServletRequest, dummyHttpServletResponse, false);
+			httpServletRequest, httpServletResponse, false);
 
 		ThemeServicePreAction themeServicePreAction =
 			new ThemeServicePreAction();
 
-		themeServicePreAction.run(httpServletRequest, dummyHttpServletResponse);
+		themeServicePreAction.run(httpServletRequest, httpServletResponse);
 
 		return (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);

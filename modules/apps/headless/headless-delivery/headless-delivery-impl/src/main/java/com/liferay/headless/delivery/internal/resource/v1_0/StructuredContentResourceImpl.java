@@ -24,7 +24,7 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.service.DDMStructureService;
-import com.liferay.dynamic.data.mapping.service.DDMTemplateService;
+import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.Field;
 import com.liferay.dynamic.data.mapping.storage.Fields;
@@ -109,6 +109,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
@@ -344,7 +346,8 @@ public class StructuredContentResourceImpl
 		JournalArticle journalArticle = _journalArticleService.getLatestArticle(
 			structuredContentId);
 
-		DDMTemplate ddmTemplate = _ddmTemplateService.getTemplate(templateId);
+		DDMTemplate ddmTemplate = _ddmTemplateLocalService.getTemplate(
+			templateId);
 
 		JournalArticleDisplay journalArticleDisplay =
 			_journalContent.getDisplay(
@@ -851,17 +854,17 @@ public class StructuredContentResourceImpl
 
 		ServicePreAction servicePreAction = new ServicePreAction();
 
-		DummyHttpServletResponse dummyHttpServletResponse =
+		HttpServletResponse httpServletResponse =
 			new DummyHttpServletResponse();
 
 		servicePreAction.servicePre(
-			contextHttpServletRequest, dummyHttpServletResponse, false);
+			contextHttpServletRequest, httpServletResponse, false);
 
 		ThemeServicePreAction themeServicePreAction =
 			new ThemeServicePreAction();
 
 		themeServicePreAction.run(
-			contextHttpServletRequest, dummyHttpServletResponse);
+			contextHttpServletRequest, httpServletResponse);
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)contextHttpServletRequest.getAttribute(
@@ -1090,7 +1093,7 @@ public class StructuredContentResourceImpl
 	private DDMStructureService _ddmStructureService;
 
 	@Reference
-	private DDMTemplateService _ddmTemplateService;
+	private DDMTemplateLocalService _ddmTemplateLocalService;
 
 	@Reference
 	private DLAppService _dlAppService;

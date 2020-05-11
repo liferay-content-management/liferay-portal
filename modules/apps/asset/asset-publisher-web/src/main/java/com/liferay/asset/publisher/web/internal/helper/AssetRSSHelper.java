@@ -193,7 +193,7 @@ public class AssetRSSHelper {
 
 		List<AssetEntry> assetEntries = new ArrayList<>();
 
-		SearchContainer searchContainer = new SearchContainer();
+		SearchContainer<AssetEntry> searchContainer = new SearchContainer();
 
 		AssetPublisherDisplayContext assetPublisherDisplayContext =
 			(AssetPublisherDisplayContext)portletRequest.getAttribute(

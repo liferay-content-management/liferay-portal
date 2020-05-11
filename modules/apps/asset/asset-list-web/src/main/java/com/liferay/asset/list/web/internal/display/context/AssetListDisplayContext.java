@@ -94,7 +94,7 @@ public class AssetListDisplayContext {
 			return _assetListContentSearchContainer;
 		}
 
-		SearchContainer searchContainer = new SearchContainer(
+		SearchContainer<AssetEntry> searchContainer = new SearchContainer(
 			_renderRequest, _getAssetListContentURL(), null,
 			"there-are-no-asset-entries");
 
@@ -127,14 +127,17 @@ public class AssetListDisplayContext {
 		return _assetListEntriesCount;
 	}
 
-	public SearchContainer getAssetListEntriesSearchContainer() {
+	public SearchContainer<AssetListEntry>
+		getAssetListEntriesSearchContainer() {
+
 		if (_assetListEntriesSearchContainer != null) {
 			return _assetListEntriesSearchContainer;
 		}
 
-		SearchContainer assetListEntriesSearchContainer = new SearchContainer(
-			_renderRequest, _renderResponse.createRenderURL(), null,
-			"there-are-no-collections");
+		SearchContainer<AssetListEntry> assetListEntriesSearchContainer =
+			new SearchContainer(
+				_renderRequest, _renderResponse.createRenderURL(), null,
+				"there-are-no-collections");
 
 		assetListEntriesSearchContainer.setRowChecker(
 			new EmptyOnClickRowChecker(_renderResponse));
@@ -428,9 +431,9 @@ public class AssetListDisplayContext {
 	}
 
 	private final AssetListAssetEntryProvider _assetListAssetEntryProvider;
-	private SearchContainer _assetListContentSearchContainer;
+	private SearchContainer<AssetEntry> _assetListContentSearchContainer;
 	private Integer _assetListEntriesCount;
-	private SearchContainer _assetListEntriesSearchContainer;
+	private SearchContainer<AssetListEntry> _assetListEntriesSearchContainer;
 	private AssetListEntry _assetListEntry;
 	private Long _assetListEntryId;
 	private Integer _assetListEntryType;

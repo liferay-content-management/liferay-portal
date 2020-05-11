@@ -53,7 +53,7 @@ public class AnnouncementsAdminViewManagementToolbarDisplayContext {
 		HttpServletRequest httpServletRequest,
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
-		SearchContainer searchContainer) {
+		SearchContainer<AnnouncementsEntry> searchContainer) {
 
 		_httpServletRequest = httpServletRequest;
 		_liferayPortletRequest = liferayPortletRequest;
@@ -237,6 +237,6 @@ public class AnnouncementsAdminViewManagementToolbarDisplayContext {
 	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
-	private final SearchContainer _searchContainer;
+	private final SearchContainer<AnnouncementsEntry> _searchContainer;
 
 }

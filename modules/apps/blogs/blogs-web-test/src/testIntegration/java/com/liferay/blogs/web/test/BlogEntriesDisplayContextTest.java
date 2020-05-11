@@ -132,7 +132,7 @@ public class BlogEntriesDisplayContextTest {
 			_addBlogEntry("alpha_" + i);
 		}
 
-		SearchContainer searchContainer = _getSearchContainer(
+		SearchContainer<BlogsEntry> searchContainer = _getSearchContainer(
 			_getMockHttpServletRequest());
 
 		Assert.assertEquals(
@@ -157,7 +157,7 @@ public class BlogEntriesDisplayContextTest {
 			new IdentityServiceContextFunction(
 				ServiceContextTestUtil.getServiceContext()));
 
-		SearchContainer searchContainer = _getSearchContainer(
+		SearchContainer<BlogsEntry> searchContainer = _getSearchContainer(
 			_getMockHttpServletRequestWithSearch(commentBody));
 
 		Assert.assertEquals(1, searchContainer.getTotal());
@@ -173,7 +173,7 @@ public class BlogEntriesDisplayContextTest {
 			_addBlogEntry("alpha_" + i);
 		}
 
-		SearchContainer searchContainer = _getSearchContainer(
+		SearchContainer<BlogsEntry> searchContainer = _getSearchContainer(
 			_getMockHttpServletRequestWithSearch("alpha"));
 
 		Assert.assertEquals(
@@ -223,7 +223,7 @@ public class BlogEntriesDisplayContextTest {
 		return mockHttpServletRequest;
 	}
 
-	private SearchContainer _getSearchContainer(
+	private SearchContainer<BlogsEntry> _getSearchContainer(
 			MockHttpServletRequest mockHttpServletRequest)
 		throws PortletException {
 

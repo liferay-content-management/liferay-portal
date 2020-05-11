@@ -193,15 +193,17 @@ public class AssetCategoriesDisplayContext {
 		).build();
 	}
 
-	public SearchContainer getCategoriesSearchContainer()
+	public SearchContainer<AssetCategory> getCategoriesSearchContainer()
 		throws PortalException {
 
 		if (_categoriesSearchContainer != null) {
 			return _categoriesSearchContainer;
 		}
 
-		SearchContainer categoriesSearchContainer = new SearchContainer(
-			_renderRequest, _getIteratorURL(), null, "there-are-no-categories");
+		SearchContainer<AssetCategory> categoriesSearchContainer =
+			new SearchContainer(
+				_renderRequest, _getIteratorURL(), null,
+				"there-are-no-categories");
 
 		categoriesSearchContainer.setOrderByCol(_getOrderByCol());
 
@@ -439,16 +441,17 @@ public class AssetCategoriesDisplayContext {
 		return _selectCategoryURL;
 	}
 
-	public SearchContainer getVocabulariesSearchContainer()
+	public SearchContainer<AssetVocabulary> getVocabulariesSearchContainer()
 		throws PortalException {
 
 		if (_vocabulariesSearchContainer != null) {
 			return _vocabulariesSearchContainer;
 		}
 
-		SearchContainer vocabulariesSearchContainer = new SearchContainer(
-			_renderRequest, _renderResponse.createRenderURL(), null,
-			"there-are-no-vocabularies");
+		SearchContainer<AssetVocabulary> vocabulariesSearchContainer =
+			new SearchContainer(
+				_renderRequest, _renderResponse.createRenderURL(), null,
+				"there-are-no-vocabularies");
 
 		vocabulariesSearchContainer.setOrderByCol("create-date");
 
@@ -684,7 +687,7 @@ public class AssetCategoriesDisplayContext {
 
 	private final AssetCategoriesAdminWebConfiguration
 		_assetCategoriesAdminWebConfiguration;
-	private SearchContainer _categoriesSearchContainer;
+	private SearchContainer<AssetCategory> _categoriesSearchContainer;
 	private AssetCategory _category;
 	private Long _categoryId;
 	private String _displayStyle;
@@ -696,7 +699,7 @@ public class AssetCategoriesDisplayContext {
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private String _selectCategoryURL;
-	private SearchContainer _vocabulariesSearchContainer;
+	private SearchContainer<AssetVocabulary> _vocabulariesSearchContainer;
 	private AssetVocabulary _vocabulary;
 	private Long _vocabularyId;
 

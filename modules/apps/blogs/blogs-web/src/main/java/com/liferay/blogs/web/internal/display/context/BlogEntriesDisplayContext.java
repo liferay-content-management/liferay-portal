@@ -135,7 +135,7 @@ public class BlogEntriesDisplayContext {
 		return displayStyle;
 	}
 
-	public SearchContainer getSearchContainer()
+	public SearchContainer<BlogsEntry> getSearchContainer()
 		throws PortalException, PortletException {
 
 		PortletURL portletURL = _liferayPortletResponse.createRenderURL();
@@ -176,7 +176,7 @@ public class BlogEntriesDisplayContext {
 		return entriesSearchContainer;
 	}
 
-	private void _populateResults(SearchContainer searchContainer)
+	private void _populateResults(SearchContainer<BlogsEntry> searchContainer)
 		throws PortalException {
 
 		ThemeDisplay themeDisplay =

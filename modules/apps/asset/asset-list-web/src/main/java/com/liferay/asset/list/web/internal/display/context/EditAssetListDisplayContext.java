@@ -28,6 +28,7 @@ import com.liferay.asset.kernel.service.AssetVocabularyServiceUtil;
 import com.liferay.asset.list.constants.AssetListPortletKeys;
 import com.liferay.asset.list.constants.AssetListWebKeys;
 import com.liferay.asset.list.model.AssetListEntry;
+import com.liferay.asset.list.model.AssetListEntryAssetEntryRel;
 import com.liferay.asset.list.model.AssetListEntrySegmentsEntryRel;
 import com.liferay.asset.list.service.AssetListEntryAssetEntryRelLocalServiceUtil;
 import com.liferay.asset.list.service.AssetListEntryLocalServiceUtil;
@@ -745,14 +746,15 @@ public class EditAssetListDisplayContext {
 		return _referencedModelsGroupIds;
 	}
 
-	public SearchContainer getSearchContainer() {
+	public SearchContainer<AssetListEntryAssetEntryRel> getSearchContainer() {
 		if (_searchContainer != null) {
 			return _searchContainer;
 		}
 
-		SearchContainer searchContainer = new SearchContainer(
-			_portletRequest, getPortletURL(), null,
-			"there-are-no-asset-entries");
+		SearchContainer<AssetListEntryAssetEntryRel> searchContainer =
+			new SearchContainer(
+				_portletRequest, getPortletURL(), null,
+				"there-are-no-asset-entries");
 
 		searchContainer.setTotal(
 			AssetListEntryAssetEntryRelLocalServiceUtil.
@@ -1172,7 +1174,7 @@ public class EditAssetListDisplayContext {
 	private final PortletResponse _portletResponse;
 	private String _redirect;
 	private long[] _referencedModelsGroupIds;
-	private SearchContainer _searchContainer;
+	private SearchContainer<AssetListEntryAssetEntryRel> _searchContainer;
 	private SegmentsEntry _segmentsEntry;
 	private Long _segmentsEntryId;
 	private long[] _selectedSegmentsEntryIds;

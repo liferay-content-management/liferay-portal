@@ -109,10 +109,11 @@ public interface AssetPublisherHelper {
 		throws PortalException;
 
 	public List<AssetEntryResult> getAssetEntryResults(
-			SearchContainer searchContainer, AssetEntryQuery assetEntryQuery,
-			Layout layout, PortletPreferences portletPreferences,
-			String portletName, Locale locale, TimeZone timeZone,
-			long companyId, long scopeGroupId, long userId, long[] classNameIds,
+			SearchContainer<AssetEntry> searchContainer,
+			AssetEntryQuery assetEntryQuery, Layout layout,
+			PortletPreferences portletPreferences, String portletName,
+			Locale locale, TimeZone timeZone, long companyId, long scopeGroupId,
+			long userId, long[] classNameIds,
 			Map<String, Serializable> attributes)
 		throws Exception;
 

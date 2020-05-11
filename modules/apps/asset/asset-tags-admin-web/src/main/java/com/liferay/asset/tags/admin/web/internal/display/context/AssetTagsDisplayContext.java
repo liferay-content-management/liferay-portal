@@ -186,12 +186,14 @@ public class AssetTagsDisplayContext {
 		return _tagId;
 	}
 
-	public SearchContainer getTagsSearchContainer() throws PortalException {
+	public SearchContainer<AssetTag> getTagsSearchContainer()
+		throws PortalException {
+
 		if (_tagsSearchContainer != null) {
 			return _tagsSearchContainer;
 		}
 
-		SearchContainer tagsSearchContainer = new SearchContainer(
+		SearchContainer<AssetTag> tagsSearchContainer = new SearchContainer(
 			_renderRequest, _renderResponse.createRenderURL(), null,
 			"there-are-no-tags");
 
@@ -307,7 +309,7 @@ public class AssetTagsDisplayContext {
 	private Boolean _showTagsActions;
 	private AssetTag _tag;
 	private Long _tagId;
-	private SearchContainer _tagsSearchContainer;
+	private SearchContainer<AssetTag> _tagsSearchContainer;
 	private final ThemeDisplay _themeDisplay;
 
 }

@@ -334,14 +334,17 @@ public class AssetEntryUsagesDisplayContext {
 		return _redirect;
 	}
 
-	public SearchContainer getSearchContainer() throws PortletException {
+	public SearchContainer<AssetEntryUsage> getSearchContainer()
+		throws PortletException {
+
 		if (_searchContainer != null) {
 			return _searchContainer;
 		}
 
-		SearchContainer assetEntryUsagesSearchContainer = new SearchContainer(
-			_renderRequest, getPortletURL(), null,
-			"there-are-no-asset-entry-usages");
+		SearchContainer<AssetEntryUsage> assetEntryUsagesSearchContainer =
+			new SearchContainer(
+				_renderRequest, getPortletURL(), null,
+				"there-are-no-asset-entry-usages");
 
 		boolean orderByAsc = false;
 
@@ -572,7 +575,7 @@ public class AssetEntryUsagesDisplayContext {
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private final ResourceBundle _resourceBundle;
-	private SearchContainer _searchContainer;
+	private SearchContainer<AssetEntryUsage> _searchContainer;
 	private final ThemeDisplay _themeDisplay;
 
 }

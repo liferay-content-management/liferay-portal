@@ -14,7 +14,7 @@
 
 import {openToast} from 'frontend-js-web';
 
-export default function ({checkRedirectEntryChainURL, namespace}) {
+export default function ({getRedirectEntryChainCauseURL, namespace}) {
 	var form = document[`${namespace}fm`];
 	form.addEventListener('submit', saveRedirectEntry);
 
@@ -23,13 +23,15 @@ export default function ({checkRedirectEntryChainURL, namespace}) {
 		var sourceURL = form.elements[`${namespace}sourceURL`];
 
 		if (destinationURL.value && sourceURL.value) {
-			Liferay.Util.fetch(checkRedirectEntryChainURL, {
-				body: Liferay.Util.objectToFormData({
-					[`${namespace}destinationURL`]: destinationURL.value,
-					[`${namespace}sourceURL`]: sourceURL.value,
-				}),
-				method: 'POST',
-			})
+			Liferay.Util.fetch(
+				Liferay.Util.PortletURL.createResourceURL(
+					getRedirectEntryChainCauseURL,
+					{
+						destinationURL: destinationURL.value,
+						sourceURL: sourceURL.value,
+					}
+				)
+			)
 				.then((response) => {
 					return response.json();
 				})

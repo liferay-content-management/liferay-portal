@@ -415,7 +415,7 @@ public class AssetPublisherDisplayContext {
 			return Collections.emptyList();
 		}
 
-		SearchContainer searchContainer = getSearchContainer();
+		SearchContainer<AssetEntry> searchContainer = getSearchContainer();
 
 		searchContainer.setTotal(assetEntries.size());
 
@@ -1087,12 +1087,12 @@ public class AssetPublisherDisplayContext {
 		return scopeAssetPublisherAddItemHolders;
 	}
 
-	public SearchContainer getSearchContainer() {
+	public SearchContainer<AssetEntry> getSearchContainer() {
 		if (_searchContainer != null) {
 			return _searchContainer;
 		}
 
-		SearchContainer searchContainer = new SearchContainer(
+		SearchContainer<AssetEntry> searchContainer = new SearchContainer(
 			_portletRequest, null, null, SearchContainer.DEFAULT_CUR_PARAM,
 			getDelta(), getPortletURL(), null, null);
 
@@ -2041,7 +2041,7 @@ public class AssetPublisherDisplayContext {
 	private String _rssDisplayStyle;
 	private String _rssFeedType;
 	private String _rssName;
-	private SearchContainer _searchContainer;
+	private SearchContainer<AssetEntry> _searchContainer;
 	private String _selectionStyle;
 	private Boolean _showAddContentButton;
 	private Boolean _showAssetTitle;

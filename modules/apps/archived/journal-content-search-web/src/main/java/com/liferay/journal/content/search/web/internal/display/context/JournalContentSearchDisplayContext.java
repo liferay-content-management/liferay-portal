@@ -109,7 +109,7 @@ public class JournalContentSearchDisplayContext {
 		return _keywords;
 	}
 
-	public SearchContainer getSearchContainer() throws Exception {
+	public SearchContainer<Document> getSearchContainer() throws Exception {
 		if (_searchContainer != null) {
 			return _searchContainer;
 		}
@@ -187,7 +187,7 @@ public class JournalContentSearchDisplayContext {
 	private String _keywords;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
-	private SearchContainer _searchContainer;
+	private SearchContainer<Document> _searchContainer;
 	private final SummaryBuilderFactory _summaryBuilderFactory;
 
 }

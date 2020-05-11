@@ -16,13 +16,8 @@
 
 <%@ include file="/init.jsp" %>
 
-<%
-Map<String, Object> data = new HashMap<>();
-%>
-
 <div id="root">
 	<react:component
-		data="<%= data %>"
 		module="js/index.es"
 	/>
 </div>
