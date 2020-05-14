@@ -77,7 +77,7 @@ const DestinationUrlInput = ({
 				</ClayInput.GroupItem>
 				<ClayInput.GroupItem append shrink>
 					<ClayButtonWithIcon
-						disabled={destinationUrl === STR_BLANK}
+						disabled={destinationUrl === STR_BLANK || !isAbsoluteUrl(destinationUrl)}
 						displayType="secondary"
 						onClick={handleTryRedirection}
 						symbol="shortcut"
