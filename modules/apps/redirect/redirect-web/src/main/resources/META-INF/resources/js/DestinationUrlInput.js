@@ -102,9 +102,12 @@ const DestinationUrlInput = ({
 				        />
 						{Liferay.Language.get('this-url-is-not-supported')}
 					</ClayForm.FeedbackItem>
-					<small>
-						{Liferay.Language.get('enter-an-absolute-url')}
-					</small>
+					<div
+						className="small"
+						dangerouslySetInnerHTML={{
+							__html: Liferay.Language.get('enter-an-absolute-url')
+						}}
+					/>
 				</ClayForm.FeedbackGroup>
 			)}
 		</ClayForm.Group>
