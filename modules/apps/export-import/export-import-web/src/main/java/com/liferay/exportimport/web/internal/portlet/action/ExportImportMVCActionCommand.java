@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -56,7 +57,6 @@ import com.liferay.portal.kernel.util.WebKeys;
 import java.io.InputStream;
 import java.io.Serializable;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.portlet.ActionRequest;
@@ -247,23 +247,19 @@ public class ExportImportMVCActionCommand extends BaseMVCActionCommand {
 		long plid = ParamUtil.getLong(actionRequest, "plid");
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 
-		Group group = themeDisplay.getScopeGroup();
-
-		boolean stagingSite = group.isStagingGroup();
-
-		HashMap<String, String[]> parameterMap = new HashMap<>(
-			actionRequest.getParameterMap());
-
-		parameterMap.put(
-			"stagingSite", new String[] {String.valueOf(stagingSite)});
-
 		Portlet portlet = ActionUtil.getPortlet(actionRequest);
+
+		Group group = themeDisplay.getScopeGroup();
 
 		Map<String, Serializable> importPortletSettingsMap =
 			_exportImportConfigurationSettingsMapFactory.
 				buildImportPortletSettingsMap(
 					themeDisplay.getUserId(), plid, groupId,
-					portlet.getPortletId(), parameterMap,
+					portlet.getPortletId(),
+					HashMapBuilder.put(
+						"stagingSite",
+						new String[] {String.valueOf(group.isStagingGroup())}
+					).build(),
 					themeDisplay.getLocale(), themeDisplay.getTimeZone());
 
 		ExportImportConfiguration exportImportConfiguration =
