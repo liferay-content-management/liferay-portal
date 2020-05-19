@@ -257,7 +257,7 @@ public class ExportImportMVCActionCommand extends BaseMVCActionCommand {
 					themeDisplay.getUserId(), plid, groupId,
 					portlet.getPortletId(),
 					HashMapBuilder.put(
-						"stagingSite",
+						"isStagingSite",
 						new String[] {String.valueOf(group.isStagingGroup())}
 					).build(),
 					themeDisplay.getLocale(), themeDisplay.getTimeZone());
