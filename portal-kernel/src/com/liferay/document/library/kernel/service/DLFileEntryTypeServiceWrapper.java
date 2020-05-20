@@ -49,6 +49,19 @@ public class DLFileEntryTypeServiceWrapper
 
 	@Override
 	public DLFileEntryType addFileEntryType(
+			long groupId, String dataDefinitionKey,
+			java.util.Map<java.util.Locale, String> nameMap,
+			java.util.Map<java.util.Locale, String> descriptionMap,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _dlFileEntryTypeService.addFileEntryType(
+			groupId, dataDefinitionKey, nameMap, descriptionMap,
+			serviceContext);
+	}
+
+	@Override
+	public DLFileEntryType addFileEntryType(
 			long groupId, String name, String description,
 			long[] ddmStructureIds,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)

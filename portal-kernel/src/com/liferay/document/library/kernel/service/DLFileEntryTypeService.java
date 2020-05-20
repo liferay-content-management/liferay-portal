@@ -62,6 +62,11 @@ public interface DLFileEntryTypeService extends BaseService {
 		throws PortalException;
 
 	public DLFileEntryType addFileEntryType(
+			long groupId, String dataDefinitionKey, Map<Locale, String> nameMap,
+			Map<Locale, String> descriptionMap, ServiceContext serviceContext)
+		throws PortalException;
+
+	public DLFileEntryType addFileEntryType(
 			long groupId, String name, String description,
 			long[] ddmStructureIds, ServiceContext serviceContext)
 		throws PortalException;

@@ -98,6 +98,37 @@ public class DLFileEntryTypeServiceSoap {
 
 	public static com.liferay.document.library.kernel.model.DLFileEntryTypeSoap
 			addFileEntryType(
+				long groupId, String dataDefinitionKey,
+				String[] nameMapLanguageIds, String[] nameMapValues,
+				String[] descriptionMapLanguageIds,
+				String[] descriptionMapValues,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws RemoteException {
+
+		try {
+			Map<Locale, String> nameMap = LocalizationUtil.getLocalizationMap(
+				nameMapLanguageIds, nameMapValues);
+			Map<Locale, String> descriptionMap =
+				LocalizationUtil.getLocalizationMap(
+					descriptionMapLanguageIds, descriptionMapValues);
+
+			com.liferay.document.library.kernel.model.DLFileEntryType
+				returnValue = DLFileEntryTypeServiceUtil.addFileEntryType(
+					groupId, dataDefinitionKey, nameMap, descriptionMap,
+					serviceContext);
+
+			return com.liferay.document.library.kernel.model.
+				DLFileEntryTypeSoap.toSoapModel(returnValue);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static com.liferay.document.library.kernel.model.DLFileEntryTypeSoap
+			addFileEntryType(
 				long groupId, String name, String description,
 				long[] ddmStructureIds,
 				com.liferay.portal.kernel.service.ServiceContext serviceContext)
