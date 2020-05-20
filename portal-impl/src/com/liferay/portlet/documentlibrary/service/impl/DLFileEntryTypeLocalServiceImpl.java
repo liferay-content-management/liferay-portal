@@ -167,6 +167,46 @@ public class DLFileEntryTypeLocalServiceImpl
 
 	@Override
 	public DLFileEntryType addFileEntryType(
+			long userId, long groupId, String dataDefinitionKey,
+			Map<Locale, String> nameMap, Map<Locale, String> descriptionMap,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		User user = userPersistence.findByPrimaryKey(userId);
+
+		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.create(
+			counterLocalService.increment());
+
+		dlFileEntryType.setUuid(serviceContext.getUuid());
+		dlFileEntryType.setGroupId(groupId);
+		dlFileEntryType.setCompanyId(user.getCompanyId());
+		dlFileEntryType.setUserId(user.getUserId());
+		dlFileEntryType.setUserName(user.getFullName());
+		dlFileEntryType.setFileEntryTypeKey(
+			String.valueOf(counterLocalService.increment()));
+		dlFileEntryType.setDataDefinitionKey(dataDefinitionKey);
+		dlFileEntryType.setNameMap(nameMap);
+		dlFileEntryType.setDescriptionMap(descriptionMap);
+
+		dlFileEntryType = dlFileEntryTypePersistence.update(dlFileEntryType);
+
+		if (serviceContext.isAddGroupPermissions() ||
+			serviceContext.isAddGuestPermissions()) {
+
+			addFileEntryTypeResources(
+				dlFileEntryType, serviceContext.isAddGroupPermissions(),
+				serviceContext.isAddGuestPermissions());
+		}
+		else {
+			addFileEntryTypeResources(
+				dlFileEntryType, serviceContext.getModelPermissions());
+		}
+
+		return dlFileEntryType;
+	}
+
+	@Override
+	public DLFileEntryType addFileEntryType(
 			long userId, long groupId, String name, String description,
 			long[] ddmStructureIds, ServiceContext serviceContext)
 		throws PortalException {
