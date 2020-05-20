@@ -168,6 +168,16 @@ public class DLFileEntryTypeServiceUtil {
 	public static void updateFileEntryType(
 			long fileEntryTypeId,
 			java.util.Map<java.util.Locale, String> nameMap,
+			java.util.Map<java.util.Locale, String> descriptionMap)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().updateFileEntryType(
+			fileEntryTypeId, nameMap, descriptionMap);
+	}
+
+	public static void updateFileEntryType(
+			long fileEntryTypeId,
+			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
 			long[] ddmStructureIds,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)

@@ -168,6 +168,17 @@ public class DLFileEntryTypeServiceWrapper
 	public void updateFileEntryType(
 			long fileEntryTypeId,
 			java.util.Map<java.util.Locale, String> nameMap,
+			java.util.Map<java.util.Locale, String> descriptionMap)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_dlFileEntryTypeService.updateFileEntryType(
+			fileEntryTypeId, nameMap, descriptionMap);
+	}
+
+	@Override
+	public void updateFileEntryType(
+			long fileEntryTypeId,
+			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
 			long[] ddmStructureIds,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)

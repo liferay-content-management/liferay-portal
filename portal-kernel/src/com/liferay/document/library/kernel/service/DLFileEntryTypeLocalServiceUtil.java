@@ -697,6 +697,16 @@ public class DLFileEntryTypeLocalServiceUtil {
 			serviceContext);
 	}
 
+	public static void updateFileEntryType(
+			long fileEntryTypeId,
+			java.util.Map<java.util.Locale, String> nameMap,
+			java.util.Map<java.util.Locale, String> descriptionMap)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().updateFileEntryType(
+			fileEntryTypeId, nameMap, descriptionMap);
+	}
+
 	public static void updateFolderFileEntryTypes(
 		com.liferay.document.library.kernel.model.DLFolder dlFolder,
 		java.util.List<Long> fileEntryTypeIds, long defaultFileEntryTypeId,

@@ -742,6 +742,17 @@ public class DLFileEntryTypeLocalServiceWrapper
 	}
 
 	@Override
+	public void updateFileEntryType(
+			long fileEntryTypeId,
+			java.util.Map<java.util.Locale, String> nameMap,
+			java.util.Map<java.util.Locale, String> descriptionMap)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_dlFileEntryTypeLocalService.updateFileEntryType(
+			fileEntryTypeId, nameMap, descriptionMap);
+	}
+
+	@Override
 	public void updateFolderFileEntryTypes(
 		com.liferay.document.library.kernel.model.DLFolder dlFolder,
 		java.util.List<Long> fileEntryTypeIds, long defaultFileEntryTypeId,

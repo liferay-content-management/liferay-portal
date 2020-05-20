@@ -125,6 +125,11 @@ public interface DLFileEntryTypeService extends BaseService {
 
 	public void updateFileEntryType(
 			long fileEntryTypeId, Map<Locale, String> nameMap,
+			Map<Locale, String> descriptionMap)
+		throws PortalException;
+
+	public void updateFileEntryType(
+			long fileEntryTypeId, Map<Locale, String> nameMap,
 			Map<Locale, String> descriptionMap, long[] ddmStructureIds,
 			ServiceContext serviceContext)
 		throws PortalException;

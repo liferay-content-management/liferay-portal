@@ -354,6 +354,29 @@ public class DLFileEntryTypeServiceSoap {
 	public static void updateFileEntryType(
 			long fileEntryTypeId, String[] nameMapLanguageIds,
 			String[] nameMapValues, String[] descriptionMapLanguageIds,
+			String[] descriptionMapValues)
+		throws RemoteException {
+
+		try {
+			Map<Locale, String> nameMap = LocalizationUtil.getLocalizationMap(
+				nameMapLanguageIds, nameMapValues);
+			Map<Locale, String> descriptionMap =
+				LocalizationUtil.getLocalizationMap(
+					descriptionMapLanguageIds, descriptionMapValues);
+
+			DLFileEntryTypeServiceUtil.updateFileEntryType(
+				fileEntryTypeId, nameMap, descriptionMap);
+		}
+		catch (Exception exception) {
+			_log.error(exception, exception);
+
+			throw new RemoteException(exception.getMessage());
+		}
+	}
+
+	public static void updateFileEntryType(
+			long fileEntryTypeId, String[] nameMapLanguageIds,
+			String[] nameMapValues, String[] descriptionMapLanguageIds,
 			String[] descriptionMapValues, long[] ddmStructureIds,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
