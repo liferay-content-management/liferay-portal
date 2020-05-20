@@ -459,6 +459,21 @@ public interface DLFileEntryTypeModel
 		Map<Locale, String> descriptionMap, Locale defaultLocale);
 
 	/**
+	 * Returns the data definition key of this document library file entry type.
+	 *
+	 * @return the data definition key of this document library file entry type
+	 */
+	@AutoEscape
+	public String getDataDefinitionKey();
+
+	/**
+	 * Sets the data definition key of this document library file entry type.
+	 *
+	 * @param dataDefinitionKey the data definition key of this document library file entry type
+	 */
+	public void setDataDefinitionKey(String dataDefinitionKey);
+
+	/**
 	 * Returns the last publish date of this document library file entry type.
 	 *
 	 * @return the last publish date of this document library file entry type

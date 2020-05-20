@@ -58,6 +58,7 @@ public class DLFileEntryTypeWrapper
 		attributes.put("fileEntryTypeKey", getFileEntryTypeKey());
 		attributes.put("name", getName());
 		attributes.put("description", getDescription());
+		attributes.put("dataDefinitionKey", getDataDefinitionKey());
 		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
@@ -143,6 +144,12 @@ public class DLFileEntryTypeWrapper
 			setDescription(description);
 		}
 
+		String dataDefinitionKey = (String)attributes.get("dataDefinitionKey");
+
+		if (dataDefinitionKey != null) {
+			setDataDefinitionKey(dataDefinitionKey);
+		}
+
 		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
 
 		if (lastPublishDate != null) {
@@ -183,6 +190,16 @@ public class DLFileEntryTypeWrapper
 	@Override
 	public long getCtCollectionId() {
 		return model.getCtCollectionId();
+	}
+
+	/**
+	 * Returns the data definition key of this document library file entry type.
+	 *
+	 * @return the data definition key of this document library file entry type
+	 */
+	@Override
+	public String getDataDefinitionKey() {
+		return model.getDataDefinitionKey();
 	}
 
 	@Override
@@ -521,6 +538,16 @@ public class DLFileEntryTypeWrapper
 	@Override
 	public void setCtCollectionId(long ctCollectionId) {
 		model.setCtCollectionId(ctCollectionId);
+	}
+
+	/**
+	 * Sets the data definition key of this document library file entry type.
+	 *
+	 * @param dataDefinitionKey the data definition key of this document library file entry type
+	 */
+	@Override
+	public void setDataDefinitionKey(String dataDefinitionKey) {
+		model.setDataDefinitionKey(dataDefinitionKey);
 	}
 
 	/**

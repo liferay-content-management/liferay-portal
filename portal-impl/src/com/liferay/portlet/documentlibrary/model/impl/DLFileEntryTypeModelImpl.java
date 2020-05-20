@@ -87,7 +87,8 @@ public class DLFileEntryTypeModelImpl
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
 		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
 		{"fileEntryTypeKey", Types.VARCHAR}, {"name", Types.VARCHAR},
-		{"description", Types.VARCHAR}, {"lastPublishDate", Types.TIMESTAMP}
+		{"description", Types.VARCHAR}, {"dataDefinitionKey", Types.VARCHAR},
+		{"lastPublishDate", Types.TIMESTAMP}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -107,11 +108,12 @@ public class DLFileEntryTypeModelImpl
 		TABLE_COLUMNS_MAP.put("fileEntryTypeKey", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("name", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("description", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("dataDefinitionKey", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table DLFileEntryType (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,uuid_ VARCHAR(75) null,fileEntryTypeId LONG not null,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,fileEntryTypeKey VARCHAR(75) null,name STRING null,description STRING null,lastPublishDate DATE null,primary key (fileEntryTypeId, ctCollectionId))";
+		"create table DLFileEntryType (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,uuid_ VARCHAR(75) null,fileEntryTypeId LONG not null,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,fileEntryTypeKey VARCHAR(75) null,name STRING null,description STRING null,dataDefinitionKey VARCHAR(75) null,lastPublishDate DATE null,primary key (fileEntryTypeId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table DLFileEntryType";
 
@@ -178,6 +180,7 @@ public class DLFileEntryTypeModelImpl
 		model.setFileEntryTypeKey(soapModel.getFileEntryTypeKey());
 		model.setName(soapModel.getName());
 		model.setDescription(soapModel.getDescription());
+		model.setDataDefinitionKey(soapModel.getDataDefinitionKey());
 		model.setLastPublishDate(soapModel.getLastPublishDate());
 
 		return model;
@@ -422,6 +425,12 @@ public class DLFileEntryTypeModelImpl
 			"description",
 			(BiConsumer<DLFileEntryType, String>)
 				DLFileEntryType::setDescription);
+		attributeGetterFunctions.put(
+			"dataDefinitionKey", DLFileEntryType::getDataDefinitionKey);
+		attributeSetterBiConsumers.put(
+			"dataDefinitionKey",
+			(BiConsumer<DLFileEntryType, String>)
+				DLFileEntryType::setDataDefinitionKey);
 		attributeGetterFunctions.put(
 			"lastPublishDate", DLFileEntryType::getLastPublishDate);
 		attributeSetterBiConsumers.put(
@@ -850,6 +859,22 @@ public class DLFileEntryTypeModelImpl
 
 	@JSON
 	@Override
+	public String getDataDefinitionKey() {
+		if (_dataDefinitionKey == null) {
+			return "";
+		}
+		else {
+			return _dataDefinitionKey;
+		}
+	}
+
+	@Override
+	public void setDataDefinitionKey(String dataDefinitionKey) {
+		_dataDefinitionKey = dataDefinitionKey;
+	}
+
+	@JSON
+	@Override
 	public Date getLastPublishDate() {
 		return _lastPublishDate;
 	}
@@ -1002,6 +1027,7 @@ public class DLFileEntryTypeModelImpl
 		dlFileEntryTypeImpl.setFileEntryTypeKey(getFileEntryTypeKey());
 		dlFileEntryTypeImpl.setName(getName());
 		dlFileEntryTypeImpl.setDescription(getDescription());
+		dlFileEntryTypeImpl.setDataDefinitionKey(getDataDefinitionKey());
 		dlFileEntryTypeImpl.setLastPublishDate(getLastPublishDate());
 
 		dlFileEntryTypeImpl.resetOriginalValues();
@@ -1160,6 +1186,14 @@ public class DLFileEntryTypeModelImpl
 			dlFileEntryTypeCacheModel.description = null;
 		}
 
+		dlFileEntryTypeCacheModel.dataDefinitionKey = getDataDefinitionKey();
+
+		String dataDefinitionKey = dlFileEntryTypeCacheModel.dataDefinitionKey;
+
+		if ((dataDefinitionKey != null) && (dataDefinitionKey.length() == 0)) {
+			dlFileEntryTypeCacheModel.dataDefinitionKey = null;
+		}
+
 		Date lastPublishDate = getLastPublishDate();
 
 		if (lastPublishDate != null) {
@@ -1265,6 +1299,7 @@ public class DLFileEntryTypeModelImpl
 	private String _nameCurrentLanguageId;
 	private String _description;
 	private String _descriptionCurrentLanguageId;
+	private String _dataDefinitionKey;
 	private Date _lastPublishDate;
 	private long _columnBitmask;
 	private DLFileEntryType _escapedModel;

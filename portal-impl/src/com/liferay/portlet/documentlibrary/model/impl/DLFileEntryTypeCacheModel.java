@@ -77,7 +77,7 @@ public class DLFileEntryTypeCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(29);
+		StringBundler sb = new StringBundler(31);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -105,6 +105,8 @@ public class DLFileEntryTypeCacheModel
 		sb.append(name);
 		sb.append(", description=");
 		sb.append(description);
+		sb.append(", dataDefinitionKey=");
+		sb.append(dataDefinitionKey);
 		sb.append(", lastPublishDate=");
 		sb.append(lastPublishDate);
 		sb.append("}");
@@ -173,6 +175,13 @@ public class DLFileEntryTypeCacheModel
 			dlFileEntryTypeImpl.setDescription(description);
 		}
 
+		if (dataDefinitionKey == null) {
+			dlFileEntryTypeImpl.setDataDefinitionKey("");
+		}
+		else {
+			dlFileEntryTypeImpl.setDataDefinitionKey(dataDefinitionKey);
+		}
+
 		if (lastPublishDate == Long.MIN_VALUE) {
 			dlFileEntryTypeImpl.setLastPublishDate(null);
 		}
@@ -205,6 +214,7 @@ public class DLFileEntryTypeCacheModel
 		fileEntryTypeKey = objectInput.readUTF();
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
+		dataDefinitionKey = objectInput.readUTF();
 		lastPublishDate = objectInput.readLong();
 	}
 
@@ -260,6 +270,13 @@ public class DLFileEntryTypeCacheModel
 			objectOutput.writeUTF(description);
 		}
 
+		if (dataDefinitionKey == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(dataDefinitionKey);
+		}
+
 		objectOutput.writeLong(lastPublishDate);
 	}
 
@@ -276,6 +293,7 @@ public class DLFileEntryTypeCacheModel
 	public String fileEntryTypeKey;
 	public String name;
 	public String description;
+	public String dataDefinitionKey;
 	public long lastPublishDate;
 
 }
