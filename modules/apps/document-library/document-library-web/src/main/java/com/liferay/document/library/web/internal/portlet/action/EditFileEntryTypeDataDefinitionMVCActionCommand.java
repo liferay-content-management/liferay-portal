@@ -169,7 +169,7 @@ public class EditFileEntryTypeDataDefinitionMVCActionCommand
 
 		_dlFileEntryTypeService.addFileEntryType(
 			themeDisplay.getScopeGroupId(), null, nameMap, descriptionMap,
-			new long[] {dataDefinition.getId()}, serviceContext);
+			dataDefinition.getId(), serviceContext);
 	}
 
 	private void _deleteFileEntryType(ActionRequest actionRequest)
@@ -250,7 +250,7 @@ public class EditFileEntryTypeDataDefinitionMVCActionCommand
 		dataDefinition.setDefaultDataLayout(
 			DataLayout.toDTO(ParamUtil.getString(actionRequest, "dataLayout")));
 
-		dataDefinition = dataDefinitionResource.putDataDefinition(
+		dataDefinitionResource.putDataDefinition(
 			ParamUtil.getLong(actionRequest, "dataDefinitionId"),
 			dataDefinition);
 
@@ -260,12 +260,8 @@ public class EditFileEntryTypeDataDefinitionMVCActionCommand
 		Map<Locale, String> descriptionMap =
 			LocalizationUtil.getLocalizationMap(actionRequest, "description");
 
-		ServiceContext serviceContext = ServiceContextFactory.getInstance(
-			DLFileEntryType.class.getName(), actionRequest);
-
 		_dlFileEntryTypeService.updateFileEntryType(
-			fileEntryTypeId, nameMap, descriptionMap,
-			new long[] {dataDefinition.getId()}, serviceContext);
+			fileEntryTypeId, nameMap, descriptionMap);
 	}
 
 	@Reference
