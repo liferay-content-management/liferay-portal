@@ -22,6 +22,7 @@ import com.liferay.document.library.kernel.exception.DuplicateFileEntryTypeExcep
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryTypeException;
 import com.liferay.document.library.kernel.exception.NoSuchMetadataSetException;
 import com.liferay.document.library.kernel.exception.RequiredFileEntryTypeException;
+import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeService;
@@ -30,8 +31,8 @@ import com.liferay.dynamic.data.mapping.kernel.RequiredStructureException;
 import com.liferay.dynamic.data.mapping.kernel.StructureDefinitionException;
 import com.liferay.dynamic.data.mapping.kernel.StructureDuplicateElementException;
 import com.liferay.dynamic.data.mapping.kernel.StructureNameException;
-import com.liferay.dynamic.data.mapping.model.DDMStructureLink;
-import com.liferay.dynamic.data.mapping.service.DDMStructureLinkLocalService;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseTransactionalMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -48,7 +49,6 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -182,26 +182,26 @@ public class EditFileEntryTypeDataDefinitionMVCActionCommand
 		long fileEntryTypeId = ParamUtil.getLong(
 			actionRequest, "fileEntryTypeId");
 
+		DLFileEntryType fileEntryType =
+			_dlFileEntryTypeService.getFileEntryType(fileEntryTypeId);
+
+		String dataDefinitionKey = fileEntryType.getDataDefinitionKey();
+
+		_dlFileEntryTypeService.deleteFileEntryType(fileEntryTypeId);
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			themeDisplay.getScopeGroupId(),
+			_portal.getClassNameId(DLFileEntryMetadata.class),
+			dataDefinitionKey);
+
 		DataDefinitionResource dataDefinitionResource =
 			DataDefinitionResource.builder(
 			).user(
 				themeDisplay.getUser()
 			).build();
 
-		List<DDMStructureLink> ddmStructureLinks =
-			_ddmStructureLinkLocalService.getStructureLinks(
-				_portal.getClassNameId(DLFileEntryType.class), fileEntryTypeId);
-
-		for (DDMStructureLink ddmStructureLink : ddmStructureLinks) {
-			_ddmStructureLinkLocalService.deleteStructureLink(
-				_portal.getClassNameId(DLFileEntryType.class), fileEntryTypeId,
-				ddmStructureLink.getStructureId());
-
-			dataDefinitionResource.deleteDataDefinition(
-				ddmStructureLink.getStructureId());
-		}
-
-		_dlFileEntryTypeService.deleteFileEntryType(fileEntryTypeId);
+		dataDefinitionResource.deleteDataDefinition(
+			ddmStructure.getStructureId());
 	}
 
 	private void _subscribeFileEntryType(ActionRequest actionRequest)
@@ -251,7 +251,7 @@ public class EditFileEntryTypeDataDefinitionMVCActionCommand
 		dataDefinition.setDefaultDataLayout(
 			DataLayout.toDTO(ParamUtil.getString(actionRequest, "dataLayout")));
 
-		dataDefinition = dataDefinitionResource.putDataDefinition(
+		dataDefinitionResource.putDataDefinition(
 			ParamUtil.getLong(actionRequest, "dataDefinitionId"),
 			dataDefinition);
 
@@ -261,16 +261,12 @@ public class EditFileEntryTypeDataDefinitionMVCActionCommand
 		Map<Locale, String> descriptionMap =
 			LocalizationUtil.getLocalizationMap(actionRequest, "description");
 
-		ServiceContext serviceContext = ServiceContextFactory.getInstance(
-			DLFileEntryType.class.getName(), actionRequest);
-
 		_dlFileEntryTypeService.updateFileEntryType(
-			fileEntryTypeId, nameMap, descriptionMap,
-			new long[] {dataDefinition.getId()}, serviceContext);
+			fileEntryTypeId, nameMap, descriptionMap);
 	}
 
 	@Reference
-	private DDMStructureLinkLocalService _ddmStructureLinkLocalService;
+	private DDMStructureLocalService _ddmStructureLocalService;
 
 	@Reference
 	private DLAppService _dlAppService;
