@@ -190,6 +190,15 @@ public class DLFileEntryTypeLocalServiceImpl
 
 		dlFileEntryType = dlFileEntryTypePersistence.update(dlFileEntryType);
 
+		DDMStructure ddmStructure = DDMStructureManagerUtil.getStructure(
+			dlFileEntryType.getGroupId(),
+			classNameLocalService.getClassNameId(DLFileEntryMetadata.class),
+			dlFileEntryType.getDataDefinitionKey());
+
+		addDDMStructureLinks(
+			dlFileEntryType.getFileEntryTypeId(),
+			SetUtil.fromArray(new long[] {ddmStructure.getStructureId()}));
+
 		if (serviceContext.isAddGroupPermissions() ||
 			serviceContext.isAddGuestPermissions()) {
 
@@ -618,7 +627,16 @@ public class DLFileEntryTypeLocalServiceImpl
 		dlFileEntryType.setNameMap(nameMap);
 		dlFileEntryType.setDescriptionMap(descriptionMap);
 
-		dlFileEntryTypePersistence.update(dlFileEntryType);
+		dlFileEntryType = dlFileEntryTypePersistence.update(dlFileEntryType);
+
+		DDMStructure ddmStructure = DDMStructureManagerUtil.getStructure(
+			dlFileEntryType.getGroupId(),
+			classNameLocalService.getClassNameId(DLFileEntryMetadata.class),
+			dlFileEntryType.getDataDefinitionKey());
+
+		updateDDMStructureLinks(
+			fileEntryTypeId,
+			SetUtil.fromArray(new long[] {ddmStructure.getStructureId()}));
 	}
 
 	@Override
