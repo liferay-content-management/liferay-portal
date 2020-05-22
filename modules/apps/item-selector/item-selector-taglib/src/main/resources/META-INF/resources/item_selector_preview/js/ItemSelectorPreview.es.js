@@ -101,7 +101,7 @@ const ItemSelectorPreview = ({
 	};
 
 	const handleClickEdit = () => {
-		const itemTitle = currentItem.title;
+		const itemTitle = JSON.parse(currentItem.value).title;
 		const editDialogTitle = `${Liferay.Language.get(
 			'edit'
 		)} ${itemTitle} (${Liferay.Language.get('copy')})`;
