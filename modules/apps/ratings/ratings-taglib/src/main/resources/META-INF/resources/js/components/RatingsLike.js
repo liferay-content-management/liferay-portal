@@ -14,6 +14,7 @@
 
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
+import classNames from 'classnames';
 import {useIsMounted} from 'frontend-js-react-web';
 import PropTypes from 'prop-types';
 import React, {useState} from 'react';
@@ -32,9 +33,19 @@ const RatingsLike = ({
 }) => {
 	const [liked, setLiked] = useState(initialLiked);
 	const [totalLikes, setTotalLikes] = useState(positiveVotes);
+	const [animatedButton, setAnimatedButton] = useState(false);
+
 	const isMounted = useIsMounted();
 
+	const HandleAnimationEnd = () => {
+		setAnimatedButton(false);
+	};
+
 	const toggleLiked = () => {
+		if (!liked) {
+			setAnimatedButton(true);
+		}
+
 		const score = liked ? SCORE_UNLIKE : SCORE_LIKE;
 
 		setLiked(!liked);
@@ -63,7 +74,11 @@ const RatingsLike = ({
 	return (
 		<div className="ratings ratings-like">
 			<ClayButton
+				aria-pressed={liked}
 				borderless
+				className={classNames({
+					'btn-animated': animatedButton,
+				})}
 				disabled={disabled}
 				displayType="secondary"
 				onClick={toggleLiked}
@@ -71,11 +86,17 @@ const RatingsLike = ({
 				title={getTitle()}
 				value={totalLikes}
 			>
-				<ClayIcon symbol={liked ? 'heart-full' : 'heart'} />
-
-				<strong className="likes">
+				<span className="inline-item inline-item-before">
+					<span className="off">
+						<ClayIcon symbol="heart" />
+					</span>
+					<span className="on" onAnimationEnd={HandleAnimationEnd}>
+						<ClayIcon symbol="heart-full" />
+					</span>
+				</span>
+				<span className="inline-item likes">
 					<AnimatedCounter counter={totalLikes} />
-				</strong>
+				</span>
 			</ClayButton>
 		</div>
 	);
