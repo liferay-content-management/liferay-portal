@@ -45,10 +45,9 @@ import com.liferay.document.library.kernel.util.DLValidator;
 import com.liferay.document.library.web.internal.configuration.FFDocumentLibraryDDMEditorConfigurationUtil;
 import com.liferay.document.library.web.internal.settings.DLPortletInstanceSettings;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
-import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.dynamic.data.mapping.kernel.StorageFieldRequiredException;
-import com.liferay.dynamic.data.mapping.model.DDMStructureLink;
-import com.liferay.dynamic.data.mapping.service.DDMStructureLinkLocalService;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.DDMBeanTranslatorUtil;
 import com.liferay.petra.string.StringPool;
@@ -674,24 +673,6 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 			actionRequest, actionResponse, jsonObject);
 	}
 
-	private com.liferay.dynamic.data.mapping.model.DDMStructure
-			_fetchDDMStructure(DLFileEntryType dlFileEntryType)
-		throws PortalException {
-
-		List<DDMStructureLink> ddmStructureLinks =
-			_ddmStructureLinkLocalService.getStructureLinks(
-				_portal.getClassNameId(DLFileEntryType.class),
-				dlFileEntryType.getFileEntryTypeId());
-
-		if (ListUtil.isEmpty(ddmStructureLinks)) {
-			return null;
-		}
-
-		DDMStructureLink ddmStructureLink = ddmStructureLinks.get(0);
-
-		return ddmStructureLink.getStructure();
-	}
-
 	private String _getAddMultipleFileEntriesErrorMessage(
 			PortletConfig portletConfig, ActionRequest actionRequest,
 			Exception exception)
@@ -963,20 +944,19 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 			return;
 		}
 
-		String className =
-			com.liferay.dynamic.data.mapping.kernel.DDMFormValues.class.
-				getName();
+		DLFileEntryType dlFileEntryType =
+			_dlFileEntryTypeLocalService.getDLFileEntryType(fileEntryTypeId);
 
-		com.liferay.dynamic.data.mapping.model.DDMStructure ddmStructure =
-			_fetchDDMStructure(
-				_dlFileEntryTypeLocalService.getDLFileEntryType(
-					fileEntryTypeId));
+		DDMStructure ddmStructure = _ddmStructureLocalService.fetchDDMStructure(
+			dlFileEntryType.getDataDefinitionId());
 
 		DDMFormValues ddmFormValues = _ddmFormValuesFactory.create(
 			serviceContext.getRequest(), ddmStructure.getDDMForm());
 
 		serviceContext.setAttribute(
-			className + StringPool.POUND + ddmStructure.getStructureId(),
+			com.liferay.dynamic.data.mapping.kernel.DDMFormValues.class.
+				getName() + StringPool.POUND +
+					dlFileEntryType.getDataDefinitionId(),
 			DDMBeanTranslatorUtil.translate(ddmFormValues));
 	}
 
@@ -1136,7 +1116,7 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 	private DDMFormValuesFactory _ddmFormValuesFactory;
 
 	@Reference
-	private DDMStructureLinkLocalService _ddmStructureLinkLocalService;
+	private DDMStructureLocalService _ddmStructureLocalService;
 
 	@Reference
 	private DLAppService _dlAppService;
