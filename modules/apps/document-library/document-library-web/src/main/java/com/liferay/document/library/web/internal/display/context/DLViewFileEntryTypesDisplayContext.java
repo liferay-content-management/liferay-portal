@@ -69,7 +69,10 @@ public class DLViewFileEntryTypesDisplayContext {
 
 					creationURL.setParameter(
 						"mvcRenderCommandName",
-						"/document_library/edit_file_entry_type");
+						useDataEngineEditor() ?
+							"/document_library" +
+								"/edit_file_entry_type_data_definition" :
+									"/document_library/edit_file_entry_type");
 					creationURL.setParameter(
 						"redirect",
 						PortalUtil.getCurrentURL(_httpServletRequest));
