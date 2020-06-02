@@ -62,8 +62,12 @@ List<RedirectEntry> redirectEntries = (List<RedirectEntry>)GetterUtil.getObject(
 					<liferay-ui:message key="created-by" />
 				</dt>
 				<dd class="sidebar-dd">
-					<div class="autofit-row sidebar-panel widget-metadata">
-						<div class="autofit-col inline-item-before">
+					<clay:content-row
+						cssClass="sidebar-panel widget-metadata"
+					>
+						<clay:content-col
+							cssClass="inline-item-before"
+						>
 
 							<%
 							User owner = UserLocalServiceUtil.fetchUser(redirectEntry.getUserId());
@@ -73,12 +77,12 @@ List<RedirectEntry> redirectEntries = (List<RedirectEntry>)GetterUtil.getObject(
 								size="sm"
 								user="<%= owner %>"
 							/>
-						</div>
+						</clay:content-col>
 
 						<div class="username">
 							<%= HtmlUtil.escape(owner.getFullName()) %>
 						</div>
-					</div>
+					</clay:content-row>
 				</dd>
 				<dt class="sidebar-dt">
 					<liferay-ui:message key="type" />
