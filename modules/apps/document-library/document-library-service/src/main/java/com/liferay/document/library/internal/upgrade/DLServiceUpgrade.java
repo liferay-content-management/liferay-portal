@@ -21,11 +21,13 @@ import com.liferay.document.library.internal.upgrade.v1_0_1.UpgradeDLFileEntryCo
 import com.liferay.document.library.internal.upgrade.v1_0_2.UpgradeDLFileShortcut;
 import com.liferay.document.library.internal.upgrade.v1_1_0.UpgradeSchema;
 import com.liferay.document.library.internal.upgrade.v2_0_0.UpgradeCompanyId;
+import com.liferay.document.library.internal.upgrade.v3_1_0.UpgradeDLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.portal.configuration.upgrade.PrefsPropsToConfigurationUpgradeHelper;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeViewCount;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.subscription.service.SubscriptionLocalService;
 import com.liferay.view.count.service.ViewCountEntryLocalService;
@@ -67,7 +69,13 @@ public class DLServiceUpgrade implements UpgradeStepRegistrator {
 			new UpgradeDiscussionSubscriptionClassName(
 				_subscriptionLocalService, DLFileEntry.class.getName(),
 				UpgradeDiscussionSubscriptionClassName.DeletionMode.UPDATE));
+
+		registry.register(
+			"3.0.1", "3.1.0", new UpgradeDLFileEntryType(_portal));
 	}
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private PrefsPropsToConfigurationUpgradeHelper
