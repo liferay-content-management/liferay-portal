@@ -69,8 +69,11 @@ String type = GetterUtil.getString((String)request.getAttribute("liferay-ratings
 	</c:when>
 	<c:when test="<%= type.equals(RatingsType.STARS.getValue()) %>">
 		<div>
-			<div class="autofit-row autofit-row-center ratings ratings-stars">
-				<div class="autofit-col">
+			<clay:content-row
+				cssClass="ratings ratings-stars"
+				verticalAlign="center"
+			>
+				<clay:content-col>
 					<div class="dropdown">
 						<button class="btn btn-outline-borderless btn-outline-secondary dropdown-toggle btn-sm" disabled type="button">
 							<svg class="lexicon-icon lexicon-icon-star-o">
@@ -80,14 +83,14 @@ String type = GetterUtil.getString((String)request.getAttribute("liferay-ratings
 							<span>-</span>
 						</button>
 					</div>
-				</div>
+				</clay:content-col>
 
-				<div class="autofit-col">
+				<clay:content-col>
 					<svg class="lexicon-icon lexicon-icon-star ratings-stars-average-icon">
 						<use xlink:href="<%= themeDisplay.getPathThemeImages() %>/lexicon/icons.svg#star" />
 					</svg>
-				</div>
-			</div>
+				</clay:content-col>
+			</clay:content-row>
 
 			<react:component
 				data="<%= data %>"
