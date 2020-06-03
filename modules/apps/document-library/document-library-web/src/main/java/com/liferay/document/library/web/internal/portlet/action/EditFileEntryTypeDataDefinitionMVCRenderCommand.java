@@ -19,27 +19,17 @@ import com.liferay.document.library.kernel.exception.NoSuchFileEntryTypeExceptio
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeService;
 import com.liferay.document.library.web.internal.constants.DLWebKeys;
-import com.liferay.document.library.web.internal.display.context.DLEditFileEntryTypeDisplayContext;
-import com.liferay.dynamic.data.mapping.model.DDMStructure;
-import com.liferay.dynamic.data.mapping.model.DDMStructureLink;
-import com.liferay.dynamic.data.mapping.service.DDMStorageLinkLocalService;
-import com.liferay.dynamic.data.mapping.service.DDMStructureLinkLocalService;
-import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
-import com.liferay.dynamic.data.mapping.util.DDM;
+import com.liferay.document.library.web.internal.display.context.DLEditFileEntryTypeDataEngineDisplayContext;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
-
-import java.util.List;
 
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
@@ -73,10 +63,8 @@ public class EditFileEntryTypeDataDefinitionMVCRenderCommand
 		try {
 			renderRequest.setAttribute(
 				DLWebKeys.
-					DOCUMENT_LIBRARY_EDIT_EDIT_FILE_ENTRY_TYPE_DISPLAY_CONTEXT,
-				new DLEditFileEntryTypeDisplayContext(
-					_ddm, _ddmStorageLinkLocalService,
-					_ddmStructureLocalService, _language,
+					DOCUMENT_LIBRARY_EDIT_FILE_ENTRY_TYPE_DATA_ENGINE_DISPLAY_CONTEXT,
+				new DLEditFileEntryTypeDataEngineDisplayContext(
 					_portal.getLiferayPortletRequest(renderRequest),
 					_portal.getLiferayPortletResponse(renderResponse)));
 
@@ -100,10 +88,6 @@ public class EditFileEntryTypeDataDefinitionMVCRenderCommand
 			renderRequest.setAttribute(
 				WebKeys.DOCUMENT_LIBRARY_FILE_ENTRY_TYPE, dlFileEntryType);
 
-			renderRequest.setAttribute(
-				WebKeys.DOCUMENT_LIBRARY_DYNAMIC_DATA_MAPPING_STRUCTURE,
-				_fetchDDMStructure(dlFileEntryType));
-
 			return "/document_library/edit_file_entry_type.jsp";
 		}
 		catch (NoSuchFileEntryTypeException | PrincipalException exception) {
@@ -116,41 +100,6 @@ public class EditFileEntryTypeDataDefinitionMVCRenderCommand
 		}
 	}
 
-	private DDMStructure _fetchDDMStructure(DLFileEntryType dlFileEntryType)
-		throws PortalException {
-
-		List<DDMStructureLink> ddmStructureLinks =
-			_ddmStructureLinkLocalService.getStructureLinks(
-				_portal.getClassNameId(DLFileEntryType.class),
-				dlFileEntryType.getFileEntryTypeId());
-
-		if (ListUtil.isEmpty(ddmStructureLinks)) {
-			return null;
-		}
-
-		DDMStructureLink ddmStructureLink = ddmStructureLinks.get(0);
-
-		return ddmStructureLink.getStructure();
-	}
-
-	@Reference
-	private DDM _ddm;
-
-	@Reference
-	private DDMStorageLinkLocalService _ddmStorageLinkLocalService;
-
-	@Reference
-	private DDMStructureLinkLocalService _ddmStructureLinkLocalService;
-
-	@Reference
-	private DDMStructureLocalService _ddmStructureLocalService;
-
-	@Reference(
-		target = "(model.class.name=com.liferay.dynamic.data.mapping.model.DDMStructure)"
-	)
-	private ModelResourcePermission<DDMStructure>
-		_ddmStructureModelResourcePermission;
-
 	@Reference(
 		target = "(model.class.name=com.liferay.document.library.kernel.model.DLFileEntryType)"
 	)
@@ -159,9 +108,6 @@ public class EditFileEntryTypeDataDefinitionMVCRenderCommand
 
 	@Reference
 	private DLFileEntryTypeService _dlFileEntryTypeService;
-
-	@Reference
-	private Language _language;
 
 	@Reference
 	private Portal _portal;

@@ -45,6 +45,25 @@ public class DLFileEntryTypeServiceImpl extends DLFileEntryTypeServiceBaseImpl {
 
 	@Override
 	public DLFileEntryType addFileEntryType(
+			long groupId, long dataDefinitionId, String fileEntryTypeKey,
+			Map<Locale, String> nameMap, Map<Locale, String> descriptionMap,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), groupId, ActionKeys.ADD_DOCUMENT_TYPE);
+
+		return dlFileEntryTypeLocalService.addFileEntryType(
+			getUserId(), groupId, dataDefinitionId, fileEntryTypeKey, nameMap,
+			descriptionMap, serviceContext);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
+	@Override
+	public DLFileEntryType addFileEntryType(
 			long groupId, String fileEntryTypeKey, Map<Locale, String> nameMap,
 			Map<Locale, String> descriptionMap, long[] ddmStructureIds,
 			ServiceContext serviceContext)
@@ -58,6 +77,10 @@ public class DLFileEntryTypeServiceImpl extends DLFileEntryTypeServiceBaseImpl {
 			ddmStructureIds, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	@Override
 	public DLFileEntryType addFileEntryType(
 			long groupId, String name, String description,
@@ -168,6 +191,23 @@ public class DLFileEntryTypeServiceImpl extends DLFileEntryTypeServiceBaseImpl {
 	}
 
 	@Override
+	public DLFileEntryType updateFileEntryType(
+			long fileEntryTypeId, Map<Locale, String> nameMap,
+			Map<Locale, String> descriptionMap)
+		throws PortalException {
+
+		_dlFileEntryTypeModelResourcePermission.check(
+			getPermissionChecker(), fileEntryTypeId, ActionKeys.UPDATE);
+
+		return dlFileEntryTypeLocalService.updateFileEntryType(
+			fileEntryTypeId, nameMap, descriptionMap);
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
+	@Override
 	public void updateFileEntryType(
 			long fileEntryTypeId, Map<Locale, String> nameMap,
 			Map<Locale, String> descriptionMap, long[] ddmStructureIds,
@@ -182,6 +222,10 @@ public class DLFileEntryTypeServiceImpl extends DLFileEntryTypeServiceBaseImpl {
 			ddmStructureIds, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	@Override
 	public void updateFileEntryType(
 			long fileEntryTypeId, String name, String description,

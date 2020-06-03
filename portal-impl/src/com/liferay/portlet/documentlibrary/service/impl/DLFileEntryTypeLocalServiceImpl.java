@@ -96,6 +96,71 @@ public class DLFileEntryTypeLocalServiceImpl
 
 	@Override
 	public DLFileEntryType addFileEntryType(
+			long userId, long groupId, long dataDefinitionId,
+			String fileEntryTypeKey, Map<Locale, String> nameMap,
+			Map<Locale, String> descriptionMap, ServiceContext serviceContext)
+		throws PortalException {
+
+		User user = userPersistence.findByPrimaryKey(userId);
+
+		if (Validator.isNull(fileEntryTypeKey)) {
+			fileEntryTypeKey = String.valueOf(counterLocalService.increment());
+		}
+		else {
+			fileEntryTypeKey = StringUtil.toUpperCase(fileEntryTypeKey.trim());
+		}
+
+		String fileEntryTypeUuid = GetterUtil.getString(
+			serviceContext.getAttribute("fileEntryTypeUuid"));
+
+		if (Validator.isNull(fileEntryTypeUuid)) {
+			fileEntryTypeUuid = serviceContext.getUuid();
+
+			if (Validator.isNull(fileEntryTypeUuid)) {
+				fileEntryTypeUuid = PortalUUIDUtil.generate();
+			}
+		}
+
+		long fileEntryTypeId = counterLocalService.increment();
+
+		_validate(fileEntryTypeId, groupId, fileEntryTypeKey, dataDefinitionId);
+
+		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.create(
+			fileEntryTypeId);
+
+		dlFileEntryType.setUuid(fileEntryTypeUuid);
+		dlFileEntryType.setGroupId(groupId);
+		dlFileEntryType.setCompanyId(user.getCompanyId());
+		dlFileEntryType.setUserId(user.getUserId());
+		dlFileEntryType.setUserName(user.getFullName());
+		dlFileEntryType.setFileEntryTypeKey(fileEntryTypeKey);
+		dlFileEntryType.setDataDefinitionId(dataDefinitionId);
+		dlFileEntryType.setNameMap(nameMap);
+		dlFileEntryType.setDescriptionMap(descriptionMap);
+
+		dlFileEntryType = dlFileEntryTypePersistence.update(dlFileEntryType);
+
+		if (serviceContext.isAddGroupPermissions() ||
+			serviceContext.isAddGuestPermissions()) {
+
+			addFileEntryTypeResources(
+				dlFileEntryType, serviceContext.isAddGroupPermissions(),
+				serviceContext.isAddGuestPermissions());
+		}
+		else {
+			addFileEntryTypeResources(
+				dlFileEntryType, serviceContext.getModelPermissions());
+		}
+
+		return dlFileEntryType;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
+	@Override
+	public DLFileEntryType addFileEntryType(
 			long userId, long groupId, String fileEntryTypeKey,
 			Map<Locale, String> nameMap, Map<Locale, String> descriptionMap,
 			long[] ddmStructureIds, ServiceContext serviceContext)
@@ -123,13 +188,9 @@ public class DLFileEntryTypeLocalServiceImpl
 
 		long fileEntryTypeId = counterLocalService.increment();
 
-		if (!GetterUtil.getBoolean(
-				serviceContext.getAttribute("useDataEngineEditor"))) {
-
-			ddmStructureIds = _updateDDMStructure(
-				userId, fileEntryTypeUuid, fileEntryTypeId, groupId, nameMap,
-				descriptionMap, ddmStructureIds, serviceContext);
-		}
+		ddmStructureIds = _updateDDMStructure(
+			userId, fileEntryTypeUuid, fileEntryTypeId, groupId, nameMap,
+			descriptionMap, ddmStructureIds, serviceContext);
 
 		validate(fileEntryTypeId, groupId, fileEntryTypeKey, ddmStructureIds);
 
@@ -144,6 +205,31 @@ public class DLFileEntryTypeLocalServiceImpl
 		dlFileEntryType.setFileEntryTypeKey(fileEntryTypeKey);
 		dlFileEntryType.setNameMap(nameMap);
 		dlFileEntryType.setDescriptionMap(descriptionMap);
+
+		if (ddmStructureIds.length == 1) {
+			dlFileEntryType.setDataDefinitionId(ddmStructureIds[0]);
+		}
+		else {
+			long ddmStructureId = GetterUtil.getLong(
+				serviceContext.getAttribute("ddmStructureId"));
+
+			if (ddmStructureId != 0) {
+				dlFileEntryType.setDataDefinitionId(ddmStructureId);
+			}
+			else {
+				DDMStructure ddmStructure =
+					DDMStructureManagerUtil.fetchStructure(
+						groupId,
+						classNameLocalService.getClassNameId(
+							DLFileEntryMetadata.class),
+						DLUtil.getDDMStructureKey(fileEntryTypeUuid));
+
+				if (ddmStructure != null) {
+					dlFileEntryType.setDataDefinitionId(
+						ddmStructure.getStructureId());
+				}
+			}
+		}
 
 		dlFileEntryType = dlFileEntryTypePersistence.update(dlFileEntryType);
 
@@ -165,6 +251,10 @@ public class DLFileEntryTypeLocalServiceImpl
 		return dlFileEntryType;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	@Override
 	public DLFileEntryType addFileEntryType(
 			long userId, long groupId, String name, String description,
@@ -505,6 +595,10 @@ public class DLFileEntryTypeLocalServiceImpl
 			defaultFileEntryTypeId, null, null, null, 0, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	@Override
 	public void updateFileEntryType(
 			long userId, long fileEntryTypeId, Map<Locale, String> nameMap,
@@ -515,20 +609,10 @@ public class DLFileEntryTypeLocalServiceImpl
 		DLFileEntryType dlFileEntryType =
 			dlFileEntryTypePersistence.findByPrimaryKey(fileEntryTypeId);
 
-		long ddmStructureId = GetterUtil.getLong(
-			serviceContext.getAttribute("ddmStructureId"));
-		boolean useDataEngineEditor = GetterUtil.getBoolean(
-			serviceContext.getAttribute("useDataEngineEditor"));
-
-		if ((ddmStructureId == 0) || !useDataEngineEditor) {
-			ddmStructureIds = _updateDDMStructure(
-				userId, dlFileEntryType.getUuid(), fileEntryTypeId,
-				dlFileEntryType.getGroupId(), nameMap, descriptionMap,
-				ddmStructureIds, serviceContext);
-		}
-		else {
-			ddmStructureIds = ArrayUtil.append(ddmStructureIds, ddmStructureId);
-		}
+		ddmStructureIds = _updateDDMStructure(
+			userId, dlFileEntryType.getUuid(), fileEntryTypeId,
+			dlFileEntryType.getGroupId(), nameMap, descriptionMap,
+			ddmStructureIds, serviceContext);
 
 		validate(
 			fileEntryTypeId, dlFileEntryType.getGroupId(),
@@ -543,6 +627,10 @@ public class DLFileEntryTypeLocalServiceImpl
 			fileEntryTypeId, SetUtil.fromArray(ddmStructureIds));
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	@Override
 	public void updateFileEntryType(
 			long userId, long fileEntryTypeId, String name, String description,
@@ -560,6 +648,27 @@ public class DLFileEntryTypeLocalServiceImpl
 		updateFileEntryType(
 			userId, fileEntryTypeId, nameMap, descriptionMap, ddmStructureIds,
 			serviceContext);
+	}
+
+	@Override
+	public DLFileEntryType updateFileEntryType(
+			long fileEntryTypeId, Map<Locale, String> nameMap,
+			Map<Locale, String> descriptionMap)
+		throws PortalException {
+
+		DLFileEntryType dlFileEntryType =
+			dlFileEntryTypePersistence.findByPrimaryKey(fileEntryTypeId);
+
+		_validateFileEntryType(
+			fileEntryTypeId, dlFileEntryType.getGroupId(),
+			dlFileEntryType.getFileEntryTypeKey());
+
+		_validateDDMStructure(dlFileEntryType.getDataDefinitionId());
+
+		dlFileEntryType.setNameMap(nameMap);
+		dlFileEntryType.setDescriptionMap(descriptionMap);
+
+		return dlFileEntryTypePersistence.update(dlFileEntryType);
 	}
 
 	@Override
@@ -795,15 +904,7 @@ public class DLFileEntryTypeLocalServiceImpl
 			long[] ddmStructureIds)
 		throws PortalException {
 
-		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.fetchByG_F(
-			groupId, fileEntryTypeKey);
-
-		if ((dlFileEntryType != null) &&
-			(dlFileEntryType.getFileEntryTypeId() != fileEntryTypeId)) {
-
-			throw new DuplicateFileEntryTypeException(
-				"A file entry type already exists for key " + fileEntryTypeKey);
-		}
+		_validateFileEntryType(fileEntryTypeId, groupId, fileEntryTypeKey);
 
 		if (ddmStructureIds.length == 0) {
 			throw new NoSuchMetadataSetException(
@@ -812,13 +913,7 @@ public class DLFileEntryTypeLocalServiceImpl
 		}
 
 		for (long ddmStructureId : ddmStructureIds) {
-			DDMStructure ddmStructure = DDMStructureManagerUtil.fetchStructure(
-				ddmStructureId);
-
-			if (ddmStructure == null) {
-				throw new NoSuchMetadataSetException(
-					"{ddmStructureId=" + ddmStructureId);
-			}
+			_validateDDMStructure(ddmStructureId);
 		}
 	}
 
@@ -948,6 +1043,43 @@ public class DLFileEntryTypeLocalServiceImpl
 			}
 
 			return ddmStructureIds;
+		}
+	}
+
+	private void _validate(
+			long fileEntryTypeId, long groupId, String fileEntryTypeKey,
+			long dataDefinitionId)
+		throws DuplicateFileEntryTypeException, NoSuchMetadataSetException {
+
+		_validateFileEntryType(fileEntryTypeId, groupId, fileEntryTypeKey);
+
+		_validateDDMStructure(dataDefinitionId);
+	}
+
+	private void _validateDDMStructure(long ddmStructureId)
+		throws NoSuchMetadataSetException {
+
+		DDMStructure ddmStructure = DDMStructureManagerUtil.fetchStructure(
+			ddmStructureId);
+
+		if (ddmStructure == null) {
+			throw new NoSuchMetadataSetException(
+				"{ddmStructureId=" + ddmStructureId);
+		}
+	}
+
+	private void _validateFileEntryType(
+			long fileEntryTypeId, long groupId, String fileEntryTypeKey)
+		throws DuplicateFileEntryTypeException {
+
+		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.fetchByG_F(
+			groupId, fileEntryTypeKey);
+
+		if ((dlFileEntryType != null) &&
+			(dlFileEntryType.getFileEntryTypeId() != fileEntryTypeId)) {
+
+			throw new DuplicateFileEntryTypeException(
+				"A file entry type already exists for key " + fileEntryTypeKey);
 		}
 	}
 
