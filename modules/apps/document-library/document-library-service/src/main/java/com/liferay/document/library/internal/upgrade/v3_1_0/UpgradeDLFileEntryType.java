@@ -34,12 +34,12 @@ public class UpgradeDLFileEntryType extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		upgradeSchema();
+		_upgradeSchema();
 
-		populateFields();
+		_populateFields();
 	}
 
-	protected void populateFields() throws Exception {
+	private void _populateFields() throws Exception {
 		try (PreparedStatement ps1 = connection.prepareStatement(
 				"select uuid_, fileEntryTypeId, groupId, fileEntryTypeKey " +
 					"from DLFileEntryType where ( dataDefinitionId IS NULL " +
@@ -84,9 +84,7 @@ public class UpgradeDLFileEntryType extends UpgradeProcess {
 		}
 	}
 
-	protected void upgradeSchema() throws Exception {
-		System.out.println("upgradeSchema");
-
+	private void _upgradeSchema() throws Exception {
 		if (!hasColumn("DLFileEntryType", "dataDefinitionId")) {
 			runSQL("alter table DLFileEntryType add dataDefinitionId LONG ");
 		}
