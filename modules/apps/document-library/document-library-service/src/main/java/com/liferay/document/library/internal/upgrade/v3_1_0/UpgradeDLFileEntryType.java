@@ -44,11 +44,10 @@ public class UpgradeDLFileEntryType extends UpgradeProcess {
 				"select uuid_, fileEntryTypeId, groupId, fileEntryTypeKey " +
 					"from DLFileEntryType where ( dataDefinitionId IS NULL " +
 						"OR dataDefinitionId = '')");
-			PreparedStatement ps2 = AutoBatchPreparedStatementUtil.autoBatch(
-				connection.prepareStatement(
-					"select structureId FROM DDMStructure where groupId = ? " +
-						"AND classNameId = ? AND ( structureKey = ? OR " +
-							"structureKey = ? OR structureKey = ? ) "));
+			PreparedStatement ps2 = connection.prepareStatement(
+				"select structureId FROM DDMStructure where groupId = ? " +
+					"AND classNameId = ? AND ( structureKey = ? OR " +
+						"structureKey = ? OR structureKey = ? ) ");
 			PreparedStatement ps3 = AutoBatchPreparedStatementUtil.autoBatch(
 				connection.prepareStatement(
 					"update DLFileEntryType set dataDefinitionId = ? where " +
