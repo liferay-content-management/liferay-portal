@@ -43,44 +43,40 @@ public class UpgradeDLFileEntryType extends UpgradeProcess {
 		try (PreparedStatement ps1 = connection.prepareStatement(
 				"select uuid_, fileEntryTypeId, groupId, fileEntryTypeKey " +
 					"from DLFileEntryType where ( dataDefinitionId IS NULL " +
-						"OR dataDefinitionId = '')")) {
-
+						"OR dataDefinitionId = '')");
 			PreparedStatement ps2 = AutoBatchPreparedStatementUtil.autoBatch(
 				connection.prepareStatement(
 					"select structureId FROM DDMStructure where groupId = ? " +
 						"AND classNameId = ? AND ( structureKey = ? OR " +
 							"structureKey = ? OR structureKey = ? ) "));
-
 			PreparedStatement ps3 = AutoBatchPreparedStatementUtil.autoBatch(
 				connection.prepareStatement(
 					"update DLFileEntryType set dataDefinitionId = ? where " +
 						"fileEntryTypeId = ? "));
+			ResultSet rs = ps1.executeQuery()) {
 
-			try (ResultSet rs = ps1.executeQuery()) {
-				long classNameId = _portal.getClassNameId(
-					DLFileEntryMetadata.class);
+			long classNameId = _portal.getClassNameId(
+				DLFileEntryMetadata.class);
 
-				while (rs.next()) {
-					ps2.setLong(1, rs.getLong(3));
-					ps2.setLong(2, classNameId);
-					ps2.setString(
-						3, DLUtil.getDDMStructureKey(rs.getString(1)));
-					ps2.setString(
-						4, DLUtil.getDeprecatedDDMStructureKey(rs.getLong(2)));
-					ps2.setString(5, rs.getString(4));
+			while (rs.next()) {
+				ps2.setLong(1, rs.getLong(3));
+				ps2.setLong(2, classNameId);
+				ps2.setString(3, DLUtil.getDDMStructureKey(rs.getString(1)));
+				ps2.setString(
+					4, DLUtil.getDeprecatedDDMStructureKey(rs.getLong(2)));
+				ps2.setString(5, rs.getString(4));
 
-					try (ResultSet rs2 = ps2.executeQuery()) {
-						if (rs2.next()) {
-							ps3.setLong(1, rs2.getLong(1));
-							ps3.setLong(2, rs.getLong(2));
+				try (ResultSet rs2 = ps2.executeQuery()) {
+					if (rs2.next()) {
+						ps3.setLong(1, rs2.getLong(1));
+						ps3.setLong(2, rs.getLong(2));
 
-							ps3.addBatch();
-						}
+						ps3.addBatch();
 					}
 				}
-
-				ps3.executeBatch();
 			}
+
+			ps3.executeBatch();
 		}
 	}
 
