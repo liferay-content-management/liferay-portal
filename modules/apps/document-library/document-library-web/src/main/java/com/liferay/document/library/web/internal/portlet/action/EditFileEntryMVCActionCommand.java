@@ -984,17 +984,9 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 		DDMFormValues ddmFormValues = _ddmFormValuesFactory.create(
 			serviceContext.getRequest(), ddmStructure.getDDMForm());
 
-		if (FFDocumentLibraryDDMEditorConfigurationUtil.useDataEngineEditor()) {
-			serviceContext.setAttribute(
-				className + StringPool.POUND +
-					dlFileEntryType.getDataDefinitionId(),
-				DDMBeanTranslatorUtil.translate(ddmFormValues));
-		}
-		else {
-			serviceContext.setAttribute(
-				className + StringPool.POUND + ddmStructure.getStructureId(),
-				DDMBeanTranslatorUtil.translate(ddmFormValues));
-		}
+		serviceContext.setAttribute(
+			className + StringPool.POUND + ddmStructure.getStructureId(),
+			DDMBeanTranslatorUtil.translate(ddmFormValues));
 	}
 
 	private FileEntry _updateFileEntry(
