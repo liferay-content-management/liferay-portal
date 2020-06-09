@@ -12,17 +12,13 @@
  * details.
  */
 
-package com.liferay.portal.workflow.web.internal.constants;
+package com.liferay.portal.workflow.constants;
 
 /**
- * @author Adam Brandizzi
+ * @author Inácio Nery
  */
 public class WorkflowDefinitionConstants {
 
-	public static final int STATUS_ALL = 0;
-
-	public static final int STATUS_NOT_PUBLISHED = 1;
-
-	public static final int STATUS_PUBLISHED = 2;
+	public static final String SCOPE_ALL = "all";
 
 }

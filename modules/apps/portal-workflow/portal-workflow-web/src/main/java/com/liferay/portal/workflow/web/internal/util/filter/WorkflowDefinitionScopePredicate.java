@@ -14,33 +14,31 @@
 
 package com.liferay.portal.workflow.web.internal.util.filter;
 
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * @author Adam Brandizzi
+ * @author Inácio Nery
  */
-public class WorkflowDefinitionActivePredicate
+public class WorkflowDefinitionScopePredicate
 	implements Predicate<WorkflowDefinition> {
 
-	public WorkflowDefinitionActivePredicate(int status) {
-		_status = status;
+	public WorkflowDefinitionScopePredicate(String scope) {
+		_scope = scope;
 	}
 
 	@Override
 	public boolean test(WorkflowDefinition workflowDefinition) {
-		if (_status == WorkflowConstants.STATUS_ANY) {
+		if (Validator.isNull(workflowDefinition.getScope())) {
 			return true;
 		}
-		else if (_status == WorkflowConstants.STATUS_APPROVED) {
-			return workflowDefinition.isActive();
-		}
 
-		return !workflowDefinition.isActive();
+		return Objects.equals(_scope, workflowDefinition.getScope());
 	}
 
-	private final int _status;
+	private final String _scope;
 
 }

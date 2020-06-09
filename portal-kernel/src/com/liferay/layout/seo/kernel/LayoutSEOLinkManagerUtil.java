@@ -29,6 +29,10 @@ import java.util.Map;
 @Deprecated
 public class LayoutSEOLinkManagerUtil {
 
+	public static LayoutSEOLinkManager getLayoutSEOLinkManager() {
+		return _layoutSEOLinkManager;
+	}
+
 	public static List<LayoutSEOLink> getLocalizedLayoutSEOLinks(
 			Layout layout, Locale locale, String canonicalURL,
 			Map<Locale, String> alternateURLs)

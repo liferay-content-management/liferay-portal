@@ -38,20 +38,35 @@ public interface WorkflowDefinitionManager {
 		throw new UnsupportedOperationException();
 	}
 
+	public default WorkflowDefinition deployWorkflowDefinition(
+			long companyId, long userId, String title, String name,
+			String scope, byte[] bytes)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
+
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *             #getActiveWorkflowDefinitionsCount(long)}
 	 */
 	@Deprecated
-	public int getActiveWorkflowDefinitionCount(long companyId)
-		throws WorkflowException;
+	public default int getActiveWorkflowDefinitionCount(long companyId)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
 	@Deprecated
-	public int getActiveWorkflowDefinitionCount(long companyId, String name)
-		throws WorkflowException;
+	public default int getActiveWorkflowDefinitionCount(
+			long companyId, String name)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
 
 	public List<WorkflowDefinition> getActiveWorkflowDefinitions(
 			long companyId, int start, int end,
@@ -98,25 +113,34 @@ public interface WorkflowDefinitionManager {
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
 	@Deprecated
-	public int getWorkflowDefinitionCount(long companyId)
-		throws WorkflowException;
+	public default int getWorkflowDefinitionCount(long companyId)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *             #getWorkflowDefinitionsCount(long, String)}
 	 */
 	@Deprecated
-	public int getWorkflowDefinitionCount(long companyId, String name)
-		throws WorkflowException;
+	public default int getWorkflowDefinitionCount(long companyId, String name)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
 	 */
 	@Deprecated
-	public List<WorkflowDefinition> getWorkflowDefinitions(
+	public default List<WorkflowDefinition> getWorkflowDefinitions(
 			long companyId, int start, int end,
 			OrderByComparator<WorkflowDefinition> orderByComparator)
-		throws WorkflowException;
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
 
 	public List<WorkflowDefinition> getWorkflowDefinitions(
 			long companyId, String name, int start, int end,
@@ -151,6 +175,29 @@ public interface WorkflowDefinitionManager {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * Saves a workflow definition without activating it or validating its data.
+	 * To save the definition, validate its data, and activate it, use {@link
+	 * #deployWorkflowDefinition(long, long, String, String, byte[])} instead.
+	 *
+	 * @param  companyId the company ID of the workflow definition
+	 * @param  userId the ID of the user saving the workflow definition
+	 * @param  title the workflow definition's title
+	 * @param  name the workflow definition's name
+	 * @param  scope the workflow definition's scope
+	 * @param  bytes the data saved as the workflow definition's content
+	 * @return the workflow definition
+	 * @throws WorkflowException if there was an issue saving the workflow
+	 *         definition
+	 */
+	public default WorkflowDefinition saveWorkflowDefinition(
+			long companyId, long userId, String title, String name,
+			String scope, byte[] bytes)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
+
 	public void undeployWorkflowDefinition(
 			long companyId, long userId, String name, int version)
 		throws WorkflowException;
@@ -160,9 +207,16 @@ public interface WorkflowDefinitionManager {
 			boolean active)
 		throws WorkflowException;
 
-	public WorkflowDefinition updateTitle(
+	/**
+	 * @deprecated As of Athanasius (7.3.x), with no direct replacement}
+	 */
+	@Deprecated
+	public default WorkflowDefinition updateTitle(
 			long companyId, long userId, String name, int version, String title)
-		throws WorkflowException;
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
 
 	public void validateWorkflowDefinition(byte[] bytes)
 		throws WorkflowException;

@@ -12,59 +12,49 @@
  *
  */
 
-package com.liferay.portal.workflow.kaleo.designer.web.internal.util;
+package com.liferay.portal.workflow.kaleo.designer.web.internal.util.filter;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.workflow.kaleo.designer.web.internal.constants.KaleoDefinitionVersionConstants;
-import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.workflow.kaleo.designer.web.internal.permission.KaleoDefinitionVersionPermission;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
 
 import java.util.function.Predicate;
 
 /**
- * @author Inácio Nery
+ * @author Lino Alves
  */
-public class KaleoDefinitionVersionActivePredicate
+public class KaleoDefinitionVersionViewPermissionPredicate
 	implements Predicate<KaleoDefinitionVersion> {
 
-	public KaleoDefinitionVersionActivePredicate(int status) {
-		_status = status;
+	public KaleoDefinitionVersionViewPermissionPredicate(
+		PermissionChecker permissionChecker, long companyGroupId) {
+
+		_permissionChecker = permissionChecker;
+		_companyGroupId = companyGroupId;
 	}
 
 	@Override
 	public boolean test(KaleoDefinitionVersion kaleoDefinitionVersion) {
-		if (_status == KaleoDefinitionVersionConstants.STATUS_ALL) {
-			return true;
-		}
-
 		try {
-			KaleoDefinition kaleoDefinition =
-				kaleoDefinitionVersion.getKaleoDefinition();
-
-			if (_status == KaleoDefinitionVersionConstants.STATUS_PUBLISHED) {
-				return kaleoDefinition.isActive();
-			}
-
-			return !kaleoDefinition.isActive();
+			return KaleoDefinitionVersionPermission.hasViewPermission(
+				_permissionChecker, kaleoDefinitionVersion, _companyGroupId);
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
 				_log.debug(portalException, portalException);
 			}
-
-			if (_status == KaleoDefinitionVersionConstants.STATUS_PUBLISHED) {
-				return false;
-			}
-
-			return true;
 		}
+
+		return false;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		KaleoDefinitionVersionActivePredicate.class);
+		KaleoDefinitionVersionViewPermissionPredicate.class);
 
-	private final int _status;
+	private final long _companyGroupId;
+	private final PermissionChecker _permissionChecker;
 
 }

@@ -140,6 +140,22 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 		return fragmentEntryLink;
 	}
 
+	private boolean _isCacheable(FragmentEntryLink fragmentEntryLink) {
+		if (Validator.isNull(fragmentEntryLink.getRendererKey())) {
+			return fragmentEntryLink.isCacheable();
+		}
+
+		FragmentEntry fragmentEntry =
+			_fragmentCollectionContributorTracker.getFragmentEntry(
+				fragmentEntryLink.getRendererKey());
+
+		if (fragmentEntry == null) {
+			return false;
+		}
+
+		return fragmentEntry.isCacheable();
+	}
+
 	private String _renderFragmentEntry(
 		long fragmentEntryId, String css, String html, String js,
 		String configuration, String namespace,
@@ -240,7 +256,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 		if (Objects.equals(
 				fragmentRendererContext.getMode(),
 				FragmentEntryLinkConstants.VIEW) &&
-			fragmentEntryLink.isCacheable()) {
+			_isCacheable(fragmentEntryLink)) {
 
 			content = _portalCache.get(cacheKeySB.toString());
 
@@ -319,7 +335,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 		if (Objects.equals(
 				fragmentRendererContext.getMode(),
 				FragmentEntryLinkConstants.VIEW) &&
-			fragmentEntryLink.isCacheable()) {
+			_isCacheable(fragmentEntryLink)) {
 
 			_portalCache.put(cacheKeySB.toString(), content);
 		}

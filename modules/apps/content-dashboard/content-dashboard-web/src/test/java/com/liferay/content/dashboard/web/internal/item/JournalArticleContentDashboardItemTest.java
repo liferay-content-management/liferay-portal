@@ -53,7 +53,7 @@ public class JournalArticleContentDashboardItemTest {
 			new JournalArticleContentDashboardItem(journalArticle);
 
 		Assert.assertEquals(
-			journalArticle.getExpirationDate(),
+			journalArticle.getModifiedDate(),
 			journalArticleContentDashboardItem.getModifiedDate());
 	}
 

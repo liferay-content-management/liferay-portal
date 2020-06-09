@@ -12,49 +12,47 @@
  *
  */
 
-package com.liferay.portal.workflow.kaleo.forms.web.internal.util;
+package com.liferay.portal.workflow.kaleo.forms.web.internal.util.filter;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * @author Lino Alves
+ * @author Inácio Nery
  */
-public class KaleoDefinitionVersionActivePredicate
+public class KaleoDefinitionVersionScopePredicate
 	implements Predicate<KaleoDefinitionVersion> {
 
-	public KaleoDefinitionVersionActivePredicate(int status) {
-		_status = status;
+	public KaleoDefinitionVersionScopePredicate(String scope) {
+		_scope = scope;
 	}
 
 	@Override
 	public boolean test(KaleoDefinitionVersion kaleoDefinitionVersion) {
-		if (_status == WorkflowConstants.STATUS_ANY) {
-			return true;
-		}
-
 		try {
 			KaleoDefinition kaleoDefinition =
 				kaleoDefinitionVersion.getKaleoDefinition();
 
-			if (_status == WorkflowConstants.STATUS_APPROVED) {
-				return kaleoDefinition.isActive();
+			if (Validator.isNull(kaleoDefinition.getScope())) {
+				return true;
 			}
 
-			return !kaleoDefinition.isActive();
+			return Objects.equals(_scope, kaleoDefinition.getScope());
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
 				_log.debug(portalException, portalException);
 			}
 
-			if (_status == WorkflowConstants.STATUS_DRAFT) {
+			if (_scope != WorkflowDefinitionConstants.SCOPE_ALL) {
 				return false;
 			}
 
@@ -63,8 +61,8 @@ public class KaleoDefinitionVersionActivePredicate
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		KaleoDefinitionVersionActivePredicate.class);
+		KaleoDefinitionVersionScopePredicate.class);
 
-	private final int _status;
+	private final String _scope;
 
 }
