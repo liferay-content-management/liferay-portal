@@ -32,6 +32,4 @@ com.liferay.dynamic.data.mapping.model.DDMStructure ddmStructure = (com.liferay.
 	</c:if>
 </aui:field-wrapper>
 
-<aui:input name="name" />
-
 <aui:input name="description" />
