@@ -14,15 +14,29 @@
 
 package com.liferay.depot.web.internal.display.context;
 
+import com.liferay.application.list.PanelApp;
+import com.liferay.application.list.PanelAppRegistry;
 import com.liferay.application.list.PanelCategory;
 import com.liferay.application.list.PanelCategoryRegistry;
 import com.liferay.application.list.constants.PanelCategoryKeys;
+import com.liferay.depot.web.internal.servlet.taglib.clay.DepotDashboardApplicationHorizontalCard;
+import com.liferay.depot.web.internal.servlet.taglib.clay.DepotDashboardApplicationVerticalCard;
+import com.liferay.frontend.taglib.clay.servlet.taglib.soy.HorizontalCard;
+import com.liferay.frontend.taglib.clay.servlet.taglib.soy.VerticalCard;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.util.Portal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
+import java.util.Objects;
+
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletURL;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Adolfo Pérez
@@ -30,12 +44,49 @@ import java.util.Collection;
 public class DepotAdminViewDepotDashboardDisplayContext {
 
 	public DepotAdminViewDepotDashboardDisplayContext(
-		Group group, PanelCategoryRegistry panelCategoryRegistry,
-		PermissionChecker permissionChecker) {
+		HttpServletRequest httpServletRequest, Group group,
+		PanelAppRegistry panelAppRegistry,
+		PanelCategoryRegistry panelCategoryRegistry,
+		PermissionChecker permissionChecker, Portal portal) {
 
+		_httpServletRequest = httpServletRequest;
 		_group = group;
+		_panelAppRegistry = panelAppRegistry;
 		_panelCategoryRegistry = panelCategoryRegistry;
 		_permissionChecker = permissionChecker;
+		_portal = portal;
+	}
+
+	public HorizontalCard getDepotDashboardApplicationHorizontalCard(
+		PanelApp panelApp, Locale locale) {
+
+		return new DepotDashboardApplicationHorizontalCard(
+			_getPortletURL(panelApp),
+			_portal.getPortletTitle(panelApp.getPortletId(), locale));
+	}
+
+	public VerticalCard getDepotDashboardApplicationVerticalCard(
+		PanelApp panelApp, Locale locale) {
+
+		return new DepotDashboardApplicationVerticalCard(
+			_getPortletURL(panelApp),
+			_portal.getPortletTitle(panelApp.getPortletId(), locale));
+	}
+
+	public Collection<PanelApp> getPanelApps(PanelCategory panelCategory)
+		throws PortalException {
+
+		Collection<PanelApp> panelApps = new ArrayList<>();
+
+		for (PanelApp panelApp :
+				_panelAppRegistry.getPanelApps(panelCategory.getKey())) {
+
+			if (panelApp.isShow(_permissionChecker, _group)) {
+				panelApps.add(panelApp);
+			}
+		}
+
+		return panelApps;
 	}
 
 	public Iterable<PanelCategory> getPanelCategories() throws PortalException {
@@ -55,7 +106,21 @@ public class DepotAdminViewDepotDashboardDisplayContext {
 		return panelCategories;
 	}
 
-	// Order is important.
+	public boolean isPrimaryPanelCategory(PanelCategory panelCategory) {
+		if (Objects.equals(panelCategory.getKey(), _PANEL_CATEGORY_KEYS[0])) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private String _getPortletURL(PanelApp panelApp) {
+		PortletURL portletURL = _portal.getControlPanelPortletURL(
+			_httpServletRequest, _group, panelApp.getPortletId(), 0, 0,
+			PortletRequest.RENDER_PHASE);
+
+		return portletURL.toString();
+	}
 
 	private static final String[] _PANEL_CATEGORY_KEYS = {
 		PanelCategoryKeys.SITE_ADMINISTRATION_CONTENT,
@@ -67,7 +132,13 @@ public class DepotAdminViewDepotDashboardDisplayContext {
 	};
 
 	private final Group _group;
+
+	// Order is important.
+
+	private final HttpServletRequest _httpServletRequest;
+	private final PanelAppRegistry _panelAppRegistry;
 	private final PanelCategoryRegistry _panelCategoryRegistry;
 	private final PermissionChecker _permissionChecker;
+	private final Portal _portal;
 
 }
