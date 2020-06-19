@@ -75,7 +75,8 @@ public class ImportTranslationMVCResourceCommand extends BaseMVCActionCommand {
 
 			_checkExceededSizeLimit(uploadPortletRequest);
 
-			String sourceFileName = uploadPortletRequest.getFileName("file");
+			_checkContentType(uploadPortletRequest.getContentType(
+				"file"));
 
 			long groupId = ParamUtil.getLong(actionRequest, "groupId");
 			String articleId = ParamUtil.getString(actionRequest, "articleId");
@@ -83,18 +84,8 @@ public class ImportTranslationMVCResourceCommand extends BaseMVCActionCommand {
 			JournalArticle article = _journalArticleService.getArticle(
 				groupId, articleId);
 
-			try (InputStream inputStream = uploadPortletRequest.getFileAsStream(
-					"file")) {
-
-				String contentType = uploadPortletRequest.getContentType(
-					"file");
-
-				if (!Objects.equals("application/x-xliff+xml", contentType) &&
-					!Objects.equals("application/xliff+xml", contentType)) {
-
-					throw new InvalidXLIFFFileException(
-						"Unsupported content type: " + contentType);
-				}
+			try( InputStream inputStream = uploadPortletRequest.getFileAsStream(
+					"file")){
 
 				_translationInfoFormValuesExporter.importXLIFF(
 					themeDisplay.getScopeGroupId(),
@@ -108,17 +99,20 @@ public class ImportTranslationMVCResourceCommand extends BaseMVCActionCommand {
 
 				actionRequest.setAttribute(WebKeys.REDIRECT, redirect);
 			}
-			catch (PortalException portalException) {
-				if (Validator.isNotNull(sourceFileName)) {
-					SessionErrors.add(
-						actionRequest, RequiredFileException.class);
-				}
-
-				throw portalException;
-			}
 		}
 		catch (Exception exception) {
 			SessionErrors.add(actionRequest, exception.getClass(), exception);
+		}
+	}
+
+	private void _checkContentType(String contentType)
+		throws InvalidXLIFFFileException{
+
+		if (!Objects.equals("application/x-xliff+xml", contentType) &&
+			!Objects.equals("application/xliff+xml", contentType)) {
+
+			throw new InvalidXLIFFFileException(
+				"Unsupported content type: " + contentType);
 		}
 	}
 
