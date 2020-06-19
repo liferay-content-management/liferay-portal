@@ -15,7 +15,6 @@
 package com.liferay.journal.web.internal.portlet.action;
 
 import com.liferay.document.library.kernel.exception.FileSizeException;
-import com.liferay.document.library.kernel.exception.RequiredFileException;
 import com.liferay.info.item.InfoItemClassPKReference;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
@@ -32,7 +31,6 @@ import com.liferay.portal.kernel.upload.UploadRequestSizeException;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.translation.exception.InvalidXLIFFFileException;
 import com.liferay.translation.exporter.TranslationInfoFormValuesExporter;
@@ -75,20 +73,18 @@ public class ImportTranslationMVCResourceCommand extends BaseMVCActionCommand {
 
 			_checkExceededSizeLimit(uploadPortletRequest);
 
-			_checkContentType(uploadPortletRequest.getContentType(
-				"file"));
+			_checkContentType(uploadPortletRequest.getContentType("file"));
 
 			long articleResourceId = ParamUtil.getLong(
 				actionRequest, "articleResourceId");
 
-			try( InputStream inputStream = uploadPortletRequest.getFileAsStream(
-					"file")){
+			try (InputStream inputStream = uploadPortletRequest.getFileAsStream(
+					"file")) {
 
 				_translationInfoFormValuesExporter.importXLIFF(
 					themeDisplay.getScopeGroupId(),
 					new InfoItemClassPKReference(
-						JournalArticle.class.getName(),
-						articleResourceId),
+						JournalArticle.class.getName(), articleResourceId),
 					inputStream);
 
 				String redirect = ParamUtil.getString(
@@ -103,7 +99,7 @@ public class ImportTranslationMVCResourceCommand extends BaseMVCActionCommand {
 	}
 
 	private void _checkContentType(String contentType)
-		throws InvalidXLIFFFileException{
+		throws InvalidXLIFFFileException {
 
 		if (!Objects.equals("application/x-xliff+xml", contentType) &&
 			!Objects.equals("application/xliff+xml", contentType)) {
