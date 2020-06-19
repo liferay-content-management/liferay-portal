@@ -1156,7 +1156,8 @@ definition {
 
 		DMDocumentType.edit(
 			dmDocumentTypeFieldNames = "Radio",
-			dmDocumentTypeName = "Photos");
+			dmDocumentTypeName = "Photos",
+			rowNum = "2");
 
 		User.logoutPG();
 
