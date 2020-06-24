@@ -122,6 +122,43 @@ String type = GetterUtil.getString((String)request.getAttribute("liferay-ratings
 		</div>
 	</c:when>
 	<c:otherwise>
+		<div>
+			<clay:content-row
+				cssClass="ratings ratings-stars"
+				verticalAlign="center"
+			>
+				<clay:content-col>
+					<div class="dropdown">
+						<clay:button
+							borderless="<%= true %>"
+							cssClass="dropdown-toggle"
+							disabled="<%= true %>"
+							displayType="secondary"
+							small="<%= true %>"
+						>
+							<clay:icon
+								symbol="star-o"
+							/>
+
+							<span>-</span>
+						</clay:button>
+					</div>
+				</clay:content-col>
+
+				<clay:content-col>
+					<clay:icon
+						cssClass="ratings-stars-average-icon"
+						symbol="star"
+					/>
+				</clay:content-col>
+			</clay:content-row>
+
+			<react:component
+				data="<%= data %>"
+				module="js/Ratings"
+			/>
+		</div>
+
 		<liferay-ui:ratings
 			className="<%= className %>"
 			classPK="<%= classPK %>"
