@@ -51,18 +51,19 @@ public class AssetEntryInfoItemFieldSetProviderImpl
 
 	@Override
 	public InfoFieldSet getInfoFieldSet(String itemClassName) {
-		InfoFieldSet infoFieldSet = new InfoFieldSet(
-			InfoLocalizedValue.localize(getClass(), "asset"), "asset");
-
-		infoFieldSet.add(_categoriesInfoField);
-
-		infoFieldSet.add(_tagsInfoField);
-
-		infoFieldSet.add(
+		return InfoFieldSet.builder(
+		).add(
+			_categoriesInfoField
+		).add(
+			_tagsInfoField
+		).add(
 			_infoItemFieldReaderFieldSetProvider.getInfoFieldSet(
-				AssetEntry.class.getName()));
-
-		return infoFieldSet;
+				AssetEntry.class.getName())
+		).labelInfoLocalizedValue(
+			InfoLocalizedValue.localize(getClass(), "asset")
+		).name(
+			"asset"
+		).build();
 	}
 
 	@Override
