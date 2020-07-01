@@ -45,23 +45,21 @@ public class BlogsEntryInfoItemFormProvider
 
 	@Override
 	public InfoForm getInfoForm() {
-		InfoForm infoForm = new InfoForm(BlogsEntry.class.getName());
-
-		infoForm.addAll(_getBlogsEntryInfoFieldSetEntries());
-
-		infoForm.add(
+		return InfoForm.builder(
+		).addAll(
+			_getBlogsEntryInfoFieldSetEntries()
+		).add(
 			_infoItemFieldReaderFieldSetProvider.getInfoFieldSet(
-				BlogsEntry.class.getName()));
-
-		infoForm.add(
+				BlogsEntry.class.getName())
+		).add(
 			_assetEntryInfoItemFieldSetProvider.getInfoFieldSet(
-				AssetEntry.class.getName()));
-
-		infoForm.add(
+				AssetEntry.class.getName())
+		).add(
 			_expandoInfoItemFieldSetProvider.getInfoFieldSet(
-				BlogsEntry.class.getName()));
-
-		return infoForm;
+				BlogsEntry.class.getName())
+		).name(
+			BlogsEntry.class.getName()
+		).build();
 	}
 
 	private Collection<InfoFieldSetEntry> _getBlogsEntryInfoFieldSetEntries() {
