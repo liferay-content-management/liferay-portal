@@ -11,14 +11,16 @@
 		}
 
 		.ratings-stacked-stars-vote-stars {
-			display: flex;
+			display: inline-flex;
 			flex-direction: row-reverse;
 			justify-content: flex-end;
+			margin-right: 0.3125rem;
 		}
 	}
 
 	label {
 		color: $secondary-l1;
+		margin: 0;
 		padding: 0.1875rem;
 
 		.ratings-stars-icon-full {
@@ -44,13 +46,13 @@
 		color: $primary;
 	}
 
-	input:checked + label {
-		color: $primary;
-	}
+	.ratings-stacked-stars-vote {
+		&:hover label {
+			color: $secondary-l1;
+		}
 
-	label:hover {
-		&,
-		& ~ label {
+		label:hover,
+		label:hover ~ label {
 			color: $primary;
 
 			.ratings-stars-icon-full {
@@ -59,6 +61,17 @@
 
 			.ratings-stars-icon-empty {
 				display: none;
+			}
+
+			&.ratings-stars-star-full {
+				color: $secondary-l1;
+			}
+		}
+
+		label.ratings-stars-star-full:hover {
+			&,
+			~ label {
+				color: $primary;
 			}
 		}
 	}
@@ -72,6 +85,10 @@
 
 		&:hover {
 			color: $dark;
+		}
+
+		.lexicon-icon-times-circle.lexicon-icon-vertical-align {
+			margin-top: -2px;
 		}
 	}
 }
