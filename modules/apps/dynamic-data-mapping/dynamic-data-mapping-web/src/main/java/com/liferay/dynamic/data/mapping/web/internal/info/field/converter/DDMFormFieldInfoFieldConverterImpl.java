@@ -23,6 +23,7 @@ import com.liferay.info.field.type.BooleanInfoFieldType;
 import com.liferay.info.field.type.ImageInfoFieldType;
 import com.liferay.info.field.type.InfoFieldType;
 import com.liferay.info.field.type.IntegerInfoFieldType;
+import com.liferay.info.field.type.RichTextInfoFieldType;
 import com.liferay.info.field.type.TextInfoFieldType;
 import com.liferay.info.localized.InfoLocalizedValue;
 
@@ -67,6 +68,9 @@ public class DDMFormFieldInfoFieldConverterImpl
 		}
 		else if (Objects.equals(ddmFormFieldType, DDMFormFieldType.INTEGER)) {
 			return IntegerInfoFieldType.INSTANCE;
+		}
+		else if (Objects.equals(ddmFormFieldType, DDMFormFieldType.TEXT_HTML)) {
+			return RichTextInfoFieldType.INSTANCE;
 		}
 
 		return TextInfoFieldType.INSTANCE;
