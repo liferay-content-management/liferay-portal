@@ -26,6 +26,7 @@ import com.liferay.info.field.InfoFieldValue;
 import com.liferay.info.field.type.BooleanInfoFieldType;
 import com.liferay.info.field.type.ImageInfoFieldType;
 import com.liferay.info.field.type.IntegerInfoFieldType;
+import com.liferay.info.field.type.RichTextInfoFieldType;
 import com.liferay.info.field.type.TextInfoFieldType;
 import com.liferay.info.field.type.URLInfoFieldType;
 import com.liferay.info.form.InfoForm;
@@ -104,13 +105,27 @@ public class JournalArticleInfoItemFormProviderTest {
 
 		infoFields.sort(Comparator.comparing(InfoField::getName));
 
-		Assert.assertEquals(infoFields.toString(), 18, infoFields.size());
+		Assert.assertEquals(infoFields.toString(), 20, infoFields.size());
 
 		Iterator<InfoField> iterator = infoFields.iterator();
 
 		InfoField infoField = iterator.next();
 
 		Assert.assertEquals("DDM_Text", infoField.getName());
+		Assert.assertTrue(infoField.isLocalizable());
+		Assert.assertEquals(
+			TextInfoFieldType.INSTANCE, infoField.getInfoFieldType());
+
+		infoField = iterator.next();
+
+		Assert.assertEquals("HTML", infoField.getName());
+		Assert.assertTrue(infoField.isLocalizable());
+		Assert.assertEquals(
+			RichTextInfoFieldType.INSTANCE, infoField.getInfoFieldType());
+
+		infoField = iterator.next();
+
+		Assert.assertEquals("TextBox", infoField.getName());
 		Assert.assertTrue(infoField.isLocalizable());
 		Assert.assertEquals(
 			TextInfoFieldType.INSTANCE, infoField.getInfoFieldType());
@@ -264,7 +279,7 @@ public class JournalArticleInfoItemFormProviderTest {
 			infoItemFieldValues.getInfoFieldValues();
 
 		Assert.assertEquals(
-			infoFieldValues.toString(), 12, infoFieldValues.size());
+			infoFieldValues.toString(), 14, infoFieldValues.size());
 
 		InfoFieldValue<Object> descriptionInfoFieldValue =
 			infoItemFieldValues.getInfoFieldValue("description");
@@ -343,6 +358,20 @@ public class JournalArticleInfoItemFormProviderTest {
 		Assert.assertNotNull(webImage.getUrl());
 
 		Assert.assertNotNull(infoItemFieldValues.getInfoFieldValue("integer"));
+
+		InfoFieldValue<Object> textBoxInfoFieldValue =
+			infoItemFieldValues.getInfoFieldValue("TextBox");
+
+		Assert.assertEquals(
+			"A lot of text",
+			textBoxInfoFieldValue.getValue(LocaleUtil.getDefault()));
+
+		InfoFieldValue<Object> htmlInfoFieldValue =
+			infoItemFieldValues.getInfoFieldValue("HTML");
+
+		Assert.assertEquals(
+			"<p><strong>Bold text</strong></p>",
+			htmlInfoFieldValue.getValue(LocaleUtil.getDefault()));
 	}
 
 	private JournalArticle _getJournalArticle() throws Exception {
