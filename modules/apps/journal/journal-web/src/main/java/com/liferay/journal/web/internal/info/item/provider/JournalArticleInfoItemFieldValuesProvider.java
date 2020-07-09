@@ -77,40 +77,34 @@ public class JournalArticleInfoItemFieldValuesProvider
 	public InfoItemFieldValues getInfoItemFieldValues(
 		JournalArticle journalArticle) {
 
-		InfoItemFieldValues infoItemFieldValues = new InfoItemFieldValues(
-			new InfoItemClassPKReference(
-				JournalArticle.class.getName(),
-				journalArticle.getResourcePrimKey()));
-
-		infoItemFieldValues.addAll(
-			_getJournalArticleInfoFieldValues(journalArticle));
-
 		try {
-			infoItemFieldValues.addAll(
+			return InfoItemFieldValues.builder(
+			).infoFieldValues(
+				_getJournalArticleInfoFieldValues(journalArticle)
+			).infoFieldValues(
 				_assetEntryInfoItemFieldSetProvider.getInfoFieldValues(
 					JournalArticle.class.getName(),
-					journalArticle.getResourcePrimKey()));
+					journalArticle.getResourcePrimKey())
+			).infoFieldValues(
+				_expandoInfoItemFieldSetProvider.getInfoFieldValues(
+					JournalArticle.class.getName(), journalArticle)
+			).infoFieldValues(
+				_infoItemFieldReaderFieldSetProvider.getInfoFieldValues(
+					JournalArticle.class.getName(), journalArticle)
+			).infoFieldValues(
+				_getDDMStructureInfoFieldValues(journalArticle)
+			).infoFieldValues(
+				_getDDMTemplateInfoFieldValues(journalArticle)
+			).infoItemClassPKReference(
+				new InfoItemClassPKReference(
+					JournalArticle.class.getName(),
+					journalArticle.getResourcePrimKey())
+			).build();
 		}
 		catch (NoSuchInfoItemException noSuchInfoItemException) {
 			throw new RuntimeException(
 				"Caught unexpected exception", noSuchInfoItemException);
 		}
-
-		infoItemFieldValues.addAll(
-			_expandoInfoItemFieldSetProvider.getInfoFieldValues(
-				JournalArticle.class.getName(), journalArticle));
-
-		infoItemFieldValues.addAll(
-			_infoItemFieldReaderFieldSetProvider.getInfoFieldValues(
-				JournalArticle.class.getName(), journalArticle));
-
-		infoItemFieldValues.addAll(
-			_getDDMStructureInfoFieldValues(journalArticle));
-
-		infoItemFieldValues.addAll(
-			_getDDMTemplateInfoFieldValues(journalArticle));
-
-		return infoItemFieldValues;
 	}
 
 	private String _getDateValue(Date date) {
@@ -225,21 +219,21 @@ public class JournalArticleInfoItemFieldValuesProvider
 			journalArticleFieldValues.add(
 				new InfoFieldValue<>(
 					JournalArticleInfoItemFields.titleInfoField,
-					InfoLocalizedValue.builder(
+					InfoLocalizedValue.<String>builder(
 					).defaultLocale(
 						LocaleUtil.fromLanguageId(
 							journalArticle.getDefaultLanguageId())
-					).addValues(
+					).values(
 						journalArticle.getTitleMap()
 					).build()));
 			journalArticleFieldValues.add(
 				new InfoFieldValue<>(
 					JournalArticleInfoItemFields.descriptionInfoField,
-					InfoLocalizedValue.builder(
+					InfoLocalizedValue.<String>builder(
 					).defaultLocale(
 						LocaleUtil.fromLanguageId(
 							journalArticle.getDefaultLanguageId())
-					).addValues(
+					).values(
 						journalArticle.getDescriptionMap()
 					).build()));
 

@@ -135,61 +135,54 @@ public class InfoDisplayContributorWrapper
 	private InfoForm _convertToInfoForm(
 		Set<InfoDisplayField> infoDisplayFields) {
 
-		Locale locale = _getLocale();
-
-		InfoForm infoForm = new InfoForm("fields");
-
-		for (InfoDisplayField infoDisplayField : infoDisplayFields) {
-			InfoFieldType infoFieldType = _getInfoFieldTypeType(
-				infoDisplayField.getType());
-
-			InfoLocalizedValue<String> labelInfoLocalizedValue =
-				InfoLocalizedValue.builder(
-				).addValue(
-					locale, infoDisplayField.getLabel()
-				).build();
-
-			InfoField infoField = new InfoField(
-				infoFieldType, labelInfoLocalizedValue,
-				infoDisplayField.getKey());
-
-			infoForm.add(infoField);
-		}
-
-		return infoForm;
+		return InfoForm.builder(
+		).infoFieldSetEntry(
+			consumer -> {
+				for (InfoDisplayField infoDisplayField : infoDisplayFields) {
+					consumer.accept(
+						new InfoField(
+							_getInfoFieldTypeType(infoDisplayField.getType()),
+							InfoLocalizedValue.<String>builder(
+							).value(
+								_getLocale(), infoDisplayField.getLabel()
+							).build(),
+							infoDisplayField.getKey()));
+				}
+			}
+		).name(
+			"fields"
+		).build();
 	}
 
 	private InfoItemFieldValues _convertToInfoItemFieldValues(
 		Map<String, Object> infoDisplayFieldsValues,
 		InfoItemClassPKReference infoItemClassPKReference) {
 
-		Locale locale = _getLocale();
+		return InfoItemFieldValues.builder(
+		).infoFieldValue(
+			consumer -> {
+				for (Map.Entry<String, Object> entry :
+						infoDisplayFieldsValues.entrySet()) {
 
-		InfoItemFieldValues infoItemFieldValues = new InfoItemFieldValues(
-			infoItemClassPKReference);
+					String fieldName = entry.getKey();
 
-		for (Map.Entry<String, Object> entry :
-				infoDisplayFieldsValues.entrySet()) {
+					InfoLocalizedValue<String> fieldLabelLocalizedValue =
+						InfoLocalizedValue.<String>builder(
+						).value(
+							_getLocale(), fieldName
+						).build();
 
-			String fieldName = entry.getKey();
+					InfoField infoField = new InfoField(
+						TextInfoFieldType.INSTANCE, fieldLabelLocalizedValue,
+						fieldName);
 
-			InfoLocalizedValue<String> fieldLabelLocalizedValue =
-				InfoLocalizedValue.builder(
-				).addValue(
-					locale, fieldName
-				).build();
-
-			InfoField infoField = new InfoField(
-				TextInfoFieldType.INSTANCE, fieldLabelLocalizedValue,
-				fieldName);
-
-			InfoFieldValue<Object> infoFormValue = new InfoFieldValue(
-				infoField, entry.getValue());
-
-			infoItemFieldValues.add(infoFormValue);
-		}
-
-		return infoItemFieldValues;
+					consumer.accept(
+						new InfoFieldValue<>(infoField, entry.getValue()));
+				}
+			}
+		).infoItemClassPKReference(
+			infoItemClassPKReference
+		).build();
 	}
 
 	private InfoFieldType _getInfoFieldTypeType(String infoDisplayFieldType) {

@@ -1172,56 +1172,47 @@ public class OpenGraphTopHeadDynamicIncludeTest {
 		public InfoItemFieldValues getInfoItemFieldValues(
 			MockObject mockObject) {
 
-			InfoItemFieldValues infoItemFieldValues = new InfoItemFieldValues(
-				null);
-
-			infoItemFieldValues.add(
+			return InfoItemFieldValues.builder(
+			).infoFieldValue(
 				new InfoFieldValue<>(
 					new InfoField(
 						TextInfoFieldType.INSTANCE, null, "description"),
-					"<p>defaultMappedDescription</p>"));
-
-			infoItemFieldValues.add(
+					"<p>defaultMappedDescription</p>")
+			).infoFieldValue(
 				new InfoFieldValue<>(
 					new InfoField(TextInfoFieldType.INSTANCE, null, "title"),
-					"defaultMappedTitle"));
-
-			infoItemFieldValues.add(
+					"defaultMappedTitle")
+			).infoFieldValue(
 				new InfoFieldValue<>(
 					new InfoField(
 						TextInfoFieldType.INSTANCE, null,
 						"mappedDescriptionFieldName"),
-					"<p>mappedDescription</p>"));
-
-			infoItemFieldValues.add(
+					"<p>mappedDescription</p>")
+			).infoFieldValue(
 				new InfoFieldValue<>(
 					new InfoField(
 						TextInfoFieldType.INSTANCE, null,
 						"mappedTitleFieldName"),
-					"mappedTitle"));
-
-			infoItemFieldValues.add(
+					"mappedTitle")
+			).infoFieldValue(
 				new InfoFieldValue<>(
 					new InfoField(
 						TextInfoFieldType.INSTANCE, null,
 						"mappedTitleFieldName"),
-					"mappedTitle"));
-
-			infoItemFieldValues.add(
+					"mappedTitle")
+			).infoFieldValue(
 				new InfoFieldValue<>(
 					new InfoField(
 						ImageInfoFieldType.INSTANCE, null,
 						"mappedImageFieldName"),
-					new WebImage("/imageURL")));
-
-			infoItemFieldValues.add(
+					new WebImage("/imageURL"))
+			).infoFieldValue(
 				new InfoFieldValue<>(
 					new InfoField(
 						TextInfoFieldType.INSTANCE, null,
 						"mappedImageAltFieldName"),
-					"mappedImageAlt"));
-
-			return infoItemFieldValues;
+					"mappedImageAlt")
+			).build();
 		}
 
 	}

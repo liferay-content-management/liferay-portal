@@ -43,7 +43,6 @@ import java.text.NumberFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -61,7 +60,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = DDMFormValuesInfoFieldValuesProvider.class)
 public class DDMFormValuesInfoFieldValuesProvider<T extends GroupedModel> {
 
-	public List<InfoFieldValue<InfoLocalizedValue<String>>> getInfoFieldValues(
+	public List<InfoFieldValue<InfoLocalizedValue<Object>>> getInfoFieldValues(
 		T t, DDMFormValues ddmFormValues) {
 
 		List<DDMFormFieldValue> ddmFormFieldValues =
@@ -71,7 +70,7 @@ public class DDMFormValuesInfoFieldValuesProvider<T extends GroupedModel> {
 
 		return stream.flatMap(
 			ddmFormFieldValue -> {
-				List<InfoFieldValue<InfoLocalizedValue<String>>>
+				List<InfoFieldValue<InfoLocalizedValue<Object>>>
 					infoFieldValues = _getInfoFieldValues(t, ddmFormFieldValue);
 
 				return infoFieldValues.stream();
@@ -83,7 +82,7 @@ public class DDMFormValuesInfoFieldValuesProvider<T extends GroupedModel> {
 
 	private void _addDDMFormFieldValue(
 		T t, DDMFormFieldValue ddmFormFieldValue,
-		List<InfoFieldValue<InfoLocalizedValue<String>>> infoFieldValues) {
+		List<InfoFieldValue<InfoLocalizedValue<Object>>> infoFieldValues) {
 
 		_addNestedFields(t, ddmFormFieldValue, infoFieldValues);
 
@@ -96,7 +95,7 @@ public class DDMFormValuesInfoFieldValuesProvider<T extends GroupedModel> {
 
 	private void _addNestedFields(
 		T t, DDMFormFieldValue ddmFormFieldValue,
-		List<InfoFieldValue<InfoLocalizedValue<String>>> infoFieldValues) {
+		List<InfoFieldValue<InfoLocalizedValue<Object>>> infoFieldValues) {
 
 		Map<String, List<DDMFormFieldValue>> nestedDDMFormFieldValuesMap =
 			ddmFormFieldValue.getNestedDDMFormFieldValuesMap();
@@ -112,7 +111,7 @@ public class DDMFormValuesInfoFieldValuesProvider<T extends GroupedModel> {
 		}
 	}
 
-	private Optional<InfoFieldValue<InfoLocalizedValue<String>>>
+	private Optional<InfoFieldValue<InfoLocalizedValue<Object>>>
 		_getInfoFieldValue(T t, DDMFormFieldValue ddmFormFieldValue) {
 
 		Value value = ddmFormFieldValue.getValue();
@@ -129,25 +128,22 @@ public class DDMFormValuesInfoFieldValuesProvider<T extends GroupedModel> {
 				InfoLocalizedValue.builder(
 				).defaultLocale(
 					value.getDefaultLocale()
-				).addValues(
-					value.getValues(
-					).entrySet(
-					).stream(
-					).collect(
-						HashMap<Locale, Object>::new,
-						(map, entry) -> map.put(
-							entry.getKey(),
-							_sanitizeDDMFormFieldValue(
-								t, ddmFormFieldValue, entry.getKey())),
-						HashMap::putAll
-					)
+				).value(
+					consumer -> {
+						for (Locale locale : value.getAvailableLocales()) {
+							consumer.accept(
+								locale,
+								_sanitizeDDMFormFieldValue(
+									t, ddmFormFieldValue, locale));
+						}
+					}
 				).build()));
 	}
 
-	private List<InfoFieldValue<InfoLocalizedValue<String>>>
+	private List<InfoFieldValue<InfoLocalizedValue<Object>>>
 		_getInfoFieldValues(T t, DDMFormFieldValue ddmFormFieldValue) {
 
-		List<InfoFieldValue<InfoLocalizedValue<String>>> infoFieldValues =
+		List<InfoFieldValue<InfoLocalizedValue<Object>>> infoFieldValues =
 			new ArrayList<>();
 
 		_addDDMFormFieldValue(t, ddmFormFieldValue, infoFieldValues);

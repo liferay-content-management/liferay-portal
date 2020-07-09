@@ -26,8 +26,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Validator;
 
-import java.util.List;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -47,30 +45,31 @@ public class DDMStructureInfoItemFieldSetProviderImpl
 			DDMStructure ddmStructure =
 				_ddmStructureLocalService.getDDMStructure(ddmStructureId);
 
-			InfoFieldSet infoFieldSet = new InfoFieldSet(
-				InfoLocalizedValue.builder(
-				).addValues(
-					ddmStructure.getNameMap()
-				).build(),
-				ddmStructure.getStructureKey());
+			return InfoFieldSet.builder(
+			).infoFieldSetEntry(
+				consumer -> {
+					for (DDMFormField ddmFormField :
+							ddmStructure.getDDMFormFields(false)) {
 
-			List<DDMFormField> ddmFormFields = ddmStructure.getDDMFormFields(
-				false);
+						if (Validator.isNotNull(ddmFormField.getIndexType()) &&
+							ArrayUtil.contains(
+								_SELECTABLE_DDM_STRUCTURE_FIELDS,
+								ddmFormField.getType())) {
 
-			for (DDMFormField ddmFormField : ddmFormFields) {
-				if (Validator.isNull(ddmFormField.getIndexType()) ||
-					!ArrayUtil.contains(
-						_SELECTABLE_DDM_STRUCTURE_FIELDS,
-						ddmFormField.getType())) {
-
-					continue;
+							consumer.accept(
+								_ddmFormFieldInfoFieldConverter.convert(
+									ddmFormField));
+						}
+					}
 				}
-
-				infoFieldSet.add(
-					_ddmFormFieldInfoFieldConverter.convert(ddmFormField));
-			}
-
-			return infoFieldSet;
+			).labelInfoLocalizedValue(
+				InfoLocalizedValue.<String>builder(
+				).values(
+					ddmStructure.getNameMap()
+				).build()
+			).name(
+				ddmStructure.getStructureKey()
+			).build();
 		}
 		catch (NoSuchStructureException noSuchStructureException) {
 			throw noSuchStructureException;

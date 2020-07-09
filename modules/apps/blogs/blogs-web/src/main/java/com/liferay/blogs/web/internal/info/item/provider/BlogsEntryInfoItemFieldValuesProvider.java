@@ -60,30 +60,28 @@ public class BlogsEntryInfoItemFieldValuesProvider
 
 	@Override
 	public InfoItemFieldValues getInfoItemFieldValues(BlogsEntry blogsEntry) {
-		InfoItemFieldValues infoItemFieldValues = new InfoItemFieldValues(
-			new InfoItemClassPKReference(
-				BlogsEntry.class.getName(), blogsEntry.getEntryId()));
-
-		infoItemFieldValues.addAll(_getBlogsEntryInfoFieldValues(blogsEntry));
-
 		try {
-			infoItemFieldValues.addAll(
+			return InfoItemFieldValues.builder(
+			).infoFieldValues(
+				_getBlogsEntryInfoFieldValues(blogsEntry)
+			).infoFieldValues(
 				_assetEntryInfoItemFieldSetProvider.getInfoFieldValues(
-					BlogsEntry.class.getName(), blogsEntry.getEntryId()));
+					BlogsEntry.class.getName(), blogsEntry.getEntryId())
+			).infoFieldValues(
+				_expandoInfoItemFieldSetProvider.getInfoFieldValues(
+					BlogsEntry.class.getName(), blogsEntry)
+			).infoFieldValues(
+				_infoItemFieldReaderFieldSetProvider.getInfoFieldValues(
+					BlogsEntry.class.getName(), blogsEntry)
+			).infoItemClassPKReference(
+				new InfoItemClassPKReference(
+					BlogsEntry.class.getName(), blogsEntry.getEntryId())
+			).build();
 		}
 		catch (NoSuchInfoItemException noSuchInfoItemException) {
 			throw new RuntimeException(
 				"Caught unexpected exception", noSuchInfoItemException);
 		}
-
-		infoItemFieldValues.addAll(
-			_expandoInfoItemFieldSetProvider.getInfoFieldValues(
-				BlogsEntry.class.getName(), blogsEntry));
-		infoItemFieldValues.addAll(
-			_infoItemFieldReaderFieldSetProvider.getInfoFieldValues(
-				BlogsEntry.class.getName(), blogsEntry));
-
-		return infoItemFieldValues;
 	}
 
 	private List<InfoFieldValue<Object>> _getBlogsEntryInfoFieldValues(

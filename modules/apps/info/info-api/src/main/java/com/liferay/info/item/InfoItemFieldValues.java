@@ -16,6 +16,7 @@ package com.liferay.info.item;
 
 import com.liferay.info.field.InfoField;
 import com.liferay.info.field.InfoFieldValue;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 
 import java.util.ArrayList;
@@ -33,39 +34,45 @@ import java.util.Map;
  */
 public class InfoItemFieldValues {
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	public InfoItemFieldValues(
 		InfoItemClassPKReference infoItemClassPKReference) {
 
-		_infoItemClassPKReference = infoItemClassPKReference;
+		this(builder().infoItemClassPKReference(infoItemClassPKReference));
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	public InfoItemFieldValues add(InfoFieldValue<Object> infoFieldValue) {
-		_infoFieldValues.add(infoFieldValue);
-
-		InfoField infoField = infoFieldValue.getInfoField();
-
-		Collection<InfoFieldValue<Object>> infoFieldValues =
-			_infoFieldValuesByName.computeIfAbsent(
-				infoField.getName(), key -> new ArrayList<>());
-
-		infoFieldValues.add(infoFieldValue);
+		_builder.infoFieldValue(infoFieldValue);
 
 		return this;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	public InfoItemFieldValues addAll(
 		List<InfoFieldValue<Object>> infoFieldValues) {
 
-		for (InfoFieldValue<Object> infoFieldValue : infoFieldValues) {
-			add(infoFieldValue);
-		}
+		_builder.infoFieldValues(infoFieldValues);
 
 		return this;
 	}
 
-	public InfoFieldValue<Object> getInfoFieldValue(String fieldName) {
+	public InfoFieldValue<Object> getInfoFieldValue(String infoFieldName) {
 		Collection<InfoFieldValue<Object>> infoFieldValues =
-			_infoFieldValuesByName.get(fieldName);
+			_builder._infoFieldValuesByName.get(infoFieldName);
 
 		if (infoFieldValues != null) {
 			Iterator<InfoFieldValue<Object>> iterator =
@@ -80,24 +87,27 @@ public class InfoItemFieldValues {
 	}
 
 	public Collection<InfoFieldValue<Object>> getInfoFieldValues() {
-		return _infoFieldValues;
+		return _builder._infoFieldValues;
 	}
 
 	public Collection<InfoFieldValue<Object>> getInfoFieldValues(
-		String fieldName) {
+		String infoFieldName) {
 
-		return _infoFieldValuesByName.getOrDefault(
-			fieldName, Collections.emptyList());
+		return _builder._infoFieldValuesByName.getOrDefault(
+			infoFieldName, Collections.emptyList());
 	}
 
 	public InfoItemClassPKReference getInfoItemClassPKReference() {
-		return _infoItemClassPKReference;
+		return _builder._infoItemClassPKReference;
 	}
 
 	public Map<String, Object> getMap(Locale locale) {
-		Map<String, Object> map = new HashMap<>(_infoFieldValues.size());
+		Map<String, Object> map = new HashMap<>(
+			_builder._infoFieldValues.size());
 
-		for (InfoFieldValue<Object> infoFieldValue : _infoFieldValues) {
+		for (InfoFieldValue<Object> infoFieldValue :
+				_builder._infoFieldValues) {
+
 			InfoField infoField = infoFieldValue.getInfoField();
 
 			map.put(infoField.getName(), infoFieldValue.getValue(locale));
@@ -106,10 +116,14 @@ public class InfoItemFieldValues {
 		return map;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x)
+	 */
+	@Deprecated
 	public void setInfoItemClassPKReference(
 		InfoItemClassPKReference infoItemClassPKReference) {
 
-		_infoItemClassPKReference = infoItemClassPKReference;
+		_builder.infoItemClassPKReference(infoItemClassPKReference);
 	}
 
 	@Override
@@ -117,16 +131,72 @@ public class InfoItemFieldValues {
 		StringBundler sb = new StringBundler(3);
 
 		sb.append("{infoFieldValues: ");
-		sb.append(_infoFieldValues.size());
+		sb.append(_builder._infoFieldValues.size());
 		sb.append("}");
 
 		return sb.toString();
 	}
 
-	private final Collection<InfoFieldValue<Object>> _infoFieldValues =
-		new LinkedHashSet<>();
-	private final Map<String, Collection<InfoFieldValue<Object>>>
-		_infoFieldValuesByName = new HashMap<>();
-	private InfoItemClassPKReference _infoItemClassPKReference;
+	public static class Builder {
+
+		public InfoItemFieldValues build() {
+			return new InfoItemFieldValues(this);
+		}
+
+		public Builder infoFieldValue(InfoFieldValue<Object> infoFieldValue) {
+			_infoFieldValues.add(infoFieldValue);
+
+			InfoField infoField = infoFieldValue.getInfoField();
+
+			Collection<InfoFieldValue<Object>> infoFieldValues =
+				_infoFieldValuesByName.computeIfAbsent(
+					infoField.getName(), key -> new ArrayList<>());
+
+			infoFieldValues.add(infoFieldValue);
+
+			return this;
+		}
+
+		public <T extends Throwable> Builder infoFieldValue(
+				UnsafeConsumer<UnsafeConsumer<InfoFieldValue<Object>, T>, T>
+					consumer)
+			throws T {
+
+			consumer.accept(this::infoFieldValue);
+
+			return this;
+		}
+
+		public Builder infoFieldValues(
+			List<InfoFieldValue<Object>> infoFieldValues) {
+
+			for (InfoFieldValue<Object> infoFieldValue : infoFieldValues) {
+				infoFieldValue(infoFieldValue);
+			}
+
+			return this;
+		}
+
+		public Builder infoItemClassPKReference(
+			InfoItemClassPKReference infoItemClassPKReference) {
+
+			_infoItemClassPKReference = infoItemClassPKReference;
+
+			return this;
+		}
+
+		private final Collection<InfoFieldValue<Object>> _infoFieldValues =
+			new LinkedHashSet<>();
+		private final Map<String, Collection<InfoFieldValue<Object>>>
+			_infoFieldValuesByName = new HashMap<>();
+		private InfoItemClassPKReference _infoItemClassPKReference;
+
+	}
+
+	private InfoItemFieldValues(Builder builder) {
+		_builder = builder;
+	}
+
+	private final Builder _builder;
 
 }
