@@ -169,6 +169,7 @@ renderResponse.setTitle(journalTranslateDisplayContext.getTitle());
 										contents="<%= targetContent %>"
 										name="<%= id %>"
 										placeholder="<%= label %>"
+										toolbarSet="simple"
 									/>
 								</c:when>
 								<c:otherwise>
