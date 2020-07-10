@@ -138,7 +138,6 @@ renderResponse.setTitle(journalTranslateDisplayContext.getTitle());
 
 					String sourceContent = String.valueOf(infoFieldValue.getValue(journalTranslateDisplayContext.getSourceLocale()));
 					String targetContent = String.valueOf(infoFieldValue.getValue(journalTranslateDisplayContext.getTargetLocale()));
-
 				%>
 
 					<clay:row>
@@ -150,6 +149,7 @@ renderResponse.setTitle(journalTranslateDisplayContext.getTitle());
 									<label class="control-label">
 										<%= label %>
 									</label>
+
 									<div contenteditable="false" role="textbox" tabIndex="-1">
 										<%= sourceContent %>
 									</div>
