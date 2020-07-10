@@ -23,6 +23,7 @@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
 taglib uri="http://liferay.com/tld/data-engine" prefix="liferay-data-engine" %><%@
 taglib uri="http://liferay.com/tld/ddm" prefix="liferay-ddm" %><%@
+taglib uri="http://liferay.com/tld/editor" prefix="liferay-editor" %><%@
 taglib uri="http://liferay.com/tld/expando" prefix="liferay-expando" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/layout" prefix="liferay-layout" %><%@
@@ -71,6 +72,7 @@ page import="com.liferay.exportimport.kernel.exception.ExportImportContentValida
 page import="com.liferay.info.field.InfoField" %><%@
 page import="com.liferay.info.field.InfoFieldSetEntry" %><%@
 page import="com.liferay.info.field.InfoFieldValue" %><%@
+page import="com.liferay.info.field.type.TextInfoFieldType" %><%@
 page import="com.liferay.journal.configuration.JournalFileUploadsConfiguration" %><%@
 page import="com.liferay.journal.configuration.JournalGroupServiceConfiguration" %><%@
 page import="com.liferay.journal.constants.JournalArticleConstants" %><%@
