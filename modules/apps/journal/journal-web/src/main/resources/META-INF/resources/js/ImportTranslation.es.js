@@ -55,7 +55,7 @@ export default function ImportTranslation({
 	}, [importFile, parseFile, saveDraftBtnId, submitBtnId, worflowPending]);
 
 	const parseFile = useCallback(
-		(filename, fileData) => {
+		(_filename, fileData) => {
 			try {
 				const xmlDoc = new DOMParser().parseFromString(
 					fileData,
