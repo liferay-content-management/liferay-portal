@@ -500,23 +500,24 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 										colspan="<%= 2 %>"
 									>
 										<div class="item-preview" data-href="<%= Validator.isNotNull(thumbnailSrc) ? HtmlUtil.escapeHREF(DLURLHelperUtil.getImagePreviewURL(fileEntry, themeDisplay)) : themeDisplay.getPathThemeImages() + "/file_system/large/default.png" %>" data-metadata="<%= HtmlUtil.escapeAttribute(itemMedatadaJSONObject.toString()) %>" data-returnType="<%= HtmlUtil.escapeAttribute(ItemSelectorRepositoryEntryBrowserUtil.getItemSelectorReturnTypeClassName(itemSelectorReturnTypeResolver, existingFileEntryReturnType)) %>" data-title="<%= HtmlUtil.escapeAttribute(title) %>" data-url="<%= HtmlUtil.escapeAttribute(DLURLHelperUtil.getPreviewURL(fileEntry, latestFileVersion, themeDisplay, StringPool.BLANK)) %>" data-value="<%= HtmlUtil.escapeAttribute(ItemSelectorRepositoryEntryBrowserUtil.getValue(itemSelectorReturnTypeResolver, existingFileEntryReturnType, fileEntry, themeDisplay)) %>">
-											<liferay-ui:app-view-entry
-												assetCategoryClassName="<%= DLFileEntry.class.getName() %>"
-												assetCategoryClassPK="<%= fileEntry.getFileEntryId() %>"
-												assetTagClassName="<%= DLFileEntry.class.getName() %>"
-												assetTagClassPK="<%= fileEntry.getFileEntryId() %>"
-												author="<%= fileEntry.getUserName() %>"
-												createDate="<%= fileEntry.getCreateDate() %>"
-												description="<%= fileEntry.getDescription() %>"
-												displayStyle="descriptive"
-												groupId="<%= fileEntry.getGroupId() %>"
-												markupView="lexicon"
-												modifiedDate="<%= fileEntry.getModifiedDate() %>"
-												showCheckbox="<%= false %>"
-												status="<%= latestFileVersion.getStatus() %>"
-												title="<%= title %>"
-												version="<%= String.valueOf(fileEntry.getVersion()) %>"
-											/>
+
+											<h2 class="h5">
+												<%= title %>
+											</h2>
+
+											<span class="text-default">
+												<strong><liferay-ui:message key="version" /></strong>:
+
+												<%= String.valueOf(fileEntry.getVersion()) %>
+											</span>
+
+											<span class="text-default">
+												<%
+												String modifiedDateDescription = LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - fileEntry.getModifiedDate().getTime(), true);
+												%>
+												<strong><liferay-ui:message key="last-updated" /></strong>: 
+												<liferay-ui:message arguments="<%= new String[] {HtmlUtil.escape(latestFileVersion.getUserName()), modifiedDateDescription} %>" key="x-modified-x-ago" />
+											</span>
 										</div>
 									</liferay-ui:search-container-column-text>
 
