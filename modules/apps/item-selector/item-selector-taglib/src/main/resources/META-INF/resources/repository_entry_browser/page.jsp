@@ -120,6 +120,18 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 	</c:if>
 
 	<c:if test="<%= (existingFileEntryReturnType != null) || (itemSelectorReturnTypeResolver != null) %>">
+		<liferay-util:buffer
+			var="locationDepotHTML"
+		>
+			<div class="text-secondary">
+				<clay:icon
+					symbol="books"
+				/>
+
+				<small>Company Assets</small>
+			</div>
+		</liferay-util:buffer>
+
 		<liferay-ui:search-container
 			cssClass='<%= displayStyle.equals("list") ? "main-content-body" : StringPool.BLANK %>'
 			searchContainer="<%= searchContainer %>"
@@ -189,13 +201,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 							<liferay-ui:search-container-column-text
 								name="location"
 							>
-								<span class="text-secondary">
-									<clay:icon
-										symbol="books"
-									/>
-
-									<small>Company Assets</small>
-								</span>
+								<%= locationDepotHTML %>
 							</liferay-ui:search-container-column-text>
 
 							<liferay-ui:search-container-column-text
@@ -250,13 +256,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 							<liferay-ui:search-container-column-text
 								name="location"
 							>
-								<span class="text-secondary">
-									<clay:icon
-										symbol="books"
-									/>
-
-									<small>Company Assets</small>
-								</span>
+								<%= locationDepotHTML %>
 							</liferay-ui:search-container-column-text>
 
 							<liferay-ui:search-container-column-text
@@ -377,13 +377,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 													title="<%= title %>"
 												>
 													<liferay-frontend:vertical-card-footer>
-														<span class="text-secondary">
-															<clay:icon
-																symbol="books"
-															/>
-
-															<small>Company Assets</small>
-														</span>
+														<%= locationDepotHTML %>
 													</liferay-frontend:vertical-card-footer>
 
 													<liferay-frontend:vertical-card-sticker-bottom>
@@ -405,13 +399,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 													title="<%= title %>"
 												>
 													<liferay-frontend:vertical-card-footer>
-														<span class="text-secondary">
-															<clay:icon
-																symbol="books"
-															/>
-
-															<small>Company Assets</small>
-														</span>
+														<%= locationDepotHTML %>
 													</liferay-frontend:vertical-card-footer>
 
 													<liferay-frontend:vertical-card-sticker-bottom>
@@ -504,13 +492,7 @@ ItemSelectorRepositoryEntryManagementToolbarDisplayContext itemSelectorRepositor
 												<%= title %>
 											</div>
 
-											<div class="text-secondary">
-												<clay:icon
-													symbol="books"
-												/>
-
-												<small>Company Assets</small>
-											</div>
+											<%= locationDepotHTML %>
 
 											<div class="text-default">
 												<strong><liferay-ui:message key="version" /></strong>:
