@@ -15,21 +15,22 @@
 package com.liferay.info.field.type;
 
 /**
- * @author     Alejandro Tardín
- * @deprecated As of Athanasius (7.3.x)
+ * @author Alicia Garcia
  */
-@Deprecated
-public class IntegerInfoFieldType implements InfoFieldType {
+public class SelectInfoFieldType implements InfoFieldType {
 
-	public static final IntegerInfoFieldType INSTANCE =
-		new IntegerInfoFieldType();
+	public static final SelectInfoFieldType INSTANCE =
+		new SelectInfoFieldType();
+
+	public static final Attribute<TextInfoFieldType, Boolean> MULTIPLE =
+		new Attribute<>();
 
 	@Override
 	public String getName() {
-		return "integer";
+		return "select";
 	}
 
-	private IntegerInfoFieldType() {
+	private SelectInfoFieldType() {
 	}
 
 }

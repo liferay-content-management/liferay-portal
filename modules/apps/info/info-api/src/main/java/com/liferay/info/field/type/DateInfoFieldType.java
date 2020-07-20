@@ -15,21 +15,18 @@
 package com.liferay.info.field.type;
 
 /**
- * @author     Alejandro Tardín
- * @deprecated As of Athanasius (7.3.x)
+ * @author Alicia Garcia
  */
-@Deprecated
-public class IntegerInfoFieldType implements InfoFieldType {
+public class DateInfoFieldType implements InfoFieldType {
 
-	public static final IntegerInfoFieldType INSTANCE =
-		new IntegerInfoFieldType();
+	public static final DateInfoFieldType INSTANCE = new DateInfoFieldType();
 
 	@Override
 	public String getName() {
-		return "integer";
+		return "date";
 	}
 
-	private IntegerInfoFieldType() {
+	private DateInfoFieldType() {
 	}
 
 }
