@@ -69,8 +69,9 @@ public class DepotEntryGroupRelModelImpl
 
 	public static final Object[][] TABLE_COLUMNS = {
 		{"mvccVersion", Types.BIGINT}, {"depotEntryGroupRelId", Types.BIGINT},
-		{"companyId", Types.BIGINT}, {"depotEntryId", Types.BIGINT},
-		{"searchable", Types.BOOLEAN}, {"toGroupId", Types.BIGINT}
+		{"companyId", Types.BIGINT}, {"ddmStructuresAvailable", Types.BOOLEAN},
+		{"depotEntryId", Types.BIGINT}, {"searchable", Types.BOOLEAN},
+		{"toGroupId", Types.BIGINT}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -80,13 +81,14 @@ public class DepotEntryGroupRelModelImpl
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("depotEntryGroupRelId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ddmStructuresAvailable", Types.BOOLEAN);
 		TABLE_COLUMNS_MAP.put("depotEntryId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("searchable", Types.BOOLEAN);
 		TABLE_COLUMNS_MAP.put("toGroupId", Types.BIGINT);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table DepotEntryGroupRel (mvccVersion LONG default 0 not null,depotEntryGroupRelId LONG not null primary key,companyId LONG,depotEntryId LONG,searchable BOOLEAN,toGroupId LONG)";
+		"create table DepotEntryGroupRel (mvccVersion LONG default 0 not null,depotEntryGroupRelId LONG not null primary key,companyId LONG,ddmStructuresAvailable BOOLEAN,depotEntryId LONG,searchable BOOLEAN,toGroupId LONG)";
 
 	public static final String TABLE_SQL_DROP = "drop table DepotEntryGroupRel";
 
@@ -102,13 +104,15 @@ public class DepotEntryGroupRelModelImpl
 
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
-	public static final long DEPOTENTRYID_COLUMN_BITMASK = 1L;
+	public static final long DDMSTRUCTURESAVAILABLE_COLUMN_BITMASK = 1L;
 
-	public static final long SEARCHABLE_COLUMN_BITMASK = 2L;
+	public static final long DEPOTENTRYID_COLUMN_BITMASK = 2L;
 
-	public static final long TOGROUPID_COLUMN_BITMASK = 4L;
+	public static final long SEARCHABLE_COLUMN_BITMASK = 4L;
 
-	public static final long DEPOTENTRYGROUPRELID_COLUMN_BITMASK = 8L;
+	public static final long TOGROUPID_COLUMN_BITMASK = 8L;
+
+	public static final long DEPOTENTRYGROUPRELID_COLUMN_BITMASK = 16L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
@@ -140,6 +144,7 @@ public class DepotEntryGroupRelModelImpl
 		model.setMvccVersion(soapModel.getMvccVersion());
 		model.setDepotEntryGroupRelId(soapModel.getDepotEntryGroupRelId());
 		model.setCompanyId(soapModel.getCompanyId());
+		model.setDdmStructuresAvailable(soapModel.isDdmStructuresAvailable());
 		model.setDepotEntryId(soapModel.getDepotEntryId());
 		model.setSearchable(soapModel.isSearchable());
 		model.setToGroupId(soapModel.getToGroupId());
@@ -317,6 +322,13 @@ public class DepotEntryGroupRelModelImpl
 			(BiConsumer<DepotEntryGroupRel, Long>)
 				DepotEntryGroupRel::setCompanyId);
 		attributeGetterFunctions.put(
+			"ddmStructuresAvailable",
+			DepotEntryGroupRel::getDdmStructuresAvailable);
+		attributeSetterBiConsumers.put(
+			"ddmStructuresAvailable",
+			(BiConsumer<DepotEntryGroupRel, Boolean>)
+				DepotEntryGroupRel::setDdmStructuresAvailable);
+		attributeGetterFunctions.put(
 			"depotEntryId", DepotEntryGroupRel::getDepotEntryId);
 		attributeSetterBiConsumers.put(
 			"depotEntryId",
@@ -372,6 +384,35 @@ public class DepotEntryGroupRelModelImpl
 	@Override
 	public void setCompanyId(long companyId) {
 		_companyId = companyId;
+	}
+
+	@JSON
+	@Override
+	public boolean getDdmStructuresAvailable() {
+		return _ddmStructuresAvailable;
+	}
+
+	@JSON
+	@Override
+	public boolean isDdmStructuresAvailable() {
+		return _ddmStructuresAvailable;
+	}
+
+	@Override
+	public void setDdmStructuresAvailable(boolean ddmStructuresAvailable) {
+		_columnBitmask |= DDMSTRUCTURESAVAILABLE_COLUMN_BITMASK;
+
+		if (!_setOriginalDdmStructuresAvailable) {
+			_setOriginalDdmStructuresAvailable = true;
+
+			_originalDdmStructuresAvailable = _ddmStructuresAvailable;
+		}
+
+		_ddmStructuresAvailable = ddmStructuresAvailable;
+	}
+
+	public boolean getOriginalDdmStructuresAvailable() {
+		return _originalDdmStructuresAvailable;
 	}
 
 	@JSON
@@ -491,6 +532,8 @@ public class DepotEntryGroupRelModelImpl
 		depotEntryGroupRelImpl.setDepotEntryGroupRelId(
 			getDepotEntryGroupRelId());
 		depotEntryGroupRelImpl.setCompanyId(getCompanyId());
+		depotEntryGroupRelImpl.setDdmStructuresAvailable(
+			isDdmStructuresAvailable());
 		depotEntryGroupRelImpl.setDepotEntryId(getDepotEntryId());
 		depotEntryGroupRelImpl.setSearchable(isSearchable());
 		depotEntryGroupRelImpl.setToGroupId(getToGroupId());
@@ -564,6 +607,11 @@ public class DepotEntryGroupRelModelImpl
 	public void resetOriginalValues() {
 		DepotEntryGroupRelModelImpl depotEntryGroupRelModelImpl = this;
 
+		depotEntryGroupRelModelImpl._originalDdmStructuresAvailable =
+			depotEntryGroupRelModelImpl._ddmStructuresAvailable;
+
+		depotEntryGroupRelModelImpl._setOriginalDdmStructuresAvailable = false;
+
 		depotEntryGroupRelModelImpl._originalDepotEntryId =
 			depotEntryGroupRelModelImpl._depotEntryId;
 
@@ -593,6 +641,9 @@ public class DepotEntryGroupRelModelImpl
 			getDepotEntryGroupRelId();
 
 		depotEntryGroupRelCacheModel.companyId = getCompanyId();
+
+		depotEntryGroupRelCacheModel.ddmStructuresAvailable =
+			isDdmStructuresAvailable();
 
 		depotEntryGroupRelCacheModel.depotEntryId = getDepotEntryId();
 
@@ -676,6 +727,9 @@ public class DepotEntryGroupRelModelImpl
 	private long _mvccVersion;
 	private long _depotEntryGroupRelId;
 	private long _companyId;
+	private boolean _ddmStructuresAvailable;
+	private boolean _originalDdmStructuresAvailable;
+	private boolean _setOriginalDdmStructuresAvailable;
 	private long _depotEntryId;
 	private long _originalDepotEntryId;
 	private boolean _setOriginalDepotEntryId;
