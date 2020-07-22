@@ -61,9 +61,9 @@ public class BlogsContentEditorConfigContributor
 
 		StringBundler sb = new StringBundler(7);
 
-		sb.append("a[*](*); ");
+		sb.append("a[*](*){*}; ");
 		sb.append(_getAllowedContentText());
-		sb.append(" div[*](*); iframe[*](*); img[*](*){*}; ");
+		sb.append(" div[*](*){*}; iframe[*](*); img[*](*){*}; ");
 		sb.append(_getAllowedContentLists());
 		sb.append(" p {text-align}; ");
 		sb.append(_getAllowedContentTable());
@@ -85,7 +85,7 @@ public class BlogsContentEditorConfigContributor
 	}
 
 	private String _getAllowedContentLists() {
-		return "li ol ul;";
+		return "li{*}; ol ul{*};";
 	}
 
 	private String _getAllowedContentTable() {
@@ -94,8 +94,8 @@ public class BlogsContentEditorConfigContributor
 	}
 
 	private String _getAllowedContentText() {
-		return "b blockquote code em h1 h2 h3 h4 h5 h6 hr i pre s strike " +
-			"strong u;";
+		return "b blockquote code em h1{*}; h2{*}; h3{*}; h4{*}; h5{*}; " +
+			"h6{*}; hr i pre s span{*}; strike strong u;";
 	}
 
 	private void _populateFileBrowserURL(
