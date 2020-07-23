@@ -373,6 +373,14 @@ public class DLFileEntryTypeLocalServiceImpl
 	}
 
 	@Override
+	public DLFileEntryType fetchFileEntryTypeByDataDefinitionId(
+		long dataDefinitionId) {
+
+		return dlFileEntryTypePersistence.fetchByDataDefinitionId(
+			dataDefinitionId);
+	}
+
+	@Override
 	public DLFileEntryType getBasicDocumentDLFileEntryType()
 		throws NoSuchFileEntryTypeException {
 
