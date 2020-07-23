@@ -396,6 +396,13 @@ public class DLFileEntryTypeLocalServiceUtil {
 		return getService().fetchFileEntryType(groupId, fileEntryTypeKey);
 	}
 
+	public static com.liferay.document.library.kernel.model.DLFileEntryType
+		fetchFileEntryTypeByDataDefinitionId(long dataDefinitionId) {
+
+		return getService().fetchFileEntryTypeByDataDefinitionId(
+			dataDefinitionId);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 

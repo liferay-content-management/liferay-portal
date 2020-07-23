@@ -242,6 +242,13 @@ public class DLFileEntryTypePersistenceTest {
 	}
 
 	@Test
+	public void testCountByDataDefinitionId() throws Exception {
+		_persistence.countByDataDefinitionId(RandomTestUtil.nextLong());
+
+		_persistence.countByDataDefinitionId(0L);
+	}
+
+	@Test
 	public void testCountByG_F() throws Exception {
 		_persistence.countByG_F(RandomTestUtil.nextLong(), "");
 
@@ -521,6 +528,12 @@ public class DLFileEntryTypePersistenceTest {
 			Long.valueOf(existingDLFileEntryType.getGroupId()),
 			ReflectionTestUtil.<Long>invoke(
 				existingDLFileEntryType, "getOriginalGroupId",
+				new Class<?>[0]));
+
+		Assert.assertEquals(
+			Long.valueOf(existingDLFileEntryType.getDataDefinitionId()),
+			ReflectionTestUtil.<Long>invoke(
+				existingDLFileEntryType, "getOriginalDataDefinitionId",
 				new Class<?>[0]));
 
 		Assert.assertEquals(

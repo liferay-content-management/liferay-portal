@@ -2870,6 +2870,224 @@ public class DLFileEntryTypePersistenceImpl
 	private static final String _FINDER_COLUMN_GROUPID_GROUPID_7 =
 		"dlFileEntryType.groupId IN (";
 
+	private FinderPath _finderPathFetchByDataDefinitionId;
+	private FinderPath _finderPathCountByDataDefinitionId;
+
+	/**
+	 * Returns the document library file entry type where dataDefinitionId = &#63; or throws a <code>NoSuchFileEntryTypeException</code> if it could not be found.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @return the matching document library file entry type
+	 * @throws NoSuchFileEntryTypeException if a matching document library file entry type could not be found
+	 */
+	@Override
+	public DLFileEntryType findByDataDefinitionId(long dataDefinitionId)
+		throws NoSuchFileEntryTypeException {
+
+		DLFileEntryType dlFileEntryType = fetchByDataDefinitionId(
+			dataDefinitionId);
+
+		if (dlFileEntryType == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+			sb.append("dataDefinitionId=");
+			sb.append(dataDefinitionId);
+
+			sb.append("}");
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(sb.toString());
+			}
+
+			throw new NoSuchFileEntryTypeException(sb.toString());
+		}
+
+		return dlFileEntryType;
+	}
+
+	/**
+	 * Returns the document library file entry type where dataDefinitionId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @return the matching document library file entry type, or <code>null</code> if a matching document library file entry type could not be found
+	 */
+	@Override
+	public DLFileEntryType fetchByDataDefinitionId(long dataDefinitionId) {
+		return fetchByDataDefinitionId(dataDefinitionId, true);
+	}
+
+	/**
+	 * Returns the document library file entry type where dataDefinitionId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching document library file entry type, or <code>null</code> if a matching document library file entry type could not be found
+	 */
+	@Override
+	public DLFileEntryType fetchByDataDefinitionId(
+		long dataDefinitionId, boolean useFinderCache) {
+
+		boolean productionMode = CTPersistenceHelperUtil.isProductionMode(
+			DLFileEntryType.class);
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache && productionMode) {
+			finderArgs = new Object[] {dataDefinitionId};
+		}
+
+		Object result = null;
+
+		if (useFinderCache && productionMode) {
+			result = FinderCacheUtil.getResult(
+				_finderPathFetchByDataDefinitionId, finderArgs, this);
+		}
+
+		if (result instanceof DLFileEntryType) {
+			DLFileEntryType dlFileEntryType = (DLFileEntryType)result;
+
+			if (dataDefinitionId != dlFileEntryType.getDataDefinitionId()) {
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_SELECT_DLFILEENTRYTYPE_WHERE);
+
+			sb.append(_FINDER_COLUMN_DATADEFINITIONID_DATADEFINITIONID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(dataDefinitionId);
+
+				List<DLFileEntryType> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache && productionMode) {
+						FinderCacheUtil.putResult(
+							_finderPathFetchByDataDefinitionId, finderArgs,
+							list);
+					}
+				}
+				else {
+					DLFileEntryType dlFileEntryType = list.get(0);
+
+					result = dlFileEntryType;
+
+					cacheResult(dlFileEntryType);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (DLFileEntryType)result;
+		}
+	}
+
+	/**
+	 * Removes the document library file entry type where dataDefinitionId = &#63; from the database.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @return the document library file entry type that was removed
+	 */
+	@Override
+	public DLFileEntryType removeByDataDefinitionId(long dataDefinitionId)
+		throws NoSuchFileEntryTypeException {
+
+		DLFileEntryType dlFileEntryType = findByDataDefinitionId(
+			dataDefinitionId);
+
+		return remove(dlFileEntryType);
+	}
+
+	/**
+	 * Returns the number of document library file entry types where dataDefinitionId = &#63;.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @return the number of matching document library file entry types
+	 */
+	@Override
+	public int countByDataDefinitionId(long dataDefinitionId) {
+		boolean productionMode = CTPersistenceHelperUtil.isProductionMode(
+			DLFileEntryType.class);
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		Long count = null;
+
+		if (productionMode) {
+			finderPath = _finderPathCountByDataDefinitionId;
+
+			finderArgs = new Object[] {dataDefinitionId};
+
+			count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+		}
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_DLFILEENTRYTYPE_WHERE);
+
+			sb.append(_FINDER_COLUMN_DATADEFINITIONID_DATADEFINITIONID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(dataDefinitionId);
+
+				count = (Long)query.uniqueResult();
+
+				if (productionMode) {
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String
+		_FINDER_COLUMN_DATADEFINITIONID_DATADEFINITIONID_2 =
+			"dlFileEntryType.dataDefinitionId = ?";
+
 	private FinderPath _finderPathFetchByG_F;
 	private FinderPath _finderPathCountByG_F;
 
@@ -3175,6 +3393,11 @@ public class DLFileEntryTypePersistenceImpl
 			dlFileEntryType);
 
 		FinderCacheUtil.putResult(
+			_finderPathFetchByDataDefinitionId,
+			new Object[] {dlFileEntryType.getDataDefinitionId()},
+			dlFileEntryType);
+
+		FinderCacheUtil.putResult(
 			_finderPathFetchByG_F,
 			new Object[] {
 				dlFileEntryType.getGroupId(),
@@ -3284,6 +3507,14 @@ public class DLFileEntryTypePersistenceImpl
 		FinderCacheUtil.putResult(
 			_finderPathFetchByUUID_G, args, dlFileEntryTypeModelImpl, false);
 
+		args = new Object[] {dlFileEntryTypeModelImpl.getDataDefinitionId()};
+
+		FinderCacheUtil.putResult(
+			_finderPathCountByDataDefinitionId, args, Long.valueOf(1), false);
+		FinderCacheUtil.putResult(
+			_finderPathFetchByDataDefinitionId, args, dlFileEntryTypeModelImpl,
+			false);
+
 		args = new Object[] {
 			dlFileEntryTypeModelImpl.getGroupId(),
 			dlFileEntryTypeModelImpl.getFileEntryTypeKey()
@@ -3319,6 +3550,30 @@ public class DLFileEntryTypePersistenceImpl
 
 			FinderCacheUtil.removeResult(_finderPathCountByUUID_G, args);
 			FinderCacheUtil.removeResult(_finderPathFetchByUUID_G, args);
+		}
+
+		if (clearCurrent) {
+			Object[] args = new Object[] {
+				dlFileEntryTypeModelImpl.getDataDefinitionId()
+			};
+
+			FinderCacheUtil.removeResult(
+				_finderPathCountByDataDefinitionId, args);
+			FinderCacheUtil.removeResult(
+				_finderPathFetchByDataDefinitionId, args);
+		}
+
+		if ((dlFileEntryTypeModelImpl.getColumnBitmask() &
+			 _finderPathFetchByDataDefinitionId.getColumnBitmask()) != 0) {
+
+			Object[] args = new Object[] {
+				dlFileEntryTypeModelImpl.getOriginalDataDefinitionId()
+			};
+
+			FinderCacheUtil.removeResult(
+				_finderPathCountByDataDefinitionId, args);
+			FinderCacheUtil.removeResult(
+				_finderPathFetchByDataDefinitionId, args);
 		}
 
 		if (clearCurrent) {
@@ -4431,6 +4686,8 @@ public class DLFileEntryTypePersistenceImpl
 
 		_uniqueIndexColumnNames.add(new String[] {"uuid_", "groupId"});
 
+		_uniqueIndexColumnNames.add(new String[] {"dataDefinitionId"});
+
 		_uniqueIndexColumnNames.add(
 			new String[] {"groupId", "fileEntryTypeKey"});
 	}
@@ -4529,6 +4786,15 @@ public class DLFileEntryTypePersistenceImpl
 		_finderPathWithPaginationCountByGroupId = new FinderPath(
 			Long.class, FINDER_CLASS_NAME_LIST_WITH_PAGINATION,
 			"countByGroupId", new String[] {Long.class.getName()});
+
+		_finderPathFetchByDataDefinitionId = new FinderPath(
+			DLFileEntryTypeImpl.class, FINDER_CLASS_NAME_ENTITY,
+			"fetchByDataDefinitionId", new String[] {Long.class.getName()},
+			DLFileEntryTypeModelImpl.DATADEFINITIONID_COLUMN_BITMASK);
+
+		_finderPathCountByDataDefinitionId = new FinderPath(
+			Long.class, FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+			"countByDataDefinitionId", new String[] {Long.class.getName()});
 
 		_finderPathFetchByG_F = new FinderPath(
 			DLFileEntryTypeImpl.class, FINDER_CLASS_NAME_ENTITY, "fetchByG_F",

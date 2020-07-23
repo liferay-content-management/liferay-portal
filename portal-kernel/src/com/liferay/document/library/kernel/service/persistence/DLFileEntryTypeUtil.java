@@ -934,6 +934,70 @@ public class DLFileEntryTypeUtil {
 	}
 
 	/**
+	 * Returns the document library file entry type where dataDefinitionId = &#63; or throws a <code>NoSuchFileEntryTypeException</code> if it could not be found.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @return the matching document library file entry type
+	 * @throws NoSuchFileEntryTypeException if a matching document library file entry type could not be found
+	 */
+	public static DLFileEntryType findByDataDefinitionId(long dataDefinitionId)
+		throws com.liferay.document.library.kernel.exception.
+			NoSuchFileEntryTypeException {
+
+		return getPersistence().findByDataDefinitionId(dataDefinitionId);
+	}
+
+	/**
+	 * Returns the document library file entry type where dataDefinitionId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @return the matching document library file entry type, or <code>null</code> if a matching document library file entry type could not be found
+	 */
+	public static DLFileEntryType fetchByDataDefinitionId(
+		long dataDefinitionId) {
+
+		return getPersistence().fetchByDataDefinitionId(dataDefinitionId);
+	}
+
+	/**
+	 * Returns the document library file entry type where dataDefinitionId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching document library file entry type, or <code>null</code> if a matching document library file entry type could not be found
+	 */
+	public static DLFileEntryType fetchByDataDefinitionId(
+		long dataDefinitionId, boolean useFinderCache) {
+
+		return getPersistence().fetchByDataDefinitionId(
+			dataDefinitionId, useFinderCache);
+	}
+
+	/**
+	 * Removes the document library file entry type where dataDefinitionId = &#63; from the database.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @return the document library file entry type that was removed
+	 */
+	public static DLFileEntryType removeByDataDefinitionId(
+			long dataDefinitionId)
+		throws com.liferay.document.library.kernel.exception.
+			NoSuchFileEntryTypeException {
+
+		return getPersistence().removeByDataDefinitionId(dataDefinitionId);
+	}
+
+	/**
+	 * Returns the number of document library file entry types where dataDefinitionId = &#63;.
+	 *
+	 * @param dataDefinitionId the data definition ID
+	 * @return the number of matching document library file entry types
+	 */
+	public static int countByDataDefinitionId(long dataDefinitionId) {
+		return getPersistence().countByDataDefinitionId(dataDefinitionId);
+	}
+
+	/**
 	 * Returns the document library file entry type where groupId = &#63; and fileEntryTypeKey = &#63; or throws a <code>NoSuchFileEntryTypeException</code> if it could not be found.
 	 *
 	 * @param groupId the group ID

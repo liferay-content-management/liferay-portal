@@ -417,6 +417,14 @@ public class DLFileEntryTypeLocalServiceWrapper
 	}
 
 	@Override
+	public DLFileEntryType fetchFileEntryTypeByDataDefinitionId(
+		long dataDefinitionId) {
+
+		return _dlFileEntryTypeLocalService.
+			fetchFileEntryTypeByDataDefinitionId(dataDefinitionId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
