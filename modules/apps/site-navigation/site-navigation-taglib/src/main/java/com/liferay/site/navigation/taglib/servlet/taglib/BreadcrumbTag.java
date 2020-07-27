@@ -15,6 +15,7 @@
 package com.liferay.site.navigation.taglib.servlet.taglib;
 
 import com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry;
+import com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntryContributorUtil;
 import com.liferay.site.navigation.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
@@ -60,7 +61,8 @@ public class BreadcrumbTag extends IncludeTag {
 	protected void setAttributes(HttpServletRequest httpServletRequest) {
 		httpServletRequest.setAttribute(
 			"liferay-site-navigation:breadcrumb:breadcrumbEntries",
-			_breadcrumbEntries);
+			BreadcrumbEntryContributorUtil.contribute(
+				_breadcrumbEntries, httpServletRequest));
 	}
 
 	private static final String _PAGE = "/breadcrumb/page.jsp";
