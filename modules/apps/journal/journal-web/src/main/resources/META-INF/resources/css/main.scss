@@ -344,6 +344,10 @@ $productMenuWidth: 320px;
 			background-color: #fff;
 			padding: 1.5rem;
 
+			&.translate-source-dir-rtl .row {
+				flex-direction: row-reverse;
+			}
+
 			div[contenteditable='false'] {
 				border: 1px solid $gray-300;
 				border-radius: 4px;

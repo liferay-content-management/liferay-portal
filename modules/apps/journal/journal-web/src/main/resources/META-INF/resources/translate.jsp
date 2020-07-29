@@ -59,7 +59,12 @@ renderResponse.setTitle(journalTranslateDisplayContext.getTitle());
 	<clay:container-fluid
 		cssClass="container-view"
 	>
-		<div class="sheet translate-body-form">
+
+		<%
+		String sourceContentDir = LanguageUtil.get(journalTranslateDisplayContext.getSourceLocale(), "lang.dir");
+		%>
+
+		<div class="sheet translate-body-form translate-source-dir-<%= sourceContentDir %>">
 			<clay:row>
 				<clay:col
 					md="6"
@@ -143,7 +148,6 @@ renderResponse.setTitle(journalTranslateDisplayContext.getTitle());
 
 							<%
 							String sourceContent = journalTranslateDisplayContext.getStringValue(infoField, journalTranslateDisplayContext.getSourceLocale());
-							String sourceContentDir = LanguageUtil.get(journalTranslateDisplayContext.getSourceLocale(), "lang.dir");
 							%>
 
 							<c:choose>
