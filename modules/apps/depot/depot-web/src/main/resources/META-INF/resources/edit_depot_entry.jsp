@@ -17,7 +17,7 @@
 <%@ include file="/init.jsp" %>
 
 <clay:container-fluid
-	cssClass="container-view"
+	cssClass="container-view lfr-depot-edit-container"
 >
 	<liferay-frontend:screen-navigation
 		containerCssClass="col-lg-8"
