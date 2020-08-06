@@ -8055,8 +8055,10 @@ public class PortalImpl implements Portal {
 		Set<String> languageIds = I18nFilter.getLanguageIds();
 
 		if ((languageIds.contains(locale.toString()) &&
-			 (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 1) &&
-			 !locale.equals(LocaleUtil.getDefault())) ||
+			 (((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 1) &&
+			   !locale.equals(LocaleUtil.getDefault())) ||
+			  ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 3) &&
+			   !locale.equals(_getLocale(themeDisplay.getUser()))))) ||
 			(PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2)) {
 
 			i18nPath = _buildI18NPath(locale, themeDisplay.getSiteGroup());
@@ -8501,6 +8503,14 @@ public class PortalImpl implements Portal {
 		sb.append(group.getFriendlyURL());
 
 		return sb.toString();
+	}
+
+	private Locale _getLocale(User user) {
+		if (user != null) {
+			return user.getLocale();
+		}
+
+		return null;
 	}
 
 	private String _getPortalURL(
