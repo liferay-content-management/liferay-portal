@@ -8053,15 +8053,7 @@ public class PortalImpl implements Portal {
 
 		String i18nPath = null;
 
-		Set<String> languageIds = I18nFilter.getLanguageIds();
-
-		if ((languageIds.contains(locale.toString()) &&
-			 (((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 1) &&
-			   !locale.equals(LocaleUtil.getDefault())) ||
-			  ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 3) &&
-			   !locale.equals(_getLocale(themeDisplay.getUser()))))) ||
-			(PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2)) {
-
+		if (_isAddI18NPath(locale, themeDisplay)) {
 			i18nPath = _buildI18NPath(locale, themeDisplay.getSiteGroup());
 		}
 
@@ -8676,6 +8668,30 @@ public class PortalImpl implements Portal {
 		}
 
 		return group;
+	}
+
+	private boolean _isAddI18NPath(Locale locale, ThemeDisplay themeDisplay) {
+		if (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2) {
+			return true;
+		}
+
+		Set<String> languageIds = I18nFilter.getLanguageIds();
+
+		if (languageIds.contains(locale.toString())) {
+			if ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 1) &&
+				!locale.equals(LocaleUtil.getDefault())) {
+
+				return true;
+			}
+
+			if ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 3) &&
+				!locale.equals(_getLocale(themeDisplay.getUser()))) {
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private static final Log _logWebServerServlet = LogFactoryUtil.getLog(
