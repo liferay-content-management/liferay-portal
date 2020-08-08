@@ -8677,18 +8677,20 @@ public class PortalImpl implements Portal {
 
 		Set<String> languageIds = I18nFilter.getLanguageIds();
 
-		if (languageIds.contains(locale.toString())) {
-			if ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 1) &&
-				!locale.equals(LocaleUtil.getDefault())) {
+		if (!languageIds.contains(locale.toString())) {
+			return false;
+		}
 
-				return true;
-			}
+		if ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 1) &&
+			!locale.equals(LocaleUtil.getDefault())) {
 
-			if ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 3) &&
-				!locale.equals(_getLocale(themeDisplay.getUser()))) {
+			return true;
+		}
 
-				return true;
-			}
+		if ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 3) &&
+			!locale.equals(_getLocale(themeDisplay.getUser()))) {
+
+			return true;
 		}
 
 		return false;
