@@ -149,13 +149,15 @@ public class DLFileEntryTypeModelImpl
 
 	public static final long COMPANYID_COLUMN_BITMASK = 1L;
 
-	public static final long FILEENTRYTYPEKEY_COLUMN_BITMASK = 2L;
+	public static final long DATADEFINITIONID_COLUMN_BITMASK = 2L;
 
-	public static final long GROUPID_COLUMN_BITMASK = 4L;
+	public static final long FILEENTRYTYPEKEY_COLUMN_BITMASK = 4L;
 
-	public static final long UUID_COLUMN_BITMASK = 8L;
+	public static final long GROUPID_COLUMN_BITMASK = 8L;
 
-	public static final long FILEENTRYTYPEID_COLUMN_BITMASK = 16L;
+	public static final long UUID_COLUMN_BITMASK = 16L;
+
+	public static final long FILEENTRYTYPEID_COLUMN_BITMASK = 32L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -629,7 +631,19 @@ public class DLFileEntryTypeModelImpl
 
 	@Override
 	public void setDataDefinitionId(long dataDefinitionId) {
+		_columnBitmask |= DATADEFINITIONID_COLUMN_BITMASK;
+
+		if (!_setOriginalDataDefinitionId) {
+			_setOriginalDataDefinitionId = true;
+
+			_originalDataDefinitionId = _dataDefinitionId;
+		}
+
 		_dataDefinitionId = dataDefinitionId;
+	}
+
+	public long getOriginalDataDefinitionId() {
+		return _originalDataDefinitionId;
 	}
 
 	@JSON
@@ -1109,6 +1123,11 @@ public class DLFileEntryTypeModelImpl
 
 		dlFileEntryTypeModelImpl._setModifiedDate = false;
 
+		dlFileEntryTypeModelImpl._originalDataDefinitionId =
+			dlFileEntryTypeModelImpl._dataDefinitionId;
+
+		dlFileEntryTypeModelImpl._setOriginalDataDefinitionId = false;
+
 		dlFileEntryTypeModelImpl._originalFileEntryTypeKey =
 			dlFileEntryTypeModelImpl._fileEntryTypeKey;
 
@@ -1292,6 +1311,8 @@ public class DLFileEntryTypeModelImpl
 	private Date _modifiedDate;
 	private boolean _setModifiedDate;
 	private long _dataDefinitionId;
+	private long _originalDataDefinitionId;
+	private boolean _setOriginalDataDefinitionId;
 	private String _fileEntryTypeKey;
 	private String _originalFileEntryTypeKey;
 	private String _name;
