@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.translation.web.internal.util;
+package com.liferay.translation.internal.util;
 
 import java.io.Closeable;
 

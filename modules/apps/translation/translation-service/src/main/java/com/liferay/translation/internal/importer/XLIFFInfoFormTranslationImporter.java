@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.translation.web.internal.importer;
+package com.liferay.translation.internal.importer;
 
 import com.liferay.info.field.InfoField;
 import com.liferay.info.field.InfoFieldValue;
@@ -33,7 +33,7 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.translation.exception.XLIFFFileException;
 import com.liferay.translation.importer.TranslationInfoItemFieldValuesImporter;
-import com.liferay.translation.web.internal.util.ContextClassLoaderSetter;
+import com.liferay.translation.internal.util.ContextClassLoaderSetter;
 
 import java.io.CharConversionException;
 import java.io.File;
