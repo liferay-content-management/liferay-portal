@@ -24,7 +24,7 @@ import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.asset.util.AssetHelper;
 import com.liferay.depot.model.DepotEntry;
-import com.liferay.depot.service.DepotEntryServiceUtil;
+import com.liferay.depot.service.DepotEntryLocalServiceUtil;
 import com.liferay.item.selector.constants.ItemSelectorPortletKeys;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -479,25 +479,20 @@ public class AssetBrowserDisplayContext {
 	}
 
 	private long[] _getFilterGroupIds() throws PortalException {
-		long[] filterGroupIds = getSelectedGroupIds();
-
-		if (getGroupId() > 0) {
-			filterGroupIds = new long[] {getGroupId()};
+		if (getGroupId() == 0) {
+			return getSelectedGroupIds();
 		}
 
-		if (_isSearchEverywhere()) {
-			for (long filterGroupId : filterGroupIds) {
-				filterGroupIds = ArrayUtil.append(
-					filterGroupIds,
-					ListUtil.toLongArray(
-						DepotEntryServiceUtil.getGroupConnectedDepotEntries(
-							filterGroupId, QueryUtil.ALL_POS,
-							QueryUtil.ALL_POS),
-						DepotEntry::getGroupId));
-			}
+		if (!_isSearchEverywhere()) {
+			return new long[]{getGroupId()};
 		}
 
-		return filterGroupIds;
+		return ArrayUtil.append(
+			PortalUtil.getCurrentAndAncestorSiteGroupIds(getGroupId()),
+			ListUtil.toLongArray(
+				DepotEntryLocalServiceUtil.getGroupConnectedDepotEntries(
+					getGroupId(), true, QueryUtil.ALL_POS, QueryUtil.ALL_POS),
+				DepotEntry::getGroupId));
 	}
 
 	private BreadcrumbEntry _getHomeBreadcrumb() throws PortalException {
