@@ -599,7 +599,7 @@ definition {
 			password = "test",
 			userEmailAddress = "userea@liferay.com");
 
-		DepotNavigator.openDepotMembershipsAdmin(depotURLKey = "test-depot-name");
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
 
 		LexiconCard.clickEllipsisItem(
 			card = "userfn userln",
