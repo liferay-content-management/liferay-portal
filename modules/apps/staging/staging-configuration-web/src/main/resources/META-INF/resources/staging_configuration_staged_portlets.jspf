@@ -15,7 +15,7 @@
 --%>
 
 <div class="<%= (liveGroup.isStaged() || (stagingType != StagingConstants.TYPE_NOT_STAGED)) ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />stagedPortlets">
-	<c:if test="<%= !liveGroup.isCompany() && !liveGroupRemoteStaging %>">
+	<c:if test="<%= !liveGroup.isDepot() && !liveGroup.isCompany() && !liveGroupRemoteStaging %>">
 		<div class="sheet-section">
 			<div class="sheet-subtitle">
 				<liferay-ui:message key="page-versioning" />
