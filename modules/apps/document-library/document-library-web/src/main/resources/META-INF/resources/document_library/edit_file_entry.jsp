@@ -17,6 +17,8 @@
 <%@ include file="/document_library/init.jsp" %>
 
 <%
+String cmd = ParamUtil.getString(request, Constants.CMD, Constants.EDIT);
+
 String redirect = ParamUtil.getString(request, "redirect");
 
 String uploadProgressId = "dlFileEntryUploadProgress";
@@ -331,7 +333,7 @@ renderResponse.setTitle(headerTitle);
 							%>
 
 							<c:choose>
-								<c:when test="<%= dlFileEntryTypes.size() > 1 %>">
+								<c:when test="<%= !cmd.equals(Constants.ADD) && (dlFileEntryTypes.size() > 1) %>">
 									<aui:select changesContext="<%= true %>" label="document-type" name="fileEntryTypeId" onChange='<%= liferayPortletResponse.getNamespace() + "changeFileEntryType();" %>'>
 
 										<%
