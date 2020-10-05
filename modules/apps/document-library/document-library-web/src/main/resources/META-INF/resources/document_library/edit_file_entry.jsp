@@ -567,11 +567,11 @@ renderResponse.setTitle(headerTitle);
 	var form = document.<portlet:namespace />fm;
 
 	function <portlet:namespace />changeFileEntryType() {
-		var uri = '<%= themeDisplay.getURLCurrent() %>';
-
-		form.<portlet:namespace />cmd.value = '<%= Constants.PREVIEW %>';
-
-		submitForm(form, uri, false, false);
+		Liferay.Util.postForm(form, {
+			data: {
+				<%= Constants.CMD %>: '<%= Constants.PREVIEW %>',
+			},
+		});
 	}
 
 	function <portlet:namespace />cancelCheckOut() {
