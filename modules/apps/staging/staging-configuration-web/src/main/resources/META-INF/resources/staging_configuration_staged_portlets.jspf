@@ -111,6 +111,10 @@
 					continue;
 				}
 
+				if (liveGroup.isDepot() && !DepotApplicationControllerUtil.isEnabled(curPortlet.getPortletId(), liveGroup.getGroupId())) {
+					continue;
+				}
+
 				Class<?> portletDataHandlerClass = portletDataHandler.getClass();
 
 				String portletDataHandlerClassName = portletDataHandlerClass.getName();
