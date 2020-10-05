@@ -3,6 +3,7 @@ Bundle-SymbolicName: com.liferay.depot.api
 Bundle-Version: 1.7.0
 Export-Package:\
 	com.liferay.depot.application,\
+	com.liferay.depot.application.controller,\
 	com.liferay.depot.configuration,\
 	com.liferay.depot.constants,\
 	com.liferay.depot.exception,\

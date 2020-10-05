@@ -19,7 +19,7 @@ import com.liferay.application.list.PanelApp;
 import com.liferay.application.list.PanelAppRegistry;
 import com.liferay.application.list.PanelCategoryRegistry;
 import com.liferay.application.list.display.context.logic.PanelCategoryHelper;
-import com.liferay.depot.web.internal.application.controller.DepotApplicationController;
+import com.liferay.depot.application.controller.DepotApplicationController;
 import com.liferay.depot.web.internal.constants.DepotPortletKeys;
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.portal.kernel.exception.PortalException;

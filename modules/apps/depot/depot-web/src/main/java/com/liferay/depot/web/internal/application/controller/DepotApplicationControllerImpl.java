@@ -15,6 +15,7 @@
 package com.liferay.depot.web.internal.application.controller;
 
 import com.liferay.depot.application.DepotApplication;
+import com.liferay.depot.application.controller.DepotApplicationController;
 import com.liferay.depot.model.DepotAppCustomization;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotAppCustomizationLocalService;
@@ -46,8 +47,10 @@ import org.osgi.service.component.annotations.Reference;
 	configurationPid = "com.liferay.depot.web.internal.configuration.FFDepotStagingConfiguration",
 	service = DepotApplicationController.class
 )
-public class DepotApplicationController {
+public class DepotApplicationControllerImpl
+	implements DepotApplicationController {
 
+	@Override
 	public Collection<DepotApplication> getCustomizableDepotApplications() {
 		Collection<DepotApplication> depotApplications = new ArrayList<>();
 
@@ -60,6 +63,7 @@ public class DepotApplicationController {
 		return depotApplications;
 	}
 
+	@Override
 	public boolean isClassNameEnabled(String className, long groupId) {
 		DepotEntry depotEntry = _depotEntryLocalService.fetchGroupDepotEntry(
 			groupId);
@@ -103,6 +107,7 @@ public class DepotApplicationController {
 		);
 	}
 
+	@Override
 	public boolean isEnabled(String portletId) {
 		if (portletId.equals(StagingProcessesPortletKeys.STAGING_PROCESSES) &&
 			!_ffDepotStagingConfiguration.enabled()) {
@@ -120,6 +125,7 @@ public class DepotApplicationController {
 		return true;
 	}
 
+	@Override
 	public boolean isEnabled(String portletId, long groupId) {
 		if (portletId.equals(StagingProcessesPortletKeys.STAGING_PROCESSES) &&
 			!_ffDepotStagingConfiguration.enabled()) {
