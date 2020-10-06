@@ -43,12 +43,11 @@ import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletURL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletURL;
 
 /**
  * @author Adolfo Pérez
@@ -123,27 +122,9 @@ public class MenuItemProvider {
 			"repositoryId",
 			String.valueOf(_getRepositoryId(folder, themeDisplay)));
 		portletURL.setParameter("folderId", String.valueOf(folderId));
-
-		try {
-			portletURL.setParameter(
-				"fileEntryTypeId",
-				String.valueOf(
-					DLFileEntryTypeLocalServiceUtil.getDefaultFileEntryTypeId(
-						folderId)));
-		}
-		catch (PortalException portalException) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					"Unable to get default file entry type ID for folder " +
-						folder,
-					portalException);
-			}
-
-			portletURL.setParameter(
-				"fileEntryTypeId",
-				String.valueOf(
-					DLFileEntryTypeConstants.COMPANY_ID_BASIC_DOCUMENT));
-		}
+		portletURL.setParameter(
+			"fileEntryTypeId",
+			String.valueOf(_getDefaultFileEntryTypeId(folderId)));
 
 		urlMenuItem.setURL(portletURL.toString());
 
@@ -340,6 +321,23 @@ public class MenuItemProvider {
 				DepotEntryLocalServiceUtil.getGroupConnectedDepotEntries(
 					groupId, true, QueryUtil.ALL_POS, QueryUtil.ALL_POS),
 				DepotEntry::getGroupId));
+	}
+
+	private long _getDefaultFileEntryTypeId(long folderId) {
+		try {
+			return DLFileEntryTypeLocalServiceUtil.getDefaultFileEntryTypeId(
+				folderId);
+		}
+		catch (PortalException portalException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get default file entry type ID for folder " +
+						folderId,
+					portalException);
+			}
+
+			return DLFileEntryTypeConstants.COMPANY_ID_BASIC_DOCUMENT;
+		}
 	}
 
 	private MenuItem _getFileEntryTypeMenuItem(
