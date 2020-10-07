@@ -162,20 +162,51 @@
 		}
 	}
 
+	h3.component-title {
+		font-size: $h3-font-size;
+
+		@include media-breakpoint-down(sm) {
+			font-size: $h3-font-size-mobile;
+		}
+	}
+
+	.message-user-display {
+		margin-bottom: 0.5rem;
+		margin-top: 0.5rem;
+	}
+
+	.social-interaction {
+		display: flex;
+		margin-left: -0.5rem;
+
+		> div {
+			margin-right: 0.5rem;
+		}
+	}
+
 	@include media-breakpoint-up(sm) {
 		.message-user-display {
-			width: 50%;
+			width: calc(100% - 198px);
 		}
 
 		.social-interaction {
+			margin-left: 0;
 			position: absolute;
 			right: 0;
-			top: 0;
-			width: 50%;
+			top: 0.25rem;
 
-			& > div {
-				float: right;
-				margin-right: 12px;
+			> div {
+				float: left;
+			}
+
+			.ratings-thumbs .btn {
+				padding-bottom: 0.21875rem;
+				padding-top: 0.21875rem;
+
+				.c-inner {
+					margin-bottom: -0.21875rem;
+					margin-top: -0.21875rem;
+				}
 			}
 		}
 	}
