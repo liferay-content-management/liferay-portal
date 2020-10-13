@@ -98,62 +98,62 @@ if (portletTitleBasedNavigation) {
 	<liferay-util:include page="/document_library/file_entry_upper_tbar.jsp" servletContext="<%= application %>" />
 </c:if>
 
-	<portlet:actionURL name="/document_library/edit_file_entry" var="editFileEntry" />
+<portlet:actionURL name="/document_library/edit_file_entry" var="editFileEntry" />
 
-	<aui:form action="<%= editFileEntry %>" method="post" name="fm">
-		<aui:input name="<%= Constants.CMD %>" type="hidden" />
-		<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
-		<aui:input name="fileEntryId" type="hidden" value="<%= String.valueOf(fileEntry.getFileEntryId()) %>" />
-		<aui:input name="newFolderId" type="hidden" />
-		<aui:input name="rowIdsDLFileShortcut" type="hidden" />
-		<aui:input name="rowIdsFileEntry" type="hidden" />
-		<aui:input name="rowIdsFolder" type="hidden" />
-	</aui:form>
+<aui:form action="<%= editFileEntry %>" method="post" name="fm">
+	<aui:input name="<%= Constants.CMD %>" type="hidden" />
+	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
+	<aui:input name="fileEntryId" type="hidden" value="<%= String.valueOf(fileEntry.getFileEntryId()) %>" />
+	<aui:input name="newFolderId" type="hidden" />
+	<aui:input name="rowIdsDLFileShortcut" type="hidden" />
+	<aui:input name="rowIdsFileEntry" type="hidden" />
+	<aui:input name="rowIdsFolder" type="hidden" />
+</aui:form>
 
-	<%
-	boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
-	%>
+<%
+boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
+%>
 
-	<c:if test="<%= !portletTitleBasedNavigation && showHeader && (folder != null) %>">
-		<liferay-ui:header
-			backURL="<%= redirect %>"
-			localizeTitle="<%= false %>"
-			title="<%= documentTitle %>"
-		/>
-	</c:if>
+<c:if test="<%= !portletTitleBasedNavigation && showHeader && (folder != null) %>">
+	<liferay-ui:header
+		backURL="<%= redirect %>"
+		localizeTitle="<%= false %>"
+		title="<%= documentTitle %>"
+	/>
+</c:if>
 
-	<c:choose>
-		<c:when test="<%= portletTitleBasedNavigation %>">
-			<div class="contextual-sidebar sidebar-light sidebar-preview" id='<%= liferayPortletResponse.getNamespace() + "ContextualSidebar" %>'>
+<c:choose>
+	<c:when test="<%= portletTitleBasedNavigation %>">
+		<div class="contextual-sidebar sidebar-light sidebar-preview" id='<%= liferayPortletResponse.getNamespace() + "ContextualSidebar" %>'>
 
-				<%
-				request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
-				request.setAttribute("info_panel.jsp-fileVersion", fileVersion);
-				request.setAttribute("info_panel_file_entry.jsp-hideActions", true);
-				%>
+			<%
+			request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
+			request.setAttribute("info_panel.jsp-fileVersion", fileVersion);
+			request.setAttribute("info_panel_file_entry.jsp-hideActions", true);
+			%>
 
-				<liferay-util:include page="/document_library/info_panel_file_entry.jsp" servletContext="<%= application %>" />
-			</div>
-		</c:when>
-		<c:otherwise>
-			<liferay-frontend:sidebar-panel>
+			<liferay-util:include page="/document_library/info_panel_file_entry.jsp" servletContext="<%= application %>" />
+		</div>
+	</c:when>
+	<c:otherwise>
+		<liferay-frontend:sidebar-panel>
 
-				<%
-				request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
-				request.setAttribute("info_panel.jsp-fileVersion", fileVersion);
-				%>
+			<%
+			request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
+			request.setAttribute("info_panel.jsp-fileVersion", fileVersion);
+			%>
 
-				<liferay-util:include page="/document_library/info_panel_file_entry.jsp" servletContext="<%= application %>" />
-			</liferay-frontend:sidebar-panel>
-		</c:otherwise>
-	</c:choose>
+			<liferay-util:include page="/document_library/info_panel_file_entry.jsp" servletContext="<%= application %>" />
+		</liferay-frontend:sidebar-panel>
+	</c:otherwise>
+</c:choose>
 
-	<div class="<%= portletTitleBasedNavigation ? "contextual-sidebar-content" : "sidenav-content" %>">
+<div class="<%= portletTitleBasedNavigation ? "contextual-sidebar-content" : "sidenav-content" %>">
 
-		<clay:container-fluid
-			cssClass='<%= portletTitleBasedNavigation ? StringPool.BLANK : "closed sidenav-container sidenav-right" %>'
-			id='<%= liferayPortletResponse.getNamespace() + (portletTitleBasedNavigation ? "FileEntry" : "infoPanelId") %>'
-		>
+	<clay:container-fluid
+		cssClass='<%= portletTitleBasedNavigation ? StringPool.BLANK : "closed sidenav-container sidenav-right" %>'
+		id='<%= liferayPortletResponse.getNamespace() + (portletTitleBasedNavigation ? "FileEntry" : "infoPanelId") %>'
+	>
 		<div class="alert alert-danger hide" id="<portlet:namespace />openMSOfficeError"></div>
 
 		<c:if test="<%= !portletTitleBasedNavigation %>">
@@ -235,8 +235,8 @@ if (portletTitleBasedNavigation) {
 				/>
 			</c:if>
 		</div>
-		</clay:container-fluid>
-	</div>
+	</clay:container-fluid>
+</div>
 
 <c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() && dlAdminDisplayContext.isVersioningStrategyOverridable() %>">
 
