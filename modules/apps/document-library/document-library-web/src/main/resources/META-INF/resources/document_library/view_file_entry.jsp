@@ -124,7 +124,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 
 <c:choose>
 	<c:when test="<%= portletTitleBasedNavigation %>">
-		<div class="contextual-sidebar sidebar-light sidebar-preview view-file-entry-sidebar" id='<%= liferayPortletResponse.getNamespace() + "ContextualSidebar" %>'>
+		<div class="contextual-sidebar sidebar-light sidebar-preview view-file-entry-sidebar" id="<%= liferayPortletResponse.getNamespace() + "ContextualSidebar" %>">
 
 			<%
 			request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
@@ -149,7 +149,6 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 </c:choose>
 
 <div class="<%= portletTitleBasedNavigation ? "contextual-sidebar-content" : "sidenav-content" %>">
-
 	<clay:container-fluid
 		cssClass='<%= portletTitleBasedNavigation ? StringPool.BLANK : "closed sidenav-container sidenav-right" %>'
 		id='<%= liferayPortletResponse.getNamespace() + (portletTitleBasedNavigation ? "FileEntry" : "infoPanelId") %>'
@@ -306,9 +305,7 @@ if (addPortletBreadcrumbEntries) {
 				event.currentTarget.classList.toggle('active');
 
 				document
-					.getElementById(
-						'<portlet:namespace />ContextualSidebar'
-					)
+					.getElementById('<portlet:namespace />ContextualSidebar')
 					.classList.toggle('contextual-sidebar-visible');
 			});
 		}
