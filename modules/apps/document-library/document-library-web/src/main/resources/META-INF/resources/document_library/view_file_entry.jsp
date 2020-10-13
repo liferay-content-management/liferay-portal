@@ -98,10 +98,6 @@ if (portletTitleBasedNavigation) {
 	<liferay-util:include page="/document_library/file_entry_upper_tbar.jsp" servletContext="<%= application %>" />
 </c:if>
 
-<clay:container-fluid
-	cssClass='<%= portletTitleBasedNavigation ? StringPool.BLANK : "closed sidenav-container sidenav-right" %>'
-	id='<%= liferayPortletResponse.getNamespace() + (portletTitleBasedNavigation ? "FileEntry" : "infoPanelId") %>'
->
 	<portlet:actionURL name="/document_library/edit_file_entry" var="editFileEntry" />
 
 	<aui:form action="<%= editFileEntry %>" method="post" name="fm">
@@ -128,7 +124,7 @@ if (portletTitleBasedNavigation) {
 
 	<c:choose>
 		<c:when test="<%= portletTitleBasedNavigation %>">
-			<div class="contextual-sidebar sidebar-light sidebar-preview">
+			<div class="contextual-sidebar sidebar-light sidebar-preview" id='<%= liferayPortletResponse.getNamespace() + "ContextualSidebar" %>'>
 
 				<%
 				request.setAttribute("info_panel.jsp-fileEntry", fileEntry);
@@ -153,6 +149,11 @@ if (portletTitleBasedNavigation) {
 	</c:choose>
 
 	<div class="<%= portletTitleBasedNavigation ? "contextual-sidebar-content" : "sidenav-content" %>">
+
+		<clay:container-fluid
+			cssClass='<%= portletTitleBasedNavigation ? StringPool.BLANK : "closed sidenav-container sidenav-right" %>'
+			id='<%= liferayPortletResponse.getNamespace() + (portletTitleBasedNavigation ? "FileEntry" : "infoPanelId") %>'
+		>
 		<div class="alert alert-danger hide" id="<portlet:namespace />openMSOfficeError"></div>
 
 		<c:if test="<%= !portletTitleBasedNavigation %>">
@@ -234,8 +235,8 @@ if (portletTitleBasedNavigation) {
 				/>
 			</c:if>
 		</div>
+		</clay:container-fluid>
 	</div>
-</clay:container-fluid>
 
 <c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() && dlAdminDisplayContext.isVersioningStrategyOverridable() %>">
 
@@ -305,8 +306,8 @@ if (addPortletBreadcrumbEntries) {
 				event.currentTarget.classList.toggle('active');
 
 				document
-					.querySelector(
-						'#<portlet:namespace />FileEntry .contextual-sidebar'
+					.getElementById(
+						'<portlet:namespace />ContextualSidebar'
 					)
 					.classList.toggle('contextual-sidebar-visible');
 			});
