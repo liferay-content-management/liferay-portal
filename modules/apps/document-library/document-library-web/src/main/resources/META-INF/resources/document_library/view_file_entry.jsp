@@ -124,7 +124,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 
 <c:choose>
 	<c:when test="<%= portletTitleBasedNavigation %>">
-		<div class="contextual-sidebar sidebar-light sidebar-preview" id='<%= liferayPortletResponse.getNamespace() + "ContextualSidebar" %>'>
+		<div class="contextual-sidebar sidebar-light sidebar-preview view-file-entry-sidebar" id='<%= liferayPortletResponse.getNamespace() + "ContextualSidebar" %>'>
 
 			<%
 			request.setAttribute("info_panel.jsp-fileEntry", fileEntry);

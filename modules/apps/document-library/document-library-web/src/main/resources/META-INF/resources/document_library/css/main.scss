@@ -558,6 +558,12 @@ $productMenuWidth: 320px;
 			margin: 0;
 		}
 	}
+
+	.sidebar-preview.contextual-sidebar {
+		&.view-file-entry-sidebar {
+			top: auto;
+		}
+	}
 }
 
 .portlet-document-library,
