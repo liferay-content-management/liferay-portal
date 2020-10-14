@@ -160,7 +160,7 @@ public class StagingIndicatorDynamicInclude extends BaseDynamicInclude {
 
 		if (scopeGroup.isStagingGroup()) {
 			return HashMapBuilder.<String, Object>put(
-				"iconCssClass", "staging-indicator-icon-staging"
+				"iconClass", "staging-indicator-icon-staging"
 			).put(
 				"iconName", "radio-button"
 			).put(
@@ -193,7 +193,7 @@ public class StagingIndicatorDynamicInclude extends BaseDynamicInclude {
 		}
 
 		return HashMapBuilder.<String, Object>put(
-			"iconCssClass", "staging-indicator-icon-live"
+			"iconClass", "staging-indicator-icon-live"
 		).put(
 			"iconName", "simple-circle"
 		).put(
