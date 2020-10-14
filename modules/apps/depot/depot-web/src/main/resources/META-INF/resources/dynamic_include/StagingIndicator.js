@@ -18,10 +18,12 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 const Component = ({iconClass, iconName, items, title}) => {
+	const fixedItems = items.map((item) => item.JSONObject);
+
 	return (
 		<ClayDropDownWithItems
 			alignmentPosition={Align.BottomCenter}
-			items={items}
+			items={fixedItems}
 			trigger={
 				<button className="staging-indicator-button">
 					<ClayIcon className={iconClass} symbol={iconName} />
