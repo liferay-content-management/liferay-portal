@@ -2740,6 +2740,10 @@ public class DLFileEntryLocalServiceImpl
 	private String _getExtension(
 		String sourceFileName, String title, String mimeType) {
 
+		if (sourceFileName.endsWith(".lar")) {
+			return DLAppUtil.getExtension(title, sourceFileName);
+		}
+
 		Set<String> extensions = MimeTypesUtil.getExtensions(mimeType);
 
 		if (extensions.size() == 1) {
