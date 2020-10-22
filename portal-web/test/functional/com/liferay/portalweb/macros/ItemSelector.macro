@@ -89,6 +89,17 @@ definition {
 			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME");
 	}
 
+	macro configureFilterViaSelectFile {
+		SelectFrame(locator1 = "ItemSelector#ITEM_SELECTOR_IFRAME");
+
+		AssertClick(
+			key_navTab = "${navTab}",
+			locator1 = "ItemSelector#NAVIGATION_SPECIFIC_TAB",
+			value1 = "${navTab}");
+
+		ManagementBar.setFilterAndOrder(filterBy = "${filterBy}");
+	}
+
 	macro gotoItemSelectorViaAlloyEditor {
 		AlloyEditor.clickContentField();
 
