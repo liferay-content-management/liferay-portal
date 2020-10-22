@@ -379,6 +379,70 @@ definition {
 		Pagination.viewResults(results = "Showing 1 to 4 of 6 entries.");
 	}
 
+	@description = "This test covers LPS-122139. It ensures that the files in the item selector can display by pagination after scoped everywhere filter."
+	@priority = "4"
+	test PaginateFilesAfterScopedFilter {
+		JSONGroup.addGroup(groupName = "Site Name");
+
+		JSONDepot.addDepot(
+			depotDescription = "This is the description of a depot",
+			depotName = "Test Depot Name");
+
+		for (var documentNumber : list "_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20,_21,_22,_23") {
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentDescription = "DM Document Description",
+				dmDocumentTitle = "DM Document JPG${documentNumber}",
+				groupName = "Test Depot Name",
+				mimeType = "image/jpeg",
+				sourceFileName = "Document_4.jpg");
+		}
+
+		DepotNavigator.openDepotAdmin();
+
+		DepotNavigator.gotoEdit(depotName = "Test Depot Name");
+
+		DepotNavigator.gotoSites(depotName = "Test Depot Name");
+
+		Depot.connectSite(siteList = "Site Name");
+
+		for (var documentNumber : list "_1,_2,_3,_4,_5,_6,_7") {
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentDescription = "DM Document Description",
+				dmDocumentTitle = "DM Document JPG${documentNumber}",
+				groupName = "Site Name",
+				mimeType = "image/jpeg",
+				sourceFileName = "Document_1.jpg");
+		}
+
+		BlogsNavigator.openBlogsAdmin(siteURLKey = "site-name");
+
+		BlogsNavigator.gotoAddEntry();
+
+		BlogsNavigator.gotoSelectFile();
+
+		ItemSelector.configureFilterViaSelectFile(
+			filterBy = "Everywhere",
+			navTab = "Documents and Media");
+
+		Pagination.changePagination(itemsPerPage = "40");
+
+		Pagination.viewResults(results = "Showing 1 to 30 of 30 entries.");
+
+		BlogsNavigator.openBlogsAdmin(siteURLKey = "site-name");
+
+		BlogsNavigator.gotoAddEntry();
+
+		BlogsNavigator.gotoSelectFile();
+
+		ItemSelector.configureFilterViaSelectFile(
+			filterBy = "Everywhere",
+			navTab = "Documents and Media");
+
+		Click(locator1 = "Pagination#NEXT_LINK");
+
+		Pagination.viewResults(results = "Showing 21 to 30 of 30 entries.");
+	}
+
 	@description = "This ensures that users can preview the SVG image in item selector."
 	@priority = "5"
 	test PreviewSVG {
