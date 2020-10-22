@@ -1416,13 +1416,14 @@ public class PortalImpl implements Portal {
 
 		Locale siteDefaultLocale = getSiteDefaultLocale(layout.getGroupId());
 
-		if (siteDefaultLocale.equals(themeDisplay.getLocale())) {
+		Locale themeDisplayLocale = themeDisplay.getLocale();
+
+		if (!siteDefaultLocale.equals(themeDisplayLocale)) {
 			defaultLayoutFriendlyURL = themeDisplay.getLayoutFriendlyURL(
 				layout);
 		}
 		else {
-			defaultLayoutFriendlyURL = layout.getFriendlyURL(
-				getSiteDefaultLocale(layout.getGroupId()));
+			defaultLayoutFriendlyURL = layout.getFriendlyURL(siteDefaultLocale);
 		}
 
 		Group siteGroup = themeDisplay.getSiteGroup();
@@ -1462,7 +1463,8 @@ public class PortalImpl implements Portal {
 
 			if ((pos <= 0) || (pos >= groupFriendlyURL.length())) {
 				sb.append(groupFriendlyURL);
-				sb.append(_buildI18NPath(siteDefaultLocale, layout.getGroup()));
+				sb.append(
+					_buildI18NPath(themeDisplayLocale, layout.getGroup()));
 
 				if (!canonicalLayoutFriendlyURL.startsWith(StringPool.SLASH)) {
 					sb.append(StringPool.SLASH);
@@ -1475,7 +1477,8 @@ public class PortalImpl implements Portal {
 				String groupFriendlyURLSuffix = groupFriendlyURL.substring(pos);
 
 				sb.append(groupFriendlyURLPrefix);
-				sb.append(_buildI18NPath(siteDefaultLocale, layout.getGroup()));
+				sb.append(
+					_buildI18NPath(themeDisplayLocale, layout.getGroup()));
 				sb.append(groupFriendlyURLSuffix);
 			}
 
