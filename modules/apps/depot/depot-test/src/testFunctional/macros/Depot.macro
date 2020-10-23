@@ -611,20 +611,45 @@ definition {
 	}
 
 	macro viewConnectedSiteNumber {
-		LexiconEntry.changeDisplayStyle(displayStyle = "list");
+		if (isSet(tableView)) {
+			LexiconEntry.changeDisplayStyle(displayStyle = "table");
 
-		if ("${connectedSiteNumber}" == "1") {
-			LexiconList.viewListEntrySubtitle(
-				listEntry = "${depotName}",
-				listEntrySubtitle = "${connectedSiteNumber} Connected Site");
+			LexiconTable.viewTableEntryText(
+				tableEntry = "${depotName}",
+				tableEntryText = "${connectedSiteNumber}");
 		}
+
+		else if (isSet(cardView)) {
+			LexiconEntry.changeDisplayStyle(displayStyle = "cards");
+
+			if ("${connectedSiteNumber}" == "1") {
+				LexiconCard.viewCardSubtitle(
+					card = "${depotName}",
+					cardSubtitle = "1 Connected Site");
+			}
+			else {
+				LexiconCard.viewCardSubtitle(
+					card = "${depotName}",
+					cardSubtitle = "${connectedSiteNumber} Connected Sites");
+			}
+		}
+
 		else {
-			LexiconList.viewListEntrySubtitle(
-				listEntry = "${depotName}",
-				listEntrySubtitle = "${connectedSiteNumber} Connected Sites");
-		}
+			LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
-		LexiconEntry.changeDisplayStyle(displayStyle = "cards");
+			if ("${connectedSiteNumber}" == "1") {
+				LexiconList.viewListEntrySubtitle(
+					listEntry = "${depotName}",
+					listEntrySubtitle = "${connectedSiteNumber} Connected Site");
+			}
+			else {
+				LexiconList.viewListEntrySubtitle(
+					listEntry = "${depotName}",
+					listEntrySubtitle = "${connectedSiteNumber} Connected Sites");
+			}
+
+			LexiconEntry.changeDisplayStyle(displayStyle = "cards");
+		}
 	}
 
 	macro viewCurrentLanguages {
