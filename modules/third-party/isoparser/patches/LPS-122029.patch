@@ -1,0 +1,18 @@
+diff --git a/org/mp4parser/BasicContainer.java b/org/mp4parser/BasicContainer.java
+index 9151a14aab96..7af12c5b4746 100644
+--- a/org/mp4parser/BasicContainer.java
++++ b/org/mp4parser/BasicContainer.java
+@@ -113,6 +113,8 @@ public class BasicContainer implements Container {
+                 } else {
+                     throw e;
+                 }
++            } catch (RuntimeException e) {
++                return;
+             }
+         }
+     }
+@@ -139,3 +141,4 @@ public class BasicContainer implements Container {
+         }
+     }
+ }
++/* @generated */ 
