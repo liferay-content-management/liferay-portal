@@ -113,6 +113,8 @@ public class BasicContainer implements Container {
                 } else {
                     throw e;
                 }
+            } catch (RuntimeException e) {
+                return;
             }
         }
     }
@@ -139,3 +141,4 @@ public class BasicContainer implements Container {
         }
     }
 }
+/* @generated */ 
