@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.journal.web.internal.display.context;
+package com.liferay.translation.web.internal.display.context;
 
 import com.liferay.info.field.InfoField;
 import com.liferay.info.field.InfoFieldSet;
@@ -23,7 +23,6 @@ import com.liferay.info.field.type.TextInfoFieldType;
 import com.liferay.info.form.InfoForm;
 import com.liferay.info.item.InfoItemFieldValues;
 import com.liferay.info.localized.InfoLocalizedValue;
-import com.liferay.journal.web.internal.info.item.JournalArticleInfoItemFields;
 import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -57,9 +56,9 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author Alejandro Tardín
  */
-public class JournalTranslateDisplayContext {
+public class TranslateDisplayContext {
 
-	public JournalTranslateDisplayContext(
+	public TranslateDisplayContext(
 		List<String> availableSourceLanguageIds,
 		List<String> availableTargetLanguageIds, String className, long classPK,
 		InfoForm infoForm, LiferayPortletRequest liferayPortletRequest,
@@ -214,8 +213,7 @@ public class JournalTranslateDisplayContext {
 
 	public String getTitle() {
 		InfoFieldValue<Object> infoFieldValue =
-			_sourceInfoItemFieldValues.getInfoFieldValue(
-				JournalArticleInfoItemFields.titleInfoField.getName());
+			_sourceInfoItemFieldValues.getInfoFieldValue("title");
 
 		return (String)infoFieldValue.getValue(_themeDisplay.getLocale());
 	}
@@ -238,7 +236,7 @@ public class JournalTranslateDisplayContext {
 		PortletURL portletURL = _liferayPortletResponse.createActionURL();
 
 		portletURL.setParameter(
-			ActionRequest.ACTION_NAME, "/journal/update_translation");
+			ActionRequest.ACTION_NAME, "/translation/update_translation");
 		portletURL.setParameter("groupId", String.valueOf(_getGroupId()));
 		portletURL.setParameter(
 			"classNameId",

@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.journal.web.internal.portlet.action;
+package com.liferay.translation.web.internal.portlet.action;
 
 import com.liferay.info.field.InfoField;
 import com.liferay.info.field.InfoFieldValue;
@@ -24,7 +24,6 @@ import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.info.item.provider.InfoItemFormProvider;
 import com.liferay.info.item.provider.InfoItemObjectProvider;
 import com.liferay.info.localized.InfoLocalizedValue;
-import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
@@ -38,6 +37,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropertiesParamUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.translation.service.TranslationEntryService;
+import com.liferay.translation.web.internal.constants.TranslationPortletKeys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +54,8 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"javax.portlet.name=" + JournalPortletKeys.JOURNAL,
-		"mvc.command.name=/journal/update_translation"
+		"javax.portlet.name=" + TranslationPortletKeys.TRANSLATION,
+		"mvc.command.name=/translation/update_translation"
 	},
 	service = MVCActionCommand.class
 )
@@ -106,7 +106,7 @@ public class UpdateTranslationMVCActionCommand extends BaseMVCActionCommand {
 			SessionErrors.add(actionRequest, exception.getClass(), exception);
 
 			actionResponse.setRenderParameter(
-				"mvcRenderCommandName", "/journal/translate");
+				"mvcRenderCommandName", "/translation/translate");
 		}
 	}
 
