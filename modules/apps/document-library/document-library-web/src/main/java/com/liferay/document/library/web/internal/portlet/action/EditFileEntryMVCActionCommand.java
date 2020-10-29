@@ -1011,6 +1011,7 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 		long folderId = ParamUtil.getLong(uploadPortletRequest, "folderId");
 		String sourceFileName = uploadPortletRequest.getFileName("file");
 		String title = ParamUtil.getString(uploadPortletRequest, "title");
+		String fileName = ParamUtil.getString(uploadPortletRequest, "fileName");
 		String description = ParamUtil.getString(
 			uploadPortletRequest, "description");
 		String changeLog = ParamUtil.getString(
@@ -1042,7 +1043,12 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 				 cmd.equals(Constants.ADD_DYNAMIC)) &&
 				(size == 0)) {
 
-				contentType = MimeTypesUtil.getContentType(title);
+				if (Validator.isNotNull(fileName)) {
+					contentType = MimeTypesUtil.getContentType(fileName);
+				}
+				else {
+					contentType = MimeTypesUtil.getContentType(title);
+				}
 			}
 
 			if (cmd.equals(Constants.ADD) ||
@@ -1079,8 +1085,9 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 				// Add file entry
 
 				fileEntry = _dlAppService.addFileEntry(
-					repositoryId, folderId, sourceFileName, contentType, title,
-					description, changeLog, inputStream, size, serviceContext);
+					repositoryId, folderId, sourceFileName, fileName,
+					contentType, title, description, changeLog, inputStream,
+					size, serviceContext);
 			}
 			else if (cmd.equals(Constants.ADD_DYNAMIC)) {
 

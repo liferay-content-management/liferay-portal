@@ -169,6 +169,33 @@ public class DLAppServiceUtil {
 			description, changeLog, inputStream, size, serviceContext);
 	}
 
+	public static com.liferay.portal.kernel.repository.model.FileEntry
+			addFileEntry(
+				long repositoryId, long folderId, String sourceFileName,
+				String fileName, String mimeType, String title,
+				String description, String changeLog, java.io.File file,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addFileEntry(
+			repositoryId, folderId, sourceFileName, fileName, mimeType, title,
+			description, changeLog, file, serviceContext);
+	}
+
+	public static com.liferay.portal.kernel.repository.model.FileEntry
+			addFileEntry(
+				long repositoryId, long folderId, String sourceFileName,
+				String fileName, String mimeType, String title,
+				String description, String changeLog,
+				java.io.InputStream inputStream, long size,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().addFileEntry(
+			repositoryId, folderId, sourceFileName, fileName, mimeType, title,
+			description, changeLog, inputStream, size, serviceContext);
+	}
+
 	/**
 	 * Adds a file shortcut to the existing file entry. This method is only
 	 * supported by the Liferay repository.

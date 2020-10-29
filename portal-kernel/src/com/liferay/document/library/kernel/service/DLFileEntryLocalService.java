@@ -103,6 +103,15 @@ public interface DLFileEntryLocalService
 			InputStream inputStream, long size, ServiceContext serviceContext)
 		throws PortalException;
 
+	public DLFileEntry addFileEntry(
+			long userId, long groupId, long repositoryId, long folderId,
+			String sourceFileName, String fileName, String mimeType,
+			String title, String description, String changeLog,
+			long fileEntryTypeId, Map<String, DDMFormValues> ddmFormValuesMap,
+			File file, InputStream inputStream, long size,
+			ServiceContext serviceContext)
+		throws PortalException;
+
 	public DLFileVersion cancelCheckOut(long userId, long fileEntryId)
 		throws PortalException;
 

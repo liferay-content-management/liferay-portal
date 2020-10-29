@@ -50,6 +50,25 @@ public class DLFileEntryServiceWrapper
 	}
 
 	@Override
+	public DLFileEntry addFileEntry(
+			long groupId, long repositoryId, long folderId,
+			String sourceFileName, String fileName, String mimeType,
+			String title, String description, String changeLog,
+			long fileEntryTypeId,
+			java.util.Map
+				<String, com.liferay.dynamic.data.mapping.kernel.DDMFormValues>
+					ddmFormValuesMap,
+			java.io.File file, java.io.InputStream inputStream, long size,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _dlFileEntryService.addFileEntry(
+			groupId, repositoryId, folderId, sourceFileName, fileName, mimeType,
+			title, description, changeLog, fileEntryTypeId, ddmFormValuesMap,
+			file, inputStream, size, serviceContext);
+	}
+
+	@Override
 	public com.liferay.document.library.kernel.model.DLFileVersion
 			cancelCheckOut(long fileEntryId)
 		throws com.liferay.portal.kernel.exception.PortalException {

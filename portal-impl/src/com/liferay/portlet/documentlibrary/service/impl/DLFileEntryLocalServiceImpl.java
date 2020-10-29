@@ -166,6 +166,22 @@ public class DLFileEntryLocalServiceImpl
 			InputStream inputStream, long size, ServiceContext serviceContext)
 		throws PortalException {
 
+		return addFileEntry(
+			userId, groupId, repositoryId, folderId, sourceFileName, null,
+			mimeType, title, description, changeLog, fileEntryTypeId,
+			ddmFormValuesMap, file, inputStream, size, serviceContext);
+	}
+
+	@Override
+	public DLFileEntry addFileEntry(
+			long userId, long groupId, long repositoryId, long folderId,
+			String sourceFileName, String fileName, String mimeType,
+			String title, String description, String changeLog,
+			long fileEntryTypeId, Map<String, DDMFormValues> ddmFormValuesMap,
+			File file, InputStream inputStream, long size,
+			ServiceContext serviceContext)
+		throws PortalException {
+
 		if (Validator.isNull(title)) {
 			throw new FileNameException(
 				StringBundler.concat(
@@ -183,9 +199,13 @@ public class DLFileEntryLocalServiceImpl
 		String name = String.valueOf(
 			counterLocalService.increment(DLFileEntry.class.getName()));
 
-		String extension = DLAppUtil.getExtension(title, sourceFileName);
+		String extension = DLAppUtil.getExtension(fileName, sourceFileName);
 
-		String fileName = DLUtil.getSanitizedFileName(title, extension);
+		if (Validator.isNull(fileName)) {
+			extension = DLAppUtil.getExtension(title, sourceFileName);
+
+			fileName = DLUtil.getSanitizedFileName(title, extension);
+		}
 
 		if (fileEntryTypeId == -1) {
 			fileEntryTypeId =
@@ -1911,7 +1931,7 @@ public class DLFileEntryLocalServiceImpl
 			(dlFileEntry.getFileEntryId() != fileEntryId)) {
 
 			throw new DuplicateFileEntryException(
-				"A file entry already exists with file name " + title);
+				"A file entry already exists with file name " + fileName);
 		}
 	}
 

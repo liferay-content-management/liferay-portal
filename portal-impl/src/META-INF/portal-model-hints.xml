@@ -339,6 +339,7 @@
 		</field>
 		<field name="fileName" type="String">
 			<hint name="max-length">255</hint>
+			<validator name="required" />
 		</field>
 		<field name="extension" type="String" />
 		<field name="mimeType" type="String" />

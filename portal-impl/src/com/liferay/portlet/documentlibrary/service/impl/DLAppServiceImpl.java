@@ -303,6 +303,79 @@ public class DLAppServiceImpl extends DLAppServiceBaseImpl {
 			changeLog, inputStream, size, serviceContext);
 	}
 
+	@Override
+	public FileEntry addFileEntry(
+			long repositoryId, long folderId, String sourceFileName,
+			String fileName, String mimeType, String title, String description,
+			String changeLog, File file, ServiceContext serviceContext)
+		throws PortalException {
+
+		if ((file == null) || !file.exists() || (file.length() == 0)) {
+			return addFileEntry(
+				repositoryId, folderId, sourceFileName, fileName, mimeType,
+				title, description, changeLog, null, 0, serviceContext);
+		}
+
+		mimeType = DLAppUtil.getMimeType(
+			sourceFileName, mimeType, fileName, file);
+
+		Repository repository = getRepository(repositoryId);
+
+		return repository.addFileEntry(
+			getUserId(), folderId, sourceFileName, mimeType, title, description,
+			changeLog, file, serviceContext);
+	}
+
+	@Override
+	public FileEntry addFileEntry(
+			long repositoryId, long folderId, String sourceFileName,
+			String fileName, String mimeType, String title, String description,
+			String changeLog, InputStream inputStream, long size,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		if (inputStream == null) {
+			inputStream = new UnsyncByteArrayInputStream(new byte[0]);
+			size = 0;
+		}
+
+		if (Validator.isNull(mimeType) ||
+			mimeType.equals(ContentTypes.APPLICATION_OCTET_STREAM)) {
+
+			if (size == 0) {
+				String extension = DLAppUtil.getExtension(
+					fileName, sourceFileName);
+
+				mimeType = MimeTypesUtil.getExtensionContentType(extension);
+			}
+			else {
+				File file = null;
+
+				try {
+					file = FileUtil.createTempFile(inputStream);
+
+					return addFileEntry(
+						repositoryId, folderId, sourceFileName, fileName,
+						mimeType, title, description, changeLog, file,
+						serviceContext);
+				}
+				catch (IOException ioException) {
+					throw new SystemException(
+						"Unable to write temporary file", ioException);
+				}
+				finally {
+					FileUtil.delete(file);
+				}
+			}
+		}
+
+		Repository repository = getRepository(repositoryId);
+
+		return repository.addFileEntry(
+			getUserId(), folderId, sourceFileName, mimeType, title, description,
+			changeLog, inputStream, size, serviceContext);
+	}
+
 	/**
 	 * Adds a file shortcut to the existing file entry. This method is only
 	 * supported by the Liferay repository.

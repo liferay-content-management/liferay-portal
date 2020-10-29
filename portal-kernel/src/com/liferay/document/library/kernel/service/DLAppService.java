@@ -181,6 +181,19 @@ public interface DLAppService extends BaseService {
 			InputStream inputStream, long size, ServiceContext serviceContext)
 		throws PortalException;
 
+	public FileEntry addFileEntry(
+			long repositoryId, long folderId, String sourceFileName,
+			String fileName, String mimeType, String title, String description,
+			String changeLog, File file, ServiceContext serviceContext)
+		throws PortalException;
+
+	public FileEntry addFileEntry(
+			long repositoryId, long folderId, String sourceFileName,
+			String fileName, String mimeType, String title, String description,
+			String changeLog, InputStream inputStream, long size,
+			ServiceContext serviceContext)
+		throws PortalException;
+
 	/**
 	 * Adds a file shortcut to the existing file entry. This method is only
 	 * supported by the Liferay repository.

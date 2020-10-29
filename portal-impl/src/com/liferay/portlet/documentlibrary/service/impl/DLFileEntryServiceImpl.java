@@ -82,6 +82,26 @@ public class DLFileEntryServiceImpl extends DLFileEntryServiceBaseImpl {
 	}
 
 	@Override
+	public DLFileEntry addFileEntry(
+			long groupId, long repositoryId, long folderId,
+			String sourceFileName, String fileName, String mimeType,
+			String title, String description, String changeLog,
+			long fileEntryTypeId, Map<String, DDMFormValues> ddmFormValuesMap,
+			File file, InputStream inputStream, long size,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		ModelResourcePermissionUtil.check(
+			_folderModelResourcePermission, getPermissionChecker(), groupId,
+			folderId, ActionKeys.ADD_DOCUMENT);
+
+		return dlFileEntryLocalService.addFileEntry(
+			getUserId(), groupId, repositoryId, folderId, sourceFileName,
+			fileName, mimeType, title, description, changeLog, fileEntryTypeId,
+			ddmFormValuesMap, file, inputStream, size, serviceContext);
+	}
+
+	@Override
 	public DLFileVersion cancelCheckOut(long fileEntryId)
 		throws PortalException {
 
