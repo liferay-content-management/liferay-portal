@@ -123,7 +123,8 @@ public class DLViewFileEntryDisplayContext {
 		}
 		else {
 			_documentTitle = StringBundler.concat(
-				fileVersion.getTitle(), StringPool.OPEN_PARENTHESIS,
+				fileVersion.getTitle(), StringPool.SPACE,
+				StringPool.OPEN_PARENTHESIS,
 				_language.get(_httpServletRequest, "version"),
 				fileVersion.getVersion(), StringPool.CLOSE_PARENTHESIS);
 		}
