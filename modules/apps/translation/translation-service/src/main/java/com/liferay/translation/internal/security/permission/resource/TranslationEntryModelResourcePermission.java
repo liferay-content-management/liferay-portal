@@ -26,6 +26,7 @@ import com.liferay.translation.constants.TranslationActionKeys;
 import com.liferay.translation.constants.TranslationConstants;
 import com.liferay.translation.model.TranslationEntry;
 import com.liferay.translation.service.TranslationEntryLocalService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -50,14 +51,12 @@ public class TranslationEntryModelResourcePermission
 				permissionChecker, TranslationEntry.class.getName(), primaryKey,
 				actionId);
 		}
-
 	}
 
 	@Override
 	public void check(
 			PermissionChecker permissionChecker,
-			TranslationEntry translationEntry,
-			String actionId)
+			TranslationEntry translationEntry, String actionId)
 		throws PortalException {
 
 		if (!contains(permissionChecker, translationEntry, actionId)) {
@@ -84,7 +83,6 @@ public class TranslationEntryModelResourcePermission
 			PermissionChecker permissionChecker,
 			TranslationEntry translationEntry, String actionId)
 		throws PortalException {
-
 
 		InfoItemPermissionProvider<Object> infoItemPermissionProvider =
 			_infoItemServiceTracker.getFirstInfoItemService(
@@ -125,16 +123,15 @@ public class TranslationEntryModelResourcePermission
 		return _portletResourcePermission;
 	}
 
-
 	@Reference
 	private InfoItemServiceTracker _infoItemServiceTracker;
-
-	@Reference
-	private TranslationEntryLocalService _translationEntryLocalService;
 
 	@Reference(
 		target = "(resource.name=" + TranslationConstants.RESOURCE_NAME + ")"
 	)
 	private PortletResourcePermission _portletResourcePermission;
+
+	@Reference
+	private TranslationEntryLocalService _translationEntryLocalService;
 
 }
