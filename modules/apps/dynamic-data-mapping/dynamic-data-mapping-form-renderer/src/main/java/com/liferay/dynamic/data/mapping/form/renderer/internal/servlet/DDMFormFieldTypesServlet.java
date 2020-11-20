@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -131,7 +132,9 @@ public class DDMFormFieldTypesServlet extends HttpServlet {
 			EditorConfiguration richTextEditorConfiguration =
 				EditorConfigurationFactoryUtil.getEditorConfiguration(
 					StringPool.BLANK, ddmFormFieldName, "ckeditor_classic",
-					Collections.emptyMap(),
+					HashMapBuilder.<String, Object>put(
+						"liferay-ui:input-editor:allowBrowseDocuments", true
+					).build(),
 					(ThemeDisplay)httpServletRequest.getAttribute(
 						WebKeys.THEME_DISPLAY),
 					RequestBackedPortletURLFactoryUtil.create(
