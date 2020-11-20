@@ -50,7 +50,7 @@ boolean panelsShown = false;
 					<li class="entry-card entry-display-style lfr-asset-item">
 						<c:choose>
 							<c:when test="<%= depotAdminViewDepotDashboardDisplayContext.isPrimaryPanelCategory(panelCategory) %>">
-								<clay:vertical-card-v2
+								<clay:vertical-card
 									verticalCard="<%= depotAdminViewDepotDashboardDisplayContext.getDepotDashboardApplicationVerticalCard(panelApp, locale) %>"
 								/>
 							</c:when>
