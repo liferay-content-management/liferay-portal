@@ -23,7 +23,14 @@ String eventName = (String)request.getAttribute(DLExternalVideoVideoURLItemSelec
 <div class="lfr-form-content">
 	<clay:sheet>
 		<div class="panel-group panel-group-flush">
-			<span> VIDEO URL <%= eventName %></span>
+			<react:component
+				module="js/ItemSelectorUrl.es"
+				props='<%=
+					HashMapBuilder.<String, Object>put(
+						"eventName", eventName
+					).build()
+				%>'
+			/>
 		</div>
 	</clay:sheet>
 </div>
