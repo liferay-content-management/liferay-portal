@@ -14,19 +14,10 @@
 
 package com.liferay.document.library.external.video.internal.item.selector;
 
-import com.liferay.document.library.external.video.internal.constants.DLExternalVideoConstants;
-import com.liferay.document.library.external.video.internal.helper.DLExternalVideoMetadataHelper;
-import com.liferay.document.library.kernel.model.DLFileEntry;
-import com.liferay.document.library.kernel.service.DLFileEntryMetadataLocalService;
-import com.liferay.document.library.util.DLURLHelper;
-import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
-import com.liferay.dynamic.data.mapping.storage.StorageEngine;
-import com.liferay.dynamic.data.mapping.util.DDMFormValuesToFieldsConverter;
-import com.liferay.dynamic.data.mapping.util.FieldsToDDMFormValuesConverter;
+import com.liferay.document.library.external.video.DLExternalVideo;
+import com.liferay.document.library.external.video.resolver.DLExternalVideoResolver;
 import com.liferay.item.selector.ItemSelectorReturnTypeResolver;
 import com.liferay.item.selector.criteria.VideoURLItemSelectorReturnType;
-import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 
@@ -57,62 +48,18 @@ public class DLExternalVideoVideoURLItemSelectorReturnTypeResolver
 	}
 
 	@Override
-	public String getValue(FileEntry fileEntry, ThemeDisplay themeDisplay)
-		throws Exception {
+	public String getValue(FileEntry fileEntry, ThemeDisplay themeDisplay) {
+		DLExternalVideo dlExternalVideo = _dlExternalVideoResolver.resolve(
+			fileEntry);
 
-		if (fileEntry.getModel() instanceof DLFileEntry) {
-			DLFileEntry dlFileEntry = (DLFileEntry)fileEntry.getModel();
-
-			DLExternalVideoMetadataHelper dlExternalVideoMetadataHelper =
-				new DLExternalVideoMetadataHelper(
-					_ddmFormValuesToFieldsConverter, _ddmStructureLocalService,
-					dlFileEntry, _dlFileEntryMetadataLocalService,
-					_fieldsToDDMFormValuesConverter, _storageEngine);
-
-			if (dlExternalVideoMetadataHelper.isExternalVideo() &&
-				dlExternalVideoMetadataHelper.containsField(
-					DLExternalVideoConstants.DDM_FIELD_NAME_HTML)) {
-
-				return dlExternalVideoMetadataHelper.getFieldValue(
-					DLExternalVideoConstants.DDM_FIELD_NAME_URL);
-			}
+		if (dlExternalVideo != null) {
+			return dlExternalVideo.getEmbeddableHTML();
 		}
 
-		return _getVideoURL(fileEntry, themeDisplay);
-	}
-
-	private String _getVideoURL(FileEntry fileEntry, ThemeDisplay themeDisplay)
-		throws Exception {
-
-		if (fileEntry.getGroupId() == fileEntry.getRepositoryId()) {
-			return _dlURLHelper.getPreviewURL(
-				fileEntry, fileEntry.getFileVersion(), themeDisplay,
-				StringPool.BLANK, false, true);
-		}
-
-		return _portletFileRepository.getPortletFileEntryURL(
-			themeDisplay, fileEntry, StringPool.BLANK, false);
+		return null;
 	}
 
 	@Reference
-	private DDMFormValuesToFieldsConverter _ddmFormValuesToFieldsConverter;
-
-	@Reference
-	private DDMStructureLocalService _ddmStructureLocalService;
-
-	@Reference
-	private DLFileEntryMetadataLocalService _dlFileEntryMetadataLocalService;
-
-	@Reference
-	private DLURLHelper _dlURLHelper;
-
-	@Reference
-	private FieldsToDDMFormValuesConverter _fieldsToDDMFormValuesConverter;
-
-	@Reference
-	private PortletFileRepository _portletFileRepository;
-
-	@Reference
-	private StorageEngine _storageEngine;
+	private DLExternalVideoResolver _dlExternalVideoResolver;
 
 }
