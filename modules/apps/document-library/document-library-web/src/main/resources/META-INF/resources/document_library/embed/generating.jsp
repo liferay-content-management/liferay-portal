@@ -29,3 +29,33 @@
 		<liferay-ui:message key="generating-preview-will-take-a-few-minutes" />
 	</div>
 </div>
+
+<aui:script>
+
+	<%
+	FileEntry fileEntry = (FileEntry)request.getAttribute(FileEntry.class.getName());
+	%>
+
+	<portlet:resourceURL id="/document_library/get_embed_video_status" var="getEmbedVideoStatusURL">
+		<portlet:param name="fileEntryId" value="<%= String.valueOf(fileEntry.getFileEntryId()) %>" />
+	</portlet:resourceURL>
+
+	var lastStatus = 'generating';
+
+	function scheduleEmbedVideoStatusCheck() {
+		setTimeout(function () {
+			fetch('<%= getEmbedVideoStatusURL %>')
+				.then(function (res) {
+					return res.text();
+				})
+				.then(function (status) {
+					if (status !== lastStatus) {
+						window.location.reload();
+					}
+					lastStatus = status;
+				});
+		}, 3000);
+	}
+
+	scheduleEmbedVideoStatusCheck();
+</aui:script>
