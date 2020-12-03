@@ -47,6 +47,15 @@ renderResponse.setTitle(translateDisplayContext.getTitle());
 							</div>
 						</c:if>
 					</li>
+
+					<c:if test="<%= translateDisplayContext.isAutoTranslateButtonVisible() %>">
+						<li class="tbar-item">
+							<div class="tbar-section text-left">
+								<aui:button cssClass="btn-sm mr-3" id="autoTranslateBtn" primary="<%= false %>" value="auto-translate" />
+							</div>
+						</li>
+					</c:if>
+
 					<li class="tbar-item">
 						<div class="metadata-type-button-row tbar-section text-right">
 							<aui:button cssClass="btn-sm mr-3" href="<%= redirect %>" type="cancel" />
