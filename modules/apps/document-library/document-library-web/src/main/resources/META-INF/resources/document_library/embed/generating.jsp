@@ -29,3 +29,20 @@
 		<liferay-ui:message key="generating-preview-will-take-a-few-minutes" />
 	</div>
 </div>
+
+<%
+FileEntry fileEntry = (FileEntry)request.getAttribute(FileEntry.class.getName());
+%>
+
+<portlet:resourceURL id="/document_library/get_embed_video_status" var="getEmbedVideoStatusURL">
+	<portlet:param name="fileEntryId" value="<%= String.valueOf(fileEntry.getFileEntryId()) %>" />
+</portlet:resourceURL>
+
+<liferay-frontend:component
+	context='<%=
+		HashMapBuilder.<String, Object>put(
+			"getEmbedVideoStatusURL", getEmbedVideoStatusURL
+		).build()
+	%>'
+	module="document_library/js/embed/generating"
+/>

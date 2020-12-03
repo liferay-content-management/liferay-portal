@@ -25,7 +25,9 @@ import com.liferay.analytics.reports.web.internal.model.AcquisitionChannel;
 import com.liferay.analytics.reports.web.internal.model.HistoricalMetric;
 import com.liferay.analytics.reports.web.internal.model.TimeRange;
 import com.liferay.analytics.reports.web.internal.model.TimeSpan;
+import com.liferay.analytics.reports.web.internal.model.TrafficChannel;
 import com.liferay.analytics.reports.web.internal.model.TrafficSource;
+import com.liferay.analytics.reports.web.internal.model.util.TrafficChannelUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -40,7 +42,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -185,7 +186,7 @@ public class AnalyticsReportsDataProvider {
 		}
 	}
 
-	public Map<String, TrafficSource> getTrafficSources(
+	public Map<String, TrafficChannel> getTrafficChannels(
 			long companyId, String url)
 		throws PortalException {
 
@@ -202,23 +203,12 @@ public class AnalyticsReportsDataProvider {
 			Stream<AcquisitionChannel> stream = values.stream();
 
 			return stream.map(
-				acquisitionChannel -> Optional.ofNullable(
-					trafficSourceMap.get(acquisitionChannel.getName())
-				).map(
-					trafficSource -> new TrafficSource(
-						trafficSource.getCountrySearchKeywordsList(),
-						acquisitionChannel.getName(),
-						acquisitionChannel.getTrafficAmount(),
-						acquisitionChannel.getTrafficShare())
-				).orElseGet(
-					() -> new TrafficSource(
-						Collections.emptyList(), acquisitionChannel.getName(),
-						acquisitionChannel.getTrafficAmount(),
-						acquisitionChannel.getTrafficShare())
-				)
+				acquisitionChannel -> TrafficChannelUtil.toTrafficChannel(
+					acquisitionChannel,
+					trafficSourceMap.get(acquisitionChannel.getName()))
 			).map(
-				trafficSource -> new AbstractMap.SimpleEntry<>(
-					trafficSource.getName(), trafficSource)
+				trafficChannel -> new AbstractMap.SimpleEntry<>(
+					trafficChannel.getName(), trafficChannel)
 			).collect(
 				Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)
 			);

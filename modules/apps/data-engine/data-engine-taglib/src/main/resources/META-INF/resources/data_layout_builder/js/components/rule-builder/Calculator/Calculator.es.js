@@ -38,7 +38,10 @@ function FieldsDropdown({items, onFieldSelected = () => {}, ...otherProps}) {
 							<ClayDropDown.Item
 								aria-label={item.label}
 								key={item.fieldReference}
-								onClick={() => onFieldSelected(item)}
+								onClick={() => {
+									onFieldSelected(item);
+									setActive(false);
+								}}
 							>
 								{item.label}
 								{item.fieldReference && (
@@ -215,12 +218,10 @@ const Calculator = forwardRef(
 			: fields;
 
 		const updateExpression = ({index, newExpression}) => {
-			const newMaskedExpression = newExpression.replace(/[[\]]/g, '');
-
-			setExpression(newMaskedExpression);
+			setExpression(newExpression);
 
 			onEditExpression({
-				expression: newMaskedExpression,
+				expression: newExpression,
 				index,
 			});
 		};

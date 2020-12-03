@@ -249,12 +249,6 @@ export default function Chart({
 
 		changeTimeSpanKey({key: value});
 	};
-	const handlePreviousTimeSpanClick = () => {
-		previousTimeSpan();
-	};
-	const handleNextTimeSpanClick = () => {
-		nextTimeSpan();
-	};
 
 	const legendFormatter =
 		dataSet &&
@@ -264,8 +258,6 @@ export default function Chart({
 			publishedToday,
 			validAnalyticsConnection
 		);
-
-	const disabledNextTimeSpan = chartState.timeSpanOffset === 0;
 
 	const xAxisFormatter =
 		chartState.timeSpanKey === LAST_24_HOURS
@@ -281,12 +273,12 @@ export default function Chart({
 			{timeSpanOptions.length && (
 				<div className="c-mb-3 c-mt-4">
 					<TimeSpanSelector
-						disabledNextTimeSpan={disabledNextTimeSpan}
+						disabledNextTimeSpan={chartState.timeSpanOffset === 0}
 						disabledPreviousPeriodButton={
 							isPreviousPeriodButtonDisabled
 						}
-						onNextTimeSpanClick={handleNextTimeSpanClick}
-						onPreviousTimeSpanClick={handlePreviousTimeSpanClick}
+						onNextTimeSpanClick={nextTimeSpan}
+						onPreviousTimeSpanClick={previousTimeSpan}
 						onTimeSpanChange={handleTimeSpanChange}
 						timeSpanKey={chartState.timeSpanKey}
 						timeSpanOptions={timeSpanOptions}

@@ -16,7 +16,7 @@ if (!CKEDITOR.plugins.get('videoembed')) {
 	const REGEX_HTTP = /^https?/;
 
 	CKEDITOR.DEFAULT_LFR_EMBED_WIDGET_TPL =
-		'<div data-embed-url="{url}" class="embed-responsive embed-responsive-16by9">{content}<div class="embed-help-message">{helpMessageIcon}<span> {helpMessage}</span></div></div><br>';
+		'<div data-embed-url="{url}" class="embed-responsive embed-responsive-16by9"><div data-embed-id="{url}">{content}</div><div class="embed-help-message">{helpMessageIcon}<span> {helpMessage}</span></div></div><br>';
 
 	/**
 	 * Enum for supported embed alignments
@@ -737,6 +737,12 @@ if (!CKEDITOR.plugins.get('videoembed')) {
 					Liferay.Language.get('enter-a-valid-url')
 				);
 			}
+		},
+
+		onOkVideoHtml(editor, html, url) {
+			const embedContent = this._generateEmbedContent(editor, url, html);
+
+			editor.insertHtml(embedContent);
 		},
 
 		requires: 'widget',

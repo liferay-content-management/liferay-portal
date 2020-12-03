@@ -56,6 +56,8 @@ String eventName = (String)request.getAttribute(DLExternalVideoWebKeys.EVENT_NAM
 						"getDLExternalVideoFieldsURL", getDLExternalVideoFieldsURL
 					).put(
 						"namespace", PortalUtil.getPortletNamespace(DLPortletKeys.DOCUMENT_LIBRARY)
+					).put(
+						"returnType", VideoEmbeddableHTMLItemSelectorReturnType.class.getName()
 					).build()
 				%>'
 			/>

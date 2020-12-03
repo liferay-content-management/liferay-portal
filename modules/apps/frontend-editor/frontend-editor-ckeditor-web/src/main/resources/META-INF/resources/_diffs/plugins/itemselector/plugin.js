@@ -18,6 +18,9 @@
 	var STR_FILE_ENTRY_RETURN_TYPE =
 		'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType';
 
+	var STR_VIDEO_HTML_RETURN_TYPE =
+		'com.liferay.item.selector.criteria.VideoEmbeddableHTMLItemSelectorReturnType';
+
 	var TPL_AUDIO_SCRIPT =
 		'boundingBox: "#" + mediaId,' + 'oggUrl: "{oggUrl}",' + 'url: "{url}"';
 
@@ -104,11 +107,15 @@
 			}
 		},
 
-		_commitVideoEmbedValue(value, editor) {
-			editor.plugins.videoembed.onOkVideo(editor, {
-				type: 'video',
-				url: value,
-			});
+		_commitVideoHtmlValue(editor, html) {
+			const parsedHTML = new DOMParser().parseFromString(
+				html,
+				'text/html'
+			);
+			const iFrame = parsedHTML.getElementsByTagName('iframe');
+			const url = iFrame[0].src;
+
+			editor.plugins.videoembed.onOkVideoHtml(editor, html, url);
 		},
 
 		_commitVideoValue(value, node, extraStyles) {
@@ -298,27 +305,17 @@
 						callback(videoSrc);
 					}
 					else {
-						var videoProvider;
-
-						var videoembedPlugin = editor.plugins.videoembed;
-
-						if (videoembedPlugin) {
-							videoProvider = videoembedPlugin.getValidProvider(
-								editor,
-								videoSrc,
-								'video'
-							);
-						}
-
-						if (videoProvider) {
-							instance._commitVideoEmbedValue(videoSrc, editor);
+						if (
+							selectedItem.returnType ===
+							STR_VIDEO_HTML_RETURN_TYPE
+						) {
+							instance._commitVideoHtmlValue(editor, videoSrc);
 						}
 						else {
-							instance._commitMediaValue(
-								videoSrc,
-								editor,
-								'video'
-							);
+							editor.plugins.videoembed.onOkVideo(editor, {
+								type: 'video',
+								url: videoSrc,
+							});
 						}
 					}
 				}

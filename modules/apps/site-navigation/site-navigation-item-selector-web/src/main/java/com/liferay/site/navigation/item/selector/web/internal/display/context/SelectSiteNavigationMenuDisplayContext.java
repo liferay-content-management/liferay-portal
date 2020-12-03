@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
@@ -131,7 +132,6 @@ public class SelectSiteNavigationMenuDisplayContext {
 			}
 
 			Layout layout = LayoutLocalServiceUtil.fetchLayout(
-				_themeDisplay.getScopeGroupId(), isPrivateLayout(),
 				getParentSiteNavigationMenuItemId());
 
 			return layout.getName(_themeDisplay.getLocale());
@@ -355,7 +355,6 @@ public class SelectSiteNavigationMenuDisplayContext {
 
 		if (getParentSiteNavigationMenuItemId() != 0) {
 			Layout layout = LayoutLocalServiceUtil.fetchLayout(
-				_themeDisplay.getScopeGroupId(), isPrivateLayout(),
 				getParentSiteNavigationMenuItemId());
 
 			List<Layout> ancestors = layout.getAncestors();
@@ -367,18 +366,33 @@ public class SelectSiteNavigationMenuDisplayContext {
 					_createBreadcrumbEntry(
 						ancestor.getName(_themeDisplay.getLocale()),
 						_getSelectSiteNavigationMenuLevelURL(
-							getSiteNavigationMenuId(),
-							ancestor.getLayoutId())));
+							getSiteNavigationMenuId(), ancestor.getPlid())));
 			}
 
 			breadcrumbEntries.add(
 				_createBreadcrumbEntry(
 					layout.getName(_themeDisplay.getLocale()),
 					_getSelectSiteNavigationMenuLevelURL(
-						getSiteNavigationMenuId(), layout.getLayoutId())));
+						getSiteNavigationMenuId(), layout.getPlid())));
 		}
 
 		return breadcrumbEntries;
+	}
+
+	private List<Layout> _getLayouts() {
+		long parentSiteNavigationMenuItemId =
+			getParentSiteNavigationMenuItemId();
+
+		if (parentSiteNavigationMenuItemId > 0) {
+			Layout layout = LayoutLocalServiceUtil.fetchLayout(
+				getParentSiteNavigationMenuItemId());
+
+			return layout.getChildren();
+		}
+
+		return LayoutLocalServiceUtil.getLayouts(
+			_themeDisplay.getScopeGroupId(), isPrivateLayout(),
+			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
 	}
 
 	private BreadcrumbEntry _getMenusBreadcrumbEntry() {
@@ -508,16 +522,12 @@ public class SelectSiteNavigationMenuDisplayContext {
 			return siteNavigationItems;
 		}
 
-		List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
-			_themeDisplay.getScopeGroupId(), isPrivateLayout(),
-			getParentSiteNavigationMenuItemId());
-
-		for (Layout layout : layouts) {
+		for (Layout layout : _getLayouts()) {
 			siteNavigationItems.add(
 				SiteNavigationMenuEntry.of(
 					layout.getName(_themeDisplay.getLocale()),
 					_getSelectSiteNavigationMenuLevelURL(
-						getSiteNavigationMenuId(), layout.getLayoutId())));
+						getSiteNavigationMenuId(), layout.getPlid())));
 		}
 
 		return siteNavigationItems;
