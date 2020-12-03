@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.portlet.PortletURL;
+import javax.portlet.ResourceURL;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -93,6 +94,15 @@ public class TranslateDisplayContext {
 
 		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+	}
+
+	public ResourceURL getAutoTranslatePortletURL(String content) {
+		ResourceURL resourceURL = _liferayPortletResponse.createResourceURL();
+
+		resourceURL.setParameter("content", content);
+		resourceURL.setResourceID("/translation/auto_translate");
+
+		return resourceURL;
 	}
 
 	public boolean getBooleanValue(
