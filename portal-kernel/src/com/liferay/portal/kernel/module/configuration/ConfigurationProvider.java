@@ -57,6 +57,9 @@ public interface ConfigurationProvider {
 	public <T> T getSystemConfiguration(Class<T> clazz)
 		throws ConfigurationException;
 
+	public <T> void resetSystemConfiguration(Class<T> clazz)
+		throws ConfigurationException;
+
 	public <T> void saveCompanyConfiguration(
 			Class<T> clazz, long companyId,
 			Dictionary<String, Object> properties)

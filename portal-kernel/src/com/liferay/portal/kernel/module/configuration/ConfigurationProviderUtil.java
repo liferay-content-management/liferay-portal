@@ -118,6 +118,15 @@ public class ConfigurationProviderUtil {
 		return configurationProvider.getSystemConfiguration(clazz);
 	}
 
+	public static <T> void resetSystemConfiguration(Class<T> clazz)
+		throws ConfigurationException {
+
+		ConfigurationProvider configurationProvider =
+			getConfigurationProvider();
+
+		configurationProvider.resetSystemConfiguration(clazz);
+	}
+
 	public static <T> void saveCompanyConfiguration(
 			Class<T> clazz, long companyId,
 			Dictionary<String, Object> properties)

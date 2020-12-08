@@ -170,6 +170,23 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
 	}
 
 	@Override
+	public <T> void resetSystemConfiguration(Class<T> clazz)
+		throws ConfigurationException {
+
+		try {
+			ConfigurationInvocationHandler<T> configurationInvocationHandler =
+				new ConfigurationInvocationHandler<>(clazz, null);
+
+			configurationInvocationHandler.resetSystemConfiguration(clazz);
+		}
+		catch (ReflectiveOperationException reflectiveOperationException) {
+			throw new ConfigurationException(
+				"Unable to load configuration of type " + clazz.getName(),
+				reflectiveOperationException);
+		}
+	}
+
+	@Override
 	public <T> void saveCompanyConfiguration(
 			Class<T> clazz, long companyId,
 			Dictionary<String, Object> properties)

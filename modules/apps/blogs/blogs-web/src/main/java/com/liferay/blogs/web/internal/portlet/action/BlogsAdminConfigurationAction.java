@@ -14,7 +14,9 @@
 
 package com.liferay.blogs.web.internal.portlet.action;
 
+import com.liferay.blogs.configuration.BlogsGroupServiceOverriddenConfiguration;
 import com.liferay.blogs.constants.BlogsPortletKeys;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.portlet.BaseJSPSettingsConfigurationAction;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.util.Constants;
@@ -59,6 +61,11 @@ public class BlogsAdminConfigurationAction
 			validateEmail(actionRequest, "emailEntryAdded");
 			validateEmail(actionRequest, "emailEntryUpdated");
 			validateEmailFrom(actionRequest);
+		}
+
+		if (cmd.equals("update")) {
+			ConfigurationProviderUtil.resetSystemConfiguration(
+				BlogsGroupServiceOverriddenConfiguration.class);
 		}
 
 		super.processAction(portletConfig, actionRequest, actionResponse);

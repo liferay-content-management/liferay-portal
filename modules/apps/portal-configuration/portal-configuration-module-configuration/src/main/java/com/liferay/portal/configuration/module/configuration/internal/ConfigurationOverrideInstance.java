@@ -42,7 +42,7 @@ public class ConfigurationOverrideInstance {
 
 		Class<?> configurationOverrideClass = _getOverrideClass(clazz);
 
-		if (configurationOverrideClass == null) {
+		if ((configurationOverrideClass == null) || (typedSettings == null)) {
 			return null;
 		}
 
@@ -58,6 +58,14 @@ public class ConfigurationOverrideInstance {
 		}
 
 		return configurationOverrideInstance;
+	}
+
+	public static void resetConfiguration(Class<?> clazz) {
+		Class<?> configurationOverrideClass = _getOverrideClass(clazz);
+
+		if (configurationOverrideClass != null) {
+			_configurationOverrideInstances.remove(configurationOverrideClass);
+		}
 	}
 
 	public Object invoke(Method method) throws ReflectiveOperationException {

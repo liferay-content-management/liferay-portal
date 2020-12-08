@@ -72,6 +72,10 @@ public class ConfigurationInvocationHandler<S> implements InvocationHandler {
 		}
 	}
 
+	public void resetSystemConfiguration(Class<S> clazz) {
+		ConfigurationOverrideInstance.resetConfiguration(clazz);
+	}
+
 	private Object _getValue(Class<?> returnType, String key)
 		throws ReflectiveOperationException {
 
