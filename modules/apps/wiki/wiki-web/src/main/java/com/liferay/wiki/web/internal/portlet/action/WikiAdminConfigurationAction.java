@@ -14,8 +14,10 @@
 
 package com.liferay.wiki.web.internal.portlet.action;
 
+import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.portlet.BaseJSPSettingsConfigurationAction;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
+import com.liferay.wiki.configuration.WikiGroupServiceOverriddenConfiguration;
 import com.liferay.wiki.constants.WikiPortletKeys;
 
 import javax.portlet.ActionRequest;
@@ -53,6 +55,9 @@ public class WikiAdminConfigurationAction
 		validateEmail(actionRequest, "emailPageAdded");
 		validateEmail(actionRequest, "emailPageUpdated");
 		validateEmailFrom(actionRequest);
+
+		ConfigurationProviderUtil.resetSystemConfiguration(
+			WikiGroupServiceOverriddenConfiguration.class);
 
 		super.processAction(portletConfig, actionRequest, actionResponse);
 	}

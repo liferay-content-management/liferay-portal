@@ -14,12 +14,14 @@
 
 package com.liferay.bookmarks.web.internal.portlet.action;
 
+import com.liferay.bookmarks.configuration.BookmarksGroupServiceOverriddenConfiguration;
 import com.liferay.bookmarks.constants.BookmarksFolderConstants;
 import com.liferay.bookmarks.constants.BookmarksPortletKeys;
 import com.liferay.bookmarks.service.BookmarksFolderLocalService;
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.portlet.BaseJSPSettingsConfigurationAction;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.servlet.SessionErrors;
@@ -61,6 +63,9 @@ public class BookmarksAdminConfigurationAction
 		validateEmail(actionRequest, "emailMessageUpdated");
 		validateEmailFrom(actionRequest);
 		validateRootFolder(actionRequest);
+
+		ConfigurationProviderUtil.resetSystemConfiguration(
+			BookmarksGroupServiceOverriddenConfiguration.class);
 
 		super.processAction(portletConfig, actionRequest, actionResponse);
 	}
