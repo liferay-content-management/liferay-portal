@@ -19,6 +19,7 @@ import com.liferay.document.library.video.external.shortcut.provider.DLVideoExte
 import com.liferay.frontend.editor.embed.EditorEmbedProvider;
 import com.liferay.frontend.editor.embed.constants.EditorEmbedProviderTypeConstants;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -35,6 +36,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -85,12 +88,6 @@ public class YouTubeDLVideoExternalShortcutProvider
 				}
 
 				@Override
-				public String getEmbeddableHTML() {
-					return StringUtil.replace(
-						getTpl(), "{embedId}", youTubeVideoId);
-				}
-
-				@Override
 				public String getThumbnailURL() {
 					return jsonObject.getString("thumbnail_url");
 				}
@@ -103,6 +100,15 @@ public class YouTubeDLVideoExternalShortcutProvider
 				@Override
 				public String getURL() {
 					return url;
+				}
+
+				@Override
+				public String renderHTML(
+					HttpServletRequest httpServletRequest) {
+
+					return StringUtil.replace(
+						_getTpl(_http.getParameter(url, "t", false)),
+						"{embedId}", youTubeVideoId);
 				}
 
 			};
@@ -121,11 +127,7 @@ public class YouTubeDLVideoExternalShortcutProvider
 
 	@Override
 	public String getTpl() {
-		return StringBundler.concat(
-			"<iframe allow=\"autoplay; encrypted-media\" allowfullscreen ",
-			"height=\"315\" frameborder=\"0\" ",
-			"src=\"https://www.youtube.com/embed/{embedId}?rel=0\" ",
-			"width=\"560\"></iframe>");
+		return _getTpl(StringPool.BLANK);
 	}
 
 	@Override
@@ -137,6 +139,19 @@ public class YouTubeDLVideoExternalShortcutProvider
 		).toArray(
 			String[]::new
 		);
+	}
+
+	private String _getTpl(String start) {
+		String iframeSrc = "https://www.youtube.com/embed/{embedId}?rel=0";
+
+		if (Validator.isNotNull(start)) {
+			iframeSrc = _http.addParameter(iframeSrc, "start", start);
+		}
+
+		return StringBundler.concat(
+			"<iframe allow=\"autoplay; encrypted-media\" allowfullscreen ",
+			"height=\"315\" frameborder=\"0\" src=\"", iframeSrc,
+			"\" width=\"560\"></iframe>");
 	}
 
 	private String _getYouTubeVideoId(String url) {
@@ -156,7 +171,7 @@ public class YouTubeDLVideoExternalShortcutProvider
 
 	private static final List<Pattern> _urlPatterns = Arrays.asList(
 		Pattern.compile(
-			"https?:\\/\\/(?:www\\.)?youtube\\.com\\/watch\\?v=(\\S*)$"),
+			"https?:\\/\\/(?:www\\.)?youtube\\.com\\/watch\\?v=([^?&]*)\\S*$"),
 		Pattern.compile("https?:\\/\\/(?:www\\.)?youtu\\.be\\/(\\S*)$"));
 
 	@Reference
