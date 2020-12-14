@@ -85,7 +85,9 @@ const Form = React.forwardRef(
 				validate()
 					.then((validForm) => {
 						if (validForm) {
-							Liferay.Util.submitForm(event.target);
+							Liferay.Util.submitForm(
+								getFormNode(containerRef.current)
+							);
 
 							Liferay.fire('ddmFormSubmit', {
 								formId: getFormId(
@@ -178,6 +180,7 @@ const Form = React.forwardRef(
 
 			if (containerRef.current) {
 				const form = getFormNode(containerRef.current);
+				const isLiferayForm = !!Liferay.Form.get(form.id);
 
 				if (form) {
 					onHandle = Liferay.on(
@@ -185,12 +188,22 @@ const Form = React.forwardRef(
 						(event) => {
 							if (event.form && event.form.getDOM() === form) {
 								event.preventDefault();
+
+								if (isLiferayForm) {
+									handleFormSubmitted(event);
+								}
 							}
 						},
 						this
 					);
 
-					submitHandle = dom.on(form, 'submit', handleFormSubmitted);
+					if (!isLiferayForm) {
+						submitHandle = dom.on(
+							form,
+							'submit',
+							handleFormSubmitted
+						);
+					}
 				}
 			}
 
