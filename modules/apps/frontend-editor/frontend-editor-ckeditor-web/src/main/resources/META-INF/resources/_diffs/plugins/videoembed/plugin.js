@@ -289,7 +289,16 @@ if (!CKEDITOR.plugins.get('videoembed')) {
 				element.name === 'div' &&
 				element.attributes['data-embed-id']
 			) {
-				const iframe = element.children[0];
+				const iframe =
+					element.children[0].name === 'iframe'
+						? element.children[0]
+						: element.children[0].children[0];
+
+				if (iframe.name !== 'iframe') {
+					debugger;
+
+					return;
+				}
 
 				data.url = iframe.attributes.src;
 
@@ -298,7 +307,7 @@ if (!CKEDITOR.plugins.get('videoembed')) {
 				const embedContent = this._generateEmbedContent(
 					editor,
 					data.url,
-					element.getOuterHtml()
+					iframe.getOuterHtml()
 				);
 
 				const widgetFragment = new CKEDITOR.htmlParser.fragment.fromHtml(
