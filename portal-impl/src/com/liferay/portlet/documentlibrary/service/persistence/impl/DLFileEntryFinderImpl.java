@@ -600,10 +600,6 @@ public class DLFileEntryFinderImpl
 				queryPos.add(repositoryId);
 			}
 
-			for (Long folderId : folderIds) {
-				queryPos.add(folderId);
-			}
-
 			if (mimeTypes != null) {
 				queryPos.add(mimeTypes);
 			}
@@ -784,16 +780,18 @@ public class DLFileEntryFinderImpl
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler((folderIds.size() * 3) + 1);
+		StringBundler sb = new StringBundler((folderIds.size() * 2) + 2);
+
+		sb.append(tableName);
+		sb.append(".folderId IN ");
 
 		sb.append(StringPool.OPEN_PARENTHESIS);
 
 		for (int i = 0; i < folderIds.size(); i++) {
-			sb.append(tableName);
-			sb.append(".folderId = ? ");
+			sb.append(folderIds.get(i));
 
 			if ((i + 1) != folderIds.size()) {
-				sb.append(WHERE_OR);
+				sb.append(", ");
 			}
 		}
 
