@@ -310,6 +310,7 @@ const ImageSelector = ({
 			className={classNames(
 				'drop-zone',
 				{'draggable-image': draggableImage !== 'none'},
+				{[`${draggableImage}`]: draggableImage !== 'none'},
 				{'drop-enabled': image.fileEntryId == 0},
 				'taglib-image-selector'
 			)}
