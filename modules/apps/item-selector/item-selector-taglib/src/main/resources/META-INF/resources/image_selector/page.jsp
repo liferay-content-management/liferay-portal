@@ -39,6 +39,37 @@ if (fileEntryId != 0) {
 }
 %>
 
+<div class="ambrin">
+	<react:component
+		module="image_selector/js/ImageSelector"
+		props='<%=
+			HashMapBuilder.<String, Object>put(
+				"cropRegion", cropRegion
+			).put(
+				"draggableImage", draggableImage
+			).put(
+				"fileEntryId", fileEntryId
+			).put(
+				"imageURL", imageURL
+			).put(
+				"itemSelectorEventName", itemSelectorEventName
+			).put(
+				"itemSelectorURL", itemSelectorURL
+			).put(
+				"maxFileSize", maxFileSize
+			).put(
+				"paramName", paramName
+			).put(
+				"portletNamespace", liferayPortletResponse.getNamespace()
+			).put(
+				"uploadURL", uploadURL
+			).put(
+				"validExtensions", validExtensions
+			).build()
+		%>'
+	/>
+</div>
+
 <div class="drop-zone <%= (fileEntryId == 0) ? "drop-enabled" : StringPool.BLANK %> <%= !draggableImage.equals("none") ? "draggable-image " + draggableImage : StringPool.BLANK %> taglib-image-selector" id="<%= randomNamespace %>taglibImageSelector">
 	<aui:input name='<%= paramName + "Id" %>' type="hidden" value="<%= fileEntryId %>" />
 	<aui:input name='<%= paramName + "CropRegion" %>' type="hidden" value="<%= cropRegion %>" />
