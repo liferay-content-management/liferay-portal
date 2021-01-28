@@ -15,6 +15,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+const STR_HORIZONTAL = 'horizontal';
 const STR_VERTICAL = 'vertical';
 
 class CoverCropperImage extends React.Component {
@@ -35,6 +36,9 @@ class CoverCropperImage extends React.Component {
 			position: {x: 0, y: 0},
 			rel: null,
 		};
+
+		this.containerRef = React.createRef();
+		this.imageRef = React.createRef();
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -56,7 +60,8 @@ class CoverCropperImage extends React.Component {
 			return;
 		}
 
-		const pos = event.currentTarget.getBoundingClientRect();
+		const imageContainer = this.containerRef.current;
+		const pos = imageContainer.getBoundingClientRect();
 
 		this.setState({
 			dragging: true,
@@ -76,12 +81,39 @@ class CoverCropperImage extends React.Component {
 		}
 
 		const {position, rel} = this.state;
-		const vertical = this.props.direction === STR_VERTICAL;
+
+		const imageContainer = this.containerRef.current;
+		const image = this.imageRef.current;
+
+		const pos = imageContainer.getBoundingClientRect();
+
+		let horizontalPos = position.x;
+		let verticalPos = position.y;
+
+		if (this.props.direction === STR_HORIZONTAL) {
+			const horizontalDiff = event.pageX - pos.left - rel.x;
+			horizontalPos = horizontalPos +  horizontalDiff;
+
+			if (horizontalPos >= 0 || horizontalPos < imageContainer.offsetWidth - image.offsetWidth) {
+				event.preventDefault();
+				return;
+			}
+		}
+
+		if (this.props.direction === STR_VERTICAL) {
+			const verticalDiff = event.pageY - pos.top - rel.y;
+			verticalPos = verticalPos + verticalDiff;
+
+			if (verticalPos >= 0 || verticalPos < imageContainer.offsetHeight - image.offsetHeight) {
+				event.preventDefault();
+				return;
+			}
+		}
 
 		this.setState({
 			position: {
-				x: !vertical ? event.pageX - rel.x : position.x,
-				y: vertical ? event.pageY - rel.y : position.y,
+				x: horizontalPos,
+				y: verticalPos,
 			},
 		});
 
@@ -101,12 +133,13 @@ class CoverCropperImage extends React.Component {
 		const {imageSrc, portletNamespace} = this.props;
 
 		return (
-			<div className="image-wrapper">
+			<div className="image-wrapper" ref={this.containerRef}>
 				<img
 					alt={Liferay.Language.get('current-image')}
 					className="current-image"
 					id={`${portletNamespace}image`}
 					onMouseDown={this.onMouseDown.bind(this)}
+					ref={this.imageRef}
 					src={imageSrc}
 					style={{
 						left: position.x,

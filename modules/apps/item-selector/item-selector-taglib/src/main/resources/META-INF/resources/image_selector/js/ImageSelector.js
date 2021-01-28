@@ -19,6 +19,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import DropHereInfo from '../../drop_here_info/js/DropHereInfo';
 import BrowseImage from './BrowseImage';
 import ChangeImageControls from './ChangeImageControls';
+import CoverCropperImage from './CoverCropperImage';
 import ErrorAlert from './ErrorAlert';
 import ProgressWrapper from './ProgressWrapper';
 
@@ -328,14 +329,11 @@ const ImageSelector = ({
 			/>
 
 			{image.src && (
-				<div className="image-wrapper">
-					<img
-						alt={Liferay.Language.get('current-image')}
-						className="current-image"
-						id={`${portletNamespace}image`}
-						src={image.src}
-					/>
-				</div>
+				<CoverCropperImage
+					direction={draggableImage}
+					imageSrc={image.src}
+					portletNamespace={portletNamespace}
+				/>
 			)}
 
 			{image.fileEntryId == 0 && (
