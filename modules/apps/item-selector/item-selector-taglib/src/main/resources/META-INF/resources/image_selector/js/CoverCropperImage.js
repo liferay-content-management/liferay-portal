@@ -21,12 +21,14 @@ const STR_VERTICAL = 'vertical';
 class CoverCropperImage extends React.Component {
 	static propTypes = {
 		direction: PropTypes.string,
+		handleImageUpdate: PropTypes.func,
 		imageSrc: PropTypes.string.isRequired,
 		portletNamespace: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
 		direction: STR_VERTICAL,
+		handleImageUpdate: () => {}
 	};
 
 	constructor(props) {
@@ -126,6 +128,14 @@ class CoverCropperImage extends React.Component {
 
 		event.stopPropagation();
 		event.preventDefault();
+
+		const cropRegion = Liferay.Util.getCropRegion(this.imageRef.current, {
+			height: this.containerRef.current.offsetHeight,
+			x: Math.abs(this.state.position.x),
+			y: Math.abs(this.state.position.y),
+		});
+
+		this.props.handleImageUpdate(JSON.stringify(cropRegion));
 	}
 
 	render() {
@@ -133,7 +143,7 @@ class CoverCropperImage extends React.Component {
 		const {imageSrc, portletNamespace} = this.props;
 
 		return (
-			<div className="image-wrapper" ref={this.containerRef}>
+			<div className="cropper image-wrapper" ref={this.containerRef}>
 				<img
 					alt={Liferay.Language.get('current-image')}
 					className="current-image"

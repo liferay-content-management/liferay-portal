@@ -54,6 +54,7 @@ const ImageSelector = ({
 		src: imageURL,
 	});
 
+	const [imageCropRegion, setImageCropRegion] = useState(cropRegion);
 	const [fileName, setFileName] = useState('');
 	const [progressValue, setProgressValue] = useState(0);
 	const [progressData, setProgressData] = useState();
@@ -127,6 +128,10 @@ const ImageSelector = ({
 		},
 		[maxFileSize, validExtensions]
 	);
+
+	const handleImageCropped = useCallback((crop) => {
+		setImageCropRegion(crop);
+	}, []);
 
 	const handleSelectFileClick = useCallback(() => {
 		Liferay.Util.openSelectionModal({
@@ -327,13 +332,14 @@ const ImageSelector = ({
 			<input
 				name={`${portletNamespace}${paramName}CropRegion`}
 				type="hidden"
-				value={cropRegion}
+				value={imageCropRegion}
 			/>
 
 			{image.src && (
 				isDraggable ? (
 					<CoverCropperImage
 						direction={draggableImage}
+						handleImageUpdate={handleImageCropped}
 						imageSrc={image.src}
 						portletNamespace={portletNamespace}
 					/>
