@@ -47,6 +47,8 @@ const ImageSelector = ({
 	uploadURL,
 	validExtensions,
 }) => {
+	const isDraggable = draggableImage !== 'none';
+
 	const [image, setImage] = useState({
 		fileEntryId,
 		src: imageURL,
@@ -310,8 +312,8 @@ const ImageSelector = ({
 		<div
 			className={classNames(
 				'drop-zone',
-				{'draggable-image': draggableImage !== 'none'},
-				{[`${draggableImage}`]: draggableImage !== 'none'},
+				{'draggable-image': isDraggable},
+				{[`${draggableImage}`]: isDraggable},
 				{'drop-enabled': image.fileEntryId == 0},
 				'taglib-image-selector'
 			)}
@@ -329,11 +331,23 @@ const ImageSelector = ({
 			/>
 
 			{image.src && (
-				<CoverCropperImage
-					direction={draggableImage}
-					imageSrc={image.src}
-					portletNamespace={portletNamespace}
-				/>
+				isDraggable ? (
+					<CoverCropperImage
+						direction={draggableImage}
+						imageSrc={image.src}
+						portletNamespace={portletNamespace}
+					/>
+				)
+				: (
+					<div className="image-wrapper">
+						<img
+							alt={Liferay.Language.get('current-image')}
+							className="current-image"
+							id={`${portletNamespace}image`}
+							src={image.src}
+						/>
+					</div>
+				)
 			)}
 
 			{image.fileEntryId == 0 && (
