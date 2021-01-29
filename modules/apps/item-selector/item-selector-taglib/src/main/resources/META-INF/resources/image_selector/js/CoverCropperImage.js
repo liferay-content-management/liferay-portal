@@ -29,7 +29,7 @@ class CoverCropperImage extends React.Component {
 
 	static defaultProps = {
 		direction: STR_VERTICAL,
-		handleImageUpdate: () => {}
+		handleImageUpdate: () => {},
 	};
 
 	constructor(props) {
@@ -84,6 +84,7 @@ class CoverCropperImage extends React.Component {
 		}
 
 		const {position, rel} = this.state;
+		const {direction} = this.props;
 
 		const imageContainer = this.containerRef.current;
 		const image = this.imageRef.current;
@@ -93,22 +94,30 @@ class CoverCropperImage extends React.Component {
 		let horizontalPos = position.x;
 		let verticalPos = position.y;
 
-		if (this.props.direction === STR_HORIZONTAL || direction === STR_BOTH) {
+		if (direction === STR_HORIZONTAL || direction === STR_BOTH) {
 			const horizontalDiff = event.pageX - pos.left - rel.x;
-			horizontalPos = horizontalPos +  horizontalDiff;
+			horizontalPos = horizontalPos + horizontalDiff;
 
-			if (horizontalPos >= 0 || horizontalPos < imageContainer.offsetWidth - image.offsetWidth) {
+			if (
+				horizontalPos >= 0 ||
+				horizontalPos < imageContainer.offsetWidth - image.offsetWidth
+			) {
 				event.preventDefault();
+
 				return;
 			}
 		}
 
-		if (this.props.direction === STR_VERTICAL || direction === STR_BOTH) {
+		if (direction === STR_VERTICAL || direction === STR_BOTH) {
 			const verticalDiff = event.pageY - pos.top - rel.y;
 			verticalPos = verticalPos + verticalDiff;
 
-			if (verticalPos >= 0 || verticalPos < imageContainer.offsetHeight - image.offsetHeight) {
+			if (
+				verticalPos >= 0 ||
+				verticalPos < imageContainer.offsetHeight - image.offsetHeight
+			) {
 				event.preventDefault();
+
 				return;
 			}
 		}

@@ -335,16 +335,15 @@ const ImageSelector = ({
 				value={imageCropRegion}
 			/>
 
-			{image.src && (
-				isDraggable ? (
+			{image.src &&
+				(isDraggable ? (
 					<CoverCropperImage
 						direction={draggableImage}
 						handleImageUpdate={handleImageCropped}
 						imageSrc={image.src}
 						portletNamespace={portletNamespace}
 					/>
-				)
-				: (
+				) : (
 					<div className="image-wrapper">
 						<img
 							alt={Liferay.Language.get('current-image')}
@@ -353,8 +352,7 @@ const ImageSelector = ({
 							src={image.src}
 						/>
 					</div>
-				)
-			)}
+				))}
 
 			{image.fileEntryId == 0 && (
 				<BrowseImage
