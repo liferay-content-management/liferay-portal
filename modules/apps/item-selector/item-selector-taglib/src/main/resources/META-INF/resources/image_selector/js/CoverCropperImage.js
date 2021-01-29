@@ -15,6 +15,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+const STR_BOTH = 'both';
 const STR_HORIZONTAL = 'horizontal';
 const STR_VERTICAL = 'vertical';
 
@@ -92,7 +93,7 @@ class CoverCropperImage extends React.Component {
 		let horizontalPos = position.x;
 		let verticalPos = position.y;
 
-		if (this.props.direction === STR_HORIZONTAL) {
+		if (this.props.direction === STR_HORIZONTAL || direction === STR_BOTH) {
 			const horizontalDiff = event.pageX - pos.left - rel.x;
 			horizontalPos = horizontalPos +  horizontalDiff;
 
@@ -102,7 +103,7 @@ class CoverCropperImage extends React.Component {
 			}
 		}
 
-		if (this.props.direction === STR_VERTICAL) {
+		if (this.props.direction === STR_VERTICAL || direction === STR_BOTH) {
 			const verticalDiff = event.pageY - pos.top - rel.y;
 			verticalPos = verticalPos + verticalDiff;
 
