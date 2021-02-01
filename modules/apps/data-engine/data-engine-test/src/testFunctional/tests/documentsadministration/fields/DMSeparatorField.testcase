@@ -25,7 +25,6 @@ definition {
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
-	@ignore = "true"
 	@priority = "5"
 	test AddSeparatorOnFormByDragAndDrop {
 		property portal.acceptance = "false";
@@ -43,7 +42,6 @@ definition {
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
-	@ignore = "true"
 	@priority = "5"
 	test DeleteSeparatorOnBuilder {
 		property portal.acceptance = "false";
@@ -95,7 +93,6 @@ definition {
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
-	@ignore = "true"
 	@priority = "4"
 	test DuplicateSeparatorOnBuilder {
 		property portal.acceptance = "false";
@@ -137,7 +134,6 @@ definition {
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
-	@ignore = "true"
 	@priority = "5"
 	test EditHelpTextOfSeparator {
 		property portal.acceptance = "false";
@@ -171,7 +167,6 @@ definition {
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
-	@ignore = "true"
 	@priority = "5"
 	test EditLabelOfSeparator {
 		property portal.acceptance = "false";
