@@ -30,8 +30,16 @@ definition {
 	test AddSeparatorOnFormByDragAndDrop {
 		property portal.acceptance = "false";
 
-		// TODO LPS-98081 AddSeparatorOnFormByDragAndDrop pending implementation
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
+		DMNavigator.gotoDocumentType();
+
+		DMDocumentType.add(
+			dmDocumentTypeDescription = "Document Separator Type Description",
+			dmDocumentTypeFieldNames = "Separator",
+			dmDocumentTypeName = "Document Separator Type");
+
+		DMDocumentType.viewCP(dmDocumentTypeName = "Document Separator Type");
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
@@ -40,7 +48,50 @@ definition {
 	test DeleteSeparatorOnBuilder {
 		property portal.acceptance = "false";
 
-		// TODO LPS-98081 DeleteSeparatorOnBuilder pending implementation
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentType();
+
+		LexiconEntry.gotoAdd();
+
+		PortletEntry.inputName(name = "Document Separator Type");
+
+		for (var fieldFields : list "Separator,Image") {
+			DataEngine.addField(
+				fieldFieldLabel = "${fieldFields}",
+				fieldName = "${fieldFields}");
+		}
+
+		DDLDataDefinition.save();
+
+		LexiconEntry.openEntryMenu(rowEntry = "Document Separator Type");
+
+		MenuItem.click(menuItem = "Edit");
+
+		AssertClick.assertPartialTextClickAt(
+			key_fieldFieldLabel = "Separator",
+			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER",
+			value1 = "Separator");
+
+		Click(
+			key_text = "Separator",
+			locator1 = "Icon#ANY_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Delete");
+
+		DDLDataDefinition.save();
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentType();
+
+		LexiconEntry.openEntryMenu(rowEntry = "Document Separator Type");
+
+		MenuItem.click(menuItem = "Edit");
+
+		AssertElementNotPresent(
+			key_fieldFieldLabel = "Separator",
+			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
@@ -49,7 +100,40 @@ definition {
 	test DuplicateSeparatorOnBuilder {
 		property portal.acceptance = "false";
 
-		// TODO LPS-98081 DuplicateSeparatorOnBuilder pending implementation
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentType();
+
+		LexiconEntry.gotoAdd();
+
+		PortletEntry.inputName(name = "Document Separator Type");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Separator",
+			fieldName = "Separator");
+
+		AssertClick.assertPartialTextClickAt(
+			key_fieldFieldLabel = "Separator",
+			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER",
+			value1 = "Separator");
+
+		Click(
+			key_text = "Separator",
+			locator1 = "Icon#ANY_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Duplicate");
+
+		DDLDataDefinition.save();
+
+		LexiconEntry.openEntryMenu(rowEntry = "Document Separator Type");
+
+		MenuItem.click(menuItem = "Edit");
+
+		for (var fieldFieldLabel : list "Separator,Copy of Separator") {
+			DataEngine.viewField(
+				fieldFieldLabel = "${fieldFieldLabel}",
+				fieldName = "Separator");
+		}
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
@@ -58,7 +142,32 @@ definition {
 	test EditHelpTextOfSeparator {
 		property portal.acceptance = "false";
 
-		// TODO LPS-98081 EditHelpTextOfSeparator pending implementation
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentType();
+
+		LexiconEntry.gotoAdd();
+
+		PortletEntry.inputName(name = "Document Separator Type");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Separator",
+			fieldName = "Separator");
+
+		DataEngine.editFieldTip(
+			fieldFieldLabel = "Separator",
+			fieldHelp = "This is Separator help text.");
+
+		DDLDataDefinition.save();
+
+		LexiconEntry.openEntryMenu(rowEntry = "Document Separator Type");
+
+		MenuItem.click(menuItem = "Edit");
+
+		DataEngine.viewField(
+			fieldFieldLabel = "Separator",
+			fieldHelp = "This is Separator help text.",
+			fieldName = "Separator");
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
@@ -67,7 +176,26 @@ definition {
 	test EditLabelOfSeparator {
 		property portal.acceptance = "false";
 
-		// TODO LPS-98081 EditLabelOfSeparator pending implementation
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentType();
+
+		DMDocumentType.add(
+			dmDocumentTypeDescription = "Document Separator Type Description",
+			dmDocumentTypeFieldNames = "Separator",
+			dmDocumentTypeName = "Document Separator Type");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentType();
+
+		DMDocumentType.edit(
+			dmDocumentTypeName = "Document Separator Type",
+			dmDocumentTypeNameEdit = "Document Separator Type Edit",
+			fieldFieldLabel = "Separator",
+			fieldFieldLabelEdit = "Separator Test");
+
+		DMDocumentType.viewCP(dmDocumentTypeName = "Document Separator Type Edit");
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
@@ -77,6 +205,7 @@ definition {
 		property portal.acceptance = "false";
 
 		// TODO LPS-98081 EditReferenceOfSeparator pending implementation
+
 	}
 
 	@description = "This is a test for LPS-98081. As a Developer, I want to use separators"
