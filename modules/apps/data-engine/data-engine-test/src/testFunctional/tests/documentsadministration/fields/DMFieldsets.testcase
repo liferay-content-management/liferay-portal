@@ -35,6 +35,52 @@ definition {
 	}
 
 	@description = "This is a test for LPS-107630. As an App Adm, I want to use an existing fieldset"
+	@priority = "5"
+	test DuplicateFieldset {
+		property portal.acceptance = "false";
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentType();
+
+		LexiconEntry.gotoAdd();
+
+		PortletEntry.inputName(name = "DuplicateTest");
+
+		DataEngine.addFields(fieldNameList = "Text,Image,Upload");
+
+		DDLDataDefinition.save();
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentType();
+
+		LexiconEntry.gotoAdd();
+
+		PortletEntry.inputName(name = "DuplicateTest1");
+
+		DataEngine.addFieldsets(
+			fieldsetsLabel = "DuplicateTest",
+			fieldsetsName = "DuplicateTest");
+
+		DataEngine.duplicateFieldsets(fieldsetLabel = "DuplicateTest");
+
+		AssertElementPresent(
+			key_fieldsetLabel = "Copy of DuplicateTest",
+			locator1 = "DDMEditStructure#FORM_FIELD_SETS_CONTAINER_LABEL");
+
+		for (var fieldLabelList : list "Copy of Text,Copy of Image,Copy of Upload") {
+			AssertElementPresent(
+				key_fieldFieldLabel = "${fieldLabelList}",
+				locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		}
+
+		DDLDataDefinition.save();
+
+		DMDocumentType.viewCP(dmDocumentTypeName = "DuplicateTest1");
+	}
+
+	@description = "This is a test for LPS-107630. As an App Adm, I want to use an existing fieldset"
 	@ignore = "true"
 	@priority = "4"
 	test EditFieldsetPropertiesFromSideBar {
