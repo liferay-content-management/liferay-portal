@@ -5,7 +5,7 @@ import com.ibm.cloud.objectstorage.services.s3.model.S3Object;
 import java.io.File;
 import java.io.IOException;
 
-public interface IBMS3FileCache {
+public interface IBMCloudS3FileCache {
 
 	public void cleanUpCacheFiles();
 

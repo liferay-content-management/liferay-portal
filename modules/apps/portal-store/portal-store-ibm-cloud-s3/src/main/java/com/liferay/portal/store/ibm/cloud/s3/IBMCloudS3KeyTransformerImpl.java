@@ -6,8 +6,8 @@ import com.liferay.petra.string.StringPool;
 
 import org.osgi.service.component.annotations.Component;
 
-@Component(immediate = true, service = IBMS3KeyTransformer.class)
-public class IBMS3KeyTransformerImpl implements IBMS3KeyTransformer {
+@Component(immediate = true, service = IBMCloudS3KeyTransformer.class)
+public class IBMCloudS3KeyTransformerImpl implements IBMCloudS3KeyTransformer {
 
 	@Override
 	public String getDirectoryKey(

@@ -6,10 +6,10 @@ import aQute.bnd.annotation.metatype.Meta;
 
 @ExtendedObjectClassDefinition(category = "file-storage")
 @Meta.OCD(
-	id = "com.liferay.portal.store.ibm.cloud.s3.configuration.IBMS3StoreConfiguration",
+	id = "com.liferay.portal.store.ibm.cloud.s3.configuration.IBMCloudS3StoreConfiguration",
 	localization = "content/Language", name = "ibm-s3-store-configuration-name"
 )
-public interface IBMS3StoreConfiguration {
+public interface IBMCloudS3StoreConfiguration {
 
 	@Meta.AD(
 			description = "access-key-help", name = "access-key", required = false

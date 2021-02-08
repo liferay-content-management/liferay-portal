@@ -43,8 +43,8 @@ public class AbortedMultipartUploadCleaner {
 			bundleContext.createFilter(
 				StringBundler.concat(
 					"(&(", Constants.OBJECTCLASS, "=", Store.class.getName(),
-					")(store.type=", IBMS3Store.class.getName(), "))")),
-			new S3StoreServiceTrackerCustomizer(
+					")(store.type=", IBMCloudS3Store.class.getName(), "))")),
+			new IBMCloudS3StoreServiceTrackerCustomizer(
 				bundleContext, _schedulerEngineHelper, _triggerFactory));
 	}
 
@@ -56,7 +56,7 @@ public class AbortedMultipartUploadCleaner {
 	@Reference(unbind = "-")
 	private SchedulerEngineHelper _schedulerEngineHelper;
 
-	private ServiceTracker<IBMS3Store, MessageListener> _serviceTracker;
+	private ServiceTracker<IBMCloudS3Store, MessageListener> _serviceTracker;
 
 	@Reference(unbind = "-")
 	private TriggerFactory _triggerFactory;
@@ -66,14 +66,14 @@ public class AbortedMultipartUploadCleaner {
 
 		@Override
 		protected void doReceive(Message message) throws Exception {
-			TransferManager transferManager = _s3Store.getTransferManager();
+			TransferManager transferManager = _ibmCloudS3Store.getTransferManager();
 
 			transferManager.abortMultipartUploads(
-				_s3Store.getBucketName(), _computeStartDate());
+				_ibmCloudS3Store.getBucketName(), _computeStartDate());
 		}
 
-		private AbortedMultipartUploadMessageListener(IBMS3Store s3Store) {
-			_s3Store = s3Store;
+		private AbortedMultipartUploadMessageListener(IBMCloudS3Store ibmCloudS3Store) {
+			_ibmCloudS3Store = ibmCloudS3Store;
 		}
 
 		private Date _computeStartDate() {
@@ -91,16 +91,16 @@ public class AbortedMultipartUploadCleaner {
 			return Date.from(zonedDateTime.toInstant());
 		}
 
-		private final IBMS3Store _s3Store;
+		private final IBMCloudS3Store _ibmCloudS3Store;
 
 	}
 
-	private static class S3StoreServiceTrackerCustomizer
-		implements ServiceTrackerCustomizer<IBMS3Store, MessageListener> {
+	private static class IBMCloudS3StoreServiceTrackerCustomizer
+		implements ServiceTrackerCustomizer<IBMCloudS3Store, MessageListener> {
 
 		@Override
 		public MessageListener addingService(
-			ServiceReference<IBMS3Store> serviceReference) {
+			ServiceReference<IBMCloudS3Store> serviceReference) {
 
 			MessageListener messageListener =
 				new AbortedMultipartUploadMessageListener(
@@ -125,19 +125,19 @@ public class AbortedMultipartUploadCleaner {
 
 		@Override
 		public void modifiedService(
-			ServiceReference<IBMS3Store> serviceReference,
+			ServiceReference<IBMCloudS3Store> serviceReference,
 			MessageListener messageListener) {
 		}
 
 		@Override
 		public void removedService(
-			ServiceReference<IBMS3Store> serviceReference,
+			ServiceReference<IBMCloudS3Store> serviceReference,
 			MessageListener messageListener) {
 
 			_schedulerEngineHelper.unregister(messageListener);
 		}
 
-		private S3StoreServiceTrackerCustomizer(
+		private IBMCloudS3StoreServiceTrackerCustomizer(
 			BundleContext bundleContext,
 			SchedulerEngineHelper schedulerEngineHelper,
 			TriggerFactory triggerFactory) {

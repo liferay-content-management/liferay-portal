@@ -2,7 +2,7 @@ package com.liferay.portal.store.ibm.cloud.s3;
 
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata;
 import com.ibm.cloud.objectstorage.services.s3.model.S3Object;
-import com.liferay.portal.store.ibm.cloud.s3.configuration.IBMS3StoreConfiguration;
+import com.liferay.portal.store.ibm.cloud.s3.configuration.IBMCloudS3StoreConfiguration;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -40,11 +40,11 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 @Component(
-		configurationPid = "com.liferay.portal.store.ibm.cloud.s3.configuration.IBMS3StoreConfiguration",
+		configurationPid = "com.liferay.portal.store.ibm.cloud.s3.configuration.IBMCloudS3StoreConfiguration",
 		configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true,
-		service = IBMS3FileCache.class
+		service = IBMCloudS3FileCache.class
 	)
-public class IBMS3FileCacheImpl implements IBMS3FileCache {
+public class IBMCloudS3FileCacheImpl implements IBMCloudS3FileCache {
 
 	@Override
 	public void cleanUpCacheFiles() {
@@ -83,7 +83,7 @@ public class IBMS3FileCacheImpl implements IBMS3FileCache {
 		sb.append(
 			DateUtil.getCurrentDate(
 				_CACHE_DIR_PATTERN, LocaleUtil.getDefault()));
-		sb.append(_s3KeyTransformer.getNormalizedFileName(fileName));
+		sb.append(_ibmCloudS3KeyTransformer.getNormalizedFileName(fileName));
 
 		ObjectMetadata objectMetadata = s3Object.getObjectMetadata();
 
@@ -119,13 +119,13 @@ public class IBMS3FileCacheImpl implements IBMS3FileCache {
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
-		_s3StoreConfiguration = ConfigurableUtil.createConfigurable(
-			IBMS3StoreConfiguration.class, properties);
+		_ibmCloudS3StoreConfiguration = ConfigurableUtil.createConfigurable(
+			IBMCloudS3StoreConfiguration.class, properties);
 
 		_cacheDirCleanUpExpunge = new AtomicInteger(
-			_s3StoreConfiguration.cacheDirCleanUpExpunge());
+			_ibmCloudS3StoreConfiguration.cacheDirCleanUpExpunge());
 		_cacheDirCleanUpFrequency = new AtomicInteger(
-			_s3StoreConfiguration.cacheDirCleanUpFrequency());
+			_ibmCloudS3StoreConfiguration.cacheDirCleanUpFrequency());
 	}
 
 	protected void cleanUpCacheFiles(Path cacheDirPath, long lastModified) {
@@ -199,8 +199,8 @@ public class IBMS3FileCacheImpl implements IBMS3FileCache {
 	}
 
 	@Reference(unbind = "-")
-	protected void setS3KeyTransformer(IBMS3KeyTransformer s3KeyTransformer) {
-		_s3KeyTransformer = s3KeyTransformer;
+	protected void setIBMCloudS3KeyTransformer(IBMCloudS3KeyTransformer ibmCloudS3KeyTransformer) {
+		_ibmCloudS3KeyTransformer = ibmCloudS3KeyTransformer;
 	}
 
 	private static final String _CACHE_DIR_NAME = "/liferay/s3";
@@ -208,12 +208,12 @@ public class IBMS3FileCacheImpl implements IBMS3FileCache {
 	private static final String _CACHE_DIR_PATTERN = "/yyyy/MM/dd/HH/";
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		IBMS3FileCacheImpl.class);
+		IBMCloudS3FileCacheImpl.class);
 
 	private AtomicInteger _cacheDirCleanUpExpunge;
 	private AtomicInteger _cacheDirCleanUpFrequency;
 	private int _calledCleanUpCacheFilesCount;
-	private IBMS3KeyTransformer _s3KeyTransformer;
-	private volatile IBMS3StoreConfiguration _s3StoreConfiguration;
+	private IBMCloudS3KeyTransformer _ibmCloudS3KeyTransformer;
+	private volatile IBMCloudS3StoreConfiguration _ibmCloudS3StoreConfiguration;
 	
 }

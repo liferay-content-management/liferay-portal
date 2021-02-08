@@ -1,6 +1,6 @@
 package com.liferay.portal.store.ibm.cloud.s3;
 
-public interface IBMS3KeyTransformer {
+public interface IBMCloudS3KeyTransformer {
 
 	public String getDirectoryKey(
 			long companyId, long repositoryId, String folderName);
