@@ -24,7 +24,8 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 @ExtendedObjectClassDefinition(category = "file-storage")
 @Meta.OCD(
 	id = "com.liferay.portal.store.ibm.cloud.s3.configuration.IBMCloudS3StoreConfiguration",
-	localization = "content/Language", name = "ibm-s3-store-configuration-name"
+	localization = "content/Language",
+	name = "ibm-cloud-s3-store-configuration-name"
 )
 public interface IBMCloudS3StoreConfiguration {
 
@@ -48,21 +49,22 @@ public interface IBMCloudS3StoreConfiguration {
 	public String signerOverride();
 
 	@Meta.AD(
-		deflt = "false", description = "s3-pathstyle-help",
-		name = "s3-pathstyle", required = false
+		deflt = "false", description = "ibm-cloud-s3-pathstyle-help",
+		name = "ibm-cloud-s3-pathstyle", required = false
 	)
-	public boolean s3PathStyle();
+	public boolean ibmCloudS3PathStyle();
 
 	@Meta.AD(
-		description = "s3-endpoint-help", name = "s3-endpoint", required = false
+		description = "ibm-cloud-s3-endpoint-help",
+		name = "ibm-cloud-s3-endpoint", required = false
 	)
-	public String s3Endpoint();
+	public String ibmCloudS3Endpoint();
 
 	@Meta.AD(
-		deflt = "us-east-1", description = "s3-region-help", name = "s3-region",
-		required = false
+		deflt = "us-east-1", description = "ibm-cloud-s3-region-help",
+		name = "ibm-cloud-s3-region", required = false
 	)
-	public String s3Region();
+	public String ibmCloudS3Region();
 
 	@Meta.AD(
 		deflt = "DEFAULT", description = "connection-protocol-help",
@@ -72,11 +74,11 @@ public interface IBMCloudS3StoreConfiguration {
 	public String connectionProtocol();
 
 	@Meta.AD(
-		deflt = "STANDARD", description = "s3-storage-class-help",
-		name = "s3-storage-class",
+		deflt = "STANDARD", description = "ibm-cloud-s3-storage-class-help",
+		name = "ibm-cloud-s3-storage-class",
 		optionValues = {"REDUCED_REDUNDANCY", "STANDARD"}, required = false
 	)
-	public String s3StorageClass();
+	public String ibmCloudS3StorageClass();
 
 	@Meta.AD(
 		deflt = "10000", description = "connection-timeout-help",

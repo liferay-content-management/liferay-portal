@@ -271,14 +271,14 @@ public class IBMCloudS3Store implements Store {
 
 		try {
 			_storageClass = StorageClass.fromValue(
-				_ibmCloudS3StoreConfiguration.s3StorageClass());
+				_ibmCloudS3StoreConfiguration.ibmCloudS3StorageClass());
 		}
 		catch (IllegalArgumentException illegalArgumentException) {
 			_storageClass = StorageClass.Standard;
 
 			if (_log.isWarnEnabled()) {
 				_log.warn(
-					_ibmCloudS3StoreConfiguration.s3StorageClass() +
+					_ibmCloudS3StoreConfiguration.ibmCloudS3StorageClass() +
 						" is not a valid value for the storage class",
 					illegalArgumentException);
 			}
@@ -338,7 +338,7 @@ public class IBMCloudS3Store implements Store {
 	}
 
 	protected void configureS3Endpoint(AmazonS3 amazonS3) {
-		String s3Endpoint = _ibmCloudS3StoreConfiguration.s3Endpoint();
+		String s3Endpoint = _ibmCloudS3StoreConfiguration.ibmCloudS3Endpoint();
 
 		if (Validator.isNull(s3Endpoint)) {
 			return;
@@ -348,7 +348,8 @@ public class IBMCloudS3Store implements Store {
 	}
 
 	protected void configureS3PathStyle(AmazonS3 amazonS3) {
-		boolean s3PathStyle = _ibmCloudS3StoreConfiguration.s3PathStyle();
+		boolean s3PathStyle =
+			_ibmCloudS3StoreConfiguration.ibmCloudS3PathStyle();
 
 		if (!s3PathStyle) {
 			return;
@@ -424,7 +425,7 @@ public class IBMCloudS3Store implements Store {
 			awsCredentialsProvider, getClientConfiguration());
 
 		Region region = Region.getRegion(
-			Regions.fromName(_ibmCloudS3StoreConfiguration.s3Region()));
+			Regions.fromName(_ibmCloudS3StoreConfiguration.ibmCloudS3Region()));
 
 		amazonS3.setRegion(region);
 
