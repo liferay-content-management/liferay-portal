@@ -44,7 +44,6 @@ import com.ibm.cloud.objectstorage.services.s3.transfer.TransferManagerConfigura
 import com.ibm.cloud.objectstorage.services.s3.transfer.Upload;
 
 import com.liferay.document.library.kernel.exception.AccessDeniedException;
-import com.liferay.document.library.kernel.exception.DuplicateFileException;
 import com.liferay.document.library.kernel.exception.NoSuchFileException;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.document.library.kernel.util.DLUtil;
@@ -107,8 +106,7 @@ public class IBMCloudS3Store implements Store {
 		throws PortalException {
 
 		if (hasFile(companyId, repositoryId, fileName, versionLabel)) {
-			throw new DuplicateFileException(
-				companyId, repositoryId, fileName, versionLabel);
+			deleteFile(companyId, repositoryId, fileName, versionLabel);
 		}
 
 		File file = null;
