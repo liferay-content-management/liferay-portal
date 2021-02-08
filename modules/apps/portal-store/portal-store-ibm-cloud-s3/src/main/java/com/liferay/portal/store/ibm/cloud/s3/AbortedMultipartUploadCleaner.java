@@ -1,6 +1,21 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 package com.liferay.portal.store.ibm.cloud.s3;
 
 import com.ibm.cloud.objectstorage.services.s3.transfer.TransferManager;
+
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
@@ -18,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+
 import java.util.Date;
 
 import org.osgi.framework.BundleContext;
@@ -31,6 +47,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
+/**
+ * @author Fabian Bouché
+ */
 @Component(service = {})
 public class AbortedMultipartUploadCleaner {
 
@@ -66,13 +85,16 @@ public class AbortedMultipartUploadCleaner {
 
 		@Override
 		protected void doReceive(Message message) throws Exception {
-			TransferManager transferManager = _ibmCloudS3Store.getTransferManager();
+			TransferManager transferManager =
+				_ibmCloudS3Store.getTransferManager();
 
 			transferManager.abortMultipartUploads(
 				_ibmCloudS3Store.getBucketName(), _computeStartDate());
 		}
 
-		private AbortedMultipartUploadMessageListener(IBMCloudS3Store ibmCloudS3Store) {
+		private AbortedMultipartUploadMessageListener(
+			IBMCloudS3Store ibmCloudS3Store) {
+
 			_ibmCloudS3Store = ibmCloudS3Store;
 		}
 
