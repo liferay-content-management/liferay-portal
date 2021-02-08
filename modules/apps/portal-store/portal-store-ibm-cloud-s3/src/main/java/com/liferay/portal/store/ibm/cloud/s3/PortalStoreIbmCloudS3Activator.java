@@ -1,4 +1,4 @@
-package com.liferay.gs.portal.store.ibm.s3;
+package com.liferay.portal.store.ibm.cloud.s3;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

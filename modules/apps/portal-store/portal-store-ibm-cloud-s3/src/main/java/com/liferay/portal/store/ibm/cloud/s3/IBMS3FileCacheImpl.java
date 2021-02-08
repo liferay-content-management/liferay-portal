@@ -1,8 +1,8 @@
-package com.liferay.gs.portal.store.ibm.s3;
+package com.liferay.portal.store.ibm.cloud.s3;
 
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata;
 import com.ibm.cloud.objectstorage.services.s3.model.S3Object;
-import com.liferay.gs.portal.store.ibm.s3.configuration.IBMS3StoreConfiguration;
+import com.liferay.portal.store.ibm.cloud.s3.configuration.IBMS3StoreConfiguration;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -40,7 +40,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 @Component(
-		configurationPid = "com.liferay.gs.portal.store.ibm.s3.configuration.IBMS3StoreConfiguration",
+		configurationPid = "com.liferay.portal.store.ibm.cloud.s3.configuration.IBMS3StoreConfiguration",
 		configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true,
 		service = IBMS3FileCache.class
 	)
@@ -119,7 +119,8 @@ public class IBMS3FileCacheImpl implements IBMS3FileCache {
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
-		_s3StoreConfiguration = ConfigurableUtil.createConfigurable(IBMS3StoreConfiguration.class, properties);
+		_s3StoreConfiguration = ConfigurableUtil.createConfigurable(
+			IBMS3StoreConfiguration.class, properties);
 
 		_cacheDirCleanUpExpunge = new AtomicInteger(
 			_s3StoreConfiguration.cacheDirCleanUpExpunge());

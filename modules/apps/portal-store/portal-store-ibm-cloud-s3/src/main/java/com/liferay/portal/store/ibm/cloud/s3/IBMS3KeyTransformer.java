@@ -1,4 +1,4 @@
-package com.liferay.gs.portal.store.ibm.s3;
+package com.liferay.portal.store.ibm.cloud.s3;
 
 public interface IBMS3KeyTransformer {
 

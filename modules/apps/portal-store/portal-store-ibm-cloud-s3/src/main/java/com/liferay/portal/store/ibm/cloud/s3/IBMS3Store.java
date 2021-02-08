@@ -1,4 +1,4 @@
-package com.liferay.gs.portal.store.ibm.s3;
+package com.liferay.portal.store.ibm.cloud.s3;
 
 import com.ibm.cloud.objectstorage.AmazonClientException;
 import com.ibm.cloud.objectstorage.AmazonServiceException;
@@ -34,7 +34,7 @@ import com.liferay.document.library.kernel.exception.DuplicateFileException;
 import com.liferay.document.library.kernel.exception.NoSuchFileException;
 import com.liferay.document.library.kernel.store.BaseStore;
 import com.liferay.document.library.kernel.store.Store;
-import com.liferay.gs.portal.store.ibm.s3.configuration.IBMS3StoreConfiguration;
+import com.liferay.portal.store.ibm.cloud.s3.configuration.IBMS3StoreConfiguration;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -71,12 +71,12 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sten Martinez
  * @author Edward C. Han
  * @author Vilmos Papp
- * @author Máté Thurzó
- * @author Manuel de la Peña
+ * @author MÃ¡tÃ© ThurzÃ³
+ * @author Manuel de la PeÃ±a
  * @author Daniel Sanz
  */
 @Component(
-	configurationPid = "com.liferay.gs.portal.store.ibm.s3.configuration.IBMS3StoreConfiguration",
+	configurationPid = "com.liferay.portal.store.ibm.cloud.s3.configuration.IBMS3StoreConfiguration",
 	configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true,
 	property = {
 		"service.ranking:Integer=0",

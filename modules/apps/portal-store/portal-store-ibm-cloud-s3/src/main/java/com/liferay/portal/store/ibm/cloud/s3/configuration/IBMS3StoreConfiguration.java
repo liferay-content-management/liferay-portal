@@ -1,4 +1,4 @@
-package com.liferay.gs.portal.store.ibm.s3.configuration;
+package com.liferay.portal.store.ibm.cloud.s3.configuration;
 
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 
@@ -6,7 +6,7 @@ import aQute.bnd.annotation.metatype.Meta;
 
 @ExtendedObjectClassDefinition(category = "file-storage")
 @Meta.OCD(
-	id = "com.liferay.gs.portal.store.ibm.s3.configuration.IBMS3StoreConfiguration",
+	id = "com.liferay.portal.store.ibm.cloud.s3.configuration.IBMS3StoreConfiguration",
 	localization = "content/Language", name = "ibm-s3-store-configuration-name"
 )
 public interface IBMS3StoreConfiguration {
