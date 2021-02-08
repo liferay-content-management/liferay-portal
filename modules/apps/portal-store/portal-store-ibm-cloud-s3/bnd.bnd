@@ -1,0 +1,19 @@
+Bundle-Name: Liferay Portal Store IBM S3
+Bundle-SymbolicName: com.liferay.gs.portal.store.ibm.s3
+Bundle-Version: 1.0.0
+
+Import-Package:\
+	!com.sun.org.apache.xerces.internal.jaxp,\
+	!com.sun.org.apache.xml.internal.dtm,\
+	!com.sun.org.apache.xml.internal.dtm.ref,\
+	!com.sun.org.apache.xpath.internal,\
+	\
+	!org.apache.avalon.framework.logger,\
+	!org.apache.log,\
+	!org.apache.log4j,\
+	\
+	!org.ietf.jgss,\
+	\
+	!org.joda.convert,\
+	\
+	*

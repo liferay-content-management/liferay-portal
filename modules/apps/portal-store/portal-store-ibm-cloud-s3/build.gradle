@@ -1,0 +1,19 @@
+dependencies {
+//	compileInclude group: "com.amazonaws", name: "aws-java-sdk-core", version: "1.11.790"
+//	compileInclude group: "com.amazonaws", name: "aws-java-sdk-kms", version: "1.11.790"
+//	compileInclude group: "com.amazonaws", name: "aws-java-sdk-s3", version: "1.11.790"
+	
+	compileInclude group: 'com.ibm.cos', name: 'ibm-cos-java-sdk-core', version: '2.7.0'
+	compileInclude group: 'com.ibm.cos', name: 'ibm-cos-java-sdk-s3', version: '2.7.0'
+	compileInclude group: 'com.ibm.cos', name: 'ibm-cos-java-sdk-kms', version: '2.7.0'
+	
+	compileOnly group: 'com.liferay', name: 'com.liferay.petra.string'
+	compileOnly group: 'com.liferay', name: 'com.liferay.portal.configuration.metatype.api'
+	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel"
+	
+	compileOnly group: "org.osgi", name: "org.osgi.core"
+	compileOnly group: "org.osgi", name: "org.osgi.service.component.annotations"
+	
+	compileOnly group: 'biz.aQute.bnd', name: 'biz.aQute.bnd.annotation', version: '4.2.0'
+	
+}
