@@ -51,7 +51,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Fabian Bouché
  */
 @Component(service = {})
-public class AbortedMultipartUploadCleaner {
+public class IBMCloudS3AbortedMultipartUploadCleaner {
 
 	@Activate
 	protected void activate(BundleContext bundleContext)
