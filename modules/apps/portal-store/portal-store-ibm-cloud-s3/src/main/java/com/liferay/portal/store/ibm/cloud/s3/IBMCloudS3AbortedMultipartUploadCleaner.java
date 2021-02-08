@@ -72,19 +72,19 @@ public class IBMCloudS3AbortedMultipartUploadCleaner {
 		_serviceTracker.close();
 	}
 
-	@Reference(unbind = "-")
+	@Reference
 	private SchedulerEngineHelper _schedulerEngineHelper;
 
 	private ServiceTracker<IBMCloudS3Store, MessageListener> _serviceTracker;
 
-	@Reference(unbind = "-")
+	@Reference
 	private TriggerFactory _triggerFactory;
 
 	private static class AbortedMultipartUploadMessageListener
 		extends BaseMessageListener {
 
 		@Override
-		protected void doReceive(Message message) throws Exception {
+		protected void doReceive(Message message) {
 			TransferManager transferManager =
 				_ibmCloudS3Store.getTransferManager();
 

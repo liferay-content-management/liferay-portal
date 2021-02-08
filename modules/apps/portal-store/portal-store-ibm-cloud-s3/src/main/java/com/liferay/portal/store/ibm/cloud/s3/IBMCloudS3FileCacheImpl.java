@@ -83,13 +83,13 @@ public class IBMCloudS3FileCacheImpl implements IBMCloudS3FileCache {
 
 			_calledCleanUpCacheFilesCount = 0;
 
-			Path cacheDirPath = Paths.get(getCacheDirName());
+			Path cacheDirPath = Paths.get(_getCacheDirName());
 
 			long lastModified = System.currentTimeMillis();
 
 			lastModified -= _cacheDirCleanUpExpunge.intValue() * Time.DAY;
 
-			cleanUpCacheFiles(cacheDirPath, lastModified);
+			_cleanUpCacheFiles(cacheDirPath, lastModified);
 		}
 	}
 
@@ -99,7 +99,7 @@ public class IBMCloudS3FileCacheImpl implements IBMCloudS3FileCache {
 
 		StringBundler sb = new StringBundler(4);
 
-		sb.append(getCacheDirName());
+		sb.append(_getCacheDirName());
 		sb.append(
 			DateUtil.getCurrentDate(
 				_CACHE_DIR_PATTERN, LocaleUtil.getDefault()));
@@ -139,16 +139,17 @@ public class IBMCloudS3FileCacheImpl implements IBMCloudS3FileCache {
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
-		_ibmCloudS3StoreConfiguration = ConfigurableUtil.createConfigurable(
-			IBMCloudS3StoreConfiguration.class, properties);
+		IBMCloudS3StoreConfiguration ibmCloudS3StoreConfiguration =
+			ConfigurableUtil.createConfigurable(
+				IBMCloudS3StoreConfiguration.class, properties);
 
 		_cacheDirCleanUpExpunge = new AtomicInteger(
-			_ibmCloudS3StoreConfiguration.cacheDirCleanUpExpunge());
+			ibmCloudS3StoreConfiguration.cacheDirCleanUpExpunge());
 		_cacheDirCleanUpFrequency = new AtomicInteger(
-			_ibmCloudS3StoreConfiguration.cacheDirCleanUpFrequency());
+			ibmCloudS3StoreConfiguration.cacheDirCleanUpFrequency());
 	}
 
-	protected void cleanUpCacheFiles(Path cacheDirPath, long lastModified) {
+	private void _cleanUpCacheFiles(Path cacheDirPath, long lastModified) {
 		if (Files.notExists(cacheDirPath)) {
 			return;
 		}
@@ -203,26 +204,19 @@ public class IBMCloudS3FileCacheImpl implements IBMCloudS3FileCache {
 
 	@Deactivate
 	protected void deactivate() {
-		File cacheDir = new File(getCacheDirName());
+		File cacheDir = new File(_getCacheDirName());
 
 		boolean deleted = cacheDir.delete();
 
 		if (!deleted) {
 			if (_log.isWarnEnabled()) {
-				_log.warn("Unable to delete " + getCacheDirName());
+				_log.warn("Unable to delete " + _getCacheDirName());
 			}
 		}
 	}
 
-	protected String getCacheDirName() {
+	private String _getCacheDirName() {
 		return SystemProperties.get(SystemProperties.TMP_DIR) + _CACHE_DIR_NAME;
-	}
-
-	@Reference(unbind = "-")
-	protected void setIBMCloudS3KeyTransformer(
-		IBMCloudS3KeyTransformer ibmCloudS3KeyTransformer) {
-
-		_ibmCloudS3KeyTransformer = ibmCloudS3KeyTransformer;
 	}
 
 	private static final String _CACHE_DIR_NAME = "/liferay/s3";
@@ -235,7 +229,8 @@ public class IBMCloudS3FileCacheImpl implements IBMCloudS3FileCache {
 	private AtomicInteger _cacheDirCleanUpExpunge;
 	private AtomicInteger _cacheDirCleanUpFrequency;
 	private int _calledCleanUpCacheFilesCount;
+
+	@Reference
 	private IBMCloudS3KeyTransformer _ibmCloudS3KeyTransformer;
-	private volatile IBMCloudS3StoreConfiguration _ibmCloudS3StoreConfiguration;
 
 }

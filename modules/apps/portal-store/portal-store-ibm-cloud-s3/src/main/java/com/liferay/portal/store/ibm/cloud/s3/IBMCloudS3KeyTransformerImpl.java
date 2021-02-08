@@ -49,10 +49,6 @@ public class IBMCloudS3KeyTransformerImpl implements IBMCloudS3KeyTransformer {
 
 	@Override
 	public String getFileName(String key) {
-
-		// Convert /${companyId}/${repositoryId}/${dirName}/${fileName}
-		// /${versionLabel} to ${dirName}/${fileName}
-
 		int x = key.indexOf(CharPool.SLASH);
 
 		x = key.indexOf(CharPool.SLASH, x + 1);
