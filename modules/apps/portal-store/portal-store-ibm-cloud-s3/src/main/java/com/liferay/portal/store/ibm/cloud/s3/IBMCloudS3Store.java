@@ -192,18 +192,6 @@ public class IBMCloudS3Store implements Store {
 		return fileNames;
 	}
 
-	private String _getPrefixKey(
-		long companyId, long repositoryId, String dirName) {
-
-		if (Validator.isNull(dirName)) {
-			return _ibmCloudS3KeyTransformer.getRepositoryKey(
-				companyId, repositoryId);
-		}
-
-		return _ibmCloudS3KeyTransformer.getDirectoryKey(
-			companyId, repositoryId, dirName);
-	}
-
 	@Override
 	public long getFileSize(
 			long companyId, long repositoryId, String fileName,
@@ -298,6 +286,11 @@ public class IBMCloudS3Store implements Store {
 					illegalArgumentException);
 			}
 		}
+	}
+
+	@Modified
+	protected void modified(Map<String, Object> properties) {
+		activate(properties);
 	}
 
 	private void _configureConnectionProtocol(
@@ -474,6 +467,26 @@ public class IBMCloudS3Store implements Store {
 		return clientConfiguration;
 	}
 
+	private File _getFile(
+			long companyId, long repositoryId, String fileName,
+			String versionLabel)
+		throws PortalException {
+
+		try {
+			S3Object s3Object = _getS3Object(
+				companyId, repositoryId, fileName, versionLabel);
+
+			File file = _ibmCloudS3FileCache.getCacheFile(s3Object, fileName);
+
+			_ibmCloudS3FileCache.cleanUpCacheFiles();
+
+			return file;
+		}
+		catch (IOException ioException) {
+			throw new SystemException(ioException);
+		}
+	}
+
 	private String _getHeadVersionLabel(
 			long companyId, long repositoryId, String fileName)
 		throws NoSuchFileException {
@@ -504,6 +517,18 @@ public class IBMCloudS3Store implements Store {
 		}
 
 		throw new NoSuchFileException(companyId, repositoryId, fileName);
+	}
+
+	private String _getPrefixKey(
+		long companyId, long repositoryId, String dirName) {
+
+		if (Validator.isNull(dirName)) {
+			return _ibmCloudS3KeyTransformer.getRepositoryKey(
+				companyId, repositoryId);
+		}
+
+		return _ibmCloudS3KeyTransformer.getDirectoryKey(
+			companyId, repositoryId, dirName);
 	}
 
 	private S3Object _getS3Object(
@@ -615,11 +640,6 @@ public class IBMCloudS3Store implements Store {
 		return false;
 	}
 
-	@Modified
-	protected void modified(Map<String, Object> properties) {
-		activate(properties);
-	}
-
 	private void _putObject(
 		long companyId, long repositoryId, String fileName, String versionLabel,
 		File file) {
@@ -685,26 +705,6 @@ public class IBMCloudS3Store implements Store {
 
 		return new SystemException(
 			amazonClientException.getMessage(), amazonClientException);
-	}
-
-	private File _getFile(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel)
-		throws PortalException {
-
-		try {
-			S3Object s3Object = _getS3Object(
-				companyId, repositoryId, fileName, versionLabel);
-
-			File file = _ibmCloudS3FileCache.getCacheFile(s3Object, fileName);
-
-			_ibmCloudS3FileCache.cleanUpCacheFiles();
-
-			return file;
-		}
-		catch (IOException ioException) {
-			throw new SystemException(ioException);
-		}
 	}
 
 	private static final int _DELETE_MAX = 1000;

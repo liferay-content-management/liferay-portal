@@ -149,6 +149,19 @@ public class IBMCloudS3FileCacheImpl implements IBMCloudS3FileCache {
 			ibmCloudS3StoreConfiguration.cacheDirCleanUpFrequency());
 	}
 
+	@Deactivate
+	protected void deactivate() {
+		File cacheDir = new File(_getCacheDirName());
+
+		boolean deleted = cacheDir.delete();
+
+		if (!deleted) {
+			if (_log.isWarnEnabled()) {
+				_log.warn("Unable to delete " + _getCacheDirName());
+			}
+		}
+	}
+
 	private void _cleanUpCacheFiles(Path cacheDirPath, long lastModified) {
 		if (Files.notExists(cacheDirPath)) {
 			return;
@@ -199,19 +212,6 @@ public class IBMCloudS3FileCacheImpl implements IBMCloudS3FileCache {
 			_log.error(
 				"Unable to clean up cache files for " + cacheDirPath,
 				ioException);
-		}
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		File cacheDir = new File(_getCacheDirName());
-
-		boolean deleted = cacheDir.delete();
-
-		if (!deleted) {
-			if (_log.isWarnEnabled()) {
-				_log.warn("Unable to delete " + _getCacheDirName());
-			}
 		}
 	}
 
