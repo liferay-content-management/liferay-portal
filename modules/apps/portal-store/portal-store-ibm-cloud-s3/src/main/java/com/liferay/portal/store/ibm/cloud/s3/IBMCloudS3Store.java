@@ -47,8 +47,10 @@ import com.liferay.document.library.kernel.exception.AccessDeniedException;
 import com.liferay.document.library.kernel.exception.DuplicateFileException;
 import com.liferay.document.library.kernel.exception.NoSuchFileException;
 import com.liferay.document.library.kernel.store.Store;
+import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.concurrent.ThreadPoolExecutor;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -218,7 +220,29 @@ public class IBMCloudS3Store implements Store {
 	public String[] getFileVersions(
 		long companyId, long repositoryId, String fileName) {
 
-		throw new UnsupportedOperationException();
+		String key = _ibmCloudS3KeyTransformer.getFileKey(
+			companyId, repositoryId, fileName);
+
+		List<S3ObjectSummary> s3ObjectSummaries = _getS3ObjectSummaries(key);
+
+		if (s3ObjectSummaries.isEmpty()) {
+			return StringPool.EMPTY_ARRAY;
+		}
+
+		String[] versions = new String[s3ObjectSummaries.size()];
+
+		for (int i = 0; i < s3ObjectSummaries.size(); i++) {
+			S3ObjectSummary s3ObjectSummary = s3ObjectSummaries.get(i);
+
+			String versionKey = s3ObjectSummary.getKey();
+
+			versions[i] = versionKey.substring(
+				versionKey.lastIndexOf(CharPool.SLASH) + 1);
+		}
+
+		Arrays.sort(versions, DLUtil::compareVersions);
+
+		return versions;
 	}
 
 	public TransferManager getTransferManager() {
