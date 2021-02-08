@@ -32,12 +32,10 @@ import com.ibm.cloud.objectstorage.services.s3.transfer.Upload;
 import com.liferay.document.library.kernel.exception.AccessDeniedException;
 import com.liferay.document.library.kernel.exception.DuplicateFileException;
 import com.liferay.document.library.kernel.exception.NoSuchFileException;
-import com.liferay.document.library.kernel.store.BaseStore;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.portal.store.ibm.cloud.s3.configuration.IBMCloudS3StoreConfiguration;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.concurrent.ThreadPoolExecutor;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -84,59 +82,15 @@ import org.osgi.service.component.annotations.Reference;
 	},
 	service = Store.class
 )
-public class IBMCloudS3Store extends BaseStore {
-
-	@Override
-	public void addDirectory(
-		long companyId, long repositoryId, String dirName) {
-	}
+public class IBMCloudS3Store implements Store {
 
 	@Override
 	public void addFile(
-			long companyId, long repositoryId, String fileName, File file)
+			long companyId, long repositoryId, String fileName, String versionLabel,
+			InputStream inputStream)
 		throws PortalException {
 
-		updateFile(companyId, repositoryId, fileName, VERSION_DEFAULT, file);
-	}
-
-	@Override
-	public void addFile(
-			long companyId, long repositoryId, String fileName, InputStream is)
-		throws PortalException {
-
-		updateFile(companyId, repositoryId, fileName, VERSION_DEFAULT, is);
-	}
-
-	@Override
-	public void checkRoot(long companyId) {
-	}
-
-	@Override
-	public void copyFileVersion(
-			long companyId, long repositoryId, String fileName,
-			String fromVersionLabel, String toVersionLabel)
-		throws PortalException {
-
-		String oldKey = _ibmCloudS3KeyTransformer.getFileVersionKey(
-			companyId, repositoryId, fileName, fromVersionLabel);
-
-		if (!_amazonS3.doesObjectExist(_bucketName, oldKey)) {
-			throw new NoSuchFileException(
-				companyId, repositoryId, fileName, fromVersionLabel);
-		}
-
-		String newKey = _ibmCloudS3KeyTransformer.getFileVersionKey(
-			companyId, repositoryId, fileName, toVersionLabel);
-
-		if (_amazonS3.doesObjectExist(_bucketName, newKey)) {
-			throw new DuplicateFileException(
-				companyId, repositoryId, fileName, toVersionLabel);
-		}
-
-		CopyObjectRequest copyObjectRequest = new CopyObjectRequest(
-			_bucketName, oldKey, _bucketName, newKey);
-
-		_amazonS3.copyObject(copyObjectRequest);
+		_updateFile(companyId, repositoryId, fileName, versionLabel, inputStream);
 	}
 
 	@Override
@@ -145,14 +99,6 @@ public class IBMCloudS3Store extends BaseStore {
 
 		String key = _ibmCloudS3KeyTransformer.getDirectoryKey(
 			companyId, repositoryId, dirName);
-
-		deleteObjects(key);
-	}
-
-	@Override
-	public void deleteFile(long companyId, long repositoryId, String fileName) {
-		String key = _ibmCloudS3KeyTransformer.getFileKey(
-			companyId, repositoryId, fileName);
 
 		deleteObjects(key);
 	}
@@ -180,8 +126,7 @@ public class IBMCloudS3Store extends BaseStore {
 		return _bucketName;
 	}
 
-	@Override
-	public File getFile(
+	private File _getFile(
 			long companyId, long repositoryId, String fileName,
 			String versionLabel)
 		throws PortalException {
@@ -207,19 +152,13 @@ public class IBMCloudS3Store extends BaseStore {
 			String versionLabel)
 		throws PortalException {
 
-		File file = getFile(companyId, repositoryId, fileName, versionLabel);
-
 		try {
-			return new FileInputStream(file);
+			return new FileInputStream(
+				_getFile(companyId, repositoryId, fileName, versionLabel));
 		}
 		catch (FileNotFoundException fnfe) {
 			throw new SystemException(fnfe);
 		}
-	}
-
-	@Override
-	public String[] getFileNames(long companyId, long repositoryId) {
-		return getFileNames(companyId, repositoryId, StringPool.BLANK);
 	}
 
 	@Override
@@ -253,14 +192,13 @@ public class IBMCloudS3Store extends BaseStore {
 	}
 
 	@Override
-	public long getFileSize(long companyId, long repositoryId, String fileName)
+	public long getFileSize(
+		long companyId, long repositoryId, String fileName, String versionLabel)
 		throws PortalException {
 
-		String headVersionLabel = getHeadVersionLabel(
-			companyId, repositoryId, fileName);
 
 		String key = _ibmCloudS3KeyTransformer.getFileVersionKey(
-			companyId, repositoryId, fileName, headVersionLabel);
+			companyId, repositoryId, fileName, versionLabel);
 
 		GetObjectMetadataRequest getObjectMetadataRequest =
 			new GetObjectMetadataRequest(_bucketName, key);
@@ -275,15 +213,15 @@ public class IBMCloudS3Store extends BaseStore {
 		return objectMetadata.getContentLength();
 	}
 
-	public TransferManager getTransferManager() {
-		return _transferManager;
+	@Override
+	public String[] getFileVersions(
+		long companyId, long repositoryId, String fileName) {
+
+		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public boolean hasDirectory(
-		long companyId, long repositoryId, String dirName) {
-
-		return true;
+	public TransferManager getTransferManager() {
+		return _transferManager;
 	}
 
 	@Override
@@ -321,59 +259,7 @@ public class IBMCloudS3Store extends BaseStore {
 		}
 	}
 
-	@Override
-	public void updateFile(
-			long companyId, long repositoryId, long newRepositoryId,
-			String fileName)
-		throws PortalException {
-
-		if (repositoryId == newRepositoryId) {
-			throw new DuplicateFileException(
-				companyId, newRepositoryId, fileName);
-		}
-
-		String oldKey = _ibmCloudS3KeyTransformer.getFileKey(
-			companyId, repositoryId, fileName);
-		String newKey = _ibmCloudS3KeyTransformer.getFileKey(
-			companyId, newRepositoryId, fileName);
-
-		moveObjects(oldKey, newKey);
-	}
-
-	@Override
-	public void updateFile(
-			long companyId, long repositoryId, String fileName,
-			String newFileName)
-		throws PortalException {
-
-		if (fileName.equals(newFileName)) {
-			throw new DuplicateFileException(companyId, repositoryId, fileName);
-		}
-
-		String oldKey = _ibmCloudS3KeyTransformer.getFileKey(
-			companyId, repositoryId, fileName);
-		String newKey = _ibmCloudS3KeyTransformer.getFileKey(
-			companyId, repositoryId, newFileName);
-
-		moveObjects(oldKey, newKey);
-	}
-
-	@Override
-	public void updateFile(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel, File file)
-		throws PortalException {
-
-		if (hasFile(companyId, repositoryId, fileName, versionLabel)) {
-			throw new DuplicateFileException(
-				companyId, repositoryId, fileName, versionLabel);
-		}
-
-		putObject(companyId, repositoryId, fileName, versionLabel, file);
-	}
-
-	@Override
-	public void updateFile(
+	private void _updateFile(
 			long companyId, long repositoryId, String fileName,
 			String versionLabel, InputStream is)
 		throws PortalException {
@@ -396,20 +282,6 @@ public class IBMCloudS3Store extends BaseStore {
 		finally {
 			FileUtil.delete(file);
 		}
-	}
-
-	@Override
-	public void updateFileVersion(
-			long companyId, long repositoryId, String fileName,
-			String fromVersionLabel, String toVersionLabel)
-		throws PortalException {
-
-		String oldKey = _ibmCloudS3KeyTransformer.getFileVersionKey(
-			companyId, repositoryId, fileName, fromVersionLabel);
-		String newKey = _ibmCloudS3KeyTransformer.getFileVersionKey(
-			companyId, repositoryId, fileName, toVersionLabel);
-
-		moveObjects(oldKey, newKey);
 	}
 
 	@Activate
