@@ -16,7 +16,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 
-import DropHereInfo from '../../drop_here_info/js/DropHereInfo';
+import DropHereInfo from '../drop_here_info/js/DropHereInfo';
 import BrowseImage from './BrowseImage';
 import ChangeImageControls from './ChangeImageControls';
 import ErrorAlert from './ErrorAlert';

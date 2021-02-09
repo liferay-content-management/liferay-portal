@@ -151,7 +151,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 
 	@Override
 	protected String getHydratedModuleName() {
-		return "item-selector-taglib/image_selector/js/ImageSelector";
+		return "item-selector-taglib/image_selector/ImageSelector";
 	}
 
 	@Override
