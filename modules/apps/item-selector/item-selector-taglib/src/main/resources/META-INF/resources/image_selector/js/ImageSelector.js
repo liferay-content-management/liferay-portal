@@ -35,8 +35,8 @@ const TPL_PROGRESS_DATA =
 	'<strong>{0}</strong> {1} of <strong>{2}</strong> {3}';
 
 const ImageSelector = ({
-	draggableImage,
 	cropRegion,
+	draggableImage,
 	fileEntryId = 0,
 	imageURL,
 	itemSelectorEventName,
@@ -329,6 +329,7 @@ const ImageSelector = ({
 				type="hidden"
 				value={image.fileEntryId}
 			/>
+
 			<input
 				name={`${portletNamespace}${paramName}CropRegion`}
 				type="hidden"
@@ -363,6 +364,7 @@ const ImageSelector = ({
 			)}
 
 			<DropHereInfo />
+
 			<ProgressWrapper
 				fileName={fileName}
 				onCancel={onUploadCancel}
