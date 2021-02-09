@@ -62,7 +62,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 		}
 
 		if (Validator.isNotNull(_paramName)) {
-			_cropRegion = ParamUtil.getString(
+			_imageCropRegion = ParamUtil.getString(
 				request, _paramName + "CropRegion");
 		}
 
@@ -137,9 +137,9 @@ public class ImageSelectorTag extends BaseContainerTag {
 	protected void cleanUp() {
 		super.cleanUp();
 
-		_cropRegion = null;
 		_draggableImage = "none";
 		_fileEntryId = 0;
+		_imageCropRegion = null;
 		_imageURL = null;
 		_itemSelectorEventName = null;
 		_itemSelectorURL = null;
@@ -156,7 +156,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 
 	@Override
 	protected Map<String, Object> prepareProps(Map<String, Object> props) {
-		props.put("cropRegion", _cropRegion);
+		props.put("imageCropRegion", _imageCropRegion);
 		props.put("draggableImage", _draggableImage);
 		props.put("fileEntryId", _fileEntryId);
 		props.put("imageURL", _imageURL);
@@ -204,9 +204,9 @@ public class ImageSelectorTag extends BaseContainerTag {
 	private static final Log _log = LogFactoryUtil.getLog(
 		ImageSelectorTag.class);
 
-	private String _cropRegion;
 	private String _draggableImage = "none";
 	private long _fileEntryId;
+	private String _imageCropRegion;
 	private String _imageURL;
 	private String _itemSelectorEventName;
 	private String _itemSelectorURL;

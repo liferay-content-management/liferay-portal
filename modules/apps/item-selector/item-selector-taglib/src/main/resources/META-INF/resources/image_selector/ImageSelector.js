@@ -35,9 +35,9 @@ const TPL_PROGRESS_DATA =
 	'<strong>{0}</strong> {1} of <strong>{2}</strong> {3}';
 
 const ImageSelector = ({
-	cropRegion,
 	draggableImage,
 	fileEntryId = 0,
+	imageCropRegion: initialImageCropRegion,
 	imageURL,
 	itemSelectorEventName,
 	itemSelectorURL,
@@ -54,7 +54,7 @@ const ImageSelector = ({
 		src: imageURL,
 	});
 
-	const [imageCropRegion, setImageCropRegion] = useState(cropRegion);
+	const [imageCropRegion, setImageCropRegion] = useState(initialImageCropRegion);
 	const [fileName, setFileName] = useState('');
 	const [progressValue, setProgressValue] = useState(0);
 	const [progressData, setProgressData] = useState();
