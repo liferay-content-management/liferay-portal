@@ -14,17 +14,60 @@
 
 package com.liferay.item.selector.taglib.servlet.taglib;
 
-import com.liferay.item.selector.taglib.internal.servlet.ServletContextUtil;
-import com.liferay.taglib.util.IncludeTag;
+import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
+import com.liferay.document.library.util.DLURLHelperUtil;
+import com.liferay.item.selector.taglib.internal.servlet.taglib.BaseContainerTag;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.PageContext;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
 
 /**
  * @author Sergio González
  * @author Roberto Díaz
+ * @author Carlos Lancha
  */
-public class ImageSelectorTag extends IncludeTag {
+public class ImageSelectorTag extends BaseContainerTag {
+
+	@Override
+	public int doStartTag() throws JspException {
+		setAttributeNamespace(_ATTRIBUTE_NAMESPACE);
+
+		if (_fileEntryId != 0) {
+			try {
+				FileEntry fileEntry = DLAppLocalServiceUtil.getFileEntry(
+					_fileEntryId);
+
+				ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+					WebKeys.THEME_DISPLAY);
+
+				_imageURL = DLURLHelperUtil.getPreviewURL(
+					fileEntry, fileEntry.getFileVersion(), themeDisplay,
+					StringPool.BLANK);
+			}
+			catch (Exception exception) {
+				_log.error(
+					"Unable to get HTML preview entry image URL", exception);
+			}
+		}
+
+		if (Validator.isNotNull(_paramName)) {
+			_cropRegion = ParamUtil.getString(
+				request, _paramName + "CropRegion");
+		}
+
+		return super.doStartTag();
+	}
 
 	public String getDraggableImage() {
 		return _draggableImage;
@@ -78,13 +121,6 @@ public class ImageSelectorTag extends IncludeTag {
 		_maxFileSize = maxFileSize;
 	}
 
-	@Override
-	public void setPageContext(PageContext pageContext) {
-		super.setPageContext(pageContext);
-
-		servletContext = ServletContextUtil.getServletContext();
-	}
-
 	public void setParamName(String paramName) {
 		_paramName = paramName;
 	}
@@ -101,8 +137,10 @@ public class ImageSelectorTag extends IncludeTag {
 	protected void cleanUp() {
 		super.cleanUp();
 
+		_cropRegion = null;
 		_draggableImage = "none";
 		_fileEntryId = 0;
+		_imageURL = null;
 		_itemSelectorEventName = null;
 		_itemSelectorURL = null;
 		_maxFileSize = 0;
@@ -112,35 +150,64 @@ public class ImageSelectorTag extends IncludeTag {
 	}
 
 	@Override
-	protected String getPage() {
-		return _PAGE;
+	protected String getHydratedModuleName() {
+		return "item-selector-taglib/image_selector/js/ImageSelector";
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest httpServletRequest) {
-		httpServletRequest.setAttribute(
-			"liferay-ui:image-selector:draggableImage", _draggableImage);
-		httpServletRequest.setAttribute(
-			"liferay-ui:image-selector:fileEntryId", _fileEntryId);
-		httpServletRequest.setAttribute(
-			"liferay-ui:image-selector:itemSelectorEventName",
-			_itemSelectorEventName);
-		httpServletRequest.setAttribute(
-			"liferay-ui:image-selector:itemSelectorURL", _itemSelectorURL);
-		httpServletRequest.setAttribute(
-			"liferay-ui:image-selector:maxFileSize", _maxFileSize);
-		httpServletRequest.setAttribute(
-			"liferay-ui:image-selector:paramName", _paramName);
-		httpServletRequest.setAttribute(
-			"liferay-ui:image-selector:uploadURL", _uploadURL);
-		httpServletRequest.setAttribute(
-			"liferay-ui:image-selector:validExtensions", _validExtensions);
+	protected Map<String, Object> prepareProps(Map<String, Object> props) {
+		props.put("cropRegion", _cropRegion);
+		props.put("draggableImage", _draggableImage);
+		props.put("fileEntryId", _fileEntryId);
+		props.put("imageURL", _imageURL);
+		props.put("itemSelectorEventName", _itemSelectorEventName);
+		props.put("itemSelectorURL", _itemSelectorURL);
+		props.put("maxFileSize", _maxFileSize);
+		props.put("paramName", _paramName);
+		props.put("uploadURL", _uploadURL);
+		props.put("validExtensions", _validExtensions);
+
+		return super.prepareProps(props);
 	}
 
-	private static final String _PAGE = "/image_selector/page.jsp";
+	@Override
+	protected String processCssClasses(Set<String> cssClasses) {
+		cssClasses.add("drop-zone");
 
+		if (!_draggableImage.equals("none")) {
+			cssClasses.add("draggable-image");
+		}
+
+		if (_fileEntryId == 0) {
+			cssClasses.add("drop-enabled");
+		}
+
+		cssClasses.add("taglib-image-selector");
+
+		return super.processCssClasses(cssClasses);
+	}
+
+	@Override
+	protected int processStartTag() throws Exception {
+		super.processStartTag();
+
+		JspWriter jspWriter = pageContext.getOut();
+
+		jspWriter.write("temporary markup");
+
+		return SKIP_BODY;
+	}
+
+	private static final String _ATTRIBUTE_NAMESPACE =
+		"item-selector:image-selector:";
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		ImageSelectorTag.class);
+
+	private String _cropRegion;
 	private String _draggableImage = "none";
 	private long _fileEntryId;
+	private String _imageURL;
 	private String _itemSelectorEventName;
 	private String _itemSelectorURL;
 	private long _maxFileSize;
