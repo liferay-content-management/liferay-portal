@@ -69,12 +69,20 @@ public class ImageSelectorTag extends BaseContainerTag {
 		return super.doStartTag();
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #getImageCropDirection()}
+	 */
+	@Deprecated
 	public String getDraggableImage() {
-		return _draggableImage;
+		return getImageCropDirection();
 	}
 
 	public long getFileEntryId() {
 		return _fileEntryId;
+	}
+
+	public String getImageCropDirection() {
+		return _imageCropDirection;
 	}
 
 	public String getItemSelectorEventName() {
@@ -101,12 +109,20 @@ public class ImageSelectorTag extends BaseContainerTag {
 		return _validExtensions;
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #setImageCropDirection()}
+	 */
+	@Deprecated
 	public void setDraggableImage(String draggableImage) {
-		_draggableImage = draggableImage;
+		setImageCropDirection(draggableImage);
 	}
 
 	public void setFileEntryId(long fileEntryId) {
 		_fileEntryId = fileEntryId;
+	}
+
+	public void setImageCropDirection(String imageCropDirection) {
+		_imageCropDirection = imageCropDirection;
 	}
 
 	public void setItemSelectorEventName(String itemSelectorEventName) {
@@ -137,8 +153,8 @@ public class ImageSelectorTag extends BaseContainerTag {
 	protected void cleanUp() {
 		super.cleanUp();
 
-		_draggableImage = "none";
 		_fileEntryId = 0;
+		_imageCropDirection = "none";
 		_imageCropRegion = null;
 		_imageURL = null;
 		_itemSelectorEventName = null;
@@ -156,8 +172,8 @@ public class ImageSelectorTag extends BaseContainerTag {
 
 	@Override
 	protected Map<String, Object> prepareProps(Map<String, Object> props) {
+		props.put("imageCropDirection", _imageCropDirection);
 		props.put("imageCropRegion", _imageCropRegion);
-		props.put("draggableImage", _draggableImage);
 		props.put("fileEntryId", _fileEntryId);
 		props.put("imageURL", _imageURL);
 		props.put("itemSelectorEventName", _itemSelectorEventName);
@@ -174,7 +190,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 	protected String processCssClasses(Set<String> cssClasses) {
 		cssClasses.add("drop-zone");
 
-		if (!_draggableImage.equals("none")) {
+		if (!_imageCropDirection.equals("none")) {
 			cssClasses.add("draggable-image");
 		}
 
@@ -204,8 +220,8 @@ public class ImageSelectorTag extends BaseContainerTag {
 	private static final Log _log = LogFactoryUtil.getLog(
 		ImageSelectorTag.class);
 
-	private String _draggableImage = "none";
 	private long _fileEntryId;
+	private String _imageCropDirection = "none";
 	private String _imageCropRegion;
 	private String _imageURL;
 	private String _itemSelectorEventName;

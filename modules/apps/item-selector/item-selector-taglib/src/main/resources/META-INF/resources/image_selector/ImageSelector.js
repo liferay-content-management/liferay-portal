@@ -35,8 +35,8 @@ const TPL_PROGRESS_DATA =
 	'<strong>{0}</strong> {1} of <strong>{2}</strong> {3}';
 
 const ImageSelector = ({
-	draggableImage,
 	fileEntryId = 0,
+	imageCropDirection,
 	imageCropRegion: initialImageCropRegion,
 	imageURL,
 	itemSelectorEventName,
@@ -47,15 +47,17 @@ const ImageSelector = ({
 	uploadURL,
 	validExtensions,
 }) => {
-	const isDraggable = draggableImage !== 'none';
+	const isDraggable = imageCropDirection !== 'none';
 
 	const [image, setImage] = useState({
 		fileEntryId,
 		src: imageURL,
 	});
 
-	const [imageCropRegion, setImageCropRegion] = useState(initialImageCropRegion);
 	const [fileName, setFileName] = useState('');
+	const [imageCropRegion, setImageCropRegion] = useState(
+		initialImageCropRegion
+	);
 	const [progressValue, setProgressValue] = useState(0);
 	const [progressData, setProgressData] = useState();
 	const [errorMessage, setErrorMessage] = useState('');
@@ -318,7 +320,7 @@ const ImageSelector = ({
 			className={classNames(
 				'drop-zone',
 				{'draggable-image': isDraggable},
-				{[`${draggableImage}`]: isDraggable},
+				{[`${imageCropDirection}`]: isDraggable},
 				{'drop-enabled': image.fileEntryId == 0},
 				'taglib-image-selector'
 			)}
@@ -338,7 +340,7 @@ const ImageSelector = ({
 
 			{image.src && (
 				<ImageSelectorImage
-					direction={draggableImage}
+					direction={imageCropDirection}
 					imageSrc={image.src}
 					isCroppable={isDraggable}
 					onImageCrop={handleImageCropped}
@@ -387,8 +389,8 @@ const ImageSelector = ({
 
 ImageSelector.propTypes = {
 	cropRegion: PropTypes.string,
-	draggableImage: PropTypes.string,
 	fileEntryId: PropTypes.string.isRequired,
+	imageCropDirection: PropTypes.string,
 	imageURL: PropTypes.string,
 	itemSelectorEventName: PropTypes.string,
 	itemSelectorURL: PropTypes.string,
