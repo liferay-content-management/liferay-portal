@@ -16,18 +16,27 @@ package com.liferay.item.selector.taglib.servlet.taglib;
 
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.document.library.util.DLURLHelperUtil;
+import com.liferay.frontend.taglib.clay.servlet.taglib.ButtonTag;
 import com.liferay.item.selector.taglib.internal.servlet.taglib.BaseContainerTag;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.taglib.util.TagResourceBundleUtil;
 
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
+
+import javax.portlet.PortletResponse;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -97,6 +106,21 @@ public class ImageSelectorTag extends BaseContainerTag {
 		return _maxFileSize;
 	}
 
+	public String getNamespace() {
+		if (_namespace != null) {
+			return _namespace;
+		}
+
+		PortletResponse portletResponse = (PortletResponse)request.getAttribute(
+			JavaConstants.JAVAX_PORTLET_RESPONSE);
+
+		if (portletResponse != null) {
+			_namespace = portletResponse.getNamespace();
+		}
+
+		return _namespace;
+	}
+
 	public String getParamName() {
 		return _paramName;
 	}
@@ -137,6 +161,10 @@ public class ImageSelectorTag extends BaseContainerTag {
 		_maxFileSize = maxFileSize;
 	}
 
+	public void setNamespace(String namespace) {
+		_namespace = namespace;
+	}
+
 	public void setParamName(String paramName) {
 		_paramName = paramName;
 	}
@@ -160,6 +188,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 		_itemSelectorEventName = null;
 		_itemSelectorURL = null;
 		_maxFileSize = 0;
+		_namespace = null;
 		_paramName = "imageSelectorFileEntryId";
 		_uploadURL = null;
 		_validExtensions = null;
@@ -192,6 +221,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 
 		if (!_imageCropDirection.equals("none")) {
 			cssClasses.add("draggable-image");
+			cssClasses.add(_imageCropDirection);
 		}
 
 		if (_fileEntryId == 0) {
@@ -207,9 +237,125 @@ public class ImageSelectorTag extends BaseContainerTag {
 	protected int processStartTag() throws Exception {
 		super.processStartTag();
 
+		ResourceBundle resourceBundle = TagResourceBundleUtil.getResourceBundle(
+			pageContext);
+
 		JspWriter jspWriter = pageContext.getOut();
 
-		jspWriter.write("temporary markup");
+		String namespace = getNamespace();
+
+		jspWriter.write("<input name=\"");
+		jspWriter.write(namespace);
+		jspWriter.write(_paramName);
+		jspWriter.write("Id\" type=\"hidden\" value=\"");
+		jspWriter.write(String.valueOf(_fileEntryId));
+		jspWriter.write("\">");
+
+		jspWriter.write("<input name=\"");
+		jspWriter.write(namespace);
+		jspWriter.write(_paramName);
+		jspWriter.write("CropRegion\" type=\"hidden\" value=\"");
+		jspWriter.write(_imageCropRegion);
+		jspWriter.write("\">");
+
+		if (Validator.isNotNull(_imageURL)) {
+			jspWriter.write("<div class=\"image-wrapper");
+
+			if (!_imageCropDirection.equals("none")) {
+				jspWriter.write(" cropper");
+			}
+
+			jspWriter.write("\" ><img alt=\"");
+			jspWriter.write(LanguageUtil.get(resourceBundle, "current-image"));
+			jspWriter.write("\" class=\"current-image\" id=\"");
+			jspWriter.write(namespace);
+			jspWriter.write("image\" src=\"");
+			jspWriter.write(_imageURL);
+			jspWriter.write("\" /></div>");
+		}
+
+		if (_fileEntryId == 0) {
+			jspWriter.write("<div class=\"browse-image-controls\"><div ");
+			jspWriter.write("class=\"drag-drop-label\">");
+
+			if (Validator.isNotNull(_itemSelectorEventName) &&
+				Validator.isNotNull(_itemSelectorURL)) {
+
+				String dragAndDropToUploadButton =
+					"<button class=\"btn btn-secondary\" type=\"button\">" +
+						LanguageUtil.get(resourceBundle, "select-file") +
+							"</button>";
+
+				if (BrowserSnifferUtil.isMobile(request)) {
+					jspWriter.write(dragAndDropToUploadButton);
+				}
+				else {
+					jspWriter.write("<span class=\"pr-1\">");
+					jspWriter.write(
+						LanguageUtil.format(
+							resourceBundle, "drag-and-drop-to-upload-or-x",
+							new Object[] {dragAndDropToUploadButton}));
+					jspWriter.write("</span>");
+				}
+			}
+			else {
+				jspWriter.write(
+					LanguageUtil.get(
+						resourceBundle, "drag-and-drop-to-upload"));
+			}
+
+			jspWriter.write("</div><div class=\"file-validation-info\">");
+
+			if (Validator.isNotNull(_validExtensions)) {
+				jspWriter.write("<strong>");
+				jspWriter.write(_validExtensions);
+				jspWriter.write("</strong>");
+			}
+
+			if (_maxFileSize != 0) {
+				ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+					WebKeys.THEME_DISPLAY);
+
+				jspWriter.write("<span class=\"pl-1\">");
+				jspWriter.write(
+					LanguageUtil.format(
+						resourceBundle, "maximum-size-x",
+						new Object[] {
+							LanguageUtil.formatStorageSize(
+								_maxFileSize, themeDisplay.getLocale())
+						}));
+
+				jspWriter.write("</span>");
+			}
+
+			jspWriter.write("</div></div>");
+		}
+		else {
+			jspWriter.write("<div class=\"change-image-controls\">");
+
+			ButtonTag buttonTag = new ButtonTag();
+
+			buttonTag.setDisplayType("secondary");
+			buttonTag.setDynamicAttribute(
+				StringPool.BLANK, "title",
+				HtmlUtil.escape(
+					LanguageUtil.get(resourceBundle, "change-image")));
+			buttonTag.setIcon("picture");
+			buttonTag.setMonospaced(true);
+			buttonTag.doTag(pageContext);
+
+			buttonTag.setCssClass("ml-1");
+			buttonTag.setDisplayType("secondary");
+			buttonTag.setDynamicAttribute(
+				StringPool.BLANK, "title",
+				HtmlUtil.escape(
+					LanguageUtil.get(resourceBundle, "remove-image")));
+			buttonTag.setIcon("trash");
+			buttonTag.setMonospaced(true);
+			buttonTag.doTag(pageContext);
+
+			jspWriter.write("</div>");
+		}
 
 		return SKIP_BODY;
 	}
@@ -227,6 +373,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 	private String _itemSelectorEventName;
 	private String _itemSelectorURL;
 	private long _maxFileSize;
+	private String _namespace;
 	private String _paramName = "imageSelectorFileEntryId";
 	private String _uploadURL;
 	private String _validExtensions;
