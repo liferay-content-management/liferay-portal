@@ -39,6 +39,7 @@ const ImageSelector = ({
 	imageCropDirection,
 	imageCropRegion: initialImageCropRegion,
 	imageURL,
+	isDraggable,
 	itemSelectorEventName,
 	itemSelectorURL,
 	maxFileSize = Liferay.PropsValues.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE,
@@ -47,8 +48,6 @@ const ImageSelector = ({
 	uploadURL,
 	validExtensions,
 }) => {
-	const isDraggable = imageCropDirection !== 'none';
-
 	const [errorMessage, setErrorMessage] = useState('');
 	const [fileName, setFileName] = useState('');
 	const [image, setImage] = useState({
@@ -372,6 +371,7 @@ ImageSelector.propTypes = {
 	fileEntryId: PropTypes.string.isRequired,
 	imageCropDirection: PropTypes.string,
 	imageURL: PropTypes.string,
+	isDraggable: PropTypes.bool,
 	itemSelectorEventName: PropTypes.string,
 	itemSelectorURL: PropTypes.string,
 	maxFileSize: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

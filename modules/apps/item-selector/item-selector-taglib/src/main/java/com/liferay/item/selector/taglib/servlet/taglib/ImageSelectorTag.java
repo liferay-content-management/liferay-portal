@@ -133,6 +133,10 @@ public class ImageSelectorTag extends BaseContainerTag {
 		return _validExtensions;
 	}
 
+	public boolean isDraggable() {
+		return !_imageCropDirection.equals("none");
+	}
+
 	/**
 	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #setImageCropDirection()}
 	 */
@@ -205,6 +209,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 		props.put("imageCropRegion", _imageCropRegion);
 		props.put("fileEntryId", _fileEntryId);
 		props.put("imageURL", _imageURL);
+		props.put("isDraggable", isDraggable());
 		props.put("itemSelectorEventName", _itemSelectorEventName);
 		props.put("itemSelectorURL", _itemSelectorURL);
 		props.put("maxFileSize", _maxFileSize);
@@ -219,7 +224,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 	protected String processCssClasses(Set<String> cssClasses) {
 		cssClasses.add("drop-zone");
 
-		if (!_imageCropDirection.equals("none")) {
+		if (isDraggable()) {
 			cssClasses.add("draggable-image");
 			cssClasses.add(_imageCropDirection);
 		}
@@ -261,7 +266,7 @@ public class ImageSelectorTag extends BaseContainerTag {
 		if (Validator.isNotNull(_imageURL)) {
 			jspWriter.write("<div class=\"image-wrapper");
 
-			if (!_imageCropDirection.equals("none")) {
+			if (isDraggable()) {
 				jspWriter.write(" cropper");
 			}
 
