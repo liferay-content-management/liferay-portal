@@ -17,7 +17,6 @@ package com.liferay.item.selector.taglib.internal.servlet.taglib;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.item.selector.taglib.internal.js.loader.modules.extender.npm.NPMResolverProvider;
 import com.liferay.item.selector.taglib.internal.util.ServicesProvider;
-import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -61,32 +60,8 @@ public class BaseContainerTag extends AttributesTagSupport {
 		}
 	}
 
-	public String getContainerElement() {
-		return _containerElement;
-	}
-
-	public String getCssClass() {
-		return _cssClass;
-	}
-
-	public String getHydratedContainerElement() {
-		return _hydratedContainerElement;
-	}
-
 	public String getId() {
 		return _id;
-	}
-
-	public void setContainerElement(String containerElement) {
-		_containerElement = containerElement;
-	}
-
-	public void setCssClass(String cssClass) {
-		_cssClass = cssClass;
-	}
-
-	public void setHydratedContainerElement(String hydratedContainerElement) {
-		_hydratedContainerElement = hydratedContainerElement;
 	}
 
 	public void setId(String id) {
@@ -94,9 +69,6 @@ public class BaseContainerTag extends AttributesTagSupport {
 	}
 
 	protected void cleanUp() {
-		_containerElement = null;
-		_cssClass = null;
-		_hydratedContainerElement = "div";
 		_id = null;
 	}
 
@@ -113,28 +85,19 @@ public class BaseContainerTag extends AttributesTagSupport {
 	}
 
 	protected Map<String, Object> prepareProps(Map<String, Object> props) {
-		props.put("cssClass", getCssClass());
 		props.put("id", getId());
 
 		return props;
 	}
 
 	protected String processCssClasses(Set<String> cssClasses) {
-		String cssClass = getCssClass();
-
-		if (Validator.isNotNull(cssClass)) {
-			cssClasses.addAll(StringUtil.split(cssClass, CharPool.SPACE));
-		}
-
 		return StringUtil.merge(cssClasses, StringPool.SPACE);
 	}
 
 	protected int processEndTag() throws Exception {
 		JspWriter jspWriter = pageContext.getOut();
 
-		jspWriter.write("</");
-		jspWriter.write(_containerElement);
-		jspWriter.write(">");
+		jspWriter.write("</div>");
 
 		String hydratedModuleName = getHydratedModuleName();
 
@@ -153,9 +116,7 @@ public class BaseContainerTag extends AttributesTagSupport {
 				componentDescriptor, prepareProps(new HashMap<>()), request,
 				jspWriter);
 
-			jspWriter.write("</");
-			jspWriter.write(_hydratedContainerElement);
-			jspWriter.write(">");
+			jspWriter.write("</div>");
 		}
 
 		return EVAL_PAGE;
@@ -165,17 +126,10 @@ public class BaseContainerTag extends AttributesTagSupport {
 		JspWriter jspWriter = pageContext.getOut();
 
 		if (getHydratedModuleName() != null) {
-			jspWriter.write("<");
-			jspWriter.write(_hydratedContainerElement);
-			jspWriter.write(">");
+			jspWriter.write("<div>");
 		}
 
-		if (_containerElement == null) {
-			setContainerElement("div");
-		}
-
-		jspWriter.write("<");
-		jspWriter.write(_containerElement);
+		jspWriter.write("<div");
 
 		writeCssClassAttribute();
 
@@ -204,9 +158,6 @@ public class BaseContainerTag extends AttributesTagSupport {
 		jspWriter.write("\"");
 	}
 
-	private String _containerElement;
-	private String _cssClass;
-	private String _hydratedContainerElement = "div";
 	private String _id;
 
 }
