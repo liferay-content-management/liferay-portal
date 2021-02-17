@@ -45,6 +45,7 @@ function ManagementToolbar({
 	onCreateButtonClick = () => {},
 	onCreationMenuItemClick = () => {},
 	onInfoButtonClick = () => {},
+	onFilterDropdownItemClick = () => {},
 	onSelectAllButtonClick = () => {},
 	onShowMoreButtonClick,
 	searchActionURL,
@@ -101,6 +102,9 @@ function ManagementToolbar({
 						<FilterOrderControls
 							disabled={disabled}
 							filterDropdownItems={filterDropdownItems}
+							onFilterDropdownItemClick={
+								onFilterDropdownItemClick
+							}
 							sortingURL={sortingURL}
 						/>
 					)}
