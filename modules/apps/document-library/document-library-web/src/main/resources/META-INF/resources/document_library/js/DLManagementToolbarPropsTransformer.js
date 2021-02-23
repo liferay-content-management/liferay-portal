@@ -116,6 +116,28 @@ export default function propsTransformer({
 		processAction(action, editEntryURL);
 	};
 
+	const editCategories = () => {
+		const searchContainer = Liferay.SearchContainer.get(
+			otherProps.searchContainerId
+		);
+
+		Liferay.componentReady(
+			`${portletNamespace}EditCategoriesComponent`
+		).then((editCategoriesComponent) => {
+			const bulkSelection = searchContainer.select?.get('bulkSelection');
+
+			const selectedFileEntries = searchContainer.select
+				.getAllSelectedElements()
+				.get('value');
+
+			editCategoriesComponent.open(
+				selectedFileEntries,
+				bulkSelection,
+				folderConfiguration.defaultParentFolderId
+			);
+		});
+	};
+
 	const editTags = () => {
 		const searchContainer = Liferay.SearchContainer.get(
 			otherProps.searchContainerId
@@ -214,6 +236,9 @@ export default function propsTransformer({
 			}
 			else if (action === 'download') {
 				processAction('download', downloadEntryURL);
+			}
+			else if (action === 'editCategories') {
+				editCategories();
 			}
 			else if (action === 'editTags') {
 				editTags();
