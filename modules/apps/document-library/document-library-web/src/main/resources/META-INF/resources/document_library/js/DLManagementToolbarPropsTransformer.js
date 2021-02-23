@@ -206,7 +206,7 @@ export default function propsTransformer({
 			if (action === 'checkin') {
 				checkIn();
 			}
-			if (action === 'checkout') {
+			else if (action === 'checkout') {
 				processAction('checkout', editEntryURL);
 			}
 			else if (action === 'deleteEntries') {
