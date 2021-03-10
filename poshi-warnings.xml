@@ -1,0 +1,29 @@
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: Portal property "captcha.max.challenges" is obsolete]]></value>
+<value><![CDATA[LIFERAY_ERROR: Waiting on startup required bundles to activate: [/classic-theme]]]></value>
+<value><![CDATA[LIFERAY_ERROR: {code="404", msg="The requested resource [/liferay-logo.png] is not available", uri=/liferay-logo.png}]]></value>
+<value><![CDATA[LIFERAY_ERROR: org.apache.catalina.connector.ClientAbortException: java.io.IOException: An established connection was aborted by the software in your host machine]]></value>
+<value><![CDATA[LIFERAY_ERROR: org.apache.catalina.connector.ClientAbortException: java.io.IOException: An established connection was aborted by the software in your host machine]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: org.apache.catalina.connector.ClientAbortException: java.io.IOException: An established connection was aborted by the software in your host machine]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: org.apache.catalina.connector.ClientAbortException: java.io.IOException: An established connection was aborted by the software in your host machine]]></value>
+<value><![CDATA[LIFERAY_ERROR: com.liferay.adaptive.media.exception.AMRuntimeException$IOException: Unable to scale file entry 41481 to match adaptive media configuration Preview-1000x0]]></value>
+<value><![CDATA[LIFERAY_ERROR: com.liferay.adaptive.media.exception.AMRuntimeException$IOException: Unable to scale file entry 41481 to match adaptive media configuration Preview-1000x0]]></value>
+<value><![CDATA[LIFERAY_ERROR: com.liferay.adaptive.media.exception.AMRuntimeException$IOException: Unable to scale file entry 41481 to match adaptive media configuration Preview-1000x0]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: Portal property "captcha.max.challenges" is obsolete]]></value>
+<value><![CDATA[LIFERAY_ERROR: Waiting on startup required bundles to activate: [/classic-theme]]]></value>
+<value><![CDATA[LIFERAY_ERROR: org.apache.catalina.connector.ClientAbortException: java.io.IOException: An established connection was aborted by the software in your host machine]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: Registered driver with driverClassName=com.mysql.jdbc.Driver was not found, trying direct instantiation.]]></value>
+<value><![CDATA[LIFERAY_ERROR: org.apache.catalina.connector.ClientAbortException: java.io.IOException: An established connection was aborted by the software in your host machine]]></value>
+<value><![CDATA[LIFERAY_ERROR: No JSON web service action with path /commerce.commercecountry/get-billing-commerce-countries and method null for commerce]]></value>
+<value><![CDATA[LIFERAY_ERROR: No JSON web service action with path /commerce.commercecountry/get-billing-commerce-countries and method null for commerce]]></value>
+<value><![CDATA[LIFERAY_ERROR: No JSON web service action with path /commerce.commercecountry/get-billing-commerce-countries and method null for commerce]]></value>
