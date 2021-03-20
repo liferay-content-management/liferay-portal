@@ -45,6 +45,7 @@ import com.liferay.document.library.kernel.exception.AccessDeniedException;
 import com.liferay.document.library.kernel.exception.NoSuchFileException;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.document.library.kernel.util.DLUtil;
+import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -58,6 +59,7 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.store.s3.configuration.S3StoreConfiguration;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -162,9 +164,11 @@ public class S3Store implements Store {
 
 			ObjectMetadata objectMetadata = s3Object.getObjectMetadata();
 
+			InputStream inputStream = new ByteArrayInputStream(
+				StreamUtil.toByteArray(s3Object.getObjectContent()));
+
 			return _s3FileCache.getCacheFileInputStream(
-				fileName, s3Object::getObjectContent,
-				objectMetadata.getLastModified());
+				fileName, () -> inputStream, objectMetadata.getLastModified());
 		}
 		catch (IOException ioException) {
 			throw new SystemException(ioException);
