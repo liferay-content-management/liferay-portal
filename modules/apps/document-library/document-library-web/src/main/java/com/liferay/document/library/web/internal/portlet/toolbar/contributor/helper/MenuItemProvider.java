@@ -350,7 +350,7 @@ public class MenuItemProvider {
 				fileEntryTypes, themeDisplay.getScopeGroupId(),
 				themeDisplay.getLocale()));
 
-		urlMenuItem.setLabel(HtmlUtil.escape(label));
+		urlMenuItem.setLabel(label);
 
 		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
