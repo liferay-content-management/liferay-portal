@@ -14,9 +14,9 @@
 
 package com.liferay.translation.web.internal.servlet;
 
+import com.liferay.petra.io.StreamUtil;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.translation.web.internal.constants.TranslationWebConstants;
 
 import java.io.IOException;
@@ -49,9 +49,9 @@ public class AutoTranslateServlet extends HttpServlet {
 
 		httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
 
-		ServletResponseUtil.write(
-			httpServletResponse,
-			ParamUtil.getString(httpServletRequest, "content"));
+		String body = StreamUtil.toString(httpServletRequest.getInputStream());
+
+		ServletResponseUtil.write(httpServletResponse, body);
 
 		httpServletResponse.flushBuffer();
 	}
