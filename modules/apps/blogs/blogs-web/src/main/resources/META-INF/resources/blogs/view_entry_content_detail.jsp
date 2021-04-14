@@ -73,14 +73,14 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 						<clay:content-col
 							expand="<%= true %>"
 						>
-							<h3 class="title"><%= HtmlUtil.escape(BlogsEntryUtil.getDisplayTitle(resourceBundle, entry)) %></h3>
+							<h3 class="title"><%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %></h3>
 
 							<%
 							String subtitle = entry.getSubtitle();
 							%>
 
 							<c:if test="<%= Validator.isNotNull(subtitle) %>">
-								<h4 class="sub-title"><%= HtmlUtil.escape(subtitle) %></h4>
+								<h4 class="sub-title"><%= subtitle %></h4>
 							</c:if>
 						</clay:content-col>
 

@@ -48,7 +48,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 					expand="<%= true %>"
 				>
 					<h3 class="title">
-						<aui:a cssClass="title-link" href="<%= viewEntryURL %>"><%= HtmlUtil.escape(BlogsEntryUtil.getDisplayTitle(resourceBundle, entry)) %></aui:a>
+						<aui:a cssClass="title-link" href="<%= viewEntryURL %>"><%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %></aui:a>
 					</h3>
 
 					<%
@@ -56,7 +56,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 					%>
 
 					<c:if test="<%= Objects.equals(blogsPortletInstanceConfiguration.displayStyle(), BlogsUtil.DISPLAY_STYLE_FULL_CONTENT) && Validator.isNotNull(subtitle) %>">
-						<h4 class="sub-title"><%= HtmlUtil.escape(subtitle) %></h4>
+						<h4 class="sub-title"><%= subtitle %></h4>
 					</c:if>
 				</clay:content-col>
 
