@@ -108,6 +108,23 @@ const Translate = ({
 			method: 'POST',
 		})
 			.then((response) => response.json())
+
+			// TODO: Remove this dummy then for simulate translate
+
+			.then(({fields}) => {
+				return {
+					fields: fields.map((field) => {
+						const [id, content] = Object.entries(field)[0];
+
+						return {
+							[id]:
+								content === ''
+									? content
+									: `Translated content from ${sourceLanguageIdTitle} to ${targetLanguageIdTitle}: ${content}`,
+						};
+					}),
+				};
+			})
 			.then(({fields}) => {
 				if (isMounted()) {
 					fields.forEach((field) => {
