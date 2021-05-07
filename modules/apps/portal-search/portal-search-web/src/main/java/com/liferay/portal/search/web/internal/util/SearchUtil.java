@@ -183,6 +183,10 @@ public class SearchUtil {
 				"assetEntryId", String.valueOf(assetEntry.getEntryId()));
 			viewContentURL.setParameter("type", assetRendererFactory.getType());
 
+			if (assetRendererFactory.getType().equals("document")) {
+				viewContentURL.setParameter("showExtraInfo", "true");
+			}
+
 			if (!viewInContext) {
 				return HttpUtil.setParameter(
 					viewContentURL.toString(), "p_l_back_url", currentURL);
