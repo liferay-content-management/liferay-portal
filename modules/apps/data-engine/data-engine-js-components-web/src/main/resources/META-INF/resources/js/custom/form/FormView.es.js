@@ -86,6 +86,11 @@ const useFormSubmit = ({apiRef, containerRef}) => {
 							),
 						});
 					}
+					else {
+						Liferay.fire('ddmFormError', {
+							formId: event.target.id,
+						});
+					}
 				})
 				.catch((error) => {
 					console.error(error);

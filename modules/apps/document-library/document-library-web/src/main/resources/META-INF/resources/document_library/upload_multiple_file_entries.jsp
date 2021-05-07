@@ -266,7 +266,17 @@ if (portletTitleBasedNavigation) {
 								}
 							}
 
+							function ddmFormError(event) {
+								if (event.formId === document.<portlet:namespace />fm2.id) {
+									Liferay.CollapseProvider.show({
+										panel: document.querySelector('.document-type .panel-collapse'),
+									});
+								}
+							}
+
 							Liferay.on('ddmFormValid', ddmFormValid);
+
+							Liferay.on('ddmFormError', ddmFormError);
 
 							window['<portlet:namespace />updateMultipleFiles'] = function () {
 								var isDataEngineControlled = Boolean(
