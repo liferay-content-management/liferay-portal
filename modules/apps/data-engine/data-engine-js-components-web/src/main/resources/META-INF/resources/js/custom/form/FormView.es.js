@@ -69,7 +69,12 @@ const useFormSubmit = ({apiRef, containerRef}) => {
 							return;
 						}
 
-						Liferay.Util.submitForm(event.target);
+						const avoidSubmit =
+							event.target?.dataset.ddmFormAvoidSubmit;
+
+						if (!avoidSubmit) {
+							Liferay.Util.submitForm(event.target);
+						}
 
 						Liferay.fire('ddmFormSubmit', {
 							formId: getFormId(
