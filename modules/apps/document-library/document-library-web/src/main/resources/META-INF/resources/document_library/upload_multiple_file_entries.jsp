@@ -119,7 +119,7 @@ if (portletTitleBasedNavigation) {
 								});
 							});
 
-							window['<portlet:namespace />updateMultipleFiles'] = function () {
+							function submit() {
 								var Lang = A.Lang;
 
 								var commonFileMetadataContainer = A.one(
@@ -258,6 +258,24 @@ if (portletTitleBasedNavigation) {
 
 										commonFileMetadataContainer.loadingmask.hide();
 									});
+							}
+
+							function ddmFormValid(event) {
+								if (event.formId === document.<portlet:namespace />fm2.id) {
+									submit();
+								}
+							}
+
+							Liferay.on('ddmFormValid', ddmFormValid);
+
+							window['<portlet:namespace />updateMultipleFiles'] = function () {
+								var isDataEngineControlled = Boolean(
+									document.querySelector('[data-ddm-fieldset]')
+								);
+
+								if (!isDataEngineControlled) {
+									submit();
+								}
 							};
 						</aui:script>
 					</clay:col>

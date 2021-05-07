@@ -76,6 +76,10 @@ const useFormSubmit = ({apiRef, containerRef}) => {
 							Liferay.Util.submitForm(event.target);
 						}
 
+						Liferay.fire('ddmFormValid', {
+							formId: event.target.id,
+						});
+
 						Liferay.fire('ddmFormSubmit', {
 							formId: getFormId(
 								getFormNode(containerRef.current)
