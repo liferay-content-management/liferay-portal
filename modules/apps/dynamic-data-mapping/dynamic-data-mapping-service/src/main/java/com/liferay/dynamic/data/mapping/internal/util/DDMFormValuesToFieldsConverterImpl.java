@@ -229,7 +229,7 @@ public class DDMFormValuesToFieldsConverterImpl
 					if (!locale.equals(availableLocale)) {
 						Value value = ddmFormFieldValue.getValue();
 
-						if (value != null) {
+						if (value != null && value.isLocalized()) {
 							Map<Locale, String> values = value.getValues();
 
 							if (values.get(availableLocale) == null) {
