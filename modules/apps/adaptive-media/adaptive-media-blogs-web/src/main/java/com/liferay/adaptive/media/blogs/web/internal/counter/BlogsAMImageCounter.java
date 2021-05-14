@@ -16,12 +16,17 @@ package com.liferay.adaptive.media.blogs.web.internal.counter;
 
 import com.liferay.adaptive.media.image.counter.AMImageCounter;
 import com.liferay.adaptive.media.image.mime.type.AMImageMimeTypeProvider;
+import com.liferay.adaptive.media.image.validator.AMImageValidator;
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -53,15 +58,27 @@ public class BlogsAMImageCounter implements AMImageCounter {
 
 		Property mimeTypeProperty = PropertyFactoryUtil.forName("mimeType");
 
-		dynamicQuery.add(
-			mimeTypeProperty.in(
-				_amImageMimeTypeProvider.getSupportedMimeTypes()));
+		Set<String> supportedMimeTypes = new HashSet<>(
+			Arrays.asList(_amImageMimeTypeProvider.getSupportedMimeTypes()));
+
+		for (String supportedMimeType :
+				_amImageMimeTypeProvider.getSupportedMimeTypes()) {
+
+			if (!_amImageValidator.isProcessingSupported(supportedMimeType)) {
+				supportedMimeTypes.remove(supportedMimeType);
+			}
+		}
+
+		dynamicQuery.add(mimeTypeProperty.in(supportedMimeTypes));
 
 		return (int)_dlFileEntryLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
 	@Reference
 	private AMImageMimeTypeProvider _amImageMimeTypeProvider;
+
+	@Reference
+	private AMImageValidator _amImageValidator;
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
