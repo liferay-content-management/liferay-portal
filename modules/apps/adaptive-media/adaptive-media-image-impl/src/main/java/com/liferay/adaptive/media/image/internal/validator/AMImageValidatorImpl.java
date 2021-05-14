@@ -55,6 +55,16 @@ public class AMImageValidatorImpl implements AMImageValidator {
 	}
 
 	@Override
+	public boolean isProcessingSupported(String mimeType) {
+
+		if (ContentTypes.IMAGE_SVG_XML.equalsIgnoreCase(mimeType)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
 	public boolean isValid(FileVersion fileVersion) {
 		if (!DLProcessorRegistryUtil.isPreviewableSize(fileVersion)) {
 			return false;

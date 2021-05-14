@@ -14,8 +14,16 @@
 
 package com.liferay.adaptive.media.document.library.web.internal.counter;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import com.liferay.adaptive.media.image.counter.AMImageCounter;
 import com.liferay.adaptive.media.image.mime.type.AMImageMimeTypeProvider;
+import com.liferay.adaptive.media.image.validator.AMImageValidator;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFileVersionLocalService;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -23,9 +31,6 @@ import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Sergio González
@@ -59,9 +64,17 @@ public class DLAMImageCounter implements AMImageCounter {
 
 		Property mimeTypeProperty = PropertyFactoryUtil.forName("mimeType");
 
+		Set<String> supportedMimeTypes = new HashSet<>(
+				Arrays.asList(_amImageMimeTypeProvider.getSupportedMimeTypes()));
+
+		for (String supportedMimeType : _amImageMimeTypeProvider.getSupportedMimeTypes()) {
+			if (!_amImageValidator.isProcessingSupported(supportedMimeType)) {
+				supportedMimeTypes.remove(supportedMimeType);
+			}
+		}
+
 		dlFileEntryEntryDynamicQuery.add(
-			mimeTypeProperty.in(
-				_amImageMimeTypeProvider.getSupportedMimeTypes()));
+			mimeTypeProperty.in(supportedMimeTypes));
 
 		return (int)_dlFileEntryLocalService.dynamicQueryCount(
 			dlFileEntryEntryDynamicQuery);
@@ -102,6 +115,9 @@ public class DLAMImageCounter implements AMImageCounter {
 
 	@Reference
 	private AMImageMimeTypeProvider _amImageMimeTypeProvider;
+
+	@Reference
+	private AMImageValidator _amImageValidator;
 
 	@Reference
 	private DLFileEntryLocalService _dlFileEntryLocalService;
