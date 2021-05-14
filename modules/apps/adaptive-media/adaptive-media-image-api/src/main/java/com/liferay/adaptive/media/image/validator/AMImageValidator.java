@@ -35,7 +35,7 @@ public interface AMImageValidator {
 	public default boolean isProcessingSupported(FileVersion fileVersion) {
 		return isValid(fileVersion);
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the provided mimeType supports image
 	 * processing. Adaptive Media works with some media types where the content

@@ -67,11 +67,11 @@ public class BlogsAMImageOptimizer implements AMImageOptimizer {
 		AtomicInteger errorCount = new AtomicInteger(0);
 
 		for (AMImageConfigurationEntry amImageConfigurationEntry :
-			amImageConfigurationEntries) {
+				amImageConfigurationEntries) {
 
-		_optimize(
-			companyId, amImageConfigurationEntry.getUUID(), total,
-			successCount, errorCount);
+			_optimize(
+				companyId, amImageConfigurationEntry.getUUID(), total,
+				successCount, errorCount);
 		}
 	}
 
