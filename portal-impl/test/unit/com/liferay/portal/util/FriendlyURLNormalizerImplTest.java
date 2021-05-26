@@ -134,7 +134,7 @@ public class FriendlyURLNormalizerImplTest {
 			StringPool.DASH,
 			_friendlyURLNormalizerImpl.normalizeWithPeriodsAndSlashes("/./."));
 		Assert.assertEquals(
-			"/./.", _friendlyURLNormalizerImpl.normalizeWithEncoding("/./."));
+			"/.-.", _friendlyURLNormalizerImpl.normalizeWithEncoding("/./."));
 	}
 
 	@Test
@@ -152,7 +152,7 @@ public class FriendlyURLNormalizerImplTest {
 
 		value = value + StringPool.SLASH + value;
 
-		encodedValue = encodedValue + StringPool.SLASH + encodedValue;
+		encodedValue = encodedValue + StringPool.DASH + encodedValue;
 
 		Assert.assertEquals(
 			encodedValue,
