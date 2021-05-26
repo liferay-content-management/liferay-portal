@@ -68,7 +68,12 @@ public class FriendlyURLNormalizerImpl implements FriendlyURLNormalizer {
 		for (int i = 0; i < decodedFriendlyURL.length(); i++) {
 			char c = decodedFriendlyURL.charAt(i);
 
-			if ((CharPool.UPPER_CASE_A <= c) && (c <= CharPool.UPPER_CASE_Z)) {
+			if ((i == 0) && (c == CharPool.SLASH)) {
+				sb.append(c);
+			}
+			else if ((CharPool.UPPER_CASE_A <= c) &&
+					 (c <= CharPool.UPPER_CASE_Z)) {
+
 				sb.append((char)(c + 32));
 
 				modified = true;
@@ -76,8 +81,7 @@ public class FriendlyURLNormalizerImpl implements FriendlyURLNormalizer {
 			else if (((CharPool.LOWER_CASE_A <= c) &&
 					  (c <= CharPool.LOWER_CASE_Z)) ||
 					 ((CharPool.NUMBER_0 <= c) && (c <= CharPool.NUMBER_9)) ||
-					 (c == CharPool.PERIOD) || (c == CharPool.SLASH) ||
-					 (c == CharPool.STAR) || (c == CharPool.UNDERLINE)) {
+					 (c == CharPool.PERIOD) || (c == CharPool.UNDERLINE)) {
 
 				sb.append(c);
 			}
@@ -224,8 +228,8 @@ public class FriendlyURLNormalizerImpl implements FriendlyURLNormalizer {
 	static {
 		char[] replaceChars = {
 			'-', ' ', ',', '\\', '\'', '\"', '(', ')', '[', ']', '{', '}', '?',
-			'#', '@', '+', '~', ';', '$', '!', '=', ':', '&', '\u00a3',
-			'\u2013', '\u2014', '\u2018', '\u2019', '\u201c', '\u201d'
+			'*', '/', '#', '@', '+', '~', ';', '$', '!', '=', ':', '&',
+			'\u00a3', '\u2013', '\u2014', '\u2018', '\u2019', '\u201c', '\u201d'
 		};
 
 		Arrays.sort(replaceChars);
