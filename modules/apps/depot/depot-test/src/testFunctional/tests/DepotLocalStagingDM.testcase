@@ -87,9 +87,7 @@ definition {
 
 		Portlet.addPG(portletName = "Blogs");
 
-		BlogsNavigator.gotoAddEntry();
-
-		Pause(locator1 = "3000");
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -180,7 +178,7 @@ definition {
 
 		Portlet.addPG(portletName = "Blogs");
 
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsEntry.addTitle(entryTitle = "Blogs Entry Title");
 
@@ -841,9 +839,7 @@ definition {
 
 		Portlet.addPG(portletName = "Blogs");
 
-		BlogsNavigator.gotoAddEntry();
-
-		Pause(locator1 = "3000");
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -943,7 +939,7 @@ definition {
 
 		Portlet.addPG(portletName = "Blogs");
 
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsEntry.addTitle(entryTitle = "Blogs Entry Title");
 
@@ -1059,7 +1055,7 @@ definition {
 
 		Portlet.addPG(portletName = "Blogs");
 
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsEntry.addEntryContent(
 			entryContent = "Blogs Entry Content",
@@ -2084,9 +2080,7 @@ definition {
 
 		Portlet.addPG(portletName = "Blogs");
 
-		BlogsNavigator.gotoAddEntry();
-
-		Pause(locator1 = "3000");
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -2187,7 +2181,7 @@ definition {
 
 		Portlet.addPG(portletName = "Blogs");
 
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsEntry.addEntryContent(
 			entryContent = "Blogs Entry Content",
@@ -2405,17 +2399,7 @@ definition {
 
 		Staging.publishToLive();
 
-		Navigator.gotoStagedSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
-
-		Pause(locator1 = "3000");
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -2469,15 +2453,7 @@ definition {
 			depotName = "Test Depot Name",
 			noConnectedDepot = "true");
 
-		Navigator.gotoStagedSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -2516,15 +2492,7 @@ definition {
 
 		Staging.publishToLive();
 
-		Navigator.gotoStagedSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name-staging");
 
 		BlogsNavigator.gotoSelectFile();
 
