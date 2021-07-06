@@ -643,6 +643,8 @@ public class MillerColumnsDisplayContext {
 					"label",
 					LanguageUtil.get(
 						_httpServletRequest, "export-for-translation")
+				).put(
+					"layoutId", layout.getLayoutId()
 				));
 		}
 

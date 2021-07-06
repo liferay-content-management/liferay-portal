@@ -52,7 +52,7 @@ const actionHandlers = {
 		}
 	},
 
-	exportTranslation({itemData, namespace}) {
+	exportTranslation: ({itemData, namespace}) => {
 		Liferay.componentReady(
 			`${namespace}ExportForTranslationComponent`
 		).then((exportTranslationComponent) => {
