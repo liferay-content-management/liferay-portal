@@ -46,6 +46,7 @@ import com.liferay.wiki.constants.WikiWebKeys;
 import com.liferay.wiki.engine.WikiEngineRenderer;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
+import com.liferay.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.wiki.service.WikiPageLocalServiceUtil;
 import com.liferay.wiki.web.internal.security.permission.resource.WikiPagePermission;
 
@@ -87,7 +88,16 @@ public class WikiPageAssetRenderer
 		_wikiEngineRenderer = wikiEngineRenderer;
 		_trashHelper = trashHelper;
 
-		_node = page.getNode();
+		try {
+			_node = page.getNode();
+		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(exception.getMessage());
+			}
+
+			_node = WikiNodeLocalServiceUtil.createWikiNode(0);
+		}
 	}
 
 	@Override
@@ -417,7 +427,7 @@ public class WikiPageAssetRenderer
 
 	private AssetDisplayPageFriendlyURLProvider
 		_assetDisplayPageFriendlyURLProvider;
-	private final WikiNode _node;
+	private WikiNode _node;
 	private final WikiPage _page;
 	private final TrashHelper _trashHelper;
 	private final WikiEngineRenderer _wikiEngineRenderer;
