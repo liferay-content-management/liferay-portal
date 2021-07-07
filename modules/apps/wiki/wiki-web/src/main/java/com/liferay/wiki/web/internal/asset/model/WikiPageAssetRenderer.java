@@ -18,6 +18,7 @@ import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvide
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -86,8 +87,6 @@ public class WikiPageAssetRenderer
 		_page = page;
 		_wikiEngineRenderer = wikiEngineRenderer;
 		_trashHelper = trashHelper;
-
-		_node = page.getNode();
 	}
 
 	@Override
@@ -230,7 +229,17 @@ public class WikiPageAssetRenderer
 		).setParameter(
 			"nodeId", _page.getNodeId()
 		).setParameter(
-			"nodeName", _node.getName()
+			"nodeName",
+			() -> {
+				try {
+					WikiNode node = _page.getNode();
+
+					return node.getName();
+				}
+				catch (Exception exception) {
+					return StringPool.BLANK;
+				}
+			}
 		).setParameter(
 			"title", _page.getTitle()
 		).setParameter(
@@ -417,7 +426,6 @@ public class WikiPageAssetRenderer
 
 	private AssetDisplayPageFriendlyURLProvider
 		_assetDisplayPageFriendlyURLProvider;
-	private final WikiNode _node;
 	private final WikiPage _page;
 	private final TrashHelper _trashHelper;
 	private final WikiEngineRenderer _wikiEngineRenderer;
