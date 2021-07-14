@@ -308,6 +308,10 @@ definition {
 			groupName = "${groupName}",
 			layoutName = "${layoutName}");
 
+		if ("${portlet}" == "Open Graph") {
+			var screenNavigationEntryKey = "open-graph";
+		}
+
 		if ("${portlet}" == "SEO") {
 			var screenNavigationEntryKey = "seo";
 		}
