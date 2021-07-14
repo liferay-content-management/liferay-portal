@@ -53,8 +53,6 @@ definition {
 				locator1 = "Modal#HEADER",
 				value1 = "Open Graph Image");
 
-			Pause(locator1 = "3000");
-
 			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 			AssertElementPresent(locator1 = "ItemSelector#SELECT_FILE_UPLOAD_IMAGE");
@@ -69,8 +67,6 @@ definition {
 				UploadCommonFile.uploadCommonFileHiddenNoMouseOver(
 					locator1 = "TextInput#FILE",
 					value1 = "${uploadFileName}");
-
-				Pause(locator1 = "2000");
 
 				AssertElementPresent.pauseAssertVisible(
 					locator1 = "ItemSelector#ADD_BUTTON",
@@ -115,6 +111,24 @@ definition {
 		AssertElementPresent(locator1 = "Checkbox#OPEN_GRAPH_CHECKBOX_DISABLED");
 
 		Button.click(button = "Save");
+	}
+
+	macro disableOpenGraphCustomSettings {
+		if (isSet(customTitle)) {
+			var checkboxName = "Use Custom Title";
+
+			if (IsChecked(locator1 = "Checkbox#ANY_CHECKBOX")) {
+				Click(locator1 = "Checkbox#ANY_CHECKBOX");
+			}
+		}
+
+		if (isSet(customDescription)) {
+			var checkboxName = "Use Custom Description";
+
+			if (IsChecked(locator1 = "Checkbox#ANY_CHECKBOX")) {
+				Click(locator1 = "Checkbox#ANY_CHECKBOX");
+			}
+		}
 	}
 
 	macro mapEditableTextToField {
@@ -201,6 +215,18 @@ definition {
 		for (var ogProperty : list "${ogPropertyList}" ) {
 			AssertHTMLSourceTextNotPresent(value1 = "${ogProperty}");
 		}
+	}
+
+	macro viewNoPreviewDescription {
+		AssertTextEquals(
+			locator1 = "SitePagesEditPage#PREVIEW_DESCRIPTION",
+			value1 = "");
+	}
+
+	macro viewNoPreviewImage {
+		AssertElementNotPresent(
+			key_imageName = "${imageName}",
+			locator1 = "SitePagesEditPage#PREVIEW_IMAGE");
 	}
 
 	macro viewOpenGraphProperties {
