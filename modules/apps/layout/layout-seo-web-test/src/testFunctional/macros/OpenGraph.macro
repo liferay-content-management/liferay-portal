@@ -263,8 +263,6 @@ definition {
 	}
 
 	macro viewPreviewImage {
-		ScrollWebElementIntoView(locator1 = "SitePagesEditPage#PREVIEW_LABEL");
-
 		AssertVisible(
 			key_imageName = "${imageName}",
 			locator1 = "SitePagesEditPage#PREVIEW_IMAGE");
