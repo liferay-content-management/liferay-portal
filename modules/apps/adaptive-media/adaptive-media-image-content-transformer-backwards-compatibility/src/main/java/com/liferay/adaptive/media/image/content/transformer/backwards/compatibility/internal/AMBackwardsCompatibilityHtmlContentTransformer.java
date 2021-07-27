@@ -81,9 +81,10 @@ public class AMBackwardsCompatibilityHtmlContentTransformer
 
 		long groupId = Long.valueOf(matcher.group(1));
 		long folderId = Long.valueOf(matcher.group(2));
-		String title = matcher.group(3);
+		String fileName = matcher.group(3);
 
-		return _dlAppLocalService.getFileEntry(groupId, folderId, title);
+		return _dlAppLocalService.getFileEntryByFileName(
+			groupId, folderId, fileName);
 	}
 
 	@Override
@@ -103,8 +104,8 @@ public class AMBackwardsCompatibilityHtmlContentTransformer
 	}
 
 	private static final Pattern _pattern = Pattern.compile(
-		"<img\\s+src=['\"]/documents/(\\d+)/(\\d+)/([^/?]+)" +
-			"(?:/([-0-9a-fA-F]+))?(?:\\?t=\\d+)?['\"]\\s*/>");
+		"<img\\s+(?:[^>]*\\s)*src=['\"]/documents/(\\d+)/(\\d+)/([^/?]+)" +
+			"(?:/([-0-9a-fA-F]+))?(?:\\?t=\\d+)?['\"][^>]*/>");
 
 	@Reference
 	private AMImageHTMLTagFactory _amImageHTMLTagFactory;
