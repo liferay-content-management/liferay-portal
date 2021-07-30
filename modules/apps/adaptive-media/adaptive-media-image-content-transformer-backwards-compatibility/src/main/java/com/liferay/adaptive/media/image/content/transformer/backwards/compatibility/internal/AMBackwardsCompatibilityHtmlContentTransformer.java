@@ -23,7 +23,6 @@ import com.liferay.adaptive.media.image.html.constants.AMImageHTMLConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,8 +62,9 @@ public class AMBackwardsCompatibilityHtmlContentTransformer
 
 	@Override
 	protected FileEntry getFileEntry(Matcher matcher) throws PortalException {
-		if (StringUtil.containsIgnoreCase(
-				matcher.group(0),
+		String imgTag = matcher.group(0);
+
+		if (imgTag.contains(
 				AMImageHTMLConstants.ATTRIBUTE_NAME_FILE_ENTRY_ID)) {
 
 			return null;
@@ -81,9 +81,10 @@ public class AMBackwardsCompatibilityHtmlContentTransformer
 
 		long groupId = Long.valueOf(matcher.group(1));
 		long folderId = Long.valueOf(matcher.group(2));
-		String title = matcher.group(3);
+		String fileName = matcher.group(3);
 
-		return _dlAppLocalService.getFileEntry(groupId, folderId, title);
+		return _dlAppLocalService.getFileEntryByFileName(
+			groupId, folderId, fileName);
 	}
 
 	@Override
@@ -103,8 +104,8 @@ public class AMBackwardsCompatibilityHtmlContentTransformer
 	}
 
 	private static final Pattern _pattern = Pattern.compile(
-		"<img\\s+src=['\"]/documents/(\\d+)/(\\d+)/([^/?]+)" +
-			"(?:/([-0-9a-fA-F]+))?(?:\\?t=\\d+)?['\"]\\s*/>");
+		"<img\\s+(?:[^>]*\\s)*src=['\"]/documents/(\\d+)/(\\d+)/([^/?]+)" +
+			"(?:/([-0-9a-fA-F]+))?(?:\\?t=\\d+)?['\"][^>]*/>");
 
 	@Reference
 	private AMImageHTMLTagFactory _amImageHTMLTagFactory;
