@@ -19,7 +19,7 @@ import com.liferay.portal.kernel.editor.configuration.EditorConfigContributor;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.translation.constants.TranslationPortletKeys;
 
 import java.util.Map;
@@ -45,22 +45,49 @@ public class TranslateEditorConfigContributor
 		ThemeDisplay themeDisplay,
 		RequestBackedPortletURLFactory requestBackedPortletURLFactory) {
 
+		StringBundler sb = new StringBundler(5);
+
+		sb.append(getAllowedContentText());
+		sb.append(" a[*](*); div[*](*){text-align}; img[*](*){*}; p[*](*); ");
+		sb.append(getAllowedContentLists());
+		sb.append(getAllowedContentTable());
+		sb.append(" span[*](*){*}; ");
+
 		jsonObject.put(
+			"allowedContent", sb.toString()
+		).put(
+			"enterMode", 2
+		).put(
+			"extraPlugins", getExtraPluginsLists()
+		).put(
 			"height", "265"
+		).put(
+			"removePlugins", getRemovePluginsLists()
 		).put(
 			"resize_enabled", false
 		);
+	}
 
-		String removePlugins = jsonObject.getString("removePlugins");
+	protected String getAllowedContentLists() {
+		return "li ol ul [*](*){*};";
+	}
 
-		if (Validator.isNotNull(removePlugins)) {
-			removePlugins = removePlugins + ",autogrow";
-		}
-		else {
-			removePlugins = "autogrow";
-		}
+	protected String getAllowedContentTable() {
+		return "table[border, cellpadding, cellspacing] {width}; tbody td " +
+			"th[scope]; thead tr[scope];";
+	}
 
-		jsonObject.put("removePlugins", removePlugins);
+	protected String getAllowedContentText() {
+		return "b code em h1 h2 h3 h4 h5 h6 hr i p pre strong u [*](*){*};";
+	}
+
+	protected String getExtraPluginsLists() {
+		return "";
+	}
+
+	protected String getRemovePluginsLists() {
+		return "autogrow,contextmenu,elementspath,floatingspace,liststyle," +
+			"magicline,resize,tabletools,ae_embed";
 	}
 
 }
