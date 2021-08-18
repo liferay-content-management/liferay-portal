@@ -16,7 +16,9 @@ package com.liferay.translation.web.internal.editor.configuration;
 
 import com.liferay.portal.kernel.editor.configuration.BaseEditorConfigContributor;
 import com.liferay.portal.kernel.editor.configuration.EditorConfigContributor;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -65,6 +67,8 @@ public class TranslateEditorConfigContributor
 			"removePlugins", getRemovePluginsLists()
 		).put(
 			"resize_enabled", false
+		).put(
+			"toolbar", getToolbarJSONArray()
 		);
 	}
 
@@ -82,12 +86,25 @@ public class TranslateEditorConfigContributor
 	}
 
 	protected String getExtraPluginsLists() {
-		return "";
+		return "addimages,autolink,filebrowser,itemselector,lfrpopup";
 	}
 
 	protected String getRemovePluginsLists() {
-		return "autogrow,contextmenu,elementspath,floatingspace,liststyle," +
-			"magicline,resize,tabletools,ae_embed";
+		return "autogrow,elementspath,floatingspace," +
+			"magicline,resize,ae_embed";
+	}
+
+	protected JSONArray getToolbarJSONArray() {
+		return JSONUtil.putAll(
+			toJSONArray("['Undo', 'Redo']"),
+			toJSONArray("['Bold', 'Italic', 'Underline']"),
+			toJSONArray("['NumberedList', 'BulletedList']"),
+			toJSONArray(
+				"['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']"),
+			toJSONArray("['Link', Unlink]"),
+			toJSONArray("['Table', 'ImageSelector','HorizontalRule']"),
+			toJSONArray("['RemoveFormat']"),
+			toJSONArray("['Source', 'Expand']"));
 	}
 
 }
