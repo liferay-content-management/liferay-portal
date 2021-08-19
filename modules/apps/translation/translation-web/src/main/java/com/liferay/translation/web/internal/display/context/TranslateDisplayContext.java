@@ -461,6 +461,14 @@ public class TranslateDisplayContext {
 		return _isAvailableTargetLanguageIdsEmpty();
 	}
 
+	private String _getEditorConfigKey() {
+		if (_className.equals(Layout.class.getName())) {
+			return "layoutTranslateEditor";
+		}
+
+		return "defaultTranslateEditor";
+	}
+
 	private Map<String, Object> _getExperiencesSelectorData()
 		throws PortalException {
 
@@ -534,7 +542,7 @@ public class TranslateDisplayContext {
 	private Map<String, Object> _getInfoFieldEditorConfig(String infoFieldId) {
 		EditorConfiguration editorConfiguration =
 			EditorConfigurationFactoryUtil.getEditorConfiguration(
-				TranslationPortletKeys.TRANSLATION, "defaultTranslateEditor",
+				TranslationPortletKeys.TRANSLATION, _getEditorConfigKey(),
 				"ckeditor",
 				HashMapBuilder.<String, Object>put(
 					"liferay-ui:input-editor:allowBrowseDocuments", true
