@@ -1368,6 +1368,8 @@ public class DLFileEntryLocalServiceImpl
 		QueryDefinition<DLFileEntry> queryDefinition = new QueryDefinition<>(
 			WorkflowConstants.STATUS_ANY, start, end, orderByComparator);
 
+		queryDefinition.setStatus(WorkflowConstants.STATUS_ANY);
+
 		if (repositoryId == 0) {
 			if (userId <= 0) {
 				return dlFileEntryFinder.findByG_F(
