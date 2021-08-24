@@ -48,7 +48,12 @@ public class LayoutTranslateEditorConfigContributor
 		RequestBackedPortletURLFactory requestBackedPortletURLFactory) {
 
 		jsonObject.put(
-			"allowedContent", _ALLOWED_CONTENT
+			"allowedContent",
+			"b code em h1 h2 h3 h4 h5 h6 hr i p pre strong u [*](*){*}; " +
+			"a[*](*); div[*](*){text-align}; img[*](*){*}; p[*](*); span[*](*){*};" +
+			"li ol ul [*](*){*};" +
+			"table[border, cellpadding, cellspacing] {width}; tbody td " +
+			"th[scope]; thead tr[scope];"
 		).put(
 			"enterMode", 2
 		).put(
@@ -65,24 +70,6 @@ public class LayoutTranslateEditorConfigContributor
 			"toolbar", _TOOLBAR_JSON_ARRAY
 		);
 	}
-
-	private static final String _ALLOWED_CONTENT = StringBundler.concat(
-		LayoutTranslateEditorConfigContributor._ALLOWED_CONTENT_TEXT,
-		LayoutTranslateEditorConfigContributor._ALLOWED_CONTENT_MISC,
-		LayoutTranslateEditorConfigContributor._ALLOWED_CONTENT_LIST,
-		LayoutTranslateEditorConfigContributor._ALLOWED_CONTENT_TABLE);
-
-	private static final String _ALLOWED_CONTENT_LIST = "li ol ul [*](*){*};";
-
-	private static final String _ALLOWED_CONTENT_MISC =
-		"a[*](*); div[*](*){text-align}; img[*](*){*}; p[*](*); span[*](*){*};";
-
-	private static final String _ALLOWED_CONTENT_TABLE =
-		"table[border, cellpadding, cellspacing] {width}; tbody td " +
-			"th[scope]; thead tr[scope];";
-
-	private static final String _ALLOWED_CONTENT_TEXT =
-		"b code em h1 h2 h3 h4 h5 h6 hr i p pre strong u [*](*){*};";
 
 	private static final JSONArray _TOOLBAR_JSON_ARRAY = JSONUtil.putAll(
 		JSONUtil.putAll("Undo", "Redo"),
