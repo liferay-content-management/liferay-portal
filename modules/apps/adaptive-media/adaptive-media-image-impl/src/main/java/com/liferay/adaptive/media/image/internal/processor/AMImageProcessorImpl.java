@@ -28,6 +28,7 @@ import com.liferay.adaptive.media.processor.AMProcessor;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
+import com.liferay.portal.kernel.util.DateUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,11 +100,15 @@ public final class AMImageProcessorImpl implements AMImageProcessor {
 		try {
 			FileEntry fileEntry = fileVersion.getFileEntry();
 
-			if ((amImageEntry != null) && !fileEntry.isCheckedOut()) {
-				return;
-			}
+			if (amImageEntry != null) {
+				int datesCompare = DateUtil.compareTo(
+					amImageEntry.getCreateDate(),
+					fileVersion.getModifiedDate());
 
-			if ((amImageEntry != null) && fileEntry.isCheckedOut()) {
+				if (!(fileEntry.isCheckedOut() || (datesCompare < 0))) {
+					return;
+				}
+
 				_amImageEntryLocalService.deleteAMImageEntry(
 					amImageEntry.getAmImageEntryId());
 			}
