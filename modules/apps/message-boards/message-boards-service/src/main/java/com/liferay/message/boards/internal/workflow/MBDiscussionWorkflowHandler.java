@@ -17,12 +17,20 @@ package com.liferay.message.boards.internal.workflow;
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.message.boards.model.MBDiscussion;
+import com.liferay.message.boards.model.MBMessage;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalService;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
 
+import java.io.Serializable;
+
 import java.util.Locale;
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Jorge Ferrer
@@ -49,5 +57,28 @@ public class MBDiscussionWorkflowHandler extends MBMessageWorkflowHandler {
 	public String getType(Locale locale) {
 		return ResourceActionsUtil.getModelResource(locale, getClassName());
 	}
+
+	@Override
+	public void startWorkflowInstance(
+			long companyId, long groupId, long userId, long classPK,
+			MBMessage model, Map<String, Serializable> workflowContext)
+		throws PortalException {
+
+		boolean workflowReviewComment = (boolean)workflowContext.get(
+			"workflowReviewComment");
+
+		if (workflowReviewComment) {
+			updateStatus(WorkflowConstants.STATUS_APPROVED, workflowContext);
+
+			return;
+		}
+
+		_workflowInstanceLinkLocalService.startWorkflowInstance(
+			companyId, groupId, userId, getClassName(), classPK,
+			workflowContext);
+	}
+
+	@Reference
+	private WorkflowInstanceLinkLocalService _workflowInstanceLinkLocalService;
 
 }

@@ -2413,10 +2413,21 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			long userId, MBMessage message, ServiceContext serviceContext)
 		throws PortalException {
 
+		boolean workflowReviewComment = false;
+
+		HttpServletRequest httpServletRequest = serviceContext.getRequest();
+
+		if (httpServletRequest != null) {
+			workflowReviewComment = ParamUtil.getBoolean(
+				httpServletRequest, "workflowReviewComment");
+		}
+
 		Map<String, Serializable> workflowContext =
 			HashMapBuilder.<String, Serializable>put(
 				WorkflowConstants.CONTEXT_URL,
 				getMessageURL(message, serviceContext)
+			).put(
+				"workflowReviewComment", workflowReviewComment
 			).build();
 
 		return WorkflowHandlerRegistryUtil.startWorkflowInstance(
