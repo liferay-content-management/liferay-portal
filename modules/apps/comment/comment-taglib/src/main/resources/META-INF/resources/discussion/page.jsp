@@ -71,6 +71,7 @@ StagingGroupHelper stagingGroupHelper = StagingGroupHelperUtil.getStagingGroupHe
 				<aui:input name="parentCommentId" type="hidden" />
 				<aui:input name="body" type="hidden" />
 				<aui:input name="workflowAction" type="hidden" value="<%= String.valueOf(WorkflowConstants.ACTION_PUBLISH) %>" />
+				<aui:input name="workflowReviewComment" type="hidden" value='<%= String.valueOf(request.getAttribute("liferay-comment:discussion:workflowReviewComment")) %>' />
 				<aui:input name="ajax" type="hidden" value="<%= true %>" />
 
 				<c:if test="<%= commentSectionDisplayContext.isControlsVisible() %>">

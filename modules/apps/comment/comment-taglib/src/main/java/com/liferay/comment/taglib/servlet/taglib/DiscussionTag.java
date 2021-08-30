@@ -67,6 +67,10 @@ public class DiscussionTag extends IncludeTag {
 		return _ratingsEnabled;
 	}
 
+	public boolean isWorkflowReviewComment() {
+		return _workflowReviewComment;
+	}
+
 	public void setAssetEntryVisible(boolean assetEntryVisible) {
 		_assetEntryVisible = assetEntryVisible;
 	}
@@ -114,6 +118,10 @@ public class DiscussionTag extends IncludeTag {
 		_userId = userId;
 	}
 
+	public void setWorkflowReviewComment(boolean workflowReviewComment) {
+		_workflowReviewComment = workflowReviewComment;
+	}
+
 	@Override
 	protected void cleanUp() {
 		super.cleanUp();
@@ -128,6 +136,7 @@ public class DiscussionTag extends IncludeTag {
 		_ratingsEnabled = true;
 		_redirect = null;
 		_userId = 0;
+		_workflowReviewComment = false;
 	}
 
 	protected String getEditorURL(HttpServletRequest httpServletRequest) {
@@ -219,6 +228,9 @@ public class DiscussionTag extends IncludeTag {
 			"liferay-comment:discussion:redirect", _redirect);
 		httpServletRequest.setAttribute(
 			"liferay-comment:discussion:userId", String.valueOf(_userId));
+		httpServletRequest.setAttribute(
+			"liferay-comment:discussion:workflowReviewComment",
+			String.valueOf(_workflowReviewComment));
 	}
 
 	private static final String _PAGE = "/discussion/page.jsp";
@@ -233,5 +245,6 @@ public class DiscussionTag extends IncludeTag {
 	private boolean _ratingsEnabled = true;
 	private String _redirect;
 	private long _userId;
+	private boolean _workflowReviewComment;
 
 }
