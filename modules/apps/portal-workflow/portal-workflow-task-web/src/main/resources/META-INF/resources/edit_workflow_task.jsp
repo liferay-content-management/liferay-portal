@@ -285,6 +285,7 @@ renderResponse.setTitle(workflowTaskDisplayContext.getHeaderTitle(workflowTask))
 								ratingsEnabled="<%= false %>"
 								redirect="<%= currentURL %>"
 								userId="<%= user.getUserId() %>"
+								workflowReviewComment="<%= true %>"
 							/>
 						</liferay-ui:panel>
 					</c:if>
