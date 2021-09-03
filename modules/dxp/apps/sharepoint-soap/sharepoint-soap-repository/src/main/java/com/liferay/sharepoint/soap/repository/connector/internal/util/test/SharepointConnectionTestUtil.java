@@ -41,7 +41,7 @@ public class SharepointConnectionTestUtil {
 
 	public static String getSharepointVMHostname() {
 		return _withRetries(
-			30, SharepointConnectionTestUtil::_getSharepointVMHostname);
+			50, SharepointConnectionTestUtil::_getSharepointVMHostname);
 	}
 
 	public static void releaseSharepointVM(String hostname) throws Exception {
