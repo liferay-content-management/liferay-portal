@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.repository.capabilities.TrashCapability;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.repository.model.RepositoryEntry;
@@ -322,6 +323,10 @@ public class DLAdminDisplayContext {
 		return _versioningStrategy.isOverridable();
 	}
 
+	public boolean rootFolderInTrash() {
+		return _rootFolderInTrash;
+	}
+
 	private void _computeFolders() {
 		try {
 			_computeRootFolder();
@@ -381,6 +386,11 @@ public class DLAdminDisplayContext {
 				_rootFolderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
 				_rootFolderName = StringPool.BLANK;
 			}
+
+			TrashCapability trashCapability =
+				rootFolder.getRepositoryCapability(TrashCapability.class);
+
+			_rootFolderInTrash = trashCapability.isInTrash(rootFolder);
 		}
 		catch (NoSuchFolderException noSuchFolderException) {
 			_rootFolderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
@@ -794,6 +804,7 @@ public class DLAdminDisplayContext {
 	private final PortalPreferences _portalPreferences;
 	private Long _repositoryId;
 	private long _rootFolderId;
+	private boolean _rootFolderInTrash;
 	private String _rootFolderName;
 	private SearchContainer<RepositoryEntry> _searchContainer;
 	private final ThemeDisplay _themeDisplay;
