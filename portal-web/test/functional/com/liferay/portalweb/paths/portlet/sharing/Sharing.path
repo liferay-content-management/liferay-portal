@@ -12,11 +12,6 @@
 <tbody>
 	<!--BLOGS-->
 <tr>
-	<td>BLOGS_SUBTITLE</td>
-	<td>//h4[@class='sub-title']</td>
-	<td></td>
-</tr>
-<tr>
 	<td>BLOGS_CONTENT</td>
 	<td>//div[@class='widget-content']</td>
 	<td></td>
