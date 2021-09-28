@@ -102,12 +102,6 @@ definition {
 			contentSharingPermission = "commenting",
 			contentTitle = "Blogs Entry Title",
 			ownerName = "Test Test");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "test@liferay.com");
 	}
 
 	@description = "This case ensures that sharing permissions can be updated through Shared by Me."
@@ -155,12 +149,6 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "test@liferay.com");
 	}
 
 	@description = "This test ensures a user can only comment on a blog entry once it is shared with him."
@@ -199,12 +187,6 @@ definition {
 			entryTitle = "Blogs Entry Title");
 
 		Comments.addPG(entryComment = "test");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "test@liferay.com");
 	}
 
 	@description = "This test ensures a user can update a blog entry once it is shared with him."
@@ -252,12 +234,6 @@ definition {
 			entryContent = "Blogs Entry Content Edit",
 			entrySubtitle = "Blogs Entry Subtitle Edit",
 			entryTitle = "Blogs Entry Title Edit");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "test@liferay.com");
 	}
 
 	@description = "This test ensures that when a blog entry that was shared is deleted, it cannot be accessed."
@@ -294,12 +270,6 @@ definition {
 		AssertTextEquals(
 			locator1 = "Sharing#NOTIFICATIONS_DELETE_ENTRY_CONTENT",
 			value1 = "Notification for Sharing was deleted.");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "test@liferay.com");
 	}
 
 	@description = "This case ensures that the latest sharing permissions set for a user persists across all notification entries."
@@ -352,12 +322,6 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "test@liferay.com");
 	}
 
 }
