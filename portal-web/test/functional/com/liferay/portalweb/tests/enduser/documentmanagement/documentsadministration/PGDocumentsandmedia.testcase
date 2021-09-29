@@ -201,20 +201,4 @@ definition {
 			dmDocumentTitle = "Document_1.mov",
 			dmDocumentType = "Basic Document");
 	}
-
-	@priority = "5"
-	@refactordone
-	test CanDownloadWithSpecialCharactersInTitle {
-		JSONDocument.addFileWithUploadedFile(
-			dmDocumentTitle = "/D/M/@!# Title",
-			groupName = "Guest",
-			mimeType = "application/msword",
-			sourceFileName = "Document_1.doc");
-
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.downloadPG(dmDocumentTitle = "/D/M/@!# Title");
-
-		DMDocument.assertFileNameFromTempFolder(downloadedFileName = "/D/M/Document Title");
-	}
 }
