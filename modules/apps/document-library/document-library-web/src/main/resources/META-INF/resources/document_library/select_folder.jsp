@@ -34,6 +34,8 @@ if (folder != null) {
 }
 
 DLVisualizationHelper dlVisualizationHelper = new DLVisualizationHelper(dlRequestHelper);
+
+boolean rootFolderInTrash = ParamUtil.getBoolean(request, "rootFolderInTrash");
 %>
 
 <clay:container-fluid>
@@ -71,7 +73,7 @@ DLVisualizationHelper dlVisualizationHelper = new DLVisualizationHelper(dlReques
 						"foldername", folderName
 					).build()
 				%>'
-				disabled="<%= folderId == selectedFolderId %>"
+				disabled="<%= (folderId == selectedFolderId) && (!rootFolderInTrash || (rootFolderInTrash && (folderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID))) %>"
 				value="select-this-folder"
 			/>
 		</aui:button-row>
