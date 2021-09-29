@@ -24,7 +24,7 @@ definition {
 
 		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
-			entrySubtitle = "",
+			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
 
 		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
@@ -147,6 +147,7 @@ definition {
 		BlogsEntry.viewSharedAsset(
 			contentSharingPermission = "View",
 			entryContent = "Blogs Entry Content",
+			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
 	}
 
@@ -182,6 +183,7 @@ definition {
 		BlogsEntry.viewSharedAsset(
 			contentSharingPermission = "Comment",
 			entryContent = "Blogs Entry Content",
+			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
 
 		Comments.addPG(entryComment = "test");
@@ -221,7 +223,7 @@ definition {
 		BlogsEntry.editEntryContent(
 			entryContent = "Blogs Entry Content",
 			entryContentEdit = "Blogs Entry Content Edit",
-			entrySubtitle = "",
+			entrySubtitle = "Blogs Entry Subtitle",
 			entrySubtitleEdit = "Blogs Entry Subtitle Edit",
 			entryTitle = "Blogs Entry Title",
 			entryTitleEdit = "Blogs Entry Title Edit");
@@ -230,6 +232,7 @@ definition {
 
 		BlogsEntry.viewSharedAsset(
 			entryContent = "Blogs Entry Content Edit",
+			entrySubtitle = "Blogs Entry Subtitle Edit",
 			entryTitle = "Blogs Entry Title Edit");
 	}
 
@@ -317,6 +320,7 @@ definition {
 		BlogsEntry.viewSharedAsset(
 			contentSharingPermission = "View",
 			entryContent = "Blogs Entry Content",
+			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
 	}
 

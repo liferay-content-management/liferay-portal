@@ -1294,6 +1294,13 @@ definition {
 
 		var key_entryTitle = "${entryTitle}";
 
+		if (isSet(entrySubtitle)) {
+			AssertTextEquals(
+				key_title = "${entrySubtitle}",
+				locator1 = "Header#H4_TITLE",
+				value1 = "${entrySubtitle}");
+		}
+
 		AssertTextEquals(
 			locator1 = "Sharing#BLOGS_CONTENT",
 			value1 = "${entryContent}");

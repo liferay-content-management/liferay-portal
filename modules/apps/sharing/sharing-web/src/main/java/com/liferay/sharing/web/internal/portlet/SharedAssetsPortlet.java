@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.Component;
 		"com.liferay.portlet.add-default-resource=true",
 		"com.liferay.portlet.css-class-wrapper=shared-assets-portlet",
 		"com.liferay.portlet.display-category=category.hidden",
+		"com.liferay.portlet.header-portlet-css=/sharing/css/Sharing.css",
 		"com.liferay.portlet.use-default-template=true",
 		"javax.portlet.display-name=Shared Content",
 		"javax.portlet.expiration-cache=0",

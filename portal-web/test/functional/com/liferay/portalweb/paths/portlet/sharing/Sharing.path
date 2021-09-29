@@ -13,7 +13,7 @@
 	<!--BLOGS-->
 <tr>
 	<td>BLOGS_CONTENT</td>
-	<td>//div[contains(@class,'widget-mode')]//div</td>
+	<td>//div[@class='widget-content']</td>
 	<td></td>
 </tr>
 <tr>
