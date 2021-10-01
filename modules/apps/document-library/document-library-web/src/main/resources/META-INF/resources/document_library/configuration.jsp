@@ -164,6 +164,12 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 								);
 
 								rootFolderInTrashWarning.classList.add('hide');
+
+								var rootFolderNotFoundWarning = document.querySelector(
+									'#<portlet:namespace />rootFolderNotFound'
+								);
+
+								rootFolderNotFoundWarning.classList.add('hide');
 							},
 							selectEventName:
 								'_<%= HtmlUtil.escapeJS(dlRequestHelper.getPortletResource()) %>_selectFolder',
