@@ -82,6 +82,10 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 							<liferay-ui:message key="the-selected-root-folder-is-in-the-recycle-bin-please-remove-it-or-select-another-one" />
 						</div>
 
+						<div class="alert alert-warning <%= rootFolderNotFound ? "" : "hide" %>" id="<portlet:namespace />rootFolderNotFound">
+							<liferay-ui:message key="the-selected-root-folder-cannot-be-found-please-select-another-one" />
+						</div>
+
 						<aui:button name="openFolderSelectorButton" value="select" />
 
 						<%
