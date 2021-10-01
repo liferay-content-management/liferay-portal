@@ -240,6 +240,9 @@ public class DLBreadcrumbUtil {
 			boolean ignoreRootFolder = ParamUtil.getBoolean(
 				httpServletRequest, "ignoreRootFolder");
 
+			boolean rootFolderInTrash = ParamUtil.getBoolean(
+				httpServletRequest, "rootFolderInTrash");
+
 			long selectedFolderId = ParamUtil.getLong(
 				httpServletRequest, "selectedFolderId",
 				ParamUtil.getLong(
@@ -249,7 +252,7 @@ public class DLBreadcrumbUtil {
 			_addPortletBreadcrumbEntry(
 				httpServletRequest, "mvcRenderCommandName",
 				mvcRenderCommandName, groupId, ignoreRootFolder,
-				selectedFolderId, portletURL);
+				rootFolderInTrash, selectedFolderId, portletURL);
 		}
 		else {
 			long folderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
@@ -291,7 +294,8 @@ public class DLBreadcrumbUtil {
 	private static void _addPortletBreadcrumbEntry(
 			HttpServletRequest httpServletRequest, String parameterName,
 			String parameterValue, long groupId, boolean ignoreRootFolder,
-			long selectedFolderId, PortletURL portletURL)
+			boolean rootFolderInTrash, long selectedFolderId,
+			PortletURL portletURL)
 		throws Exception {
 
 		ThemeDisplay themeDisplay =
@@ -302,6 +306,8 @@ public class DLBreadcrumbUtil {
 		portletURL.setParameter("groupId", String.valueOf(groupId));
 		portletURL.setParameter(
 			"ignoreRootFolder", String.valueOf(ignoreRootFolder));
+		portletURL.setParameter(
+			"rootFolderInTrash", String.valueOf(rootFolderInTrash));
 		portletURL.setParameter(
 			"selectedFolderId", String.valueOf(selectedFolderId));
 		portletURL.setWindowState(LiferayWindowState.POP_UP);
