@@ -147,6 +147,7 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 					<portlet:param name="folderId" value="<%= rootFolderInTrash ? String.valueOf(DLFolderConstants.DEFAULT_PARENT_FOLDER_ID): String.valueOf(rootFolderId) %>" />
 					<portlet:param name="ignoreRootFolder" value="<%= Boolean.TRUE.toString() %>" />
 					<portlet:param name="rootFolderInTrash" value="<%= String.valueOf(rootFolderInTrash) %>" />
+					<portlet:param name="rootFolderNotFound" value="<%= String.valueOf(rootFolderNotFound) %>" />
 				</liferay-portlet:renderURL>
 
 				url: '<%= HtmlUtil.escapeJS(selectFolderURL.toString()) %>',

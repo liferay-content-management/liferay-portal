@@ -34,6 +34,7 @@ if (folder != null) {
 }
 
 boolean rootFolderInTrash = ParamUtil.getBoolean(request, "rootFolderInTrash");
+boolean rootFolderNotFound = ParamUtil.getBoolean(request, "rootFolderNotFound");
 
 DLVisualizationHelper dlVisualizationHelper = new DLVisualizationHelper(dlRequestHelper);
 %>
@@ -73,7 +74,7 @@ DLVisualizationHelper dlVisualizationHelper = new DLVisualizationHelper(dlReques
 						"foldername", folderName
 					).build()
 				%>'
-				disabled="<%= (folderId == selectedFolderId) && !rootFolderInTrash %>"
+				disabled="<%= (folderId == selectedFolderId) && !rootFolderInTrash && !rootFolderNotFound %>"
 				value="select-this-folder"
 			/>
 		</aui:button-row>
@@ -113,6 +114,7 @@ DLVisualizationHelper dlVisualizationHelper = new DLVisualizationHelper(dlReques
 					<portlet:param name="ignoreRootFolder" value="<%= Boolean.TRUE.toString() %>" />
 					<portlet:param name="rootFolderInTrash" value="<%= String.valueOf(rootFolderInTrash) %>" />
 					<portlet:param name="selectedFolderId" value="<%= String.valueOf(selectedFolderId) %>" />
+					<portlet:param name="rootFolderNotFound" value="<%= String.valueOf(rootFolderNotFound) %>" />
 					<portlet:param name="showMountFolder" value="<%= String.valueOf(dlVisualizationHelper.isMountFolderVisible()) %>" />
 				</liferay-portlet:renderURL>
 

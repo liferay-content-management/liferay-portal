@@ -180,6 +180,7 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 								<portlet:param name="folderId" value="<%= dlAdminDisplayContext.isRootFolderInTrash() ? String.valueOf(DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) : String.valueOf(dlAdminDisplayContext.getRootFolderId()) %>" />
 								<portlet:param name="ignoreRootFolder" value="<%= Boolean.TRUE.toString() %>" />
 								<portlet:param name="rootFolderInTrash" value="<%= String.valueOf(dlAdminDisplayContext.isRootFolderInTrash()) %>" />
+								<portlet:param name="rootFolderNotFound" value="<%= String.valueOf(dlAdminDisplayContext.isRootFolderNotFound()) %>" />
 								<portlet:param name="showMountFolder" value="<%= Boolean.FALSE.toString() %>" />
 							</liferay-portlet:renderURL>
 
