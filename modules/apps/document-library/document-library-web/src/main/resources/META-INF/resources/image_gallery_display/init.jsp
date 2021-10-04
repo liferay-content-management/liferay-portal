@@ -29,6 +29,9 @@ long rootFolderId = dlPortletInstanceSettings.getRootFolderId();
 
 String rootFolderName = StringPool.BLANK;
 
+boolean rootFolderInTrash = false;
+boolean rootFolderNotFound = false;
+
 if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 	try {
 		Folder rootFolder = DLAppLocalServiceUtil.getFolder(rootFolderId);
@@ -39,9 +42,21 @@ if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			rootFolderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
 			rootFolderName = StringPool.BLANK;
 		}
+
+		if (rootFolder.isRepositoryCapabilityProvided(TrashCapability.class)) {
+			TrashCapability trashCapability = rootFolder.getRepositoryCapability(TrashCapability.class);
+
+			rootFolderInTrash = trashCapability.isInTrash(rootFolder);
+
+			if (rootFolderInTrash) {
+				rootFolderName = trashHelper.getOriginalTitle(rootFolder.getName());
+			}
+		}
 	}
 	catch (NoSuchFolderException nsfe) {
 		rootFolderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+
+		rootFolderNotFound = true;
 	}
 }
 

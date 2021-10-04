@@ -167,6 +167,7 @@ page import="com.liferay.portal.kernel.portlet.PortletURLUtil" %><%@
 page import="com.liferay.portal.kernel.repository.AuthenticationRepositoryException" %><%@
 page import="com.liferay.portal.kernel.repository.RepositoryConfiguration" %><%@
 page import="com.liferay.portal.kernel.repository.RepositoryException" %><%@
+page import="com.liferay.portal.kernel.repository.capabilities.TrashCapability" %><%@
 page import="com.liferay.portal.kernel.repository.model.FileEntry" %><%@
 page import="com.liferay.portal.kernel.repository.model.FileShortcut" %><%@
 page import="com.liferay.portal.kernel.repository.model.FileVersion" %><%@
@@ -213,7 +214,9 @@ page import="com.liferay.portlet.documentlibrary.DLGroupServiceSettings" %><%@
 page import="com.liferay.portlet.documentlibrary.constants.DLConstants" %><%@
 page import="com.liferay.taglib.search.ResultRow" %><%@
 page import="com.liferay.taglib.servlet.PipingServletResponseFactory" %><%@
-page import="com.liferay.trash.model.TrashEntry" %>
+page import="com.liferay.trash.TrashHelper" %><%@
+page import="com.liferay.trash.model.TrashEntry" %><%@
+page import="com.liferay.trash.util.TrashWebKeys" %>
 
 <%@ page import="java.text.DecimalFormatSymbols" %><%@
 page import="java.text.Format" %>
@@ -236,6 +239,8 @@ page import="javax.portlet.WindowState" %>
 
 <%
 DLTrashHelper dlTrashHelper = (DLTrashHelper)request.getAttribute(DLWebKeys.DOCUMENT_LIBRARY_TRASH_HELPER);
+
+TrashHelper trashHelper = (TrashHelper)request.getAttribute(TrashWebKeys.TRASH_HELPER);
 
 DLWebComponentProvider dlWebComponentProvider = DLWebComponentProvider.getDLWebComponentProvider();
 
