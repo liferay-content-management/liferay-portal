@@ -28,8 +28,13 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -39,6 +44,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.ui.UserPortraitTag;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -197,9 +203,31 @@ public class MentionsPortlet extends MVCPortlet {
 
 		return () -> {
 			try {
-				return mentionsStrategy.getUsers(
+				List<User> users = mentionsStrategy.getUsers(
 					themeDisplay.getCompanyId(), themeDisplay.getUserId(),
 					query, jsonObject);
+
+				Layout layout = themeDisplay.getLayout();
+
+				if (layout.isPrivateLayout()) {
+					List<User> filteredUsers = new ArrayList<>();
+
+					for (User user : users) {
+						PermissionChecker permissionChecker =
+							PermissionCheckerFactoryUtil.create(user);
+
+						if (LayoutPermissionUtil.contains(
+								permissionChecker, layout, true,
+								ActionKeys.VIEW)) {
+
+							filteredUsers.add(user);
+						}
+					}
+
+					return filteredUsers;
+				}
+
+				return users;
 			}
 			catch (PortalException portalException) {
 				_log.error(portalException, portalException);
