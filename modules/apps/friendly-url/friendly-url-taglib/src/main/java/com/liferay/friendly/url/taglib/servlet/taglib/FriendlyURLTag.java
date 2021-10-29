@@ -14,7 +14,10 @@
 
 package com.liferay.friendly.url.taglib.servlet.taglib;
 
+import com.liferay.friendly.url.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
+
+import javax.servlet.jsp.PageContext;
 
 /**
  * @author Jorge González
@@ -35,6 +38,13 @@ public class FriendlyURLTag extends IncludeTag {
 
 	public void setClassPK(long classPK) {
 		_classPK = classPK;
+	}
+
+	@Override
+	public void setPageContext(PageContext pageContext) {
+		super.setPageContext(pageContext);
+
+		setServletContext(ServletContextUtil.getServletContext());
 	}
 
 	@Override
