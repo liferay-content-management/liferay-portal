@@ -103,30 +103,30 @@ String friendlyURLBase = StringPool.BLANK;
 					<portlet:param name="plid" value="<%= String.valueOf(selLayout.getPlid()) %>" />
 				</portlet:actionURL>
 
-				<div class="btn-url-history-wrapper">
-
-					<%
-					User defaultUser = company.getDefaultUser();
-					%>
-
-					<react:component
-						module="js/friendly_url_history/FriendlyURLHistory"
-						props='<%=
-							HashMapBuilder.<String, Object>put(
-								"defaultLanguageId", LocaleUtil.toLanguageId(defaultUser.getLocale())
-							).put(
-								"deleteFriendlyURLEntryLocalizationURL", deleteFriendlyURLEntryLocalizationURL
-							).put(
-								"friendlyURLEntryLocalizationsURL", friendlyURLEntryLocalizationsURL
-							).put(
-								"restoreFriendlyURLEntryLocalizationURL", restoreFriendlyURLEntryLocalizationURL
-							).build()
-						%>'
-					/>
-				</div>
-
 				<div class="form-group friendly-url">
 					<label for="<portlet:namespace />friendlyURL"><liferay-ui:message key="friendly-url" /> <liferay-ui:icon-help message='<%= LanguageUtil.format(request, "there-is-a-limit-of-x-characters-in-encoded-format-for-friendly-urls-(e.g.-x)", new String[] {String.valueOf(LayoutConstants.FRIENDLY_URL_MAX_LENGTH), "<em>/news</em>"}, false) %>' /></label>
+
+					<div class="btn-url-history-wrapper">
+
+						<%
+						User defaultUser = company.getDefaultUser();
+						%>
+
+						<react:component
+							module="js/friendly_url_history/FriendlyURLHistory"
+							props='<%=
+								HashMapBuilder.<String, Object>put(
+									"defaultLanguageId", LocaleUtil.toLanguageId(defaultUser.getLocale())
+								).put(
+									"deleteFriendlyURLEntryLocalizationURL", deleteFriendlyURLEntryLocalizationURL
+								).put(
+									"friendlyURLEntryLocalizationsURL", friendlyURLEntryLocalizationsURL
+								).put(
+									"restoreFriendlyURLEntryLocalizationURL", restoreFriendlyURLEntryLocalizationURL
+								).build()
+							%>'
+						/>
+					</div>
 
 					<liferay-ui:input-localized
 						defaultLanguageId="<%= LocaleUtil.toLanguageId(themeDisplay.getSiteDefaultLocale()) %>"
