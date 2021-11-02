@@ -14,4 +14,53 @@
  */
 --%>
 
-<h1>Liferay Friendly URL Taglib</h1>
+<%@ include file="/init.jsp" %>
+
+<%
+final int friendlyUrlMaxLength = 255; // TODO: move to constant
+%>
+
+<liferay-util:html-top
+	outputKey="com.liferay.friendly.url.taglib.servlet.taglib#/page.jsp"
+>
+	<link href="<%= PortalUtil.getStaticResourceURL(request, application.getContextPath() + "/css/main.css") %>" rel="stylesheet" type="text/css" />
+</liferay-util:html-top>
+
+<%-- TODO: abstract MVC*Commands and create urls--%>
+
+<div class="form-group friendly-url">
+	<label for="<portlet:namespace />friendlyURL"><liferay-ui:message key="friendly-url" /> <liferay-ui:icon-help message='<%= LanguageUtil.format(request, "there-is-a-limit-of-x-characters-in-encoded-format-for-friendly-urls-(e.g.-x)", new String[] {String.valueOf(friendlyUrlMaxLength), "<em>/news</em>"}, false) %>' /></label>
+
+	<div class="btn-url-history-wrapper">
+
+		<%
+		User defaultUser = company.getDefaultUser();
+		%>
+
+		<react:component
+			module="js/FriendlyURLHistory"
+			props='<%=
+				HashMapBuilder.<String, Object>put(
+					"defaultLanguageId", LocaleUtil.toLanguageId(defaultUser.getLocale())
+				).put(
+					"deleteFriendlyURLEntryLocalizationURL", "deleteFriendlyURLEntryLocalizationURL"
+				).put(
+					"friendlyURLEntryLocalizationsURL", "friendlyURLEntryLocalizationsURL"
+				).put(
+					"restoreFriendlyURLEntryLocalizationURL", "restoreFriendlyURLEntryLocalizationURL"
+				).build()
+			%>'
+		/>
+	</div>
+
+	<%-- TODO: pass the xml via taglib attribute
+	<liferay-ui:input-localized
+		defaultLanguageId="<%= LocaleUtil.toLanguageId(themeDisplay.getSiteDefaultLocale()) %>"
+		ignoreRequestValue="<%= SessionErrors.isEmpty(liferayPortletRequest) %>"
+		inputAddon="<%= friendlyURLBase.toString() %>"
+		name="friendlyURL"
+		xml="<%= HttpUtil.decodeURL(selLayout.getFriendlyURLsXML()) %>"
+	/>
+	--%>
+
+</div>
