@@ -159,14 +159,14 @@ class WikiPortlet {
 	_removeAttachment(event) {
 		const link = event.currentTarget;
 
-		const deleteURL = link.dataset.url;
+		const deleteURL = link.getAttribute('data-url');
 
 		fetch(deleteURL).then(() => {
 			Liferay.componentReady(this.searchContainerId).then(
 				(searchContainer) => {
 					searchContainer.deleteRow(
 						link.ancestor('tr'),
-						link.dataset.rowid
+						link.getAttribute('data-rowid')
 					);
 					searchContainer.updateDataStore();
 				}
