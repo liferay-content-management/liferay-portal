@@ -1901,22 +1901,26 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		BlogsGroupServiceSettings blogsGroupServiceSettings =
 			BlogsGroupServiceSettings.getInstance(entry.getGroupId());
 
+		Serializable sendEmailEntryUpdatedAttributeValue =
+			serviceContext.getAttribute("sendEmailEntryUpdated");
+
 		boolean sendEmailEntryUpdated = GetterUtil.getBoolean(
-			serviceContext.getAttribute("sendEmailEntryUpdated"));
+			sendEmailEntryUpdatedAttributeValue);
 
-		Map<String, Serializable> attributes = serviceContext.getAttributes();
+		boolean updateTriggeredByScheduler = false;
 
-		boolean updateTriggeredByScheduler = !attributes.containsKey(
-			"sendEmailEntryUpdated");
+		if (sendEmailEntryUpdatedAttributeValue == null) {
+			updateTriggeredByScheduler = true;
+		}
 
 		if (serviceContext.isCommandAdd() &&
 			blogsGroupServiceSettings.isEmailEntryAddedEnabled()) {
 		}
-		else if ((sendEmailEntryUpdated ||
+		else if (serviceContext.isCommandUpdate() &&
+				 blogsGroupServiceSettings.isEmailEntryUpdatedEnabled() &&
+				 (sendEmailEntryUpdated ||
 				  (updateTriggeredByScheduler &&
-				   serviceContext.isCommandUpdate())) &&
-				 serviceContext.isCommandUpdate() &&
-				 blogsGroupServiceSettings.isEmailEntryUpdatedEnabled()) {
+				   serviceContext.isCommandUpdate()))) {
 		}
 		else {
 			return;
