@@ -19,18 +19,6 @@ definition {
 	}
 
 	@priority = "5"
-	test CanViewAdaptiveMediaArchive701015 {
-		property data.archive.type = "data-archive-adaptive-media";
-		property portal.version = "7.0.10.15";
-
-		Upgrade.viewAndAddImageResolution();
-
-		Upgrade.editImageResolution();
-
-		Upgrade.deleteImageResolution();
-	}
-
-	@priority = "5"
 	test CanViewAdaptiveMediaArchive71105 {
 		property data.archive.type = "data-archive-adaptive-media";
 		property portal.version = "7.1.10.5";
@@ -58,6 +46,18 @@ definition {
 	test CanViewAdaptiveMediaArchive73101 {
 		property data.archive.type = "data-archive-adaptive-media";
 		property portal.version = "7.3.10.1";
+
+		Upgrade.viewAndAddImageResolution();
+
+		Upgrade.editImageResolution();
+
+		Upgrade.deleteImageResolution();
+	}
+
+	@priority = "5"
+	test CanViewAdaptiveMediaArchive701015 {
+		property data.archive.type = "data-archive-adaptive-media";
+		property portal.version = "7.0.10.15";
 
 		Upgrade.viewAndAddImageResolution();
 
