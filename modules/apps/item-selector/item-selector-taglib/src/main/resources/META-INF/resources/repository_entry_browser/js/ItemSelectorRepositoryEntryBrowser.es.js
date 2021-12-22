@@ -157,6 +157,15 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 						itemFileValue = JSON.stringify(imageValue);
 					}
 
+					if (!itemFile.mimeType.match(/image.*|video.*/)) {
+						const item = {
+							returntype: this.uploadItemReturnType,
+							value: itemFileValue,
+						};
+
+						this._onItemSelected(item);
+					}
+
 					Liferay.componentReady('ItemSelectorPreview').then(() => {
 						Liferay.fire('updateCurrentItem', {
 							...itemFile,
@@ -447,7 +456,9 @@ class ItemSelectorRepositoryEntryBrowser extends PortletBase {
 			value: preview,
 		};
 
-		this.openItemSelectorPreview([item], 0);
+		if (file.type.match(/image.*|video.*/)) {
+			this.openItemSelectorPreview([item], 0);
+		}
 
 		this._itemSelectorUploader.startUpload(file, this.uploadItemURL);
 	}
