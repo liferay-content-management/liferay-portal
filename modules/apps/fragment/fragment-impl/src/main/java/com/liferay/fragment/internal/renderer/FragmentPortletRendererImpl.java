@@ -21,7 +21,14 @@ import com.liferay.fragment.renderer.FragmentPortletRenderer;
 import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.portlet.PortletJSONUtil;
 import com.liferay.portal.kernel.portlet.constants.PortletPreferencesFactoryConstants;
+import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.servlet.PipingServletResponse;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -31,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Pavel Savinov
@@ -66,6 +74,9 @@ public class FragmentPortletRendererImpl implements FragmentPortletRenderer {
 			inheritedFromMaster = true;
 		}
 
+		_writeHeaderPaths(
+			portletName, themeDisplay, httpServletRequest, httpServletResponse);
+
 		try {
 			RuntimeTag.doTag(
 				portletName, instanceId, StringPool.BLANK,
@@ -80,5 +91,32 @@ public class FragmentPortletRendererImpl implements FragmentPortletRenderer {
 
 		return unsyncStringWriter.toString();
 	}
+
+	private void _writeHeaderPaths(
+		String portletInstanceKey, ThemeDisplay themeDisplay,
+		HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse) {
+
+		Portlet portlet = _portletLocalService.getPortletById(
+			themeDisplay.getCompanyId(), portletInstanceKey);
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		try {
+			PortletJSONUtil.populatePortletJSONObject(
+				httpServletRequest, StringPool.BLANK, portlet, jsonObject);
+
+			PortletJSONUtil.writeHeaderPaths(httpServletResponse, jsonObject);
+		}
+		catch (Exception exception) {
+			_log.error(exception);
+		}
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		FragmentPortletRendererImpl.class);
+
+	@Reference
+	private PortletLocalService _portletLocalService;
 
 }
