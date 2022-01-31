@@ -96,18 +96,18 @@ const DocumentPreviewer = ({baseImageURL, initialPage, totalPages}) => {
 	}
 
 	const createImageURL = (page) => {
-		const pos = baseImageURL.search('previewFileIndex=') + 17;
-		const imageURL =
-			baseImageURL.slice(0, pos) + page + baseImageURL.slice(pos);
+		const imageURL = new URL(baseImageURL);
 
-		return imageURL;
+		imageURL.searchParams.set('previewFileIndex', page);
+
+		return imageURL.toString();
 	};
 
 	const loadPage = (page) => {
 		let pagePromise = loadedPages[page] && loadedPages[page].pagePromise;
 
 		if (!pagePromise) {
-			pagePromise = imagePromise(`${createImageURL(page)}`).then(() => {
+			pagePromise = imagePromise(createImageURL(page)).then(() => {
 				loadedPages[page].loaded = true;
 			});
 
@@ -222,7 +222,7 @@ const DocumentPreviewer = ({baseImageURL, initialPage, totalPages}) => {
 						className={`preview-file-document ${
 							!expanded && 'preview-file-document-fit'
 						}`}
-						src={`${createImageURL(currentPage)}`}
+						src={createImageURL(currentPage)}
 					/>
 				)}
 			</div>
