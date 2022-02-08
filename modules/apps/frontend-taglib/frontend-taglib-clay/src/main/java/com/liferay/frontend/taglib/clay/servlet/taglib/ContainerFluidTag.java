@@ -25,12 +25,29 @@ public class ContainerFluidTag extends ContainerTag {
 	public int doStartTag() throws JspException {
 		setAttributeNamespace(_ATTRIBUTE_NAMESPACE);
 
-		setFluid(true);
-		setSize("xl");
+		super.setSize(_size);
+		super.setFluid(true);
 
 		return super.doStartTag();
 	}
 
+	public String getSize() {
+		return _size;
+	}
+
+	public void setSize(String size) {
+		_size = size;
+	}
+
+	@Override
+	protected void cleanUp() {
+		super.cleanUp();
+
+		_size = "xl";
+	}
+
 	private static final String _ATTRIBUTE_NAMESPACE = "clay:container-fluid:";
+
+	private String _size = "xl";
 
 }
