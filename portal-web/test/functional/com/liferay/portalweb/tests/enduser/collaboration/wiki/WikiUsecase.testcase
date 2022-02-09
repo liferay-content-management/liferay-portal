@@ -1,6 +1,7 @@
 @component-name = "portal-lima"
 definition {
 
+	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Wiki";
@@ -19,8 +20,6 @@ definition {
 			groupName = "Guest",
 			layoutName = "Wiki Test Page",
 			widgetName = "Wiki");
-
-		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 	}
 
 	tearDown {
@@ -30,9 +29,9 @@ definition {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			WikiNode.tearDownCP();
-
 			WikiPage.tearDownCP();
+
+			WikiNode.tearDownCP();
 
 			PagesAdmin.tearDownCP();
 		}
@@ -93,6 +92,72 @@ definition {
 			value1 = "Sweet Potatoes");
 	}
 
+	@description = "This ensures that the front page can be searched out by attachment name."
+	@priority = "4"
+	@refactordone
+	test CanSearchOutPageByAttachmentName {
+		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
+
+		JSONWiki.updateWikiPage(
+			groupName = "Guest",
+			wikiNodeName = "Main",
+			wikiPageContent = "Wiki FrontPage Content",
+			wikiPageName = "FrontPage");
+
+		JSONWiki.addAttachmentToWikiPage(
+			fileName = "Document_1.txt",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			wikiNodeName = "Main",
+			wikiPageName = "FrontPage");
+
+		Navigator.gotoPage(pageName = "Wiki Test Page");
+
+		WikiPage.searchPG(searchTerm = "document");
+
+		WikiPage.viewSearchResultsPG(
+			wikiAttachment = "true",
+			wikiAttachmentBody = "Document_1.txt",
+			wikiPageTitle = "FrontPage");
+	}
+
+	@description = "This ensures that a wiki page can be searched out by comment."
+	@priority = "4"
+	@refactordone
+	test CanSearchOutPageByComment {
+		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
+
+		JSONWiki.updateWikiPage(
+			groupName = "Guest",
+			wikiNodeName = "Main",
+			wikiPageContent = "Wiki FrontPage Content",
+			wikiPageName = "FrontPage");
+
+		JSONWiki.addWikiChildPage(
+			groupName = "Guest",
+			wikiChildPageContent = "Wiki FrontPage Child Page Content",
+			wikiChildPageName = "Wiki FrontPage Child Page Title",
+			wikiNodeName = "Main",
+			wikiParentPageName = "FrontPage");
+
+		WikiNavigator.openToWikiPage(
+			layoutURLKey = "wiki-test-page",
+			siteURLKey = "guest",
+			wikiNodeName = "Main",
+			wikiPageTitle = "Wiki FrontPage Child Page Title");
+
+		WikiPage.addComment(entryComment = "Wiki FrontPage Child Page Comment Body document");
+
+		Navigator.gotoPage(pageName = "Wiki Test Page");
+
+		WikiPage.searchPG(searchTerm = "document");
+
+		WikiPage.viewSearchResultsPG(
+			commentBody = "Wiki FrontPage Child Page Comment Body document",
+			wikiComment = "true",
+			wikiPageTitle = "Wiki FrontPage Child Page Title");
+	}
+
 	@description = "This ensures that the Wiki tabs can be viewed in the Breadcrumb widget."
 	@priority = "4"
 	@refactordone
@@ -128,34 +193,48 @@ definition {
 		Breadcrumb.viewPG(breadcrumbListVisible = "Wiki Test Page,Draft Pages");
 	}
 
-	@description = "This is a test for LPS-136997. It checks that pages can be viewed using the Tree Menu."
+	@description = "This test covers LPS-106280. It ensures that the wiki Email content can be edited."
 	@priority = "3"
-	test CanViewPagesViaTreeMenu {
-		for (var num : list "1,2") {
-			JSONWiki.addWikiPage(
-				groupName = "Guest",
-				wikiNodeName = "Main",
-				wikiPageContent = "Wiki Page Content${num}",
-				wikiPageName = "Wiki Page Title${num}");
-		}
+	@refactordone
+	test CanViewConfiguredEmailContent {
+		property portal.acceptance = "false";
 
-		JSONLayout.addWidgetToPublicLayout(
-			column = "1",
-			groupName = "Guest",
-			layoutName = "Wiki Test Page",
-			widgetName = "Tree Menu");
+		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 
-		Navigator.gotoPage(pageName = "Wiki Test Page");
+		WikiPortlet.configureEmailCP(
+			bodyContent = "[$TO_NAME$], [$PAGE_CONTENT$] This is an edited wiki email. [$FROM_NAME$]",
+			pageAddedEmail = "true");
 
-		for (var num : list "1,2") {
-			Click(
-				key_text = "Wiki Page Title${num}",
-				locator1 = "Link#ANY");
+		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 
-			WikiPage.viewPagePG(
-				wikiPageContent = "Wiki Page Content${num}",
-				wikiPageTitle = "Wiki Page Title${num}");
-		}
+		WikiPortlet.viewEmailCP(
+			bodyContent = "[$TO_NAME$], [$PAGE_CONTENT$] This is an edited wiki email. [$FROM_NAME$]",
+			pageAddedEmail = "true");
+	}
+
+	@description = "This ensures that the script can be escaped."
+	@priority = "3"
+	@refactordone
+	test CanViewEscapedScriptFromHTML {
+		property portal.acceptance = "false";
+
+		WikiNavigator.openToWikiPage(
+			layoutURLKey = "wiki-test-page",
+			siteURLKey = "guest",
+			wikiNodeName = "Main",
+			wikiPageTitle = "FrontPage");
+
+		WikiPage.editFrontPagePG(wikiPageContentEdit = '''<script>alert(123);</script>''');
+
+		AssertAlertNotPresent();
+
+		var actualScript = '''<script>alert(123);</script>''';
+
+		var escapedScript = '''&lt;script&gt;alert(123);&lt;/script&gt;''';
+
+		AssertHTMLSourceTextNotPresent(value1 = "${actualScript}");
+
+		AssertHTMLSourceTextPresent(value1 = "${escapedScript}");
 	}
 
 	@description = "This test ensures that the wiki widget follows W3C accessibility standards."
