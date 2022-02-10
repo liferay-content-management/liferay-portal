@@ -109,6 +109,19 @@ renderResponse.setTitle(LanguageUtil.get(resourceBundle, "import-translation"));
 								</div>
 							</div>
 						</div>
+
+						<react:component
+							module="js/ImportTranslationResultsPanelSuccess"
+							props='<%=
+								HashMapBuilder.<String, Object>put(
+									"defaultExpanded", !importTranslationResultsErrors
+								).put(
+									"files", importTranslationResultsDisplayContext.getSuccessMessages()
+								).put(
+									"title", importTranslationResultsDisplayContext.getSuccessMessageLabel(locale)
+								).build()
+							%>'
+						/>
 					</div>
 				</c:if>
 
