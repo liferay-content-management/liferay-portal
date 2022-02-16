@@ -292,7 +292,7 @@ definition {
 			validateInvalidFile = "true");
 
 		Translations.viewErrorMessages(
-			errorMessage = "1 Error: Some files could not be published, check them and upload another file.",
+			errorMessage = "1 file could not be published.",
 			errorMessageItem = "The translation file does not correspond to this page.");
 	}
 
@@ -636,7 +636,7 @@ definition {
 		PagesAdmin.openPagesAdmin(siteURLKey = "guest");
 
 		Translations.importTranslation(
-			errorMessage = "1 Error: Some files could not be published, check them and upload another file.",
+			errorMessage = "1 file could not be published.",
 			errorMessageItem = "The translation file does not correspond to this page.",
 			failFileName = "ContentPage-en_US-es_ES.xlf",
 			fileName = "ContentPage-en_US_translated.zip",
