@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -56,7 +57,6 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.RoleService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
-import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
@@ -72,6 +72,7 @@ import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.vulcan.util.TransformUtil;
 import com.liferay.product.navigation.personal.menu.PersonalMenuEntry;
 import com.liferay.roles.admin.constants.RolesAdminPortletKeys;
 import com.liferay.roles.admin.constants.RolesAdminWebKeys;
@@ -80,11 +81,6 @@ import com.liferay.roles.admin.role.type.contributor.RoleTypeContributor;
 import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
 import com.liferay.segments.provider.SegmentsEntryProviderRegistry;
 import com.liferay.segments.service.SegmentsEntryRoleLocalService;
-
-import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.vulcan.util.TransformUtil;
-import com.liferay.segments.provider.SegmentsEntryProviderRegistry;
 
 import java.io.IOException;
 
@@ -347,8 +343,9 @@ public class RolesAdminPortlet extends MVCPortlet {
 
 					//add role to the users in the segment
 
-					long[] segmentUserIdsArray = getUserIDsFromSegment(segmentsEntryId);
-					
+					long[] segmentUserIdsArray = _getUserIDsFromSegment(
+						segmentsEntryId);
+
 					_userService.addRoleUsers(roleId, segmentUserIdsArray);
 				}
 			}
@@ -364,27 +361,14 @@ public class RolesAdminPortlet extends MVCPortlet {
 				for (long segmentsEntryId : removeSegmentsEntryIds) {
 					_segmentsEntryRoleLocalService.deleteSegmentsEntryRole(
 						segmentsEntryId, roleId);
-					
-					long[] segmentUserIdsArray = getUserIDsFromSegment(segmentsEntryId);
-					
+
+					long[] segmentUserIdsArray = getUserIDsFromSegment(
+						segmentsEntryId);
+
 					_userService.unsetRoleUsers(roleId, segmentUserIdsArray);
 				}
 			}
 		}
-	}
-
-	private long[] getUserIDsFromSegment(long segmentsEntryId) throws PortalException {
-		List<User> segmentUsers = TransformUtil.transformToList(
-				ArrayUtil.toLongArray(
-					_segmentsEntryProviderRegistry.getSegmentsEntryClassPKs(
-						segmentsEntryId, 0, QueryUtil.ALL_POS)),
-				_userService::getUserById);
-		
-		long[] segmentUserIdsArray = new long[segmentUsers.size()];
-		for (User segmentUser : segmentUsers) {
-			segmentUserIdsArray[segmentUsers.indexOf(segmentUser)] = segmentUser.getUserId();
-		}
-		return segmentUserIdsArray;
 	}
 
 	public List<PersonalMenuEntry> getPersonalMenuEntries() {
@@ -722,6 +706,25 @@ public class RolesAdminPortlet extends MVCPortlet {
 		return panelCategoryKeys.toArray(new String[0]);
 	}
 
+	private long[] _getUserIDsFromSegment(long segmentsEntryId)
+		throws PortalException {
+
+		List<User> segmentUsers = TransformUtil.transformToList(
+			ArrayUtil.toLongArray(
+				_segmentsEntryProviderRegistry.getSegmentsEntryClassPKs(
+					segmentsEntryId, 0, QueryUtil.ALL_POS)),
+			_userService::getUserById);
+
+		long[] segmentUserIdsArray = new long[segmentUsers.size()];
+
+		for (User segmentUser : segmentUsers) {
+			segmentUserIdsArray[segmentUsers.indexOf(segmentUser)] =
+				segmentUser.getUserId();
+		}
+
+		return segmentUserIdsArray;
+	}
+
 	private boolean _isDepotGroup(long groupId) {
 		try {
 			Group group = _groupService.getGroup(groupId);
@@ -934,11 +937,11 @@ public class RolesAdminPortlet extends MVCPortlet {
 	private RoleTypeContributorProvider _roleTypeContributorProvider;
 
 	@Reference
+	private SegmentsEntryProviderRegistry _segmentsEntryProviderRegistry;
+
+	@Reference
 	private SegmentsEntryRoleLocalService _segmentsEntryRoleLocalService;
 
 	private UserService _userService;
-
-	@Reference
-	private SegmentsEntryProviderRegistry _segmentsEntryProviderRegistry;
 
 }
