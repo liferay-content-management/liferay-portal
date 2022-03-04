@@ -28,6 +28,7 @@ import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFacto
 import com.liferay.osgi.service.tracker.collections.map.PropertyServiceReferenceComparator;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.DataLimitExceededException;
 import com.liferay.portal.kernel.exception.DuplicateRoleException;
 import com.liferay.portal.kernel.exception.ModelListenerException;
@@ -55,6 +56,7 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.RoleService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
@@ -76,7 +78,13 @@ import com.liferay.roles.admin.constants.RolesAdminWebKeys;
 import com.liferay.roles.admin.panel.category.role.type.mapper.PanelCategoryRoleTypeMapper;
 import com.liferay.roles.admin.role.type.contributor.RoleTypeContributor;
 import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
+import com.liferay.segments.provider.SegmentsEntryProviderRegistry;
 import com.liferay.segments.service.SegmentsEntryRoleLocalService;
+
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.vulcan.util.TransformUtil;
+import com.liferay.segments.provider.SegmentsEntryProviderRegistry;
 
 import java.io.IOException;
 
@@ -336,6 +344,12 @@ public class RolesAdminPortlet extends MVCPortlet {
 						segmentsEntryId, roleId,
 						ServiceContextFactory.getInstance(
 							Role.class.getName(), actionRequest));
+
+					//add role to the users in the segment
+
+					long[] segmentUserIdsArray = getUserIDsFromSegment(segmentsEntryId);
+					
+					_userService.addRoleUsers(roleId, segmentUserIdsArray);
 				}
 			}
 		}
@@ -350,9 +364,27 @@ public class RolesAdminPortlet extends MVCPortlet {
 				for (long segmentsEntryId : removeSegmentsEntryIds) {
 					_segmentsEntryRoleLocalService.deleteSegmentsEntryRole(
 						segmentsEntryId, roleId);
+					
+					long[] segmentUserIdsArray = getUserIDsFromSegment(segmentsEntryId);
+					
+					_userService.unsetRoleUsers(roleId, segmentUserIdsArray);
 				}
 			}
 		}
+	}
+
+	private long[] getUserIDsFromSegment(long segmentsEntryId) throws PortalException {
+		List<User> segmentUsers = TransformUtil.transformToList(
+				ArrayUtil.toLongArray(
+					_segmentsEntryProviderRegistry.getSegmentsEntryClassPKs(
+						segmentsEntryId, 0, QueryUtil.ALL_POS)),
+				_userService::getUserById);
+		
+		long[] segmentUserIdsArray = new long[segmentUsers.size()];
+		for (User segmentUser : segmentUsers) {
+			segmentUserIdsArray[segmentUsers.indexOf(segmentUser)] = segmentUser.getUserId();
+		}
+		return segmentUserIdsArray;
 	}
 
 	public List<PersonalMenuEntry> getPersonalMenuEntries() {
@@ -905,5 +937,8 @@ public class RolesAdminPortlet extends MVCPortlet {
 	private SegmentsEntryRoleLocalService _segmentsEntryRoleLocalService;
 
 	private UserService _userService;
+
+	@Reference
+	private SegmentsEntryProviderRegistry _segmentsEntryProviderRegistry;
 
 }
