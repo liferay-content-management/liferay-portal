@@ -43,7 +43,6 @@ import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.security.permission.DoAsUserThread;
 
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
@@ -92,14 +91,22 @@ public class DLAppServiceTestUtil {
 			getConfigurationTemporarySwapper(String key, Object value)
 		throws Exception {
 
-		Dictionary<String, Object> dictionary =
-			HashMapDictionaryBuilder.<String, Object>put(
-				key, value
-			).build();
+		return getConfigurationTemporarySwapper(
+			"com.liferay.document.library.configuration.DLConfiguration",
+			StringPool.QUESTION, key, value);
+	}
+
+	protected static ConfigurationTemporarySwapper
+			getConfigurationTemporarySwapper(
+				String configurationPid, String location, String key,
+				Object value)
+		throws Exception {
 
 		return new ConfigurationTemporarySwapper(
-			"com.liferay.document.library.configuration.DLConfiguration",
-			dictionary);
+			configurationPid, location,
+			HashMapDictionaryBuilder.put(
+				key, value
+			).build());
 	}
 
 	protected static AtomicInteger registerDLSyncEventProcessorMessageListener(

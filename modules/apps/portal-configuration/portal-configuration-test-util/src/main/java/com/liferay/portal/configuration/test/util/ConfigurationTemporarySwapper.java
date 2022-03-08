@@ -34,10 +34,17 @@ public class ConfigurationTemporarySwapper implements AutoCloseable {
 			String pid, Dictionary<String, Object> properties)
 		throws Exception {
 
+		this(pid, StringPool.QUESTION, properties);
+	}
+
+	public ConfigurationTemporarySwapper(
+			String pid, String location, Dictionary<String, Object> properties)
+		throws Exception {
+
 		_configuration = OSGiServiceUtil.callService(
 			_bundleContext, ConfigurationAdmin.class,
 			configurationAdmin -> configurationAdmin.getConfiguration(
-				pid, StringPool.QUESTION));
+				pid, location));
 
 		_oldProperties = _configuration.getProperties();
 

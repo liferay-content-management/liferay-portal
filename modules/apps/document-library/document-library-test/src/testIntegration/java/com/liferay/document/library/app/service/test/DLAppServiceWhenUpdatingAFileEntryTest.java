@@ -222,7 +222,9 @@ public class DLAppServiceWhenUpdatingAFileEntryTest extends BaseDLAppTestCase {
 
 		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
 				DLAppServiceTestUtil.getConfigurationTemporarySwapper(
-					"fileMaxSize", 1L)) {
+					"com.liferay.document.library.internal.configuration." +
+						"DLSizeLimitConfiguration",
+					null, "fileMaxSize", 1L)) {
 
 			byte[] bytes = TestDataConstants.TEST_BYTE_ARRAY;
 

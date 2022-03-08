@@ -251,7 +251,9 @@ public class DLAppServiceWhenAddingAFileEntryTest extends BaseDLAppTestCase {
 	public void testShouldFailIfSizeLimitExceeded() throws Exception {
 		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
 				DLAppServiceTestUtil.getConfigurationTemporarySwapper(
-					"fileMaxSize", 1L)) {
+					"com.liferay.document.library.internal.configuration." +
+						"DLSizeLimitConfiguration",
+					null, "fileMaxSize", 1L)) {
 
 			String fileName = RandomTestUtil.randomString();
 
