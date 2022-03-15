@@ -47,12 +47,14 @@ import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.util.PropsUtil;
 import com.liferay.staging.StagingGroupHelper;
 import com.liferay.staging.StagingGroupHelperUtil;
 import com.liferay.translation.url.provider.TranslationURLProvider;
@@ -91,6 +93,7 @@ public class JournalManagementToolbarDisplayContext
 		_ffBulkTranslationConfiguration =
 			(FFBulkTranslationConfiguration)httpServletRequest.getAttribute(
 				FFBulkTranslationConfiguration.class.getName());
+
 		_journalWebConfiguration =
 			(JournalWebConfiguration)httpServletRequest.getAttribute(
 				JournalWebConfiguration.class.getName());
@@ -129,15 +132,19 @@ public class JournalManagementToolbarDisplayContext
 							dropdownItem.setQuickAction(true);
 						}
 					).add(
-						_ffBulkTranslationConfiguration::bulkTranslationEnabled,
 						dropdownItem -> {
-							dropdownItem.putData("action", "exportTranslation");
-							dropdownItem.setIcon("import-export");
-							dropdownItem.setLabel(
-								LanguageUtil.get(
-									httpServletRequest,
-									"export-for-translations"));
-							dropdownItem.setQuickAction(true);
+							if (GetterUtil.getBoolean(
+									PropsUtil.get("feature.flag.LPS-114682"))) {
+
+								dropdownItem.putData(
+									"action", "exportTranslation");
+								dropdownItem.setIcon("import-export");
+								dropdownItem.setLabel(
+									LanguageUtil.get(
+										httpServletRequest,
+										"export-for-translations"));
+								dropdownItem.setQuickAction(true);
+							}
 						}
 					).build());
 				dropdownGroupItem.setSeparator(true);
