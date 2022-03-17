@@ -778,7 +778,7 @@ AUI.add(
 							formatter(val) {
 								return instance._formatTooltip(val, this);
 							},
-							trigger: '.app-view-entry.upload-error',
+							trigger: `.document-container ${STR_DOT}${CSS_UPLOAD_ERROR}, .document-container ${STR_DOT}${CSS_UPLOAD_WARNING}`,
 							visible: false,
 						});
 
