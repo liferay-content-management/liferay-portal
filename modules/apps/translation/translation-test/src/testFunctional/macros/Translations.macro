@@ -529,6 +529,9 @@ definition {
 		if (contains("${translationFileName}", " ")) {
 			var translationFileName = StringUtil.replace("${translationFileName}", " ", "*");
 		}
+
+		var webContentTitle = StringUtil.replace("${webContentTitle}", " ", "32");
+
 		if ("${os}" == "true") {
 			AntCommand(
 				locator1 = "build-test.xml",
