@@ -1,0 +1,4 @@
+Bundle-Name: Liferay Layout SEO Dynamic Rendering
+Bundle-SymbolicName: com.liferay.layout.seo.dynamic.rendering
+Bundle-Version: 1.0.0
+Web-ContextPath: /layout-seo-dynamic-rendering
