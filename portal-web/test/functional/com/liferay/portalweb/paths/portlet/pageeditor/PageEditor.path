@@ -504,7 +504,7 @@
 </tr>
 <tr>
 	<td>FRAGMENT_SIDEBAR_SECONDARY_TEXT</td>
-	<td>//*[contains(@class,'empty-state-text')]</td>
+	<td>xpath=(//*[contains(@class,'empty-state-text') or contains(@class,'text-secondary')])[1]</td>
 	<td></td>
 </tr>
 <tr>
