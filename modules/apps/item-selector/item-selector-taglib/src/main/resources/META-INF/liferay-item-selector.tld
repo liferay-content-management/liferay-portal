@@ -137,6 +137,12 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<description>FolderId where the entries are going to be uploaded.</description>
+			<name>folderId</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<description>The name of the event to be thrown once an image is selected.</description>
 			<name>itemSelectedEventName</name>
 			<required>true</required>

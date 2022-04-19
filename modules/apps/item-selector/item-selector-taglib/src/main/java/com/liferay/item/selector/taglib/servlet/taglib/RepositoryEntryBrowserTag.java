@@ -68,6 +68,10 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		return _extensions;
 	}
 
+	public long getFolderId() {
+		return _folderId;
+	}
+
 	public String getItemSelectedEventName() {
 		return _itemSelectedEventName;
 	}
@@ -160,6 +164,10 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		_extensions = extensions;
 	}
 
+	public void setFolderId(long folderId) {
+		_folderId = folderId;
+	}
+
 	public void setItemSelectedEventName(String itemSelectedEventName) {
 		_itemSelectedEventName = itemSelectedEventName;
 	}
@@ -228,6 +236,7 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		_editImageURL = null;
 		_emptyResultsMessage = null;
 		_extensions = new ArrayList<>();
+		_folderId = 0;
 		_itemSelectedEventName = null;
 		_itemSelectorReturnTypeResolver = null;
 		_maxFileSize = UploadServletRequestConfigurationHelperUtil.getMaxSize();
@@ -301,6 +310,9 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 			"liferay-item-selector:repository-entry-browser:" +
 				"emptyResultsMessage",
 			_getEmptyResultsMessage(httpServletRequest));
+		httpServletRequest.setAttribute(
+			"liferay-item-selector:repository-entry-browser:folderId",
+			_folderId);
 
 		if (_desiredItemSelectorReturnTypes != null) {
 			httpServletRequest.setAttribute(
@@ -388,6 +400,7 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 	private PortletURL _editImageURL;
 	private String _emptyResultsMessage;
 	private List<String> _extensions = new ArrayList<>();
+	private long _folderId;
 	private String _itemSelectedEventName;
 	private ItemSelectorReturnTypeResolver<?, ?>
 		_itemSelectorReturnTypeResolver;
