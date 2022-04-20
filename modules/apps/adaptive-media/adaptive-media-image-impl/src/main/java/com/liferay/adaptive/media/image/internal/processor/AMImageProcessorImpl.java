@@ -19,6 +19,7 @@ import com.liferay.adaptive.media.image.configuration.AMImageConfigurationEntry;
 import com.liferay.adaptive.media.image.configuration.AMImageConfigurationHelper;
 import com.liferay.adaptive.media.image.model.AMImageEntry;
 import com.liferay.adaptive.media.image.processor.AMImageProcessor;
+import com.liferay.adaptive.media.image.scaler.AMImageConvertedImage;
 import com.liferay.adaptive.media.image.scaler.AMImageScaledImage;
 import com.liferay.adaptive.media.image.scaler.AMImageScaler;
 import com.liferay.adaptive.media.image.scaler.AMImageScalerTracker;
@@ -28,6 +29,8 @@ import com.liferay.adaptive.media.processor.AMProcessor;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
+import com.liferay.portal.kernel.repository.model.FileVersionWrapper;
+import com.liferay.portal.kernel.util.ContentTypes;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,11 +121,37 @@ public final class AMImageProcessorImpl implements AMImageProcessor {
 			AMImageScaledImage amImageScaledImage = amImageScaler.scaleImage(
 				fileVersion, amImageConfigurationEntry);
 
+			FileVersion scaledFileVersion = fileVersion;
+
+			if (amImageScaledImage instanceof AMImageConvertedImage) {
+				AMImageConvertedImage amImageConvertedImage =
+					(AMImageConvertedImage)amImageScaledImage;
+
+				String amImageConvertedImageMimeType =
+					amImageConvertedImage.getMimeType();
+
+				if ((amImageConvertedImageMimeType != null) &&
+					!amImageConvertedImageMimeType.equals(
+						fileVersion.getMimeType()) &&
+					!amImageConvertedImageMimeType.equals(
+						ContentTypes.APPLICATION_OCTET_STREAM)) {
+
+					scaledFileVersion = new FileVersionWrapper(fileVersion) {
+
+						@Override
+						public String getMimeType() {
+							return amImageConvertedImageMimeType;
+						}
+
+					};
+				}
+			}
+
 			try (InputStream inputStream =
 					amImageScaledImage.getInputStream()) {
 
 				_amImageEntryLocalService.addAMImageEntry(
-					amImageConfigurationEntry, fileVersion,
+					amImageConfigurationEntry, scaledFileVersion,
 					amImageScaledImage.getHeight(),
 					amImageScaledImage.getWidth(), inputStream,
 					amImageScaledImage.getSize());

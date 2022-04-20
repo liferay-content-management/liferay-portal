@@ -14,6 +14,7 @@
 
 package com.liferay.adaptive.media.image.internal.scaler;
 
+import com.liferay.adaptive.media.image.scaler.AMImageConvertedImage;
 import com.liferay.adaptive.media.image.scaler.AMImageScaledImage;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 
@@ -22,12 +23,22 @@ import java.io.InputStream;
 /**
  * @author Sergio González
  */
-public class AMImageScaledImageImpl implements AMImageScaledImage {
+public class AMImageScaledImageImpl
+	implements AMImageConvertedImage, AMImageScaledImage {
 
 	public AMImageScaledImageImpl(byte[] bytes, int height, int width) {
 		_bytes = bytes;
 		_height = height;
 		_width = width;
+	}
+
+	public AMImageScaledImageImpl(
+		byte[] bytes, int height, int width, String mimeType) {
+
+		_bytes = bytes;
+		_height = height;
+		_width = width;
+		_mimeType = mimeType;
 	}
 
 	@Override
@@ -38,6 +49,11 @@ public class AMImageScaledImageImpl implements AMImageScaledImage {
 	@Override
 	public InputStream getInputStream() {
 		return new UnsyncByteArrayInputStream(_bytes);
+	}
+
+	@Override
+	public String getMimeType() {
+		return _mimeType;
 	}
 
 	@Override
@@ -52,6 +68,7 @@ public class AMImageScaledImageImpl implements AMImageScaledImage {
 
 	private final byte[] _bytes;
 	private final int _height;
+	private String _mimeType;
 	private final int _width;
 
 }
