@@ -66,6 +66,10 @@ public interface ItemSelectorCriterion {
 		return ItemSelectorCriterionConstants.MIME_TYPE_RESTRICTION_DEFAULT;
 	}
 
+	public default long getSelectedItemClassPK() {
+		return 0;
+	}
+
 	public void setDesiredItemSelectorReturnTypes(
 		ItemSelectorReturnType... desiredItemSelectorReturnType);
 
