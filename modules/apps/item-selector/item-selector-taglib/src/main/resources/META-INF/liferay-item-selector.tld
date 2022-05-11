@@ -178,6 +178,11 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<name>selectedItemClassPK</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<description>Whether to show the breadcrumb. The default value is false.</description>
 			<name>showBreadcrumb</name>
 			<required>false</required>
