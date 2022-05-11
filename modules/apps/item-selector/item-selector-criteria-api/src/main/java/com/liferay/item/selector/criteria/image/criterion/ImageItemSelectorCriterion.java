@@ -27,4 +27,15 @@ public class ImageItemSelectorCriterion extends BaseItemSelectorCriterion {
 		return ItemSelectorCriterionConstants.MIME_TYPE_RESTRICTION_IMAGE;
 	}
 
+	@Override
+	public long getSelectedItemClassPK() {
+		return _selectedItemClassPK;
+	}
+
+	public void setSelectedItemClassPK(long selectedItemClassPK) {
+		_selectedItemClassPK = selectedItemClassPK;
+	}
+
+	private long _selectedItemClassPK;
+
 }

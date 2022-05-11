@@ -20,4 +20,15 @@ import com.liferay.item.selector.BaseItemSelectorCriterion;
  * @author Roberto Díaz
  */
 public class FileItemSelectorCriterion extends BaseItemSelectorCriterion {
+
+	public long getSelectedItemClassPK() {
+		return _selectedItemClassPK;
+	}
+
+	public void setSelectedItemClassPK(long selectedItemClassPK) {
+		_selectedItemClassPK = selectedItemClassPK;
+	}
+
+	private long _selectedItemClassPK;
+
 }
