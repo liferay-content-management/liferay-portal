@@ -34,6 +34,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -468,6 +469,15 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 
 			fileItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 				new FileEntryItemSelectorReturnType());
+
+			JSONObject jsonObject = _getValueJSONObject(
+				ddmFormFieldRenderingContext.getValue());
+
+			if (jsonObject != null) {
+				long fileEntryId = jsonObject.getLong("fileEntryId",0);
+
+				fileItemSelectorCriterion.setSelectedItemClassPK(fileEntryId);
+			}
 
 			itemSelectorCriteria.add(fileItemSelectorCriterion);
 		}
