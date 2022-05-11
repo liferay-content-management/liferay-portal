@@ -191,6 +191,15 @@ public class ImageDDMFormFieldTemplateContextContributor
 		imageItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 			new DownloadFileEntryItemSelectorReturnType());
 
+		JSONObject jsonObject = _getValueJSONObject(
+			ddmFormFieldRenderingContext.getValue());
+
+		if (jsonObject != null) {
+			long fileEntryId = jsonObject.getLong("fileEntryId", 0);
+
+			imageItemSelectorCriterion.setSelectedItemClassPK(fileEntryId);
+		}
+
 		itemSelectorCriteria.add(imageItemSelectorCriterion);
 
 		for (ImageDDMFormFieldItemSelectorCriterionContributor

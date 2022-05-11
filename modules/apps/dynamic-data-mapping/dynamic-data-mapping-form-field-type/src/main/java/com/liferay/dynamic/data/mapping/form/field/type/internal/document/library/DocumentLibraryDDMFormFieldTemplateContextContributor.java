@@ -469,6 +469,15 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 			fileItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 				new FileEntryItemSelectorReturnType());
 
+			JSONObject jsonObject = _getValueJSONObject(
+				ddmFormFieldRenderingContext.getValue());
+
+			if (jsonObject != null) {
+				long fileEntryId = jsonObject.getLong("fileEntryId", 0);
+
+				fileItemSelectorCriterion.setSelectedItemClassPK(fileEntryId);
+			}
+
 			itemSelectorCriteria.add(fileItemSelectorCriterion);
 		}
 
