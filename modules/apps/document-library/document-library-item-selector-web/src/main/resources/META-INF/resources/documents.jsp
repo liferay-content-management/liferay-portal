@@ -32,6 +32,7 @@ DLItemSelectorViewDisplayContext dlItemSelectorViewDisplayContext = (DLItemSelec
 	portletURL="<%= dlItemSelectorViewDisplayContext.getPortletURL(liferayPortletResponse) %>"
 	repositoryEntries="<%= dlItemSelectorViewDisplayContext.getRepositoryEntries() %>"
 	repositoryEntriesCount="<%= dlItemSelectorViewDisplayContext.getRepositoryEntriesCount() %>"
+	selectedItemClassPK="<%= dlItemSelectorViewDisplayContext.getSelectedItemClassPK() %>"
 	showBreadcrumb="<%= true %>"
 	showDragAndDropZone="<%= dlItemSelectorViewDisplayContext.isShowDragAndDropZone() %>"
 	tabName="<%= dlItemSelectorViewDisplayContext.getTitle() %>"
