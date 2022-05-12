@@ -14,6 +14,8 @@
 
 package com.liferay.dynamic.data.mapping.form.field.type.internal.image;
 
+import com.liferay.document.library.kernel.model.DLFileEntryConstants;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTemplateContextContributor;
@@ -29,6 +31,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -190,6 +193,15 @@ public class ImageDDMFormFieldTemplateContextContributor
 
 		imageItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 			new DownloadFileEntryItemSelectorReturnType());
+
+		JSONObject jsonObject = _getValueJSONObject(
+				ddmFormFieldRenderingContext.getValue());
+
+		if (jsonObject != null) {
+			long fileEntryId = jsonObject.getLong("fileEntryId",0);
+
+			imageItemSelectorCriterion.setSelectedItemClassPK(fileEntryId);
+		}
 
 		itemSelectorCriteria.add(imageItemSelectorCriterion);
 

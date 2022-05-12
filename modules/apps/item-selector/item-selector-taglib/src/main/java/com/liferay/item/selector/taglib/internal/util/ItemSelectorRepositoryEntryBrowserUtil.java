@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -58,7 +59,7 @@ import javax.servlet.http.HttpServletRequest;
 public class ItemSelectorRepositoryEntryBrowserUtil {
 
 	public static void addPortletBreadcrumbEntries(
-			long folderId, String displayStyle,
+			long selectedItemClassPK, String displayStyle,
 			HttpServletRequest httpServletRequest,
 			LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse,
@@ -75,6 +76,17 @@ public class ItemSelectorRepositoryEntryBrowserUtil {
 				WebKeys.THEME_DISPLAY);
 
 		Folder folder = null;
+
+		long folderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+
+		if (selectedItemClassPK != 0) {
+			FileEntry fileEntry = DLAppServiceUtil.getFileEntry(
+				selectedItemClassPK);
+
+			folderId = fileEntry.getFolderId();
+		}
+
+		folderId = ParamUtil.getLong(httpServletRequest, "folderId", folderId);
 
 		if (folderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			folder = DLAppServiceUtil.getFolder(folderId);

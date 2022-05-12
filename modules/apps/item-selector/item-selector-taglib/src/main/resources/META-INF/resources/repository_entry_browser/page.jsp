@@ -31,6 +31,7 @@ String mimeTypeRestriction = GetterUtil.getString(request.getAttribute("liferay-
 PortletURL portletURL = (PortletURL)request.getAttribute("liferay-item-selector:repository-entry-browser:portletURL");
 List<FileEntry> repositoryEntries = (List<FileEntry>)request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntries");
 int repositoryEntriesCount = GetterUtil.getInteger(request.getAttribute("liferay-item-selector:repository-entry-browser:repositoryEntriesCount"));
+long selectedItemClassPK = GetterUtil.getLong(request.getAttribute("liferay-item-selector:repository-entry-browser:selectedItemClassPK"));
 boolean showBreadcrumb = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showBreadcrumb"));
 boolean showDragAndDropZone = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showDragAndDropZone"));
 boolean showSearch = GetterUtil.getBoolean(request.getAttribute("liferay-item-selector:repository-entry-browser:showSearch"));
@@ -97,14 +98,10 @@ SearchContainer<?> searchContainer = new SearchContainer(renderRequest, itemSele
 
 	<div class="message-container"></div>
 
-	<%
-	long folderId = ParamUtil.getLong(request, "folderId");
-	%>
-
 	<c:if test="<%= showBreadcrumb && !showSearchInfo %>">
 
 		<%
-		ItemSelectorRepositoryEntryBrowserUtil.addPortletBreadcrumbEntries(folderId, displayStyle, request, liferayPortletRequest, liferayPortletResponse, PortletURLUtil.clone(portletURL, liferayPortletResponse));
+		ItemSelectorRepositoryEntryBrowserUtil.addPortletBreadcrumbEntries(selectedItemClassPK, displayStyle, request, liferayPortletRequest, liferayPortletResponse, PortletURLUtil.clone(portletURL, liferayPortletResponse));
 		%>
 
 		<liferay-ui:breadcrumb
