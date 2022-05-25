@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.exception.ImageTypeException;
 import com.liferay.portal.kernel.exception.NoSuchRepositoryException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.image.ImageBag;
+import com.liferay.portal.kernel.image.ImageMagick;
 import com.liferay.portal.kernel.image.ImageTool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -54,6 +55,7 @@ import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.SetUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -66,8 +68,11 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.InputStream;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -201,6 +206,26 @@ public class UploadImageMVCActionCommand extends BaseMVCActionCommand {
 			throw new ImageTypeException();
 		}
 
+		if (StringUtil.equalsIgnoreCase(mimeType, ContentTypes.IMAGE_HEIC)) {
+			try {
+				file = _convertToJPEG(
+					file, UploadImageUtil.getMaxFileSize(portletRequest));
+			}
+			catch (Exception exception) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(exception);
+				}
+
+				throw new UploadException(exception);
+			}
+
+			contentType = ContentTypes.IMAGE_JPEG;
+
+			fileName = StringBundler.concat(
+				FileUtil.stripExtension(fileName), StringPool.PERIOD,
+				ImageTool.TYPE_JPEG);
+		}
+
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -219,6 +244,36 @@ public class UploadImageMVCActionCommand extends BaseMVCActionCommand {
 			themeDisplay.getScopeGroupId(), themeDisplay.getUserId(),
 			UploadImageUtil.getTempImageFolderName(), fileName, file,
 			contentType);
+	}
+
+	private File _convertToJPEG(File imageFile, long maxFileSize)
+		throws Exception {
+
+		File scaledImageFile = FileUtil.createTempFile(ImageTool.TYPE_JPEG);
+
+		List<String> arguments = new ArrayList<>();
+
+		if (maxFileSize > 0) {
+
+			// Convert bytes to kb
+
+			long maxFileSizeInKB = maxFileSize / 1024L;
+
+			// Arguments for keeping the image size valid
+
+			arguments.add("-define");
+			arguments.add(String.format("jpeg:extent=%dkb", maxFileSizeInKB));
+		}
+
+		arguments.add(imageFile.getAbsolutePath());
+
+		arguments.add(scaledImageFile.getAbsolutePath());
+
+		Future<?> future = _imageMagick.convert(arguments);
+
+		future.get();
+
+		return scaledImageFile;
 	}
 
 	private String _getTempImageFileName(PortletRequest portletRequest) {
@@ -409,6 +464,9 @@ public class UploadImageMVCActionCommand extends BaseMVCActionCommand {
 		PropsValues.MIME_TYPES_WEB_IMAGES);
 
 	private volatile DLConfiguration _dlConfiguration;
+
+	@Reference
+	private ImageMagick _imageMagick;
 
 	@Reference
 	private ImageTool _imageTool;

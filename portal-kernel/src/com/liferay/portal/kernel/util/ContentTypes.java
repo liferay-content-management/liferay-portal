@@ -72,6 +72,8 @@ public interface ContentTypes {
 
 	public static final String IMAGE_GIF = "image/gif";
 
+	public static final String IMAGE_HEIC = "image/heic";
+
 	public static final String IMAGE_JPEG = "image/jpeg";
 
 	public static final String IMAGE_PNG = "image/png";
