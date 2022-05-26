@@ -20,6 +20,8 @@ import com.liferay.document.library.web.internal.display.context.helper.DLPortle
 import com.liferay.document.library.web.internal.display.context.helper.IGRequestHelper;
 import com.liferay.document.library.web.internal.display.context.logic.UIItemsBuilder;
 import com.liferay.document.library.web.internal.helper.DLTrashHelper;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.image.gallery.display.kernel.display.context.IGViewFileVersionDisplayContext;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileShortcut;
@@ -89,6 +91,41 @@ public class DefaultIGViewFileVersionDisplayContext
 		this(
 			httpServletRequest, httpServletResponse, fileVersion, null,
 			resourceBundle, dlTrashHelper, versioningStrategy, dlURLHelper);
+	}
+
+	public List<DropdownItem> getActionDropdownItems() {
+		if (!_dlPortletInstanceSettingsHelper.isShowActions()) {
+			return null;
+		}
+
+		return DropdownItemListBuilder.addGroup(
+			dropdownGroupItem -> {
+				dropdownGroupItem.setDropdownItems(
+					DropdownItemListBuilder.add(
+						_uiItemsBuilder::isDownloadActionAvailable,
+						_uiItemsBuilder.createDownloadDropdownItem()
+					).add(
+						_uiItemsBuilder::isViewOriginalFileActionAvailable,
+						_uiItemsBuilder.createViewOriginalFileDropdownItem()
+					).add(
+						_uiItemsBuilder::isEditActionAvailable,
+						_uiItemsBuilder.createEditDropdownItem()
+					).build());
+				dropdownGroupItem.setSeparator(true);
+			}
+		).addGroup(
+			dropdownGroupItem -> {
+				dropdownGroupItem.setDropdownItems(
+					DropdownItemListBuilder.add(
+						_uiItemsBuilder::isPermissionsActionAvailable,
+						_uiItemsBuilder.createPermissionsDropdownItem()
+					).add(
+						_uiItemsBuilder::isDeleteActionAvailable,
+						_uiItemsBuilder.createDeleteDropdownItem()
+					).build());
+				dropdownGroupItem.setSeparator(true);
+			}
+		).build();
 	}
 
 	@Override
