@@ -59,6 +59,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -280,9 +281,13 @@ public class ExportTranslationDisplayContext {
 	}
 
 	private String _getExportTranslationURLString() throws Exception {
+		ServletContext servletContext = _httpServletRequest.getServletContext();
+
 		URIBuilder.URIBuilderWrapper uriBuilderWrapper = URIBuilder.create(
-			PortalUtil.getPortalURL(_httpServletRequest) + Portal.PATH_MODULE +
-				"/translation/export_translation"
+			StringBundler.concat(
+				PortalUtil.getPortalURL(_httpServletRequest),
+				servletContext.getContextPath(), Portal.PATH_MODULE,
+				"/translation/export_translation")
 		).addParameter(
 			"classNameId", String.valueOf(_classNameId)
 		);
