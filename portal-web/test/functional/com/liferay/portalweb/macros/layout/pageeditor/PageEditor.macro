@@ -2175,6 +2175,8 @@ definition {
 					value1 = "${template}");
 			}
 		}
+
+		SelectFrameTop();
 	}
 
 	macro editDropdown {
@@ -2489,6 +2491,8 @@ definition {
 
 			Button.clickAdd();
 		}
+
+		SelectFrameTop();
 
 		PageEditor.waitForAutoSave();
 
