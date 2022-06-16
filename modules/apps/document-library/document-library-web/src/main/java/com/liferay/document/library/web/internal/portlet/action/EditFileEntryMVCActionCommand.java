@@ -19,7 +19,6 @@ import com.liferay.asset.kernel.exception.AssetCategoryException;
 import com.liferay.asset.kernel.exception.AssetTagException;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.document.library.configuration.DLConfiguration;
-import com.liferay.document.library.configuration.FFFriendlyURLEntryFileEntryConfiguration;
 import com.liferay.document.library.constants.DLPortletKeys;
 import com.liferay.document.library.exception.DLStorageQuotaExceededException;
 import com.liferay.document.library.kernel.antivirus.AntivirusScannerException;
@@ -155,10 +154,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Kenneth Chang
  */
 @Component(
-	configurationPid = {
-		"com.liferay.document.library.configuration.DLConfiguration",
-		"com.liferay.document.library.configuration.FFFriendlyURLEntryFileEntryConfiguration"
-	},
+	configurationPid = "com.liferay.document.library.configuration.DLConfiguration",
 	property = {
 		"javax.portlet.name=" + DLPortletKeys.DOCUMENT_LIBRARY,
 		"javax.portlet.name=" + DLPortletKeys.DOCUMENT_LIBRARY_ADMIN,
@@ -178,9 +174,6 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 	protected void activate(Map<String, Object> properties) {
 		_dlConfiguration = ConfigurableUtil.createConfigurable(
 			DLConfiguration.class, properties);
-		_ffFriendlyURLEntryFileEntryConfiguration =
-			ConfigurableUtil.createConfigurable(
-				FFFriendlyURLEntryFileEntryConfiguration.class, properties);
 	}
 
 	@Override
@@ -1207,11 +1200,7 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 			uploadPortletRequest.getFileName("file"));
 		String title = ParamUtil.getString(uploadPortletRequest, "title");
 
-		String urlTitle = StringPool.BLANK;
-
-		if (_ffFriendlyURLEntryFileEntryConfiguration.enabled()) {
-			urlTitle = ParamUtil.getString(uploadPortletRequest, "urlTitle");
-		}
+		String urlTitle = ParamUtil.getString(uploadPortletRequest, "urlTitle");
 
 		String description = ParamUtil.getString(
 			uploadPortletRequest, "description");
@@ -1420,9 +1409,6 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 
 	@Reference
 	private DLValidator _dlValidator;
-
-	private volatile FFFriendlyURLEntryFileEntryConfiguration
-		_ffFriendlyURLEntryFileEntryConfiguration;
 
 	@Reference
 	private Language _language;
