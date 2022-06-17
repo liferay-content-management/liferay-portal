@@ -930,6 +930,8 @@ public class UIItemsBuilder {
 			).setParameter(
 				"fileEntryId", _fileEntry.getFileEntryId()
 			).buildString()
+		).setKey(
+			DLUIItemKeys.CANCEL_CHECKOUT
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "cancel-checkout[document]")
 		).build();
@@ -948,6 +950,8 @@ public class UIItemsBuilder {
 				portletURL.toString()
 			).setIcon(
 				"unlock"
+			).setKey(
+				DLUIItemKeys.CHECKIN
 			).setLabel(
 				LanguageUtil.get(_httpServletRequest, "checkin")
 			).build();
@@ -964,6 +968,8 @@ public class UIItemsBuilder {
 				HtmlUtil.escapeJS(portletURL.toString()), "');")
 		).setIcon(
 			"unlock"
+		).setKey(
+			DLUIItemKeys.CHECKIN
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "checkin")
 		).build();
@@ -979,6 +985,8 @@ public class UIItemsBuilder {
 			).buildString()
 		).setIcon(
 			"lock"
+		).setKey(
+			DLUIItemKeys.CHECKOUT
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "checkout[document]")
 		).build();
@@ -1000,6 +1008,8 @@ public class UIItemsBuilder {
 					"fileEntryId", _fileEntry.getFileEntryId()
 				).buildString();
 			}
+		).setKey(
+			DLUIItemKeys.COLLECT_DIGITAL_SIGNATURE
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "collect-digital-signature")
 		).build();
@@ -1080,6 +1090,8 @@ public class UIItemsBuilder {
 			"deleteURL", portletURL.toString()
 		).setIcon(
 			"trash"
+		).setKey(
+			DLUIItemKeys.DELETE
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "delete")
 		).build();
@@ -1131,6 +1143,8 @@ public class UIItemsBuilder {
 				appendVersion, true)
 		).setIcon(
 			"download"
+		).setKey(
+			DLUIItemKeys.DOWNLOAD
 		).setLabel(
 			StringBundler.concat(
 				_themeDisplay.translate("download"), " (",
@@ -1158,6 +1172,8 @@ public class UIItemsBuilder {
 			portletURL.toString()
 		).setIcon(
 			"pencil"
+		).setKey(
+			DLUIItemKeys.EDIT
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "edit")
 		).build();
@@ -1172,6 +1188,8 @@ public class UIItemsBuilder {
 			"imageURL",
 			_dlURLHelper.getPreviewURL(
 				_fileEntry, _fileVersion, _themeDisplay, StringPool.BLANK)
+		).setKey(
+			DLUIItemKeys.EDIT_IMAGE
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "edit-image")
 		).build();
@@ -1190,6 +1208,8 @@ public class UIItemsBuilder {
 					String.valueOf(_fileEntry.getFileEntryId())
 		).setIcon(
 			"move-folder"
+		).setKey(
+			DLUIItemKeys.MOVE
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "move")
 		).build();
@@ -1227,6 +1247,8 @@ public class UIItemsBuilder {
 			"permissionsURL", url
 		).setIcon(
 			"password-policies"
+		).setKey(
+			DLUIItemKeys.PERMISSIONS
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "permissions")
 		).build();
@@ -1257,6 +1279,8 @@ public class UIItemsBuilder {
 			"action", "publish"
 		).putData(
 			"publishURL", portletURL.toString()
+		).setKey(
+			DLUIItemKeys.PUBLISH
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "publish-to-live")
 		).build();
@@ -1291,6 +1315,8 @@ public class UIItemsBuilder {
 			).setParameter(
 				"fileEntryId", _fileShortcut.getToFileEntryId()
 			).buildString()
+		).setKey(
+			DLUIItemKeys.VIEW_ORIGINAL_FILE
 		).setLabel(
 			LanguageUtil.get(_httpServletRequest, "view-original-file")
 		).build();
