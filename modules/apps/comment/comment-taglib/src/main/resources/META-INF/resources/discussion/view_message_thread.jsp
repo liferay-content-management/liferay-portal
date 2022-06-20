@@ -299,6 +299,21 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 		}
 		%>
 
+		<p>
+			<strong>DEBUG namespace: </strong>
+			<c:choose>
+				<c:when test="<%= Validator.isNotNull(namespace) %>">
+					<span class="label label-lg label-success">
+						<span class="label-item label-item-expand"><%= namespace %></span>
+					</span>
+				</c:when>
+				<c:otherwise>
+					<span class="label label-inverse-danger">
+						<span class="label-item label-item-expand">Empty namespace</span>
+					</span>
+				</c:otherwise>
+			</c:choose>
+		</p>
 	</article>
 
 	<liferay-frontend:component

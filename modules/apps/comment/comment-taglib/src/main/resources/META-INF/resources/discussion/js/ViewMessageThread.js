@@ -17,6 +17,10 @@ export default function ViewMessageThread({
 	portletNamespace: namespace,
 	randomNamespace,
 }) {
+	if (!namespace) {
+		console.error('Empty namespace');
+	}
+
 	window[`${namespace}${index}EditOnChange`] = function (html) {
 		Liferay.Util.toggleDisabled(
 			`#${namespace}editReplyButton${index}`,

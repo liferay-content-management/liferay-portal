@@ -16,14 +16,23 @@
 
 <%@ include file="/discussion/init.jsp" %>
 
-<liferay-editor:editor
-	autoCreate="<%= true %>"
-	configKey="commentEditor"
-	contents='<%= GetterUtil.getString(request.getAttribute("liferay-comment:editor:contents")) %>'
-	editorName="ckeditor"
-	name='<%= GetterUtil.getString(request.getAttribute("liferay-comment:editor:name")) %>'
-	onChangeMethod='<%= GetterUtil.getString(request.getAttribute("liferay-comment:editor:onChangeMethod")) %>'
-	placeholder="type-your-comment-here"
-	showSource="<%= false %>"
-	skipEditorLoading="<%= true %>"
-/>
+<div>
+	<liferay-editor:editor
+		autoCreate="<%= true %>"
+		configKey="commentEditor"
+		contents='<%= GetterUtil.getString(request.getAttribute("liferay-comment:editor:contents")) %>'
+		editorName="ckeditor"
+		name='<%= GetterUtil.getString(request.getAttribute("liferay-comment:editor:name")) %>'
+		onChangeMethod='<%= GetterUtil.getString(request.getAttribute("liferay-comment:editor:onChangeMethod")) %>'
+		placeholder="type-your-comment-here"
+		showSource="<%= false %>"
+		skipEditorLoading="<%= true %>"
+	/>
+</div>
+
+<p>
+	<strong>onChangeMethod: </strong>
+	<span class="label label-lg">
+		<span class="label-item label-item-expand"><%= GetterUtil.getString(request.getAttribute("liferay-comment:editor:onChangeMethod")) %></span>
+	</span>
+</p>
