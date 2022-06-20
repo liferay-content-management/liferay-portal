@@ -221,6 +221,39 @@ public class DLOpenerOneDriveDLViewFileVersionDisplayContext
 		return urlMenuItem;
 	}
 
+	private DropdownItem _createEditInOffice365DropdownItem(String cmd)
+		throws PortalException {
+		if (Objects.equals(
+			request.getParameter("mvcRenderCommandName"),
+			"/document_library/view_file_entry")) {
+
+			return DropdownItemBuilder.putData(
+				"action", "editInOneDrive"
+			).putData(
+				"senna-off", "true"
+			).putData(
+				"editURL", _getEditURL(
+					cmd, "/document_library/edit_in_one_drive_and_redirect")
+			).setKey(
+				DLUIItemKeys.EDIT //TODO??
+			).setLabel(
+				LanguageUtil.get(_resourceBundle, _getLabelKey())
+			).build();
+		}
+		else {
+			return DropdownItemBuilder.putData(
+				"action", "editOfficeDocument"
+			).putData(
+				"editURL",
+					_getEditURL(cmd, "/document_library/edit_in_one_drive")
+			).setKey(
+				DLUIItemKeys.EDIT //TODO??
+			).setLabel(
+				LanguageUtil.get(_resourceBundle, _getLabelKey())
+			).build();
+		}
+	}
+
 	private String _getCancelCheckOutURL() throws PortalException {
 		LiferayPortletURL liferayPortletURL = PortletURLFactoryUtil.create(
 			request, _portal.getPortletId(request),

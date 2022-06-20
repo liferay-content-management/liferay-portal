@@ -14,6 +14,7 @@
 
 import {
 	addParams,
+	fetch,
 	navigate,
 	openModal,
 	openSelectionModal,
@@ -108,6 +109,18 @@ const ACTIONS = {
 		window[`${portletNamespace}editWithImageEditor`]({
 			fileEntryId,
 			imageURL,
+		});
+	},
+
+	editInOneDrive({editURL}) {
+		fetch(editURL, {
+			method: 'POST',
+		});
+	},
+
+	editOfficeDocument({editURL}) {
+		fetch(editURL, {
+			method: 'POST',
 		});
 	},
 
