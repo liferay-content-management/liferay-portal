@@ -23,6 +23,8 @@ import com.liferay.document.library.opener.google.drive.web.internal.DLOpenerGoo
 import com.liferay.document.library.opener.google.drive.web.internal.constants.DLOpenerGoogleDriveConstants;
 import com.liferay.document.library.opener.model.DLOpenerFileEntryReference;
 import com.liferay.document.library.opener.service.DLOpenerFileEntryReferenceLocalService;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemBuilder;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -171,6 +173,21 @@ public class DLOpenerGoogleDriveDLViewFileVersionDisplayContext
 		urlMenuItem.setURL(_getActionURL(cmd));
 
 		return urlMenuItem;
+	}
+
+	private DropdownItem _createEditInGoogleDocsDropdownItem(String cmd)
+		throws PortalException {
+
+		return DropdownItemBuilder.putData(
+			"action", "editInGoogleDocs"
+		).putData(
+			"editURL",
+			_getActionURL(cmd)
+		).setKey(
+			"#edit-in-google-drive"
+		).setLabel(
+			LanguageUtil.get(_resourceBundle, _getLabelKey())
+		).build();
 	}
 
 	private String _getActionURL(String cmd) throws PortalException {

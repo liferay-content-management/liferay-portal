@@ -112,6 +112,12 @@ const ACTIONS = {
 		});
 	},
 
+	editInGoogleDocs({editURL}) {
+		fetch(editURL, {
+			method: 'POST',
+		});
+	},
+
 	editInOneDrive({editURL}) {
 		fetch(editURL, {
 			method: 'POST',
