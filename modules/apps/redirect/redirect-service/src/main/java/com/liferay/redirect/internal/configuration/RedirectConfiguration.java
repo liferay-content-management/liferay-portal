@@ -53,6 +53,6 @@ public interface RedirectConfiguration {
 		description = "check-redirect-not-found-entries-interval-help",
 		name = "check-redirect-not-found-entries-interval", required = false
 	)
-	public int checkRedirectNotFoundEntriesInterval();
+	public float checkRedirectNotFoundEntriesInterval();
 
 }

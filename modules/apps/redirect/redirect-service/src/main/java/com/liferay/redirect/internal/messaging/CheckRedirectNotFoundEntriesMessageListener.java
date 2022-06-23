@@ -63,10 +63,13 @@ public class CheckRedirectNotFoundEntriesMessageListener
 
 		String className = clazz.getName();
 
+		float checkRedirectNotFoundEntriesInterval =
+			_redirectConfiguration.checkRedirectNotFoundEntriesInterval() *
+				Time.HOUR;
+
 		Trigger trigger = _triggerFactory.createTrigger(
 			className, className, null, null,
-			_redirectConfiguration.checkRedirectNotFoundEntriesInterval(),
-			TimeUnit.HOUR);
+			(int)checkRedirectNotFoundEntriesInterval, TimeUnit.MILLISECOND);
 
 		SchedulerEntry schedulerEntry = new SchedulerEntryImpl(
 			className, trigger);
