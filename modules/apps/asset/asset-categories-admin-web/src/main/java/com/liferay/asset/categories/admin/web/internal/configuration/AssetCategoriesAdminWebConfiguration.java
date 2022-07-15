@@ -20,7 +20,7 @@ import com.liferay.asset.categories.admin.web.internal.constants.AssetCategories
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 
 /**
- * @author Pavel Savinov
+ * @author test
  */
 @ExtendedObjectClassDefinition(category = "assets")
 @Meta.OCD(

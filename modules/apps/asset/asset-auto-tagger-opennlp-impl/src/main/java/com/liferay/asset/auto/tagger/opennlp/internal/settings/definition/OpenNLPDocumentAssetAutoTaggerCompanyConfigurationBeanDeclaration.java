@@ -20,7 +20,7 @@ import com.liferay.portal.kernel.settings.definition.ConfigurationBeanDeclaratio
 import org.osgi.service.component.annotations.Component;
 
 /**
- * @author Cristina González
+ * @author test
  */
 @Component(service = ConfigurationBeanDeclaration.class)
 public class OpenNLPDocumentAssetAutoTaggerCompanyConfigurationBeanDeclaration
