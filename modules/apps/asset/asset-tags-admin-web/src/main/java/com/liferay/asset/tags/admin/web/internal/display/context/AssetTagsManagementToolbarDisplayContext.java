@@ -37,6 +37,8 @@ import javax.portlet.PortletURL;
 
 import javax.servlet.http.HttpServletRequest;
 
+// random change
+
 /**
  * @author Eudaldo Alonso
  */
