@@ -35,6 +35,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.portlet.constants.FriendlyURLResolverConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -49,6 +50,7 @@ import com.liferay.portal.util.RepositoryUtil;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -79,6 +81,16 @@ public class DefaultDLEditFileEntryDisplayContext
 		this(
 			httpServletRequest, (DLFileEntryType)null, dlValidator, fileEntry,
 			storageEngine);
+	}
+
+	@Override
+	public String getAllMimeTypeSizeLimit() {
+		Map<String, Long> mimeTypeSizeLimit = _dlValidator.getMimeTypeSizeLimit(
+			_dlRequestHelper.getSiteGroupId());
+
+		return JSONFactoryUtil.createJSONObject(
+			mimeTypeSizeLimit
+		).toString();
 	}
 
 	@Override

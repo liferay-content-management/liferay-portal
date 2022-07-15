@@ -22,20 +22,36 @@ import React, {useEffect, useState} from 'react';
 
 const FileNamePicker = ({
 	maxFileSize: initialMaxFileSize,
+	maxMimeTypeSize,
 	namespace,
 	validExtensions,
 }) => {
-	const maxFileSize = Number(initialMaxFileSize);
+	let maxFileSize = Number(initialMaxFileSize);
 	const inputId = `${namespace}file`;
 	const [inputValue, setInputValue] = useState('');
 	const [fileName, setFileName] = useState('');
 	const [maxFileSizeError, setMaxFileSizeError] = useState(false);
+	const [maxSize, setMaxSizeValue] = useState(maxFileSize);
 
 	useEffect(() => {
 		setFileName(inputValue ? inputValue.replace(/^.*[\\]/, '') : '');
 	}, [inputValue]);
 
 	const onInputChange = ({target}) => {
+		const jsonObj = JSON.parse(maxMimeTypeSize);
+		const type = target.files[0].type;
+		const maxMimeSize = Number(jsonObj[type]);
+		maxFileSize = Number(initialMaxFileSize);
+
+		if (
+			jsonObj.hasOwnProperty(target.files[0].type) &&
+			maxFileSize > maxMimeSize
+		) {
+			maxFileSize = maxMimeSize;
+		}
+
+		setMaxSizeValue(maxFileSize);
+
 		if (target.files[0].size > maxFileSize) {
 			setMaxFileSizeError(true);
 			setInputValue('');
@@ -94,7 +110,7 @@ const FileNamePicker = ({
 							Liferay.Language.get(
 								'please-enter-a-file-with-a-valid-file-size-no-larger-than-x'
 							),
-							Liferay.Util.formatStorage(maxFileSize, {
+							Liferay.Util.formatStorage(maxSize, {
 								addSpaceBeforeSuffix: true,
 							})
 						)}
