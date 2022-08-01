@@ -261,6 +261,14 @@ renderResponse.setTitle(headerTitle);
 						</div>
 					</c:if>
 
+					<aui:input name="documentUpload" type="hidden" value="<%= false %>" />
+
+					<c:if test='<%= ParamUtil.getBoolean(request, "documentUpload") %>'>
+						<div class="alert alert-danger">
+							<liferay-ui:message key="document-may-have-been-lost" />
+						</div>
+					</c:if>
+
 					<%
 					String folderName = StringPool.BLANK;
 
@@ -669,6 +677,7 @@ renderResponse.setTitle(headerTitle);
 	function <portlet:namespace />changeFileEntryType() {
 		Liferay.Util.setFormValues(form, {
 			<%= Constants.CMD %>: '<%= Constants.PREVIEW %>',
+			documentUpload: true,
 		});
 
 		form.submit();
