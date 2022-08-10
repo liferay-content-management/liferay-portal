@@ -898,8 +898,6 @@ definition {
 
 			PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "test-site-name");
 
-			Navigator.gotoNavNested(navNested = "Page Template Collection");
-
 			PageTemplatesAdmin.gotoPageTemplateEllipsisItem(
 				item = "Edit",
 				pageTemplateName = "Page Template Name");
@@ -1875,8 +1873,6 @@ definition {
 				masterLayoutEntryName = "Custom Masters Page Template");
 
 			PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "test-site-name");
-
-			Navigator.gotoNavNested(navNested = "Page Template Collection");
 
 			PageTemplatesAdmin.gotoPageTemplate(pageTemplateName = "Page Template Name");
 
