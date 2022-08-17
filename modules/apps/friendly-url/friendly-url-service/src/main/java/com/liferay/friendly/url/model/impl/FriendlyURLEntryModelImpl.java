@@ -381,7 +381,8 @@ public class FriendlyURLEntryModelImpl
 	@Override
 	public String getUrlTitleMapAsXML() {
 		return LocalizationUtil.getXml(
-			getLanguageIdToUrlTitleMap(), getDefaultLanguageId(), "UrlTitle");
+			getLanguageIdToUrlTitleMap(), getDefaultLanguageId(), "UrlTitle",
+			true);
 	}
 
 	@Override
