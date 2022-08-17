@@ -79,11 +79,17 @@ definition {
 		}
 
 		task ("Assert the actions order of a collection") {
-			Click.waitForMenuToggleJSClick(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS");
+			Click.waitForMenuToggleJSClick(
+				key_index = "3",
+				key_text = "Page Template Collection",
+				locator1 = "Icon#VERTICAL_ELLIPSIS_INDEXED");
 
 			MenuItem.viewOrder(menuItemList = "Edit,Permissions,Delete");
 
-			Click.waitForMenuToggleJSClick(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS");
+			Click.waitForMenuToggleJSClick(
+				key_index = "3",
+				key_text = "Page Template Collection",
+				locator1 = "Icon#VERTICAL_ELLIPSIS_INDEXED");
 		}
 
 		task ("Assert the actions order of a page template") {
