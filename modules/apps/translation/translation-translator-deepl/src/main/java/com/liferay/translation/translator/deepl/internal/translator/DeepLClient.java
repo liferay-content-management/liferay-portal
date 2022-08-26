@@ -1,6 +1,21 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 package com.liferay.translation.translator.deepl.internal.translator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
@@ -11,123 +26,147 @@ import com.liferay.translation.translator.deepl.internal.constants.DeepLConstant
 import com.liferay.translation.translator.deepl.internal.model.SupportedLanguage;
 import com.liferay.translation.translator.deepl.internal.model.TranslateResponse;
 import com.liferay.translation.translator.deepl.internal.util.JSONUtil;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+
+import java.io.IOException;
+
+import java.util.List;
 
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.List;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Yasuyuki Takeo
  */
-@Component(
-    immediate = true,
-    service = DeepLClient.class
-)
+@Component(immediate = true, service = DeepLClient.class)
 public class DeepLClient {
 
-  /**
-   * Translate text
-   */
-  public TranslateResponse execute(String authKey, String text, String sourcelang, String targetLang, String url)
-      throws IOException {
-    String rawRes = _fetch(authKey, text, sourcelang, targetLang, url);
+	/**
+	 * Translate text
+	 */
+	public TranslateResponse execute(
+			String authKey, String text, String sourcelang, String targetLang,
+			String url)
+		throws IOException {
 
-    return JSONUtil.toObject(rawRes, TranslateResponse.class);
-  }
+		String rawRes = _fetch(authKey, text, sourcelang, targetLang, url);
 
-  protected String _fetch(
-      String authKey, String text, String sourcelang, String targetLang, String url) throws IOException {
+		return JSONUtil.toObject(rawRes, TranslateResponse.class);
+	}
 
-    // The API document is here
-    // https://www.deepl.com/ja/docs-api/translating-text/example/
+	/**
+	 * Get supported languages
+	 */
+	public List<SupportedLanguage> verifySupportedLanguage(
+			String authKey, String target, String url)
+		throws IOException {
 
-    // Build request
-    Http.Options options = new Http.Options();
+		String rawRes = _verifySupportedLanguage(authKey, target, url);
 
-    options.setLocation(
-        URLBuilder.create(
-            url
-        ).addParameter(
-            DeepLConstants.AUTH_KEY, authKey
-        ).build());
+		return JSONUtil.toObject(
+			rawRes,
+			new TypeReference<List<SupportedLanguage>>() {
+			});
+	}
 
-    options.addHeader(
-        HttpHeaders.CONTENT_TYPE, ContentTypes.APPLICATION_X_WWW_FORM_URLENCODED);
-    options.addPart(DeepLConstants.AUTH_KEY, authKey);
-    options.addPart(DeepLConstants.TEXT, text);
-    options.addPart(DeepLConstants.SOURCE_LANG, sourcelang);
-    options.addPart(DeepLConstants.TARGET_LANG, targetLang);
-    options.setMethod(Http.Method.POST);
+	private String _fetch(
+			String authKey, String text, String sourcelang, String targetLang,
+			String url)
+		throws IOException {
 
-    // Fetch data
-    String ret = _http.URLtoString(options);
-    Http.Response response = options.getResponse();
+		// The API document is here
+		// https://www.deepl.com/ja/docs-api/translating-text/example/
 
-    Response.Status status = Response.Status.fromStatusCode(response.getResponseCode());
+		// Build request
 
-    if (status == Response.Status.OK) {
-      return ret;
-    } else if (status == Response.Status.TOO_MANY_REQUESTS) {
-      _log.info("TOO_MANY_REQUESTS. Retry after a while");
-      return "";
-    }
+		Http.Options options = new Http.Options();
 
-    return ret;
-  }
+		options.setLocation(
+			URLBuilder.create(
+				url
+			).addParameter(
+				DeepLConstants.AUTH_KEY, authKey
+			).build());
 
-  /**
-   * Get supported languages
-   */
-  public List<SupportedLanguage> verifySupportedLanguage(
-      String authKey, String target, String url) throws IOException {
-    String rawRes = _verifySupportedLanguage(authKey, target, url);
-    return JSONUtil.toObject(rawRes, (new TypeReference<List<SupportedLanguage>>() {
-    }));
-  }
+		options.addHeader(
+			HttpHeaders.CONTENT_TYPE,
+			ContentTypes.APPLICATION_X_WWW_FORM_URLENCODED);
+		options.addPart(DeepLConstants.AUTH_KEY, authKey);
+		options.addPart(DeepLConstants.TEXT, text);
+		options.addPart(DeepLConstants.SOURCE_LANG, sourcelang);
+		options.addPart(DeepLConstants.TARGET_LANG, targetLang);
+		options.setMethod(Http.Method.POST);
 
-  protected String _verifySupportedLanguage(
-      String authKey, String target, String url) throws IOException {
+		// Fetch data
 
-    // The API document is here
-    // https://www.deepl.com/docs-api/other-functions/listing-supported-languages
+		String ret = _http.URLtoString(options);
 
-    // Build request
-    Http.Options options = new Http.Options();
+		Http.Response response = options.getResponse();
 
-    options.setLocation(
-        URLBuilder.create(
-            url
-        ).addParameter(
-            DeepLConstants.AUTH_KEY, authKey
-        ).build());
+		Response.Status status = Response.Status.fromStatusCode(
+			response.getResponseCode());
 
-    options.addHeader(
-        HttpHeaders.CONTENT_TYPE, ContentTypes.APPLICATION_X_WWW_FORM_URLENCODED);
-    options.addPart(DeepLConstants.AUTH_KEY, authKey);
-    options.addPart(DeepLConstants.TARGET, target);
-    options.setMethod(Http.Method.POST);
+		if (status == Response.Status.OK) {
+			return ret;
+		}
+		else if (status == Response.Status.TOO_MANY_REQUESTS) {
+			_log.error(
+				"Ths status is TOO_MANY_REQUESTS. Please retry after a while.");
 
-    // Fetch data
-    String ret = _http.URLtoString(options);
-    Http.Response response = options.getResponse();
+			return "";
+		}
 
-    Response.Status status = Response.Status.fromStatusCode(response.getResponseCode());
+		return ret;
+	}
 
-    if (status == Response.Status.OK) {
-      return ret;
-    } else if (status == Response.Status.TOO_MANY_REQUESTS) {
-      _log.info("TOO_MANY_REQUESTS. Retry after a while");
-      return "";
-    }
+	private String _verifySupportedLanguage(
+			String authKey, String target, String url)
+		throws IOException {
 
-    return ret;
-  }
+		// The API document is here
+		// www.deepl.com/docs-api/other-functions/listing-supported-languages
 
-  @Reference
-  private Http _http;
+		// Build request
 
-  private static final Log _log = LogFactoryUtil.getLog(
-      DeepLClient.class);
+		Http.Options options = new Http.Options();
+
+		options.setLocation(
+			URLBuilder.create(
+				url
+			).addParameter(
+				DeepLConstants.AUTH_KEY, authKey
+			).build());
+
+		options.addHeader(
+			HttpHeaders.CONTENT_TYPE,
+			ContentTypes.APPLICATION_X_WWW_FORM_URLENCODED);
+		options.addPart(DeepLConstants.AUTH_KEY, authKey);
+		options.addPart(DeepLConstants.TARGET, target);
+		options.setMethod(Http.Method.POST);
+
+		// Fetch data
+
+		String ret = _http.URLtoString(options);
+
+		Http.Response response = options.getResponse();
+
+		Response.Status status = Response.Status.fromStatusCode(
+			response.getResponseCode());
+
+		if (status == Response.Status.OK) {
+			return ret;
+		}
+		else if (status == Response.Status.TOO_MANY_REQUESTS) {
+			return "";
+		}
+
+		return ret;
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(DeepLClient.class);
+
+	@Reference
+	private Http _http;
+
 }

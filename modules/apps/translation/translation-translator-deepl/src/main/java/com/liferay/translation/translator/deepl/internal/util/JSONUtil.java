@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 package com.liferay.translation.translator.deepl.internal.util;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -10,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.net.URISyntaxException;
 
 /**
@@ -19,42 +34,47 @@ import java.net.URISyntaxException;
  */
 public class JSONUtil {
 
-  public static <T> T toObject(
-      final String jsonString,
-      final TypeReference<T> type ) throws JsonProcessingException {
-    T data = new ObjectMapper().readValue(jsonString, type);
-    return data;
-  }
+	/**
+	 * Map json to the actual object
+	 */
+	public static <T> T toObject(String jsonString, Class<T> clazz)
+		throws IOException, JsonMappingException, JsonParseException {
 
-  /**
-   * Map json to the actual object
-   */
-  public static <T> T toObject(final String jsonString, final Class<T> clazz)
-      throws JsonParseException, JsonMappingException, IOException {
+		ObjectMapper mapper = new ObjectMapper();
 
-    ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
 
-    //just ignore unknown properties in json
-    //mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    mapper.enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
+		return mapper.readValue(jsonString, clazz);
+	}
 
-    return mapper.readValue(jsonString, clazz);
-  }
+	public static <T> T toObject(String jsonString, TypeReference<T> type)
+		throws JsonProcessingException {
 
-  /**
-   * Write JSON file
-   */
-  public static <T> void writer(String fullPath, T obj) throws IOException, URISyntaxException {
-    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    ow.writeValue(new File(fullPath), obj);
-  }
+		return new ObjectMapper().readValue(jsonString, type);
+	}
 
-  /**
-   * Write JSON Value as String
-   */
-  public static <T> String writeValueAsString(T obj) throws JsonProcessingException {
-    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    return ow.writeValueAsString(obj);
-  }
+	/**
+	 * Write JSON file
+	 */
+	public static <T> void writer(String fullPath, T obj)
+		throws IOException, URISyntaxException {
+
+		ObjectWriter ow = new ObjectMapper().writer(
+		).withDefaultPrettyPrinter();
+
+		ow.writeValue(new File(fullPath), obj);
+	}
+
+	/**
+	 * Write JSON Value as String
+	 */
+	public static <T> String writeValueAsString(T obj)
+		throws JsonProcessingException {
+
+		ObjectWriter ow = new ObjectMapper().writer(
+		).withDefaultPrettyPrinter();
+
+		return ow.writeValueAsString(obj);
+	}
+
 }
-
