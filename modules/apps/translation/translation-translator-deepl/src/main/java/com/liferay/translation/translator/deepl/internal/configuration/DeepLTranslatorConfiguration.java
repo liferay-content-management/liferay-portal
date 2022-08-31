@@ -38,14 +38,12 @@ public interface DeepLTranslatorConfiguration {
 	)
 	public boolean enabled();
 
-	@Meta.AD(
-		deflt = "", description = "token", name = "token", required = false
-	)
+	@Meta.AD(name = "token", required = false)
 	public String authKey();
 
 	@Meta.AD(
-		deflt = "https://api-free.deepl.com/v2/translate",
-		description = "api-url", name = "api-url", required = false
+		deflt = "https://api-free.deepl.com/v2/translate", name = "api-url",
+		required = false
 	)
 	public String url();
 

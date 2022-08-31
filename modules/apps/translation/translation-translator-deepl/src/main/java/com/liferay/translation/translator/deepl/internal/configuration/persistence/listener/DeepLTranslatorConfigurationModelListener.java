@@ -41,19 +41,19 @@ public class DeepLTranslatorConfigurationModelListener
 	public void onBeforeSave(String pid, Dictionary<String, Object> properties)
 		throws ConfigurationModelListenerException {
 
-		boolean enabled = GetterUtil.getBoolean(properties.get("enabled"));
+		if (!GetterUtil.getBoolean(properties.get("enabled"))) {
+			return;
+		}
 
-		if (enabled) {
-			String url = GetterUtil.getString(properties.get("url"));
-			String authKey = GetterUtil.getString(properties.get("authKey"));
+		String url = GetterUtil.getString(properties.get("url"));
+		String authKey = GetterUtil.getString(properties.get("authKey"));
 
-			if (authKey.isEmpty() || url.isEmpty())
-
-				throw new ConfigurationModelListenerException(
-					_language.get(
-						LocaleThreadLocal.getThemeDisplayLocale(),
-						"the-auth-key-and-url-must-be-configured"),
-					DeepLTranslatorConfiguration.class, getClass(), properties);
+		if (authKey.isEmpty() || url.isEmpty()) {
+			throw new ConfigurationModelListenerException(
+				_language.get(
+					LocaleThreadLocal.getThemeDisplayLocale(),
+					"the-auth-key-and-url-must-be-configured"),
+				DeepLTranslatorConfiguration.class, getClass(), properties);
 		}
 	}
 

@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.translation.exception.TranslatorException;
 import com.liferay.translation.translator.Translator;
 import com.liferay.translation.translator.TranslatorPacket;
 import com.liferay.translation.translator.deepl.internal.configuration.DeepLTranslatorConfiguration;
@@ -92,11 +93,7 @@ public class DeepLTranslator implements Translator {
 		List<String> supportedLanguages = _getSupportedLanguages(
 			deepLTranslatorConfiguration);
 
-		// Verify languages are supported or return.
-
-		if (!_verifyLanguage(
-				supportedLanguages, Arrays.asList(targetLanguageCode))) {
-
+		if (!_verifyLanguage(supportedLanguages, targetLanguageCode)) {
 			String sls = StringUtil.merge(
 				supportedLanguages, StringPool.COMMA_AND_SPACE);
 
@@ -115,13 +112,14 @@ public class DeepLTranslator implements Translator {
 		Map<String, String> translatedFieldsMap = new HashMap<>();
 		Map<String, String> fieldsMap = translatorPacket.getFieldsMap();
 
-		fieldsMap.forEach(
-			(key, value) -> translatedFieldsMap.put(
-				key,
+		for (Map.Entry<String, String> entry : fieldsMap.entrySet()) {
+			translatedFieldsMap.put(
+				entry.getKey(),
 				_translate(
 					deepLTranslatorConfiguration.url(),
-					deepLTranslatorConfiguration.authKey(), value,
-					sourceLanguageCode, targetLanguageCode)));
+					deepLTranslatorConfiguration.authKey(), entry.getValue(),
+					sourceLanguageCode, targetLanguageCode));
+		}
 
 		return new TranslatorPacket() {
 
@@ -190,8 +188,9 @@ public class DeepLTranslator implements Translator {
 	}
 
 	private String _translate(
-		String url, String authKey, String text, String sourceLanguageCode,
-		String targetLanguageCode) {
+			String url, String authKey, String text, String sourceLanguageCode,
+			String targetLanguageCode)
+		throws TranslatorException {
 
 		if (Validator.isBlank(text)) {
 			return text;
@@ -204,11 +203,9 @@ public class DeepLTranslator implements Translator {
 				authKey, text, sourceLanguageCode, targetLanguageCode, url);
 		}
 		catch (IOException ioException) {
-			_log.error(
+			throw new TranslatorException(
 				"DeepL translator returns original text. " +
 					ioException.getLocalizedMessage());
-
-			return text;
 		}
 
 		Translation translation = translateResponse.translations.get(0);
@@ -217,16 +214,16 @@ public class DeepLTranslator implements Translator {
 	}
 
 	private Boolean _verifyLanguage(
-		List<String> deepLLanguages, List<String> compareLanguages) {
+		List<String> deepLLanguages, String compareLanguage) {
 
-		for (String lang : compareLanguages) {
-			if (Collections.disjoint(deepLLanguages, Arrays.asList(lang))) {
-				_log.error(
-					"DeepL does not support " + lang +
-						". Abort processing translation.");
+		if (Collections.disjoint(
+				deepLLanguages, Arrays.asList(compareLanguage))) {
 
-				return false;
-			}
+			_log.error(
+				"DeepL does not support " + compareLanguage +
+					". Abort processing translation.");
+
+			return false;
 		}
 
 		return true;

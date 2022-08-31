@@ -42,43 +42,30 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = DeepLClient.class)
 public class DeepLClient {
 
-	/**
-	 * Translate text
-	 */
 	public TranslateResponse execute(
-			String authKey, String text, String sourcelang, String targetLang,
-			String url)
+			String authKey, String text, String sourceLanguageId,
+			String targetLanguageId, String url)
 		throws IOException {
 
-		String rawRes = _fetch(authKey, text, sourcelang, targetLang, url);
-
-		return JSONUtil.toObject(rawRes, TranslateResponse.class);
+		return JSONUtil.toObject(
+			_fetch(authKey, text, sourceLanguageId, targetLanguageId, url),
+			TranslateResponse.class);
 	}
 
-	/**
-	 * Get supported languages
-	 */
 	public List<SupportedLanguage> verifySupportedLanguage(
 			String authKey, String target, String url)
 		throws IOException {
 
-		String rawRes = _verifySupportedLanguage(authKey, target, url);
-
 		return JSONUtil.toObject(
-			rawRes,
+			_fetchSupportedLanguage(authKey, target, url),
 			new TypeReference<List<SupportedLanguage>>() {
 			});
 	}
 
 	private String _fetch(
-			String authKey, String text, String sourcelang, String targetLang,
-			String url)
+			String authKey, String text, String sourceLanguageId,
+			String targetLanguageId, String url)
 		throws IOException {
-
-		// The API document is here
-		// https://www.deepl.com/ja/docs-api/translating-text/example/
-
-		// Build request
 
 		Http.Options options = new Http.Options();
 
@@ -94,13 +81,9 @@ public class DeepLClient {
 			ContentTypes.APPLICATION_X_WWW_FORM_URLENCODED);
 		options.addPart(DeepLConstants.AUTH_KEY, authKey);
 		options.addPart(DeepLConstants.TEXT, text);
-		options.addPart(DeepLConstants.SOURCE_LANG, sourcelang);
-		options.addPart(DeepLConstants.TARGET_LANG, targetLang);
+		options.addPart(DeepLConstants.SOURCE_LANG, sourceLanguageId);
+		options.addPart(DeepLConstants.TARGET_LANG, targetLanguageId);
 		options.setMethod(Http.Method.POST);
-
-		// Fetch data
-
-		String ret = _http.URLtoString(options);
 
 		Http.Response response = options.getResponse();
 
@@ -108,7 +91,7 @@ public class DeepLClient {
 			response.getResponseCode());
 
 		if (status == Response.Status.OK) {
-			return ret;
+			return _http.URLtoString(options);
 		}
 		else if (status == Response.Status.TOO_MANY_REQUESTS) {
 			_log.error(
@@ -117,17 +100,12 @@ public class DeepLClient {
 			return "";
 		}
 
-		return ret;
+		return _http.URLtoString(options);
 	}
 
-	private String _verifySupportedLanguage(
+	private String _fetchSupportedLanguage(
 			String authKey, String target, String url)
 		throws IOException {
-
-		// The API document is here
-		// www.deepl.com/docs-api/other-functions/listing-supported-languages
-
-		// Build request
 
 		Http.Options options = new Http.Options();
 
@@ -144,8 +122,6 @@ public class DeepLClient {
 		options.addPart(DeepLConstants.AUTH_KEY, authKey);
 		options.addPart(DeepLConstants.TARGET, target);
 		options.setMethod(Http.Method.POST);
-
-		// Fetch data
 
 		String ret = _http.URLtoString(options);
 

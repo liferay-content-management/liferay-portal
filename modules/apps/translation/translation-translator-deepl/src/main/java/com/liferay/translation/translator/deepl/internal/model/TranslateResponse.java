@@ -21,6 +21,14 @@ import java.util.List;
  */
 public class TranslateResponse {
 
+	public List<Translation> getTranslations() {
+		return translations;
+	}
+
+	public void setTranslations(List<Translation> translations) {
+		this.translations = translations;
+	}
+
 	public List<Translation> translations;
 
 }

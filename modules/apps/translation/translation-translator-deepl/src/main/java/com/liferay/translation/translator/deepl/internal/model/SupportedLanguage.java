@@ -19,6 +19,30 @@ package com.liferay.translation.translator.deepl.internal.model;
  */
 public class SupportedLanguage {
 
+	public String getLanguage() {
+		return language;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Boolean getSupports_formality() {
+		return supports_formality;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setSupports_formality(Boolean supports_formality) {
+		this.supports_formality = supports_formality;
+	}
+
 	public String language;
 	public String name;
 	public Boolean supports_formality;
