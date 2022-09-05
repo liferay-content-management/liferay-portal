@@ -1326,7 +1326,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			serviceContext.setAttribute("trackbacks", null);
 		}
 
-		entry = _startWorkflowInstance(userId, entry, serviceContext);
+		_startWorkflowInstance(userId, entry, serviceContext);
 
 		if (deletePreviousCoverImageFileEntryId != 0) {
 			_portletFileRepository.deletePortletFileEntry(
@@ -1342,7 +1342,9 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			_imageLocalService.deleteImage(deletePreviousSmallImageId);
 		}
 
-		return entry;
+		return updateStatus(
+			userId, entryId, WorkflowConstants.STATUS_APPROVED, serviceContext,
+			new HashMap<>());
 	}
 
 	@Override
