@@ -28,15 +28,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 /**
- * JSON Utility
- *
  * @author Yasuyuki Takeo
  */
 public class JSONUtil {
 
-	/**
-	 * Map json to the actual object
-	 */
 	public static <T> T toObject(String jsonString, Class<T> clazz)
 		throws IOException, JsonMappingException, JsonParseException {
 
@@ -53,9 +48,6 @@ public class JSONUtil {
 		return new ObjectMapper().readValue(jsonString, type);
 	}
 
-	/**
-	 * Write JSON file
-	 */
 	public static <T> void writer(String fullPath, T obj)
 		throws IOException, URISyntaxException {
 
@@ -65,9 +57,6 @@ public class JSONUtil {
 		ow.writeValue(new File(fullPath), obj);
 	}
 
-	/**
-	 * Write JSON Value as String
-	 */
 	public static <T> String writeValueAsString(T obj)
 		throws JsonProcessingException {
 

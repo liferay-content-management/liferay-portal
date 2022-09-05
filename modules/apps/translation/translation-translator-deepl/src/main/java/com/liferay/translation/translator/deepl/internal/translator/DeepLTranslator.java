@@ -86,21 +86,19 @@ public class DeepLTranslator implements Translator {
 				DeepLTranslatorConfiguration.class,
 				translatorPacket.getCompanyId());
 
-		String tlc = translatorPacket.getTargetLanguageId();
-
-		String targetLanguageCode = _getLanguageCode(tlc);
+		String targetLanguageCode = _getLanguageCode(
+			translatorPacket.getTargetLanguageId());
 
 		List<String> supportedLanguages = _getSupportedLanguages(
 			deepLTranslatorConfiguration);
 
 		if (!_verifyLanguage(supportedLanguages, targetLanguageCode)) {
-			String sls = StringUtil.merge(
-				supportedLanguages, StringPool.COMMA_AND_SPACE);
-
 			_log.error(
 				StringBundler.concat(
 					"No target language available for ", targetLanguageCode,
-					". Supported languages are: ", sls));
+					". Supported languages are: ",
+					StringUtil.merge(
+						supportedLanguages, StringPool.COMMA_AND_SPACE)));
 
 			return translatorPacket;
 		}
@@ -179,10 +177,13 @@ public class DeepLTranslator implements Translator {
 
 			return new ArrayList<>();
 		}
+		catch (TranslatorException translatorException) {
+			throw new RuntimeException(translatorException);
+		}
 
 		List<String> languages = new ArrayList<>();
 
-		supportedLanguages.forEach(sl -> languages.add(sl.language));
+		supportedLanguages.forEach(sl -> languages.add(sl.getLanguage()));
 
 		return languages;
 	}
@@ -208,9 +209,11 @@ public class DeepLTranslator implements Translator {
 					ioException.getLocalizedMessage());
 		}
 
-		Translation translation = translateResponse.translations.get(0);
+		List<Translation> translations = translateResponse.getTranslations();
 
-		return translation.text;
+		Translation translation = translations.get(0);
+
+		return translation.getText();
 	}
 
 	private Boolean _verifyLanguage(

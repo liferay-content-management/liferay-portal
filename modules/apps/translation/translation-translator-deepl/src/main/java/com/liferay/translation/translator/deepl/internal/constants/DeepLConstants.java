@@ -36,9 +36,6 @@ public class DeepLConstants {
 	public static final String SUPPORTED_LANGUAGE_INQ_URL =
 		"https://api-free.deepl.com/v2/languages";
 
-	/**
-	 * Verifying the supported languages
-	 */
 	public static final String TARGET = "target";
 
 	public static final String TARGET_LANG = "target_lang";

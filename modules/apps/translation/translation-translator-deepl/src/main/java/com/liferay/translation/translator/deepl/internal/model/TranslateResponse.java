@@ -14,6 +14,8 @@
 
 package com.liferay.translation.translator.deepl.internal.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -21,14 +23,15 @@ import java.util.List;
  */
 public class TranslateResponse {
 
+	@JsonProperty("translations")
 	public List<Translation> getTranslations() {
-		return translations;
+		return _translations;
 	}
 
 	public void setTranslations(List<Translation> translations) {
-		this.translations = translations;
+		_translations = translations;
 	}
 
-	public List<Translation> translations;
+	private List<Translation> _translations;
 
 }

@@ -16,12 +16,11 @@ package com.liferay.translation.translator.deepl.internal.translator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.url.URLBuilder;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.Http;
+import com.liferay.translation.exception.TranslatorException;
 import com.liferay.translation.translator.deepl.internal.constants.DeepLConstants;
 import com.liferay.translation.translator.deepl.internal.model.SupportedLanguage;
 import com.liferay.translation.translator.deepl.internal.model.TranslateResponse;
@@ -45,7 +44,7 @@ public class DeepLClient {
 	public TranslateResponse execute(
 			String authKey, String text, String sourceLanguageId,
 			String targetLanguageId, String url)
-		throws IOException {
+		throws IOException, TranslatorException {
 
 		return JSONUtil.toObject(
 			_fetch(authKey, text, sourceLanguageId, targetLanguageId, url),
@@ -54,7 +53,7 @@ public class DeepLClient {
 
 	public List<SupportedLanguage> verifySupportedLanguage(
 			String authKey, String target, String url)
-		throws IOException {
+		throws IOException, TranslatorException {
 
 		return JSONUtil.toObject(
 			_fetchSupportedLanguage(authKey, target, url),
@@ -65,7 +64,7 @@ public class DeepLClient {
 	private String _fetch(
 			String authKey, String text, String sourceLanguageId,
 			String targetLanguageId, String url)
-		throws IOException {
+		throws IOException, TranslatorException {
 
 		Http.Options options = new Http.Options();
 
@@ -80,9 +79,9 @@ public class DeepLClient {
 			HttpHeaders.CONTENT_TYPE,
 			ContentTypes.APPLICATION_X_WWW_FORM_URLENCODED);
 		options.addPart(DeepLConstants.AUTH_KEY, authKey);
-		options.addPart(DeepLConstants.TEXT, text);
 		options.addPart(DeepLConstants.SOURCE_LANG, sourceLanguageId);
 		options.addPart(DeepLConstants.TARGET_LANG, targetLanguageId);
+		options.addPart(DeepLConstants.TEXT, text);
 		options.setMethod(Http.Method.POST);
 
 		Http.Response response = options.getResponse();
@@ -94,10 +93,8 @@ public class DeepLClient {
 			return _http.URLtoString(options);
 		}
 		else if (status == Response.Status.TOO_MANY_REQUESTS) {
-			_log.error(
+			throw new TranslatorException(
 				"Ths status is TOO_MANY_REQUESTS. Please retry after a while.");
-
-			return "";
 		}
 
 		return _http.URLtoString(options);
@@ -105,7 +102,7 @@ public class DeepLClient {
 
 	private String _fetchSupportedLanguage(
 			String authKey, String target, String url)
-		throws IOException {
+		throws IOException, TranslatorException {
 
 		Http.Options options = new Http.Options();
 
@@ -123,7 +120,7 @@ public class DeepLClient {
 		options.addPart(DeepLConstants.TARGET, target);
 		options.setMethod(Http.Method.POST);
 
-		String ret = _http.URLtoString(options);
+		String supportedLanguage = _http.URLtoString(options);
 
 		Http.Response response = options.getResponse();
 
@@ -131,16 +128,15 @@ public class DeepLClient {
 			response.getResponseCode());
 
 		if (status == Response.Status.OK) {
-			return ret;
+			return supportedLanguage;
 		}
 		else if (status == Response.Status.TOO_MANY_REQUESTS) {
-			return "";
+			throw new TranslatorException(
+				"Ths status is TOO_MANY_REQUESTS. Please retry after a while.");
 		}
 
-		return ret;
+		return supportedLanguage;
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(DeepLClient.class);
 
 	@Reference
 	private Http _http;
