@@ -20,6 +20,7 @@ import com.liferay.fragment.renderer.FragmentRendererContext;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
 import com.liferay.knowledge.base.model.KBArticle;
 import com.liferay.knowledge.base.service.KBArticleService;
+import com.liferay.knowledge.base.web.internal.display.context.KBArticleNavigationFragmentDisplayContext;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -99,6 +100,10 @@ public class KBArticleNavigationFragmentRenderer implements FragmentRenderer {
 			if (kbArticle == null) {
 				return;
 			}
+
+			httpServletRequest.setAttribute(
+				KBArticleNavigationFragmentDisplayContext.class.getName(),
+				new KBArticleNavigationFragmentDisplayContext(kbArticle));
 
 			RequestDispatcher requestDispatcher =
 				_servletContext.getRequestDispatcher("/navigation/view.jsp");
