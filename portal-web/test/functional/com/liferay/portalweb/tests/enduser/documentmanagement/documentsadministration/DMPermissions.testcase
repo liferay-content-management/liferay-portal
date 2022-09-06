@@ -1,6 +1,7 @@
 @component-name = "portal-document-management"
 definition {
 
+	property custom.properties = "dl.actions.visible=true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Document Management";
@@ -76,8 +77,6 @@ definition {
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
 		User.logoutAndLoginPG(
@@ -129,12 +128,6 @@ definition {
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "test@liferay.com",
 			userLoginFullName = "Test Test");
-
-		Navigator.gotoSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
@@ -305,8 +298,6 @@ definition {
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
@@ -390,12 +381,6 @@ definition {
 			pageName = "Documents and Media Page",
 			siteName = "Site Name");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
-		Navigator.gotoSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
 		DMNavigator.gotoFolderPermissions(dmFolderName = "DM Folder Name");
 
 		PermissionsInline.addOrRemoveAnyPermissionsFromSpecificRole(
@@ -464,8 +449,6 @@ definition {
 			siteName = "Site Name");
 
 		Portlet.addPG(portletName = "Documents and Media");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		Navigator.gotoSitePage(
 			pageName = "Documents and Media Page",
@@ -580,12 +563,6 @@ definition {
 			pageName = "Documents and Media Page",
 			siteName = "Site Name");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
-		Navigator.gotoSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
 		DMDocument.addMultiplePG(
 			dmDocumentFileList = "Document_1.jpeg,Document_2.docx,Document_3.mp3",
 			viewableBy = "Owner");
@@ -629,8 +606,6 @@ definition {
 			pageName = "Documents and Media Page",
 			siteName = "Site Name");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
 		Permissions.addDMFolderLoginUserPG(
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name",
@@ -642,12 +617,6 @@ definition {
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "test@liferay.com",
 			userLoginFullName = "Test Test");
-
-		Navigator.gotoSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		ProductMenu.gotoPortlet(
 			category = "Content & Data",
@@ -862,10 +831,6 @@ definition {
 			resourceName = "com.liferay.document.library.kernel.model.DLFolder",
 			roleTitle = "Guest");
 
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.enableActionsMenuOnPortlet();
-
 		User.logoutPG();
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
@@ -894,10 +859,6 @@ definition {
 			groupName = "Guest",
 			mimeType = "text/plain",
 			sourceFileName = "Document_1.txt");
-
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		User.logoutPG();
 
@@ -995,8 +956,6 @@ definition {
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
 		JSONFolder.addFolder(
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name",
@@ -1080,12 +1039,6 @@ definition {
 			groupName = "Site Name",
 			mimeType = "image/jpeg",
 			sourceFileName = "Document_1.jpg");
-
-		Navigator.openSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		Navigator.openSitePage(
 			pageName = "Documents and Media Page",
@@ -1385,10 +1338,6 @@ definition {
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
 		PermissionsInline.gotoDocumentsAndMediaDocumentPG(dmDocumentTitle = "DM Folder Name");
 
 		Role.removePermissionPG(
@@ -1449,10 +1398,6 @@ definition {
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
 		DMDocument.gotoMenuItemViaInfoPanel(menuItem = "Permissions");
 
 		Role.removePermissionPG(
@@ -1506,10 +1451,6 @@ definition {
 			groupName = "Guest",
 			mimeType = "text/plain",
 			sourceFileName = "Document_1.txt");
-
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
@@ -1567,8 +1508,6 @@ definition {
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
 		DMDocument.addDMShortcutPG(
 			dmDocumentTitle = "DM Document Title",
 			siteName = "Site Name");
@@ -1624,10 +1563,6 @@ definition {
 			groupName = "Guest",
 			mimeType = "text/plain",
 			sourceFileName = "Document_1.txt");
-
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
@@ -1801,10 +1736,6 @@ definition {
 			mimeType = "text/plain",
 			sourceFileName = "Document_1.txt");
 
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.enableActionsMenuOnPortlet();
-
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
 			userLoginFullName = "userfn userln");
@@ -1863,10 +1794,6 @@ definition {
 			dmFolderName = "DM Folder Name",
 			groupName = "Guest");
 
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.enableActionsMenuOnPortlet();
-
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
 			userLoginFullName = "userfn userln");
@@ -1924,10 +1851,6 @@ definition {
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name",
 			groupName = "Guest");
-
-		Navigator.gotoPage(pageName = "Documents and Media Page");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
@@ -2050,12 +1973,6 @@ definition {
 			groupName = "Site Name",
 			mimeType = "image/jpeg",
 			sourceFileName = "Document_1.jpg");
-
-		Navigator.openSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		Navigator.openSitePage(
 			pageName = "Documents and Media Page",
@@ -2235,8 +2152,6 @@ definition {
 
 		Portlet.addPG(portletName = "Documents and Media");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "list");
@@ -2301,12 +2216,6 @@ definition {
 			pageName = "Documents and Media Page",
 			siteName = "Site Name");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
-		Navigator.openSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
 		DMDocument.addPG(
 			dmDocumentFile = "Document_1.doc",
 			dmDocumentTitle = "Document_1.doc");
@@ -2351,12 +2260,6 @@ definition {
 			layoutName = "Documents and Media Page",
 			widgetName = "Documents and Media");
 
-		Navigator.openSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
-		DMDocument.enableActionsMenuOnPortlet();
-
 		JSONFolder.addFolder(
 			dmFolderDescription = "DM Folder Description",
 			dmFolderName = "DM Folder Name",
@@ -2394,12 +2297,6 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com",
 			userScreenName = "usersn");
-
-		Navigator.openSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		Navigator.openSitePage(
 			pageName = "Documents and Media Page",
@@ -2885,12 +2782,6 @@ definition {
 			pageName = "Documents and Media Page",
 			siteName = "Site Name");
 
-		DMDocument.enableActionsMenuOnPortlet();
-
-		Navigator.openSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name");
-
 		PermissionsInline.gotoDocumentsAndMediaDocumentPG(
 			dmDocumentTitle = "Document_1.doc",
 			pageName = "Documents and Media Page");
@@ -3015,8 +2906,6 @@ definition {
 			siteName = "Organization Name");
 
 		Portlet.addPG(portletName = "Documents and Media");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		Navigator.gotoSitePage(
 			pageName = "Documents and Media Page",
@@ -3182,12 +3071,6 @@ definition {
 			groupName = "Site Name 2",
 			layoutName = "Documents and Media Page",
 			widgetName = "Documents and Media");
-
-		Navigator.gotoSitePage(
-			pageName = "Documents and Media Page",
-			siteName = "Site Name 2");
-
-		DMDocument.enableActionsMenuOnPortlet();
 
 		Navigator.gotoSitePage(
 			pageName = "Documents and Media Page",
