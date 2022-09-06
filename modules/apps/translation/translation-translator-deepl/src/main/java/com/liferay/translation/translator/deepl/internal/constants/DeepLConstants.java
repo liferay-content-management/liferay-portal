@@ -33,7 +33,7 @@ public class DeepLConstants {
 
 	public static final String SOURCE_LANG = "source_lang";
 
-	public static final String SUPPORTED_LANGUAGE_INQ_URL =
+	public static final String SUPPORTED_LANGUAGES_URL =
 		"https://api-free.deepl.com/v2/languages";
 
 	public static final String TARGET = "target";

@@ -103,9 +103,8 @@ public class DeepLTranslator implements Translator {
 			return translatorPacket;
 		}
 
-		String slc = translatorPacket.getSourceLanguageId();
-
-		String sourceLanguageCode = _getLanguageCode(slc);
+		String sourceLanguageCode = _getLanguageCode(
+			translatorPacket.getSourceLanguageId());
 
 		Map<String, String> translatedFieldsMap = new HashMap<>();
 		Map<String, String> fieldsMap = translatorPacket.getFieldsMap();
@@ -155,20 +154,23 @@ public class DeepLTranslator implements Translator {
 		List<String> list = Arrays.asList(
 			StringUtil.split(languageId, CharPool.UNDERLINE));
 
-		String ret = list.get(0);
-
-		return StringUtil.toUpperCase(ret);
+		return StringUtil.toUpperCase(list.get(0));
 	}
 
 	private List<String> _getSupportedLanguages(
 		DeepLTranslatorConfiguration deepLTranslatorConfiguration) {
 
-		List<SupportedLanguage> supportedLanguages = null;
-
 		try {
-			supportedLanguages = _deepLClient.verifySupportedLanguage(
-				deepLTranslatorConfiguration.authKey(), DeepLConstants.TARGET,
-				DeepLConstants.SUPPORTED_LANGUAGE_INQ_URL);
+			List<SupportedLanguage> supportedLanguages =
+				_deepLClient.getSupportedLanguages(
+					deepLTranslatorConfiguration.authKey(),
+					DeepLConstants.TARGET,
+					DeepLConstants.SUPPORTED_LANGUAGES_URL);
+			List<String> languages = new ArrayList<>();
+
+			supportedLanguages.forEach(sl -> languages.add(sl.getLanguage()));
+
+			return languages;
 		}
 		catch (IOException ioException) {
 			_log.error(
@@ -180,12 +182,6 @@ public class DeepLTranslator implements Translator {
 		catch (TranslatorException translatorException) {
 			throw new RuntimeException(translatorException);
 		}
-
-		List<String> languages = new ArrayList<>();
-
-		supportedLanguages.forEach(sl -> languages.add(sl.getLanguage()));
-
-		return languages;
 	}
 
 	private String _translate(
@@ -193,30 +189,29 @@ public class DeepLTranslator implements Translator {
 			String targetLanguageCode)
 		throws TranslatorException {
 
-		if (Validator.isBlank(text)) {
-			return text;
-		}
-
-		TranslateResponse translateResponse = null;
-
 		try {
-			translateResponse = _deepLClient.execute(
+			if (Validator.isBlank(text)) {
+				return text;
+			}
+
+			TranslateResponse translateResponse = _deepLClient.execute(
 				authKey, text, sourceLanguageCode, targetLanguageCode, url);
+
+			List<Translation> translations =
+				translateResponse.getTranslations();
+
+			Translation translation = translations.get(0);
+
+			return translation.getText();
 		}
 		catch (IOException ioException) {
 			throw new TranslatorException(
 				"DeepL translator returns original text. " +
 					ioException.getLocalizedMessage());
 		}
-
-		List<Translation> translations = translateResponse.getTranslations();
-
-		Translation translation = translations.get(0);
-
-		return translation.getText();
 	}
 
-	private Boolean _verifyLanguage(
+	private boolean _verifyLanguage(
 		List<String> deepLLanguages, String compareLanguage) {
 
 		if (Collections.disjoint(

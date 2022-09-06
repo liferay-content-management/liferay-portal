@@ -35,11 +35,12 @@ public class JSONUtil {
 	public static <T> T toObject(String jsonString, Class<T> clazz)
 		throws IOException, JsonMappingException, JsonParseException {
 
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper objectMapper = new ObjectMapper();
 
-		mapper.enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
+		objectMapper.enable(
+			DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
 
-		return mapper.readValue(jsonString, clazz);
+		return objectMapper.readValue(jsonString, clazz);
 	}
 
 	public static <T> T toObject(String jsonString, TypeReference<T> type)
@@ -51,19 +52,21 @@ public class JSONUtil {
 	public static <T> void writer(String fullPath, T obj)
 		throws IOException, URISyntaxException {
 
-		ObjectWriter ow = new ObjectMapper().writer(
-		).withDefaultPrettyPrinter();
+		ObjectWriter objectWriter = new ObjectMapper().writer();
 
-		ow.writeValue(new File(fullPath), obj);
+		objectWriter = objectWriter.withDefaultPrettyPrinter();
+
+		objectWriter.writeValue(new File(fullPath), obj);
 	}
 
 	public static <T> String writeValueAsString(T obj)
 		throws JsonProcessingException {
 
-		ObjectWriter ow = new ObjectMapper().writer(
-		).withDefaultPrettyPrinter();
+		ObjectWriter objectWriter = new ObjectMapper().writer();
 
-		return ow.writeValueAsString(obj);
+		objectWriter = objectWriter.withDefaultPrettyPrinter();
+
+		return objectWriter.writeValueAsString(obj);
 	}
 
 }

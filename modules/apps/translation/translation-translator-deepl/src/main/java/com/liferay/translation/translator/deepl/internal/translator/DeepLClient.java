@@ -51,7 +51,7 @@ public class DeepLClient {
 			TranslateResponse.class);
 	}
 
-	public List<SupportedLanguage> verifySupportedLanguage(
+	public List<SupportedLanguage> getSupportedLanguages(
 			String authKey, String target, String url)
 		throws IOException, TranslatorException {
 
