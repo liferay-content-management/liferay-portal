@@ -16,6 +16,7 @@ package com.liferay.translation.translator.deepl.internal.translator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.url.URLBuilder;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -44,7 +45,7 @@ public class DeepLClient {
 	public TranslateResponse execute(
 			String authKey, String text, String sourceLanguageId,
 			String targetLanguageId, String url)
-		throws IOException, TranslatorException {
+		throws IOException, PortalException {
 
 		return JSONUtil.toObject(
 			_fetch(authKey, text, sourceLanguageId, targetLanguageId, url),
@@ -53,10 +54,10 @@ public class DeepLClient {
 
 	public List<SupportedLanguage> getSupportedLanguages(
 			String authKey, String target, String url)
-		throws IOException, TranslatorException {
+		throws IOException, PortalException {
 
 		return JSONUtil.toObject(
-			_fetchSupportedLanguage(authKey, target, url),
+			_getSupportedLanguage(authKey, target, url),
 			new TypeReference<List<SupportedLanguage>>() {
 			});
 	}
@@ -64,7 +65,7 @@ public class DeepLClient {
 	private String _fetch(
 			String authKey, String text, String sourceLanguageId,
 			String targetLanguageId, String url)
-		throws IOException, TranslatorException {
+		throws IOException, PortalException {
 
 		Http.Options options = new Http.Options();
 
@@ -94,15 +95,17 @@ public class DeepLClient {
 		}
 		else if (status == Response.Status.TOO_MANY_REQUESTS) {
 			throw new TranslatorException(
-				"Ths status is TOO_MANY_REQUESTS. Please retry after a while.");
+				"The status is TOO_MANY_REQUESTS. Please retry after a while.");
 		}
-
-		return _http.URLtoString(options);
+		else {
+			throw new PortalException(
+				"The status(" + status.toString() + ") is invalid.");
+		}
 	}
 
-	private String _fetchSupportedLanguage(
+	private String _getSupportedLanguage(
 			String authKey, String target, String url)
-		throws IOException, TranslatorException {
+		throws IOException, PortalException {
 
 		Http.Options options = new Http.Options();
 
@@ -132,10 +135,12 @@ public class DeepLClient {
 		}
 		else if (status == Response.Status.TOO_MANY_REQUESTS) {
 			throw new TranslatorException(
-				"Ths status is TOO_MANY_REQUESTS. Please retry after a while.");
+				"The status is TOO_MANY_REQUESTS. Please retry after a while.");
 		}
-
-		return supportedLanguage;
+		else {
+			throw new PortalException(
+				"The status(" + status.toString() + ") is invalid.");
+		}
 	}
 
 	@Reference

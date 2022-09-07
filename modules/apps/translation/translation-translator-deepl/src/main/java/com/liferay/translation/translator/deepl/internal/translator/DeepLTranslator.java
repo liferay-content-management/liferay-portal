@@ -168,7 +168,9 @@ public class DeepLTranslator implements Translator {
 					DeepLConstants.SUPPORTED_LANGUAGES_URL);
 			List<String> languages = new ArrayList<>();
 
-			supportedLanguages.forEach(sl -> languages.add(sl.getLanguage()));
+			supportedLanguages.forEach(
+				supportedLanguage -> languages.add(
+					supportedLanguage.getLanguage()));
 
 			return languages;
 		}
@@ -181,6 +183,9 @@ public class DeepLTranslator implements Translator {
 		}
 		catch (TranslatorException translatorException) {
 			throw new RuntimeException(translatorException);
+		}
+		catch (PortalException portalException) {
+			throw new RuntimeException(portalException);
 		}
 	}
 
@@ -208,6 +213,9 @@ public class DeepLTranslator implements Translator {
 			throw new TranslatorException(
 				"DeepL translator returns original text. " +
 					ioException.getLocalizedMessage());
+		}
+		catch (PortalException portalException) {
+			throw new RuntimeException(portalException);
 		}
 	}
 
