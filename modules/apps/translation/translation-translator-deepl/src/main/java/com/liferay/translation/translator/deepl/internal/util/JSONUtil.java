@@ -46,7 +46,9 @@ public class JSONUtil {
 	public static <T> T toObject(String jsonString, TypeReference<T> type)
 		throws JsonProcessingException {
 
-		return new ObjectMapper().readValue(jsonString, type);
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		return objectMapper.readValue(jsonString, type);
 	}
 
 	public static <T> void writer(String fullPath, T obj)

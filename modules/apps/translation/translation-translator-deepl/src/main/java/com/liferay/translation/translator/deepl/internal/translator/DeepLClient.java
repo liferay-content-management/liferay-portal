@@ -138,8 +138,7 @@ public class DeepLClient {
 				"The status is TOO_MANY_REQUESTS. Please retry after a while.");
 		}
 		else {
-			throw new PortalException(
-				"The status(" + status.toString() + ") is invalid.");
+			throw new PortalException("The status(" + status + ") is invalid.");
 		}
 	}
 

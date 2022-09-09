@@ -158,7 +158,8 @@ public class DeepLTranslator implements Translator {
 	}
 
 	private List<String> _getSupportedLanguages(
-		DeepLTranslatorConfiguration deepLTranslatorConfiguration) {
+			DeepLTranslatorConfiguration deepLTranslatorConfiguration)
+		throws PortalException {
 
 		try {
 			List<SupportedLanguage> supportedLanguages =
@@ -181,18 +182,12 @@ public class DeepLTranslator implements Translator {
 
 			return new ArrayList<>();
 		}
-		catch (TranslatorException translatorException) {
-			throw new RuntimeException(translatorException);
-		}
-		catch (PortalException portalException) {
-			throw new RuntimeException(portalException);
-		}
 	}
 
 	private String _translate(
 			String url, String authKey, String text, String sourceLanguageCode,
 			String targetLanguageCode)
-		throws TranslatorException {
+		throws PortalException {
 
 		try {
 			if (Validator.isBlank(text)) {
@@ -213,9 +208,6 @@ public class DeepLTranslator implements Translator {
 			throw new TranslatorException(
 				"DeepL translator returns original text. " +
 					ioException.getLocalizedMessage());
-		}
-		catch (PortalException portalException) {
-			throw new RuntimeException(portalException);
 		}
 	}
 
