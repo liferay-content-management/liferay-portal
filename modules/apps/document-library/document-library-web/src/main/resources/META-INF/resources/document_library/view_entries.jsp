@@ -21,6 +21,8 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 DLViewEntriesDisplayContext dlViewEntriesDisplayContext = new DLViewEntriesDisplayContext(liferayPortletRequest, liferayPortletResponse);
 %>
 
+<liferay-document-library:repository-browser />
+
 <div class="document-container" id="<portlet:namespace />entriesContainer">
 	<liferay-ui:search-container
 		id="entries"
