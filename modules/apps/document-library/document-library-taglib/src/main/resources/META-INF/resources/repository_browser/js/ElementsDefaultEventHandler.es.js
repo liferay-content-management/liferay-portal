@@ -16,6 +16,7 @@ import {
 	DefaultEventHandler,
 	fetch,
 	openConfirmModal,
+	openSimpleInputModal,
 	openToast,
 } from 'frontend-js-web';
 
@@ -44,6 +45,18 @@ class ElementsDefaultEventHandler extends DefaultEventHandler {
 					});
 				}
 			},
+		});
+	}
+
+	rename({renameURL, value}) {
+		openSimpleInputModal({
+			dialogTitle: Liferay.Language.get('rename'),
+			formSubmitURL: renameURL,
+			mainFieldLabel: Liferay.Language.get('name'),
+			mainFieldName: 'name',
+			mainFieldValue: value,
+			namespace: '',
+			onFormSuccess: () => window.location.reload(),
 		});
 	}
 }
