@@ -17,8 +17,11 @@ package com.liferay.document.library.taglib.internal.servlet;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
@@ -79,6 +82,17 @@ public class RepositoryBrowserServlet extends HttpServlet {
 
 			if (folderId != 0) {
 				_dlAppService.deleteFolder(folderId);
+			}
+
+			long[] repositoryEntryIds = ParamUtil.getLongValues(
+				httpServletRequest, "repositoryEntryIds");
+
+			if ((repositoryEntryIds != null) &&
+				(repositoryEntryIds.length > 0)) {
+
+				for (long repositoryEntryId : repositoryEntryIds) {
+					_deleteRepositoryEntry(repositoryEntryId);
+				}
 			}
 
 			SessionMessages.add(httpServletRequest, "requestProcessed");
@@ -156,6 +170,49 @@ public class RepositoryBrowserServlet extends HttpServlet {
 			throw new ServletException(portalException);
 		}
 	}
+
+	private void _deleteRepositoryEntry(long repositoryEntryId) {
+		try {
+			FileEntry fileEntry = _dlAppService.getFileEntry(repositoryEntryId);
+
+			_dlAppService.deleteFileEntry(fileEntry.getFileEntryId());
+
+			return;
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+		}
+
+		try {
+			FileShortcut fileShortcut = _dlAppService.getFileShortcut(
+				repositoryEntryId);
+
+			_dlAppService.deleteFileShortcut(fileShortcut.getFileShortcutId());
+
+			return;
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+		}
+
+		try {
+			Folder folder = _dlAppService.getFolder(repositoryEntryId);
+
+			_dlAppService.deleteFolder(folder.getFolderId());
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+		}
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		RepositoryBrowserServlet.class);
 
 	@Reference
 	private DLAppService _dlAppService;
