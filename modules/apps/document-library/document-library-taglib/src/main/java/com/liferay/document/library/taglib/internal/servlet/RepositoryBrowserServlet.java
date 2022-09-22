@@ -51,7 +51,7 @@ import org.osgi.service.component.annotations.Reference;
 	property = {
 		"osgi.http.whiteboard.servlet.name=com.liferay.document.library.taglib.internal.servlet.RepositoryBrowserServlet",
 		"osgi.http.whiteboard.servlet.pattern=/repository_browser",
-		"servlet.init.httpMethods=DELETE,POST"
+		"servlet.init.httpMethods=DELETE,POST,PUT"
 	},
 	service = Servlet.class
 )
@@ -139,6 +139,37 @@ public class RepositoryBrowserServlet extends HttpServlet {
 			}
 
 			SessionMessages.add(httpServletRequest, "requestProcessed");
+		}
+		catch (PortalException portalException) {
+			throw new ServletException(portalException);
+		}
+	}
+
+	@Override
+	protected void doPut(
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
+		throws IOException, ServletException {
+
+		try {
+			String name = ParamUtil.getString(httpServletRequest, "name");
+			long repositoryId = ParamUtil.getLong(
+				httpServletRequest, "repositoryId");
+
+			if (Validator.isNull(name) || (repositoryId <= 0)) {
+				httpServletResponse.sendError(
+					HttpServletResponse.SC_BAD_REQUEST);
+
+				return;
+			}
+
+			long parentFolderId = ParamUtil.getLong(
+				httpServletRequest, "parentFolderId");
+
+			_dlAppService.addFolder(
+				repositoryId, parentFolderId, name, StringPool.BLANK,
+				ServiceContextFactory.getInstance(
+					Folder.class.getName(), httpServletRequest));
 		}
 		catch (PortalException portalException) {
 			throw new ServletException(portalException);
