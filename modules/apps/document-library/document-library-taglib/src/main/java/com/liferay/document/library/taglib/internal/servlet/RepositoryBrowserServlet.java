@@ -17,6 +17,8 @@ package com.liferay.document.library.taglib.internal.servlet;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
@@ -29,6 +31,7 @@ import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -37,6 +40,7 @@ import java.io.IOException;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -139,6 +143,17 @@ public class RepositoryBrowserServlet extends HttpServlet {
 			}
 
 			SessionMessages.add(httpServletRequest, "requestProcessed");
+
+			httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
+
+			httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+
+			ServletOutputStream servletOutputStream =
+				httpServletResponse.getOutputStream();
+
+			JSONObject jsonObject = JSONUtil.put("success", true);
+
+			servletOutputStream.print(jsonObject.toString());
 		}
 		catch (PortalException portalException) {
 			throw new ServletException(portalException);
