@@ -14,11 +14,23 @@
 
 package com.liferay.redirect.configuration;
 
-/**
- * @author Alejandro Tardín
- */
-public interface RedirectConfiguration {
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 
-	public boolean isRedirectNotFoundEnabled();
+import java.util.Map;
+
+import org.osgi.annotation.versioning.ProviderType;
+
+/**
+ * @author Alicia García
+ */
+@ProviderType
+public interface RedirectPatternConfigurationProvider {
+
+	public Map<String, String> getRedirectionPatternsMap(long groupId)
+		throws ConfigurationException;
+
+	public void updateRedirectionPatterns(
+			long groupId, Map<String, String> redirectionPatters)
+		throws Exception;
 
 }
