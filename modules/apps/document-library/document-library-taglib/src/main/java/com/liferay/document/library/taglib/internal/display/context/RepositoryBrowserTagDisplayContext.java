@@ -94,7 +94,7 @@ public class RepositoryBrowserTagDisplayContext {
 
 	public Map<String, Object> getAdditionalProps() {
 		return HashMapBuilder.<String, Object>put(
-			"deleteURL", _getRepositoryBrowserURL()
+			"repositoryBrowserURL", _getRepositoryBrowserURL()
 		).build();
 	}
 

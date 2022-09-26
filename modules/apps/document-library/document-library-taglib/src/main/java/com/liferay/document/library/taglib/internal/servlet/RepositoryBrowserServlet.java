@@ -185,6 +185,17 @@ public class RepositoryBrowserServlet extends HttpServlet {
 				repositoryId, parentFolderId, name, StringPool.BLANK,
 				ServiceContextFactory.getInstance(
 					Folder.class.getName(), httpServletRequest));
+
+			httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
+
+			httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+
+			ServletOutputStream servletOutputStream =
+				httpServletResponse.getOutputStream();
+
+			JSONObject jsonObject = JSONUtil.put("success", true);
+
+			servletOutputStream.print(jsonObject.toString());
 		}
 		catch (PortalException portalException) {
 			throw new ServletException(portalException);
