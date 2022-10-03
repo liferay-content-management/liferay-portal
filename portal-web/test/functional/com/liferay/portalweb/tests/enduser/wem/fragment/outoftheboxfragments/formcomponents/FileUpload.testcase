@@ -1,7 +1,6 @@
 @component-name = "portal-wcm"
 definition {
 
-	property custom.properties = "feature.flag.LPS-150277=true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Fragments";
@@ -27,44 +26,6 @@ definition {
 				labelName = "Upload Object",
 				objectName = "UploadObject",
 				pluralLabelName = "Upload Object");
-
-			ObjectAdmin.addObjectFieldViaAPI(
-				fieldBusinessType = "Attachment",
-				fieldLabelName = "From Computer And Show Files In DM",
-				fieldName = "fromComputerAndShowFilesInDM",
-				fieldType = "Long",
-				fileSource = "userComputer",
-				isRequired = "false",
-				objectName = "UploadObject",
-				showFilesInDocumentsAndMedia = "true");
-
-			ObjectAdmin.addObjectFieldViaAPI(
-				fieldBusinessType = "Attachment",
-				fieldLabelName = "Custom Attachment From Computer",
-				fieldName = "customAttachmentFromComputer",
-				fieldType = "Long",
-				fileSource = "userComputer",
-				isRequired = "false",
-				objectName = "UploadObject");
-
-			ObjectAdmin.addObjectFieldViaAPI(
-				fieldBusinessType = "Attachment",
-				fieldLabelName = "Custom Attachment From DM",
-				fieldName = "customAttachmentFromDM",
-				fieldType = "Long",
-				fileSource = "documentsAndMedia",
-				isRequired = "false",
-				objectName = "UploadObject");
-
-			ObjectAdmin.publishObjectViaAPI(objectName = "UploadObject");
-		}
-
-		task ("Enable Inputs Fragment collection in Gogo Shell") {
-			GogoShell.openGogoShellAdmin();
-
-			GogoShell.executeCommand(commandName = "scr:enable com.liferay.fragment.collection.contributor.inputs.InputsFragmentCollectionContributor");
-
-			GogoShell.viewOutput(outputContent = "true");
 		}
 	}
 
@@ -75,14 +36,6 @@ definition {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			task ("Disable Inputs Fragment collection in Gogo Shell") {
-				GogoShell.openGogoShellAdmin();
-
-				GogoShell.executeCommand(commandName = "scr:disable com.liferay.fragment.collection.contributor.inputs.InputsFragmentCollectionContributor");
-
-				GogoShell.viewOutput(outputContent = "true");
-			}
-
 			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
 
 			ObjectAdmin.deleteObjectViaAPI(objectName = "UploadObject");
@@ -92,9 +45,21 @@ definition {
 	@description = "This is a test for LPS-157806. Add custom text on Button Text field of File Upload fragment on content page."
 	@priority = "4"
 	test AddCustomTextOnButtonTextFieldOnContentPage {
-		property test.name.skip.portal.instance = "FileUpload#AddCustomTextOnButtonTextFieldOnContentPage";
-
 		task ("Given a content page has a File Upload fragment mapped to Attachment field with Show Files in Documents and Media") {
+			task ("Add an Attachment field to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Attachment",
+					fieldLabelName = "From Computer And Show Files In DM",
+					fieldName = "fromComputerAndShowFilesInDM",
+					fieldType = "Long",
+					fileSource = "userComputer",
+					isRequired = "false",
+					objectName = "UploadObject",
+					showFilesInDocumentsAndMedia = "true");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "UploadObject");
+			}
+
 			task ("Add a Form Container framgment to content page") {
 				ContentPagesNavigator.openEditContentPage(
 					pageName = "Test Page Name",
@@ -109,21 +74,6 @@ definition {
 				PageEditor.editFormContainer(
 					contentType = "Upload Object",
 					panel = "General");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "File Upload");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Submit Button",
-					targetFragmentName = "File Upload");
-			}
-
-			task ("Map the File Upload fragment to Attachment field and publish") {
-				PageEditor.editInput(
-					field = "From Computer And Show Files In DM",
-					fragmentName = "File Upload");
 
 				PageEditor.publish();
 			}
@@ -172,122 +122,23 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-157806. Add custom text on Button Text field of File Upload fragment on display page template."
-	@priority = "4"
-	test AddCustomTextOnButtonTextFieldOnDisplayPage {
-		property test.name.skip.portal.instance = "FileUpload#AddCustomTextOnButtonTextFieldOnDisplayPage";
-
-		task ("Given a display page has a File Upload fragment mapped to Attachment field with Show Files in Documents and Media") {
-			task ("Add a web content based on Basic Web Content") {
-				JSONWebcontent.addWebContent(
-					content = "Web Content Content",
-					groupName = "Test Site Name",
-					title = "Web Content Title");
-			}
-
-			task ("Add a display page template for Web Content Article and Basic Web Content") {
-				JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
-					contentType = "Web Content Article",
-					displayPageTemplateEntryName = "Display Page Name",
-					groupName = "Test Site Name",
-					subType = "Basic Web Content");
-			}
-
-			task ("Add a Form Container framgment to display page") {
-				DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
-
-				DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
-
-				PageEditor.addFragment(
-					collectionName = "Form Components",
-					fragmentName = "Form Container");
-			}
-
-			task ("Add a File Upload fragment and Submit Button fragment into Form Container") {
-				PageEditor.editFormContainer(
-					contentType = "Upload Object",
-					panel = "General");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "File Upload");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Submit Button",
-					targetFragmentName = "File Upload");
-			}
-
-			task ("Map the File Upload fragment to Attachment field and publish") {
-				PageEditor.editInput(
-					field = "From Computer And Show Files In DM",
-					fragmentName = "File Upload");
-
-				PageEditor.publish();
-			}
-		}
-
-		task ("When adding a custom text on Button Text field") {
-			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
-
-			DisplayPageTemplatesAdmin.gotoDisplayPageEllipsisItem(
-				displayPageName = "Display Page Name",
-				item = "Edit");
-
-			PageEditor.assertFragmentSidebarLoaded();
-
-			PageEditor.editFragmentText(
-				className = "button",
-				fragmentName = "Submit Button",
-				id = "text",
-				text = "Custom Text");
-		}
-
-		task ("Then the custom text is shown") {
-			task ("View custom text is shown at edit mode") {
-				PageEditor.viewFragmentEditableText(
-					className = "button",
-					editableText = "Custom Text",
-					fragmentName = "Submit Button",
-					id = "submit-button-text");
-			}
-
-			task ("View custom text is shown at preview") {
-				PageEditor.previewInANewTab();
-
-				ContentPages.viewFragmentText(
-					fragmentName = "button",
-					id = "submit-button-text",
-					text = "Custom Text");
-
-				Close.closeWindow();
-			}
-
-			task ("Publish the display page template and mark it as default") {
-				PageEditor.publish();
-
-				DisplayPageTemplatesAdmin.markDisplayPageAsDefault(displayPageName = "Display Page Name");
-			}
-
-			task ("Navigate to the display page template at view mode") {
-				Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/w/web-content-title");
-			}
-
-			task ("View custom text is shown at view mode") {
-				ContentPages.viewFragmentText(
-					fragmentName = "button",
-					id = "submit-button-text",
-					text = "Custom Text");
-			}
-		}
-	}
-
 	@description = "This is a test for LPS-155170. File Upload fragment could add file from computer."
 	@priority = "3"
 	test AddFileFromComputerDiectly {
-		property test.name.skip.portal.instance = "FileUpload#AddFileFromComputerDiectly";
-
 		task ("Given a page creator has a File Upload fragment") {
+			task ("Add an Attachment field to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Attachment",
+					fieldLabelName = "Custom Attachment From Computer",
+					fieldName = "customAttachmentFromComputer",
+					fieldType = "Long",
+					fileSource = "userComputer",
+					isRequired = "false",
+					objectName = "UploadObject");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "UploadObject");
+			}
+
 			task ("Add a File Upload fragment to content page") {
 				ContentPagesNavigator.openEditContentPage(
 					pageName = "Test Page Name",
@@ -300,10 +151,6 @@ definition {
 				PageEditor.editFormContainer(
 					contentType = "Upload Object",
 					panel = "General");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "File Upload");
 			}
 		}
 
@@ -334,9 +181,30 @@ definition {
 	@priority = "5"
 	test CanAddFileFromComputerAndDMInMappedObject {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "FileUpload#CanAddFileFromComputerAndDMInMappedObject";
 
 		task ("Given a content page has a File Upload fragment mapped to Attachment field") {
+			task ("Add Attachment fields to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Attachment",
+					fieldLabelName = "Custom Attachment From Computer",
+					fieldName = "customAttachmentFromComputer",
+					fieldType = "Long",
+					fileSource = "userComputer",
+					isRequired = "false",
+					objectName = "UploadObject");
+
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Attachment",
+					fieldLabelName = "Custom Attachment From DM",
+					fieldName = "customAttachmentFromDM",
+					fieldType = "Long",
+					fileSource = "documentsAndMedia",
+					isRequired = "false",
+					objectName = "UploadObject");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "UploadObject");
+			}
+
 			task ("Add a Form Container framgment to content page") {
 				ContentPagesNavigator.openEditContentPage(
 					pageName = "Test Page Name",
@@ -349,6 +217,14 @@ definition {
 				PageEditor.editFormContainer(
 					contentType = "Upload Object",
 					panel = "General");
+
+				PageEditor.removeFragment(
+					fragmentName = "File Upload",
+					index = "2");
+
+				for (var fragmentName : list "File Upload,Submit Button") {
+					PageEditor.removeFragment(fragmentName = "${fragmentName}");
+				}
 			}
 
 			task ("Add a File Upload fragment to Form Container") {
@@ -486,9 +362,21 @@ definition {
 	@description = "This is a test for LPS-155170. File Upload fragment could add file from computer to DM when enable Show Files in Documents and Media."
 	@priority = "3"
 	test CanAddFileFromComputerToDMWhenEnableShowFilesInDocumentsAndMedia {
-		property test.name.skip.portal.instance = "FileUpload#CanAddFileFromComputerToDMWhenEnableShowFilesInDocumentsAndMedia";
-
 		task ("Given a content page has a File Upload fragment mapped to Attachment field with Show Files in Documents and Media") {
+			task ("Add an Attachment field to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Attachment",
+					fieldLabelName = "From Computer And Show Files In DM",
+					fieldName = "fromComputerAndShowFilesInDM",
+					fieldType = "Long",
+					fileSource = "userComputer",
+					isRequired = "false",
+					objectName = "UploadObject",
+					showFilesInDocumentsAndMedia = "true");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "UploadObject");
+			}
+
 			task ("Add a Form Container framgment to content page") {
 				ContentPagesNavigator.openEditContentPage(
 					pageName = "Test Page Name",
@@ -501,23 +389,6 @@ definition {
 				PageEditor.editFormContainer(
 					contentType = "Upload Object",
 					panel = "General");
-			}
-
-			task ("Add a File Upload fragment and Submit Button fragment into Form Container") {
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "File Upload");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Submit Button",
-					targetFragmentName = "File Upload");
-			}
-
-			task ("Map the File Upload fragment to Attachment field and publish") {
-				PageEditor.editInput(
-					field = "From Computer And Show Files In DM",
-					fragmentName = "File Upload");
 
 				PageEditor.publish();
 			}
@@ -549,9 +420,20 @@ definition {
 	@description = "This is a test for LPS-151402. The user could see error message when submit a form with attached file size larger than allowed maximum upload size."
 	@priority = "4"
 	test ViewErrorMessageWhenSubmitFormWithAttachedFileSizeLargerThanAllowedMaximumUploadSize {
-		property test.name.skip.portal.instance = "FileUpload#ViewErrorMessageWhenSubmitFormWithAttachedFileSizeLargerThanAllowedMaximumUploadSize";
-
 		task ("Given a user has a content page where a File Upload and Submit Button fragments are inside a Form Container") {
+			task ("Add an Attachment field to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Attachment",
+					fieldLabelName = "Custom Attachment From Computer",
+					fieldName = "customAttachmentFromComputer",
+					fieldType = "Long",
+					fileSource = "userComputer",
+					isRequired = "false",
+					objectName = "UploadObject");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "UploadObject");
+			}
+
 			task ("Change the Maximum File Size to 2 MB") {
 				ObjectAdmin.openObjectAdmin();
 
@@ -586,23 +468,6 @@ definition {
 				PageEditor.editFormContainer(
 					contentType = "Upload Object",
 					panel = "General");
-			}
-
-			task ("Add a File Upload and Submit Button fragment into Form Container") {
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "File Upload");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Submit Button",
-					targetFragmentName = "File Upload");
-			}
-
-			task ("Map the File Upload fragment to an Attachment field") {
-				PageEditor.editInput(
-					field = "Custom Attachment From Computer",
-					fragmentName = "File Upload");
 
 				PageEditor.publish();
 			}
@@ -626,9 +491,20 @@ definition {
 	@description = "This is a test for LPS-151402. The user could see error message when submit a form with invalid extension of attached file."
 	@priority = "4"
 	test ViewErrorMessageWhenSubmitFormWithInvalidExtensionOfAttachedFile {
-		property test.name.skip.portal.instance = "FileUpload#ViewErrorMessageWhenSubmitFormWithInvalidExtensionOfAttachedFile";
-
 		task ("Given a user has a content page where a File Upload and Submit Button fragments are inside a Form Container") {
+			task ("Add an Attachment field to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Attachment",
+					fieldLabelName = "Custom Attachment From Computer",
+					fieldName = "customAttachmentFromComputer",
+					fieldType = "Long",
+					fileSource = "userComputer",
+					isRequired = "false",
+					objectName = "UploadObject");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "UploadObject");
+			}
+
 			task ("Add a Form Container framgment to content page") {
 				JSONLayout.addPublicLayout(
 					groupName = "Test Site Name",
@@ -646,23 +522,6 @@ definition {
 				PageEditor.editFormContainer(
 					contentType = "Upload Object",
 					panel = "General");
-			}
-
-			task ("Add a File Upload and Submit Button fragment into Form Container") {
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "File Upload");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Submit Button",
-					targetFragmentName = "File Upload");
-			}
-
-			task ("Map the File Upload fragment to an Attachment field") {
-				PageEditor.editInput(
-					field = "Custom Attachment From Computer",
-					fragmentName = "File Upload");
 
 				PageEditor.publish();
 			}

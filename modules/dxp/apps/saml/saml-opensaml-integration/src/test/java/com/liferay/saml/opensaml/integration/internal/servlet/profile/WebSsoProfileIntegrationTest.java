@@ -126,26 +126,35 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 			SamlSpSessionLocalServiceUtil.class,
 			SamlSpSessionLocalService.class);
 
-		_webSsoProfileImpl.setIdentifierGenerationStrategyFactory(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "identifierGenerationStrategyFactory",
 			identifierGenerationStrategyFactory);
-		_webSsoProfileImpl.setMetadataManager(metadataManagerImpl);
-		_webSsoProfileImpl.setPortal(portal);
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "metadataManager", metadataManagerImpl);
+		ReflectionTestUtil.setFieldValue(_webSsoProfileImpl, "portal", portal);
+
 		_webSsoProfileImpl.setSamlBindings(samlBindings);
 
-		_webSsoProfileImpl.setSamlProviderConfigurationHelper(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "samlProviderConfigurationHelper",
 			samlProviderConfigurationHelper);
-		_webSsoProfileImpl.setSamlSpAuthRequestLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "_samlSpAuthRequestLocalService",
 			_samlSpAuthRequestLocalService);
-		_webSsoProfileImpl.setSamlSpSessionLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "samlSpSessionLocalService",
 			_samlSpSessionLocalService);
-		_webSsoProfileImpl.setSamlSpMessageLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "_samlSpMessageLocalService",
 			getMockPortletService(
 				SamlSpMessageLocalServiceUtil.class,
 				SamlSpMessageLocalService.class));
-		_webSsoProfileImpl.setSamlSpIdpConnectionLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "_samlSpIdpConnectionLocalService",
 			getMockPortletService(
 				SamlSpIdpConnectionLocalServiceUtil.class,
 				SamlSpIdpConnectionLocalService.class));
+
 		_webSsoProfileImpl.activate(new HashMap<String, Object>());
 
 		prepareServiceProvider(SP_ENTITY_ID);
@@ -381,7 +390,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 			samlSpIdpConnection
 		);
 
-		_webSsoProfileImpl.setSamlSpIdpConnectionLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "_samlSpIdpConnectionLocalService",
 			samlSpIdpConnectionLocalService);
 
 		MockHttpServletRequest mockHttpServletRequest =
@@ -494,7 +504,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 			samlSpIdpConnection
 		);
 
-		_webSsoProfileImpl.setSamlSpIdpConnectionLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "_samlSpIdpConnectionLocalService",
 			samlSpIdpConnectionLocalService);
 
 		MockHttpServletRequest mockHttpServletRequest =
@@ -586,19 +597,27 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 
 		metadataManagerImpl = new MetadataManagerImpl();
 
-		metadataManagerImpl.setCredentialResolver(credentialResolver);
-		metadataManagerImpl.setLocalEntityManager(credentialResolver);
+		ReflectionTestUtil.setFieldValue(
+			metadataManagerImpl, "_credentialResolver", credentialResolver);
+		ReflectionTestUtil.setFieldValue(
+			metadataManagerImpl, "_localEntityManager", credentialResolver);
+
 		metadataManagerImpl.setMetadataResolver(
 			new MockMetadataResolver(false));
-		metadataManagerImpl.setParserPool(parserPool);
-		metadataManagerImpl.setPortal(portal);
-		metadataManagerImpl.setSamlProviderConfigurationHelper(
+
+		ReflectionTestUtil.setFieldValue(
+			metadataManagerImpl, "_parserPool", parserPool);
+		ReflectionTestUtil.setFieldValue(
+			metadataManagerImpl, "_portal", portal);
+		ReflectionTestUtil.setFieldValue(
+			metadataManagerImpl, "_samlProviderConfigurationHelper",
 			samlProviderConfigurationHelper);
 
 		ReflectionTestUtil.invoke(
 			metadataManagerImpl, "activate", new Class<?>[0]);
 
-		_webSsoProfileImpl.setMetadataManager(metadataManagerImpl);
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "metadataManager", metadataManagerImpl);
 
 		Mockito.when(
 			samlSpIdpConnectionLocalService.getSamlSpIdpConnection(
@@ -607,7 +626,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 			samlSpIdpConnection
 		);
 
-		_webSsoProfileImpl.setSamlSpIdpConnectionLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "_samlSpIdpConnectionLocalService",
 			samlSpIdpConnectionLocalService);
 
 		MockHttpServletRequest mockHttpServletRequest =
@@ -660,7 +680,8 @@ public class WebSsoProfileIntegrationTest extends BaseSamlTestCase {
 			samlSpIdpConnection
 		);
 
-		_webSsoProfileImpl.setSamlSpIdpConnectionLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "_samlSpIdpConnectionLocalService",
 			samlSpIdpConnectionLocalService);
 
 		MockHttpServletRequest mockHttpServletRequest =

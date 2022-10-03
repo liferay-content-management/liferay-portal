@@ -171,66 +171,85 @@ public class DXPCloudClientTestrayImporter {
 		return varValue;
 	}
 
-	private static Element _getPoshiLogAttachmentElement(File testDir) {
+	private static Element _getPoshiLogAttachmentElement(String testName) {
 		if (_testrayS3Bucket == null) {
 			return null;
 		}
 
-		Element systemOutAttachmentElement = _getSystemOutAttachmentElement();
+		File xmlFile = new File(
+			_projectDir,
+			"test-results/TEST-com.liferay.poshi.runner.PoshiRunner.xml");
 
-		if (systemOutAttachmentElement == null) {
+		if (!xmlFile.exists()) {
 			return null;
 		}
 
-		File systemOutGzipFile = new File(
-			_projectDir, "test-results/system-out.txt.gz");
+		File testResultDir = new File(_projectDir, "test-results");
 
-		if (!systemOutGzipFile.exists()) {
-			return null;
-		}
+		File testDir = new File(testResultDir, testName.replace("#", "_"));
 
 		File poshiLogGzipFile = new File(testDir, "poshi-log.txt.gz");
 
 		String key = JenkinsResultsParserUtil.combine(
 			_getRelativeURLPath(), "/",
 			JenkinsResultsParserUtil.getPathRelativeTo(
-				poshiLogGzipFile, _projectDir));
+				poshiLogGzipFile, testResultDir));
 
 		try {
-			String systemOut = JenkinsResultsParserUtil.read(systemOutGzipFile);
+			Document document = Dom4JUtil.parse(
+				JenkinsResultsParserUtil.read(xmlFile));
 
-			if (JenkinsResultsParserUtil.isNullOrEmpty(systemOut)) {
+			Element rootElement = document.getRootElement();
+
+			Element targetTestcaseElement = null;
+
+			for (Element testcaseElement : rootElement.elements("testcase")) {
+				String testcaseName = testcaseElement.attributeValue("name");
+
+				if (testcaseName.equals("test[" + testName + "]")) {
+					targetTestcaseElement = testcaseElement;
+
+					break;
+				}
+			}
+
+			if (targetTestcaseElement == null) {
 				return null;
 			}
 
-			String testName = testDir.getName();
+			StringBuilder sb = new StringBuilder();
 
-			testName = testName.replaceAll("_", "#");
+			for (Element systemOutElement :
+					targetTestcaseElement.elements("system-out")) {
 
-			String open = "###\n### " + testName + "\n###";
-
-			int x = systemOut.indexOf(open);
-
-			if (x == -1) {
-				return null;
+				sb.append(systemOutElement.getText());
 			}
 
-			int y = systemOut.indexOf("###", x + open.length());
+			for (Element systemErrElement :
+					targetTestcaseElement.elements("system-err")) {
 
-			if (y == -1) {
-				y = systemOut.length();
+				sb.append(systemErrElement.getText());
+			}
+
+			String poshiLogFileContent = sb.toString();
+
+			poshiLogFileContent = poshiLogFileContent.trim();
+
+			if (JenkinsResultsParserUtil.isNullOrEmpty(poshiLogFileContent)) {
+				return null;
 			}
 
 			File poshiLogFile = new File(testDir, "poshi-log.txt");
 
-			JenkinsResultsParserUtil.write(
-				poshiLogFile, systemOut.substring(x, y));
+			JenkinsResultsParserUtil.write(poshiLogFile, poshiLogFileContent);
 
 			JenkinsResultsParserUtil.gzip(poshiLogFile, poshiLogGzipFile);
 
 			_testrayS3Bucket.createTestrayS3Object(key, poshiLogGzipFile);
 		}
-		catch (IOException ioException) {
+		catch (DocumentException | IOException exception) {
+			exception.printStackTrace();
+
 			return null;
 		}
 
@@ -279,144 +298,6 @@ public class DXPCloudClientTestrayImporter {
 			"/dxp-cloud/", String.valueOf(testrayBuild.getID()));
 
 		return _relativeURLPath;
-	}
-
-	private static Element _getSystemErrAttachmentElement() {
-		if (_testrayS3Bucket == null) {
-			return null;
-		}
-
-		File xmlFile = new File(
-			_projectDir,
-			"test-results/TEST-com.liferay.poshi.runner.PoshiRunner.xml");
-
-		if (!xmlFile.exists()) {
-			return null;
-		}
-
-		File gzipFile = new File(_projectDir, "test-results/system-err.txt.gz");
-
-		String key = JenkinsResultsParserUtil.combine(
-			_getRelativeURLPath(), "/", gzipFile.getName());
-
-		if (!gzipFile.exists()) {
-			try {
-				String content = JenkinsResultsParserUtil.read(xmlFile);
-
-				if (JenkinsResultsParserUtil.isNullOrEmpty(content)) {
-					return null;
-				}
-
-				String openTag = "<system-err><![CDATA[";
-
-				int x = content.indexOf(openTag);
-
-				int y = content.indexOf("]]></system-err>", x);
-
-				if ((x == -1) || (y == -1)) {
-					return null;
-				}
-
-				String systemOut = content.substring(x + openTag.length(), y);
-
-				systemOut = systemOut.trim();
-
-				if (JenkinsResultsParserUtil.isNullOrEmpty(systemOut)) {
-					return null;
-				}
-
-				File file = new File(
-					_projectDir, "test-results/system-err.txt");
-
-				JenkinsResultsParserUtil.write(file, systemOut);
-
-				JenkinsResultsParserUtil.gzip(file, gzipFile);
-
-				_testrayS3Bucket.createTestrayS3Object(key, gzipFile);
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		}
-
-		Element attachmentElement = Dom4JUtil.getNewElement("attachment");
-
-		attachmentElement.addAttribute("name", "System Err");
-		attachmentElement.addAttribute(
-			"url",
-			_testrayS3Bucket.getTestrayS3BaseURL() + key + "?authuser=0");
-		attachmentElement.addAttribute("value", key + "?authuser=0");
-
-		return attachmentElement;
-	}
-
-	private static Element _getSystemOutAttachmentElement() {
-		if (_testrayS3Bucket == null) {
-			return null;
-		}
-
-		File xmlFile = new File(
-			_projectDir,
-			"test-results/TEST-com.liferay.poshi.runner.PoshiRunner.xml");
-
-		if (!xmlFile.exists()) {
-			return null;
-		}
-
-		File gzipFile = new File(_projectDir, "test-results/system-out.txt.gz");
-
-		String key = JenkinsResultsParserUtil.combine(
-			_getRelativeURLPath(), "/", gzipFile.getName());
-
-		if (!gzipFile.exists()) {
-			try {
-				String content = JenkinsResultsParserUtil.read(xmlFile);
-
-				if (JenkinsResultsParserUtil.isNullOrEmpty(content)) {
-					return null;
-				}
-
-				String openTag = "<system-out><![CDATA[";
-
-				int x = content.indexOf(openTag);
-
-				int y = content.indexOf("]]></system-out>", x);
-
-				if ((x == -1) || (y == -1)) {
-					return null;
-				}
-
-				String systemOut = content.substring(x + openTag.length(), y);
-
-				systemOut = systemOut.trim();
-
-				if (JenkinsResultsParserUtil.isNullOrEmpty(systemOut)) {
-					return null;
-				}
-
-				File file = new File(
-					_projectDir, "test-results/system-out.txt");
-
-				JenkinsResultsParserUtil.write(file, systemOut);
-
-				JenkinsResultsParserUtil.gzip(file, gzipFile);
-
-				_testrayS3Bucket.createTestrayS3Object(key, gzipFile);
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		}
-
-		Element attachmentElement = Dom4JUtil.getNewElement("attachment");
-
-		attachmentElement.addAttribute("name", "System Out");
-		attachmentElement.addAttribute(
-			"url",
-			_testrayS3Bucket.getTestrayS3BaseURL() + key + "?authuser=0");
-		attachmentElement.addAttribute("value", key + "?authuser=0");
-
-		return attachmentElement;
 	}
 
 	private static Element _getTestCaseAttachmentsElement(
@@ -500,22 +381,10 @@ public class DXPCloudClientTestrayImporter {
 		}
 
 		Element poshiLogAttachmentElement = _getPoshiLogAttachmentElement(
-			testDir);
+			testName);
 
 		if (poshiLogAttachmentElement != null) {
 			attachmentsElement.add(poshiLogAttachmentElement);
-		}
-
-		Element systemErrAttachmentElement = _getSystemErrAttachmentElement();
-
-		if (systemErrAttachmentElement != null) {
-			attachmentsElement.add(systemErrAttachmentElement);
-		}
-
-		Element systemOutAttachmentElement = _getSystemOutAttachmentElement();
-
-		if (systemOutAttachmentElement != null) {
-			attachmentsElement.add(systemOutAttachmentElement);
 		}
 
 		return attachmentsElement;
@@ -581,18 +450,12 @@ public class DXPCloudClientTestrayImporter {
 
 	private static List<Element> _getTestCaseResultElements() {
 		try {
-			String content = JenkinsResultsParserUtil.read(
-				new File(
-					_projectDir,
-					"test-results" +
-						"/TEST-com.liferay.poshi.runner.PoshiRunner.xml"));
+			File xmlFile = new File(
+				_projectDir,
+				"test-results/TEST-com.liferay.poshi.runner.PoshiRunner.xml");
 
-			int x = content.indexOf("<system-out>");
-			int y = content.indexOf("</system-err>") + 13;
-
-			content = content.substring(0, x) + content.substring(y);
-
-			Document document = Dom4JUtil.parse(content);
+			Document document = Dom4JUtil.parse(
+				JenkinsResultsParserUtil.read(xmlFile));
 
 			Element rootElement = document.getRootElement();
 

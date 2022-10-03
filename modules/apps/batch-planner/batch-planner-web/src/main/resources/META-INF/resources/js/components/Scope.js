@@ -25,7 +25,10 @@ function Scope({portletNamespace}) {
 		const handleSchemaUpdated = (event) => {
 			if (event.schemaName) {
 				fetch(
-					`${HEADLESS_BATCH_PLANNER_URL}/plans/${event.schemaName}/site-scopes?export=${event.isExport}`
+					`${HEADLESS_BATCH_PLANNER_URL}/plans/${event.schemaName.replace(
+						'#',
+						encodeURIComponent('#')
+					)}/site-scopes?export=${event.isExport}`
 				)
 					.then((response) => response.json())
 					.then((json) => {

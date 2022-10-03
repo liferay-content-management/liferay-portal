@@ -14,26 +14,51 @@
 
 package com.liferay.expando.kernel.exception;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
+
+import java.util.Locale;
 
 /**
  * @author Brian Wing Shun Chan
  */
 public class ValueDataException extends PortalException {
 
-	public ValueDataException() {
+	public static class MismatchColumnType extends ValueDataException {
+
+		public MismatchColumnType(
+			long columnId, String columnType, String expectedColumnType) {
+
+			super(
+				StringBundler.concat(
+					"Column ", columnId, " has type ", columnType,
+					" and is not compatible with type ", expectedColumnType));
+		}
+
 	}
 
-	public ValueDataException(String msg) {
+	public static class MustInformDefaultLocale extends ValueDataException {
+
+		public MustInformDefaultLocale(Locale locale) {
+			super(
+				"A value for the default locale (" + locale.getLanguage() +
+					") must be defined");
+		}
+
+	}
+
+	public static class UnsupportedColumnType extends ValueDataException {
+
+		public UnsupportedColumnType(long columnId, String columnType) {
+			super(
+				StringBundler.concat(
+					"Unsupported column ", columnId, " type ", columnType));
+		}
+
+	}
+
+	private ValueDataException(String msg) {
 		super(msg);
-	}
-
-	public ValueDataException(String msg, Throwable throwable) {
-		super(msg, throwable);
-	}
-
-	public ValueDataException(Throwable throwable) {
-		super(throwable);
 	}
 
 }

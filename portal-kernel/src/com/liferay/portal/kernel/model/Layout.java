@@ -224,6 +224,8 @@ public interface Layout extends LayoutModel, PersistedModel {
 	 */
 	public String getHTMLTitle(String localeLanguageId);
 
+	public String getIcon();
+
 	/**
 	 * Returns <code>true</code> if the current layout has a configured icon.
 	 *
@@ -424,6 +426,8 @@ public interface Layout extends LayoutModel, PersistedModel {
 	public boolean isSupportsEmbeddedPortlets();
 
 	public boolean isTypeAssetDisplay();
+
+	public boolean isTypeCollection();
 
 	public boolean isTypeContent();
 

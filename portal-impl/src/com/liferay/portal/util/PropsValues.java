@@ -1379,15 +1379,6 @@ public class PropsValues {
 	public static final String MODULE_FRAMEWORK_BASE_DIR = PropsUtil.get(
 		PropsKeys.MODULE_FRAMEWORK_BASE_DIR);
 
-	public static final int MODULE_FRAMEWORK_BEGINNING_START_LEVEL =
-		GetterUtil.getInteger(
-			PropsUtil.get(PropsKeys.MODULE_FRAMEWORK_BEGINNING_START_LEVEL));
-
-	public static final boolean MODULE_FRAMEWORK_CONCURRENT_STARTUP_ENABLED =
-		GetterUtil.getBoolean(
-			PropsUtil.get(
-				PropsKeys.MODULE_FRAMEWORK_CONCURRENT_STARTUP_ENABLED));
-
 	public static final String MODULE_FRAMEWORK_CONFIGS_DIR = PropsUtil.get(
 		PropsKeys.MODULE_FRAMEWORK_CONFIGS_DIR);
 
@@ -1395,11 +1386,6 @@ public class PropsValues {
 		MODULE_FRAMEWORK_CONFIGURATION_BUNDLE_SYMBOLIC_NAMES =
 			PropsUtil.getArray(
 				PropsKeys.MODULE_FRAMEWORK_CONFIGURATION_BUNDLE_SYMBOLIC_NAMES);
-
-	public static final int MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL =
-		GetterUtil.getInteger(
-			PropsUtil.get(
-				PropsKeys.MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL));
 
 	public static final boolean MODULE_FRAMEWORK_EXPORT_PASSWORD_ATTRIBUTES =
 		GetterUtil.getBoolean(
@@ -1435,9 +1421,6 @@ public class PropsValues {
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.MODULE_FRAMEWORK_FILE_INSTALL_CFG_ENABLED));
 
-	public static final String MODULE_FRAMEWORK_FILE_INSTALL_CONFIG_ENCODING =
-		PropsUtil.get(PropsKeys.MODULE_FRAMEWORK_FILE_INSTALL_CONFIG_ENCODING);
-
 	public static final String MODULE_FRAMEWORK_FILE_INSTALL_FILTER =
 		PropsUtil.get(PropsKeys.MODULE_FRAMEWORK_FILE_INSTALL_FILTER);
 
@@ -1457,10 +1440,6 @@ public class PropsValues {
 
 	public static final String MODULE_FRAMEWORK_PORTAL_DIR = PropsUtil.get(
 		PropsKeys.MODULE_FRAMEWORK_PORTAL_DIR);
-
-	public static final int MODULE_FRAMEWORK_RUNTIME_START_LEVEL =
-		GetterUtil.getInteger(
-			PropsUtil.get(PropsKeys.MODULE_FRAMEWORK_RUNTIME_START_LEVEL));
 
 	public static final String[] MODULE_FRAMEWORK_SERVICES_IGNORED_INTERFACES =
 		PropsUtil.getArray(
@@ -1514,10 +1493,6 @@ public class PropsValues {
 			PropsUtil.getArray(
 				PropsKeys.
 					MODULE_FRAMEWORK_WEB_SERVLET_ANNOTATION_SCANNING_WHITELIST);
-
-	public static final int MODULE_FRAMEWORK_WEB_START_LEVEL =
-		GetterUtil.getInteger(
-			PropsUtil.get(PropsKeys.MODULE_FRAMEWORK_WEB_START_LEVEL));
 
 	public static final String[] MY_SITES_DIRECTORY_SITE_EXCLUDES =
 		PropsUtil.getArray(PropsKeys.MY_SITES_DIRECTORY_SITE_EXCLUDES);

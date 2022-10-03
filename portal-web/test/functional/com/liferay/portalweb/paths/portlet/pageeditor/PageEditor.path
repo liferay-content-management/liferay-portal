@@ -634,13 +634,28 @@
 	<td></td>
 </tr>
 <tr>
+	<td>FRAGMENTS_AND_WIDGETS_REORDER_SETS_BUTTON</td>
+	<td>//div[contains(@class,'fragments-widgets-panel')]//button[contains(@class,'tooltip')][*[name()='svg'][contains(@class,'icon-order-arrow')]]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>FRAGMENTS_AND_WIDGETS_TAB_FRAGMENT</td>
 	<td>//button[normalize-space()='${key_collectionName}']/following-sibling::div/ul/li[contains(@class,'page-editor__fragments-widgets__tab-list-item')][normalize-space()='${key_fragmentName}']</td>
 	<td></td>
 </tr>
 <tr>
+	<td>FRAGMENTS_AND_WIDGETS_TAB_FRAGMENT_FAVORITE</td>
+	<td>//button[normalize-space()='${key_collectionName}']/following-sibling::div/ul/li[contains(@class,'page-editor__fragments-widgets__tab-list-item')][normalize-space()='${key_fragmentName}']//button[@aria-label='${ariaLabel}']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>FRAGMENTS_AND_WIDGETS_TAB_FRAGMENT_CARD_ITEM</td>
 	<td>//button[normalize-space()='${key_collectionName}']/following-sibling::div/ul/li[contains(@class,'page-editor__fragments-widgets__tab-card-item')][normalize-space()='${key_fragmentName}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>FRAGMENTS_AND_WIDGETS_TAB_FRAGMENT_CARD_ITEM_FAVORITE</td>
+	<td>//button[normalize-space()='${key_collectionName}']/following-sibling::div/ul/li[contains(@class,'page-editor__fragments-widgets__tab-card-item')][normalize-space()='${key_fragmentName}']//button[@aria-label='${ariaLabel}']</td>
 	<td></td>
 </tr>
 <tr>

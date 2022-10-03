@@ -271,7 +271,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			_bundleContext.registerService(
 				RESTContextPathResolver.class,
 				new RESTContextPathResolverImpl(
-					"/o/" + objectDefinition.getRESTContextPath(),
+					"/o" + objectDefinition.getRESTContextPath(),
 					_objectScopeProviderRegistry.getObjectScopeProvider(
 						objectDefinition.getScope()),
 					false),
@@ -304,6 +304,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_objectEntryLocalService, _objectFieldLocalService,
 					_objectLayoutLocalService, _objectScopeProviderRegistry),
 				HashMapDictionaryBuilder.<String, Object>put(
+					"company.id", objectDefinition.getCompanyId()
+				).put(
 					"item.class.name", objectDefinition.getClassName()
 				).build());
 		}

@@ -18,6 +18,7 @@ import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.constants.ObjectFieldConstants;
+import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.exception.DuplicateObjectFieldExternalReferenceCodeException;
 import com.liferay.object.exception.ObjectFieldBusinessTypeException;
 import com.liferay.object.exception.ObjectFieldDBTypeException;
@@ -534,6 +535,15 @@ public class ObjectFieldLocalServiceImpl
 				newObjectField.getObjectDefinitionId());
 
 		if (Validator.isNotNull(newObjectField.getRelationshipType())) {
+			if (GetterUtil.getBoolean(
+					PropsUtil.get("feature.flag.LPS-158962"))) {
+
+				_validateObjectRelationshipDeletionType(
+					objectFieldId, required);
+
+				newObjectField.setRequired(required);
+			}
+
 			if (!Objects.equals(newObjectField.getDBType(), dbType) ||
 				!Objects.equals(newObjectField.getName(), name)) {
 
@@ -619,6 +629,14 @@ public class ObjectFieldLocalServiceImpl
 
 		ObjectField objectField = objectFieldPersistence.findByPrimaryKey(
 			objectFieldId);
+
+		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158962")) &&
+			StringUtil.equals(
+				objectField.getBusinessType(),
+				ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
+
+			_validateObjectRelationshipDeletionType(objectFieldId, required);
+		}
 
 		objectField.setRequired(required);
 
@@ -1022,6 +1040,24 @@ public class ObjectFieldLocalServiceImpl
 			(objectField.getObjectFieldId() != objectFieldId)) {
 
 			throw new ObjectFieldNameException.MustNotBeDuplicate(name);
+		}
+	}
+
+	private void _validateObjectRelationshipDeletionType(
+			long objectFieldId, boolean required)
+		throws PortalException {
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipPersistence.fetchByObjectFieldId2(objectFieldId);
+
+		if (StringUtil.equals(
+				objectRelationship.getDeletionType(),
+				ObjectRelationshipConstants.DELETION_TYPE_DISASSOCIATE) &&
+			required) {
+
+			throw new ObjectFieldRelationshipTypeException(
+				"Object field cannot be required because the relationship " +
+					"deletion type is disassociate");
 		}
 	}
 

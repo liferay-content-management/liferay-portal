@@ -25,7 +25,7 @@ const StatusTag = ({currentStatus}) => {
 				}
 			)}
 		>
-			{statusDisplay?.label}
+			{statusDisplay && statusDisplay.label}
 		</ClayLabel>
 	);
 };

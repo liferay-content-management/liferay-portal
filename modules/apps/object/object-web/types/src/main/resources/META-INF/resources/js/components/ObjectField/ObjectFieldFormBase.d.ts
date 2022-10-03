@@ -25,6 +25,7 @@ interface IProps {
 	objectField: Partial<ObjectField>;
 	objectFieldTypes: ObjectFieldType[];
 	objectName: string;
+	objectRelationshipId?: number;
 	onAggregationFilterChange?: (aggregationFilterArray: []) => void;
 	onRelationshipChange?: (objectDefinitionId2: number) => void;
 	setValues: (values: Partial<ObjectField>) => void;
@@ -45,6 +46,7 @@ export default function ObjectFieldFormBase({
 	objectField: values,
 	objectFieldTypes,
 	objectName,
+	objectRelationshipId,
 	onAggregationFilterChange,
 	onRelationshipChange,
 	setValues,

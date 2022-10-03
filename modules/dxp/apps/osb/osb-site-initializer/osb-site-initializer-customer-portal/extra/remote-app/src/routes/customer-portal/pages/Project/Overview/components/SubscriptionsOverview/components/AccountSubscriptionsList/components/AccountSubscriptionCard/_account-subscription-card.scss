@@ -1,0 +1,12 @@
+.cp-account-subscription-card {
+	height: 240px;
+	width: 209px;
+
+	#{&}-logo {
+		height: 45px;
+	}
+
+	#{&}-name {
+		height: 43px;
+	}
+}

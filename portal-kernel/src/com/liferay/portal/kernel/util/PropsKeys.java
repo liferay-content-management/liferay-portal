@@ -1720,21 +1720,12 @@ public interface PropsKeys {
 	public static final String MODULE_FRAMEWORK_BASE_DIR =
 		"module.framework.base.dir";
 
-	public static final String MODULE_FRAMEWORK_BEGINNING_START_LEVEL =
-		"module.framework.beginning.start.level";
-
-	public static final String MODULE_FRAMEWORK_CONCURRENT_STARTUP_ENABLED =
-		"module.framework.concurrent.startup.enabled";
-
 	public static final String MODULE_FRAMEWORK_CONFIGS_DIR =
 		"module.framework.configs.dir";
 
 	public static final String
 		MODULE_FRAMEWORK_CONFIGURATION_BUNDLE_SYMBOLIC_NAMES =
 			"module.framework.configuration.bundle.symbolic.names";
-
-	public static final String MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL =
-		"module.framework.dynamic.install.start.level";
 
 	public static final String MODULE_FRAMEWORK_EXPORT_PASSWORD_ATTRIBUTES =
 		"module.framework.export.password.attributes";
@@ -1756,9 +1747,6 @@ public interface PropsKeys {
 	public static final String MODULE_FRAMEWORK_FILE_INSTALL_CFG_ENABLED =
 		"module.framework.file.install.cfg.enabled";
 
-	public static final String MODULE_FRAMEWORK_FILE_INSTALL_CONFIG_ENCODING =
-		"module.framework.file.install.config.encoding";
-
 	public static final String MODULE_FRAMEWORK_FILE_INSTALL_FILTER =
 		"module.framework.file.install.filter";
 
@@ -1779,9 +1767,6 @@ public interface PropsKeys {
 
 	public static final String MODULE_FRAMEWORK_PROPERTIES =
 		"module.framework.properties.";
-
-	public static final String MODULE_FRAMEWORK_RUNTIME_START_LEVEL =
-		"module.framework.runtime.start.level";
 
 	public static final String MODULE_FRAMEWORK_SERVICES_IGNORED_INTERFACES =
 		"module.framework.services.ignored.interfaces";
@@ -1830,9 +1815,6 @@ public interface PropsKeys {
 	public static final String
 		MODULE_FRAMEWORK_WEB_SERVLET_ANNOTATION_SCANNING_WHITELIST =
 			"module.framework.web.servlet.annotation.scanning.whitelist";
-
-	public static final String MODULE_FRAMEWORK_WEB_START_LEVEL =
-		"module.framework.web.start.level";
 
 	public static final String MY_SITES_DIRECTORY_SITE_EXCLUDES =
 		"my.sites.directory.site.excludes";

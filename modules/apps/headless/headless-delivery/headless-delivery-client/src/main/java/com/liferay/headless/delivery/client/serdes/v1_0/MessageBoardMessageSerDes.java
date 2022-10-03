@@ -226,6 +226,16 @@ public class MessageBoardMessageSerDes {
 			sb.append("\"");
 		}
 
+		if (messageBoardMessage.getHasCompanyMx() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"hasCompanyMx\": ");
+
+			sb.append(messageBoardMessage.getHasCompanyMx());
+		}
+
 		if (messageBoardMessage.getHeadline() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -538,6 +548,15 @@ public class MessageBoardMessageSerDes {
 				String.valueOf(messageBoardMessage.getFriendlyUrlPath()));
 		}
 
+		if (messageBoardMessage.getHasCompanyMx() == null) {
+			map.put("hasCompanyMx", null);
+		}
+		else {
+			map.put(
+				"hasCompanyMx",
+				String.valueOf(messageBoardMessage.getHasCompanyMx()));
+		}
+
 		if (messageBoardMessage.getHeadline() == null) {
 			map.put("headline", null);
 		}
@@ -761,6 +780,12 @@ public class MessageBoardMessageSerDes {
 				if (jsonParserFieldValue != null) {
 					messageBoardMessage.setFriendlyUrlPath(
 						(String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "hasCompanyMx")) {
+				if (jsonParserFieldValue != null) {
+					messageBoardMessage.setHasCompanyMx(
+						(Boolean)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "headline")) {

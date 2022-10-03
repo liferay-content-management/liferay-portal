@@ -133,15 +133,33 @@ export function removeBrackets(value) {
 }
 
 /**
- * Function to remove duplicates in an array.
+ * Removes any duplicate items in an array. If 'property' is provided,
+ * it removes duplicate object items with the same property.
  *
- * @param {Array} items Array of items with repeated values
- * @return {Array}
+ * @param {Array} array An array of items
+ * @param {string=} property Name of the property to compare
+ * @returns {Array}
  */
-export function removeDuplicates(items) {
-	return items.filter(
-		(item, position, self) => self.indexOf(item) === position
-	);
+export function removeDuplicates(array, property) {
+	if (!property) {
+		return array.filter(
+			(item, position, self) => self.indexOf(item) === position
+		);
+	}
+
+	const uniqueArray = [];
+
+	array.forEach((item1) => {
+		if (
+			uniqueArray.findIndex(
+				(item2) => item2[property] === item1[property]
+			) === -1
+		) {
+			uniqueArray.push(item1);
+		}
+	});
+
+	return uniqueArray;
 }
 
 /**
@@ -410,16 +428,20 @@ export function getConfigurationEntry({sxpElement, uiConfigurationValues}) {
 					);
 				}
 				else if (config.type === INPUT_TYPES.NUMBER) {
+					const initialValue = initialConfigValue.value
+						? toNumber(initialConfigValue.value)
+						: initialConfigValue;
+
 					configValue =
 						typeof config.typeOptions?.unitSuffix === 'string'
-							? typeof initialConfigValue === 'string'
-								? initialConfigValue.concat(
+							? typeof initialValue === 'string'
+								? initialValue.concat(
 										config.typeOptions?.unitSuffix
 								  )
-								: JSON.stringify(initialConfigValue).concat(
+								: JSON.stringify(initialValue).concat(
 										config.typeOptions?.unitSuffix
 								  )
-							: initialConfigValue;
+							: initialValue;
 				}
 				else if (config.type === INPUT_TYPES.SLIDER) {
 					configValue = initialConfigValue;

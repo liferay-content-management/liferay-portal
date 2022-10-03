@@ -14,11 +14,9 @@
 
 import updateEditableValues from '../../thunks/updateEditableValues';
 
-function undoAction({action, store}) {
+function undoAction({action}) {
 	return updateEditableValues({
 		...action,
-		languageId: store.languageId,
-		segmentsExperienceId: store.segmentsExperienceId,
 	});
 }
 

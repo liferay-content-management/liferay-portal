@@ -413,7 +413,7 @@ definition {
 				locator1 = "StyleBookEditor#PREVIEW_SELECTOR");
 
 			AssertElementPresent(
-				key_caption = "Showing 4 of 7 Items",
+				key_caption = "Showing 4 of 8 Items",
 				locator1 = "Dropdown#CAPTION");
 		}
 
@@ -473,7 +473,7 @@ definition {
 
 		task ("Select the Navigation Bars from Default fragment set in the preview item selector") {
 			StyleBooks.selectPreviewItem(
-				caption = "Showing 4 of 6 Items",
+				caption = "Showing 4 of 7 Items",
 				previewItem = "Navigation Bars",
 				scope = "Default");
 
@@ -572,7 +572,7 @@ definition {
 				locator1 = "StyleBookEditor#PREVIEW_SELECTOR");
 
 			AssertElementPresent(
-				key_caption = "Showing 4 of 7 Items",
+				key_caption = "Showing 4 of 8 Items",
 				locator1 = "Dropdown#CAPTION");
 		}
 
@@ -956,7 +956,9 @@ definition {
 		}
 
 		task ("View the help information") {
-			Tooltip.viewHelpInformation(info = "Edit the style book using the sidebar form. You can preview the changes instantly.");
+			Tooltip.viewHelpInformation(
+				header = "Help Information",
+				info = "Edit the style book using the sidebar form. You can preview the changes instantly.");
 		}
 
 		task ("Change Font Family Base to times in Typography form") {
@@ -1518,7 +1520,7 @@ definition {
 				panel = "Control Panel",
 				portlet = "App Manager");
 
-			for (var collectionName : list "Basic Component,Cookie Banner,Dialect,Featured Content,Footers,Navigation Bars") {
+			for (var collectionName : list "Basic Component,Cookie Banner,Dialect,Featured Content,Footers,Inputs,Navigation Bars") {
 				Search.searchCP(searchTerm = "Fragment Collection Contributor");
 
 				AppManager.deactivateApp(appName = "Liferay Fragment Collection Contributor ${collectionName}");

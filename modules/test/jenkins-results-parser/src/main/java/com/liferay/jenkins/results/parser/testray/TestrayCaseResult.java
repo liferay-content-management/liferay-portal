@@ -68,8 +68,17 @@ public class TestrayCaseResult {
 		return jsonObject.optString("errors");
 	}
 
-	public String getID() {
-		return jsonObject.optString("testrayCaseResultId");
+	public URL getHistoryURL() {
+		try {
+			return new URL(getURL() + "/history");
+		}
+		catch (MalformedURLException malformedURLException) {
+			throw new RuntimeException(malformedURLException);
+		}
+	}
+
+	public long getID() {
+		return jsonObject.optLong("testrayCaseResultId");
 	}
 
 	public JSONObject getJSONObject() {
@@ -158,8 +167,7 @@ public class TestrayCaseResult {
 		try {
 			return new URL(
 				testrayServer.getURL(),
-				JenkinsResultsParserUtil.combine(
-					"home/-/testray/case_results/", getID()));
+				"home/-/testray/case_results/" + getID());
 		}
 		catch (MalformedURLException malformedURLException) {
 			throw new RuntimeException(malformedURLException);

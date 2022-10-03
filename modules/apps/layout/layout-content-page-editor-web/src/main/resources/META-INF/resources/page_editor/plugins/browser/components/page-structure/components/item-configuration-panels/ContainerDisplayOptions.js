@@ -16,93 +16,25 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import {SelectField} from '../../../../../../app/components/fragment-configuration-fields/SelectField';
-import {CONTAINER_DISPLAY_OPTIONS} from '../../../../../../app/config/constants/containerDisplayOptions';
 import {CONTAINER_WIDTH_TYPES} from '../../../../../../app/config/constants/containerWidthTypes';
-import {
-	useDispatch,
-	useSelector,
-} from '../../../../../../app/contexts/StoreContext';
-import selectSegmentsExperienceId from '../../../../../../app/selectors/selectSegmentsExperienceId';
+import {CONTENT_DISPLAY_OPTIONS} from '../../../../../../app/config/constants/contentDisplayOptions';
+import {useDispatch} from '../../../../../../app/contexts/StoreContext';
 import updateItemConfig from '../../../../../../app/thunks/updateItemConfig';
 import {getLayoutDataItemPropTypes} from '../../../../../../prop-types/index';
+import {FlexOptions} from './FlexOptions';
 
-const ALIGN_ITEMS_STRETCH = 'align-items-stretch';
-const FLEX_WRAP_NOWRAP = 'flex-nowrap';
-const JUSTIFY_CONTENT_START = 'justify-content-start';
-
-const CONTENT_DISPLAY_OPTIONS = [
+const DISPLAY_OPTIONS = [
 	{
 		label: Liferay.Language.get('block'),
-		value: CONTAINER_DISPLAY_OPTIONS.block,
+		value: CONTENT_DISPLAY_OPTIONS.block,
 	},
 	{
 		label: Liferay.Language.get('flex-row'),
-		value: CONTAINER_DISPLAY_OPTIONS.flexRow,
+		value: CONTENT_DISPLAY_OPTIONS.flexRow,
 	},
 	{
 		label: Liferay.Language.get('flex-column'),
-		value: CONTAINER_DISPLAY_OPTIONS.flexColumn,
-	},
-];
-
-const ALIGN_OPTIONS = [
-	{
-		label: Liferay.Language.get('start'),
-		value: 'align-items-start',
-	},
-	{
-		label: Liferay.Language.get('center'),
-		value: 'align-items-center',
-	},
-	{
-		label: Liferay.Language.get('end'),
-		value: 'align-items-end',
-	},
-	{
-		label: Liferay.Language.get('stretch'),
-		value: ALIGN_ITEMS_STRETCH,
-	},
-	{
-		label: Liferay.Language.get('baseline'),
-		value: 'align-items-baseline',
-	},
-];
-
-const FLEX_WRAP_OPTIONS = [
-	{
-		label: Liferay.Language.get('nowrap'),
-		value: FLEX_WRAP_NOWRAP,
-	},
-	{
-		label: Liferay.Language.get('wrap'),
-		value: 'flex-wrap',
-	},
-	{
-		label: Liferay.Language.get('wrap-reverse'),
-		value: 'flex-wrap-reverse',
-	},
-];
-
-const JUSTIFY_OPTIONS = [
-	{
-		label: Liferay.Language.get('start'),
-		value: JUSTIFY_CONTENT_START,
-	},
-	{
-		label: Liferay.Language.get('center'),
-		value: 'justify-content-center',
-	},
-	{
-		label: Liferay.Language.get('end'),
-		value: 'justify-content-end',
-	},
-	{
-		label: Liferay.Language.get('between'),
-		value: 'justify-content-between',
-	},
-	{
-		label: Liferay.Language.get('around'),
-		value: 'justify-content-around',
+		value: CONTENT_DISPLAY_OPTIONS.flexColumn,
 	},
 ];
 
@@ -119,11 +51,10 @@ const WIDTH_TYPE_OPTIONS = [
 
 export default function ContainerDisplayOptions({item}) {
 	const dispatch = useDispatch();
-	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
 
 	const flexOptionsVisible =
-		item.config.contentDisplay === CONTAINER_DISPLAY_OPTIONS.flexColumn ||
-		item.config.contentDisplay === CONTAINER_DISPLAY_OPTIONS.flexRow;
+		item.config.contentDisplay === CONTENT_DISPLAY_OPTIONS.flexColumn ||
+		item.config.contentDisplay === CONTENT_DISPLAY_OPTIONS.flexRow;
 
 	return (
 		<>
@@ -132,12 +63,12 @@ export default function ContainerDisplayOptions({item}) {
 					label: Liferay.Language.get('content-display'),
 					name: 'contentDisplay',
 					typeOptions: {
-						validValues: CONTENT_DISPLAY_OPTIONS,
+						validValues: DISPLAY_OPTIONS,
 					},
 				}}
 				onValueSelect={(name, value) => {
 					const itemConfig =
-						value === CONTAINER_DISPLAY_OPTIONS.block
+						value === CONTENT_DISPLAY_OPTIONS.block
 							? {
 									align: '',
 									flexWrap: '',
@@ -150,7 +81,6 @@ export default function ContainerDisplayOptions({item}) {
 						updateItemConfig({
 							itemConfig,
 							itemId: item.itemId,
-							segmentsExperienceId,
 						})
 					);
 				}}
@@ -158,86 +88,19 @@ export default function ContainerDisplayOptions({item}) {
 			/>
 
 			{flexOptionsVisible && (
-				<>
-					<SelectField
-						field={{
-							label: Liferay.Language.get('flex-wrap'),
-							name: 'flexWrap',
-							typeOptions: {
-								validValues: FLEX_WRAP_OPTIONS,
-							},
-						}}
-						onValueSelect={(name, value) => {
-							dispatch(
-								updateItemConfig({
-									itemConfig: {
-										[name]:
-											value === FLEX_WRAP_NOWRAP
-												? ''
-												: value,
-									},
-									itemId: item.itemId,
-									segmentsExperienceId,
-								})
-							);
-						}}
-						value={item.config.flexWrap || FLEX_WRAP_NOWRAP}
-					/>
-
-					<div className="d-flex justify-content-between">
-						<SelectField
-							className="page-editor__sidebar__fieldset__field-small"
-							field={{
-								label: Liferay.Language.get('align-items'),
-								name: 'align',
-								typeOptions: {
-									validValues: ALIGN_OPTIONS,
+				<FlexOptions
+					itemConfig={item.config}
+					onConfigChange={(name, value) => {
+						dispatch(
+							updateItemConfig({
+								itemConfig: {
+									[name]: value,
 								},
-							}}
-							onValueSelect={(name, value) => {
-								dispatch(
-									updateItemConfig({
-										itemConfig: {
-											[name]:
-												value === ALIGN_ITEMS_STRETCH
-													? ''
-													: value,
-										},
-										itemId: item.itemId,
-										segmentsExperienceId,
-									})
-								);
-							}}
-							value={item.config.align || ALIGN_ITEMS_STRETCH}
-						/>
-
-						<SelectField
-							className="page-editor__sidebar__fieldset__field-small"
-							field={{
-								label: Liferay.Language.get('justify-content'),
-								name: 'justify',
-								typeOptions: {
-									validValues: JUSTIFY_OPTIONS,
-								},
-							}}
-							onValueSelect={(name, value) => {
-								dispatch(
-									updateItemConfig({
-										itemConfig: {
-											[name]:
-												value === JUSTIFY_CONTENT_START
-													? ''
-													: value,
-										},
-										itemId: item.itemId,
-										segmentsExperienceId,
-									})
-								);
-							}}
-							value={item.config.justify || JUSTIFY_CONTENT_START}
-						/>
-					</div>
-				</>
+								itemId: item.itemId,
+							})
+						);
+					}}
+				/>
 			)}
 
 			<SelectField
@@ -253,7 +116,6 @@ export default function ContainerDisplayOptions({item}) {
 						updateItemConfig({
 							itemConfig: {[name]: value},
 							itemId: item.itemId,
-							segmentsExperienceId,
 						})
 					);
 				}}

@@ -286,12 +286,11 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 
 		DefaultDTOConverterContext defaultDTOConverterContext =
 			new DefaultDTOConverterContext(
-				false, Collections.emptyMap(), _dtoConverterRegistry, null,
-				user.getLocale(), null, user);
+				false, Collections.emptyMap(), _dtoConverterRegistry,
+				baseModel.getPrimaryKeyObj(), user.getLocale(), null, user);
 
 		try {
-			Object object = dtoConverter.toDTO(
-				defaultDTOConverterContext, baseModel);
+			Object object = dtoConverter.toDTO(defaultDTOConverterContext);
 
 			if (object == null) {
 				return modelAttributes;
@@ -303,7 +302,13 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 			return jsonObject.put(
 				"createDate", modelAttributes.get("createDate")
 			).put(
+				"modifiedDate", modelAttributes.get("modifiedDate")
+			).put(
+				"status", modelAttributes.get("status")
+			).put(
 				"userName", user.getFullName()
+			).put(
+				"uuid", modelAttributes.get("uuid")
 			).toMap();
 		}
 		catch (Exception exception) {

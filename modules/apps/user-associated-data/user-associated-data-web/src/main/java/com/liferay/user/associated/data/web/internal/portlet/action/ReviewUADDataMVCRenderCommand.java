@@ -14,6 +14,7 @@
 
 package com.liferay.user.associated.data.web.internal.portlet.action;
 
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
@@ -23,6 +24,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.user.associated.data.constants.UserAssociatedDataPortletKeys;
 import com.liferay.user.associated.data.display.UADDisplay;
@@ -278,10 +280,23 @@ public class ReviewUADDataMVCRenderCommand implements MVCRenderCommand {
 		viewUADEntitiesDisplay.setApplicationKey(applicationKey);
 		viewUADEntitiesDisplay.setGroupIds(scopeDisplay.getGroupIds());
 		viewUADEntitiesDisplay.setScope(scopeDisplay.getScopeName());
-		viewUADEntitiesDisplay.setSearchContainer(
-			_getSearchContainer(
-				applicationKey, renderRequest, renderResponse, scopeDisplay,
-				(UADDisplay<Object>)uadDisplay, uadHierarchyDisplay, user));
+
+		SearchContainer<UADEntity<?>> searchContainer = _getSearchContainer(
+			applicationKey, renderRequest, renderResponse, scopeDisplay,
+			(UADDisplay<Object>)uadDisplay, uadHierarchyDisplay, user);
+
+		String id = StringUtil.replace(
+			applicationKey, CharPool.PERIOD, CharPool.UNDERLINE);
+
+		if (Validator.isNull(id)) {
+			id = StringUtil.randomId();
+		}
+
+		id = "uadEntities_" + id;
+
+		searchContainer.setId(id);
+
+		viewUADEntitiesDisplay.setSearchContainer(searchContainer);
 
 		if (uadHierarchyDisplay != null) {
 			viewUADEntitiesDisplay.setHierarchy(true);

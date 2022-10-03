@@ -31,7 +31,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.util.PropsUtil;
 
 import java.util.HashSet;
 import java.util.List;
@@ -125,17 +124,12 @@ public class FormLayoutStructureItemImporter
 					FormStyledLayoutStructureItem.FORM_CONFIG_OTHER_ITEM_TYPE);
 			}
 
-			if (GetterUtil.getBoolean(
-					PropsUtil.get("feature.flag.LPS-149720"))) {
+			JSONObject successMessageJSONObject = _getSuccessMessageJSONObject(
+				layoutStructureItemImporterContext, sourceMap);
 
-				JSONObject successMessageJSONObject =
-					_getSuccessMessageJSONObject(
-						layoutStructureItemImporterContext, sourceMap);
-
-				if (successMessageJSONObject != null) {
-					formStyledLayoutStructureItem.setSuccessMessageJSONObject(
-						successMessageJSONObject);
-				}
+			if (successMessageJSONObject != null) {
+				formStyledLayoutStructureItem.setSuccessMessageJSONObject(
+					successMessageJSONObject);
 			}
 		}
 

@@ -10,3 +10,4 @@
  */
 
 export * from './queries/useGetKoroneikiAccounts';
+export * from './queries/useGetKoroneikiAccountByExternalReferenceCode';

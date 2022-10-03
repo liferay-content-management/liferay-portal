@@ -32,12 +32,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Marco Leo
  * @generated
  */
-@Component(
-	immediate = true,
-	service = {
-		ObjectDefinitionModelArgumentsResolver.class, ArgumentsResolver.class
-	}
-)
+@Component(service = ArgumentsResolver.class)
 public class ObjectDefinitionModelArgumentsResolver
 	implements ArgumentsResolver {
 

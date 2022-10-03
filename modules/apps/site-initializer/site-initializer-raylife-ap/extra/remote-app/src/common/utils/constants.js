@@ -24,6 +24,13 @@ export const CONSTANTS = {
 		REVIEWED: 'reviewed',
 		UNDERWRITING: 'underwriting',
 	},
+
+	DEVICES: {
+		DESKTOP: 'DESKTOP',
+		PHONE: 'PHONE',
+		TABLET: 'TABLET',
+	},
+
 	MONTHS_ABREVIATIONS: [
 		'Jan',
 		'Feb',
@@ -38,6 +45,7 @@ export const CONSTANTS = {
 		'Nov',
 		'Dec',
 	],
+
 	US_STATES: [
 		{
 			label: '',

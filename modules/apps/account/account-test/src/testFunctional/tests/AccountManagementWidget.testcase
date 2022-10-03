@@ -252,6 +252,34 @@ definition {
 		}
 	}
 
+	@description = "This test asserts the correct search results when searching via Account Management widget"
+	@priority = "4"
+	test CanSearchForAccount {
+		task ("Given business accounts exist") {
+			for (var accountName : list "Acme Inc,Liferay,South Bay Auto Parts") {
+				JSONAccountEntry.addAccountEntry(
+					accountEntryName = "${accountName}",
+					accountEntryType = "Business");
+			}
+		}
+
+		task ("When a user searches for an account via widget") {
+			Navigator.gotoPage(pageName = "Account Page");
+
+			Search.searchPG(
+				portletName = "Account Management",
+				searchTerm = "South Bay Auto Parts");
+		}
+
+		task ("Then accurate results display") {
+			LexiconEntry.viewEntryName(rowEntry = "South Bay Auto Parts");
+
+			for (var accountName : list "Acme Inc,Liferay") {
+				LexiconEntry.viewNoEntry(rowEntry = "${accountName}");
+			}
+		}
+	}
+
 	@description = "This test asserts that a user can select an account from the list as the active account. Backend tests are covering functionality for account selection."
 	@priority = "4"
 	test CanSetActiveAccount {

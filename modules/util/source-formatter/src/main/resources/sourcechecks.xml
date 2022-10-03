@@ -287,6 +287,11 @@
 			<category name="Bug Prevention" />
 			<description name="Checks values of properties `sourceCompatibility` and `targetCompatibility` in gradle build files." />
 		</check>
+		<check name="GradleMissingJarManifestTaskCheck">
+			<category name="Bug Prevention" />
+			<description name="Finds missing `jarManifest` task when using `jarPatched` task in gradle build files." />
+			<property name="enabled" value="false" />
+		</check>
 		<check name="GradlePropertiesCheck">
 			<category name="Bug Prevention" />
 			<description name="Validates property values in gradle build files." />
@@ -1654,11 +1659,6 @@
 			<category name="Bug Prevention" />
 			<description name="Performs several checks on `sourcechecks.xml` file." />
 		</check>
-		<check name="XMLSpringExtenderServiceCheck">
-			<category name="Performance" />
-			<description name="Finds cases where Spring extender service is used as a dependency injection." />
-			<property name="enabled" value="false" />
-		</check>
 		<check name="XMLSpringFileCheck">
 			<category name="Styling" />
 			<description name="Checks the order of elements in `*-spring.xml` file." />
@@ -1678,6 +1678,19 @@
 		<check name="XMLWebFileCheck">
 			<category name="Bug Prevention" />
 			<description name="Performs several checks on `web.xml` file." />
+		</check>
+
+		<!-- Module Source Checks -->
+
+		<check name="XMLServiceAutoImportDefaultReferencesCheck">
+			<category name="Bug Prevention" />
+			<description name="Checks that the `auto-import-default-references` in `service.xml` does not equal `false`." />
+			<property name="enabled" value="false" />
+		</check>
+		<check name="XMLSpringExtenderServiceCheck">
+			<category name="Performance" />
+			<description name="Finds cases where Spring extender service is used as a dependency injection." />
+			<property name="enabled" value="false" />
 		</check>
 	</source-processor>
 	<source-processor name="YMLSourceProcessor">

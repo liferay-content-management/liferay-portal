@@ -571,9 +571,9 @@ definition {
 
 		Accounts.openAccountsAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "Assign Account User");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Manage Users",
+			rowEntry = "Assign Account User");
 
 		Accounts.viewAssignee(assigneeName = "userfn");
 	}
@@ -894,9 +894,9 @@ definition {
 		task ("Then the regular user is displayed and can be assigned to the account") {
 			Accounts.openAccountsAdmin();
 
-			LexiconEntry.gotoEntry(rowEntry = "Account Name");
-
-			Accounts.gotoAssigneeTab(assigneeTab = "Users");
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Manage Users",
+				rowEntry = "Account Name");
 
 			Accounts.viewAssignee(assigneeName = "userfn");
 		}
@@ -945,9 +945,9 @@ definition {
 
 		Accounts.openAccountsAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "Account with Exist User");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+		LexiconEntry.gotoEntryMenuItemNoError(
+			menuItem = "Manage Users",
+			rowEntry = "Account with Exist User");
 
 		Accounts.viewAssignee(assigneeName = "userfn");
 	}
@@ -973,9 +973,9 @@ definition {
 		task ("Remove all users from Account so they can later be assigned") {
 			Accounts.openAccountsAdmin();
 
-			LexiconEntry.gotoEntry(rowEntry = "Business Account");
-
-			Accounts.gotoAssigneeTab(assigneeTab = "Users");
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Manage Users",
+				rowEntry = "Business Account");
 
 			PortletEntry.selectAll();
 
@@ -1398,9 +1398,9 @@ definition {
 		task ("Open and click into the Assign Users Modal") {
 			Accounts.openAccountsAdmin();
 
-			LexiconEntry.gotoEntry(rowEntry = "Business Account");
-
-			Accounts.gotoAssigneeTab(assigneeTab = "Users");
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Manage Users",
+				rowEntry = "Business Account");
 
 			LexiconEntry.gotoAdd();
 
@@ -2267,9 +2267,9 @@ definition {
 		task ("Open and click into the Assign Users Modal") {
 			Accounts.openAccountsAdmin();
 
-			LexiconEntry.gotoEntry(rowEntry = "Business Account");
-
-			Accounts.gotoAssigneeTab(assigneeTab = "Users");
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Manage Users",
+				rowEntry = "Business Account");
 
 			LexiconEntry.gotoAdd();
 
@@ -2503,9 +2503,9 @@ definition {
 		task ("Then the user should not be added or listed in that account") {
 			Accounts.openAccountsAdmin();
 
-			LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-			Accounts.gotoAssigneeTab(assigneeTab = "Users");
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Manage Users",
+				rowEntry = "AM Account");
 
 			LexiconEntry.viewNoEntry(rowEntry = "userfn userln");
 		}
@@ -2559,9 +2559,9 @@ definition {
 		task ("Then the user should not be added or listed in that account") {
 			Accounts.openAccountsAdmin();
 
-			LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-			Accounts.gotoAssigneeTab(assigneeTab = "Users");
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Manage Users",
+				rowEntry = "AM Account");
 
 			LexiconEntry.viewNoEntry(rowEntry = "userfn userln");
 		}
@@ -2750,9 +2750,9 @@ definition {
 
 		Accounts.openAccountsAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "Remove Account User");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Manage Users",
+			rowEntry = "Remove Account User");
 
 		Accounts.removeUserAsAssignee(assigneeName = "userfn");
 
@@ -2824,9 +2824,9 @@ definition {
 
 		Accounts.openAccountsAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "Business Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Manage Users",
+			rowEntry = "Business Account");
 
 		for (var accountUser : list "1,3,4") {
 			LexiconEntry.selectEntry(rowEntry = "userfn${accountUser} userln${accountUser}");
@@ -2842,15 +2842,118 @@ definition {
 
 		Accounts.openAccountsAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "Business Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Manage Users",
+			rowEntry = "Business Account");
 
 		for (var accountUser : list "1,3,4") {
 			LexiconEntry.viewNoEntry(rowEntry = "userfn${accountUser} userln${accountUser}");
 		}
 
 		LexiconEntry.viewEntryName(rowEntry = "userfn2 userln2");
+	}
+
+	@description = "This test asserts accurate results when searching for assigned account groups of an account"
+	@priority = "4"
+	test CanSearchForAccountGroup {
+		task ("Given a business account with assigned account group") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Acme Inc",
+				accountEntryType = "Business");
+
+			JSONAccountGroup.addAccountGroup(accountGroupName = "Account Group Name");
+
+			AccountGroups.openAccountGroupsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Account Group Name");
+
+			AccountGroups.addAssignee(
+				accountGroupName = "Account Group Name",
+				assigneeNames = "Acme Inc");
+		}
+
+		task ("When a user searches for an account group in the Account Groups tab of an account") {
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Acme Inc");
+
+			Navigator.gotoNavTab(navTab = "Account Groups");
+
+			Search.searchCP(searchTerm = "Account Group Name");
+		}
+
+		task ("Then the account group displays in the results") {
+			LexiconEntry.viewEntryName(rowEntry = "Account Group Name");
+		}
+	}
+
+	@description = "This test asserts accurate results when searching within a filter scope"
+	@priority = "4"
+	test CanSearchForAccountInTheInactiveFilter {
+		task ("Given an active and inactive business account exist") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "S Auto Service",
+				accountEntryType = "Business");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Acme Inc",
+				accountEntryStatus = "Inactive",
+				accountEntryType = "Business");
+		}
+
+		task ("When a user searches for the inactive account in the Inactive filter") {
+			Accounts.openAccountsAdmin();
+
+			ManagementBar.setFilterAndOrder(filterBy = "Inactive");
+
+			Search.searchCP(searchTerm = "Acme Inc");
+		}
+
+		task ("Then the inactive account displays in the results") {
+			LexiconEntry.viewEntryName(rowEntry = "Acme Inc");
+
+			LexiconEntry.viewNoEntry(rowEntry = "S Auto Service");
+		}
+
+		task ("When a user searches for an active account in the Inactive filter") {
+			Search.searchCP(searchTerm = "S Auto Service");
+		}
+
+		task ("Then the entry does not display in the results") {
+			AssertTextEquals(
+				locator1 = "Message#EMPTY_INFO",
+				value1 = "No accounts were found.");
+		}
+	}
+
+	@description = "This test asserts accurate results when searching for account roles available in an account"
+	@priority = "4"
+	test CanSearchForAccountRole {
+		task ("Given a business account with account roles") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "B Chocolate Factory",
+				accountEntryType = "Business");
+
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "B Chocolate Factory");
+
+			Accounts.addOwnedAccountRole(accountRoleTitle = "Account Specific Role");
+		}
+
+		task ("When a user searches for an account role in the Roles tab of an account") {
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "B Chocolate Factory");
+
+			Navigator.gotoNavTab(navTab = "Roles");
+
+			Search.searchCP(searchTerm = "Account Specific Role");
+		}
+
+		task ("Then the account role displays in the results") {
+			LexiconEntry.viewEntryName(rowEntry = "Account Specific Role");
+		}
 	}
 
 	@description = "This test searches for an address in the addresses tab of an account."
@@ -2930,6 +3033,252 @@ definition {
 					LexiconEntry.viewNoEntry(rowEntry = "Organization Name");
 				}
 			}
+		}
+	}
+
+	@description = "This test asserts accurate results when searching for assigned users of an account"
+	@priority = "4"
+	test CanSearchForUser {
+		task ("Given a business account with assigned users") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Account Name",
+				accountEntryType = "Business");
+
+			for (var accountUser : list "1,2") {
+				JSONUser.addUser(
+					userEmailAddress = "userea${accountUser}@liferay.com",
+					userFirstName = "userfn${accountUser}",
+					userLastName = "userln${accountUser}",
+					userScreenName = "usersn${accountUser}");
+
+				JSONAccountEntryUser.addExistUsertoAccount(
+					accountEntryName = "Account Name",
+					userEmailAddress = "userea${accountUser}@liferay.com");
+			}
+		}
+
+		task ("When a user searches for a user in the Users tab of an account") {
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Account Name");
+
+			Navigator.gotoNavTab(navTab = "Users");
+
+			Search.searchCP(searchTerm = "usersn1");
+		}
+
+		task ("Then the user displays in the results") {
+			LexiconEntry.viewEntryName(rowEntry = "userfn1 userln1");
+
+			LexiconEntry.viewNoEntry(rowEntry = "userfn2 userln2");
+		}
+	}
+
+	@description = "This test asserts accurate results when searching for available organizations in Assign Organizations to account modal"
+	@priority = "4"
+	test CanSearchInAssignOrganizationsToAccountModal {
+		task ("Given a business account and a few organizations") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Account Name",
+				accountEntryType = "Business");
+
+			JSONOrganization.addOrganization(organizationName = "One");
+
+			JSONOrganization.addOrganization(organizationName = "Two");
+		}
+
+		task ("When a user assigns an organization to an account") {
+			Accounts.openAccountsAdmin();
+
+			Accounts.goToEntryMenuItem(
+				menuItem = "Manage Organizations",
+				rowEntry = "Account Name");
+
+			AssertTextEquals(
+				locator1 = "Message#EMPTY_INFO",
+				value1 = "There are no organizations associated with this account.");
+
+			LexiconEntry.gotoAdd();
+
+			SelectFrame(
+				key_title = "Assign Organizations to Account Name",
+				locator1 = "IFrame#MODAL_ANY");
+		}
+
+		task ("Then the user can search for available organizations") {
+			Search.searchCP(searchTerm = "One");
+
+			LexiconEntry.viewEntryName(rowEntry = "One");
+
+			LexiconEntry.viewNoEntry(rowEntry = "Two");
+		}
+	}
+
+	@description = "This test asserts accurate results when searching for available users in Assign Users to account modal"
+	@priority = "4"
+	test CanSearchInAssignUsersToAccountModal {
+		task ("Given a business account and a few users") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Account Name",
+				accountEntryType = "Business");
+
+			JSONUser.addUser(
+				userEmailAddress = "first@liferay.com",
+				userFirstName = "firstname",
+				userLastName = "lastname",
+				userScreenName = "screenname");
+
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+		}
+
+		task ("When a user assigns a user to an account") {
+			Accounts.openAccountsAdmin();
+
+			Accounts.goToEntryMenuItem(
+				menuItem = "Manage Users",
+				rowEntry = "Account Name");
+
+			AssertTextEquals(
+				locator1 = "Message#EMPTY_INFO",
+				value1 = "There are no users associated with this account.");
+
+			LexiconEntry.gotoAdd();
+
+			SelectFrame(
+				key_title = "Assign Users to Account Name",
+				locator1 = "IFrame#MODAL_ANY");
+		}
+
+		task ("Then the user can search for available users") {
+			Search.searchCP(searchTerm = "firstname");
+
+			LexiconEntry.viewEntryName(rowEntry = "firstname lastname");
+
+			LexiconEntry.viewNoEntry(rowEntry = "userfn userln");
+
+			Search.searchCP(searchTerm = "userea@liferay.com");
+
+			LexiconEntry.viewEntryName(rowEntry = "userfn userln");
+
+			LexiconEntry.viewNoEntry(rowEntry = "firstname lastname");
+		}
+	}
+
+	@description = "This test asserts accurate results when searching for available users in Assign Users to account role modal"
+	@priority = "4"
+	test CanSearchInAssignUsersToAccountRoleModal {
+		task ("Given a business account and two users, but only one user is a member of the account") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Account Name",
+				accountEntryType = "Business");
+
+			JSONUser.addUser(
+				userEmailAddress = "first@liferay.com",
+				userFirstName = "firstname",
+				userLastName = "lastname",
+				userScreenName = "screenname");
+
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+
+			JSONAccountEntryUser.addExistUsertoAccount(
+				accountEntryName = "Account Name",
+				userEmailAddress = "userea@liferay.com");
+		}
+
+		task ("When a user assigns a user to an account role") {
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Account Name");
+
+			Navigator.gotoNavTab(navTab = "Roles");
+
+			LexiconEntry.gotoEntryMenuItemNoError(
+				menuItem = "Assign Users",
+				rowEntry = "Account Administrator");
+
+			AssertTextEquals(
+				locator1 = "Message#EMPTY_INFO",
+				value1 = "There are no users associated with this role.");
+
+			LexiconEntry.gotoAdd();
+
+			SelectFrame(
+				key_title = "Assign Users to Account Administrator",
+				locator1 = "IFrame#MODAL_ANY");
+		}
+
+		task ("Then the user can search for available users") {
+			Search.searchCP(searchTerm = "userea@liferay.com");
+
+			LexiconEntry.viewEntryName(rowEntry = "userea@liferay.com");
+		}
+
+		task ("and cannot search for users that are not member of the account") {
+			Search.searchCP(searchTerm = "first@liferay.com");
+
+			AssertTextEquals(
+				locator1 = "Message#EMPTY_INFO",
+				value1 = "No users were found.");
+		}
+	}
+
+	@description = "This test asserts accurate results when searching for available users in Assign User to person account modal"
+	@priority = "4"
+	test CanSearchInAssignUserToPersonAccountModal {
+		task ("Given a person account and a few users") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Person Account",
+				accountEntryType = "Person");
+
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+
+			JSONUser.addUser(
+				userEmailAddress = "second@liferay.com",
+				userFirstName = "secondfirstname",
+				userLastName = "secondlastname",
+				userScreenName = "secondscreenname");
+		}
+
+		task ("When a user assigns a user to a person account") {
+			Accounts.openAccountsAdmin();
+
+			Accounts.goToEntryMenuItem(
+				menuItem = "Edit",
+				rowEntry = "Person Account");
+
+			AssertClick(
+				locator1 = "Account#USER_SELECT_BUTTON",
+				value1 = "Select");
+
+			SelectFrame(
+				key_title = "Assign User",
+				locator1 = "IFrame#MODAL_ANY");
+		}
+
+		task ("Then the user can search for available users") {
+			Search.searchCP(searchTerm = "userea@liferay.com");
+
+			LexiconEntry.viewEntryName(rowEntry = "userfn userln");
+
+			LexiconEntry.viewNoEntry(rowEntry = "secondfirstname secondlastname");
+
+			Search.searchCP(searchTerm = "second@liferay.com");
+
+			LexiconEntry.viewEntryName(rowEntry = "secondfirstname secondlastname");
+
+			LexiconEntry.viewNoEntry(rowEntry = "userfn userln");
 		}
 	}
 
@@ -3449,9 +3798,9 @@ definition {
 
 		Accounts.openAccountsAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Manage Users",
+			rowEntry = "AM Account");
 
 		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
 	}
@@ -3754,9 +4103,9 @@ definition {
 
 		Accounts.openAccountsAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "Account no Domain");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Manage Users",
+			rowEntry = "Account no Domain");
 
 		for (var assigneeName : list "userfn1,userfn2") {
 			Accounts.viewAssignee(assigneeName = "${assigneeName}");
@@ -3764,9 +4113,9 @@ definition {
 
 		Accounts.openAccountsAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "Account with Domain");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Manage Users",
+			rowEntry = "Account with Domain");
 
 		LexiconEntry.gotoAdd();
 
@@ -3794,9 +4143,9 @@ definition {
 
 		Accounts.openAccountsAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "Account with Domain");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Manage Users",
+			rowEntry = "Account with Domain");
 
 		LexiconEntry.viewNoEntry(rowEntry = "userfn1 userln1");
 

@@ -54,7 +54,7 @@ const DDM_FORM_PORTLET_NAMESPACE =
  * of the submit and uses Liferay.Util.submitForm.
  */
 const useFormSubmit = ({apiRef, containerRef}) => {
-	const {activePage, pages} = useFormState();
+	const {activePage, pages, title} = useFormState();
 	const {portletNamespace, submittable, validateCSRFTokenURL} = useConfig();
 	const isDDMFormPortletNamespace = portletNamespace.includes(
 		DDM_FORM_PORTLET_NAMESPACE
@@ -95,6 +95,7 @@ const useFormSubmit = ({apiRef, containerRef}) => {
 								formId: getFormId(
 									getFormNode(containerRef.current)
 								),
+								title,
 							});
 						});
 					}
@@ -113,7 +114,7 @@ const useFormSubmit = ({apiRef, containerRef}) => {
 					});
 				});
 		},
-		[apiRef, containerRef, submittable]
+		[apiRef, containerRef, submittable, title]
 	);
 
 	const handleFormSubmitted = useCallback(

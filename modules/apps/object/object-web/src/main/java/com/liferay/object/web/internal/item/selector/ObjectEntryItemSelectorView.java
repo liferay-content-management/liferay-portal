@@ -38,12 +38,9 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
@@ -289,48 +286,10 @@ public class ObjectEntryItemSelectorView
 					"no-entries-were-found");
 
 			try {
-				if (GetterUtil.getBoolean(
-						PropsUtil.get("feature.flag.LPS-158478"))) {
-
-					ObjectRelatedModelsProvider objectRelatedModelsProvider =
-						_objectRelatedModelsProviderRegistry.
-							getObjectRelatedModelsProvider(
-								_objectDefinition.getClassName(),
-								ParamUtil.getString(
-									_portletRequest, "objectRelationshipType"));
-
-					List<ObjectEntry> objectEntries =
-						objectRelatedModelsProvider.getUnrelatedModels(
-							_objectDefinition.getCompanyId(),
-							ParamUtil.getLong(_portletRequest, "groupId"),
-							_objectDefinition,
-							ParamUtil.getLong(_portletRequest, "objectEntryId"),
-							ParamUtil.getLong(
-								_portletRequest, "objectRelationshipId"));
-
-					searchContainer.setResultsAndTotal(
-						() -> objectEntries, objectEntries.size());
-				}
-				else {
-					Group scopeGroup = _themeDisplay.getScopeGroup();
-
-					Page<com.liferay.object.rest.dto.v1_0.ObjectEntry>
-						objectEntriesPage =
-							_objectEntryManager.getObjectEntries(
-								_themeDisplay.getCompanyId(), _objectDefinition,
-								scopeGroup.getGroupKey(), null,
-								_getDTOConverterContext(), _getFilterString(),
-								null, null, null);
-
-					List<ObjectEntry> objectEntries = TransformUtil.transform(
-						objectEntriesPage.getItems(),
-						objectEntry -> _toObjectEntry(
-							_objectDefinition.getObjectDefinitionId(),
-							objectEntry));
-
-					searchContainer.setResultsAndTotal(
-						() -> objectEntries, objectEntries.size());
-				}
+				searchContainer.setResultsAndTotal(
+					_getObjectEntries(
+						ParamUtil.getLong(
+							_portletRequest, "objectDefinitionId")));
 			}
 			catch (Exception exception) {
 				_log.error(exception);
@@ -347,20 +306,39 @@ public class ObjectEntryItemSelectorView
 				_themeDisplay.getLocale(), null, _themeDisplay.getUser());
 		}
 
-		private String _getFilterString() throws PortalException {
-			long objectDefinitionId = ParamUtil.getLong(
-				_portletRequest, "objectDefinitionId");
+		private List<ObjectEntry> _getObjectEntries(long objectDefinitionId)
+			throws Exception {
 
 			if (objectDefinitionId == 0) {
-				return StringPool.BLANK;
+				Group scopeGroup = _themeDisplay.getScopeGroup();
+
+				Page<com.liferay.object.rest.dto.v1_0.ObjectEntry> page =
+					_objectEntryManager.getObjectEntries(
+						_themeDisplay.getCompanyId(), _objectDefinition,
+						scopeGroup.getGroupKey(), null,
+						_getDTOConverterContext(), StringPool.BLANK, null, null,
+						null);
+
+				return TransformUtil.transform(
+					page.getItems(),
+					objectEntry -> _toObjectEntry(
+						_objectDefinition.getObjectDefinitionId(),
+						objectEntry));
 			}
 
-			ObjectDefinition objectDefinition =
-				_objectDefinitionLocalService.getObjectDefinition(
-					objectDefinitionId);
+			ObjectRelatedModelsProvider objectRelatedModelsProvider =
+				_objectRelatedModelsProviderRegistry.
+					getObjectRelatedModelsProvider(
+						_objectDefinition.getClassName(),
+						ParamUtil.getString(
+							_portletRequest, "objectRelationshipType"));
 
-			return StringUtil.toLowerCase(objectDefinition.getShortName()) +
-				"Id eq '0'";
+			return objectRelatedModelsProvider.getUnrelatedModels(
+				_objectDefinition.getCompanyId(),
+				ParamUtil.getLong(_portletRequest, "groupId"),
+				_objectDefinition,
+				ParamUtil.getLong(_portletRequest, "objectEntryId"),
+				ParamUtil.getLong(_portletRequest, "objectRelationshipId"));
 		}
 
 		private ObjectEntry _toObjectEntry(

@@ -28,6 +28,14 @@ const SideMenu = () => {
 
 	const productActivationMenuRef = useRef();
 
+	const activationSubscriptionGroups = useMemo(
+		() =>
+			subscriptionGroups?.filter(
+				(subscriptionGroup) => subscriptionGroup.hasActivation
+			),
+		[subscriptionGroups]
+	);
+
 	const hasSomeMenuItemActive = useMemo(
 		() => menuItemActiveStatus.some((menuItemActive) => !!menuItemActive),
 		[menuItemActiveStatus]
@@ -35,14 +43,14 @@ const SideMenu = () => {
 
 	useEffect(() => {
 		const expandedHeightProducts = isOpenedProductsMenu
-			? subscriptionGroups?.length * 48
+			? activationSubscriptionGroups?.length * 48
 			: 0;
 
 		if (productActivationMenuRef?.current) {
 			productActivationMenuRef.current.style.maxHeight = `${expandedHeightProducts}px`;
 		}
 	}, [
-		subscriptionGroups?.length,
+		activationSubscriptionGroups?.length,
 		hasSomeMenuItemActive,
 		isOpenedProductsMenu,
 	]);
@@ -57,7 +65,7 @@ const SideMenu = () => {
 
 	const accountSubscriptionGroupsMenuItem = useMemo(
 		() =>
-			subscriptionGroups?.map(({name}, index) => {
+			activationSubscriptionGroups?.map(({name}, index) => {
 				if (name !== PRODUCT_TYPES.liferayExperienceCloud) {
 					const redirectPage = getKebabCase(name);
 
@@ -89,15 +97,15 @@ const SideMenu = () => {
 					);
 				}
 			}),
-		[subscriptionGroups]
+		[activationSubscriptionGroups]
 	);
 
-	if (!subscriptionGroups) {
+	if (!activationSubscriptionGroups) {
 		return <SideMenuSkeleton />;
 	}
 
 	return (
-		<div className="bg-neutral-1 cp-side-menu mr-4 pl-4 pt-4">
+		<div className="bg-neutral-1 cp-side-menu pl-4 pt-4">
 			<ul className="list-unstyled mr-2">
 				<MenuItem to="">
 					{i18n.translate(getKebabCase(MENU_TYPES.overview))}
@@ -117,19 +125,21 @@ const SideMenu = () => {
 				<li>
 					<Button
 						appendIcon={
-							!!subscriptionGroups.length && 'angle-right-small'
+							!!activationSubscriptionGroups.length &&
+							'angle-right-small'
 						}
 						appendIconClassName="ml-auto"
 						className={classNames(
-							'align-items-center btn-borderless d-flex px-3 py-2 rounded w-100',
+							'align-items-center btn-borderless d-flex px-2 py-2 rounded w-100',
 							{
 								'cp-product-activation-active': isOpenedProductsMenu,
 								'cp-products-list-active': hasSomeMenuItemActive,
-								'text-neutral-4': subscriptionGroups.length < 1,
-								'text-neutral-10': !!subscriptionGroups.length,
+								'text-neutral-4':
+									activationSubscriptionGroups.length < 1,
+								'text-neutral-10': !!activationSubscriptionGroups.length,
 							}
 						)}
-						disabled={subscriptionGroups.length < 1}
+						disabled={activationSubscriptionGroups.length < 1}
 						onClick={() =>
 							setIsOpenedProductsMenu(
 								(previousIsOpenedProductsMenu) =>
@@ -137,7 +147,9 @@ const SideMenu = () => {
 							)
 						}
 					>
-						{MENU_TYPES.productActivation}
+						{i18n.translate(
+							getKebabCase(MENU_TYPES.productActivation)
+						)}
 					</Button>
 
 					<ul

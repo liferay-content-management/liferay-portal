@@ -17,6 +17,7 @@ package com.liferay.object.service.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
+import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.exception.DuplicateObjectRelationshipException;
 import com.liferay.object.exception.ObjectRelationshipParameterObjectFieldIdException;
@@ -24,9 +25,11 @@ import com.liferay.object.exception.ObjectRelationshipReverseException;
 import com.liferay.object.exception.ObjectRelationshipTypeException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectFieldSetting;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.object.service.ObjectFieldSettingLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.service.test.util.ObjectDefinitionTestUtil;
 import com.liferay.object.system.BaseSystemObjectDefinitionMetadata;
@@ -47,8 +50,10 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.util.PropsUtil;
 
 import java.sql.Connection;
 
@@ -339,7 +344,7 @@ public class ObjectRelationshipLocalServiceTest {
 
 	@Test
 	public void testUpdateObjectRelationship() throws Exception {
-		ObjectRelationship objectRelationship =
+		ObjectRelationship objectRelationship1 =
 			_objectRelationshipLocalService.addObjectRelationship(
 				TestPropsValues.getUserId(),
 				_objectDefinition1.getObjectDefinitionId(),
@@ -350,28 +355,27 @@ public class ObjectRelationshipLocalServiceTest {
 
 		Assert.assertEquals(
 			LocalizedMapUtil.getLocalizedMap("Able"),
-			objectRelationship.getLabelMap());
+			objectRelationship1.getLabelMap());
 
-		objectRelationship =
+		objectRelationship1 =
 			_objectRelationshipLocalService.updateObjectRelationship(
-				objectRelationship.getObjectRelationshipId(), 0,
+				objectRelationship1.getObjectRelationshipId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_DISASSOCIATE,
 				LocalizedMapUtil.getLocalizedMap("Baker"));
 
 		Assert.assertEquals(
 			LocalizedMapUtil.getLocalizedMap("Baker"),
-			objectRelationship.getLabelMap());
+			objectRelationship1.getLabelMap());
 
 		ObjectRelationship reverseObjectRelationship =
 			_objectRelationshipLocalService.fetchReverseObjectRelationship(
-				objectRelationship, true);
+				objectRelationship1, true);
 
 		Assert.assertEquals(
-			objectRelationship.getDeletionType(),
+			objectRelationship1.getDeletionType(),
 			reverseObjectRelationship.getDeletionType());
-
 		Assert.assertEquals(
-			objectRelationship.getLabelMap(),
+			objectRelationship1.getLabelMap(),
 			reverseObjectRelationship.getLabelMap());
 
 		try {
@@ -390,6 +394,42 @@ public class ObjectRelationshipLocalServiceTest {
 				"Reverse object relationships cannot be updated",
 				objectRelationshipReverseException.getMessage());
 		}
+
+		PropsUtil.addProperties(
+			UnicodePropertiesBuilder.setProperty(
+				"feature.flag.LPS-158962", "true"
+			).build());
+
+		ObjectRelationship objectRelationship2 =
+			_objectRelationshipLocalService.addObjectRelationship(
+				TestPropsValues.getUserId(),
+				_objectDefinition1.getObjectDefinitionId(),
+				_objectDefinition2.getObjectDefinitionId(), 0,
+				ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				StringUtil.randomId(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+
+		ObjectField objectField = _objectFieldLocalService.updateRequired(
+			objectRelationship2.getObjectFieldId2(), true);
+
+		Assert.assertTrue(objectField.isRequired());
+
+		objectRelationship2 =
+			_objectRelationshipLocalService.updateObjectRelationship(
+				objectRelationship2.getObjectRelationshipId(), 0,
+				ObjectRelationshipConstants.DELETION_TYPE_DISASSOCIATE,
+				objectRelationship2.getLabelMap());
+
+		objectField = _objectFieldLocalService.fetchObjectField(
+			objectRelationship2.getObjectFieldId2());
+
+		Assert.assertFalse(objectField.isRequired());
+
+		PropsUtil.addProperties(
+			UnicodePropertiesBuilder.setProperty(
+				"feature.flag.LPS-158962", "false"
+			).build());
 	}
 
 	private boolean _hasColumn(String tableName, String columnName)
@@ -508,6 +548,16 @@ public class ObjectRelationshipLocalServiceTest {
 				objectDefinition2.getObjectDefinitionId(),
 				objectFieldNamePrefix +
 					objectDefinition1.getPKObjectFieldName()));
+
+		ObjectFieldSetting objectFieldSetting =
+			_objectFieldSettingLocalService.fetchObjectFieldSetting(
+				objectRelationship.getObjectFieldId2(),
+				ObjectFieldSettingConstants.OBJECT_DEFINITION_1_SHORT_NAME);
+
+		Assert.assertNotNull(objectFieldSetting);
+
+		Assert.assertEquals(
+			_objectDefinition1.getShortName(), objectFieldSetting.getValue());
 
 		_objectRelationshipLocalService.deleteObjectRelationship(
 			objectRelationship);
@@ -669,6 +719,9 @@ public class ObjectRelationshipLocalServiceTest {
 
 	@Inject
 	private ObjectFieldLocalService _objectFieldLocalService;
+
+	@Inject
+	private ObjectFieldSettingLocalService _objectFieldSettingLocalService;
 
 	@Inject
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;

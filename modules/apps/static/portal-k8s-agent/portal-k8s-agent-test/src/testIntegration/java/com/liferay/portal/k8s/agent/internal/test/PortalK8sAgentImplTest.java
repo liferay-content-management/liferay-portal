@@ -17,6 +17,7 @@ package com.liferay.portal.k8s.agent.internal.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.test.util.ConfigurationTestUtil;
 import com.liferay.portal.k8s.agent.PortalK8sConfigMapModifier;
 import com.liferay.portal.k8s.agent.configuration.PortalK8sAgentConfiguration;
 import com.liferay.portal.kernel.log.Log;
@@ -28,11 +29,6 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.test.function.AwaitingConfigurationHolder;
-import com.liferay.portal.test.function.CloseableHolder;
-import com.liferay.portal.test.function.ConfigurationHolder;
-import com.liferay.portal.test.function.CreatingConfigurationHolder;
-import com.liferay.portal.test.function.ThreadContextClassLoaderCloseableHolder;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.SynchronousMailTestRule;
@@ -65,7 +61,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,13 +68,13 @@ import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * @author Raymond Augé
  */
-@Ignore
 @RunWith(Arquillian.class)
 public class PortalK8sAgentImplTest {
 
@@ -107,15 +102,22 @@ public class PortalK8sAgentImplTest {
 				public MockResponse dispatch(RecordedRequest request)
 					throws InterruptedException {
 
-					try (ThreadContextClassLoaderCloseableHolder
-							threadContextClassLoaderCloseableHolder =
-								new ThreadContextClassLoaderCloseableHolder(
-									DefaultKubernetesClient.class)) {
+					Thread thread = Thread.currentThread();
 
+					ClassLoader contextClassLoader =
+						thread.getContextClassLoader();
+
+					thread.setContextClassLoader(
+						DefaultKubernetesClient.class.getClassLoader());
+
+					try {
 						return super.dispatch(request);
 					}
 					catch (Exception exception) {
 						_log.error(exception);
+					}
+					finally {
+						thread.setContextClassLoader(contextClassLoader);
 					}
 
 					return null;
@@ -128,12 +130,16 @@ public class PortalK8sAgentImplTest {
 
 		_kubernetesMockClient = _kubernetesMockServer.createClient();
 
-		_agentConfigurationHolder = new CreatingConfigurationHolder(
-			_configurationAdmin, PortalK8sAgentConfiguration.class.getName());
-		_portalK8sConfigMapModifierCloseableHolder =
-			new PortalK8sConfigMapModifierCloseableHolder(_bundleContext);
+		_agentConfiguration = _configurationAdmin.getConfiguration(
+			PortalK8sAgentConfiguration.class.getName(), StringPool.QUESTION);
 
-		_agentConfigurationHolder.update(
+		_serviceTracker = new ServiceTracker<>(
+			_bundleContext, PortalK8sConfigMapModifier.class, null);
+
+		_serviceTracker.open();
+
+		ConfigurationTestUtil.saveConfiguration(
+			_agentConfiguration,
 			HashMapDictionaryBuilder.<String, Object>put(
 				"apiServerHost", _kubernetesMockServer.getHostName()
 			).put(
@@ -150,21 +156,20 @@ public class PortalK8sAgentImplTest {
 				"saToken", "saToken"
 			).build());
 
-		_portalK8sConfigMapModifier =
-			_portalK8sConfigMapModifierCloseableHolder.waitForService(2000);
+		_portalK8sConfigMapModifier = _serviceTracker.waitForService(2000);
 
 		Assert.assertNotNull(_portalK8sConfigMapModifier);
 	}
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
-		_agentConfigurationHolder.close();
+		ConfigurationTestUtil.deleteConfiguration(_agentConfiguration);
 
 		_kubernetesMockClient.close();
 
 		_kubernetesMockServer.destroy();
 
-		_portalK8sConfigMapModifierCloseableHolder.close();
+		_serviceTracker.close();
 	}
 
 	@Test
@@ -258,47 +263,50 @@ public class PortalK8sAgentImplTest {
 
 	@Test
 	public void testListenForExtProvisionMetadata() throws Exception {
-		ConfigMapBuilder configMapBuilder = new ConfigMapBuilder();
-
 		String serviceId = RandomTestUtil.randomString();
 
 		String mainDomain = serviceId.concat("-extproject.lfr.sh");
 
-		_kubernetesMockClient.configMaps(
-		).createOrReplace(
-			configMapBuilder.withNewMetadata(
-			).withName(
-				StringBundler.concat(
-					serviceId, "-", TestPropsValues.COMPANY_WEB_ID,
-					"-lxc-ext-provision-metadata")
-			).addToLabels(
-				"dxp.lxc.liferay.com/virtualInstanceId",
-				TestPropsValues.COMPANY_WEB_ID
-			).addToAnnotations(
-				"ext.lxc.liferay.com/domains",
-				serviceId.concat("-extproject.lfr.sh")
-			).addToAnnotations(
-				"ext.lxc.liferay.com/mainDomain", mainDomain
-			).addToLabels(
-				"ext.lxc.liferay.com/projectId", RandomTestUtil.randomString()
-			).addToLabels(
-				"ext.lxc.liferay.com/serviceId", serviceId
-			).addToLabels(
-				"lxc.liferay.com/metadataType", "ext-provision"
-			).endMetadata(
-			).addToData(
-				"foo.client-extension-config.json",
-				"{\"test.pid\": {\"test.key\": \"test.value\"}}"
-			).build()
-		);
+		Configuration configuration = ConfigurationTestUtil.updateConfiguration(
+			"test.pid",
+			() -> {
+				ConfigMapBuilder configMapBuilder = new ConfigMapBuilder();
 
-		try (ConfigurationHolder configurationHolder =
-				new AwaitingConfigurationHolder(
-					_bundleContext, _configurationAdmin, "test.pid", 10000,
-					TimeUnit.MILLISECONDS)) {
+				_kubernetesMockClient.configMaps(
+				).createOrReplace(
+					configMapBuilder.withNewMetadata(
+					).withName(
+						StringBundler.concat(
+							serviceId, "-", TestPropsValues.COMPANY_WEB_ID,
+							"-lxc-ext-provision-metadata")
+					).addToLabels(
+						"dxp.lxc.liferay.com/virtualInstanceId",
+						TestPropsValues.COMPANY_WEB_ID
+					).addToAnnotations(
+						"ext.lxc.liferay.com/domains",
+						serviceId.concat("-extproject.lfr.sh")
+					).addToAnnotations(
+						"ext.lxc.liferay.com/mainDomain", mainDomain
+					).addToLabels(
+						"ext.lxc.liferay.com/projectId",
+						RandomTestUtil.randomString()
+					).addToLabels(
+						"ext.lxc.liferay.com/serviceId", serviceId
+					).addToLabels(
+						"lxc.liferay.com/metadataType", "ext-provision"
+					).endMetadata(
+					).addToData(
+						"foo.client-extension-config.json",
+						"{\"test.pid\": {\"test.key\": \"test.value\"}}"
+					).build()
+				);
+			});
 
+		Assert.assertNotNull(configuration);
+
+		try {
 			Dictionary<String, Object> properties =
-				configurationHolder.getProperties();
+				configuration.getProcessedProperties(null);
 
 			Assert.assertEquals(
 				Http.HTTPS_WITH_SLASH.concat(mainDomain),
@@ -307,6 +315,9 @@ public class PortalK8sAgentImplTest {
 				TestPropsValues.getCompanyId(),
 				(long)properties.get("companyId"));
 			Assert.assertEquals("test.value", properties.get("test.key"));
+		}
+		finally {
+			ConfigurationTestUtil.deleteConfiguration(configuration);
 		}
 	}
 
@@ -334,46 +345,10 @@ public class PortalK8sAgentImplTest {
 		}
 	}
 
-	public static class PortalK8sConfigMapModifierCloseableHolder
-		extends CloseableHolder
-			<ServiceTracker
-				<PortalK8sConfigMapModifier, PortalK8sConfigMapModifier>> {
-
-		public PortalK8sConfigMapModifierCloseableHolder(
-				BundleContext bundleContext)
-			throws Exception {
-
-			super(
-				serviceTracker -> serviceTracker.close(),
-				() -> {
-					ServiceTracker
-						<PortalK8sConfigMapModifier, PortalK8sConfigMapModifier>
-							serviceTracker = new ServiceTracker<>(
-								bundleContext, PortalK8sConfigMapModifier.class,
-								null);
-
-					serviceTracker.open();
-
-					return serviceTracker;
-				});
-		}
-
-		public PortalK8sConfigMapModifier waitForService(long timeout)
-			throws Exception {
-
-			ServiceTracker
-				<PortalK8sConfigMapModifier, PortalK8sConfigMapModifier>
-					serviceTracker = get();
-
-			return serviceTracker.waitForService(timeout);
-		}
-
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		PortalK8sAgentImplTest.class);
 
-	private static ConfigurationHolder _agentConfigurationHolder;
+	private static Configuration _agentConfiguration;
 	private static Bundle _bundle;
 	private static BundleContext _bundleContext;
 
@@ -386,7 +361,8 @@ public class PortalK8sAgentImplTest {
 	private static NamespacedKubernetesClient _kubernetesMockClient;
 	private static KubernetesMockServer _kubernetesMockServer;
 	private static PortalK8sConfigMapModifier _portalK8sConfigMapModifier;
-	private static PortalK8sConfigMapModifierCloseableHolder
-		_portalK8sConfigMapModifierCloseableHolder;
+	private static ServiceTracker
+		<PortalK8sConfigMapModifier, PortalK8sConfigMapModifier>
+			_serviceTracker;
 
 }

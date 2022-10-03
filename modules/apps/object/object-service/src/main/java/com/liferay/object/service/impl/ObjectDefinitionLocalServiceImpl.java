@@ -30,6 +30,7 @@ import com.liferay.object.exception.ObjectDefinitionAccountEntryRestrictedObject
 import com.liferay.object.exception.ObjectDefinitionActiveException;
 import com.liferay.object.exception.ObjectDefinitionEnableCategorizationException;
 import com.liferay.object.exception.ObjectDefinitionEnableCommentsException;
+import com.liferay.object.exception.ObjectDefinitionEnableObjectEntryHistoryException;
 import com.liferay.object.exception.ObjectDefinitionLabelException;
 import com.liferay.object.exception.ObjectDefinitionNameException;
 import com.liferay.object.exception.ObjectDefinitionPluralLabelException;
@@ -679,9 +680,9 @@ public class ObjectDefinitionLocalServiceImpl
 			long descriptionObjectFieldId, long titleObjectFieldId,
 			boolean accountEntryRestricted, boolean active,
 			boolean enableCategorization, boolean enableComments,
-			Map<Locale, String> labelMap, String name, String panelAppOrder,
-			String panelCategoryKey, boolean portlet,
-			Map<Locale, String> pluralLabelMap, String scope)
+			boolean enableObjectEntryHistory, Map<Locale, String> labelMap,
+			String name, String panelAppOrder, String panelCategoryKey,
+			boolean portlet, Map<Locale, String> pluralLabelMap, String scope)
 		throws PortalException {
 
 		ObjectDefinition objectDefinition =
@@ -696,8 +697,9 @@ public class ObjectDefinitionLocalServiceImpl
 			externalReferenceCode, objectDefinition,
 			accountEntryRestrictedObjectFieldId, descriptionObjectFieldId,
 			titleObjectFieldId, accountEntryRestricted, active, null,
-			enableCategorization, enableComments, labelMap, name, panelAppOrder,
-			panelCategoryKey, portlet, null, null, pluralLabelMap, scope);
+			enableCategorization, enableComments, enableObjectEntryHistory,
+			labelMap, name, panelAppOrder, panelCategoryKey, portlet, null,
+			null, pluralLabelMap, scope);
 	}
 
 	@Override
@@ -1114,10 +1116,11 @@ public class ObjectDefinitionLocalServiceImpl
 			long descriptionObjectFieldId, long titleObjectFieldId,
 			boolean accountEntryRestricted, boolean active, String dbTableName,
 			boolean enableCategorization, boolean enableComments,
-			Map<Locale, String> labelMap, String name, String panelAppOrder,
-			String panelCategoryKey, boolean portlet,
-			String pkObjectFieldDBColumnName, String pkObjectFieldName,
-			Map<Locale, String> pluralLabelMap, String scope)
+			boolean enableObjectEntryHistory, Map<Locale, String> labelMap,
+			String name, String panelAppOrder, String panelCategoryKey,
+			boolean portlet, String pkObjectFieldDBColumnName,
+			String pkObjectFieldName, Map<Locale, String> pluralLabelMap,
+			String scope)
 		throws PortalException {
 
 		boolean originalActive = objectDefinition.isActive();
@@ -1138,6 +1141,11 @@ public class ObjectDefinitionLocalServiceImpl
 				objectDefinition.isSystem());
 		}
 
+		_validateEnableObjectEntryHistory(
+			objectDefinition.isActive(),
+			objectDefinition.isEnableObjectEntryHistory() !=
+				enableObjectEntryHistory,
+			objectDefinition.getStorageType(), objectDefinition.isSystem());
 		_validateLabel(labelMap);
 		_validatePluralLabel(pluralLabelMap);
 
@@ -1175,6 +1183,7 @@ public class ObjectDefinitionLocalServiceImpl
 			objectDefinition.setEnableComments(false);
 		}
 
+		objectDefinition.setEnableObjectEntryHistory(enableObjectEntryHistory);
 		objectDefinition.setLabelMap(labelMap, LocaleUtil.getSiteDefault());
 		objectDefinition.setPanelAppOrder(panelAppOrder);
 		objectDefinition.setPanelCategoryKey(panelCategoryKey);
@@ -1339,6 +1348,40 @@ public class ObjectDefinitionLocalServiceImpl
 			throw new ObjectDefinitionEnableCategorizationException(
 				"Enable comments is allowed only for object definitions with " +
 					"the default storage type");
+		}
+	}
+
+	private void _validateEnableObjectEntryHistory(
+			boolean active, boolean enableObjectEntryHistoryChanged,
+			String storageType, boolean system)
+		throws PortalException {
+
+		if (!enableObjectEntryHistoryChanged) {
+			return;
+		}
+
+		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158473"))) {
+			throw new UnsupportedOperationException();
+		}
+
+		if (system) {
+			throw new ObjectDefinitionEnableObjectEntryHistoryException(
+				"Enable object entry history is not allowed for system " +
+					"object definitions");
+		}
+
+		if (!StringUtil.equals(
+				storageType, ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT)) {
+
+			throw new ObjectDefinitionEnableObjectEntryHistoryException(
+				"Enable object entry history is allowed only for object " +
+					"definitions with the default storage type");
+		}
+
+		if (active) {
+			throw new ObjectDefinitionEnableObjectEntryHistoryException(
+				"Enable object entry histroy cannot be updated when the " +
+					"object definition is published");
 		}
 	}
 

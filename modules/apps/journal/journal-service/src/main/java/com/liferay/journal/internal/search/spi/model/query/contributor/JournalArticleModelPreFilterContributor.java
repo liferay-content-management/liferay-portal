@@ -163,8 +163,14 @@ public class JournalArticleModelPreFilterContributor
 			booleanFilter.addRequiredTerm("headListable", Boolean.TRUE);
 		}
 		else if (headOrShowNonindexable && !relatedClassName) {
-			booleanFilter.addTerm("head", Boolean.TRUE);
-			booleanFilter.addTerm("headListable", Boolean.TRUE);
+			booleanFilter.add(
+				new BooleanFilter() {
+					{
+						addTerm("head", Boolean.TRUE);
+						addTerm("headListable", Boolean.TRUE);
+					}
+				},
+				BooleanClauseOccur.MUST);
 		}
 
 		boolean filterExpired = GetterUtil.getBoolean(

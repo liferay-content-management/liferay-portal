@@ -115,6 +115,10 @@ public class ModulesJUnitBatchTestClassGroup extends JUnitBatchTestClassGroup {
 		for (File modifiedFile :
 				portalGitWorkingDirectory.getModifiedFilesList()) {
 
+			if (JenkinsResultsParserUtil.isPoshiFile(modifiedFile)) {
+				continue;
+			}
+
 			excludesJobProperties.addAll(
 				_getJobProperties(
 					modifiedFile,
@@ -132,10 +136,16 @@ public class ModulesJUnitBatchTestClassGroup extends JUnitBatchTestClassGroup {
 		}
 
 		Set<File> modifiedModuleDirsSet = new HashSet<>();
+		List<File> modifiedNonposhiModulesList = new ArrayList<>();
+		List<File> modifiedPoshiModulesList = new ArrayList<>();
 
 		try {
 			modifiedModuleDirsSet.addAll(
 				portalGitWorkingDirectory.getModifiedModuleDirsList());
+			modifiedNonposhiModulesList =
+				portalGitWorkingDirectory.getModifiedNonposhiModules();
+			modifiedPoshiModulesList =
+				portalGitWorkingDirectory.getModifiedPoshiModules();
 		}
 		catch (IOException ioException) {
 			File workingDirectory =
@@ -156,15 +166,21 @@ public class ModulesJUnitBatchTestClassGroup extends JUnitBatchTestClassGroup {
 
 		Set<JobProperty> includesJobProperties = new HashSet<>();
 
-		Matcher matcher = _singleModuleBatchNamePattern.matcher(batchName);
-
 		String moduleName = null;
+
+		Matcher matcher = _singleModuleBatchNamePattern.matcher(batchName);
 
 		if (matcher.find()) {
 			moduleName = matcher.group("moduleName");
 		}
 
 		for (File modifiedModuleDir : modifiedModuleDirsSet) {
+			if (modifiedPoshiModulesList.contains(modifiedModuleDir) &&
+				!modifiedNonposhiModulesList.contains(modifiedModuleDir)) {
+
+				continue;
+			}
+
 			String modifiedModuleAbsolutePath =
 				JenkinsResultsParserUtil.getCanonicalPath(modifiedModuleDir);
 
@@ -191,6 +207,10 @@ public class ModulesJUnitBatchTestClassGroup extends JUnitBatchTestClassGroup {
 
 		for (File modifiedFile :
 				portalGitWorkingDirectory.getModifiedFilesList()) {
+
+			if (JenkinsResultsParserUtil.isPoshiFile(modifiedFile)) {
+				continue;
+			}
 
 			String modifiedFileCanonicalPath =
 				JenkinsResultsParserUtil.getCanonicalPath(modifiedFile);
@@ -263,7 +283,9 @@ public class ModulesJUnitBatchTestClassGroup extends JUnitBatchTestClassGroup {
 		File modulesBaseDir = new File(
 			portalGitWorkingDirectory.getWorkingDirectory(), "modules");
 
-		if ((file == null) || file.equals(modulesBaseDir)) {
+		if ((file == null) || file.equals(modulesBaseDir) ||
+			JenkinsResultsParserUtil.isPoshiFile(file)) {
+
 			return jobPropertiesList;
 		}
 

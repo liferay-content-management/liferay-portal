@@ -60,6 +60,7 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.TaskOutputs;
+import org.gradle.api.tasks.testing.JUnitXmlReport;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestTaskReports;
 import org.gradle.api.tasks.testing.logging.TestLoggingContainer;
@@ -507,10 +508,12 @@ public class PoshiRunnerPlugin implements Plugin<Project> {
 			directoryReport.setDestination(project.file("tests"));
 		}
 
-		directoryReport = testTaskReports.getJunitXml();
+		JUnitXmlReport jUnitXmlReport = testTaskReports.getJunitXml();
 
-		if (directoryReport.getDestination() == null) {
-			directoryReport.setDestination(project.file("test-results"));
+		jUnitXmlReport.setOutputPerTestCase(true);
+
+		if (jUnitXmlReport.getDestination() == null) {
+			jUnitXmlReport.setDestination(project.file("test-results"));
 		}
 	}
 
@@ -587,7 +590,7 @@ public class PoshiRunnerPlugin implements Plugin<Project> {
 
 			if (!chromeBinaryFile.exists()) {
 				throw new IllegalArgumentException(
-					"Unable to not find a Google Chrome binary. Manually set " +
+					"Unable to find a Google Chrome binary. Manually set " +
 						"\"browser.chrome.bin.file\" in \"poshi.properties\" " +
 							"to a Google Chrome or Chromium binary.");
 			}
@@ -920,6 +923,8 @@ public class PoshiRunnerPlugin implements Plugin<Project> {
 				put("102", "102.0.5005.61");
 				put("103", "103.0.5060.53");
 				put("104", "104.0.5112.20");
+				put("105", "105.0.5195.52");
+				put("106", "106.0.5249.21");
 			}
 		};
 	private static final Pattern _chromeVersionPattern = Pattern.compile(

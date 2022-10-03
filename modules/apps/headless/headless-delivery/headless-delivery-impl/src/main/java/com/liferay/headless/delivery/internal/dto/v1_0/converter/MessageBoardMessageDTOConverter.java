@@ -29,7 +29,9 @@ import com.liferay.message.boards.model.MBThread;
 import com.liferay.message.boards.service.MBMessageLocalService;
 import com.liferay.message.boards.service.MBMessageService;
 import com.liferay.message.boards.service.MBStatsUserLocalService;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -68,7 +70,9 @@ public class MessageBoardMessageDTOConverter
 		MBMessage mbMessage = _mbMessageService.getMessage(
 			(Long)dtoConverterContext.getId());
 
-		User user = _userLocalService.fetchUser(mbMessage.getUserId());
+		Company company = _companyLocalService.getCompany(
+			mbMessage.getCompanyId());
+		User user = _userLocalService.getUser(mbMessage.getUserId());
 
 		return new MessageBoardMessage() {
 			{
@@ -87,6 +91,7 @@ public class MessageBoardMessageDTOConverter
 				encodingFormat = mbMessage.getFormat();
 				externalReferenceCode = mbMessage.getExternalReferenceCode();
 				friendlyUrlPath = mbMessage.getUrlSubject();
+				hasCompanyMx = company.hasCompanyMx(user.getEmailAddress());
 				headline = mbMessage.getSubject();
 				id = mbMessage.getMessageId();
 				keywords = ListUtil.toArray(
@@ -161,6 +166,9 @@ public class MessageBoardMessageDTOConverter
 
 	@Reference
 	private AssetTagLocalService _assetTagLocalService;
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private MBMessageLocalService _mbMessageLocalService;

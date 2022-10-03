@@ -17,7 +17,10 @@ package com.liferay.account.admin.web.internal.portlet.action;
 import com.liferay.account.admin.web.internal.constants.AccountWebKeys;
 import com.liferay.account.admin.web.internal.display.AccountEntryDisplay;
 import com.liferay.account.constants.AccountPortletKeys;
+import com.liferay.account.service.AccountEntryService;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.ParamUtil;
 
 import javax.portlet.PortletException;
@@ -25,6 +28,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Albert Lee
@@ -48,11 +52,29 @@ public class EditAccountEntryMVCRenderCommand implements MVCRenderCommand {
 		long accountEntryId = ParamUtil.getLong(
 			renderRequest, "accountEntryId");
 
+		if (accountEntryId != 0L) {
+			try {
+				_accountEntryService.getAccountEntry(accountEntryId);
+			}
+			catch (Exception exception) {
+				if (exception instanceof PrincipalException) {
+					SessionErrors.add(renderRequest, exception.getClass());
+
+					return "/error.jsp";
+				}
+
+				throw new PortletException(exception);
+			}
+		}
+
 		renderRequest.setAttribute(
 			AccountWebKeys.ACCOUNT_ENTRY_DISPLAY,
 			AccountEntryDisplay.of(accountEntryId));
 
 		return "/account_entries_admin/edit_account_entry.jsp";
 	}
+
+	@Reference
+	private AccountEntryService _accountEntryService;
 
 }

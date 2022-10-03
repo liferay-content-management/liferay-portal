@@ -18,11 +18,12 @@ import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
+import com.liferay.content.dashboard.item.ContentDashboardItem;
+import com.liferay.content.dashboard.item.ContentDashboardItemFactory;
+import com.liferay.content.dashboard.item.ContentDashboardItemVersion;
 import com.liferay.content.dashboard.item.action.ContentDashboardItemAction;
 import com.liferay.content.dashboard.item.type.ContentDashboardItemSubtype;
 import com.liferay.content.dashboard.item.type.ContentDashboardItemSubtypeFactory;
-import com.liferay.content.dashboard.web.internal.item.ContentDashboardItem;
-import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactory;
 import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactoryTracker;
 import com.liferay.info.item.InfoItemReference;
 import com.liferay.petra.string.StringPool;
@@ -43,7 +44,6 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -390,9 +390,6 @@ public class GetContentDashboardItemInfoMVCResourceCommandTest {
 
 		_assertContentDashboardItemLatestVersions(
 			contentDashboardItem, jsonObject);
-
-		_assertContentDashboardItemAllVersions(
-			contentDashboardItem, jsonObject);
 	}
 
 	@Test
@@ -515,33 +512,18 @@ public class GetContentDashboardItemInfoMVCResourceCommandTest {
 		Assert.assertEquals(StringPool.BLANK, userJSONObject.getString("url"));
 	}
 
-	private void _assertContentDashboardItemAllVersions(
-		ContentDashboardItem<?> contentDashboardItem, JSONObject jsonObject) {
-
-		List<ContentDashboardItem.Version> versions =
-			contentDashboardItem.getAllVersions(new ThemeDisplay());
-
-		JSONArray expectedJSONArray = JSONFactoryUtil.createJSONArray();
-
-		for (ContentDashboardItem.Version version : versions) {
-			expectedJSONArray.put(version.toJSONObject());
-		}
-
-		JSONArray actualJSONArray = jsonObject.getJSONArray("allVersions");
-
-		Assert.assertEquals(
-			expectedJSONArray.toString(), actualJSONArray.toString());
-	}
-
 	private void _assertContentDashboardItemLatestVersions(
 		ContentDashboardItem<?> contentDashboardItem, JSONObject jsonObject) {
 
-		List<ContentDashboardItem.Version> versions =
-			contentDashboardItem.getLatestVersions(LocaleUtil.US);
+		List<ContentDashboardItemVersion> contentDashboardItemVersions =
+			contentDashboardItem.getLatestContentDashboardItemVersions(
+				LocaleUtil.US);
 
-		ContentDashboardItem.Version version = versions.get(0);
+		ContentDashboardItemVersion contentDashboardItemVersion =
+			contentDashboardItemVersions.get(0);
 
-		JSONObject expectedJSONObject = version.toJSONObject();
+		JSONObject expectedJSONObject =
+			contentDashboardItemVersion.toJSONObject();
 
 		JSONArray actualJSONArray = jsonObject.getJSONArray("latestVersions");
 
@@ -745,15 +727,6 @@ public class GetContentDashboardItemInfoMVCResourceCommandTest {
 			return new ContentDashboardItem() {
 
 				@Override
-				public List<Version> getAllVersions(ThemeDisplay themeDisplay) {
-					return ListUtil.fromArray(
-						new Version(
-							"version", "style", "0.1", null, "user", null),
-						new Version(
-							"version", "style", "0.2", null, "user", null));
-				}
-
-				@Override
 				public List<AssetCategory> getAssetCategories() {
 					return Arrays.asList(assetCategory1, assetCategory2);
 				}
@@ -838,10 +811,12 @@ public class GetContentDashboardItemInfoMVCResourceCommandTest {
 				}
 
 				@Override
-				public List<Version> getLatestVersions(Locale locale) {
+				public List<ContentDashboardItemVersion>
+					getLatestContentDashboardItemVersions(Locale locale) {
+
 					return Collections.singletonList(
-						new Version(
-							"version", "style", "0.1", null, "user", null));
+						new ContentDashboardItemVersion(
+							null, null, "version", "style", "user", "0.1"));
 				}
 
 				@Override

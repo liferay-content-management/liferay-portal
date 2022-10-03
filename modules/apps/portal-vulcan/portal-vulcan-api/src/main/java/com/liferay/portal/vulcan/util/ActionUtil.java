@@ -14,8 +14,11 @@
 
 package com.liferay.portal.vulcan.util;
 
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryServiceUtil;
 import com.liferay.oauth2.provider.scope.ScopeChecker;
 import com.liferay.oauth2.provider.scope.liferay.OAuth2ProviderScopeLiferayAccessControlContext;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
@@ -320,8 +323,9 @@ public class ActionUtil {
 	}
 
 	private static Map<String, Object> _getParameterMap(
-		Class<?> clazz, Long id, String methodName, Long siteId,
-		UriInfo uriInfo) {
+			Class<?> clazz, Long id, String methodName, Long siteId,
+			UriInfo uriInfo)
+		throws PortalException {
 
 		MultivaluedMap<String, String> pathParameters =
 			uriInfo.getPathParameters();
@@ -347,7 +351,17 @@ public class ActionUtil {
 			return parameterMap;
 		}
 
-		if ((siteId != null) && Objects.equals(firstParameterName, "siteId")) {
+		if ((siteId != null) &&
+			Objects.equals(firstParameterName, "assetLibraryId")) {
+
+			DepotEntry depotEntry = DepotEntryServiceUtil.getGroupDepotEntry(
+				siteId);
+
+			parameterMap.put(firstParameterName, depotEntry.getDepotEntryId());
+		}
+		else if ((siteId != null) &&
+				 Objects.equals(firstParameterName, "siteId")) {
+
 			parameterMap.put(firstParameterName, siteId);
 		}
 		else {

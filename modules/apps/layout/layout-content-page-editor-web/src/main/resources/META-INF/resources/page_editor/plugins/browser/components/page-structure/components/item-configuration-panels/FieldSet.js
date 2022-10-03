@@ -70,6 +70,7 @@ function getAvailableFields(item, fields, fragmentEntryLinks, viewportSize) {
 }
 
 export function FieldSet({
+	isCustomStylesFieldSet = false,
 	fields,
 	item = {},
 	label,
@@ -92,6 +93,7 @@ export function FieldSet({
 		<Collapse label={label} open>
 			<FieldSetContent
 				fields={availableFields}
+				isCustomStylesFieldSet={isCustomStylesFieldSet}
 				item={item}
 				languageId={languageId}
 				onValueSelect={onValueSelect}
@@ -101,6 +103,7 @@ export function FieldSet({
 	) : (
 		<FieldSetContent
 			fields={availableFields}
+			isCustomStylesFieldSet={isCustomStylesFieldSet}
 			item={item}
 			languageId={languageId}
 			onValueSelect={onValueSelect}
@@ -109,12 +112,26 @@ export function FieldSet({
 	);
 }
 
-function FieldSetContent({fields, item, languageId, onValueSelect, values}) {
+function FieldSetContent({
+	fields,
+	isCustomStylesFieldSet,
+	item,
+	languageId,
+	onValueSelect,
+	values,
+}) {
 	return (
 		<div className="page-editor__sidebar__fieldset">
 			{fields.map((field, index) => {
-				const FieldComponent =
+				let FieldComponent =
 					field.type && FRAGMENT_CONFIGURATION_FIELDS[field.type];
+
+				if (
+					!Liferay.FeatureFlags['LPS-163362'] &&
+					field.name === 'opacity'
+				) {
+					FieldComponent = FRAGMENT_CONFIGURATION_FIELDS.text;
+				}
 
 				return (
 					<div
@@ -132,6 +149,7 @@ function FieldSetContent({fields, item, languageId, onValueSelect, values}) {
 							<FieldComponent
 								disabled={fieldIsDisabled(item, field)}
 								field={field}
+								isCustomStyle={isCustomStylesFieldSet}
 								item={item}
 								onValueSelect={onValueSelect}
 								value={getFieldValue({
@@ -172,6 +190,7 @@ function getFieldValue({field, languageId, values}) {
 
 FieldSet.propTypes = {
 	fields: PropTypes.arrayOf(PropTypes.shape(ConfigurationFieldPropTypes)),
+	isCustomStylesFieldSet: PropTypes.bool,
 	item: PropTypes.object,
 	label: PropTypes.string,
 	languageId: PropTypes.string.isRequired,

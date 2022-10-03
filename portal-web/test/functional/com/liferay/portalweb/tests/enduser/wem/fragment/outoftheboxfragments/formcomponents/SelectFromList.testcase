@@ -1,7 +1,6 @@
 @component-name = "portal-wcm"
 definition {
 
-	property custom.properties = "feature.flag.LPS-150277=true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Fragments";
@@ -45,14 +44,6 @@ definition {
 
 			ObjectAdmin.publishObjectViaAPI(objectName = "PurchaseOrder");
 		}
-
-		task ("Enable Inputs Fragment collection in Gogo Shell") {
-			GogoShell.openGogoShellAdmin();
-
-			GogoShell.executeCommand(commandName = "scr:enable com.liferay.fragment.collection.contributor.inputs.InputsFragmentCollectionContributor");
-
-			GogoShell.viewOutput(outputContent = "true");
-		}
 	}
 
 	tearDown {
@@ -62,14 +53,6 @@ definition {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			task ("Disable Inputs Fragment collection in Gogo Shell") {
-				GogoShell.openGogoShellAdmin();
-
-				GogoShell.executeCommand(commandName = "scr:disable com.liferay.fragment.collection.contributor.inputs.InputsFragmentCollectionContributor");
-
-				GogoShell.viewOutput(outputContent = "true");
-			}
-
 			JSONAccountEntryAPI._deleteAllAccountEntries();
 
 			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
@@ -83,8 +66,6 @@ definition {
 	@description = "This is a test for LPS-151159. The page designer map the Select from List fragment to objects fields on content pages."
 	@priority = "4"
 	test MapPicklistFieldOnContentPage {
-		property test.name.skip.portal.instance = "SelectFromList#MapPicklistFieldOnContentPage";
-
 		task ("Given a page designer has a mapped Form Container on content page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -98,24 +79,18 @@ definition {
 			PageEditor.addFragment(
 				collectionName = "Form Components",
 				fragmentName = "Form Container");
+		}
 
+		task ("When the page designer maps Select from list fragment") {
 			PageEditor.editFormContainer(
 				contentType = "Purchase Order",
 				panel = "General");
-		}
-
-		task ("When the page designer maps Select from list fragment after added to Form Container") {
-			PageEditor.addFragmentToFormContainer(
-				collectionName = "Form Components",
-				fragmentName = "Select from List");
 
 			PageEditor.editInput(
-				field = "Type",
 				fragmentName = "Select from List",
 				helpText = "Just one type of ticket can be selected",
 				hideHelpText = "false",
-				label = "Select your ticket",
-				markAsRequired = "false");
+				label = "Select your ticket");
 		}
 
 		task ("Then the page designer can see available options on select from list fragment at edit mode") {
@@ -159,103 +134,10 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-151159. The page designer map the Select from List fragment to objects fields on display page template."
-	@priority = "4"
-	test MapPicklistFieldOnDisplayPageTemplate {
-		property test.name.skip.portal.instance = "SelectFromList#MapPicklistFieldOnDisplayPageTemplate";
-		property testray.component.names = "Display Pages,Fragments";
-
-		task ("Given a page designer has a mapped Form Container on display page template") {
-			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
-				contentType = "Web Content Article",
-				displayPageTemplateEntryName = "Display Page Name",
-				groupName = "Test Site Name",
-				subType = "Basic Web Content");
-
-			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
-
-			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
-
-			PageEditor.addFragment(
-				collectionName = "Form Components",
-				fragmentName = "Form Container");
-
-			PageEditor.editFormContainer(
-				contentType = "Purchase Order",
-				panel = "General");
-		}
-
-		task ("When the page designer maps Select from list fragment after added to Form Container") {
-			PageEditor.addFragmentToFormContainer(
-				collectionName = "Form Components",
-				fragmentName = "Select from List");
-
-			PageEditor.editInput(
-				field = "Type",
-				fragmentName = "Select from List",
-				helpText = "Just one type of ticket can be selected",
-				hideHelpText = "false",
-				label = "Select your ticket",
-				markAsRequired = "false");
-		}
-
-		task ("Then the page designer can see available options on select from list fragment at edit mode") {
-			PageEditor.viewInputStyle(
-				helpText = "Just one type of ticket can be selected",
-				label = "Select your ticket",
-				showHelpText = "true",
-				showLabel = "true",
-				type = "select-from-list");
-
-			Click(
-				index = "1",
-				locator1 = "Fragment#INPUT_TOGGLE",
-				type = "select-from-list");
-
-			MenuItem.viewOrder(menuItemList = "Choose an Option,Reserved,Giveaways,Members");
-		}
-
-		task ("When the page designer marks the display page template as default") {
-			PageEditor.publish(objectName = "Purchase Order");
-
-			DisplayPageTemplatesAdmin.markDisplayPageAsDefault(displayPageName = "Display Page Name");
-		}
-
-		task ("Then the pages designer can see available options in associated display page template") {
-			JSONWebcontent.addWebContent(
-				content = "Web Content Content",
-				groupName = "Test Site Name",
-				title = "Web Content Title");
-
-			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-			WebContentNavigator.gotoEntryMenuItem(
-				entry = "Web Content Title",
-				menuItem = "View Content");
-
-			ControlMenu.viewHeaderTitle(headerTitle = "Web Content Title");
-
-			PageEditor.viewInputStyle(
-				helpText = "Just one type of ticket can be selected",
-				label = "Select your ticket",
-				showHelpText = "true",
-				showLabel = "true",
-				type = "select-from-list");
-
-			Click(
-				index = "1",
-				locator1 = "Fragment#INPUT_TOGGLE",
-				type = "select-from-list");
-
-			MenuItem.viewOrder(menuItemList = "Choose an Option,Reserved,Giveaways,Members");
-		}
-	}
-
 	@description = "This is a test for LPS-154568 and LPS-155167. The page designer can map a Form Container to Object field with relationship on custom object. There is an input search when the mapped field has more than 10 items and the max number of precharged options is 10."
 	@priority = "5"
 	test MapRelationshipWithCustomObject {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "SelectFromList#MapRelationshipWithCustomObject";
 
 		task ("Given a page designer has a mapped Form Container to an Object with relationship on custom object") {
 			task ("Add a second company Object with Text field") {
@@ -316,22 +198,15 @@ definition {
 				PageEditor.addFragment(
 					collectionName = "Form Components",
 					fragmentName = "Form Container");
-
-				PageEditor.editFormContainer(
-					contentType = "Purchase Order",
-					panel = "General");
-			}
-
-			task ("Add Select from List inside Form Container") {
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Select from List");
 			}
 		}
 
 		task ("When the page designer maps Select from list fragment to relationship") {
+			PageEditor.editFormContainer(
+				contentType = "Purchase Order",
+				panel = "General");
+
 			PageEditor.editInput(
-				field = "Lunch Menu",
 				fragmentName = "Select from List",
 				label = "Select your lunch");
 		}
@@ -392,14 +267,16 @@ definition {
 			MenuItem.viewPresent(menuItem = "Rice");
 
 			MenuItem.viewNotPresent(menuItem = "Fried chicken,Omelet,Pizza,Kebab,Fish,Steak,Broth,Tossed Salad,Dressing,Pasta");
+
+			var objectDefinitionId = ObjectDefinitionAPI.getObjectDefinitionIdByName(name = "MenuList");
+
+			ObjectDefinitionAPI.deleteRelationship(objectDefinitionId = "${objectDefinitionId}");
 		}
 	}
 
 	@description = "This is a test for LPS-154568. The page designer can map a Form Container to Object field with relationship on system object"
 	@priority = "4"
 	test MapRelationshipWithSystemObject {
-		property test.name.skip.portal.instance = "SelectFromList#MapRelationshipWithSystemObject";
-
 		task ("Given a page designer has a mapped Form Container to an Object with relationship on system object") {
 			task ("Add relationship with Account object") {
 				ObjectAdmin.addObjectRelationshipViaAPI(
@@ -441,22 +318,15 @@ definition {
 				PageEditor.addFragment(
 					collectionName = "Form Components",
 					fragmentName = "Form Container");
-
-				PageEditor.editFormContainer(
-					contentType = "Purchase Order",
-					panel = "General");
-			}
-
-			task ("Add Select from List inside Form Container") {
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Select from List");
 			}
 		}
 
 		task ("When the page designer maps Select from list fragment to relationship") {
+			PageEditor.editFormContainer(
+				contentType = "Purchase Order",
+				panel = "General");
+
 			PageEditor.editInput(
-				field = "Account Name",
 				fragmentName = "Select from List",
 				label = "Select your account");
 		}
@@ -508,14 +378,16 @@ definition {
 			MenuItem.viewOrder(menuItemList = "Choose an Option,Assets,Equity,Expenses,Free,Liabilities,Nominal,Personal,Real,Revenue,Saving");
 
 			AssertNotVisible(locator1 = "MenuItem#SEARCH_FIELD");
+
+			var objectDefinitionId = ObjectDefinitionAPI.getObjectDefinitionIdByName(name = "AccountEntry");
+
+			ObjectDefinitionAPI.deleteRelationship(objectDefinitionId = "${objectDefinitionId}");
 		}
 	}
 
 	@description = "This is a test for LPS-151402. The user could see error message when submit a form with invalid field."
 	@priority = "4"
 	test ViewErrorMessageWhenSubmitFormWithInvalidField {
-		property test.name.skip.portal.instance = "SelectFromList#ViewErrorMessageWhenSubmitFormWithInvalidField";
-
 		task ("Given a user has a content page where a Select from List and Submit Button fragments are inside a Form Container") {
 			task ("Add a Form Container fragment to content page") {
 				JSONLayout.addPublicLayout(
@@ -530,27 +402,12 @@ definition {
 				PageEditor.addFragment(
 					collectionName = "Form Components",
 					fragmentName = "Form Container");
-
-				PageEditor.editFormContainer(
-					contentType = "Purchase Order",
-					panel = "General");
-			}
-
-			task ("Add a Select from List and Submit Button fragment into Form Container") {
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Select from List");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Submit Button",
-					targetFragmentName = "Select from List");
 			}
 
 			task ("Map the Select from List fragment to Type field") {
-				PageEditor.editInput(
-					field = "Type",
-					fragmentName = "Select from List");
+				PageEditor.editFormContainer(
+					contentType = "Purchase Order",
+					panel = "General");
 
 				PageEditor.publish(objectName = "Purchase Order");
 			}

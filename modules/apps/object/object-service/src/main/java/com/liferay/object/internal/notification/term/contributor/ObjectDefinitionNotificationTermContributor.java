@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +86,13 @@ public class ObjectDefinitionNotificationTermContributor
 			return termName;
 		}
 
-		return String.valueOf(termValues.get(objectField.getName()));
+		Object termValue = termValues.get(objectField.getName());
+
+		if (Validator.isNotNull(termValue)) {
+			return String.valueOf(termValue);
+		}
+
+		return String.valueOf(termValues.get(objectField.getDBColumnName()));
 	}
 
 	@Override

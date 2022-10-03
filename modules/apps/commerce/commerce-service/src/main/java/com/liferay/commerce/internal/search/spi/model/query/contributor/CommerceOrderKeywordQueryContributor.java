@@ -56,9 +56,11 @@ public class CommerceOrderKeywordQueryContributor
 		_queryHelper.addSearchTerm(
 			booleanQuery, searchContext, "accountName", false);
 		_queryHelper.addSearchTerm(
-			booleanQuery, searchContext, "purchaseOrderNumber", false);
-		_queryHelper.addSearchTerm(
 			booleanQuery, searchContext, "externalReferenceCode", false);
+		_queryHelper.addSearchTerm(
+			booleanQuery, searchContext, "orderCreatorEmailAddress", false);
+		_queryHelper.addSearchTerm(
+			booleanQuery, searchContext, "purchaseOrderNumber", false);
 
 		if (Validator.isNotNull(keywords)) {
 			try {

@@ -33,12 +33,12 @@ definition {
 
 		if ("${pageVersioningEnabled}" == "true") {
 			if (IsElementPresent(key_fieldLabel = "Enabled", locator1 = "Checkbox#CHECKBOX_LABEL")) {
-				Click(locator1 = "Checkbox#ENABLED_ON_PUBLIC_PAGES");
+				Click.clickAtNotVisible(locator1 = "Checkbox#ENABLED_ON_PUBLIC_PAGES");
 			}
 			else {
-				Click(locator1 = "Checkbox#ENABLED_ON_PUBLIC_PAGES");
+				Click.clickAtNotVisible(locator1 = "Checkbox#ENABLED_ON_PUBLIC_PAGES");
 
-				Click(locator1 = "Checkbox#ENABLED_ON_PRIVATE_PAGES");
+				Click.clickAtNotVisible(locator1 = "Checkbox#ENABLED_ON_PRIVATE_PAGES");
 			}
 		}
 
@@ -511,7 +511,7 @@ definition {
 	macro deactivateStagingCP {
 		LexiconEntry.gotoHeaderMenuItem(menuItem = "Staging Configuration");
 
-		if (IsVisible(checkboxName = "Enabled", locator1 = "Checkbox#ANY_CHECKBOX")) {
+		if (IsVisible(key_fieldLabel = "Enabled", locator1 = "Checkbox#CHECKBOX_LABEL")) {
 			Check.checkHiddenToggleSwitch(locator1 = "SiteSettingsStaging#NONE_RADIO");
 
 			AssertClickNoError(
@@ -526,8 +526,8 @@ definition {
 		}
 
 		AssertNotVisible(
-			checkboxName = "Enabled",
-			locator1 = "Checkbox#ANY_CHECKBOX");
+			key_fieldLabel = "Enabled",
+			locator1 = "Checkbox#CHECKBOX_LABEL");
 	}
 
 	macro deleteHistory {
@@ -838,7 +838,7 @@ definition {
 
 		if (isSet(checkContentNameList)) {
 			for (var contentName : list "${checkContentNameList}") {
-				Check(
+				Check.checkNotVisible(
 					key_contentName = "${contentName}",
 					locator1 = "Staging#STAGING_CONTENT_CHECKBOX");
 			}

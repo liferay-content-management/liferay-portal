@@ -31,7 +31,6 @@ import com.liferay.poshi.runner.util.TableUtil;
 import com.liferay.poshi.runner.var.type.BaseTable;
 import com.liferay.poshi.runner.var.type.TableFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.util.ArrayList;
@@ -1172,16 +1171,22 @@ public class PoshiRunnerExecutor {
 
 		String methodName = method.getName();
 
-		Callable<Object> task = new Callable<Object>() {
+		Callable<Object> task = () -> {
+			int maxRetries = 1;
+			int retryCount = 0;
 
-			public Object call() throws Exception {
+			while (true) {
 				try {
 					return method.invoke(liferaySelenium, args);
 				}
-				catch (InvocationTargetException invocationTargetException) {
-					Throwable throwable = invocationTargetException.getCause();
+				catch (Exception exception) {
+					Throwable throwable = exception.getCause();
 
-					if (throwable instanceof StaleElementReferenceException) {
+					if ((throwable instanceof StaleElementReferenceException) &&
+						(retryCount < maxRetries)) {
+
+						retryCount++;
+
 						StringBuilder sb = new StringBuilder();
 
 						sb.append("\nElement turned stale while running ");
@@ -1192,40 +1197,24 @@ public class PoshiRunnerExecutor {
 
 						System.out.println(sb.toString());
 
-						try {
-							return method.invoke(liferaySelenium, args);
-						}
-						catch (Exception exception) {
-							throwable = exception.getCause();
-
-							if (PropsValues.DEBUG_STACKTRACE) {
-								throw new Exception(
-									throwable.getMessage(), exception);
-							}
-
-							if (throwable instanceof Error) {
-								throw (Error)throwable;
-							}
-
-							throw (Exception)throwable;
-						}
+						continue;
 					}
-					else {
-						if (PropsValues.DEBUG_STACKTRACE) {
-							throw new Exception(
-								throwable.getMessage(),
-								invocationTargetException);
-						}
 
-						if (throwable instanceof Error) {
-							throw (Error)throwable;
-						}
-
-						throw (Exception)throwable;
+					if (PropsValues.DEBUG_STACKTRACE) {
+						throw exception;
 					}
+
+					if (throwable instanceof Error) {
+						exception = new Exception(throwable.getMessage());
+
+						exception.setStackTrace(throwable.getStackTrace());
+
+						throw exception;
+					}
+
+					throw (Exception)throwable;
 				}
 			}
-
 		};
 
 		Long timeout = Long.valueOf(PropsValues.TIMEOUT_EXPLICIT_WAIT) + 60L;

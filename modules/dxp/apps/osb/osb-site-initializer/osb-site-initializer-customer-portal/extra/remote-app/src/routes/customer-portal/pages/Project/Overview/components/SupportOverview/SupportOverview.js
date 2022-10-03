@@ -10,19 +10,13 @@
  */
 
 import LiferayContact from './components/LiferayContact';
-import SlaCardsList from './components/SlaCardsList';
+import SLACardsList from './components/SLACardsList';
 
-const SupportOverview = ({koroneikiAccount}) => (
-	<div className="container cp-project-contacs-container mb-5 mx-0">
-		<div className="row">
-			<div className="col-5 pb-8">
-				<SlaCardsList koroneikiAccount={koroneikiAccount} />
-			</div>
+const SupportOverview = ({koroneikiAccount, loading}) => (
+	<div className="d-flex flex-column flex-xl-row">
+		<SLACardsList koroneikiAccount={koroneikiAccount} loading={loading} />
 
-			<div className="col-7">
-				<LiferayContact koroneikiAccount={koroneikiAccount} />
-			</div>
-		</div>
+		<LiferayContact koroneikiAccount={koroneikiAccount} loading={loading} />
 	</div>
 );
 

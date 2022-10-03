@@ -138,19 +138,6 @@
 															"indexed": true
 														},
 														"type": "Fragment"
-													},
-													{
-														"definition": {
-															"fragment": {
-																"key": "select-user"
-															},
-															"fragmentConfig": {
-															},
-															"fragmentFields": [
-															],
-															"indexed": true
-														},
-														"type": "Fragment"
 													}
 												],
 												"type": "Section"

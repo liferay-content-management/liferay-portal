@@ -34,11 +34,9 @@ import com.liferay.layout.page.template.util.JustifyConverter;
 import com.liferay.layout.util.structure.FormStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.util.PropsUtil;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -137,10 +135,6 @@ public class FormLayoutStructureItemMapper
 	private Object _toFormSuccessSubmissionResult(
 		boolean saveInlineContent, boolean saveMappingConfiguration,
 		FormStyledLayoutStructureItem formStyledLayoutStructureItem) {
-
-		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-149720"))) {
-			return null;
-		}
 
 		JSONObject successMessageJSONObject =
 			formStyledLayoutStructureItem.getSuccessMessageJSONObject();

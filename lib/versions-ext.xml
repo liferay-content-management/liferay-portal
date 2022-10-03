@@ -56,7 +56,7 @@
 				<file-name>lib/development/ant-compress.jar</file-name>
 				<version>1.5</version>
 				<project-name>Apache Compress Antlib</project-name>
-				<project-url>https://ant.apache.org/antlibs/compress/</project-url>
+				<project-url>https://ant.apache.org/antlibs/compress</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -178,7 +178,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/catalina.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -190,7 +190,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/com.liferay.jenkins.results.parser.jar</file-name>
-				<version>1.0.1060</version>
+				<version>1.0.1123</version>
 				<project-name>Liferay Jenkins Results Parser</project-name>
 				<licenses>
 					<license>
@@ -201,7 +201,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/com.liferay.poshi.core.jar</file-name>
-				<version>1.0.63</version>
+				<version>1.0.71</version>
 				<project-name>Liferay Poshi Core</project-name>
 				<licenses>
 					<license>
@@ -211,10 +211,22 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>lib/development/commons-codec.jar</file-name>
+				<version>1.15</version>
+				<project-name>Apache Commons Codec</project-name>
+				<project-url>http://commons.apache.org/proper/commons-codec</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>lib/development/commons-collections4.jar</file-name>
 				<version>4.2</version>
 				<project-name>Apache Commons Collections</project-name>
-				<project-url>http://commons.apache.org/proper/commons-collections/</project-url>
+				<project-url>http://commons.apache.org/proper/commons-collections</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -238,7 +250,7 @@
 				<file-name>lib/development/commons-lang3.jar</file-name>
 				<version>3.12.0</version>
 				<project-name>Commons Lang</project-name>
-				<project-url>http://commons.apache.org/proper/commons-lang/</project-url>
+				<project-url>http://commons.apache.org/proper/commons-lang</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -373,7 +385,7 @@
 				<file-name>lib/development/jacocoagent.jar</file-name>
 				<version>0.8.4</version>
 				<project-name>JaCoCo</project-name>
-				<project-url>http://www.jacoco.org/</project-url>
+				<project-url>http://www.jacoco.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Eclipse Public License Version 1.0</license-name>
@@ -385,7 +397,7 @@
 				<file-name>lib/development/jacocoant.jar</file-name>
 				<version>0.8.4</version>
 				<project-name>JaCoCo</project-name>
-				<project-url>http://www.jacoco.org/</project-url>
+				<project-url>http://www.jacoco.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Eclipse Public License Version 1.0</license-name>
@@ -397,7 +409,7 @@
 				<file-name>lib/development/jacococore.jar</file-name>
 				<version>0.8.4</version>
 				<project-name>JaCoCo</project-name>
-				<project-url>http://www.jacoco.org/</project-url>
+				<project-url>http://www.jacoco.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Eclipse Public License Version 1.0</license-name>
@@ -409,7 +421,7 @@
 				<file-name>lib/development/jacocoreport.jar</file-name>
 				<version>0.8.4</version>
 				<project-name>JaCoCo</project-name>
-				<project-url>http://www.jacoco.org/</project-url>
+				<project-url>http://www.jacoco.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Eclipse Public License Version 1.0</license-name>
@@ -419,7 +431,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/jasper.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -594,7 +606,7 @@
 				<file-name>lib/development/mail.jar</file-name>
 				<version>1.6.6</version>
 				<project-name>JavaMail</project-name>
-				<project-url>https://eclipse-ee4j.github.io/mail/</project-url>
+				<project-url>https://eclipse-ee4j.github.io/mail</project-url>
 				<licenses>
 					<license>
 						<license-name>Common Development and Distribution License 1.0</license-name>
@@ -690,7 +702,7 @@
 				<file-name>lib/development/osgi-annotation-versioning.jar</file-name>
 				<version>1.1.0</version>
 				<project-name>org.osgi.annotation.versioning</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -702,7 +714,7 @@
 				<file-name>lib/development/osgi-core.jar</file-name>
 				<version>6.0.0</version>
 				<project-name>osgi.core</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -714,7 +726,7 @@
 				<file-name>lib/development/osgi-service-cm.jar</file-name>
 				<version>1.6.0</version>
 				<project-name>osgi.core</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -726,7 +738,7 @@
 				<file-name>lib/development/osgi-service-component.jar</file-name>
 				<version>1.4.0</version>
 				<project-name>osgi.core</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -738,7 +750,7 @@
 				<file-name>lib/development/osgi-service-log.jar</file-name>
 				<version>1.3.0</version>
 				<project-name>osgi.core</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -847,7 +859,7 @@
 				<file-name>lib/development/sling-testing-osgi-mock-core.jar</file-name>
 				<version>3.1.2</version>
 				<project-name>org.apache.sling</project-name>
-				<project-url>https://sling.apache.org/</project-url>
+				<project-url>https://sling.apache.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -859,7 +871,7 @@
 				<file-name>lib/development/sling-commons-osgi.jar</file-name>
 				<version>2.4.0</version>
 				<project-name>org.apache.sling</project-name>
-				<project-url>https://sling.apache.org/</project-url>
+				<project-url>https://sling.apache.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -938,7 +950,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/tomcat-api.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -950,7 +962,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/tomcat-coyote.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -962,7 +974,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/tomcat-util.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -974,7 +986,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/tomcat-util-scan.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -1166,7 +1178,7 @@
 				<file-name>lib/portal/jaxb-runtime.jar</file-name>
 				<version>2.3.1.LIFERAY-PATCHED-1</version>
 				<project-name>Java Architecture for XML Binding</project-name>
-				<project-url>https://javaee.github.io/jaxb-v2/</project-url>
+				<project-url>https://javaee.github.io/jaxb-v2</project-url>
 				<licenses>
 					<license>
 						<license-name>CDDL 1.0</license-name>
@@ -1328,7 +1340,7 @@
 				<file-name>lib/portal/soap-api.jar</file-name>
 				<version>1.4.0</version>
 				<project-name>SAAJ API</project-name>
-				<project-url>https://javaee.github.io/javaee-spec/</project-url>
+				<project-url>https://javaee.github.io/javaee-spec</project-url>
 				<licenses>
 					<license>CDDL 1.1</license>
 					<license-url>https://oss.oracle.com/licenses/CDDL-1.1</license-url>

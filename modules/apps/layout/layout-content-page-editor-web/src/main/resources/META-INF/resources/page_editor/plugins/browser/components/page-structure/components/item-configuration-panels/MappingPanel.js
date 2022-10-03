@@ -69,8 +69,6 @@ export function MappingPanel({item}) {
 			updateEditableValues({
 				editableValues: nextEditableValues,
 				fragmentEntryLinkId,
-				languageId: state.languageId,
-				segmentsExperienceId: state.segmentsExperienceId,
 			})
 		);
 	};

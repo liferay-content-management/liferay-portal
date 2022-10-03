@@ -107,6 +107,7 @@ const CustomStyles = ({fragmentEntryLink, onValueSelect}) => {
 				return (
 					<FieldSet
 						fields={fieldSet.fields}
+						isCustomStylesFieldSet
 						key={index}
 						label={fieldSet.label}
 						languageId={config.defaultLanguageId}

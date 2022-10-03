@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -92,6 +93,14 @@ public class HtmlEngine extends BaseWikiEngine {
 		return null;
 	}
 
+	@Activate
+	protected void activate() {
+		_friendlyURLMapping =
+			Portal.FRIENDLY_URL_SEPARATOR + _friendlyURLMapper.getMapping();
+
+		_router = _friendlyURLMapper.getRouter();
+	}
+
 	@Override
 	protected ServletContext getEditPageServletContext() {
 		return _servletContext;
@@ -105,37 +114,6 @@ public class HtmlEngine extends BaseWikiEngine {
 	@Override
 	protected ResourceBundleLoader getResourceBundleLoader() {
 		return ResourceBundleLoaderUtil.getPortalResourceBundleLoader();
-	}
-
-	@Reference(
-		target = "(javax.portlet.name=" + WikiPortletKeys.WIKI + ")",
-		unbind = "-"
-	)
-	protected void setFriendlyURLMapper(FriendlyURLMapper friendlyURLMapper) {
-		_friendlyURLMapping =
-			Portal.FRIENDLY_URL_SEPARATOR + friendlyURLMapper.getMapping();
-
-		_router = friendlyURLMapper.getRouter();
-	}
-
-	@Reference
-	protected void setWikiGroupServiceConfiguration(
-		WikiGroupServiceConfiguration wikiGroupServiceConfiguration) {
-
-		_wikiGroupServiceConfiguration = wikiGroupServiceConfiguration;
-	}
-
-	@Reference(unbind = "-")
-	protected void setWikiNodeLocalService(
-		WikiNodeLocalService wikiNodeLocalService) {
-
-		_wikiNodeLocalService = wikiNodeLocalService;
-	}
-
-	protected void unsetWikiGroupServiceConfiguration(
-		WikiGroupServiceConfiguration wikiGroupServiceConfiguration) {
-
-		_wikiGroupServiceConfiguration = null;
 	}
 
 	private Map<String, Boolean> _getOutgoingLinks(WikiPage page)
@@ -207,6 +185,9 @@ public class HtmlEngine extends BaseWikiEngine {
 
 	private static final Log _log = LogFactoryUtil.getLog(HtmlEngine.class);
 
+	@Reference(target = "(javax.portlet.name=" + WikiPortletKeys.WIKI + ")")
+	private FriendlyURLMapper _friendlyURLMapper;
+
 	private String _friendlyURLMapping;
 	private Router _router;
 
@@ -215,7 +196,10 @@ public class HtmlEngine extends BaseWikiEngine {
 	)
 	private ServletContext _servletContext;
 
+	@Reference
 	private WikiGroupServiceConfiguration _wikiGroupServiceConfiguration;
+
+	@Reference
 	private WikiNodeLocalService _wikiNodeLocalService;
 
 }

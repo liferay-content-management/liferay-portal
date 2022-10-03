@@ -10,8 +10,10 @@
  */
 
 import {gql, useQuery} from '@apollo/client';
+import {CORE_KORONEIKI_ACCOUNT_FIELDS} from '../fragments/coreKoroneikiAccountFields';
 
 const GET_KORONEIKI_ACCOUNTS = gql`
+	${CORE_KORONEIKI_ACCOUNT_FIELDS}
 	query getKoroneikiAccounts(
 		$filter: String
 		$page: Int = 1
@@ -24,26 +26,7 @@ const GET_KORONEIKI_ACCOUNTS = gql`
 				pageSize: $pageSize
 			) {
 				items {
-					accountKey
-					code
-					dxpVersion
-					liferayContactEmailAddress
-					liferayContactName
-					liferayContactRole
-					maxRequestors
-					name
-					partner
-					region
-					slaCurrent
-					slaCurrentEndDate
-					slaCurrentStartDate
-					slaExpired
-					slaExpiredEndDate
-					slaExpiredStartDate
-					slaFuture
-					slaFutureEndDate
-					slaFutureStartDate
-					status @client
+					...CoreKoroneikiAccountFields
 				}
 				lastPage
 				page

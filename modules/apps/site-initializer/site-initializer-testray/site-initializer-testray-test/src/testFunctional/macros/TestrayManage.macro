@@ -8,8 +8,6 @@ definition {
 			value1 = "${category}");
 
 		Click(locator1 = "TestrayManage#SAVE_BUTTON");
-
-		CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
 	}
 
 	macro addProjectManageBar {
@@ -44,8 +42,6 @@ definition {
 			value1 = "${caseName}");
 
 		Click(locator1 = "TestrayManage#SAVE_BUTTON");
-
-		CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
 	}
 
 	macro createNewOption {
@@ -113,42 +109,6 @@ definition {
 			Alert.viewSuccessMessage();
 
 			CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
-		}
-	}
-
-	macro deleteAllProductVersion {
-		TestrayLayout.clickResultsOnSidebar();
-
-		Refresh();
-
-		Testray.changePagination(
-			numberItems = "20",
-			valuePagination = "150");
-
-		while (IsElementPresent(key_projectName = "Product_", locator1 = "Testray#ITEM_NAME")) {
-			TestrayContextMenu.clickContextMenuProjects(name = "Product_");
-
-			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Delete");
-
-			Alert.viewSuccessMessage();
-		}
-	}
-
-	macro deleteAllTeam {
-		TestrayLayout.clickResultsOnSidebar();
-
-		Refresh();
-
-		Testray.changePagination(
-			numberItems = "20",
-			valuePagination = "150");
-
-		while (IsElementPresent(key_projectName = "Teams_", locator1 = "Testray#ITEM_NAME")) {
-			TestrayContextMenu.clickContextMenuProjects(name = "Teams_");
-
-			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Delete");
-
-			Alert.viewSuccessMessage();
 		}
 	}
 
@@ -222,8 +182,6 @@ definition {
 			value1 = "${category}");
 
 		Click(locator1 = "TestrayManage#SAVE_BUTTON");
-
-		CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
 	}
 
 	macro editNewName {

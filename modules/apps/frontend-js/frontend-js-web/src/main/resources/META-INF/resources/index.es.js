@@ -24,12 +24,9 @@ export {default as autoSize} from './liferay/autosize/autosize.es';
 
 // Cookie API
 
-export {
-	COOKIE_TYPES,
-	getCookie,
-	setCookie,
-	removeCookie,
-} from './liferay/util/cookie/cookie';
+export {CONSENT_TYPES as COOKIE_TYPES} from './liferay/util/consent';
+
+export {getCookie, setCookie, removeCookie} from './liferay/util/cookie/cookie';
 
 // Debounce API
 
@@ -43,6 +40,8 @@ export {default as delegate} from './liferay/delegate/delegate.es';
 
 export {default as objectToFormData} from './liferay/util/form/object_to_form_data.es';
 export {default as postForm} from './liferay/util/form/post_form.es';
+export {default as setFormValues} from './liferay/util/form/set_form_values.es';
+export {default as getFormElement} from './liferay/util/form/get_form_element.es';
 
 // Liferay API
 
@@ -105,9 +104,18 @@ export {default as throttle} from './liferay/throttle.es';
 
 export {default as addParams} from './liferay/util/add_params';
 export {default as buildFragment} from './liferay/util/build_fragment';
+export {escapeHTML, unescapeHTML} from './liferay/util/html_util';
 export {default as fetch} from './liferay/util/fetch.es';
 export {default as focusFormField} from './liferay/util/focus_form_field';
+export {default as formatStorage} from './liferay/util/format_storage.es';
+export {default as getCountries} from './liferay/util/address/get_countries.es';
+export {default as getRegions} from './liferay/util/address/get_regions.es';
+export {default as getCropRegion} from './liferay/util/get_crop_region.es';
+export {default as getGeolocation} from './liferay/util/get_geolocation';
+export {default as getLexiconIcon} from './liferay/util/get_lexicon_icon';
+export {default as getLexiconIconTpl} from './liferay/util/get_lexicon_icon_template';
 export {default as getPortletId} from './liferay/util/get_portlet_id';
+export {default as getPortletNamespace} from './liferay/util/get_portlet_namespace.es';
 export {default as getOpener} from './liferay/util/get_opener';
 export {default as getTop} from './liferay/util/get_top';
 export {default as getWindow} from './liferay/util/get_window';

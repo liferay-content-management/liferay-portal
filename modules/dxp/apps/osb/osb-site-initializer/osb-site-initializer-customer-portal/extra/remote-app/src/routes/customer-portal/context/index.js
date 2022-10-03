@@ -23,30 +23,9 @@ import {getCurrentSession} from '../../../common/services/okta/rest/sessions';
 import {ROLE_TYPES, ROUTE_TYPES} from '../../../common/utils/constants';
 import {getAccountKey} from '../../../common/utils/getAccountKey';
 import {isValidPage} from '../../../common/utils/page.validation';
-import usePaginatedKoroneikiAccounts from '../hooks/usePaginatedKoroneikiAccounts';
-import {CUSTOM_EVENT_TYPES} from '../utils/constants';
 import reducer, {actionTypes} from './reducer';
 
 const AppContext = createContext();
-
-const EVENT_OPTION = {
-	async: true,
-	fireOnce: true,
-};
-
-const eventUserAccount = Liferay.publish(
-	CUSTOM_EVENT_TYPES.userAccount,
-	EVENT_OPTION
-);
-
-const eventProject = Liferay.publish(CUSTOM_EVENT_TYPES.project, EVENT_OPTION);
-
-const eventKoroneikiAccounts = Liferay.publish(
-	CUSTOM_EVENT_TYPES.koroneikiAccounts,
-	{
-		async: true,
-	}
-);
 
 const AppContextProvider = ({children}) => {
 	const {client, oktaSessionAPI} = useAppPropertiesContext();
@@ -59,40 +38,6 @@ const AppContextProvider = ({children}) => {
 		subscriptionGroups: undefined,
 		userAccount: undefined,
 	});
-
-	const [
-		{initialTotalCount, items, totalCount},
-		{fetchMore, search},
-	] = usePaginatedKoroneikiAccounts(state.userAccount);
-
-	useEffect(() => {
-		if (items) {
-			eventKoroneikiAccounts.fire({
-				detail: {
-					initialTotalCount,
-					koroneikiAccounts: items,
-					totalCount,
-				},
-			});
-		}
-	}, [initialTotalCount, items, totalCount]);
-
-	useEffect(() => {
-		Liferay.on(CUSTOM_EVENT_TYPES.fetchMoreKoroneikiAccounts, () =>
-			fetchMore()
-		);
-
-		return () =>
-			Liferay.detach(CUSTOM_EVENT_TYPES.fetchMoreKoroneikiAccounts);
-	}, [fetchMore]);
-
-	useEffect(() => {
-		Liferay.on(CUSTOM_EVENT_TYPES.searchKoroneikiAccounts, ({detail}) =>
-			search(detail)
-		);
-
-		return () => Liferay.detach(CUSTOM_EVENT_TYPES.searchKoroneikiAccounts);
-	}, [search]);
 
 	useEffect(() => {
 		const getUser = async (projectExternalReferenceCode) => {
@@ -138,10 +83,6 @@ const AppContextProvider = ({children}) => {
 					type: actionTypes.UPDATE_USER_ACCOUNT,
 				});
 
-				eventUserAccount.fire({
-					detail: data.userAccount,
-				});
-
 				return userAccount;
 			}
 		};
@@ -166,10 +107,6 @@ const AppContextProvider = ({children}) => {
 					payload: currentProject,
 					type: actionTypes.UPDATE_PROJECT,
 				});
-
-				eventProject.fire({
-					detail: currentProject,
-				});
 			}
 		};
 
@@ -177,7 +114,7 @@ const AppContextProvider = ({children}) => {
 			const {data: dataSubscriptionGroups} = await client.query({
 				query: getAccountSubscriptionGroups,
 				variables: {
-					filter: `accountKey eq '${accountKey}' and hasActivation eq true`,
+					filter: `accountKey eq '${accountKey}'`,
 				},
 			});
 

@@ -10,71 +10,23 @@
  */
 
 import {gql, useQuery} from '@apollo/client';
-import {useMemo} from 'react';
-import {Liferay} from '../../..';
-import useHash from '../../../../../hooks/useHash';
+import {CORE_USER_ACCOUNT_FIELDS} from '../fragments';
 
 const GET_USER_ACCOUNT = gql`
-	query getUserAccount($userAccountId: Long!, $accountKey: String) {
+	${CORE_USER_ACCOUNT_FIELDS}
+	query getUserAccount($userAccountId: Long!) {
 		userAccount(userAccountId: $userAccountId) {
-			accountBriefs {
-				externalReferenceCode
-				id
-				name
-				roleBriefs {
-					id
-					name
-				}
-			}
-			externalReferenceCode
-			hasProvisioningRole @client
-			id
-			isLiferayStaff @client
-			name
-			organizationBriefs {
-				id
-				name
-			}
-			roleBriefs {
-				id
-				name
-			}
-			selectedAccountBrief(accountKey: $accountKey) @client {
-				externalReferenceCode
-				hasAccountAdministratorRole
-				id
-				name
-			}
+			...CoreUserAccountFields
 		}
 	}
 `;
 
-const eventUserAccount = Liferay.publish(
-	'customer-portal-select-user-loading',
-	{
-		async: true,
-		fireOnce: true,
-	}
-);
-
 export function useGetUserAccount(userAccountId, options = {skip: false}) {
-	const hashLocation = useHash();
-
-	const accountKey = useMemo(
-		() => hashLocation.replace('#/', '').split('/').filter(Boolean)[0],
-		[hashLocation]
-	);
-
 	return useQuery(GET_USER_ACCOUNT, {
 		fetchPolicy: 'cache-and-network',
 		nextFetchPolicy: 'cache-first',
-		onCompleted: (data) =>
-			eventUserAccount.fire({
-				detail: data?.userAccount,
-			}),
 		skip: options.skip,
 		variables: {
-			accountKey,
 			userAccountId,
 		},
 	});

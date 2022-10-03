@@ -112,6 +112,8 @@ public class ObjectActionEngineImpl implements ObjectActionEngine {
 		).put(
 			"objectDefinitionId", objectDefinition.getObjectDefinitionId()
 		).put(
+			"status", objectDefinition.getStatus()
+		).put(
 			"userId", userId
 		).put(
 			"userName", user.getFullName()

@@ -115,6 +115,22 @@ definition {
 			locator1 = "Testray#NUMBER_PAGE_BUTTON_MODAL");
 	}
 
+	macro createProjectByDropdown {
+		TestrayLayout.clickManageOnSidebar();
+
+		TestrayManage.selectOptionsManage(itemValue = "Add Project");
+
+		Type(
+			locator1 = "TestrayManage#NEW_OPTION_NAME",
+			value1 = "${key_name}");
+
+		Type(
+			locator1 = "Testray#NEW_DESCRIPTION_PROJECT",
+			value1 = "${description}");
+
+		Click(locator1 = "TestrayManage#SAVE_BUTTON");
+	}
+
 	macro createProjectTestray {
 		Click(locator1 = "Testray#ADD_PROJECT");
 
@@ -219,8 +235,6 @@ definition {
 		TestrayContextMenu.clickContextMenuProjects(name = "${nameProject}");
 
 		TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Delete");
-
-		Alert.viewSuccessMessage();
 	}
 
 	macro editComponent {

@@ -179,13 +179,26 @@ public class PortalAddressOSGiCommands {
 						regionJSONObject.getJSONObject("localizations");
 
 					if (localizationsJSONObject == null) {
-						continue;
-					}
+						Map<String, String> titleMap = new HashMap<>();
 
-					for (String key : localizationsJSONObject.keySet()) {
-						_regionLocalService.updateRegionLocalization(
-							region, key,
-							localizationsJSONObject.getString(key));
+						for (Locale locale :
+								_language.getCompanyAvailableLocales(
+									country.getCompanyId())) {
+
+							titleMap.put(
+								_language.getLanguageId(locale),
+								region.getName());
+						}
+
+						_regionLocalService.updateRegionLocalizations(
+							region, titleMap);
+					}
+					else {
+						for (String key : localizationsJSONObject.keySet()) {
+							_regionLocalService.updateRegionLocalization(
+								region, key,
+								localizationsJSONObject.getString(key));
+						}
 					}
 				}
 				catch (PortalException portalException) {

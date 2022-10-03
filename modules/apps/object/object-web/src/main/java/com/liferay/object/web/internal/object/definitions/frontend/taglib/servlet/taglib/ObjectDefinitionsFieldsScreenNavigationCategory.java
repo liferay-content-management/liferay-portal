@@ -18,6 +18,7 @@ import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationCategory;
 import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationEntry;
 import com.liferay.object.field.business.type.ObjectFieldBusinessTypeTracker;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.web.internal.object.definitions.constants.ObjectDefinitionsScreenNavigationEntryConstants;
 import com.liferay.object.web.internal.object.definitions.display.context.ObjectDefinitionsFieldsDisplayContext;
 import com.liferay.portal.kernel.language.Language;
@@ -80,7 +81,8 @@ public class ObjectDefinitionsFieldsScreenNavigationCategory
 			WebKeys.PORTLET_DISPLAY_CONTEXT,
 			new ObjectDefinitionsFieldsDisplayContext(
 				httpServletRequest, _objectDefinitionModelResourcePermission,
-				_objectFieldBusinessTypeTracker));
+				_objectFieldBusinessTypeTracker,
+				_objectRelationshipLocalService));
 
 		super.render(httpServletRequest, httpServletResponse);
 	}
@@ -96,5 +98,8 @@ public class ObjectDefinitionsFieldsScreenNavigationCategory
 
 	@Reference
 	private ObjectFieldBusinessTypeTracker _objectFieldBusinessTypeTracker;
+
+	@Reference
+	private ObjectRelationshipLocalService _objectRelationshipLocalService;
 
 }

@@ -14,7 +14,6 @@
 
 package com.liferay.petra.xml;
 
-import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -30,24 +29,9 @@ import org.dom4j.DocumentException;
  */
 public class XMLUtil {
 
-	public static String fixProlog(String xml) {
-
-		// LEP-1921
-
-		if (xml != null) {
-			int pos = xml.indexOf(CharPool.LESS_THAN);
-
-			if (pos > 0) {
-				xml = xml.substring(pos);
-			}
-		}
-
-		return xml;
-	}
-
 	public static String formatXML(Document document) {
 		try {
-			return document.formattedString(_XML_INDENT);
+			return document.formattedString(StringPool.DOUBLE_SPACE);
 		}
 		catch (IOException ioException) {
 			throw new SystemException(ioException);
@@ -72,7 +56,7 @@ public class XMLUtil {
 
 		try {
 			xml = StringUtil.replace(xml, "&#", "[$SPECIAL_CHARACTER$]");
-			xml = Dom4jUtil.toString(xml, _XML_INDENT);
+			xml = Dom4jUtil.toString(xml, StringPool.DOUBLE_SPACE);
 			xml = StringUtil.replace(xml, "[$SPECIAL_CHARACTER$]", "&#");
 
 			return xml;
@@ -83,10 +67,6 @@ public class XMLUtil {
 		catch (DocumentException documentException) {
 			throw new SystemException(documentException);
 		}
-	}
-
-	public static String fromCompactSafe(String xml) {
-		return StringUtil.replace(xml, "[$NEW_LINE$]", StringPool.NEW_LINE);
 	}
 
 	public static String stripInvalidChars(String xml) {
@@ -124,17 +104,5 @@ public class XMLUtil {
 
 		return sb.toString();
 	}
-
-	public static String toCompactSafe(String xml) {
-		return StringUtil.replace(
-			xml,
-			new String[] {
-				StringPool.RETURN_NEW_LINE, StringPool.NEW_LINE,
-				StringPool.RETURN
-			},
-			new String[] {"[$NEW_LINE$]", "[$NEW_LINE$]", "[$NEW_LINE$]"});
-	}
-
-	private static final String _XML_INDENT = "  ";
 
 }

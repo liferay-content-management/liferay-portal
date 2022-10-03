@@ -90,9 +90,7 @@ const ActivationKeysInputs = ({
 				const orderItems = data?.orderItems?.items || [];
 
 				if (orderItems.length) {
-					const dateIntervals = getYearlyTerms(
-						JSON.parse(orderItems[0].options)
-					);
+					const dateIntervals = getYearlyTerms(orderItems[0].options);
 
 					setAccountOrderItemsDates(dateIntervals);
 					setSelectedDateInterval(dateIntervals[0]);
@@ -209,7 +207,6 @@ const ActivationKeysInputs = ({
 									getKebabCase(event.target.value)
 								)
 							}
-							value={selectedAccountSubscriptionName}
 						>
 							{accountSubscriptions.map((accountSubscription) => (
 								<ClaySelect.Option

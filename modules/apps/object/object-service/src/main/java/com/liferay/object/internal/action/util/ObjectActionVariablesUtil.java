@@ -62,6 +62,8 @@ public class ObjectActionVariablesUtil {
 			).put(
 				"objectDefinitionId",
 				payloadJSONObject.getLong("objectDefinitionId")
+			).put(
+				"status", payloadJSONObject.get("status")
 			).build();
 		}
 

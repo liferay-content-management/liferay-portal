@@ -14,7 +14,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 
-import {CONTAINER_DISPLAY_OPTIONS} from '../config/constants/containerDisplayOptions';
+import {CONTENT_DISPLAY_OPTIONS} from '../config/constants/contentDisplayOptions';
 import {ITEM_ACTIVATION_ORIGINS} from '../config/constants/itemActivationOrigins';
 import {ITEM_TYPES} from '../config/constants/itemTypes';
 import {
@@ -85,7 +85,7 @@ export default function ShortcutManager() {
 	const sidebarHidden = state.sidebar.hidden;
 	const {widgets} = state;
 
-	const {fragmentEntryLinks, layoutData, segmentsExperienceId} = state;
+	const {fragmentEntryLinks, layoutData} = state;
 
 	const activeLayoutDataItem =
 		activeItemType === ITEM_TYPES.layoutDataItem
@@ -96,7 +96,6 @@ export default function ShortcutManager() {
 		dispatch(
 			duplicateItem({
 				itemId: activeItemId,
-				segmentsExperienceId,
 				selectItem,
 			})
 		);
@@ -143,7 +142,6 @@ export default function ShortcutManager() {
 				itemId,
 				parentItemId: parentId,
 				position,
-				segmentsExperienceId,
 			})
 		);
 	};
@@ -255,7 +253,7 @@ export default function ShortcutManager() {
 
 				if (
 					parentItem.config.contentDisplay ===
-					CONTAINER_DISPLAY_OPTIONS.flexRow
+					CONTENT_DISPLAY_OPTIONS.flexRow
 				) {
 					return (
 						event.keyCode === ARROW_RIGHT_KEYCODE ||

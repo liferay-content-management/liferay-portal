@@ -267,10 +267,16 @@ public class ObjectDefinitionResourceImpl
 
 		boolean enableCategorization = true;
 		boolean enableComments = false;
+		boolean enableObjectEntryHistory = false;
 
 		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158672"))) {
 			enableCategorization = objectDefinition.getEnableCategorization();
 			enableComments = objectDefinition.getEnableComments();
+		}
+
+		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158473"))) {
+			enableObjectEntryHistory =
+				objectDefinition.getEnableObjectEntryHistory();
 		}
 
 		serviceBuilderObjectDefinition =
@@ -282,7 +288,7 @@ public class ObjectDefinitionResourceImpl
 				GetterUtil.getBoolean(
 					objectDefinition.getAccountEntryRestricted()),
 				GetterUtil.getBoolean(objectDefinition.getActive(), true),
-				enableCategorization, enableComments,
+				enableCategorization, enableComments, enableObjectEntryHistory,
 				LocalizedMapUtil.getLocalizedMap(objectDefinition.getLabel()),
 				objectDefinition.getName(), objectDefinition.getPanelAppOrder(),
 				objectDefinition.getPanelCategoryKey(),
@@ -464,6 +470,25 @@ public class ObjectDefinitionResourceImpl
 		String permissionName =
 			com.liferay.object.model.ObjectDefinition.class.getName();
 
+		String restContextPath = StringPool.BLANK;
+
+		if (objectDefinition.isSystem()) {
+			SystemObjectDefinitionMetadata systemObjectDefinitionMetadata =
+				_systemObjectDefinitionMetadataTracker.
+					getSystemObjectDefinitionMetadata(
+						objectDefinition.getName());
+
+			if (systemObjectDefinitionMetadata != null) {
+				restContextPath =
+					"/o/" + systemObjectDefinitionMetadata.getRESTContextPath();
+			}
+		}
+		else {
+			restContextPath = "/o" + objectDefinition.getRESTContextPath();
+		}
+
+		String finalRESTContextPath = restContextPath;
+
 		return new ObjectDefinition() {
 			{
 				accountEntryRestricted =
@@ -530,6 +555,13 @@ public class ObjectDefinitionResourceImpl
 					enableComments = objectDefinition.getEnableComments();
 				}
 
+				if (GetterUtil.getBoolean(
+						PropsUtil.get("feature.flag.LPS-158473"))) {
+
+					enableObjectEntryHistory =
+						objectDefinition.getEnableObjectEntryHistory();
+				}
+
 				externalReferenceCode =
 					objectDefinition.getExternalReferenceCode();
 				id = objectDefinition.getObjectDefinitionId();
@@ -581,9 +613,18 @@ public class ObjectDefinitionResourceImpl
 						objectView),
 					ObjectView.class);
 				panelCategoryKey = objectDefinition.getPanelCategoryKey();
+				parameterRequired = finalRESTContextPath.matches(
+					".*/\\{\\w+}/.*");
 				pluralLabel = LocalizedMapUtil.getLanguageIdMap(
 					objectDefinition.getPluralLabelMap());
 				portlet = objectDefinition.getPortlet();
+
+				if (GetterUtil.getBoolean(
+						PropsUtil.get("feature.flag.LPS-152650"))) {
+
+					restContextPath = finalRESTContextPath;
+				}
+
 				scope = objectDefinition.getScope();
 				status = new Status() {
 					{
@@ -606,30 +647,6 @@ public class ObjectDefinitionResourceImpl
 
 				system = objectDefinition.isSystem();
 
-				setParameterRequired(
-					() -> {
-						String restContextPath = StringPool.BLANK;
-
-						if (!objectDefinition.isSystem()) {
-							restContextPath =
-								objectDefinition.getRESTContextPath();
-						}
-						else {
-							SystemObjectDefinitionMetadata
-								systemObjectDefinitionMetadata =
-									_systemObjectDefinitionMetadataTracker.
-										getSystemObjectDefinitionMetadata(
-											objectDefinition.getName());
-
-							if (systemObjectDefinitionMetadata != null) {
-								restContextPath =
-									systemObjectDefinitionMetadata.
-										getRESTContextPath();
-							}
-						}
-
-						return restContextPath.matches(".*/\\{\\w+}/.*");
-					});
 				setTitleObjectFieldName(
 					() -> {
 						com.liferay.object.model.ObjectField

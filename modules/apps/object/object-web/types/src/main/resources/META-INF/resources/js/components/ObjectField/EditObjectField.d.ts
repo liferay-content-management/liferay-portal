@@ -26,6 +26,7 @@ interface IProps {
 	objectField: ObjectField;
 	objectFieldTypes: ObjectFieldType[];
 	objectName: string;
+	objectRelationshipId: number;
 	readOnly: boolean;
 	workflowStatusJSONArray: LabelValueObject[];
 }
@@ -40,6 +41,7 @@ export default function EditObjectField({
 	objectField: initialValues,
 	objectFieldTypes,
 	objectName,
+	objectRelationshipId,
 	readOnly,
 	workflowStatusJSONArray,
 }: IProps): JSX.Element;

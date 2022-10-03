@@ -193,6 +193,7 @@ public class JournalArticleLocalServiceTest {
 		journalArticle = _updateJournalArticle(
 			Collections.emptyMap(), journalArticle);
 
+		Assert.assertNotNull(journalArticle.getUrlTitle());
 		Assert.assertEquals(friendlyURLMap, journalArticle.getFriendlyURLMap());
 	}
 
@@ -231,6 +232,7 @@ public class JournalArticleLocalServiceTest {
 			journalArticle = _updateJournalArticle(
 				Collections.emptyMap(), journalArticle);
 
+			Assert.assertNotNull(journalArticle.getUrlTitle());
 			Assert.assertEquals(
 				friendlyURLMap, journalArticle.getFriendlyURLMap());
 		}

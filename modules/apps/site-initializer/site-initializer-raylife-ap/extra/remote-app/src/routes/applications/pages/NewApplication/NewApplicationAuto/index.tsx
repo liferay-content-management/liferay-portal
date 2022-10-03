@@ -14,11 +14,11 @@
 
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
-import ClayMultiStepNav from '@clayui/multi-step-nav';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import classNames from 'classnames';
 import {ReactNode, useContext, useState} from 'react';
 
+import MultiSteps from '../../../../../common/components/multi-steps';
 import ClayIconProvider from '../../../../../common/context/ClayIconProvider';
 import {
 	createOrUpdateRaylifeApplication,
@@ -79,7 +79,7 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 		event?.preventDefault();
 		dispatch({payload: false, type: ACTIONS.SET_HAS_FORM_CHANGE});
 
-		const hasUnderwritingStatus = form.some(
+		const hasUnderwritingStatus = form?.some(
 			(currentIndex) => currentIndex.hasAccidentOrCitations === 'yes'
 		);
 
@@ -92,16 +92,6 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 			? CONSTANTS.APPLICATION_STATUS.UNDERWRITING
 			: hasOpenOrBoundStatus;
 
-		createOrUpdateRaylifeApplication(state, applicationStatus).then(
-			(response) => {
-				const {
-					data: {id},
-				} = response;
-
-				dispatch({payload: {id}, type: ACTIONS.SET_APPLICATION_ID});
-			}
-		);
-
 		if (state.currentStep < steps.length - 1) {
 			dispatch({
 				payload: state.currentStep + 1,
@@ -112,17 +102,52 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 		if (state.currentStep === 4) {
 			redirectTo('Applications');
 		}
+
+		if (
+			state.currentStep === 2 &&
+			form[0]?.accidentCitation[0]?.value ===
+				'Citation - Driving under the influence'
+		) {
+			createOrUpdateRaylifeApplication(
+				state,
+				CONSTANTS.APPLICATION_STATUS.REJECTED
+			).then((response) => {
+				const {
+					data: {id},
+				} = response;
+				dispatch({payload: {id}, type: ACTIONS.SET_APPLICATION_ID});
+			});
+
+			return dispatch({
+				payload: 5,
+				type: ACTIONS.SET_CURRENT_STEP,
+			});
+		}
+
+		createOrUpdateRaylifeApplication(state, applicationStatus).then(
+			(response) => {
+				const {
+					data: {id},
+				} = response;
+				dispatch({payload: {id}, type: ACTIONS.SET_APPLICATION_ID});
+			}
+		);
 	};
 
 	const handlePreviousClick = () => {
 		setSaveChanges(false);
 		dispatch({payload: false, type: ACTIONS.SET_HAS_FORM_CHANGE});
-		if (state.currentStep > 0) {
-			dispatch({
+		if (state.currentStep < 5) {
+			return dispatch({
 				payload: state.currentStep - 1,
 				type: ACTIONS.SET_CURRENT_STEP,
 			});
 		}
+
+		dispatch({
+			payload: 2,
+			type: ACTIONS.SET_CURRENT_STEP,
+		});
 	};
 
 	const handleSaveChanges = () => {
@@ -153,6 +178,10 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 		});
 
 		redirectTo('dashboard');
+	};
+
+	const handleCancelClick = () => {
+		redirectTo('Applications');
 	};
 
 	const ChangeStatusMessage = ({text}: any) => (
@@ -198,7 +227,8 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 								Exit
 							</ClayButton>
 
-							{!state.isAbleToBeSave ? (
+							{!state.isAbleToBeSave ||
+							state.currentStep === 5 ? (
 								<ClayTooltipProvider>
 									<ClayButton
 										aria-disabled="true"
@@ -227,34 +257,12 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 					</div>
 
 					<hr></hr>
-					<>
-						<ClayMultiStepNav className="mx-10">
-							{steps.map(({active, complete, title}, index) => (
-								<ClayMultiStepNav.Item
-									active={active}
-									complete={complete}
-									expand={index + 1 !== steps.length}
-									key={index}
-								>
-									<ClayMultiStepNav.Title>
-										{title}
-									</ClayMultiStepNav.Title>
 
-									{index + 1 !== steps.length ? (
-										<ClayMultiStepNav.Divider />
-									) : (
-										''
-									)}
+					<div className="d-flex justify-content-center">
+						<MultiSteps steps={steps} />
 
-									<ClayMultiStepNav.Indicator
-										complete={complete}
-										label={1 + index}
-									/>
-								</ClayMultiStepNav.Item>
-							))}
-						</ClayMultiStepNav>
 						<hr className="mb-5"></hr>
-					</>
+					</div>
 
 					{children}
 
@@ -268,6 +276,7 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 					>
 						{state.currentStep > 0 && (
 							<ClayButton
+								disabled={state.currentStep === 5}
 								displayType={null}
 								onClick={() => handlePreviousClick()}
 								small={true}
@@ -310,6 +319,17 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 								small={true}
 							>
 								Generate Quote
+							</ClayButton>
+						)}
+
+						{state.currentStep === 5 && (
+							<ClayButton
+								className="justify-content-end text-uppercase"
+								displayType="secondary"
+								onClick={() => handleCancelClick()}
+								small={true}
+							>
+								Cancel
 							</ClayButton>
 						)}
 					</div>

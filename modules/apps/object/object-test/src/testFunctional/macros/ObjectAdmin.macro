@@ -20,7 +20,7 @@ definition {
 	}
 
 	macro addCategorizationOnLayoutTab {
-		Click(locator1 = "ObjectAdmin#DROPDOWN_CATEGORIZATION_OPTION");
+		Click(locator1 = "ObjectAdmin#LABEL_DROPDOWN");
 
 		DropdownMenuItem.click(menuItem = "Add Categorization");
 	}
@@ -55,33 +55,20 @@ definition {
 		}
 	}
 
-	macro addObjectActionEntryViaUI {
-		ObjectAdmin.gotoAddObjectAction();
-
-		ObjectAdmin.fillObjectAction(
-			actionActive = "${actionActive}",
-			actionName = "${actionName}",
-			active = "${active}",
-			click = "save",
-			inputValue = "${inputValue}",
-			onAction = "${chooseOption}",
-			secretAction = "${secretAction}",
-			thenAction = "${thenAction}",
-			urlAction = "${urlAction}",
-			whenAction = "${whenAction}");
-	}
-
 	macro addObjectActionViaUI {
 		ObjectAdmin.gotoAddObjectAction();
 
 		ObjectAdmin.fillObjectAction(
+			actionDescription = "${actionDescription}",
 			actionName = "${actionName}",
 			active = "${active}",
 			click = "save",
 			inputExpression = "${inputExpression}",
 			inputMethod = "${inputMethod}",
 			inputValue = "${inputValue}",
+			notRefreshAttribute = "true",
 			objectLabel = "${objectLabel}",
+			scriptValidation = "${scriptValidation}",
 			secretAction = "${secretAction}",
 			thenAction = "${thenAction}",
 			urlAction = "${urlAction}",
@@ -300,6 +287,10 @@ definition {
 			Type(
 				locator1 = "ObjectAdmin#NAME_OBJECT_RELATIONSHIP",
 				value1 = "${name}");
+		}
+
+		if (isSet(parameter)) {
+			ObjectRelationships.editRelationshipsParameter(parameter = "${parameter}");
 		}
 
 		Button.clickSave();
@@ -540,14 +531,20 @@ definition {
 		AssertElementPresent(
 			key_actionActive = "${actionActive}",
 			key_actionName = "${actionName}",
-			locator1 = "ObjectAdmin#VIEW_ACTIONS_TAB");
+			locator1 = "ObjectAdmin#VIEW_ACTIONS_LABEL");
+
+		if (isSet(status)) {
+			AssertElementPresent(
+				key_statusInfo = "${status}",
+				locator1 = "ObjectAction#ACTIONS_STATUS_INFO");
+		}
 	}
 
 	macro assertObjectActionsNotPresent {
 		AssertElementNotPresent(
 			key_actionActive = "${actionActive}",
 			key_actionName = "${actionName}",
-			locator1 = "ObjectAdmin#VIEW_ACTIONS_TAB");
+			locator1 = "ObjectAdmin#VIEW_ACTIONS_LABEL");
 	}
 
 	macro assertObjectColumnsAreDisplayed {
@@ -735,7 +732,9 @@ definition {
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
-		Click(locator1 = "ContentDashboard#MY_SITES_TAB");
+		AssertClick(
+			locator1 = "NavBar#MY_SITES",
+			value1 = "My Sites");
 
 		Click(
 			key_siteCard = "${siteCard}",
@@ -927,6 +926,7 @@ definition {
 			active = "${active}",
 			click = "save",
 			inputExpression = "${inputExpression}",
+			inputExpressionValue = "${inputExpressionValue}",
 			inputMethod = "${inputMethod}",
 			inputValue = "${inputValue}",
 			objectLabel = "${objectLabel}",
@@ -945,6 +945,12 @@ definition {
 			Type(
 				locator1 = "ObjectAdmin#ACTION_NAME_FIELD",
 				value1 = "${actionName}");
+		}
+
+		if (isSet(actionDescription)) {
+			Type(
+				locator1 = "ObjectAdmin#ACTION_DESCRIPTION_FIELD",
+				value1 = "${actionDescription}");
 		}
 
 		if (isSet(active)) {
@@ -992,8 +998,16 @@ definition {
 				else if ("${inputMethod}" == "false") {
 					Type(
 						locator1 = "ObjectAction#INPUT_NEW_VALUE",
-						value1 = "${inputExpression}");
+						value1 = "${inputExpressionValue}");
 				}
+			}
+
+			if ("${thenAction}" == "Notification") {
+				Click(locator1 = "ObjectAction#SELECT_OPTION_TYPE");
+
+				Click(
+					key_entryName = "${notificationName}",
+					locator1 = "ObjectAction#AUTOCOMPLETE_INPUT");
 			}
 		}
 
@@ -1003,6 +1017,10 @@ definition {
 			Type(
 				locator1 = "ObjectAction#INPUT_EXPRESSION",
 				value1 = "${inputExpression}");
+		}
+
+		if ("${thenAction}" == "Groovy Script") {
+			ObjectCustomValidation.insertScriptOnValidation(scriptValidation = "${scriptValidation}");
 		}
 
 		if (isSet(urlAction)) {
@@ -1018,14 +1036,19 @@ definition {
 		}
 
 		if (isSet(click)) {
-			if ("${click}" == "cancel") {
+			if (("${click}" == "save") && ("${notRefreshAttribute}" == "true")) {
+				Button.clickSave();
+			}
+			else if ("${click}" == "cancel") {
 				Button.clickCancel();
+
+				Refresh();
 			}
 			else if ("${click}" == "save") {
 				Button.clickSave();
-			}
 
-			Refresh();
+				Refresh();
+			}
 		}
 	}
 
@@ -1188,6 +1211,15 @@ definition {
 		}
 
 		Click(locator1 = "Button#SAVE");
+	}
+
+	macro selectCategoryInObjectEntry {
+		Click(
+			key_fieldLabel = "${vocabularyName}",
+			key_text = "Select",
+			locator1 = "Button#ANY_WITH_LABEL");
+
+		AssetCategorization.selectCategories(categoryNameList = "${categoryNameList}");
 	}
 
 	macro selectKebabMenuOption {

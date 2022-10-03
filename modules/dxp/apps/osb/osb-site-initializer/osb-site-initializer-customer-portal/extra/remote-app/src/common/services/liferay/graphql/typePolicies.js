@@ -10,19 +10,41 @@
  */
 
 import {
+	accountSubscriptionGroupsQueryTypePolicy,
+	accountSubscriptionGroupsTypePolicy,
+} from './account-subscription-groups/typePolicy';
+import {
+	accountSubscriptionsQueryTypePolicy,
+	accountSubscriptionsTypePolicy,
+} from './account-subscriptions/typePolicy';
+import {
 	koroneikiAccountsQueryTypePolicy,
 	koroneikiAccountsTypePolicy,
 } from './koroneiki-accounts/typePolicy';
+import {
+	orderItemsQueryTypePolicy,
+	orderItemsTypePolicy,
+} from './order-items/typePolicy';
 import {userAccountsTypePolicy} from './user-accounts/typePolicy';
 
 export const liferayTypePolicies = {
+	...accountSubscriptionsTypePolicy,
+	...accountSubscriptionGroupsTypePolicy,
 	...userAccountsTypePolicy,
 	...koroneikiAccountsTypePolicy,
+	...orderItemsTypePolicy,
 	Mutationc: {
 		merge: true,
 	},
+	Query: {
+		fields: {
+			...orderItemsQueryTypePolicy,
+		},
+	},
 	c: {
 		fields: {
+			...accountSubscriptionsQueryTypePolicy,
+			...accountSubscriptionGroupsQueryTypePolicy,
 			...koroneikiAccountsQueryTypePolicy,
 		},
 		merge: true,

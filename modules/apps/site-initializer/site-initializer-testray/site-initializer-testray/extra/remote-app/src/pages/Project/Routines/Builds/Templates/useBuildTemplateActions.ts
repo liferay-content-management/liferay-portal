@@ -14,14 +14,15 @@
 
 import {useRef} from 'react';
 
+import useFormActions from '../../../../../hooks/useFormActions';
 import useFormModal from '../../../../../hooks/useFormModal';
 import useMutate from '../../../../../hooks/useMutate';
 import i18n from '../../../../../i18n';
 import {TestrayBuild, testrayBuildImpl} from '../../../../../services/rest';
 import {Action} from '../../../../../types';
-
 const useBuildTemplateActions = () => {
 	const formModal = useFormModal();
+	const {form} = useFormActions();
 	const {removeItemFromList, updateItemFromList} = useMutate();
 
 	const actionsRef = useRef([
@@ -33,7 +34,10 @@ const useBuildTemplateActions = () => {
 						updateItemFromList(mutate, build.id, {
 							active: !build.active,
 						})
-					);
+					)
+					.then(() => removeItemFromList(mutate, build.id))
+					.then(form.onSuccess)
+					.catch(form.onError);
 			},
 			icon: 'logout',
 			name: (build) =>
@@ -44,9 +48,16 @@ const useBuildTemplateActions = () => {
 		},
 		{
 			action: (build, mutate) => {
-				testrayBuildImpl
-					.remove(build.id)
-					.then(() => removeItemFromList(mutate, build.id));
+				if (build.active) {
+					alert(i18n.sub('x-items-cannot-be-deleted', 'activate'));
+				}
+				else {
+					testrayBuildImpl
+						.remove(build.id)
+						.then(() => removeItemFromList(mutate, build.id))
+						.then(form.onSuccess)
+						.catch(form.onError);
+				}
 			},
 			icon: 'trash',
 			name: i18n.translate('delete'),

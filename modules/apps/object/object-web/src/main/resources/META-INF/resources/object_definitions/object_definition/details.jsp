@@ -98,16 +98,19 @@ renderResponse.setTitle(LanguageUtil.format(request, "edit-x", objectDefinition.
 						md="11"
 					>
 						<aui:select disabled="<%= !objectDefinitionsDetailsDisplayContext.hasUpdateObjectDefinitionPermission() %>" name="titleObjectFieldId" showEmptyOption="<%= false %>">
-							<aui:option label='<%= LanguageUtil.get(request, "id") %>' selected="<%= true %>" value="" />
 
 							<%
 							for (ObjectField objectField : nonrelationshipObjectFields) {
-								if (Objects.equals(objectField.getName(), "id")) {
-									continue;
-								}
 							%>
 
-								<aui:option label="<%= HtmlUtil.escape(objectField.getLabel(locale)) %>" localizeLabel="<%= false %>" selected="<%= Objects.equals(objectField.getObjectFieldId(), objectDefinition.getTitleObjectFieldId()) %>" value="<%= objectField.getObjectFieldId() %>" />
+								<c:choose>
+									<c:when test='<%= Objects.equals(objectField.getName(), "id") %>'>
+										<aui:option label='<%= LanguageUtil.get(request, "id") %>' selected="<%= true %>" value="<%= objectField.getObjectFieldId() %>" />
+									</c:when>
+									<c:otherwise>
+										<aui:option label="<%= HtmlUtil.escape(objectField.getLabel(locale)) %>" localizeLabel="<%= false %>" selected="<%= Objects.equals(objectField.getObjectFieldId(), objectDefinition.getTitleObjectFieldId()) %>" value="<%= objectField.getObjectFieldId() %>" />
+									</c:otherwise>
+								</c:choose>
 
 							<%
 							}
@@ -243,6 +246,12 @@ renderResponse.setTitle(LanguageUtil.format(request, "edit-x", objectDefinition.
 
 					<aui:field-wrapper cssClass="form-group lfr-input-text-container">
 						<aui:input disabled="<%= objectDefinition.isSystem() || !objectDefinitionsDetailsDisplayContext.hasUpdateObjectDefinitionPermission() %>" label="" labelOff='<%= LanguageUtil.get(request, "enable-comments") %>' labelOn='<%= LanguageUtil.get(request, "enable-comments") %>' name="enableComments" type="toggle-switch" value="<%= objectDefinition.isEnableComments() %>" />
+					</aui:field-wrapper>
+				</c:if>
+
+				<c:if test='<%= GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158473")) && objectDefinition.isDefaultStorageType() %>'>
+					<aui:field-wrapper cssClass="form-group lfr-input-text-container">
+						<aui:input disabled="<%= objectDefinition.isActive() || objectDefinition.isSystem() %>" label="" labelOff='<%= LanguageUtil.get(request, "enable-entry-history") %>' labelOn='<%= LanguageUtil.get(request, "enable-entry-history") %>' name="enableEntryHistory" type="toggle-switch" />
 					</aui:field-wrapper>
 				</c:if>
 			</clay:sheet-section>

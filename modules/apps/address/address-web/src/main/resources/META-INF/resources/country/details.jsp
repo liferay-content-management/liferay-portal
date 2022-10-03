@@ -37,6 +37,14 @@ Country country = CountryLocalServiceUtil.fetchCountry(countryId);
 	<liferay-ui:error exception="<%= CountryNumberException.class %>" message="please-enter-a-valid-number" />
 	<liferay-ui:error exception="<%= DuplicateCountryException.class %>" message="the-two-letter-iso-code-is-already-used" />
 
+	<%
+	int titleMaxLength = ModelHintsUtil.getMaxLength(CountryLocalization.class.getName(), "title");
+	%>
+
+	<liferay-ui:error exception="<%= CountryTitleException.MustNotExceedMaximumLength.class %>">
+		<liferay-ui:message arguments="<%= String.valueOf(titleMaxLength) %>" key="please-enter-a-name-with-fewer-than-x-characters" />
+	</liferay-ui:error>
+
 	<aui:model-context bean="<%= country %>" model="<%= Country.class %>" />
 
 	<liferay-frontend:edit-form-body>
@@ -51,6 +59,7 @@ Country country = CountryLocalServiceUtil.fetchCountry(countryId);
 				<liferay-ui:input-localized
 					autoFocus="<%= true %>"
 					cssClass="form-group"
+					maxLength="<%= String.valueOf(titleMaxLength) %>"
 					name="title"
 					xml="<%= (country == null) ? StringPool.BLANK : country.getTitleMapAsXML() %>"
 				/>
@@ -72,7 +81,7 @@ Country country = CountryLocalServiceUtil.fetchCountry(countryId);
 
 			<aui:input checked="<%= (country == null) ? false : country.getSubjectToVAT() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="subjectToVAT" type="toggle-switch" />
 
-			<aui:input id="priority" name="position" />
+			<aui:input id="priority" label="priority" name="position" />
 
 			<aui:input checked="<%= (country == null) ? true : country.isActive() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="active" type="toggle-switch" />
 		</liferay-frontend:fieldset-group>

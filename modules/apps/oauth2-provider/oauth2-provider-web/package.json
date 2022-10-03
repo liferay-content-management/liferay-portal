@@ -1,12 +1,14 @@
 {
 	"dependencies": {
+		"pkce-challenge": "^3.0.0"
 	},
-	"name": "oauth2-provider-web",
+	"main": "js/liferay.js",
+	"name": "@liferay/oauth2-provider-web",
 	"private": true,
 	"scripts": {
 		"build": "liferay-npm-scripts build",
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "4.0.37"
+	"version": "4.0.38"
 }

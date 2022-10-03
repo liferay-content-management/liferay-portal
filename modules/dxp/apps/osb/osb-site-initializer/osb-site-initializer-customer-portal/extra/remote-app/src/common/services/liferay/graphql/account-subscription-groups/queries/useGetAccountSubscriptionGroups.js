@@ -13,30 +13,35 @@ import {gql, useQuery} from '@apollo/client';
 
 const GET_ACCOUNT_SUBSCRIPTION_GROUPS = gql`
 	query getAccountSubscriptionGroups(
-		$aggregation: [String]
 		$filter: String
 		$page: Int = 1
 		$pageSize: Int = 20
-		$search: String
 		$sort: String
 	) {
 		c {
 			accountSubscriptionGroups(
-				aggregation: $aggregation
 				filter: $filter
 				page: $page
 				pageSize: $pageSize
-				search: $search
 				sort: $sort
 			) {
 				items {
 					accountSubscriptionGroupId
 					accountKey
 					activationStatus
+					externalReferenceCode
+					hasActivation
 					name
 					tabOrder
 					menuOrder
+					logoPath @client
+					isProvisioned @client
 				}
+				lastPage
+				page
+				pageSize
+				totalCount
+				hasPartnership @client
 			}
 		}
 	}
@@ -49,6 +54,7 @@ export function useGetAccountSubscriptionGroups(
 		page: 1,
 		pageSize: 20,
 		skip: false,
+		sort: '',
 	}
 ) {
 	return useQuery(GET_ACCOUNT_SUBSCRIPTION_GROUPS, {
@@ -60,6 +66,7 @@ export function useGetAccountSubscriptionGroups(
 			filter: options.filter || '',
 			page: options.page || 1,
 			pageSize: options.pageSize || 20,
+			sort: options.sort || '',
 		},
 	});
 }

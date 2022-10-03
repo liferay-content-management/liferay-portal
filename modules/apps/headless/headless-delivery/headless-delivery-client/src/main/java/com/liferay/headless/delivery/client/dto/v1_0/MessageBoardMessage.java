@@ -291,6 +291,27 @@ public class MessageBoardMessage implements Cloneable, Serializable {
 
 	protected String friendlyUrlPath;
 
+	public Boolean getHasCompanyMx() {
+		return hasCompanyMx;
+	}
+
+	public void setHasCompanyMx(Boolean hasCompanyMx) {
+		this.hasCompanyMx = hasCompanyMx;
+	}
+
+	public void setHasCompanyMx(
+		UnsafeSupplier<Boolean, Exception> hasCompanyMxUnsafeSupplier) {
+
+		try {
+			hasCompanyMx = hasCompanyMxUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean hasCompanyMx;
+
 	public String getHeadline() {
 		return headline;
 	}

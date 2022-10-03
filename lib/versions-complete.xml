@@ -114,7 +114,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:44:02</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:28</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:39:15</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.batch.engine.service.jar!poi.jar</file-name>
@@ -128,7 +128,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:42:36</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:14</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:38:55</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.batch.engine.service.jar!xmlbeans.jar</file-name>
@@ -738,7 +738,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-12-03 07:59:49</current-version-publish-date>
-				<latest-version-publish-date>2022-07-23 01:30:44</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-18 05:18:27</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.commerce.report.impl.jar!httpclient.jar</file-name>
@@ -985,7 +985,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:44:02</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:28</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:39:15</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.commerce.report.impl.jar!poi.jar</file-name>
@@ -999,7 +999,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:42:36</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:14</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:38:55</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.commerce.report.impl.jar!xmpcore.jar</file-name>
@@ -1137,7 +1137,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:44:02</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:28</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:39:15</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.content.dashboard.web.jar!poi.jar</file-name>
@@ -1151,7 +1151,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:42:36</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:14</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:38:55</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.content.dashboard.web.jar!xmlbeans.jar</file-name>
@@ -1886,7 +1886,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:44:02</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:28</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:39:15</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.dynamic.data.lists.service.jar!poi.jar</file-name>
@@ -1900,7 +1900,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:42:36</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:14</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:38:55</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.dynamic.data.lists.service.jar!xmlbeans.jar</file-name>
@@ -2219,7 +2219,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:44:02</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:28</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:39:15</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.dynamic.data.mapping.service.jar!poi.jar</file-name>
@@ -2233,7 +2233,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:42:36</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:14</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:38:55</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.dynamic.data.mapping.service.jar!xmlbeans.jar</file-name>
@@ -2913,7 +2913,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-04-09 07:08:17</current-version-publish-date>
-				<latest-version-publish-date>2022-09-13 01:34:16</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-24 02:49:01</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.oauth.client.persistence.service.jar!oauth2-oidc-sdk.jar</file-name>
@@ -3906,7 +3906,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2013-01-07 10:43:47</current-version-publish-date>
-				<latest-version-publish-date>2022-06-09 13:45:41</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-22 13:39:02</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.scheduler.quartz.jar!org.quartz.jar</file-name>
@@ -3933,7 +3933,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-12-03 08:01:54</current-version-publish-date>
-				<latest-version-publish-date>2022-07-23 01:29:40</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-18 05:17:29</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.search.elasticsearch7.impl.jar!asm-debug-all.jar</file-name>
@@ -4031,7 +4031,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-01-12 16:50:47</current-version-publish-date>
-				<latest-version-publish-date>2022-08-29 15:28:53</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-19 11:30:23</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.search.elasticsearch7.impl.jar!elasticsearch-core.jar</file-name>
@@ -4045,7 +4045,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-01-12 16:50:48</current-version-publish-date>
-				<latest-version-publish-date>2022-08-29 15:28:54</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-19 11:30:23</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.search.elasticsearch7.impl.jar!elasticsearch-geo.jar</file-name>
@@ -4059,7 +4059,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-01-12 16:50:51</current-version-publish-date>
-				<latest-version-publish-date>2022-08-29 15:28:57</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-19 11:30:26</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.search.elasticsearch7.impl.jar!elasticsearch-lz4.jar</file-name>
@@ -4073,7 +4073,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-01-12 16:50:51</current-version-publish-date>
-				<latest-version-publish-date>2022-08-29 15:28:58</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-19 11:30:26</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.search.elasticsearch7.impl.jar!elasticsearch-rest-client.jar</file-name>
@@ -4087,7 +4087,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-01-12 16:50:53</current-version-publish-date>
-				<latest-version-publish-date>2022-08-29 15:29:00</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-19 11:30:29</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.search.elasticsearch7.impl.jar!elasticsearch-rest-high-level-client.jar</file-name>
@@ -4115,7 +4115,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-01-12 16:50:50</current-version-publish-date>
-				<latest-version-publish-date>2022-08-29 15:28:56</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-19 11:30:25</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.search.elasticsearch7.impl.jar!elasticsearch.jar</file-name>
@@ -4129,7 +4129,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-01-12 16:50:45</current-version-publish-date>
-				<latest-version-publish-date>2022-08-29 15:28:52</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-19 11:30:21</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.search.elasticsearch7.impl.jar!hppc.jar</file-name>
@@ -4497,7 +4497,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-01-12 10:27:46</current-version-publish-date>
-				<latest-version-publish-date>2021-01-12 10:27:46</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-15 07:19:06</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.security.antisamy.jar!batik-css.jar</file-name>
@@ -4510,7 +4510,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-01-12 10:28:23</current-version-publish-date>
-				<latest-version-publish-date>2021-01-12 10:28:23</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-15 07:19:28</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.security.antisamy.jar!batik-i18n.jar</file-name>
@@ -4523,7 +4523,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-01-12 10:33:52</current-version-publish-date>
-				<latest-version-publish-date>2021-01-12 10:33:52</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-15 07:34:17</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.security.antisamy.jar!batik-util.jar</file-name>
@@ -4536,7 +4536,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-01-12 10:47:49</current-version-publish-date>
-				<latest-version-publish-date>2021-01-12 10:47:49</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-15 07:41:17</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.security.antisamy.jar!commons-codec.jar</file-name>
@@ -4798,10 +4798,108 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-04-09 07:08:17</current-version-publish-date>
-				<latest-version-publish-date>2022-09-13 01:34:16</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-24 02:49:01</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.security.sso.openid.connect.impl.jar!oauth2-oidc-sdk.jar</file-name>
+				<version>8.4.3</version>
+				<project-name>OAuth 2.0 SDK with OpenID Connect extensions</project-name>
+				<project-url>https://connect2id.com</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.html‎</license-url>
+					</license>
+				</licenses>
+				<current-version-publish-date>2020-05-31 08:45:35</current-version-publish-date>
+				<latest-version-publish-date>2022-09-09 09:30:52</latest-version-publish-date>
+			</library>
+			<library>
+				<file-name>com.liferay.portal.security.sso.openid.connect.persistence.service.jar!accessors-smart.jar</file-name>
+				<version>2.4.2</version>
+				<project-name>ASM based accessors helper used by json-smart</project-name>
+				<project-url>https://urielch.github.io/</project-url>
+				<licenses>
+					<license>
+						<license-name>The Apache Software License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+				<current-version-publish-date>2021-04-04 13:18:50</current-version-publish-date>
+				<latest-version-publish-date>2022-02-13 04:37:17</latest-version-publish-date>
+			</library>
+			<library>
+				<file-name>com.liferay.portal.security.sso.openid.connect.persistence.service.jar!content-type.jar</file-name>
+				<version>2.0</version>
+				<project-name>Nimbus Content Type</project-name>
+				<project-url>https://connect2id.com</project-url>
+				<licenses>
+					<license>
+						<license-name>The Apache Software License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+				<current-version-publish-date>2020-02-05 02:43:54</current-version-publish-date>
+				<latest-version-publish-date>2021-11-24 14:40:33</latest-version-publish-date>
+			</library>
+			<library>
+				<file-name>com.liferay.portal.security.sso.openid.connect.persistence.service.jar!jcip-annotations.jar</file-name>
+				<version>1.0-1</version>
+				<project-name>JCIP Annotations under Apache License</project-name>
+				<project-url>http://stephenc.github.com/jcip-annotations</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+				<current-version-publish-date>2013-02-13 07:57:33</current-version-publish-date>
+				<latest-version-publish-date>2013-02-13 07:57:33</latest-version-publish-date>
+			</library>
+			<library>
+				<file-name>com.liferay.portal.security.sso.openid.connect.persistence.service.jar!json-smart.jar</file-name>
+				<version>2.4.5</version>
+				<project-name>JSON Small and Fast Parser</project-name>
+				<project-url>https://urielch.github.io/</project-url>
+				<licenses>
+					<license>
+						<license-name>The Apache Software License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+				<current-version-publish-date>2021-04-19 15:35:18</current-version-publish-date>
+				<latest-version-publish-date>2022-02-13 04:37:47</latest-version-publish-date>
+			</library>
+			<library>
+				<file-name>com.liferay.portal.security.sso.openid.connect.persistence.service.jar!lang-tag.jar</file-name>
+				<version>1.4.4</version>
+				<project-name>Nimbus LangTag</project-name>
+				<project-url>https://bitbucket.org/connect2id/nimbus-language-tags</project-url>
+				<licenses>
+					<license>
+						<license-name>The Apache Software License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+				<current-version-publish-date>2018-10-08 15:27:08</current-version-publish-date>
+				<latest-version-publish-date>2022-07-06 04:39:25</latest-version-publish-date>
+			</library>
+			<library>
+				<file-name>com.liferay.portal.security.sso.openid.connect.persistence.service.jar!nimbus-jose-jwt.jar</file-name>
+				<version>8.14.1</version>
+				<project-name>Nimbus JOSE+JWT</project-name>
+				<project-url>https://bitbucket.org/connect2id/nimbus-jose-jwt</project-url>
+				<licenses>
+					<license>
+						<license-name>The Apache Software License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+				<current-version-publish-date>2020-04-09 07:08:17</current-version-publish-date>
+				<latest-version-publish-date>2022-09-24 02:49:01</latest-version-publish-date>
+			</library>
+			<library>
+				<file-name>com.liferay.portal.security.sso.openid.connect.persistence.service.jar!oauth2-oidc-sdk.jar</file-name>
 				<version>8.4.3</version>
 				<project-name>OAuth 2.0 SDK with OpenID Connect extensions</project-name>
 				<project-url>https://connect2id.com</project-url>
@@ -4990,7 +5088,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-03-11 00:10:47</current-version-publish-date>
-				<latest-version-publish-date>2022-09-14 14:56:05</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-23 12:00:29</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.store.gcs.jar!google-cloud-core.jar</file-name>
@@ -5004,7 +5102,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-03-11 00:10:45</current-version-publish-date>
-				<latest-version-publish-date>2022-09-14 14:56:07</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-23 12:00:26</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.store.gcs.jar!google-cloud-storage.jar</file-name>
@@ -5018,7 +5116,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-03-11 19:22:38</current-version-publish-date>
-				<latest-version-publish-date>2022-08-08 11:51:02</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-15 13:11:23</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.store.gcs.jar!google-http-client-apache-v2.jar</file-name>
@@ -5113,7 +5211,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-02-23 03:27:48</current-version-publish-date>
-				<latest-version-publish-date>2022-08-23 23:19:34</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-16 14:35:32</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.store.gcs.jar!guava.jar</file-name>
@@ -5225,7 +5323,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-02-24 20:56:03</current-version-publish-date>
-				<latest-version-publish-date>2022-07-14 11:11:28</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-20 12:54:49</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.store.gcs.jar!proto-google-iam-v1.jar</file-name>
@@ -5239,7 +5337,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-02-25 20:07:49</current-version-publish-date>
-				<latest-version-publish-date>2022-07-14 11:11:46</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-21 11:21:28</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.store.gcs.jar!protobuf-java-util.jar</file-name>
@@ -5295,7 +5393,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-07-15 17:54:32</current-version-publish-date>
-				<latest-version-publish-date>2022-09-14 18:20:07</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-23 17:20:58</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.store.s3.jar!aws-java-sdk-kms.jar</file-name>
@@ -5309,7 +5407,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-07-15 17:54:29</current-version-publish-date>
-				<latest-version-publish-date>2022-09-14 18:19:48</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-23 17:20:37</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.store.s3.jar!aws-java-sdk-s3.jar</file-name>
@@ -5323,7 +5421,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2022-07-15 17:53:45</current-version-publish-date>
-				<latest-version-publish-date>2022-09-14 18:19:16</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-23 17:20:55</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.store.s3.jar!commons-codec.jar</file-name>
@@ -5766,7 +5864,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:44:02</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:28</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:39:15</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.tika.jar!poi-scratchpad.jar</file-name>
@@ -5780,7 +5878,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:45:19</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:55:13</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:40:10</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.tika.jar!poi.jar</file-name>
@@ -5794,7 +5892,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-02-10 16:42:36</current-version-publish-date>
-				<latest-version-publish-date>2022-03-12 18:54:14</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-09 13:38:55</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.portal.tika.jar!tagsoup.jar</file-name>
@@ -6510,7 +6608,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2020-11-18 20:49:34</current-version-publish-date>
-				<latest-version-publish-date>2022-09-07 16:33:32</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-21 16:19:05</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.segments.content.targeting.upgrade.jar!commons-lang3.jar</file-name>
@@ -6984,7 +7082,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-06-07 12:33:17</current-version-publish-date>
-				<latest-version-publish-date>2022-05-02 14:16:23</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-12 12:38:02</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.pdfbox.jar!jai-imageio-core.jar</file-name>
@@ -7039,7 +7137,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2018-10-01 15:42:01</current-version-publish-date>
-				<latest-version-publish-date>2018-10-01 15:42:01</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-12 12:38:31</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.pdfbox.jar!pdfbox.jar</file-name>
@@ -7053,7 +7151,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-06-07 12:34:49</current-version-publish-date>
-				<latest-version-publish-date>2022-05-02 14:17:31</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-12 12:42:27</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.rome.jar!rome-utils.jar</file-name>
@@ -7313,7 +7411,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-03-11 00:10:47</current-version-publish-date>
-				<latest-version-publish-date>2022-09-14 14:56:05</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-23 12:00:29</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.site.initializer.testray.dispatch.task.executor.jar!google-cloud-core.jar</file-name>
@@ -7327,7 +7425,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-03-11 00:10:45</current-version-publish-date>
-				<latest-version-publish-date>2022-09-14 14:56:07</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-23 12:00:26</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.site.initializer.testray.dispatch.task.executor.jar!google-cloud-storage.jar</file-name>
@@ -7341,7 +7439,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-03-11 19:22:38</current-version-publish-date>
-				<latest-version-publish-date>2022-08-08 11:51:02</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-15 13:11:23</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.site.initializer.testray.dispatch.task.executor.jar!google-http-client-apache-v2.jar</file-name>
@@ -7436,7 +7534,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-02-23 03:27:48</current-version-publish-date>
-				<latest-version-publish-date>2022-08-23 23:19:34</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-16 14:35:32</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.site.initializer.testray.dispatch.task.executor.jar!guava.jar</file-name>
@@ -7562,7 +7660,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-02-24 20:56:03</current-version-publish-date>
-				<latest-version-publish-date>2022-07-14 11:11:28</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-20 12:54:49</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.site.initializer.testray.dispatch.task.executor.jar!proto-google-iam-v1.jar</file-name>
@@ -7576,7 +7674,7 @@
 					</license>
 				</licenses>
 				<current-version-publish-date>2021-02-25 20:07:49</current-version-publish-date>
-				<latest-version-publish-date>2022-07-14 11:11:46</latest-version-publish-date>
+				<latest-version-publish-date>2022-09-21 11:21:28</latest-version-publish-date>
 			</library>
 			<library>
 				<file-name>com.liferay.site.initializer.testray.dispatch.task.executor.jar!protobuf-java-util.jar</file-name>
@@ -7890,7 +7988,7 @@
 				<file-name>lib/development/ant-compress.jar</file-name>
 				<version>1.5</version>
 				<project-name>Apache Compress Antlib</project-name>
-				<project-url>https://ant.apache.org/antlibs/compress/</project-url>
+				<project-url>https://ant.apache.org/antlibs/compress</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8034,7 +8132,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/catalina.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -8046,7 +8144,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/com.liferay.jenkins.results.parser.jar</file-name>
-				<version>1.0.1060</version>
+				<version>1.0.1123</version>
 				<project-name>Liferay Jenkins Results Parser</project-name>
 				<licenses>
 					<license>
@@ -8057,7 +8155,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/com.liferay.poshi.core.jar</file-name>
-				<version>1.0.63</version>
+				<version>1.0.71</version>
 				<project-name>Liferay Poshi Core</project-name>
 				<licenses>
 					<license>
@@ -8067,10 +8165,22 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>lib/development/commons-codec.jar</file-name>
+				<version>1.15</version>
+				<project-name>Apache Commons Codec</project-name>
+				<project-url>http://commons.apache.org/proper/commons-codec</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>lib/development/commons-collections4.jar</file-name>
 				<version>4.2</version>
 				<project-name>Apache Commons Collections</project-name>
-				<project-url>http://commons.apache.org/proper/commons-collections/</project-url>
+				<project-url>http://commons.apache.org/proper/commons-collections</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8094,7 +8204,7 @@
 				<file-name>lib/development/commons-lang3.jar</file-name>
 				<version>3.12.0</version>
 				<project-name>Commons Lang</project-name>
-				<project-url>http://commons.apache.org/proper/commons-lang/</project-url>
+				<project-url>http://commons.apache.org/proper/commons-lang</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8227,7 +8337,7 @@
 				<file-name>lib/development/jacocoagent.jar</file-name>
 				<version>0.8.4</version>
 				<project-name>JaCoCo</project-name>
-				<project-url>http://www.jacoco.org/</project-url>
+				<project-url>http://www.jacoco.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Eclipse Public License Version 1.0</license-name>
@@ -8239,7 +8349,7 @@
 				<file-name>lib/development/jacocoant.jar</file-name>
 				<version>0.8.4</version>
 				<project-name>JaCoCo</project-name>
-				<project-url>http://www.jacoco.org/</project-url>
+				<project-url>http://www.jacoco.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Eclipse Public License Version 1.0</license-name>
@@ -8251,7 +8361,7 @@
 				<file-name>lib/development/jacococore.jar</file-name>
 				<version>0.8.4</version>
 				<project-name>JaCoCo</project-name>
-				<project-url>http://www.jacoco.org/</project-url>
+				<project-url>http://www.jacoco.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Eclipse Public License Version 1.0</license-name>
@@ -8263,7 +8373,7 @@
 				<file-name>lib/development/jacocoreport.jar</file-name>
 				<version>0.8.4</version>
 				<project-name>JaCoCo</project-name>
-				<project-url>http://www.jacoco.org/</project-url>
+				<project-url>http://www.jacoco.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Eclipse Public License Version 1.0</license-name>
@@ -8298,7 +8408,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/jasper.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -8444,7 +8554,7 @@
 				<file-name>lib/development/mail.jar</file-name>
 				<version>1.6.6</version>
 				<project-name>JavaMail</project-name>
-				<project-url>https://eclipse-ee4j.github.io/mail/</project-url>
+				<project-url>https://eclipse-ee4j.github.io/mail</project-url>
 				<licenses>
 					<license>
 						<license-name>Common Development and Distribution License 1.0</license-name>
@@ -8528,7 +8638,7 @@
 				<file-name>lib/development/osgi-annotation-versioning.jar</file-name>
 				<version>1.1.0</version>
 				<project-name>org.osgi.annotation.versioning</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8540,7 +8650,7 @@
 				<file-name>lib/development/osgi-core.jar</file-name>
 				<version>6.0.0</version>
 				<project-name>osgi.core</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8552,7 +8662,7 @@
 				<file-name>lib/development/osgi-service-cm.jar</file-name>
 				<version>1.6.0</version>
 				<project-name>osgi.core</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8564,7 +8674,7 @@
 				<file-name>lib/development/osgi-service-component.jar</file-name>
 				<version>1.4.0</version>
 				<project-name>osgi.core</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8576,7 +8686,7 @@
 				<file-name>lib/development/osgi-service-log.jar</file-name>
 				<version>1.3.0</version>
 				<project-name>osgi.core</project-name>
-				<project-url>https://www.osgi.org/</project-url>
+				<project-url>https://www.osgi.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8697,7 +8807,7 @@
 				<file-name>lib/development/sling-commons-osgi.jar</file-name>
 				<version>2.4.0</version>
 				<project-name>org.apache.sling</project-name>
-				<project-url>https://sling.apache.org/</project-url>
+				<project-url>https://sling.apache.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8709,7 +8819,7 @@
 				<file-name>lib/development/sling-testing-osgi-mock-core.jar</file-name>
 				<version>3.1.2</version>
 				<project-name>org.apache.sling</project-name>
-				<project-url>https://sling.apache.org/</project-url>
+				<project-url>https://sling.apache.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -8782,7 +8892,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/tomcat-api.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -8794,7 +8904,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/tomcat-coyote.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -8806,7 +8916,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/tomcat-util-scan.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -8818,7 +8928,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/tomcat-util.jar</file-name>
-				<version>9.0.56</version>
+				<version>9.0.65</version>
 				<project-name>Tomcat</project-name>
 				<project-url>http://tomcat.apache.org</project-url>
 				<licenses>
@@ -9018,7 +9128,7 @@
 				<file-name>lib/portal/jaxb-runtime.jar</file-name>
 				<version>2.3.1.LIFERAY-PATCHED-1</version>
 				<project-name>Java Architecture for XML Binding</project-name>
-				<project-url>https://javaee.github.io/jaxb-v2/</project-url>
+				<project-url>https://javaee.github.io/jaxb-v2</project-url>
 				<licenses>
 					<license>
 						<license-name>CDDL 1.0</license-name>
@@ -9191,7 +9301,7 @@
 				<file-name>lib/portal/soap-api.jar</file-name>
 				<version>1.4.0</version>
 				<project-name>SAAJ API</project-name>
-				<project-url>https://javaee.github.io/javaee-spec/</project-url>
+				<project-url>https://javaee.github.io/javaee-spec</project-url>
 				<licenses>
 					<license>CDDL 1.1</license>
 					<license-url>https://oss.oracle.com/licenses/CDDL-1.1</license-url>

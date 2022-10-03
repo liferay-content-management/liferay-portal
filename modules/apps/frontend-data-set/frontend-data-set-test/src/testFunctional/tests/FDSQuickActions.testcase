@@ -1,10 +1,11 @@
 @component-name = "portal-frontend-infrastructure"
 definition {
 
+	property custom.properties = "upgrade.database.auto.run=false";
 	property osgi.modules.includes = "frontend-data-set-sample-web";
-	property portal.acceptance = "false";
-	property portal.release = "false";
-	property portal.upstream = "quarantine";
+	property portal.acceptance = "true";
+	property portal.release = "true";
+	property portal.upstream = "true";
 	property testray.component.names = "Frontend Dataset";
 	property testray.main.component.name = "Frontend Dataset";
 
@@ -56,6 +57,9 @@ definition {
 	@description = "LPS-155465. Assert that clicking quick action is equivalent to clicking the ellipsis dropdown menu."
 	@priority = "5"
 	test BehaviorIsEqualToEllipsisDropdownEquivalentAction {
+		property custom.properties = "upgrade.database.auto.run=false";
+		property test.name.skip.portal.instance = "FDSQuickActions#BehaviorIsEqualToEllipsisDropdownEquivalentAction";
+
 		var portalURL = PropsUtil.get("portal.url");
 
 		task ("When click on Pencil Icon") {
@@ -65,7 +69,7 @@ definition {
 		}
 
 		task ("And when copy the browser URL (#test-pencil is appended)") {
-			AssertLocation(value1 = "${portalURL}/frontend-data-set-test-page#test-pencil");
+			var browserURL = selenium.getLocation();
 		}
 
 		task ("And when click on ellipsis of 1st row item in FDS table") {
@@ -79,13 +83,15 @@ definition {
 		}
 
 		task ("Then browser URL matches copied URL (#test-pencil)") {
-			AssertLocation(value1 = "${portalURL}/frontend-data-set-test-page#test-pencil");
+			AssertLocation(value1 = "${browserURL}");
 		}
 	}
 
 	@description = "LPS-155457. Assert that hover over mouse off of the table body quick action menu is not visible."
 	@priority = "5"
 	test CanDisappearWhenNotHovered {
+		property test.name.skip.portal.instance = "FDSQuickActions#CanDisappearWhenNotHovered";
+
 		task ("When hover mouse off of the table body") {
 			MouseOver(locator1 = "FrontendDataSet#TABLE_BODY");
 		}
@@ -98,6 +104,9 @@ definition {
 	@description = "LPS-155455: When hovering over the first line item and the quick action menu is displayed on the 1st line"
 	@priority = "5"
 	test CanDisplayOnHover {
+		property custom.properties = "upgrade.database.auto.run=false";
+		property test.name.skip.portal.instance = "FDSQuickActions#CanDisplayOnHover";
+
 		task ("Then the quick action menu is displayed on the 1st line") {
 			FDSQuickActions.viewQuickActionMenuPresent(title = "Sample1");
 		}
@@ -107,6 +116,8 @@ definition {
 	@ignore = "true"
 	@priority = "3"
 	test CanDisplayOnMultipleActiveRows {
+		property test.name.skip.portal.instance = "FDSQuickActions#CanDisplayOnMultipleActiveRows";
+
 		task ("When click on ellipsis button 2nd row item") {
 			Click(
 				key_title = "Sample2",
@@ -137,14 +148,16 @@ definition {
 	@description = "LPS-155458. Assert can be displayed on one an active row."
 	@priority = "4"
 	test CanDisplayOnOneActiveRow {
-		task ("When hover over 2nd row item") {
+		property test.name.skip.portal.instance = "FDSQuickActions#CanDisplayOnOneActiveRow";
+
+		task ("When hover over 3rd row item") {
 			MouseOver(
-				key_itemName = "Sample2",
+				key_itemName = "Sample3",
 				locator1 = "FrontendDataSet#TABLE_ITEM_ROW");
 		}
 
-		task ("Then quick action menu is displayed on the 2nd row") {
-			FDSQuickActions.viewQuickActionMenuPresent(title = "Sample2");
+		task ("Then quick action menu is displayed on the 3rd row") {
+			FDSQuickActions.viewQuickActionMenuPresent(title = "Sample3");
 		}
 
 		task ("Then quick action menu is not displayed on 1st row") {
@@ -155,6 +168,8 @@ definition {
 	@description = "LPS-155463. Assert that Quick actions icons list should be limited to three actions."
 	@priority = "4"
 	test CanDisplayUpToThreeIcons {
+		property test.name.skip.portal.instance = "FDSQuickActions#CanDisplayUpToThreeIcons";
+
 		task ("Then quick action menu only has 3 actions icons available") {
 			AssertElementPresent(
 				key_index = "1",
@@ -181,7 +196,7 @@ definition {
 	@description = "LPS-155466. Assert that test-pencil is appended to browser URL after clicking."
 	@priority = "5"
 	test CanExecuteAnAction {
-		var portalURL = PropsUtil.get("portal.url");
+		property test.name.skip.portal.instance = "FDSQuickActions#CanExecuteAnAction";
 
 		task ("When click on Pencil Icon ") {
 			ClickNoError(
@@ -190,13 +205,15 @@ definition {
 		}
 
 		task ("Then #test-pencil is appended to browser URL") {
-			AssertLocation(value1 = "${portalURL}/frontend-data-set-test-page#test-pencil");
+			AssertLocation.assertPartialLocation(value1 = "frontend-data-set-test-page#test-pencil");
 		}
 	}
 
 	@description = "LPS-155467. Assert the quick action is not visible when the row checkbox is checked."
 	@priority = "3"
 	test IsNotVisibleOnCheckedRow {
+		property test.name.skip.portal.instance = "FDSQuickActions#IsNotVisibleOnCheckedRow";
+
 		task ("When mark a row checkbox as checked") {
 			Check.checkToggleSwitch(
 				key_title = "Sample1",

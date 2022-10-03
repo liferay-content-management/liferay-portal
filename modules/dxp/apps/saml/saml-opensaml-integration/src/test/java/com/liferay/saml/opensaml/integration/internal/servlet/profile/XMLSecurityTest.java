@@ -15,6 +15,7 @@
 package com.liferay.saml.opensaml.integration.internal.servlet.profile;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 import com.liferay.saml.constants.SamlWebKeys;
 import com.liferay.saml.opensaml.integration.internal.BaseSamlTestCase;
@@ -91,18 +92,26 @@ public class XMLSecurityTest extends BaseSamlTestCase {
 			samlSpIdpConnection
 		);
 
-		_webSsoProfileImpl.setIdentifierGenerationStrategyFactory(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "identifierGenerationStrategyFactory",
 			identifierGenerationStrategyFactory);
-		_webSsoProfileImpl.setMetadataManager(metadataManagerImpl);
-		_webSsoProfileImpl.setPortal(portal);
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "metadataManager", metadataManagerImpl);
+		ReflectionTestUtil.setFieldValue(_webSsoProfileImpl, "portal", portal);
+
 		_webSsoProfileImpl.setSamlBindings(samlBindings);
-		_webSsoProfileImpl.setSamlProviderConfigurationHelper(
+
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "samlProviderConfigurationHelper",
 			samlProviderConfigurationHelper);
-		_webSsoProfileImpl.setSamlSpAuthRequestLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "_samlSpAuthRequestLocalService",
 			samlSpAuthRequestLocalService);
-		_webSsoProfileImpl.setSamlSpIdpConnectionLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "_samlSpIdpConnectionLocalService",
 			samlSpIdpConnectionLocalService);
-		_webSsoProfileImpl.setSamlSpSessionLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_webSsoProfileImpl, "samlSpSessionLocalService",
 			samlSpSessionLocalService);
 
 		prepareServiceProvider(SP_ENTITY_ID);

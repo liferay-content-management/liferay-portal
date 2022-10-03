@@ -9,55 +9,63 @@
  * distribution rights of the Software.
  */
 
-import classNames from 'classnames';
+import ClayLayout from '@clayui/layout';
 import ProjectList from './components/ProjectsList';
 import SearchHeader from './components/SearchHeader';
 import useHasManyProjects from './hooks/useHasManyProjects';
 import useKoroneikiAccounts from './hooks/useKoroneikiAccounts';
+
 import './app.scss';
 
+const THRESHOLD_COUNT = 4;
+
 const Home = () => {
-	const {data, fetchMore, fetching, loading, search} = useKoroneikiAccounts();
+	const {
+		data,
+		fetchMore,
+		fetching,
+		loading,
+		search,
+		searching,
+	} = useKoroneikiAccounts();
 	const koroneikiAccounts = data?.c?.koroneikiAccounts;
 
-	const hasManyProjects = useHasManyProjects(koroneikiAccounts);
+	const hasManyProjects = useHasManyProjects(
+		koroneikiAccounts?.totalCount,
+		THRESHOLD_COUNT
+	);
 
 	return (
-		<div
-			className={classNames({
-				'cp-project-cards-container': !hasManyProjects,
-				'mx-auto cp-project-cards-container-sm': hasManyProjects,
-			})}
+		<ClayLayout.ContainerFluid
+			size={hasManyProjects && !loading ? 'md' : 'xl'}
 		>
-			<div
-				className={classNames({
-					'd-flex flex-column w-100': hasManyProjects,
-					'ml-3': !hasManyProjects,
-				})}
-			>
-				{hasManyProjects && (
-					<SearchHeader
-						count={koroneikiAccounts?.totalCount}
-						loading={loading}
-						onSearchSubmit={(term) => search(term)}
-					/>
-				)}
+			<ClayLayout.Row>
+				<ClayLayout.Col>
+					{hasManyProjects && !loading && (
+						<SearchHeader
+							count={koroneikiAccounts?.totalCount}
+							loading={searching}
+							onSearchSubmit={search}
+						/>
+					)}
 
-				<ProjectList
-					fetching={fetching}
-					hasManyProjects={hasManyProjects}
-					koroneikiAccounts={koroneikiAccounts}
-					loading={loading}
-					onIntersect={(currentPage) =>
-						fetchMore({
-							variables: {
-								page: currentPage + 1,
-							},
-						})
-					}
-				/>
-			</div>
-		</div>
+					<ProjectList
+						compressed={hasManyProjects && !loading}
+						fetching={fetching}
+						koroneikiAccounts={koroneikiAccounts}
+						loading={loading || searching}
+						maxCardsLoading={THRESHOLD_COUNT}
+						onIntersect={(currentPage) =>
+							fetchMore({
+								variables: {
+									page: currentPage + 1,
+								},
+							})
+						}
+					/>
+				</ClayLayout.Col>
+			</ClayLayout.Row>
+		</ClayLayout.ContainerFluid>
 	);
 };
 

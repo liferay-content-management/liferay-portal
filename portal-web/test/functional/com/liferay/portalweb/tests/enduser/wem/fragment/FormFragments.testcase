@@ -1,7 +1,6 @@
 @component-name = "portal-wcm"
 definition {
 
-	property custom.properties = "feature.flag.LPS-149720=true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Fragments";
@@ -16,14 +15,6 @@ definition {
 		task ("Add a new site") {
 			JSONGroup.addGroup(groupName = "Test Site Name");
 		}
-
-		task ("Enable Inputs Fragment collection in Gogo Shell") {
-			GogoShell.openGogoShellAdmin();
-
-			GogoShell.executeCommand(commandName = "scr:enable com.liferay.fragment.collection.contributor.inputs.InputsFragmentCollectionContributor");
-
-			GogoShell.viewOutput(outputContent = "true");
-		}
 	}
 
 	tearDown {
@@ -33,14 +24,6 @@ definition {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			task ("Disable Inputs Fragment collection in Gogo Shell") {
-				GogoShell.openGogoShellAdmin();
-
-				GogoShell.executeCommand(commandName = "scr:disable com.liferay.fragment.collection.contributor.inputs.InputsFragmentCollectionContributor");
-
-				GogoShell.viewOutput(outputContent = "true");
-			}
-
 			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
 		}
 	}
@@ -48,8 +31,6 @@ definition {
 	@description = "This is a test for LPS-151157. The fragment admin could see the supported field types in read-only mode."
 	@priority = "4"
 	test ViewSupportedFieldTypesInReadOnlyMode {
-		property test.name.skip.portal.instance = "FormFragments#ViewSupportedFieldTypesInReadOnlyMode";
-
 		task ("Given a fragment admin has a read-only fragment with field type") {
 			FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "test-site-name");
 

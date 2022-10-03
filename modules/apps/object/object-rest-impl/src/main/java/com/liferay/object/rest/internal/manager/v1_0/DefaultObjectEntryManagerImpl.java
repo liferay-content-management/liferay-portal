@@ -639,8 +639,6 @@ public class DefaultObjectEntryManagerImpl
 				GetterUtil.getLong(
 					values.get(objectDefinition.getPKObjectFieldName())));
 
-		objectEntry.setValues(values);
-
 		_checkObjectEntryObjectDefinitionId(objectDefinition, objectEntry);
 
 		return _toObjectEntry(
@@ -714,6 +712,10 @@ public class DefaultObjectEntryManagerImpl
 			ObjectDefinition objectDefinition2 =
 				_objectDefinitionLocalService.getObjectDefinition(
 					objectRelationship.getObjectDefinitionId2());
+
+			if (!objectDefinition2.isApproved()) {
+				continue;
+			}
 
 			ObjectRelatedModelsProvider objectRelatedModelsProvider =
 				_objectRelatedModelsProviderRegistry.

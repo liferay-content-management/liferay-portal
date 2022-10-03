@@ -1391,6 +1391,7 @@ definition {
 			objectName = "CustomObject141661");
 
 		ObjectAdmin.addObjectRelationshipViaAPI(
+			deletionType = "disassociate",
 			objectName_1 = "CustomObject141661",
 			objectName_2 = "CustomObject141661",
 			relationshipLabel = "Relationship",
@@ -1456,7 +1457,7 @@ definition {
 
 		ObjectPortlet.viewEntryDetails(entry = "Entry A");
 
-		CreateObject.deleteEntryInRelationshipTab(entryName = "Entry B");
+		CreateObject.deleteEntryInRelationshipTab(labelName = "Entry B");
 
 		ObjectPortlet.assertEntryNotPresent(entry = "Entry B");
 
@@ -5033,8 +5034,7 @@ definition {
 	@description = "LPS-139803 - Verify it the Object Entry Title of a String type is displayed on the Relationship field when adding an entry"
 	@priority = "5"
 	test CanViewObjectEntryTitleStringOnRelationshipField {
-		property portal.acceptance = "quarantine";
-		property portal.upstream = "quarantine";
+		property portal.acceptance = "true";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 117",

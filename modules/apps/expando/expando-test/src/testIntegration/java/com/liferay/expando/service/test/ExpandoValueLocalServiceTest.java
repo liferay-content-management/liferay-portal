@@ -153,6 +153,23 @@ public class ExpandoValueLocalServiceTest {
 	}
 
 	@Test
+	public void testAddNondefaultLocalizedStringValue() throws Exception {
+		try {
+			ExpandoTestUtil.addColumn(
+				_expandoTable, "Test Column",
+				ExpandoColumnConstants.STRING_LOCALIZED,
+				HashMapBuilder.put(
+					_ptLocale, "Teste"
+				).build());
+
+			Assert.fail();
+		}
+		catch (ValueDataException.MustInformDefaultLocale valueDataException) {
+			Assert.assertNotNull(valueDataException);
+		}
+	}
+
+	@Test
 	public void testAddStringArrayValue() throws Exception {
 		ExpandoColumn column = ExpandoTestUtil.addColumn(
 			_expandoTable, "Test Column", ExpandoColumnConstants.STRING_ARRAY);

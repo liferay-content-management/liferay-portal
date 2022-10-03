@@ -17,9 +17,10 @@ package com.liferay.content.dashboard.web.internal.portlet.action;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
+import com.liferay.content.dashboard.item.ContentDashboardItem;
+import com.liferay.content.dashboard.item.ContentDashboardItemFactory;
+import com.liferay.content.dashboard.item.ContentDashboardItemVersion;
 import com.liferay.content.dashboard.web.internal.constants.ContentDashboardPortletKeys;
-import com.liferay.content.dashboard.web.internal.item.ContentDashboardItem;
-import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactory;
 import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactoryTracker;
 import com.liferay.content.dashboard.web.internal.search.request.ContentDashboardSearchContextBuilder;
 import com.liferay.content.dashboard.web.internal.searcher.ContentDashboardSearchRequestBuilderFactory;
@@ -157,12 +158,15 @@ public class GetContentDashboardItemsXlsMVCResourceCommand
 			contentDashboardItem.getScopeName(locale)
 		).cell(
 			() -> {
-				List<ContentDashboardItem.Version> latestVersions =
-					contentDashboardItem.getLatestVersions(locale);
+				List<ContentDashboardItemVersion>
+					latestContentDashboardItemVersions =
+						contentDashboardItem.
+							getLatestContentDashboardItemVersions(locale);
 
-				ContentDashboardItem.Version version = latestVersions.get(0);
+				ContentDashboardItemVersion contentDashboardItemVersion =
+					latestContentDashboardItemVersions.get(0);
 
-				return version.getLabel();
+				return contentDashboardItemVersion.getLabel();
 			}
 		).cell(
 			StringUtil.merge(

@@ -42,7 +42,7 @@
 	</tr>
 	<tr>
 		<td>UPDATE_PICKLIST_NAME</td>
-		<td>//input[@aria-describedby]</td>
+		<td>//input[@aria-describedby] | //*[text()='Name']/..//input[@type="text"]</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -92,7 +92,7 @@
 	</tr>
 	<tr>
 		<td>PICKLIST_DETAILS</td>
-		<td>//div[(@class='sheet') and contains (.,'${key_title}')]</td>
+		<td>//div[(@class='sheet') and contains (.,'${key_title}')] | //div[(@class='lfr-objects__card') and contains (.,'${key_title}')]</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -127,7 +127,7 @@
 	</tr>
 	<tr>
 		<td>EDIT_ITEM_NAME</td>
-		<td>//input[@class='form-control language-value field form-control lfr-input-text']</td>
+		<td>//input[@class='form-control language-value field form-control lfr-input-text'] | //div[contains(@class,'modal')]//*[text()='Name']/..//input</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -158,6 +158,11 @@
 	<tr>
 		<td>VIEW_PICKLIST_EDIT_ITEM_KEY</td>
 		<td>//input[@id=('_com_liferay_object_web_internal_list_type_portlet_portlet_ListTypeDefinitionsPortlet_key') and @value=('${key_itemKey}')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>DIV_PICKLIST_MODAL</td>
+		<td>//div[@class=('fade modal d-block show')]</td>
 		<td></td>
 	</tr>
 </tbody>

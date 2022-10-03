@@ -216,6 +216,48 @@ definition {
 		ObjectPortlet.viewEntry(entry = "Entry A");
 	}
 
+	@description = "LPS-155537 - Verify that it's possible to create an object with a relationship that has a parameter"
+	@priority = "5"
+	test CanCreateObjectWithRelationshipParameter {
+		property portal.acceptance = "true";
+
+		task ("Create a custom object, and a self relationship") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object",
+				objectName = "CustomObject",
+				pluralLabelName = "Custom Objects");
+
+			ObjectAdmin.addObjectRelationshipViaAPI(
+				objectName_1 = "CustomObject",
+				objectName_2 = "CustomObject",
+				relationshipLabel = "Self Relationship",
+				relationshipName = "selfRelationship",
+				relationshipType = "oneToMany");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		}
+
+		task ("Create an relationship from Postal Address to custom object created") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Postal Address");
+
+			ObjectAdmin.gotoRelationshipsTab();
+
+			ObjectAdmin.addObjectRelationshipViaUI(
+				label = "Relationship with Custom Object",
+				object = "Custom Object",
+				parameter = "Self Relationship",
+				type = "One to Many");
+		}
+
+		task ("Assert there is a relationship created") {
+			AssertElementPresent(
+				key_label = "Relationship with Custom Object",
+				locator1 = "ObjectAdmin#RELATIONSHIP_LABEL");
+		}
+	}
+
 	@description = "LPS-145393 - Verify it is possible to create a Relationship One-to-Many from a Native Object to a Custom Object"
 	@priority = "5"
 	test CanCreateOneToManyForNativeObject {
@@ -269,28 +311,14 @@ definition {
 	@description = "LPS-146754 - Verify that it's possible to delete a relationship between a Custom Object entry and Native Object entry (Many-to-Many)"
 	@priority = "4"
 	test CanDeleteManyToManyRelationshipBetweenCustomObjectEntryAndNativeObjectEntry {
-		task ("Add 2 users entries to relate to custom object entries") {
-			JSONUser.addUser(
-				userEmailAddress = "user1@liferay.com",
-				userFirstName = "userfn_1",
-				userLastName = "userln_1",
-				userScreenName = "usersn1");
-
-			JSONUser.setFirstPassword(
-				agreeToTermsAndAnswerReminderQuery = "true",
-				requireReset = "false",
-				userEmailAddress = "user1@liferay.com");
-
-			JSONUser.addUser(
-				userEmailAddress = "user2@liferay.com",
-				userFirstName = "userfn_2",
-				userLastName = "userln_2",
-				userScreenName = "usersn2");
-
-			JSONUser.setFirstPassword(
-				agreeToTermsAndAnswerReminderQuery = "true",
-				requireReset = "false",
-				userEmailAddress = "user2@liferay.com");
+		task ("Add two users to relate to Custom Object entries") {
+			for (var userNum : list "1,2") {
+				JSONUser.addUser(
+					userEmailAddress = "userea${userNum}@liferay.com",
+					userFirstName = "userfn${userNum}",
+					userLastName = "userln${userNum}",
+					userScreenName = "usersn${userNum}");
+			}
 		}
 
 		task ("Add a custom object, a field, and create a many-to-many relationship with the User object") {
@@ -371,35 +399,37 @@ definition {
 		task ("Relates custom object entries to user object entries") {
 			Navigator.openURL();
 
-			ObjectAdmin.goToCustomObject(objectName = "CustomObject");
-
 			for (var entryName : list "A,B") {
+				ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+
 				ObjectPortlet.viewEntryDetails(entry = "Entry ${entryName}");
 
 				ObjectAdmin.gotoRelationshipsTab();
 
-				CreateObject.addRelationshipAndSelectEntry(titleFieldName = "userfn_1");
+				CreateObject.addRelationshipAndSelectEntry(titleFieldName = "userfn1");
 
-				CreateObject.addRelationshipAndSelectEntry(titleFieldName = "userfn_2");
+				Refresh();
 
-				Navigator.gotoBack();
+				CreateObject.addRelationshipAndSelectEntry(titleFieldName = "userfn2");
 			}
 		}
 
 		task ("Delete relationship between a custom object entry to native object entry") {
 			for (var entryName : list "A,B") {
+				ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+
 				ObjectPortlet.viewEntryDetails(entry = "Entry ${entryName}");
 
-				CreateObject.deleteEntryInRelationshipTab(entryName = "userfn_1");
+				CreateObject.deleteEntryInRelationshipTab(entryName = "userfn1");
 
-				ObjectPortlet.assertEntryNotPresent(entry = "userfn_1");
-
-				CreateObject.deleteEntryInRelationshipTab(entryName = "userfn_2");
-
-				ObjectPortlet.assertEntryNotPresent(entry = "userfn_2");
-
-				Navigator.gotoBack();
+				CreateObject.deleteEntryInRelationshipTab(entryName = "userfn2");
 			}
+		}
+
+		task ("Assert that relationships has been deleted") {
+			ObjectPortlet.assertEntryNotPresent(entry = "userfn1");
+
+			ObjectPortlet.assertEntryNotPresent(entry = "userfn2");
 		}
 	}
 
@@ -731,6 +761,56 @@ definition {
 		ObjectPortlet.viewEntry(entry = "Entry B");
 	}
 
+	@description = "LPS-155537 - Verify that it's possible to edit a relationship parameter"
+	@priority = "4"
+	test CanEditRelationshipParameter {
+		task ("Create a custom object, and a self relationship") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object",
+				objectName = "CustomObject",
+				pluralLabelName = "Custom Objects");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObject");
+
+			ObjectAdmin.addObjectRelationshipViaAPI(
+				objectName_1 = "CustomObject",
+				objectName_2 = "CustomObject",
+				relationshipLabel = "Self Relationship",
+				relationshipName = "selfRelationship",
+				relationshipType = "oneToMany");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		}
+
+		task ("Create an realtionship from Postal Address to custom object created") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Postal Address");
+
+			ObjectAdmin.gotoRelationshipsTab();
+
+			ObjectAdmin.addObjectRelationshipViaUI(
+				label = "Relationship with Custom Object",
+				object = "Custom Object",
+				parameter = "Self Relationship",
+				type = "One to Many");
+		}
+
+		task ("Verify it's possible to edit a relationship parameter") {
+			ObjectAdmin.goToRelationshipsDetails(fieldName = "Relationship with Custom Object");
+
+			ObjectRelationships.editRelationshipsParameter(parameter = "Relationship with Custom Object");
+
+			Button.clickSave();
+		}
+	}
+
 	@description = "LPS-146754 - Verify that it's not possible for a Custom Object to create a Many-to-Many relationship with itself"
 	@priority = "4"
 	test CannotCreateManytoManyRelationshipWithItself {
@@ -941,6 +1021,62 @@ definition {
 		}
 	}
 
+	@description = "LPS-155537 - Verify that it's not possible to see the parameter when adding relationships that don't require it"
+	@priority = "3"
+	test CannotSeeParameterWhenNotRequiredByRelationship {
+		task ("Create a custom object, and a relationship non-require by API") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object",
+				objectName = "CustomObject",
+				pluralLabelName = "Custom Objects");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObject");
+
+			ObjectAdmin.addObjectRelationshipViaAPI(
+				objectName_1 = "CustomObject",
+				objectName_2 = "AccountEntry",
+				relationshipLabel = "Non-require relationship",
+				relationshipName = "Non-requirerelationship",
+				relationshipType = "oneToMany");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		}
+
+		task ("Verify it's not possible to see the parameter when adding relationships that don't require it") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Postal Address");
+
+			ObjectAdmin.gotoRelationshipsTab();
+
+			LexiconEntry.gotoAdd();
+
+			Click(locator1 = "ObjectAdmin#RELATIONSHIPS_TYPE_FORM");
+
+			Click(
+				key_type = "One to Many",
+				locator1 = "ObjectAdmin#SELECT_RELATIONSHIPS_TYPE_OPTION");
+
+			Click(locator1 = "ObjectCustomViews#SELECT_AUTO_COMPLETE");
+
+			Click(
+				key_columnOption = "Custom Object",
+				locator1 = "ObjectCustomViews#SELECT_AUTO_COMPLETE_OPTION");
+
+			Click(locator1 = "ObjectRelationships#SELECT_PARAMETER_FORM");
+
+			AssertElementNotPresent(
+				key_parameterOption = "Non-require relationship",
+				locator1 = "ObjectRelationships#SELECT_PARAMETER_OPTION");
+		}
+	}
+
 	@description = "LPS-139803 - It is not possible to select a Relationship field for the Object Entry Title"
 	@priority = "4"
 	test CannotSelectRelationshipFieldForObjectEntryTitle {
@@ -1089,6 +1225,111 @@ definition {
 
 				Navigator.gotoBack();
 			}
+		}
+	}
+
+	@description = "LPS-151676 - Verify that it's possible to relate a Custom Object entry with many Native Object entries (One-to-Many)"
+	@priority = "5"
+	test CanRelateOneToManyCustomObjectEntryWithNativeObjectEntries {
+		property portal.acceptance = "true";
+
+		task ("Add 3 users entries to relate to custom object entries") {
+			for (var userNum : list "1,2,3") {
+				JSONUser.addUser(
+					userEmailAddress = "user_${userNum}@liferay.com",
+					userFirstName = "userfn_${userNum}",
+					userLastName = "userln",
+					userScreenName = "user_${userNum}");
+
+				JSONUser.setFirstPassword(
+					agreeToTermsAndAnswerReminderQuery = "true",
+					requireReset = "false",
+					userEmailAddress = "user_${userNum}@liferay.com");
+			}
+		}
+
+		task ("Add a custom object, a field, and create a one-to-many relationship with the User object") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object",
+				objectName = "CustomObject",
+				pluralLabelName = "Custom Objects");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObject");
+
+			ObjectAdmin.addObjectRelationshipViaAPI(
+				objectName_1 = "CustomObject",
+				objectName_2 = "User",
+				relationshipLabel = "Relationship",
+				relationshipName = "relationship",
+				relationshipType = "oneToMany");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+		}
+
+		task ("Define First Name as a title field on the native object") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "User");
+
+			CreateObject.selectTitleField(fieldLabel = "First Name");
+
+			CreateObject.saveObject();
+		}
+
+		task ("Add layout with relationship tab") {
+			ObjectAdmin.addObjectLayoutViaAPI(
+				layoutName = "Custom Layout",
+				objectName = "CustomObject");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object");
+
+			ObjectAdmin.goToLayoutsTab();
+
+			ObjectAdmin.selectSpecificKebabMenuOption(
+				kebabOption = "View",
+				objectLabel = "Custom Layout");
+
+			ObjectAdmin.markLayoutAsDefault();
+
+			ObjectAdmin.goToLayoutTabOnLayouts();
+
+			ObjectAdmin.addTabFieldsOnLayout(
+				blockName = "Block 1",
+				columnsNumber = "1",
+				fieldLabelName = "Custom Field",
+				tabName = "Field Tab");
+
+			ObjectAdmin.addTabRelationshipsOnLayout(
+				relationshipsLabelName = "Relationship",
+				tabName = "Relationship Tab");
+
+			Button.clickSave();
+		}
+
+		task ("Add a custom object entry per UI and relate the entries to the native object") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+
+			ObjectPortlet.addSingleFieldEntryViaUI(entry = "Entry A");
+
+			ObjectAdmin.gotoRelationshipsTab();
+
+			for (var entryName : list "userfn_1,userfn_2,userfn_3") {
+				CreateObject.addRelationshipAndSelectEntry(titleFieldName = "${entryName}");
+			}
+
+			ObjectPortlet.viewEntry(entry = "userfn_1");
+
+			ObjectPortlet.viewEntry(entry = "userfn_2");
+
+			ObjectPortlet.viewEntry(entry = "userfn_3");
 		}
 	}
 

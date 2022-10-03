@@ -22,6 +22,8 @@ import com.liferay.object.field.business.type.ObjectFieldBusinessType;
 import com.liferay.object.field.business.type.ObjectFieldBusinessTypeTracker;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectRelationship;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.web.internal.util.ObjectFieldBusinessTypeUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -56,11 +58,13 @@ public class ObjectDefinitionsFieldsDisplayContext
 		HttpServletRequest httpServletRequest,
 		ModelResourcePermission<ObjectDefinition>
 			objectDefinitionModelResourcePermission,
-		ObjectFieldBusinessTypeTracker objectFieldBusinessTypeTracker) {
+		ObjectFieldBusinessTypeTracker objectFieldBusinessTypeTracker,
+		ObjectRelationshipLocalService objectRelationshipLocalService) {
 
 		super(httpServletRequest, objectDefinitionModelResourcePermission);
 
 		_objectFieldBusinessTypeTracker = objectFieldBusinessTypeTracker;
+		_objectRelationshipLocalService = objectRelationshipLocalService;
 	}
 
 	public CreationMenu getCreationMenu(ObjectDefinition objectDefinition)
@@ -156,6 +160,23 @@ public class ObjectDefinitionsFieldsDisplayContext
 		return ObjectFieldUtil.toJSONObject(objectField);
 	}
 
+	public Long getObjectRelationshipId(ObjectField objectField) {
+		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158962")) &&
+			StringUtil.equals(
+				objectField.getBusinessType(),
+				ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
+
+			ObjectRelationship objectRelationship =
+				_objectRelationshipLocalService.
+					fetchObjectRelationshipByObjectFieldId2(
+						objectField.getObjectFieldId());
+
+			return objectRelationship.getObjectRelationshipId();
+		}
+
+		return null;
+	}
+
 	@Override
 	protected String getAPIURI() {
 		return "/object-fields";
@@ -163,5 +184,7 @@ public class ObjectDefinitionsFieldsDisplayContext
 
 	private final ObjectFieldBusinessTypeTracker
 		_objectFieldBusinessTypeTracker;
+	private final ObjectRelationshipLocalService
+		_objectRelationshipLocalService;
 
 }

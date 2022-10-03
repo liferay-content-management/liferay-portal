@@ -326,7 +326,7 @@ public class UADSearchContainerBuilder {
 			SearchContainer.DEFAULT_DELTA, currentURL, null,
 			"no-entities-remain-of-this-type", null);
 
-		searchContainer.setId("UADEntities_" + StringUtil.randomId());
+		searchContainer.setId("uadEntities_" + StringUtil.randomId());
 		searchContainer.setOrderableHeaders(
 			new LinkedHashMap<String, String>() {
 				{

@@ -219,12 +219,6 @@ definition {
 			portlet = "Account Groups");
 
 		AccountGroups.addCP(
-			accountGroupDescription = "This is an Account Group to make search field works.",
-			accountGroupName = "Search AG");
-
-		Navigator.gotoBack();
-
-		AccountGroups.addCP(
 			accountGroupDescription = "This is an Account Group for delete testing.",
 			accountGroupName = "Delete AG");
 
@@ -233,8 +227,6 @@ definition {
 		LexiconEntry.viewEntryName(rowEntry = "Delete AG");
 
 		LexiconEntry.delete(rowEntry = "Delete AG");
-
-		Search.searchCP(searchTerm = "Delete");
 
 		AccountGroups.viewDefault(tabName = "Account Groups");
 	}
@@ -575,6 +567,72 @@ definition {
 
 		for (var rowEntry : list "Delete Accounts 1 from AG,Delete Accounts 2 from AG,Delete Accounts 3 from AG") {
 			LexiconEntry.viewEntryName(rowEntry = "${rowEntry}");
+		}
+	}
+
+	@description = "This test asserts the correct search results when searching for Account Groups"
+	@priority = "4"
+	test CanSearchForAccountGroup {
+		task ("Given Account Groups exist") {
+			for (var accountGroupName : list "One,Two,Three") {
+				JSONAccountGroup.addAccountGroup(accountGroupName = "${accountGroupName}");
+			}
+		}
+
+		task ("When a user searches for an account group") {
+			AccountGroups.openAccountGroupsAdmin();
+
+			Search.searchCP(searchTerm = "Two");
+		}
+
+		task ("Then accurate results display") {
+			LexiconEntry.viewEntryName(rowEntry = "Two");
+
+			for (var accountName : list "One,Three") {
+				LexiconEntry.viewNoEntry(rowEntry = "${accountName}");
+			}
+		}
+	}
+
+	@description = "This test asserts accurate results when searching for available accounts in Assign Accounts to account group modal"
+	@priority = "4"
+	test CanSearchInAssignAccountsToAccountGroupModal {
+		task ("Given an account group and few business accounts") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Auto Parts",
+				accountEntryType = "Business");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "S Food Corp",
+				accountEntryType = "Business");
+
+			JSONAccountGroup.addAccountGroup(accountGroupName = "Test Account Group");
+		}
+
+		task ("When a user assigns an account to an account group") {
+			AccountGroups.openAccountGroupsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Test Account Group");
+
+			Navigator.gotoNavTab(navTab = "Accounts");
+
+			AssertTextEquals(
+				locator1 = "Message#EMPTY_INFO",
+				value1 = "No accounts were found.");
+
+			LexiconEntry.gotoAdd();
+
+			SelectFrame(
+				key_title = "Assign Accounts to Test Account Group",
+				locator1 = "IFrame#MODAL_ANY");
+		}
+
+		task ("Then the user can search for available accounts") {
+			Search.searchCP(searchTerm = "S Food Corp");
+
+			LexiconEntry.viewEntryName(rowEntry = "S Food Corp");
+
+			LexiconEntry.viewNoEntry(rowEntry = "Auto Parts");
 		}
 	}
 

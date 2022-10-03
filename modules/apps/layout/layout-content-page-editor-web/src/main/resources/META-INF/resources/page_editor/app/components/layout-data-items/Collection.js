@@ -18,6 +18,7 @@ import classNames from 'classnames';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 
 import {COLUMN_SIZE_MODULE_PER_ROW_SIZES} from '../../config/constants/columnSizes';
+import {CONTENT_DISPLAY_OPTIONS} from '../../config/constants/contentDisplayOptions';
 import {config} from '../../config/index';
 import {
 	CollectionItemContext,
@@ -27,7 +28,6 @@ import {
 import {useDisplayPagePreviewItem} from '../../contexts/DisplayPagePreviewItemContext';
 import {useDispatch, useSelector} from '../../contexts/StoreContext';
 import selectLanguageId from '../../selectors/selectLanguageId';
-import selectSegmentsExperienceId from '../../selectors/selectSegmentsExperienceId';
 import CollectionService from '../../services/CollectionService';
 import updateItemConfig from '../../thunks/updateItemConfig';
 import {collectionIsMapped} from '../../utils/collectionIsMapped';
@@ -105,6 +105,56 @@ const EditModeMaxItemsAlert = () => (
 	</div>
 );
 
+const FlexContainer = ({
+	child,
+	collection,
+	collectionConfig,
+	collectionId,
+	collectionLength,
+}) => {
+	const {align, flexWrap, justify, listStyle} = collectionConfig;
+
+	const maxNumberOfItems =
+		Math.min(
+			collectionLength,
+			getNumberOfItems(collection, collectionConfig)
+		) || 1;
+
+	const numberOfItemsToDisplay = Math.min(
+		maxNumberOfItems,
+		config.maxNumberOfItemsInEditMode
+	);
+
+	return (
+		<div
+			className={classNames({
+				[align]: !!align,
+				'd-flex flex-column':
+					listStyle === CONTENT_DISPLAY_OPTIONS.flexColumn,
+				'd-flex flex-row':
+					listStyle === CONTENT_DISPLAY_OPTIONS.flexRow,
+				[flexWrap]: Boolean(flexWrap),
+				[justify]: Boolean(justify),
+			})}
+		>
+			{Array.from({length: numberOfItemsToDisplay}).map((_, index) => (
+				<ItemContext
+					collectionConfig={collectionConfig}
+					collectionId={collectionId}
+					collectionItem={collection.items[index] ?? {}}
+					customCollectionSelectorURL={
+						collection.customCollectionSelectorURL
+					}
+					index={index}
+					key={index}
+				>
+					{child}
+				</ItemContext>
+			))}
+		</div>
+	);
+};
+
 const Grid = ({
 	child,
 	collection,
@@ -156,7 +206,7 @@ const Grid = ({
 									}
 								>
 									{index < numberOfItemsToDisplay && (
-										<ColumnContext
+										<ItemContext
 											collectionConfig={collectionConfig}
 											collectionId={collectionId}
 											collectionItem={
@@ -168,7 +218,7 @@ const Grid = ({
 											index={index}
 										>
 											{child}
-										</ColumnContext>
+										</ItemContext>
 									)}
 								</ClayLayout.Col>
 							);
@@ -183,7 +233,7 @@ const Grid = ({
 	);
 };
 
-const ColumnContext = ({
+const ItemContext = ({
 	children,
 	collectionConfig,
 	collectionId,
@@ -236,7 +286,6 @@ const Collection = React.memo(
 
 		const dispatch = useDispatch();
 		const languageId = useSelector(selectLanguageId);
-		const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
 
 		const [activePage, setActivePage] = useState(1);
 		const [collection, setCollection] = useState(emptyCollection);
@@ -338,7 +387,6 @@ const Collection = React.memo(
 										},
 									},
 									itemId: item.itemId,
-									segmentsExperienceId,
 								})
 							);
 						}
@@ -361,7 +409,6 @@ const Collection = React.memo(
 			itemClassNameId,
 			itemClassPK,
 			languageId,
-			segmentsExperienceId,
 		]);
 
 		const selectedViewportSize = useSelector(
@@ -375,6 +422,10 @@ const Collection = React.memo(
 
 		const showEmptyMessage =
 			collectionConfig.listStyle !== '' && collection.fakeCollection;
+
+		const flexEnabled =
+			collectionConfig.listStyle === CONTENT_DISPLAY_OPTIONS.flexColumn ||
+			collectionConfig.listStyle === CONTENT_DISPLAY_OPTIONS.flexRow;
 
 		return (
 			<div
@@ -398,16 +449,26 @@ const Collection = React.memo(
 						{collection.fakeCollection && (
 							<EmptyCollectionGridMessage />
 						)}
-						<Grid
-							child={child}
-							collection={collection}
-							collectionConfig={responsiveConfig}
-							collectionId={item.itemId}
-							collectionLength={collection.items.length}
-							customCollectionSelectorURL={
-								collection.customCollectionSelectorURL
-							}
-						/>
+						{flexEnabled ? (
+							<FlexContainer
+								child={child}
+								collection={collection}
+								collectionConfig={responsiveConfig}
+								collectionId={item.itemId}
+								collectionLength={collection.items.length}
+							/>
+						) : (
+							<Grid
+								child={child}
+								collection={collection}
+								collectionConfig={responsiveConfig}
+								collectionId={item.itemId}
+								collectionLength={collection.items.length}
+								customCollectionSelectorURL={
+									collection.customCollectionSelectorURL
+								}
+							/>
+						)}
 					</>
 				)}
 

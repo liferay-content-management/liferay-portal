@@ -8220,14 +8220,14 @@ public class PortalImpl implements Portal {
 
 		String canonicalURLSuffix = canonicalURL.substring(pos);
 
-		if (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2) {
-			String i18nPath = _buildI18NPath(
-				siteDefaultLocale, layout.getGroup());
+		String siteDefaultLocaleI18nPath = _buildI18NPath(
+			siteDefaultLocale, layout.getGroup());
 
-			if (canonicalURLSuffix.startsWith(i18nPath)) {
-				canonicalURLSuffix = canonicalURLSuffix.substring(
-					i18nPath.length());
-			}
+		if ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2) &&
+			canonicalURLSuffix.startsWith(siteDefaultLocaleI18nPath)) {
+
+			canonicalURLSuffix = canonicalURLSuffix.substring(
+				siteDefaultLocaleI18nPath.length());
 		}
 
 		String groupFriendlyURL = StringPool.BLANK;
@@ -8320,9 +8320,18 @@ public class PortalImpl implements Portal {
 				alternateURL = canonicalURLPrefix.concat(alternateURLSuffix);
 			}
 
-			if (siteDefaultLocale.equals(locale) &&
-				(PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE != 2)) {
+			if (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2) {
+				alternateURL = canonicalURLPrefix + alternateURLSuffix;
 
+				if (siteDefaultLocale.equals(locale)) {
+					alternateURL =
+						canonicalURLPrefix + siteDefaultLocaleI18nPath +
+							alternateURLSuffix;
+				}
+
+				alternateURLs.put(locale, alternateURL);
+			}
+			else if (siteDefaultLocale.equals(locale)) {
 				alternateURLs.put(locale, alternateURL);
 			}
 			else {

@@ -16,8 +16,11 @@ package com.liferay.address.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.CountryTitleException;
 import com.liferay.portal.kernel.model.Address;
 import com.liferay.portal.kernel.model.Country;
+import com.liferay.portal.kernel.model.CountryLocalization;
+import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.OrganizationConstants;
 import com.liferay.portal.kernel.model.Region;
@@ -40,6 +43,7 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -248,6 +252,17 @@ public class CountryLocalServiceTest {
 		Assert.assertEquals(
 			!shippingAllowed, updatedCountry.isShippingAllowed());
 		Assert.assertEquals(!subjectToVAT, updatedCountry.isSubjectToVAT());
+	}
+
+	@Test(expected = CountryTitleException.MustNotExceedMaximumLength.class)
+	public void testUpdateCountryLocalizations() throws Exception {
+		int maxTitleLength = ModelHintsUtil.getMaxLength(
+			CountryLocalization.class.getName(), "title");
+
+		_countryLocalService.updateCountryLocalizations(
+			_countryLocalService.createCountry(0L),
+			Collections.singletonMap(
+				"de_DE", RandomTestUtil.randomString(maxTitleLength + 1)));
 	}
 
 	private Country _addCountry(

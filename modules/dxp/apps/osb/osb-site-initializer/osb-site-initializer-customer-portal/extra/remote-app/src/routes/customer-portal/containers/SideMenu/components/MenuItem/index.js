@@ -30,7 +30,7 @@ const MenuItem = ({children, iconKey, setActive, to}) => {
 			<Link to={to}>
 				<Button
 					className={classNames(
-						'btn-borderless mb-1 px-3 py-2 rounded text-neutral-10',
+						'btn-borderless mb-1 px-2 py-2 rounded text-neutral-10',
 						{
 							'align-items-center d-flex mt-1': !!iconKey,
 							'cp-menu-btn-active': isActive,

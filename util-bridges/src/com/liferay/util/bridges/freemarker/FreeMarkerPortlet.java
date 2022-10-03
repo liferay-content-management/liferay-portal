@@ -42,15 +42,6 @@ import javax.portlet.PortletResponse;
 public class FreeMarkerPortlet extends MVCPortlet {
 
 	@Override
-	public void destroy() {
-		super.destroy();
-
-		Class<?> clazz = getClass();
-
-		TemplateManagerUtil.destroy(clazz.getClassLoader());
-	}
-
-	@Override
 	protected void include(
 			String path, PortletRequest portletRequest,
 			PortletResponse portletResponse, String lifecycle)

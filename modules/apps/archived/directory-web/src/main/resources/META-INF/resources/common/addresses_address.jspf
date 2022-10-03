@@ -15,10 +15,10 @@
 --%>
 
 <%
-ListType addressListType = address.getListType();
+ListType listType = address.getListType();
 %>
 
-<em class="mailing-name"><liferay-ui:message key="<%= addressListType.getName() %>" /></em><br />
+<em class="mailing-name"><liferay-ui:message key="<%= listType.getName() %>" /></em><br />
 
 <liferay-text-localizer:address-display
 	address="<%= address %>"

@@ -311,6 +311,30 @@ public class PortalLog4jTest {
 		_testOutputForUpgrades(logContextMessage, false, true);
 	}
 
+	@Test
+	public void testLogWrappersForClassesByName() {
+		ConcurrentMap<String, LogWrapper> logWrappers =
+			ReflectionTestUtil.getFieldValue(
+				LogFactoryUtil.class, "_logWrappers");
+
+		String[] classNames = ReflectionTestUtil.getFieldValue(
+			Log4jLogFactoryImpl.class, "_CLASS_NAMES_UPGRADE");
+
+		for (String className : classNames) {
+			boolean found = false;
+
+			for (String key : logWrappers.keySet()) {
+				if (key.endsWith(className)) {
+					found = true;
+
+					break;
+				}
+			}
+
+			Assert.assertTrue(found);
+		}
+	}
+
 	protected void outputLog(
 		String level, Log log, String message, Throwable throwable) {
 

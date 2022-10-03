@@ -130,7 +130,6 @@ describe('CollectionGeneralPanel', () => {
 		expect(updateItemConfig).toHaveBeenCalledWith({
 			itemConfig: {gutters: true},
 			itemId: '0',
-			segmentsExperienceId: '0',
 		});
 	});
 
@@ -147,8 +146,26 @@ describe('CollectionGeneralPanel', () => {
 				verticalAlignment: 'center',
 			},
 			itemId: '0',
-			segmentsExperienceId: '0',
 		});
+	});
+
+	it('hides vertical alignment and layout selects when flex is selected', () => {
+		renderComponent({itemConfig: {listStyle: 'flex-column'}});
+
+		expect(
+			screen.queryByLabelText('vertical-alignment')
+		).not.toBeInTheDocument();
+		expect(screen.queryByLabelText('layout')).not.toBeInTheDocument();
+	});
+
+	it('hides flex options when flex is not selected', () => {
+		renderComponent();
+
+		expect(screen.queryByLabelText('flex-wrap')).not.toBeInTheDocument();
+		expect(screen.queryByLabelText('align-items')).not.toBeInTheDocument();
+		expect(
+			screen.queryByLabelText('justify-content')
+		).not.toBeInTheDocument();
 	});
 
 	it('allows changing the Show Empty Collection Alert checkbox', () => {
@@ -165,7 +182,6 @@ describe('CollectionGeneralPanel', () => {
 				},
 			}),
 			itemId: '0',
-			segmentsExperienceId: '0',
 		});
 	});
 
@@ -189,7 +205,6 @@ describe('CollectionGeneralPanel', () => {
 				},
 			}),
 			itemId: '0',
-			segmentsExperienceId: '0',
 		});
 	});
 
@@ -206,7 +221,6 @@ describe('CollectionGeneralPanel', () => {
 				paginationType: 'none',
 			},
 			itemId: '0',
-			segmentsExperienceId: '0',
 		});
 	});
 
@@ -224,11 +238,10 @@ describe('CollectionGeneralPanel', () => {
 				displayAllItems: true,
 			}),
 			itemId: '0',
-			segmentsExperienceId: '0',
 		});
 	});
 
-	it('shows a message saying that enabling Display All Collection Items could affeect performance', async () => {
+	it('shows a message saying that enabling Display All Collection Items could affect performance', async () => {
 		renderComponent({
 			itemConfig: {
 				displayAllItems: true,
@@ -255,7 +268,6 @@ describe('CollectionGeneralPanel', () => {
 				displayAllPages: true,
 			}),
 			itemId: '0',
-			segmentsExperienceId: '0',
 		});
 	});
 
@@ -278,7 +290,6 @@ describe('CollectionGeneralPanel', () => {
 					numberOfItems: 3,
 				},
 				itemId: '0',
-				segmentsExperienceId: '0',
 			});
 		});
 
@@ -327,7 +338,6 @@ describe('CollectionGeneralPanel', () => {
 					numberOfPages: 3,
 				},
 				itemId: '0',
-				segmentsExperienceId: '0',
 			});
 		});
 	});
@@ -351,7 +361,6 @@ describe('CollectionGeneralPanel', () => {
 					numberOfItemsPerPage: 2,
 				},
 				itemId: '0',
-				segmentsExperienceId: '0',
 			});
 		});
 
@@ -450,7 +459,6 @@ describe('CollectionGeneralPanel', () => {
 				tablet: {numberOfColumns: '1'},
 			},
 			itemId: '0',
-			segmentsExperienceId: '0',
 		});
 	});
 });

@@ -20,12 +20,17 @@ import java.io.File;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * @author Michael Hashimoto
@@ -73,6 +78,69 @@ public class TestrayRun {
 		}
 
 		return factors;
+	}
+
+	public String getRunID() {
+		JSONObject runsJSONObject = _testrayBuild.getRunsJSONObject();
+
+		if (runsJSONObject == null) {
+			return null;
+		}
+
+		JSONArray dataJSONArray = runsJSONObject.optJSONArray("data");
+
+		if ((dataJSONArray == JSONObject.NULL) || dataJSONArray.isEmpty()) {
+			return null;
+		}
+
+		Map<String, String> factorValues = new HashMap<>();
+
+		for (Factor factor : getFactors()) {
+			String factorValue = factor.getValue();
+
+			factorValues.put(factor.getName(), factorValue.toLowerCase());
+		}
+
+		for (int i = 0; i < dataJSONArray.length(); i++) {
+			JSONObject dataJSONObject = dataJSONArray.getJSONObject(i);
+
+			JSONArray testrayFactorsJSONArray = dataJSONObject.optJSONArray(
+				"testrayFactors");
+
+			if ((testrayFactorsJSONArray == JSONObject.NULL) ||
+				testrayFactorsJSONArray.isEmpty()) {
+
+				continue;
+			}
+
+			Map<String, String> factorOptionNames = new HashMap<>();
+
+			for (int j = 0; j < testrayFactorsJSONArray.length(); j++) {
+				JSONObject testrayFactorJSONObject =
+					testrayFactorsJSONArray.getJSONObject(j);
+
+				String factorCategoryName = testrayFactorJSONObject.optString(
+					"testrayFactorCategoryName");
+				String factorOptionName = testrayFactorJSONObject.optString(
+					"testrayFactorOptionName");
+
+				if (JenkinsResultsParserUtil.isNullOrEmpty(
+						factorCategoryName) ||
+					JenkinsResultsParserUtil.isNullOrEmpty(factorOptionName)) {
+
+					continue;
+				}
+
+				factorOptionNames.put(
+					factorCategoryName, factorOptionName.toLowerCase());
+			}
+
+			if (factorValues.equals(factorOptionNames)) {
+				return dataJSONObject.getString("testrayRunId");
+			}
+		}
+
+		return null;
 	}
 
 	public String getRunIDString() {

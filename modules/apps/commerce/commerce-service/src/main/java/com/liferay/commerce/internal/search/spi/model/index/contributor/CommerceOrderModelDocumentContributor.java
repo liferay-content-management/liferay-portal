@@ -22,8 +22,10 @@ import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 
 import org.osgi.service.component.annotations.Component;
@@ -65,17 +67,23 @@ public class CommerceOrderModelDocumentContributor
 				"commerceAccountId", commerceOrder.getCommerceAccountId());
 			document.addKeyword(
 				"commerceChannelId", commerceChannel.getCommerceChannelId());
-			document.addNumber(
-				"itemsQuantity", _getItemsQuantity(commerceOrder));
-			document.addKeyword("orderStatus", commerceOrder.getOrderStatus());
-			document.addKeyword(
-				"purchaseOrderNumber", commerceOrder.getPurchaseOrderNumber());
 			document.addKeyword(
 				"externalReferenceCode",
 				commerceOrder.getExternalReferenceCode());
-			document.addNumber("total", commerceOrder.getTotal());
+			document.addNumber(
+				"itemsQuantity", _getItemsQuantity(commerceOrder));
+
+			User user = _userLocalService.getUser(commerceOrder.getUserId());
+
+			document.addText(
+				"orderCreatorEmailAddress", user.getEmailAddress());
+
 			document.addDate("orderDate", commerceOrder.getOrderDate());
 			document.addDateSortable("orderDate", commerceOrder.getOrderDate());
+			document.addKeyword("orderStatus", commerceOrder.getOrderStatus());
+			document.addKeyword(
+				"purchaseOrderNumber", commerceOrder.getPurchaseOrderNumber());
+			document.addNumber("total", commerceOrder.getTotal());
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
@@ -107,5 +115,8 @@ public class CommerceOrderModelDocumentContributor
 
 	@Reference
 	private CommerceChannelLocalService _commerceChannelLocalService;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

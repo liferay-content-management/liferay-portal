@@ -86,10 +86,11 @@ if (phones.isEmpty()) {
 
 			<%
 			for (Phone phone : phones) {
+				ListType listType = phone.getListType();
 			%>
 
 				<li class="<%= phone.isPrimary() ? "primary" : "" %>">
-					<span class="property-type"><liferay-ui:message key="<%= phone.getType().getName() %>" /></span>
+					<span class="property-type"><liferay-ui:message key="<%= listType.getName() %>" /></span>
 					<span class="property"><%= HtmlUtil.escape(phone.getNumber()) %> <%= phone.getExtension() %></span>
 				</li>
 

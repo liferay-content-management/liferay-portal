@@ -17,6 +17,7 @@ package com.liferay.dynamic.data.mapping.form.evaluator.internal.function;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFunction;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionParameterAccessor;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionParameterAccessorAware;
+import com.liferay.dynamic.data.mapping.util.DDMFormFieldUtil;
 import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.petra.string.StringPool;
@@ -90,7 +91,7 @@ public class GetListTypeEntriesFunction
 					).put(
 						"reference", listTypeEntry.getKey()
 					).put(
-						"value", listTypeEntry.getKey()
+						"value", DDMFormFieldUtil.getDDMFormFieldName("Option")
 					).build());
 
 				localizedValues.put(languageId, options);

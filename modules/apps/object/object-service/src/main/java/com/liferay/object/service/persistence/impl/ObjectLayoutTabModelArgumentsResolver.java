@@ -32,12 +32,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Marco Leo
  * @generated
  */
-@Component(
-	immediate = true,
-	service = {
-		ObjectLayoutTabModelArgumentsResolver.class, ArgumentsResolver.class
-	}
-)
+@Component(service = ArgumentsResolver.class)
 public class ObjectLayoutTabModelArgumentsResolver
 	implements ArgumentsResolver {
 

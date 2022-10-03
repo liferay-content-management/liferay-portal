@@ -32,12 +32,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(
-	immediate = true,
-	service = {
-		LayoutSEOEntryModelArgumentsResolver.class, ArgumentsResolver.class
-	}
-)
+@Component(service = ArgumentsResolver.class)
 public class LayoutSEOEntryModelArgumentsResolver implements ArgumentsResolver {
 
 	@Override

@@ -15,13 +15,11 @@
 package com.liferay.layout.utility.page.service.impl;
 
 import com.liferay.layout.utility.page.constants.LayoutUtilityPageActionKeys;
-import com.liferay.layout.utility.page.constants.LayoutUtilityPageConstants;
 import com.liferay.layout.utility.page.model.LayoutUtilityPageEntry;
 import com.liferay.layout.utility.page.service.base.LayoutUtilityPageEntryServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
-import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
+import com.liferay.portal.kernel.service.permission.GroupPermission;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.util.List;
@@ -44,16 +42,17 @@ public class LayoutUtilityPageEntryServiceImpl
 
 	@Override
 	public LayoutUtilityPageEntry addLayoutUtilityPageEntry(
-			String externalReferenceCode, long groupId, long plid, String name,
-			int type)
+			String externalReferenceCode, long groupId, String name, int type,
+			long masterLayoutPlid)
 		throws PortalException {
 
-		_portletResourcePermission.check(
+		_groupPermission.check(
 			getPermissionChecker(), groupId,
 			LayoutUtilityPageActionKeys.ADD_LAYOUT_UTILITY_PAGE_ENTRY);
 
 		return layoutUtilityPageEntryLocalService.addLayoutUtilityPageEntry(
-			externalReferenceCode, getUserId(), groupId, plid, name, type);
+			externalReferenceCode, getUserId(), groupId, name, type,
+			masterLayoutPlid);
 	}
 
 	@Override
@@ -125,22 +124,14 @@ public class LayoutUtilityPageEntryServiceImpl
 
 	@Override
 	public LayoutUtilityPageEntry updateLayoutUtilityPageEntry(
-			long layoutUtilityPageEntryId, long plid, String name, int type)
+			long layoutUtilityPageEntryId, String name)
 		throws PortalException {
 
 		return layoutUtilityPageEntryLocalService.updateLayoutUtilityPageEntry(
-			layoutUtilityPageEntryId, plid, name, type);
+			layoutUtilityPageEntryId, name);
 	}
 
-	@Reference(
-		target = "(model.class.name=com.liferay.layout.utility.page.model.LayoutUtilityPageEntry)"
-	)
-	private ModelResourcePermission<LayoutUtilityPageEntry>
-		_layoutUtilityPageEntryModelResourcePermission;
-
-	@Reference(
-		target = "(resource.name=" + LayoutUtilityPageConstants.RESOURCE_NAME + ")"
-	)
-	private PortletResourcePermission _portletResourcePermission;
+	@Reference
+	private GroupPermission _groupPermission;
 
 }

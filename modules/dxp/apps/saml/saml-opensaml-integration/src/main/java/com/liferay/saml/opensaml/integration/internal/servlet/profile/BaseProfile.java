@@ -75,6 +75,8 @@ import org.opensaml.xmlsec.context.SecurityParametersContext;
 import org.opensaml.xmlsec.criterion.SignatureValidationConfigurationCriterion;
 import org.opensaml.xmlsec.impl.BasicSignatureValidationParametersResolver;
 
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Mika Koivisto
  */
@@ -223,7 +225,7 @@ public abstract class BaseProfile {
 	public IdentifierGenerationStrategyFactory
 		getIdentifierGenerationStrategyFactory() {
 
-		return _identifierGenerationStrategyFactory;
+		return identifierGenerationStrategyFactory;
 	}
 
 	public MessageContext<SAMLObject> getMessageContext(
@@ -565,41 +567,32 @@ public abstract class BaseProfile {
 		_samlBindings.remove(samlBinding);
 	}
 
-	protected void setIdentifierGenerationStrategyFactory(
-		IdentifierGenerationStrategyFactory
-			identifierGenerationStrategyFactory) {
-
-		_identifierGenerationStrategyFactory =
-			identifierGenerationStrategyFactory;
-	}
-
-	protected void setMetadataManager(MetadataManager metadataManager) {
-		this.metadataManager = metadataManager;
-	}
-
 	protected void setSamlBindings(List<SamlBinding> samlBindings) {
 		_samlBindings = samlBindings;
-	}
-
-	protected void setSamlProviderConfigurationHelper(
-		SamlProviderConfigurationHelper samlProviderConfigurationHelper) {
-
-		this.samlProviderConfigurationHelper = samlProviderConfigurationHelper;
 	}
 
 	protected void unsetSamlBinding(SamlBinding samlBinding) {
 		removeSamlBinding(samlBinding);
 	}
 
+	@Reference
+	protected IdentifierGenerationStrategyFactory
+		identifierGenerationStrategyFactory;
+
+	@Reference
 	protected MetadataManager metadataManager;
+
+	@Reference
 	protected Portal portal;
+
+	@Reference
 	protected SamlProviderConfigurationHelper samlProviderConfigurationHelper;
+
+	@Reference
 	protected SamlSpSessionLocalService samlSpSessionLocalService;
 
 	private static final Log _log = LogFactoryUtil.getLog(BaseProfile.class);
 
-	private IdentifierGenerationStrategyFactory
-		_identifierGenerationStrategyFactory;
 	private List<SamlBinding> _samlBindings = new ArrayList<>();
 
 }

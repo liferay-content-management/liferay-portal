@@ -1147,7 +1147,9 @@ public class JournalArticleLocalServiceImpl
 				locale, getUniqueUrlTitle(id, groupId, newArticleId, urlTitle));
 		}
 
-		Locale locale = getArticleDefaultLocale(oldArticle.getContent());
+		DDMFormValues ddmFormValues = oldArticle.getDDMFormValues();
+
+		Locale locale = ddmFormValues.getDefaultLocale();
 
 		String newURLTitle = newUniqueURLTitleMap.get(locale);
 
@@ -5844,6 +5846,8 @@ public class JournalArticleLocalServiceImpl
 
 				throw new ArticleFriendlyURLException();
 			}
+
+			urlTitle = latestArticle.getUrlTitle();
 		}
 
 		article.setFolderId(folderId);
@@ -8951,7 +8955,10 @@ public class JournalArticleLocalServiceImpl
 		try {
 			PortletRequestModel portletRequestModel = null;
 
-			if (!ExportImportThreadLocal.isImportInProcess()) {
+			if (!ExportImportThreadLocal.isImportInProcess() &&
+				(serviceContext.getLiferayPortletRequest() != null) &&
+				(serviceContext.getLiferayPortletResponse() != null)) {
+
 				portletRequestModel = new PortletRequestModel(
 					serviceContext.getLiferayPortletRequest(),
 					serviceContext.getLiferayPortletResponse());

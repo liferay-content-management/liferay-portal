@@ -82,6 +82,26 @@ public class TestrayBuild implements Comparable<TestrayBuild> {
 		return matcher.group("portalSHA");
 	}
 
+	public JSONObject getRunsJSONObject() {
+		if (_runsJSONObject != null) {
+			return _runsJSONObject;
+		}
+
+		TestrayServer testrayServer = getTestrayServer();
+
+		try {
+			_runsJSONObject = JenkinsResultsParserUtil.toJSONObject(
+				JenkinsResultsParserUtil.combine(
+					String.valueOf(testrayServer.getURL()),
+					"/home/-/testray/runs.json?delta=200&testrayBuildId=",
+					String.valueOf(getID())));
+		}
+		catch (IOException ioException) {
+		}
+
+		return _runsJSONObject;
+	}
+
 	public String getStartYearMonth() {
 		Matcher matcher = _getTestrayAttachmentURLMatcher();
 
@@ -93,34 +113,83 @@ public class TestrayBuild implements Comparable<TestrayBuild> {
 	}
 
 	public List<TestrayCaseResult> getTestrayCaseResults() {
-		return getTestrayCaseResults(null);
+		return getTestrayCaseResults(null, null);
 	}
 
-	public List<TestrayCaseResult> getTestrayCaseResults(String nameFilter) {
+	public List<TestrayCaseResult> getTestrayCaseResults(
+		TestrayCaseType testrayCaseType, TestrayRun testrayRun) {
+
 		List<TestrayCaseResult> testrayCaseResults = new ArrayList<>();
 
-		String urlString = String.valueOf(getURL());
+		TestrayServer testrayServer = getTestrayServer();
 
-		String caseResultsAPIURLString = urlString.replace(
-			"runs", "case_results.json");
+		StringBuilder sb = new StringBuilder();
 
-		try {
-			JSONObject jsonObject = JenkinsResultsParserUtil.toJSONObject(
-				caseResultsAPIURLString, _testrayServer.getHTTPAuthorization());
+		sb.append(testrayServer.getURL());
+		sb.append("/home/-/testray/case_results.json?delta=");
+		sb.append(_PAGE_DELTA);
+		sb.append("&orderByCol=status_sortable");
+		sb.append("&orderByType=asc");
+		sb.append("&resetCur=false");
+		sb.append("&testrayBuildId=");
+		sb.append(getID());
 
-			JSONArray dataJSONArray = jsonObject.getJSONArray("data");
-
-			for (int i = 0; i < dataJSONArray.length(); i++) {
-				JSONObject dataJSONObject = dataJSONArray.getJSONObject(i);
-
-				TestrayCaseResult testrayCaseResult = new TestrayCaseResult(
-					this, dataJSONObject);
-
-				testrayCaseResults.add(testrayCaseResult);
-			}
+		if (testrayCaseType != null) {
+			sb.append("&testrayCaseTypeId=");
+			sb.append(testrayCaseType.getID());
 		}
-		catch (Exception exception) {
-			exception.printStackTrace();
+
+		if (testrayRun != null) {
+			sb.append("&testrayRunId=");
+			sb.append(testrayRun.getRunID());
+		}
+
+		long previousTestrayCaseResultID = -1;
+
+		for (int page = 1; page < _PAGE_COUNT; page++) {
+			try {
+				String testrayCaseResultsURL = sb + "&cur=" + page;
+
+				System.out.println(testrayCaseResultsURL);
+
+				JSONObject jsonObject = JenkinsResultsParserUtil.toJSONObject(
+					testrayCaseResultsURL,
+					_testrayServer.getHTTPAuthorization());
+
+				JSONArray dataJSONArray = jsonObject.getJSONArray("data");
+
+				if (dataJSONArray.isEmpty()) {
+					break;
+				}
+
+				JSONObject firstDataJSONObject = dataJSONArray.getJSONObject(0);
+
+				if (Objects.equals(
+						firstDataJSONObject.optLong("testrayCaseResultId"),
+						previousTestrayCaseResultID)) {
+
+					break;
+				}
+
+				previousTestrayCaseResultID = firstDataJSONObject.getLong(
+					"testrayCaseResultId");
+
+				for (int i = 0; i < dataJSONArray.length(); i++) {
+					JSONObject dataJSONObject = dataJSONArray.getJSONObject(i);
+
+					TestrayCaseResult testrayCaseResult = new TestrayCaseResult(
+						this, dataJSONObject);
+
+					testrayCaseResults.add(testrayCaseResult);
+				}
+
+				if (dataJSONArray.length() < _PAGE_DELTA) {
+					break;
+				}
+			}
+			catch (Exception exception) {
+				exception.printStackTrace();
+			}
 		}
 
 		return testrayCaseResults;
@@ -201,7 +270,7 @@ public class TestrayBuild implements Comparable<TestrayBuild> {
 
 	public TestrayCaseResult getTopLevelTestrayCaseResult() {
 		List<TestrayCaseResult> testrayCaseResults = getTestrayCaseResults(
-			"Top");
+			_testrayServer.getTestrayCaseType("Batch"), null);
 
 		for (TestrayCaseResult testrayCaseResult : testrayCaseResults) {
 			if (!Objects.equals(
@@ -321,6 +390,10 @@ public class TestrayBuild implements Comparable<TestrayBuild> {
 		return null;
 	}
 
+	private static final int _PAGE_COUNT = 100;
+
+	private static final int _PAGE_DELTA = 200;
+
 	private static final Pattern _portalSHAPattern = Pattern.compile(
 		"Portal SHA: (?<portalSHA>[^;]+);");
 	private static final Pattern _testrayAttachmentURLPattern = Pattern.compile(
@@ -335,6 +408,7 @@ public class TestrayBuild implements Comparable<TestrayBuild> {
 			"testrayBuildId=(?<buildID>\\d+)"));
 
 	private final JSONObject _jsonObject;
+	private JSONObject _runsJSONObject;
 	private Matcher _testrayAttachmentURLMatcher;
 	private final TestrayProductVersion _testrayProductVersion;
 	private final TestrayProject _testrayProject;

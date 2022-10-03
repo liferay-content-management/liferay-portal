@@ -29,12 +29,10 @@ import com.liferay.portal.kernel.servlet.HttpMethods;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.saml.constants.SamlWebKeys;
 import com.liferay.saml.opensaml.integration.internal.binding.SamlBinding;
-import com.liferay.saml.opensaml.integration.internal.metadata.MetadataManager;
 import com.liferay.saml.opensaml.integration.internal.util.OpenSamlUtil;
 import com.liferay.saml.opensaml.integration.internal.util.SamlUtil;
 import com.liferay.saml.persistence.model.SamlIdpSpSession;
@@ -45,9 +43,7 @@ import com.liferay.saml.persistence.service.SamlIdpSpConnectionLocalService;
 import com.liferay.saml.persistence.service.SamlIdpSpSessionLocalService;
 import com.liferay.saml.persistence.service.SamlIdpSsoSessionLocalService;
 import com.liferay.saml.persistence.service.SamlPeerBindingLocalService;
-import com.liferay.saml.persistence.service.SamlSpSessionLocalService;
 import com.liferay.saml.runtime.SamlException;
-import com.liferay.saml.runtime.configuration.SamlProviderConfigurationHelper;
 import com.liferay.saml.runtime.exception.UnsolicitedLogoutResponseException;
 import com.liferay.saml.runtime.exception.UnsupportedBindingException;
 import com.liferay.saml.runtime.servlet.profile.SingleLogoutProfile;
@@ -321,37 +317,12 @@ public class SingleLogoutProfileImpl
 		}
 	}
 
-	@Override
-	@Reference(unbind = "-")
-	public void setIdentifierGenerationStrategyFactory(
-		IdentifierGenerationStrategyFactory
-			identifierGenerationStrategyFactory) {
-
-		super.setIdentifierGenerationStrategyFactory(
-			identifierGenerationStrategyFactory);
-	}
-
-	@Override
-	@Reference(unbind = "-")
-	public void setMetadataManager(MetadataManager metadataManager) {
-		super.setMetadataManager(metadataManager);
-	}
-
 	@Reference(
 		cardinality = ReferenceCardinality.AT_LEAST_ONE,
 		policyOption = ReferencePolicyOption.GREEDY
 	)
 	public void setSamlBinding(SamlBinding samlBinding) {
 		addSamlBinding(samlBinding);
-	}
-
-	@Override
-	@Reference(unbind = "-")
-	public void setSamlProviderConfigurationHelper(
-		SamlProviderConfigurationHelper samlProviderConfigurationHelper) {
-
-		super.setSamlProviderConfigurationHelper(
-			samlProviderConfigurationHelper);
 	}
 
 	@Override
@@ -698,58 +669,6 @@ public class SingleLogoutProfileImpl
 		samlPeerEndpointSubcontext.setEndpoint(singleLogoutService);
 
 		sendSamlMessage(messageContext, httpServletResponse);
-	}
-
-	@Reference(unbind = "-")
-	protected void setPortal(Portal portal) {
-		super.portal = portal;
-	}
-
-	@Reference(unbind = "-")
-	protected void setSamlHttpRequestUtil(
-		SamlHttpRequestUtil samlHttpRequestUtil) {
-
-		_samlHttpRequestUtil = samlHttpRequestUtil;
-	}
-
-	@Reference(unbind = "-")
-	protected void setSamlIdpSpConnectionLocalService(
-		SamlIdpSpConnectionLocalService samlIdpSpConnectionLocalService) {
-
-		_samlIdpSpConnectionLocalService = samlIdpSpConnectionLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setSamlIdpSpSessionLocalService(
-		SamlIdpSpSessionLocalService samlIdpSpSessionLocalService) {
-
-		_samlIdpSpSessionLocalService = samlIdpSpSessionLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setSamlIdpSsoSessionLocalService(
-		SamlIdpSsoSessionLocalService samlIdpSsoSessionLocalService) {
-
-		_samlIdpSsoSessionLocalService = samlIdpSsoSessionLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setSamlPeerBindingLocalService(
-		SamlPeerBindingLocalService samlPeerBindingLocalService) {
-
-		_samlPeerBindingLocalService = samlPeerBindingLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setSamlSpSessionLocalService(
-		SamlSpSessionLocalService samlSpSessionLocalService) {
-
-		super.samlSpSessionLocalService = samlSpSessionLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setUserLocalService(UserLocalService userLocalService) {
-		_userLocalService = userLocalService;
 	}
 
 	private void _addSessionIndex(
@@ -1496,11 +1415,22 @@ public class SingleLogoutProfileImpl
 	@Reference
 	private HttpClient _httpClient;
 
+	@Reference
 	private SamlHttpRequestUtil _samlHttpRequestUtil;
+
+	@Reference
 	private SamlIdpSpConnectionLocalService _samlIdpSpConnectionLocalService;
+
+	@Reference
 	private SamlIdpSpSessionLocalService _samlIdpSpSessionLocalService;
+
+	@Reference
 	private SamlIdpSsoSessionLocalService _samlIdpSsoSessionLocalService;
+
+	@Reference
 	private SamlPeerBindingLocalService _samlPeerBindingLocalService;
+
+	@Reference
 	private UserLocalService _userLocalService;
 
 }

@@ -596,6 +596,66 @@ definition {
 		}
 	}
 
+	@description = "LPS-163525. Validate Remote Apps UI has an understandable error message when user inputs an invalid URL."
+	@priority = "4"
+	test HasAnUnderstandableErrorMessageWhenURLInvalid {
+		task ("Given Add IFrame Remote Apps") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Custom Apps",
+				panel = "Applications",
+				portlet = "Remote Apps");
+
+			RemoteApps.addType(type = "IFrame");
+		}
+
+		task ("When type testurl in URL field and a valid name is entered") {
+			RemoteApps.addApp(
+				entryName = "Test Name",
+				entryURL = "$testurl");
+		}
+
+		task ("And When attempt to save the remote app") {
+			Button.clickPublish();
+		}
+
+		task ("Then error message 'Please enter a valid URL' appears") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#ERROR_ENTER_A_VALID_URL",
+				value1 = "Please enter a valid URL.");
+		}
+	}
+
+	@description = "LPS-163525. Validate Remote apps UI has a clear error message when all the mandatory fields are empty."
+	@priority = "4"
+	test HasMandatoryFieldErrorMessagesWhenEmpty {
+		task ("Given Add IFrame Remote Apps admin page") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Custom Apps",
+				panel = "Applications",
+				portlet = "Remote Apps");
+
+			RemoteApps.addType(type = "IFrame");
+		}
+
+		task ("When attempt to save remote app") {
+			Button.clickPublish();
+		}
+
+		task ("Then an error message 'field is required' appears under URL") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#WARNING_FEEDBACK",
+				value1 = "This field is required.");
+		}
+
+		task ("And then Remote App is not added") {
+			Navigator.gotoBack();
+
+			AssertTextEquals(
+				locator1 = "Message#EMPTY_STATE_INFO",
+				value1 = "No Results Found");
+		}
+	}
+
 	@description = "Verify an iframe remote app can be created"
 	@priority = "5"
 	test IFrameCanBeCreated {
@@ -641,74 +701,6 @@ definition {
 		AssertElementNotPresent(
 			key_text = "CSS URL",
 			locator1 = "TextInput#ANY");
-	}
-
-	@description = "This is a test for LPS-162031. The site administrator could add a JS remote app."
-	@priority = "3"
-	test JSCanBeCreated {
-		task ("Given a site administrator accesses to the Remote Apps admin") {
-			JSONGroup.addGroup(groupName = "Test Site Name");
-
-			JSONDocument.addFileWithUploadedFile(
-				dmDocumentTitle = "Text Color",
-				groupName = "Test Site Name",
-				mimeType = "application/javascript",
-				sourceFileName = "TextColor.js");
-
-			var url = JSONDocument.getLatestVersionURL(
-				dmDocumentTitle = "Text Color",
-				groupName = "Test Site Name");
-
-			RemoteApps.goToRemoteAppsPortlet();
-		}
-
-		task ("When the site administrator creates a JS remote app") {
-			RemoteApps.addType(type = "Add JS");
-
-			RemoteApps.addApp(
-				entryName = "Text Color",
-				entryURL = "${url}");
-		}
-
-		task ("Then the site administrator sees the created JS remote app") {
-			RemoteApps.viewTableEntryName(entryName = "Text Color");
-
-			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
-		}
-	}
-
-	@description = "This is a test for LPS-162031. The site administrator could add a Theme CSS remote app."
-	@priority = "3"
-	test ThemeCSSCanBeCreated {
-		task ("Given a site administrator accesses to the Remote Apps admin") {
-			JSONGroup.addGroup(groupName = "Test Site Name");
-
-			JSONDocument.addFileWithUploadedFile(
-				dmDocumentTitle = "Font Family",
-				groupName = "Test Site Name",
-				mimeType = "text/css",
-				sourceFileName = "font_family.css");
-
-			var url = JSONDocument.getLatestVersionURL(
-				dmDocumentTitle = "Font Family",
-				groupName = "Test Site Name");
-
-			RemoteApps.goToRemoteAppsPortlet();
-		}
-
-		task ("When the site administrator create a Theme CSS remote app") {
-			RemoteApps.addType(type = "Add Theme CSS");
-
-			RemoteApps.addApp(
-				entryName = "Font Family",
-				mainURL = "${url}");
-		}
-
-		task ("Then the site administrator sees the created Theme CSS remote app") {
-			RemoteApps.viewTableEntryName(entryName = "Font Family");
-
-			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
-		}
 	}
 
 }

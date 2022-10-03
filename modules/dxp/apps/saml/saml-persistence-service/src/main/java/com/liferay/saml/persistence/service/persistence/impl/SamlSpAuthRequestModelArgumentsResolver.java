@@ -32,12 +32,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Mika Koivisto
  * @generated
  */
-@Component(
-	immediate = true,
-	service = {
-		SamlSpAuthRequestModelArgumentsResolver.class, ArgumentsResolver.class
-	}
-)
+@Component(service = ArgumentsResolver.class)
 public class SamlSpAuthRequestModelArgumentsResolver
 	implements ArgumentsResolver {
 

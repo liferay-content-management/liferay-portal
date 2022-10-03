@@ -244,14 +244,20 @@ definition {
 		WorkflowMetricsAllItemsList.selectAndChangeNodeLabel(
 			newNodeLabel = "review2",
 			nodeLabel = "review",
-			nodeType = "task",
-			update = "true");
+			nodeType = "task");
+
+		ProcessBuilderKaleoDesignerReact.editNodeInformationField(
+			infoOption = "Id",
+			infoValue = "review2");
 
 		WorkflowMetricsAllItemsList.selectAndChangeNodeLabel(
 			newNodeLabel = "update2",
 			nodeLabel = "update",
-			nodeType = "task",
-			update = "true");
+			nodeType = "task");
+
+		ProcessBuilderKaleoDesignerReact.editNodeInformationField(
+			infoOption = "Id",
+			infoValue = "update2");
 
 		ProcessBuilderKaleoDesignerReact.editConnector(
 			connectorLabel = "APPROVE",
@@ -525,14 +531,20 @@ definition {
 		WorkflowMetricsAllItemsList.selectAndChangeNodeLabel(
 			newNodeLabel = "review2",
 			nodeLabel = "review",
-			nodeType = "task",
-			update = "true");
+			nodeType = "task");
+
+		ProcessBuilderKaleoDesignerReact.editNodeInformationField(
+			infoOption = "Id",
+			infoValue = "review2");
 
 		WorkflowMetricsAllItemsList.selectAndChangeNodeLabel(
 			newNodeLabel = "update2",
 			nodeLabel = "update",
-			nodeType = "task",
-			update = "true");
+			nodeType = "task");
+
+		ProcessBuilderKaleoDesignerReact.editNodeInformationField(
+			infoOption = "Id",
+			infoValue = "update2");
 
 		Button.clickUpdate();
 
@@ -599,14 +611,20 @@ definition {
 			WorkflowMetricsAllItemsList.selectAndChangeNodeLabel(
 				newNodeLabel = "review2",
 				nodeLabel = "review",
-				nodeType = "task",
-				update = "true");
+				nodeType = "task");
+
+			ProcessBuilderKaleoDesignerReact.editNodeInformationField(
+				infoOption = "Id",
+				infoValue = "review2");
 
 			WorkflowMetricsAllItemsList.selectAndChangeNodeLabel(
 				newNodeLabel = "update2",
 				nodeLabel = "update",
-				nodeType = "task",
-				update = "true");
+				nodeType = "task");
+
+			ProcessBuilderKaleoDesignerReact.editNodeInformationField(
+				infoOption = "Id",
+				infoValue = "update2");
 
 			ProcessBuilderKaleoDesignerReact.editConnector(
 				connectorLabel = "APPROVE",
@@ -909,10 +927,18 @@ definition {
 			nodeLabel = "review",
 			nodeType = "task");
 
+		ProcessBuilderKaleoDesignerReact.editNodeInformationField(
+			infoOption = "Id",
+			infoValue = "review2");
+
 		WorkflowMetricsAllItemsList.selectAndChangeNodeLabel(
 			newNodeLabel = "update2",
 			nodeLabel = "update",
 			nodeType = "task");
+
+		ProcessBuilderKaleoDesignerReact.editNodeInformationField(
+			infoOption = "Id",
+			infoValue = "update2");
 
 		ProcessBuilderKaleoDesignerReact.editConnector(
 			connectorLabel = "APPROVE",

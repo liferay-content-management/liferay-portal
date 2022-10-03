@@ -9,18 +9,25 @@
  * distribution rights of the Software.
  */
 
-import SupportOverview from './components/SupportOverview/';
-import './app.scss';
-import {useCustomerPortal} from '../../../context';
 import SubscriptionsOverview from './components/SubscriptionsOverview';
+import SupportOverview from './components/SupportOverview/';
+import useCurrentKoroneikiAccount from './hooks/useCurrentKoroneikiAccount';
 
 const Overview = () => {
-	const [{project}] = useCustomerPortal();
+	const {data, loading} = useCurrentKoroneikiAccount();
+	const koroneikiAccount = data?.koroneikiAccountByExternalReferenceCode;
 
 	return (
 		<>
-			<SupportOverview koroneikiAccount={project} />
-			<SubscriptionsOverview />
+			<SupportOverview
+				koroneikiAccount={koroneikiAccount}
+				loading={loading}
+			/>
+
+			<SubscriptionsOverview
+				koroneikiAccount={koroneikiAccount}
+				loading={loading}
+			/>
 		</>
 	);
 };

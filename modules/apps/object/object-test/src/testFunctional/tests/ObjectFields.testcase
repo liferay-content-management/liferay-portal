@@ -1,6 +1,7 @@
 @component-name = "portal-object"
 definition {
 
+	property custom.properties = "feature.flag.LPS-135404=true${line.separator}feature.flag.LPS-159151=true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -147,6 +148,138 @@ definition {
 		ObjectAdmin.assertObjectField(
 			fieldLabel = "Custom Field",
 			fieldType = "LongText");
+	}
+
+	@description = "LPS-135404 - Verify that it's possible to create new custom fields in a System Object"
+	@priority = "5"
+	test CanCreateCustomFieldInSystemObject {
+		property portal.acceptance = "true";
+
+		task ("Go to Objects, select System Object Account and click on fields tab") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectSystemObject(label = "Account");
+
+			ObjectAdmin.goToFieldsTab();
+		}
+
+		task ("Add custom text field") {
+			ObjectAdmin.addObjectFieldViaUI(
+				fieldLabel = "Custom Text",
+				fieldName = "customText",
+				fieldType = "Text");
+
+			Refresh();
+
+			ObjectAdmin.assertObjectField(
+				fieldLabel = "Custom Text",
+				fieldType = "Text");
+		}
+
+		task ("Go to Objects, select System Object Commerce Product and click on fields tab") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectSystemObject(label = "Commerce Product");
+
+			ObjectAdmin.goToFieldsTab();
+		}
+
+		task ("Add custom integer field") {
+			ObjectAdmin.addObjectFieldViaUI(
+				fieldLabel = "Custom Integer",
+				fieldName = "customInteger",
+				fieldType = "Integer");
+
+			Refresh();
+
+			ObjectAdmin.assertObjectField(
+				fieldLabel = "Custom Integer",
+				fieldType = "Integer");
+		}
+
+		task ("Go to Objects, select System Object Commerce Product Group and click on fields tab") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectSystemObject(label = "Commerce Product Group");
+
+			ObjectAdmin.goToFieldsTab();
+		}
+
+		task ("Add custom long integer field") {
+			ObjectAdmin.addObjectFieldViaUI(
+				fieldLabel = "Custom Long Integer",
+				fieldName = "customLongInteger",
+				fieldType = "Long Integer");
+
+			Refresh();
+
+			ObjectAdmin.assertObjectField(
+				fieldLabel = "Custom Long Integer",
+				fieldType = "LongInteger");
+		}
+
+		task ("Go to Objects, select System Object Commerce Order and click on fields tab") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectSystemObject(label = "Commerce Order");
+
+			ObjectAdmin.goToFieldsTab();
+		}
+
+		task ("Add custom date field") {
+			ObjectAdmin.addObjectFieldViaUI(
+				fieldLabel = "Custom Date",
+				fieldName = "customDate",
+				fieldType = "Date");
+
+			Refresh();
+
+			ObjectAdmin.assertObjectField(
+				fieldLabel = "Custom Date",
+				fieldType = "Date");
+		}
+
+		task ("Go to Objects, select System Object Postal Address and click on fields tab") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectSystemObject(label = "Postal Address");
+
+			ObjectAdmin.goToFieldsTab();
+		}
+
+		task ("Add custom text field") {
+			ObjectAdmin.addObjectFieldViaUI(
+				fieldLabel = "Custom Decimal",
+				fieldName = "customDecimal",
+				fieldType = "Decimal");
+
+			Refresh();
+
+			ObjectAdmin.assertObjectField(
+				fieldLabel = "Custom Decimal",
+				fieldType = "Decimal");
+		}
+
+		task ("Go to Objects, select System Object User and click on fields tab") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectSystemObject(label = "User");
+
+			ObjectAdmin.goToFieldsTab();
+		}
+
+		task ("Add custom boolean field") {
+			ObjectAdmin.addObjectFieldViaUI(
+				fieldLabel = "Custom Boolean",
+				fieldName = "customBoolean",
+				fieldType = "Boolean");
+
+			Refresh();
+
+			ObjectAdmin.assertObjectField(
+				fieldLabel = "Custom Boolean",
+				fieldType = "Boolean");
+		}
 	}
 
 	@description = "LPS-149625 - Verify that it's possible to create an object entry with aggregation field"
@@ -569,6 +702,36 @@ definition {
 		}
 	}
 
+	@description = "LPS-135404 - Verify that it's possible to delete created custom fields in a System Object"
+	@priority = "4"
+	test CanDeleteCustomFieldInSystemObject {
+		task ("Create Custom Fields (via API)") {
+			for (var systemNames : list "AccountEntry,CPDefinition,CommercePricingClass,CommerceOrder,Address,User") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Text",
+					fieldLabelName = "Custom Text",
+					fieldName = "customText",
+					fieldType = "String",
+					isRequired = "false",
+					objectName = "${systemNames}");
+			}
+		}
+
+		task ("Go to System Objects and delete your custom fields") {
+			for (var systemNames : list "Account,Commerce Product,Commerce Product Group,Commerce Order,Postal Address,User") {
+				ObjectAdmin.openObjectAdmin();
+
+				ObjectPortlet.selectSystemObject(label = "${systemNames}");
+
+				ObjectAdmin.goToFieldsTab();
+
+				ObjectAdmin.deleteObjectField(fieldName = "Custom Text");
+
+				ObjectAdmin.assertObjectFieldNotPresent(fieldLabel = "Custom Text");
+			}
+		}
+	}
+
 	@description = "LPS-148112 - Verify if turn off the 'Show files' option on field settings"
 	@priority = "4"
 	test CanDisableShowFilesOptionOnFieldSettings {
@@ -883,6 +1046,118 @@ definition {
 			ObjectField.assertSource(
 				fieldLabel = "Custom Field",
 				fieldSource = "Custom");
+		}
+	}
+
+	@description = "LPS-158821 - Verify that the user is able to set the ERC field as a Title Field"
+	@priority = "4"
+	test CanSetERCFieldAsTitleField {
+		task ("Create Custom Object and Custom Field (via API)") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 162184",
+				objectName = "CustomObject162184",
+				pluralLabelName = "Custom Objects 162184");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObject162184");
+		}
+
+		task ("Go to Custom Object") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 162184");
+		}
+
+		task ("Select title field and assert it") {
+			CreateObject.selectTitleField(fieldLabel = "External Reference Code");
+
+			CreateObject.saveObject();
+
+			CreateObject.assertTitleFieldIsSelected(fieldLabel = "External Reference Code");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject162184");
+		}
+
+		task ("Create Custom View and go to it") {
+			ObjectCustomViews.goToViewsTab();
+
+			ObjectCustomViews.addObjectViewViaUI(viewName = "Custom Views");
+
+			ObjectCustomViews.goToViewsDetails(label = "Custom Views");
+		}
+
+		task ("Mark Custom View as default, go to View Builder and add ERC") {
+			ObjectCustomViews.markViewAsDefault();
+
+			ObjectCustomViews.goToViewsBuilderTab();
+
+			ObjectCustomViews.addColumnsViaUI(addColumns = "Custom Field,External Reference Code");
+
+			Button.clickSave();
+		}
+
+		task ("Create an entry via API") {
+			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+				fieldName = "customField",
+				objectName = "CustomObject162184",
+				value = "Entry Test");
+		}
+
+		task ("Assert that it's possible to see entry with ERC") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject162184");
+
+			ObjectPortlet.viewEntry(entry = "Entry Test");
+
+			for (var columnName : list "Custom Field,External Reference Code") {
+				ObjectPortlet.assertEntryColumnPresent(column = "${columnName}");
+			}
+		}
+	}
+
+	@description = "LPS-135404 - Verify that it's possible to update created custom fields in a System Object"
+	@priority = "4"
+	test CanUpdateCustomFieldInSystemObject {
+		task ("Create Custom Fields (via API)") {
+			for (var systemNames : list "AccountEntry,CPDefinition,CommercePricingClass,CommerceOrder,Address,User") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Text",
+					fieldLabelName = "Custom Text",
+					fieldName = "customText",
+					fieldType = "String",
+					isRequired = "false",
+					objectName = "${systemNames}");
+			}
+		}
+
+		task ("Go to System Objects and edit your custom fields") {
+			for (var systemNames : list "Account,Commerce Product,Commerce Product Group,Commerce Order,Postal Address,User") {
+				ObjectAdmin.openObjectAdmin();
+
+				ObjectPortlet.selectSystemObject(label = "${systemNames}");
+
+				ObjectAdmin.goToFieldsTab();
+
+				ObjectAdmin.goToFieldsDetails(label = "Custom Text");
+
+				ObjectField.typeLabel(content = "Custom Field Update");
+
+				ObjectField.assertNameDisabled();
+
+				ObjectField.assertTypeDisabled();
+
+				ObjectField.save();
+
+				WaitForSPARefresh();
+
+				ObjectAdmin.assertObjectField(
+					fieldLabel = "Custom Field Update",
+					fieldType = "Text");
+			}
 		}
 	}
 
@@ -1405,6 +1680,8 @@ definition {
 	@description = "LPS-143065 - Change the Maximum File Size to 0 (zero) and verify if the Maximum File Size is now set by the System configurations"
 	@priority = "4"
 	test MaximumFileSizeIsSetBySystemConfigurationsWhenZero {
+		property test.name.skip.portal.instance = "ObjectFields#MaximumFileSizeIsSetBySystemConfigurationsWhenZero";
+
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 151561",
 			objectName = "CustomObject151561",

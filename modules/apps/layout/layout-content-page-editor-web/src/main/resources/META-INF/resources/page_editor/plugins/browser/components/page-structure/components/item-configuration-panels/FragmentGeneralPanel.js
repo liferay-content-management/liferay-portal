@@ -79,6 +79,7 @@ export function FragmentGeneralPanel({item}) {
 						<div className="mb-1" key={index}>
 							<FieldSet
 								fields={fieldSet.fields}
+								isCustomStylesFieldSet
 								label={fieldSet.label}
 								languageId={languageId}
 								onValueSelect={onValueSelect}

@@ -12,12 +12,12 @@
  * details.
  */
 
-export function getFormNode(element) {
-	return element.closest('form');
-}
-
 export function getFormId(form) {
 	return form?.dataset.ddmforminstanceid;
+}
+
+export function getFormNode(element) {
+	return element.closest('form');
 }
 
 export function getUid() {

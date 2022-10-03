@@ -2658,6 +2658,8 @@ components:
                     type: string
                 friendlyUrlPath:
                     type: string
+                hasCompanyMx:
+                    type: boolean
                 headline:
                     description:
                         The message's main title.
@@ -3304,6 +3306,21 @@ components:
                     items:
                         $ref: "#/components/schemas/FragmentViewport"
                     type: array
+                layout:
+                    # @review
+                    description:
+                        the page section's layout.
+                    properties:
+                        align:
+                            enum: [Baseline, Center, End, None, Start, Stretch]
+                            type: string
+                        flexWrap:
+                            enum: [NoWrap, Wrap, WrapReverse]
+                            type: string
+                        justify:
+                            enum: [Center, End, None, SpaceAround, SpaceBetween, Start]
+                            type: string
+                    type: object
                 listItemStyle:
                     # @review
                     description:
@@ -5302,7 +5319,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.delivery.client', and version '4.0.38'."
+        'com.liferay.headless.delivery.client', and version '4.0.40'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

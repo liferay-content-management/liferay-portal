@@ -1042,10 +1042,6 @@ public class ObjectEntryLocalServiceImpl
 			user.isDefaultUser(), objectEntry.getObjectDefinitionId(),
 			objectDefinition.getPortletId(), serviceContext, userId, values);
 
-		Map<String, Serializable> transientValues = objectEntry.getValues();
-
-		objectEntry.setTransientValues(transientValues);
-
 		_updateTable(
 			_getDynamicObjectDefinitionTable(
 				objectEntry.getObjectDefinitionId()),
@@ -1055,10 +1051,15 @@ public class ObjectEntryLocalServiceImpl
 				objectEntry.getObjectDefinitionId()),
 			objectEntryId, values);
 
+		objectEntry = objectEntryPersistence.findByPrimaryKey(objectEntryId);
+
 		_setExternalReferenceCode(objectEntry, values);
 
 		objectEntry.setModifiedDate(serviceContext.getModifiedDate(null));
-		objectEntry.setValues(null);
+
+		Map<String, Serializable> transientValues = objectEntry.getValues();
+
+		objectEntry.setTransientValues(transientValues);
 
 		objectEntry = objectEntryPersistence.update(objectEntry);
 
@@ -1770,6 +1771,36 @@ public class ObjectEntryLocalServiceImpl
 			dynamicObjectDefinitionTable.getPrimaryKeyColumn());
 	}
 
+	private Object _getResult(
+		Object entryValues, Expression<?> selectExpression) {
+
+		Object result = null;
+
+		try {
+			if (selectExpression instanceof Column) {
+				Column<?, ?> column = (Column<?, ?>)selectExpression;
+
+				result = _getValue(entryValues, column.getSQLType());
+			}
+			else if (selectExpression instanceof ScalarDSLQueryAlias) {
+				ScalarDSLQueryAlias scalarDSLQueryAlias =
+					(ScalarDSLQueryAlias)selectExpression;
+
+				result = _getValue(
+					entryValues, scalarDSLQueryAlias.getSQLType());
+
+				if (result == null) {
+					result = "0";
+				}
+			}
+		}
+		catch (SQLException sqlException) {
+			throw new SystemException(sqlException);
+		}
+
+		return result;
+	}
+
 	private Expression<?>[] _getSelectExpressions(
 			DynamicObjectDefinitionTable dynamicObjectDefinitionTable)
 		throws PortalException {
@@ -2092,7 +2123,11 @@ public class ObjectEntryLocalServiceImpl
 			dynamicObjectDefinitionTable.getObjectFields();
 
 		for (ObjectField objectField : objectFields) {
-			if (!values.containsKey(objectField.getName())) {
+			if (Objects.equals(
+					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) ||
+				!values.containsKey(objectField.getName())) {
+
 				if (objectField.isRequired()) {
 					throw new ObjectEntryValuesException.Required(
 						objectField.getName());
@@ -2148,7 +2183,11 @@ public class ObjectEntryLocalServiceImpl
 			_setColumn(preparedStatement, index++, Types.BIGINT, objectEntryId);
 
 			for (ObjectField objectField : objectFields) {
-				if (!values.containsKey(objectField.getName())) {
+				if (Objects.equals(
+						objectField.getBusinessType(),
+						ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) ||
+					!values.containsKey(objectField.getName())) {
+
 					continue;
 				}
 
@@ -2175,37 +2214,18 @@ public class ObjectEntryLocalServiceImpl
 
 		List<Object[]> results = new ArrayList<>();
 
-		List<Object[]> entriesValues = objectEntryPersistence.dslQuery(
-			dslQuery);
+		List<Object> entriesValues = objectEntryPersistence.dslQuery(dslQuery);
 
-		for (Object[] entryValues : entriesValues) {
+		for (Object entryValues : entriesValues) {
 			Object[] result = new Object[selectExpressions.length];
 
-			for (int i = 0; i < selectExpressions.length; i++) {
-				Expression<?> selectExpression = selectExpressions[i];
-
-				try {
-					if (selectExpression instanceof Column) {
-						Column<?, ?> column =
-							(Column<?, ?>)selectExpressions[i];
-
-						result[i] = _getValue(
-							entryValues[i], column.getSQLType());
-					}
-					else if (selectExpression instanceof ScalarDSLQueryAlias) {
-						ScalarDSLQueryAlias scalarDSLQueryAlias =
-							(ScalarDSLQueryAlias)selectExpressions[i];
-
-						result[i] = _getValue(
-							entryValues[i], scalarDSLQueryAlias.getSQLType());
-
-						if (result[i] == null) {
-							result[i] = "0";
-						}
-					}
-				}
-				catch (SQLException sqlException) {
-					throw new SystemException(sqlException);
+			if (selectExpressions.length == 1) {
+				result[0] = _getResult(entryValues, selectExpressions[0]);
+			}
+			else {
+				for (int i = 0; i < selectExpressions.length; i++) {
+					result[i] = _getResult(
+						((Object[])entryValues)[i], selectExpressions[i]);
 				}
 			}
 
@@ -2491,6 +2511,13 @@ public class ObjectEntryLocalServiceImpl
 			dynamicObjectDefinitionTable.getObjectFields();
 
 		for (ObjectField objectField : objectFields) {
+			if (Objects.equals(
+					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION)) {
+
+				continue;
+			}
+
 			if (!values.containsKey(objectField.getName())) {
 				if (_log.isDebugEnabled()) {
 					_log.debug(
@@ -2555,7 +2582,11 @@ public class ObjectEntryLocalServiceImpl
 			int index = 1;
 
 			for (ObjectField objectField : objectFields) {
-				if (!values.containsKey(objectField.getName())) {
+				if (Objects.equals(
+						objectField.getBusinessType(),
+						ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) ||
+					!values.containsKey(objectField.getName())) {
+
 					continue;
 				}
 

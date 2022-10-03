@@ -28,6 +28,7 @@ import com.liferay.poshi.core.util.StringPool;
 import com.liferay.poshi.core.util.StringUtil;
 import com.liferay.poshi.core.util.Validator;
 import com.liferay.poshi.runner.exception.ElementNotFoundPoshiRunnerException;
+import com.liferay.poshi.runner.exception.JavaScriptException;
 import com.liferay.poshi.runner.exception.PoshiRunnerWarningException;
 import com.liferay.poshi.runner.util.AntCommands;
 import com.liferay.poshi.runner.util.ArchiveUtil;
@@ -451,7 +452,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 			return;
 		}
 
-		PoshiRunnerWarningException poshiRunnerWarningException = null;
+		JavaScriptException javaScriptException = null;
 
 		List<JavaScriptError> javaScriptErrors = JavaScriptError.readErrors(
 			getWrappedWebDriver("//body"));
@@ -471,18 +472,17 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 
 			System.out.println(message);
 
-			if (poshiRunnerWarningException == null) {
-				poshiRunnerWarningException = new PoshiRunnerWarningException(
-					message);
+			if (javaScriptException == null) {
+				javaScriptException = new JavaScriptException(message);
 			}
 			else {
 				PoshiRunnerWarningException.addException(
-					new PoshiRunnerWarningException(message));
+					new JavaScriptException(message));
 			}
 		}
 
-		if (poshiRunnerWarningException != null) {
-			throw poshiRunnerWarningException;
+		if (javaScriptException != null) {
+			throw javaScriptException;
 		}
 	}
 
@@ -1007,31 +1007,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	public void executeJavaScript(
 		String javaScript, String argument1, String argument2) {
 
-		JavascriptExecutor javascriptExecutor =
-			(JavascriptExecutor)getWrappedWebDriver("//body");
-
-		Object object1 = null;
-		Object object2 = null;
-
-		try {
-			object1 = getWebElement(argument1);
-		}
-		catch (ElementNotFoundPoshiRunnerException | InvalidSelectorException
-					exception) {
-
-			object1 = argument1;
-		}
-
-		try {
-			object2 = getWebElement(argument2);
-		}
-		catch (ElementNotFoundPoshiRunnerException | InvalidSelectorException
-					exception) {
-
-			object2 = argument2;
-		}
-
-		javascriptExecutor.executeScript(javaScript, object1, object2);
+		getJavaScriptResult(javaScript, argument1, argument2);
 	}
 
 	@Override
@@ -1270,7 +1246,9 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 		Object object2 = null;
 
 		try {
-			object1 = getWebElement(argument1);
+			if (Validator.isNotNull(argument1)) {
+				object1 = getWebElement(argument1);
+			}
 		}
 		catch (ElementNotFoundPoshiRunnerException | InvalidSelectorException
 					exception) {
@@ -1279,7 +1257,9 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 		}
 
 		try {
-			object2 = getWebElement(argument2);
+			if (Validator.isNotNull(argument2)) {
+				object2 = getWebElement(argument2);
+			}
 		}
 		catch (ElementNotFoundPoshiRunnerException | InvalidSelectorException
 					exception) {
@@ -3852,7 +3832,9 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 				Object object = null;
 
 				try {
-					object = getWebElement(argument);
+					if (Validator.isNotNull(argument)) {
+						object = getWebElement(argument);
+					}
 				}
 				catch (ElementNotFoundPoshiRunnerException |
 					   InvalidSelectorException | NullPointerException

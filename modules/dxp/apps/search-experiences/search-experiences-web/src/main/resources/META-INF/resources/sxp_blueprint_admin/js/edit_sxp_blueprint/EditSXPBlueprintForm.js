@@ -291,9 +291,10 @@ function EditSXPBlueprintForm({
 							const configError =
 								validateRequired(
 									configValue,
-									type,
+									name,
+									typeOptions.nullable,
 									typeOptions.required,
-									typeOptions.nullable
+									type
 								) ||
 								validateBoost(configValue, type) ||
 								validateNumberRange(
@@ -313,8 +314,13 @@ function EditSXPBlueprintForm({
 					const configValue = uiConfigurationValues?.sxpElement;
 
 					const configError =
-						validateRequired(configValue, INPUT_TYPES.JSON) ||
-						validateJSON(configValue, INPUT_TYPES.JSON);
+						validateRequired(
+							configValue,
+							'',
+							false,
+							true,
+							INPUT_TYPES.JSON
+						) || validateJSON(configValue, INPUT_TYPES.JSON);
 
 					if (configError) {
 						configErrors.sxpElement = configError;
@@ -918,8 +924,8 @@ function EditSXPBlueprintForm({
 				isSubmitting={formik.isSubmitting}
 				onCancel={redirectURL}
 				onChangeTab={_handleChangeTab}
-				onChangeTitleAndDescription={_handleChangeTitleAndDescription}
 				onSubmit={_handleSubmit}
+				onTitleAndDescriptionChange={_handleChangeTitleAndDescription}
 				tab={tab}
 				tabs={TABS}
 				title={formik.values.title}

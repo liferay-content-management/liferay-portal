@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.ModuleFrameworkPropsValues;
 import com.liferay.portal.kernel.util.NamedThreadFactory;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -284,7 +285,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			FrameworkStartLevel.class);
 
 		frameworkStartLevel.setStartLevel(
-			PropsValues.MODULE_FRAMEWORK_RUNTIME_START_LEVEL);
+			ModuleFrameworkPropsValues.MODULE_FRAMEWORK_RUNTIME_START_LEVEL);
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Started the OSGi framework");
@@ -304,7 +305,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			new DefaultNoticeableFuture<>();
 
 		frameworkStartLevel.setStartLevel(
-			PropsValues.MODULE_FRAMEWORK_BEGINNING_START_LEVEL,
+			ModuleFrameworkPropsValues.MODULE_FRAMEWORK_BEGINNING_START_LEVEL,
 			frameworkEvent -> defaultNoticeableFuture.set(frameworkEvent));
 
 		FrameworkEvent frameworkEvent = defaultNoticeableFuture.get();
@@ -932,12 +933,13 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 				if (header == null) {
 					bundleStartLevel.setStartLevel(
-						PropsValues.
+						ModuleFrameworkPropsValues.
 							MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL);
 				}
 				else {
 					bundleStartLevel.setStartLevel(
-						PropsValues.MODULE_FRAMEWORK_WEB_START_LEVEL);
+						ModuleFrameworkPropsValues.
+							MODULE_FRAMEWORK_WEB_START_LEVEL);
 				}
 
 				if (_isFragmentBundle(bundle)) {
@@ -979,7 +981,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			bundleContext.getService(
 				bundleContext.getServiceReference(
 					"org.osgi.service.cm.ConfigurationAdmin")),
-			PropsValues.MODULE_FRAMEWORK_FILE_INSTALL_CONFIG_ENCODING);
+			ModuleFrameworkPropsValues.
+				MODULE_FRAMEWORK_FILE_INSTALL_CONFIG_ENCODING);
 
 		File dir = new File(PropsValues.MODULE_FRAMEWORK_CONFIGS_DIR);
 
@@ -1053,14 +1056,16 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 				_log.debug(
 					StringBundler.concat(
 						"Setting bundle ", bundle, " at start level ",
-						PropsValues.MODULE_FRAMEWORK_BEGINNING_START_LEVEL));
+						ModuleFrameworkPropsValues.
+							MODULE_FRAMEWORK_BEGINNING_START_LEVEL));
 			}
 
 			BundleStartLevel bundleStartLevel = bundle.adapt(
 				BundleStartLevel.class);
 
 			bundleStartLevel.setStartLevel(
-				PropsValues.MODULE_FRAMEWORK_BEGINNING_START_LEVEL);
+				ModuleFrameworkPropsValues.
+					MODULE_FRAMEWORK_BEGINNING_START_LEVEL);
 
 			return bundle;
 		}
@@ -1487,7 +1492,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			new DefaultNoticeableFuture<>();
 
 		frameworkStartLevel.setStartLevel(
-			PropsValues.MODULE_FRAMEWORK_BEGINNING_START_LEVEL,
+			ModuleFrameworkPropsValues.MODULE_FRAMEWORK_BEGINNING_START_LEVEL,
 			frameworkEvent -> defaultNoticeableFuture.set(frameworkEvent));
 
 		FrameworkEvent frameworkEvent = defaultNoticeableFuture.get();
@@ -1507,7 +1512,9 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 		_installConfigs(bundleWiring.getClassLoader());
 
-		if (PropsValues.MODULE_FRAMEWORK_CONCURRENT_STARTUP_ENABLED) {
+		if (ModuleFrameworkPropsValues.
+				MODULE_FRAMEWORK_CONCURRENT_STARTUP_ENABLED) {
+
 			Runtime runtime = Runtime.getRuntime();
 
 			Thread currentThread = Thread.currentThread();
@@ -1634,7 +1641,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			new DefaultNoticeableFuture<>();
 
 		frameworkStartLevel.setStartLevel(
-			PropsValues.MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL,
+			ModuleFrameworkPropsValues.
+				MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL,
 			frameworkEvent -> defaultNoticeableFuture.set(frameworkEvent));
 
 		FrameworkEvent frameworkEvent = defaultNoticeableFuture.get();
@@ -1655,7 +1663,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		}
 
 		frameworkStartLevel.setStartLevel(
-			PropsValues.MODULE_FRAMEWORK_WEB_START_LEVEL,
+			ModuleFrameworkPropsValues.MODULE_FRAMEWORK_WEB_START_LEVEL,
 			webFrameworkEvent -> webDefaultNoticeableFuture.set(
 				webFrameworkEvent));
 

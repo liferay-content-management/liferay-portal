@@ -152,6 +152,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_displayPageInfoItemCapability, _editPageInfoItemCapability,
 					_templatePageInfoItemCapability),
 				HashMapDictionaryBuilder.<String, Object>put(
+					"company.id", objectDefinition.getCompanyId()
+				).put(
 					"item.class.name", objectDefinition.getClassName()
 				).build()),
 			_bundleContext.registerService(
@@ -160,6 +162,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_groupLocalService, infoItemFormProvider, objectDefinition,
 					_objectEntryService, _objectScopeProviderRegistry),
 				HashMapDictionaryBuilder.<String, Object>put(
+					"company.id", objectDefinition.getCompanyId()
+				).put(
 					"item.class.name", objectDefinition.getClassName()
 				).build()),
 			_bundleContext.registerService(
@@ -167,6 +171,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				new ObjectEntryInfoItemDetailsProvider(objectDefinition),
 				HashMapDictionaryBuilder.<String, Object>put(
 					Constants.SERVICE_RANKING, 10
+				).put(
+					"company.id", objectDefinition.getCompanyId()
 				).put(
 					"item.class.name", objectDefinition.getClassName()
 				).build()),
@@ -179,12 +185,16 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_objectFieldLocalService, _templateInfoItemFieldSetProvider,
 					_userLocalService),
 				HashMapDictionaryBuilder.<String, Object>put(
+					"company.id", objectDefinition.getCompanyId()
+				).put(
 					"item.class.name", objectDefinition.getClassName()
 				).build()),
 			_bundleContext.registerService(
 				InfoItemFormProvider.class, infoItemFormProvider,
 				HashMapDictionaryBuilder.<String, Object>put(
 					Constants.SERVICE_RANKING, 10
+				).put(
+					"company.id", objectDefinition.getCompanyId()
 				).put(
 					"item.class.name", objectDefinition.getClassName()
 				).build()),
@@ -193,6 +203,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				new ObjectEntryInfoItemObjectProvider(_objectEntryLocalService),
 				HashMapDictionaryBuilder.<String, Object>put(
 					Constants.SERVICE_RANKING, 100
+				).put(
+					"company.id", objectDefinition.getCompanyId()
 				).put(
 					"info.item.identifier",
 					"com.liferay.info.item.ClassPKInfoItemIdentifier"
@@ -204,6 +216,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				new ObjectEntryInfoItemPermissionProvider(
 					objectDefinition, _objectEntryService),
 				HashMapDictionaryBuilder.<String, Object>put(
+					"company.id", objectDefinition.getCompanyId()
+				).put(
 					"item.class.name", objectDefinition.getClassName()
 				).build()),
 			_bundleContext.registerService(
@@ -216,6 +230,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				HashMapDictionaryBuilder.<String, Object>put(
 					Constants.SERVICE_RANKING, 100
 				).put(
+					"company.id", objectDefinition.getCompanyId()
+				).put(
 					"item.class.name", objectDefinition.getClassName()
 				).put(
 					"osgi.web.symbolicname", "com.liferay.object.web"
@@ -225,6 +241,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				new ObjectEntryTableInfoListRenderer(
 					_infoItemRendererTracker, _objectFieldLocalService),
 				HashMapDictionaryBuilder.<String, Object>put(
+					"company.id", objectDefinition.getCompanyId()
+				).put(
 					"item.class.name", objectDefinition.getClassName()
 				).build()),
 			_bundleContext.registerService(

@@ -30,13 +30,6 @@ import javax.ws.rs.core.UriInfo;
  */
 public class UriInfoUtil {
 
-	public static String getAbsolutePath(UriInfo uriInfo) {
-		return String.valueOf(
-			_updateUriBuilder(
-				uriInfo.getAbsolutePathBuilder()
-			).build());
-	}
-
 	public static String getBasePath(UriInfo uriInfo) {
 		return String.valueOf(
 			getBaseUriBuilder(

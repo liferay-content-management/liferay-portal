@@ -115,7 +115,7 @@ ContentDashboardAdminDisplayContext contentDashboardAdminDisplayContext = (Conte
 				searchContainer="<%= contentDashboardAdminDisplayContext.getSearchContainer() %>"
 			>
 				<liferay-ui:search-container-row
-					className="com.liferay.content.dashboard.web.internal.item.ContentDashboardItem"
+					className="com.liferay.content.dashboard.item.ContentDashboardItem"
 					keyProperty="id"
 					modelVar="contentDashboardItem"
 				>
@@ -267,14 +267,14 @@ ContentDashboardAdminDisplayContext contentDashboardAdminDisplayContext = (Conte
 					>
 
 						<%
-						List<ContentDashboardItem.Version> versions = contentDashboardItem.getLatestVersions(locale);
+						List<ContentDashboardItemVersion> contentDashboardItemVersions = contentDashboardItem.getLatestContentDashboardItemVersions(locale);
 
-						for (ContentDashboardItem.Version version : versions) {
+						for (ContentDashboardItemVersion contentDashboardItemVersion : contentDashboardItemVersions) {
 						%>
 
 							<clay:label
-								displayType="<%= version.getStyle() %>"
-								label="<%= version.getLabel() %>"
+								displayType="<%= contentDashboardItemVersion.getStyle() %>"
+								label="<%= contentDashboardItemVersion.getLabel() %>"
 							/>
 
 						<%

@@ -241,7 +241,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 		FragmentRendererContext fragmentRendererContext, String html,
 		HttpServletRequest httpServletRequest) {
 
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(25);
 
 		sb.append("<div id=\"");
 
@@ -300,16 +300,18 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 
 		if (Validator.isNotNull(fragmentEntryLink.getJs())) {
 			sb.append("<script>(function() {");
-			sb.append("var configuration = ");
+			sb.append("const configuration = ");
 			sb.append(configuration);
-			sb.append("; var fragmentElement = document.querySelector('#");
+			sb.append("; const fragmentElement = document.querySelector('#");
 			sb.append(fragmentRendererContext.getFragmentElementId());
-			sb.append("'); var fragmentNamespace = '");
+			sb.append("'); const fragmentEntryLinkNamespace = '");
+			sb.append(fragmentEntryLink.getNamespace());
+			sb.append("'; const fragmentNamespace = '");
 			sb.append(fragmentEntryLink.getNamespace());
 			sb.append("'");
 
 			if (fragmentEntryLink.isTypeInput()) {
-				sb.append("; var input = ");
+				sb.append("; const input = ");
 				sb.append(
 					JSONUtil.toString(
 						_getInputJSONObject(
@@ -318,7 +320,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 							fragmentRendererContext.getLocale())));
 			}
 
-			sb.append("; var layoutMode = '");
+			sb.append("; const layoutMode = '");
 			sb.append(
 				HtmlUtil.escapeJS(
 					ParamUtil.getString(
@@ -430,6 +432,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 			configurationJSONObject =
 				_fragmentEntryConfigurationParser.getConfigurationJSONObject(
 					fragmentEntryLink.getConfiguration(),
+					displayObjectOptional.orElse(null),
 					fragmentEntryLink.getEditableValues(),
 					fragmentRendererContext.getLocale());
 		}

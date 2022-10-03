@@ -5,9 +5,11 @@
 				"definition": {
 					"fragmentStyle": {
 						"backgroundColor": "colorNeutral1",
+						"borderWidth": "0",
 						"minHeight": "93vh",
 						"paddingBottom": "6",
-						"paddingTop": "4"
+						"paddingTop": "4",
+						"textAlign": ""
 					},
 					"indexed": true,
 					"layout": {
@@ -28,7 +30,8 @@
 						"definition": {
 							"fragmentStyle": {
 								"marginBottom": "4",
-								"paddingBottom": "2"
+								"paddingBottom": "2",
+								"textAlign": ""
 							},
 							"gutters": true,
 							"indexed": true,
@@ -112,13 +115,43 @@
 											},
 											"fragmentFields": [
 												{
-													"id": "heading-with-icon-title",
+													"id": "heading-image",
+													"value": {
+														"fragmentImage": {
+															"url": {
+																"mapping": {
+																	"fieldKey": "FileEntry_previewImage",
+																	"itemReference": {
+																		"className": "com.liferay.portal.kernel.repository.model.FileEntry",
+																		"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/mdf-request-heading-icon.svg$]"
+																	}
+																}
+															}
+														},
+														"fragmentLink": {
+														}
+													}
+												},
+												{
+													"id": "heading-title",
 													"value": {
 														"fragmentLink": {
 														},
 														"text": {
 															"value_i18n": {
-																"en_US": "MDF Request"
+																"ar_SA": "MDF Request",
+																"ca_ES": "MDF Request",
+																"de_DE": "MDF Request",
+																"en_US": "MDF Request",
+																"es_ES": "MDF Request",
+																"fi_FI": "MDF Request",
+																"fr_FR": "MDF Request",
+																"hu_HU": "MDF Request",
+																"ja_JP": "MDF Request",
+																"nl_NL": "MDF Request",
+																"pt_BR": "MDF Request",
+																"sv_SE": "MDF Request",
+																"zh_CN": "MDF Request"
 															}
 														}
 													}
@@ -136,6 +169,9 @@
 					},
 					{
 						"definition": {
+							"fragmentStyle": {
+								"borderWidth": "0"
+							},
 							"indexed": true,
 							"layout": {
 								"align": "Start",
@@ -157,7 +193,7 @@
 							{
 								"definition": {
 									"fragmentStyle": {
-										"width": "680px"
+										"maxWidth": "680px"
 									},
 									"widgetInstance": {
 										"widgetConfig": {

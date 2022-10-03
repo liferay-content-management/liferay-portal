@@ -32,10 +32,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Drew Brokke
  * @generated
  */
-@Component(
-	immediate = true,
-	service = {PLOEntryModelArgumentsResolver.class, ArgumentsResolver.class}
-)
+@Component(service = ArgumentsResolver.class)
 public class PLOEntryModelArgumentsResolver implements ArgumentsResolver {
 
 	@Override

@@ -46,6 +46,7 @@ interface IProps {
 	objectField: Partial<ObjectField>;
 	objectFieldTypes: ObjectFieldType[];
 	objectName: string;
+	objectRelationshipId?: number;
 	onAggregationFilterChange?: (aggregationFilterArray: []) => void;
 	onRelationshipChange?: (objectDefinitionId2: number) => void;
 	setValues: (values: Partial<ObjectField>) => void;
@@ -75,6 +76,7 @@ export default function ObjectFieldFormBase({
 	objectField: values,
 	objectFieldTypes,
 	objectName,
+	objectRelationshipId,
 	onAggregationFilterChange,
 	onRelationshipChange,
 	setValues,
@@ -209,15 +211,11 @@ export default function ObjectFieldFormBase({
 	};
 
 	useEffect(() => {
-		if (
-			Liferay.FeatureFlags['LPS-158962'] &&
-			values.relationshipType === 'oneToMany' &&
-			values.relationshipId
-		) {
+		if (objectRelationshipId) {
 			const makeFetch = async () => {
 				const relationshipData = await API.getRelationship<
 					TObjectRelationship
-				>(values.relationshipId!);
+				>(objectRelationshipId!);
 
 				if (relationshipData.id) {
 					setOneToManyRelationship(relationshipData);
@@ -226,7 +224,7 @@ export default function ObjectFieldFormBase({
 
 			makeFetch();
 		}
-	}, [values.relationshipId, values.relationshipType]);
+	}, [objectRelationshipId]);
 
 	const getMandatoryToggleState = () => {
 		if (

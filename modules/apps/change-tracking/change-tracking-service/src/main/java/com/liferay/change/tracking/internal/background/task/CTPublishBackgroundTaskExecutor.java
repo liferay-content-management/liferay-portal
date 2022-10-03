@@ -23,8 +23,6 @@ import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.model.CTEntry;
 import com.liferay.change.tracking.service.CTCollectionLocalService;
 import com.liferay.change.tracking.service.CTEntryLocalService;
-import com.liferay.change.tracking.service.CTMessageLocalService;
-import com.liferay.change.tracking.service.CTProcessLocalService;
 import com.liferay.change.tracking.service.CTSchemaVersionLocalService;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
@@ -215,12 +213,6 @@ public class CTPublishBackgroundTaskExecutor
 
 	@Reference
 	private CTEntryLocalService _ctEntryLocalService;
-
-	@Reference
-	private CTMessageLocalService _ctMessageLocalService;
-
-	@Reference
-	private CTProcessLocalService _ctProcessLocalService;
 
 	@Reference
 	private CTSchemaVersionLocalService _ctSchemaVersionLocalService;

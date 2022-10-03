@@ -66,6 +66,7 @@
 										"borderWidth": "0",
 										"marginLeft": "5",
 										"marginTop": "4",
+										"paddingLeft": "2",
 										"paddingTop": "3",
 										"textAlign": ""
 									},

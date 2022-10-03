@@ -27,14 +27,13 @@ import DetailsContent from './DetailsContent';
 import ManageCollaborators from './ManageCollaborators';
 import Subscribe from './Subscribe';
 import VersionsContent from './VersionsContent';
-import formatDate from './utils/formatDate';
 
 const SidebarPanelInfoView = ({
-	allVersions = [],
 	classPK,
 	createDate,
 	description,
 	downloadURL,
+	getItemVersionsURL,
 	languageTag = 'en',
 	latestVersions = [],
 	modifiedDate,
@@ -53,7 +52,7 @@ const SidebarPanelInfoView = ({
 }) => {
 	const [activeTabKeyValue, setActiveTabKeyValue] = useState(0);
 
-	const showTabs = !!(allVersions && allVersions.length);
+	const showTabs = !!getItemVersionsURL;
 
 	const [error, setError] = useState(false);
 
@@ -189,7 +188,6 @@ const SidebarPanelInfoView = ({
 								description={description}
 								downloadURL={downloadURL}
 								fetchSharingButtonURL={fetchSharingButtonURL}
-								formatDate={formatDate}
 								languageTag={languageTag}
 								modifiedDate={modifiedDate}
 								preview={preview}
@@ -203,9 +201,9 @@ const SidebarPanelInfoView = ({
 
 						<ClayTabs.TabPane aria-labelledby="tab-2">
 							<VersionsContent
-								allVersions={allVersions}
-								formatDate={formatDate}
+								getItemVersionsURL={getItemVersionsURL}
 								languageTag={languageTag}
+								onError={handleError}
 							/>
 						</ClayTabs.TabPane>
 					</ClayTabs.Content>
@@ -223,12 +221,12 @@ SidebarPanelInfoView.defaultProps = {
 };
 
 SidebarPanelInfoView.propTypes = {
-	allVersions: PropTypes.array.isRequired,
 	classPK: PropTypes.string.isRequired,
 	createDate: PropTypes.string.isRequired,
 	description: PropTypes.string,
 	fetchSharingButtonURL: PropTypes.string,
 	fetchSharingCollaboratorsURL: PropTypes.string,
+	getItemVersionsURL: PropTypes.string,
 	latestVersions: PropTypes.array.isRequired,
 	modifiedDate: PropTypes.string.isRequired,
 	preview: PropTypes.object,

@@ -2266,8 +2266,4 @@ public class CommerceInventoryWarehouseRelPersistenceImpl
 		return finderCache;
 	}
 
-	@Reference
-	private CommerceInventoryWarehouseRelModelArgumentsResolver
-		_commerceInventoryWarehouseRelModelArgumentsResolver;
-
 }

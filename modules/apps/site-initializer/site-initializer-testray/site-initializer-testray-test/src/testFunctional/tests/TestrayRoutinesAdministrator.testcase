@@ -45,12 +45,32 @@ definition {
 	}
 
 	@description = "This is a test for LPS-160583 - Verify if as an Administrator I should be able to add and delete a Routine with Default Environment Factors"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test AdminCanAddAndDeleteRoutineWithDefaultEnvironmentFactors {
+		task ("Given that the user add a new Routine") {
+			Testray.goToProjectPage(projectName = "Projects_1 Project");
 
-		// TODO LPS-160583 AdminCanAddAndDeleteRoutineWithDefaultEnvironmentFactors
+			TestrayRoutines.createRoutine(key_name = "Routines_1 Routine");
+		}
 
+		task ("And that the user add default environments factors") {
+			TestrayContextMenu.clickContextMenuProjects(name = "Routines_1 Routine");
+
+			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Select Default Environment Factors");
+
+			TestrayBuild.selectDefaultEnvironmentFactors(
+				label = "Application Server",
+				label1 = "Browser",
+				listCategory = "Application Server,Browser",
+				listOption = "JBoss 6.1",
+				listOption1 = "Chrome x");
+		}
+
+		task ("Then the routine is deleted with predefined environment factors, they should not appear in the list") {
+			TestrayRoutines.deleteRoutine(itemName = "Routines_1 Routine");
+
+			Testray.assertItemNotPresent(itemName = "Routines_1 Routine");
+		}
 	}
 
 	@description = "This is a test for LPS-160582 - Verify if as an Administrator I am able to add a Routine"
@@ -164,6 +184,48 @@ definition {
 
 		// TODO LPS-160585 AdminCanNotAddDuplicateRoutine pending implementation
 
+	}
+
+	@description = "This is a test for LPS-164145 - Verify that the user can not create a routine if all the required fields are not filled in"
+	@priority = "3"
+	test AdminCanViewRequiredField {
+		task ("Given that the user add a new Routine without name") {
+			Testray.goToProjectPage(projectName = "Projects_1 Project");
+
+			TestrayRoutines.createRoutine(key_name = "");
+		}
+
+		task ("Then the error message should appear") {
+			Testray.viewErrorMessage(
+				fieldLabel = "Name",
+				warningMessage = "name is a required field");
+		}
+	}
+
+	@description = "This is a test for LPS-164144 - Verify the user can access a project on Project Directory"
+	@priority = "3"
+	test CanGoToProjectDirectory {
+		task ("Given that the user add a new Project") {
+			Testray.createProjectTestray(
+				description = "Projects_2 Description",
+				key_name = "Projects_2 Project");
+
+			Testray.changePagination(
+				numberItems = "20",
+				valuePagination = "150");
+		}
+
+		task ("And the user goes to the new Project from the project directory") {
+			Testray.goToProjectPage(projectName = "Projects_1 Project");
+
+			Testray.assertProjectTitleHeader(projectName = "Projects_1 Project");
+
+			TestrayDropdown.selectProjectDirectory(project = "Projects_2 Project");
+		}
+
+		task ("Then the user goes to another project") {
+			Testray.assertProjectTitleHeader(projectName = "Projects_2 Project");
+		}
 	}
 
 }

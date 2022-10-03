@@ -285,7 +285,47 @@ public class RenderLayoutStructureTag extends IncludeTag {
 
 				ContainerTag containerTag = new ContainerTag();
 
-				containerTag.setCssClass("overflow-hidden px-0");
+				StringBundler containerCSSClassSB = new StringBundler(
+					"overflow-hidden px-0");
+
+				if (Objects.equals(
+						collectionStyledLayoutStructureItem.getListStyle(),
+						"flex-column")) {
+
+					containerCSSClassSB.append(" d-flex flex-column");
+				}
+				else if (Objects.equals(
+							collectionStyledLayoutStructureItem.getListStyle(),
+							"flex-row")) {
+
+					containerCSSClassSB.append(" d-flex flex-row");
+				}
+
+				String align = collectionStyledLayoutStructureItem.getAlign();
+
+				if (Validator.isNotNull(align)) {
+					containerCSSClassSB.append(StringPool.SPACE);
+					containerCSSClassSB.append(align);
+				}
+
+				String flexWrap =
+					collectionStyledLayoutStructureItem.getFlexWrap();
+
+				if (Validator.isNotNull(flexWrap)) {
+					containerCSSClassSB.append(StringPool.SPACE);
+					containerCSSClassSB.append(flexWrap);
+				}
+
+				String justify =
+					collectionStyledLayoutStructureItem.getJustify();
+
+				if (Validator.isNotNull(justify)) {
+					containerCSSClassSB.append(StringPool.SPACE);
+					containerCSSClassSB.append(justify);
+				}
+
+				containerTag.setCssClass(containerCSSClassSB.toString());
+
 				containerTag.setFluid(true);
 				containerTag.setPageContext(pageContext);
 
@@ -294,18 +334,18 @@ public class RenderLayoutStructureTag extends IncludeTag {
 				for (int i = 0; i < numberOfRows; i++) {
 					RowTag rowTag = new RowTag();
 
-					StringBundler cssClassSB = new StringBundler(3);
+					StringBundler rowCSSClassSB = new StringBundler(3);
 
-					cssClassSB.append("align-items-");
-					cssClassSB.append(
+					rowCSSClassSB.append("align-items-");
+					rowCSSClassSB.append(
 						collectionStyledLayoutStructureItem.
 							getVerticalAlignment());
 
 					if (!collectionStyledLayoutStructureItem.isGutters()) {
-						cssClassSB.append(" no-gutters");
+						rowCSSClassSB.append(" no-gutters");
 					}
 
-					rowTag.setCssClass(cssClassSB.toString());
+					rowTag.setCssClass(rowCSSClassSB.toString());
 
 					rowTag.setPageContext(pageContext);
 

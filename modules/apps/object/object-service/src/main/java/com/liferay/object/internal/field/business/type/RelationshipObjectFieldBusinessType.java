@@ -15,13 +15,16 @@
 package com.liferay.object.internal.field.business.type;
 
 import com.liferay.object.constants.ObjectFieldConstants;
+import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.dynamic.data.mapping.form.field.type.constants.ObjectDDMFormFieldTypeConstants;
 import com.liferay.object.field.business.type.ObjectFieldBusinessType;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.vulcan.extension.PropertyDefinition;
 
 import java.util.Locale;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -65,6 +68,12 @@ public class RelationshipObjectFieldBusinessType
 	@Override
 	public PropertyDefinition.PropertyType getPropertyType() {
 		return PropertyDefinition.PropertyType.LONG;
+	}
+
+	@Override
+	public Set<String> getRequiredObjectFieldSettingsNames() {
+		return SetUtil.fromArray(
+			ObjectFieldSettingConstants.OBJECT_DEFINITION_1_SHORT_NAME);
 	}
 
 	@Override

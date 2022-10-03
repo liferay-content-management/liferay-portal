@@ -2,7 +2,6 @@
 definition {
 
 	property captcha.enabled = "true";
-	property custom.properties = "feature.flag.LPS-150277=true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Fragments";
@@ -23,24 +22,6 @@ definition {
 				labelName = "Purchase Order",
 				objectName = "PurchaseOrder",
 				pluralLabelName = "Purchase Orders");
-
-			ObjectAdmin.addObjectFieldViaAPI(
-				fieldBusinessType = "Text",
-				fieldLabelName = "Name",
-				fieldName = "name",
-				fieldType = "String",
-				isRequired = "false",
-				objectName = "PurchaseOrder");
-
-			ObjectAdmin.publishObjectViaAPI(objectName = "PurchaseOrder");
-		}
-
-		task ("Enable Inputs Fragment collection in Gogo Shell") {
-			GogoShell.openGogoShellAdmin();
-
-			GogoShell.executeCommand(commandName = "scr:enable com.liferay.fragment.collection.contributor.inputs.InputsFragmentCollectionContributor");
-
-			GogoShell.viewOutput(outputContent = "true");
 		}
 	}
 
@@ -51,14 +32,6 @@ definition {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			task ("Disable Inputs Fragment collection in Gogo Shell") {
-				GogoShell.openGogoShellAdmin();
-
-				GogoShell.executeCommand(commandName = "scr:disable com.liferay.fragment.collection.contributor.inputs.InputsFragmentCollectionContributor");
-
-				GogoShell.viewOutput(outputContent = "true");
-			}
-
 			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
 
 			ObjectAdmin.deleteObjectViaAPI(objectName = "PurchaseOrder");
@@ -68,9 +41,19 @@ definition {
 	@description = "This is a test for LPS-155168. The page creator cannot input Text Verification and reload the Simple Captcha in page editor."
 	@priority = "4"
 	test CannotInputTextVerificationAndReloadSimpleCaptchaInPageEditor {
-		property test.name.skip.portal.instance = "CaptchaFragment#CannotInputTextVerificationAndReloadSimpleCaptchaInPageEditor";
-
 		task ("Given a page creator has a content page with a Form Container") {
+			task ("Add a Text field to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Text",
+					fieldLabelName = "Region",
+					fieldName = "region",
+					fieldType = "String",
+					isRequired = "false",
+					objectName = "PurchaseOrder");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "PurchaseOrder");
+			}
+
 			task ("Add a Form Container framgment to content page") {
 				JSONLayout.addPublicLayout(
 					groupName = "Test Site Name",
@@ -96,7 +79,8 @@ definition {
 		task ("When the page creator adds a Captcha fragment into Form Container") {
 			PageEditor.addFragmentToFormContainer(
 				collectionName = "Form Components",
-				fragmentName = "CAPTCHA");
+				fragmentName = "CAPTCHA",
+				targetFragmentName = "Text Input");
 		}
 
 		task ("Then the page creator cannot type text verification and reload simple captcha") {
@@ -111,9 +95,19 @@ definition {
 	@description = "This is a test for LPS-155168 and LPS-151402. The user could submit Text verification of Simple Captcha via clicking submit at view mode. The user could see error message when submit a form with wrong catpcha verification codes."
 	@priority = "4"
 	test SubmitTextVerificationViaClickingSubmit {
-		property test.name.skip.portal.instance = "CaptchaFragment#SubmitTextVerificationViaClickingSubmit";
-
 		task ("Given a site member has a content page with a Captcha and a Submit Button inside Form Container") {
+			task ("Add a Text field to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Text",
+					fieldLabelName = "Region",
+					fieldName = "region",
+					fieldType = "String",
+					isRequired = "false",
+					objectName = "PurchaseOrder");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "PurchaseOrder");
+			}
+
 			task ("Add a Form Container framgment to content page") {
 				JSONLayout.addPublicLayout(
 					groupName = "Test Site Name",
@@ -138,13 +132,8 @@ definition {
 			task ("Add a Captcha and a Submit Button fragment into Form Container") {
 				PageEditor.addFragmentToFormContainer(
 					collectionName = "Form Components",
-					fragmentName = "CAPTCHA");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Submit Button",
-					height = "Tall",
-					targetFragmentName = "CAPTCHA");
+					fragmentName = "CAPTCHA",
+					targetFragmentName = "Text Input");
 
 				PageEditor.publish();
 			}
@@ -172,9 +161,20 @@ definition {
 	@priority = "5"
 	test SubmitTextVerificationViaPressingEnter {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "CaptchaFragment#SubmitTextVerificationViaPressingEnter";
 
 		task ("Given a site member has a content page with a Captcha inside Form Container") {
+			task ("Add a Text field to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Text",
+					fieldLabelName = "Region",
+					fieldName = "region",
+					fieldType = "String",
+					isRequired = "false",
+					objectName = "PurchaseOrder");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "PurchaseOrder");
+			}
+
 			task ("Add a Form Container framgment to content page") {
 				JSONLayout.addPublicLayout(
 					groupName = "Test Site Name",
@@ -194,6 +194,10 @@ definition {
 				PageEditor.editFormContainer(
 					contentType = "Purchase Order",
 					panel = "General");
+
+				for (var fragmentName : list "Text Input,Submit Button") {
+					PageEditor.removeFragment(fragmentName = "${fragmentName}");
+				}
 			}
 
 			task ("Add a Captcha fragment into Form Container") {
@@ -233,6 +237,18 @@ definition {
 		property test.name.skip.portal.instance = "CaptchaFragment#SubmitVerificationOfReCaptcha";
 
 		task ("Given a site member has a content page with a reCaptcha and a Submit Button inside Form Container") {
+			task ("Add a Text field to object") {
+				ObjectAdmin.addObjectFieldViaAPI(
+					fieldBusinessType = "Text",
+					fieldLabelName = "Region",
+					fieldName = "region",
+					fieldType = "String",
+					isRequired = "false",
+					objectName = "PurchaseOrder");
+
+				ObjectAdmin.publishObjectViaAPI(objectName = "PurchaseOrder");
+			}
+
 			task ("Configure reCaptcha Engine") {
 				SystemSettings.openSystemSettingsAdmin();
 
@@ -280,12 +296,8 @@ definition {
 			task ("Add a Captcha and a Submit Button fragment into Form Container") {
 				PageEditor.addFragmentToFormContainer(
 					collectionName = "Form Components",
-					fragmentName = "CAPTCHA");
-
-				PageEditor.addFragmentToFormContainer(
-					collectionName = "Form Components",
-					fragmentName = "Submit Button",
-					targetFragmentName = "CAPTCHA");
+					fragmentName = "CAPTCHA",
+					targetFragmentName = "Text Input");
 
 				AssertElementPresent(locator1 = "IFrame#RECAPTCHA");
 

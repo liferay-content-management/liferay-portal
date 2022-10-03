@@ -40,12 +40,10 @@ import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -102,12 +100,6 @@ public class PortletCategoryManagerImpl implements PortletCategoryManager {
 				_getHighlightedPortletIds(
 					httpServletRequest, highlightedPortletCategory),
 				httpServletRequest, portletCategory, themeDisplay);
-
-		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158737"))) {
-			return JSONUtil.toJSONArray(
-				new ArrayList<>(portletCategoryJSONObjectsMap.values()),
-				portletCategoryJSONObject -> portletCategoryJSONObject);
-		}
 
 		List<String> sortedPortletCategoryKeys = _getSortedPortletCategoryKeys(
 			_portletPreferencesFactory.getPortalPreferences(
@@ -202,35 +194,37 @@ public class PortletCategoryManagerImpl implements PortletCategoryManager {
 				currentPortletCategory.getPath(), new String[] {"/", "."},
 				new String[] {"-", "-"});
 
-			portletCategoryJSONObjectsMap.put(
-				portletCategoryKey,
-				JSONUtil.put(
-					"categories",
-					() -> {
-						Map<String, JSONObject>
-							childPortletCategoryJSONObjectsMap =
-								_getPortletCategoryJSONObjectsMap(
-									highlightedPortletIds, httpServletRequest,
-									currentPortletCategory, themeDisplay);
+			Map<String, JSONObject> childPortletCategoryJSONObjectsMap =
+				_getPortletCategoryJSONObjectsMap(
+					highlightedPortletIds, httpServletRequest,
+					currentPortletCategory, themeDisplay);
 
-						return JSONUtil.toJSONArray(
-							childPortletCategoryJSONObjectsMap.values(),
-							portletCategoryJSONObject ->
-								portletCategoryJSONObject);
-					}
-				).put(
-					"path", portletCategoryKey
-				).put(
-					"portlets",
-					_getPortletsJSONArray(
-						highlightedPortletIds, httpServletRequest,
-						currentPortletCategory, themeDisplay)
-				).put(
-					"title",
-					_getPortletCategoryTitle(
-						httpServletRequest, currentPortletCategory,
-						themeDisplay)
-				));
+			JSONArray childPortletCategoriesJSONArray = JSONUtil.toJSONArray(
+				childPortletCategoryJSONObjectsMap.values(),
+				portletCategoryJSONObject -> portletCategoryJSONObject);
+
+			JSONArray portletsJSONArray = _getPortletsJSONArray(
+				highlightedPortletIds, httpServletRequest,
+				currentPortletCategory, themeDisplay);
+
+			if ((childPortletCategoriesJSONArray.length() > 0) ||
+				(portletsJSONArray.length() > 0)) {
+
+				portletCategoryJSONObjectsMap.put(
+					portletCategoryKey,
+					JSONUtil.put(
+						"categories", childPortletCategoriesJSONArray
+					).put(
+						"path", portletCategoryKey
+					).put(
+						"portlets", portletsJSONArray
+					).put(
+						"title",
+						_getPortletCategoryTitle(
+							httpServletRequest, currentPortletCategory,
+							themeDisplay)
+					));
+			}
 		}
 
 		return portletCategoryJSONObjectsMap;
@@ -313,9 +307,7 @@ public class PortletCategoryManagerImpl implements PortletCategoryManager {
 
 		Layout layout = themeDisplay.getLayout();
 
-		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158737")) &&
-			Objects.equals(portletCategory.getName(), "category.highlighted")) {
-
+		if (Objects.equals(portletCategory.getName(), "category.highlighted")) {
 			portletIds = highlightedPortletIds;
 		}
 

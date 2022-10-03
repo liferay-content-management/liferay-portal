@@ -34,6 +34,10 @@ definition {
 				groupName = "Global",
 				vocabularyName = "${vocabulary}");
 		}
+
+		JSONUser.tearDownNonAdminUsers();
+
+		JSONRole.deleteTestRoles();
 	}
 
 	@description = "LPS-116987 When the user makes a change on web content and creates a draft version, the Info panel shows the version for the last version approved and the version of the draft "
@@ -41,33 +45,30 @@ definition {
 	test ApprovedAndDraftStatus {
 		property portal.acceptance = "true";
 
-		task ("Create a Web Content and set a Display Page") {
+		task ("Create a Web Content") {
 			JSONWebcontent.addWebContent(
 				content = "Webcontent Content",
 				groupName = "Test Site Name",
 				title = "WC Content");
 		}
 
-		task ("Navigate to the content Dashboard, click edit web content and save as draft") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
-
-			WebContent.saveAsDraft();
+		task ("Navigate to the content Dashboard") {
+			ContentDashboard.goToContentDashboard();
 		}
 
-		task ("go back to web content and check for approved and draft versions") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+		task ("Edit the Web Content to draft version") {
+			ContentDashboard.editAsset(
+				assetNewTitle = "WC Content Edit",
+				assetTitle = "WC Content",
+				saveAsDraft = "true");
+		}
 
-			AssertElementPresent(
+		task ("Check for approved and draft versions") {
+			AssertVisible(
 				key_status = "Approved",
 				locator1 = "WCEditWebContent#WORKFLOW_STATUS");
 
-			AssertElementPresent(
+			AssertVisible(
 				key_status = "Draft",
 				locator1 = "WCEditWebContent#WORKFLOW_STATUS");
 		}
@@ -83,13 +84,20 @@ definition {
 				userLastName = "userln",
 				userScreenName = "usersn");
 
-			JSONRole.assignRoleToUser(
-				roleTitle = "Administrator",
-				userEmailAddress = "userea@liferay.com");
-
 			JSONUser.setFirstPassword(
 				agreeToTermsAndAnswerReminderQuery = "true",
 				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+		}
+
+		task ("Assign site role to user") {
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignSiteRoleToUser(
+				groupName = "Test Site Name",
+				roleTitle = "Site Owner",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -120,20 +128,28 @@ definition {
 				userLoginFullName = "Test Test");
 		}
 
+		task ("Login with Admin user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+		}
+
 		task ("Natigate to Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Check that both web contents are displayed and no filter is applyed") {
-			for (var assetName : list "Web Content Title 1,Web Content Title 2") {
-				LexiconTable.viewTableEntryTitle(tableEntry = "${assetName}");
-			}
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 1");
+
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 2");
 
 			AssertElementNotPresent(locator1 = "ContentDashboard#FILTER_TEXT");
-		}
-
-		task ("Delete user created") {
-			JSONUser.deleteUserByEmailAddress(userEmailAddress = "userea@liferay.com");
 		}
 	}
 
@@ -182,19 +198,19 @@ definition {
 			ContentDashboard.goToContentDashboard();
 
 			task ("blue - first position") {
-				AssertElementPresent(
+				AssertVisible(
 					fillColor = "4B9FFF",
 					locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
 			}
 
 			task ("orange - second position") {
-				AssertElementPresent(
+				AssertVisible(
 					fillColor = "FFB46E",
 					locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
 			}
 
 			task ("red - third position") {
-				AssertElementPresent(
+				AssertVisible(
 					fillColor = "FF5F5F",
 					locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
 			}
@@ -219,7 +235,9 @@ definition {
 		task ("When the info panel of a blog is open") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 		}
 
 		task ("Then the blog author's avatar and name are shown") {
@@ -227,7 +245,7 @@ definition {
 				locator1 = "ContentDashboard#INFO_PANEL_AUTHOR",
 				value1 = "Test Test");
 
-			AssertElementPresent(locator1 = "ContentDashboard#INFO_PANEL_AVATAR");
+			AssertVisible(locator1 = "ContentDashboard#INFO_PANEL_AVATAR");
 		}
 	}
 
@@ -275,28 +293,27 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the vocabularies, public and internal, and their categories are shown in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "ContentDashboard#INFO_PANEL_VOCABULARY_NAME",
 				vocabularyName = "Vocabulary Public");
 
-			AssertElementPresent(
+			AssertVisible(
 				categoryName = "CategoryPublic",
 				locator1 = "ContentDashboard#CATEGORY_LABEL_INFO_PANEL");
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "ContentDashboard#INFO_PANEL_VOCABULARY_NAME",
 				vocabularyName = "Vocabulary Internal");
 
-			AssertElementPresent(
+			AssertVisible(
 				categoryName = "CategoryInternal",
 				locator1 = "ContentDashboard#CATEGORY_LABEL_INFO_PANEL");
 		}
@@ -318,18 +335,17 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the Creation date in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
 			Panel.expandPanel(panel = "Details");
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "ContentDashboard#INFO_PANEL_TYPE_OF_DATE",
 				typeOfDate = "Creation Date");
 		}
@@ -351,18 +367,17 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the Display date in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
 			Panel.expandPanel(panel = "Details");
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "ContentDashboard#INFO_PANEL_TYPE_OF_DATE",
 				typeOfDate = "Display Date");
 		}
@@ -384,18 +399,17 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the ID in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
 			Panel.expandPanel(panel = "Details");
 
-			AssertElementPresent(locator1 = "ContentDashboard#INFO_PANEL_ID");
+			AssertVisible(locator1 = "ContentDashboard#INFO_PANEL_ID");
 		}
 	}
 
@@ -415,18 +429,17 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the Modified date in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
 			Panel.expandPanel(panel = "Details");
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "ContentDashboard#INFO_PANEL_TYPE_OF_DATE",
 				typeOfDate = "Modified Date");
 		}
@@ -460,24 +473,17 @@ definition {
 		}
 
 		task ("Go to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Check both blogs are listed") {
-			ContentDashboard.filterBySite(
-				filterOption = "Site or Asset Library",
-				siteName = "Test Site Name");
+			ContentDashboard.filterBySite(siteName = "Test Site Name");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
 				value1 = "Blogs Entry Title 1");
 
-			ContentDashboard.filterBySite(
-				filterOption = "Site or Asset Library",
-				siteName = "Test Site Name 2");
+			ContentDashboard.filterBySite(siteName = "Test Site Name 2");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -485,7 +491,7 @@ definition {
 		}
 
 		task ("Delete site created for this test") {
-			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
+			JSONGroup.deleteGroupByName(groupName = "Test Site Name 2");
 		}
 	}
 
@@ -517,15 +523,12 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Assert columns displayed") {
 			for (var columnHeader : list "Title,Author,Subtype,Site or Asset Library,Status,Audience,Stage,Modified Date") {
-				AssertElementPresent(
+				AssertVisible(
 					key_tableHeader = "${columnHeader}",
 					locator1 = "LexiconTable#TABLE_HEADER");
 			}
@@ -548,16 +551,15 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the status in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
-			AssertElementPresent(
+			AssertVisible(
 				assetStatus = "Approved",
 				locator1 = "ContentDashboard#INFO_PANEL_STATUS");
 		}
@@ -580,18 +582,17 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the tags are shown in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
-			AssertElementPresent(locator1 = "ContentDashboard#INFO_PANEL_TAGS_TITLE");
+			AssertVisible(locator1 = "ContentDashboard#INFO_PANEL_TAGS_TITLE");
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "ContentDashboard#TAG_LABEL_INFO_PANEL",
 				tagName = "tagname");
 		}
@@ -613,14 +614,13 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#INFO_PANEL_TITLE",
@@ -641,14 +641,13 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the type in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#INFO_PANEL_ASSET_TYPE",
@@ -672,17 +671,16 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the title in the Info panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Go to Content Dashboard and check the version in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Title");
 
 			AssertElementPresent(
-				assetVersion = "Version",
+				assetVersion = "Version 1.0",
 				locator1 = "ContentDashboard#INFO_PANEL_VERSION");
 		}
 	}
@@ -712,14 +710,9 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and filtering category") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.filterByCategory(
-				categoryNameList = "Test",
-				filterOption = "Categories");
+			ContentDashboard.filterByCategory(categoryNameList = "Test");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -784,13 +777,9 @@ definition {
 	@priority = "3"
 	test CategorizationInOOTBTable {
 		task ("Go to Documents and Media and clik on Add Button and File Upload") {
-			ProductMenu.gotoPortlet(
-				category = "Content & Data",
-				portlet = "Documents and Media");
-
-			LexiconEntry.gotoAdd();
-
-			MenuItem.click(menuItem = "File Upload");
+			DMNavigator.openToAddEntry(
+				groupName = "Test Site Name",
+				siteURLKey = "test-site-name");
 		}
 
 		task ("Go to categorization and check if Topic, Audience and Stage are present") {
@@ -870,18 +859,14 @@ definition {
 				locator1 = "Treeview#NODE_ITEM");
 		}
 
-		task ("Checking if the results bar appears") {
-			AssertTextPresent(
-				locator1 = "Treeview#FILTER_BY_RESULTS_BAR_MESSAGE",
-				value1 = "3 ");
-
-			AssertTextPresent(
-				locator1 = "Treeview#FILTER_BY_RESULTS_BAR_MESSAGE",
-				value1 = "Items Selected");
-		}
-
 		task ("Assert 'Clear All' disapears after clicking it") {
-			ContentDashboard.checkClearAllButtonNotPresent();
+			ClickNoError(
+				key_text = "Clear All",
+				locator1 = "Button#ANY");
+
+			AssertElementNotPresent(
+				key_text = "Clear All",
+				locator1 = "Button#ANY");
 		}
 
 		task ("Asserting that all checkboxes turns deselected") {
@@ -994,9 +979,7 @@ definition {
 		task ("Open filter modal at Content Dashboard and filtering category") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.filterByCategory(
-				categoryNameList = "Test",
-				filterOption = "Categories");
+			ContentDashboard.filterByCategory(categoryNameList = "Test");
 		}
 
 		task ("Returns to 'Select Categories' and checking if the results bar is present") {
@@ -1110,7 +1093,7 @@ definition {
 		}
 
 		task ("Assert 'Clear All' button appears at results bar") {
-			AssertElementPresent(
+			AssertVisible(
 				key_text = "Clear All",
 				locator1 = "Button#ANY");
 		}
@@ -1143,16 +1126,13 @@ definition {
 		}
 
 		task ("Check in Content Dashboard if WC is assiciated with Display Page Template") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
 				value1 = "Webcontent Title");
 
-			AssertElementPresent(locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED_DISPLAY_PAGE");
+			AssertVisible(locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED_DISPLAY_PAGE");
 		}
 	}
 
@@ -1169,10 +1149,7 @@ definition {
 		}
 
 		task ("Check in Content Dashboard if WC is assiciated with Display Page Template") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -1217,10 +1194,7 @@ definition {
 		}
 
 		task ("Check in Content Dashboard if WC is assiciated with Display Page Template") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -1244,7 +1218,9 @@ definition {
 		task ("When the user accesses the information panel") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "DM Document Title");
 
 			Panel.expandPanel(panel = "Details");
 		}
@@ -1294,7 +1270,8 @@ definition {
 			ContentDashboard.goToContentDashboard();
 
 			AssertTextPresent(
-				locator1 = "ContentDashboard#CATEGORY_OTHERS_LABEL",
+				assetName = "WC",
+				locator1 = "ContentDashboard#ASSET_CATEGORY_LABEL",
 				value1 = "+ 2");
 		}
 	}
@@ -1318,13 +1295,6 @@ definition {
 				type = "Display Page Template");
 		}
 
-		task ("Create a pending Web Content") {
-			JSONWebcontent.addWebContent(
-				content = "WebcontentContent",
-				groupName = "Test Site Name",
-				title = "Approved Web Content Title");
-		}
-
 		task ("Configure Web Content Article workflow to Single Approver") {
 			Workflow.openWorkflowAdmin(siteURLKey = "test-site-name");
 
@@ -1344,26 +1314,14 @@ definition {
 			ContentDashboard.goToContentDashboard();
 		}
 
-		task ("Chech that Metrics is present for approved asset") {
-			Click.clickNoMouseOver(
-				key_assetName = "Approved Web Content Title",
-				locator1 = "ContentDashboard#ROW_PANEL_ASSET_NAME");
-
-			AssertVisible(locator1 = "ContentDashboard#ICON_VIEW_METRICS");
-		}
-
 		task ("Check that Metrics icon is not present for pending asset") {
 			Click.clickNoMouseOver(
 				key_assetName = "Pending Web Content Title",
 				locator1 = "ContentDashboard#ROW_PANEL_ASSET_NAME");
 
-			AssertNotVisible(locator1 = "ContentDashboard#ICON_VIEW_METRICS");
-		}
-
-		task ("Check that Metrics option is not present at dropdown for pending asset") {
-			Click(locator1 = "ContentDashboard#ASSET_MENU_DROPDOWN_BUTTON");
-
-			AssertNotVisible(locator1 = "ContentDashboard#VIEW_OPTION");
+			AssertElementNotPresent(
+				locator1 = "ContentDashboard#QUICK_ACTION_ICON",
+				title = "View Metrics");
 		}
 	}
 
@@ -1455,16 +1413,15 @@ definition {
 		}
 
 		task ("Navigate to the content Dashboard and the user accesses the Blog Asset information panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Entry Content");
 		}
 
 		task ("Check if the share button is not present at info panel") {
-			AssertElementPresent(
+			AssertVisible(
 				key_text = "Share",
 				locator1 = "Button#ANY");
 		}
@@ -1484,12 +1441,11 @@ definition {
 		}
 
 		task ("Navigate to the content Dashboard and the user accesses the Web Content information panel") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "WC Content");
 		}
 
 		task ("Check if the share button is not present at info panel") {
@@ -1510,12 +1466,9 @@ definition {
 		}
 
 		task ("Check in Content Dashboard if the column is being displayed") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "ContentDashboard#SITE_ASSET_LIBRARY_COLUMN",
 				siteAssetValue = "Site or Asset Library");
 		}
@@ -1543,16 +1496,13 @@ definition {
 		}
 
 		task ("Check in Content Dashboard if the right information is being displayed") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "ContentDashboard#SITE_ASSET_LIBRARY_COLUMN",
 				siteAssetValue = "Test Site Name");
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "ContentDashboard#SITE_ASSET_LIBRARY_COLUMN",
 				siteAssetValue = "Second Test Site Name");
 		}
@@ -1601,34 +1551,6 @@ definition {
 				content = "Webcontent Content",
 				groupName = "Test Site Name",
 				title = "Webcontent Title");
-		}
-
-		task ("Navigate to content Dashboard and View the order of categories") {
-			ContentDashboard.goToContentDashboard();
-
-			task ("blue - first position") {
-				AssertElementPresent(
-					fillColor = "4B9FFF",
-					locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
-			}
-
-			task ("orange - second position") {
-				AssertElementPresent(
-					fillColor = "FFB46E",
-					locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
-			}
-
-			task ("red - third position") {
-				AssertElementPresent(
-					fillColor = "FF5F5F",
-					locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
-			}
-
-			task ("green - last position") {
-				AssertElementNotPresent(
-					fillColor = "50D2A0",
-					locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
-			}
 		}
 
 		task ("Create a new category and assign one of the contents") {
@@ -1690,14 +1612,15 @@ definition {
 		}
 
 		task ("Check in Content Dashboard if view option is NOT avalible for this WC") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
-			Click(locator1 = "ContentDashboard#ASSET_MENU_DROPDOWN_BUTTON");
+			Click.waitForMenuToggleJSClick(
+				key_tableEntry = "Web Content Title",
+				locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
 
-			AssertElementNotPresent(locator1 = "ContentDashboard#VIEW_OPTION");
+			AssertElementNotPresent(
+				key_menuItem = "View",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
 		}
 	}
 
@@ -1736,14 +1659,15 @@ definition {
 		}
 
 		task ("Check in Content Dashboard if view option is NOT avalible for this WC") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
-			Click(locator1 = "ContentDashboard#ASSET_MENU_DROPDOWN_BUTTON");
+			Click.waitForMenuToggleJSClick(
+				key_tableEntry = "Web Content Title",
+				locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
 
-			AssertElementNotPresent(locator1 = "ContentDashboard#VIEW_OPTION");
+			AssertElementNotPresent(
+				key_menuItem = "View",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
 		}
 	}
 
@@ -1774,9 +1698,9 @@ definition {
 		}
 
 		task ("Assert 'Clear All' disapears after clicking it") {
-			ContentDashboard.clearFilterTreeview(optionsList = "Basic Web Content,Basic Document");
+			ContentDashboard.cancelSelectFilterTreeview(optionsList = "Basic Web Content,Basic Document");
 
-			ContentDashboard.checkNoFiltersApplied();
+			AssertElementNotPresent(locator1 = "ContentDashboard#FILTER_BAR");
 		}
 	}
 
@@ -1819,18 +1743,14 @@ definition {
 				locator1 = "Treeview#NODE_ITEM");
 		}
 
-		task ("Checking if the results bar appears") {
-			AssertTextPresent(
-				locator1 = "Treeview#FILTER_BY_RESULTS_BAR_MESSAGE",
-				value1 = "1 ");
-
-			AssertTextPresent(
-				locator1 = "Treeview#FILTER_BY_RESULTS_BAR_MESSAGE",
-				value1 = "Item Selected");
-		}
-
 		task ("Assert 'Clear All' disapears after clicking it") {
-			ContentDashboard.checkClearAllButtonNotPresent();
+			ClickNoError(
+				key_text = "Clear All",
+				locator1 = "Button#ANY");
+
+			AssertElementNotPresent(
+				key_text = "Clear All",
+				locator1 = "Button#ANY");
 		}
 
 		task ("Checking if the results bar not appears") {
@@ -1888,26 +1808,26 @@ definition {
 
 		task ("Create a Role") {
 			JSONRole.addRegularRole(
-				roleKey = "WC Creator Edit Permissions",
-				roleTitle = "WC Creator Edit Permissions");
+				roleKey = "WC Creator Edit Permissions Test",
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_SITE_ADMINISTRATION",
 				resourceName = "com.liferay.portal.kernel.model.Group",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "ACCESS_IN_CONTROL_PANEL",
 				resourceName = "com_liferay_content_dashboard_web_portlet_ContentDashboardAdminPortlet",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_CONTROL_PANEL",
 				resourceName = "90",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			JSONRole.assignRoleToUser(
-				roleTitle = "WC Creator Edit Permissions",
+				roleTitle = "WC Creator Edit Permissions Test",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -1929,12 +1849,6 @@ definition {
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
 				value1 = "WC Title");
-		}
-
-		task ("Delete Role and User created") {
-			JSONRole.deleteRole(roleTitle = "WC Creator Edit Permissions");
-
-			JSONUser.deleteUserByEmailAddress(userEmailAddress = "userea@liferay.com");
 		}
 	}
 
@@ -1982,41 +1896,41 @@ definition {
 
 		task ("Crete a Role with proper permissons") {
 			JSONRole.addRegularRole(
-				roleKey = "WC Creator Edit Permissions",
-				roleTitle = "WC Creator Edit Permissions");
+				roleKey = "WC Creator Edit Permissions Test",
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW",
 				resourceName = "com.liferay.journal",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "ADD_ARTICLE",
 				resourceName = "com.liferay.journal",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_SITE_ADMINISTRATION",
 				resourceName = "com.liferay.portal.kernel.model.Group",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "ACCESS_IN_CONTROL_PANEL",
 				resourceName = "com_liferay_journal_web_portlet_JournalPortlet",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "ACCESS_IN_CONTROL_PANEL",
 				resourceName = "com_liferay_content_dashboard_web_portlet_ContentDashboardAdminPortlet",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_CONTROL_PANEL",
 				resourceName = "90",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			JSONRole.assignRoleToUser(
-				roleTitle = "WC Creator Edit Permissions",
+				roleTitle = "WC Creator Edit Permissions Test",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -2039,12 +1953,6 @@ definition {
 				locator1 = "ContentDashboard#DISPLAY_PAGE_TITLE",
 				value1 = "WC Title");
 		}
-
-		task ("Delete Role and User created") {
-			JSONRole.deleteRole(roleTitle = "WC Creator Edit Permissions");
-
-			JSONUser.deleteUserByEmailAddress(userEmailAddress = "userea@liferay.com");
-		}
 	}
 
 	@description = "LPS-121658 When a user with edit permissions (owner) clicks on the title of a content in status Approved with no associated DPT, the user is led to the web content editor"
@@ -2061,10 +1969,7 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and click on the title") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
 			LexiconTable.clickTableEntryColumnLink(
 				columnName = "title",
@@ -2072,7 +1977,7 @@ definition {
 		}
 
 		task ("Assert the web content is opened in the web content editor") {
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "Button#PUBLISH",
 				value1 = "Publish");
 		}
@@ -2125,26 +2030,26 @@ definition {
 
 		task ("Add a role with NO permissions") {
 			JSONRole.addRegularRole(
-				roleKey = "Blog Creator No Edit Permissions",
-				roleTitle = "Blog Creator No Edit Permissions");
+				roleKey = "Blog Creator No Edit Permissions Test",
+				roleTitle = "Blog Creator No Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_SITE_ADMINISTRATION",
 				resourceName = "com.liferay.portal.kernel.model.Group",
-				roleTitle = "Blog Creator No Edit Permissions");
+				roleTitle = "Blog Creator No Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "ACCESS_IN_CONTROL_PANEL",
 				resourceName = "com_liferay_content_dashboard_web_portlet_ContentDashboardAdminPortlet",
-				roleTitle = "Blog Creator No Edit Permissions");
+				roleTitle = "Blog Creator No Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_CONTROL_PANEL",
 				resourceName = "90",
-				roleTitle = "Blog Creator No Edit Permissions");
+				roleTitle = "Blog Creator No Edit Permissions Test");
 
 			JSONRole.assignRoleToUser(
-				roleTitle = "Blog Creator No Edit Permissions",
+				roleTitle = "Blog Creator No Edit Permissions Test",
 				userEmailAddress = "userea@liferay.com");
 
 			User.logoutAndLoginPG(
@@ -2164,12 +2069,6 @@ definition {
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
 				value1 = "Blogs Entry Title");
-		}
-
-		task ("Delete Role and User created") {
-			JSONRole.deleteRole(roleTitle = "Blog Creator No Edit Permissions");
-
-			JSONUser.deleteUserByEmailAddress(userEmailAddress = "userea@liferay.com");
 		}
 	}
 
@@ -2253,26 +2152,26 @@ definition {
 
 		task ("Add a role with NO permissions") {
 			JSONRole.addRegularRole(
-				roleKey = "Blog Creator No Edit Permissions",
-				roleTitle = "Blog Creator No Edit Permissions");
+				roleKey = "Blog Creator No Edit Permissions Test",
+				roleTitle = "Blog Creator No Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_SITE_ADMINISTRATION",
 				resourceName = "com.liferay.portal.kernel.model.Group",
-				roleTitle = "Blog Creator No Edit Permissions");
+				roleTitle = "Blog Creator No Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "ACCESS_IN_CONTROL_PANEL",
 				resourceName = "com_liferay_content_dashboard_web_portlet_ContentDashboardAdminPortlet",
-				roleTitle = "Blog Creator No Edit Permissions");
+				roleTitle = "Blog Creator No Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_CONTROL_PANEL",
 				resourceName = "90",
-				roleTitle = "Blog Creator No Edit Permissions");
+				roleTitle = "Blog Creator No Edit Permissions Test");
 
 			JSONRole.assignRoleToUser(
-				roleTitle = "Blog Creator No Edit Permissions",
+				roleTitle = "Blog Creator No Edit Permissions Test",
 				userEmailAddress = "userea@liferay.com");
 
 			User.logoutAndLoginPG(
@@ -2285,11 +2184,17 @@ definition {
 		}
 
 		task ("Assert the view and edit options are not available") {
-			Click(locator1 = "ContentDashboard#ASSET_MENU_DROPDOWN_BUTTON");
+			Click.waitForMenuToggleJSClick(
+				key_tableEntry = "Blogs Entry Title",
+				locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
 
-			AssertElementNotPresent(locator1 = "ContentDashboard#VIEW_OPTION");
+			AssertElementNotPresent(
+				key_menuItem = "View",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
 
-			AssertElementNotPresent(locator1 = "ContentDashboard#EDIT_OPTION");
+			AssertElementNotPresent(
+				key_menuItem = "Edit",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
 		}
 	}
 
@@ -2320,7 +2225,7 @@ definition {
 				columnName = "title",
 				tableEntry = "");
 
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "Button#PUBLISH",
 				value1 = "Publish");
 		}
@@ -2374,26 +2279,26 @@ definition {
 
 		task ("Add a role with NO permissions") {
 			JSONRole.addRegularRole(
-				roleKey = "WC Creator Edit Permissions",
-				roleTitle = "WC Creator Edit Permissions");
+				roleKey = "WC Creator Edit Permissions Test",
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_SITE_ADMINISTRATION",
 				resourceName = "com.liferay.portal.kernel.model.Group",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "ACCESS_IN_CONTROL_PANEL",
 				resourceName = "com_liferay_content_dashboard_web_portlet_ContentDashboardAdminPortlet",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_CONTROL_PANEL",
 				resourceName = "90",
-				roleTitle = "WC Creator Edit Permissions");
+				roleTitle = "WC Creator Edit Permissions Test");
 
 			JSONRole.assignRoleToUser(
-				roleTitle = "WC Creator Edit Permissions",
+				roleTitle = "WC Creator Edit Permissions Test",
 				userEmailAddress = "userea@liferay.com");
 
 			User.logoutAndLoginPG(
@@ -2413,12 +2318,6 @@ definition {
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
 				value1 = "DM Document Title");
-		}
-
-		task ("Delete Role and User created") {
-			JSONRole.deleteRole(roleTitle = "WC Creator Edit Permissions");
-
-			JSONUser.deleteUserByEmailAddress(userEmailAddress = "userea@liferay.com");
 		}
 	}
 
@@ -2492,7 +2391,7 @@ definition {
 		}
 
 		task ("Assert the web content is opened in the web content editor") {
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "Button#PUBLISH",
 				value1 = "Publish");
 		}
@@ -2528,7 +2427,7 @@ definition {
 		}
 
 		task ("Assert the web content is opened in the web content editor") {
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "Button#SUBMIT_FOR_PUBLICATION",
 				value1 = "Submit for Publication");
 		}
@@ -2566,7 +2465,7 @@ definition {
 		}
 
 		task ("Assert the web content is opened in the web content editor") {
-			AssertElementPresent(
+			AssertVisible(
 				locator1 = "Button#PUBLISH",
 				value1 = "Publish");
 		}
@@ -2597,10 +2496,7 @@ definition {
 		}
 
 		task ("Go to the Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Assert that both documents appear in the table") {
@@ -2645,14 +2541,38 @@ definition {
 				sourceFileName = "Document_1.txt");
 		}
 
+		task ("Add a Heading fragment to display page template") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				fragmentName = "Heading");
+		}
+
+		task ("Map custom field to editable field of Heading") {
+			PageEditorMapping.mapEditableTextToField(
+				field = "Title",
+				fragmentName = "Heading",
+				id = "element-text");
+
+			PageEditor.publish();
+		}
+
 		task ("Go to Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Click on the View icon and check the user is lead to the Display Page") {
-			Click.clickNoMouseOver(locator1 = "ContentDashboard#ROW_PANEL_WC");
+			ContentDashboard.clickQuickActionIcon(iconName = "View");
+		}
 
-			Click.javaScriptClick(locator1 = "ContentDashboard#ICON_VIEW_LISTED_MODIFIED_DATE");
+		task ("Assert the View Mode") {
+			ContentPages.viewFragmentText(
+				fragmentName = "heading",
+				id = "element-text",
+				text = "DM Document Title");
 		}
 	}
 
@@ -2686,7 +2606,7 @@ definition {
 
 		task ("Assert columns displayed") {
 			for (var columnHeader : list "Title,Author,Subtype,Site or Asset Library,Status,Audience,Stage,Modified Date") {
-				AssertElementPresent(
+				AssertVisible(
 					key_tableHeader = "${columnHeader}",
 					locator1 = "LexiconTable#TABLE_HEADER");
 			}
@@ -2727,16 +2647,14 @@ definition {
 		}
 
 		task ("Assert that both documents appear in the table") {
-			ContentDashboard.searchValue(webContentTitle = "DM Document Site 1");
-
-			AssertTextPresent(
-				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+			AssertTextEquals(
+				key_tableEntry = "DM Document Site 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_LINK",
 				value1 = "DM Document Site 1");
 
-			ContentDashboard.searchValue(webContentTitle = "DM Document Site 2");
-
-			AssertTextPresent(
-				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+			AssertTextEquals(
+				key_tableEntry = "DM Document Site 2",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_LINK",
 				value1 = "DM Document Site 2");
 		}
 
@@ -2776,7 +2694,9 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the type in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "DM Document Title");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#INFO_PANEL_ASSET_TYPE",
@@ -2799,20 +2719,19 @@ definition {
 		}
 
 		task ("Go to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Open the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "DM Document Title");
+
+			AssertVisible(locator1 = "ContentDashboard#INFO_PANEL");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#INFO_PANEL_TITLE",
 				value1 = "DM Document Title");
-
-			Click(locator1 = "ContentDashboard#CLOSE_INFO_PANEL_BUTTON");
 		}
 	}
 
@@ -2837,7 +2756,9 @@ definition {
 		}
 
 		task ("Edit the Blog") {
-			ContentDashboard.editAsset();
+			ContentDashboard.editAsset(
+				assetNewTitle = "Blogs Entry Title Edited",
+				assetTitle = "Blogs Entry Title");
 		}
 
 		task ("Assert the document has been edited") {
@@ -2869,7 +2790,9 @@ definition {
 		}
 
 		task ("Edit the document") {
-			ContentDashboard.editAsset(assetTitle = "DM Document Title Edited");
+			ContentDashboard.editAsset(
+				assetNewTitle = "DM Document Title Edited",
+				assetTitle = "DM Document Title");
 		}
 
 		task ("Assert the document has been edited") {
@@ -2894,7 +2817,9 @@ definition {
 		task ("Go to edit the asset") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.editAsset(assetTitle = "WC Title Edited");
+			ContentDashboard.editAsset(
+				assetNewTitle = "WC Title Edited",
+				assetTitle = "WC Title");
 		}
 
 		task ("Assert in title was porperty edited") {
@@ -2925,7 +2850,8 @@ definition {
 			ContentDashboard.goToContentDashboard();
 
 			AssertTextPresent(
-				locator1 = "ContentDashboard#EXPIRED_LABEL",
+				assetName = "WC Title",
+				locator1 = "ContentDashboard#ASSET_STATUS_LABEL",
 				value1 = "EXPIRED");
 		}
 	}
@@ -2940,7 +2866,9 @@ definition {
 		}
 
 		task ("Assert the Export XLS button is disabled") {
-			AssertNotEditable(locator1 = "ContentDashboard#EXPORT_XLS_BUTTON");
+			AssertNotEditable(
+				key_text = "Export XLS",
+				locator1 = "Button#ANY");
 		}
 	}
 
@@ -3024,7 +2952,7 @@ definition {
 		}
 
 		task ("Filter by author Me and assert asset displayed") {
-			ContentDashboard.filterByAuthorCard(filterOption = "Author");
+			ContentDashboard.filterByAuthor();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -3065,9 +2993,7 @@ definition {
 		ContentDashboard.goToContentDashboard();
 
 		task ("Filter by category") {
-			ContentDashboard.filterByCategory(
-				categoryNameList = "Category Name",
-				filterOption = "Categories");
+			ContentDashboard.filterByCategory(categoryNameList = "Category Name");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -3094,9 +3020,7 @@ definition {
 		task ("Filter asset by Global Site status in Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.filterBySite(
-				filterOption = "Site or Asset Library",
-				siteName = "Test Site Name");
+			ContentDashboard.filterBySite(siteName = "Test Site Name");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -3237,9 +3161,7 @@ definition {
 		task ("Filter by tag at Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.filterByTag(
-				filterOption = "Tags",
-				tagName = "tagname");
+			ContentDashboard.filterByTag(tagName = "tagname");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -3262,7 +3184,7 @@ definition {
 		ContentDashboard.goToContentDashboard();
 
 		task ("Filter author using table") {
-			ContentDashboard.filterByAuthorTable(filterOption = "Author");
+			ContentDashboard.filterByAuthor();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -3272,7 +3194,7 @@ definition {
 		task ("Filter author using list") {
 			ContentDashboard.clearFilters();
 
-			ContentDashboard.filterByAuthorList(filterOption = "Author");
+			ContentDashboard.filterByAuthor(viewOption = "List");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -3282,7 +3204,7 @@ definition {
 		task ("Filter author using cards") {
 			ContentDashboard.clearFilters();
 
-			ContentDashboard.filterByAuthorCard(filterOption = "Author");
+			ContentDashboard.filterByAuthor(viewOption = "Cards");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -3313,13 +3235,20 @@ definition {
 				userLastName = "userln",
 				userScreenName = "usersn");
 
-			JSONRole.assignRoleToUser(
-				roleTitle = "Administrator",
-				userEmailAddress = "userea@liferay.com");
-
 			JSONUser.setFirstPassword(
 				agreeToTermsAndAnswerReminderQuery = "true",
 				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+		}
+
+		task ("Assign site role to user") {
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignSiteRoleToUser(
+				groupName = "Test Site Name",
+				roleTitle = "Site Owner",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -3345,24 +3274,33 @@ definition {
 				userPassword = "test");
 		}
 
+		task ("Login with Admin user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+		}
+
 		task ("Navigate to Content Dashbaord") {
 			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Filter by Category: Category1 and Category2") {
-			ContentDashboard.filterByCategory(
-				categoryNameList = "Category1,Category2",
-				filterOption = "Categories");
+			ContentDashboard.filterByCategory(categoryNameList = "Category1,Category2");
 		}
 
 		task ("Filter by Author: Test test") {
-			ContentDashboard.filterByAuthorList(filterOption = "Author");
+			ContentDashboard.filterByAuthor();
 		}
 
 		task ("Assert if only one asset is displayed") {
-			LexiconTable.viewTableEntryTitle(tableEntry = "Web Content Title 1");
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 1");
 
-			LexiconTable.viewTableEntryNotPresent(tableEntry = "Web Content Title 2");
+			AssertElementNotPresent(
+				key_tableEntry = "Web Content Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY");
 		}
 	}
 
@@ -3393,19 +3331,11 @@ definition {
 		ContentDashboard.goToContentDashboard();
 
 		task ("Filter by category") {
-			ContentDashboard.filterByCategory(
-				categoryNameList = "Category Name",
-				filterOption = "Categories");
+			ContentDashboard.filterByCategory(categoryNameList = "Category Name");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
 				value1 = "WC WebContent Title");
-		}
-
-		task ("Delete the vocabulary") {
-			Category.openCategoriesAdmin(siteURLKey = "test-site-name");
-
-			Vocabulary.deleteByMenuCP(vocabularyName = "Vocabulary Name");
 		}
 	}
 
@@ -3432,13 +3362,20 @@ definition {
 				userLastName = "userln",
 				userScreenName = "usersn");
 
-			JSONRole.assignRoleToUser(
-				roleTitle = "Administrator",
-				userEmailAddress = "userea@liferay.com");
-
 			JSONUser.setFirstPassword(
 				agreeToTermsAndAnswerReminderQuery = "true",
 				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+		}
+
+		task ("Assign site role to user") {
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignSiteRoleToUser(
+				groupName = "Test Site Name",
+				roleTitle = "Site Owner",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -3464,24 +3401,33 @@ definition {
 				userPassword = "test");
 		}
 
+		task ("Login with Admin user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+		}
+
 		task ("Navigate to Content Dashbaord") {
 			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Filter by Category: Category1") {
-			ContentDashboard.filterByCategory(
-				categoryNameList = "Category1",
-				filterOption = "Categories");
+			ContentDashboard.filterByCategory(categoryNameList = "Category1");
 		}
 
 		task ("Filter by Author: Test test") {
-			ContentDashboard.filterByAuthorList(filterOption = "Author");
+			ContentDashboard.filterByAuthor();
 		}
 
 		task ("Assert if only one asset is displayed") {
-			LexiconTable.viewTableEntryTitle(tableEntry = "Web Content Title 1");
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 1");
 
-			LexiconTable.viewTableEntryNotPresent(tableEntry = "Web Content Title 2");
+			AssertElementNotPresent(
+				key_tableEntry = "Web Content Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY");
 		}
 	}
 
@@ -3508,13 +3454,20 @@ definition {
 				userLastName = "userln",
 				userScreenName = "usersn");
 
-			JSONRole.assignRoleToUser(
-				roleTitle = "Administrator",
-				userEmailAddress = "userea@liferay.com");
-
 			JSONUser.setFirstPassword(
 				agreeToTermsAndAnswerReminderQuery = "true",
 				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+		}
+
+		task ("Assign site role to user") {
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignSiteRoleToUser(
+				groupName = "Test Site Name",
+				roleTitle = "Site Owner",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -3540,26 +3493,34 @@ definition {
 				userPassword = "test");
 		}
 
+		task ("Login with Admin user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+		}
+
 		task ("Navigate to Content Dashbaord") {
 			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Filter by Category: Category1") {
-			ContentDashboard.filterByCategory(
-				categoryNameList = "Category1",
-				filterOption = "Categories");
+			ContentDashboard.filterByCategory(categoryNameList = "Category1");
 		}
 
 		task ("Filter by Author: Test test and userfn userln") {
-			ContentDashboard.filterByAuthorTable(
-				authorNameList = "Test,userfn",
-				filterOption = "Author");
+			ContentDashboard.filterByAuthor(authorNameList = "Test,userfn");
 		}
 
 		task ("Assert if both assets are displayed") {
-			for (var assetName : list "Web Content Title 1,Web Content Title 2") {
-				LexiconTable.viewTableEntryTitle(tableEntry = "${assetName}");
-			}
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 1");
+
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 2");
 		}
 	}
 
@@ -3600,21 +3561,22 @@ definition {
 		}
 
 		task ("Filter by Category: Category1") {
-			ContentDashboard.filterByCategory(
-				categoryNameList = "Category1",
-				filterOption = "Categories");
+			ContentDashboard.filterByCategory(categoryNameList = "Category1");
 		}
 
 		task ("Filter by Tag: tagnumber1") {
-			ContentDashboard.filterByTag(
-				filterOption = "Tags",
-				tagName = "tagnumber1");
+			ContentDashboard.filterByTag(tagName = "tagnumber1");
 		}
 
 		task ("Assert if only one asset is displayed") {
-			LexiconTable.viewTableEntryTitle(tableEntry = "Web Content Title 1");
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 1");
 
-			LexiconTable.viewTableEntryNotPresent(tableEntry = "Web Content Title 2");
+			AssertElementNotPresent(
+				key_tableEntry = "Web Content Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY");
 		}
 	}
 
@@ -3674,7 +3636,21 @@ definition {
 
 			ContentDashboard.openFilterModal(filterOption = "Extension");
 
-			ContentDashboard.checkMimeExtensionDisplayed(typeNameList = "Audio,Code,Presentation,Text");
+			AssertVisible(
+				key_nodeName = "Audio",
+				locator1 = "Treeview#NODE_ITEM_2");
+
+			AssertVisible(
+				key_nodeName = "Code",
+				locator1 = "Treeview#NODE_ITEM_2");
+
+			AssertVisible(
+				key_nodeName = "Presentation",
+				locator1 = "Treeview#NODE_ITEM_2");
+
+			AssertVisible(
+				key_nodeName = "Text",
+				locator1 = "Treeview#NODE_ITEM_2");
 		}
 	}
 
@@ -3702,13 +3678,9 @@ definition {
 		task ("Filter asset by tag in Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.filterByTag(
-				filterOption = "Tags",
-				tagName = "tagnumber1");
+			ContentDashboard.filterByTag(tagName = "tagnumber1");
 
-			ContentDashboard.filterByTag(
-				filterOption = "Tags",
-				tagName = "tagnumber2");
+			ContentDashboard.filterByTag(tagName = "tagnumber2");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -3731,9 +3703,7 @@ definition {
 		task ("Filter asset by Global Site status in Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.filterBySite(
-				filterOption = "Site or Asset Library",
-				siteName = "Global");
+			ContentDashboard.filterBySite(siteName = "Global");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -3764,16 +3734,14 @@ definition {
 
 			ContentDashboard.filterByStatus(filterOption = "Any");
 
-			ContentDashboard.searchValue(webContentTitle = "WC Title Approved");
-
-			AssertTextPresent(
-				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+			AssertTextEquals(
+				key_tableEntry = "WC Title Approved",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_LINK",
 				value1 = "WC Title Approved");
 
-			ContentDashboard.searchValue(webContentTitle = "WC Title Draft");
-
-			AssertTextPresent(
-				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+			AssertTextEquals(
+				key_tableEntry = "WC Title Draft",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_LINK",
 				value1 = "WC Title Draft");
 		}
 	}
@@ -3830,6 +3798,7 @@ definition {
 	test FilterByStatusExpiredDocument {
 		property custom.properties = "company.default.time.zone=America/Los_Angeles";
 		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "ContentDashboard#FilterByStatusExpiredDocument";
 
 		task ("Given an expired Document asset") {
 			task ("Set update interval") {
@@ -4003,20 +3972,6 @@ definition {
 
 			WebContent.editDisplayDate(displayDate = "01/01/2100");
 
-			Click(locator1 = "TextInput#DISPLAY_DATE_TIME");
-
-			AssertVisible(locator1 = "TextInput#DISPLAY_DATE_TIME_TIMEPICKER");
-
-			Click(locator1 = "TextInput#DISPLAY_DATE");
-
-			AssertNotVisible(locator1 = "TextInput#DISPLAY_DATE_TIME_TIMEPICKER");
-
-			Click(locator1 = "TextInput#DISPLAY_DATE_TIME");
-
-			Click(locator1 = "TextInput#DISPLAY_DATE_TIME_TIMEPICKER");
-
-			AssertNotVisible(locator1 = "TextInput#DISPLAY_DATE_TIME_TIMEPICKER");
-
 			PortletEntry.publish();
 		}
 
@@ -4046,10 +4001,7 @@ definition {
 		}
 
 		task ("Navigate to the content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Filter by Type") {
@@ -4161,9 +4113,15 @@ definition {
 		}
 
 		task ("Assert if both assets are displayed") {
-			for (var assetName : list "Web Content Title,Blogs Entry Title") {
-				LexiconTable.viewTableEntryTitle(tableEntry = "${assetName}");
-			}
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title");
+
+			AssertTextEquals(
+				key_tableEntry = "Blogs Entry Title",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Blogs Entry Title");
 		}
 	}
 
@@ -4183,9 +4141,7 @@ definition {
 		task ("Filter by tag at Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.filterByTag(
-				filterOption = "Tags",
-				tagName = "test_tag");
+			ContentDashboard.filterByTag(tagName = "test_tag");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -4204,9 +4160,7 @@ definition {
 		}
 
 		task ("Create a web content structure") {
-			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
-
-			NavItem.gotoStructures();
+			WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
 			WebContentStructures.addCP(structureName = "WC Structure Name");
 
@@ -4234,13 +4188,19 @@ definition {
 		}
 
 		task ("Filter assets by both structure types") {
-			ContentDashboard.filterByType(typeName = "Basic Web Content,WC Structure Name");
+			ContentDashboard.filterByType(typeNameList = "Basic Web Content,WC Structure Name");
 		}
 
 		task ("Assert if both assets are displayed") {
-			for (var assetName : list "Web Content Title 1,Web Content Title 2") {
-				LexiconTable.viewTableEntryTitle(tableEntry = "${assetName}");
-			}
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 1");
+
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 2");
 		}
 	}
 
@@ -4300,9 +4260,7 @@ definition {
 		task ("navigate to the content dashboard, filter by tags and make sure there is only one tag") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.filterByTag(
-				filterOption = "Tags",
-				tagName = "test_tag");
+			ContentDashboard.filterByTag(tagName = "test_tag");
 		}
 
 		task ("Assert if both Web Contents are displayed") {
@@ -4310,16 +4268,14 @@ definition {
 				locator1 = "ContentDashboard#FILTER_TEXT",
 				value1 = "Tag: test_tag");
 
-			ContentDashboard.searchValue(webContentTitle = "Web Content Title 1");
-
-			AssertTextPresent(
-				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_LINK",
 				value1 = "Web Content Title 1");
 
-			ContentDashboard.searchValue(webContentTitle = "Web Content Title 2");
-
-			AssertTextPresent(
-				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_LINK",
 				value1 = "Web Content Title 2");
 		}
 	}
@@ -4336,13 +4292,18 @@ definition {
 				title = "Webcontent Title");
 		}
 
-		task ("Check it in its display page and access the edit") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+		task ("Go to ContentDashboard") {
+			ContentDashboard.goToContentDashboard();
+		}
 
-			Click.clickNoMouseOver(locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED_MODIFIED_DATE");
+		task ("Click at edit icon") {
+			ContentDashboard.clickQuickActionIcon(iconName = "Edit");
+		}
+
+		task ("Check location at web content editor") {
+			AssertLocation.assertPartialLocation(value1 = "com_liferay_journal_web_portlet_JournalPortlet");
+
+			AssertLocation.assertPartialLocation(value1 = "edit_article.jsp");
 		}
 	}
 
@@ -4370,15 +4331,16 @@ definition {
 				content = "WC Content",
 				groupName = "Test Site Name",
 				title = "teste");
+		}
 
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+		task ("Go to ContentDashboard") {
+			ContentDashboard.goToContentDashboard();
+		}
 
-			Click.clickNoMouseOver(locator1 = "ContentDashboard#ROW_PANEL_WC");
+		task ("Check that user can open info panel") {
+			ContentDashboard.clickQuickActionIcon(iconName = "Info");
 
-			Click(locator1 = "ContentDashboard#ICON_INFO_LISTED_MODIFIED_DATE");
+			AssertVisible(locator1 = "ContentDashboard#INFO_PANEL");
 		}
 	}
 
@@ -4407,16 +4369,15 @@ definition {
 		}
 
 		task ("Go to the Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Open the info panel and collapse the Categorization section") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "WC WebContent Title");
 
-			AssertElementPresent(
+			AssertVisible(
 				categoryName = "Category Name",
 				locator1 = "ContentDashboard#CATEGORY_LABEL_INFO_PANEL");
 
@@ -4453,16 +4414,15 @@ definition {
 		}
 
 		task ("Go to the Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Open the info panel and expand the Categorization section") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "WC WebContent Title");
 
-			AssertElementPresent(
+			AssertVisible(
 				categoryName = "Category Name",
 				locator1 = "ContentDashboard#CATEGORY_LABEL_INFO_PANEL");
 
@@ -4474,7 +4434,7 @@ definition {
 
 			Panel.expandPanel(panel = "Categorization");
 
-			AssertElementPresent(
+			AssertVisible(
 				categoryName = "Category Name",
 				locator1 = "ContentDashboard#CATEGORY_LABEL_INFO_PANEL");
 		}
@@ -4496,7 +4456,9 @@ definition {
 			}
 
 			task ("Open info panel") {
-				ContentDashboard.openInfoPanelByDropdownMenu();
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "Web Content Title");
 			}
 		}
 
@@ -4529,7 +4491,9 @@ definition {
 			}
 
 			task ("Open info panel") {
-				ContentDashboard.openInfoPanelByDropdownMenu();
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "Web Content Title");
 			}
 		}
 
@@ -4675,9 +4639,15 @@ definition {
 			Button.clickPublish();
 		}
 
-		task ("Navigate to the content Dashboard and go to the page view in the corresponding language") {
+		task ("Navigate to Content Dashboard and open info panel") {
 			ContentDashboard.goToContentDashboard();
 
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "WC WebContent Title");
+		}
+
+		task ("Click to view page in the corresponding language") {
 			ContentDashboard.viewAssetsTranslatedVersion(language = "es-ES");
 		}
 
@@ -4960,13 +4930,9 @@ definition {
 		}
 
 		task ("Go to Documents and Media and clik on Add Button and File Upload") {
-			ProductMenu.gotoPortlet(
-				category = "Content & Data",
-				portlet = "Documents and Media");
+			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-site-name");
 
-			LexiconEntry.gotoAdd();
-
-			MenuItem.click(menuItem = "File Upload");
+			DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "File Upload");
 		}
 
 		task ("Check if the Vocabulary appears in the list") {
@@ -4995,13 +4961,9 @@ definition {
 		}
 
 		task ("Go to Documents and Media and clik on Add Button and File Upload") {
-			ProductMenu.gotoPortlet(
-				category = "Content & Data",
-				portlet = "Documents and Media");
+			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-site-name");
 
-			LexiconEntry.gotoAdd();
-
-			MenuItem.click(menuItem = "File Upload");
+			DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "File Upload");
 		}
 
 		task ("Check if the Vocabulary appears in the list") {
@@ -5194,10 +5156,7 @@ definition {
 		}
 
 		task ("Go to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Check if the correct number of entries are being displayed") {
@@ -5220,10 +5179,7 @@ definition {
 		}
 
 		task ("Go to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Use < > buttons to move forth and back") {
@@ -5252,10 +5208,7 @@ definition {
 		}
 
 		task ("Go to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Use page numbers to move between pages") {
@@ -5288,26 +5241,26 @@ definition {
 
 		task ("Create a new role and its permissions") {
 			JSONRole.addRegularRole(
-				roleKey = "Content Dashboard User",
-				roleTitle = "Content Dashboard User");
+				roleKey = "Content Dashboard User Test",
+				roleTitle = "Content Dashboard User Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_SITE_ADMINISTRATION",
 				resourceName = "com.liferay.portal.kernel.model.Group",
-				roleTitle = "Content Dashboard User");
+				roleTitle = "Content Dashboard User Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "ACCESS_IN_CONTROL_PANEL",
 				resourceName = "com_liferay_content_dashboard_web_portlet_ContentDashboardAdminPortlet",
-				roleTitle = "Content Dashboard User");
+				roleTitle = "Content Dashboard User Test");
 
 			Permissions.definePermissionViaJSONAPI(
 				resourceAction = "VIEW_CONTROL_PANEL",
 				resourceName = "90",
-				roleTitle = "Content Dashboard User");
+				roleTitle = "Content Dashboard User Test");
 
 			JSONRole.assignRoleToUser(
-				roleTitle = "Content Dashboard User",
+				roleTitle = "Content Dashboard User Test",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -5316,16 +5269,7 @@ definition {
 				userLoginEmailAddress = "userea@liferay.com",
 				userLoginFullName = "userfn userln");
 
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
-		}
-
-		task ("Delete user and role created") {
-			JSONUser.deleteUserByEmailAddress(userEmailAddress = "userea@liferay.com");
-
-			JSONRole.deleteRole(roleTitle = "Content Dashboard User");
+			ContentDashboard.goToContentDashboard();
 		}
 	}
 
@@ -5347,7 +5291,9 @@ definition {
 		task ("When the user opens asset Info Panel at Content Dashboard ") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Blogs Title");
 		}
 
 		task ("Then a preview of the blog image must appear in the Info Panel") {
@@ -5372,9 +5318,11 @@ definition {
 		task ("Edit Web Content") {
 			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.filterByAuthorTable(filterOption = "Author");
+			ContentDashboard.filterByAuthor();
 
-			ContentDashboard.editAsset(assetTitle = "WC Title Edited");
+			ContentDashboard.editAsset(
+				assetNewTitle = "WC Title Edited",
+				assetTitle = "WC Title");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FILTER_TEXT",
@@ -5463,12 +5411,11 @@ definition {
 		task ("Go to Content Dashboard and Edit WC") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
-			ContentDashboard.editAsset(assetTitle = "WC WebContent New Title");
+			ContentDashboard.editAsset(
+				assetNewTitle = "WC WebContent New Title",
+				assetTitle = "WC WebContent Title");
 		}
 
 		task ("Check if content is correct") {
@@ -5505,16 +5452,13 @@ definition {
 		}
 
 		task ("Check in Content Dashboard if WC is assiciated with Display Page Template") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
 				value1 = "Webcontent Title");
 
-			AssertElementPresent(locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED_DISPLAY_PAGE");
+			AssertVisible(locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED_DISPLAY_PAGE");
 		}
 	}
 
@@ -5531,10 +5475,7 @@ definition {
 		}
 
 		task ("Check if WC is not associated in Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -5560,9 +5501,16 @@ definition {
 				agreeToTermsAndAnswerReminderQuery = "true",
 				requireReset = "false",
 				userEmailAddress = "userea@liferay.com");
+		}
 
-			JSONRole.assignRoleToUser(
-				roleTitle = "Administrator",
+		task ("Assign site role to user") {
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignSiteRoleToUser(
+				groupName = "Test Site Name",
+				roleTitle = "Site Owner",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -5589,6 +5537,12 @@ definition {
 			PortletEntry.publish();
 		}
 
+		task ("Login with Admin user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+		}
+
 		task ("Go to Content Dashboard and aplly All filter") {
 			ContentDashboard.goToContentDashboard();
 
@@ -5596,16 +5550,14 @@ definition {
 		}
 
 		task ("Check if all contents are being displayed") {
-			ContentDashboard.searchValue(webContentTitle = "WC Title 1");
-
-			AssertTextPresent(
-				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+			AssertTextEquals(
+				key_tableEntry = "WC Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_LINK",
 				value1 = "WC Title 1");
 
-			ContentDashboard.searchValue(webContentTitle = "WC Title 2");
-
-			AssertTextPresent(
-				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+			AssertTextEquals(
+				key_tableEntry = "WC Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_LINK",
 				value1 = "WC Title 2");
 		}
 	}
@@ -5627,9 +5579,16 @@ definition {
 				agreeToTermsAndAnswerReminderQuery = "true",
 				requireReset = "false",
 				userEmailAddress = "userea@liferay.com");
+		}
 
-			JSONRole.assignRoleToUser(
-				roleTitle = "Administrator",
+		task ("Assign site role to user") {
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignSiteRoleToUser(
+				groupName = "Test Site Name",
+				roleTitle = "Site Owner",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -5661,14 +5620,18 @@ definition {
 			PortletEntry.publish();
 		}
 
+		task ("Login with Admin user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+		}
+
 		task ("Navigate to Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Filter by both authors and assert both assets are displayed") {
-			ContentDashboard.filterByAuthorTable(
-				authorNameList = "Test,userfn",
-				filterOption = "Author");
+			ContentDashboard.filterByAuthor(authorNameList = "Test,userfn");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -5677,10 +5640,6 @@ definition {
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
 				value1 = "WC Title 1");
-		}
-
-		task ("Delete user created") {
-			JSONUser.deleteUserByEmailAddress(userEmailAddress = "userea@liferay.com");
 		}
 	}
 
@@ -5701,9 +5660,16 @@ definition {
 				agreeToTermsAndAnswerReminderQuery = "true",
 				requireReset = "false",
 				userEmailAddress = "userea@liferay.com");
+		}
 
-			JSONRole.assignRoleToUser(
-				roleTitle = "Administrator",
+		task ("Assign site role to user") {
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignSiteRoleToUser(
+				groupName = "Test Site Name",
+				roleTitle = "Site Owner",
 				userEmailAddress = "userea@liferay.com");
 		}
 
@@ -5745,12 +5711,18 @@ definition {
 				webContentTitleEdit = "WC Title Edit");
 		}
 
+		task ("Login with Admin user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+		}
+
 		task ("Navigate to Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Filter by author Me and assert asset displayed") {
-			ContentDashboard.filterByAuthorMe(filterOption = "Me");
+			ContentDashboard.filterByAuthor(authorNameList = "userfn");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
@@ -5759,10 +5731,6 @@ definition {
 			AssertTextNotPresent(
 				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
 				value1 = "WC Title Edit");
-		}
-
-		task ("Delete user created") {
-			JSONUser.deleteUserByEmailAddress(userEmailAddress = "userea@liferay.com");
 		}
 	}
 
@@ -5784,10 +5752,7 @@ definition {
 		}
 
 		task ("Go to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Assert the type of the web content is shown in the Type column") {
@@ -5810,10 +5775,7 @@ definition {
 		}
 
 		task ("Go to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Assert the type of the web content is shown in the Type column") {
@@ -5872,7 +5834,7 @@ definition {
 				locator1 = "Checkbox#ANY_CHECKBOX");
 
 			task ("blue - first position") {
-				AssertElementPresent(
+				AssertVisible(
 					fillColor = "4B9FFF",
 					locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
 			}
@@ -5884,7 +5846,7 @@ definition {
 			}
 
 			task ("red - third position") {
-				AssertElementPresent(
+				AssertVisible(
 					fillColor = "FF5F5F",
 					locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
 			}
@@ -5954,7 +5916,9 @@ definition {
 		}
 
 		task ("Check the info panel of the asset") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Web Content Title");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#INFO_PANEL_TITLE",
@@ -5986,14 +5950,38 @@ definition {
 				content = "WC Content",
 				groupName = "Test Site Name",
 				title = "WC");
+		}
 
+		task ("Add a Heading fragment to display page template") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				fragmentName = "Heading");
+		}
+
+		task ("Map custom field to editable field of Heading") {
+			PageEditorMapping.mapEditableTextToField(
+				field = "Title",
+				fragmentName = "Heading",
+				id = "element-text");
+
+			PageEditor.publish();
+		}
+
+		task ("Click at view icon at Content Dashboard") {
 			ContentDashboard.goToContentDashboard();
 
-			Click.clickNoMouseOver(locator1 = "ContentDashboard#ROW_PANEL_WC");
+			ContentDashboard.clickQuickActionIcon(iconName = "View");
+		}
 
-			WaitForElementPresent(locator1 = "ContentDashboard#ICON_VIEW_LISTED_MODIFIED_DATE");
-
-			Click.javaScriptClick(locator1 = "ContentDashboard#ICON_VIEW_LISTED_MODIFIED_DATE");
+		task ("Assert the View Mode") {
+			ContentPages.viewFragmentText(
+				fragmentName = "heading",
+				id = "element-text",
+				text = "WC");
 		}
 	}
 
@@ -6033,7 +6021,9 @@ definition {
 		}
 
 		task ("Go to Content Dashboard and check the type in the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "Web Content Title");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#INFO_PANEL_ASSET_TYPE",
@@ -6054,20 +6044,17 @@ definition {
 		}
 
 		task ("Go to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Open the Info panel") {
-			ContentDashboard.openInfoPanelByDropdownMenu();
+			LexiconTable.clickEllipsisItem(
+				item = "Info",
+				tableEntry = "WC Title");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#INFO_PANEL_TITLE",
 				value1 = "WC Title");
-
-			Click(locator1 = "ContentDashboard#CLOSE_INFO_PANEL_BUTTON");
 		}
 	}
 

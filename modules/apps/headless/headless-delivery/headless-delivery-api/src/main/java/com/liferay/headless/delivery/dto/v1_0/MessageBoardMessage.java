@@ -436,6 +436,34 @@ public class MessageBoardMessage implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String friendlyUrlPath;
 
+	@Schema
+	public Boolean getHasCompanyMx() {
+		return hasCompanyMx;
+	}
+
+	public void setHasCompanyMx(Boolean hasCompanyMx) {
+		this.hasCompanyMx = hasCompanyMx;
+	}
+
+	@JsonIgnore
+	public void setHasCompanyMx(
+		UnsafeSupplier<Boolean, Exception> hasCompanyMxUnsafeSupplier) {
+
+		try {
+			hasCompanyMx = hasCompanyMxUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean hasCompanyMx;
+
 	@Schema(description = "The message's main title.")
 	public String getHeadline() {
 		return headline;
@@ -1054,6 +1082,16 @@ public class MessageBoardMessage implements Serializable {
 			sb.append(_escape(friendlyUrlPath));
 
 			sb.append("\"");
+		}
+
+		if (hasCompanyMx != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"hasCompanyMx\": ");
+
+			sb.append(hasCompanyMx);
 		}
 
 		if (headline != null) {

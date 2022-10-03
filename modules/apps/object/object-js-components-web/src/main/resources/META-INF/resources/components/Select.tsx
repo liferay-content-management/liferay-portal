@@ -69,9 +69,10 @@ export function Select({
 						key={index}
 						label={label ?? name}
 						selected={
-							value === key ?? value === label ?? value === name
+							value !== undefined &&
+							(value === key ?? value === name ?? value === label)
 						}
-						value={key ?? label ?? name}
+						value={key ?? name ?? label}
 					/>
 				))}
 			</ClaySelect>

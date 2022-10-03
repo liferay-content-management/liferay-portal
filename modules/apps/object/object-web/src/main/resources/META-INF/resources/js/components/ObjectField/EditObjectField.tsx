@@ -69,6 +69,7 @@ interface IProps {
 	objectField: ObjectField;
 	objectFieldTypes: ObjectFieldType[];
 	objectName: string;
+	objectRelationshipId: number;
 	readOnly: boolean;
 	workflowStatusJSONArray: LabelValueObject[];
 }
@@ -87,6 +88,7 @@ export default function EditObjectField({
 	objectField: initialValues,
 	objectFieldTypes,
 	objectName,
+	objectRelationshipId,
 	readOnly,
 	workflowStatusJSONArray,
 }: IProps) {
@@ -111,7 +113,6 @@ export default function EditObjectField({
 
 	const onSubmit = async ({id, ...objectField}: ObjectField) => {
 		delete objectField.system;
-		delete objectField.relationshipId;
 
 		try {
 			await API.save(
@@ -564,6 +565,7 @@ export default function EditObjectField({
 					objectField={values}
 					objectFieldTypes={objectFieldTypes}
 					objectName={objectName}
+					objectRelationshipId={objectRelationshipId}
 					onAggregationFilterChange={setAggregationFilters}
 					onRelationshipChange={setObjectDefinitionId2}
 					setValues={setValues}
@@ -650,7 +652,6 @@ export default function EditObjectField({
 
 			{values.DBType !== 'Blob' && (
 				<SearchableContainer
-					disabled={disableFieldFormBase}
 					errors={errors}
 					isApproved={isApproved}
 					objectField={values}

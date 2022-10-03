@@ -5323,8 +5323,8 @@ tell application "Safari" to quit
 
 							<if>
 								<and>
+									<contains string="${database.version}" substring="11.5" />
 									<equals arg1="${database.type}" arg2="db2" />
-									<equals arg1="${database.version}" arg2="11.5.6" />
 								</and>
 								<then>
 									<get-testcase-property property.name="databases.size" />
@@ -7023,8 +7023,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<if>
 				<and>
+					<contains string="${database.version}" substring="11.5" />
 					<equals arg1="${database.type}" arg2="db2" />
-					<equals arg1="${database.version}" arg2="11.5.6" />
 				</and>
 				<then>
 					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '~/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
@@ -13091,8 +13091,8 @@ database.partition.enabled=true</echo>
 
 				<if>
 					<and>
+						<contains string="${database.version}" substring="11.5" />
 						<equals arg1="${database.type}" arg2="db2" />
-						<equals arg1="${database.version}" arg2="11.5.6" />
 					</and>
 					<then>
 						<echo file="${import.database.sh.file.path}">
@@ -15228,6 +15228,99 @@ url=${short.hostname}:8080</echo>
 		<start-docker-database />
 	</target>
 
+	<target name="start-docker-database-db2">
+		<if>
+			<not>
+				<isset property="database.version" />
+			</not>
+			<then>
+				<var name="database.version" value="11.5.7.0" />
+			</then>
+		</if>
+
+		<if>
+			<or>
+				<equals arg1="${database.version}" arg2="11.1" />
+				<equals arg1="${database.version}" arg2="11.1.3" />
+			</or>
+			<then>
+				<var name="database.db2.docker.image" value="liferay/liferay-ci-environment:db2-11.1.3.3_1.0.0" />
+				<var name="database.db2.docker.run.options" value="-p 25010:50000 --privileged=true" />
+			</then>
+			<else>
+				<var name="database.db2.docker.image" value="ibmcom/db2:${database.version}" />
+				<var name="database.db2.docker.run.options" value="-itd --privileged=true -p 25010:50000 --env=LICENSE=accept --env=DB2INST1_PASSWORD=password -v /tmp/database ibmcom/db2:${database.version}" />
+			</else>
+		</if>
+
+		<get-database-property property.name="database.host" />
+
+		<antcall target="stop-docker-database">
+			<param name="database.db2.host" value="${database.host}_db2" />
+			<param name="database.type" value="db2" />
+		</antcall>
+
+		<antcall inheritAll="false" target="start-docker-database">
+			<param name="database.db2.docker.image" value="${database.db2.docker.image}" />
+			<param name="database.db2.docker.run.options" value="${database.db2.docker.run.options}" />
+			<param name="database.db2.host" value="${database.host}_db2" />
+			<param name="database.db2.name" value="DB2" />
+			<param name="database.db2.password" value="password" />
+			<param name="database.db2.username" value="db2inst1" />
+			<param name="database.db2.version" value="${database.version}" />
+			<param name="database.type" value="db2" />
+		</antcall>
+
+		<if>
+			<not>
+				<isset property="skip.prepare.portal.ext.properties" />
+			</not>
+			<then>
+				<antcall inheritAll="false" target="prepare-portal-ext-properties">
+					<param name="database.db2.password" value="password" />
+					<param name="database.db2.schema" value="lportal" />
+					<param name="database.db2.url" value="jdbc:db2://${database.host}:25010/${database.db2.schema}:deferPrepares=false;fullyMaterializeInputStreams=true;fullyMaterializeLobData=true;progresssiveLocators=2;progressiveStreaming=2;" />
+					<param name="database.db2.username" value="db2inst1" />
+					<param name="database.type" value="db2" />
+				</antcall>
+			</then>
+		</if>
+
+		<if>
+			<not>
+				<isset property="skip.rebuild.database" />
+			</not>
+			<then>
+				<antcall target="rebuild-database">
+					<param name="database.db2.docker.image" value="${database.db2.docker.image}" />
+					<param name="database.db2.host" value="${database.host}_db2" />
+					<param name="database.db2.password" value="password" />
+					<param name="database.db2.username" value="db2inst1" />
+					<param name="database.db2.version" value="${database.version}" />
+					<param name="database.type" value="db2" />
+					<param name="sql.dir" value="sql/create-bare/" />
+					<param name="sql.file" value="create-bare-db2.sql" />
+				</antcall>
+			</then>
+		</if>
+
+		<if>
+			<not>
+				<isset property="skip.copy.optional.jars" />
+			</not>
+			<then>
+				<get-test-app-server-lib-portal-dir />
+
+				<antcall target="copy-optional-jars">
+					<param name="database.db2.version" value="${database.version}" />
+					<param name="database.type" value="db2" />
+					<param name="test.jdbc.drivers.url" value="http://mirrors.lax.liferay.com/files.liferay.com/private/jdbc" />
+					<param name="todir" value="${test.app.server.lib.portal.dir}" />
+				</antcall>
+			</then>
+		</if>
+	</target>
+
 	<target name="start-docker-database-mariadb">
 		<if>
 			<not>
@@ -15240,14 +15333,11 @@ url=${short.hostname}:8080</echo>
 
 		<if>
 			<equals arg1="${database.version}" arg2="10.2" />
-
 			<then>
 				<var name="database.version" value="10.2.25" />
 			</then>
-
 			<elseif>
 				<equals arg1="${database.version}" arg2="10.4" />
-
 				<then>
 					<var name="database.version" value="10.4.14" />
 				</then>
@@ -15422,18 +15512,12 @@ url=${short.hostname}:8080</echo>
 
 		<if>
 			<equals arg1="${database.version}" arg2="2017" />
-
 			<then>
 				<var name="database.sqlserver.docker.image" value="mcr.microsoft.com/mssql/server:2017-CU19-ubuntu-16.04" />
 			</then>
-
-			<elseif>
-				<equals arg1="${database.version}" arg2="2019" />
-
-				<then>
-					<var name="database.sqlserver.docker.image" value="mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04" />
-				</then>
-			</elseif>
+			<else>
+				<var name="database.sqlserver.docker.image" value="mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04" />
+			</else>
 		</if>
 
 		<get-database-property property.name="database.host" />

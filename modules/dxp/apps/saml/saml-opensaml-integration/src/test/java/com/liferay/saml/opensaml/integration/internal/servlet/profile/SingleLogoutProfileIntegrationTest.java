@@ -17,6 +17,7 @@ package com.liferay.saml.opensaml.integration.internal.servlet.profile;
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.struts.Definition;
 import com.liferay.portal.struts.TilesUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
@@ -90,16 +91,24 @@ public class SingleLogoutProfileIntegrationTest extends BaseSamlTestCase {
 
 		_singleLogoutProfileImpl = new SingleLogoutProfileImpl();
 
-		_singleLogoutProfileImpl.setIdentifierGenerationStrategyFactory(
+		ReflectionTestUtil.setFieldValue(
+			_singleLogoutProfileImpl, "identifierGenerationStrategyFactory",
 			identifierGenerationStrategyFactory);
-		_singleLogoutProfileImpl.setMetadataManager(metadataManagerImpl);
-		_singleLogoutProfileImpl.setPortal(portal);
+		ReflectionTestUtil.setFieldValue(
+			_singleLogoutProfileImpl, "metadataManager", metadataManagerImpl);
+		ReflectionTestUtil.setFieldValue(
+			_singleLogoutProfileImpl, "portal", portal);
+
 		_singleLogoutProfileImpl.setSamlBindings(samlBindings);
-		_singleLogoutProfileImpl.setSamlPeerBindingLocalService(
+
+		ReflectionTestUtil.setFieldValue(
+			_singleLogoutProfileImpl, "_samlPeerBindingLocalService",
 			samlPeerBindingLocalService);
-		_singleLogoutProfileImpl.setSamlProviderConfigurationHelper(
+		ReflectionTestUtil.setFieldValue(
+			_singleLogoutProfileImpl, "samlProviderConfigurationHelper",
 			samlProviderConfigurationHelper);
-		_singleLogoutProfileImpl.setSamlSpSessionLocalService(
+		ReflectionTestUtil.setFieldValue(
+			_singleLogoutProfileImpl, "samlSpSessionLocalService",
 			_samlSpSessionLocalService);
 
 		prepareServiceProvider(SP_ENTITY_ID);

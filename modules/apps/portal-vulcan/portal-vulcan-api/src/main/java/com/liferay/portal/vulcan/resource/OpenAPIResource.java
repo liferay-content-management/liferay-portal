@@ -15,10 +15,12 @@
 package com.liferay.portal.vulcan.resource;
 
 import com.liferay.portal.vulcan.openapi.OpenAPISchemaFilter;
+import com.liferay.portal.vulcan.openapi.contributor.OpenAPIContributor;
 
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.http.HttpServletRequest;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.HttpHeaders;
@@ -37,6 +39,20 @@ public interface OpenAPIResource {
 		throws Exception {
 
 		return getOpenAPI(resourceClasses, type);
+	}
+
+	public Response getOpenAPI(
+			HttpServletRequest httpServletRequest,
+			Set<Class<?>> resourceClasses, String type, UriInfo uriInfo)
+		throws Exception;
+
+	public default Response getOpenAPI(
+			OpenAPIContributor openAPIContributor,
+			OpenAPISchemaFilter openAPISchemaFilter,
+			Set<Class<?>> resourceClasses, String type, UriInfo uriInfo)
+		throws Exception {
+
+		return null;
 	}
 
 	public default Response getOpenAPI(

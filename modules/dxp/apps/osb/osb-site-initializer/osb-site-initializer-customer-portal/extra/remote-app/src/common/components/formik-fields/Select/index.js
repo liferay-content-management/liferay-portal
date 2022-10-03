@@ -60,10 +60,10 @@ const Select = ({
 					<ClayIcon className="select-icon" symbol="caret-bottom" />
 
 					<ClaySelect {...field} {...props}>
-						{options.map(({disabled, label, value}) => (
+						{options.map(({disabled, label, value}, index) => (
 							<ClaySelect.Option
 								disabled={disabled}
-								key={value}
+								key={`${value}-${index}`}
 								label={label}
 								value={value}
 							/>
@@ -72,13 +72,11 @@ const Select = ({
 				</div>
 			</label>
 
-			{meta.touched &&
-				meta.error &&
-				props.required(
-					<Badge>
-						<span className="pl-1">{meta.error}</span>
-					</Badge>
-				)}
+			{meta.touched && meta.error && props.required && (
+				<Badge>
+					<span className="pl-1">{meta.error}</span>
+				</Badge>
+			)}
 
 			{helper && (
 				<div className="ml-3 pl-3 text-neutral-6 text-paragraph-sm">

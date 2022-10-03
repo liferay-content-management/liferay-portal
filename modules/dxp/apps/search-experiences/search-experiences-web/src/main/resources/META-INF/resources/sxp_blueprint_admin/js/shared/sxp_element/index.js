@@ -20,6 +20,7 @@ import getCN from 'classnames';
 import {PropTypes} from 'prop-types';
 import React, {useContext, useEffect, useState} from 'react';
 
+import {ASSET_CATEGORY_ID} from '../../utils/constants';
 import {DEFAULT_SXP_ELEMENT_ICON} from '../../utils/data';
 import {INPUT_TYPES} from '../../utils/inputTypes';
 import {
@@ -40,6 +41,7 @@ import NumberInput from './NumberInput';
 import SelectInput from './SelectInput';
 import SliderInput from './SliderInput';
 import TextInput from './TextInput';
+import CategorySelectorInput from './category_selector_input/index';
 
 /**
  * Converts the searchable types to be compatible with ClaySelect options prop.
@@ -193,6 +195,21 @@ function SXPElement({
 					/>
 				);
 			case INPUT_TYPES.MULTISELECT:
+				if (config.name === `${ASSET_CATEGORY_ID}s`) {
+					return (
+						<CategorySelectorInput
+							disabled={disabled}
+							id={inputId}
+							label={config.label}
+							multiple={true}
+							name={inputName}
+							setFieldTouched={setFieldTouched}
+							setFieldValue={setFieldValue}
+							value={uiConfigurationValues[config.name]}
+						/>
+					);
+				}
+
 				return (
 					<MultiSelectInput
 						disabled={disabled}
@@ -205,6 +222,21 @@ function SXPElement({
 					/>
 				);
 			case INPUT_TYPES.NUMBER:
+				if (config.name === ASSET_CATEGORY_ID) {
+					return (
+						<CategorySelectorInput
+							disabled={disabled}
+							id={inputId}
+							label={config.label}
+							multiple={false}
+							name={inputName}
+							setFieldTouched={setFieldTouched}
+							setFieldValue={setFieldValue}
+							value={uiConfigurationValues[config.name]}
+						/>
+					);
+				}
+
 				return (
 					<NumberInput
 						configKey={config.name}
