@@ -75,6 +75,9 @@ export default function propsTransformer({
 					onFormSuccess: () => window.location.reload(),
 				});
 			}
+			else if (item?.data?.action === 'uploadFile') {
+				window[`${portletNamespace}UploadFile`]();
+			}
 		},
 	};
 }

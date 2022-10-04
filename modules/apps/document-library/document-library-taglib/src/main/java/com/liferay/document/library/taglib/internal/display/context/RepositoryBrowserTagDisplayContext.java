@@ -119,6 +119,16 @@ public class RepositoryBrowserTagDisplayContext {
 		return breadcrumbEntries;
 	}
 
+	public Map<String, Object> getContext() {
+		return HashMapBuilder.<String, Object>put(
+			"parentFolderId", String.valueOf(_folderId)
+		).put(
+			"repositoryBrowserURL", _getRepositoryBrowserURL()
+		).put(
+			"repositoryId", String.valueOf(_repositoryId)
+		).build();
+	}
+
 	public String getDeleteFileEntryURL(FileEntry fileEntry) {
 		return HttpComponentsUtil.addParameter(
 			_getRepositoryBrowserURL(), "fileEntryId",
