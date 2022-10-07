@@ -15,6 +15,10 @@
 		max-width: 100%;
 	}
 
+	.card-type-asset.card-body-none .card-body {
+		display: none;
+	}
+
 	.folder-search {
 		float: right;
 		margin: 0 0 0.5em 0.5em;

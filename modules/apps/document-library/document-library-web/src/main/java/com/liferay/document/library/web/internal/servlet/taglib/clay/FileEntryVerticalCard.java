@@ -68,7 +68,7 @@ public class FileEntryVerticalCard implements VerticalCard {
 	@Override
 	public String getCssClass() {
 		if (!_dlPortletInstanceSettingsHelper.isShowActions()) {
-			return "card-interactive card-interactive-secondary";
+			return "card-body-none card-interactive card-interactive-secondary";
 		}
 
 		return "card-interactive card-interactive-secondary";
