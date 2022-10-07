@@ -16,7 +16,8 @@
 
 <%@ include file="/init.jsp" %>
 
-<%@ page import="com.liferay.document.library.web.internal.display.context.IGConfigurationDisplayContext" %>
+<%@ page import="com.liferay.document.library.web.internal.display.context.IGConfigurationDisplayContext" %><%@
+page import="com.liferay.document.library.web.internal.servlet.taglib.clay.FileEntryVerticalCard" %>
 
 <%
 if (layout.isTypeControlPanel()) {
