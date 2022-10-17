@@ -190,7 +190,8 @@ public class KBAdminNavigationDisplayContext {
 			JSONArray navigationItemsJSONArray = null;
 
 			if (!mvcPath.equals("/admin/view_kb_suggestions.jsp") &&
-				!mvcPath.equals("/admin/view_kb_templates.jsp")) {
+				!mvcPath.equals("/admin/view_kb_templates.jsp") &&
+				!mvcPath.equals("/admin/view_kb_template.jsp")) {
 
 				active = true;
 				navigationItemsJSONArray = _getChildrenJSONArray();
@@ -231,7 +232,9 @@ public class KBAdminNavigationDisplayContext {
 
 			boolean active = false;
 
-			if (mvcPath.equals("/admin/view_kb_templates.jsp")) {
+			if (mvcPath.equals("/admin/view_kb_templates.jsp") ||
+				mvcPath.equals("/admin/view_kb_template.jsp")) {
+
 				active = true;
 			}
 
@@ -251,6 +254,11 @@ public class KBAdminNavigationDisplayContext {
 					"key", "template"
 				).put(
 					"navigationItems", _getNavigationItemsJSONArray()
+				).put(
+					"selectedItemId",
+					ParamUtil.getLong(
+						_httpServletRequest, "selectedItemId",
+						KBFolderConstants.DEFAULT_PARENT_FOLDER_ID)
 				).put(
 					"title", LanguageUtil.get(_httpServletRequest, "templates")
 				));
@@ -450,12 +458,16 @@ public class KBAdminNavigationDisplayContext {
 					PortletURLBuilder.createRenderURL(
 						_liferayPortletResponse
 					).setMVCPath(
-						"/admin/common/edit_kb_template.jsp"
+						"/admin/view_kb_template.jsp"
 					).setRedirect(
 						PortalUtil.getCurrentURL(_httpServletRequest)
 					).setParameter(
 						"kbTemplateId", kbTemplate.getKbTemplateId()
+					).setParameter(
+						"selectedItemId", kbTemplate.getPrimaryKey()
 					).buildString()
+				).put(
+					"id", kbTemplate.getPrimaryKey()
 				).put(
 					"name", kbTemplate.getTitle()
 				));

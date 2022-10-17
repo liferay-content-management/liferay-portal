@@ -452,6 +452,8 @@ public class KBDropdownItemsProvider {
 						"/admin/view_kb_template.jsp"
 					).setParameter(
 						"kbTemplateId", kbTemplate.getKbTemplateId()
+					).setParameter(
+						"selectedItemId", kbTemplate.getPrimaryKey()
 					).buildRenderURL());
 				dropdownItem.setIcon("view");
 				dropdownItem.setLabel(
