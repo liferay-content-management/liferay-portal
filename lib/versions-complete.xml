@@ -5938,7 +5938,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.portal.tika.jar!tika-core.jar</file-name>
-				<version>1.26</version>
+				<version>1.28.2</version>
 				<project-name>Apache Tika core</project-name>
 				<project-url>http://tika.apache.org/</project-url>
 				<licenses>
