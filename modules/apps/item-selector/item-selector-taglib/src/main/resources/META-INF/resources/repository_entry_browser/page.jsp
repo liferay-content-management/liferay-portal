@@ -160,7 +160,7 @@ SearchContainer<?> searchContainer = new SearchContainer(renderRequest, itemSele
 								return null;
 							}
 						).put(
-							"validExtensions", StringUtil.merge(extensions)
+							"validExtensions", "*"
 						).build()
 					%>'
 					module="repository_entry_browser/js/ItemSelectorRepositoryEntryBrowser"
