@@ -577,9 +577,7 @@ public class UIItemsBuilder {
 			PortletURLBuilder.create(
 				_getActionURL(
 					"/document_library/edit_file_entry", Constants.DELETE,
-					_getRenderURL(
-						"/document_library/view_file_entry", _getCurrentURL()
-					).toString())
+					_getCurrentURL())
 			).setParameter(
 				"fileEntryId", _fileEntry.getFileEntryId()
 			).setParameter(
@@ -765,9 +763,7 @@ public class UIItemsBuilder {
 			PortletURLBuilder.create(
 				_getActionURL(
 					"/document_library/edit_file_entry", Constants.REVERT,
-					_getRenderURL(
-						"/document_library/view_file_entry", _getCurrentURL()
-					).toString())
+					_getCurrentURL())
 			).setParameter(
 				"fileEntryId", _fileEntry.getFileEntryId()
 			).setParameter(
