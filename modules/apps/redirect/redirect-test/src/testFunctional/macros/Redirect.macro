@@ -145,7 +145,7 @@ definition {
 		if ("${patternIndex}" != "0") {
 			Click(
 				key_index = "${patternIndex}",
-				locator1 = "Icon#PLUS_REPEATABLE");
+				locator1 = "Button#ADD_REPEATABLE");
 		}
 
 		Type(

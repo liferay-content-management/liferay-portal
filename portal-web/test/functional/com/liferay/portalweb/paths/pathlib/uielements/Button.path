@@ -21,6 +21,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ADD_REPEATABLE</td>
+	<td>//button[contains(@class, 'repeatable-add-button')][${key_index}]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>DISABLED_BUTTON</td>
 	<td>//button[@disabled]</td>
 	<td></td>
