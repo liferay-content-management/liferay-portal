@@ -316,11 +316,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>PLUS_REPEATABLE</td>
-	<td>(//*[*[name()='svg'][contains(@class,'icon-plus')]])[${key_index}]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>REMOVE</td>
 	<td>//*[*[name()='svg'][contains(@class,'lexicon-icon-times-circle')]]</td>
 	<td></td>
