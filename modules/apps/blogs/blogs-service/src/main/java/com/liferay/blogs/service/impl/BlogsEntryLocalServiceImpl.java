@@ -1511,7 +1511,9 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 			// Resources
 
-			if (oldStatus == WorkflowConstants.STATUS_DRAFT) {
+			if (GetterUtil.getBoolean(
+					serviceContext.getAttribute("isCreationScreen"))) {
+
 				if (serviceContext.isAddGroupPermissions() ||
 					serviceContext.isAddGuestPermissions()) {
 
