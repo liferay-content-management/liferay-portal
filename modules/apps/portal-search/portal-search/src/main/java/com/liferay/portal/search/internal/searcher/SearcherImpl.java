@@ -40,7 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author André de Oliveira
  */
-@Component(immediate = true, service = Searcher.class)
+@Component(service = Searcher.class)
 public class SearcherImpl implements Searcher {
 
 	@Override
@@ -109,7 +109,8 @@ public class SearcherImpl implements Searcher {
 	protected IndexSearcherHelper indexSearcherHelper;
 
 	@Reference
-	protected SearchRequestContributorsHolder searchRequestContributorsHolder;
+	protected SearchRequestContributorsRegistry
+		searchRequestContributorsRegistry;
 
 	@Reference
 	protected SearchResponseBuilderFactory searchResponseBuilderFactory;
@@ -131,7 +132,7 @@ public class SearcherImpl implements Searcher {
 		SearchRequest searchRequest) {
 
 		Stream<SearchRequestContributor> stream =
-			searchRequestContributorsHolder.stream(
+			searchRequestContributorsRegistry.stream(
 				searchRequest.getIncludeContributors(),
 				searchRequest.getExcludeContributors());
 

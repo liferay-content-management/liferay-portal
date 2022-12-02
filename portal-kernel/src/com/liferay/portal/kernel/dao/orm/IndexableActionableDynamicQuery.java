@@ -14,25 +14,16 @@
 
 package com.liferay.portal.kernel.dao.orm;
 
-import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
-import com.liferay.portal.kernel.search.Indexer;
-import com.liferay.portal.kernel.search.IndexerRegistryUtil;
-import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.search.background.task.ReindexStatusMessageSenderUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
-import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -95,15 +86,9 @@ public class IndexableActionableDynamicQuery
 		}
 	}
 
-	public void setSearchEngineId(String searchEngineId) {
-		_searchEngineId = searchEngineId;
-	}
-
 	@Override
 	protected void actionsCompleted() throws PortalException {
-		if (Validator.isNotNull(_searchEngineId)) {
-			_indexWriterHelper.commit(_searchEngineId, getCompanyId());
-		}
+		_indexWriterHelper.commit(getCompanyId());
 	}
 
 	@Override
@@ -118,22 +103,13 @@ public class IndexableActionableDynamicQuery
 		}
 	}
 
-	protected String getSearchEngineId() {
-		return _searchEngineId;
-	}
-
 	protected void indexInterval() throws PortalException {
 		if ((_documents == null) || _documents.isEmpty()) {
 			return;
 		}
 
-		if (Validator.isNull(_searchEngineId)) {
-			_searchEngineId = _getSearchEngineId(_documents);
-		}
-
 		_indexWriterHelper.updateDocuments(
-			_searchEngineId, getCompanyId(), new ArrayList<>(_documents),
-			false);
+			getCompanyId(), new ArrayList<>(_documents), false);
 
 		_count += _documents.size();
 
@@ -157,39 +133,7 @@ public class IndexableActionableDynamicQuery
 			modelClass.getName(), _count + documentIntervalCount, _total);
 	}
 
-	private String _getSearchEngineId(Collection<Document> documents) {
-		if (!documents.isEmpty()) {
-			Iterator<Document> iterator = documents.iterator();
-
-			Document document = iterator.next();
-
-			return _getSearchEngineId(document);
-		}
-
-		return SearchEngineHelper.SYSTEM_ENGINE_ID;
-	}
-
-	private String _getSearchEngineId(Document document) {
-		String entryClassName = document.get("entryClassName");
-
-		Indexer<?> indexer = IndexerRegistryUtil.getIndexer(entryClassName);
-
-		String searchEngineId = indexer.getSearchEngineId();
-
-		if (_log.isDebugEnabled()) {
-			_log.debug(
-				StringBundler.concat(
-					"Search engine ID ", searchEngineId, " is associated with ",
-					ClassUtil.getClassName(indexer)));
-		}
-
-		return searchEngineId;
-	}
-
 	private static final long _STATUS_INTERVAL = 1000;
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		IndexableActionableDynamicQuery.class);
 
 	private static volatile IndexWriterHelper _indexWriterHelperProxy =
 		ServiceProxyFactory.newServiceTrackedInstance(
@@ -199,7 +143,6 @@ public class IndexableActionableDynamicQuery
 	private long _count;
 	private Collection<Document> _documents = new ArrayList<>();
 	private IndexWriterHelper _indexWriterHelper = _indexWriterHelperProxy;
-	private String _searchEngineId;
 	private long _total;
 
 }

@@ -362,6 +362,39 @@ public class ObjectField implements Serializable {
 	protected Map<String, String> label;
 
 	@Schema
+	public String getListTypeDefinitionExternalReferenceCode() {
+		return listTypeDefinitionExternalReferenceCode;
+	}
+
+	public void setListTypeDefinitionExternalReferenceCode(
+		String listTypeDefinitionExternalReferenceCode) {
+
+		this.listTypeDefinitionExternalReferenceCode =
+			listTypeDefinitionExternalReferenceCode;
+	}
+
+	@JsonIgnore
+	public void setListTypeDefinitionExternalReferenceCode(
+		UnsafeSupplier<String, Exception>
+			listTypeDefinitionExternalReferenceCodeUnsafeSupplier) {
+
+		try {
+			listTypeDefinitionExternalReferenceCode =
+				listTypeDefinitionExternalReferenceCodeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String listTypeDefinitionExternalReferenceCode;
+
+	@Schema
 	public Long getListTypeDefinitionId() {
 		return listTypeDefinitionId;
 	}
@@ -754,6 +787,20 @@ public class ObjectField implements Serializable {
 			sb.append(_toJSON(label));
 		}
 
+		if (listTypeDefinitionExternalReferenceCode != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"listTypeDefinitionExternalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(listTypeDefinitionExternalReferenceCode));
+
+			sb.append("\"");
+		}
+
 		if (listTypeDefinitionId != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -873,7 +920,8 @@ public class ObjectField implements Serializable {
 
 		AGGREGATION("Aggregation"), ATTACHMENT("Attachment"),
 		BOOLEAN("Boolean"), DATE("Date"), DECIMAL("Decimal"),
-		INTEGER("Integer"), LONG_INTEGER("LongInteger"), LONG_TEXT("LongText"),
+		FORMULA("Formula"), INTEGER("Integer"), LONG_INTEGER("LongInteger"),
+		LONG_TEXT("LongText"), MULTISELECT_PICKLIST("MultiselectPicklist"),
 		PICKLIST("Picklist"), PRECISION_DECIMAL("PrecisionDecimal"),
 		RELATIONSHIP("Relationship"), RICH_TEXT("RichText"), TEXT("Text");
 

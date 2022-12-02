@@ -14,6 +14,7 @@
 
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
+import {useEventListener} from '@liferay/frontend-js-react-web';
 import classNames from 'classnames';
 import {openToast, sub} from 'frontend-js-web';
 import PropTypes from 'prop-types';
@@ -23,7 +24,14 @@ import {addMappingFields} from '../../../../../app/actions/index';
 import {fromControlsId} from '../../../../../app/components/layout-data-items/Collection';
 import {ITEM_ACTIVATION_ORIGINS} from '../../../../../app/config/constants/itemActivationOrigins';
 import {ITEM_TYPES} from '../../../../../app/config/constants/itemTypes';
+import {
+	ARROW_DOWN_KEYCODE,
+	ARROW_LEFT_KEYCODE,
+	ARROW_RIGHT_KEYCODE,
+	ARROW_UP_KEYCODE,
+} from '../../../../../app/config/constants/keycodes';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../../../../app/config/constants/layoutDataItemTypes';
+import {VIEWPORT_SIZES} from '../../../../../app/config/constants/viewportSizes';
 import {
 	useActivationOrigin,
 	useActiveItemId,
@@ -31,6 +39,12 @@ import {
 	useHoveredItemId,
 	useSelectItem,
 } from '../../../../../app/contexts/ControlsContext';
+import {
+	useDisableKeyboardMovement,
+	useMovementSource,
+	useMovementTarget,
+	useSetMovementSource,
+} from '../../../../../app/contexts/KeyboardMovementContext';
 import {
 	useDispatch,
 	useSelector,
@@ -65,6 +79,7 @@ import {
 	getFormErrorDescription,
 } from '../../../../../app/utils/getFormErrorDescription';
 import getMappingFieldsKey from '../../../../../app/utils/getMappingFieldsKey';
+import isItemWidget from '../../../../../app/utils/isItemWidget';
 import updateItemStyle from '../../../../../app/utils/updateItemStyle';
 import useHasRequiredChild from '../../../../../app/utils/useHasRequiredChild';
 import useControlledState from '../../../../../core/hooks/useControlledState';
@@ -168,11 +183,7 @@ StructureTreeNodeContent.propTypes = {
 
 const MemoizedStructureTreeNodeContent = React.memo(
 	StructureTreeNodeContent,
-	(prevProps, nextProps) =>
-		deepEqual(
-			{...prevProps, node: {...prevProps.node, children: []}},
-			{...nextProps, node: {...nextProps.node, children: []}}
-		)
+	(prevProps, nextProps) => deepEqual(prevProps, nextProps)
 );
 
 function StructureTreeNodeContent({
@@ -225,13 +236,18 @@ function StructureTreeNodeContent({
 		[item]
 	);
 
+	const isWidget = useSelectorCallback(
+		(state) => isItemWidget(item, state.fragmentEntryLinks),
+		[item]
+	);
+
 	const {isOverTarget, targetPosition, targetRef} = useDropTarget(
 		item,
 		computeHover
 	);
 
-	const {handlerRef, isDraggingSource} = useDragItem(
-		{...item, fragmentEntryType},
+	const {handlerRef, isDraggingSource: itemIsDraggingSource} = useDragItem(
+		{...item, fragmentEntryType, isWidget},
 		(parentItemId, position) =>
 			dispatch(
 				moveItem({
@@ -242,9 +258,23 @@ function StructureTreeNodeContent({
 			)
 	);
 
+	const {
+		itemId: keyboardMovementTargetId,
+		position: keyboardMovementPosition,
+	} = useMovementTarget();
+
+	const dropTargetPosition = targetPosition || keyboardMovementPosition;
+
+	const keyboardMovementSource = useMovementSource();
+
+	const isDraggingSource =
+		itemIsDraggingSource || keyboardMovementSource?.itemId === item.itemId;
+
 	const isDroppable = useIsDroppable();
 
-	const isValidDrop = isDroppable && isOverTarget;
+	const isValidDrop =
+		(isDroppable && isOverTarget) ||
+		keyboardMovementTargetId === item.itemId;
 
 	const onEditName = (nextName) => {
 		const trimmedName = nextName?.trim();
@@ -261,19 +291,37 @@ function StructureTreeNodeContent({
 		setEditingName(false);
 	};
 
+	const handleButtonsKeyDown = (event) => {
+		event.stopPropagation();
+
+		if (
+			[
+				ARROW_DOWN_KEYCODE,
+				ARROW_LEFT_KEYCODE,
+				ARROW_RIGHT_KEYCODE,
+				ARROW_UP_KEYCODE,
+			].includes(event.keyCode)
+		) {
+			document.activeElement
+				.closest('.lfr-treeview-node-list-item')
+				?.focus();
+		}
+	};
+
 	useEffect(() => {
 		if (
-			isActive &&
-			activationOrigin === ITEM_ACTIVATION_ORIGINS.pageEditor &&
-			nodeRef.current
+			item.itemId === keyboardMovementTargetId ||
+			(activationOrigin === ITEM_ACTIVATION_ORIGINS.pageEditor &&
+				nodeRef.current &&
+				isActive)
 		) {
 			nodeRef.current.scrollIntoView({
-				behavior: 'smooth',
+				behavior: 'instant',
 				block: 'center',
 				inline: 'nearest',
 			});
 		}
-	}, [activationOrigin, isActive]);
+	}, [activationOrigin, isActive, keyboardMovementTargetId, item]);
 
 	useEffect(() => {
 		let timeoutId = null;
@@ -302,11 +350,13 @@ function StructureTreeNodeContent({
 			aria-selected={isActive}
 			className={classNames('page-editor__page-structure__tree-node', {
 				'drag-over-bottom':
-					isValidDrop && targetPosition === TARGET_POSITIONS.BOTTOM,
+					isValidDrop &&
+					dropTargetPosition === TARGET_POSITIONS.BOTTOM,
 				'drag-over-middle':
-					isValidDrop && targetPosition === TARGET_POSITIONS.MIDDLE,
+					isValidDrop &&
+					dropTargetPosition === TARGET_POSITIONS.MIDDLE,
 				'drag-over-top':
-					isValidDrop && targetPosition === TARGET_POSITIONS.TOP,
+					isValidDrop && dropTargetPosition === TARGET_POSITIONS.TOP,
 				'dragged': isDraggingSource,
 				'font-weight-semi-bold':
 					node.activable && node.itemType !== ITEM_TYPES.editable,
@@ -333,8 +383,9 @@ function StructureTreeNodeContent({
 			<div
 				aria-label={sub(Liferay.Language.get('select-x'), [node.name])}
 				className="lfr-portal-tooltip page-editor__page-structure__tree-node__mask"
+				data-item-id={node.id}
 				data-title={node.tooltipTitle}
-				data-tooltip-align="left"
+				data-tooltip-align="right"
 				onClick={() => {
 					const itemId = getFirstControlsId({
 						item: node,
@@ -355,8 +406,22 @@ function StructureTreeNodeContent({
 						setEditingName(true);
 					}
 				}}
-				ref={handlerRef}
+				ref={
+					selectedViewportSize === VIEWPORT_SIZES.desktop
+						? handlerRef
+						: null
+				}
 				role="button"
+			/>
+
+			<MoveButton
+				canUpdate={canUpdatePageStructure}
+				fragmentEntryType={fragmentEntryType}
+				isWidget={isWidget}
+				node={node}
+				nodeRef={nodeRef}
+				onKeyDown={handleButtonsKeyDown}
+				selectedViewportSize={selectedViewportSize}
 			/>
 
 			<NameLabel
@@ -378,6 +443,8 @@ function StructureTreeNodeContent({
 						'page-editor__page-structure__tree-node__buttons--hidden':
 							node.hidden || node.hiddenAncestor,
 					})}
+					onFocus={(event) => event.stopPropagation()}
+					onKeyDown={handleButtonsKeyDown}
 				>
 					{(node.hidable || node.hidden) && (
 						<VisibilityButton
@@ -429,7 +496,7 @@ const NameLabel = React.forwardRef(
 		return (
 			<div
 				className={classNames(
-					'page-editor__page-structure__tree-node__name d-flex align-items-center',
+					'page-editor__page-structure__tree-node__name d-flex flex-grow-1 align-items-center',
 					{
 						'page-editor__page-structure__tree-node__name--active': isActive,
 						'page-editor__page-structure__tree-node__name--hidden': hidden,
@@ -451,8 +518,9 @@ const NameLabel = React.forwardRef(
 						onChange={(event) => {
 							setName(event.target.value);
 						}}
-						onFocus={() => {
+						onFocus={(event) => {
 							inputRef.current.setSelectionRange(0, name.length);
+							event.stopPropagation();
 						}}
 						onKeyDown={(event) => {
 							if (event.key === 'Enter') {
@@ -526,6 +594,70 @@ const VisibilityButton = ({dispatch, node, selectedViewportSize, visible}) => {
 			<ClayIcon
 				symbol={node.hidden || node.hiddenAncestor ? 'hidden' : 'view'}
 			/>
+		</ClayButton>
+	);
+};
+
+const MoveButton = ({
+	canUpdate,
+	fragmentEntryType,
+	isWidget,
+	node,
+	nodeRef,
+	onKeyDown,
+	selectedViewportSize,
+}) => {
+	const setMovementSource = useSetMovementSource();
+	const disableMovement = useDisableKeyboardMovement();
+
+	const buttonRef = useRef(null);
+
+	useEventListener('blur', () => disableMovement(), false, buttonRef.current);
+	useEventListener(
+		'focus',
+		() =>
+			nodeRef.current.scrollIntoView({
+				behavior: 'instant',
+				block: 'center',
+				inline: 'nearest',
+			}),
+		false,
+		buttonRef.current
+	);
+
+	if (
+		selectedViewportSize !== VIEWPORT_SIZES.desktop ||
+		node.itemType === ITEM_TYPES.editable ||
+		node.itemType === ITEM_TYPES.dropZone ||
+		node.isMasterItem ||
+		!node.activable ||
+		!canUpdate
+	) {
+		return null;
+	}
+
+	return (
+		<ClayButton
+			aria-label={sub(Liferay.Language.get('move-x'), [node.name])}
+			className="mr-2 sr-only sr-only-focusable"
+			disabled={node.isMasterItem || node.hiddenAncestor}
+			displayType="unstyled"
+			onClick={() =>
+				setMovementSource({
+					fragmentEntryType,
+					icon: node.icon,
+					isWidget,
+					itemId: node.id,
+					name: node.name,
+					type: node.type,
+				})
+			}
+			onFocus={(event) => event.stopPropagation()}
+			onKeyDown={onKeyDown}
+			ref={buttonRef}
+			title={sub(Liferay.Language.get('move-x'), [node.name])}
+		>
+			<ClayIcon symbol="drag" />
 		</ClayButton>
 	);
 };

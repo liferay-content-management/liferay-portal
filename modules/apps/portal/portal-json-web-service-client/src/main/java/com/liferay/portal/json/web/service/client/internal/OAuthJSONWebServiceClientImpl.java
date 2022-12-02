@@ -27,13 +27,9 @@ import oauth.signpost.exception.OAuthException;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.nio.reactor.IOReactorException;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-
 /**
  * @author Ivica Cardic
  */
-@Component(factory = "OAuthJSONWebServiceClient", service = {})
 public class OAuthJSONWebServiceClientImpl extends JSONWebServiceClientImpl {
 
 	@Override
@@ -56,7 +52,6 @@ public class OAuthJSONWebServiceClientImpl extends JSONWebServiceClientImpl {
 		_oAuthConsumerSecret = oAuthConsumerSecret;
 	}
 
-	@Activate
 	@Override
 	protected void activate(Map<String, Object> properties)
 		throws IOReactorException {

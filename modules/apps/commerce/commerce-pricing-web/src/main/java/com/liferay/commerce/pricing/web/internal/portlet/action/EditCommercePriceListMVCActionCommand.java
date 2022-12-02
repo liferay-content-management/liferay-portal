@@ -18,8 +18,6 @@ import com.liferay.commerce.price.list.exception.CommercePriceListCurrencyExcept
 import com.liferay.commerce.price.list.exception.CommercePriceListParentPriceListGroupIdException;
 import com.liferay.commerce.price.list.exception.NoSuchPriceListException;
 import com.liferay.commerce.price.list.model.CommercePriceList;
-import com.liferay.commerce.price.list.service.CommercePriceListAccountRelService;
-import com.liferay.commerce.price.list.service.CommercePriceListCommerceAccountGroupRelService;
 import com.liferay.commerce.price.list.service.CommercePriceListService;
 import com.liferay.commerce.pricing.constants.CommercePricingPortletKeys;
 import com.liferay.commerce.product.exception.NoSuchCatalogException;
@@ -53,7 +51,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"javax.portlet.name=" + CommercePricingPortletKeys.COMMERCE_PRICE_LIST,
 		"javax.portlet.name=" + CommercePricingPortletKeys.COMMERCE_PROMOTION,
@@ -266,14 +263,6 @@ public class EditCommercePriceListMVCActionCommand
 
 		return commercePriceList;
 	}
-
-	@Reference
-	private CommercePriceListAccountRelService
-		_commercePriceListAccountRelService;
-
-	@Reference
-	private CommercePriceListCommerceAccountGroupRelService
-		_commercePriceListCommerceAccountGroupRelService;
 
 	@Reference
 	private CommercePriceListService _commercePriceListService;

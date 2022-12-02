@@ -15,9 +15,7 @@
 package com.liferay.frontend.taglib.clay.internal.servlet.taglib;
 
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolvedPackageNameUtil;
-import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.frontend.js.module.launcher.JSModuleResolver;
-import com.liferay.frontend.taglib.clay.internal.js.loader.modules.extender.npm.NPMResolverProvider;
 import com.liferay.frontend.taglib.clay.internal.servlet.ServletContextUtil;
 import com.liferay.frontend.taglib.clay.internal.util.ServicesProvider;
 import com.liferay.petra.string.CharPool;
@@ -25,8 +23,12 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.theme.PortletDisplay;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.JavaConstants;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.template.react.renderer.ComponentDescriptor;
 import com.liferay.portal.template.react.renderer.ReactRenderer;
 import com.liferay.taglib.util.AttributesTagSupport;
@@ -338,11 +340,6 @@ public class BaseContainerTag extends AttributesTagSupport {
 		String hydratedModuleName = getHydratedModuleName();
 
 		if (hydratedModuleName != null) {
-			NPMResolver npmResolver = NPMResolverProvider.getNPMResolver();
-
-			String moduleName = npmResolver.resolveModuleName(
-				hydratedModuleName);
-
 			String propsTransformer = null;
 
 			if (Validator.isNotNull(_propsTransformer)) {
@@ -370,14 +367,14 @@ public class BaseContainerTag extends AttributesTagSupport {
 					resolvedPackageName + "/" + _propsTransformer;
 			}
 			else if (Validator.isNotNull(getDefaultEventHandler())) {
-				propsTransformer = npmResolver.resolveModuleName(
-					"frontend-taglib-clay" +
-						"/DefaultEventHandlersPropsTransformer");
+				propsTransformer =
+					"{DefaultEventHandlersPropsTransformer} from " +
+						"frontend-taglib-clay";
 			}
 
 			ComponentDescriptor componentDescriptor = new ComponentDescriptor(
-				moduleName, getId(), new LinkedHashSet<>(), false,
-				propsTransformer);
+				hydratedModuleName, getId(), new LinkedHashSet<>(),
+				_isPositionInLine(), propsTransformer);
 
 			ReactRenderer reactRenderer = ServicesProvider.getReactRenderer();
 
@@ -448,6 +445,40 @@ public class BaseContainerTag extends AttributesTagSupport {
 		jspWriter.write(" id=\"");
 		jspWriter.write(getId());
 		jspWriter.write("\"");
+	}
+
+	private boolean _isPositionInLine() {
+		HttpServletRequest httpServletRequest = getRequest();
+
+		String fragmentId = ParamUtil.getString(httpServletRequest, "p_f_id");
+
+		if (Validator.isNotNull(fragmentId)) {
+			return true;
+		}
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		if (themeDisplay.isIsolated() || themeDisplay.isLifecycleResource() ||
+			themeDisplay.isStateExclusive()) {
+
+			return true;
+		}
+
+		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
+
+		String portletId = portletDisplay.getId();
+
+		if (Validator.isNotNull(portletId) &&
+			themeDisplay.isPortletEmbedded(
+				themeDisplay.getScopeGroupId(), themeDisplay.getLayout(),
+				portletId)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

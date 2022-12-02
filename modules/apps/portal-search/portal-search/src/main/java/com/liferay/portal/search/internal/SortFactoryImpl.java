@@ -32,7 +32,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Raymond Augé
  * @author Hugo Huijser
  */
-@Component(immediate = true, service = SortFactory.class)
+@Component(service = SortFactory.class)
 public class SortFactoryImpl implements SortFactory {
 
 	@Override
@@ -63,7 +63,7 @@ public class SortFactoryImpl implements SortFactory {
 
 		if (inferSortField) {
 			sortFieldName = sortFieldBuilder.getSortField(
-				clazz.getName(), orderByCol, type);
+				clazz, orderByCol, type);
 		}
 
 		if (Validator.isNull(orderByType)) {

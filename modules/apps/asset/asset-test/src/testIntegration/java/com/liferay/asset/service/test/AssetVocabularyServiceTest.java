@@ -142,7 +142,7 @@ public class AssetVocabularyServiceTest {
 		vocabulary =
 			AssetVocabularyLocalServiceUtil.
 				getAssetVocabularyByExternalReferenceCode(
-					_group.getGroupId(), externalReferenceCode);
+					externalReferenceCode, _group.getGroupId());
 
 		Assert.assertEquals(
 			externalReferenceCode, vocabulary.getExternalReferenceCode());
@@ -162,7 +162,7 @@ public class AssetVocabularyServiceTest {
 		AssetVocabulary vocabulary2 =
 			AssetVocabularyLocalServiceUtil.
 				getAssetVocabularyByExternalReferenceCode(
-					_group.getGroupId(), externalReferenceCode);
+					externalReferenceCode, _group.getGroupId());
 
 		Assert.assertEquals(vocabulary1, vocabulary2);
 	}

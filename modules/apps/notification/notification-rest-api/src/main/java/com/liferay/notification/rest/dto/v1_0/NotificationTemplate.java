@@ -96,6 +96,39 @@ public class NotificationTemplate implements Serializable {
 	protected Map<String, Map<String, String>> actions;
 
 	@Schema
+	public String[] getAttachmentObjectFieldExternalReferenceCodes() {
+		return attachmentObjectFieldExternalReferenceCodes;
+	}
+
+	public void setAttachmentObjectFieldExternalReferenceCodes(
+		String[] attachmentObjectFieldExternalReferenceCodes) {
+
+		this.attachmentObjectFieldExternalReferenceCodes =
+			attachmentObjectFieldExternalReferenceCodes;
+	}
+
+	@JsonIgnore
+	public void setAttachmentObjectFieldExternalReferenceCodes(
+		UnsafeSupplier<String[], Exception>
+			attachmentObjectFieldExternalReferenceCodesUnsafeSupplier) {
+
+		try {
+			attachmentObjectFieldExternalReferenceCodes =
+				attachmentObjectFieldExternalReferenceCodesUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String[] attachmentObjectFieldExternalReferenceCodes;
+
+	@Schema
 	public Long[] getAttachmentObjectFieldIds() {
 		return attachmentObjectFieldIds;
 	}
@@ -126,32 +159,6 @@ public class NotificationTemplate implements Serializable {
 	protected Long[] attachmentObjectFieldIds;
 
 	@Schema
-	public String getBcc() {
-		return bcc;
-	}
-
-	public void setBcc(String bcc) {
-		this.bcc = bcc;
-	}
-
-	@JsonIgnore
-	public void setBcc(UnsafeSupplier<String, Exception> bccUnsafeSupplier) {
-		try {
-			bcc = bccUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String bcc;
-
-	@Schema
 	@Valid
 	public Map<String, String> getBody() {
 		return body;
@@ -179,32 +186,6 @@ public class NotificationTemplate implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Map<String, String> body;
-
-	@Schema
-	public String getCc() {
-		return cc;
-	}
-
-	public void setCc(String cc) {
-		this.cc = cc;
-	}
-
-	@JsonIgnore
-	public void setCc(UnsafeSupplier<String, Exception> ccUnsafeSupplier) {
-		try {
-			cc = ccUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String cc;
 
 	@Schema
 	public Date getDateCreated() {
@@ -291,18 +272,30 @@ public class NotificationTemplate implements Serializable {
 	protected String description;
 
 	@Schema
-	public String getFrom() {
-		return from;
-	}
-
-	public void setFrom(String from) {
-		this.from = from;
+	@Valid
+	public EditorType getEditorType() {
+		return editorType;
 	}
 
 	@JsonIgnore
-	public void setFrom(UnsafeSupplier<String, Exception> fromUnsafeSupplier) {
+	public String getEditorTypeAsString() {
+		if (editorType == null) {
+			return null;
+		}
+
+		return editorType.toString();
+	}
+
+	public void setEditorType(EditorType editorType) {
+		this.editorType = editorType;
+	}
+
+	@JsonIgnore
+	public void setEditorType(
+		UnsafeSupplier<EditorType, Exception> editorTypeUnsafeSupplier) {
+
 		try {
-			from = fromUnsafeSupplier.get();
+			editorType = editorTypeUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -314,24 +307,23 @@ public class NotificationTemplate implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String from;
+	protected EditorType editorType;
 
 	@Schema
-	@Valid
-	public Map<String, String> getFromName() {
-		return fromName;
+	public String getExternalReferenceCode() {
+		return externalReferenceCode;
 	}
 
-	public void setFromName(Map<String, String> fromName) {
-		this.fromName = fromName;
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		this.externalReferenceCode = externalReferenceCode;
 	}
 
 	@JsonIgnore
-	public void setFromName(
-		UnsafeSupplier<Map<String, String>, Exception> fromNameUnsafeSupplier) {
+	public void setExternalReferenceCode(
+		UnsafeSupplier<String, Exception> externalReferenceCodeUnsafeSupplier) {
 
 		try {
-			fromName = fromNameUnsafeSupplier.get();
+			externalReferenceCode = externalReferenceCodeUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -343,7 +335,7 @@ public class NotificationTemplate implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Map<String, String> fromName;
+	protected String externalReferenceCode;
 
 	@Schema
 	public Long getId() {
@@ -428,6 +420,39 @@ public class NotificationTemplate implements Serializable {
 	protected Map<String, String> name_i18n;
 
 	@Schema
+	public String getObjectDefinitionExternalReferenceCode() {
+		return objectDefinitionExternalReferenceCode;
+	}
+
+	public void setObjectDefinitionExternalReferenceCode(
+		String objectDefinitionExternalReferenceCode) {
+
+		this.objectDefinitionExternalReferenceCode =
+			objectDefinitionExternalReferenceCode;
+	}
+
+	@JsonIgnore
+	public void setObjectDefinitionExternalReferenceCode(
+		UnsafeSupplier<String, Exception>
+			objectDefinitionExternalReferenceCodeUnsafeSupplier) {
+
+		try {
+			objectDefinitionExternalReferenceCode =
+				objectDefinitionExternalReferenceCodeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String objectDefinitionExternalReferenceCode;
+
+	@Schema
 	public Long getObjectDefinitionId() {
 		return objectDefinitionId;
 	}
@@ -456,27 +481,17 @@ public class NotificationTemplate implements Serializable {
 	protected Long objectDefinitionId;
 
 	@Schema
-	@Valid
-	public RecipientType getRecipientType() {
+	public String getRecipientType() {
 		return recipientType;
 	}
 
-	@JsonIgnore
-	public String getRecipientTypeAsString() {
-		if (recipientType == null) {
-			return null;
-		}
-
-		return recipientType.toString();
-	}
-
-	public void setRecipientType(RecipientType recipientType) {
+	public void setRecipientType(String recipientType) {
 		this.recipientType = recipientType;
 	}
 
 	@JsonIgnore
 	public void setRecipientType(
-		UnsafeSupplier<RecipientType, Exception> recipientTypeUnsafeSupplier) {
+		UnsafeSupplier<String, Exception> recipientTypeUnsafeSupplier) {
 
 		try {
 			recipientType = recipientTypeUnsafeSupplier.get();
@@ -491,7 +506,36 @@ public class NotificationTemplate implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected RecipientType recipientType;
+	protected String recipientType;
+
+	@Schema
+	@Valid
+	public Object[] getRecipients() {
+		return recipients;
+	}
+
+	public void setRecipients(Object[] recipients) {
+		this.recipients = recipients;
+	}
+
+	@JsonIgnore
+	public void setRecipients(
+		UnsafeSupplier<Object[], Exception> recipientsUnsafeSupplier) {
+
+		try {
+			recipients = recipientsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Object[] recipients;
 
 	@Schema
 	@Valid
@@ -523,55 +567,16 @@ public class NotificationTemplate implements Serializable {
 	protected Map<String, String> subject;
 
 	@Schema
-	@Valid
-	public Map<String, String> getTo() {
-		return to;
-	}
-
-	public void setTo(Map<String, String> to) {
-		this.to = to;
-	}
-
-	@JsonIgnore
-	public void setTo(
-		UnsafeSupplier<Map<String, String>, Exception> toUnsafeSupplier) {
-
-		try {
-			to = toUnsafeSupplier.get();
-		}
-		catch (RuntimeException re) {
-			throw re;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@GraphQLField
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Map<String, String> to;
-
-	@Schema
-	@Valid
-	public Type getType() {
+	public String getType() {
 		return type;
 	}
 
-	@JsonIgnore
-	public String getTypeAsString() {
-		if (type == null) {
-			return null;
-		}
-
-		return type.toString();
-	}
-
-	public void setType(Type type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
 	@JsonIgnore
-	public void setType(UnsafeSupplier<Type, Exception> typeUnsafeSupplier) {
+	public void setType(UnsafeSupplier<String, Exception> typeUnsafeSupplier) {
 		try {
 			type = typeUnsafeSupplier.get();
 		}
@@ -585,7 +590,35 @@ public class NotificationTemplate implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Type type;
+	protected String type;
+
+	@Schema
+	public String getTypeLabel() {
+		return typeLabel;
+	}
+
+	public void setTypeLabel(String typeLabel) {
+		this.typeLabel = typeLabel;
+	}
+
+	@JsonIgnore
+	public void setTypeLabel(
+		UnsafeSupplier<String, Exception> typeLabelUnsafeSupplier) {
+
+		try {
+			typeLabel = typeLabelUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String typeLabel;
 
 	@Override
 	public boolean equals(Object object) {
@@ -628,6 +661,35 @@ public class NotificationTemplate implements Serializable {
 			sb.append(_toJSON(actions));
 		}
 
+		if (attachmentObjectFieldExternalReferenceCodes != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"attachmentObjectFieldExternalReferenceCodes\": ");
+
+			sb.append("[");
+
+			for (int i = 0;
+				 i < attachmentObjectFieldExternalReferenceCodes.length; i++) {
+
+				sb.append("\"");
+
+				sb.append(
+					_escape(attachmentObjectFieldExternalReferenceCodes[i]));
+
+				sb.append("\"");
+
+				if ((i + 1) <
+						attachmentObjectFieldExternalReferenceCodes.length) {
+
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		if (attachmentObjectFieldIds != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -648,20 +710,6 @@ public class NotificationTemplate implements Serializable {
 			sb.append("]");
 		}
 
-		if (bcc != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"bcc\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(bcc));
-
-			sb.append("\"");
-		}
-
 		if (body != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -670,20 +718,6 @@ public class NotificationTemplate implements Serializable {
 			sb.append("\"body\": ");
 
 			sb.append(_toJSON(body));
-		}
-
-		if (cc != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"cc\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(cc));
-
-			sb.append("\"");
 		}
 
 		if (dateCreated != null) {
@@ -728,28 +762,32 @@ public class NotificationTemplate implements Serializable {
 			sb.append("\"");
 		}
 
-		if (from != null) {
+		if (editorType != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"from\": ");
+			sb.append("\"editorType\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(from));
+			sb.append(editorType);
 
 			sb.append("\"");
 		}
 
-		if (fromName != null) {
+		if (externalReferenceCode != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"fromName\": ");
+			sb.append("\"externalReferenceCode\": ");
 
-			sb.append(_toJSON(fromName));
+			sb.append("\"");
+
+			sb.append(_escape(externalReferenceCode));
+
+			sb.append("\"");
 		}
 
 		if (id != null) {
@@ -786,6 +824,20 @@ public class NotificationTemplate implements Serializable {
 			sb.append(_toJSON(name_i18n));
 		}
 
+		if (objectDefinitionExternalReferenceCode != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectDefinitionExternalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectDefinitionExternalReferenceCode));
+
+			sb.append("\"");
+		}
+
 		if (objectDefinitionId != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -805,9 +857,33 @@ public class NotificationTemplate implements Serializable {
 
 			sb.append("\"");
 
-			sb.append(recipientType);
+			sb.append(_escape(recipientType));
 
 			sb.append("\"");
+		}
+
+		if (recipients != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"recipients\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < recipients.length; i++) {
+				sb.append("\"");
+
+				sb.append(_escape(recipients[i]));
+
+				sb.append("\"");
+
+				if ((i + 1) < recipients.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		if (subject != null) {
@@ -820,16 +896,6 @@ public class NotificationTemplate implements Serializable {
 			sb.append(_toJSON(subject));
 		}
 
-		if (to != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"to\": ");
-
-			sb.append(_toJSON(to));
-		}
-
 		if (type != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -839,7 +905,21 @@ public class NotificationTemplate implements Serializable {
 
 			sb.append("\"");
 
-			sb.append(type);
+			sb.append(_escape(type));
+
+			sb.append("\"");
+		}
+
+		if (typeLabel != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"typeLabel\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(typeLabel));
 
 			sb.append("\"");
 		}
@@ -856,20 +936,20 @@ public class NotificationTemplate implements Serializable {
 	)
 	public String xClassName;
 
-	@GraphQLName("RecipientType")
-	public static enum RecipientType {
+	@GraphQLName("EditorType")
+	public static enum EditorType {
 
-		ROLE("role"), TERM("term"), USER("user");
+		FREE_MARKER("freeMarker"), RICH_TEXT("richText");
 
 		@JsonCreator
-		public static RecipientType create(String value) {
+		public static EditorType create(String value) {
 			if ((value == null) || value.equals("")) {
 				return null;
 			}
 
-			for (RecipientType recipientType : values()) {
-				if (Objects.equals(recipientType.getValue(), value)) {
-					return recipientType;
+			for (EditorType editorType : values()) {
+				if (Objects.equals(editorType.getValue(), value)) {
+					return editorType;
 				}
 			}
 
@@ -886,45 +966,7 @@ public class NotificationTemplate implements Serializable {
 			return _value;
 		}
 
-		private RecipientType(String value) {
-			_value = value;
-		}
-
-		private final String _value;
-
-	}
-
-	@GraphQLName("Type")
-	public static enum Type {
-
-		EMAIL("email"), USER_NOTIFICATION("userNotification");
-
-		@JsonCreator
-		public static Type create(String value) {
-			if ((value == null) || value.equals("")) {
-				return null;
-			}
-
-			for (Type type : values()) {
-				if (Objects.equals(type.getValue(), value)) {
-					return type;
-				}
-			}
-
-			throw new IllegalArgumentException("Invalid enum value: " + value);
-		}
-
-		@JsonValue
-		public String getValue() {
-			return _value;
-		}
-
-		@Override
-		public String toString() {
-			return _value;
-		}
-
-		private Type(String value) {
+		private EditorType(String value) {
 			_value = value;
 		}
 

@@ -15,10 +15,13 @@
 package com.liferay.fragment.entry.processor.editable.internal.parser;
 
 import com.liferay.fragment.entry.processor.editable.parser.EditableElementParser;
+import com.liferay.fragment.entry.processor.editable.parser.util.EditableElementParserUtil;
+import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import org.jsoup.nodes.Element;
@@ -33,7 +36,7 @@ import org.osgi.service.component.annotations.Reference;
 	enabled = false, immediate = true, property = "type=date-time",
 	service = EditableElementParser.class
 )
-public class DateTextEditableElementParser extends TextEditableElementParser {
+public class DateTextEditableElementParser implements EditableElementParser {
 
 	@Override
 	public String getValue(Element element) {
@@ -50,9 +53,30 @@ public class DateTextEditableElementParser extends TextEditableElementParser {
 	}
 
 	@Override
-	protected String getEditableElementType() {
-		return "date-time";
+	public void replace(Element element, String value) {
+		Element bodyElement = EditableElementParserUtil.getDocumentBody(value);
+
+		element.html(bodyElement.html());
 	}
+
+	@Override
+	public void validate(Element element) throws FragmentEntryContentException {
+		for (String tag : _TAGS) {
+			if (Objects.equals(element.tagName(), tag)) {
+				ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+					"content.Language", getClass());
+
+				throw new FragmentEntryContentException(
+					_language.format(
+						resourceBundle,
+						"an-editable-of-type-x-cannot-be-used-in-a-tag-of-" +
+							"type-x",
+						new Object[] {"date-time", tag}, false));
+			}
+		}
+	}
+
+	private static final String[] _TAGS = {"img", "a"};
 
 	@Reference
 	private Language _language;

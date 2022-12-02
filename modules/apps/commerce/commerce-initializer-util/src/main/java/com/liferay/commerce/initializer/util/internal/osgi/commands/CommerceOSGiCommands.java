@@ -16,7 +16,6 @@ package com.liferay.commerce.initializer.util.internal.osgi.commands;
 
 import com.liferay.commerce.initializer.util.CommerceOrderGenerator;
 import com.liferay.commerce.initializer.util.CommerceShipmentGenerator;
-import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Role;
@@ -42,7 +41,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"osgi.command.function=generateOrders",
 		"osgi.command.function=generateShipments",
@@ -87,9 +85,6 @@ public class CommerceOSGiCommands {
 
 		siteInitializer.initialize(groupId);
 	}
-
-	@Reference
-	private CommerceChannelLocalService _commerceChannelLocalService;
 
 	@Reference
 	private CommerceOrderGenerator _commerceOrderGenerator;

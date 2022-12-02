@@ -334,7 +334,9 @@ definition {
 				value1 = "Please enter a valid email address.");
 		}
 		else if ("${userEmailAddressVariation}" == "Null") {
-			Alert.viewRequiredField();
+			AssertTextEquals.assertPartialText(
+				locator1 = "TextInput#REQUIRED_ALERT",
+				value1 = "The Email Address field is required.");
 		}
 		else if ("${userEmailAddressVariation}" == "Root") {
 			Alert.viewRequestFailedToComplete();
@@ -1138,7 +1140,7 @@ definition {
 
 			Button.clickSave();
 
-			Alert.viewRequiredField();
+			Alert.viewSpecificRequiredField(fieldFieldLabel = "Current Password");
 
 			User.logoutPG();
 
@@ -2060,10 +2062,6 @@ definition {
 			var loginAttempts = "1";
 		}
 
-		if (!(isSet(errorMessage))) {
-			var errorMessage = "This account is locked. Please contact an administrator to have this account unlocked.";
-		}
-
 		while ("${count}" != "${loginAttempts}") {
 			var count = ${count} + 1;
 
@@ -2071,16 +2069,9 @@ definition {
 				password = "${password}",
 				userEmailAddress = "${userEmailAddress}");
 
-			if ("${count}" == "${maximumFailure}") {
-				AssertTextEquals.assertPartialText(
-					locator1 = "Message#ERROR_DISMISSIBLE",
-					value1 = "${errorMessage}");
-			}
-			else {
-				AssertTextEquals.assertPartialText(
-					locator1 = "Message#ERROR_DISMISSIBLE",
-					value1 = "Authentication failed. Please try again.");
-			}
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#ERROR_DISMISSIBLE",
+				value1 = "Authentication failed. Please try again.");
 		}
 	}
 

@@ -19,7 +19,6 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileVersion;
-import com.liferay.portal.kernel.servlet.taglib.ui.ToolbarItem;
 
 import java.io.IOException;
 
@@ -102,11 +101,6 @@ public class BaseDLViewFileVersionDisplayContext
 	@Override
 	public String getIconFileMimeType() {
 		return parentDisplayContext.getIconFileMimeType();
-	}
-
-	@Override
-	public List<ToolbarItem> getToolbarItems() throws PortalException {
-		return parentDisplayContext.getToolbarItems();
 	}
 
 	@Override

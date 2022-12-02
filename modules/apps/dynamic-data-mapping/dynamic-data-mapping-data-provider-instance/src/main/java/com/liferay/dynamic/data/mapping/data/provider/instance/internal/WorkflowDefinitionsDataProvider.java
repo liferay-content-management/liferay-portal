@@ -40,7 +40,6 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * @author Marcellus Tavares
  */
 @Component(
-	immediate = true,
 	property = "ddm.data.provider.instance.id=workflow-definitions",
 	service = DDMDataProvider.class
 )
@@ -101,8 +100,7 @@ public class WorkflowDefinitionsDataProvider implements DDMDataProvider {
 	@Reference(
 		cardinality = ReferenceCardinality.OPTIONAL,
 		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY,
-		target = "(proxy.bean=false)"
+		policyOption = ReferencePolicyOption.GREEDY
 	)
 	protected volatile WorkflowDefinitionManager workflowDefinitionManager;
 

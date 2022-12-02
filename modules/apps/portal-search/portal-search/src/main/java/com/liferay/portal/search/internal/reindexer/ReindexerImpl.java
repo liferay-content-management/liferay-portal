@@ -16,7 +16,6 @@ package com.liferay.portal.search.internal.reindexer;
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal;
 import com.liferay.portal.kernel.search.IndexerRegistry;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.search.configuration.ReindexerConfiguration;
@@ -70,14 +69,14 @@ public class ReindexerImpl implements Reindexer {
 	}
 
 	@Reference
-	protected BulkReindexersHolder bulkReindexersHolder;
+	protected BulkReindexersRegistry bulkReindexersRegistry;
 
 	@Reference
 	protected IndexerRegistry indexerRegistry;
 
 	private Reindex _getReindex(long companyId) {
 		Reindex reindex = new Reindex(
-			indexerRegistry, bulkReindexersHolder, _executorService,
+			indexerRegistry, bulkReindexersRegistry, _executorService,
 			_reindexRequestsHolder);
 
 		reindex.setCompanyId(companyId);
@@ -85,8 +84,7 @@ public class ReindexerImpl implements Reindexer {
 			Boolean.valueOf(_reindexerConfiguration.nonbulkIndexingOverride()));
 		reindex.setSynchronousExecution(
 			GetterUtil.getBoolean(
-				_reindexerConfiguration.synchronousExecutionOverride(),
-				ProxyModeThreadLocal.isForceSync()));
+				_reindexerConfiguration.synchronousExecutionOverride(), true));
 
 		return reindex;
 	}

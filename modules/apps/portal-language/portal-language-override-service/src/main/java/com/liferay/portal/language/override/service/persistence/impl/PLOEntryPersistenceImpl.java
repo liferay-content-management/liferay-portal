@@ -34,7 +34,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -81,7 +80,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Drew Brokke
  * @generated
  */
-@Component(service = {PLOEntryPersistence.class, BasePersistence.class})
+@Component(service = PLOEntryPersistence.class)
 public class PLOEntryPersistenceImpl
 	extends BasePersistenceImpl<PLOEntry> implements PLOEntryPersistence {
 
@@ -197,7 +196,7 @@ public class PLOEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<PLOEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (PLOEntry ploEntry : list) {
@@ -554,7 +553,7 @@ public class PLOEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -697,7 +696,7 @@ public class PLOEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<PLOEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (PLOEntry ploEntry : list) {
@@ -1107,7 +1106,7 @@ public class PLOEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, key};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1271,7 +1270,7 @@ public class PLOEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<PLOEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (PLOEntry ploEntry : list) {
@@ -1685,7 +1684,7 @@ public class PLOEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, languageId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1830,7 +1829,8 @@ public class PLOEntryPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByC_K_L, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByC_K_L, finderArgs, this);
 		}
 
 		if (result instanceof PLOEntry) {
@@ -1960,7 +1960,7 @@ public class PLOEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, key, languageId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -2492,7 +2492,7 @@ public class PLOEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<PLOEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2562,7 +2562,7 @@ public class PLOEntryPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

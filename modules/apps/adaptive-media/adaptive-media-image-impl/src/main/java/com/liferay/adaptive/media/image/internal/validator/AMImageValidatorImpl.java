@@ -61,6 +61,10 @@ public class AMImageValidatorImpl implements AMImageValidator {
 	public <T> boolean isProcessingRequired(
 		AdaptiveMedia<T> adaptiveMedia, FileVersion fileVersion) {
 
+		if (!isProcessingSupported(fileVersion)) {
+			return false;
+		}
+
 		Optional<String> configurationUuidOptional =
 			adaptiveMedia.getValueOptional(
 				AMAttribute.getConfigurationUuidAMAttribute());
@@ -109,12 +113,24 @@ public class AMImageValidatorImpl implements AMImageValidator {
 			((imageMaxSize == 0) || (fileVersion.getSize() == 0) ||
 			 (fileVersion.getSize() >= imageMaxSize))) {
 
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"File " + fileVersion.getFileName() +
+						" has an invalid size");
+			}
+
 			return false;
 		}
 
 		if (!_amImageMimeTypeProvider.isMimeTypeSupported(
 				fileVersion.getMimeType()) ||
 			!_isFileVersionStoredMetadataSupported(fileVersion)) {
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"File " + fileVersion.getFileName() +
+						"has an invalid mime type or metada");
+			}
 
 			return false;
 		}
@@ -162,6 +178,11 @@ public class AMImageValidatorImpl implements AMImageValidator {
 							entry.getValue(),
 							PropsValues.IMAGE_TOOL_IMAGE_MAX_HEIGHT)) {
 
+						if (_log.isDebugEnabled()) {
+							_log.debug(
+								entry.getValue() + " has an invalid height");
+						}
+
 						return false;
 					}
 					else if (Objects.equals(
@@ -169,6 +190,11 @@ public class AMImageValidatorImpl implements AMImageValidator {
 							 !_isValidDimension(
 								 entry.getValue(),
 								 PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH)) {
+
+						if (_log.isDebugEnabled()) {
+							_log.debug(
+								entry.getValue() + " has an invalid width");
+						}
 
 						return false;
 					}

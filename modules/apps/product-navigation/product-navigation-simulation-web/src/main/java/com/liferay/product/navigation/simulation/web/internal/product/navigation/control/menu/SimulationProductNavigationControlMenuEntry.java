@@ -18,7 +18,9 @@ import com.liferay.application.list.PanelApp;
 import com.liferay.application.list.PanelAppRegistry;
 import com.liferay.application.list.PanelCategory;
 import com.liferay.application.list.constants.PanelCategoryKeys;
+import com.liferay.frontend.taglib.clay.servlet.taglib.ButtonTag;
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Layout;
@@ -69,7 +71,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Julio Camarero
  */
 @Component(
-	immediate = true,
 	property = {
 		"product.navigation.control.menu.category.key=" + ProductNavigationControlMenuCategoryKeys.USER,
 		"product.navigation.control.menu.entry.order:Integer=300"
@@ -177,8 +178,8 @@ public class SimulationProductNavigationControlMenuEntry
 
 		Layout layout = themeDisplay.getLayout();
 
-		if (layout.isTypeControlPanel() ||
-			isEmbeddedPersonalApplicationLayout(layout)) {
+		if (layout.isEmbeddedPersonalApplication() ||
+			layout.isTypeControlPanel()) {
 
 			return false;
 		}
@@ -227,16 +228,17 @@ public class SimulationProductNavigationControlMenuEntry
 			values.put(
 				"simulationPanel", messageTag.doTagAsString(pageContext));
 
-			IconTag iconTag = new IconTag();
+			ButtonTag buttonTag = new ButtonTag();
 
-			iconTag.setAriaLabel(
+			buttonTag.setCssClass("close sidenav-close");
+			buttonTag.setDisplayType("unstyled");
+			buttonTag.setDynamicAttribute(
+				StringPool.BLANK, "aria-label",
 				_language.get(
 					(HttpServletRequest)pageContext.getRequest(), "close"));
-			iconTag.setCssClass("close sidenav-close");
-			iconTag.setImage("times");
-			iconTag.setUrl("javascript:void(0);");
+			buttonTag.setIcon("times");
 
-			values.put("sidebarIcon", iconTag.doTagAsString(pageContext));
+			values.put("sidebarIcon", buttonTag.doTagAsString(pageContext));
 
 			Writer writer = pageContext.getOut();
 

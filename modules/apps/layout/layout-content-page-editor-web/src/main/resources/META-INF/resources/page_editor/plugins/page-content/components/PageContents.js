@@ -16,14 +16,13 @@ import PropTypes from 'prop-types';
 import React, {useMemo, useState} from 'react';
 
 import {CONTENT_TYPE_LABELS} from '../../../app/config/constants/contentTypeLabels';
+import SearchResultsMessage from '../../../common/components/SearchResultsMessage';
 import ContentFilter from './ContentFilter';
 import ContentList from './ContentList';
 
 export default function PageContents({pageContents}) {
 	const [searchValue, setSearchValue] = useState('');
-	const [selectedType, setSelectedType] = useState(
-		CONTENT_TYPE_LABELS.allContent
-	);
+	const [selectedType, setSelectedType] = useState(null);
 
 	const contentTypes = Object.keys(pageContents);
 
@@ -62,18 +61,32 @@ export default function PageContents({pageContents}) {
 		[pageContents, searchValue]
 	);
 
+	const numberOfResults = useMemo(
+		() =>
+			filteredContents !== pageContents || selectedType
+				? (
+						filteredContents[selectedType] ||
+						Object.values(filteredContents).flatMap(
+							(content) => content
+						)
+				  ).length
+				: null,
+		[filteredContents, selectedType, pageContents]
+	);
+
 	return (
 		<>
 			<ContentFilter
 				contentTypes={sortedTypes}
 				onChangeInput={setSearchValue}
 				onChangeSelect={setSelectedType}
-				selectedType={selectedType}
+				selectedType={selectedType || CONTENT_TYPE_LABELS.allContent}
 			/>
 			<ContentList
 				contents={filteredContents}
 				selectedType={selectedType}
 			/>
+			<SearchResultsMessage numberOfResults={numberOfResults} />
 		</>
 	);
 }

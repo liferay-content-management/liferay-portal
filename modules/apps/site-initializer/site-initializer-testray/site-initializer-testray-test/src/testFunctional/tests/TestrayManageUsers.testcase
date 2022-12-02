@@ -1,0 +1,147 @@
+@component-name = "portal-solutions"
+definition {
+
+	property custom.properties = "feature.flag.LPS-163118=true";
+	property osgi.modules.includes = "site-initializer-testray";
+	property portal.release = "false";
+	property portal.upstream = "true";
+	property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
+	property testray.main.component.name = "Site Initializer Testray";
+
+	setUp {
+		task ("Login and create a Testray Site") {
+			TestCase.setUpPortalInstance();
+
+			User.firstLoginPG();
+
+			Testray.addTestraySite();
+
+			Refresh();
+		}
+
+		task ("Go to Testray") {
+			ApplicationsMenu.gotoSite(site = "Testray 2");
+		}
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		Testray.tearDownCP();
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+	}
+
+	@description = "This is a test for LPS-162987 - Verify if as an Administrador can change his Role"
+	@ignore = "Test Stub"
+	@priority = "5"
+	test CanChangeRole {
+
+		// TODO LPS-162987 CanChangeRole pending implementation
+
+	}
+
+	@description = "This is a test for LPS-162986 - Verify if as an User can edit account information"
+	@priority = "4"
+	test CanEditAccountInformation {
+		task ("Given that the user change the account informations") {
+			TestrayLayout.manageAccountSidebar(valueName = "Manage Account");
+
+			TestrayManageUser.editUserInformation(
+				userEmailAddressEdit = "test@liferay.com",
+				userFirstNameEdit = "changedfirstname",
+				userLastNameEdit = "Updateln",
+				userScreenNameEdit = "testscreen");
+
+			Testray.checkSuccessAlertAppearsAndDisappears();
+
+			TestrayLayout.clickManageOnSidebar();
+
+			TestrayManage.selectOptionsManage(itemValue = "Manage Users");
+
+			TestrayContextMenu.clickContextMenuProjects(name = "changedfirstname Updateln");
+
+			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Edit");
+		}
+
+		task ("Then the account information is displayed in Manage Users and Manage Account") {
+			TestrayManageUser.viewUserInfomation(
+				emailAddress = "test@liferay.com",
+				firstName = "changedfirstname",
+				lastName = "Updateln",
+				screenName = "testscreen");
+
+			TestrayLayout.manageAccountSidebar(valueName = "Manage Account");
+
+			TestrayManageUser.viewUserInfomation(
+				emailAddress = "test@liferay.com",
+				firstName = "changedfirstname",
+				lastName = "Updateln",
+				screenName = "testscreen");
+		}
+	}
+
+	@description = "This is a test for LPS-165997 - Verify if as an administrator can not save roles without options selected"
+	@priority = "4"
+	test CanNotSaveRolesWithoutOptions {
+		task ("Given that the user tries to save roles without options selected") {
+			TestrayLayout.manageAccountSidebar(valueName = "Manage Account");
+
+			TestrayManageUser.changeRole(roleName = "Administrator");
+
+			TestrayManageUser.changeRole(roleName = "Power User");
+
+			TestrayManageUser.changeRole(roleName = "User");
+
+			Button.clickSave();
+		}
+
+		task ("Then the error message should appear") {
+			Alert.viewErrorMessage(errorMessage = "Please, select one or more roles.");
+		}
+	}
+
+	@description = "This is a test for LPS-168192 - Verify that the user can not edit informations of user if all the required fields are not filled in"
+	@priority = "3"
+	test CanViewFieldRequired {
+		task ("Given that the user tries to created account without informations") {
+			TestrayLayout.manageAccountSidebar(valueName = "Manage Account");
+
+			TestrayManageUser.editUserInformation(
+				userEmailAddressEdit = "",
+				userFirstNameEdit = "",
+				userLastNameEdit = "",
+				userScreenNameEdit = "");
+		}
+
+		task ("Then a warning message is displayed") {
+			Testray.viewErrorMessage(
+				fieldLabel = "First Name",
+				warningMessage = "This field is required.");
+
+			Testray.viewErrorMessage(
+				fieldLabel = "Last Name",
+				warningMessage = "This field is required.");
+
+			Testray.viewErrorMessage(
+				fieldLabel = "Email Address",
+				warningMessage = "This field is required.");
+
+			Testray.viewErrorMessage(
+				fieldLabel = "Screen Name",
+				warningMessage = "This field is required.");
+		}
+	}
+
+	@description = "This is a test for LPS-166562 - Verify if can't see the Testray users in the Testray user permission"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test PermissionTestrayUserCanNotViewUsersList {
+
+		// TODO LPS-166562 PermissionTestrayUserCanNotViewUsersList pending implementation
+
+	}
+
+}

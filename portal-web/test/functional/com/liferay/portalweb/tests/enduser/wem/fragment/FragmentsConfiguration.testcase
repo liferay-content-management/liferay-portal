@@ -47,6 +47,148 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-164104. View fragment with fragmentEntryLinkNamespace variable to JavaScript on content page."
+	@priority = "4"
+	test AddFragmentWithFragmentEntryLinkNamespaceInJavaScriptToContentPage {
+		task ("Given a page creator has a fragment with fragmentEntryLinkNamespace in JavaScript") {
+			FragmentsAdmin.addFragment(fragmentName = "Fragment Name");
+
+			var htmlSnippet = '''
+<div class="fragment-name">
+    <div id="fragment-${fragmentEntryLinkNamespace}"></div>
+</div>''';
+
+			FragmentsEditor.typeHtmlEditor(content = "${htmlSnippet}");
+
+			FragmentsEditor.waitForAutoSave();
+
+			var jsSnippet = '''
+const element = document.getElementById(`fragment-${fragmentEntryLinkNamespace}`);
+element.textContent = 'Fragment Example';''';
+
+			FragmentsEditor.waitForAutoSave();
+
+			FragmentsEditor.typeJsEditor(content = "${jsSnippet}");
+
+			FragmentsEditor.publish();
+		}
+
+		task ("When the page creator adds the new fragment to a content page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addFragment(
+				collectionName = "Collection Name",
+				fragmentName = "Fragment Name");
+		}
+
+		task ("Then the page creator sees the content of new fragment") {
+			AssertTextEquals(
+				index = "1",
+				key_fragmentName = "Fragment Name",
+				locator1 = "Fragment#FRAGMENT_CONTENT",
+				value1 = "Fragment Example");
+
+			PageEditor.publish();
+		}
+
+		task ("When the page creator navigates to the content page at view mode") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("Then the page creators sees the content of new fragment") {
+			AssertTextEquals(
+				fragmentName = "fragment-name",
+				index = "1",
+				locator1 = "Fragment#FRAGMENT_BODY",
+				value1 = "Fragment Example");
+		}
+	}
+
+	@description = "This is a test for LPS-164104. View fragment with fragmentEntryLinkNamespace variable to JavaScript on associated display page template."
+	@priority = "4"
+	test AddFragmentWithFragmentEntryLinkNamespaceInJavaScriptToDisplayPageTemplate {
+		property testray.component.names = "Display Pages,Fragments";
+
+		task ("Given a page creator has a fragment with fragmentEntryLinkNamespace in JavaScript") {
+			FragmentsAdmin.addFragment(fragmentName = "Fragment Name");
+
+			var htmlSnippet = '''
+<div class="fragment-name">
+    <div id="fragment-${fragmentEntryLinkNamespace}"></div>
+</div>''';
+
+			FragmentsEditor.typeHtmlEditor(content = "${htmlSnippet}");
+
+			FragmentsEditor.waitForAutoSave();
+
+			var jsSnippet = '''
+const element = document.getElementById(`fragment-${fragmentEntryLinkNamespace}`);
+element.textContent = 'Fragment Example';''';
+
+			FragmentsEditor.waitForAutoSave();
+
+			FragmentsEditor.typeJsEditor(content = "${jsSnippet}");
+
+			FragmentsEditor.publish();
+		}
+
+		task ("When the page creator adds the new fragment to a display page template") {
+			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+				contentType = "Web Content Article",
+				displayPageTemplateEntryName = "Display Page Name",
+				groupName = "Test Site Name",
+				subType = "Basic Web Content");
+
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+
+			PageEditor.addFragment(
+				collectionName = "Collection Name",
+				fragmentName = "Fragment Name");
+		}
+
+		task ("Then the page creator sees the content of new fragment") {
+			AssertTextEquals(
+				index = "1",
+				key_fragmentName = "Fragment Name",
+				locator1 = "Fragment#FRAGMENT_CONTENT",
+				value1 = "Fragment Example");
+
+			PageEditor.publish();
+
+			JSONLayoutpagetemplate.setLayoutPageTemplateEntryAsDefault(
+				groupName = "Test Site Name",
+				layoutPageTemplateEntryName = "Display Page Name",
+				type = "Display Page Template");
+		}
+
+		task ("When the page creator navigates to the associated display page template") {
+			JSONWebcontent.addWebContent(
+				content = "Web Content Content",
+				groupName = "Test Site Name",
+				title = "Web Content Title");
+
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+			WebContentNavigator.gotoEntryMenuItem(
+				entry = "Web Content Title",
+				menuItem = "View Content");
+		}
+
+		task ("Then the page creators sees the content of new fragment") {
+			AssertTextEquals(
+				fragmentName = "fragment-name",
+				index = "1",
+				locator1 = "Fragment#FRAGMENT_BODY",
+				value1 = "Fragment Example");
+		}
+	}
+
 	@description = "This is a test for LPS-158328. The user can change default resource image on content page after propagation."
 	@priority = "4"
 	test ChangeResourceImageAfterPropagation {
@@ -1114,6 +1256,199 @@ main();
 				contributed = "false",
 				fragmentName = "configuration",
 				text = "Updated fragment text");
+		}
+	}
+
+	@description = "This is a test for LPS-164081. The fragment developer can configure a URL selector on Freemarker."
+	@priority = "3"
+	test ConfigureURLSelectorConfiguration {
+		task ("Given a fragment developer has a new fragment with URL selector configuration") {
+			var newLine = '''
+''';
+			var htmlSnippet = '''
+<div class="fragment-name">
+	Fragment Example
+</div>''';
+
+			var htmlSnippet = StringUtil.regexReplaceAll("${htmlSnippet}", "${newLine}", "");
+			var jsonSnippet = '''
+{
+    "fieldSets": [
+        {
+            "fields" : [
+                {
+                    "label": "Link",
+                    "name": "Link",
+                    "type": "url"
+                }
+            ]
+        }
+    ]
+}''';
+
+			var jsonSnippet = StringUtil.regexReplaceAll("${jsonSnippet}", "${newLine}", "");
+
+			JSONFragment.addSection(
+				collectionName = "Collection Name",
+				configuration = "${jsonSnippet}",
+				fragmentStatus = "Approved",
+				groupName = "Test Site Name",
+				html = "${htmlSnippet}",
+				name = "Fragment Name");
+
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Page Name 2");
+		}
+
+		task ("When the fragment developer adds the new fragment to a content page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addFragment(
+				collectionName = "Collection Name",
+				fragmentName = "Fragment Name");
+		}
+
+		task ("Then the fragment developer could link the fragment to a page via the URL selector") {
+			PageEditor.gotoConfiguration(fragmentName = "Fragment Name");
+
+			Select(
+				key_fieldLabel = "Link",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "Page");
+
+			Click(
+				key_fieldLabel = "Page",
+				key_text = "plus",
+				locator1 = "Icon#ANY_ITEM_SELECTOR");
+
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+			Portlet.expandTree();
+
+			Click(
+				key_nodeName = "Test Page Name 2",
+				locator1 = "Treeview#NODE_UNSELECTED");
+
+			SelectFrameTop();
+
+			PageEditor.waitForAutoSave();
+
+			AssertTextEquals(
+				key_fieldLabel = "Page",
+				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
+				value1 = "Test Page Name 2");
+		}
+	}
+
+	@description = "This is a test for LPS-164242. The fragment developer could map to web contents in Collection Display using itemSelector configuration."
+	@priority = "5"
+	test MapToWebContentsInCollectionDisplayViaItemSelectorConfiguration {
+		task ("Given a fragment developer has a new fragment with itemSelector configuration") {
+			var newLine = '''
+''';
+			var htmlSnippet = '''
+<div class="fragment-name">
+    [#if itemSelectorObject??]
+        ${itemSelectorObject.getUrlTitle()}
+    [/#if]
+</div>''';
+
+			var htmlSnippet = StringUtil.regexReplaceAll("${htmlSnippet}", "${newLine}", "");
+			var jsonSnippet = '''
+{
+    "fieldSets": [
+        {
+            "fields" : [
+                {
+                    "label": "itemSelector",
+                    "type": "itemSelector",
+                    "name": "itemSelector"
+                }
+            ]
+        }
+    ]
+}''';
+
+			var jsonSnippet = StringUtil.regexReplaceAll("${jsonSnippet}", "${newLine}", "");
+
+			JSONFragment.addSection(
+				collectionName = "Collection Name",
+				configuration = "${jsonSnippet}",
+				fragmentStatus = "Approved",
+				groupName = "Test Site Name",
+				html = "${htmlSnippet}",
+				name = "Fragment Name");
+		}
+
+		task ("When the fragment developer adds the new fragment into a Collection Display") {
+			for (var title : list "SpaceX,Tesla,Twitter") {
+				JSONWebcontent.addWebContent(
+					content = "${title} Introduction",
+					groupName = "Test Site Name",
+					title = "${title}");
+			}
+
+			JSONAssetlist.addDynamicAssetListEntryWithItemType(
+				groupName = "Test Site Name",
+				itemSubtype = "All Subtypes",
+				itemType = "Web Content Article",
+				title = "Dynamic Collection");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addFragment(
+				collectionName = "Content Display",
+				fragmentName = "Collection Display");
+
+			PageEditor.editCollectionDisplay(
+				assetListName = "Dynamic Collection",
+				fragmentName = "Collection Display");
+
+			PageEditor.addFragmentToCollectionDisplay(
+				collectionName = "Collection Name",
+				entryTitle = "SpaceX",
+				fragmentName = "Fragment Name");
+		}
+
+		task ("Then the fragment developer sees the each new fragment displays the title of associated web content") {
+			var n = "1";
+
+			for (var title : list "twitter,tesla,spacex") {
+				AssertTextEquals(
+					index = "${n}",
+					key_fragmentName = "Fragment Name",
+					locator1 = "Fragment#FRAGMENT_CONTENT",
+					value1 = "${title}");
+
+				var n = ${n} + 1;
+			}
+
+			PageEditor.publish();
+		}
+
+		task ("When the fragment developer navigates to the content page at view mode") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("Then the fragment developer sees the Collection Display displays the title of associated web content") {
+			var n = "1";
+
+			for (var title : list "twitter,tesla,spacex") {
+				AssertTextEquals(
+					key_colPosition = "1",
+					key_rowPosition = "${n}",
+					locator1 = "PageEditor#COLLECTION_ITEM",
+					value1 = "${title}");
+
+				var n = ${n} + 1;
+			}
 		}
 	}
 

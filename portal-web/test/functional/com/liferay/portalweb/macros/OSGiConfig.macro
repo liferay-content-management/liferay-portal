@@ -1,5 +1,41 @@
 definition {
 
+	macro assertOSGiConfigDoesNotExist {
+		var liferayHome = PropsUtil.get("liferay.home.dir.name");
+
+		var osgiConfigExists = FileUtil.exists("${liferayHome}/osgi/configs/${osgiConfigFileName}");
+
+		if ("${osgiConfigExists}" == "true") {
+			fail("File ${osgiConfigFileName} exists");
+		}
+	}
+
+	macro assertTextInOSGiConfig {
+		var liferayHome = PropsUtil.get("liferay.home.dir.name");
+
+		var fileContent = FileUtil.read("${liferayHome}/osgi/configs/${osgiConfigFileName}");
+
+		if (contains("${fileContent}", "${text}")) {
+			echo("File ${osgiConfigFileName} contains text ${text}");
+		}
+		else {
+			fail("File ${osgiConfigFileName} does not contain text ${text}");
+		}
+	}
+
+	macro assertTextNotInOSGiConfig {
+		var liferayHome = PropsUtil.get("liferay.home.dir.name");
+
+		var fileContent = FileUtil.read("${liferayHome}/osgi/configs/${osgiConfigFileName}");
+
+		if (contains("${fileContent}", "${text}")) {
+			fail("File ${osgiConfigFileName} contains text ${text}");
+		}
+		else {
+			echo("File ${osgiConfigFileName} does not contain text ${text}");
+		}
+	}
+
 	macro copyOSGiConfigFile {
 		Variables.assertDefined(parameterList = "${osgiConfigFileBaseDir},${osgiConfigFileName}");
 
@@ -30,6 +66,26 @@ ${configList}''';
 		var liferayHome = PropsUtil.get("liferay.home.dir.name");
 
 		FileUtil.write("${liferayHome}/osgi/configs/${osgiConfigFileName}", "${configList}");
+	}
+
+	macro editOSGiConfigFileFromTempFolder {
+		var tempDir = PropsUtil.get("output.dir.name");
+
+		Variables.assertDefined(parameterList = "${tempDir},${osgiConfigFileName}");
+
+		var filePath = FileUtil.getCanonicalPath(${tempDir});
+
+		var filePath = "${filePath}/${osgiConfigFileName}";
+
+		FileUtil.replaceStringInFile("${filePath}", "${oldValue}", "${newValue}");
+	}
+
+	@description = "Wait for OSGi Configuration to update in the Database"
+	macro waitForOSGiConfig {
+
+		// LRQA-78134 Current workaround to wait for OSGi configurations until we get a reliable way of waiting for them to update in the database
+
+		Pause(locator1 = "8000");
 	}
 
 }

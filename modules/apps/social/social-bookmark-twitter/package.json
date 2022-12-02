@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"social-bookmarks-taglib": "*"
 	},
 	"name": "@liferay/social-bookmark-twitter",
 	"scripts": {
@@ -7,5 +8,5 @@
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "4.0.11"
+	"version": "4.0.12"
 }

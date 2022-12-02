@@ -45,10 +45,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 /**
  * @author Crescenzo Rega
  */
-@Component(
-	enabled = false, immediate = true,
-	service = SearchPermissionFilterContributor.class
-)
+@Component(service = SearchPermissionFilterContributor.class)
 public class AccountEntrySearchPermissionFilterContributor
 	implements SearchPermissionFilterContributor {
 

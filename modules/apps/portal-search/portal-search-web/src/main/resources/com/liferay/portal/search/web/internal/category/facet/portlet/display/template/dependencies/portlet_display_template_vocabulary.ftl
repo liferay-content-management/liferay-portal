@@ -50,6 +50,7 @@
 								<div class="custom-checkbox custom-control">
 									<label>
 										<input
+											autocomplete="off"
 											${selected?then("checked", "")}
 											class="custom-control-input facet-term"
 											data-term-id=${id}
@@ -101,8 +102,8 @@
 							cssClassTreeItem="tree-item-category"
 							frequency=termDisplayContext.getFrequency()
 							frequencyVisible=termDisplayContext.isFrequencyVisible()
-							id=termDisplayContext.getAssetCategoryId()
-							name=htmlUtil.escape(termDisplayContext.getDisplayName())
+							id=termDisplayContext.getFilterValue()
+							name=htmlUtil.escape(termDisplayContext.getBucketText())
 							selectable=true
 							selected=termDisplayContext.isSelected()
 						/>
@@ -137,7 +138,7 @@
 						frequencyVisible=false
 						id=vocabularyName + vocabularyName?index
 						name="${(vocabularyNames?size == 1)?then('', htmlUtil.escape(vocabularyName))}"
-						termDisplayContexts=assetCategoriesSearchFacetDisplayContext.getTermDisplayContexts(vocabularyName)
+						termDisplayContexts=assetCategoriesSearchFacetDisplayContext.getBucketDisplayContexts(vocabularyName)
 					/>
 				</#list>
 			</ul>

@@ -35,6 +35,8 @@ import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
 import com.liferay.portal.kernel.cluster.ClusterInvokeThreadLocal;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
+import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
@@ -167,7 +169,6 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.DeterminateKeyGenerator;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -191,6 +192,7 @@ import com.liferay.portal.kernel.util.PortalInetSocketAddressEventListener;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletCategoryKeys;
 import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.ServerDetector;
@@ -1095,7 +1097,7 @@ public class PortalImpl implements Portal {
 			url = portalURL.concat(url);
 		}
 
-		if (!CookieKeys.hasSessionId(httpServletRequest) &&
+		if (!CookiesManagerUtil.hasSessionId(httpServletRequest) &&
 			url.startsWith(portalURL)) {
 
 			HttpSession httpSession = httpServletRequest.getSession();
@@ -1115,17 +1117,9 @@ public class PortalImpl implements Portal {
 		Layout layout = null;
 
 		if (Validator.isNull(friendlyURL)) {
+			layout = _getLayout(groupId, privateLayout);
 
-			// We need to ensure that virtual layouts are merged
-
-			List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
-				groupId, privateLayout,
-				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, true, 0, 1);
-
-			if (!layouts.isEmpty()) {
-				layout = layouts.get(0);
-			}
-			else {
+			if (layout == null) {
 				throw new NoSuchLayoutException(
 					StringBundler.concat(
 						"{groupId=", groupId, ", privateLayout=", privateLayout,
@@ -1444,7 +1438,11 @@ public class PortalImpl implements Portal {
 			layout.getLayoutSet(), themeDisplay, true,
 			layout.isTypeControlPanel());
 
-		if (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2) {
+		int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
+			themeDisplay.getCompanyId(),
+			PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
+
+		if (localePrependFriendlyURLStyle == 2) {
 			String groupFriendlyURLDomain = HttpComponentsUtil.getDomain(
 				groupFriendlyURL);
 
@@ -3464,8 +3462,8 @@ public class PortalImpl implements Portal {
 
 		// Get locale from the cookie
 
-		String languageId = CookieKeys.getCookie(
-			httpServletRequest, CookieKeys.GUEST_LANGUAGE_ID, false);
+		String languageId = CookiesManagerUtil.getCookieValue(
+			CookiesConstants.NAME_GUEST_LANGUAGE_ID, httpServletRequest, false);
 
 		if (Validator.isNotNull(languageId)) {
 			Locale cookieLocale = getAvailableLocale(
@@ -3674,8 +3672,12 @@ public class PortalImpl implements Portal {
 
 		boolean appendI18nPath = true;
 
-		if ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 0) ||
-			((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 1) &&
+		int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
+			getCompanyId(httpServletRequest),
+			PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
+
+		if ((localePrependFriendlyURLStyle == 0) ||
+			((localePrependFriendlyURLStyle == 1) &&
 			 locale.equals(LocaleUtil.getDefault()))) {
 
 			appendI18nPath = false;
@@ -5569,7 +5571,7 @@ public class PortalImpl implements Portal {
 				String cookieName = cookie.getName();
 
 				if (cookieName.startsWith(
-						CookieKeys.REMOTE_PREFERENCE_PREFIX)) {
+						CookiesConstants.NAME_REMOTE_PREFERENCE_PREFIX)) {
 
 					user.addRemotePreference(
 						new CookieRemotePreference(cookie));
@@ -6152,7 +6154,7 @@ public class PortalImpl implements Portal {
 		String fullURL, String groupFriendlyURL, String layoutFriendlyURL) {
 
 		if (fullURL.endsWith(groupFriendlyURL) &&
-			!fullURL.endsWith(groupFriendlyURL.concat(layoutFriendlyURL))) {
+			!fullURL.endsWith(layoutFriendlyURL)) {
 
 			return true;
 		}
@@ -7946,11 +7948,14 @@ public class PortalImpl implements Portal {
 		String i18nPath = null;
 
 		Set<String> languageIds = I18nFilter.getLanguageIds();
+		int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
+			themeDisplay.getCompanyId(),
+			PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
 
 		if ((languageIds.contains(locale.toString()) &&
-			 (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 1) &&
+			 (localePrependFriendlyURLStyle == 1) &&
 			 !locale.equals(LocaleUtil.getDefault())) ||
-			(PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2)) {
+			(localePrependFriendlyURLStyle == 2)) {
 
 			i18nPath = _buildI18NPath(locale, themeDisplay.getSiteGroup());
 		}
@@ -8159,9 +8164,13 @@ public class PortalImpl implements Portal {
 		Locale siteDefaultLocale = getSiteDefaultLocale(layout.getGroupId());
 
 		if ((pos <= 0) || (pos >= canonicalURL.length())) {
+			int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
+				themeDisplay.getCompanyId(),
+				PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
+
 			for (Locale locale : availableLocales) {
 				if (siteDefaultLocale.equals(locale) &&
-					(PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE != 2)) {
+					(localePrependFriendlyURLStyle != 2)) {
 
 					alternateURLs.put(locale, canonicalURL);
 				}
@@ -8217,13 +8226,15 @@ public class PortalImpl implements Portal {
 		}
 
 		String canonicalURLPrefix = canonicalURL.substring(0, pos);
-
 		String canonicalURLSuffix = canonicalURL.substring(pos);
 
+		int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
+			themeDisplay.getCompanyId(),
+			PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
 		String siteDefaultLocaleI18nPath = _buildI18NPath(
 			siteDefaultLocale, layout.getGroup());
 
-		if ((PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2) &&
+		if ((localePrependFriendlyURLStyle == 2) &&
 			canonicalURLSuffix.startsWith(siteDefaultLocaleI18nPath)) {
 
 			canonicalURLSuffix = canonicalURLSuffix.substring(
@@ -8320,29 +8331,19 @@ public class PortalImpl implements Portal {
 				alternateURL = canonicalURLPrefix.concat(alternateURLSuffix);
 			}
 
-			if (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 2) {
-				alternateURL = canonicalURLPrefix + alternateURLSuffix;
+			String i18NPath = _buildI18NPath(
+				languageId, locale, themeDisplay.getSiteGroup());
 
-				if (siteDefaultLocale.equals(locale)) {
-					alternateURL =
-						canonicalURLPrefix + siteDefaultLocaleI18nPath +
-							alternateURLSuffix;
-				}
+			if (!alternateURLSuffix.startsWith(i18NPath) &&
+				((localePrependFriendlyURLStyle == 2) ||
+				 ((localePrependFriendlyURLStyle != 0) &&
+				  !siteDefaultLocale.equals(locale)))) {
 
-				alternateURLs.put(locale, alternateURL);
+				alternateURL =
+					canonicalURLPrefix + i18NPath + alternateURLSuffix;
 			}
-			else if (siteDefaultLocale.equals(locale)) {
-				alternateURLs.put(locale, alternateURL);
-			}
-			else {
-				alternateURLs.put(
-					locale,
-					StringBundler.concat(
-						canonicalURLPrefix,
-						_buildI18NPath(
-							languageId, locale, themeDisplay.getSiteGroup()),
-						alternateURLSuffix));
-			}
+
+			alternateURLs.put(locale, alternateURL);
 		}
 
 		return alternateURLs;
@@ -8356,6 +8357,38 @@ public class PortalImpl implements Portal {
 		}
 
 		return _LOCALHOST;
+	}
+
+	private Layout _getFirstPublishedLayout(
+		long groupId, boolean privateLayout) {
+
+		boolean hasNext = true;
+
+		int start = 1;
+		int end = 0;
+		int interval = 20;
+
+		while (hasNext) {
+			end = start + interval;
+
+			List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
+				groupId, privateLayout,
+				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, true, start, end);
+
+			for (Layout layout : layouts) {
+				if (layout.isPublished()) {
+					return layout;
+				}
+			}
+
+			start = start + interval;
+
+			if (layouts.size() < interval) {
+				hasNext = false;
+			}
+		}
+
+		return null;
 	}
 
 	private String _getGroupFriendlyURL(
@@ -8539,6 +8572,32 @@ public class PortalImpl implements Portal {
 		return sb.toString();
 	}
 
+	private Layout _getLayout(long groupId, boolean privateLayout) {
+
+		// We need to ensure that virtual layouts are merged
+
+		List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
+			groupId, privateLayout, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
+			true, 0, 1);
+
+		if (layouts.isEmpty()) {
+			return null;
+		}
+
+		Layout layout = layouts.get(0);
+
+		if (!layout.isPublished()) {
+			Layout firstPublishedLayout = _getFirstPublishedLayout(
+				groupId, privateLayout);
+
+			if (firstPublishedLayout != null) {
+				return firstPublishedLayout;
+			}
+		}
+
+		return layout;
+	}
+
 	private String _getPortalURL(
 		String serverName, int serverPort, boolean secure) {
 
@@ -8710,7 +8769,9 @@ public class PortalImpl implements Portal {
 
 				String ppid = url.substring(x + 3, y);
 
-				if (Validator.isNotNull(ppid)) {
+				if (Validator.isNotNull(ppid) &&
+					(PortletLocalServiceUtil.getPortletById(ppid) != null)) {
+
 					friendlyURL = url.substring(0, x);
 
 					Map<String, String[]> actualParams = null;

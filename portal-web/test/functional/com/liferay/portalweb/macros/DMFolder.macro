@@ -118,7 +118,7 @@ definition {
 
 			AssertTextEquals.assertPartialText(
 				locator1 = "Message#ERROR_1",
-				value1 = "The folder name cannot contain the following invalid characters: \ // : * ? &quot; < > | ../ /...");
+				value1 = "The folder name cannot contain the following invalid characters: \ // : * ? \" < > | ../ /...");
 		}
 		else {
 			Alert.viewSuccessMessage();
@@ -350,7 +350,7 @@ definition {
 
 		MenuItem.click(menuItem = "Move");
 
-		SelectFrame.selectFrameNoLoading(locator1 = "DocumentsAndMediaSelectFolder#SELECT_FOLDER_IFRAME");
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
 
 		if ("${moveSubfolder}" == "true") {
 			AssertClick(
@@ -426,7 +426,9 @@ definition {
 		var key_roleTitle = "${roleTitle}";
 
 		for (var permissionName : list "${permissionNameList}") {
-			Uncheck(locator1 = "Permissions#CONTENT_PERMISSIONS_${permissionName}_CHECKBOX");
+			ScrollWebElementIntoView(locator1 = "Permissions#CONTENT_PERMISSIONS_${permissionName}_CHECKBOX");
+
+			Uncheck.uncheckNotVisible(locator1 = "Permissions#CONTENT_PERMISSIONS_${permissionName}_CHECKBOX");
 		}
 
 		PortletEntry.save();

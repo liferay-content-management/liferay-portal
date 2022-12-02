@@ -28,16 +28,21 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.RowTag;
 import com.liferay.frontend.taglib.servlet.taglib.ComponentTag;
 import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.info.form.InfoForm;
+import com.liferay.info.item.InfoItemDetails;
+import com.liferay.info.item.InfoItemReference;
+import com.liferay.info.item.InfoItemServiceRegistry;
+import com.liferay.info.item.provider.InfoItemDetailsProvider;
 import com.liferay.info.list.renderer.DefaultInfoListRendererContext;
 import com.liferay.info.list.renderer.InfoListRenderer;
 import com.liferay.layout.constants.LayoutWebKeys;
 import com.liferay.layout.display.page.LayoutDisplayPageProvider;
 import com.liferay.layout.display.page.constants.LayoutDisplayPageWebKeys;
 import com.liferay.layout.helper.CollectionPaginationHelper;
-import com.liferay.layout.page.template.util.LayoutStructureUtil;
+import com.liferay.layout.provider.LayoutStructureProvider;
 import com.liferay.layout.responsive.ResponsiveLayoutStructureUtil;
 import com.liferay.layout.taglib.internal.display.context.RenderCollectionLayoutStructureItemDisplayContext;
 import com.liferay.layout.taglib.internal.display.context.RenderLayoutStructureDisplayContext;
+import com.liferay.layout.taglib.internal.info.search.InfoSearchClassMapperRegistryUtil;
 import com.liferay.layout.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.layout.taglib.internal.util.SegmentsExperienceUtil;
 import com.liferay.layout.util.constants.LayoutStructureConstants;
@@ -184,7 +189,10 @@ public class RenderLayoutStructureTag extends IncludeTag {
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		return LayoutStructureUtil.getLayoutStructure(
+		LayoutStructureProvider layoutStructureProvider =
+			ServletContextUtil.getLayoutStructureHelper();
+
+		return layoutStructureProvider.getLayoutStructure(
 			themeDisplay.getPlid(),
 			SegmentsExperienceUtil.getSegmentsExperienceId(httpServletRequest));
 	}
@@ -269,6 +277,9 @@ public class RenderLayoutStructureTag extends IncludeTag {
 			jspWriter.write(unsyncStringWriter.toString());
 		}
 		else {
+			InfoItemReference currentInfoItemReference =
+				(InfoItemReference)httpServletRequest.getAttribute(
+					InfoDisplayWebKeys.INFO_ITEM_REFERENCE);
 			LayoutDisplayPageProvider<?> currentLayoutDisplayPageProvider =
 				(LayoutDisplayPageProvider<?>)httpServletRequest.getAttribute(
 					LayoutDisplayPageWebKeys.LAYOUT_DISPLAY_PAGE_PROVIDER);
@@ -331,6 +342,16 @@ public class RenderLayoutStructureTag extends IncludeTag {
 
 				containerTag.doStartTag();
 
+				InfoItemServiceRegistry infoItemServiceRegistry =
+					ServletContextUtil.getInfoItemServiceRegistry();
+
+				InfoItemDetailsProvider infoItemDetailsProvider =
+					infoItemServiceRegistry.getFirstInfoItemService(
+						InfoItemDetailsProvider.class,
+						InfoSearchClassMapperRegistryUtil.getClassName(
+							renderCollectionLayoutStructureItemDisplayContext.
+								getCollectionItemType()));
+
 				for (int i = 0; i < numberOfRows; i++) {
 					RowTag rowTag = new RowTag();
 
@@ -368,14 +389,13 @@ public class RenderLayoutStructureTag extends IncludeTag {
 							break;
 						}
 
+						InfoItemDetails infoItemDetails =
+							infoItemDetailsProvider.getInfoItemDetails(
+								collection.get(index));
+
 						httpServletRequest.setAttribute(
-							InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT,
-							collection.get(index));
-						httpServletRequest.setAttribute(
-							InfoDisplayWebKeys.
-								INFO_LIST_DISPLAY_OBJECT_ITEM_TYPE,
-							renderCollectionLayoutStructureItemDisplayContext.
-								getCollectionItemType());
+							InfoDisplayWebKeys.INFO_ITEM_REFERENCE,
+							infoItemDetails.getInfoItemReference());
 
 						ColTag colTag = new ColTag();
 
@@ -402,11 +422,9 @@ public class RenderLayoutStructureTag extends IncludeTag {
 				containerTag.doEndTag();
 			}
 			finally {
-				httpServletRequest.removeAttribute(
-					InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT);
-				httpServletRequest.removeAttribute(
-					InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT_ITEM_TYPE);
-
+				httpServletRequest.setAttribute(
+					InfoDisplayWebKeys.INFO_ITEM_REFERENCE,
+					currentInfoItemReference);
 				httpServletRequest.setAttribute(
 					LayoutDisplayPageWebKeys.LAYOUT_DISPLAY_PAGE_PROVIDER,
 					currentLayoutDisplayPageProvider);
@@ -973,6 +991,12 @@ public class RenderLayoutStructureTag extends IncludeTag {
 				HttpServletResponse httpServletResponse =
 					(HttpServletResponse)pageContext.getResponse();
 
+				// LPS-164462 Call render before getting attribute value
+
+				String html = fragmentRendererController.render(
+					defaultFragmentRendererContext, httpServletRequest,
+					httpServletResponse);
+
 				if (GetterUtil.getBoolean(
 						httpServletRequest.getAttribute(
 							FragmentWebKeys.
@@ -988,10 +1012,7 @@ public class RenderLayoutStructureTag extends IncludeTag {
 					jspWriter.write("<div>");
 				}
 
-				jspWriter.write(
-					fragmentRendererController.render(
-						defaultFragmentRendererContext, httpServletRequest,
-						httpServletResponse));
+				jspWriter.write(html);
 				jspWriter.write("</div>");
 			}
 		}

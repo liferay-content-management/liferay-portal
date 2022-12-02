@@ -107,7 +107,20 @@ export default function TabsPanel({
 
 	return (
 		<>
-			<ClayTabs className="flex-shrink-0 page-editor__sidebar__fragments-widgets-panel__tabs px-3">
+			<ClayTabs
+				activation="automatic"
+				active={activeTabId}
+				className="flex-shrink-0 page-editor__sidebar__fragments-widgets-panel__tabs px-3"
+				onActiveChange={(activeTabId) => {
+					setActiveTabId(activeTabId);
+
+					setScrollPosition(0);
+
+					if (wrapperElementRef.current) {
+						wrapperElementRef.current.scrollTop = 0;
+					}
+				}}
+			>
 				{tabs.map((tab, index) => (
 					<ClayTabs.Item
 						active={tab.id === activeTabId}
@@ -116,14 +129,6 @@ export default function TabsPanel({
 							'id': getTabId(index),
 						}}
 						key={index}
-						onClick={() => {
-							setActiveTabId(tab.id);
-							setScrollPosition(0);
-
-							if (wrapperElementRef.current) {
-								wrapperElementRef.current.scrollTop = 0;
-							}
-						}}
 					>
 						{tab.label}
 					</ClayTabs.Item>
@@ -132,9 +137,7 @@ export default function TabsPanel({
 
 			<div className="overflow-auto pt-4 px-3" ref={wrapperElementRef}>
 				<ClayTabs.Content
-					activeIndex={tabs.findIndex(
-						(tab) => tab.id === activeTabId
-					)}
+					activeIndex={activeTabId}
 					className="page-editor__sidebar__fragments-widgets-panel__tab-content"
 					fade
 				>
@@ -144,28 +147,25 @@ export default function TabsPanel({
 							id={getTabPanelId(index)}
 							key={index}
 						>
-							<ul className="list-unstyled">
-								{tab.collections.length ? (
-									tab.collections.map((collection, index) => (
-										<TabCollection
-											collection={collection}
-											displayStyle={
-												tab.id ===
-												COLLECTION_IDS.widgets
-													? FRAGMENTS_DISPLAY_STYLES.LIST
-													: displayStyle
-											}
-											initialOpen={
-												index <
-												INITIAL_EXPANDED_ITEM_COLLECTIONS
-											}
-											key={index}
-										/>
-									))
-								) : (
-									<ClayLoadingIndicator small />
-								)}
-							</ul>
+							{tab.collections.length ? (
+								tab.collections.map((collection, index) => (
+									<TabCollection
+										collection={collection}
+										displayStyle={
+											tab.id === COLLECTION_IDS.widgets
+												? FRAGMENTS_DISPLAY_STYLES.LIST
+												: displayStyle
+										}
+										initialOpen={
+											index <
+											INITIAL_EXPANDED_ITEM_COLLECTIONS
+										}
+										key={index}
+									/>
+								))
+							) : (
+								<ClayLoadingIndicator small />
+							)}
 						</ClayTabs.TabPane>
 					))}
 				</ClayTabs.Content>
@@ -179,7 +179,7 @@ TabsPanel.propTypes = {
 	tabs: PropTypes.arrayOf(
 		PropTypes.shape({
 			collections: PropTypes.arrayOf(PropTypes.shape({})),
-			id: PropTypes.string,
+			id: PropTypes.number,
 			label: PropTypes.string,
 		})
 	),

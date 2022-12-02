@@ -19,8 +19,6 @@ import com.liferay.commerce.constants.CommerceWebKeys;
 import com.liferay.commerce.exception.CommerceOrderImporterTypeException;
 import com.liferay.commerce.order.importer.type.CommerceOrderImporterType;
 import com.liferay.commerce.order.importer.type.CommerceOrderImporterTypeRegistry;
-import com.liferay.commerce.service.CommerceOrderService;
-import com.liferay.commerce.wish.list.service.CommerceWishListService;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -37,7 +35,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = {
 		"javax.portlet.name=" + CommercePortletKeys.COMMERCE_OPEN_ORDER_CONTENT,
 		"mvc.command.name=/commerce_open_order_content/view_commerce_order_importer_type"
@@ -79,12 +76,6 @@ public class ViewCommerceOrderImporterTypeMVCRenderCommand
 	@Reference
 	private CommerceOrderImporterTypeRegistry
 		_commerceOrderImporterTypeRegistry;
-
-	@Reference
-	private CommerceOrderService _commerceOrderService;
-
-	@Reference
-	private CommerceWishListService _commerceWishListService;
 
 	@Reference
 	private Portal _portal;

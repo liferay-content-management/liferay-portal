@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.osgi.framework.BundleContext;
@@ -48,7 +47,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Andrew Betts
  */
 @Component(
-	immediate = true,
 	property = "background.task.executor.class.name=com.liferay.portal.search.internal.background.task.ReindexSingleIndexerBackgroundTaskExecutor",
 	service = {
 		BackgroundTaskExecutor.class,
@@ -105,8 +103,7 @@ public class ReindexSingleIndexerBackgroundTaskExecutor
 			return;
 		}
 
-		Collection<SearchEngine> searchEngines =
-			searchEngineHelper.getSearchEngines();
+		SearchEngine searchEngine = searchEngineHelper.getSearchEngine();
 
 		boolean systemIndexer = _isSystemIndexer(indexer);
 
@@ -129,12 +126,10 @@ public class ReindexSingleIndexerBackgroundTaskExecutor
 			}
 
 			try {
-				for (SearchEngine searchEngine : searchEngines) {
-					searchEngine.initialize(companyId);
-				}
+				searchEngine.initialize(companyId);
 
 				indexWriterHelper.deleteEntityDocuments(
-					indexer.getSearchEngineId(), companyId, className, true);
+					companyId, className, true);
 
 				indexer.reindex(new String[] {String.valueOf(companyId)});
 			}

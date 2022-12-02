@@ -3,7 +3,7 @@ definition {
 
 	property custom.properties = "minifier.enabled=true";
 	property osgi.module.configuration.file.names = "com.liferay.frontend.js.loader.modules.extender.internal.configuration.Details.config";
-	property osgi.module.configurations = "waitTimeout=&quot;15&quot;";
+	property osgi.module.configurations = "waitTimeout=\"15\"";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Forms";
@@ -1095,7 +1095,11 @@ definition {
 			key_formName = "Element Set 1",
 			locator1 = "FormsAdmin#FORMS_TABLE_NAME");
 
-		FormsAdmin.teardownElementSets();
+		ClickNoError(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS");
+
+		MenuItem.clickNoError(menuItem = "Delete");
+
+		AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
 
 		AssertElementNotPresent(
 			key_formName = "Element Set 1",
@@ -1831,11 +1835,11 @@ definition {
 		Form.closeSidebar();
 
 		FormFields.viewSwitchOption(
-			fieldName = "MultipleSelection",
+			fieldName = "Multiple Selection",
 			optionValue = "Option 1");
 
 		FormFields.viewSwitchOption(
-			fieldName = "MultipleSelection",
+			fieldName = "Multiple Selection",
 			optionValue = "Option 2");
 
 		Form.saveElementSet();
@@ -1848,14 +1852,14 @@ definition {
 
 		FormFields.viewField(fieldName = "Text");
 
-		FormFields.viewField(fieldName = "MultipleSelection");
+		FormFields.viewField(fieldName = "Multiple Selection");
 
 		FormFields.viewSwitchOption(
-			fieldName = "MultipleSelection",
+			fieldName = "Multiple Selection",
 			optionValue = "Option 1");
 
 		FormFields.viewSwitchOption(
-			fieldName = "MultipleSelection",
+			fieldName = "Multiple Selection",
 			optionValue = "Option 2");
 
 		Form.save();
@@ -1865,11 +1869,11 @@ definition {
 		FormsAdminNavigator.gotoPublishedForm();
 
 		FormFields.viewSwitchOption(
-			fieldName = "MultipleSelection",
+			fieldName = "Multiple Selection",
 			optionValue = "Option 1");
 
 		FormFields.viewSwitchOption(
-			fieldName = "MultipleSelection",
+			fieldName = "Multiple Selection",
 			optionValue = "Option 2");
 	}
 

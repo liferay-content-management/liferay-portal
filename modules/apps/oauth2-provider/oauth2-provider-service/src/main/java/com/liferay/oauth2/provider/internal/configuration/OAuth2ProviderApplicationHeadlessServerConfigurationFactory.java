@@ -19,6 +19,7 @@ import com.liferay.oauth2.provider.constants.ClientProfile;
 import com.liferay.oauth2.provider.constants.GrantType;
 import com.liferay.oauth2.provider.model.OAuth2Application;
 import com.liferay.oauth2.provider.util.OAuth2SecureRandomGenerator;
+import com.liferay.osgi.util.configuration.ConfigurationFactoryUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
@@ -46,7 +47,7 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
  */
 @Component(
 	configurationPid = "com.liferay.oauth2.provider.configuration.OAuth2ProviderApplicationHeadlessServerConfiguration",
-	configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true,
+	configurationPolicy = ConfigurationPolicy.REQUIRE,
 	property = "_portalK8sConfigMapModifier.cardinality.minimum=1", service = {}
 )
 public class OAuth2ProviderApplicationHeadlessServerConfigurationFactory
@@ -58,8 +59,10 @@ public class OAuth2ProviderApplicationHeadlessServerConfigurationFactory
 			_log.debug("Activate " + properties);
 		}
 
-		Company company = getCompany(properties);
-		String externalReferenceCode = getExternalReferenceCode(properties);
+		long companyId = ConfigurationFactoryUtil.getCompanyId(
+			companyLocalService, properties);
+		String externalReferenceCode =
+			ConfigurationFactoryUtil.getExternalReferenceCode(properties);
 
 		OAuth2ProviderApplicationHeadlessServerConfiguration
 			oAuth2ProviderApplicationHeadlessServerConfiguration =
@@ -71,13 +74,15 @@ public class OAuth2ProviderApplicationHeadlessServerConfigurationFactory
 			oAuth2ProviderApplicationHeadlessServerConfiguration.scopes());
 
 		oAuth2Application = _addOrUpdateOAuth2Application(
-			company.getCompanyId(), externalReferenceCode,
+			companyId, externalReferenceCode,
 			oAuth2ProviderApplicationHeadlessServerConfiguration,
 			scopeAliasesList);
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("OAuth 2 application " + oAuth2Application);
 		}
+
+		Company company = companyLocalService.getCompanyById(companyId);
 
 		String serviceAddress = getServiceAddress(company);
 
@@ -86,6 +91,9 @@ public class OAuth2ProviderApplicationHeadlessServerConfigurationFactory
 			HashMapBuilder.put(
 				externalReferenceCode + ".oauth2.authorization.uri",
 				serviceAddress.concat("/o/oauth2/authorize")
+			).put(
+				externalReferenceCode + ".oauth2.headless.server.audience",
+				oAuth2Application.getHomePageURL()
 			).put(
 				externalReferenceCode + ".oauth2.headless.server.client.id",
 				oAuth2Application.getClientId()
@@ -98,6 +106,9 @@ public class OAuth2ProviderApplicationHeadlessServerConfigurationFactory
 			).put(
 				externalReferenceCode + ".oauth2.introspection.uri",
 				serviceAddress.concat("/o/oauth2/introspect")
+			).put(
+				externalReferenceCode + ".oauth2.jwks.uri",
+				serviceAddress.concat("/o/oauth2/jwks")
 			).put(
 				externalReferenceCode + ".oauth2.token.uri",
 				serviceAddress.concat("/o/oauth2/token")

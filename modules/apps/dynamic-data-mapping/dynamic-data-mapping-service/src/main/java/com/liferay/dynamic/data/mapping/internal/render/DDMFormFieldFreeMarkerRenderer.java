@@ -18,7 +18,6 @@ import com.liferay.dynamic.data.mapping.constants.DDMConstants;
 import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
 import com.liferay.dynamic.data.mapping.constants.DDMTemplateConstants;
 import com.liferay.dynamic.data.mapping.form.field.type.constants.DDMFormFieldTypeConstants;
-import com.liferay.dynamic.data.mapping.internal.util.DDMFormFieldFreeMarkerRendererUtil;
 import com.liferay.dynamic.data.mapping.internal.util.DDMImpl;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
@@ -29,6 +28,8 @@ import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
 import com.liferay.dynamic.data.mapping.storage.Field;
 import com.liferay.dynamic.data.mapping.storage.Fields;
 import com.liferay.dynamic.data.mapping.util.DDMFieldsCounter;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.lang.ClassLoaderPool;
 import com.liferay.petra.string.CharPool;
@@ -36,7 +37,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.editor.Editor;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.constants.LanguageConstants;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -52,8 +53,10 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -74,9 +77,19 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Pablo Carvalho
  */
+@Component(
+	property = "ddm.form.field.renderer.type=freemarker",
+	service = DDMFormFieldRenderer.class
+)
 public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 
 	@Override
@@ -108,6 +121,24 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 		catch (Exception exception) {
 			throw new PortalException(exception);
 		}
+	}
+
+	@Activate
+	protected void activate(BundleContext bundleContext) {
+		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
+			bundleContext, Editor.class, null,
+			(serviceReference, emitter) -> {
+				Editor editor = bundleContext.getService(serviceReference);
+
+				emitter.emit(editor.getName());
+
+				bundleContext.ungetService(serviceReference);
+			});
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		_serviceTrackerMap.close();
 	}
 
 	private void _addDDMFormFieldOptionHTML(
@@ -256,6 +287,17 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 		}
 
 		return sb.toString();
+	}
+
+	private Editor _getEditor() {
+		if (Validator.isNull(_TEXT_HTML_EDITOR_WYSIWYG_DEFAULT) ||
+			!_serviceTrackerMap.containsKey(
+				_TEXT_HTML_EDITOR_WYSIWYG_DEFAULT)) {
+
+			return _serviceTrackerMap.getService(_EDITOR_WYSIWYG_DEFAULT);
+		}
+
+		return _serviceTrackerMap.getService(_TEXT_HTML_EDITOR_WYSIWYG_DEFAULT);
 	}
 
 	private Map<String, Object> _getFieldContext(
@@ -533,9 +575,7 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 			).put(
 				"editorName",
 				() -> {
-					Editor editor =
-						DDMFormFieldFreeMarkerRendererUtil.getEditor(
-							httpServletRequest);
+					Editor editor = _getEditor();
 
 					return editor.getName();
 				}
@@ -549,7 +589,7 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 		try {
 			String itemSelectorAuthToken = AuthTokenUtil.getToken(
 				httpServletRequest,
-				PortalUtil.getControlPanelPlid(themeDisplay.getCompanyId()),
+				_portal.getControlPanelPlid(themeDisplay.getCompanyId()),
 				PortletKeys.ITEM_SELECTOR);
 
 			freeMarkerContext.put(
@@ -576,7 +616,7 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 		freeMarkerContext.put("portletNamespace", portletNamespace);
 		freeMarkerContext.put(
 			"requestedLanguageDir",
-			LanguageUtil.get(locale, LanguageConstants.KEY_DIR));
+			_language.get(locale, LanguageConstants.KEY_DIR));
 		freeMarkerContext.put("requestedLocale", locale);
 		freeMarkerContext.put("showEmptyFieldLabel", showEmptyFieldLabel);
 
@@ -773,6 +813,12 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 
 	private static final String _DEFAULT_READ_ONLY_NAMESPACE = "readonly";
 
+	private static final String _EDITOR_WYSIWYG_DEFAULT = PropsUtil.get(
+		PropsKeys.EDITOR_WYSIWYG_DEFAULT);
+
+	private static final String _TEXT_HTML_EDITOR_WYSIWYG_DEFAULT =
+		PropsUtil.get("editor.wysiwyg.portal-impl.portlet.ddm.text_html.ftl");
+
 	private static final String _TPL_EXT = ".ftl";
 
 	private static final String _TPL_PATH =
@@ -780,5 +826,13 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDMFormFieldFreeMarkerRenderer.class);
+
+	@Reference
+	private Language _language;
+
+	@Reference
+	private Portal _portal;
+
+	private ServiceTrackerMap<String, Editor> _serviceTrackerMap;
 
 }

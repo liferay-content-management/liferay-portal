@@ -16,15 +16,11 @@ package com.liferay.document.library.video.internal.display.context;
 
 import com.liferay.document.library.display.context.BaseDLViewFileVersionDisplayContext;
 import com.liferay.document.library.display.context.DLViewFileVersionDisplayContext;
-import com.liferay.document.library.video.internal.constants.DLVideoConstants;
 import com.liferay.document.library.video.internal.util.DLVideoExternalShortcutUIItemsUtil;
-import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileVersion;
-import com.liferay.portal.kernel.servlet.taglib.ui.ToolbarItem;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,54 +52,6 @@ public class DLVideoExternalShortcutDLViewFileVersionDisplayContext
 			actionDropdownItems);
 
 		return actionDropdownItems;
-	}
-
-	@Override
-	public List<DDMStructure> getDDMStructures() throws PortalException {
-		List<DDMStructure> ddmStructures = super.getDDMStructures();
-
-		Iterator<DDMStructure> iterator = ddmStructures.iterator();
-
-		while (iterator.hasNext()) {
-			DDMStructure ddmStructure = iterator.next();
-
-			String ddmStructureKey = ddmStructure.getStructureKey();
-
-			if (ddmStructureKey.equals(
-					DLVideoConstants.
-						DDM_STRUCTURE_KEY_DL_VIDEO_EXTERNAL_SHORTCUT)) {
-
-				iterator.remove();
-
-				break;
-			}
-		}
-
-		return ddmStructures;
-	}
-
-	@Override
-	public List<ToolbarItem> getToolbarItems() throws PortalException {
-		List<ToolbarItem> toolbarItems = super.getToolbarItems();
-
-		DLVideoExternalShortcutUIItemsUtil.processUIItems(toolbarItems);
-
-		return toolbarItems;
-	}
-
-	@Override
-	public boolean hasPreview() {
-		return false;
-	}
-
-	@Override
-	public boolean isDownloadLinkVisible() {
-		return false;
-	}
-
-	@Override
-	public boolean isVersionInfoVisible() {
-		return false;
 	}
 
 	private static final UUID _UUID = UUID.fromString(

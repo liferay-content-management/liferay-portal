@@ -80,7 +80,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luca Pellizzon
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"commerce.definition.term.contributor.key=" + CommerceOrderCommerceDefinitionTermContributor.KEY,
 		"commerce.notification.type.key=" + CommerceOrderConstants.ORDER_NOTIFICATION_AWAITING_SHIPMENT,
@@ -335,10 +334,10 @@ public class CommerceOrderCommerceDefinitionTermContributor
 
 		Contact contact = user.getContact();
 
-		long prefixId = contact.getPrefixId();
+		long prefixListTypeId = contact.getPrefixListTypeId();
 
-		if (prefixId > 0) {
-			ListType listType = _listTypeService.getListType(prefixId);
+		if (prefixListTypeId > 0) {
+			ListType listType = _listTypeService.getListType(prefixListTypeId);
 
 			return _language.get(locale, listType.getName());
 		}

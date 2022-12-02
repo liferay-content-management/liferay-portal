@@ -35,14 +35,14 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
-import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
+import com.liferay.portal.kernel.portlet.bridges.mvc.BaseTransactionalMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.settings.GroupServiceSettingsLocator;
 import com.liferay.portal.kernel.settings.ModifiableSettings;
 import com.liferay.portal.kernel.settings.Settings;
@@ -72,17 +72,17 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"javax.portlet.name=" + CPPortletKeys.COMMERCE_CHANNELS,
 		"mvc.command.name=/commerce_channels/edit_commerce_channel"
 	},
 	service = MVCActionCommand.class
 )
-public class EditCommerceChannelMVCActionCommand extends BaseMVCActionCommand {
+public class EditCommerceChannelMVCActionCommand
+	extends BaseTransactionalMVCActionCommand {
 
 	@Override
-	protected void doProcessAction(
+	protected void doTransactionalCommand(
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
@@ -100,21 +100,20 @@ public class EditCommerceChannelMVCActionCommand extends BaseMVCActionCommand {
 				_selectSite(actionRequest);
 			}
 		}
-		catch (FileExtensionException | InvalidFileException |
-			   PrincipalException exception) {
-
+		catch (Exception exception) {
 			if (exception instanceof FileExtensionException ||
 				exception instanceof InvalidFileException) {
 
-				hideDefaultErrorMessage(actionRequest);
+				SessionMessages.add(
+					actionRequest,
+					_portal.getPortletId(actionRequest) +
+						SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_ERROR_MESSAGE);
 
 				SessionErrors.add(
 					actionRequest, exception.getClass(), exception);
 
-				String redirect = ParamUtil.getString(
-					actionRequest, "redirect");
-
-				sendRedirect(actionRequest, actionResponse, redirect);
+				actionResponse.setRenderParameter(
+					"mvcPath", "/edit_commerce_channel.jsp");
 			}
 			else {
 				SessionErrors.add(actionRequest, exception.getClass());
@@ -195,7 +194,7 @@ public class EditCommerceChannelMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private void _updateAccountCartMaxAllowed(
-			CommerceChannel commerceChannel, ActionRequest actionRequest)
+			ActionRequest actionRequest, CommerceChannel commerceChannel)
 		throws Exception {
 
 		Settings settings = _settingsFactory.getSettings(
@@ -236,12 +235,12 @@ public class EditCommerceChannelMVCActionCommand extends BaseMVCActionCommand {
 		CommerceChannel commerceChannel =
 			_commerceChannelService.getCommerceChannel(commerceChannelId);
 
-		_updateAccountCartMaxAllowed(commerceChannel, actionRequest);
-		_updatePurchaseOrderNumber(commerceChannel, actionRequest);
-		_updateRequestedDeliveryDateFormat(commerceChannel, actionRequest);
-		_updateShippingTaxCategory(commerceChannel, actionRequest);
-		_updateSiteType(commerceChannel, actionRequest);
-		_updateWorkflowDefinitionLinks(commerceChannel, actionRequest);
+		_updateAccountCartMaxAllowed(actionRequest, commerceChannel);
+		_updatePurchaseOrderNumber(actionRequest, commerceChannel);
+		_updateRequestedDeliveryDateFormat(actionRequest, commerceChannel);
+		_updateShippingTaxCategory(actionRequest, commerceChannel);
+		_updateSiteType(actionRequest, commerceChannel);
+		_updateWorkflowDefinitionLinks(actionRequest, commerceChannel);
 
 		return _commerceChannelService.updateCommerceChannel(
 			commerceChannelId, commerceChannel.getSiteGroupId(), name,
@@ -251,7 +250,7 @@ public class EditCommerceChannelMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private void _updatePurchaseOrderNumber(
-			CommerceChannel commerceChannel, ActionRequest actionRequest)
+			ActionRequest actionRequest, CommerceChannel commerceChannel)
 		throws Exception {
 
 		Settings settings = _settingsFactory.getSettings(
@@ -273,7 +272,7 @@ public class EditCommerceChannelMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private void _updateRequestedDeliveryDateFormat(
-			CommerceChannel commerceChannel, ActionRequest actionRequest)
+			ActionRequest actionRequest, CommerceChannel commerceChannel)
 		throws Exception {
 
 		Settings settings = _settingsFactory.getSettings(
@@ -296,7 +295,7 @@ public class EditCommerceChannelMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private void _updateShippingTaxCategory(
-			CommerceChannel commerceChannel, ActionRequest actionRequest)
+			ActionRequest actionRequest, CommerceChannel commerceChannel)
 		throws Exception {
 
 		Settings settings = _settingsFactory.getSettings(
@@ -318,7 +317,7 @@ public class EditCommerceChannelMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private void _updateSiteType(
-			CommerceChannel commerceChannel, ActionRequest actionRequest)
+			ActionRequest actionRequest, CommerceChannel commerceChannel)
 		throws Exception {
 
 		Settings settings = _settingsFactory.getSettings(
@@ -344,7 +343,7 @@ public class EditCommerceChannelMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private void _updateWorkflowDefinitionLinks(
-			CommerceChannel commerceChannel, ActionRequest actionRequest)
+			ActionRequest actionRequest, CommerceChannel commerceChannel)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(

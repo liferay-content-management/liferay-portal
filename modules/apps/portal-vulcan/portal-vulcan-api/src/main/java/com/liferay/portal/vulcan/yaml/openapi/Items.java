@@ -17,7 +17,7 @@ package com.liferay.portal.vulcan.yaml.openapi;
 import java.util.Map;
 
 /**
- * @author     Peter Shin
+ * @author Peter Shin
  */
 public class Items {
 

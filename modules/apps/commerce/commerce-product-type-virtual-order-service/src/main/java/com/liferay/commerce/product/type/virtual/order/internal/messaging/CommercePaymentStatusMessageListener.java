@@ -16,7 +16,7 @@ package com.liferay.commerce.product.type.virtual.order.internal.messaging;
 
 import com.liferay.commerce.constants.CommerceOrderConstants;
 import com.liferay.commerce.product.type.virtual.order.util.CommerceVirtualOrderItemChecker;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.DestinationNames;
@@ -30,7 +30,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "destination.name=" + DestinationNames.COMMERCE_PAYMENT_STATUS,
 	service = MessageListener.class
 )
@@ -38,7 +37,7 @@ public class CommercePaymentStatusMessageListener extends BaseMessageListener {
 
 	@Override
 	protected void doReceive(Message message) throws Exception {
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
 			String.valueOf(message.getPayload()));
 
 		int paymentStatus = jsonObject.getInt("paymentStatus");
@@ -55,5 +54,8 @@ public class CommercePaymentStatusMessageListener extends BaseMessageListener {
 
 	@Reference
 	private CommerceVirtualOrderItemChecker _commerceVirtualOrderItemChecker;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 }

@@ -51,19 +51,21 @@ renderResponse.setTitle(LanguageUtil.get(resourceBundle, "import"));
 			<liferay-ui:message arguments="<%= LanguageUtil.formatStorageSize(UploadServletRequestConfigurationHelperUtil.getMaxSize(), locale) %>" key="request-is-larger-than-x-and-could-not-be-processed" translateArguments="<%= false %>" />
 		</liferay-ui:error>
 
-		<aui:fieldset-group markupView="lexicon">
-			<aui:fieldset>
-				<aui:field-wrapper>
-					<div class="alert alert-info">
-						<liferay-ui:message arguments="<%= HtmlUtil.escape(StringUtil.merge(kbGroupServiceConfiguration.markdownImporterArticleExtensions(), StringPool.COMMA_AND_SPACE)) %>" key="upload-your-zip-file-help" />
-					</div>
-				</aui:field-wrapper>
+		<div class="sheet">
+			<div class="panel-group panel-group-flush">
+				<aui:fieldset>
+					<aui:field-wrapper>
+						<div class="alert alert-info">
+							<liferay-ui:message arguments="<%= HtmlUtil.escape(StringUtil.merge(kbGroupServiceConfiguration.markdownImporterArticleExtensions(), StringPool.COMMA_AND_SPACE)) %>" key="upload-your-zip-file-help" />
+						</div>
+					</aui:field-wrapper>
 
-				<aui:input id="file" label="upload-your-zip-file" name="file" type="file" />
+					<aui:input id="file" label="upload-your-zip-file" name="file" type="file" />
 
-				<aui:input helpMessage="apply-numerical-prefixes-of-article-files-as-priorities-help" label="apply-numerical-prefixes-of-article-files-as-priorities" name="prioritizeByNumericalPrefix" type="checkbox" value="true" />
-			</aui:fieldset>
-		</aui:fieldset-group>
+					<aui:input helpMessage="apply-numerical-prefixes-of-article-files-as-priorities-help" label="apply-numerical-prefixes-of-article-files-as-priorities" name="prioritizeByNumericalPrefix" type="checkbox" value="true" />
+				</aui:fieldset>
+			</div>
+		</div>
 
 		<aui:button-row>
 			<aui:button name="submit" type="submit" />

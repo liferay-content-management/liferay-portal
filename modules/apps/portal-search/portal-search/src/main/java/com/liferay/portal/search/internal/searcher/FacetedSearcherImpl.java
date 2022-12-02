@@ -90,8 +90,7 @@ public class FacetedSearcherImpl
 			_getEntryClassNameIndexerMap(
 				_getEntryClassNames(
 					_getSearchRequest(searchContext),
-					searchContext.getCompanyId()),
-				searchContext.getSearchEngineId());
+					searchContext.getCompanyId()));
 
 		_addSearchKeywords(
 			searchQuery, entryClassNameIndexerMap.keySet(), searchContext);
@@ -145,8 +144,6 @@ public class FacetedSearcherImpl
 		}
 
 		try {
-			searchContext.setSearchEngineId(getSearchEngineId());
-
 			BooleanFilter booleanFilter = new BooleanFilter();
 
 			booleanFilter.addRequiredTerm(
@@ -218,7 +215,7 @@ public class FacetedSearcherImpl
 	}
 
 	private Map<String, Indexer<?>> _getEntryClassNameIndexerMap(
-		List<String> entryClassNames, String searchEngineId) {
+		List<String> entryClassNames) {
 
 		Map<String, Indexer<?>> entryClassNameIndexerMap =
 			new LinkedHashMap<>();
@@ -226,9 +223,7 @@ public class FacetedSearcherImpl
 		for (String entryClassName : entryClassNames) {
 			Indexer<?> indexer = _indexerRegistry.getIndexer(entryClassName);
 
-			if ((indexer == null) ||
-				!searchEngineId.equals(indexer.getSearchEngineId())) {
-
+			if (indexer == null) {
 				continue;
 			}
 

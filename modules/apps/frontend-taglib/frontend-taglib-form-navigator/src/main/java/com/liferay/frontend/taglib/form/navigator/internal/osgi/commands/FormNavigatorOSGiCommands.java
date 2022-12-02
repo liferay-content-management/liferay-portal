@@ -34,12 +34,12 @@ import java.util.stream.Stream;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 /**
  * @author Alejandro Tardín
  */
 @Component(
-	immediate = true,
 	property = {
 		"osgi.command.function=getPossibleConfigurations",
 		"osgi.command.scope=formNavigator"
@@ -80,7 +80,7 @@ public class FormNavigatorOSGiCommands {
 		_formNavigatorEntries = ServiceTrackerListFactory.open(
 			bundleContext,
 			(Class<FormNavigatorEntry<?>>)(Class<?>)FormNavigatorEntry.class);
-		_formNavigatorEntriesMap = ServiceTrackerMapFactory.openMultiValueMap(
+		_serviceTrackerMap = ServiceTrackerMapFactory.openMultiValueMap(
 			bundleContext,
 			(Class<FormNavigatorEntry<?>>)(Class<?>)FormNavigatorEntry.class,
 			null,
@@ -97,6 +97,12 @@ public class FormNavigatorOSGiCommands {
 			});
 	}
 
+	@Deactivate
+	protected void deactivate() {
+		_formNavigatorEntries.close();
+		_serviceTrackerMap.close();
+	}
+
 	private Set<String> _getAllFormNavigatorIds() {
 		Set<String> allFormNavigatorIds = new HashSet<>();
 
@@ -111,7 +117,7 @@ public class FormNavigatorOSGiCommands {
 		String formNavigatorId, String formNavigatorCategoryKey) {
 
 		List<FormNavigatorEntry<?>> formNavigatorEntries =
-			_formNavigatorEntriesMap.getService(
+			_serviceTrackerMap.getService(
 				_getKey(formNavigatorId, formNavigatorCategoryKey));
 
 		if (formNavigatorEntries == null) {
@@ -150,6 +156,6 @@ public class FormNavigatorOSGiCommands {
 		Collectors.joining(StringPool.COMMA);
 	private ServiceTrackerList<FormNavigatorEntry<?>> _formNavigatorEntries;
 	private ServiceTrackerMap<String, List<FormNavigatorEntry<?>>>
-		_formNavigatorEntriesMap;
+		_serviceTrackerMap;
 
 }

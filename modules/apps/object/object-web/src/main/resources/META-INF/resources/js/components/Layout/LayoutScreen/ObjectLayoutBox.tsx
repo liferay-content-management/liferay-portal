@@ -41,17 +41,14 @@ export function ObjectLayoutBox({
 	tabIndex,
 	type,
 }: ObjectLayoutBoxProps) {
-	const [{enabledCategorization, isViewOnly}, dispatch] = useLayoutContext();
+	const [{enableCategorization, isViewOnly}, dispatch] = useLayoutContext();
 	const [visibleModal, setVisibleModal] = useState(false);
 	const {observer, onClose} = useModal({
 		onClose: () => setVisibleModal(false),
 	});
 
 	const disabled =
-		(Liferay.FeatureFlags['LPS-158672'] &&
-			type === 'categorization' &&
-			!enabledCategorization) ||
-		isViewOnly;
+		(type === 'categorization' && !enableCategorization) || isViewOnly;
 
 	return (
 		<>
@@ -99,7 +96,10 @@ export function ObjectLayoutBox({
 											boxIndex,
 											tabIndex,
 										},
-										type: TYPES.DELETE_OBJECT_LAYOUT_BOX,
+										type:
+											type === 'categorization'
+												? TYPES.DELETE_OBJECT_LAYOUT_BOX_CATEGORIZATION
+												: TYPES.DELETE_OBJECT_LAYOUT_BOX_CATEGORIZATION,
 									});
 								}}
 								disabled={disabled}

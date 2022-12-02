@@ -173,7 +173,7 @@ definition {
 	@description = "COMMERCE-6345. As a buyer, I want to be able to select the quantity of a cart item up to a maximum quantity, if set"
 	@priority = "3"
 	test AssertQuantityInMiniCartItemCanBeSelectedUpToAMaximumQuantitySet {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		// TODO Review
 
@@ -513,10 +513,164 @@ definition {
 		}
 	}
 
+	@description = "COMMERCE-10247 Verify that the buyer can complete the checkout using the mini cart widget"
+	@priority = "4"
+	test CanUseMiniCartWidgetToCheckout {
+		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
+		property portal.acceptance = "false";
+
+		task ("Given a Minium Site is created") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+		}
+
+		task ("Given a buyer user associated with the Commerce Account") {
+			CommerceEntry.addAccountEntryUser(
+				accountName = "Commerce Account",
+				accountType = "Business",
+				agreeToTermsAndAnswerReminderQuery = "true",
+				createNewAccount = "true",
+				requireReset = "false",
+				userEmailAddress = "buyer@liferay.com",
+				userFirstName = "Buyer",
+				userLastName = "User",
+				userRole = "Buyer",
+				userScreenName = "buyeruser",
+				userSiteMembership = "Minium");
+		}
+
+		task ("And the admin add the mini cart widget") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.addPortlet(portletName = "Mini Cart");
+		}
+
+		task ("When the buyer logs in") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+		}
+
+		task ("And add something to the cart") {
+			FrontStore.addInitializerProductToCart(
+				productName = "U-Joint",
+				productQuantity = "1");
+		}
+
+		task ("Then the buyer can start and complete the checkout using the mini cart widget ") {
+			Click(
+				key_text = "Checkout",
+				locator1 = "Button#ANY");
+
+			CommerceCheckout.checkout(
+				newAddressAddress = "Test Address",
+				newAddressCity = "Test City",
+				newAddressCountry = "United States",
+				newAddressName = "Address Name",
+				newAddressZipCode = "Test Zip Code",
+				shippingMethod = "Standard");
+		}
+	}
+
+	@description = "COMMERCE-10247 Verify that the admin can complete the checkout using the mini cart widget with the Buyer Order Approval Workflow"
+	@priority = "4"
+	test CanUseMiniCartWidgetToCheckoutWithBuyerOrderApprovalWorkflow {
+		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "CommerceMiniCart#CanUseMiniCartWidgetToCheckoutWithBuyerOrderApprovalWorkflow";
+
+		var approvedCount = "0";
+
+		task ("Given a Minium Site is created") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+		}
+
+		task ("Given the admin enabled the 'Buyer Order Approval Workflow' for Minium Portal") {
+			CommerceNavigator.gotoPortlet(
+				category = "Store Management",
+				portlet = "Channels");
+
+			CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+			Select(
+				key_title = "Buyer Order Approval Workflow",
+				locator1 = "CommerceEntry#CATALOGS_FORM",
+				value1 = "Single Approver (Version 1)");
+
+			Button.clickSave();
+		}
+
+		task ("And the admin add the mini cart widget") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.addPortlet(portletName = "Mini Cart");
+		}
+
+		task ("And a business account is created") {
+			CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
+
+			CommerceAcceleratorsInitializer.createNewAccountViaFront(
+				accountName = "Commerce Account",
+				adminEmailAddress = "test@liferay.com");
+		}
+
+		task ("And add something to the cart") {
+			CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
+
+			FrontStore.addInitializerProductToCart(
+				productName = "U-Joint",
+				productQuantity = "1");
+		}
+
+		task ("Then the admin can approve and start the checkout of the order directly using the mini cart") {
+			for (var value : list "Submit,Approve,Reject,Approve") {
+				Click(
+					key_text = "${value}",
+					locator1 = "Button#ANY");
+
+				if ("${value}" == "Approve") {
+					if ("${approvedCount}" == "1") {
+						Button.clickDone();
+
+						Click(
+							key_text = "Checkout",
+							locator1 = "Button#ANY");
+					}
+					else {
+						Button.clickCancel();
+					}
+
+					var approvedCount = ${approvedCount} + 1;
+				}
+
+				if ("${value}" == "Reject") {
+					Button.clickDone();
+
+					Click(
+						key_text = "Resubmit",
+						locator1 = "Button#ANY");
+
+					Button.clickDone();
+				}
+			}
+		}
+
+		task ("And the admin can complete the checkout") {
+			CommerceCheckout.checkout(
+				newAddressAddress = "Test Address",
+				newAddressCity = "Test City",
+				newAddressCountry = "United States",
+				newAddressName = "Address Name",
+				newAddressZipCode = "Test Zip Code",
+				shippingMethod = "Standard");
+		}
+	}
+
 	@description = "COMMERCE-7695. As a buyer, I want to verify if I will be redirected to the product details when I click on the item in the minicart"
 	@priority = "3"
 	test ClickOnCartItemRedirectToProductDetails {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		task ("Given a Commerce Minium site") {
 			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");

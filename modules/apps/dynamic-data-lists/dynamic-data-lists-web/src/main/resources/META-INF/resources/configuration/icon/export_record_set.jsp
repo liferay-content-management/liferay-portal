@@ -24,17 +24,11 @@ long recordSetId = ParamUtil.getLong(request, liferayPortletResponse.getNamespac
 	<portlet:param name="recordSetId" value="<%= String.valueOf(recordSetId) %>" />
 </liferay-portlet:resourceURL>
 
-<%
-StringBundler sb = new StringBundler(5);
-
-sb.append("javascript:");
-sb.append(liferayPortletResponse.getNamespace());
-sb.append("exportRecordSet('");
-sb.append(exportRecordSetURL);
-sb.append("');");
-%>
-
-<liferay-ui:icon
-	message="export"
-	url="<%= sb.toString() %>"
-/>
+<aui:script>
+	Liferay.Util.setPortletConfigurationIconAction(
+		'<portlet:namespace />exportRecordSet',
+		() => {
+			<portlet:namespace />exportRecordSet('<%= exportRecordSetURL %>');
+		}
+	);
+</aui:script>

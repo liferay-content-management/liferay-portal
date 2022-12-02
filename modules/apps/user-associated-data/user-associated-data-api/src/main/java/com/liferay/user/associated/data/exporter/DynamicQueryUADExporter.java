@@ -16,9 +16,10 @@ package com.liferay.user.associated.data.exporter;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.petra.xml.XMLUtil;
+import com.liferay.petra.xml.Dom4jUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModel;
@@ -116,7 +117,12 @@ public abstract class DynamicQueryUADExporter<T extends BaseModel>
 	protected abstract String[] doGetUserIdFieldNames();
 
 	protected String formatXML(String xml) {
-		return XMLUtil.formatXML(xml);
+		try {
+			return Dom4jUtil.toString(xml);
+		}
+		catch (Exception exception) {
+			throw new SystemException(exception);
+		}
 	}
 
 	/**
@@ -157,9 +163,7 @@ public abstract class DynamicQueryUADExporter<T extends BaseModel>
 	 * @param  baseModel the base model to be converted into an XML string
 	 * @return an XML string representation of the base model
 	 */
-	protected String toXmlString(T baseModel) {
-		return baseModel.toXmlString();
-	}
+	protected abstract String toXmlString(T baseModel);
 
 	/**
 	 * Converts the type {@code T} base model to a byte array and writes it to

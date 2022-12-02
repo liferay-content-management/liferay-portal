@@ -114,6 +114,29 @@ definition {
 			vocabularyName = "Vocabulary Name");
 	}
 
+	@description = "This test ensures that users can add an article with a custom friendly URL via the new configuration pane."
+	@priority = "5"
+	test CanAddArticleWithCustomFriendlyURL {
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.addCP(
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleFriendlyURL = "New Knowledge Base Article Title",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBArticle.openToEditKBArticleInSite(
+			groupName = "Guest",
+			kbArticleTitle = "Knowledge Base Article Title",
+			siteURLKey = "guest");
+
+		KBArticle.viewFriendlyURLCP(
+			disabledFriendlyURLField = "true",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleFriendlyURL = "new-knowledge-base-article-title",
+			kbArticleTitle = "Knowledge Base Article Title",
+			skipNavigation = "true");
+	}
+
 	@priority = "4"
 	@refactordone
 	test CanAddArticleWithHTML {
@@ -182,6 +205,40 @@ definition {
 			kbChildArticleTitle = "Knowledge Base Child Article Title");
 	}
 
+	@description = "This test ensures that a user can add a child article for a kb entry from the navigation pane."
+	@priority = "5"
+	test CanAddChildArticleFromNavigationPane {
+		property custom.properties = "feature.flag.LPS-156421=true";
+
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		KBArticle.addChildArticleViaKBAdmin(
+			kbArticleTitle = "Knowledge Base Article Title",
+			kbChildArticleContent = "Knowledge Base Child Article Content",
+			kbChildArticleTitle = "Knowledge Base Child Article Title",
+			navigationPane = "true");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		KBArticle.viewArticleThroughPageTreePanel(kbArticleTitle = "Knowledge Base Article Title");
+
+		KBArticle.viewArticleThroughPageTreePanel(kbChildArticleTitle = "Knowledge Base Child Article Title");
+
+		KBArticle.viewChildArticleCP(
+			kbChildArticleContent = "Knowledge Base Child Article Content",
+			kbChildArticleTitle = "Knowledge Base Child Article Title",
+			pageTreePanel = "true");
+	}
+
 	@priority = "3"
 	@refactordone
 	test CanCancelAddingArticle {
@@ -219,6 +276,137 @@ definition {
 		KBArticle.viewCP(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title");
+	}
+
+	@description = "This test ensures that a user can delete the kb entry from the navigation pane."
+	@priority = "5"
+	test CanDeleteArticleFromNavigationPane {
+		property custom.properties = "feature.flag.LPS-156421=true";
+
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		KBArticle.deleteCP(
+			kbArticleTitle = "Knowledge Base Article Title",
+			navigationPane = "true");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		KBArticle.viewDefaultCP(
+			defaultHome = "true",
+			featureFlag = "true");
+	}
+
+	@description = "This test ensures that a user can edit the kb entry permissions from the navigation pane."
+	@priority = "5"
+	test CanEditArticlePermissionsFromNavigationPane {
+		property custom.properties = "feature.flag.LPS-156421=true";
+
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		KBArticle.gotoMenuItemViaNavigationPane(
+			kbArticleTitle = "Knowledge Base Article Title",
+			menuItem = "Permissions");
+
+		PermissionsInline.addOrRemoveAnyPermissionsFromSpecificRole(
+			addOrRemoveViewPermission = "Add",
+			permissionsKeyList = "INLINE_PERMISSIONS_VIEW_CHECKBOX",
+			roleTitle = "site member");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Permissions",
+			rowEntry = "Knowledge Base Article Title");
+
+		IFrame.selectPermissionsFrame();
+
+		PermissionsInline.viewPermissionsChecked(
+			permissionDefinitionKey = "INLINE_PERMISSIONS_VIEW_CHECKBOX",
+			roleTitle = "site member");
+	}
+
+	@description = "This test ensures that a user can edit the kb entry from the navigation pane."
+	@priority = "5"
+	test CanEditEntryFromNavigationPane {
+		property custom.properties = "feature.flag.LPS-156421=true";
+
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		KBArticle.editCP(
+			kbArticleTitle = "Knowledge Base Article Title",
+			kbArticleTitleEdit = "Knowledge Base Article Title Edit",
+			navigationPane = "true");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		LexiconEntry.viewEntryName(rowEntry = "Knowledge Base Article Title Edit");
+
+		KBArticle.viewArticleThroughPageTreePanel(kbArticleTitle = "Knowledge Base Article Title Edit");
+	}
+
+	@description = "This test ensures that a user can move the kb entry from the navigation pane."
+	@priority = "5"
+	test CanMoveArticleFromNavigationPane {
+		property custom.properties = "feature.flag.LPS-156421=true";
+
+		JSONKnowledgeBase.addkBFolder(
+			groupName = "Guest",
+			kbFolderName = "KB Folder");
+
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		KBArticle.moveArticleCP(
+			kbArticleCurrentParent = "Home",
+			kbArticleTitle = "Knowledge Base Article Title",
+			navigationPane = "true");
+
+		KBFolder.selectParentCP(kbFolderName = "KB Folder");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		KBArticle.viewArticleThroughPageTreePanel(
+			kbArticleTitle = "Knowledge Base Article Title",
+			kbFolderName = "KB Folder");
+
+		KBFolder.gotoCP(kbFolderName = "KB Folder");
+
+		LexiconEntry.viewEntryName(rowEntry = "Knowledge Base Article Title");
 	}
 
 	@priority = "4"
@@ -308,7 +496,7 @@ definition {
 	@priority = "4"
 	@refactordone
 	test CannotAddArticleWithoutContent {
-		KBArticle.viewFieldRequiredAsterisk(fieldLabel = "Title,Content");
+		KBArticle.viewFieldRequiredAsterisk(fieldLabel = "Content");
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
@@ -332,6 +520,165 @@ definition {
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.viewDefaultCP();
+	}
+
+	@description = "This test ensures that users can replace the attachment for an article via the new configuration pane."
+	@priority = "5"
+	test CanReplaceArticleAttachment {
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		JSONKnowledgeBase.uploadAttachmentToArticle(
+			groupName = "Guest",
+			kbArticleTitle = "Knowledge Base Article Title",
+			sourceFileName = "Document_1.jpg");
+
+		KBArticle.openToEditKBArticleInSite(
+			groupName = "Guest",
+			kbArticleTitle = "Knowledge Base Article Title",
+			siteURLKey = "guest");
+
+		Panel.expandPanel(panel = "Attachments");
+
+		KBArticle.removeAttachment(attachmentName = "Document_1.jpg");
+
+		KBArticle.selectAttachmentCP(kbArticleAttachment = "Document_1.txt");
+
+		PortletEntry.publish();
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.viewKBArticleWithAttachmentCP(
+			kbArticleAttachment = "Document_1.txt (259 B) Delete",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		AssertTextNotEquals.assertNotPartialText(
+			locator1 = "KnowledgeBaseArticle#ATTACHMENTS_SAVED_ATTACHMENTS_CONTAINER",
+			value1 = "Document_1.jpg");
+	}
+
+	@description = "This test ensures that users can replace the category for an article via the new configuration pane."
+	@priority = "5"
+	test CanReplaceArticleCategory {
+		JSONCategory.addVocabulary(
+			groupName = "Guest",
+			title = "Vocabulary Name");
+
+		var categoryId = JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name1",
+			vocabularyName = "Vocabulary Name");
+
+		JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name2",
+			vocabularyName = "Vocabulary Name");
+
+		JSONKnowledgeBase.addkBArticle(
+			assetCategoryIds = "${categoryId}",
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBArticle.openToEditKBArticleInSite(
+			groupName = "Guest",
+			kbArticleTitle = "Knowledge Base Article Title",
+			siteURLKey = "guest");
+
+		Panel.expandPanel(panel = "Categorization");
+
+		AssetCategorization.removeCategories(categoryNameList = "Category Name1");
+
+		AssetCategorization.addCategory(
+			categoryName = "Category Name2",
+			vocabularyName = "Vocabulary Name");
+
+		PortletEntry.publish();
+
+		KBArticle.openToEditKBArticleInSite(
+			groupName = "Guest",
+			kbArticleTitle = "Knowledge Base Article Title",
+			siteURLKey = "guest");
+
+		AssetCategorization.viewCategory(categoryName = "Category Name2");
+	}
+
+	@description = "This test ensures that users can replace the related asset for an article via the new configuration pane."
+	@priority = "5"
+	test CanReplaceArticleRelatedAsset {
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document Title",
+			groupName = "Guest",
+			mimeType = "text/plain",
+			sourceFileName = "Document_1.txt");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.addCP(
+			assetTitle = "DM Document Title",
+			assetType = "Basic Document",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBArticle.openToEditKBArticleInSite(
+			groupName = "Guest",
+			kbArticleTitle = "Knowledge Base Article Title",
+			siteURLKey = "guest");
+
+		Panel.expandPanel(panel = "Related Assets");
+
+		RelatedAssets.removeAsset(removeAssetTitle = "DM Document Title");
+
+		RelatedAssets.selectAsset(
+			assetTitle = "Blogs Entry Title",
+			assetType = "Blogs Entry");
+
+		PortletEntry.publish();
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.viewCP(
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleRelatedAssetTitle = "Blogs Entry Title",
+			kbArticleTitle = "Knowledge Base Article Title");
+	}
+
+	@description = "This test ensures that users can replace the tag for an article via the new configuration pane."
+	@priority = "5"
+	test CanReplaceArticleTag {
+		JSONKnowledgeBase.addkBArticle(
+			assetTagNames = "Tag1",
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBArticle.openToEditKBArticleInSite(
+			groupName = "Guest",
+			kbArticleTitle = "Knowledge Base Article Title",
+			siteURLKey = "guest");
+
+		Panel.expandPanel(panel = "Categorization");
+
+		AssetCategorization.removeTag(tagName = "tag1");
+
+		AssetCategorization.addTag(tagName = "tag2");
+
+		PortletEntry.publish();
+
+		KBArticle.openToEditKBArticleInSite(
+			groupName = "Guest",
+			kbArticleTitle = "Knowledge Base Article Title",
+			siteURLKey = "guest");
+
+		AssetCategorization.viewTag(tagName = "Tag2");
 	}
 
 	@priority = "4"
@@ -358,6 +705,69 @@ definition {
 			kbStatus = "Draft");
 	}
 
+	@description = "This test ensures that a user can subscribe to a kb article from the navigation pane."
+	@priority = "5"
+	test CanSubscribeToArticleFromNavigationPane {
+		property custom.properties = "feature.flag.LPS-156421=true";
+
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		KBArticle.gotoMenuItemViaNavigationPane(
+			kbArticleTitle = "Knowledge Base Article Title",
+			menuItem = "Subscribe");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.openPageTreePanel(section = "Folders and Articles");
+
+		LexiconEntry.viewEntryMenuItem(
+			menuItem = "Unsubscribe",
+			rowEntry = "Knowledge Base Article Title");
+	}
+
+	@description = "This test ensures that suggestion form is displayed on the KB article preview page when the KB article has suggestions."
+	@priority = "5"
+	test CanViewArticlesWithSuggestions {
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.viewCP(
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title");
+
+		for (var suggestionCount : list "1,2") {
+			KBArticleSuggestion.addPG(
+				kbArticleTitle = "Knowledge Base Article1 Title",
+				kbSuggestionBody = "Knowledge Base Article1 Suggestion${suggestionCount}");
+		}
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
+
+		KBArticle.viewCP(
+			kbArticleContent = "Knowledge Base Article Content",
+			kbArticleTitle = "Knowledge Base Article Title",
+			kbStatus = "Approved",
+			versionNumber = "1");
+
+		for (var suggestionCount : list "1,2") {
+			KBArticleSuggestion.viewPG(
+				kbSuggestionBody = "Knowledge Base Article1 Suggestion${suggestionCount}",
+				kbSuggestionUserName = "Test Test",
+				status = "New");
+		}
+	}
+
 	@description = "This test ensures that a user is able to embed a video in a KB article."
 	@priority = "4"
 	@refactordone
@@ -381,6 +791,8 @@ definition {
 	@description = "This test ensures that the information related to the KB entry can be viewed."
 	@priority = "4"
 	test CanViewEntryInfo {
+		property custom.properties = "company.default.time.zone=America/Los_Angeles";
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -610,7 +1022,7 @@ definition {
 
 		Navigator.gotoPage(pageName = "KB Page");
 
-		KBArticle.viewKBDisplayPG(
+		KBDisplayWidget.viewKBDisplayPG(
 			history = "true",
 			print = "true",
 			sourceURL = "true",

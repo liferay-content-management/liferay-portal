@@ -14,8 +14,9 @@
 
 package com.liferay.layout.page.template.admin.web.internal.portlet.action;
 
+import com.liferay.layout.exporter.LayoutsExporter;
 import com.liferay.layout.page.template.admin.constants.LayoutPageTemplateAdminPortletKeys;
-import com.liferay.layout.page.template.admin.web.internal.exporter.LayoutPageTemplatesExporter;
+import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
@@ -26,9 +27,6 @@ import com.liferay.portal.kernel.util.Time;
 
 import java.io.File;
 import java.io.FileInputStream;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.portlet.PortletException;
 import javax.portlet.ResourceRequest;
@@ -41,7 +39,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rubén Pulido
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + LayoutPageTemplateAdminPortletKeys.LAYOUT_PAGE_TEMPLATES,
 		"mvc.command.name=/layout_page_template_admin/export_layout_page_template_entries"
@@ -55,18 +52,9 @@ public class ExportLayoutPageTemplateEntriesMVCResourceCommand
 		throws PortletException {
 
 		try {
-			List<LayoutPageTemplateEntry> layoutPageTemplateEntries =
-				new ArrayList<>();
-
-			for (long layoutPageTemplateEntryId : layoutPageTemplateEntryIds) {
-				layoutPageTemplateEntries.add(
-					_layoutPageTemplateEntryLocalService.
-						fetchLayoutPageTemplateEntry(
-							layoutPageTemplateEntryId));
-			}
-
-			return _layoutPageTemplatesExporter.exportPageTemplates(
-				layoutPageTemplateEntries);
+			return _layoutsExporter.exportLayoutPageTemplateEntries(
+				layoutPageTemplateEntryIds,
+				LayoutPageTemplateEntryTypeConstants.TYPE_BASIC);
 		}
 		catch (Exception exception) {
 			throw new PortletException(exception);
@@ -142,6 +130,6 @@ public class ExportLayoutPageTemplateEntriesMVCResourceCommand
 		_layoutPageTemplateEntryLocalService;
 
 	@Reference
-	private LayoutPageTemplatesExporter _layoutPageTemplatesExporter;
+	private LayoutsExporter _layoutsExporter;
 
 }

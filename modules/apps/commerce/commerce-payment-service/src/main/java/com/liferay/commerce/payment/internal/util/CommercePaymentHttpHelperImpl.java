@@ -40,9 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alec Sloan
  */
-@Component(
-	enabled = false, immediate = true, service = CommercePaymentHttpHelper.class
-)
+@Component(service = CommercePaymentHttpHelper.class)
 public class CommercePaymentHttpHelperImpl
 	implements CommercePaymentHttpHelper {
 

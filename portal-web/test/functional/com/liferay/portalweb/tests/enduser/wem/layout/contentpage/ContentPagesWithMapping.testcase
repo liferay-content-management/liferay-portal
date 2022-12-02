@@ -919,7 +919,7 @@ definition {
 	@description = "This is a test for LPS-123118. The page creator can map a fragment to web content template with portlet request model."
 	@priority = "4"
 	test MapTemplateWithPortletRequestModelToFragment {
-		property custom.properties = "configuration.override.com.liferay.portal.template.freemarker.configuration.FreeMarkerEngineConfiguration_restrictedVariables=[&quot;httpUtilUnsafe&quot;,&quot;staticFieldGetter&quot;,&quot;staticUtil&quot;,&quot;utilLocator&quot;,&quot;serviceLocator&quot;,]${line.separator}configuration.override.com.liferay.portal.template.freemarker.configuration.FreeMarkerEngineConfiguration_restrictedClasses=[&quot;org.glassfish.*&quot;,&quot;org.jboss.*&quot;,&quot;org.springframework.*&quot;,&quot;org.wildfly.*&quot;,&quot;weblogic.*&quot;,]";
+		property custom.properties = "configuration.override.com.liferay.portal.template.freemarker.configuration.FreeMarkerEngineConfiguration_restrictedVariables=[\"httpUtilUnsafe\",\"staticFieldGetter\",\"staticUtil\",\"serviceLocator\",]${line.separator}configuration.override.com.liferay.portal.template.freemarker.configuration.FreeMarkerEngineConfiguration_restrictedClasses=[\"org.glassfish.*\",\"org.jboss.*\",\"org.springframework.*\",\"org.wildfly.*\",\"weblogic.*\",]";
 
 		task ("Given a page creator has a web content template with portlet request model") {
 			task ("Add a web content template for Basic Web Content structure") {
@@ -929,7 +929,7 @@ definition {
 					structureName = "Basic Web Content",
 					templateDescription = "WC Template Description",
 					templateName = "WC Template Name",
-					templateScript = "<#assign portletRequestModel = objectUtil(&quot;com.liferay.portal.kernel.portlet.PortletRequestModel&quot;, request.getAttribute(&quot;javax.portlet.request&quot;), request.getAttribute(&quot;javax.portlet.response&quot;)) />");
+					templateScript = "<#assign portletRequestModel = objectUtil(\"com.liferay.portal.kernel.portlet.PortletRequestModel\", request.getAttribute(\"javax.portlet.request\"), request.getAttribute(\"javax.portlet.response\")) />");
 			}
 
 			task ("Add a web content") {
@@ -1936,6 +1936,88 @@ definition {
 					key_value = "${field}",
 					locator1 = "Select#GROUPED_SELECT_VALUE");
 			}
+		}
+	}
+
+	@description = "This is a test for LPS-164269. The page creator could view a tooltip with the page URL when mapping a fragment on sites and libraries."
+	@priority = "4"
+	test ViewPageURLOnTooltipWhenSelectPageItem {
+		task ("Given a page creator opens the link to page modal") {
+			task ("Get the guest site name") {
+				Navigator.openURL();
+
+				var siteName = selenium.getText("Home#SITE_NAME");
+			}
+
+			task ("Publish content page") {
+				JSONLayout.publishLayout(
+					groupName = "Test Site Name",
+					layoutName = "Content Page Name");
+			}
+
+			task ("Add a Button fragment to page") {
+				ContentPagesNavigator.openEditContentPage(
+					pageName = "Content Page Name",
+					siteName = "Test Site Name");
+
+				PageEditor.addFragment(
+					collectionName = "Basic Components",
+					fragmentName = "Button");
+			}
+
+			task ("Map Link field with to Page") {
+				PageEditorEditableLink.gotoEditableFieldLink(
+					fragmentName = "Button",
+					id = "link");
+
+				Select(
+					key_fieldLabel = "Link",
+					locator1 = "Select#GENERIC_SELECT_FIELD",
+					value1 = "Page");
+			}
+
+			task ("Open the Select modal of Page Link") {
+				Click(
+					key_fieldLabel = "Page",
+					key_text = "plus",
+					locator1 = "Icon#ANY_ITEM_SELECTOR");
+
+				SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+				Portlet.expandTree();
+			}
+		}
+
+		task ("When the page creator hovers on the content page item") {
+			MouseOver(
+				key_nodeName = "Content Page Name",
+				locator1 = "Treeview#NODE_ITEM");
+		}
+
+		task ("Then the page creator could view a tooltip with the page url") {
+			AssertVisible(
+				key_content = "/web/test-site-name/content-page-name",
+				locator1 = "Tooltip#FLOATING_TOOLTIP_CONTENT");
+		}
+
+		task ("When the page creator hovers on the content page item from another site on Sites and Libraries") {
+			Click(
+				key_breadcrumbName = "Sites and Libraries",
+				locator1 = "Breadcrumb#BREADCRUMB_ENTRY");
+
+			LexiconCard.clickCardTitle(card = "${siteName}");
+
+			Portlet.expandTree();
+
+			MouseOver(
+				key_nodeName = "Home",
+				locator1 = "Treeview#NODE_ITEM");
+		}
+
+		task ("Then the page creator could view a tooltip with the page url") {
+			AssertVisible(
+				key_content = "/home",
+				locator1 = "Tooltip#FLOATING_TOOLTIP_CONTENT");
 		}
 	}
 

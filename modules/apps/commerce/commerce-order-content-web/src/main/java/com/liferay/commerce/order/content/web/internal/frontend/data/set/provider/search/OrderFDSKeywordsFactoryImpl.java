@@ -27,7 +27,6 @@ import org.osgi.service.component.annotations.Component;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"fds.data.provider.key=" + CommerceOrderFDSNames.PENDING_ORDER_ITEMS,
 		"fds.data.provider.key=" + CommerceOrderFDSNames.PENDING_ORDERS,

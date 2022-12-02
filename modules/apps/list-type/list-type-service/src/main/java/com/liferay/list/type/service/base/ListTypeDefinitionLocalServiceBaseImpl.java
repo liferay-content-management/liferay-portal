@@ -281,6 +281,23 @@ public abstract class ListTypeDefinitionLocalServiceBaseImpl
 			uuid, companyId, null);
 	}
 
+	@Override
+	public ListTypeDefinition fetchListTypeDefinitionByExternalReferenceCode(
+		String externalReferenceCode, long companyId) {
+
+		return listTypeDefinitionPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
+	}
+
+	@Override
+	public ListTypeDefinition getListTypeDefinitionByExternalReferenceCode(
+			String externalReferenceCode, long companyId)
+		throws PortalException {
+
+		return listTypeDefinitionPersistence.findByERC_C(
+			externalReferenceCode, companyId);
+	}
+
 	/**
 	 * Returns the list type definition with the primary key.
 	 *

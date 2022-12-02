@@ -1,5 +1,37 @@
 definition {
 
+	macro assertGenericJSONPathResponse {
+		var actual = JSONUtil.getWithJSONPath("${apiResponse}", "$..${apiPath}");
+
+		TestUtils.assertEquals(
+			actual = "${actual}",
+			expected = "${expected}");
+	}
+
+	macro assertSearchKeywordNotPresent {
+		if (!(isSet(keywordPosition))) {
+			var keywordPosition = "0";
+		}
+
+		var actual = JSONUtil.getWithJSONPath("${apiResponse}", "$..search-keywords[${keywordPosition}].keywords");
+
+		TestUtils.assertNotEquals(
+			actual = "${actual}",
+			expected = "${expected}");
+	}
+
+	macro assertSearchResponse {
+		if (!(isSet(keywordPosition))) {
+			var keywordPosition = "0";
+		}
+
+		var actual = JSONUtil.getWithJSONPath("${apiResponse}", "$..search-keywords[${keywordPosition}].keywords");
+
+		TestUtils.assertEquals(
+			actual = "${actual}",
+			expected = "${expected}");
+	}
+
 	macro createNewExportSchedule {
 		var analyticsCloudURL = PropsUtil.get("analytics.cloud.url");
 
@@ -21,6 +53,60 @@ definition {
 			''';
 
 		static var apiResponse = JSONCurlUtil.get("${curl}", "$");
+
+		return "${apiResponse}";
+	}
+
+	macro getAnalyticsConfiguration {
+		ServerAdministration.openServerAdmin();
+
+		ACApi.getSearchHeaderValues(header = "liferayAnalyticsFaroBackendURL");
+
+		static var faroBackendURL = "${scriptValue}";
+
+		ACApi.getSearchHeaderValues(header = "liferayAnalyticsFaroBackendSecuritySignature");
+
+		static var osbAsahFaroBackendSS = "${scriptValue}";
+
+		ACApi.getSearchHeaderValues(header = "liferayAnalyticsProjectId");
+
+		static var osbAsahProjectId = "${scriptValue}";
+	}
+
+	macro getSearchHeaderValues {
+		var script = '''
+			    out.println(com.liferay.portal.util.PrefsPropsUtil.getPreferences(com.liferay.portal.kernel.service.CompanyServiceUtil.getCompanies()[0].getCompanyId(), false).getMap().get("${header}")[0]);
+		    ''';
+
+		ServerAdministration.executeScript(
+			language = "Groovy",
+			script = "${script}");
+
+		static var scriptValue = selenium.getText("ServerAdministrationScript#OUTPUT_FIELD");
+	}
+
+	macro getSearchKeywords {
+
+		// The pause is necessary because it takes some time for the keywords to appear during curl see LRAC-12141
+
+		Pause(locator1 = "10000");
+
+		if (isSet(parameters)) {
+			var curl = '''
+				${faroBackendURL}/api/1.0/pages/search-keywords?${parameters} \
+				-H "OSB-Asah-Faro-Backend-Security-Signature: ${osbAsahFaroBackendSS}" \
+				-H "OSB-Asah-Project-ID: ${osbAsahProjectId}"
+				''';
+		}
+		else {
+			var curl = '''
+				${faroBackendURL}/api/1.0/pages/search-keywords \
+				-H "OSB-Asah-Faro-Backend-Security-Signature: ${osbAsahFaroBackendSS}" \
+				-H "OSB-Asah-Project-ID: ${osbAsahProjectId}"
+				''';
+		}
+
+		static var apiResponse = JSONCurlUtil.get("${curl}");
 
 		return "${apiResponse}";
 	}
@@ -124,7 +210,7 @@ definition {
 
 	macro viewApiResponseForQueryData {
 		for (var type : list "${typeList}") {
-			if (contains("${apiResponse}", "${type}={href=http://osbasahbackend:8080/api/reports/${type}}")) {
+			if (contains("${apiResponse}", "${type}={href=http://osbasahbackend:8080/api/reports/${type}")) {
 				echo("${type} - PASSED");
 			}
 			else {

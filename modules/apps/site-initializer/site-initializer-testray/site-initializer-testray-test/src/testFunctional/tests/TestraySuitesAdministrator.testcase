@@ -14,7 +14,7 @@ definition {
 
 			User.firstLoginPG();
 
-			Testray.createTestraySite(siteName = "Testray 2");
+			Testray.addTestraySite();
 
 			Refresh();
 		}
@@ -146,7 +146,7 @@ definition {
 
 			TestraySuites.addSuite(
 				caseName = "ATF_Suites Case",
-				suiteDescription = "ATF_Suites_1 Suite Description",
+				suiteDescription = "Suite Description",
 				suiteName = "ATF_Suites_1 Suite");
 		}
 
@@ -158,12 +158,8 @@ definition {
 	}
 
 	@description = "This is a test for LPS-162815 - Verify that as an Administrator I can edit and update a smart suite"
-	@ignore = "true"
 	@priority = "4"
 	test AdminCanEditSmartSuite {
-
-		// This test is blocked by LPS-163214
-
 		task ("Given that the user goes to add a new component") {
 			TestrayContextMenu.clickContextMenuProjects(name = "Projects_1 Project");
 
@@ -192,15 +188,51 @@ definition {
 
 			TestraySuites.addSuite(
 				caseType = "Automated Functional Test",
-				mainComponent = "Tags",
-				priorityNumber = "3",
+				mainComponent = "Analytics Cloud",
+				priorityNumber = "1",
+				requirementName = "ATF_Requirements Summary",
 				smartSuite = "true",
+				subComponent = "Analytics Cloud",
 				suiteDescription = "ATF_Suites_1 Suite Description",
 				suiteName = "ATF_Suites_1 Suite");
 		}
 
-		// Missing the edit steps
+		task ("Then the case parameters are presented in the details of the suite") {
+			TestraySuites.goToSuiteDetails(suiteName = "ATF_Suites_1 Suite");
 
+			TestraySuites.verifyCaseParametersInSuite(
+				caseType = "Automated Functional Test",
+				components = "Analytics Cloud",
+				priority = "1",
+				requirements = "ATF_Requirements Summary",
+				subComponents = "Analytics Cloud");
+		}
+
+		task ("When the user edits the created smart suite") {
+			TestrayDropdown.selectProjectDirectory(project = "Projects_1 Project");
+
+			Testray.projectTabNavigator(navTabName = "Suites");
+
+			TestraySuites.editSmartSuite(
+				caseType = "Cucumber",
+				mainComponent = "Calendar",
+				priorityNumber = "5",
+				smartSuite = "true",
+				subComponent = "Wiki",
+				suiteDescription = "ATF_Suites_1 Suite Description",
+				suiteName = "ATF_Suites_1 Suite");
+		}
+
+		task ("Then the case parameters are presented with details edited") {
+			TestraySuites.goToSuiteDetails(suiteName = "ATF_Suites_1 Suite");
+
+			TestraySuites.verifyCaseParametersInSuite(
+				caseType = "Cucumber",
+				components = "Calendar",
+				priority = "5",
+				requirements = "ATF_Requirements Summary",
+				subComponents = "Wiki");
+		}
 	}
 
 	@description = "This is a test for LPS-160627 - Verify if as an Administrator I am able to edit suites"
@@ -228,6 +260,48 @@ definition {
 				suiteDescription = "ATF_Suites_1 Suite Description Edited",
 				suiteName = "ATF_Suites_1 Suite Edited",
 				suiteType = "Static");
+		}
+	}
+
+	@description = "This is a test for LPS-166559 - Verify if as an Administrator I should not be able to add a duplicate Suites"
+	@priority = "5"
+	test AdminCanNotAddDuplicateSuites {
+		task ("Given that the user goes to add a new suite duplicate") {
+			Testray.goToProjectPage(projectName = "Projects_1 Project");
+
+			Testray.projectTabNavigator(navTabName = "Suites");
+
+			TestraySuites.addSuite(
+				suiteDescription = "ATF_Suites_1 Suite Description",
+				suiteName = "ATF_Suites_1 Suite");
+
+			TestraySuites.addSuite(
+				suiteDescription = "ATF_Suites_1 Suite Description",
+				suiteName = "ATF_Suites_1 Suite");
+		}
+
+		task ("Then the error message should appear") {
+			Alert.viewErrorMessage(errorMessage = "The Suite name already exists");
+		}
+	}
+
+	@description = "This is a test for LPS-164152 - Verify that the user can not create a suite if all the required fields are not filled in"
+	@priority = "3"
+	test AdminCanViewRequiredField {
+		task ("Given that the user goes to add a new suite without name") {
+			Testray.goToProjectPage(projectName = "Projects_1 Project");
+
+			Testray.projectTabNavigator(navTabName = "Suites");
+
+			TestraySuites.addSuite(
+				suiteDescription = "",
+				suiteName = "");
+		}
+
+		task ("Then a warning message is displayed") {
+			Testray.viewErrorMessage(
+				fieldLabel = "Name",
+				warningMessage = "name is a required field");
 		}
 	}
 

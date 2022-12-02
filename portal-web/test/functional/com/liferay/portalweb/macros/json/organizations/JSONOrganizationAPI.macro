@@ -23,6 +23,22 @@ definition {
 			var organizationType = "organization";
 		}
 
+		if (isSet(organizationCountry)) {
+			var countryId = JSONCountry.getCountryId(countryName = "${organizationCountry}");
+		}
+		else {
+			var countryId = "0";
+		}
+
+		if (isSet(organizationRegion)) {
+			var regionId = JSONCountry.getRegionId(
+				countryName = "${organizationCountry}",
+				regionName = "${organizationRegion}");
+		}
+		else {
+			var regionId = "0";
+		}
+
 		var portalURL = JSONCompany.getPortalURL();
 
 		var curl = '''
@@ -31,9 +47,9 @@ definition {
 				-d parentOrganizationId=${parentOrganizationId} \
 				-d name=${organizationNameEncoded} \
 				-d type=${organizationType} \
-				-d regionId=0 \
-				-d countryId=0 \
-				-d statusId=12017 \
+				-d regionId=${regionId} \
+				-d countryId=${countryId} \
+				-d statusListTypeId=12017 \
 				-d comments= \
 				-d site=${organizationSite}
 		''';
@@ -96,6 +112,46 @@ definition {
 		''';
 
 		com.liferay.poshi.runner.util.JSONCurlUtil.post("${curl}");
+	}
+
+	@summary = "Get the number of childs organizations based on its parent organization id"
+	macro _getChildOrganizationCount {
+		Variables.assertDefined(parameterList = "${parentOrganizationId}");
+
+		var portalURL = JSONCompany.getPortalURL();
+		var companyId = JSONCompany.getCompanyId();
+
+		var curl = '''
+			${portalURL}/api/jsonws/organization/get-organizations-count \
+				-u test@liferay.com:test \
+				-d companyId=${companyId} \
+				-d parentOrganizationId=${parentOrganizationId}
+		''';
+
+		var numberOfChildren = JSONCurlUtil.post("${curl}");
+
+		var numberOfChildren = StringUtil.extractDigits("${numberOfChildren}");
+
+		return "${numberOfChildren}";
+	}
+
+	@summary = "Get the childs organizations ids based on its parent organization id"
+	macro _getOrganization {
+		Variables.assertDefined(parameterList = "${parentOrganizationId}");
+
+		var portalURL = JSONCompany.getPortalURL();
+		var companyId = JSONCompany.getCompanyId();
+
+		var curl = '''
+			${portalURL}/api/jsonws/organization/get-organizations \
+				-u test@liferay.com:test \
+				-d companyId=${companyId} \
+				-d parentOrganizationId=${parentOrganizationId}
+		''';
+
+		var organizationIds = JSONCurlUtil.post("${curl}", "$..['organizationId']");
+
+		return "${organizationIds}";
 	}
 
 }

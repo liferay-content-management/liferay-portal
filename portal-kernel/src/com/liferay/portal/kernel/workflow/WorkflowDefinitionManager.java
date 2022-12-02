@@ -14,8 +14,6 @@
 
 package com.liferay.portal.kernel.workflow;
 
-import com.liferay.portal.kernel.messaging.proxy.MessagingProxy;
-import com.liferay.portal.kernel.messaging.proxy.ProxyMode;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.util.List;
@@ -27,7 +25,6 @@ import java.util.List;
  * @author Marcellus Tavares
  * @author Eduardo Lundgren
  */
-@MessagingProxy(mode = ProxyMode.SYNC)
 public interface WorkflowDefinitionManager {
 
 	public default WorkflowDefinition deployWorkflowDefinition(
@@ -97,6 +94,13 @@ public interface WorkflowDefinitionManager {
 		throws WorkflowException {
 
 		return getLatestWorkflowDefinitionsCount(null, companyId);
+	}
+
+	public default WorkflowDefinition getWorkflowDefinition(
+			long workflowDefinitionId)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
 	}
 
 	public WorkflowDefinition getWorkflowDefinition(

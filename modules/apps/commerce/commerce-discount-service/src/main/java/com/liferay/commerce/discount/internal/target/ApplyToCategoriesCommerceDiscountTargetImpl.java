@@ -16,7 +16,6 @@ package com.liferay.commerce.discount.internal.target;
 
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetEntry;
-import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.commerce.discount.constants.CommerceDiscountConstants;
 import com.liferay.commerce.discount.model.CommerceDiscount;
@@ -54,7 +53,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"commerce.discount.target.key=" + CommerceDiscountConstants.TARGET_CATEGORIES,
 		"commerce.discount.target.order:Integer=10"
@@ -159,9 +157,6 @@ public class ApplyToCategoriesCommerceDiscountTargetImpl
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ApplyToCategoriesCommerceDiscountTargetImpl.class);
-
-	@Reference
-	private AssetCategoryLocalService _assetCategoryLocalService;
 
 	@Reference
 	private AssetEntryLocalService _assetEntryLocalService;

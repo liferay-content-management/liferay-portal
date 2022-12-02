@@ -44,6 +44,10 @@ renderResponse.setTitle(LanguageUtil.get(request, "edit-blueprint"));
 			).put(
 				"defaultLocale", LocaleUtil.toLanguageId(LocaleUtil.getDefault())
 			).put(
+				"featureFlagLps153813", GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-153813"))
+			).put(
+				"isCompanyAdmin", permissionChecker.isCompanyAdmin()
+			).put(
 				"learnMessages", LearnMessageUtil.getJSONObject("search-experiences-web")
 			).put(
 				"locale", themeDisplay.getLanguageId()

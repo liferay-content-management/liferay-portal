@@ -15,7 +15,7 @@
 package com.liferay.data.engine.rest.internal.security.permission.resource;
 
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
-import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeTracker;
+import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeRegistry;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -33,7 +33,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Leonardo Barros
  */
 @Component(
-	immediate = true,
 	property = "model.class.name=com.liferay.dynamic.data.mapping.model.DDMStructure",
 	service = DataDefinitionModelResourcePermission.class
 )
@@ -71,7 +70,7 @@ public class DataDefinitionModelResourcePermission
 
 		checkPortletPermission(
 			permissionChecker,
-			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
+			_dataDefinitionContentTypeRegistry.getDataDefinitionContentType(
 				ddmStructure.getClassNameId()),
 			ddmStructure.getGroupId(), actionId);
 	}
@@ -83,7 +82,7 @@ public class DataDefinitionModelResourcePermission
 
 		checkPortletPermission(
 			permissionChecker,
-			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
+			_dataDefinitionContentTypeRegistry.getDataDefinitionContentType(
 				contentType),
 			groupId, actionId);
 	}
@@ -95,7 +94,7 @@ public class DataDefinitionModelResourcePermission
 		throws PortalException {
 
 		DataDefinitionContentType dataDefinitionContentType =
-			_dataDefinitionContentTypeTracker.getDataDefinitionContentType(
+			_dataDefinitionContentTypeRegistry.getDataDefinitionContentType(
 				ddmStructure.getClassNameId());
 
 		if (dataDefinitionContentType == null) {
@@ -156,7 +155,8 @@ public class DataDefinitionModelResourcePermission
 	}
 
 	@Reference
-	private DataDefinitionContentTypeTracker _dataDefinitionContentTypeTracker;
+	private DataDefinitionContentTypeRegistry
+		_dataDefinitionContentTypeRegistry;
 
 	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;

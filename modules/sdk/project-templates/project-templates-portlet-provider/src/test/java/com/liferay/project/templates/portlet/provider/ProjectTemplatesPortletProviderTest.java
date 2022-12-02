@@ -46,11 +46,12 @@ public class ProjectTemplatesPortletProviderTest
 	@ClassRule
 	public static final MavenExecutor mavenExecutor = new MavenExecutor();
 
-	@Parameterized.Parameters(name = "Testcase-{index}: testing {0}")
+	@Parameterized.Parameters(name = "Testcase-{index}: testing {1} {0}")
 	public static Iterable<Object[]> data() {
 		return Arrays.asList(
 			new Object[][] {
-				{"7.0.6-2"}, {"7.1.3-1"}, {"7.2.1-1"}, {"7.3.7"}, {"7.4.3.36"}
+				{"dxp", "7.0.10.17"}, {"dxp", "7.1.10.7"}, {"dxp", "7.2.10.7"},
+				{"portal", "7.3.7"}, {"portal", "7.4.3.36"}
 			});
 	}
 
@@ -70,7 +71,10 @@ public class ProjectTemplatesPortletProviderTest
 		_gradleDistribution = URI.create(gradleDistribution);
 	}
 
-	public ProjectTemplatesPortletProviderTest(String liferayVersion) {
+	public ProjectTemplatesPortletProviderTest(
+		String liferayProduct, String liferayVersion) {
+
+		_liferayProduct = liferayProduct;
 		_liferayVersion = liferayVersion;
 	}
 
@@ -87,8 +91,8 @@ public class ProjectTemplatesPortletProviderTest
 			gradleWorkspaceDir, "modules");
 
 		File gradleProjectDir = buildTemplateWithGradle(
-			gradleWorkspaceModulesDir, template, name, "--liferay-version",
-			_liferayVersion);
+			gradleWorkspaceModulesDir, template, name, "--liferay-product",
+			_liferayProduct, "--liferay-version", _liferayVersion);
 
 		testExists(gradleProjectDir, "bnd.bnd");
 		testExists(
@@ -97,9 +101,7 @@ public class ProjectTemplatesPortletProviderTest
 
 		if (VersionUtil.getMinorVersion(_liferayVersion) < 3) {
 			testContains(
-				gradleProjectDir, "build.gradle", DEPENDENCY_PORTAL_KERNEL,
-				DEPENDENCY_JAVAX_PORTLET_API, DEPENDENCY_JAVAX_SERVLET_API,
-				DEPENDENCY_ORG_OSGI_ANNOTATIONS);
+				gradleProjectDir, "build.gradle", DEPENDENCY_RELEASE_DXP_API);
 		}
 		else {
 			testContains(
@@ -138,7 +140,8 @@ public class ProjectTemplatesPortletProviderTest
 		File mavenProjectDir = buildTemplateWithMaven(
 			mavenModulesDir, mavenModulesDir, template, name, "com.test",
 			mavenExecutor, "-DclassName=ProviderTest",
-			"-Dpackage=provider.test", "-DliferayVersion=" + _liferayVersion);
+			"-DliferayProduct=" + _liferayProduct,
+			"-DliferayVersion=" + _liferayVersion, "-Dpackage=provider.test");
 
 		if (!_liferayVersion.startsWith("7.0")) {
 			testContains(
@@ -162,6 +165,7 @@ public class ProjectTemplatesPortletProviderTest
 
 	private static URI _gradleDistribution;
 
+	private final String _liferayProduct;
 	private final String _liferayVersion;
 
 }

@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.service.CompanyLocalService;
-import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.portlet.MockLiferayResourceRequest;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -41,8 +40,6 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
-import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
@@ -111,7 +108,7 @@ public class PreviewFileEntryContentDashboardItemActionProviderTest {
 
 		String url = contentDashboardItemAction.getURL();
 
-		Assert.assertTrue(Validator.isNotNull(url));
+		Assert.assertNotNull(url);
 
 		Assert.assertTrue(
 			url.contains("fileEntryId=" + _fileEntry.getFileEntryId()));
@@ -247,12 +244,6 @@ public class PreviewFileEntryContentDashboardItemActionProviderTest {
 
 	@DeleteAfterTestRun
 	private Group _group;
-
-	@Inject
-	private Portal _portal;
-
-	@Inject
-	private PortletLocalService _portletLocalService;
 
 	@Inject
 	private UserLocalService _userLocalService;

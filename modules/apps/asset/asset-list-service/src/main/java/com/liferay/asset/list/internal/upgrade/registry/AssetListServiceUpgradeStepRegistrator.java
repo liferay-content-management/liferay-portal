@@ -27,7 +27,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Preston Crary
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(service = UpgradeStepRegistrator.class)
 public class AssetListServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -38,7 +38,7 @@ public class AssetListServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"AssetListEntry", "AssetListEntryAssetEntryRel",
 						"AssetListEntrySegmentsEntryRel", "AssetListEntryUsage"
@@ -66,6 +66,16 @@ public class AssetListServiceUpgradeStepRegistrator
 			"1.5.0", "1.6.0",
 			UpgradeProcessFactory.alterColumnType(
 				"AssetListEntrySegmentsEntryRel", "priority", "INTEGER"));
+
+		registry.register(
+			"1.6.0", "1.7.0",
+			new com.liferay.asset.list.internal.upgrade.v1_7_0.
+				AssetListEntrySegmentsEntryRelUpgradeProcess());
+
+		registry.register(
+			"1.7.0", "1.8.0",
+			new com.liferay.asset.list.internal.upgrade.v1_8_0.
+				AssetListEntrySegmentsEntryRelUpgradeProcess());
 	}
 
 }

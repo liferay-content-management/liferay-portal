@@ -14,7 +14,6 @@
 
 package com.liferay.client.extension.web.internal.portlet.action;
 
-import com.liferay.client.extension.service.ClientExtensionEntryService;
 import com.liferay.client.extension.type.factory.CETFactory;
 import com.liferay.client.extension.web.internal.constants.ClientExtensionAdminPortletKeys;
 import com.liferay.client.extension.web.internal.constants.ClientExtensionAdminWebKeys;
@@ -32,7 +31,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Iván Zaera
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + ClientExtensionAdminPortletKeys.CLIENT_EXTENSION_ADMIN,
 		"mvc.command.name=/"
@@ -56,8 +54,5 @@ public class ViewMVCRenderCommand implements MVCRenderCommand {
 
 	@Reference
 	private CETFactory _cetFactory;
-
-	@Reference
-	private ClientExtensionEntryService _clientExtensionEntryService;
 
 }

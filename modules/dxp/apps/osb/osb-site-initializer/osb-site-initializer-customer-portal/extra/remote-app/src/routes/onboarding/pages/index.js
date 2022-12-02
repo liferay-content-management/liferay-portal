@@ -17,7 +17,7 @@ import {useAppPropertiesContext} from '../../../common/contexts/AppPropertiesCon
 import {PAGE_ROUTER_TYPES} from '../../../common/utils/constants';
 import ConfirmationMessageModal from '../../customer-portal/components/ActivationStatus/LiferayExperienceCloud/components/ConfirmationMessageModal';
 import SetupLiferayExperienceCloudForm from '../../customer-portal/components/ActivationStatus/LiferayExperienceCloud/components/SetupLXCModal/components/SetupLXCForm/';
-import {PRODUCT_TYPES} from '../../customer-portal/utils/constants';
+import {LIST_TYPES, PRODUCT_TYPES} from '../../customer-portal/utils/constants';
 import {useOnboarding} from '../context';
 import {actionTypes} from '../context/reducer';
 import {ONBOARDING_STEP_TYPES} from '../utils/constants';
@@ -148,6 +148,7 @@ const Pages = () => {
 			Component: (
 				<SetupDXPCloudForm
 					client={client}
+					dxpVersion={project?.dxpVersion}
 					handlePage={(isSuccess) => {
 						if (isSuccess) {
 							return dispatch({
@@ -158,6 +159,7 @@ const Pages = () => {
 						dxpCloudPageHandle();
 					}}
 					leftButton={i18n.translate('skip-for-now')}
+					listType={LIST_TYPES.dxpVersion}
 					project={project}
 					subscriptionGroupId={
 						subscriptionDXPCloud?.accountSubscriptionGroupId

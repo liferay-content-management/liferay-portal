@@ -49,8 +49,8 @@ public class EROrganizationLocalServiceImpl
 		User user = _userLocalService.getUser(userId);
 
 		Organization organization =
-			_organizationLocalService.fetchOrganizationByReferenceCode(
-				user.getCompanyId(), externalReferenceCode);
+			_organizationLocalService.fetchOrganizationByExternalReferenceCode(
+				externalReferenceCode, user.getCompanyId());
 
 		if (organization == null) {
 			organization = _organizationLocalService.addOrganization(

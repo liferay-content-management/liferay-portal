@@ -50,6 +50,12 @@ portletDisplay.setURLBack(backURL);
 	<liferay-frontend:edit-form-body>
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 
+		<%
+		InvitedAccountUserDisplayContext invitedAccountUserDisplayContext = (InvitedAccountUserDisplayContext)request.getAttribute(WebKeys.PORTLET_DISPLAY_CONTEXT);
+		%>
+
+		<aui:input name="ticketKey" type="hidden" value="<%= invitedAccountUserDisplayContext.getTicketKey() %>" />
+
 		<h2 class="sheet-title">
 			<liferay-ui:message key="create-account" />
 		</h2>
@@ -103,7 +109,15 @@ portletDisplay.setURLBack(backURL);
 						<liferay-ui:error exception="<%= UserEmailAddressException.MustNotUseCompanyMx.class %>" focusField="emailAddress" message="the-email-address-you-requested-is-not-valid-because-its-domain-is-reserved" />
 						<liferay-ui:error exception="<%= UserEmailAddressException.MustValidate.class %>" focusField="emailAddress" message="please-enter-a-valid-email-address" />
 
-						<aui:input cssClass="form-control-plaintext" label="email-address" name="emailAddress" readonly="<%= true %>" required="<%= true %>" type="text" value='<%= ParamUtil.getString(request, "emailAddress") %>' />
+						<div class="form-group">
+							<label>
+								<liferay-ui:message key="email-address" />
+							</label>
+
+							<div class="form-control-plaintext">
+								<%= invitedAccountUserDisplayContext.getEmailAddress() %>
+							</div>
+						</div>
 					</clay:col>
 
 					<clay:col
@@ -170,8 +184,8 @@ portletDisplay.setURLBack(backURL);
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
-		<aui:button type="submit" />
-
-		<aui:button href="<%= backURL %>" type="cancel" />
+		<liferay-frontend:edit-form-buttons
+			redirect="<%= backURL %>"
+		/>
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>

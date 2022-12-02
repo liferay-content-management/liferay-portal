@@ -23,9 +23,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Cheryl Tang
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceShopByDiagramServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -46,7 +44,7 @@ public class CommerceShopByDiagramServiceUpgradeStepRegistrator
 				}
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"CSDiagramEntry", "CSDiagramPin", "CSDiagramSetting"
 					};

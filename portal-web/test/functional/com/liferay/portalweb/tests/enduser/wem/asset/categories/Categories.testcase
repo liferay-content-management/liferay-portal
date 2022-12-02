@@ -243,6 +243,8 @@ definition {
 	@description = "Add a vocabulary for Bookmarks Entry."
 	@priority = "3"
 	test AddVocabularyForBookmarksEntry {
+		property portal.release = "false";
+
 		task ("Add a vocabulary for Bookmarks Entry") {
 			Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
@@ -384,7 +386,7 @@ definition {
 		}
 	}
 
-	@description = "Cannot add a category without title."
+	@description = "This is a test for LPS-167115. View warning message when creating a category without title."
 	@priority = "3"
 	test CannotAddCategoryWithNullTitle {
 		task ("View cannot add a category without title") {
@@ -966,7 +968,9 @@ definition {
 		}
 
 		task ("When the Categories creator opens the dropdown menu of new vocabulary") {
-			Click.waitForMenuToggleJSClick(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS");
+			Click.waitForMenuToggleJSClick(
+				key_headerName = "Vocabulary Name",
+				locator1 = "Portlet#H2_HEADER_VERTICAL_ELLIPSIS");
 		}
 
 		task ("Then the Categories creator can see the new icons on the dropdown menu") {

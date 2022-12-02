@@ -17,21 +17,6 @@ import React, {useEffect, useState} from 'react';
 
 let tabs = [];
 
-function display(tabId) {
-	for (let i = 0; i < tabs.length; i++) {
-		const currentTabId = tabs[i].id;
-
-		if (tabId === currentTabId) {
-			document.getElementById(tabId).classList.add('active', 'show');
-		}
-		else {
-			document
-				.getElementById(currentTabId)
-				.classList.remove('active', 'show');
-		}
-	}
-}
-
 export default function ({
 	hasCPDefinitionSpecificationOptionValues,
 	hasCPMedia,
@@ -44,6 +29,26 @@ export default function ({
 	navSpecificationsId,
 }) {
 	const [activeTabKeyValue, setActiveTabKeyValue] = useState(0);
+	const [firstRender, setFirstRender] = useState(true);
+
+	const display = (tabId) => {
+		for (let i = 0; i < tabs.length; i++) {
+			const currentTabId = tabs[i].id;
+			const tabElt = document.getElementById(currentTabId);
+
+			if (tabId === currentTabId) {
+				tabElt.classList.add('active', 'show');
+			}
+			else {
+				tabElt.classList.remove('active', 'show');
+			}
+			if (!firstRender && currentTabId === navReplacementsId) {
+				tabElt.style.display = null;
+				tabElt.style.visibility = null;
+				tabElt.style.height = null;
+			}
+		}
+	};
 
 	useEffect(() => {
 		tabs = document.getElementsByClassName(namespace + 'tab-element');
@@ -63,6 +68,8 @@ export default function ({
 			display(navReplacementsId);
 			setActiveTabKeyValue(3);
 		}
+		setFirstRender(false);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		hasCPDefinitionSpecificationOptionValues,
 		hasCPMedia,
@@ -78,7 +85,7 @@ export default function ({
 	return (
 		<>
 			<ClayTabs className="nav-left" modern>
-				{hasDescription && (
+				{hasDescription ? (
 					<ClayTabs.Item
 						active={activeTabKeyValue === 0}
 						innerProps={{
@@ -91,9 +98,11 @@ export default function ({
 					>
 						{Liferay.Language.get('full-description')}
 					</ClayTabs.Item>
+				) : (
+					<></>
 				)}
 
-				{hasCPDefinitionSpecificationOptionValues && (
+				{hasCPDefinitionSpecificationOptionValues ? (
 					<ClayTabs.Item
 						active={activeTabKeyValue === 1}
 						innerProps={{
@@ -106,9 +115,11 @@ export default function ({
 					>
 						{Liferay.Language.get('specifications')}
 					</ClayTabs.Item>
+				) : (
+					<></>
 				)}
 
-				{hasCPMedia && (
+				{hasCPMedia ? (
 					<ClayTabs.Item
 						active={activeTabKeyValue === 2}
 						innerProps={{
@@ -121,9 +132,11 @@ export default function ({
 					>
 						{Liferay.Language.get('attachments')}
 					</ClayTabs.Item>
+				) : (
+					<></>
 				)}
 
-				{hasReplacements && (
+				{hasReplacements ? (
 					<ClayTabs.Item
 						active={activeTabKeyValue === 3}
 						innerProps={{
@@ -136,6 +149,8 @@ export default function ({
 					>
 						{Liferay.Language.get('replacements')}
 					</ClayTabs.Item>
+				) : (
+					<></>
 				)}
 			</ClayTabs>
 		</>

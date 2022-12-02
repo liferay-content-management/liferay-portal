@@ -16,13 +16,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>ASSET_LIST_ELLIPSIS</td>
-	<td>//div[contains(@class,'dropdown')]//a[span/*[name()='svg'][contains(@class,'lexicon-icon-ellipsis')]]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>ASSET_LIST_ENTRY_TITLE</td>
-	<td>//*[contains(@class,'list-group-item')]//a[contains(.,'${key_title}')] | //*[contains(@class,'list-group-item')]//p[contains(.,'${key_title}')]</td>
+	<td>//*[contains(@class,'name-column')]//a[contains(.,'${key_title}')] | //*[contains(@class,'list-group-item')]//p[contains(.,'${key_title}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -52,22 +47,12 @@
 </tr>
 <tr>
 	<td>ASSET_LIST_SCOPE_ITEM</td>
-	<td>//span[contains(@class,'taglib-text-icon') and contains(.,'${key_menuItem}')]</td>
+	<td>//div[contains(@class,'dropdown-menu')]//button[contains(.,'${key_menuItem}')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ASSET_LIST_SCOPE_NAME</td>
 	<td>//tr[contains(@data-qa-id,'row')][contains(.,'${key_scopeName}')]//td[contains(@class,'lfr-name-column')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>ASSET_LIST_SELECT_BUTTON</td>
-	<td>//div[contains(@class,'btn-group')]//a[contains(@title,'Select')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>ASSET_TYPE_DROPDOWN_ITEM</td>
-	<td>//ul[contains(@class,'dropdown-menu')]//li[contains(@class,'asset-selector')]//a[contains(.,'${key_assetType}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -104,11 +89,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>PERSONALIZATION_DROPDOWN_ITEM</td>
-	<td>//ul[contains(@class,'dropdown-menu')]//a[contains(.,'${key_menuItem}')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -119,11 +99,6 @@
 <tr>
 	<td>ASSET_LIST_USAGES</td>
 	<td>//li[contains(@class,'nav-item')][contains(.,'${usageType} (${usageAmount})')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
 	<td></td>
 </tr>
 </tbody>

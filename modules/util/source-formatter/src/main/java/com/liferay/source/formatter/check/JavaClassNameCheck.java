@@ -99,6 +99,10 @@ public class JavaClassNameCheck extends BaseJavaTermCheck {
 				implementedClassNames);
 		}
 
+		_checkClassNameByUnimplementedClasses(
+			javaClass, fileName, absolutePath, className,
+			implementedClassNames);
+
 		return javaTerm.getContent();
 	}
 
@@ -183,6 +187,33 @@ public class JavaClassNameCheck extends BaseJavaTermCheck {
 		}
 	}
 
+	private void _checkClassNameByUnimplementedClasses(
+		JavaClass javaClass, String fileName, String absolutePath,
+		String className, List<String> implementedClassNames) {
+
+		if (javaClass.isInterface()) {
+			return;
+		}
+
+		List<String> unimplementedClassNames = getAttributeValues(
+			_UNIMPLEMENTED_CLASS_NAMES_KEY, absolutePath);
+
+		for (String unimplementedClassName : unimplementedClassNames) {
+			if (className.endsWith(unimplementedClassName) &&
+				!implementedClassNames.contains(unimplementedClassName)) {
+
+				addMessage(
+					fileName,
+					StringBundler.concat(
+						"Name of class not implementing '",
+						unimplementedClassName, "' should not end with '",
+						unimplementedClassName, "'"));
+
+				break;
+			}
+		}
+	}
+
 	private void _checkTypo(
 		String fileName, String className, String packageName, int level) {
 
@@ -236,5 +267,8 @@ public class JavaClassNameCheck extends BaseJavaTermCheck {
 
 	private static final String _EXPECTED_PACKAGE_PATH_DATA_KEY =
 		"expectedPackagePathData";
+
+	private static final String _UNIMPLEMENTED_CLASS_NAMES_KEY =
+		"unimplementedClassNames";
 
 }

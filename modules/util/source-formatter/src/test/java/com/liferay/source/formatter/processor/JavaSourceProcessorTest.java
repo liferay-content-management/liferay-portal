@@ -451,6 +451,19 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testMoveUpgradeSteps() throws Exception {
+		test(
+			"MoveUpgradeSteps.testjava",
+			new String[] {
+				"Move 'alterTableAddColumn' call inside 'getPreUpgradeSteps' " +
+					"method",
+				"Move 'alterTableAddColumn' call inside " +
+					"'getPostUpgradeSteps' method"
+			},
+			new Integer[] {26, 30});
+	}
+
+	@Test
 	public void testNullAssertionInIfStatement() throws Exception {
 		test(
 			"NullAssertionInIfStatement.testjava",
@@ -620,6 +633,16 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testUnnecessaryUpgradeProcessClass() throws Exception {
+		test(
+			"UnnecessaryUpgradeProcessClass.testjava",
+			"No need to create 'UnnecessaryUpgradeProcessClass' class. " +
+				"Replace it by inline calls to the 'UpgradeProcessFactory' " +
+					"class in the registrator class",
+			22);
+	}
+
+	@Test
 	public void testUnusedImport() throws Exception {
 		test("UnusedImport.testjava");
 	}
@@ -654,6 +677,20 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	@Test
 	public void testUpgradeDropTable() throws Exception {
 		test("UpgradeDropTable.testjava");
+	}
+
+	@Test
+	public void testUpgradeProcessUnnecessaryIfStatement() throws Exception {
+		test(
+			"UpgradeProcessUnnecessaryIfStatement1.testjava",
+			"No need to use if-statement to wrap 'alterColumn*' and " +
+				"'alterTable*' calls",
+			26);
+		test(
+			"UpgradeProcessUnnecessaryIfStatement2.testjava",
+			"No need to use if-statement to wrap 'alterColumn*' and " +
+				"'alterTable*' calls",
+			26);
 	}
 
 }

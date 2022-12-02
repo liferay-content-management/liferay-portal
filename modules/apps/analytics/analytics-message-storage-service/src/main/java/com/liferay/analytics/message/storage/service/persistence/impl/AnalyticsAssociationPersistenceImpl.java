@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -75,9 +74,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(
-	service = {AnalyticsAssociationPersistence.class, BasePersistence.class}
-)
+@Component(service = AnalyticsAssociationPersistence.class)
 public class AnalyticsAssociationPersistenceImpl
 	extends BasePersistenceImpl<AnalyticsAssociation>
 	implements AnalyticsAssociationPersistence {
@@ -208,7 +205,7 @@ public class AnalyticsAssociationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<AnalyticsAssociation>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (AnalyticsAssociation analyticsAssociation : list) {
@@ -629,7 +626,7 @@ public class AnalyticsAssociationPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, associationClassName};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -797,7 +794,7 @@ public class AnalyticsAssociationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<AnalyticsAssociation>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (AnalyticsAssociation analyticsAssociation : list) {
@@ -1272,7 +1269,7 @@ public class AnalyticsAssociationPersistenceImpl
 			companyId, _getTime(modifiedDate), associationClassName
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -1475,7 +1472,7 @@ public class AnalyticsAssociationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<AnalyticsAssociation>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (AnalyticsAssociation analyticsAssociation : list) {
@@ -1931,7 +1928,7 @@ public class AnalyticsAssociationPersistenceImpl
 			companyId, associationClassName, associationClassPK
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -2424,7 +2421,7 @@ public class AnalyticsAssociationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<AnalyticsAssociation>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2494,7 +2491,7 @@ public class AnalyticsAssociationPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

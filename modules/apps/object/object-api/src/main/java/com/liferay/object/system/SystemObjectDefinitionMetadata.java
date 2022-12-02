@@ -33,7 +33,14 @@ public interface SystemObjectDefinitionMetadata {
 	public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
 		throws PortalException;
 
-	public String getJaxRsApplicationName();
+	public BaseModel<?> getBaseModelByExternalReferenceCode(
+			String externalReferenceCode, long companyId)
+		throws PortalException;
+
+	public String getExternalReferenceCode(long primaryKey)
+		throws PortalException;
+
+	public JaxRsApplicationDescriptor getJaxRsApplicationDescriptor();
 
 	public Map<Locale, String> getLabelMap();
 
@@ -48,8 +55,6 @@ public interface SystemObjectDefinitionMetadata {
 	public Map<Locale, String> getPluralLabelMap();
 
 	public Column<?, Long> getPrimaryKeyColumn();
-
-	public String getRESTContextPath();
 
 	public String getRESTDTOIdPropertyName();
 

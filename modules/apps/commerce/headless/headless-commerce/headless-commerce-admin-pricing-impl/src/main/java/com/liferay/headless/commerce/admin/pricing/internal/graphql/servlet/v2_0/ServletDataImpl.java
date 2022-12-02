@@ -16,6 +16,36 @@ package com.liferay.headless.commerce.admin.pricing.internal.graphql.servlet.v2_
 
 import com.liferay.headless.commerce.admin.pricing.internal.graphql.mutation.v2_0.Mutation;
 import com.liferay.headless.commerce.admin.pricing.internal.graphql.query.v2_0.Query;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.AccountGroupResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.AccountResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.CategoryResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.ChannelResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountAccountGroupResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountAccountResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountCategoryResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountChannelResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountOrderTypeResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountProductGroupResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountProductResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountRuleResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.DiscountSkuResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.OrderTypeResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceEntryResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceListAccountGroupResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceListAccountResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceListChannelResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceListDiscountResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceListOrderTypeResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceListResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceModifierCategoryResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceModifierProductGroupResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceModifierProductResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.PriceModifierResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.ProductGroupResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.ProductResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.SkuResourceImpl;
+import com.liferay.headless.commerce.admin.pricing.internal.resource.v2_0.TierPriceResourceImpl;
 import com.liferay.headless.commerce.admin.pricing.resource.v2_0.AccountGroupResource;
 import com.liferay.headless.commerce.admin.pricing.resource.v2_0.AccountResource;
 import com.liferay.headless.commerce.admin.pricing.resource.v2_0.CategoryResource;
@@ -46,7 +76,11 @@ import com.liferay.headless.commerce.admin.pricing.resource.v2_0.ProductGroupRes
 import com.liferay.headless.commerce.admin.pricing.resource.v2_0.ProductResource;
 import com.liferay.headless.commerce.admin.pricing.resource.v2_0.SkuResource;
 import com.liferay.headless.commerce.admin.pricing.resource.v2_0.TierPriceResource;
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -61,7 +95,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Zoltán Takács
  * @generated
  */
-@Component(enabled = false, immediate = true, service = ServletData.class)
+@Component(service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
@@ -174,6 +208,10 @@ public class ServletDataImpl implements ServletData {
 			_tierPriceResourceComponentServiceObjects);
 	}
 
+	public String getApplicationName() {
+		return "Liferay.Headless.Commerce.Admin.Pricing";
+	}
+
 	@Override
 	public Mutation getMutation() {
 		return new Mutation();
@@ -188,6 +226,973 @@ public class ServletDataImpl implements ServletData {
 	public Query getQuery() {
 		return new Query();
 	}
+
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(
+		String methodName, boolean mutation) {
+
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get(
+				"mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>>
+		_resourceMethodObjectValuePairs =
+			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+				{
+					put(
+						"mutation#createDiscount",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class, "postDiscount"));
+					put(
+						"mutation#createDiscountBatch",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class, "postDiscountBatch"));
+					put(
+						"mutation#deleteDiscountByExternalReferenceCode",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class,
+							"deleteDiscountByExternalReferenceCode"));
+					put(
+						"mutation#patchDiscountByExternalReferenceCode",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class,
+							"patchDiscountByExternalReferenceCode"));
+					put(
+						"mutation#deleteDiscount",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class, "deleteDiscount"));
+					put(
+						"mutation#deleteDiscountBatch",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class, "deleteDiscountBatch"));
+					put(
+						"mutation#patchDiscount",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class, "patchDiscount"));
+					put(
+						"mutation#deleteDiscountAccount",
+						new ObjectValuePair<>(
+							DiscountAccountResourceImpl.class,
+							"deleteDiscountAccount"));
+					put(
+						"mutation#deleteDiscountAccountBatch",
+						new ObjectValuePair<>(
+							DiscountAccountResourceImpl.class,
+							"deleteDiscountAccountBatch"));
+					put(
+						"mutation#createDiscountByExternalReferenceCodeDiscountAccount",
+						new ObjectValuePair<>(
+							DiscountAccountResourceImpl.class,
+							"postDiscountByExternalReferenceCodeDiscountAccount"));
+					put(
+						"mutation#createDiscountIdDiscountAccount",
+						new ObjectValuePair<>(
+							DiscountAccountResourceImpl.class,
+							"postDiscountIdDiscountAccount"));
+					put(
+						"mutation#createDiscountIdDiscountAccountBatch",
+						new ObjectValuePair<>(
+							DiscountAccountResourceImpl.class,
+							"postDiscountIdDiscountAccountBatch"));
+					put(
+						"mutation#deleteDiscountAccountGroup",
+						new ObjectValuePair<>(
+							DiscountAccountGroupResourceImpl.class,
+							"deleteDiscountAccountGroup"));
+					put(
+						"mutation#deleteDiscountAccountGroupBatch",
+						new ObjectValuePair<>(
+							DiscountAccountGroupResourceImpl.class,
+							"deleteDiscountAccountGroupBatch"));
+					put(
+						"mutation#createDiscountByExternalReferenceCodeDiscountAccountGroup",
+						new ObjectValuePair<>(
+							DiscountAccountGroupResourceImpl.class,
+							"postDiscountByExternalReferenceCodeDiscountAccountGroup"));
+					put(
+						"mutation#createDiscountIdDiscountAccountGroup",
+						new ObjectValuePair<>(
+							DiscountAccountGroupResourceImpl.class,
+							"postDiscountIdDiscountAccountGroup"));
+					put(
+						"mutation#createDiscountIdDiscountAccountGroupBatch",
+						new ObjectValuePair<>(
+							DiscountAccountGroupResourceImpl.class,
+							"postDiscountIdDiscountAccountGroupBatch"));
+					put(
+						"mutation#deleteDiscountCategory",
+						new ObjectValuePair<>(
+							DiscountCategoryResourceImpl.class,
+							"deleteDiscountCategory"));
+					put(
+						"mutation#deleteDiscountCategoryBatch",
+						new ObjectValuePair<>(
+							DiscountCategoryResourceImpl.class,
+							"deleteDiscountCategoryBatch"));
+					put(
+						"mutation#createDiscountByExternalReferenceCodeDiscountCategory",
+						new ObjectValuePair<>(
+							DiscountCategoryResourceImpl.class,
+							"postDiscountByExternalReferenceCodeDiscountCategory"));
+					put(
+						"mutation#createDiscountIdDiscountCategory",
+						new ObjectValuePair<>(
+							DiscountCategoryResourceImpl.class,
+							"postDiscountIdDiscountCategory"));
+					put(
+						"mutation#createDiscountIdDiscountCategoryBatch",
+						new ObjectValuePair<>(
+							DiscountCategoryResourceImpl.class,
+							"postDiscountIdDiscountCategoryBatch"));
+					put(
+						"mutation#deleteDiscountChannel",
+						new ObjectValuePair<>(
+							DiscountChannelResourceImpl.class,
+							"deleteDiscountChannel"));
+					put(
+						"mutation#deleteDiscountChannelBatch",
+						new ObjectValuePair<>(
+							DiscountChannelResourceImpl.class,
+							"deleteDiscountChannelBatch"));
+					put(
+						"mutation#createDiscountByExternalReferenceCodeDiscountChannel",
+						new ObjectValuePair<>(
+							DiscountChannelResourceImpl.class,
+							"postDiscountByExternalReferenceCodeDiscountChannel"));
+					put(
+						"mutation#createDiscountIdDiscountChannel",
+						new ObjectValuePair<>(
+							DiscountChannelResourceImpl.class,
+							"postDiscountIdDiscountChannel"));
+					put(
+						"mutation#createDiscountIdDiscountChannelBatch",
+						new ObjectValuePair<>(
+							DiscountChannelResourceImpl.class,
+							"postDiscountIdDiscountChannelBatch"));
+					put(
+						"mutation#deleteDiscountOrderType",
+						new ObjectValuePair<>(
+							DiscountOrderTypeResourceImpl.class,
+							"deleteDiscountOrderType"));
+					put(
+						"mutation#deleteDiscountOrderTypeBatch",
+						new ObjectValuePair<>(
+							DiscountOrderTypeResourceImpl.class,
+							"deleteDiscountOrderTypeBatch"));
+					put(
+						"mutation#createDiscountByExternalReferenceCodeDiscountOrderType",
+						new ObjectValuePair<>(
+							DiscountOrderTypeResourceImpl.class,
+							"postDiscountByExternalReferenceCodeDiscountOrderType"));
+					put(
+						"mutation#createDiscountIdDiscountOrderType",
+						new ObjectValuePair<>(
+							DiscountOrderTypeResourceImpl.class,
+							"postDiscountIdDiscountOrderType"));
+					put(
+						"mutation#createDiscountIdDiscountOrderTypeBatch",
+						new ObjectValuePair<>(
+							DiscountOrderTypeResourceImpl.class,
+							"postDiscountIdDiscountOrderTypeBatch"));
+					put(
+						"mutation#deleteDiscountProduct",
+						new ObjectValuePair<>(
+							DiscountProductResourceImpl.class,
+							"deleteDiscountProduct"));
+					put(
+						"mutation#deleteDiscountProductBatch",
+						new ObjectValuePair<>(
+							DiscountProductResourceImpl.class,
+							"deleteDiscountProductBatch"));
+					put(
+						"mutation#createDiscountByExternalReferenceCodeDiscountProduct",
+						new ObjectValuePair<>(
+							DiscountProductResourceImpl.class,
+							"postDiscountByExternalReferenceCodeDiscountProduct"));
+					put(
+						"mutation#createDiscountIdDiscountProduct",
+						new ObjectValuePair<>(
+							DiscountProductResourceImpl.class,
+							"postDiscountIdDiscountProduct"));
+					put(
+						"mutation#createDiscountIdDiscountProductBatch",
+						new ObjectValuePair<>(
+							DiscountProductResourceImpl.class,
+							"postDiscountIdDiscountProductBatch"));
+					put(
+						"mutation#deleteDiscountProductGroup",
+						new ObjectValuePair<>(
+							DiscountProductGroupResourceImpl.class,
+							"deleteDiscountProductGroup"));
+					put(
+						"mutation#deleteDiscountProductGroupBatch",
+						new ObjectValuePair<>(
+							DiscountProductGroupResourceImpl.class,
+							"deleteDiscountProductGroupBatch"));
+					put(
+						"mutation#createDiscountByExternalReferenceCodeDiscountProductGroup",
+						new ObjectValuePair<>(
+							DiscountProductGroupResourceImpl.class,
+							"postDiscountByExternalReferenceCodeDiscountProductGroup"));
+					put(
+						"mutation#createDiscountIdDiscountProductGroup",
+						new ObjectValuePair<>(
+							DiscountProductGroupResourceImpl.class,
+							"postDiscountIdDiscountProductGroup"));
+					put(
+						"mutation#createDiscountIdDiscountProductGroupBatch",
+						new ObjectValuePair<>(
+							DiscountProductGroupResourceImpl.class,
+							"postDiscountIdDiscountProductGroupBatch"));
+					put(
+						"mutation#deleteDiscountRule",
+						new ObjectValuePair<>(
+							DiscountRuleResourceImpl.class,
+							"deleteDiscountRule"));
+					put(
+						"mutation#deleteDiscountRuleBatch",
+						new ObjectValuePair<>(
+							DiscountRuleResourceImpl.class,
+							"deleteDiscountRuleBatch"));
+					put(
+						"mutation#patchDiscountRule",
+						new ObjectValuePair<>(
+							DiscountRuleResourceImpl.class,
+							"patchDiscountRule"));
+					put(
+						"mutation#createDiscountByExternalReferenceCodeDiscountRule",
+						new ObjectValuePair<>(
+							DiscountRuleResourceImpl.class,
+							"postDiscountByExternalReferenceCodeDiscountRule"));
+					put(
+						"mutation#createDiscountIdDiscountRule",
+						new ObjectValuePair<>(
+							DiscountRuleResourceImpl.class,
+							"postDiscountIdDiscountRule"));
+					put(
+						"mutation#createDiscountIdDiscountRuleBatch",
+						new ObjectValuePair<>(
+							DiscountRuleResourceImpl.class,
+							"postDiscountIdDiscountRuleBatch"));
+					put(
+						"mutation#deleteDiscountSku",
+						new ObjectValuePair<>(
+							DiscountSkuResourceImpl.class,
+							"deleteDiscountSku"));
+					put(
+						"mutation#deleteDiscountSkuBatch",
+						new ObjectValuePair<>(
+							DiscountSkuResourceImpl.class,
+							"deleteDiscountSkuBatch"));
+					put(
+						"mutation#createDiscountByExternalReferenceCodeDiscountSku",
+						new ObjectValuePair<>(
+							DiscountSkuResourceImpl.class,
+							"postDiscountByExternalReferenceCodeDiscountSku"));
+					put(
+						"mutation#createDiscountIdDiscountSku",
+						new ObjectValuePair<>(
+							DiscountSkuResourceImpl.class,
+							"postDiscountIdDiscountSku"));
+					put(
+						"mutation#createDiscountIdDiscountSkuBatch",
+						new ObjectValuePair<>(
+							DiscountSkuResourceImpl.class,
+							"postDiscountIdDiscountSkuBatch"));
+					put(
+						"mutation#deletePriceEntryByExternalReferenceCode",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class,
+							"deletePriceEntryByExternalReferenceCode"));
+					put(
+						"mutation#patchPriceEntryByExternalReferenceCode",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class,
+							"patchPriceEntryByExternalReferenceCode"));
+					put(
+						"mutation#deletePriceEntry",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class, "deletePriceEntry"));
+					put(
+						"mutation#deletePriceEntryBatch",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class,
+							"deletePriceEntryBatch"));
+					put(
+						"mutation#patchPriceEntry",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class, "patchPriceEntry"));
+					put(
+						"mutation#createPriceListByExternalReferenceCodePriceEntry",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class,
+							"postPriceListByExternalReferenceCodePriceEntry"));
+					put(
+						"mutation#createPriceListIdPriceEntry",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class,
+							"postPriceListIdPriceEntry"));
+					put(
+						"mutation#createPriceListIdPriceEntryBatch",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class,
+							"postPriceListIdPriceEntryBatch"));
+					put(
+						"mutation#createPriceList",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class, "postPriceList"));
+					put(
+						"mutation#createPriceListBatch",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class, "postPriceListBatch"));
+					put(
+						"mutation#deletePriceListByExternalReferenceCode",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class,
+							"deletePriceListByExternalReferenceCode"));
+					put(
+						"mutation#patchPriceListByExternalReferenceCode",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class,
+							"patchPriceListByExternalReferenceCode"));
+					put(
+						"mutation#deletePriceList",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class, "deletePriceList"));
+					put(
+						"mutation#deletePriceListBatch",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class,
+							"deletePriceListBatch"));
+					put(
+						"mutation#patchPriceList",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class, "patchPriceList"));
+					put(
+						"mutation#deletePriceListAccount",
+						new ObjectValuePair<>(
+							PriceListAccountResourceImpl.class,
+							"deletePriceListAccount"));
+					put(
+						"mutation#deletePriceListAccountBatch",
+						new ObjectValuePair<>(
+							PriceListAccountResourceImpl.class,
+							"deletePriceListAccountBatch"));
+					put(
+						"mutation#createPriceListByExternalReferenceCodePriceListAccount",
+						new ObjectValuePair<>(
+							PriceListAccountResourceImpl.class,
+							"postPriceListByExternalReferenceCodePriceListAccount"));
+					put(
+						"mutation#createPriceListIdPriceListAccount",
+						new ObjectValuePair<>(
+							PriceListAccountResourceImpl.class,
+							"postPriceListIdPriceListAccount"));
+					put(
+						"mutation#createPriceListIdPriceListAccountBatch",
+						new ObjectValuePair<>(
+							PriceListAccountResourceImpl.class,
+							"postPriceListIdPriceListAccountBatch"));
+					put(
+						"mutation#deletePriceListAccountGroup",
+						new ObjectValuePair<>(
+							PriceListAccountGroupResourceImpl.class,
+							"deletePriceListAccountGroup"));
+					put(
+						"mutation#deletePriceListAccountGroupBatch",
+						new ObjectValuePair<>(
+							PriceListAccountGroupResourceImpl.class,
+							"deletePriceListAccountGroupBatch"));
+					put(
+						"mutation#createPriceListByExternalReferenceCodePriceListAccountGroup",
+						new ObjectValuePair<>(
+							PriceListAccountGroupResourceImpl.class,
+							"postPriceListByExternalReferenceCodePriceListAccountGroup"));
+					put(
+						"mutation#createPriceListIdPriceListAccountGroup",
+						new ObjectValuePair<>(
+							PriceListAccountGroupResourceImpl.class,
+							"postPriceListIdPriceListAccountGroup"));
+					put(
+						"mutation#createPriceListIdPriceListAccountGroupBatch",
+						new ObjectValuePair<>(
+							PriceListAccountGroupResourceImpl.class,
+							"postPriceListIdPriceListAccountGroupBatch"));
+					put(
+						"mutation#deletePriceListChannel",
+						new ObjectValuePair<>(
+							PriceListChannelResourceImpl.class,
+							"deletePriceListChannel"));
+					put(
+						"mutation#deletePriceListChannelBatch",
+						new ObjectValuePair<>(
+							PriceListChannelResourceImpl.class,
+							"deletePriceListChannelBatch"));
+					put(
+						"mutation#createPriceListByExternalReferenceCodePriceListChannel",
+						new ObjectValuePair<>(
+							PriceListChannelResourceImpl.class,
+							"postPriceListByExternalReferenceCodePriceListChannel"));
+					put(
+						"mutation#createPriceListIdPriceListChannel",
+						new ObjectValuePair<>(
+							PriceListChannelResourceImpl.class,
+							"postPriceListIdPriceListChannel"));
+					put(
+						"mutation#createPriceListIdPriceListChannelBatch",
+						new ObjectValuePair<>(
+							PriceListChannelResourceImpl.class,
+							"postPriceListIdPriceListChannelBatch"));
+					put(
+						"mutation#deletePriceListDiscount",
+						new ObjectValuePair<>(
+							PriceListDiscountResourceImpl.class,
+							"deletePriceListDiscount"));
+					put(
+						"mutation#deletePriceListDiscountBatch",
+						new ObjectValuePair<>(
+							PriceListDiscountResourceImpl.class,
+							"deletePriceListDiscountBatch"));
+					put(
+						"mutation#createPriceListByExternalReferenceCodePriceListDiscount",
+						new ObjectValuePair<>(
+							PriceListDiscountResourceImpl.class,
+							"postPriceListByExternalReferenceCodePriceListDiscount"));
+					put(
+						"mutation#createPriceListIdPriceListDiscount",
+						new ObjectValuePair<>(
+							PriceListDiscountResourceImpl.class,
+							"postPriceListIdPriceListDiscount"));
+					put(
+						"mutation#createPriceListIdPriceListDiscountBatch",
+						new ObjectValuePair<>(
+							PriceListDiscountResourceImpl.class,
+							"postPriceListIdPriceListDiscountBatch"));
+					put(
+						"mutation#deletePriceListOrderType",
+						new ObjectValuePair<>(
+							PriceListOrderTypeResourceImpl.class,
+							"deletePriceListOrderType"));
+					put(
+						"mutation#deletePriceListOrderTypeBatch",
+						new ObjectValuePair<>(
+							PriceListOrderTypeResourceImpl.class,
+							"deletePriceListOrderTypeBatch"));
+					put(
+						"mutation#createPriceListByExternalReferenceCodePriceListOrderType",
+						new ObjectValuePair<>(
+							PriceListOrderTypeResourceImpl.class,
+							"postPriceListByExternalReferenceCodePriceListOrderType"));
+					put(
+						"mutation#createPriceListIdPriceListOrderType",
+						new ObjectValuePair<>(
+							PriceListOrderTypeResourceImpl.class,
+							"postPriceListIdPriceListOrderType"));
+					put(
+						"mutation#createPriceListIdPriceListOrderTypeBatch",
+						new ObjectValuePair<>(
+							PriceListOrderTypeResourceImpl.class,
+							"postPriceListIdPriceListOrderTypeBatch"));
+					put(
+						"mutation#createPriceListByExternalReferenceCodePriceModifier",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"postPriceListByExternalReferenceCodePriceModifier"));
+					put(
+						"mutation#createPriceListIdPriceModifier",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"postPriceListIdPriceModifier"));
+					put(
+						"mutation#createPriceListIdPriceModifierBatch",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"postPriceListIdPriceModifierBatch"));
+					put(
+						"mutation#deletePriceModifierByExternalReferenceCode",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"deletePriceModifierByExternalReferenceCode"));
+					put(
+						"mutation#patchPriceModifierByExternalReferenceCode",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"patchPriceModifierByExternalReferenceCode"));
+					put(
+						"mutation#deletePriceModifier",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"deletePriceModifier"));
+					put(
+						"mutation#deletePriceModifierBatch",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"deletePriceModifierBatch"));
+					put(
+						"mutation#patchPriceModifier",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"patchPriceModifier"));
+					put(
+						"mutation#deletePriceModifierCategory",
+						new ObjectValuePair<>(
+							PriceModifierCategoryResourceImpl.class,
+							"deletePriceModifierCategory"));
+					put(
+						"mutation#deletePriceModifierCategoryBatch",
+						new ObjectValuePair<>(
+							PriceModifierCategoryResourceImpl.class,
+							"deletePriceModifierCategoryBatch"));
+					put(
+						"mutation#createPriceModifierByExternalReferenceCodePriceModifierCategory",
+						new ObjectValuePair<>(
+							PriceModifierCategoryResourceImpl.class,
+							"postPriceModifierByExternalReferenceCodePriceModifierCategory"));
+					put(
+						"mutation#createPriceModifierIdPriceModifierCategory",
+						new ObjectValuePair<>(
+							PriceModifierCategoryResourceImpl.class,
+							"postPriceModifierIdPriceModifierCategory"));
+					put(
+						"mutation#createPriceModifierIdPriceModifierCategoryBatch",
+						new ObjectValuePair<>(
+							PriceModifierCategoryResourceImpl.class,
+							"postPriceModifierIdPriceModifierCategoryBatch"));
+					put(
+						"mutation#deletePriceModifierProduct",
+						new ObjectValuePair<>(
+							PriceModifierProductResourceImpl.class,
+							"deletePriceModifierProduct"));
+					put(
+						"mutation#deletePriceModifierProductBatch",
+						new ObjectValuePair<>(
+							PriceModifierProductResourceImpl.class,
+							"deletePriceModifierProductBatch"));
+					put(
+						"mutation#createPriceModifierByExternalReferenceCodePriceModifierProduct",
+						new ObjectValuePair<>(
+							PriceModifierProductResourceImpl.class,
+							"postPriceModifierByExternalReferenceCodePriceModifierProduct"));
+					put(
+						"mutation#createPriceModifierIdPriceModifierProduct",
+						new ObjectValuePair<>(
+							PriceModifierProductResourceImpl.class,
+							"postPriceModifierIdPriceModifierProduct"));
+					put(
+						"mutation#createPriceModifierIdPriceModifierProductBatch",
+						new ObjectValuePair<>(
+							PriceModifierProductResourceImpl.class,
+							"postPriceModifierIdPriceModifierProductBatch"));
+					put(
+						"mutation#deletePriceModifierProductGroup",
+						new ObjectValuePair<>(
+							PriceModifierProductGroupResourceImpl.class,
+							"deletePriceModifierProductGroup"));
+					put(
+						"mutation#deletePriceModifierProductGroupBatch",
+						new ObjectValuePair<>(
+							PriceModifierProductGroupResourceImpl.class,
+							"deletePriceModifierProductGroupBatch"));
+					put(
+						"mutation#createPriceModifierByExternalReferenceCodePriceModifierProductGroup",
+						new ObjectValuePair<>(
+							PriceModifierProductGroupResourceImpl.class,
+							"postPriceModifierByExternalReferenceCodePriceModifierProductGroup"));
+					put(
+						"mutation#createPriceModifierIdPriceModifierProductGroup",
+						new ObjectValuePair<>(
+							PriceModifierProductGroupResourceImpl.class,
+							"postPriceModifierIdPriceModifierProductGroup"));
+					put(
+						"mutation#createPriceModifierIdPriceModifierProductGroupBatch",
+						new ObjectValuePair<>(
+							PriceModifierProductGroupResourceImpl.class,
+							"postPriceModifierIdPriceModifierProductGroupBatch"));
+					put(
+						"mutation#createPriceEntryByExternalReferenceCodeTierPrice",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class,
+							"postPriceEntryByExternalReferenceCodeTierPrice"));
+					put(
+						"mutation#createPriceEntryIdTierPrice",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class,
+							"postPriceEntryIdTierPrice"));
+					put(
+						"mutation#createPriceEntryIdTierPriceBatch",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class,
+							"postPriceEntryIdTierPriceBatch"));
+					put(
+						"mutation#deleteTierPriceByExternalReferenceCode",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class,
+							"deleteTierPriceByExternalReferenceCode"));
+					put(
+						"mutation#patchTierPriceByExternalReferenceCode",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class,
+							"patchTierPriceByExternalReferenceCode"));
+					put(
+						"mutation#deleteTierPrice",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class, "deleteTierPrice"));
+					put(
+						"mutation#deleteTierPriceBatch",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class,
+							"deleteTierPriceBatch"));
+					put(
+						"mutation#patchTierPrice",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class, "patchTierPrice"));
+
+					put(
+						"query#discountAccountAccount",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class,
+							"getDiscountAccountAccount"));
+					put(
+						"query#priceListAccountAccount",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class,
+							"getPriceListAccountAccount"));
+					put(
+						"query#discountAccountGroupAccountGroup",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"getDiscountAccountGroupAccountGroup"));
+					put(
+						"query#priceListAccountGroupAccountGroup",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"getPriceListAccountGroupAccountGroup"));
+					put(
+						"query#discountCategoryCategory",
+						new ObjectValuePair<>(
+							CategoryResourceImpl.class,
+							"getDiscountCategoryCategory"));
+					put(
+						"query#priceModifierCategoryCategory",
+						new ObjectValuePair<>(
+							CategoryResourceImpl.class,
+							"getPriceModifierCategoryCategory"));
+					put(
+						"query#discountChannelChannel",
+						new ObjectValuePair<>(
+							ChannelResourceImpl.class,
+							"getDiscountChannelChannel"));
+					put(
+						"query#priceListChannelChannel",
+						new ObjectValuePair<>(
+							ChannelResourceImpl.class,
+							"getPriceListChannelChannel"));
+					put(
+						"query#discounts",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class, "getDiscountsPage"));
+					put(
+						"query#discountByExternalReferenceCode",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class,
+							"getDiscountByExternalReferenceCode"));
+					put(
+						"query#discount",
+						new ObjectValuePair<>(
+							DiscountResourceImpl.class, "getDiscount"));
+					put(
+						"query#discountByExternalReferenceCodeDiscountAccounts",
+						new ObjectValuePair<>(
+							DiscountAccountResourceImpl.class,
+							"getDiscountByExternalReferenceCodeDiscountAccountsPage"));
+					put(
+						"query#discountIdDiscountAccounts",
+						new ObjectValuePair<>(
+							DiscountAccountResourceImpl.class,
+							"getDiscountIdDiscountAccountsPage"));
+					put(
+						"query#discountByExternalReferenceCodeDiscountAccountGroups",
+						new ObjectValuePair<>(
+							DiscountAccountGroupResourceImpl.class,
+							"getDiscountByExternalReferenceCodeDiscountAccountGroupsPage"));
+					put(
+						"query#discountIdDiscountAccountGroups",
+						new ObjectValuePair<>(
+							DiscountAccountGroupResourceImpl.class,
+							"getDiscountIdDiscountAccountGroupsPage"));
+					put(
+						"query#discountByExternalReferenceCodeDiscountCategories",
+						new ObjectValuePair<>(
+							DiscountCategoryResourceImpl.class,
+							"getDiscountByExternalReferenceCodeDiscountCategoriesPage"));
+					put(
+						"query#discountIdDiscountCategories",
+						new ObjectValuePair<>(
+							DiscountCategoryResourceImpl.class,
+							"getDiscountIdDiscountCategoriesPage"));
+					put(
+						"query#discountByExternalReferenceCodeDiscountChannels",
+						new ObjectValuePair<>(
+							DiscountChannelResourceImpl.class,
+							"getDiscountByExternalReferenceCodeDiscountChannelsPage"));
+					put(
+						"query#discountIdDiscountChannels",
+						new ObjectValuePair<>(
+							DiscountChannelResourceImpl.class,
+							"getDiscountIdDiscountChannelsPage"));
+					put(
+						"query#discountByExternalReferenceCodeDiscountOrderTypes",
+						new ObjectValuePair<>(
+							DiscountOrderTypeResourceImpl.class,
+							"getDiscountByExternalReferenceCodeDiscountOrderTypesPage"));
+					put(
+						"query#discountIdDiscountOrderTypes",
+						new ObjectValuePair<>(
+							DiscountOrderTypeResourceImpl.class,
+							"getDiscountIdDiscountOrderTypesPage"));
+					put(
+						"query#discountByExternalReferenceCodeDiscountProducts",
+						new ObjectValuePair<>(
+							DiscountProductResourceImpl.class,
+							"getDiscountByExternalReferenceCodeDiscountProductsPage"));
+					put(
+						"query#discountIdDiscountProducts",
+						new ObjectValuePair<>(
+							DiscountProductResourceImpl.class,
+							"getDiscountIdDiscountProductsPage"));
+					put(
+						"query#discountByExternalReferenceCodeDiscountProductGroups",
+						new ObjectValuePair<>(
+							DiscountProductGroupResourceImpl.class,
+							"getDiscountByExternalReferenceCodeDiscountProductGroupsPage"));
+					put(
+						"query#discountIdDiscountProductGroups",
+						new ObjectValuePair<>(
+							DiscountProductGroupResourceImpl.class,
+							"getDiscountIdDiscountProductGroupsPage"));
+					put(
+						"query#discountRule",
+						new ObjectValuePair<>(
+							DiscountRuleResourceImpl.class, "getDiscountRule"));
+					put(
+						"query#discountByExternalReferenceCodeDiscountRules",
+						new ObjectValuePair<>(
+							DiscountRuleResourceImpl.class,
+							"getDiscountByExternalReferenceCodeDiscountRulesPage"));
+					put(
+						"query#discountIdDiscountRules",
+						new ObjectValuePair<>(
+							DiscountRuleResourceImpl.class,
+							"getDiscountIdDiscountRulesPage"));
+					put(
+						"query#discountByExternalReferenceCodeDiscountSkus",
+						new ObjectValuePair<>(
+							DiscountSkuResourceImpl.class,
+							"getDiscountByExternalReferenceCodeDiscountSkusPage"));
+					put(
+						"query#discountIdDiscountSkus",
+						new ObjectValuePair<>(
+							DiscountSkuResourceImpl.class,
+							"getDiscountIdDiscountSkusPage"));
+					put(
+						"query#discountOrderTypeOrderType",
+						new ObjectValuePair<>(
+							OrderTypeResourceImpl.class,
+							"getDiscountOrderTypeOrderType"));
+					put(
+						"query#priceListOrderTypeOrderType",
+						new ObjectValuePair<>(
+							OrderTypeResourceImpl.class,
+							"getPriceListOrderTypeOrderType"));
+					put(
+						"query#priceEntryByExternalReferenceCode",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class,
+							"getPriceEntryByExternalReferenceCode"));
+					put(
+						"query#priceEntry",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class, "getPriceEntry"));
+					put(
+						"query#priceListByExternalReferenceCodePriceEntries",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class,
+							"getPriceListByExternalReferenceCodePriceEntriesPage"));
+					put(
+						"query#priceListIdPriceEntries",
+						new ObjectValuePair<>(
+							PriceEntryResourceImpl.class,
+							"getPriceListIdPriceEntriesPage"));
+					put(
+						"query#priceLists",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class, "getPriceListsPage"));
+					put(
+						"query#priceListByExternalReferenceCode",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class,
+							"getPriceListByExternalReferenceCode"));
+					put(
+						"query#priceList",
+						new ObjectValuePair<>(
+							PriceListResourceImpl.class, "getPriceList"));
+					put(
+						"query#priceListByExternalReferenceCodePriceListAccounts",
+						new ObjectValuePair<>(
+							PriceListAccountResourceImpl.class,
+							"getPriceListByExternalReferenceCodePriceListAccountsPage"));
+					put(
+						"query#priceListIdPriceListAccounts",
+						new ObjectValuePair<>(
+							PriceListAccountResourceImpl.class,
+							"getPriceListIdPriceListAccountsPage"));
+					put(
+						"query#priceListByExternalReferenceCodePriceListAccountGroups",
+						new ObjectValuePair<>(
+							PriceListAccountGroupResourceImpl.class,
+							"getPriceListByExternalReferenceCodePriceListAccountGroupsPage"));
+					put(
+						"query#priceListIdPriceListAccountGroups",
+						new ObjectValuePair<>(
+							PriceListAccountGroupResourceImpl.class,
+							"getPriceListIdPriceListAccountGroupsPage"));
+					put(
+						"query#priceListByExternalReferenceCodePriceListChannels",
+						new ObjectValuePair<>(
+							PriceListChannelResourceImpl.class,
+							"getPriceListByExternalReferenceCodePriceListChannelsPage"));
+					put(
+						"query#priceListIdPriceListChannels",
+						new ObjectValuePair<>(
+							PriceListChannelResourceImpl.class,
+							"getPriceListIdPriceListChannelsPage"));
+					put(
+						"query#priceListByExternalReferenceCodePriceListDiscounts",
+						new ObjectValuePair<>(
+							PriceListDiscountResourceImpl.class,
+							"getPriceListByExternalReferenceCodePriceListDiscountsPage"));
+					put(
+						"query#priceListIdPriceListDiscounts",
+						new ObjectValuePair<>(
+							PriceListDiscountResourceImpl.class,
+							"getPriceListIdPriceListDiscountsPage"));
+					put(
+						"query#priceListByExternalReferenceCodePriceListOrderTypes",
+						new ObjectValuePair<>(
+							PriceListOrderTypeResourceImpl.class,
+							"getPriceListByExternalReferenceCodePriceListOrderTypesPage"));
+					put(
+						"query#priceListIdPriceListOrderTypes",
+						new ObjectValuePair<>(
+							PriceListOrderTypeResourceImpl.class,
+							"getPriceListIdPriceListOrderTypesPage"));
+					put(
+						"query#priceListByExternalReferenceCodePriceModifiers",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"getPriceListByExternalReferenceCodePriceModifiersPage"));
+					put(
+						"query#priceListIdPriceModifiers",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"getPriceListIdPriceModifiersPage"));
+					put(
+						"query#priceModifierByExternalReferenceCode",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"getPriceModifierByExternalReferenceCode"));
+					put(
+						"query#priceModifier",
+						new ObjectValuePair<>(
+							PriceModifierResourceImpl.class,
+							"getPriceModifier"));
+					put(
+						"query#priceModifierByExternalReferenceCodePriceModifierCategories",
+						new ObjectValuePair<>(
+							PriceModifierCategoryResourceImpl.class,
+							"getPriceModifierByExternalReferenceCodePriceModifierCategoriesPage"));
+					put(
+						"query#priceModifierIdPriceModifierCategories",
+						new ObjectValuePair<>(
+							PriceModifierCategoryResourceImpl.class,
+							"getPriceModifierIdPriceModifierCategoriesPage"));
+					put(
+						"query#priceModifierByExternalReferenceCodePriceModifierProducts",
+						new ObjectValuePair<>(
+							PriceModifierProductResourceImpl.class,
+							"getPriceModifierByExternalReferenceCodePriceModifierProductsPage"));
+					put(
+						"query#priceModifierIdPriceModifierProducts",
+						new ObjectValuePair<>(
+							PriceModifierProductResourceImpl.class,
+							"getPriceModifierIdPriceModifierProductsPage"));
+					put(
+						"query#priceModifierByExternalReferenceCodePriceModifierProductGroups",
+						new ObjectValuePair<>(
+							PriceModifierProductGroupResourceImpl.class,
+							"getPriceModifierByExternalReferenceCodePriceModifierProductGroupsPage"));
+					put(
+						"query#priceModifierIdPriceModifierProductGroups",
+						new ObjectValuePair<>(
+							PriceModifierProductGroupResourceImpl.class,
+							"getPriceModifierIdPriceModifierProductGroupsPage"));
+					put(
+						"query#discountProductProduct",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"getDiscountProductProduct"));
+					put(
+						"query#priceEntryIdProduct",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"getPriceEntryIdProduct"));
+					put(
+						"query#priceModifierProductProduct",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"getPriceModifierProductProduct"));
+					put(
+						"query#discountProductGroupProductGroup",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"getDiscountProductGroupProductGroup"));
+					put(
+						"query#priceModifierProductGroupProductGroup",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"getPriceModifierProductGroupProductGroup"));
+					put(
+						"query#discountSkuSku",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class, "getDiscountSkuSku"));
+					put(
+						"query#priceEntryIdSku",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class, "getPriceEntryIdSku"));
+					put(
+						"query#priceEntryByExternalReferenceCodeTierPrices",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class,
+							"getPriceEntryByExternalReferenceCodeTierPricesPage"));
+					put(
+						"query#priceEntryIdTierPrices",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class,
+							"getPriceEntryIdTierPricesPage"));
+					put(
+						"query#tierPriceByExternalReferenceCode",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class,
+							"getTierPriceByExternalReferenceCode"));
+					put(
+						"query#tierPrice",
+						new ObjectValuePair<>(
+							TierPriceResourceImpl.class, "getTierPrice"));
+				}
+			};
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<DiscountResource>

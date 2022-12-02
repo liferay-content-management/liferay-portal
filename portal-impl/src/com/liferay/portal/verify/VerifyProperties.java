@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Brian Wing Shun Chan
@@ -162,11 +163,11 @@ public class VerifyProperties {
 	}
 
 	protected static void verifyModularizedSystemProperty(
-			Properties systemProperties, String oldKey, String newKey,
+			Set<String> systemPropertyNames, String oldKey, String newKey,
 			String moduleName)
 		throws Exception {
 
-		if (systemProperties.containsKey(oldKey)) {
+		if (systemPropertyNames.contains(oldKey)) {
 			_log.error(
 				StringBundler.concat(
 					"System property \"", oldKey, "\" was modularized to ",
@@ -277,7 +278,7 @@ public class VerifyProperties {
 				verifyObsoleteSystemProperty(key);
 			}
 
-			Properties systemProperties = SystemProperties.getProperties();
+			Set<String> propertyNames = SystemProperties.getPropertyNames();
 
 			for (String[] keys : _MODULARIZED_SYSTEM_KEYS) {
 				String oldKey = keys[0];
@@ -285,7 +286,7 @@ public class VerifyProperties {
 				String moduleName = keys[2];
 
 				verifyModularizedSystemProperty(
-					systemProperties, oldKey, newKey, moduleName);
+					propertyNames, oldKey, newKey, moduleName);
 			}
 		}
 	}
@@ -325,8 +326,21 @@ public class VerifyProperties {
 			"module.framework.concurrent.startup.enabled"
 		},
 		{
+			"module.framework.configuration.bundle.symbolic.names",
+			"module.framework.configuration.bundle.symbolic.names"
+		},
+		{
 			"module.framework.runtime.start.level",
 			"module.framework.runtime.start.level"
+		},
+		{
+			"module.framework.services.ignored.interfaces",
+			"module.framework.services.ignored.interfaces"
+		},
+		{"module.framework.static.jars", "module.framework.static.jars"},
+		{
+			"module.framework.system.packages.extra",
+			"module.framework.system.packages.extra"
 		},
 		{"module.framework.web.start.level", "module.framework.web.start.level"}
 	};
@@ -1637,6 +1651,7 @@ public class VerifyProperties {
 		"asset.tag.properties.enabled", "asset.tag.suggestions.enabled",
 		"auth.login.prompt.enabled", "auth.max.failures.limit",
 		"auth.user.uuid.store.enabled", "auto.deploy.blacklist.threshold",
+		"auto.deploy.copy.commons.logging", "auto.deploy.copy.log4j",
 		"auto.deploy.dest.dir", "auto.deploy.default.dest.dir",
 		"auto.deploy.jboss.dest.dir", "auto.deploy.jboss.dest.dir[5]",
 		"auto.deploy.jboss.prefix", "auto.deploy.tomcat.dest.dir",
@@ -1787,7 +1802,8 @@ public class VerifyProperties {
 		"ehcache.rmi.peer.provider.factory.class",
 		"ehcache.rmi.peer.provider.factory.properties",
 		"ehcache.socket.so.timeout", "ehcache.socket.start.port",
-		"ehcache.statistics.enabled", "finalize.manager.thread.enabled",
+		"ehcache.statistics.enabled", "enterprise.product.commerce.enabled",
+		"finalize.manager.thread.enabled",
 		"hot.deploy.hook.custom.jsp.verification.enabled",
 		"hot.undeploy.enabled", "hot.undeploy.interval",
 		"hot.undeploy.on.redeploy", "hibernate.cache.region.factory_class",
@@ -1798,7 +1814,8 @@ public class VerifyProperties {
 		"hibernate.session.factory.imported.class.name.regexp", "icq.jar",
 		"icq.login", "icq.password", "index.dump.compression.enabled",
 		"index.filter.search.limit", "index.on.upgrade",
-		"index.portal.field.analyzer.enabled", "index.search.highlight.enabled",
+		"index.portal.field.analyzer.enabled", "index.search.engine.id",
+		"index.search.highlight.enabled", "index.search.writer.max.queue.size",
 		"index.read.only", "index.with.thread", "intraband.impl",
 		"intraband.mailbox.reaper.thread.enabled",
 		"intraband.mailbox.storage.life", "intraband.proxy.dump.classes.dir",
@@ -1973,8 +1990,8 @@ public class VerifyProperties {
 		"sandbox.deploy.listeners", "sc.image.max.size",
 		"sc.image.thumbnail.max.height", "sc.image.thumbnail.max.width",
 		"sc.product.comments.enabled", "scheduler.classes",
-		"schema.run.minimal", "scripting.jruby.compile.mode",
-		"scripting.jruby.compile.threshold",
+		"scheduler.event.message.listener.lock.timeout", "schema.run.minimal",
+		"scripting.jruby.compile.mode", "scripting.jruby.compile.threshold",
 		"search.container.page.iterator.page.values",
 		"service.builder.service.read.only.prefixes", "session.disabled",
 		"setup.database.types", "shard.available.names", "shard.default.name",

@@ -300,14 +300,22 @@ definition {
 	@description = "Automation ID: LRAC-8836 | Test Summary: Cancel Creating a DXP Data Source"
 	@priority = "3"
 	test CancelCreatingDxpDataSource {
-		task ("Access the data sources, select Liferay DXP and click the cancel button") {
-			ACUtils.launchAC();
+		property test.name.skip.portal.instance = "AnalyticsCloudConnectionTest#CancelCreatingDxpDataSource";
 
+		task ("Create a new workspace") {
+			ACUtils.launchAC(
+				emailList = "acworkspace@liferay.com",
+				workspaceName = "New AC Workspace");
+		}
+
+		task ("Access the data sources, select Liferay DXP and click the cancel button") {
 			ACNavigation.goToSettings();
 
 			ACSettings.goToDataSources();
 
-			var entries = selenium.getText("ACUtils#RESULT_MESSAGE");
+			if (IsElementPresent(key_textValue = "Welcome to Analytics Cloud", locator1 = "ACUtils#GENERIC_TEXT")) {
+				ACUtils.closeModal();
+			}
 
 			ACSettings.clickGenericAddOrConfirmationButton();
 
@@ -319,9 +327,11 @@ definition {
 		task ("Assert the data source list if a new data source has not been created") {
 			ACSettings.goToDataSources();
 
-			AssertTextEquals(
-				locator1 = "ACUtils#RESULT_MESSAGE",
-				value1 = "${entries}");
+			if (IsElementPresent(key_textValue = "Welcome to Analytics Cloud", locator1 = "ACUtils#GENERIC_TEXT")) {
+				ACUtils.closeModal();
+			}
+
+			ACUtils.viewGenericText(textValueList = "No Data Sources Connected,Add a data source to get started.,Access our documentation to learn more.");
 		}
 	}
 
@@ -556,14 +566,7 @@ definition {
 				userLastName = "userln",
 				userScreenName = "usersn");
 
-			ApplicationsMenu.gotoPortlet(
-				category = "Users",
-				panel = "Control Panel",
-				portlet = "Users and Organizations");
-
-			Organization.addCP(
-				orgName = "Organization Name 1",
-				orgType = "Organization");
+			JSONOrganization.addOrganization(organizationName = "Organization Name 1");
 
 			JSONOrganization.assignUserToOrganization(
 				organizationName = "Organization Name 1",
@@ -576,11 +579,9 @@ definition {
 
 			UsersAndOrganizationsNavigator.gotoOrganizations();
 
-			Organization.gotoCP(
-				orgName = "Organization Name 1",
-				searchToken = "Organization Name 1");
+			Organization.gotoCP(orgName = "Organization Name 1");
 
-			Organization.viewAssignMemberCP(userName = "userfn userln");
+			Organization.viewUser(userName = "userfn userln");
 		}
 
 		task ("Connect to AC") {
@@ -602,14 +603,7 @@ definition {
 		}
 
 		task ("Create a new organization and assign the organization for the created user") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Users",
-				panel = "Control Panel",
-				portlet = "Users and Organizations");
-
-			Organization.addCP(
-				orgName = "Organization Name 2",
-				orgType = "Organization");
+			JSONOrganization.addOrganization(organizationName = "Organization Name 2");
 
 			JSONOrganization.assignUserToOrganization(
 				organizationName = "Organization Name 2",
@@ -622,11 +616,9 @@ definition {
 
 			UsersAndOrganizationsNavigator.gotoOrganizations();
 
-			Organization.gotoCP(
-				orgName = "Organization Name 2",
-				searchToken = "Organization Name 2");
+			Organization.gotoCP(orgName = "Organization Name 2");
 
-			Organization.viewAssignMemberCP(userName = "userfn userln");
+			Organization.viewUser(userName = "userfn userln");
 		}
 
 		task ("Connect to AC") {
@@ -731,14 +723,7 @@ definition {
 				userLastName = "userln",
 				userScreenName = "usersn");
 
-			ApplicationsMenu.gotoPortlet(
-				category = "Users",
-				panel = "Control Panel",
-				portlet = "Users and Organizations");
-
-			Organization.addCP(
-				orgName = "Organization Name",
-				orgType = "Organization");
+			JSONOrganization.addOrganization(organizationName = "Organization Name");
 
 			JSONOrganization.assignUserToOrganization(
 				organizationName = "Organization Name",
@@ -751,11 +736,9 @@ definition {
 
 			UsersAndOrganizationsNavigator.gotoOrganizations();
 
-			Organization.gotoCP(
-				orgName = "Organization Name",
-				searchToken = "Organization Name");
+			Organization.gotoCP(orgName = "Organization Name");
 
-			Organization.viewAssignMemberCP(userName = "userfn userln");
+			Organization.viewUser(userName = "userfn userln");
 		}
 
 		task ("Connect to AC") {

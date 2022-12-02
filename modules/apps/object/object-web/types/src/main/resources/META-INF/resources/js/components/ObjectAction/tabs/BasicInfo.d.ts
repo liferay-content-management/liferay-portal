@@ -17,13 +17,15 @@ import React from 'react';
 export default function BasicInfo({
 	errors,
 	handleChange,
+	isApproved,
 	readOnly,
 	setValues,
 	values,
-}: IPros): JSX.Element;
-interface IPros {
+}: IProps): JSX.Element;
+interface IProps {
 	errors: FormError<ObjectAction & ObjectActionParameters>;
 	handleChange: React.ChangeEventHandler<HTMLInputElement>;
+	isApproved: boolean;
 	readOnly?: boolean;
 	setValues: (values: Partial<ObjectAction>) => void;
 	values: Partial<ObjectAction>;

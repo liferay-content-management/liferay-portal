@@ -17,15 +17,16 @@ package com.liferay.marketplace.app.manager.web.internal.portlet.configuration.i
 import com.liferay.marketplace.app.manager.web.internal.constants.MarketplaceAppManagerPortletKeys;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.portlet.configuration.icon.BaseJSPPortletConfigurationIcon;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.portlet.configuration.icon.BasePortletConfigurationIcon;
 import com.liferay.portal.kernel.portlet.configuration.icon.PortletConfigurationIcon;
+import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-
-import javax.servlet.ServletContext;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -34,28 +35,30 @@ import org.osgi.service.component.annotations.Reference;
  * @author Enoch Chu
  */
 @Component(
-	immediate = true,
 	property = "javax.portlet.name=" + MarketplaceAppManagerPortletKeys.MARKETPLACE_APP_MANAGER,
 	service = PortletConfigurationIcon.class
 )
-public class UploadConfigurationIcon extends BaseJSPPortletConfigurationIcon {
-
-	@Override
-	public String getJspPath() {
-		return "/configuration/icon/install_from_file.jsp";
-	}
+public class UploadConfigurationIcon extends BasePortletConfigurationIcon {
 
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)), "upload");
+		return _language.get(getLocale(portletRequest), "upload");
 	}
 
 	@Override
 	public String getURL(
 		PortletRequest portletRequest, PortletResponse portletResponse) {
 
-		return "javascript:void(0);";
+		return PortletURLBuilder.create(
+			_portal.getControlPanelPortletURL(
+				portletRequest,
+				MarketplaceAppManagerPortletKeys.MARKETPLACE_APP_MANAGER,
+				PortletRequest.RENDER_PHASE)
+		).setMVCPath(
+			"/install_local_app.jsp"
+		).setWindowState(
+			LiferayWindowState.POP_UP
+		).buildString();
 	}
 
 	@Override
@@ -78,21 +81,14 @@ public class UploadConfigurationIcon extends BaseJSPPortletConfigurationIcon {
 	}
 
 	@Override
-	public boolean isToolTip() {
-		return false;
-	}
-
-	@Override
-	protected ServletContext getServletContext() {
-		return _servletContext;
+	public boolean isUseDialog() {
+		return true;
 	}
 
 	@Reference
 	private Language _language;
 
-	@Reference(
-		target = "(osgi.web.symbolicname=com.liferay.marketplace.app.manager.web)"
-	)
-	private ServletContext _servletContext;
+	@Reference
+	private Portal _portal;
 
 }

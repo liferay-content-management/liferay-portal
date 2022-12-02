@@ -33,6 +33,20 @@ definition {
 			value1 = "${emailBody}");
 	}
 
+	macro addNotificationTemplateAttachment {
+		Click(
+			key_dataSource = "Select a Data Source",
+			locator1 = "ObjectNotifications#DATA_SOURCE_ATTACHMENTS");
+
+		Click(
+			key_objectLabel = "${objectLabel}",
+			locator1 = "ObjectNotifications#DATA_SOURCE_ATTACHMENTS_SELECT_OBJECT");
+
+		Click(locator1 = "ObjectNotifications#FIELD_ATTACHMENTS_OBJECT");
+
+		Click(locator1 = "ObjectNotifications#FIELD_ATTACHMENTS_OBJECT_SELECT_FIELD");
+	}
+
 	macro deleteNotificationTemplate {
 		Click(
 			key_objectLabel = "${templateName}",
@@ -41,6 +55,19 @@ definition {
 		MenuItem.clickNoError(menuItem = "Delete");
 
 		Alert.viewSuccessMessage();
+	}
+
+	macro deleteQueue {
+		if (IsElementPresent(key_statusName = "${status}", locator1 = "ObjectNotifications#NOTIFICATION_STATUS")) {
+			Click(
+				key_text = "${triggerBy}",
+				locator1 = "Icon#ANY_VERTICAL_ELLIPSIS");
+
+			MenuItem.clickNoError(menuItem = "Delete");
+		}
+		else {
+			Click(locator1 = "Icon#MOVE_TO_RECYCLE_BIN");
+		}
 	}
 
 	macro editNotificationTemplate {
@@ -87,6 +114,78 @@ definition {
 			Type(
 				locator1 = "CKEditor#BODY_FIELD_IFRAME",
 				value1 = "${emailBody}");
+		}
+	}
+
+	macro resendNotificationInTheQueue {
+		Click(
+			key_text = "${triggerBy}",
+			locator1 = "Icon#ANY_VERTICAL_ELLIPSIS");
+
+		MenuItem.clickNoError(menuItem = "Resend");
+	}
+
+	macro viewNotificationTemplateDetails {
+		Click(
+			key_name = "${name}",
+			locator1 = "ObjectAdmin#TABLE_LIST_TITLE");
+
+		AssertTextEquals(
+			key_text = "Name",
+			locator1 = "TextInput#ANY",
+			value1 = "${name}");
+
+		AssertTextEquals(
+			key_text = "From Address",
+			locator1 = "TextInput#ANY",
+			value1 = "${fromAddress}");
+
+		AssertTextEquals(
+			key_text = "From Name",
+			locator1 = "TextInput#ANY",
+			value1 = "${fromName}");
+
+		if (isSet(description)) {
+			AssertTextEquals(
+				key_text = "description",
+				locator1 = "TextArea#ANY",
+				value1 = "${description}");
+		}
+
+		if (isSet(entryTo)) {
+			AssertTextEquals(
+				key_text = "To",
+				locator1 = "TextInput#ANY",
+				value1 = "${entryTo}");
+		}
+
+		if (isSet(cc)) {
+			AssertTextEquals(
+				key_text = "CC",
+				locator1 = "TextInput#ANY",
+				value1 = "${cc}");
+		}
+
+		if (isSet(bcc)) {
+			AssertTextEquals(
+				key_text = "BCC",
+				locator1 = "TextInput#ANY",
+				value1 = "${bcc}");
+		}
+
+		if (isSet(subject)) {
+			AssertTextEquals(
+				key_text = "Subject",
+				locator1 = "TextInput#ANY",
+				value1 = "${subject}");
+		}
+
+		if (isSet(emailBody)) {
+			SelectFrame(locator1 = "IFrame#IFRAME");
+
+			AssertElementPresent(
+				key_text = "${emailBody}",
+				locator1 = "CKEditor#BODY_TEXT");
 		}
 	}
 

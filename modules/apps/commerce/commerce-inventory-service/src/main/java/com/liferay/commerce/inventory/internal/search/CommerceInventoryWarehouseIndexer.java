@@ -46,7 +46,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alessio Antonio Rendina
  */
-@Component(enabled = false, immediate = true, service = Indexer.class)
+@Component(service = Indexer.class)
 public class CommerceInventoryWarehouseIndexer
 	extends BaseIndexer<CommerceInventoryWarehouse> {
 
@@ -188,8 +188,8 @@ public class CommerceInventoryWarehouseIndexer
 		throws Exception {
 
 		_indexWriterHelper.updateDocument(
-			getSearchEngineId(), commerceInventoryWarehouse.getCompanyId(),
-			getDocument(commerceInventoryWarehouse), isCommitImmediately());
+			commerceInventoryWarehouse.getCompanyId(),
+			getDocument(commerceInventoryWarehouse));
 	}
 
 	@Override
@@ -263,7 +263,6 @@ public class CommerceInventoryWarehouseIndexer
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}

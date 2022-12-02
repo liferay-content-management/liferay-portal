@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -81,12 +80,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Riccardo Alberti
  * @generated
  */
-@Component(
-	service = {
-		CommercePricingClassCPDefinitionRelPersistence.class,
-		BasePersistence.class
-	}
-)
+@Component(service = CommercePricingClassCPDefinitionRelPersistence.class)
 public class CommercePricingClassCPDefinitionRelPersistenceImpl
 	extends BasePersistenceImpl<CommercePricingClassCPDefinitionRel>
 	implements CommercePricingClassCPDefinitionRelPersistence {
@@ -220,7 +214,7 @@ public class CommercePricingClassCPDefinitionRelPersistenceImpl
 		if (useFinderCache && productionMode) {
 			list =
 				(List<CommercePricingClassCPDefinitionRel>)
-					finderCache.getResult(finderPath, finderArgs);
+					finderCache.getResult(finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommercePricingClassCPDefinitionRel
@@ -632,7 +626,7 @@ public class CommercePricingClassCPDefinitionRelPersistenceImpl
 
 			finderArgs = new Object[] {commercePricingClassId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -784,7 +778,7 @@ public class CommercePricingClassCPDefinitionRelPersistenceImpl
 		if (useFinderCache && productionMode) {
 			list =
 				(List<CommercePricingClassCPDefinitionRel>)
-					finderCache.getResult(finderPath, finderArgs);
+					finderCache.getResult(finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommercePricingClassCPDefinitionRel
@@ -1185,7 +1179,7 @@ public class CommercePricingClassCPDefinitionRelPersistenceImpl
 
 			finderArgs = new Object[] {CPDefinitionId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1310,7 +1304,8 @@ public class CommercePricingClassCPDefinitionRelPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache && productionMode) {
-			result = finderCache.getResult(_finderPathFetchByC_C, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByC_C, finderArgs, this);
 		}
 
 		if (result instanceof CommercePricingClassCPDefinitionRel) {
@@ -1426,7 +1421,7 @@ public class CommercePricingClassCPDefinitionRelPersistenceImpl
 
 			finderArgs = new Object[] {commercePricingClassId, CPDefinitionId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2163,7 +2158,7 @@ public class CommercePricingClassCPDefinitionRelPersistenceImpl
 		if (useFinderCache && productionMode) {
 			list =
 				(List<CommercePricingClassCPDefinitionRel>)
-					finderCache.getResult(finderPath, finderArgs);
+					finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2243,7 +2238,7 @@ public class CommercePricingClassCPDefinitionRelPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

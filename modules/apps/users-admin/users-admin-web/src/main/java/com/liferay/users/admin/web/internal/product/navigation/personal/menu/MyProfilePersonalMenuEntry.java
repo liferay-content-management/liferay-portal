@@ -41,7 +41,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Pei-Jung Lan
  */
 @Component(
-	immediate = true,
 	property = {
 		"product.navigation.personal.menu.entry.order:Integer=200",
 		"product.navigation.personal.menu.group:Integer=100"
@@ -105,10 +104,13 @@ public class MyProfilePersonalMenuEntry implements PersonalMenuEntry {
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		if (PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED &&
-			!roleLocalService.hasUserRole(
-				themeDisplay.getUserId(), themeDisplay.getCompanyId(),
-				RoleConstants.POWER_USER, true)) {
+		User user = themeDisplay.getUser();
+
+		if (Validator.isNull(user.getDisplayURL(themeDisplay, false)) ||
+			(PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED &&
+			 !roleLocalService.hasUserRole(
+				 themeDisplay.getUserId(), themeDisplay.getCompanyId(),
+				 RoleConstants.POWER_USER, true))) {
 
 			return false;
 		}

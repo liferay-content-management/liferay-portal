@@ -92,6 +92,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -126,9 +127,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * @author Hugo Huijser
  * @author Edward C. Han
  */
-@Component(
-	immediate = true, service = {LDAPUserImporter.class, UserImporter.class}
-)
+@Component(service = {LDAPUserImporter.class, UserImporter.class})
 public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 
 	@Override
@@ -1271,7 +1270,20 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 			return;
 		}
 
+		List<Object> userGroupAttributes = Collections.emptyList();
+
 		Attribute userGroupAttribute = userAttributes.get(userMappingsGroup);
+
+		if (userGroupAttribute != null) {
+			userGroupAttributes = new ArrayList<>(userGroupAttribute.size());
+
+			for (int i = 0; i < userGroupAttribute.size(); i++) {
+				Object object = userGroupAttribute.get(i);
+
+				userGroupAttributes.add(
+					StringUtil.lowerCase(object.toString()));
+			}
+		}
 
 		Properties groupMappings = ldapImportContext.getGroupMappings();
 
@@ -1307,9 +1319,9 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 
 				ldapServerGroupIds.add(userGroup.getUserGroupId());
 
-				if ((userGroupAttribute != null) &&
-					userGroupAttribute.contains(
-						searchResult.getNameInNamespace())) {
+				if (userGroupAttributes.contains(
+						StringUtil.lowerCase(
+							searchResult.getNameInNamespace()))) {
 
 					if (_log.isDebugEnabled()) {
 						_log.debug(
@@ -1601,10 +1613,10 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 			if (propertyName.equals("male")) {
 				mappingPropertyName = ContactConverterKeys.GENDER;
 			}
-			else if (propertyName.equals("prefixId")) {
+			else if (propertyName.equals("prefixListTypeId")) {
 				mappingPropertyName = ContactConverterKeys.PREFIX;
 			}
-			else if (propertyName.equals("suffixId")) {
+			else if (propertyName.equals("suffixListTypeId")) {
 				mappingPropertyName = ContactConverterKeys.SUFFIX;
 			}
 
@@ -1797,14 +1809,14 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 			ldapUser.getTimeZoneId(), ldapUser.getGreeting(),
 			ldapUser.getComments(), ldapUser.getFirstName(),
 			ldapUser.getMiddleName(), ldapUser.getLastName(),
-			ldapUser.getPrefixId(), ldapUser.getSuffixId(), ldapUser.isMale(),
-			birthdayMonth, birthdayDay, birthdayYear, ldapUser.getSmsSn(),
-			ldapUser.getFacebookSn(), ldapUser.getJabberSn(),
-			ldapUser.getSkypeSn(), ldapUser.getTwitterSn(),
-			ldapUser.getJobTitle(), ldapUser.getGroupIds(),
-			ldapUser.getOrganizationIds(), ldapUser.getRoleIds(),
-			ldapUser.getUserGroupRoles(), ldapUser.getUserGroupIds(),
-			serviceContext);
+			ldapUser.getPrefixListTypeId(), ldapUser.getSuffixListTypeId(),
+			ldapUser.isMale(), birthdayMonth, birthdayDay, birthdayYear,
+			ldapUser.getSmsSn(), ldapUser.getFacebookSn(),
+			ldapUser.getJabberSn(), ldapUser.getSkypeSn(),
+			ldapUser.getTwitterSn(), ldapUser.getJobTitle(),
+			ldapUser.getGroupIds(), ldapUser.getOrganizationIds(),
+			ldapUser.getRoleIds(), ldapUser.getUserGroupRoles(),
+			ldapUser.getUserGroupIds(), serviceContext);
 
 		if (user.getStatus() != ldapUser.getStatus()) {
 			user = _userLocalService.updateStatus(
@@ -1871,7 +1883,7 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 
 	private static final String[] _CONTACT_PROPERTY_NAMES = {
 		"birthday", "employeeNumber", "facebookSn", "jabberSn", "male",
-		"prefixId", "skypeSn", "smsSn", "suffixId", "twitterSn"
+		"prefixListTypeId", "skypeSn", "smsSn", "suffixListTypeId", "twitterSn"
 	};
 
 	private static final String _IMPORT_BY_GROUP = "group";

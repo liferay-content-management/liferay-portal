@@ -32,6 +32,8 @@ import Case from './pages/Project/Cases/Case';
 import CaseForm from './pages/Project/Cases/CaseForm';
 import CaseOutlet from './pages/Project/Cases/CaseOutlet';
 import CaseRequirement from './pages/Project/Cases/CaseRequirement';
+import Export from './pages/Project/Cases/Export';
+import ExportPage from './pages/Project/Cases/ExportPage';
 import Overview from './pages/Project/Overview';
 import ProjectForm from './pages/Project/ProjectForm';
 import ProjectOutlet from './pages/Project/ProjectOutlet';
@@ -71,6 +73,8 @@ const TestrayRoute = () => (
 	<HashRouter>
 		<ClayModalProvider>
 			<Routes>
+				<Route element={<Export />} path="/export/:id" />
+
 				<Route element={<Layout />} path="/">
 					<Route element={<Projects />} index />
 
@@ -120,6 +124,8 @@ const TestrayRoute = () => (
 										path="requirements"
 									/>
 								</Route>
+
+								<Route element={<ExportPage />} path="export" />
 							</Route>
 
 							<Route path="requirements">
@@ -170,6 +176,16 @@ const TestrayRoute = () => (
 									<Route
 										element={<BuildForm />}
 										path="create"
+									/>
+
+									<Route
+										element={<BuildForm />}
+										path="create/:buildTemplateId"
+									/>
+
+									<Route
+										element={<BuildForm />}
+										path="create/template/:buildTemplate"
 									/>
 
 									<Route
@@ -275,12 +291,14 @@ const TestrayRoute = () => (
 							path=":buildId/create"
 						/>
 
-						<Route element={<Subtasks />} path="subtasks" />
+						<Route element={<OutletBridge />} path=":taskId">
+							<Route element={<TestFlowTasks />} index />
 
-						<Route
-							element={<TestFlowTasks />}
-							path=":testrayTaskId"
-						/>
+							<Route
+								element={<Subtasks />}
+								path="subtasks/:subtaskId"
+							/>
+						</Route>
 					</Route>
 
 					<Route element={<CompareRunsOutlet />} path="compare-runs">

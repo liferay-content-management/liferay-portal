@@ -32,7 +32,7 @@ export function HeaderDropdown({
 	const [active, setActive] = useState<boolean>(false);
 	const [
 		{
-			enabledCategorization,
+			enableCategorization,
 			isViewOnly,
 			objectLayout: {objectLayoutTabs},
 		},
@@ -69,8 +69,7 @@ export function HeaderDropdown({
 					<ClayDropDown.Item
 						disabled={
 							isThereFramework('categorization') ||
-							(Liferay.FeatureFlags['LPS-158672'] &&
-								!enabledCategorization)
+							!enableCategorization
 						}
 						onClick={() => handleOnClick(addCategorization)}
 					>

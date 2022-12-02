@@ -64,10 +64,10 @@ import javax.servlet.http.HttpSession;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -75,7 +75,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.portal.security.sso.openid.connect.configuration.OpenIdConnectConfiguration",
-	configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true,
+	configurationPolicy = ConfigurationPolicy.OPTIONAL,
 	service = OfflineOpenIdConnectSessionManager.class
 )
 public class OfflineOpenIdConnectSessionManager {
@@ -162,12 +162,10 @@ public class OfflineOpenIdConnectSessionManager {
 		return openIdConnectSession.getOpenIdConnectSessionId();
 	}
 
-	@Modified
+	@Activate
 	protected void activate(
 			BundleContext bundleContext, Map<String, Object> properties)
 		throws Exception {
-
-		_bundleContext = bundleContext;
 
 		OpenIdConnectConfiguration openIdConnectConfiguration =
 			ConfigurableUtil.createConfigurable(
@@ -324,11 +322,6 @@ public class OfflineOpenIdConnectSessionManager {
 		}
 
 		if (_destinationServiceRegistration != null) {
-			Destination destination = _bundleContext.getService(
-				_destinationServiceRegistration.getReference());
-
-			destination.destroy();
-
 			_destinationServiceRegistration.unregister();
 
 			_destinationServiceRegistration = null;
@@ -392,8 +385,6 @@ public class OfflineOpenIdConnectSessionManager {
 	private AuthorizationServerMetadataResolver
 		_authorizationServerMetadataResolver;
 
-	private volatile BundleContext _bundleContext;
-
 	@Reference
 	private ClusterMasterExecutor _clusterMasterExecutor;
 
@@ -420,8 +411,8 @@ public class OfflineOpenIdConnectSessionManager {
 	@Reference
 	private SchedulerEngineHelper _schedulerEngineHelper;
 
-	private volatile long _tokenRefreshOffsetMillis = 60 * Time.SECOND;
-	private volatile int _tokenRefreshScheduledInterval = 480;
+	private long _tokenRefreshOffsetMillis = 60 * Time.SECOND;
+	private int _tokenRefreshScheduledInterval = 480;
 	private TokensRefreshMessageListener _tokensRefreshMessageListener;
 
 	@Reference

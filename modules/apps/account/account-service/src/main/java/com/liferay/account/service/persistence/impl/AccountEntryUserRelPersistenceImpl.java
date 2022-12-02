@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -71,9 +70,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(
-	service = {AccountEntryUserRelPersistence.class, BasePersistence.class}
-)
+@Component(service = AccountEntryUserRelPersistence.class)
 public class AccountEntryUserRelPersistenceImpl
 	extends BasePersistenceImpl<AccountEntryUserRel>
 	implements AccountEntryUserRelPersistence {
@@ -194,7 +191,7 @@ public class AccountEntryUserRelPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<AccountEntryUserRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (AccountEntryUserRel accountEntryUserRel : list) {
@@ -565,7 +562,7 @@ public class AccountEntryUserRelPersistenceImpl
 
 		Object[] finderArgs = new Object[] {accountEntryId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -704,7 +701,7 @@ public class AccountEntryUserRelPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<AccountEntryUserRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (AccountEntryUserRel accountEntryUserRel : list) {
@@ -1075,7 +1072,7 @@ public class AccountEntryUserRelPersistenceImpl
 
 		Object[] finderArgs = new Object[] {accountUserId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1193,7 +1190,7 @@ public class AccountEntryUserRelPersistenceImpl
 
 		if (useFinderCache) {
 			result = finderCache.getResult(
-				_finderPathFetchByAEI_AUI, finderArgs);
+				_finderPathFetchByAEI_AUI, finderArgs, this);
 		}
 
 		if (result instanceof AccountEntryUserRel) {
@@ -1311,7 +1308,7 @@ public class AccountEntryUserRelPersistenceImpl
 
 		Object[] finderArgs = new Object[] {accountEntryId, accountUserId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1774,7 +1771,7 @@ public class AccountEntryUserRelPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<AccountEntryUserRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -1844,7 +1841,7 @@ public class AccountEntryUserRelPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

@@ -269,6 +269,17 @@ public class UpgradeClient {
 	}
 
 	public void verifyProperties() {
+		File file = new File(
+			System.getProperty("user.home") + "/portal-ext.properties");
+
+		if (file.exists()) {
+			System.err.println(
+				"Remove " + file + " prior to running an upgrade to prevent " +
+					"possible conflicts.");
+
+			System.exit(0);
+		}
+
 		try {
 			_verifyAppServerProperties();
 			_verifyPortalUpgradeDatabaseProperties();

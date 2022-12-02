@@ -45,7 +45,7 @@ import com.liferay.portal.kernel.exception.UserScreenNameException;
 import com.liferay.portal.kernel.exception.UserSmsException;
 import com.liferay.portal.kernel.exception.WebsiteURLException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -77,7 +77,7 @@ import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
-import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.File;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -130,7 +130,6 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.users.admin.configuration.UserFileUploadsConfiguration",
-	immediate = true,
 	property = {
 		"com.liferay.portlet.add-default-resource=true",
 		"com.liferay.portlet.css-class-wrapper=contacts-portlet",
@@ -149,7 +148,8 @@ import org.osgi.service.component.annotations.Reference;
 		"javax.portlet.name=" + ContactsPortletKeys.CONTACTS_CENTER,
 		"javax.portlet.portlet-mode=text/html;config",
 		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.security-role-ref=administrator,power-user,user"
+		"javax.portlet.security-role-ref=administrator,power-user,user",
+		"javax.portlet.version=3.0"
 	},
 	service = Portlet.class
 )
@@ -304,7 +304,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		long[] userIds = StringUtil.split(
 			ParamUtil.getString(resourceRequest, "userIds"), 0L);
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = jsonFactory.createJSONArray();
 
 		for (long userId : userIds) {
 			try {
@@ -484,7 +484,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			actionRequest, "emailAddress");
 		String comments = ParamUtil.getString(actionRequest, "comments");
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = jsonFactory.createJSONObject();
 
 		String message = null;
 
@@ -548,7 +548,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = jsonFactory.createJSONObject();
 
 		try {
 			String fieldGroup = ParamUtil.getString(
@@ -680,7 +680,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			actionRequest, "socialRequestId");
 		int status = ParamUtil.getInteger(actionRequest, "status");
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = jsonFactory.createJSONObject();
 
 		try {
 			SocialRequest socialRequest =
@@ -754,6 +754,12 @@ public class ContactsCenterPortlet extends MVCPortlet {
 	protected EntryLocalService entryLocalService;
 
 	@Reference
+	protected File file;
+
+	@Reference
+	protected JSONFactory jsonFactory;
+
+	@Reference
 	protected Portal portal;
 
 	@Reference(
@@ -810,7 +816,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		JSONObject contactListJSONObject = _getContactsJSONObject(
 			actionRequest, actionResponse);
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = jsonFactory.createJSONArray();
 
 		for (long userId : userIds) {
 			jsonArray.put(
@@ -862,7 +868,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 
 		String portletId = portletDisplay.getId();
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = jsonFactory.createJSONArray();
 
 		if (filterBy.equals(ContactsConstants.FILTER_BY_DEFAULT) &&
 			!portletId.equals(ContactsPortletKeys.MEMBERS)) {
@@ -1264,7 +1270,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			FileEntry fileEntry = dlAppLocalService.getFileEntry(fileEntryId);
 
 			try (InputStream inputStream = fileEntry.getContentStream()) {
-				portraitBytes = FileUtil.getBytes(inputStream);
+				portraitBytes = file.getBytes(inputStream);
 			}
 		}
 
@@ -1314,13 +1320,13 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			user.getReminderQueryAnswer(), screenName, emailAddress,
 			!deleteLogo, portraitBytes, user.getLanguageId(),
 			user.getTimeZoneId(), user.getGreeting(), comments, firstName,
-			middleName, lastName, contact.getPrefixId(), contact.getSuffixId(),
-			user.isMale(), birthdayMonth, birthdayDay, birthdayYear, smsSn,
-			facebookSn, jabberSn, skypeSn, twitterSn, jobTitle,
-			user.getGroupIds(), user.getOrganizationIds(), user.getRoleIds(),
-			null, user.getUserGroupIds(), user.getAddresses(), null,
-			user.getPhones(), user.getWebsites(), announcementsDeliveries,
-			new ServiceContext());
+			middleName, lastName, contact.getPrefixListTypeId(),
+			contact.getSuffixListTypeId(), user.isMale(), birthdayMonth,
+			birthdayDay, birthdayYear, smsSn, facebookSn, jabberSn, skypeSn,
+			twitterSn, jobTitle, user.getGroupIds(), user.getOrganizationIds(),
+			user.getRoleIds(), null, user.getUserGroupIds(),
+			user.getAddresses(), null, user.getPhones(), user.getWebsites(),
+			announcementsDeliveries, new ServiceContext());
 	}
 
 	private void _updateWebsites(ActionRequest actionRequest) throws Exception {

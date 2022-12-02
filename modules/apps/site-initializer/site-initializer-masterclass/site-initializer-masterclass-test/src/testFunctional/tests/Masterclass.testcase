@@ -603,20 +603,12 @@ definition {
 	test ChangetheNumberofBlogsinBlogsListatDPT {
 		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 
-		task ("Go to Display Page Templates") {
-			ProductMenu.gotoPortlet(
-				category = "Design",
-				portlet = "Page Templates");
-
-			NavItem.gotoPageTemplates();
-
-			Navigator.gotoNavTab(navTab = "Display Page Templates");
-		}
-
 		task ("Go to Blog Entry and Edit the Layout and Maximum Number of Itens") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-masterclass-name");
+
 			LexiconEntry.gotoEntry(rowEntry = "Blog Entry");
 
-			WaitForPageLoad();
+			PageEditor.assertFragmentSidebarLoaded();
 
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
@@ -1627,10 +1619,10 @@ definition {
 		}
 
 		task ("Assert the Collections are present") {
-			for (var key_title : list "Blog Entries,Featured Blog Entries,Courses,Teachers,Classrooms") {
+			for (var title : list "Blog Entries,Featured Blog Entries,Courses,Teachers,Classrooms") {
 				AssertElementPresent(
-					key_title = "${key_title}",
-					locator1 = "ItemSelector#LOCATION_INFO_LIST_GENERIC");
+					key_title = "${title}",
+					locator1 = "AssetLists#ASSET_LIST_ENTRY_TITLE");
 			}
 		}
 	}

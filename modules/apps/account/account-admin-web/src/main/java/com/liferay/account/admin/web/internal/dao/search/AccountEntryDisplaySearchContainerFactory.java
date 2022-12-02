@@ -16,10 +16,12 @@ package com.liferay.account.admin.web.internal.dao.search;
 
 import com.liferay.account.admin.web.internal.constants.AccountWebKeys;
 import com.liferay.account.admin.web.internal.display.AccountEntryDisplay;
+import com.liferay.account.admin.web.internal.display.AccountEntryDisplayFactoryUtil;
 import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalServiceUtil;
 import com.liferay.account.service.AccountEntryServiceUtil;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.dao.search.EmptyOnClickRowChecker;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -33,7 +35,6 @@ import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.LinkedHashMap;
 import java.util.Objects;
@@ -170,7 +171,9 @@ public class AccountEntryDisplaySearchContainerFactory {
 
 		accountEntryDisplaySearchContainer.setResultsAndTotal(
 			() -> TransformUtil.transform(
-				baseModelSearchResult.getBaseModels(), AccountEntryDisplay::of),
+				baseModelSearchResult.getBaseModels(),
+				accountEntry -> AccountEntryDisplayFactoryUtil.create(
+					accountEntry, liferayPortletRequest)),
 			baseModelSearchResult.getLength());
 		accountEntryDisplaySearchContainer.setRowChecker(
 			new EmptyOnClickRowChecker(liferayPortletResponse));
@@ -179,11 +182,11 @@ public class AccountEntryDisplaySearchContainerFactory {
 	}
 
 	private static int _getStatus(String navigation) {
-		if (Objects.equals(navigation, "inactive")) {
-			return WorkflowConstants.STATUS_INACTIVE;
+		if (Objects.equals(navigation, "active")) {
+			return WorkflowConstants.getLabelStatus("approved");
 		}
 
-		return WorkflowConstants.STATUS_APPROVED;
+		return WorkflowConstants.getLabelStatus(navigation);
 	}
 
 	private static boolean _isReverseOrder(String orderByType) {

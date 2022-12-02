@@ -27,15 +27,15 @@ import com.liferay.commerce.product.content.web.internal.configuration.CPCompare
 import com.liferay.commerce.product.data.source.CPDataSourceResult;
 import com.liferay.commerce.product.display.context.helper.CPRequestHelper;
 import com.liferay.commerce.product.type.CPType;
-import com.liferay.commerce.product.type.CPTypeServicesTracker;
+import com.liferay.commerce.product.type.CPTypeRegistry;
 import com.liferay.commerce.product.util.CPCompareHelper;
 import com.liferay.commerce.product.util.CPDefinitionHelper;
 import com.liferay.commerce.util.CommerceUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -60,7 +60,7 @@ public class CPCompareContentMiniDisplayContext {
 				cpContentListEntryRendererRegistry,
 			CPContentListRendererRegistry cpContentListRendererRegistry,
 			CPDefinitionHelper cpDefinitionHelper,
-			CPTypeServicesTracker cpTypeServicesTracker,
+			CPTypeRegistry cpTypeRegistry,
 			HttpServletRequest httpServletRequest)
 		throws PortalException {
 
@@ -69,7 +69,7 @@ public class CPCompareContentMiniDisplayContext {
 			cpContentListEntryRendererRegistry;
 		_cpContentListRendererRegistry = cpContentListRendererRegistry;
 		_cpDefinitionHelper = cpDefinitionHelper;
-		_cpTypeServicesTracker = cpTypeServicesTracker;
+		_cpTypeRegistry = cpTypeRegistry;
 
 		_cpRequestHelper = new CPRequestHelper(httpServletRequest);
 
@@ -95,10 +95,10 @@ public class CPCompareContentMiniDisplayContext {
 				_cpCompareHelper.getCPDefinitionIds(
 					commerceContext.getCommerceChannelGroupId(),
 					commerceAccount.getCommerceAccountId(),
-					CookieKeys.getCookie(
-						originalHttpServletRequest,
+					CookiesManagerUtil.getCookieValue(
 						_cpCompareHelper.getCPDefinitionIdsCookieKey(
-							commerceContext.getCommerceChannelGroupId()))));
+							commerceContext.getCommerceChannelGroupId()),
+						originalHttpServletRequest)));
 		}
 		else {
 			_cpDefinitionIds = new ArrayList<>();
@@ -215,7 +215,7 @@ public class CPCompareContentMiniDisplayContext {
 	}
 
 	public List<CPType> getCPTypes() {
-		return _cpTypeServicesTracker.getCPTypes();
+		return _cpTypeRegistry.getCPTypes();
 	}
 
 	public String getDisplayStyle() {
@@ -282,6 +282,6 @@ public class CPCompareContentMiniDisplayContext {
 	private final CPDefinitionHelper _cpDefinitionHelper;
 	private final List<Long> _cpDefinitionIds;
 	private final CPRequestHelper _cpRequestHelper;
-	private final CPTypeServicesTracker _cpTypeServicesTracker;
+	private final CPTypeRegistry _cpTypeRegistry;
 
 }

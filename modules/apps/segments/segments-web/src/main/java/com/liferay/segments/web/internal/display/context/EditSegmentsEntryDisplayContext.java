@@ -25,12 +25,14 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -73,6 +75,7 @@ public class EditSegmentsEntryDisplayContext {
 
 	public EditSegmentsEntryDisplayContext(
 		FilterParserProvider filterParserProvider,
+		GroupLocalService groupLocalService,
 		HttpServletRequest httpServletRequest, RenderRequest renderRequest,
 		RenderResponse renderResponse,
 		SegmentsConfigurationProvider segmentsConfigurationProvider,
@@ -81,6 +84,7 @@ public class EditSegmentsEntryDisplayContext {
 		SegmentsEntryService segmentsEntryService) {
 
 		_filterParserProvider = filterParserProvider;
+		_groupLocalService = groupLocalService;
 		_httpServletRequest = httpServletRequest;
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
@@ -318,6 +322,12 @@ public class EditSegmentsEntryDisplayContext {
 			segmentsEntry.getName(), siteDefaultLocale);
 	}
 
+	private String _getGroupDescriptiveName() throws Exception {
+		Group group = _groupLocalService.getGroup(_getGroupId());
+
+		return group.getDescriptiveName(_locale);
+	}
+
 	private long _getGroupId() throws PortalException {
 		return BeanParamUtil.getLong(
 			_getSegmentsEntry(), _httpServletRequest, "groupId",
@@ -445,6 +455,8 @@ public class EditSegmentsEntryDisplayContext {
 		).put(
 			"requestMembersCountURL", _getSegmentsEntryClassPKsCountURL()
 		).put(
+			"scopeName", _getGroupDescriptiveName()
+		).put(
 			"segmentsConfigurationURL", _getSegmentsCompanyConfigurationURL()
 		).put(
 			"showInEditMode", _isShowInEditMode()
@@ -564,6 +576,7 @@ public class EditSegmentsEntryDisplayContext {
 	private Map<String, Object> _data;
 	private final FilterParserProvider _filterParserProvider;
 	private Long _groupId;
+	private final GroupLocalService _groupLocalService;
 	private final HttpServletRequest _httpServletRequest;
 	private final Locale _locale;
 	private String _redirect;

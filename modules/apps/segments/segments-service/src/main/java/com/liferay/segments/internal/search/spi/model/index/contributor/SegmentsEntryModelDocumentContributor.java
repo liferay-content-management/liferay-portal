@@ -18,7 +18,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
-import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.Localization;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.localization.SearchLocalizationHelper;
@@ -39,7 +39,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eduardo García
  */
 @Component(
-	immediate = true,
 	property = "indexer.class.name=com.liferay.segments.model.SegmentsEntry",
 	service = ModelDocumentContributor.class
 )
@@ -61,7 +60,7 @@ public class SegmentsEntryModelDocumentContributor
 
 		document.addLocalizedKeyword(
 			"localized_name",
-			LocalizationUtil.populateLocalizationMap(
+			_localization.populateLocalizationMap(
 				segmentsEntry.getNameMap(),
 				segmentsEntry.getDefaultLanguageId(),
 				segmentsEntry.getGroupId()),
@@ -92,6 +91,9 @@ public class SegmentsEntryModelDocumentContributor
 			throw new SystemException(portalException);
 		}
 	}
+
+	@Reference
+	private Localization _localization;
 
 	@Reference
 	private Portal _portal;

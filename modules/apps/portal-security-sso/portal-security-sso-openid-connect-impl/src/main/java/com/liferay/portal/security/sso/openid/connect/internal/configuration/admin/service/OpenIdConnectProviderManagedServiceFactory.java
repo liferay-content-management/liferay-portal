@@ -24,7 +24,7 @@ import com.liferay.portal.instance.lifecycle.BasePortalInstanceLifecycleListener
 import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -61,7 +61,6 @@ import org.osgi.service.component.annotations.Reference;
  * @review
  */
 @Component(
-	immediate = true,
 	property = Constants.SERVICE_PID + "=com.liferay.portal.security.sso.openid.connect.internal.configuration.OpenIdConnectProviderConfiguration",
 	service = {
 		ManagedServiceFactory.class,
@@ -345,7 +344,7 @@ public class OpenIdConnectProviderManagedServiceFactory
 
 				if (customRequestParametersJSONObject == null) {
 					customRequestParametersJSONObject =
-						JSONFactoryUtil.createJSONObject();
+						_jsonFactory.createJSONObject();
 
 					requestParametersJSONObject.put(
 						"custom_request_parameters",
@@ -530,6 +529,9 @@ public class OpenIdConnectProviderManagedServiceFactory
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private OAuthClientASLocalMetadataLocalService

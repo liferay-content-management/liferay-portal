@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerFactory;
-import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Time;
 
 import java.util.Date;
@@ -38,7 +37,6 @@ import java.util.Map;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -46,14 +44,12 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.commerce.configuration.CommerceOrderConfiguration",
-	enabled = false, immediate = true,
 	service = CheckGuestCommerceOrdersMessageListener.class
 )
 public class CheckGuestCommerceOrdersMessageListener
 	extends BaseMessageListener {
 
 	@Activate
-	@Modified
 	protected void activate(Map<String, Object> properties) {
 		Class<?> clazz = getClass();
 
@@ -103,8 +99,5 @@ public class CheckGuestCommerceOrdersMessageListener
 
 	@Reference
 	private TriggerFactory _triggerFactory;
-
-	@Reference
-	private UserLocalService _userLocalService;
 
 }

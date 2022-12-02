@@ -19,7 +19,6 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.increment.BufferedIncrementThreadLocal;
-import com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
@@ -126,7 +125,6 @@ public class CompanySampleDataGenerationTest {
 						() -> {
 							BufferedIncrementThreadLocal.setWithSafeCloseable(
 								true);
-							ProxyModeThreadLocal.setWithSafeCloseable(true);
 
 							_addCompany(companyIndex);
 
@@ -192,8 +190,8 @@ public class CompanySampleDataGenerationTest {
 		throws Exception {
 
 		String middleName = StringPool.BLANK;
-		long prefixId = 0;
-		long suffixId = 0;
+		long prefixListTypeId = 0;
+		long suffixListTypeId = 0;
 		boolean male = true;
 		int birthdayMonth = Calendar.JANUARY;
 		int birthdayDay = 1;
@@ -220,10 +218,10 @@ public class CompanySampleDataGenerationTest {
 			User user = _userLocalService.addUser(
 				0, companyId, false, "test", "test", false, screenName,
 				emailAddress, LocaleUtil.US, firstName, middleName, lastName,
-				prefixId, suffixId, male, birthdayMonth, birthdayDay,
-				birthdayYear, jobTitle, new long[] {groupId}, organizationIds,
-				new long[] {role.getRoleId()}, userGroupIds, sendEmail,
-				_getServiceContext(companyId));
+				prefixListTypeId, suffixListTypeId, male, birthdayMonth,
+				birthdayDay, birthdayYear, jobTitle, new long[] {groupId},
+				organizationIds, new long[] {role.getRoleId()}, userGroupIds,
+				sendEmail, _getServiceContext(companyId));
 
 			user.setLoginDate(new Date());
 			user.setLastLoginDate(new Date());

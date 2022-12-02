@@ -23,8 +23,6 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
-import com.liferay.portal.kernel.service.CompanyLocalService;
-import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.servlet.PortletServlet;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderResponse;
@@ -40,7 +38,6 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -75,9 +72,6 @@ public class SharingFileEntryContentDashboardItemActionProviderTest {
 	public void setUp() throws Exception {
 		_group = GroupTestUtil.addGroup(
 			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(), 0);
-
-		_serviceContext = ServiceContextTestUtil.getServiceContext(
-			_group.getGroupId());
 	}
 
 	@Test
@@ -106,7 +100,7 @@ public class SharingFileEntryContentDashboardItemActionProviderTest {
 
 		String url = contentDashboardItemAction.getURL();
 
-		Assert.assertTrue(Validator.isNotNull(url));
+		Assert.assertNotNull(url);
 
 		Assert.assertTrue(
 			url.contains("param_classPK=" + _fileEntryId.getFileEntryId()));
@@ -201,9 +195,6 @@ public class SharingFileEntryContentDashboardItemActionProviderTest {
 		return themeDisplay;
 	}
 
-	@Inject
-	private CompanyLocalService _companyLocalService;
-
 	@Inject(
 		filter = "component.name=com.liferay.content.dashboard.document.library.internal.item.action.provider.SharingFileEntryContentDashboardItemActionProvider"
 	)
@@ -214,8 +205,6 @@ public class SharingFileEntryContentDashboardItemActionProviderTest {
 
 	@DeleteAfterTestRun
 	private Group _group;
-
-	private ServiceContext _serviceContext;
 
 	@Inject
 	private UserLocalService _userLocalService;

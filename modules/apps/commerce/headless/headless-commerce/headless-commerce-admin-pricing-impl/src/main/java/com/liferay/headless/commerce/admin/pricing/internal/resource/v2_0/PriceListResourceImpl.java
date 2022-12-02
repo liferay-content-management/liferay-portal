@@ -96,7 +96,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Riccardo Alberti
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v2_0/price-list.properties",
 	scope = ServiceScope.PROTOTYPE, service = PriceListResource.class
 )
@@ -272,11 +271,17 @@ public class PriceListResourceImpl extends BasePriceListResourceImpl {
 
 		return HashMapBuilder.<String, Map<String, String>>put(
 			"delete",
-			addAction(
-				"DELETE", commercePriceList.getCommercePriceListId(),
-				"deletePriceList", commercePriceList.getUserId(),
-				"com.liferay.commerce.price.list.model.CommercePriceList",
-				commercePriceList.getGroupId())
+			() -> {
+				if (commercePriceList.isCatalogBasePriceList()) {
+					return null;
+				}
+
+				return addAction(
+					"DELETE", commercePriceList.getCommercePriceListId(),
+					"deletePriceList", commercePriceList.getUserId(),
+					"com.liferay.commerce.price.list.model.CommercePriceList",
+					commercePriceList.getGroupId());
+			}
 		).put(
 			"get",
 			addAction(

@@ -120,7 +120,6 @@ public class CTSearchEventListener implements CTEventListener {
 						}
 
 						_indexWriterHelper.deleteDocuments(
-							indexer.getSearchEngineId(),
 							ctCollection.getCompanyId(), uids,
 							indexer.isCommitImmediately());
 
@@ -173,8 +172,8 @@ public class CTSearchEventListener implements CTEventListener {
 
 			try {
 				_indexWriterHelper.deleteDocuments(
-					indexer.getSearchEngineId(), ctCollection.getCompanyId(),
-					uids, indexer.isCommitImmediately());
+					ctCollection.getCompanyId(), uids,
+					indexer.isCommitImmediately());
 			}
 			catch (SearchException searchException) {
 				throw new CTEventException(searchException);

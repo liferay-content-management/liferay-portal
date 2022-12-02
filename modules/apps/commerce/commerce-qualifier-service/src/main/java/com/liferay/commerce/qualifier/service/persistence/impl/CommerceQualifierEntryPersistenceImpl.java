@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -74,9 +73,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Riccardo Alberti
  * @generated
  */
-@Component(
-	service = {CommerceQualifierEntryPersistence.class, BasePersistence.class}
-)
+@Component(service = CommerceQualifierEntryPersistence.class)
 public class CommerceQualifierEntryPersistenceImpl
 	extends BasePersistenceImpl<CommerceQualifierEntry>
 	implements CommerceQualifierEntryPersistence {
@@ -205,7 +202,7 @@ public class CommerceQualifierEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceQualifierEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceQualifierEntry commerceQualifierEntry : list) {
@@ -601,7 +598,7 @@ public class CommerceQualifierEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {sourceClassNameId, sourceClassPK};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -755,7 +752,7 @@ public class CommerceQualifierEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceQualifierEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceQualifierEntry commerceQualifierEntry : list) {
@@ -1151,7 +1148,7 @@ public class CommerceQualifierEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {targetClassNameId, targetClassPK};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1317,7 +1314,7 @@ public class CommerceQualifierEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceQualifierEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceQualifierEntry commerceQualifierEntry : list) {
@@ -1746,7 +1743,7 @@ public class CommerceQualifierEntryPersistenceImpl
 			sourceClassNameId, sourceClassPK, targetClassNameId
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -1919,7 +1916,7 @@ public class CommerceQualifierEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceQualifierEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceQualifierEntry commerceQualifierEntry : list) {
@@ -2348,7 +2345,7 @@ public class CommerceQualifierEntryPersistenceImpl
 			sourceClassNameId, targetClassNameId, targetClassPK
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -2500,7 +2497,7 @@ public class CommerceQualifierEntryPersistenceImpl
 
 		if (useFinderCache) {
 			result = finderCache.getResult(
-				_finderPathFetchByS_S_T_T, finderArgs);
+				_finderPathFetchByS_S_T_T, finderArgs, this);
 		}
 
 		if (result instanceof CommerceQualifierEntry) {
@@ -2623,7 +2620,7 @@ public class CommerceQualifierEntryPersistenceImpl
 			sourceClassNameId, sourceClassPK, targetClassNameId, targetClassPK
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(5);
@@ -3156,7 +3153,7 @@ public class CommerceQualifierEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceQualifierEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -3226,7 +3223,7 @@ public class CommerceQualifierEntryPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

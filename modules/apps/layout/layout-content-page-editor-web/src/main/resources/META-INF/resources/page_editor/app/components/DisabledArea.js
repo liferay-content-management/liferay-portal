@@ -148,6 +148,11 @@ const DisabledArea = () => {
 			Array.from(element.parentElement.children).forEach((child) => {
 				if (isDisabled(child)) {
 					child.classList.add(DEFAULT_DISABLED_AREA_CLASS);
+
+					Array.from(child.children).forEach((grandChild) => {
+						grandChild.setAttribute('inert', '');
+						grandChild.setAttribute('aria-hidden', 'true');
+					});
 				}
 			});
 
@@ -159,9 +164,14 @@ const DisabledArea = () => {
 				`.${DEFAULT_DISABLED_AREA_CLASS}`
 			);
 
-			elements.forEach((element) =>
-				element.classList.remove(DEFAULT_DISABLED_AREA_CLASS)
-			);
+			elements.forEach((element) => {
+				element.classList.remove(DEFAULT_DISABLED_AREA_CLASS);
+
+				Array.from(element.children).forEach((child) => {
+					child.removeAttribute('inert');
+					child.removeAttribute('aria-hidden');
+				});
+			});
 		};
 	}, [globalContext, isDisabled]);
 

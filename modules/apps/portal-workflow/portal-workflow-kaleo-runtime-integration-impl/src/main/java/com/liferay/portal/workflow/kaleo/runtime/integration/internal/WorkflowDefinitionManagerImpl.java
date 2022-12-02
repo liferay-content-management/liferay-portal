@@ -34,7 +34,6 @@ import com.liferay.portal.kernel.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.lock.service.LockLocalService;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
 import com.liferay.portal.workflow.kaleo.KaleoWorkflowModelConverter;
-import com.liferay.portal.workflow.kaleo.definition.parser.WorkflowModelParser;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
 import com.liferay.portal.workflow.kaleo.runtime.WorkflowEngine;
@@ -54,9 +53,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Michael C. Han
  * @author Eduardo Lundgren
  */
-@Component(
-	property = "proxy.bean=false", service = WorkflowDefinitionManager.class
-)
+@Component(service = WorkflowDefinitionManager.class)
 public class WorkflowDefinitionManagerImpl
 	implements WorkflowDefinitionManager {
 
@@ -255,6 +252,26 @@ public class WorkflowDefinitionManagerImpl
 
 			return _kaleoDefinitionLocalService.getScopeKaleoDefinitionsCount(
 				WorkflowDefinitionConstants.SCOPE_ALL, active, serviceContext);
+		}
+		catch (Exception exception) {
+			throw new WorkflowException(exception);
+		}
+	}
+
+	@Override
+	public WorkflowDefinition getWorkflowDefinition(long workflowDefinitionId)
+		throws WorkflowException {
+
+		try {
+			return _kaleoWorkflowModelConverter.toWorkflowDefinition(
+				_kaleoDefinitionLocalService.getKaleoDefinition(
+					workflowDefinitionId));
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			throw new NoSuchWorkflowDefinitionException(noSuchModelException);
+		}
+		catch (WorkflowException workflowException) {
+			throw workflowException;
 		}
 		catch (Exception exception) {
 			throw new WorkflowException(exception);
@@ -510,8 +527,5 @@ public class WorkflowDefinitionManagerImpl
 
 	@Reference
 	private WorkflowEngine _workflowEngine;
-
-	@Reference
-	private WorkflowModelParser _workflowModelParser;
 
 }

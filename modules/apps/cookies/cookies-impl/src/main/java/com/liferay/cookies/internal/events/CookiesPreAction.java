@@ -14,6 +14,7 @@
 
 package com.liferay.cookies.internal.events;
 
+import com.liferay.cookies.configuration.CookiesConfigurationProvider;
 import com.liferay.cookies.configuration.CookiesPreferenceHandlingConfiguration;
 import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
@@ -126,9 +127,8 @@ public class CookiesPreAction extends Action {
 
 		CookiesPreferenceHandlingConfiguration
 			cookiesPreferenceHandlingConfiguration =
-				_configurationProvider.getGroupConfiguration(
-					CookiesPreferenceHandlingConfiguration.class,
-					themeDisplay.getScopeGroupId());
+				_cookiesConfigurationProvider.
+					getCookiesPreferenceHandlingConfiguration(themeDisplay);
 
 		Map<String, String> cookieValues = _getCookieValues(
 			httpServletRequest.getCookies());
@@ -204,5 +204,8 @@ public class CookiesPreAction extends Action {
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;
+
+	@Reference
+	private CookiesConfigurationProvider _cookiesConfigurationProvider;
 
 }

@@ -620,6 +620,11 @@
 
 		<!-- Liferay Source Checks -->
 
+		<check name="IllegalImportsCheck">
+			<category name="Bug Prevention" />
+			<description name="Finds cases of incorrect use of certain classes." />
+			<property name="enforceJavaUtilFunctionImports" value="true" />
+		</check>
 		<check name="JavaAnonymousInnerClassCheck">
 			<category name="Bug Prevention" />
 			<description name="Performs several checks on anonymous classes." />
@@ -671,11 +676,6 @@
 		<check name="JavaIgnoreAnnotationCheck">
 			<category name="Bug Prevention" />
 			<description name="Finds methods with `@Ignore` annotation in test classes." />
-		</check>
-		<check name="JavaIllegalImportsCheck">
-			<category name="Bug Prevention" />
-			<description name="Finds cases of incorrect use of certain classes." />
-			<property name="enforceJavaUtilFunctionImports" value="true" />
 		</check>
 		<check name="JavaInternalPackageCheck">
 			<category name="Bug Prevention" />
@@ -934,11 +934,6 @@
 			<category name="Bug Prevention" />
 			<description name="Checks the version for dependencies in `package.json` files." />
 		</check>
-		<check name="JSONPackageJSONRedundantDependenciesCheck">
-			<category name="Performance" />
-			<description name="Checks for preventing internal dependencies from being added to `package.json`." />
-			<property name="enabled" value="false" />
-		</check>
 	</source-processor>
 	<source-processor name="JSPSourceProcessor">
 		<check name="ArrayCheck">
@@ -962,6 +957,11 @@
 			<category name="Styling" />
 			<description name="Finds empty if-statements and consecutive if-statements with identical bodies" />
 			<property name="enabled" value="false" />
+		</check>
+		<check name="IllegalImportsCheck">
+			<category name="Bug Prevention" />
+			<description name="Finds cases of incorrect use of certain classes." />
+			<property name="enforceJavaUtilFunctionImports" value="true" />
 		</check>
 		<check name="JSPArrowFunctionCheck">
 			<category name="Bug Prevention" />
@@ -1051,6 +1051,11 @@
 		<check name="JSPTagAttributesCheck">
 			<category name="Bug Prevention" />
 			<description name="Performs several checks on tag attributes." />
+		</check>
+		<check name="JSPTaglibAttributesCheck">
+			<category name="Bug Prevention" />
+			<description name="Performs several checks on taglib attributes." />
+			<property name="enabled" value="false" />
 		</check>
 		<check name="JSPTaglibVariableCheck">
 			<category name="Naming Conventions" />
@@ -1600,6 +1605,10 @@
 			<category name="Bug Prevention" />
 			<description name="Checks that the `finder name` in `service.xml`." />
 			<property name="enabled" value="false" />
+		</check>
+		<check name="XMLSolrSchemaFileCheck">
+			<category name="Styling" />
+			<description name="Checks the order of elements in `portlet-preferences.xml` file." />
 		</check>
 		<check name="XMLStylingCheck">
 			<category name="Styling" />

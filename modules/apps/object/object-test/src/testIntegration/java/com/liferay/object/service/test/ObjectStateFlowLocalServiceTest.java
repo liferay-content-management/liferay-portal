@@ -74,7 +74,7 @@ public class ObjectStateFlowLocalServiceTest {
 	public void setUp() throws Exception {
 		_listTypeDefinition =
 			_listTypeDefinitionLocalService.addListTypeDefinition(
-				TestPropsValues.getUserId(),
+				null, TestPropsValues.getUserId(),
 				LocalizedMapUtil.getLocalizedMap(
 					RandomTestUtil.randomString()));
 
@@ -93,7 +93,7 @@ public class ObjectStateFlowLocalServiceTest {
 				Collections.emptyList());
 
 		ObjectField objectField = _objectFieldLocalService.addCustomObjectField(
-			TestPropsValues.getUserId(),
+			null, TestPropsValues.getUserId(),
 			_listTypeDefinition.getListTypeDefinitionId(),
 			_objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_PICKLIST,
@@ -110,7 +110,8 @@ public class ObjectStateFlowLocalServiceTest {
 	public void testAddDefaultObjectStateFlow() throws Exception {
 		Assert.assertNull(
 			_objectStateFlowLocalService.addDefaultObjectStateFlow(
-				_addObjectField(0, false)));
+				_addObjectField(
+					_listTypeDefinition.getListTypeDefinitionId(), false)));
 
 		ObjectField objectField = _addObjectField(
 			_listTypeDefinition.getListTypeDefinitionId(), true);
@@ -279,7 +280,7 @@ public class ObjectStateFlowLocalServiceTest {
 
 		ListTypeDefinition listTypeDefinition =
 			_listTypeDefinitionLocalService.addListTypeDefinition(
-				TestPropsValues.getUserId(),
+				null, TestPropsValues.getUserId(),
 				LocalizedMapUtil.getLocalizedMap(
 					RandomTestUtil.randomString()));
 
@@ -372,7 +373,7 @@ public class ObjectStateFlowLocalServiceTest {
 		throws Exception {
 
 		return _objectFieldLocalService.addCustomObjectField(
-			TestPropsValues.getUserId(), listTypeDefinitionId,
+			null, TestPropsValues.getUserId(), listTypeDefinitionId,
 			_objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_PICKLIST,
 			ObjectFieldConstants.DB_TYPE_STRING, null, false, true, "",

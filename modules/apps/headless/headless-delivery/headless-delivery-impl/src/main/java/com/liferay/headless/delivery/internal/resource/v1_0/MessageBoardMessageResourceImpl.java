@@ -72,7 +72,6 @@ import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.SearchUtil;
-import com.liferay.portal.vulcan.util.TransformUtil;
 import com.liferay.portal.vulcan.util.UriInfoUtil;
 import com.liferay.ratings.kernel.service.RatingsEntryLocalService;
 
@@ -124,7 +123,7 @@ public class MessageBoardMessageResourceImpl
 
 		MBMessage mbMessage =
 			_mbMessageLocalService.getMBMessageByExternalReferenceCode(
-				siteId, externalReferenceCode);
+				externalReferenceCode, siteId);
 
 		_mbMessageService.deleteMessage(mbMessage.getMessageId());
 	}
@@ -192,7 +191,7 @@ public class MessageBoardMessageResourceImpl
 
 			return Page.of(
 				actions,
-				TransformUtil.transform(
+				transform(
 					_mbMessageService.getChildMessages(
 						mbMessage.getMessageId(),
 						Optional.ofNullable(
@@ -278,7 +277,7 @@ public class MessageBoardMessageResourceImpl
 
 			return Page.of(
 				actions,
-				TransformUtil.transform(
+				transform(
 					_mbMessageService.getChildMessages(
 						mbThread.getRootMessageId(), false,
 						new QueryDefinition<>(
@@ -308,7 +307,7 @@ public class MessageBoardMessageResourceImpl
 
 		return _toMessageBoardMessage(
 			_mbMessageLocalService.getMBMessageByExternalReferenceCode(
-				siteId, externalReferenceCode));
+				externalReferenceCode, siteId));
 	}
 
 	@Override
@@ -440,7 +439,7 @@ public class MessageBoardMessageResourceImpl
 
 		MBMessage mbMessage =
 			_mbMessageLocalService.fetchMBMessageByExternalReferenceCode(
-				siteId, externalReferenceCode);
+				externalReferenceCode, siteId);
 
 		if (mbMessage != null) {
 			return _updateMessageBoardMessage(mbMessage, messageBoardMessage);

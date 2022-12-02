@@ -15,6 +15,10 @@ html#{$cadmin-selector} {
 				}
 			}
 		}
+
+		.component-action.portlet-options {
+			color: white;
+		}
 	}
 }
 
@@ -29,6 +33,10 @@ body.portlet {
 		background: url(../images/arrows/12_left.png) no-repeat 0 50%;
 		padding: 5px 5px 5px 18px;
 	}
+}
+
+.portlet-options-dropdown {
+	z-index: 1035;
 }
 
 .portlet-topper {
@@ -90,7 +98,8 @@ body.portlet {
 	}
 
 	&:hover,
-	&.open {
+	&.open,
+	&.focus {
 		.visible-interaction {
 			display: block;
 		}

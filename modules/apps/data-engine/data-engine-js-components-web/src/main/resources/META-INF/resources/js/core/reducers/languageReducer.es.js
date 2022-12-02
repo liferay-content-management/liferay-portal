@@ -92,10 +92,6 @@ const getLocalizedValue = ({
 	}
 
 	switch (type) {
-		case 'select':
-		case 'numeric': {
-			return _value;
-		}
 		case 'image': {
 			try {
 				return JSON.parse(value);
@@ -104,6 +100,12 @@ const getLocalizedValue = ({
 				return _value;
 			}
 		}
+		case 'numeric':
+		case 'select':
+		case 'text': {
+			return _value;
+		}
+
 		default:
 			try {
 				return JSON.parse(_value);

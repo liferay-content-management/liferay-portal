@@ -28,7 +28,6 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -38,7 +37,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Crescenzo Rega
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/replenishment-item.properties",
 	scope = ServiceScope.PROTOTYPE, service = ReplenishmentItemResource.class
 )
@@ -100,7 +98,7 @@ public class ReplenishmentItemResourceImpl
 		throws Exception {
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceInventoryReplenishmentItemService.
 					getCommerceInventoryReplenishmentItemsByCompanyIdAndSku(
 						contextCompany.getCompanyId(), sku,
@@ -119,7 +117,7 @@ public class ReplenishmentItemResourceImpl
 		throws Exception {
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceInventoryReplenishmentItemService.
 					getCommerceInventoryReplenishmentItemsByCommerceInventoryWarehouseId(
 						warehouseId, pagination.getStartPosition(),

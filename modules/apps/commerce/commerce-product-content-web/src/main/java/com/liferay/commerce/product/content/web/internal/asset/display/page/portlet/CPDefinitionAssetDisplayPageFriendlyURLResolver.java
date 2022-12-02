@@ -14,7 +14,6 @@
 
 package com.liferay.commerce.product.content.web.internal.asset.display.page.portlet;
 
-import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
 import com.liferay.asset.display.page.portlet.BaseAssetDisplayPageFriendlyURLResolver;
 import com.liferay.asset.display.page.util.AssetDisplayPageUtil;
 import com.liferay.asset.kernel.model.AssetTag;
@@ -76,7 +75,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alec Sloan
  * @author Ivica Cardic
  */
-@Component(enabled = false, service = FriendlyURLResolver.class)
+@Component(service = FriendlyURLResolver.class)
 public class CPDefinitionAssetDisplayPageFriendlyURLResolver
 	extends BaseAssetDisplayPageFriendlyURLResolver {
 
@@ -315,7 +314,7 @@ public class CPDefinitionAssetDisplayPageFriendlyURLResolver
 		_getLayoutDisplayPageObjectProvider(CPDefinition cpDefinition) {
 
 		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
-			layoutDisplayPageProviderTracker.
+			layoutDisplayPageProviderRegistry.
 				getLayoutDisplayPageProviderByClassName(
 					CPDefinition.class.getName());
 
@@ -382,10 +381,6 @@ public class CPDefinitionAssetDisplayPageFriendlyURLResolver
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CPDefinitionAssetDisplayPageFriendlyURLResolver.class);
-
-	@Reference
-	private AssetDisplayPageFriendlyURLProvider
-		_assetDisplayPageFriendlyURLProvider;
 
 	@Reference
 	private AssetTagLocalService _assetTagLocalService;

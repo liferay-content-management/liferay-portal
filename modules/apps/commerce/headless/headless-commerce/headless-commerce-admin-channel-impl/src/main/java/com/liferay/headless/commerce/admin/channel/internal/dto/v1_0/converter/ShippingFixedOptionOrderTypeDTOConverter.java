@@ -18,7 +18,6 @@ import com.liferay.commerce.model.CommerceOrderType;
 import com.liferay.commerce.service.CommerceOrderTypeService;
 import com.liferay.commerce.shipping.engine.fixed.model.CommerceShippingFixedOptionQualifier;
 import com.liferay.commerce.shipping.engine.fixed.service.CommerceShippingFixedOptionQualifierService;
-import com.liferay.commerce.shipping.engine.fixed.service.CommerceShippingFixedOptionService;
 import com.liferay.headless.commerce.admin.channel.dto.v1_0.ShippingFixedOptionOrderType;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
@@ -30,7 +29,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = "dto.class.name=com.liferay.commerce.payment.model.CommerceShippingFixedOptionQualifier-OrderType",
 	service = {
 		DTOConverter.class, ShippingFixedOptionOrderTypeDTOConverter.class
@@ -82,9 +80,5 @@ public class ShippingFixedOptionOrderTypeDTOConverter
 	@Reference
 	private CommerceShippingFixedOptionQualifierService
 		_commerceShippingFixedOptionQualifierService;
-
-	@Reference
-	private CommerceShippingFixedOptionService
-		_commerceShippingFixedOptionService;
 
 }

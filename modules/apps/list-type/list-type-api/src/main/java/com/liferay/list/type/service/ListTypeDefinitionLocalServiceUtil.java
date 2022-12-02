@@ -63,10 +63,20 @@ public class ListTypeDefinitionLocalServiceUtil {
 	}
 
 	public static ListTypeDefinition addListTypeDefinition(
-			long userId, Map<java.util.Locale, String> nameMap)
+			String externalReferenceCode, long userId)
 		throws PortalException {
 
-		return getService().addListTypeDefinition(userId, nameMap);
+		return getService().addListTypeDefinition(
+			externalReferenceCode, userId);
+	}
+
+	public static ListTypeDefinition addListTypeDefinition(
+			String externalReferenceCode, long userId,
+			Map<java.util.Locale, String> nameMap)
+		throws PortalException {
+
+		return getService().addListTypeDefinition(
+			externalReferenceCode, userId, nameMap);
 	}
 
 	/**
@@ -228,6 +238,14 @@ public class ListTypeDefinitionLocalServiceUtil {
 		return getService().fetchListTypeDefinition(listTypeDefinitionId);
 	}
 
+	public static ListTypeDefinition
+		fetchListTypeDefinitionByExternalReferenceCode(
+			String externalReferenceCode, long companyId) {
+
+		return getService().fetchListTypeDefinitionByExternalReferenceCode(
+			externalReferenceCode, companyId);
+	}
+
 	/**
 	 * Returns the list type definition with the matching UUID and company.
 	 *
@@ -275,6 +293,15 @@ public class ListTypeDefinitionLocalServiceUtil {
 		throws PortalException {
 
 		return getService().getListTypeDefinition(listTypeDefinitionId);
+	}
+
+	public static ListTypeDefinition
+			getListTypeDefinitionByExternalReferenceCode(
+				String externalReferenceCode, long companyId)
+		throws PortalException {
+
+		return getService().getListTypeDefinitionByExternalReferenceCode(
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -354,11 +381,12 @@ public class ListTypeDefinitionLocalServiceUtil {
 	}
 
 	public static ListTypeDefinition updateListTypeDefinition(
-			long listTypeDefinitionId, Map<java.util.Locale, String> nameMap)
+			String externalReferenceCode, long listTypeDefinitionId,
+			Map<java.util.Locale, String> nameMap)
 		throws PortalException {
 
 		return getService().updateListTypeDefinition(
-			listTypeDefinitionId, nameMap);
+			externalReferenceCode, listTypeDefinitionId, nameMap);
 	}
 
 	public static ListTypeDefinitionLocalService getService() {

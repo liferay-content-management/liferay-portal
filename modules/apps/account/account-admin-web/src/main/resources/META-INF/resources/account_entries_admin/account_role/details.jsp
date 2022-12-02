@@ -80,7 +80,6 @@ if (accountRole != null) {
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
-		<aui:button type="submit" />
 
 		<%
 		String backURL = ParamUtil.getString(request, "backURL");
@@ -98,12 +97,16 @@ if (accountRole != null) {
 		}
 		%>
 
-		<aui:button href="<%= backURL %>" type="cancel" />
+		<liferay-frontend:edit-form-buttons
+			redirect="<%= backURL %>"
+		/>
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>
 
 <c:if test="<%= role == null %>">
-	<aui:script require="frontend-js-web/liferay/debounce/debounce.es as debounceModule">
+	<aui:script require="frontend-js-web/index as frontendJsWeb">
+		var {debounce} = frontendJsWeb;
+
 		var form = document.getElementById('<portlet:namespace />fm');
 
 		if (form) {
@@ -111,8 +114,6 @@ if (accountRole != null) {
 			var titleInput = form.querySelector('#<portlet:namespace />title');
 
 			if (nameInput && titleInput) {
-				var debounce = debounceModule.default;
-
 				var handleOnTitleInput = function (event) {
 					var value = event.target.value;
 

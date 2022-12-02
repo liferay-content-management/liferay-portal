@@ -19,7 +19,7 @@ import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateServiceUtil;
 import com.liferay.info.item.InfoItemClassDetails;
 import com.liferay.info.item.InfoItemFormVariation;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemFormVariationsProvider;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -42,17 +42,17 @@ import java.util.stream.Stream;
 public class TemplateTestUtil {
 
 	public static TemplateEntry addAnyTemplateEntry(
-			InfoItemServiceTracker infoItemServiceTracker,
+			InfoItemServiceRegistry infoItemServiceRegistry,
 			ServiceContext serviceContext)
 		throws PortalException {
 
 		InfoItemClassDetails infoItemClassDetails =
 			getFirstTemplateInfoItemClassDetails(
-				infoItemServiceTracker, serviceContext.getScopeGroupId());
+				infoItemServiceRegistry, serviceContext.getScopeGroupId());
 
 		InfoItemFormVariation infoItemFormVariation =
 			getFirstInfoItemFormVariation(
-				infoItemClassDetails, infoItemServiceTracker,
+				infoItemClassDetails, infoItemServiceRegistry,
 				serviceContext.getScopeGroupId());
 
 		return addTemplateEntry(
@@ -128,10 +128,10 @@ public class TemplateTestUtil {
 
 	public static InfoItemFormVariation getFirstInfoItemFormVariation(
 		InfoItemClassDetails infoItemClassDetails,
-		InfoItemServiceTracker infoItemServiceTracker, long groupId) {
+		InfoItemServiceRegistry infoItemServiceRegistry, long groupId) {
 
 		InfoItemFormVariationsProvider<?> infoItemFormVariationsProvider =
-			infoItemServiceTracker.getFirstInfoItemService(
+			infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemFormVariationsProvider.class,
 				infoItemClassDetails.getClassName());
 
@@ -153,14 +153,14 @@ public class TemplateTestUtil {
 	}
 
 	public static InfoItemClassDetails getFirstTemplateInfoItemClassDetails(
-		InfoItemServiceTracker infoItemServiceTracker, long groupId) {
+		InfoItemServiceRegistry infoItemServiceRegistry, long groupId) {
 
 		for (InfoItemClassDetails infoItemClassDetails :
-				infoItemServiceTracker.getInfoItemClassDetails(
+				infoItemServiceRegistry.getInfoItemClassDetails(
 					TemplateInfoItemCapability.KEY)) {
 
 			InfoItemFormVariationsProvider<?> infoItemFormVariationsProvider =
-				infoItemServiceTracker.getFirstInfoItemService(
+				infoItemServiceRegistry.getFirstInfoItemService(
 					InfoItemFormVariationsProvider.class,
 					infoItemClassDetails.getClassName());
 
@@ -196,6 +196,12 @@ public class TemplateTestUtil {
 			"<#if ", fieldName, ".getSiblings()?has_content><#list ", fieldName,
 			".getSiblings() as cur_item><#if (cur_item.getData())??>",
 			"${cur_item.getData()},</#if></#list></#if>");
+	}
+
+	public static String getSampleScriptFTL(String fieldName) {
+		return StringBundler.concat(
+			"<#if (", fieldName, ".getData())??>${", fieldName,
+			".getData()}</#if>");
 	}
 
 }

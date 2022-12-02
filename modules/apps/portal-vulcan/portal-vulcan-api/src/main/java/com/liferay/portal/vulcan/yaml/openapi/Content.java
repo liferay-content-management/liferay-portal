@@ -15,7 +15,7 @@
 package com.liferay.portal.vulcan.yaml.openapi;
 
 /**
- * @author     Peter Shin
+ * @author Peter Shin
  */
 public class Content {
 

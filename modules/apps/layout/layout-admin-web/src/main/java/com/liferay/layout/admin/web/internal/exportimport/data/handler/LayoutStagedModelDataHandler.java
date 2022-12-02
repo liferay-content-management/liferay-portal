@@ -73,7 +73,7 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -163,7 +163,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.layout.configuration.LayoutExportImportConfiguration",
-	immediate = true, service = StagedModelDataHandler.class
+	service = StagedModelDataHandler.class
 )
 public class LayoutStagedModelDataHandler
 	extends BaseStagedModelDataHandler<Layout> {
@@ -180,7 +180,7 @@ public class LayoutStagedModelDataHandler
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException {
 
-		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject(
+		JSONObject extraDataJSONObject = _jsonFactory.createJSONObject(
 			extraData);
 
 		boolean privateLayout = extraDataJSONObject.getBoolean("privateLayout");
@@ -801,6 +801,10 @@ public class LayoutStagedModelDataHandler
 				importedParentLayout =
 					_layoutLocalService.fetchLayoutByFriendlyURL(
 						groupId, privateLayout, parentLayoutFriendlyURL);
+			}
+
+			if (importedParentLayout == null) {
+				importedParentLayout = layouts.get(parentLayoutId);
 			}
 
 			parentPlid = importedParentLayout.getPlid();
@@ -2951,6 +2955,9 @@ public class LayoutStagedModelDataHandler
 
 	@Reference
 	private ImageLocalService _imageLocalService;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private LayoutBranchLocalService _layoutBranchLocalService;

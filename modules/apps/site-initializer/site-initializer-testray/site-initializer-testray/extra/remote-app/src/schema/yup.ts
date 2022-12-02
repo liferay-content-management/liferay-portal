@@ -28,6 +28,7 @@ const userSchema = yup.object({
 		.required(i18n.translate(DEFAULT_REQUIRED_TEXT)),
 	familyName: yup.string().required(i18n.translate(DEFAULT_REQUIRED_TEXT)),
 	givenName: yup.string().required(i18n.translate(DEFAULT_REQUIRED_TEXT)),
+	rolesUser: yup.mixed(),
 });
 
 const passwordStructure = {
@@ -62,23 +63,32 @@ const passwordRequiredStructure = {
 		.required(i18n.translate(DEFAULT_REQUIRED_TEXT)),
 };
 
+const buildStructure = {
+	active: yup.boolean(),
+	caseIds: yup.array().of(yup.number()),
+	description: yup.string(),
+	factorStacks: yup.mixed(),
+	gitHash: yup.string(),
+	id: yup.string(),
+	name: yup.string().required(i18n.sub('x-is-a-required-field', 'name')),
+	productVersionId: yup
+		.string()
+		.required(i18n.sub('x-is-a-required-field', 'product-version')),
+	projectId: yup.number(),
+	promoted: yup.boolean(),
+	routineId: yup.string().required(),
+	template: yup.boolean(),
+	templateTestrayBuildId: yup.string(),
+};
+
+const buildTemplateStructure = {
+	...buildStructure,
+	productVersionId: yup.string(),
+};
+
 const yupSchema = {
-	build: yup.object({
-		active: yup.boolean(),
-		caseIds: yup.array().of(yup.number()),
-		description: yup.string(),
-		factorStacks: yup.mixed(),
-		gitHash: yup.string(),
-		id: yup.string(),
-		name: yup.string().required(i18n.sub('x-is-a-required-field', 'name')),
-		productVersionId: yup
-			.string()
-			.required(i18n.sub('x-is-a-required-field', 'product-version')),
-		projectId: yup.number(),
-		promoted: yup.boolean(),
-		routineId: yup.string().required(),
-		template: yup.boolean(),
-	}),
+	build: yup.object(buildStructure),
+	buildTemplate: yup.object(buildTemplateStructure),
 	case: yup.object({
 		addAnother: yup.boolean(),
 		caseTypeId: yup.string().required(),
@@ -94,12 +104,19 @@ const yupSchema = {
 	caseResult: yup.object({
 		buildId: yup.number(),
 		caseId: yup.number(),
-		commentMBMessage: yup.string(),
+		comment: yup.string(),
 		dueStatus: yup.string().required(),
 		issues: yup.string(),
+		mbMessageId: yup.number().nullable(),
+		mbThreadId: yup.number().nullable(),
 		runId: yup.number(),
-		startDate: yup.string(),
+		startDate: yup.string().nullable(),
 		userId: yup.number(),
+	}),
+	caseResultIssues: yup.object({
+		caseResultId: yup.number(),
+		issueId: yup.number(),
+		name: yup.string(),
 	}),
 	caseType: yup.object({
 		name: yup.string().required(),
@@ -139,6 +156,10 @@ const yupSchema = {
 		id: yup.string(),
 		number: yup.number(),
 	}),
+	issue: yup.object({
+		id: yup.string().nullable(),
+		name: yup.string(),
+	}),
 	option: yup.object({
 		name: yup.string(),
 	}),
@@ -161,8 +182,16 @@ const yupSchema = {
 		id: yup.string(),
 		key: yup.string(),
 		linkTitle: yup.string().required(),
-		linkURL: yup.string().required(),
+		linkURL: yup
+			.string()
+			.url(i18n.translate('the-link-url-must-be-a-valid-url'))
+			.required(),
 		summary: yup.string().required(),
+	}),
+	role: yup.object({
+		role: yup.number(),
+		rolesBrief: yup.mixed(),
+		userId: yup.number(),
 	}),
 	routine: yup.object({
 		autoanalyze: yup.boolean().required(),
@@ -177,6 +206,22 @@ const yupSchema = {
 		name: yup.string().required(),
 		number: yup.number().required(),
 	}),
+	subtask: yup.object({
+		dueStatus: yup.string(),
+		errors: yup.string(),
+		id: yup.number().required(),
+		issue: yup.string(),
+		mergedToSubtaskId: yup.number(),
+		name: yup.string(),
+		score: yup.number(),
+		taskId: yup.number(),
+		userId: yup.number(),
+	}),
+	subtaskToCaseResult: yup.object({
+		caseResultId: yup.number(),
+		name: yup.string(),
+		subtaskId: yup.number(),
+	}),
 	suite: yup.object({
 		autoanalyze: yup.boolean(),
 		caseParameters: yup.string(),
@@ -188,9 +233,9 @@ const yupSchema = {
 	task: yup.object({
 		buildId: yup.number().required(),
 		caseTypes: yup.array(yup.number()).required(),
-		dueStatus: yup.number(),
+		dueStatus: yup.string(),
 		name: yup.string().required(i18n.sub('x-is-a-required-field', 'name')),
-		users: yup.array().of(yup.number()),
+		userIds: yup.array().of(yup.number()),
 	}),
 	taskToUser: yup.object({
 		name: yup.string(),

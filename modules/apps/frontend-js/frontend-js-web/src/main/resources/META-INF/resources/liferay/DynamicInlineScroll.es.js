@@ -29,7 +29,7 @@ class DynamicInlineScroll extends PortletBase {
 	attached() {
 		let {rootNode} = this;
 
-		rootNode = rootNode || document;
+		rootNode = rootNode || document.body;
 
 		this.inlineScrollEventHandler_ = delegate(
 			rootNode,
@@ -83,7 +83,9 @@ class DynamicInlineScroll extends PortletBase {
 
 		listItem.innerHTML = `<a class="dropdown-item" href="${this.getHREF_(
 			pageIndex
-		)}">${pageIndex}</a>`;
+		)}"><span class="sr-only">${Liferay.Language.get(
+			'page'
+		)}&nbsp;</span>${pageIndex}</a>`;
 
 		pageIndex++;
 
@@ -159,6 +161,11 @@ class DynamicInlineScroll extends PortletBase {
 	onScroll_(event) {
 		const {cur, initialPages, pages} = this;
 		const {target} = event;
+
+		if (target.nodeName !== 'UL') {
+			return;
+		}
+
 		let pageIndex = this.getNumber_(target.dataset.pageIndex);
 		let pageIndexMax = this.getNumber_(target.dataset.maxIndex);
 
@@ -182,8 +189,7 @@ class DynamicInlineScroll extends PortletBase {
 		if (
 			cur <= pages &&
 			pageIndex < pageIndexMax &&
-			target.getAttribute('scrollTop') >=
-				target.getAttribute('scrollHeight') - 300
+			target.scrollTop >= target.scrollHeight - 300
 		) {
 			this.addListItem_(target, pageIndex);
 		}

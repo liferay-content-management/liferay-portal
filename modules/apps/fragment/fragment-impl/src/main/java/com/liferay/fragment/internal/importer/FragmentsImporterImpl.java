@@ -38,7 +38,7 @@ import com.liferay.fragment.validator.FragmentEntryValidator;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
@@ -49,14 +49,18 @@ import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -119,7 +123,7 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 					zipFile, fragmentCollectionFolder.getFileName());
 
 				if (Validator.isNotNull(collectionJSON)) {
-					JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+					JSONObject jsonObject = _jsonFactory.createJSONObject(
 						collectionJSON);
 
 					name = jsonObject.getString("name");
@@ -316,6 +320,147 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 		return null;
 	}
 
+	private void _addPortletFileEntries(
+			long userId, long groupId, FragmentCollection fragmentCollection,
+			ZipFile zipFile, Map<String, String> resourceReferences,
+			Map<String, String> zipEntryNames, Repository repository)
+		throws Exception {
+
+		if (repository != null) {
+			FragmentServiceConfiguration fragmentServiceConfiguration =
+				_configurationProvider.getCompanyConfiguration(
+					FragmentServiceConfiguration.class,
+					fragmentCollection.getCompanyId());
+
+			for (FileEntry fileEntry :
+					PortletFileRepositoryUtil.getPortletFileEntries(
+						groupId, fragmentCollection.getResourcesFolderId())) {
+
+				if (zipEntryNames.containsKey(fileEntry.getFileName())) {
+					if (fragmentServiceConfiguration.propagateChanges()) {
+						PortletFileRepositoryUtil.deletePortletFileEntry(
+							fileEntry.getFileEntryId());
+					}
+					else {
+						String newFileName =
+							PortletFileRepositoryUtil.getUniqueFileName(
+								fileEntry.getGroupId(), fileEntry.getFolderId(),
+								fileEntry.getFileName());
+
+						resourceReferences.put(
+							fileEntry.getFileName(), newFileName);
+
+						zipEntryNames.put(
+							newFileName,
+							zipEntryNames.get(fileEntry.getFileName()));
+
+						zipEntryNames.remove(fileEntry.getFileName());
+					}
+				}
+			}
+		}
+
+		for (Map.Entry<String, String> entry : zipEntryNames.entrySet()) {
+			String fileName = entry.getKey();
+
+			PortletFileRepositoryUtil.addPortletFileEntry(
+				null, groupId, userId, FragmentCollection.class.getName(),
+				fragmentCollection.getFragmentCollectionId(),
+				FragmentPortletKeys.FRAGMENT,
+				fragmentCollection.getResourcesFolderId(),
+				_getInputStream(zipFile, entry.getValue()), fileName,
+				MimeTypesUtil.getContentType(fileName), false);
+		}
+	}
+
+	private void _addPortletFileEntriesWithFolders(
+			long userId, long groupId, FragmentCollection fragmentCollection,
+			ZipFile zipFile, Map<String, String> resourceReferences,
+			Map<String, String> zipEntryNames, Repository repository)
+		throws Exception {
+
+		if (repository != null) {
+			FragmentServiceConfiguration fragmentServiceConfiguration =
+				_configurationProvider.getCompanyConfiguration(
+					FragmentServiceConfiguration.class,
+					fragmentCollection.getCompanyId());
+
+			Map<String, FileEntry> resources =
+				fragmentCollection.getResourcesMap();
+
+			for (Map.Entry<String, FileEntry> entry : resources.entrySet()) {
+				String fileEntryPath = entry.getKey();
+
+				if (zipEntryNames.containsKey(fileEntryPath)) {
+					FileEntry fileEntry = entry.getValue();
+
+					if (fragmentServiceConfiguration.propagateChanges()) {
+						PortletFileRepositoryUtil.deletePortletFileEntry(
+							fileEntry.getFileEntryId());
+					}
+					else {
+						String folderPath = StringPool.BLANK;
+
+						int index = fileEntryPath.lastIndexOf(StringPool.SLASH);
+
+						if (index != -1) {
+							folderPath = fileEntryPath.substring(0, index);
+						}
+
+						String newFileName =
+							PortletFileRepositoryUtil.getUniqueFileName(
+								fileEntry.getGroupId(), fileEntry.getFolderId(),
+								fileEntry.getFileName());
+
+						resourceReferences.put(
+							fileEntryPath, folderPath + newFileName);
+
+						zipEntryNames.put(
+							folderPath + newFileName,
+							zipEntryNames.get(fileEntryPath));
+
+						zipEntryNames.remove(fileEntryPath);
+					}
+				}
+			}
+		}
+		else {
+			ServiceContext serviceContext = new ServiceContext();
+
+			serviceContext.setAddGroupPermissions(true);
+			serviceContext.setAddGuestPermissions(true);
+
+			repository = PortletFileRepositoryUtil.addPortletRepository(
+				groupId, FragmentPortletKeys.FRAGMENT, serviceContext);
+		}
+
+		Map<String, Long> folderIdsMap = HashMapBuilder.put(
+			StringPool.BLANK, fragmentCollection.getResourcesFolderId()
+		).build();
+
+		for (Map.Entry<String, String> entry : zipEntryNames.entrySet()) {
+			String fileName = entry.getKey();
+			String folderPath = StringPool.BLANK;
+
+			int index = fileName.lastIndexOf(StringPool.SLASH);
+
+			if (index != -1) {
+				folderPath = fileName.substring(0, index);
+				fileName = fileName.substring(index + 1);
+			}
+
+			PortletFileRepositoryUtil.addPortletFileEntry(
+				null, groupId, userId, FragmentCollection.class.getName(),
+				fragmentCollection.getFragmentCollectionId(),
+				FragmentPortletKeys.FRAGMENT,
+				_getOrCreateFolderId(
+					folderIdsMap, folderPath, repository.getRepositoryId(),
+					userId),
+				_getInputStream(zipFile, entry.getValue()), fileName,
+				MimeTypesUtil.getContentType(fileName), false);
+		}
+	}
+
 	private String _getContent(ZipFile zipFile, String fileName)
 		throws Exception {
 
@@ -329,13 +474,24 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 	}
 
 	private String _getFileName(String path) {
-		int pos = path.lastIndexOf(CharPool.SLASH);
+		int index = path.lastIndexOf(CharPool.SLASH);
 
-		if (pos > 0) {
-			return path.substring(pos + 1);
+		if (index > 0) {
+			return path.substring(index + 1);
 		}
 
 		return path;
+	}
+
+	private String _getFilePath(String fragmentCollectionKey, String path) {
+		path = StringUtil.removeFirst(
+			path, fragmentCollectionKey + StringPool.SLASH);
+
+		int index = path.indexOf("resources/");
+
+		path = path.substring(index);
+
+		return StringUtil.removeFirst(path, "resources/");
 	}
 
 	private Map<String, FragmentCollectionFolder>
@@ -524,7 +680,7 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 		else if (fileName.equals(
 					FragmentExportImportConstants.FILE_NAME_COLLECTION)) {
 
-			JSONObject collectionJSONObject = JSONFactoryUtil.createJSONObject(
+			JSONObject collectionJSONObject = _jsonFactory.createJSONObject(
 				StringUtil.read(
 					zipFile.getInputStream(zipFile.getEntry(fileName))));
 
@@ -534,7 +690,7 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 		else if (fileName.equals(
 					FragmentExportImportConstants.FILE_NAME_FRAGMENT)) {
 
-			JSONObject fragmentJSONObject = JSONFactoryUtil.createJSONObject(
+			JSONObject fragmentJSONObject = _jsonFactory.createJSONObject(
 				StringUtil.read(
 					zipFile.getInputStream(zipFile.getEntry(fileName))));
 
@@ -547,6 +703,38 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 		}
 
 		throw new IllegalArgumentException("Incorrect file name " + fileName);
+	}
+
+	private long _getOrCreateFolderId(
+			Map<String, Long> folderIdsMap, String folderPath,
+			long repositoryId, long userId)
+		throws Exception {
+
+		if (folderIdsMap.containsKey(folderPath)) {
+			return folderIdsMap.get(folderPath);
+		}
+
+		String folderName = folderPath;
+
+		String parentFolderPath = StringPool.BLANK;
+
+		int index = folderName.lastIndexOf(StringPool.SLASH);
+
+		if (index != -1) {
+			folderName = folderName.substring(index + 1);
+
+			parentFolderPath = folderPath.substring(0, index);
+		}
+
+		Folder folder = PortletFileRepositoryUtil.addPortletFolder(
+			userId, repositoryId,
+			_getOrCreateFolderId(
+				folderIdsMap, parentFolderPath, repositoryId, userId),
+			folderName, ServiceContextThreadLocal.getServiceContext());
+
+		folderIdsMap.put(folderPath, folder.getFolderId());
+
+		return folder.getFolderId();
 	}
 
 	private long _getPreviewFileEntryId(
@@ -625,7 +813,7 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 				continue;
 			}
 
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			JSONObject jsonObject = _jsonFactory.createJSONObject(
 				compositionJSON);
 
 			String name = jsonObject.getString("name", entry.getKey());
@@ -707,7 +895,7 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 			String fragmentJSON = _getContent(zipFile, entry.getValue());
 
 			if (Validator.isNotNull(fragmentJSON)) {
-				JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+				JSONObject jsonObject = _jsonFactory.createJSONObject(
 					fragmentJSON);
 
 				name = jsonObject.getString("name");
@@ -748,7 +936,7 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 						fragmentEntry.getPreviewFileEntryId());
 				}
 
-				JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+				JSONObject jsonObject = _jsonFactory.createJSONObject(
 					fragmentJSON);
 
 				String thumbnailPath = jsonObject.getString("thumbnailPath");
@@ -813,7 +1001,7 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 					String fragmentJSON = StringUtil.read(
 						zipFile.getInputStream(zipEntry));
 
-					JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+					JSONObject jsonObject = _jsonFactory.createJSONObject(
 						fragmentJSON);
 
 					return Arrays.stream(
@@ -849,63 +1037,38 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 
 			if (!ArrayUtil.contains(paths, "resources") ||
 				excludePaths.contains(zipEntry.getName()) ||
-				!fileName.contains(fragmentCollectionKey)) {
+				!fileName.contains(fragmentCollectionKey) ||
+				fileName.endsWith(StringPool.SLASH)) {
 
 				continue;
 			}
 
-			zipEntryNames.put(
-				_getFileName(zipEntry.getName()), zipEntry.getName());
+			if (GetterUtil.getBoolean(
+					PropsUtil.get("feature.flag.LPS-158675"))) {
+
+				zipEntryNames.put(
+					_getFilePath(fragmentCollectionKey, zipEntry.getName()),
+					zipEntry.getName());
+			}
+			else {
+				zipEntryNames.put(
+					_getFileName(zipEntry.getName()), zipEntry.getName());
+			}
 		}
 
 		Repository repository =
 			PortletFileRepositoryUtil.fetchPortletRepository(
 				groupId, FragmentPortletKeys.FRAGMENT);
 
-		if (repository != null) {
-			for (FileEntry fileEntry :
-					PortletFileRepositoryUtil.getPortletFileEntries(
-						groupId, fragmentCollection.getResourcesFolderId())) {
-
-				if (zipEntryNames.containsKey(fileEntry.getFileName())) {
-					FragmentServiceConfiguration fragmentServiceConfiguration =
-						_configurationProvider.getCompanyConfiguration(
-							FragmentServiceConfiguration.class,
-							fileEntry.getCompanyId());
-
-					if (fragmentServiceConfiguration.propagateChanges()) {
-						PortletFileRepositoryUtil.deletePortletFileEntry(
-							fileEntry.getFileEntryId());
-					}
-					else {
-						String newFileName =
-							PortletFileRepositoryUtil.getUniqueFileName(
-								fileEntry.getGroupId(), fileEntry.getFolderId(),
-								fileEntry.getFileName());
-
-						resourceReferences.put(
-							fileEntry.getFileName(), newFileName);
-
-						zipEntryNames.put(
-							newFileName,
-							zipEntryNames.get(fileEntry.getFileName()));
-
-						zipEntryNames.remove(fileEntry.getFileName());
-					}
-				}
-			}
+		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158675"))) {
+			_addPortletFileEntriesWithFolders(
+				userId, groupId, fragmentCollection, zipFile,
+				resourceReferences, zipEntryNames, repository);
 		}
-
-		for (Map.Entry<String, String> entry : zipEntryNames.entrySet()) {
-			String fileName = entry.getKey();
-
-			PortletFileRepositoryUtil.addPortletFileEntry(
-				null, groupId, userId, FragmentCollection.class.getName(),
-				fragmentCollection.getFragmentCollectionId(),
-				FragmentPortletKeys.FRAGMENT,
-				fragmentCollection.getResourcesFolderId(),
-				_getInputStream(zipFile, entry.getValue()), fileName,
-				MimeTypesUtil.getContentType(fileName), false);
+		else {
+			_addPortletFileEntries(
+				userId, groupId, fragmentCollection, zipFile,
+				resourceReferences, zipEntryNames, repository);
 		}
 	}
 
@@ -994,6 +1157,9 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 	private FragmentEntryValidator _fragmentEntryValidator;
 
 	private List<FragmentsImporterResultEntry> _fragmentsImporterResultEntries;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

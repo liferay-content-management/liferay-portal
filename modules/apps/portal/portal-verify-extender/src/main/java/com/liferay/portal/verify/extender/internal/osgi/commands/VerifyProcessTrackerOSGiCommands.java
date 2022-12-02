@@ -61,8 +61,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 		"osgi.command.function=check", "osgi.command.function=checkAll",
 		"osgi.command.function=execute", "osgi.command.function=executeAll",
 		"osgi.command.function=help", "osgi.command.function=list",
-		"osgi.command.function=show", "osgi.command.function=showReports",
-		"osgi.command.scope=verify"
+		"osgi.command.function=show", "osgi.command.scope=verify"
 	},
 	service = VerifyProcessTrackerOSGiCommands.class
 )
@@ -71,7 +70,7 @@ public class VerifyProcessTrackerOSGiCommands {
 	@Descriptor("List latest execution result for a specific verify process")
 	public void check(String verifyProcessName) {
 		try {
-			_getVerifyProcesses(_verifyProcesses, verifyProcessName);
+			_getVerifyProcesses(_serviceTrackerMap, verifyProcessName);
 		}
 		catch (IllegalArgumentException illegalArgumentException) {
 			if (_log.isDebugEnabled()) {
@@ -109,7 +108,7 @@ public class VerifyProcessTrackerOSGiCommands {
 
 	@Descriptor("List latest execution result for all verify processes")
 	public void checkAll() {
-		for (String verifyProcessName : _verifyProcesses.keySet()) {
+		for (String verifyProcessName : _serviceTrackerMap.keySet()) {
 			check(verifyProcessName);
 		}
 	}
@@ -118,7 +117,7 @@ public class VerifyProcessTrackerOSGiCommands {
 	public void execute(String verifyProcessName) {
 		TeeLoggingUtil.runWithTeeLogging(
 			() -> _executeVerifyProcesses(
-				_getVerifyProcesses(_verifyProcesses, verifyProcessName),
+				_getVerifyProcesses(_serviceTrackerMap, verifyProcessName),
 				verifyProcessName, true));
 	}
 
@@ -126,10 +125,10 @@ public class VerifyProcessTrackerOSGiCommands {
 	public void executeAll() {
 		TeeLoggingUtil.runWithTeeLogging(
 			() -> {
-				for (String verifyProcessName : _verifyProcesses.keySet()) {
+				for (String verifyProcessName : _serviceTrackerMap.keySet()) {
 					_executeVerifyProcesses(
 						_getVerifyProcesses(
-							_verifyProcesses, verifyProcessName),
+							_serviceTrackerMap, verifyProcessName),
 						verifyProcessName, true);
 				}
 			});
@@ -137,7 +136,7 @@ public class VerifyProcessTrackerOSGiCommands {
 
 	@Descriptor("List all registered verify processes")
 	public void list() {
-		for (String verifyProcessName : _verifyProcesses.keySet()) {
+		for (String verifyProcessName : _serviceTrackerMap.keySet()) {
 			show(verifyProcessName);
 		}
 	}
@@ -145,7 +144,7 @@ public class VerifyProcessTrackerOSGiCommands {
 	@Descriptor("Show all verify processes for a specific verify process name")
 	public void show(String verifyProcessName) {
 		try {
-			_getVerifyProcesses(_verifyProcesses, verifyProcessName);
+			_getVerifyProcesses(_serviceTrackerMap, verifyProcessName);
 		}
 		catch (IllegalArgumentException illegalArgumentException) {
 			if (_log.isDebugEnabled()) {
@@ -169,7 +168,7 @@ public class VerifyProcessTrackerOSGiCommands {
 
 		boolean upgrading = StartupHelperUtil.isUpgrading();
 
-		_verifyProcesses = ServiceTrackerMapFactory.openMultiValueMap(
+		_serviceTrackerMap = ServiceTrackerMapFactory.openMultiValueMap(
 			_bundleContext, VerifyProcess.class, "verify.process.name",
 			new ServiceTrackerCustomizer<VerifyProcess, VerifyProcess>() {
 
@@ -213,7 +212,7 @@ public class VerifyProcessTrackerOSGiCommands {
 
 	@Deactivate
 	protected void deactivate() {
-		_verifyProcesses.close();
+		_serviceTrackerMap.close();
 	}
 
 	private void _executeVerifyProcesses(
@@ -339,6 +338,6 @@ public class VerifyProcessTrackerOSGiCommands {
 	@Reference
 	private ReleaseLocalService _releaseLocalService;
 
-	private ServiceTrackerMap<String, List<VerifyProcess>> _verifyProcesses;
+	private ServiceTrackerMap<String, List<VerifyProcess>> _serviceTrackerMap;
 
 }

@@ -16,6 +16,7 @@ import ClayAlert from '@clayui/alert';
 import ClayButton from '@clayui/button';
 import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
+import ClayPanel from '@clayui/panel';
 import getCN from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -51,6 +52,7 @@ class ContributorBuilder extends React.Component {
 		previewMembersURL: PropTypes.string,
 		propertyGroups: PropTypes.arrayOf(propertyGroupShape),
 		renderEmptyValuesErrors: PropTypes.bool,
+		scopeName: PropTypes.string,
 		supportedConjunctions: PropTypes.arrayOf(conjunctionShape).isRequired,
 		supportedOperators: PropTypes.arrayOf(operatorShape).isRequired,
 		supportedPropertyTypes: propertyTypesShape.isRequired,
@@ -111,6 +113,7 @@ class ContributorBuilder extends React.Component {
 			onPreviewMembers,
 			propertyGroups,
 			renderEmptyValuesErrors,
+			scopeName,
 			supportedConjunctions,
 			supportedOperators,
 			supportedPropertyTypes,
@@ -128,6 +131,12 @@ class ContributorBuilder extends React.Component {
 		const sidebarClasses = getCN('criteria-builder-section-sidebar', {
 			'criteria-builder-section-sidebar--with-warning': showDisabledSegmentationAlert,
 		});
+
+		function handleViewMembersClick(event) {
+			event.stopPropagation();
+
+			onPreviewMembers();
+		}
 
 		return (
 			<DndProvider backend={HTML5Backend}>
@@ -160,146 +169,334 @@ class ContributorBuilder extends React.Component {
 							)}
 
 							<ClayLayout.ContainerFluid>
-								<div className="content-wrapper">
-									<ClayLayout.Sheet>
-										<div className="d-flex flex-wrap justify-content-between mb-4">
-											<h2 className="mb-2 sheet-title">
-												{Liferay.Language.get(
-													'conditions'
-												)}
-											</h2>
-
-											<div className="criterion-string">
-												<div className="btn-group">
-													<div className="btn-group-item inline-item">
-														{membersCountLoading && (
-															<ClayLoadingIndicator
-																className="mr-4"
-																small
-															/>
-														)}
-
-														{!membersCountLoading && (
-															<span className="mr-4">
-																{Liferay.Language.get(
-																	'conditions-match'
-																)}
-
-																<b className="ml-2 text-dark">
-																	{getPluralMessage(
-																		Liferay.Language.get(
-																			'x-member'
-																		),
-																		Liferay.Language.get(
-																			'x-members'
-																		),
-																		membersCount
-																	)}
-																</b>
-															</span>
-														)}
-
-														<ClayButton
-															displayType="secondary"
-															onClick={
-																onPreviewMembers
-															}
-															small
-															type="button"
-														>
+								<div className="content-wrapper p-4">
+									{Liferay.FeatureFlags['LPS-166954'] ? (
+										<>
+											<ClayPanel
+												className="mb-4"
+												collapsable
+												defaultExpanded={true}
+												displayTitle={
+													<ClayPanel.Title>
+														<h2 className="m-0 text-dark">
 															{Liferay.Language.get(
-																'view-members'
+																'scope'
 															)}
-														</ClayButton>
+														</h2>
+													</ClayPanel.Title>
+												}
+												displayType="secondary"
+												showCollapseIcon
+											>
+												<ClayPanel.Body className="align-items-center d-flex justify-content-between p-4">
+													<p className="mb-0 mr-6">
+														{scopeName}
+													</p>
+												</ClayPanel.Body>
+											</ClayPanel>
+
+											<ClayPanel
+												collapsable
+												defaultExpanded={true}
+												displayTitle={
+													<ClayPanel.Header className="p-0">
+														<div className="align-items-center d-flex flex-wrap justify-content-between">
+															<h2 className="mb-0 sheet-title">
+																{Liferay.Language.get(
+																	'conditions'
+																)}
+															</h2>
+
+															<div className="criterion-string">
+																<div className="btn-group">
+																	<div className="btn-group-item inline-item mt-0">
+																		{membersCountLoading && (
+																			<ClayLoadingIndicator
+																				className="mr-4"
+																				small
+																			/>
+																		)}
+
+																		{!membersCountLoading && (
+																			<span className="mr-4">
+																				{Liferay.Language.get(
+																					'conditions-match'
+																				)}
+
+																				<b className="ml-2 text-dark">
+																					{getPluralMessage(
+																						Liferay.Language.get(
+																							'x-member'
+																						),
+																						Liferay.Language.get(
+																							'x-members'
+																						),
+																						membersCount
+																					)}
+																				</b>
+																			</span>
+																		)}
+
+																		<ClayButton
+																			displayType="secondary"
+																			onClick={(
+																				event
+																			) => {
+																				handleViewMembersClick(
+																					event
+																				);
+																			}}
+																			small
+																			type="button"
+																		>
+																			{Liferay.Language.get(
+																				'view-members'
+																			)}
+																		</ClayButton>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</ClayPanel.Header>
+												}
+											>
+												<ClayPanel.Body>
+													{emptyContributors &&
+														(editingId ===
+															undefined ||
+															!editing) && (
+															<EmptyPlaceholder />
+														)}
+
+													{contributors
+														.filter((criteria) => {
+															const editingCriteria =
+																editingId ===
+																	criteria.propertyKey &&
+																editing;
+															const emptyCriteriaQuery =
+																criteria.query ===
+																'';
+
+															return (
+																editingCriteria ||
+																!emptyCriteriaQuery
+															);
+														})
+														.map((criteria, i) => {
+															return (
+																<React.Fragment
+																	key={i}
+																>
+																	{i !==
+																		0 && (
+																		<>
+																			<Conjunction
+																				className="mb-4 ml-0 mt-4"
+																				conjunctionName={
+																					criteria.conjunctionId
+																				}
+																				editing={
+																					editing
+																				}
+																				onSelect={
+																					onConjunctionChange
+																				}
+																				supportedConjunctions={
+																					supportedConjunctions
+																				}
+																			/>
+																		</>
+																	)}
+
+																	<CriteriaBuilder
+																		criteria={
+																			criteria.criteriaMap
+																		}
+																		editing={
+																			editing
+																		}
+																		emptyContributors={
+																			emptyContributors
+																		}
+																		entityName={
+																			criteria.entityName
+																		}
+																		modelLabel={
+																			criteria.modelLabel
+																		}
+																		onChange={
+																			this
+																				._handleCriteriaChange
+																		}
+																		propertyKey={
+																			criteria.propertyKey
+																		}
+																		renderEmptyValuesErrors={
+																			renderEmptyValuesErrors
+																		}
+																		supportedConjunctions={
+																			supportedConjunctions
+																		}
+																		supportedOperators={
+																			supportedOperators
+																		}
+																		supportedProperties={
+																			criteria.properties
+																		}
+																		supportedPropertyTypes={
+																			supportedPropertyTypes
+																		}
+																	/>
+																</React.Fragment>
+															);
+														})}
+												</ClayPanel.Body>
+											</ClayPanel>
+										</>
+									) : (
+										<ClayLayout.Sheet>
+											<div className="d-flex flex-wrap justify-content-between mb-4">
+												<h2 className="mb-2 sheet-title">
+													{Liferay.Language.get(
+														'conditions'
+													)}
+												</h2>
+
+												<div className="criterion-string">
+													<div className="btn-group">
+														<div className="btn-group-item inline-item">
+															{membersCountLoading && (
+																<ClayLoadingIndicator
+																	className="mr-4"
+																	small
+																/>
+															)}
+
+															{!membersCountLoading && (
+																<span className="mr-4">
+																	{Liferay.Language.get(
+																		'conditions-match'
+																	)}
+
+																	<b className="ml-2 text-dark">
+																		{getPluralMessage(
+																			Liferay.Language.get(
+																				'x-member'
+																			),
+																			Liferay.Language.get(
+																				'x-members'
+																			),
+																			membersCount
+																		)}
+																	</b>
+																</span>
+															)}
+
+															<ClayButton
+																displayType="secondary"
+																onClick={
+																	onPreviewMembers
+																}
+																small
+																type="button"
+															>
+																{Liferay.Language.get(
+																	'view-members'
+																)}
+															</ClayButton>
+														</div>
 													</div>
 												</div>
 											</div>
-										</div>
 
-										{emptyContributors &&
-											(editingId === undefined ||
-												!editing) && (
-												<EmptyPlaceholder />
-											)}
+											{emptyContributors &&
+												(editingId === undefined ||
+													!editing) && (
+													<EmptyPlaceholder />
+												)}
 
-										{contributors
-											.filter((criteria) => {
-												const editingCriteria =
-													editingId ===
-														criteria.propertyKey &&
-													editing;
-												const emptyCriteriaQuery =
-													criteria.query === '';
+											{contributors
+												.filter((criteria) => {
+													const editingCriteria =
+														editingId ===
+															criteria.propertyKey &&
+														editing;
+													const emptyCriteriaQuery =
+														criteria.query === '';
 
-												return (
-													editingCriteria ||
-													!emptyCriteriaQuery
-												);
-											})
-											.map((criteria, i) => {
-												return (
-													<React.Fragment key={i}>
-														{i !== 0 && (
-															<>
-																<Conjunction
-																	className="mb-4 ml-0 mt-4"
-																	conjunctionName={
-																		criteria.conjunctionId
-																	}
-																	editing={
-																		editing
-																	}
-																	onSelect={
-																		onConjunctionChange
-																	}
-																	supportedConjunctions={
-																		supportedConjunctions
-																	}
-																/>
-															</>
-														)}
+													return (
+														editingCriteria ||
+														!emptyCriteriaQuery
+													);
+												})
+												.map((criteria, i) => {
+													return (
+														<React.Fragment key={i}>
+															{i !== 0 && (
+																<>
+																	<Conjunction
+																		className="mb-4 ml-0 mt-4"
+																		conjunctionName={
+																			criteria.conjunctionId
+																		}
+																		editing={
+																			editing
+																		}
+																		onSelect={
+																			onConjunctionChange
+																		}
+																		supportedConjunctions={
+																			supportedConjunctions
+																		}
+																	/>
+																</>
+															)}
 
-														<CriteriaBuilder
-															criteria={
-																criteria.criteriaMap
-															}
-															editing={editing}
-															emptyContributors={
-																emptyContributors
-															}
-															entityName={
-																criteria.entityName
-															}
-															modelLabel={
-																criteria.modelLabel
-															}
-															onChange={
-																this
-																	._handleCriteriaChange
-															}
-															propertyKey={
-																criteria.propertyKey
-															}
-															renderEmptyValuesErrors={
-																renderEmptyValuesErrors
-															}
-															supportedConjunctions={
-																supportedConjunctions
-															}
-															supportedOperators={
-																supportedOperators
-															}
-															supportedProperties={
-																criteria.properties
-															}
-															supportedPropertyTypes={
-																supportedPropertyTypes
-															}
-														/>
-													</React.Fragment>
-												);
-											})}
-									</ClayLayout.Sheet>
+															<CriteriaBuilder
+																criteria={
+																	criteria.criteriaMap
+																}
+																editing={
+																	editing
+																}
+																emptyContributors={
+																	emptyContributors
+																}
+																entityName={
+																	criteria.entityName
+																}
+																modelLabel={
+																	criteria.modelLabel
+																}
+																onChange={
+																	this
+																		._handleCriteriaChange
+																}
+																propertyKey={
+																	criteria.propertyKey
+																}
+																renderEmptyValuesErrors={
+																	renderEmptyValuesErrors
+																}
+																supportedConjunctions={
+																	supportedConjunctions
+																}
+																supportedOperators={
+																	supportedOperators
+																}
+																supportedProperties={
+																	criteria.properties
+																}
+																supportedPropertyTypes={
+																	supportedPropertyTypes
+																}
+															/>
+														</React.Fragment>
+													);
+												})}
+										</ClayLayout.Sheet>
+									)}
 								</div>
 							</ClayLayout.ContainerFluid>
 						</div>

@@ -77,14 +77,16 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-103104 and LPS-140253. Can add pages of different types via page tree panel. View no private page in page tree."
-	@priority = "3"
-	test AddAllTypesOfPagesFF {
-		task ("Add different types of pages via page tree") {
+	@description = "This is a test for LPS-103104, LPS-140253, and LPS-164377. The page creator can add pages of different types via page tree panel when the private page is disabled. The page creator could identify the page type according to icon in page tree."
+	@priority = "5"
+	test AddAllTypesOfPagesWithoutPrivatePage {
+		task ("Given a page creator navigates to the Page Tree") {
 			ApplicationsMenu.gotoSite(site = "Test Site Name");
 
 			PagesFinder.goToPagesFinder();
+		}
 
+		task ("When the page creator adds pages of different pages via Page Tree") {
 			for (var pageType : list "Widget Page,Panel,Page Set,Link to a Page of This Site,Full Page Application") {
 				PagesFinder.addPage(
 					pageName = "Test ${pageType}",
@@ -101,16 +103,43 @@ definition {
 			PagesFinder.addContentPage(pageName = "Test Content Page");
 
 			PageEditor.publish();
+
+			ContentPages.addCollectionPage(
+				collectionName = "Highest Rated Assets",
+				pageName = "Test Collection Page",
+				tabName = "Collection Providers");
+
+			PageEditor.publish();
 		}
 
-		task ("View public page names in page tree") {
+		task ("Then the page creator could see new pages and identify the page type according to icon in Page Tree") {
 			PagesFinder.goToPagesFinder();
 
 			PagesFinder.selectPageType(optionValue = "Pages Hierarchy");
 
-			for (var pageType : list "Widget Page,Panel,Page Set,Link to a Page of This Site,Full Page Application,Embedded,Link to URL,Content Page") {
+			for (var pageType : list "Widget Page,Panel,Page Set,Link to a Page of This Site,Full Page Application,Embedded,Link to URL,Content Page,Collection Page") {
 				PagesFinder.viewPageNameInPagesFinder(pageName = "Test ${pageType}");
 			}
+
+			for (var pageType : list "Widget Page,Panel,Page Set,Full Page Application,Embedded") {
+				PagesFinder.viewPageIconInPagesFinder(
+					icon = "page-template",
+					pageName = "Test ${pageType}");
+			}
+
+			for (var pageType : list "Link to a Page of This Site,Link to URL") {
+				PagesFinder.viewPageIconInPagesFinder(
+					icon = "link",
+					pageName = "Test ${pageType}");
+			}
+
+			PagesFinder.viewPageIconInPagesFinder(
+				icon = "list",
+				pageName = "Test Collection Page");
+
+			PagesFinder.viewPageIconInPagesFinder(
+				icon = "page",
+				pageName = "Test Content Page");
 		}
 	}
 
@@ -137,6 +166,11 @@ definition {
 		}
 
 		task ("Navigate to child page via page tree") {
+
+			// Workaround until LPS-168565 resolved
+
+			Portlet.expandTree();
+
 			PagesFinder.navigateToChildPage(
 				childPageName = "Test Child Page",
 				parentPageName = "Test Page Name");
@@ -614,7 +648,7 @@ definition {
 		task ("Preview the draft content page in a new tab") {
 			PagesFinder.gotoPageEllipsisItem(
 				item = "Preview Draft",
-				pageName = "Test Page Name");
+				pageName = "Test Page Name*");
 
 			SelectWindow.selectPopUp(locator1 = "null");
 
@@ -714,11 +748,15 @@ definition {
 		}
 
 		task ("View the Preview Draft action not shown") {
-			Click.mouseOverClick(
+			MouseOver(
+				key_pageName = "Test Page Name",
+				locator1 = "PagesFinder#PAGE_NAME");
+
+			Click.clickNoMouseOver(
 				key_pageName = "Test Page Name",
 				locator1 = "PagesFinder#PAGE_ELLIPSIS_ICON");
 
-			MenuItem.viewNotVisible(menuItem = "Preview Draft");
+			MenuItem.viewNotPresent(menuItem = "Preview Draft");
 		}
 	}
 
@@ -749,7 +787,7 @@ definition {
 		task ("Assert the order of Pages in Page Tree panel") {
 			var n = "1";
 
-			for (var pageName : list "Test Portlet Page,Test Content Page,Test Embedded Page") {
+			for (var pageName : list "Test Portlet Page,Test Content Page*,Test Embedded Page") {
 				AssertVisible(
 					key_index = "${n}",
 					key_pageName = "${pageName}",
@@ -760,16 +798,15 @@ definition {
 		}
 
 		task ("Reorganize the order of Pages in Page Tree panel") {
-			DragAndDrop.dragAndDropReorganizeObjects(
-				locator1 = "//ul[contains(@class,'tree-container')]/li[contains(@class,'tree-node')][2][contains(.,'Test Content Page')]",
-				locator2 = "//ul[contains(@class,'tree-container')]/li[contains(@class,'tree-node')][1][contains(.,'Test Portlet Page')]",
-				position = "0,-4");
+			DragAndDrop.javaScriptDragAndDropToUp(
+				locator1 = "//ul[contains(@class,'treeview-group')]//div[contains(@role,'treeitem')][normalize-space()='Test Content Page*']",
+				locator2 = "//ul[contains(@class,'treeview-group')]//div[contains(@role,'treeitem')][normalize-space()='Test Portlet Page']");
 		}
 
 		task ("Assert the order of Pages in Page Tree panel") {
 			var n = "1";
 
-			for (var pageName : list "Test Content Page,Test Portlet Page,Test Embedded Page") {
+			for (var pageName : list "Test Content Page*,Test Portlet Page,Test Embedded Page") {
 				AssertVisible(
 					key_index = "${n}",
 					key_pageName = "${pageName}",
@@ -819,7 +856,7 @@ definition {
 
 			AssertTextEquals(
 				locator1 = "Search#SEARCH_INFO",
-				value1 = "11 Results for &quot;Test&quot;");
+				value1 = "11 Results for \"Test\"");
 		}
 	}
 

@@ -62,8 +62,7 @@ public class DeleteFolderPortletConfigurationIcon
 
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)), "delete");
+		return _language.get(getLocale(portletRequest), "delete");
 	}
 
 	@Override
@@ -163,11 +162,6 @@ public class DeleteFolderPortletConfigurationIcon
 					themeDisplay.getScopeGroupId(), folder.getFolderId(),
 					ActionKeys.DELETE);
 			});
-	}
-
-	@Override
-	public boolean isToolTip() {
-		return false;
 	}
 
 	@Reference

@@ -45,9 +45,9 @@
 		}
 
 		long companyId = themeDisplay.getCompanyId();
-		SearchContainer<OAuthApplication> oauthApplicationSearchContainer = searchContainer;
+		SearchContainer<OAuthApplication> oAuthApplicationSearchContainer = searchContainer;
 
-		searchContainer.setResultsAndTotal(() -> OAuthApplicationLocalServiceUtil.search(companyId, displayTerms.getName(), params, oauthApplicationSearchContainer.getStart(), oauthApplicationSearchContainer.getEnd(), oauthApplicationSearchContainer.getOrderByComparator()), OAuthApplicationLocalServiceUtil.searchCount(companyId, displayTerms.getName(), params));
+		searchContainer.setResultsAndTotal(() -> OAuthApplicationLocalServiceUtil.search(companyId, displayTerms.getName(), params, oAuthApplicationSearchContainer.getStart(), oAuthApplicationSearchContainer.getEnd(), oAuthApplicationSearchContainer.getOrderByComparator()), OAuthApplicationLocalServiceUtil.searchCount(companyId, displayTerms.getName(), params));
 		%>
 
 		<liferay-ui:search-container-row

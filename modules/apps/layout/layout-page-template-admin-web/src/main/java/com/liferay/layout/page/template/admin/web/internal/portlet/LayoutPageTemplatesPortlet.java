@@ -16,9 +16,8 @@ package com.liferay.layout.page.template.admin.web.internal.portlet;
 
 import com.liferay.asset.display.page.service.AssetDisplayPageEntryService;
 import com.liferay.asset.kernel.service.AssetEntryService;
-import com.liferay.info.constants.InfoDisplayWebKeys;
-import com.liferay.info.item.InfoItemServiceTracker;
-import com.liferay.info.search.InfoSearchClassMapperTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
+import com.liferay.info.search.InfoSearchClassMapperRegistry;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.layout.page.template.admin.constants.LayoutPageTemplateAdminPortletKeys;
 import com.liferay.layout.page.template.admin.web.internal.configuration.LayoutPageTemplateAdminWebConfiguration;
@@ -65,7 +64,6 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.layout.page.template.admin.web.configuration.LayoutPageTemplateAdminWebConfiguration",
-	immediate = true,
 	property = {
 		"com.liferay.portlet.add-default-resource=true",
 		"com.liferay.portlet.css-class-wrapper=portlet-layout-templates-admin",
@@ -146,16 +144,15 @@ public class LayoutPageTemplatesPortlet extends MVCPortlet {
 		}
 
 		renderRequest.setAttribute(
-			InfoDisplayWebKeys.INFO_ITEM_SERVICE_TRACKER,
-			_infoItemServiceTracker);
+			InfoItemServiceRegistry.class.getName(), _infoItemServiceRegistry);
 		renderRequest.setAttribute(
 			LayoutPageTemplateAdminWebKeys.
 				ASSET_DISPLAY_PAGE_USAGES_DISPLAY_CONTEXT,
 			new AssetDisplayPageUsagesDisplayContext(
 				_assetDisplayPageEntryService, _assetEntryService,
 				_portal.getHttpServletRequest(renderRequest),
-				_infoSearchClassMapperTracker, _infoItemServiceTracker, _portal,
-				renderRequest, renderResponse));
+				_infoSearchClassMapperRegistry, _infoItemServiceRegistry,
+				_portal, renderRequest, renderResponse));
 		renderRequest.setAttribute(
 			LayoutPageTemplateAdminWebConfiguration.class.getName(),
 			_layoutPageTemplateAdminWebConfiguration);
@@ -181,10 +178,10 @@ public class LayoutPageTemplatesPortlet extends MVCPortlet {
 	private AssetEntryService _assetEntryService;
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	@Reference
-	private InfoSearchClassMapperTracker _infoSearchClassMapperTracker;
+	private InfoSearchClassMapperRegistry _infoSearchClassMapperRegistry;
 
 	@Reference
 	private ItemSelector _itemSelector;

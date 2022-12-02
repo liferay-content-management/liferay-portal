@@ -217,13 +217,115 @@ definition {
 		}
 	}
 
+	@description = "LPS-162826: Add the Compare to Action to the Version History for Web Content"
+	@priority = "3"
+	test BackFromCompareToWebContent {
+		property custom.properties = "feature.flag.LPS-162924=true";
+
+		task ("Given the compare screen for Web Content") {
+			task ("Create a Web Content") {
+				JSONWebcontent.addWebContent(
+					content = "Web Content Content",
+					groupName = "Test Site Name",
+					title = "Web Content Title");
+			}
+
+			task ("Create a version for that web content") {
+				WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+				WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
+
+				WebContent.editCP(
+					webContentContentEdit = "Web Content Content Edit",
+					webContentTitleEdit = "Web Content Title Edit");
+			}
+
+			task ("Navigate to Content Dashboard") {
+				ContentDashboard.goToContentDashboard();
+			}
+
+			task ("Open info panel sidebar") {
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "Web Content Title Edit");
+			}
+
+			task ("Go to compare screen") {
+				ContentDashboard.openVersionsTab();
+
+				ContentDashboard.clickMenuOfVersion(
+					menuItem = "Compare to...",
+					versionName = "Version 1.1");
+			}
+		}
+
+		task ("When the user clicks on the back button") {
+			Navigator.gotoBack();
+		}
+
+		task ("Then the document is selected and the Info Panel is open to the Versions tab") {
+			AssertTextPresent(
+				locator1 = "ContentDashboard#INFO_PANEL_TITLE",
+				value1 = "Web Content Title Edit");
+
+			AssertVisible(
+				key_version = "Version 1.0",
+				locator1 = "ContentDashboard#VERSION_ELLIPSIS");
+		}
+	}
+
+	@description = "LPS-162823: Add the View Action to the Version History for Documents and Media"
+	@priority = "3"
+	test BackFromViewDocumentVersion {
+		property custom.properties = "feature.flag.LPS-162924=true";
+
+		task ("Given the version document page") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Navigate to Content Dashboard") {
+				ContentDashboard.goToContentDashboard();
+			}
+
+			task ("Open info panel sidebar") {
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "DM Document Title");
+			}
+
+			task ("Open versions tab") {
+				ContentDashboard.openVersionsTab();
+			}
+
+			task ("Open view mode of a version") {
+				ContentDashboard.clickMenuOfVersion(
+					menuItem = "View",
+					versionName = "Version 1.0");
+			}
+		}
+
+		task ("When the user clicks on the back button") {
+			Navigator.gotoBack();
+		}
+
+		task ("Then the document is selected and the Info Panel is open to the Versions tab") {
+			AssertVisible(locator1 = "ContentDashboard#INFO_PANEL");
+		}
+	}
+
 	@description = "LPS-132510 Given The Content Dashboard
 	When the info panel of a blog is open
 	Then the blog author's avatar and name are shown"
 	@priority = "3"
 	test BlogAuthorInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a blog") {
 			JSONBlog.addEntry(
@@ -255,7 +357,7 @@ definition {
 	@priority = "3"
 	test BlogCategoriesInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Add an internal vocabulary for Test Site Name") {
 			JSONCategory.addVocabulary(
@@ -325,7 +427,7 @@ definition {
 	@priority = "3"
 	test BlogCreationDateInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a blog") {
 			JSONBlog.addEntry(
@@ -357,7 +459,7 @@ definition {
 	@priority = "3"
 	test BlogDisplayDateInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a blog") {
 			JSONBlog.addEntry(
@@ -389,7 +491,7 @@ definition {
 	@priority = "3"
 	test BlogIDDateInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a blog") {
 			JSONBlog.addEntry(
@@ -419,7 +521,7 @@ definition {
 	@priority = "3"
 	test BlogModificationDateInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a blog") {
 			JSONBlog.addEntry(
@@ -451,7 +553,7 @@ definition {
 	@priority = "5"
 	test BlogsFromDifferentSitesAreListed {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create another site") {
@@ -501,7 +603,7 @@ definition {
 	@priority = "3"
 	test BlogsMetadata {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a category for Audiente and Staged") {
 			JSONCategory.addCategory(
@@ -541,7 +643,7 @@ definition {
 	@priority = "3"
 	test BlogStatusInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a blog") {
 			JSONBlog.addEntry(
@@ -571,7 +673,7 @@ definition {
 	@priority = "3"
 	test BlogTagsInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a blog with the tag") {
 			JSONBlog.addEntry(
@@ -604,7 +706,7 @@ definition {
 	@priority = "3"
 	test BlogTitleInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a blog") {
 			JSONBlog.addEntry(
@@ -661,7 +763,7 @@ definition {
 	@priority = "3"
 	test BlogVersionInInfoPanel {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a blog") {
 			JSONBlog.addEntry(
@@ -1991,7 +2093,7 @@ definition {
 	@uitest
 	test ClickTitleBlogDPTWithNoPermissions {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a default Display Page Template") {
@@ -2080,7 +2182,7 @@ definition {
 	@uitest
 	test ClickTitleBlogDPTWithPermissions {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a default Display Page Template") {
@@ -2126,7 +2228,7 @@ definition {
 	@uitest
 	test ClickTitleBlogNoDPTWithNoPermissions {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a blog") {
@@ -2206,7 +2308,7 @@ definition {
 	@uitest
 	test ClickTitleBlogNoDPTWithPermissions {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a blog") {
@@ -2238,7 +2340,7 @@ definition {
 	@uitest
 	test ClickTitleDocumentDPTWithNoPermissions {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFContentDashboardDocumentConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
+		property osgi.module.configurations = "enabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a default Display Page Template") {
@@ -2328,7 +2430,7 @@ definition {
 	@uitest
 	test ClickTitleDocumentDPTWithPermissions {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFContentDashboardDocumentConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
+		property osgi.module.configurations = "enabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a default Display Page Template") {
@@ -2471,13 +2573,115 @@ definition {
 		}
 	}
 
+	@description = "LPS-162826: Add the Compare to Action to the Version History for Web Content"
+	@priority = "3"
+	test CompareToLastVersionWebContent {
+		property custom.properties = "feature.flag.LPS-162924=true";
+
+		task ("Given the compare screen for Web Content") {
+			task ("Create a Web Content") {
+				JSONWebcontent.addWebContent(
+					content = "Web Content Content",
+					groupName = "Test Site Name",
+					title = "Web Content Title");
+			}
+
+			task ("Create a version for that web content") {
+				WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+				WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
+
+				WebContent.editCP(
+					webContentContentEdit = "Web Content Content Edit",
+					webContentTitleEdit = "Web Content Title Edit");
+			}
+
+			task ("Navigate to Content Dashboard") {
+				ContentDashboard.goToContentDashboard();
+			}
+
+			task ("Open info panel sidebar") {
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "Web Content Title Edit");
+			}
+		}
+
+		task ("When the access to the compare screen from the Compare to action And the most recent version of a Web Content is the one selected") {
+			ContentDashboard.openVersionsTab();
+
+			ContentDashboard.clickMenuOfVersion(
+				menuItem = "Compare to...",
+				versionName = "Version 1.1");
+		}
+
+		task ("Then this version should be compared to itself") {
+			AssertTextEquals(
+				locator1 = "WCViewHistory#COMPARED_VERSION_NEWER",
+				value1 = "Version 1.1");
+
+			AssertTextEquals(
+				locator1 = "WCViewHistory#COMPARED_VERSION_OLDER",
+				value1 = "Version 1.1");
+		}
+	}
+
+	@description = "LPS-162826: Add the Compare to Action to the Version History for Web Content"
+	@priority = "3"
+	test CompareToVersionWebContent {
+		property custom.properties = "feature.flag.LPS-162924=true";
+
+		task ("Given the Versions tab in the Info panel of a Web Content") {
+			task ("Create a Web Content") {
+				JSONWebcontent.addWebContent(
+					content = "Web Content Content",
+					groupName = "Test Site Name",
+					title = "Web Content Title");
+			}
+
+			task ("Create a version for that web content") {
+				WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+				WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
+
+				WebContent.editCP(
+					webContentContentEdit = "Web Content Content Edit",
+					webContentTitleEdit = "Web Content Title Edit");
+			}
+
+			task ("Navigate to Content Dashboard") {
+				ContentDashboard.goToContentDashboard();
+			}
+
+			task ("Open info panel sidebar") {
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "Web Content Title Edit");
+			}
+		}
+
+		task ("When the user opens the kebab menu of a version And the user clicks on the Compare to action") {
+			ContentDashboard.openVersionsTab();
+
+			ContentDashboard.clickMenuOfVersion(
+				menuItem = "Compare to...",
+				versionName = "Version 1.0");
+		}
+
+		task ("Then the user is redirected to the compare screen for Web Content") {
+			AssertTextEquals(
+				locator1 = "WCViewHistory#VIEW_COMPARE_VERSIONS_CONTENT",
+				value1 = "Web Content Content Edit");
+		}
+	}
+
 	@description = "Given a document created in an Asset Library
 	When the user goes to the content dashboard
 	Then the user can see the document listed"
 	@priority = "5"
 	test DocumentFromAssetLibraryIsListed {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFContentDashboardDocumentConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
+		property osgi.module.configurations = "enabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Add an Asset Library") {
@@ -2516,7 +2720,7 @@ definition {
 	@priority = "4"
 	test DocumentIconView {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFContentDashboardDocumentConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
+		property osgi.module.configurations = "enabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a default Display Page Template") {
@@ -2619,7 +2823,7 @@ definition {
 	@priority = "5"
 	test DocumentsFromDifferentSitesAreListed {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFContentDashboardDocumentConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
+		property osgi.module.configurations = "enabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Add two different sites") {
@@ -2662,6 +2866,479 @@ definition {
 			JSONGroup.deleteGroupByName(groupName = "Site Name 1");
 
 			JSONGroup.deleteGroupByName(groupName = "Site Name 2");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "4"
+	@uitest
+	test DocumentsVersionHistoryClickBack {
+		property portal.acceptance = "true";
+
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				ContentDashboard.createVersionsForDocument(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					versionsCreated = "10");
+			}
+
+			task ("Navigate to Version History Page") {
+				ContentDashboard.goToVersionHistoryPage(assetName = "DM Document Title");
+			}
+		}
+
+		task ("When the user clicks on back") {
+			Navigator.gotoBack();
+		}
+
+		task ("Then the document is selected and the Info Panel is open to the Versions tab") {
+			AssertTextPresent(
+				locator1 = "ContentDashboard#INFO_PANEL_TITLE",
+				value1 = "DM Document Title");
+
+			AssertTextPresent(
+				locator1 = "ContentDashboard#ASSET_VERSION_NUMBER",
+				value1 = "Version 1.10");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "4"
+	test DocumentsVersionHistoryDeleteVersion {
+		property portal.acceptance = "true";
+
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				ContentDashboard.createVersionsForDocument(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					versionsCreated = "2");
+			}
+
+			task ("Navigate to Version History Page") {
+				ContentDashboard.navigateToDocumentVersionHistoryPage(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					siteURLKey = "test-site-name");
+			}
+		}
+
+		task ("When the user clicks on Delete option the kebab menu") {
+			PortletEntry.deleteViaMenuItem(rowEntry = "1.2");
+
+			Alert.viewSuccessMessage();
+		}
+
+		task ("Then the document's version is deleted") {
+			AssertElementNotPresent(
+				key_tableEntry = "1.2",
+				locator1 = "LexiconTable#TABLE_ENTRY");
+
+			AssertVisible(
+				key_tableEntry = "1.1",
+				locator1 = "LexiconTable#TABLE_ENTRY");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "4"
+	test DocumentsVersionHistoryDownloadVersion {
+		property portal.acceptance = "true";
+
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				ContentDashboard.createVersionsForDocument(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					versionsCreated = "2");
+			}
+
+			task ("Navigate to Version History Page") {
+				ContentDashboard.navigateToDocumentVersionHistoryPage(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					siteURLKey = "test-site-name");
+			}
+		}
+
+		task ("When the user clicks on Download option the kebab menu") {
+			ContentDashboard.downloadVersion(version = "1.2");
+		}
+
+		task ("Then the document is downloaded") {
+			DMDocument.assertFileNameFromTempFolder(fileName = "Document_1.txt");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "3"
+	test DocumentsVersionHistoryFirstVersionOptions {
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add one version for the document") {
+				JSONDocument.checkOutFile(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name");
+
+				JSONDocument.checkInFile(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name");
+			}
+
+			task ("Navigate to Version History Page") {
+				ContentDashboard.navigateToDocumentVersionHistoryPage(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					siteURLKey = "test-site-name");
+			}
+		}
+
+		task ("When there are more than one version entry And the user clicks on the kebab menu of the first entry") {
+			Click.waitForMenuToggleJSClick(
+				key_tableEntry = "1.1",
+				locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
+		}
+
+		task ("Then the actions included in the Kebab menu will be Download,View and Delete") {
+			AssertVisible(
+				key_text = "download",
+				locator1 = "MenuItem#ANY_ICON");
+
+			AssertVisible(
+				key_menuItem = "View",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+
+			AssertVisible(
+				key_menuItem = "Delete",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "3"
+	@uitest
+	test DocumentsVersionHistoryInformation {
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				ContentDashboard.createVersionsForDocument(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					versionsCreated = "10");
+			}
+
+			task ("Navigate to Content Dashboard") {
+				ContentDashboard.goToContentDashboard();
+			}
+
+			task ("Open info panel sidebar") {
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "DM Document Title");
+			}
+
+			task ("Open versions tab") {
+				ContentDashboard.openVersionsTab(assetName = "DM Document Title");
+			}
+		}
+
+		task ("When the user access to the page") {
+			ContentDashboard.clickViewMore();
+		}
+
+		task ("Then the table includes the ID of the Document, Title, Version Number, Status, Modified Date, and Author") {
+			AssertVisible(
+				key_tableHeader = "ID",
+				locator1 = "LexiconTable#TABLE_HEADER");
+
+			AssertVisible(
+				key_tableHeader = "Title",
+				locator1 = "LexiconTable#TABLE_HEADER");
+
+			AssertVisible(
+				key_tableHeader = "Version",
+				locator1 = "LexiconTable#TABLE_HEADER");
+
+			AssertVisible(
+				key_tableHeader = "Status",
+				locator1 = "LexiconTable#TABLE_HEADER");
+
+			AssertVisible(
+				key_tableHeader = "Modified Date",
+				locator1 = "LexiconTable#TABLE_HEADER");
+
+			AssertVisible(
+				key_tableHeader = "Author",
+				locator1 = "LexiconTable#TABLE_HEADER");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "3"
+	test DocumentsVersionHistoryOfSingleVersion {
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Navigate to Version History Page") {
+				ContentDashboard.navigateToDocumentVersionHistoryPage(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					siteURLKey = "test-site-name");
+			}
+		}
+
+		task ("When there's only one version entry And the user clicks on the kebab menu of the unique entry") {
+			Click.waitForMenuToggleJSClick(
+				key_tableEntry = "DM Document Title",
+				locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
+		}
+
+		task ("Then the actions included in the Kebab menu will be Download and View") {
+			AssertVisible(
+				key_text = "download",
+				locator1 = "MenuItem#ANY_ICON");
+
+			AssertVisible(
+				key_menuItem = "View",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "3"
+	@uitest
+	test DocumentsVersionHistoryOrdered {
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				ContentDashboard.createVersionsForDocument(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					versionsCreated = "10");
+			}
+
+			task ("Navigate to Content Dashboard") {
+				ContentDashboard.goToContentDashboard();
+			}
+
+			task ("Open info panel sidebar") {
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "DM Document Title");
+			}
+
+			task ("Open versions tab") {
+				ContentDashboard.openVersionsTab(assetName = "DM Document Title");
+			}
+		}
+
+		task ("When the user access to the page") {
+			ContentDashboard.clickViewMore();
+		}
+
+		task ("Then the table lists all the Version entries ordered by Version with the latest entries at the top") {
+			ContentDashboard.viewHistoryVersionOrder(assetVersionList = "1.11,1.10,1.9,1.8,1.7,1.6,1.5,1.4,1.3,1.2,1.1,1.0");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "3"
+	test DocumentsVersionHistoryOtherVersionOptions {
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add one version for the document") {
+				JSONDocument.checkOutFile(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name");
+
+				JSONDocument.checkInFile(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name");
+			}
+
+			task ("Navigate to Version History Page") {
+				ContentDashboard.navigateToDocumentVersionHistoryPage(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					siteURLKey = "test-site-name");
+			}
+		}
+
+		task ("When there are more than one version entry And the user clicks on the kebab menu of any entry different than the first one") {
+			Click.waitForMenuToggleJSClick(
+				key_tableEntry = "1.0",
+				locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
+		}
+
+		task ("Then the actions included in the Kebab menu will be Download,View, Revert and Delete") {
+			AssertVisible(
+				key_text = "download",
+				locator1 = "MenuItem#ANY_ICON");
+
+			AssertVisible(
+				key_menuItem = "View",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+
+			AssertVisible(
+				key_menuItem = "Revert",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+
+			AssertVisible(
+				key_menuItem = "Delete",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "4"
+	test DocumentsVersionHistoryRevertVersion {
+		property portal.acceptance = "true";
+
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				ContentDashboard.createVersionsForDocument(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					versionsCreated = "2");
+			}
+
+			task ("Navigate to Version History Page") {
+				ContentDashboard.navigateToDocumentVersionHistoryPage(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					siteURLKey = "test-site-name");
+			}
+		}
+
+		task ("When the user clicks on Revert option the kebab menu") {
+			LexiconEntry.gotoEntryMenuItemNoError(
+				menuItem = "Revert",
+				rowEntry = "1.0");
+		}
+
+		task ("Then a new version that is a copy of the selected version of the Document is created") {
+			AssertVisible(
+				key_tableEntry = "2.0",
+				locator1 = "LexiconTable#TABLE_ENTRY");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "4"
+	test DocumentsVersionHistoryViewVersion {
+		property portal.acceptance = "true";
+
+		task ("Given the Version History page for documents") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				ContentDashboard.createVersionsForDocument(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					versionsCreated = "10");
+			}
+
+			task ("Navigate to Version History Page") {
+				ContentDashboard.navigateToDocumentVersionHistoryPage(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					siteURLKey = "test-site-name");
+			}
+		}
+
+		task ("When the user clicks on View option the kebab menu") {
+			LexiconTable.clickEllipsisItem(
+				item = "View",
+				tableEntry = "1.9");
+		}
+
+		task ("Then the preview page of the selected version of the Document is opened") {
+			AssertVisible(
+				key_title = "DM Document Title (Version 1.9)",
+				locator1 = "Header#H2_TITLE");
 		}
 	}
 
@@ -2735,13 +3412,64 @@ definition {
 		}
 	}
 
+	@description = "LPS-161017: Add the Download Action to the Version History for Documents and Media"
+	@priority = "4"
+	test DownloadDocumentFromVersionsTab {
+		property custom.properties = "feature.flag.LPS-162924=true";
+
+		task ("Given the Versions tab in the Info panel of a document") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-site-name");
+
+				DMDocument.editCP(
+					dmDocumentTitle = "DM Document Title",
+					dmDocumentTitleEdit = "DM Document Title Edit 1",
+					revision = "Minor",
+					versioning = "true");
+			}
+
+			task ("Navigate to Content Dashboard") {
+				ContentDashboard.goToContentDashboard();
+			}
+
+			task ("Open info panel sidebar") {
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "DM Document Title Edit 1");
+			}
+
+			task ("Open versions tab") {
+				ContentDashboard.openVersionsTab();
+			}
+		}
+
+		task ("When the user opens the kebab menu of a version And the user clicks on the Download action") {
+			ContentDashboard.clickMenuOfVersion(
+				menuItem = "Download",
+				versionName = "Version 1.0");
+		}
+
+		task ("Then the version of that document is downloaded") {
+			DMDocument.assertFileNameFromTempFolder(fileName = "Document_1.txt");
+		}
+	}
+
 	@description = " Given a document with and associated Display Page Template
 	When the user with permissions clicks on the edit button
 	Then the user is lead to the edit mode"
 	@priority = "4"
 	test EditBlog {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a blog") {
@@ -2774,7 +3502,7 @@ definition {
 	@priority = "4"
 	test EditDocument {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFContentDashboardDocumentConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
+		property osgi.module.configurations = "enabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Add a document") {
@@ -2856,6 +3584,44 @@ definition {
 		}
 	}
 
+	@description = "LPS-162827 Given the kebab menu of a web content with just one version
+	When the user clicks on Expire option
+	Then the web content is expired and it changes its status to Expired"
+	@priority = "4"
+	test ExpireVersionLabel {
+		property custom.properties = "feature.flag.LPS-162924=true";
+
+		task ("Create a Web Content") {
+			JSONWebcontent.addWebContent(
+				content = "WC Content",
+				groupName = "Test Site Name",
+				title = "WC Title");
+		}
+
+		task ("Go to Content Dashboard") {
+			ContentDashboard.goToContentDashboard();
+		}
+
+		task ("Open the info panel and go to the versions tab") {
+			ContentDashboard.clickQuickActionIcon(iconName = "Info");
+
+			ContentDashboard.openVersionsTab();
+		}
+
+		task ("Expire the web content version") {
+			ContentDashboard.clickMenuOfVersion(
+				menuItem = "Expire",
+				versionName = "Version 1.0");
+		}
+
+		task ("Check the Expire label is present for the web content") {
+			AssertTextPresent(
+				assetName = "WC Title",
+				locator1 = "ContentDashboard#ASSET_STATUS_LABEL",
+				value1 = "EXPIRED");
+		}
+	}
+
 	@description = "LPS-124236 Given the Content Dashboard
 	When there are no contents in the list
 	Then the Export XLS button is disabled"
@@ -2878,7 +3644,7 @@ definition {
 	@priority = "5"
 	test FilterBlogByAuthorAll {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a blog") {
@@ -2907,7 +3673,7 @@ definition {
 	@priority = "5"
 	test FilterBlogByAuthorMe {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a blog") {
@@ -2937,7 +3703,7 @@ definition {
 	@priority = "5"
 	test FilterBlogByAuthorOther {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a blog") {
@@ -2966,7 +3732,7 @@ definition {
 	@priority = "5"
 	test FilterBlogByCategory {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Add a public vocabulary for Test Site Name") {
@@ -3007,7 +3773,7 @@ definition {
 	@priority = "5"
 	test FilterBlogBySite {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a blog") {
@@ -3147,7 +3913,7 @@ definition {
 	@priority = "5"
 	test FilterBlogByTag {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a blog with the tag") {
@@ -4053,7 +4819,7 @@ definition {
 	@priority = "5"
 	test FilterBySubtypeBlogsEntry {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 		property portal.acceptance = "true";
 
 		task ("Create a blog") {
@@ -4088,7 +4854,7 @@ definition {
 	@priority = "3"
 	test FilterBySubtypeBlogsEntryAndWebContent {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
+		property osgi.module.configurations = "blogsEntryEnabled=B\"true\"";
 
 		task ("Create a Web Content") {
 			JSONWebcontent.addWebContent(
@@ -5303,6 +6069,65 @@ definition {
 		}
 	}
 
+	@description = "LPS-162824: Add the Revert Action to the Version History for Documents and Media"
+	@priority = "4"
+	test RevertDocumentVersion {
+		property custom.properties = "feature.flag.LPS-162924=true";
+
+		task ("Given a Document with more than one version") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Create a new version of the document") {
+				DMDocument.openDocumentsAndMediaAdmin(siteURLKey = "test-site-name");
+
+				DMDocument.editCP(
+					dmDocumentTitle = "DM Document Title",
+					dmDocumentTitleEdit = "DM Document Title Edit");
+			}
+		}
+
+		task ("And its info panel is open") {
+			task ("Navigate to Content Dashboard") {
+				ContentDashboard.goToContentDashboard();
+			}
+
+			task ("Open info panel sidebar at versions tag") {
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "DM Document Title Edit");
+
+				ContentDashboard.openVersionsTab();
+			}
+		}
+
+		task ("When user select the revert option of an older version") {
+			ContentDashboard.clickMenuOfVersion(
+				menuItem = "Revert",
+				versionName = "Version 1.0");
+		}
+
+		task ("Then a new major version is created") {
+			AssertTextPresent(
+				index = "1",
+				locator1 = "ContentDashboard#ASSET_VERSION_NUMBER_INDEX",
+				value1 = "Version 2.0");
+		}
+
+		task ("And the log should inform the corresponding version") {
+			AssertTextEquals(
+				locator1 = "ContentDashboard#ASSET_VERSION_LOGS",
+				value1 = "Reverted to 1.0",
+				versionNumber = "Version 2.0");
+		}
+	}
+
 	@description = "Validate if the user can open de Info side panel of a web content"
 	@priority = "5"
 	test SaveFiltersAfterEditing {
@@ -5740,7 +6565,7 @@ definition {
 	@priority = "3"
 	test TypeColumnForDocument {
 		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFContentDashboardDocumentConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
+		property osgi.module.configurations = "enabled=B\"true\"";
 
 		task ("Create document via JSON") {
 			task ("Create a new Document") {
@@ -5853,6 +6678,60 @@ definition {
 		}
 	}
 
+	@description = "LPS-162823: Add the View Action to the Version History for Documents and Media"
+	@priority = "3"
+	test ViewDocumentVersion {
+		property custom.properties = "feature.flag.LPS-162924=true";
+
+		task ("Given the Versions tab in the Info panel of a document") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "test-site-name");
+
+				DMDocument.editCP(
+					dmDocumentTitle = "DM Document Title",
+					dmDocumentTitleEdit = "DM Document Title Edit 1",
+					revision = "Minor",
+					versioning = "true");
+			}
+
+			task ("Navigate to Content Dashboard") {
+				ContentDashboard.goToContentDashboard();
+			}
+
+			task ("Open info panel sidebar") {
+				LexiconTable.clickEllipsisItem(
+					item = "Info",
+					tableEntry = "DM Document Title Edit 1");
+			}
+
+			task ("Open versions tab") {
+				ContentDashboard.openVersionsTab();
+			}
+		}
+
+		task ("When the user opens the kebab menu of a version And the user clicks on the View action") {
+			ContentDashboard.clickMenuOfVersion(
+				menuItem = "View",
+				versionName = "Version 1.0");
+		}
+
+		task ("Then the user is redirected to the document page for that version") {
+			AssertTextEquals(
+				key_dmDocumentTitle = "DM Document Title (Version 1.0)",
+				locator1 = "DocumentsAndMediaDocument#DOCUMENT_INFO_TITLE",
+				value1 = "DM Document Title (Version 1.0)");
+		}
+	}
+
 	@description = "LPS-151911 Bug: Content Dashboard shows error when displaying details of article whose authors has been deleted"
 	@priority = "4"
 	test ViewInfoPanelDeletedUser {
@@ -5923,6 +6802,102 @@ definition {
 			AssertTextPresent(
 				locator1 = "ContentDashboard#INFO_PANEL_TITLE",
 				value1 = "Web Content Title");
+		}
+	}
+
+	@description = "LPS-164334: Add a Version History Page to Documents and Media"
+	@priority = "4"
+	test ViewMoreButtonToDocumentsVersionHistory {
+		property portal.acceptance = "true";
+
+		task ("Given the info panel of a document") {
+			task ("Create a Document") {
+				JSONDocument.addFileWithUploadedFile(
+					dmDocumentDescription = "DM Document Description",
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					mimeType = "text/plain",
+					sourceFileName = "Document_1.txt");
+			}
+
+			task ("Add versions for the document") {
+				ContentDashboard.createVersionsForDocument(
+					dmDocumentTitle = "DM Document Title",
+					groupName = "Test Site Name",
+					versionsCreated = "10");
+			}
+		}
+
+		task ("When the user clicks on the View More button") {
+			ContentDashboard.goToVersionHistoryPage(assetName = "DM Document Title");
+		}
+
+		task ("And the user is redirected to the Version History page for documents") {
+			AssertLocation.assertPartialLocation(value1 = "document_library%2Fview_file_entry_history");
+
+			SiteAdmin.viewPortletTitle(portletTitle = "DM Document Title");
+		}
+
+		task ("Then this page should contain a table of all the Version Histories of the Document") {
+			for (var indexNumber : list "1,2,3,4,5,6,7,8,9,10,11") {
+				AssertVisible(
+					index = "${indexNumber}",
+					key_tableEntry = "DM Document Title",
+					locator1 = "LexiconTable#TABLE_ENTRY_TITLE_INDEXED");
+			}
+		}
+	}
+
+	@description = "LPS-161544 Given the Version History page for Web Contents
+	When the user clicks on back
+	Then the Web Content is selected and the Info Panel is open to the Versions tab"
+	@priority = "4"
+	test ViewMoreWCVersionsBackButton {
+		property custom.properties = "feature.flag.LPS-162924=true";
+
+		task ("Create Web Content") {
+			JSONWebcontent.addWebContent(
+				content = "WC Content",
+				groupName = "Test Site Name",
+				title = "WC Title 1");
+		}
+
+		task ("Edit Web Content 10 times") {
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+			for (var count : list "1,2,3,4,5,6,7,8,9,10,11") {
+				WebContentNavigator.gotoEditCP(webContentTitle = "WC Title 1");
+
+				WebContent.editCP(
+					webContentTitle = "WC Title 1",
+					webContentTitleEdit = "WC Title 1");
+			}
+		}
+
+		task ("Go to Content Dashboard") {
+			ContentDashboard.goToContentDashboard();
+		}
+
+		task ("Open the info panel and go to the versions tab") {
+			ContentDashboard.clickQuickActionIcon(iconName = "Info");
+
+			ContentDashboard.openVersionsTab();
+		}
+
+		task ("Click on View more and check the user is redirected to the Version History page") {
+			Click(
+				key_text = "View More",
+				locator1 = "Button#ANY");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "WC Title 1");
+		}
+
+		task ("Click on back and check the user is redirected to the Content Dashboard and the info panel is opened in the Versions tab") {
+			Navigator.gotoBack();
+
+			AssertElementPresent(
+				key_text = "View More",
+				locator1 = "Button#ANY");
 		}
 	}
 

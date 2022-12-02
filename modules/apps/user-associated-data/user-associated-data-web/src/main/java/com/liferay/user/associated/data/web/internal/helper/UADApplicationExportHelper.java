@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstant
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.user.associated.data.display.UADDisplay;
 import com.liferay.user.associated.data.exporter.UADExporter;
 import com.liferay.user.associated.data.web.internal.display.UADApplicationExportDisplay;
@@ -41,7 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Pei-Jung Lan
  */
-@Component(immediate = true, service = UADApplicationExportHelper.class)
+@Component(service = UADApplicationExportHelper.class)
 public class UADApplicationExportHelper {
 
 	public Date getApplicationLastExportDate(
@@ -122,9 +121,6 @@ public class UADApplicationExportHelper {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		UADApplicationExportHelper.class);
-
-	@Reference
-	private Portal _portal;
 
 	@Reference
 	private UADRegistry _uadRegistry;

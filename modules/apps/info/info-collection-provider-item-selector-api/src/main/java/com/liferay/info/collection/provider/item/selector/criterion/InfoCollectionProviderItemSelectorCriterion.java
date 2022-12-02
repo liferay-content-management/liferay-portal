@@ -15,10 +15,6 @@
 package com.liferay.info.collection.provider.item.selector.criterion;
 
 import com.liferay.item.selector.BaseItemSelectorCriterion;
-import com.liferay.portal.kernel.util.ListUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Eudaldo Alonso
@@ -26,26 +22,40 @@ import java.util.List;
 public class InfoCollectionProviderItemSelectorCriterion
 	extends BaseItemSelectorCriterion {
 
-	public String getItemType() {
-		if (ListUtil.isEmpty(_itemTypes)) {
-			return null;
-		}
-
-		return _itemTypes.get(0);
+	public String getItemSubtype() {
+		return _itemSubtype;
 	}
 
-	public List<String> getItemTypes() {
-		return _itemTypes;
+	public String getItemType() {
+		return _itemType;
+	}
+
+	public Type getType() {
+		return _type;
+	}
+
+	public void setItemSubtype(String itemSubtype) {
+		_itemSubtype = itemSubtype;
 	}
 
 	public void setItemType(String itemType) {
-		_itemTypes.add(itemType);
+		_itemType = itemType;
+
+		_type = Type.SINGLE_COLLECTION;
 	}
 
-	public void setItemTypes(List<String> itemTypes) {
-		_itemTypes = itemTypes;
+	public void setType(Type type) {
+		_type = type;
 	}
 
-	private List<String> _itemTypes = new ArrayList<>();
+	public enum Type {
+
+		ALL_COLLECTIONS, SINGLE_COLLECTION, SUPPORTED_INFO_FRAMEWORK_COLLECTIONS
+
+	}
+
+	private String _itemSubtype;
+	private String _itemType;
+	private Type _type = Type.ALL_COLLECTIONS;
 
 }

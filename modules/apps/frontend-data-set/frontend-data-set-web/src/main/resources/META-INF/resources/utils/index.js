@@ -16,12 +16,6 @@ import {fetch} from 'frontend-js-web';
 
 import createOdataFilter from './odata';
 
-export function delay(duration) {
-	return new Promise((resolve) => {
-		setTimeout(() => resolve(), duration);
-	});
-}
-
 export function getData(apiURL, query) {
 	const url = new URL(apiURL);
 
@@ -166,6 +160,10 @@ export function formatItemChanges(itemChanges) {
 }
 
 export function formatActionURL(url, item) {
+	if (!url) {
+		return '';
+	}
+
 	const replacedURL = url.replace(new RegExp('{(.*?)}', 'mg'), (matched) =>
 		getValueFromItem(
 			item,

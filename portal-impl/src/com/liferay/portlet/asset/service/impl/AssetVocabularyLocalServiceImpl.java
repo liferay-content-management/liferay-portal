@@ -630,8 +630,8 @@ public class AssetVocabularyLocalServiceImpl
 		}
 
 		AssetVocabulary assetVocabulary =
-			assetVocabularyPersistence.fetchByG_ERC(
-				groupId, externalReferenceCode);
+			assetVocabularyPersistence.fetchByERC_G(
+				externalReferenceCode, groupId);
 
 		if (assetVocabulary != null) {
 			throw new DuplicateVocabularyExternalReferenceCodeException(

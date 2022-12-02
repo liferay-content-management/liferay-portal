@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -84,9 +83,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(
-	service = {LayoutLocalizationPersistence.class, BasePersistence.class}
-)
+@Component(service = LayoutLocalizationPersistence.class)
 public class LayoutLocalizationPersistenceImpl
 	extends BasePersistenceImpl<LayoutLocalization>
 	implements LayoutLocalizationPersistence {
@@ -208,7 +205,7 @@ public class LayoutLocalizationPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<LayoutLocalization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (LayoutLocalization layoutLocalization : list) {
@@ -605,7 +602,7 @@ public class LayoutLocalizationPersistenceImpl
 
 			finderArgs = new Object[] {uuid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -741,7 +738,7 @@ public class LayoutLocalizationPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByUUID_G, finderArgs);
+				_finderPathFetchByUUID_G, finderArgs, this);
 		}
 
 		if (result instanceof LayoutLocalization) {
@@ -861,7 +858,7 @@ public class LayoutLocalizationPersistenceImpl
 
 			finderArgs = new Object[] {uuid, groupId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1033,7 +1030,7 @@ public class LayoutLocalizationPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<LayoutLocalization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (LayoutLocalization layoutLocalization : list) {
@@ -1459,7 +1456,7 @@ public class LayoutLocalizationPersistenceImpl
 
 			finderArgs = new Object[] {uuid, companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1619,7 +1616,7 @@ public class LayoutLocalizationPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<LayoutLocalization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (LayoutLocalization layoutLocalization : list) {
@@ -1988,7 +1985,7 @@ public class LayoutLocalizationPersistenceImpl
 
 			finderArgs = new Object[] {plid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2109,7 +2106,8 @@ public class LayoutLocalizationPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache && productionMode) {
-			result = finderCache.getResult(_finderPathFetchByL_P, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByL_P, finderArgs, this);
 		}
 
 		if (result instanceof LayoutLocalization) {
@@ -2230,7 +2228,7 @@ public class LayoutLocalizationPersistenceImpl
 
 			finderArgs = new Object[] {languageId, plid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2382,7 +2380,8 @@ public class LayoutLocalizationPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache && productionMode) {
-			result = finderCache.getResult(_finderPathFetchByG_L_P, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByG_L_P, finderArgs, this);
 		}
 
 		if (result instanceof LayoutLocalization) {
@@ -2512,7 +2511,7 @@ public class LayoutLocalizationPersistenceImpl
 
 			finderArgs = new Object[] {groupId, languageId, plid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -3235,7 +3234,7 @@ public class LayoutLocalizationPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<LayoutLocalization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -3311,7 +3310,7 @@ public class LayoutLocalizationPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {
@@ -3400,6 +3399,7 @@ public class LayoutLocalizationPersistenceImpl
 	static {
 		Set<String> ctControlColumnNames = new HashSet<String>();
 		Set<String> ctIgnoreColumnNames = new HashSet<String>();
+		Set<String> ctMergeColumnNames = new HashSet<String>();
 		Set<String> ctStrictColumnNames = new HashSet<String>();
 
 		ctControlColumnNames.add("mvccVersion");
@@ -3409,7 +3409,7 @@ public class LayoutLocalizationPersistenceImpl
 		ctStrictColumnNames.add("companyId");
 		ctStrictColumnNames.add("createDate");
 		ctIgnoreColumnNames.add("modifiedDate");
-		ctStrictColumnNames.add("content");
+		ctMergeColumnNames.add("content");
 		ctStrictColumnNames.add("languageId");
 		ctStrictColumnNames.add("plid");
 		ctStrictColumnNames.add("lastPublishDate");
@@ -3418,6 +3418,7 @@ public class LayoutLocalizationPersistenceImpl
 			CTColumnResolutionType.CONTROL, ctControlColumnNames);
 		_ctColumnNamesMap.put(
 			CTColumnResolutionType.IGNORE, ctIgnoreColumnNames);
+		_ctColumnNamesMap.put(CTColumnResolutionType.MERGE, ctMergeColumnNames);
 		_ctColumnNamesMap.put(
 			CTColumnResolutionType.PK,
 			Collections.singleton("layoutLocalizationId"));

@@ -1,7 +1,6 @@
 Bundle-Name: Liferay Commerce Frontend API
 Bundle-SymbolicName: com.liferay.commerce.frontend.api
-Bundle-Version: 14.0.1
+Bundle-Version: 14.0.4
 Export-Package:\
 	com.liferay.commerce.frontend.model,\
 	com.liferay.commerce.frontend.util
-Liferay-Enterprise-App: product.id=9a473157-06a6-44b6-b017-a360ffaf5f38

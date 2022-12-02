@@ -124,10 +124,11 @@ export default function DataEngineLayoutBuilderHandler({namespace}) {
 		if (
 			isElementInnerSelector(
 				target,
+				'.cke_dialog',
 				'.ddm-form-builder-wrapper',
-				'.multi-panel-sidebar',
+				'.input-localized-content',
 				'.lfr-icon-menu-open',
-				'.input-localized-content'
+				'.multi-panel-sidebar'
 			)
 		) {
 			const dataLayoutBuilder = await getDataLayoutBuilder();

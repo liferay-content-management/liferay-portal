@@ -16,6 +16,8 @@ package com.liferay.portal.kernel.util;
 
 import com.liferay.petra.concurrent.ConcurrentReferenceKeyHashMap;
 import com.liferay.petra.memory.FinalizeManager;
+import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageBuilderUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.language.UTF8Control;
@@ -165,7 +167,9 @@ public class ResourceBundleUtil {
 
 		if (ArrayUtil.isNotEmpty(arguments)) {
 			MessageFormat messageFormat = new MessageFormat(
-				value, resourceBundle.getLocale());
+				StringUtil.replace(
+					value, CharPool.APOSTROPHE, StringPool.DOUBLE_APOSTROPHE),
+				resourceBundle.getLocale());
 
 			value = messageFormat.format(arguments);
 		}

@@ -69,6 +69,7 @@ class SegmentEdit extends Component {
 		propertyGroups: PropTypes.array,
 		redirect: PropTypes.string.isRequired,
 		requestMembersCountURL: PropTypes.string,
+		scopeName: PropTypes.string,
 		segmentsConfigurationURL: PropTypes.string,
 		setFieldValue: PropTypes.func,
 		setValues: PropTypes.func,
@@ -290,6 +291,7 @@ class SegmentEdit extends Component {
 				propertyGroups={propertyGroups}
 				renderEmptyValuesErrors={queryHasEmptyValues}
 				requestMembersCountURL={requestMembersCountURL}
+				scopeName={this.props.scopeName}
 				segmentName={segmentName}
 				supportedConjunctions={SUPPORTED_CONJUNCTIONS}
 				supportedOperators={SUPPORTED_OPERATORS}
@@ -517,11 +519,29 @@ class SegmentEdit extends Component {
 								<div className="btn-group">
 									<div className="btn-group-item mr-2">
 										<ClayToggle
+											aria-label={
+												editing
+													? Liferay.Language.get(
+															'View'
+													  )
+													: Liferay.Language.get(
+															'Edit'
+													  )
+											}
 											checked={editing}
 											className="toggle-editing"
 											iconOff="pencil"
 											iconOn="pencil"
 											onChange={this._handleCriteriaEdit}
+											title={
+												editing
+													? Liferay.Language.get(
+															'View'
+													  )
+													: Liferay.Language.get(
+															'Edit'
+													  )
+											}
 										/>
 									</div>
 								</div>

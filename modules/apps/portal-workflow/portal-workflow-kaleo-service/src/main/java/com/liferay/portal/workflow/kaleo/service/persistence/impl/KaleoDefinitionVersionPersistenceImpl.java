@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -81,9 +80,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(
-	service = {KaleoDefinitionVersionPersistence.class, BasePersistence.class}
-)
+@Component(service = KaleoDefinitionVersionPersistence.class)
 public class KaleoDefinitionVersionPersistenceImpl
 	extends BasePersistenceImpl<KaleoDefinitionVersion>
 	implements KaleoDefinitionVersionPersistence {
@@ -206,7 +203,7 @@ public class KaleoDefinitionVersionPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoDefinitionVersion>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (KaleoDefinitionVersion kaleoDefinitionVersion : list) {
@@ -583,7 +580,7 @@ public class KaleoDefinitionVersionPersistenceImpl
 
 			finderArgs = new Object[] {companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -733,7 +730,7 @@ public class KaleoDefinitionVersionPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoDefinitionVersion>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (KaleoDefinitionVersion kaleoDefinitionVersion : list) {
@@ -1160,7 +1157,7 @@ public class KaleoDefinitionVersionPersistenceImpl
 
 			finderArgs = new Object[] {companyId, name};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1313,7 +1310,8 @@ public class KaleoDefinitionVersionPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache && productionMode) {
-			result = finderCache.getResult(_finderPathFetchByC_N_V, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByC_N_V, finderArgs, this);
 		}
 
 		if (result instanceof KaleoDefinitionVersion) {
@@ -1455,7 +1453,7 @@ public class KaleoDefinitionVersionPersistenceImpl
 
 			finderArgs = new Object[] {companyId, name, version};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2164,7 +2162,7 @@ public class KaleoDefinitionVersionPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoDefinitionVersion>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2240,7 +2238,7 @@ public class KaleoDefinitionVersionPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

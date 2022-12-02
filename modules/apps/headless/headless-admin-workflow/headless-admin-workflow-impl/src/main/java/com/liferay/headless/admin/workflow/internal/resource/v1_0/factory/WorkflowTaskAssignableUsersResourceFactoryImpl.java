@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.lang.reflect.Constructor;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	immediate = true,
 	property = "resource.locator.key=/headless-admin-workflow/v1.0/WorkflowTaskAssignableUsers",
 	service = WorkflowTaskAssignableUsersResource.Factory.class
 )
@@ -139,16 +137,6 @@ public class WorkflowTaskAssignableUsersResourceFactoryImpl
 			private User _user;
 
 		};
-	}
-
-	@Activate
-	protected void activate() {
-		WorkflowTaskAssignableUsersResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		WorkflowTaskAssignableUsersResource.FactoryHolder.factory = null;
 	}
 
 	private static Function
@@ -231,6 +219,8 @@ public class WorkflowTaskAssignableUsersResourceFactoryImpl
 			_resourcePermissionLocalService);
 		workflowTaskAssignableUsersResource.setRoleLocalService(
 			_roleLocalService);
+		workflowTaskAssignableUsersResource.setSortParserProvider(
+			_sortParserProvider);
 
 		try {
 			return method.invoke(
@@ -283,6 +273,9 @@ public class WorkflowTaskAssignableUsersResourceFactoryImpl
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

@@ -51,6 +51,7 @@ import java.io.Serializable;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -112,6 +113,12 @@ public interface DDLRecordLocalService
 	public DDLRecord addRecord(
 			long userId, long groupId, long recordSetId, int displayIndex,
 			DDMFormValues ddmFormValues, ServiceContext serviceContext)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public DDLRecord addRecord(
+			long userId, long groupId, long recordSetId, int displayIndex,
+			Map<String, Serializable> fieldsMap, ServiceContext serviceContext)
 		throws PortalException;
 
 	/**

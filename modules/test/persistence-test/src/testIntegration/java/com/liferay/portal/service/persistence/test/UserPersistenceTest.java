@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.DuplicateUserExternalReferenceCodeException;
 import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
@@ -305,6 +306,25 @@ public class UserPersistenceTest {
 		Assert.assertEquals(existingUser.getStatus(), newUser.getStatus());
 	}
 
+	@Test(expected = DuplicateUserExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		User user = addUser();
+
+		User newUser = addUser();
+
+		newUser.setCompanyId(user.getCompanyId());
+
+		newUser = _persistence.update(newUser);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newUser);
+
+		newUser.setExternalReferenceCode(user.getExternalReferenceCode());
+
+		_persistence.update(newUser);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -465,12 +485,12 @@ public class UserPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -853,15 +873,15 @@ public class UserPersistenceTest {
 				"openId"));
 
 		Assert.assertEquals(
-			Long.valueOf(user.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				user, "getColumnOriginalValue", new Class<?>[] {String.class},
-				"companyId"));
-		Assert.assertEquals(
 			user.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				user, "getColumnOriginalValue", new Class<?>[] {String.class},
 				"externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(user.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				user, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"companyId"));
 	}
 
 	protected User addUser() throws Exception {

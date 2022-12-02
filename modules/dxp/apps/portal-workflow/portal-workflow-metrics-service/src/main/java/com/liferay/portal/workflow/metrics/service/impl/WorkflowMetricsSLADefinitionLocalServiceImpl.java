@@ -91,7 +91,7 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 		String latestProcessVersion = _getLatestProcessVersion(
 			serviceContext.getCompanyId(), processId);
 
-		validate(
+		_validate(
 			0, serviceContext.getCompanyId(), processId, latestProcessVersion,
 			name, duration, pauseNodeKeys, startNodeKeys, stopNodeKeys);
 
@@ -136,7 +136,7 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 			workflowMetricsSLADefinitionPersistence.update(
 				workflowMetricsSLADefinition);
 
-		addWorkflowMetricsSLADefinitionVersion(
+		_addWorkflowMetricsSLADefinitionVersion(
 			user, workflowMetricsSLADefinition);
 
 		return workflowMetricsSLADefinition;
@@ -153,13 +153,13 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 
 		workflowMetricsSLADefinition.setActive(false);
 		workflowMetricsSLADefinition.setVersion(
-			getNextVersion(workflowMetricsSLADefinition.getVersion()));
+			_getNextVersion(workflowMetricsSLADefinition.getVersion()));
 
 		workflowMetricsSLADefinition =
 			workflowMetricsSLADefinitionPersistence.update(
 				workflowMetricsSLADefinition);
 
-		addWorkflowMetricsSLADefinitionVersion(
+		_addWorkflowMetricsSLADefinitionVersion(
 			_userLocalService.getUser(serviceContext.getGuestOrUserId()),
 			workflowMetricsSLADefinition);
 
@@ -253,7 +253,7 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 			workflowMetricsSLADefinition.getProcessId());
 
 		if (Objects.equals(WorkflowConstants.STATUS_APPROVED, status)) {
-			validate(
+			_validate(
 				workflowMetricsSLADefinition.
 					getWorkflowMetricsSLADefinitionId(),
 				workflowMetricsSLADefinition.getCompanyId(),
@@ -279,7 +279,7 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 		workflowMetricsSLADefinition.setStopNodeKeys(
 			StringUtil.merge(stopNodeKeys));
 		workflowMetricsSLADefinition.setVersion(
-			getNextVersion(workflowMetricsSLADefinition.getVersion()));
+			_getNextVersion(workflowMetricsSLADefinition.getVersion()));
 		workflowMetricsSLADefinition.setStatus(status);
 
 		User user = _userLocalService.getUser(
@@ -295,7 +295,7 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 			workflowMetricsSLADefinitionPersistence.update(
 				workflowMetricsSLADefinition);
 
-		addWorkflowMetricsSLADefinitionVersion(
+		_addWorkflowMetricsSLADefinitionVersion(
 			user, workflowMetricsSLADefinition);
 
 		long companyId = workflowMetricsSLADefinition.getCompanyId();
@@ -319,8 +319,8 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 		return workflowMetricsSLADefinition;
 	}
 
-	protected WorkflowMetricsSLADefinitionVersion
-		addWorkflowMetricsSLADefinitionVersion(
+	private WorkflowMetricsSLADefinitionVersion
+		_addWorkflowMetricsSLADefinitionVersion(
 			User user,
 			WorkflowMetricsSLADefinition workflowMetricsSLADefinition) {
 
@@ -380,14 +380,92 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 			workflowMetricsSLADefinitionVersion);
 	}
 
-	protected String getNextVersion(String version) {
+	private FilterAggregation _createNodeIdAggregation(
+		String aggregationName, Set<String> nodeIds) {
+
+		TermsQuery termsQuery = _queries.terms("nodeId");
+
+		termsQuery.addValues(nodeIds.toArray());
+
+		FilterAggregation filterAggregation = _aggregations.filter(
+			aggregationName, termsQuery);
+
+		filterAggregation.addChildAggregation(
+			_aggregations.terms("nodeId", "nodeId"));
+
+		return filterAggregation;
+	}
+
+	private String _getLatestProcessVersion(long companyId, long processId) {
+		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
+
+		searchSearchRequest.setIndexNames(
+			_processWorkflowMetricsIndexNameBuilder.getIndexName(companyId));
+
+		BooleanQuery booleanQuery = _queries.booleanQuery();
+
+		booleanQuery.addMustQueryClauses(
+			_queries.term("companyId", companyId),
+			_queries.term("processId", processId));
+
+		searchSearchRequest.setQuery(booleanQuery);
+
+		searchSearchRequest.setSelectedFieldNames("version");
+
+		return Stream.of(
+			_searchRequestExecutor.executeSearchRequest(searchSearchRequest)
+		).map(
+			SearchSearchResponse::getSearchHits
+		).map(
+			SearchHits::getSearchHits
+		).flatMap(
+			List::parallelStream
+		).map(
+			SearchHit::getDocument
+		).findFirst(
+		).map(
+			document -> document.getString("version")
+		).orElseGet(
+			() -> StringPool.BLANK
+		);
+	}
+
+	private String _getNextVersion(String version) {
 		int[] versionParts = StringUtil.split(version, StringPool.PERIOD, 0);
 
 		return StringBundler.concat(
 			++versionParts[0], StringPool.PERIOD, versionParts[1]);
 	}
 
-	protected void validate(
+	private Set<String> _getNodeIds(String[] nodeKeys) {
+		if (nodeKeys == null) {
+			return Collections.emptySet();
+		}
+
+		return Stream.of(
+			nodeKeys
+		).map(
+			nodeKey -> StringUtil.split(nodeKey, CharPool.COLON)
+		).map(
+			nodeKeyParts -> nodeKeyParts[0]
+		).collect(
+			Collectors.toSet()
+		);
+	}
+
+	private long _getNodeIdsCount(
+		FilterAggregationResult filterAggregationResult) {
+
+		TermsAggregationResult termsAggregationResult =
+			(TermsAggregationResult)
+				filterAggregationResult.getChildAggregationResult("nodeId");
+
+		Collection<Bucket> buckets = termsAggregationResult.getBuckets();
+
+		return buckets.size();
+	}
+
+	private void _validate(
 			long workflowMetricsSLADefinitionId, long companyId, long processId,
 			String processVersion, String name, long duration,
 			String[] pauseNodeKeys, String[] startNodeKeys,
@@ -428,12 +506,12 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 			throw new WorkflowMetricsSLADefinitionDuplicateNameException();
 		}
 
-		validateTimeframe(
+		_validateTimeframe(
 			companyId, pauseNodeKeys, processId, processVersion, startNodeKeys,
 			stopNodeKeys);
 	}
 
-	protected void validateTimeframe(
+	private void _validateTimeframe(
 			long companyId, String[] pauseNodeKeys, long processId,
 			String processVersion, String[] startNodeKeys,
 			String[] stopNodeKeys)
@@ -508,84 +586,6 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 			throw new WorkflowMetricsSLADefinitionTimeframeException(
 				fieldNames);
 		}
-	}
-
-	private FilterAggregation _createNodeIdAggregation(
-		String aggregationName, Set<String> nodeIds) {
-
-		TermsQuery termsQuery = _queries.terms("nodeId");
-
-		termsQuery.addValues(nodeIds.toArray());
-
-		FilterAggregation filterAggregation = _aggregations.filter(
-			aggregationName, termsQuery);
-
-		filterAggregation.addChildAggregation(
-			_aggregations.terms("nodeId", "nodeId"));
-
-		return filterAggregation;
-	}
-
-	private String _getLatestProcessVersion(long companyId, long processId) {
-		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
-
-		searchSearchRequest.setIndexNames(
-			_processWorkflowMetricsIndexNameBuilder.getIndexName(companyId));
-
-		BooleanQuery booleanQuery = _queries.booleanQuery();
-
-		booleanQuery.addMustQueryClauses(
-			_queries.term("companyId", companyId),
-			_queries.term("processId", processId));
-
-		searchSearchRequest.setQuery(booleanQuery);
-
-		searchSearchRequest.setSelectedFieldNames("version");
-
-		return Stream.of(
-			_searchRequestExecutor.executeSearchRequest(searchSearchRequest)
-		).map(
-			SearchSearchResponse::getSearchHits
-		).map(
-			SearchHits::getSearchHits
-		).flatMap(
-			List::parallelStream
-		).map(
-			SearchHit::getDocument
-		).findFirst(
-		).map(
-			document -> document.getString("version")
-		).orElseGet(
-			() -> StringPool.BLANK
-		);
-	}
-
-	private Set<String> _getNodeIds(String[] nodeKeys) {
-		if (nodeKeys == null) {
-			return Collections.emptySet();
-		}
-
-		return Stream.of(
-			nodeKeys
-		).map(
-			nodeKey -> StringUtil.split(nodeKey, CharPool.COLON)
-		).map(
-			nodeKeyParts -> nodeKeyParts[0]
-		).collect(
-			Collectors.toSet()
-		);
-	}
-
-	private long _getNodeIdsCount(
-		FilterAggregationResult filterAggregationResult) {
-
-		TermsAggregationResult termsAggregationResult =
-			(TermsAggregationResult)
-				filterAggregationResult.getChildAggregationResult("nodeId");
-
-		Collection<Bucket> buckets = termsAggregationResult.getBuckets();
-
-		return buckets.size();
 	}
 
 	private static final String _VERSION_DEFAULT = "1.0";

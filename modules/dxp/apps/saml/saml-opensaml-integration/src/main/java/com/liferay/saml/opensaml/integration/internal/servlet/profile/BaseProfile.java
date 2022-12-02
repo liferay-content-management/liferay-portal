@@ -16,10 +16,11 @@ package com.liferay.saml.opensaml.integration.internal.servlet.profile;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
+import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -371,87 +372,49 @@ public abstract class BaseProfile {
 			SamlWebKeys.SAML_SP_SESSION_KEY);
 
 		if (Validator.isNull(samlSpSessionKey)) {
-			samlSpSessionKey = CookieKeys.getCookie(
-				httpServletRequest, SamlWebKeys.SAML_SP_SESSION_KEY);
+			samlSpSessionKey = CookiesManagerUtil.getCookieValue(
+				SamlWebKeys.SAML_SP_SESSION_KEY, httpServletRequest);
 		}
 
 		return samlSpSessionKey;
 	}
 
 	public String getSamlSsoSessionId(HttpServletRequest httpServletRequest) {
-		return CookieKeys.getCookie(
-			httpServletRequest, SamlWebKeys.SAML_SSO_SESSION_ID);
+		return CookiesManagerUtil.getCookieValue(
+			SamlWebKeys.SAML_SSO_SESSION_ID, httpServletRequest);
 	}
 
 	public void logout(
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse) {
 
-		String domain = CookieKeys.getDomain(httpServletRequest);
+		String domain = CookiesManagerUtil.getDomain(httpServletRequest);
 
-		Cookie companyIdCookie = new Cookie(
-			CookieKeys.COMPANY_ID, StringPool.BLANK);
+		CookiesManagerUtil.deleteCookies(
+			domain, httpServletRequest, httpServletResponse,
+			CookiesConstants.NAME_COMPANY_ID);
 
-		if (Validator.isNotNull(domain)) {
-			companyIdCookie.setDomain(domain);
-		}
+		CookiesManagerUtil.deleteCookies(
+			domain, httpServletRequest, httpServletResponse,
+			CookiesConstants.NAME_ID);
 
-		companyIdCookie.setMaxAge(0);
-		companyIdCookie.setPath(StringPool.SLASH);
+		CookiesManagerUtil.deleteCookies(
+			domain, httpServletRequest, httpServletResponse,
+			CookiesConstants.NAME_PASSWORD);
 
-		Cookie idCookie = new Cookie(CookieKeys.ID, StringPool.BLANK);
-
-		if (Validator.isNotNull(domain)) {
-			idCookie.setDomain(domain);
-		}
-
-		idCookie.setMaxAge(0);
-		idCookie.setPath(StringPool.SLASH);
-
-		Cookie passwordCookie = new Cookie(
-			CookieKeys.PASSWORD, StringPool.BLANK);
-
-		if (Validator.isNotNull(domain)) {
-			passwordCookie.setDomain(domain);
-		}
-
-		passwordCookie.setMaxAge(0);
-		passwordCookie.setPath(StringPool.SLASH);
+		CookiesManagerUtil.deleteCookies(
+			domain, httpServletRequest, httpServletResponse,
+			CookiesConstants.NAME_REMEMBER_ME);
 
 		boolean rememberMe = GetterUtil.getBoolean(
-			CookieKeys.getCookie(httpServletRequest, CookieKeys.REMEMBER_ME));
+			CookiesManagerUtil.getCookieValue(
+				CookiesConstants.NAME_REMEMBER_ME, httpServletRequest));
 
 		if (!rememberMe) {
-			Cookie loginCookie = new Cookie(CookieKeys.LOGIN, StringPool.BLANK);
-
-			if (Validator.isNotNull(domain)) {
-				loginCookie.setDomain(domain);
-			}
-
-			loginCookie.setMaxAge(0);
-			loginCookie.setPath(StringPool.SLASH);
-
-			CookieKeys.addCookie(
-				httpServletRequest, httpServletResponse, loginCookie);
+			CookiesManagerUtil.deleteCookies(
+				domain, httpServletRequest, httpServletResponse,
+				CookiesConstants.NAME_LOGIN);
 		}
-
-		Cookie rememberMeCookie = new Cookie(
-			CookieKeys.REMEMBER_ME, StringPool.BLANK);
-
-		if (Validator.isNotNull(domain)) {
-			rememberMeCookie.setDomain(domain);
-		}
-
-		rememberMeCookie.setMaxAge(0);
-		rememberMeCookie.setPath(StringPool.SLASH);
-
-		CookieKeys.addCookie(
-			httpServletRequest, httpServletResponse, companyIdCookie);
-		CookieKeys.addCookie(httpServletRequest, httpServletResponse, idCookie);
-		CookieKeys.addCookie(
-			httpServletRequest, httpServletResponse, passwordCookie);
-		CookieKeys.addCookie(
-			httpServletRequest, httpServletResponse, rememberMeCookie);
 
 		HttpSession httpSession = httpServletRequest.getSession();
 
@@ -538,14 +501,14 @@ public abstract class BaseProfile {
 		}
 	}
 
-	protected void addCookie(
+	protected void addNonpersistentCookie(
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse, String cookieName,
-		String cookieValue, int maxAge) {
+		String cookieValue) {
 
 		Cookie cookie = new Cookie(cookieName, cookieValue);
 
-		cookie.setMaxAge(maxAge);
+		cookie.setMaxAge(-1);
 
 		if (Validator.isNull(portal.getPathContext())) {
 			cookie.setPath(StringPool.SLASH);
@@ -554,9 +517,10 @@ public abstract class BaseProfile {
 			cookie.setPath(portal.getPathContext());
 		}
 
-		cookie.setSecure(httpServletRequest.isSecure());
-
-		httpServletResponse.addCookie(cookie);
+		CookiesManagerUtil.addCookie(
+			CookiesConstants.CONSENT_TYPE_FUNCTIONAL, cookie,
+			httpServletRequest, httpServletResponse,
+			httpServletRequest.isSecure());
 	}
 
 	protected void addSamlBinding(SamlBinding samlBinding) {

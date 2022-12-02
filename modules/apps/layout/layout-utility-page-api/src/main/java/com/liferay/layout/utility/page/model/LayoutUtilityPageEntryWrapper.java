@@ -60,6 +60,7 @@ public class LayoutUtilityPageEntryWrapper
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("plid", getPlid());
+		attributes.put("previewFileEntryId", getPreviewFileEntryId());
 		attributes.put(
 			"defaultLayoutUtilityPageEntry", isDefaultLayoutUtilityPageEntry());
 		attributes.put("name", getName());
@@ -145,6 +146,12 @@ public class LayoutUtilityPageEntryWrapper
 			setPlid(plid);
 		}
 
+		Long previewFileEntryId = (Long)attributes.get("previewFileEntryId");
+
+		if (previewFileEntryId != null) {
+			setPreviewFileEntryId(previewFileEntryId);
+		}
+
 		Boolean defaultLayoutUtilityPageEntry = (Boolean)attributes.get(
 			"defaultLayoutUtilityPageEntry");
 
@@ -158,7 +165,7 @@ public class LayoutUtilityPageEntryWrapper
 			setName(name);
 		}
 
-		Integer type = (Integer)attributes.get("type");
+		String type = (String)attributes.get("type");
 
 		if (type != null) {
 			setType(type);
@@ -236,6 +243,13 @@ public class LayoutUtilityPageEntryWrapper
 		return model.getGroupId();
 	}
 
+	@Override
+	public String getImagePreviewURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay) {
+
+		return model.getImagePreviewURL(themeDisplay);
+	}
+
 	/**
 	 * Returns the last publish date of this layout utility page entry.
 	 *
@@ -297,6 +311,16 @@ public class LayoutUtilityPageEntryWrapper
 	}
 
 	/**
+	 * Returns the preview file entry ID of this layout utility page entry.
+	 *
+	 * @return the preview file entry ID of this layout utility page entry
+	 */
+	@Override
+	public long getPreviewFileEntryId() {
+		return model.getPreviewFileEntryId();
+	}
+
+	/**
 	 * Returns the primary key of this layout utility page entry.
 	 *
 	 * @return the primary key of this layout utility page entry
@@ -312,7 +336,7 @@ public class LayoutUtilityPageEntryWrapper
 	 * @return the type of this layout utility page entry
 	 */
 	@Override
-	public int getType() {
+	public String getType() {
 		return model.getType();
 	}
 
@@ -494,6 +518,16 @@ public class LayoutUtilityPageEntryWrapper
 	}
 
 	/**
+	 * Sets the preview file entry ID of this layout utility page entry.
+	 *
+	 * @param previewFileEntryId the preview file entry ID of this layout utility page entry
+	 */
+	@Override
+	public void setPreviewFileEntryId(long previewFileEntryId) {
+		model.setPreviewFileEntryId(previewFileEntryId);
+	}
+
+	/**
 	 * Sets the primary key of this layout utility page entry.
 	 *
 	 * @param primaryKey the primary key of this layout utility page entry
@@ -509,7 +543,7 @@ public class LayoutUtilityPageEntryWrapper
 	 * @param type the type of this layout utility page entry
 	 */
 	@Override
-	public void setType(int type) {
+	public void setType(String type) {
 		model.setType(type);
 	}
 
@@ -551,6 +585,11 @@ public class LayoutUtilityPageEntryWrapper
 	@Override
 	public void setUuid(String uuid) {
 		model.setUuid(uuid);
+	}
+
+	@Override
+	public String toXmlString() {
+		return model.toXmlString();
 	}
 
 	@Override

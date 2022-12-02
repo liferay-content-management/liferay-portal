@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.uuid.PortalUUID;
 
@@ -40,7 +41,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Andrea Di Giorgi
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.product.type.grouped.model.CPDefinitionGroupedEntry",
 	service = AopService.class
 )
@@ -108,7 +108,7 @@ public class CPDefinitionGroupedEntryLocalServiceImpl
 		throws PortalException {
 
 		CPDefinition cpDefinition = null;
-		User user = userLocalService.getUser(serviceContext.getUserId());
+		User user = _userLocalService.getUser(serviceContext.getUserId());
 
 		_validate(cpDefinitionId, entryCProductId, quantity);
 
@@ -306,5 +306,8 @@ public class CPDefinitionGroupedEntryLocalServiceImpl
 
 	@Reference
 	private PortalUUID _portalUUID;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

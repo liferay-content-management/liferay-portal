@@ -14,7 +14,7 @@
 
 package com.liferay.journal.internal.search;
 
-import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleResource;
@@ -77,7 +77,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * @author Hugo Huijser
  * @author Tibor Lipusz
  */
-@Component(immediate = true, service = Indexer.class)
+@Component(service = Indexer.class)
 public class JournalArticleIndexer extends BaseIndexer<JournalArticle> {
 
 	public static final String CLASS_NAME = JournalArticle.class.getName();
@@ -387,7 +387,6 @@ public class JournalArticleIndexer extends BaseIndexer<JournalArticle> {
 		}
 
 		indexableActionableDynamicQuery.setCompanyId(companyId);
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}
@@ -430,8 +429,7 @@ public class JournalArticleIndexer extends BaseIndexer<JournalArticle> {
 			}
 
 			_indexWriterHelper.updateDocuments(
-				getSearchEngineId(), article.getCompanyId(), documents,
-				isCommitImmediately());
+				article.getCompanyId(), documents, isCommitImmediately());
 		}
 		else {
 			JournalArticle latestIndexableArticle =
@@ -440,8 +438,7 @@ public class JournalArticleIndexer extends BaseIndexer<JournalArticle> {
 			for (JournalArticle journalArticle : journalArticles) {
 				if (journalArticle.getId() == latestIndexableArticle.getId()) {
 					_indexWriterHelper.updateDocument(
-						getSearchEngineId(), article.getCompanyId(),
-						getDocument(journalArticle), isCommitImmediately());
+						article.getCompanyId(), getDocument(journalArticle));
 				}
 				else {
 					_deleteDocument(journalArticle);

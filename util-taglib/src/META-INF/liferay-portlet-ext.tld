@@ -133,6 +133,7 @@
 		<name>icon-options</name>
 		<tag-class>com.liferay.taglib.portletext.IconOptionsTag</tag-class>
 		<body-content>JSP</body-content>
+		<description>Deprecated as of Cavanaugh (7.4.x), replaced by <![CDATA[<code>liferay-frontend:icon-options</code>]]>.</description>
 		<attribute>
 			<name>direction</name>
 			<required>false</required>

@@ -25,8 +25,9 @@ import com.liferay.asset.list.service.AssetListEntryLocalServiceUtil;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.info.collection.provider.InfoCollectionProvider;
 import com.liferay.info.collection.provider.SingleFormVariationInfoCollectionProvider;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
+import com.liferay.info.search.InfoSearchClassMapperRegistry;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
 import com.liferay.layout.content.page.editor.sidebar.panel.ContentPageEditorSidebarPanel;
@@ -39,6 +40,8 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRel;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalServiceUtil;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureRelLocalServiceUtil;
+import com.liferay.learn.LearnMessage;
+import com.liferay.learn.LearnMessageUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -100,7 +103,8 @@ public class ContentPageLayoutEditorDisplayContext
 		FragmentEntryLinkManager fragmentEntryLinkManager,
 		FrontendTokenDefinitionRegistry frontendTokenDefinitionRegistry,
 		HttpServletRequest httpServletRequest,
-		InfoItemServiceTracker infoItemServiceTracker,
+		InfoItemServiceRegistry infoItemServiceRegistry,
+		InfoSearchClassMapperRegistry infoSearchClassMapperRegistry,
 		ItemSelector itemSelector,
 		PageEditorConfiguration pageEditorConfiguration,
 		PortletRequest portletRequest, RenderResponse renderResponse,
@@ -111,7 +115,8 @@ public class ContentPageLayoutEditorDisplayContext
 		super(
 			contentPageEditorSidebarPanels, fragmentCollectionManager,
 			fragmentEntryLinkManager, frontendTokenDefinitionRegistry,
-			httpServletRequest, infoItemServiceTracker, itemSelector,
+			httpServletRequest, infoItemServiceRegistry,
+			infoSearchClassMapperRegistry, itemSelector,
 			pageEditorConfiguration, portletRequest, renderResponse,
 			segmentsConfigurationProvider, segmentsExperienceManager,
 			stagingGroupHelper);
@@ -142,6 +147,15 @@ public class ContentPageLayoutEditorDisplayContext
 				themeDisplay.getScopeGroupId()));
 		configContext.put(
 			"availableSegmentsEntries", _getAvailableSegmentsEntries());
+
+		LearnMessage learnMessage = LearnMessageUtil.getLearnMessage(
+			"content-page-personalization",
+			LanguageUtil.getLanguageId(httpServletRequest),
+			"layout-content-page-editor-web");
+
+		configContext.put(
+			"contentPagePersonalizationLearnURL", learnMessage.getURL());
+
 		configContext.put(
 			"defaultSegmentsEntryId", SegmentsEntryConstants.ID_DEFAULT);
 		configContext.put(
@@ -364,7 +378,7 @@ public class ContentPageLayoutEditorDisplayContext
 
 		List<InfoCollectionProvider<?>> infoCollectionProviders =
 			(List<InfoCollectionProvider<?>>)
-				(List<?>)infoItemServiceTracker.getAllInfoItemServices(
+				(List<?>)infoItemServiceRegistry.getAllInfoItemServices(
 					InfoCollectionProvider.class);
 
 		Stream<InfoCollectionProvider<?>> stream =
@@ -568,13 +582,6 @@ public class ContentPageLayoutEditorDisplayContext
 				httpServletRequest,
 				"this-page-is-associated-to-the-following-collection")
 		).put(
-			"type",
-			HashMapBuilder.<String, Object>put(
-				"groupTypeTitle", LanguageUtil.get(httpServletRequest, "type")
-			).put(
-				"label", typeLabel
-			).build()
-		).put(
 			"subtype",
 			HashMapBuilder.<String, Object>put(
 				"groupSubtypeTitle",
@@ -583,6 +590,13 @@ public class ContentPageLayoutEditorDisplayContext
 				"label", subtypeLabel
 			).put(
 				"url", subtypeURL
+			).build()
+		).put(
+			"type",
+			HashMapBuilder.<String, Object>put(
+				"groupTypeTitle", LanguageUtil.get(httpServletRequest, "type")
+			).put(
+				"label", typeLabel
 			).build()
 		).build();
 	}

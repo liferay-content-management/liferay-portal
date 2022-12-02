@@ -15,7 +15,7 @@
 package com.liferay.data.engine.rest.resource.v2_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.data.engine.nativeobject.tracker.DataEngineNativeObjectTracker;
+import com.liferay.data.engine.nativeobject.tracker.DataEngineNativeObjectRegistry;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataDefinitionField;
 import com.liferay.data.engine.rest.client.dto.v2_0.DataLayout;
@@ -515,11 +515,11 @@ public class DataDefinitionResourceTest
 
 		Group group = GroupTestUtil.addGroup();
 
-		DataDefinitionResource.Builder dataDefinitionResourcedBuilder =
-			DataDefinitionResource.builder();
+		DataDefinitionResource.Builder dataDefinitionResourceBuilder =
+			_dataDefinitionResourceFactory.create();
 
 		DataDefinitionResource dataDefinitionResource =
-			dataDefinitionResourcedBuilder.user(
+			dataDefinitionResourceBuilder.user(
 				TestPropsValues.getUser()
 			).build();
 
@@ -801,8 +801,11 @@ public class DataDefinitionResourceTest
 
 	private static final String _CONTENT_TYPE = "test";
 
-	@Inject(type = DataEngineNativeObjectTracker.class)
-	private DataEngineNativeObjectTracker _dataEngineNativeObjectTracker;
+	@Inject
+	private DataDefinitionResource.Factory _dataDefinitionResourceFactory;
+
+	@Inject(type = DataEngineNativeObjectRegistry.class)
+	private DataEngineNativeObjectRegistry _dataEngineNativeObjectRegistry;
 
 	@Inject
 	private DDMStructureLocalService _ddmStructureLocalService;

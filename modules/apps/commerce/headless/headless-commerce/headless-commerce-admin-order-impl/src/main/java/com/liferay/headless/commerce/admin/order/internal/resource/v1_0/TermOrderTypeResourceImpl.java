@@ -33,7 +33,6 @@ import com.liferay.portal.vulcan.fields.NestedField;
 import com.liferay.portal.vulcan.fields.NestedFieldSupport;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Map;
 
@@ -45,7 +44,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/term-order-type.properties",
 	scope = ServiceScope.PROTOTYPE,
 	service = {NestedFieldSupport.class, TermOrderTypeResource.class}
@@ -74,7 +72,7 @@ public class TermOrderTypeResourceImpl
 		}
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceTermEntryRelService.
 					getCommerceOrderTypeCommerceTermEntryRels(
 						commerceTermEntry.getCommerceTermEntryId(), null,
@@ -102,7 +100,7 @@ public class TermOrderTypeResourceImpl
 		}
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceTermEntryRelService.
 					getCommerceOrderTypeCommerceTermEntryRels(
 						id, search, pagination.getStartPosition(),

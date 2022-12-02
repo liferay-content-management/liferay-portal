@@ -20,7 +20,6 @@ import com.liferay.commerce.product.model.CPInstance;
 import com.liferay.commerce.product.model.CommerceCatalog;
 import com.liferay.commerce.product.service.CPDefinitionLocalService;
 import com.liferay.commerce.product.service.CPInstanceLocalService;
-import com.liferay.commerce.product.util.CPInstanceHelper;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -62,7 +61,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Marco Leo
  */
-@Component(enabled = false, immediate = true, service = Indexer.class)
+@Component(service = Indexer.class)
 public class CPInstanceIndexer extends BaseIndexer<CPInstance> {
 
 	public static final String CLASS_NAME = CPInstance.class.getName();
@@ -300,8 +299,7 @@ public class CPInstanceIndexer extends BaseIndexer<CPInstance> {
 	@Override
 	protected void doReindex(CPInstance cpInstance) throws Exception {
 		_indexWriterHelper.updateDocument(
-			getSearchEngineId(), cpInstance.getCompanyId(),
-			getDocument(cpInstance), isCommitImmediately());
+			cpInstance.getCompanyId(), getDocument(cpInstance));
 	}
 
 	@Override
@@ -336,7 +334,6 @@ public class CPInstanceIndexer extends BaseIndexer<CPInstance> {
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}
@@ -346,9 +343,6 @@ public class CPInstanceIndexer extends BaseIndexer<CPInstance> {
 
 	@Reference
 	private CPDefinitionLocalService _cpDefinitionLocalService;
-
-	@Reference
-	private CPInstanceHelper _cpInstanceHelper;
 
 	@Reference
 	private CPInstanceLocalService _cpInstanceLocalService;

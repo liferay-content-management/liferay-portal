@@ -21,6 +21,21 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ASSET_VERSION_LOGS</td>
+	<td>//*[contains(@class,'list-group-item') and contains(.,'${versionNumber}')] //*[@class='list-group-subtext']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ASSET_VERSION_NUMBER</td>
+	<td>//*[contains(@class,'list-group-item')] //*[@class='list-group-title']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ASSET_VERSION_NUMBER_INDEX</td>
+	<td>xpath=(//*[contains(@class,'list-group-item')] //*[@class='list-group-title'])[${index}]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>AUDIT_GRAPH_CATEGORY_CHECKBOX</td>
 	<td>//label/descendant-or-self::*[contains(text(),'${auditGraphCheckboxName}']</td>
 	<td></td>
@@ -31,38 +46,23 @@
 	<td></td>
 </tr>
 <tr>
-	<td>AUDIT_GRAPH_CONFIGURATION_LEFT_ARROW_BUTTON</td>
-	<td>//button[contains(@class, 'transfer-button-rtl')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>AUDIT_GRAPH_CONFIGURATION_RIGHT_ARROW_BUTTON</td>
-	<td>//button[contains(@class, 'transfer-button-ltr')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>AUDIT_GRAPH_CONFIGURATION_STAGE_VOCABULARY</td>
-	<td>//option[contains(text(),'Stage')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>AUDIT_GRAPH_CONFIGURATION_VOCABULARY_IN_USE</td>
-	<td>//select[contains(@id, 'currentAssetVocabularyIds')] //option[contains(text(), '${vocabularyName}')]</td>
+	<td>//select[contains(@id, 'currentAssetVocabularyIds')] //option[contains(text(), '${key_vocabularyName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUDIT_GRAPH_CONFIGURATION_FIRST_VOCABULARY_IN_USE</td>
+	<td>//select[contains(@id, 'currentAssetVocabularyIds')] //option[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUDIT_GRAPH_CONFIGURATION_SECOND_VOCABULARY_IN_USE</td>
+	<td>//select[contains(@id, 'currentAssetVocabularyIds')] //option[2]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>AUDIT_GRAPH_CONFIGURATION_VOCABULARY_AVAILABLE</td>
-	<td>//select[contains(@id, 'availableAssetVocabularyIds')] //option[contains(text(), '${vocabularyName}')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>AUDIT_GRAPH_CONFIGURATION_UP_ARROW_BUTTON</td>
-	<td>//button[contains(@class, 'reorder-button-up')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>AUDIT_GRAPH_CONFIGURATION_DOWN_ARROW_BUTTON</td>
-	<td>//button[contains(@class, 'reorder-button-down')]</td>
+	<td>//select[contains(@id, 'availableAssetVocabularyIds')] //option[contains(text(), '${key_vocabularyName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -176,16 +176,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>FLIP_AXES_BUTTON</td>
-	<td>//button[contains(@class, 'btn-outline-borderless') and contains(@type,'submit')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>FLIP_AXES_BUTTON_DISABLED</td>
-	<td>//button[contains(@class, 'btn-outline-borderless') and contains(@disabled,'disabled')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>INFO_PANEL</td>
 	<td>//*[contains(@class,'content-dashboard') and contains(@class,'sidebar')]</td>
 	<td></td>
@@ -238,6 +228,11 @@
 <tr>
 	<td>INFO_PANEL_VERSION</td>
 	<td>//span[contains(@class,'label-item') and contains (.,'${assetVersion}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INFO_PANEL_VERSIONS_TAB</td>
+	<td>//button[contains(@class,'nav-link') and contains (.,'Versions')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -328,6 +323,16 @@
 <tr>
 	<td>URL_LABEL</td>
 	<td>//*[contains(@class, 'sidebar-dl') and descendant::input] //h5</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VERSION_HISTORY_ELLIPSIS</td>
+	<td>//*[contains(@class,'dropdown-menu') and contains(@class,'show')] //*[@class='dropdown-item' and contains(.,'${key_menuItem}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VERSION_ELLIPSIS</td>
+	<td>//*[contains(@class,'list-group-item')][contains(.,'${key_version}')]//button[contains(@class,'dropdown-toggle')]</td>
 	<td></td>
 </tr>
 <tr>

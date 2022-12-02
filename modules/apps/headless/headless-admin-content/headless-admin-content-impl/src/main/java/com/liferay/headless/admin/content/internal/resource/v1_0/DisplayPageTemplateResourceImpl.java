@@ -35,7 +35,6 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +103,7 @@ public class DisplayPageTemplateResourceImpl
 					ActionKeys.VIEW, "getSiteDisplayPageTemplatesPage",
 					Group.class.getName(), siteId)
 			).build(),
-			TransformUtil.transform(
+			transform(
 				_layoutPageTemplateEntryLocalService.dynamicQuery(
 					dynamicQuery, pagination.getStartPosition(),
 					pagination.getEndPosition()),

@@ -16,6 +16,7 @@ package com.liferay.account.internal.retriever;
 
 import com.liferay.account.retriever.AccountOrganizationRetriever;
 import com.liferay.account.service.AccountEntryLocalService;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
@@ -34,7 +35,6 @@ import com.liferay.portal.search.sort.FieldSort;
 import com.liferay.portal.search.sort.SortFieldBuilder;
 import com.liferay.portal.search.sort.SortOrder;
 import com.liferay.portal.search.sort.Sorts;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.List;
 
@@ -105,8 +105,7 @@ public class AccountOrganizationRetrieverImpl
 			}
 
 			FieldSort fieldSort = _sorts.field(
-				_sortFieldBuilder.getSortField(
-					Organization.class.getName(), sortField),
+				_sortFieldBuilder.getSortField(Organization.class, sortField),
 				sortOrder);
 
 			searchRequestBuilder.sorts(fieldSort);

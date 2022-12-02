@@ -38,7 +38,6 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Collections;
 import java.util.Map;
@@ -56,7 +55,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Crescenzo Rega
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/measurement-unit.properties",
 	scope = ServiceScope.PROTOTYPE, service = MeasurementUnitResource.class
 )
@@ -120,7 +118,7 @@ public class MeasurementUnitResourceImpl
 			int type = _getType(measurementUnitType);
 
 			return Page.of(
-				TransformUtil.transform(
+				transform(
 					_cpMeasurementUnitService.getCPMeasurementUnitsByType(
 						contextCompany.getCompanyId(), type,
 						pagination.getStartPosition(),
@@ -145,7 +143,7 @@ public class MeasurementUnitResourceImpl
 		throws Exception {
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_cpMeasurementUnitService.getCPMeasurementUnits(
 					contextCompany.getCompanyId(),
 					pagination.getStartPosition(), pagination.getEndPosition(),

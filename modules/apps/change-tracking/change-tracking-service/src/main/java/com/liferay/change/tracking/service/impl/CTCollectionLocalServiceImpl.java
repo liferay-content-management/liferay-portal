@@ -35,7 +35,9 @@ import com.liferay.change.tracking.internal.resolver.ConstraintResolverKey;
 import com.liferay.change.tracking.mapping.CTMappingTableInfo;
 import com.liferay.change.tracking.model.CTAutoResolutionInfo;
 import com.liferay.change.tracking.model.CTCollection;
+import com.liferay.change.tracking.model.CTCollectionTable;
 import com.liferay.change.tracking.model.CTEntry;
+import com.liferay.change.tracking.model.CTEntryTable;
 import com.liferay.change.tracking.model.CTPreferences;
 import com.liferay.change.tracking.model.CTProcess;
 import com.liferay.change.tracking.model.CTSchemaVersion;
@@ -55,6 +57,7 @@ import com.liferay.change.tracking.spi.resolver.ConstraintResolver;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -739,6 +742,39 @@ public class CTCollectionLocalServiceImpl
 		return ctEntries;
 	}
 
+	public List<CTCollection> getExclusivePublishedCTCollections(
+			long modelClassNameId, long modelClassPK)
+		throws PortalException {
+
+		return ctCollectionPersistence.dslQuery(
+			DSLQueryFactoryUtil.select(
+				CTCollectionTable.INSTANCE
+			).from(
+				CTCollectionTable.INSTANCE
+			).innerJoinON(
+				CTEntryTable.INSTANCE,
+				CTEntryTable.INSTANCE.ctCollectionId.eq(
+					CTCollectionTable.INSTANCE.ctCollectionId
+				).and(
+					CTEntryTable.INSTANCE.modelClassNameId.eq(
+						modelClassNameId
+					).and(
+						CTEntryTable.INSTANCE.modelClassPK.eq(modelClassPK)
+					)
+				)
+			).where(
+				CTCollectionTable.INSTANCE.ctCollectionId.neq(
+					CTCollectionThreadLocal.getCTCollectionId()
+				).and(
+					CTCollectionTable.INSTANCE.status.neq(
+						WorkflowConstants.STATUS_EXPIRED)
+				)
+			).orderBy(
+				CTCollectionTable.INSTANCE.status.descending(),
+				CTCollectionTable.INSTANCE.statusDate.ascending()
+			));
+	}
+
 	@Override
 	public boolean hasUnapprovedChanges(long ctCollectionId)
 		throws SQLException {
@@ -800,8 +836,9 @@ public class CTCollectionLocalServiceImpl
 							"select count(*) from ",
 							ctPersistence.getTableName(),
 							" where ctCollectionId = ", ctCollectionId,
-							" and status != ",
-							WorkflowConstants.STATUS_APPROVED));
+							" and status not in (",
+							StringUtil.merge(_STATUSES, StringPool.COMMA),
+							")"));
 				ResultSet resultSet = preparedStatement.executeQuery()) {
 
 				if (resultSet.next()) {
@@ -1137,7 +1174,6 @@ public class CTCollectionLocalServiceImpl
 					}
 
 					_indexWriterHelper.deleteDocuments(
-						indexer.getSearchEngineId(),
 						ctCollection.getCompanyId(), uids,
 						indexer.isCommitImmediately());
 
@@ -1170,6 +1206,10 @@ public class CTCollectionLocalServiceImpl
 				"Description is too long");
 		}
 	}
+
+	private static final int[] _STATUSES = {
+		WorkflowConstants.STATUS_APPROVED, WorkflowConstants.STATUS_IN_TRASH
+	};
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CTCollectionLocalServiceImpl.class);

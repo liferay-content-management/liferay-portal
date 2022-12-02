@@ -33,27 +33,45 @@ definition {
 
 		Uncheck(locator1 = "Checkbox#DISPLAY_IMMEDIATELY");
 
-		var displayDateHour = selenium.getAttribute("//input[contains(@id,'displayDateHour')]@value");
+		task ("Convert 0 and 1 selenium attributes to AM and PM") {
+			var displayDateAmpm = selenium.getAttribute("//input[contains(@id,'displayDateAmPm')]@value");
 
-		var displayDateHourLength = StringUtil.length("${displayDateHour}");
+			var displayDateAmpm = StringUtil.replace("${displayDateAmpm}", "0", "AM");
 
-		if ("${displayDateHourLength}" == "1") {
-			var displayDateHour = "0${displayDateHour}";
+			var displayDateAmpm = StringUtil.replace("${displayDateAmpm}", "1", "PM");
 		}
 
-		var displayDateAmpm = selenium.getAttribute("//input[contains(@id,'displayDateAmPm')]@value");
+		task ("Add 2 minutes for the future time. If it exceeds 60 then add one hour then reset the minutes.") {
+			var displayDateMinute = selenium.getAttribute("//input[contains(@id,'displayDateMinute')]@value");
 
-		var displayDateAmpm = StringUtil.replace("${displayDateAmpm}", "0", "AM");
+			var displayDateMinuteFuture = ${displayDateMinute} + 2;
 
-		var displayDateAmpm = StringUtil.replace("${displayDateAmpm}", "1", "PM");
-		var displayDateMinute = selenium.getAttribute("//input[contains(@id,'displayDateMinute')]@value");
+			if ("${displayDateMinuteFuture}" == "60") {
+				var displayDateMinuteFuture = "00";
+			}
+			else if ("${displayDateMinuteFuture}" == "61") {
+				var displayDateMinuteFuture = "01";
+			}
 
-		var displayDateMinuteFuture = ${displayDateMinute} + 1;
+			var displayDateHour = selenium.getAttribute("//input[contains(@id,'displayDateHour')]@value");
 
-		var displayDateMinuteFutureLength = StringUtil.length("${displayDateMinuteFuture}");
+			if ("${displayDateMinuteFuture" == "00" | "01") {
+				var displayDateHour = ${displayDateHour} + 1;
+			}
+		}
 
-		if ("${displayDateMinuteFutureLength}" == "1") {
-			var displayDateMinuteFuture = "0${displayDateMinuteFuture}";
+		task ("Make sure minutes and hours with single digits have a 0 in front of them.") {
+			var displayDateMinuteFutureLength = StringUtil.length("${displayDateMinuteFuture}");
+
+			if ("${displayDateMinuteFutureLength}" == "1") {
+				var displayDateMinuteFuture = "0${displayDateMinuteFuture}";
+			}
+
+			var displayDateHourLength = StringUtil.length("${displayDateHour}");
+
+			if ("${displayDateHourLength}" == "1") {
+				var displayDateHour = "0${displayDateHour}";
+			}
 		}
 
 		var displayDate = "${displayDateHour}:${displayDateMinuteFuture} ${displayDateAmpm}";
@@ -118,7 +136,9 @@ definition {
 			locator1 = "Announcements#CARD_VIEW_ENTRY_TITLE",
 			value1 = "${entryTitle}");
 
-		LexiconEntry.gotoEllipsisMenuItemNoError(menuItem = "Delete");
+		Click.waitForMenuToggleJSClick(locator1 = "Announcements#CARD_VIEW_ENTRY_VERTICAL_ELLIPSIS");
+
+		MenuItem.clickNoError(menuItem = "Delete");
 
 		AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
 	}
@@ -140,7 +160,11 @@ definition {
 			locator1 = "Announcements#CARD_VIEW_ENTRY_CONTENT",
 			value1 = "${entryContent}");
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Edit");
+		Click.waitForMenuToggleJSClick(locator1 = "Announcements#CARD_VIEW_ENTRY_VERTICAL_ELLIPSIS");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		MenuItem.click(menuItem = "Edit");
 
 		AssertTextEquals(
 			locator1 = "TextInput#TITLE",
@@ -175,9 +199,11 @@ definition {
 			siteURLKey = "${siteURLKey}",
 			tabName = "${tabName}");
 
-		AssertVisible(locator1 = "Announcements#CARD_VIEW_ENTRY_CONTENT");
+		AssertVisible(locator1 = "Announcements#CARD_VIEW_ENTRY_VERTICAL_ELLIPSIS");
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Mark as Read");
+		Click.waitForMenuToggleJSClick(locator1 = "Announcements#CARD_VIEW_ENTRY_VERTICAL_ELLIPSIS");
+
+		MenuItem.clickNoError(menuItem = "Mark as Read");
 
 		AssertElementNotPresent(locator1 = "Announcements#CARD_VIEW_ENTRY_CONTENT");
 	}

@@ -42,7 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alessio Antonio Rendina
  */
-@Component(enabled = false, service = CommerceOrderResource.class)
+@Component(service = CommerceOrderResource.class)
 public class CommerceOrderResource {
 
 	public OrderList getOrderList(
@@ -98,7 +98,7 @@ public class CommerceOrderResource {
 		int end = page * pageSize;
 
 		List<CommerceOrder> userCommerceOrders =
-			_commerceOrderService.getUserPendingCommerceOrders(
+			_commerceOrderService.getUserCommerceOrders(
 				companyId, groupId, keywords, start, end);
 
 		for (CommerceOrder commerceOrder : userCommerceOrders) {

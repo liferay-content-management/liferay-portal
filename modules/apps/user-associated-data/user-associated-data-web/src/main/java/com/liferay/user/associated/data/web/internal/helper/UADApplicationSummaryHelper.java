@@ -18,7 +18,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.user.associated.data.anonymizer.UADAnonymizer;
 import com.liferay.user.associated.data.display.UADDisplay;
 import com.liferay.user.associated.data.web.internal.constants.UADConstants;
@@ -38,7 +37,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Drew Brokke
  */
-@Component(immediate = true, service = UADApplicationSummaryHelper.class)
+@Component(service = UADApplicationSummaryHelper.class)
 public class UADApplicationSummaryHelper {
 
 	public List<UADAnonymizer<?>> getApplicationUADAnonymizers(
@@ -207,9 +206,6 @@ public class UADApplicationSummaryHelper {
 			uadDisplay -> (int)uadDisplay.searchCount(userId, groupIds, null)
 		).sum();
 	}
-
-	@Reference
-	private Portal _portal;
 
 	@Reference
 	private UADRegistry _uadRegistry;

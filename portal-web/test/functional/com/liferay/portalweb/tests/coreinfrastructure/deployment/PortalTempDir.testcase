@@ -1,0 +1,36 @@
+@component-name = "core-infrastructure"
+definition {
+
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Deployment";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+	}
+
+	@description = "Check the temp folder after portal shutdown."
+	@priority = "4"
+	test TempDirShouldBeEmptyAfterPortalShutdown {
+		var tempDir = PropsUtil.get("app.server.temp.dir");
+
+		var filesInTempDir = FileUtil.listFiles("${tempDir}");
+
+		TestUtils.assertNotEquals(
+			actual = "${filesInTempDir}",
+			expected = "");
+
+		Portlet.shutdownServer();
+
+		AntCommand(
+			locator1 = "build-test.xml",
+			value1 = "wait-for-server-shutdown -Dapp.server.port.number=8080");
+
+		var filesInTempDir = FileUtil.listFiles("${tempDir}");
+
+		TestUtils.assertEquals(
+			actual = "${filesInTempDir}",
+			expected = "");
+	}
+
+}

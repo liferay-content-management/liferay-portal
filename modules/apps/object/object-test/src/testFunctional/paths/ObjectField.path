@@ -99,7 +99,7 @@
 	</tr>
 	<tr>
 		<td>SEARCHABLE_LANGUAGE_SELECT</td>
-		<td>//select[@name="indexedLanguageId"]</td>
+		<td>//div[@class="lfr-objects__card"]//input[@value="${selected}"]</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -170,6 +170,11 @@
 	<tr>
 		<td>LABEL_FIELD</td>
 		<td>//label[contains(.,'Field')]//..//div[contains(@aria-controls,'clay-dropdown-menu')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>LABEL_DEFAULT_VALUE</td>
+		<td>//label[contains(.,'Default Value')]//..//div[contains(@aria-controls,'clay-dropdown-menu')]</td>
 		<td></td>
 	</tr>
 </tbody>

@@ -16,11 +16,13 @@ import isOperationType from '../utils/isOperationType';
 
 const DEFAULT_ERROR = {
 	message: i18n.translate('an-unexpected-error-occurred'),
+	title: i18n.translate('error'),
 	type: 'danger',
 };
 
 const DEFAULT_SUCCESS = {
 	message: i18n.translate('your-request-completed-successfully'),
+	title: i18n.translate('success'),
 	type: 'success',
 };
 
@@ -28,15 +30,34 @@ export default function useGlobalNetworkIndicator(networkStatus) {
 	useEffect(() => {
 		const {error: errorStatus, success} = networkStatus;
 
+		if (errorStatus?.networkError) {
+			const displayServerError = errorStatus.operation.getContext()
+				.displayServerError;
+
+			if (displayServerError) {
+				Liferay.Util.openToast({
+					message:
+						errorStatus?.networkError.result?.title ||
+						DEFAULT_ERROR.message,
+					type: DEFAULT_ERROR.type,
+				});
+			}
+			else {
+				Liferay.Util.openToast(DEFAULT_ERROR);
+			}
+		}
+
 		if (errorStatus?.response) {
 			const displayErrors = errorStatus.operation.getContext()
 				.displayErrors;
+
 			const errors = errorStatus.response.map((error) => {
 				if (displayErrors && displayErrors[error.exception.errno]) {
 					const displayError = displayErrors[error.exception.errno];
 
 					return {
 						message: displayError.message || DEFAULT_ERROR.message,
+						title: displayError.title || DEFAULT_ERROR.title,
 						type: displayError.type || DEFAULT_ERROR.type,
 					};
 				}
@@ -47,13 +68,10 @@ export default function useGlobalNetworkIndicator(networkStatus) {
 			errors.forEach((error) => Liferay.Util.openToast(error));
 		}
 
-		if (errorStatus?.networkError) {
-			Liferay.Util.openToast(DEFAULT_ERROR);
-		}
-
 		if (success) {
 			const displaySuccess = success.operation.getContext()
 				.displaySuccess;
+
 			const isValidMutation =
 				isOperationType(success.operation, 'mutation') &&
 				displaySuccess !== false;
@@ -61,6 +79,7 @@ export default function useGlobalNetworkIndicator(networkStatus) {
 			if (isValidMutation || displaySuccess) {
 				Liferay.Util.openToast({
 					message: displaySuccess?.message || DEFAULT_SUCCESS.message,
+					title: displaySuccess?.title || DEFAULT_SUCCESS.title,
 					type: displaySuccess?.type || DEFAULT_SUCCESS.type,
 				});
 			}

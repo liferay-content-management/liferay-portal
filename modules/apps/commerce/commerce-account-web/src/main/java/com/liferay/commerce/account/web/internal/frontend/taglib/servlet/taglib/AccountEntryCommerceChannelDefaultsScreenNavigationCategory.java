@@ -58,7 +58,6 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = {
 		"screen.navigation.category.order:Integer=70",
 		"screen.navigation.entry.order:Integer=10"
@@ -96,7 +95,7 @@ public class AccountEntryCommerceChannelDefaultsScreenNavigationCategory
 
 	@Override
 	public boolean isVisible(User user, AccountEntry accountEntry) {
-		if ((accountEntry == null) ||
+		if (accountEntry.isNew() ||
 			!Objects.equals(
 				accountEntry.getType(),
 				AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS)) {

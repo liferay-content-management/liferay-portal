@@ -36,7 +36,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Jürgen Kappler
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + LayoutAdminPortletKeys.GROUP_PAGES, "path=-"
 	},
@@ -57,13 +56,7 @@ public class LayoutSetConfigurationPortletConfigurationIcon
 
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)), "configuration");
-	}
-
-	@Override
-	public String getMethod() {
-		return "get";
+		return _language.get(getLocale(portletRequest), "configuration");
 	}
 
 	@Override
@@ -115,11 +108,6 @@ public class LayoutSetConfigurationPortletConfigurationIcon
 	@Override
 	public boolean isShowInEditMode(PortletRequest portletRequest) {
 		return true;
-	}
-
-	@Override
-	public boolean isToolTip() {
-		return false;
 	}
 
 	@Reference

@@ -123,7 +123,7 @@ public class UADExportProcessDisplayContext {
 		_orderByCol = SearchOrderByUtil.getOrderByCol(
 			_httpServletRequest,
 			UserAssociatedDataPortletKeys.USER_ASSOCIATED_DATA,
-			"export-order-by-col", "create-date");
+			"export-order-by-col", "name");
 
 		return _orderByCol;
 	}
@@ -136,7 +136,7 @@ public class UADExportProcessDisplayContext {
 		_orderByType = SearchOrderByUtil.getOrderByType(
 			_httpServletRequest,
 			UserAssociatedDataPortletKeys.USER_ASSOCIATED_DATA,
-			"export-order-by-type", "desc");
+			"export-order-by-type", "asc");
 
 		return _orderByType;
 	}

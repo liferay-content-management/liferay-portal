@@ -24,6 +24,8 @@
 		<column name="active" type="boolean" />
 		<column name="conditionExpression" type="String" />
 		<column name="description" type="String" />
+		<column localized="true" name="errorMessage" type="String" />
+		<column localized="true" name="label" type="String" />
 		<column name="name" type="String" />
 		<column name="objectActionExecutorKey" type="String" />
 		<column name="objectActionTriggerKey" type="String" />
@@ -35,9 +37,19 @@
 		<finder name="ObjectDefinitionId" return-type="Collection">
 			<finder-column name="objectDefinitionId" />
 		</finder>
+		<finder name="ODI_N" return-type="ObjectAction">
+			<finder-column name="objectDefinitionId" />
+			<finder-column name="name" />
+		</finder>
 		<finder name="O_A_OATK" return-type="Collection">
 			<finder-column name="objectDefinitionId" />
 			<finder-column name="active" />
+			<finder-column name="objectActionTriggerKey" />
+		</finder>
+		<finder name="ODI_A_N_OATK" return-type="ObjectAction">
+			<finder-column name="objectDefinitionId" />
+			<finder-column name="active" />
+			<finder-column name="name" />
 			<finder-column name="objectActionTriggerKey" />
 		</finder>
 	</entity>
@@ -121,6 +133,10 @@
 	</entity>
 	<entity local-service="true" name="ObjectEntry" remote-service="true" uuid="true">
 
+		<!-- External reference code -->
+
+		<column name="externalReferenceCode" type="String" />
+
 		<!-- PK fields -->
 
 		<column name="objectEntryId" primary="true" type="long" />
@@ -139,7 +155,6 @@
 
 		<!-- Other fields -->
 
-		<column name="externalReferenceCode" type="String" />
 		<column name="objectDefinitionId" type="long" />
 		<column name="lastPublishDate" type="Date" />
 		<column name="status" type="int" />
@@ -170,23 +185,27 @@
 			<finder-column name="objectDefinitionId" />
 			<finder-column comparator="!=" name="status" />
 		</finder>
-		<finder name="G_C_ERC" return-type="ObjectEntry" unique="true">
+		<finder name="ERC_G_C" return-type="ObjectEntry" unique="true">
+			<finder-column name="externalReferenceCode" />
 			<finder-column name="groupId" />
 			<finder-column name="companyId" />
+		</finder>
+		<finder name="ERC_C_ODI" return-type="ObjectEntry" unique="true">
 			<finder-column name="externalReferenceCode" />
+			<finder-column name="companyId" />
+			<finder-column name="objectDefinitionId" />
 		</finder>
 		<finder name="G_ODI_S" return-type="Collection">
 			<finder-column name="groupId" />
 			<finder-column name="objectDefinitionId" />
 			<finder-column name="status" />
 		</finder>
-		<finder name="C_ERC_ODI" return-type="ObjectEntry" unique="true">
-			<finder-column name="companyId" />
-			<finder-column name="externalReferenceCode" />
-			<finder-column name="objectDefinitionId" />
-		</finder>
 	</entity>
 	<entity local-service="true" name="ObjectField" remote-service="true" uuid="true">
+
+		<!-- External reference code -->
+
+		<column name="externalReferenceCode" type="String" />
 
 		<!-- PK fields -->
 
@@ -202,7 +221,6 @@
 
 		<!-- Other fields -->
 
-		<column name="externalReferenceCode" type="String" />
 		<column name="listTypeDefinitionId" type="long" />
 		<column name="objectDefinitionId" type="long" />
 		<column name="businessType" type="String" />
@@ -250,9 +268,9 @@
 			<finder-column name="objectDefinitionId" />
 			<finder-column name="system" />
 		</finder>
-		<finder name="C_ERC_ODI" return-type="ObjectEntry" unique="true">
-			<finder-column name="companyId" />
+		<finder name="ERC_C_ODI" return-type="ObjectEntry" unique="true">
 			<finder-column name="externalReferenceCode" />
+			<finder-column name="companyId" />
 			<finder-column name="objectDefinitionId" />
 		</finder>
 		<finder name="ODI_DBT_I" return-type="Collection">
@@ -503,6 +521,14 @@
 			<finder-column name="objectDefinitionId1" />
 			<finder-column name="name" />
 		</finder>
+		<finder name="ODI1_R" return-type="Collection">
+			<finder-column name="objectDefinitionId1" />
+			<finder-column name="reverse" />
+		</finder>
+		<finder name="ODI2_R" return-type="Collection">
+			<finder-column name="objectDefinitionId2" />
+			<finder-column name="reverse" />
+		</finder>
 		<finder name="ODI1_ODI2_T" return-type="Collection">
 			<finder-column name="objectDefinitionId1" />
 			<finder-column name="objectDefinitionId2" />
@@ -512,6 +538,16 @@
 			<finder-column name="objectDefinitionId1" />
 			<finder-column name="deletionType" />
 			<finder-column name="reverse" />
+		</finder>
+		<finder name="ODI1_R_T" return-type="Collection">
+			<finder-column name="objectDefinitionId1" />
+			<finder-column name="reverse" />
+			<finder-column name="type" />
+		</finder>
+		<finder name="ODI2_R_T" return-type="Collection">
+			<finder-column name="objectDefinitionId2" />
+			<finder-column name="reverse" />
+			<finder-column name="type" />
 		</finder>
 		<finder name="ODI1_ODI2_N_T" return-type="Collection">
 			<finder-column name="objectDefinitionId1" />
@@ -709,7 +745,7 @@
 			<finder-column name="objectFieldName" />
 		</finder>
 	</entity>
-	<entity local-service="false" name="ObjectViewFilterColumn" remote-service="false" uuid="true">
+	<entity local-service="true" name="ObjectViewFilterColumn" remote-service="false" uuid="true">
 
 		<!-- PK fields -->
 
@@ -777,7 +813,8 @@
 		<exception>DuplicateObjectFieldExternalReferenceCode</exception>
 		<exception>DuplicateObjectRelationship</exception>
 		<exception>ObjectActionConditionExpression</exception>
-		<exception>ObjectActionExecutorKey</exception>
+		<exception>ObjectActionErrorMessage</exception>
+		<exception>ObjectActionLabel</exception>
 		<exception>ObjectActionName</exception>
 		<exception>ObjectActionParameters</exception>
 		<exception>ObjectActionTriggerKey</exception>
@@ -799,6 +836,7 @@
 		<exception>ObjectFieldDBType</exception>
 		<exception>ObjectFieldDefaultValue</exception>
 		<exception>ObjectFieldLabel</exception>
+		<exception>ObjectFieldListTypeDefinitionId</exception>
 		<exception>ObjectFieldName</exception>
 		<exception>ObjectFieldRelationshipType</exception>
 		<exception>ObjectFieldSettingName</exception>

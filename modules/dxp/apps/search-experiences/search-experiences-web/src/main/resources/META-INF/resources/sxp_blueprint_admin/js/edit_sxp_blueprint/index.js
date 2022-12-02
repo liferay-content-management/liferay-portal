@@ -23,6 +23,8 @@ import EditSXPBlueprintForm from './EditSXPBlueprintForm';
 export default function ({
 	contextPath,
 	defaultLocale,
+	featureFlagLps153813,
+	isCompanyAdmin,
 	learnMessages,
 	locale,
 	namespace,
@@ -54,6 +56,8 @@ export default function ({
 				availableLanguages: Liferay.Language.available,
 				contextPath,
 				defaultLocale,
+				featureFlagLps153813,
+				isCompanyAdmin,
 				learnMessages,
 				locale,
 				namespace,

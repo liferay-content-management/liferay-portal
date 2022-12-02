@@ -17,11 +17,9 @@ package com.liferay.asset.display.page.item.selector.web.internal.frontend.tagli
 import com.liferay.frontend.taglib.clay.servlet.taglib.VerticalCard;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.Date;
-import java.util.Map;
 
 import javax.portlet.RenderRequest;
 
@@ -48,21 +46,22 @@ public class LayoutPageTemplateEntryVerticalCard implements VerticalCard {
 	}
 
 	@Override
-	public Map<String, String> getDynamicAttributes() {
-		return HashMapBuilder.put(
-			"data-id",
-			String.valueOf(
-				_layoutPageTemplateEntry.getLayoutPageTemplateEntryId())
-		).put(
-			"data-name", _layoutPageTemplateEntry.getName()
-		).put(
-			"data-type", "asset-display-page"
-		).build();
+	public String getIcon() {
+		return "page";
 	}
 
 	@Override
-	public String getIcon() {
-		return "page";
+	public String getStickerIcon() {
+		if (_layoutPageTemplateEntry.isDefaultTemplate()) {
+			return "check-circle";
+		}
+
+		return null;
+	}
+
+	@Override
+	public String getStickerStyle() {
+		return "primary";
 	}
 
 	@Override

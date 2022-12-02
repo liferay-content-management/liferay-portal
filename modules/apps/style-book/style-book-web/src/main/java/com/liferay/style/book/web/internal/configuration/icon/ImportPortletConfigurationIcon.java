@@ -14,22 +14,23 @@
 
 package com.liferay.style.book.web.internal.configuration.icon;
 
-import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.language.Language;
-import com.liferay.portal.kernel.portlet.LiferayWindowState;
-import com.liferay.portal.kernel.portlet.configuration.icon.BasePortletConfigurationIcon;
+import com.liferay.portal.kernel.portlet.configuration.icon.BaseJSPPortletConfigurationIcon;
 import com.liferay.portal.kernel.portlet.configuration.icon.PortletConfigurationIcon;
-import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.style.book.constants.StyleBookActionKeys;
 import com.liferay.style.book.constants.StyleBookConstants;
 import com.liferay.style.book.constants.StyleBookPortletKeys;
 
+import java.util.Map;
+
 import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
+
+import javax.servlet.ServletContext;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -38,7 +39,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + StyleBookPortletKeys.STYLE_BOOK, "path=-",
 		"path=/style_books", "path=/style_books/style_books"
@@ -46,7 +46,16 @@ import org.osgi.service.component.annotations.Reference;
 	service = PortletConfigurationIcon.class
 )
 public class ImportPortletConfigurationIcon
-	extends BasePortletConfigurationIcon {
+	extends BaseJSPPortletConfigurationIcon {
+
+	@Override
+	public Map<String, Object> getContext(PortletRequest portletRequest) {
+		return HashMapBuilder.<String, Object>put(
+			"action", getNamespace(portletRequest) + "import"
+		).put(
+			"globalAction", true
+		).build();
+	}
 
 	@Override
 	public String getIconCssClass() {
@@ -54,36 +63,13 @@ public class ImportPortletConfigurationIcon
 	}
 
 	@Override
+	public String getJspPath() {
+		return "/configuration/icon/import.jsp";
+	}
+
+	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)), "import");
-	}
-
-	@Override
-	public String getOnClick(
-		PortletRequest portletRequest, PortletResponse portletResponse) {
-
-		return StringBundler.concat(
-			"Liferay.Util.openModal({onClose: function(event){",
-			"window.location.reload();}, title: '", getMessage(portletRequest),
-			"', url: '",
-			PortletURLBuilder.create(
-				_portal.getControlPanelPortletURL(
-					portletRequest, StyleBookPortletKeys.STYLE_BOOK,
-					PortletRequest.RENDER_PHASE)
-			).setMVCRenderCommandName(
-				"/style_book/view_import"
-			).setWindowState(
-				LiferayWindowState.POP_UP
-			).buildString(),
-			"'});");
-	}
-
-	@Override
-	public String getURL(
-		PortletRequest portletRequest, PortletResponse portletResponse) {
-
-		return "javascript:void(0);";
+		return _language.get(getLocale(portletRequest), "import");
 	}
 
 	@Override
@@ -107,6 +93,11 @@ public class ImportPortletConfigurationIcon
 		return false;
 	}
 
+	@Override
+	protected ServletContext getServletContext() {
+		return _servletContext;
+	}
+
 	@Reference
 	private Language _language;
 
@@ -117,5 +108,8 @@ public class ImportPortletConfigurationIcon
 		target = "(resource.name=" + StyleBookConstants.RESOURCE_NAME + ")"
 	)
 	private PortletResourcePermission _portletResourcePermission;
+
+	@Reference(target = "(osgi.web.symbolicname=com.liferay.style.book.web)")
+	private ServletContext _servletContext;
 
 }

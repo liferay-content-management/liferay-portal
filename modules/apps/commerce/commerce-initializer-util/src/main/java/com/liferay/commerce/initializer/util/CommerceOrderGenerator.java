@@ -92,7 +92,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  * @author Luca Pellizzon
  */
-@Component(enabled = false, service = CommerceOrderGenerator.class)
+@Component(service = CommerceOrderGenerator.class)
 public class CommerceOrderGenerator {
 
 	public void generate(long groupId, int ordersCount) {
@@ -441,7 +441,8 @@ public class CommerceOrderGenerator {
 		throws PortalException {
 
 		int stockQuantity = _commerceInventoryEngine.getStockQuantity(
-			cpInstance.getCompanyId(), cpInstance.getSku());
+			cpInstance.getCompanyId(), cpInstance.getGroupId(),
+			cpInstance.getSku());
 
 		int maxOrderQuantity = cpDefinitionInventoryEngine.getMaxOrderQuantity(
 			cpInstance);

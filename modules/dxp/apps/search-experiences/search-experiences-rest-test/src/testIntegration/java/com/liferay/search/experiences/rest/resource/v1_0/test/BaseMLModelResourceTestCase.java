@@ -191,18 +191,21 @@ public abstract class BaseMLModelResourceTestCase {
 	}
 
 	@Test
-	public void testGetMLModelsPage() throws Exception {
-		Page<MLModel> page = mlModelResource.getMLModelsPage(
+	public void testGetSentenceTransformerMLModelsPage() throws Exception {
+		Page<MLModel> page = mlModelResource.getSentenceTransformerMLModelsPage(
 			null, RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString());
 
 		long totalCount = page.getTotalCount();
 
-		MLModel mlModel1 = testGetMLModelsPage_addMLModel(randomMLModel());
+		MLModel mlModel1 = testGetSentenceTransformerMLModelsPage_addMLModel(
+			randomMLModel());
 
-		MLModel mlModel2 = testGetMLModelsPage_addMLModel(randomMLModel());
+		MLModel mlModel2 = testGetSentenceTransformerMLModelsPage_addMLModel(
+			randomMLModel());
 
-		page = mlModelResource.getMLModelsPage(null, null, null, null);
+		page = mlModelResource.getSentenceTransformerMLModelsPage(
+			null, null, null, null);
 
 		Assert.assertEquals(totalCount + 2, page.getTotalCount());
 
@@ -211,7 +214,8 @@ public abstract class BaseMLModelResourceTestCase {
 		assertValid(page);
 	}
 
-	protected MLModel testGetMLModelsPage_addMLModel(MLModel mlModel)
+	protected MLModel testGetSentenceTransformerMLModelsPage_addMLModel(
+			MLModel mlModel)
 		throws Exception {
 
 		throw new UnsupportedOperationException(

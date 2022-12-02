@@ -529,6 +529,47 @@ definition {
 			locator1 = "CommerceEntry#ENTRY_NAME_BODY_VERTICAL_ELLIPSIS");
 	}
 
+	@description = "This is a test for COMMERCE-6413. Commerce Channel API unable to define Type"
+	@priority = "3"
+	test CanCreateChannelViaAPIAndCheckTabs {
+		property portal.acceptance = "false";
+
+		var wrongChannelType = "Site";
+		var correctChannelType = "site";
+		var channelTabsList = "General,Type,Notification Queue,Notification Templates,Payment Restrictions,Shipping Restrictions";
+		var createChannelResponseWithError = CommerceJSONChannelsAPI._addChannel(
+			channelName = "Test Channel New",
+			channelType = "${wrongChannelType}",
+			currencyCode = "US",
+			externalReferenceCode = "101");
+
+		var createChannelErrorMessage = JSONUtil.getWithJSONPath("${createChannelResponseWithError}", "$");
+
+		TestUtils.assertEquals(
+			actual = "${createChannelErrorMessage}",
+			expected = "{errorDescription=Invalid channel type, message=null, status=400}");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		IsElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
+
+		CommerceJSONChannelsAPI._addChannel(
+			channelName = "Test Channel New",
+			channelType = "${correctChannelType}",
+			currencyCode = "US",
+			externalReferenceCode = "101");
+
+		Refresh();
+
+		CommerceNavigator.gotoEntry(entryName = "Test Channel New");
+
+		for (var channelTab : list "${channelTabsList}") {
+			CommerceEntry.gotoMenuTab(menuTab = "${channelTab}");
+		}
+	}
+
 	@description = "This is a test for COMMERCE-9459. CanEditShippingMethodTrackingURL"
 	@priority = "2"
 	test CanEditShippingMethodTrackingURL {
@@ -621,7 +662,7 @@ definition {
 	@priority = "3"
 	test CanNotEditChannelCurrencyAsUserWithoutEditPermission {
 		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		task ("Given a Commerce account with a buyer user") {
 			CommerceEntry.addAccountEntryUser(
@@ -665,9 +706,81 @@ definition {
 		}
 	}
 
+	@description = "Test for COMMERCE-9432 | Can paginate Payment and Shipping Restrictions pages"
+	@priority = "3"
+	test CanPaginatePaymentAndShippingRestrictions {
+		property test.name.skip.portal.instance = "CPCommerceChannels#CanPaginatePaymentAndShippingRestrictions";
+
+		task ("Given the admin navigates to 'Minium Portal' channel") {
+			CommerceChannels.openChannelsAdmin();
+
+			CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+		}
+
+		task ("When the admin navigates to the Payment/Shipping Restrictions tab") {
+			for (var tab : list "Payment,Shipping") {
+				CommerceEntry.gotoMenuTab(menuTab = "${tab} Restrictions");
+
+				task ("Then the admin can use pagination to change the list of countries shown on the page") {
+					Pagination.changePagination(itemsPerPage = "4 items");
+
+					CommerceEntry.viewPaginationResults(results = "Showing 1 to 4 of 247");
+
+					AssertElementNotPresent(
+						key_rowNumber = "5",
+						locator1 = "CommerceEntry#ENTRY_CONTENT_ROW_NUMBER");
+
+					for (var country : list "Afghanistan,Aland Islands,Albania,Algeria") {
+						AssertElementPresent(
+							key_tableEntry = "${country}",
+							locator1 = "LexiconTable#TABLE_ENTRY");
+					}
+
+					Click(locator1 = "Pagination#NEXT_LINK");
+
+					CommerceEntry.viewPaginationResults(results = "Showing 5 to 8 of 247");
+
+					AssertElementNotPresent(
+						key_rowNumber = "5",
+						locator1 = "CommerceEntry#ENTRY_CONTENT_ROW_NUMBER");
+
+					for (var country : list "Afghanistan,Aland Islands,Albania,Algeria") {
+						AssertElementNotPresent(
+							key_tableEntry = "${country}",
+							locator1 = "LexiconTable#TABLE_ENTRY");
+					}
+
+					Click(locator1 = "Pagination#PREVIOUS_LINK");
+
+					AssertElementNotPresent(
+						key_rowNumber = "5",
+						locator1 = "CommerceEntry#ENTRY_CONTENT_ROW_NUMBER");
+
+					for (var country : list "Afghanistan,Aland Islands,Albania,Algeria") {
+						AssertElementPresent(
+							key_tableEntry = "${country}",
+							locator1 = "LexiconTable#TABLE_ENTRY");
+					}
+
+					Click(
+						key_pageNumber = "4",
+						locator1 = "CommerceNavigation#PAGINATION_ANY_PAGE");
+
+					for (var country : list "Afghanistan,Aland Islands,Albania,Algeria") {
+						AssertElementNotPresent(
+							key_tableEntry = "${country}",
+							locator1 = "LexiconTable#TABLE_ENTRY");
+					}
+				}
+			}
+		}
+	}
+
 	@description = "Verify users can set and edit delivery term eligibility for shipping options."
 	@priority = "3"
 	test CanSetAndEditDeliveryTermsEligibility {
+		property portal.acceptance = "true";
+
 		task ("Given an active delivery term") {
 			CommerceJSONTermsAndConditionsAPI._addCommerceTermsAndConditions(
 				termsCount = "2",
@@ -727,6 +840,63 @@ definition {
 				key_table = "Delivery Terms",
 				locator1 = "CommerceEntry#TABLE_ELIGIBILITY_ENTRY");
 		}
+	}
+
+	@description = "This is a test for COMMERCE-4270. CheckAvalaraTaxPresence"
+	@priority = "3"
+	test CheckAvalaraTaxPresence {
+		property portal.acceptance = "false";
+		property portal.release = "false";
+
+		CommerceNavigator.gotoPortlet(
+			category = "Settings",
+			portlet = "Avalara Connector");
+
+		CommerceChannels.avalaraConnection();
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		Click(
+			key_entryName = "Avalara",
+			locator1 = "CommerceEntry#CHANNELS_GENERAL_TAB_EDITS");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		AssertTextEquals(
+			key_text = "Name",
+			locator1 = "TextInput#ANY",
+			value1 = "Avalara");
+
+		AssertTextEquals(
+			key_text = "Description",
+			locator1 = "TextInput#ANY",
+			value1 = "Avalara Type Rate Description");
+
+		Check.checkToggleSwitch(
+			key_toggleSwitchLabel = "Percentage",
+			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+
+		Check.checkToggleSwitch(
+			key_toggleSwitchLabel = "Active",
+			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		CommerceEntry.gotoMenuTab(menuTab = "Settings");
+
+		AssertElementPresent(
+			key_warningMessage = "Configure Credentials Before Continuing",
+			locator1 = "Message#WARNING_SPECIFIC");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Avalara Tax Rates");
+
+		AssertElementPresent(locator1 = "CommerceNavigation#EMPTY_SEARCH_CONTAINER");
 	}
 
 	@description = "[Please Update]"
@@ -1020,97 +1190,6 @@ definition {
 		Alert.viewSuccessMessage();
 	}
 
-	@description = "This is a test for COMMERCE-6119. EditAvalaraTaxCalculation"
-	@priority = "3"
-	test EditAvalaraTaxCalculation {
-		property portal.acceptance = "false";
-		property portal.release = "false";
-
-		// TODO Review
-
-		CommerceNavigator.gotoPortlet(
-			category = "Store Management",
-			portlet = "Channels");
-
-		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
-
-		Click(
-			key_entryName = "Avalara",
-			locator1 = "CommerceEntry#CHANNELS_GENERAL_TAB_EDITS");
-
-		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
-
-		Uncheck.uncheckToggleSwitch(
-			key_toggleSwitchLabel = "Active",
-			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
-
-		Button.clickSave();
-
-		Alert.viewSuccessMessage();
-
-		Check.checkToggleSwitch(
-			key_toggleSwitchLabel = "Active",
-			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
-
-		Button.clickSave();
-
-		Alert.viewSuccessMessage();
-
-		CommerceEntry.gotoMenuTab(menuTab = "Settings");
-
-		Type(
-			key_fieldLabel = "Account Number",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Test");
-
-		Type(
-			key_fieldLabel = "License Key",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Test");
-
-		Type(
-			key_fieldLabel = "Service URL",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Test");
-
-		Type(
-			key_fieldLabel = "Company Code",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Test");
-
-		Button.clickSave();
-
-		Refresh();
-
-		Click(
-			key_entryName = "Avalara",
-			locator1 = "CommerceEntry#CHANNELS_GENERAL_TAB_EDITS");
-
-		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
-
-		CommerceEntry.gotoMenuTab(menuTab = "Settings");
-
-		AssertTextEquals(
-			key_fieldLabel = "Account Number",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Test");
-
-		AssertTextEquals(
-			key_fieldLabel = "License Key",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Test");
-
-		AssertTextEquals(
-			key_fieldLabel = "Service URL",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Test");
-
-		AssertTextEquals(
-			key_fieldLabel = "Company Code",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Test");
-	}
-
 	@description = "This is a test for COMMERCE-6122. EditConfigurationRemoteTaxCalculation"
 	@priority = "3"
 	test EditConfigurationRemoteTaxCalculation {
@@ -1366,7 +1445,7 @@ definition {
 	@priority = "3"
 	test PaymentMethodEligibleForSpecificPaymentTerms {
 		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		task ("Given an account with a buyer user") {
 			CommerceEntry.addAccountEntryUser(
@@ -2028,7 +2107,7 @@ definition {
 	@description = "Verify users can set and edit payment term eligibility for payment methods."
 	@priority = "3"
 	test SetAndEditPaymentMethodTermElgibility {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		task ("Given an active payment term") {
 			CommerceJSONTermsAndConditionsAPI._addCommerceTermsAndConditions(termsType = "Payment");
@@ -2192,6 +2271,7 @@ definition {
 	@priority = "3"
 	test ShippingOptionEligibleForSpecificDeliveryTerms {
 		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
+		property portal.acceptance = "true";
 
 		task ("Given an account with a buyer user") {
 			CommerceEntry.addAccountEntryUser(
@@ -2283,7 +2363,7 @@ definition {
 	@priority = "3"
 	test ShippingOptionEligibleForSpecificOrderType {
 		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		task ("Given an account with a buyer user") {
 			CommerceEntry.addAccountEntryUser(
@@ -2362,15 +2442,8 @@ definition {
 				newAddressCity = "Test City",
 				newAddressCountry = "United States",
 				newAddressName = "Address Name",
-				newAddressZipCode = "Test Zip Code");
-
-			AssertElementNotPresent(
-				key_radioOption = "Standard",
-				locator1 = "CommerceEntry#RADIO_BUTTON");
-
-			AssertElementPresent(
-				key_radioOption = "Expedited",
-				locator1 = "CommerceEntry#RADIO_BUTTON");
+				newAddressZipCode = "Test Zip Code",
+				shippingOption = "Expedited");
 		}
 
 		task ("When the user goes to checkout for the Test Order Type 1 order") {
@@ -2454,12 +2527,12 @@ definition {
 
 		CommerceJSONChannelsAPI._addChannel(
 			channelName = "Test Channel",
-			channelType = "Site",
+			channelType = "site",
 			currencyCode = "USD");
 
 		CommerceJSONChannelsAPI._addChannel(
 			channelName = "Minium",
-			channelType = "Site",
+			channelType = "site",
 			currencyCode = "USD");
 
 		CommerceChannels.openChannelsAdmin();
@@ -2664,7 +2737,7 @@ definition {
 	@priority = "3"
 	test ViewOrderPreviewWithJasperTemplate {
 		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		task ("Given a channel with a Print Order Template jasper file ") {
 			CommerceNavigator.gotoPortlet(

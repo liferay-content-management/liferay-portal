@@ -14,7 +14,7 @@
 
 package com.liferay.translation.web.internal.display.context;
 
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.localized.InfoLocalizedValue;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -43,7 +43,7 @@ import com.liferay.segments.service.SegmentsEntryLocalServiceUtil;
 import com.liferay.segments.service.SegmentsExperienceLocalServiceUtil;
 import com.liferay.segments.service.SegmentsExperienceServiceUtil;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporter;
-import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterTracker;
+import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 import com.liferay.translation.info.item.provider.InfoItemLanguagesProvider;
 
 import java.util.ArrayList;
@@ -67,23 +67,23 @@ public class ExportTranslationDisplayContext {
 	public ExportTranslationDisplayContext(
 		long classNameId, long[] classPKs, long groupId,
 		HttpServletRequest httpServletRequest,
-		InfoItemServiceTracker infoItemServiceTracker,
+		InfoItemServiceRegistry infoItemServiceRegistry,
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse, List<Object> models,
 		String title,
-		TranslationInfoItemFieldValuesExporterTracker
-			translationInfoItemFieldValuesExporterTracker) {
+		TranslationInfoItemFieldValuesExporterRegistry
+			translationInfoItemFieldValuesExporterRegistry) {
 
 		_classNameId = classNameId;
 		_classPKs = classPKs;
 		_groupId = groupId;
 		_httpServletRequest = httpServletRequest;
-		_infoItemServiceTracker = infoItemServiceTracker;
+		_infoItemServiceRegistry = infoItemServiceRegistry;
 		_liferayPortletResponse = liferayPortletResponse;
 		_models = models;
 		_title = title;
-		_translationInfoItemFieldValuesExporterTracker =
-			translationInfoItemFieldValuesExporterTracker;
+		_translationInfoItemFieldValuesExporterRegistry =
+			translationInfoItemFieldValuesExporterRegistry;
 
 		_className = PortalUtil.getClassName(_classNameId);
 		_themeDisplay = (ThemeDisplay)liferayPortletRequest.getAttribute(
@@ -141,7 +141,7 @@ public class ExportTranslationDisplayContext {
 			() -> {
 				Collection<TranslationInfoItemFieldValuesExporter>
 					translationInfoItemFieldValuesExporters =
-						_translationInfoItemFieldValuesExporterTracker.
+						_translationInfoItemFieldValuesExporterRegistry.
 							getTranslationInfoItemFieldValuesExporters();
 
 				Stream<TranslationInfoItemFieldValuesExporter>
@@ -204,7 +204,7 @@ public class ExportTranslationDisplayContext {
 
 	private Set<Locale> _getAvailableSourceLocales() throws Exception {
 		InfoItemLanguagesProvider<Object> infoItemLanguagesProvider =
-			_infoItemServiceTracker.getFirstInfoItemService(
+			_infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemLanguagesProvider.class, _className);
 
 		List<String> languageIds = new ArrayList<>();
@@ -235,7 +235,7 @@ public class ExportTranslationDisplayContext {
 
 	private String _getDefaultSourceLanguageId() {
 		InfoItemLanguagesProvider<Object> infoItemLanguagesProvider =
-			_infoItemServiceTracker.getFirstInfoItemService(
+			_infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemLanguagesProvider.class, _className);
 
 		if (infoItemLanguagesProvider == null) {
@@ -377,13 +377,13 @@ public class ExportTranslationDisplayContext {
 	private final long[] _classPKs;
 	private final long _groupId;
 	private final HttpServletRequest _httpServletRequest;
-	private final InfoItemServiceTracker _infoItemServiceTracker;
+	private final InfoItemServiceRegistry _infoItemServiceRegistry;
 	private final LiferayPortletResponse _liferayPortletResponse;
 	private final List<Object> _models;
 	private String _redirect;
 	private final ThemeDisplay _themeDisplay;
 	private final String _title;
-	private final TranslationInfoItemFieldValuesExporterTracker
-		_translationInfoItemFieldValuesExporterTracker;
+	private final TranslationInfoItemFieldValuesExporterRegistry
+		_translationInfoItemFieldValuesExporterRegistry;
 
 }

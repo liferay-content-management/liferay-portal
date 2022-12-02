@@ -269,6 +269,20 @@ public interface LayoutUtilityPageEntryModel
 	public void setPlid(long plid);
 
 	/**
+	 * Returns the preview file entry ID of this layout utility page entry.
+	 *
+	 * @return the preview file entry ID of this layout utility page entry
+	 */
+	public long getPreviewFileEntryId();
+
+	/**
+	 * Sets the preview file entry ID of this layout utility page entry.
+	 *
+	 * @param previewFileEntryId the preview file entry ID of this layout utility page entry
+	 */
+	public void setPreviewFileEntryId(long previewFileEntryId);
+
+	/**
 	 * Returns the default layout utility page entry of this layout utility page entry.
 	 *
 	 * @return the default layout utility page entry of this layout utility page entry
@@ -310,14 +324,15 @@ public interface LayoutUtilityPageEntryModel
 	 *
 	 * @return the type of this layout utility page entry
 	 */
-	public int getType();
+	@AutoEscape
+	public String getType();
 
 	/**
 	 * Sets the type of this layout utility page entry.
 	 *
 	 * @param type the type of this layout utility page entry
 	 */
-	public void setType(int type);
+	public void setType(String type);
 
 	/**
 	 * Returns the last publish date of this layout utility page entry.
@@ -337,5 +352,9 @@ public interface LayoutUtilityPageEntryModel
 
 	@Override
 	public LayoutUtilityPageEntry cloneWithOriginalValues();
+
+	public default String toXmlString() {
+		return null;
+	}
 
 }

@@ -14,15 +14,15 @@
 
 package com.liferay.asset.publisher.web.internal;
 
-import com.liferay.asset.publisher.constants.AssetPublisherWebKeys;
 import com.liferay.asset.publisher.util.AssetPublisherHelper;
 import com.liferay.asset.publisher.web.internal.display.context.ParentSitesItemSelectorViewDisplayContext;
+import com.liferay.asset.publisher.web.internal.item.selector.SitesItemSelectorViewDescriptor;
 import com.liferay.item.selector.ItemSelectorReturnType;
 import com.liferay.item.selector.ItemSelectorView;
+import com.liferay.item.selector.ItemSelectorViewDescriptorRenderer;
 import com.liferay.item.selector.criteria.GroupItemSelectorReturnType;
 import com.liferay.item.selector.criteria.group.criterion.GroupItemSelectorCriterion;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
@@ -35,7 +35,6 @@ import java.util.Locale;
 
 import javax.portlet.PortletURL;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -102,17 +101,14 @@ public class ParentSitesItemSelectorView
 			parentSitesItemSelectorViewDisplayContext =
 				new ParentSitesItemSelectorViewDisplayContext(
 					(HttpServletRequest)servletRequest, _assetPublisherHelper,
-					groupItemSelectorCriterion, itemSelectedEventName,
 					portletURL);
 
-		servletRequest.setAttribute(
-			AssetPublisherWebKeys.ITEM_SELECTOR_DISPLAY_CONTEXT,
-			parentSitesItemSelectorViewDisplayContext);
-
-		RequestDispatcher requestDispatcher =
-			_servletContext.getRequestDispatcher("/view_sites.jsp");
-
-		requestDispatcher.include(servletRequest, servletResponse);
+		_itemSelectorViewDescriptorRenderer.renderHTML(
+			servletRequest, servletResponse, groupItemSelectorCriterion,
+			portletURL, itemSelectedEventName, search,
+			new SitesItemSelectorViewDescriptor(
+				(HttpServletRequest)servletRequest,
+				parentSitesItemSelectorViewDisplayContext));
 	}
 
 	private static final List<ItemSelectorReturnType>
@@ -123,7 +119,8 @@ public class ParentSitesItemSelectorView
 	private AssetPublisherHelper _assetPublisherHelper;
 
 	@Reference
-	private GroupLocalService _groupLocalService;
+	private ItemSelectorViewDescriptorRenderer<GroupItemSelectorCriterion>
+		_itemSelectorViewDescriptorRenderer;
 
 	@Reference
 	private Portal _portal;

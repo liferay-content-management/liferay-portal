@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.service.ContactLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.OrganizationLocalService;
 import com.liferay.portal.kernel.service.TeamLocalService;
+import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
 import com.liferay.portal.kernel.test.randomizerbumpers.UniqueStringRandomizerBumper;
@@ -953,20 +954,44 @@ public class UserODataRetrieverTest {
 
 		_userLocalService.addTeamUser(_team.getTeamId(), _user1);
 
+		_userGroup = UserGroupTestUtil.addUserGroup(
+			_companyGuestGroup.getGroupId());
+
+		_userGroupLocalService.addTeamUserGroups(
+			_team.getTeamId(), new long[] {_userGroup.getUserGroupId()});
+
+		_userLocalService.addUserGroupUser(_userGroup.getUserGroupId(), _user2);
+
 		String filterString = String.format(
 			"(firstName eq '%s') and (teamIds eq '%s')", firstName,
 			_team.getTeamId());
 
-		int count = _oDataRetriever.getResultsCount(
-			_group1.getCompanyId(), filterString, LocaleUtil.getDefault());
+		Assert.assertEquals(
+			2,
+			_oDataRetriever.getResultsCount(
+				_group1.getCompanyId(), filterString, LocaleUtil.getDefault()));
 
-		Assert.assertEquals(1, count);
-
-		List<User> users = _oDataRetriever.getResults(
+		List<User> results = _oDataRetriever.getResults(
 			_group1.getCompanyId(), filterString, LocaleUtil.getDefault(), 0,
 			2);
 
-		Assert.assertEquals(_user1, users.get(0));
+		Assert.assertTrue(results.contains(_user1));
+		Assert.assertTrue(results.contains(_user2));
+
+		_userGroupLocalService.unsetTeamUserGroups(
+			_team.getTeamId(), new long[] {_userGroup.getUserGroupId()});
+
+		Assert.assertEquals(
+			1,
+			_oDataRetriever.getResultsCount(
+				_group1.getCompanyId(), filterString, LocaleUtil.getDefault()));
+
+		results = _oDataRetriever.getResults(
+			_group1.getCompanyId(), filterString, LocaleUtil.getDefault(), 0,
+			2);
+
+		Assert.assertTrue(results.contains(_user1));
+		Assert.assertFalse(results.contains(_user2));
 	}
 
 	@Test
@@ -1177,6 +1202,9 @@ public class UserODataRetrieverTest {
 
 	@DeleteAfterTestRun
 	private UserGroup _userGroup;
+
+	@Inject
+	private UserGroupLocalService _userGroupLocalService;
 
 	@Inject
 	private UserLocalService _userLocalService;

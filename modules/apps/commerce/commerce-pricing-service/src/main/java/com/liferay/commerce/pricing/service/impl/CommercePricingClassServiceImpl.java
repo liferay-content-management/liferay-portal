@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
-import com.liferay.portal.kernel.service.CompanyService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
@@ -46,7 +45,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Riccardo Alberti
  */
 @Component(
-	enabled = false,
 	property = {
 		"json.web.service.context.name=commerce",
 		"json.web.service.context.path=CommercePricingClass"
@@ -97,8 +95,8 @@ public class CommercePricingClassServiceImpl
 
 		if (!Validator.isBlank(externalReferenceCode)) {
 			CommercePricingClass commercePricingClass =
-				commercePricingClassPersistence.fetchByC_ERC(
-					serviceContext.getCompanyId(), externalReferenceCode);
+				commercePricingClassPersistence.fetchByERC_C(
+					externalReferenceCode, serviceContext.getCompanyId());
 
 			if (commercePricingClass != null) {
 				return commercePricingClassLocalService.
@@ -270,8 +268,5 @@ public class CommercePricingClassServiceImpl
 	)
 	private ModelResourcePermission<CommercePricingClass>
 		_commercePricingClassResourcePermission;
-
-	@Reference
-	private CompanyService _companyService;
 
 }

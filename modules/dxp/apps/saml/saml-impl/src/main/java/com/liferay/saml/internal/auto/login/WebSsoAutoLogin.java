@@ -14,12 +14,12 @@
 
 package com.liferay.saml.internal.auto.login;
 
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auto.login.AutoLogin;
 import com.liferay.portal.kernel.security.auto.login.AutoLoginException;
 import com.liferay.portal.kernel.security.auto.login.BaseAutoLogin;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.saml.constants.SamlWebKeys;
@@ -37,7 +37,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Mika Koivisto
  */
-@Component(immediate = true, service = AutoLogin.class)
+@Component(service = AutoLogin.class)
 public class WebSsoAutoLogin extends BaseAutoLogin {
 
 	@Override
@@ -53,8 +53,8 @@ public class WebSsoAutoLogin extends BaseAutoLogin {
 				return null;
 			}
 
-			String samlSsoSessionId = CookieKeys.getCookie(
-				httpServletRequest, SamlWebKeys.SAML_SSO_SESSION_ID);
+			String samlSsoSessionId = CookiesManagerUtil.getCookieValue(
+				SamlWebKeys.SAML_SSO_SESSION_ID, httpServletRequest);
 
 			if (Validator.isNull(samlSsoSessionId)) {
 				return null;

@@ -16,19 +16,23 @@
 
 import {CustomItem, SidebarCategory} from '@liferay/object-js-components-web';
 export default function EditObjectAction({
+	isApproved,
 	objectAction: {id, ...values},
 	objectActionCodeEditorElements,
 	objectActionExecutors,
 	objectActionTriggers,
+	objectDefinitionId,
 	objectDefinitionsRelationshipsURL,
 	readOnly,
 	validateExpressionURL,
 }: IProps): JSX.Element;
 interface IProps {
+	isApproved: boolean;
 	objectAction: ObjectAction;
 	objectActionCodeEditorElements: SidebarCategory[];
 	objectActionExecutors: CustomItem[];
 	objectActionTriggers: CustomItem[];
+	objectDefinitionId: number;
 	objectDefinitionsRelationshipsURL: string;
 	readOnly?: boolean;
 	validateExpressionURL: string;

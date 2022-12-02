@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Template API
 Bundle-SymbolicName: com.liferay.template.api
-Bundle-Version: 3.1.2
+Bundle-Version: 4.2.1
 Export-Package:\
 	com.liferay.template.constants,\
 	com.liferay.template.exception,\
@@ -9,4 +9,5 @@ Export-Package:\
 	com.liferay.template.info.item.provider,\
 	com.liferay.template.model,\
 	com.liferay.template.service,\
-	com.liferay.template.service.persistence
+	com.liferay.template.service.persistence,\
+	com.liferay.template.transformer

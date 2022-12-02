@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -81,9 +80,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(
-	service = {KaleoTimerInstanceTokenPersistence.class, BasePersistence.class}
-)
+@Component(service = KaleoTimerInstanceTokenPersistence.class)
 public class KaleoTimerInstanceTokenPersistenceImpl
 	extends BasePersistenceImpl<KaleoTimerInstanceToken>
 	implements KaleoTimerInstanceTokenPersistence {
@@ -209,7 +206,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoTimerInstanceToken>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (KaleoTimerInstanceToken kaleoTimerInstanceToken : list) {
@@ -590,7 +587,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 
 			finderArgs = new Object[] {kaleoInstanceId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -715,7 +712,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByKITI_KTI, finderArgs);
+				_finderPathFetchByKITI_KTI, finderArgs, this);
 		}
 
 		if (result instanceof KaleoTimerInstanceToken) {
@@ -844,7 +841,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 
 			finderArgs = new Object[] {kaleoInstanceTokenId, kaleoTimerId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1004,7 +1001,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoTimerInstanceToken>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (KaleoTimerInstanceToken kaleoTimerInstanceToken : list) {
@@ -1410,7 +1407,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 
 			finderArgs = new Object[] {kaleoInstanceTokenId, completed};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1581,7 +1578,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoTimerInstanceToken>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (KaleoTimerInstanceToken kaleoTimerInstanceToken : list) {
@@ -2015,7 +2012,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 				kaleoInstanceTokenId, blocking, completed
 			};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2696,7 +2693,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoTimerInstanceToken>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2773,7 +2770,7 @@ public class KaleoTimerInstanceTokenPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

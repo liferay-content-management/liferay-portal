@@ -16,8 +16,9 @@ import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
+import {sub} from 'frontend-js-web';
 import PropTypes from 'prop-types';
-import React, {useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 
 import {updateLanguageId} from '../actions/index';
 import {BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR} from '../config/constants/backgroundImageFragmentEntryProcessor';
@@ -132,7 +133,6 @@ export default function Translation({
 	languageId,
 	showNotTranslated = true,
 }) {
-	const [active, setActive] = useState(false);
 	const editableValues = useMemo(
 		() => getEditableValues(fragmentEntryLinks),
 		[fragmentEntryLinks]
@@ -170,11 +170,11 @@ export default function Translation({
 		showNotTranslated,
 	]);
 
-	const {languageIcon, languageLabel} = availableLanguages[languageId];
+	const {languageIcon, w3cLanguageId} = availableLanguages[languageId];
 
 	return (
 		<ClayDropDown
-			active={active}
+			closeOnClick
 			hasLeftSymbols
 			hasRightSymbols
 			menuElementAttrs={{
@@ -183,17 +183,22 @@ export default function Translation({
 					className: 'cadmin',
 				},
 			}}
-			onActiveChange={setActive}
 			trigger={
 				<ClayButton
-					aria-pressed={active}
 					className="btn-monospaced"
 					displayType="secondary"
 					small
 				>
 					<ClayIcon symbol={languageIcon} />
 
-					<span className="sr-only">{languageLabel}</span>
+					<span className="sr-only">
+						{sub(
+							Liferay.Language.get(
+								'select-a-language.-current-language-x'
+							),
+							w3cLanguageId
+						)}
+					</span>
 				</ClayButton>
 			}
 		>
@@ -218,7 +223,6 @@ export default function Translation({
 									languageId: language.languageId,
 								})
 							);
-							setActive(false);
 						}}
 						translatedValuesLength={language.values.length}
 					/>

@@ -37,7 +37,6 @@ import com.liferay.commerce.product.model.CPOption;
 import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.service.CPDefinitionLocalService;
 import com.liferay.commerce.product.service.CPInstanceLocalService;
-import com.liferay.commerce.product.service.CPInstanceService;
 import com.liferay.commerce.product.service.CPMeasurementUnitLocalService;
 import com.liferay.commerce.product.service.CPOptionLocalService;
 import com.liferay.commerce.product.service.CommerceCatalogLocalService;
@@ -47,7 +46,6 @@ import com.liferay.headless.commerce.admin.catalog.dto.v1_0.Catalog;
 import com.liferay.headless.commerce.admin.catalog.dto.v1_0.ProductOption;
 import com.liferay.headless.commerce.admin.catalog.dto.v1_0.ProductSpecification;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.CatalogResource;
-import com.liferay.headless.commerce.admin.catalog.resource.v1_0.OptionResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductOptionResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductSpecificationResource;
 import com.liferay.headless.commerce.admin.channel.dto.v1_0.Channel;
@@ -55,7 +53,6 @@ import com.liferay.headless.commerce.admin.channel.resource.v1_0.ChannelResource
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -147,7 +144,7 @@ public class CommerceSiteInitializer {
 			serviceContext.getCompanyId());
 
 		_portletSettingsImporter.importPortletSettings(
-			JSONFactoryUtil.createJSONArray(json), classLoader,
+			_jsonFactory.createJSONArray(json), classLoader,
 			"/site-initializer/portlet-settings/",
 			serviceContext.getScopeGroupId(), group.getGroupId(),
 			serviceContext.getUserId());
@@ -171,7 +168,7 @@ public class CommerceSiteInitializer {
 
 		return _commerceInventoryWarehousesImporter.
 			importCommerceInventoryWarehouses(
-				JSONFactoryUtil.createJSONArray(
+				_jsonFactory.createJSONArray(
 					SiteInitializerUtil.read(
 						"/site-initializer/commerce-inventory-warehouses.json",
 						servletContext)),
@@ -195,7 +192,7 @@ public class CommerceSiteInitializer {
 		}
 
 		JSONObject commerceNotificationTemplateJSONObject =
-			JSONFactoryUtil.createJSONObject(json);
+			_jsonFactory.createJSONObject(json);
 
 		CommerceChannel commerceChannel =
 			_commerceChannelLocalService.getCommerceChannel(commerceChannelId);
@@ -279,7 +276,7 @@ public class CommerceSiteInitializer {
 
 		String json = SiteInitializerUtil.read(resourcePath, servletContext);
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(json);
+		JSONArray jsonArray = _jsonFactory.createJSONArray(json);
 
 		_cpSpecificationOptionsImporter.importCPSpecificationOptions(
 			jsonArray, serviceContext.getScopeGroupId(),
@@ -335,16 +332,34 @@ public class CommerceSiteInitializer {
 			_commerceCatalogLocalService.getCommerceCatalogGroup(
 				catalog.getId());
 
-		_cpDefinitionsImporter.importCPDefinitions(
-			JSONFactoryUtil.createJSONArray(json), assetVocabularyName,
-			commerceCatalogGroup.getGroupId(), channel.getId(),
-			ListUtil.toLongArray(
-				commerceInventoryWarehouses,
-				CommerceInventoryWarehouse.
-					COMMERCE_INVENTORY_WAREHOUSE_ID_ACCESSOR),
-			bundleWiring.getClassLoader(),
-			StringUtil.replace(resourcePath, ".json", "/"),
-			serviceContext.getScopeGroupId(), serviceContext.getUserId());
+		List<CPDefinition> cpDefinitions =
+			_cpDefinitionsImporter.importCPDefinitions(
+				_jsonFactory.createJSONArray(json), assetVocabularyName,
+				commerceCatalogGroup.getGroupId(), channel.getId(),
+				ListUtil.toLongArray(
+					commerceInventoryWarehouses,
+					CommerceInventoryWarehouse.
+						COMMERCE_INVENTORY_WAREHOUSE_ID_ACCESSOR),
+				bundleWiring.getClassLoader(),
+				StringUtil.replace(resourcePath, ".json", "/"),
+				serviceContext.getScopeGroupId(), serviceContext.getUserId());
+
+		if (ListUtil.isEmpty(cpDefinitions)) {
+			return;
+		}
+
+		for (CPDefinition cpDefinition : cpDefinitions) {
+			List<CPInstance> cpInstances = cpDefinition.getCPInstances();
+
+			if (ListUtil.isEmpty(cpInstances)) {
+				continue;
+			}
+
+			for (CPInstance cpInstance : cpInstances) {
+				_addOrUpdateCommercePriceEntries(
+					cpDefinition, cpInstance, serviceContext);
+			}
+		}
 	}
 
 	private void _addCPInstanceSubscriptions(
@@ -366,7 +381,7 @@ public class CommerceSiteInitializer {
 				serviceContext.fetchUser()
 			).build();
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(json);
+		JSONArray jsonArray = _jsonFactory.createJSONArray(json);
 
 		for (int i = 0; i < jsonArray.length(); i++) {
 			JSONObject subscriptionPropertiesJSONObject =
@@ -454,7 +469,7 @@ public class CommerceSiteInitializer {
 				catalog.getId());
 
 		_cpOptionsImporter.importCPOptions(
-			JSONFactoryUtil.createJSONArray(json),
+			_jsonFactory.createJSONArray(json),
 			commerceCatalogGroup.getGroupId(), serviceContext.getUserId());
 	}
 
@@ -469,7 +484,7 @@ public class CommerceSiteInitializer {
 			return;
 		}
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(json);
+		JSONObject jsonObject = _jsonFactory.createJSONObject(json);
 
 		Layout layout = _layoutLocalService.fetchLayoutByFriendlyURL(
 			serviceContext.getScopeGroupId(),
@@ -513,7 +528,7 @@ public class CommerceSiteInitializer {
 			return;
 		}
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(json);
+		JSONArray jsonArray = _jsonFactory.createJSONArray(json);
 
 		for (int i = 0; i < jsonArray.length(); i++) {
 			JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -564,7 +579,7 @@ public class CommerceSiteInitializer {
 			String json = SiteInitializerUtil.read(
 				resourcePath, servletContext);
 
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(json);
+			JSONObject jsonObject = _jsonFactory.createJSONObject(json);
 
 			String assetVocabularyName = jsonObject.getString(
 				"assetVocabularyName");
@@ -624,7 +639,7 @@ public class CommerceSiteInitializer {
 			serviceContext.fetchUser()
 		).build();
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(json);
+		JSONObject jsonObject = _jsonFactory.createJSONObject(json);
 
 		jsonObject.put("siteGroupId", serviceContext.getScopeGroupId());
 
@@ -716,18 +731,26 @@ public class CommerceSiteInitializer {
 				commercePriceList.getCommercePriceListId(),
 				cpInstance.getCPInstanceUuid());
 
+		BigDecimal price = cpInstance.getPrice();
+
+		if (CommercePriceListConstants.TYPE_PROMOTION.equals(
+				commercePriceList.getType())) {
+
+			price = cpInstance.getPromoPrice();
+		}
+
 		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_PUBLISH);
 
 		if (commercePriceEntry == null) {
 			_commercePriceEntryLocalService.addCommercePriceEntry(
 				cpDefinition.getCProductId(), cpInstance.getCPInstanceUuid(),
-				commercePriceList.getCommercePriceListId(), BigDecimal.ZERO,
-				null, serviceContext);
+				commercePriceList.getCommercePriceListId(), price,
+				BigDecimal.ZERO, serviceContext);
 		}
 		else {
 			_commercePriceEntryLocalService.updateCommercePriceEntry(
-				commercePriceEntry.getCommercePriceEntryId(), BigDecimal.ZERO,
-				null, serviceContext);
+				commercePriceEntry.getCommercePriceEntryId(), price,
+				BigDecimal.ZERO, serviceContext);
 		}
 	}
 
@@ -839,9 +862,6 @@ public class CommerceSiteInitializer {
 	private CPInstanceLocalService _cpInstanceLocalService;
 
 	@Reference
-	private CPInstanceService _cpInstanceService;
-
-	@Reference
 	private CPMeasurementUnitLocalService _cpMeasurementUnitLocalService;
 
 	@Reference
@@ -861,9 +881,6 @@ public class CommerceSiteInitializer {
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
-
-	@Reference
-	private OptionResource.Factory _optionResourceFactory;
 
 	@Reference
 	private PortletSettingsImporter _portletSettingsImporter;

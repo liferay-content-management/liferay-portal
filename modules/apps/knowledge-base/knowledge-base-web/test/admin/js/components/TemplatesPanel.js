@@ -30,11 +30,15 @@ describe('Templates Panel', () => {
 		const items = [
 			{
 				href: 'template1_url',
+				id: '1',
 				name: 'Template 1',
+				type: 'template',
 			},
 			{
 				href: 'template2_url',
+				id: '2',
 				name: 'Template 2',
+				type: 'template',
 			},
 		];
 

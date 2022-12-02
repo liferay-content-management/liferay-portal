@@ -68,7 +68,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.inventory.model.CommerceInventoryWarehouse",
 	service = AopService.class
 )
@@ -161,12 +160,25 @@ public class CommerceInventoryWarehouseLocalServiceImpl
 	}
 
 	@Override
+	public CommerceInventoryWarehouse deleteCommerceInventoryWarehouse(
+			long commerceInventoryWarehouseId)
+		throws PortalException {
+
+		CommerceInventoryWarehouse commerceInventoryWarehouse =
+			commerceInventoryWarehousePersistence.findByPrimaryKey(
+				commerceInventoryWarehouseId);
+
+		return commerceInventoryWarehouseLocalService.
+			deleteCommerceInventoryWarehouse(commerceInventoryWarehouse);
+	}
+
+	@Override
 	public CommerceInventoryWarehouse
 		fetchCommerceInventoryWarehouseByReferenceCode(
 			String externalReferenceCode, long companyId) {
 
-		return commerceInventoryWarehousePersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceInventoryWarehousePersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -381,7 +393,19 @@ public class CommerceInventoryWarehouseLocalServiceImpl
 
 		searchContext.setAttributes(
 			HashMapBuilder.<String, Serializable>put(
+				CommerceInventoryWarehouseIndexer.FIELD_ACTIVE, () -> active
+			).put(
 				CommerceInventoryWarehouseIndexer.FIELD_CITY, keywords
+			).put(
+				CommerceInventoryWarehouseIndexer.
+					FIELD_COUNTRY_TWO_LETTERS_ISO_CODE,
+				() -> {
+					if (Validator.isNotNull(commerceCountryCode)) {
+						return commerceCountryCode;
+					}
+
+					return null;
+				}
 			).put(
 				CommerceInventoryWarehouseIndexer.FIELD_STREET_1, keywords
 			).put(
@@ -397,18 +421,6 @@ public class CommerceInventoryWarehouseLocalServiceImpl
 				LinkedHashMapBuilder.<String, Object>put(
 					"keywords", keywords
 				).build()
-			).put(
-				CommerceInventoryWarehouseIndexer.FIELD_ACTIVE, () -> active
-			).put(
-				CommerceInventoryWarehouseIndexer.
-					FIELD_COUNTRY_TWO_LETTERS_ISO_CODE,
-				() -> {
-					if (Validator.isNotNull(commerceCountryCode)) {
-						return commerceCountryCode;
-					}
-
-					return null;
-				}
 			).build());
 		searchContext.setCompanyId(companyId);
 		searchContext.setEnd(end);
@@ -518,8 +530,8 @@ public class CommerceInventoryWarehouseLocalServiceImpl
 		}
 
 		CommerceInventoryWarehouse commerceInventoryWarehouse =
-			commerceInventoryWarehousePersistence.fetchByC_ERC(
-				companyId, externalReferenceCode);
+			commerceInventoryWarehousePersistence.fetchByERC_C(
+				externalReferenceCode, companyId);
 
 		if (commerceInventoryWarehouse == null) {
 			return;

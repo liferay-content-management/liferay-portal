@@ -4,7 +4,7 @@
 <service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" mvcc-enabled="false" package-path="com.liferay.commerce.account">
 	<author>Marco Leo</author>
 	<namespace>Commerce</namespace>
-	<entity external-reference-code="true" local-service="true" name="CommerceAccount" persistence="false" remote-service="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceAccount" persistence="false" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -53,7 +53,7 @@
 			<finder-column name="type" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceAccountGroup" persistence="false" remote-service="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceAccountGroup" persistence="false" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -92,7 +92,7 @@
 			<finder-column name="type" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceAccountGroupCommerceAccountRel" persistence="false" remote-service="true" table="CAccountGroupCAccountRel">
+	<entity external-reference-code="company" local-service="true" name="CommerceAccountGroupCommerceAccountRel" persistence="false" remote-service="true" table="CAccountGroupCAccountRel">
 
 		<!-- PK fields -->
 
@@ -230,9 +230,6 @@
 		<exception>CommerceAccountName</exception>
 		<exception>CommerceAccountType</exception>
 		<exception>CommerceAccountUserRelEmailAddress</exception>
-		<exception>DuplicateCommerceAccount</exception>
-		<exception>DuplicateCommerceAccountGroupCommerceAccountRel</exception>
-		<exception>DuplicateCommerceAccountGroupRel</exception>
 		<exception>SystemCommerceAccountGroup</exception>
 	</exceptions>
 </service-builder>

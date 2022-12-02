@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<root available-locales="en_US" default-locale="en_US" version="1.0">
+	<dynamic-element field-reference="Fieldset92618643" index-type="" instance-id="4luTmDFg" name="Fieldset92618643" type="fieldset">
+		<dynamic-element field-reference="Text45440928" index-type="keyword" instance-id="hKlUdDWA" name="Text45440928" type="text">
+			<dynamic-content language-id="en_US"><![CDATA[Test Content]]></dynamic-content>
+		</dynamic-element>
+		<dynamic-element field-reference="Date11553277" index-type="keyword" instance-id="2B2sPmvH" name="Date11553277" type="date" />
+	</dynamic-element>
+</root>

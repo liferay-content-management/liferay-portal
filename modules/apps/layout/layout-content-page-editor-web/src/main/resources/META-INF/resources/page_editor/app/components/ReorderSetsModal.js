@@ -32,8 +32,8 @@ import {useDispatch, useSelector} from '../contexts/StoreContext';
 import selectWidgetFragmentEntryLinks from '../selectors/selectWidgetFragmentEntryLinks';
 import loadWidgets from '../thunks/loadWidgets';
 
-const FRAGMENTS_ID = 'fragments';
-const WIDGETS_ID = 'widgets';
+const FRAGMENTS_ID = 0;
+const WIDGETS_ID = 1;
 
 const ACCEPTING_ITEM_TYPE = 'acceptingItemType';
 
@@ -66,6 +66,7 @@ export function ReorderSetsModal({onCloseModal}) {
 	return (
 		<ClayModal
 			className="page-editor__reorder-set-modal"
+			containerProps={{className: 'cadmin'}}
 			observer={observer}
 		>
 			<ClayModal.Header>
@@ -187,26 +188,26 @@ function Tabs({updateLists}) {
 
 	return (
 		<>
-			<ClayTabs className="px-3">
+			<ClayTabs
+				activation="automatic"
+				active={activeTabId}
+				className="px-3"
+				onActiveChange={setActiveTabId}
+			>
 				{tabs.map(({id, label}) => (
 					<ClayTabs.Item
-						active={activeTabId === id}
 						innerProps={{
 							'aria-controls': getTabPanelId(id),
 							'id': getTabId(id),
 						}}
 						key={id}
-						onClick={() => setActiveTabId(id)}
 					>
 						{label}
 					</ClayTabs.Item>
 				))}
 			</ClayTabs>
 
-			<ClayTabs.Content
-				activeIndex={tabs.findIndex((tab) => tab.id === activeTabId)}
-				fade
-			>
+			<ClayTabs.Content activeIndex={activeTabId} fade>
 				{tabs.map(({id, items}) => (
 					<ClayTabs.TabPane
 						aria-labelledby={getTabId(id)}

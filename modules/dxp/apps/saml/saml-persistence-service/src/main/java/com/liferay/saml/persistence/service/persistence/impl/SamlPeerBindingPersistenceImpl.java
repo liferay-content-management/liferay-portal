@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -73,7 +72,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Mika Koivisto
  * @generated
  */
-@Component(service = {SamlPeerBindingPersistence.class, BasePersistence.class})
+@Component(service = SamlPeerBindingPersistence.class)
 public class SamlPeerBindingPersistenceImpl
 	extends BasePersistenceImpl<SamlPeerBinding>
 	implements SamlPeerBindingPersistence {
@@ -237,7 +236,7 @@ public class SamlPeerBindingPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SamlPeerBinding>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SamlPeerBinding samlPeerBinding : list) {
@@ -829,7 +828,7 @@ public class SamlPeerBindingPersistenceImpl
 			samlNameIdNameQualifier, samlPeerEntityId
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(7);
@@ -1106,7 +1105,7 @@ public class SamlPeerBindingPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SamlPeerBinding>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SamlPeerBinding samlPeerBinding : list) {
@@ -1736,7 +1735,7 @@ public class SamlPeerBindingPersistenceImpl
 			samlNameIdValue, samlPeerEntityId
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(7);
@@ -2286,7 +2285,7 @@ public class SamlPeerBindingPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SamlPeerBinding>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2356,7 +2355,7 @@ public class SamlPeerBindingPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

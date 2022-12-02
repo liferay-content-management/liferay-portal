@@ -1,4 +1,8 @@
 {
+	"dependencies": {
+		"frontend-js-web": "*",
+		"prop-types": "15.7.2"
+	},
 	"main": "js/index.js",
 	"name": "@liferay/address-web",
 	"scripts": {
@@ -6,5 +10,5 @@
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "1.0.11"
+	"version": "1.0.15"
 }

@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.search.experiences.rest.internal.security.permission.LiberalPermissionChecker;
 import com.liferay.search.experiences.rest.resource.v1_0.KeywordQueryContributorResource;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	immediate = true,
 	property = "resource.locator.key=/search-experiences-rest/v1.0/KeywordQueryContributor",
 	service = KeywordQueryContributorResource.Factory.class
 )
@@ -139,16 +137,6 @@ public class KeywordQueryContributorResourceFactoryImpl
 			private User _user;
 
 		};
-	}
-
-	@Activate
-	protected void activate() {
-		KeywordQueryContributorResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		KeywordQueryContributorResource.FactoryHolder.factory = null;
 	}
 
 	private static Function<InvocationHandler, KeywordQueryContributorResource>
@@ -228,6 +216,8 @@ public class KeywordQueryContributorResourceFactoryImpl
 		keywordQueryContributorResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		keywordQueryContributorResource.setRoleLocalService(_roleLocalService);
+		keywordQueryContributorResource.setSortParserProvider(
+			_sortParserProvider);
 
 		try {
 			return method.invoke(keywordQueryContributorResource, arguments);
@@ -279,6 +269,9 @@ public class KeywordQueryContributorResourceFactoryImpl
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

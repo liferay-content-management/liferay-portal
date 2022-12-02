@@ -39,9 +39,11 @@ kbSelectParentDisplayContext.populatePortletBreadcrumbEntries(currentURLObj);
 
 <clay:container-fluid>
 	<aui:form method="post" name="fm">
-		<liferay-site-navigation:breadcrumb
-			breadcrumbEntries="<%= BreadcrumbEntriesUtil.getBreadcrumbEntries(request, false, false, false, false, true) %>"
-		/>
+		<div class="mt-2">
+			<liferay-site-navigation:breadcrumb
+				breadcrumbEntries="<%= BreadcrumbEntriesUtil.getBreadcrumbEntries(request, false, false, false, false, true) %>"
+			/>
+		</div>
 
 		<c:if test="<%= ArrayUtil.contains(selectableClassNameIds, kbSelectParentDisplayContext.getParentResourceClassNameId()) && ((kbSelectParentDisplayContext.getParentResourceClassNameId() != kbArticleClassNameId) || (kbSelectParentDisplayContext.getParentResourcePrimKey() != 0)) %>">
 			<aui:button-row cssClass="input-append">
@@ -58,7 +60,7 @@ kbSelectParentDisplayContext.populatePortletBreadcrumbEntries(currentURLObj);
 							"title", parentTitle
 						).build()
 					%>'
-					value='<%= (kbSelectParentDisplayContext.getParentResourceClassNameId() == kbFolderClassNameId) ? "choose-this-folder" : "choose-this-article" %>'
+					value='<%= (kbSelectParentDisplayContext.getParentResourceClassNameId() == kbFolderClassNameId) ? "select-this-folder" : "select-this-article" %>'
 				/>
 			</aui:button-row>
 		</c:if>
@@ -98,7 +100,15 @@ kbSelectParentDisplayContext.populatePortletBreadcrumbEntries(currentURLObj);
 						}
 						%>
 
-						<liferay-ui:search-container-column-text>
+						<liferay-ui:search-container-column-text
+							cssClass="table-cell-expand-smallest"
+						>
+							<span class="mr-2 text-secondary">
+								<clay:icon
+									symbol="folder"
+								/>
+							</span>
+
 							<c:choose>
 								<c:when test="<%= rowURL != null %>">
 									<aui:a href="<%= rowURL.toString() %>">
@@ -112,21 +122,21 @@ kbSelectParentDisplayContext.populatePortletBreadcrumbEntries(currentURLObj);
 						</liferay-ui:search-container-column-text>
 
 						<liferay-ui:search-container-column-text
-							align="right"
+							cssClass="text-right"
 							href="<%= (rowURL == null) ? StringPool.BLANK : rowURL.toString() %>"
 							name="num-of-kb-folders"
 							value="<%= String.valueOf(kbFoldersCount) %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							align="right"
+							cssClass="text-right"
 							href="<%= (rowURL == null) ? StringPool.BLANK : rowURL.toString() %>"
 							name="num-of-kb-articles"
 							value="<%= String.valueOf(kbArticlesCount) %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							align="right"
+							cssClass="text-right"
 						>
 							<aui:button
 								cssClass="selector-button"
@@ -174,7 +184,15 @@ kbSelectParentDisplayContext.populatePortletBreadcrumbEntries(currentURLObj);
 						}
 						%>
 
-						<liferay-ui:search-container-column-text>
+						<liferay-ui:search-container-column-text
+							cssClass="table-cell-expand-smallest"
+						>
+							<span class="mr-2 text-secondary">
+								<clay:icon
+									symbol="document"
+								/>
+							</span>
+
 							<c:choose>
 								<c:when test="<%= rowURL != null %>">
 									<aui:a href="<%= rowURL.toString() %>">
@@ -188,21 +206,21 @@ kbSelectParentDisplayContext.populatePortletBreadcrumbEntries(currentURLObj);
 						</liferay-ui:search-container-column-text>
 
 						<liferay-ui:search-container-column-text
-							align="right"
+							cssClass="text-right"
 							href="<%= (rowURL == null) ? StringPool.BLANK : rowURL.toString() %>"
-							name="folders"
+							name="num-of-kb-folders"
 							value="-"
 						/>
 
 						<liferay-ui:search-container-column-text
-							align="right"
+							cssClass="text-right"
 							href="<%= (rowURL == null) ? StringPool.BLANK : rowURL.toString() %>"
-							name="articles"
+							name="num-of-kb-articles"
 							value="<%= String.valueOf(kbArticlesCount) %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							align="right"
+							cssClass="text-right"
 						>
 							<aui:button
 								cssClass="selector-button"

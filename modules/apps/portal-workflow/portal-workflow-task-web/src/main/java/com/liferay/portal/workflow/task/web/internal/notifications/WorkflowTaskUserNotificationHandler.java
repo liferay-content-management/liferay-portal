@@ -21,7 +21,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
@@ -44,7 +44,7 @@ import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManagerUtil;
-import com.liferay.portal.workflow.task.web.internal.permission.WorkflowTaskPermissionChecker;
+import com.liferay.portal.workflow.security.permission.WorkflowTaskPermission;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -74,7 +74,7 @@ public class WorkflowTaskUserNotificationHandler
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
 			userNotificationEvent.getPayload());
 
 		if (Objects.nonNull(
@@ -105,7 +105,7 @@ public class WorkflowTaskUserNotificationHandler
 		ServiceContext serviceContext) {
 
 		try {
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			JSONObject jsonObject = _jsonFactory.createJSONObject(
 				userNotificationEvent.getPayload());
 
 			long ctCollectionId = jsonObject.getLong(
@@ -138,7 +138,7 @@ public class WorkflowTaskUserNotificationHandler
 			ServiceContext serviceContext)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
 			userNotificationEvent.getPayload());
 
 		String notificationMessage = jsonObject.getString(
@@ -178,7 +178,7 @@ public class WorkflowTaskUserNotificationHandler
 			ServiceContext serviceContext)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
 			userNotificationEvent.getPayload());
 
 		long ctCollectionId = jsonObject.getLong(
@@ -270,8 +270,8 @@ public class WorkflowTaskUserNotificationHandler
 			workflowTask.getOptionalAttributes(), "groupId",
 			themeDisplay.getSiteGroupId());
 
-		return _workflowTaskPermissionChecker.hasPermission(
-			groupId, workflowTask, themeDisplay.getPermissionChecker());
+		return _workflowTaskPermission.contains(
+			themeDisplay.getPermissionChecker(), workflowTask, groupId);
 	}
 
 	private static final String _BODY_TEMPLATE_DEFAULT =
@@ -285,13 +285,16 @@ public class WorkflowTaskUserNotificationHandler
 	private CTCollectionLocalService _ctCollectionLocalService;
 
 	@Reference
+	private JSONFactory _jsonFactory;
+
+	@Reference
 	private Language _language;
 
 	@Reference
 	private UserNotificationEventLocalService
 		_userNotificationEventLocalService;
 
-	private final WorkflowTaskPermissionChecker _workflowTaskPermissionChecker =
-		new WorkflowTaskPermissionChecker();
+	@Reference
+	private WorkflowTaskPermission _workflowTaskPermission;
 
 }

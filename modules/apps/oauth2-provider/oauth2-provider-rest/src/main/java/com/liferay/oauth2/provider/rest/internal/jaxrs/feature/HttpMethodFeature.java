@@ -14,10 +14,10 @@
 
 package com.liferay.oauth2.provider.rest.internal.jaxrs.feature;
 
+import com.liferay.oauth2.provider.rest.internal.scope.logic.HttpMethodScopeLogic;
 import com.liferay.oauth2.provider.rest.spi.scope.checker.container.request.filter.BaseScopeCheckerContainerRequestFilter;
 import com.liferay.oauth2.provider.scope.ScopeChecker;
 import com.liferay.oauth2.provider.scope.spi.scope.finder.ScopeFinder;
-import com.liferay.osgi.util.StringPlus;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.annotation.Priority;
 
@@ -39,6 +40,7 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.core.Request;
@@ -57,7 +59,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  */
 @Component(
 	property = {
-		"ignore.missing.scopes=HEAD", "ignore.missing.scopes=OPTIONS",
 		"osgi.jaxrs.application.select=(|(&(!(oauth2.scope.checker.type=*))(!(oauth2.scopechecker.type=*)))(|(oauth2.scope.checker.type=http.method)(oauth2.scopechecker.type=http.method)))",
 		"osgi.jaxrs.extension=true",
 		"osgi.jaxrs.extension.select=(osgi.jaxrs.name=Liferay.OAuth2)",
@@ -70,27 +71,20 @@ import org.osgi.service.component.annotations.ServiceScope;
 public class HttpMethodFeature implements Feature {
 
 	@Override
-	public boolean configure(FeatureContext context) {
-		Configuration configuration = context.getConfiguration();
+	public boolean configure(FeatureContext featureContext) {
+		featureContext.register((DynamicFeature)this::_collectHttpMethods);
+		featureContext.register(
+			new HttpScopeCheckerContainerRequestFilter(),
+			Collections.singletonMap(
+				ContainerRequestFilter.class, Priorities.AUTHORIZATION - 8));
+
+		Configuration configuration = featureContext.getConfiguration();
 
 		Map<String, Object> applicationProperties =
 			(Map<String, Object>)configuration.getProperty(
 				"osgi.jaxrs.application.serviceProperties");
 
-		Object ignoreMissingScopesObject = applicationProperties.get(
-			"ignore.missing.scopes");
-
-		if (ignoreMissingScopesObject != null) {
-			_ignoreMissingScopes = new HashSet<>(
-				StringPlus.asList(ignoreMissingScopesObject));
-		}
-
-		context.register((DynamicFeature)this::_collectHttpMethods);
-		context.register(
-			new HttpScopeCheckerContainerRequestFilter(),
-			Collections.singletonMap(
-				ContainerRequestFilter.class, Priorities.AUTHORIZATION - 8));
-
+		_propertyAccessorFunction = applicationProperties::get;
 		_serviceRegistration = _bundleContext.registerService(
 			ScopeFinder.class, new CollectionScopeFinder(_scopes),
 			new Hashtable<>(applicationProperties));
@@ -103,9 +97,6 @@ public class HttpMethodFeature implements Feature {
 		BundleContext bundleContext, Map<String, Object> properties) {
 
 		_bundleContext = bundleContext;
-
-		_ignoreMissingScopes = new HashSet<>(
-			StringPlus.asList(properties.get("ignore.missing.scopes")));
 	}
 
 	@Deactivate
@@ -165,7 +156,11 @@ public class HttpMethodFeature implements Feature {
 		HttpMethodFeature.class);
 
 	private BundleContext _bundleContext;
-	private Set<String> _ignoreMissingScopes;
+
+	@Reference(target = "(oauth2.scope.checker.type=http.method)")
+	private HttpMethodScopeLogic _httpMethodScopeLogic;
+
+	private Function<String, Object> _propertyAccessorFunction;
 
 	@Reference
 	private ScopeChecker _scopeChecker;
@@ -181,17 +176,12 @@ public class HttpMethodFeature implements Feature {
 
 			Request request = containerRequestContext.getRequest();
 
-			String requestMethod = request.getMethod();
-
-			if ((!_scopes.contains(requestMethod) &&
-				 _ignoreMissingScopes.contains(requestMethod)) ||
-				_scopeChecker.checkScope(requestMethod)) {
-
-				return true;
-			}
-
-			return false;
+			return _httpMethodScopeLogic.check(
+				_propertyAccessorFunction, request.getMethod(), _scopeChecker);
 		}
+
+		@Context
+		private ResourceInfo _resourceInfo;
 
 	}
 

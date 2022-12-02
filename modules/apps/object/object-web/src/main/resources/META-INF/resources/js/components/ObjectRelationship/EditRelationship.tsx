@@ -95,6 +95,7 @@ export default function EditRelationship({
 				)}
 
 				<InputLocalized
+					disableFlag={readOnly}
 					disabled={readOnly}
 					error={errors.label}
 					label={Liferay.Language.get('label')}

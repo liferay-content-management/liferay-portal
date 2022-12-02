@@ -14,6 +14,8 @@ definition {
 	tearDown {
 		ObjectAdmin.deleteAllCustomObjectsViaAPI();
 
+		JSONRole.deleteRole(roleTitle = "Regular Role");
+
 		var testPortalInstance = PropsUtil.get("test.portal.instance");
 
 		if ("${testPortalInstance}" == "true") {
@@ -219,7 +221,7 @@ definition {
 	@priority = "5"
 	test CanDeleteSingleObjectEntryWithDeletePermission {
 		property osgi.module.configuration.file.names = "com.liferay.object.rest.internal.configuration.FFObjectEntryPermissionsActionConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"";
 		property portal.acceptance = "true";
 		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "ObjectPermission#CanDeleteSingleObjectEntryWithDeletePermission";
@@ -597,7 +599,8 @@ definition {
 	@priority = "4"
 	test CannotDeleteOwnSingleObjectEntryWithoutDeleteOwnerPermission {
 		property osgi.module.configuration.file.names = "com.liferay.object.rest.internal.configuration.FFObjectEntryPermissionsActionConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"";
+		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "ObjectPermission#CannotDeleteOwnSingleObjectEntryWithoutDeleteOwnerPermission";
 
 		ObjectAdmin.addObjectViaAPI(
@@ -858,7 +861,7 @@ definition {
 	@priority = "4"
 	test CannotUpdateOwnSingleObjectEntryWithoutPermissionsOwnerPermission {
 		property osgi.module.configuration.file.names = "com.liferay.object.rest.internal.configuration.FFObjectEntryPermissionsActionConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"";
 		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "ObjectPermission#CannotUpdateOwnSingleObjectEntryWithoutPermissionsOwnerPermission";
 
@@ -938,7 +941,7 @@ definition {
 	@priority = "4"
 	test CannotUpdateOwnSingleObjectEntryWithoutUpdateOwnerPermission {
 		property osgi.module.configuration.file.names = "com.liferay.object.rest.internal.configuration.FFObjectEntryPermissionsActionConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"";
 		property test.name.skip.portal.instance = "ObjectPermission#CannotUpdateOwnSingleObjectEntryWithoutUpdateOwnerPermission";
 
 		ObjectAdmin.addObjectViaAPI(
@@ -1590,7 +1593,7 @@ definition {
 	@priority = "5"
 	test CanUpdateSingleObjectEntryPermissionsPermission {
 		property osgi.module.configuration.file.names = "com.liferay.object.rest.internal.configuration.FFObjectEntryPermissionsActionConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"";
 		property portal.acceptance = "true";
 		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "ObjectPermission#CanUpdateSingleObjectEntryPermissionsPermission";
@@ -1678,7 +1681,7 @@ definition {
 	@priority = "5"
 	test CanUpdateSingleObjectEntryWithUpdatePermission {
 		property osgi.module.configuration.file.names = "com.liferay.object.rest.internal.configuration.FFObjectEntryPermissionsActionConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"";
 		property portal.acceptance = "true";
 		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "ObjectPermission#CanUpdateSingleObjectEntryWithUpdatePermission";
@@ -2112,8 +2115,9 @@ definition {
 	@priority = "5"
 	test CanViewSingleObjectEntryWithViewPermission {
 		property osgi.module.configuration.file.names = "com.liferay.object.rest.internal.configuration.FFObjectEntryPermissionsActionConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"";
 		property portal.acceptance = "true";
+		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "ObjectPermission#CanViewSingleObjectEntryWithViewPermission";
 
 		ObjectAdmin.addObjectViaAPI(
@@ -2291,7 +2295,7 @@ definition {
 	@description = "LPS-146756 - Verify that a guest user with the resource permission action of "Add Object Entry" activated can add new object entries and view its own entries"
 	@priority = "5"
 	test GuestCanAddObjectEntriesWithAddPermission {
-		property portal.acceptance = "quarantine";
+		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "ObjectPermission#GuestCanAddObjectEntriesWithAddPermission";
 
 		ObjectAdmin.addObjectViaAPI(
@@ -2339,6 +2343,15 @@ definition {
 		Portlet.addPG(
 			pageName = "Object Page",
 			portletName = "Custom Objects");
+
+		Navigator.gotoPage(pageName = "Object Page");
+
+		PermissionsInline.gotoConfigurationPG(portletName = "Custom Objects");
+
+		Role.definePermissionPG(
+			permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
+			permissionFlagged = "true",
+			roleTitle = "Guest");
 
 		Navigator.openURL();
 
@@ -2508,7 +2521,7 @@ definition {
 	@description = "LPS-146756 - Verify that a guest user with the resource permission action of "View" activated can vizualize object entries"
 	@priority = "5"
 	test GuestCanViewObjectEntriesWithViewPermission {
-		property portal.acceptance = "quarantine";
+		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "ObjectPermission#GuestCanViewObjectEntriesWithViewPermission";
 
 		ObjectAdmin.addObjectViaAPI(
@@ -2556,6 +2569,15 @@ definition {
 		Portlet.addPG(
 			pageName = "Object Page",
 			portletName = "Custom Objects");
+
+		Navigator.gotoPage(pageName = "Object Page");
+
+		PermissionsInline.gotoConfigurationPG(portletName = "Custom Objects");
+
+		Role.definePermissionPG(
+			permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
+			permissionFlagged = "true",
+			roleTitle = "Guest");
 
 		Navigator.openURL();
 

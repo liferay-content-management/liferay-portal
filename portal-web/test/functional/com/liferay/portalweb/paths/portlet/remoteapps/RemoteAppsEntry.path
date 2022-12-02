@@ -36,6 +36,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>REMOVE_URL_ROW</td>
+	<td>//*[(@class='lfr-form-row')][${key_index}]//button[contains(@class,'delete-row')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>URL</td>
 	<td>//input[(contains(@id,'${key_id}'))]</td>
 	<td></td>
@@ -63,6 +68,11 @@
 <tr>
 	<td>REMOTE_APPS_PORTLET_CATEGORY_NAME</td>
 	<td>//div[label[contains(.,'Portlet Category Name')]]/select</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REMOTE_APPS_ERROR_WITH_MESSAGE</td>
+	<td>//div[contains(@class, 'alert alert-dismissible alert-danger') and contains(.,'${text}')]</td>
 	<td></td>
 </tr>
 </tbody>

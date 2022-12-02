@@ -26,6 +26,8 @@ definition {
 			BatchPlanner.batchPlannerTearDown();
 
 			JSONUser.tearDownNonAdminUsers();
+
+			ObjectAdmin.deleteObjectViaAPI(objectName = "Coupon");
 		}
 	}
 
@@ -159,9 +161,9 @@ definition {
 		task ("Then only those fields should be imported") {
 			WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "",
 				accountName = "Test Business Account",
 				accountType = "Business",
@@ -169,7 +171,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "",
 				accountName = "Test Guest Account",
 				accountType = "Guest",
@@ -177,7 +179,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "",
 				accountName = "Test Person Account",
 				accountType = "Person",
@@ -585,9 +587,9 @@ definition {
 		task ("Then the accounts should be imported successfully") {
 			WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Business Account Description",
 				accountName = "Test Business Account",
 				accountType = "Business",
@@ -595,7 +597,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Guest Account Description",
 				accountName = "Test Guest Account",
 				accountType = "Guest",
@@ -603,7 +605,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Person Account Description",
 				accountName = "Test Person Account",
 				accountType = "Person",
@@ -645,9 +647,9 @@ definition {
 		task ("Then the accounts in the file should be imported successfully") {
 			WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Business Account Description",
 				accountName = "Test Business Account",
 				accountType = "Business",
@@ -655,7 +657,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Guest Account Description",
 				accountName = "Test Guest Account",
 				accountType = "Guest",
@@ -663,7 +665,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Person Account Description",
 				accountName = "Test Person Account",
 				accountType = "Person",
@@ -696,9 +698,9 @@ definition {
 		task ("Then the accounts should be imported successfully") {
 			WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Business Account Description",
 				accountName = "Test Business Account",
 				accountType = "Business",
@@ -706,7 +708,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Guest Account Description",
 				accountName = "Test Guest Account",
 				accountType = "Guest",
@@ -714,7 +716,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Person Account Description",
 				accountName = "Test Person Account",
 				accountType = "Person",
@@ -747,9 +749,9 @@ definition {
 		task ("Then the accounts should be imported successfully") {
 			WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Business Account Description",
 				accountName = "Test Business Account",
 				accountType = "Business",
@@ -757,7 +759,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Guest Account Description",
 				accountName = "Test Guest Account",
 				accountType = "Guest",
@@ -765,11 +767,97 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Person Account Description",
 				accountName = "Test Person Account",
 				accountType = "Person",
 				externalReferenceCode = "103");
+		}
+	}
+
+	@priority = "4"
+	test CanImportObjectDefinitionWithApprovedStatus {
+		property portal.acceptance = "true";
+
+		task ("Given in import and export center I create an import file task") {
+			ImportExport.openImportExportAdmin();
+
+			ImportExport.gotoImport();
+		}
+
+		task ("When import objectDefinition with an existing json file in which status is approved") {
+			ImportExport.selectEntity(entityType = "ObjectDefinition (v1_0 - Liferay Object Admin REST)");
+
+			UploadDependencyFile.uploadFile(fileName = "json_objectDefinition_import_approved.json");
+
+			Button.click(button = "Next");
+
+			Button.click(button = "Start Import");
+		}
+
+		task ("Then the import process completed successfully") {
+			WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
+
+			ImportExport.openImportExportAdmin();
+
+			ImportExport.assertExecutionEntry(
+				entityType = "ObjectDefinition",
+				executionAction = "Import",
+				executionName = "json_objectDefinition_import_approved",
+				executionStatus = "Completed");
+		}
+
+		task ("And Then the status of the imported objectDefinition is approved") {
+			var objectDefinitionId = ObjectDefinitionAPI.getObjectDefinitionIdByName(name = "Coupon");
+
+			var objectDefinitionStatus = ObjectDefinitionAPI._getObjectDefinitionStatusById(objectDefinitionId = "${objectDefinitionId}");
+
+			TestUtils.assertEquals(
+				actual = "${objectDefinitionStatus}",
+				expected = "true");
+		}
+	}
+
+	@priority = "4"
+	test CanImportObjectDefinitionWithDraftStatus {
+		property portal.acceptance = "true";
+
+		task ("Given in import and export center I create an import file task") {
+			ImportExport.openImportExportAdmin();
+
+			ImportExport.gotoImport();
+		}
+
+		task ("When import objectDefinition with an existing json file in which the status is draft") {
+			ImportExport.selectEntity(entityType = "ObjectDefinition (v1_0 - Liferay Object Admin REST)");
+
+			UploadDependencyFile.uploadFile(fileName = "json_objectDefinition_import_draft.json");
+
+			Button.click(button = "Next");
+
+			Button.click(button = "Start Import");
+		}
+
+		task ("Then the import process completed successfully") {
+			WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
+
+			ImportExport.openImportExportAdmin();
+
+			ImportExport.assertExecutionEntry(
+				entityType = "ObjectDefinition",
+				executionAction = "Import",
+				executionName = "json_objectDefinition_import_draft",
+				executionStatus = "Completed");
+		}
+
+		task ("And Then the status of the imported objectDefinition is Draft") {
+			var objectDefinitionId = ObjectDefinitionAPI.getObjectDefinitionIdByName(name = "Coupon");
+
+			var objectDefinitionStatus = ObjectDefinitionAPI._getObjectDefinitionStatusById(objectDefinitionId = "${objectDefinitionId}");
+
+			TestUtils.assertEquals(
+				actual = "${objectDefinitionStatus}",
+				expected = "false");
 		}
 	}
 
@@ -1077,23 +1165,23 @@ definition {
 				executionName = "Triggered by Scheduled Account Import",
 				executionStatus = "Completed");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Business Account Description",
 				accountName = "Test Business Account",
 				accountType = "Business");
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Guest Account Description",
 				accountName = "Test Guest Account",
 				accountType = "Guest");
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Person Account Description",
 				accountName = "Test Person Account",
 				accountType = "Person");
@@ -1633,11 +1721,11 @@ definition {
 
 			Button.click(button = "Back to the List");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.viewNoEntry(rowEntry = "Test Guest Account");
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Business Account Description",
 				accountName = "Test Business Account",
 				accountType = "Business",
@@ -1645,7 +1733,7 @@ definition {
 
 			Navigator.gotoBack();
 
-			Accounts.viewAccountDetails(
+			Account.viewAccountDetails(
 				accountDescription = "Test Person Account Description",
 				accountName = "Test Person Account",
 				accountType = "Person",
@@ -1672,6 +1760,40 @@ definition {
 
 		task ("Then the fields are automatically mapped") {
 			ImportExport.assertImportMappings(fieldMappings = "name:name,type:type,description:description");
+		}
+	}
+
+	@priority = "4"
+	test GetExportFileAvailableEntityTypes {
+		property portal.acceptance = "true";
+
+		task ("Given navigate to import and export center") {
+			ImportExport.openImportExportAdmin();
+		}
+
+		task ("When new export file") {
+			ImportExport.gotoExport();
+		}
+
+		task ("Then I can see all available entity types to export") {
+			ImportExport.assertAvailabelEntityTypes(entityTypes = "Account (v1_0 - Liferay Headless Admin User) Account (v1_0 - Liferay Headless Commerce Admin Account) AccountGroup (v1_0 - Liferay Headless Commerce Admin Account) AccountRole (v1_0 - Liferay Headless Admin User) BlogPosting (v1_0 - Liferay Headless Delivery) BlogPostingImage (v1_0 - Liferay Headless Delivery) Calendar (v1_0 - Liferay Portal Workflow Metrics REST) Catalog (v1_0 - Liferay Headless Commerce Admin Catalog) Channel (v1_0 - Liferay Headless Commerce Admin Channel) Channel (v1_0 - Liferay Headless Commerce Delivery Catalog) Comment (v1_0 - Liferay Headless Delivery) ContentElement (v1_0 - Liferay Headless Delivery) ContentStructure (v1_0 - Liferay Headless Delivery) ContentTemplate (v1_0 - Liferay Headless Delivery) DSEnvelope (v1_0 - Liferay Digital Signature REST) DataDefinitionFieldLink (v2_0 - Liferay Data Engine REST) DataLayout (v2_0 - Liferay Data Engine REST) DataListView (v2_0 - Liferay Data Engine REST) DataRecord (v2_0 - Liferay Data Engine REST) DataRecordCollection (v2_0 - Liferay Data Engine REST) Discount (v1_0 - Liferay Headless Commerce Admin Pricing) Discount (v2_0 - Liferay Headless Commerce Admin Pricing) Document (v1_0 - Liferay Headless Delivery) DocumentFolder (v1_0 - Liferay Headless Delivery) FieldMappingInfo (v1_0 - Liferay Search Experiences REST) Form (v1_0 - Liferay Headless Form) FormRecord (v1_0 - Liferay Headless Form) FormStructure (v1_0 - Liferay Headless Form) Instance (v1_0 - Liferay Portal Workflow Metrics REST) Keyword (v1_0 - Liferay Headless Admin Taxonomy) KeywordQueryContributor (v1_0 - Liferay Search Experiences REST) KnowledgeBaseArticle (v1_0 - Liferay Headless Delivery) KnowledgeBaseAttachment (v1_0 - Liferay Headless Delivery) KnowledgeBaseFolder (v1_0 - Liferay Headless Delivery) Language (v1_0 - Liferay Headless Delivery) ListTypeDefinition (v1_0 - Liferay Headless Admin List Type) MeasurementUnit (v1_0 - Liferay Headless Commerce Admin Site Setting) MessageBoardAttachment (v1_0 - Liferay Headless Delivery) MessageBoardMessage (v1_0 - Liferay Headless Delivery) MessageBoardSection (v1_0 - Liferay Headless Delivery) MessageBoardThread (v1_0 - Liferay Headless Delivery) ModelPrefilterContributor (v1_0 - Liferay Search Experiences REST) NavigationMenu (v1_0 - Liferay Headless Delivery) Node (v1_0 - Liferay Portal Workflow Metrics REST) NotificationTemplate (v1_0 - Liferay Notification REST) ObjectAction (v1_0 - Liferay Object Admin REST) ObjectDefinition (v1_0 - Liferay Object Admin REST) ObjectField (v1_0 - Liferay Object Admin REST) ObjectLayout (v1_0 - Liferay Object Admin REST) ObjectRelationship (v1_0 - Liferay Object Admin REST) ObjectValidationRule (v1_0 - Liferay Object Admin REST) ObjectView (v1_0 - Liferay Object Admin REST) Option (v1_0 - Liferay Headless Commerce Admin Catalog) Order (v1_0 - Liferay Headless Commerce Admin Order) OrderItem (v1_0 - Liferay Headless Commerce Admin Order) OrderRule (v1_0 - Liferay Headless Commerce Admin Order) OrderType (v1_0 - Liferay Headless Commerce Admin Order) Organization (v1_0 - Liferay Headless Admin User) PaymentMethod (v1_0 - Liferay Headless Commerce Delivery Cart) Phone (v1_0 - Liferay Headless Admin User) PlacedOrderComment (v1_0 - Liferay Headless Commerce Delivery Order) PlacedOrderItem (v1_0 - Liferay Headless Commerce Delivery Order) PlacedOrderItemShipment (v1_0 - Liferay Headless Commerce Delivery Order) PriceList (v1_0 - Liferay Headless Commerce Admin Pricing) PriceList (v2_0 - Liferay Headless Commerce Admin Pricing) ProcessMetric (v1_0 - Liferay Portal Workflow Metrics REST) ProcessVersion (v1_0 - Liferay Portal Workflow Metrics REST) Product (v1_0 - Liferay Headless Commerce Admin Catalog) ProductGroup (v1_0 - Liferay Headless Commerce Admin Catalog) QueryPrefilterContributor (v1_0 - Liferay Search Experiences REST) Region (v1_0 - Liferay Headless Admin Address) ReplenishmentItem (v1_0 - Liferay Headless Commerce Admin Inventory) Role (v1_0 - Liferay Headless Admin User) Role (v1_0 - Liferay Portal Workflow Metrics REST) SLA (v1_0 - Liferay Portal Workflow Metrics REST) SXPBlueprint (v1_0 - Liferay Search Experiences REST) SXPElement (v1_0 - Liferay Search Experiences REST) SXPParameterContributorDefinition (v1_0 - Liferay Search Experiences REST) SearchableAssetName (v1_0 - Liferay Search Experiences REST) Segment (v1_0 - Liferay Headless Admin User) Shipment (v1_0 - Liferay Headless Commerce Admin Shipment) ShippingMethod (v1_0 - Liferay Headless Commerce Admin Channel) ShippingMethod (v1_0 - Liferay Headless Commerce Delivery Cart) SitePage (v1_0 - Liferay Headless Delivery) Sku (v1_0 - Liferay Headless Commerce Admin Catalog) Specification (v1_0 - Liferay Headless Commerce Admin Catalog) StructuredContent (v1_0 - Liferay Headless Delivery) StructuredContentFolder (v1_0 - Liferay Headless Delivery) Task (v1_0 - Liferay Portal Workflow Metrics REST) Term (v1_0 - Liferay Headless Commerce Admin Order) TimeRange (v1_0 - Liferay Portal Workflow Metrics REST) UserAccount (v1_0 - Liferay Headless Admin User) UserGroup (v1_0 - Liferay Headless Admin User) Warehouse (v1_0 - Liferay Headless Commerce Admin Inventory) WebUrl (v1_0 - Liferay Headless Admin User) WikiNode (v1_0 - Liferay Headless Delivery) WikiPage (v1_0 - Liferay Headless Delivery) WikiPageAttachment (v1_0 - Liferay Headless Delivery) WorkflowDefinition (v1_0 - Liferay Headless Admin Workflow) WorkflowInstance (v1_0 - Liferay Headless Admin Workflow) WorkflowLog (v1_0 - Liferay Headless Admin Workflow) WorkflowTask (v1_0 - Liferay Headless Admin Workflow)");
+		}
+	}
+
+	@priority = "4"
+	test GetImportFileAvailableEntityTypes {
+		property portal.acceptance = "true";
+
+		task ("Given navigate to import and export center") {
+			ImportExport.openImportExportAdmin();
+		}
+
+		task ("When new import file") {
+			ImportExport.gotoImport();
+		}
+
+		task ("Then I can see all available entity types to import") {
+			ImportExport.assertAvailabelEntityTypes(entityTypes = "Account (v1_0 - Liferay Headless Admin User) Account (v1_0 - Liferay Headless Commerce Admin Account) AccountGroup (v1_0 - Liferay Headless Commerce Admin Account) AccountRole (v1_0 - Liferay Headless Admin User) BlogPosting (v1_0 - Liferay Headless Delivery) BlogPostingImage (v1_0 - Liferay Headless Delivery) Catalog (v1_0 - Liferay Headless Commerce Admin Catalog) Channel (v1_0 - Liferay Headless Commerce Admin Channel) Comment (v1_0 - Liferay Headless Delivery) Country (v1_0 - Liferay Headless Admin Address) DSEnvelope (v1_0 - Liferay Digital Signature REST) DataLayout (v2_0 - Liferay Data Engine REST) DataListView (v2_0 - Liferay Data Engine REST) DataRecord (v2_0 - Liferay Data Engine REST) DataRecordCollection (v2_0 - Liferay Data Engine REST) Discount (v1_0 - Liferay Headless Commerce Admin Pricing) Discount (v2_0 - Liferay Headless Commerce Admin Pricing) Document (v1_0 - Liferay Headless Delivery) DocumentFolder (v1_0 - Liferay Headless Delivery) FormRecord (v1_0 - Liferay Headless Form) Instance (v1_0 - Liferay Portal Workflow Metrics REST) Keyword (v1_0 - Liferay Headless Admin Taxonomy) KnowledgeBaseArticle (v1_0 - Liferay Headless Delivery) KnowledgeBaseAttachment (v1_0 - Liferay Headless Delivery) KnowledgeBaseFolder (v1_0 - Liferay Headless Delivery) ListTypeDefinition (v1_0 - Liferay Headless Admin List Type) ListTypeEntry (v1_0 - Liferay Headless Admin List Type) MeasurementUnit (v1_0 - Liferay Headless Commerce Admin Site Setting) MessageBoardAttachment (v1_0 - Liferay Headless Delivery) MessageBoardMessage (v1_0 - Liferay Headless Delivery) MessageBoardSection (v1_0 - Liferay Headless Delivery) MessageBoardThread (v1_0 - Liferay Headless Delivery) NavigationMenu (v1_0 - Liferay Headless Delivery) Node (v1_0 - Liferay Portal Workflow Metrics REST) NotificationTemplate (v1_0 - Liferay Notification REST) ObjectAction (v1_0 - Liferay Object Admin REST) ObjectDefinition (v1_0 - Liferay Object Admin REST) ObjectField (v1_0 - Liferay Object Admin REST) ObjectLayout (v1_0 - Liferay Object Admin REST) ObjectRelationship (v1_0 - Liferay Object Admin REST) ObjectValidationRule (v1_0 - Liferay Object Admin REST) ObjectView (v1_0 - Liferay Object Admin REST) Option (v1_0 - Liferay Headless Commerce Admin Catalog) OptionCategory (v1_0 - Liferay Headless Commerce Admin Catalog) Order (v1_0 - Liferay Headless Commerce Admin Order) OrderItem (v1_0 - Liferay Headless Commerce Admin Order) OrderRule (v1_0 - Liferay Headless Commerce Admin Order) OrderType (v1_0 - Liferay Headless Commerce Admin Order) Organization (v1_0 - Liferay Headless Admin User) PriceList (v1_0 - Liferay Headless Commerce Admin Pricing) PriceList (v2_0 - Liferay Headless Commerce Admin Pricing) Process (v1_0 - Liferay Portal Workflow Metrics REST) Product (v1_0 - Liferay Headless Commerce Admin Catalog) ProductGroup (v1_0 - Liferay Headless Commerce Admin Catalog) Region (v1_0 - Liferay Headless Admin Address) ReplenishmentItem (v1_0 - Liferay Headless Commerce Admin Inventory) SLA (v1_0 - Liferay Portal Workflow Metrics REST) SXPBlueprint (v1_0 - Liferay Search Experiences REST) SXPElement (v1_0 - Liferay Search Experiences REST) SamlProvider (v1_0 - Liferay SAML Admin REST) Shipment (v1_0 - Liferay Headless Commerce Admin Shipment) Specification (v1_0 - Liferay Headless Commerce Admin Catalog) Status (v1_0 - Liferay Segments Asah REST) StructuredContent (v1_0 - Liferay Headless Delivery) StructuredContentFolder (v1_0 - Liferay Headless Delivery) Task (v1_0 - Liferay Portal Workflow Metrics REST) TaxonomyCategory (v1_0 - Liferay Headless Admin Taxonomy) TaxonomyVocabulary (v1_0 - Liferay Headless Admin Taxonomy) Term (v1_0 - Liferay Headless Commerce Admin Order) UserAccount (v1_0 - Liferay Headless Admin User) UserGroup (v1_0 - Liferay Headless Admin User) Warehouse (v1_0 - Liferay Headless Commerce Admin Inventory) WikiNode (v1_0 - Liferay Headless Delivery) WikiPage (v1_0 - Liferay Headless Delivery) WikiPageAttachment (v1_0 - Liferay Headless Delivery) WorkflowDefinition (v1_0 - Liferay Headless Admin Workflow)");
 		}
 	}
 
@@ -1749,7 +1871,7 @@ definition {
 		task ("Then the import should be stopped and no entity should be imported") {
 			AssertElementPresent(locator1 = "Message#ERROR_MODAL_CONTENT");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.viewNoEntry(rowEntry = "Test Business Account");
 

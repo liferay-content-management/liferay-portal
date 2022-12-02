@@ -43,7 +43,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rafael Praxedes
  */
 @Component(
-	immediate = true,
 	property = "javax.portlet.name=" + DDLPortletKeys.DYNAMIC_DATA_LISTS,
 	service = PortletConfigurationIcon.class
 )
@@ -53,8 +52,7 @@ public class DDMStructuresPortletConfigurationIcon
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
 		return _language.get(
-			getResourceBundle(getLocale(portletRequest)),
-			"manage-data-definitions");
+			getLocale(portletRequest), "manage-data-definitions");
 	}
 
 	@Override
@@ -113,11 +111,6 @@ public class DDMStructuresPortletConfigurationIcon
 		return DDLPermission.contains(
 			themeDisplay.getPermissionChecker(), themeDisplay.getScopeGroup(),
 			DDLActionKeys.ADD_RECORD_SET);
-	}
-
-	@Override
-	public boolean isToolTip() {
-		return false;
 	}
 
 	@Reference

@@ -1,0 +1,418 @@
+[
+	{
+		"key": "AL",
+		"name": "Alabama",
+		"name_i18n": {
+			"en-US": "Alabama"
+		},
+		"type": "string"
+	},
+	{
+		"key": "AK",
+		"name": "Alaska",
+		"name_i18n": {
+			"en-US": "Alaska"
+		},
+		"type": "string"
+	},
+	{
+		"key": "AZ",
+		"name": "Arizona",
+		"name_i18n": {
+			"en-US": "Arizona"
+		},
+		"type": "string"
+	},
+	{
+		"key": "AR",
+		"name": "Arkansas",
+		"name_i18n": {
+			"en-US": "Arkansas"
+		},
+		"type": "string"
+	},
+	{
+		"key": "CA",
+		"name": "California",
+		"name_i18n": {
+			"en-US": "California"
+		},
+		"type": "string"
+	},
+	{
+		"key": "CO",
+		"name": "Colorado",
+		"name_i18n": {
+			"en-US": "Colorado"
+		},
+		"type": "string"
+	},
+	{
+		"key": "CT",
+		"name": "Connecticut",
+		"name_i18n": {
+			"en-US": "Connecticut"
+		},
+		"type": "string"
+	},
+	{
+		"key": "DE",
+		"name": "Delaware",
+		"name_i18n": {
+			"en-US": "Delaware"
+		},
+		"type": "string"
+	},
+	{
+		"key": "DC",
+		"name": "District of Columbia",
+		"name_i18n": {
+			"en-US": "District of Columbia"
+		},
+		"type": "string"
+	},
+	{
+		"key": "FL",
+		"name": "Florida",
+		"name_i18n": {
+			"en-US": "Florida"
+		},
+		"type": "string"
+	},
+	{
+		"key": "GA",
+		"name": "Georgia",
+		"name_i18n": {
+			"en-US": "Georgia"
+		},
+		"type": "string"
+	},
+	{
+		"key": "HI",
+		"name": "Hawaii",
+		"name_i18n": {
+			"en-US": "Hawaii"
+		},
+		"type": "string"
+	},
+	{
+		"key": "ID",
+		"name": "Idaho",
+		"name_i18n": {
+			"en-US": "Idaho"
+		},
+		"type": "string"
+	},
+	{
+		"key": "IL",
+		"name": "Illinois",
+		"name_i18n": {
+			"en-US": "Illinois"
+		},
+		"type": "string"
+	},
+	{
+		"key": "IN",
+		"name": "Indiana",
+		"name_i18n": {
+			"en-US": "Indiana"
+		},
+		"type": "string"
+	},
+	{
+		"key": "IA",
+		"name": "Iowa",
+		"name_i18n": {
+			"en-US": "Iowa"
+		},
+		"type": "string"
+	},
+	{
+		"key": "KS",
+		"name": "Kansas",
+		"name_i18n": {
+			"en-US": "Kansas"
+		},
+		"type": "string"
+	},
+	{
+		"key": "KY",
+		"name": "Kentucky",
+		"name_i18n": {
+			"en-US": "Kentucky"
+		},
+		"type": "string"
+	},
+	{
+		"key": "LA",
+		"name": "Louisiana",
+		"name_i18n": {
+			"en-US": "Louisiana"
+		},
+		"type": "string"
+	},
+	{
+		"key": "ME",
+		"name": "Maine",
+		"name_i18n": {
+			"en-US": "Maine"
+		},
+		"type": "string"
+	},
+	{
+		"key": "MD",
+		"name": "Maryland",
+		"name_i18n": {
+			"en-US": "Maryland"
+		},
+		"type": "string"
+	},
+	{
+		"key": "MA",
+		"name": "Massachusetts",
+		"name_i18n": {
+			"en-US": "Massachusetts"
+		},
+		"type": "string"
+	},
+	{
+		"key": "MI",
+		"name": "Michigan",
+		"name_i18n": {
+			"en-US": "Michigan"
+		},
+		"type": "string"
+	},
+	{
+		"key": "MN",
+		"name": "Minnesota",
+		"name_i18n": {
+			"en-US": "Minnesota"
+		},
+		"type": "string"
+	},
+	{
+		"key": "MS",
+		"name": "Mississippi",
+		"name_i18n": {
+			"en-US": "Mississippi"
+		},
+		"type": "string"
+	},
+	{
+		"key": "MO",
+		"name": "Missouri",
+		"name_i18n": {
+			"en-US": "Missouri"
+		},
+		"type": "string"
+	},
+	{
+		"key": "MT",
+		"name": "Montana",
+		"name_i18n": {
+			"en-US": "Montana"
+		},
+		"type": "string"
+	},
+	{
+		"key": "NE",
+		"name": "Nebraska",
+		"name_i18n": {
+			"en-US": "Nebraska"
+		},
+		"type": "string"
+	},
+	{
+		"key": "NV",
+		"name": "Nevada",
+		"name_i18n": {
+			"en-US": "Nevada"
+		},
+		"type": "string"
+	},
+	{
+		"key": "NH",
+		"name": "New Hampshire",
+		"name_i18n": {
+			"en-US": "New Hampshire"
+		},
+		"type": "string"
+	},
+	{
+		"key": "NJ",
+		"name": "New Jersey",
+		"name_i18n": {
+			"en-US": "New Jersey"
+		},
+		"type": "string"
+	},
+	{
+		"key": "NM",
+		"name": "New Mexico",
+		"name_i18n": {
+			"en-US": "New Mexico"
+		},
+		"type": "string"
+	},
+	{
+		"key": "NY",
+		"name": "New York",
+		"name_i18n": {
+			"en-US": "New York"
+		},
+		"type": "string"
+	},
+	{
+		"key": "NC",
+		"name": "North Carolina",
+		"name_i18n": {
+			"en-US": "North Carolina"
+		},
+		"type": "string"
+	},
+	{
+		"key": "ND",
+		"name": "North Dakota",
+		"name_i18n": {
+			"en-US": "North Dakota"
+		},
+		"type": "string"
+	},
+	{
+		"key": "OH",
+		"name": "Ohio",
+		"name_i18n": {
+			"en-US": "Ohio"
+		},
+		"type": "string"
+	},
+	{
+		"key": "OK",
+		"name": "Oklahoma",
+		"name_i18n": {
+			"en-US": "Oklahoma"
+		},
+		"type": "string"
+	},
+	{
+		"key": "OR",
+		"name": "Oregon",
+		"name_i18n": {
+			"en-US": "Oregon"
+		},
+		"type": "string"
+	},
+	{
+		"key": "PA",
+		"name": "Pennsylvania",
+		"name_i18n": {
+			"en-US": "Pennsylvania"
+		},
+		"type": "string"
+	},
+	{
+		"key": "PR",
+		"name": "Puerto Rico",
+		"name_i18n": {
+			"en-US": "Puerto Rico"
+		},
+		"type": "string"
+	},
+	{
+		"key": "RI",
+		"name": "Rhode Island",
+		"name_i18n": {
+			"en-US": "Rhode Island"
+		},
+		"type": "string"
+	},
+	{
+		"key": "SC",
+		"name": "South Carolina",
+		"name_i18n": {
+			"en-US": "South Carolina"
+		},
+		"type": "string"
+	},
+	{
+		"key": "SD",
+		"name": "South Dakota",
+		"name_i18n": {
+			"en-US": "South Dakota"
+		},
+		"type": "string"
+	},
+	{
+		"key": "TN",
+		"name": "Tennessee",
+		"name_i18n": {
+			"en-US": "Tennessee"
+		},
+		"type": "string"
+	},
+	{
+		"key": "TX",
+		"name": "Texas",
+		"name_i18n": {
+			"en-US": "Texas"
+		},
+		"type": "string"
+	},
+	{
+		"key": "UT",
+		"name": "Utah",
+		"name_i18n": {
+			"en-US": "Utah"
+		},
+		"type": "string"
+	},
+	{
+		"key": "VT",
+		"name": "Vermont",
+		"name_i18n": {
+			"en-US": "Vermont"
+		},
+		"type": "string"
+	},
+	{
+		"key": "VA",
+		"name": "Virginia",
+		"name_i18n": {
+			"en-US": "Virginia"
+		},
+		"type": "string"
+	},
+	{
+		"key": "WA",
+		"name": "Washington",
+		"name_i18n": {
+			"en-US": "Washington"
+		},
+		"type": "string"
+	},
+	{
+		"key": "WV",
+		"name": "West Virginia",
+		"name_i18n": {
+			"en-US": "West Virginia"
+		},
+		"type": "string"
+	},
+	{
+		"key": "WI",
+		"name": "Wisconsin",
+		"name_i18n": {
+			"en-US": "Wisconsin"
+		},
+		"type": "string"
+	},
+	{
+		"key": "WY",
+		"name": "Wyoming",
+		"name_i18n": {
+			"en-US": "Wyoming"
+		},
+		"type": "string"
+	}
+]

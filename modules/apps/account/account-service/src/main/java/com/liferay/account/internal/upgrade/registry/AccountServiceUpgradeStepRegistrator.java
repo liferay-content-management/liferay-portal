@@ -33,7 +33,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Pei-Jung Lan
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(service = UpgradeStepRegistrator.class)
 public class AccountServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -154,6 +154,12 @@ public class AccountServiceUpgradeStepRegistrator
 			"2.8.1", "2.9.0",
 			UpgradeProcessFactory.addColumns(
 				"AccountEntry", "restrictMembership BOOLEAN"));
+
+		registry.register(
+			"2.9.0", "2.10.0",
+			UpgradeProcessFactory.addColumns(
+				"AccountEntry", "statusByUserId LONG",
+				"statusByUserName VARCHAR(75) null", "statusDate DATE null"));
 	}
 
 	@Reference

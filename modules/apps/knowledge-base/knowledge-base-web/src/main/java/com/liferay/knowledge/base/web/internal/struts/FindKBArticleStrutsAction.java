@@ -70,7 +70,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Peter Shin
  */
 @Component(
-	immediate = true, property = "path=/knowledge_base/find_kb_article",
+	property = "path=/knowledge_base/find_kb_article",
 	service = StrutsAction.class
 )
 public class FindKBArticleStrutsAction implements StrutsAction {
@@ -368,7 +368,7 @@ public class FindKBArticleStrutsAction implements StrutsAction {
 				httpServletRequest, portletId, plid,
 				PortletRequest.RENDER_PHASE)
 		).setMVCRenderCommandName(
-			"/knowledge_base/view_article"
+			"/knowledge_base/view_kb_article"
 		).setParameter(
 			"resourcePrimKey",
 			_getResourcePrimKey(

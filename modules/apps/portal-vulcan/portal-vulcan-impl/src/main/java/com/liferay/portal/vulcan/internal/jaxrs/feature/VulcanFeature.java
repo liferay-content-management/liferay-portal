@@ -74,6 +74,7 @@ import com.liferay.portal.vulcan.internal.jaxrs.writer.interceptor.NestedFieldsW
 import com.liferay.portal.vulcan.internal.jaxrs.writer.interceptor.PageEntityExtensionWriterInterceptor;
 import com.liferay.portal.vulcan.internal.param.converter.provider.DateParamConverterProvider;
 
+import javax.ws.rs.Priorities;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 
@@ -149,7 +150,7 @@ public class VulcanFeature implements Feature {
 				_configurationAdmin, _expressionConvert, _filterParserProvider,
 				_groupLocalService, _language, _portal,
 				_resourceActionLocalService, _resourcePermissionLocalService,
-				_roleLocalService, _getScopeChecker(),
+				_roleLocalService, _getScopeChecker(), _sortParserProvider,
 				_vulcanBatchEngineImportTaskResource));
 		featureContext.register(
 			new EntityExtensionHandlerContextResolver(
@@ -165,7 +166,8 @@ public class VulcanFeature implements Feature {
 		_nestedFieldsWriterInterceptor = new NestedFieldsWriterInterceptor(
 			_bundleContext);
 
-		featureContext.register(_nestedFieldsWriterInterceptor);
+		featureContext.register(
+			_nestedFieldsWriterInterceptor, Priorities.USER - 10);
 
 		featureContext.register(
 			new SiteParamConverterProvider(

@@ -548,6 +548,16 @@ public class ObjectDefinitionWrapper
 		return model.getObjectDefinitionId();
 	}
 
+	@Override
+	public String getOSGiJaxRsName() {
+		return model.getOSGiJaxRsName();
+	}
+
+	@Override
+	public String getOSGiJaxRsName(String className) {
+		return model.getOSGiJaxRsName(className);
+	}
+
 	/**
 	 * Returns the panel app order of this object definition.
 	 *
@@ -1356,6 +1366,11 @@ public class ObjectDefinitionWrapper
 	@Override
 	public void setVersion(int version) {
 		model.setVersion(version);
+	}
+
+	@Override
+	public String toXmlString() {
+		return model.toXmlString();
 	}
 
 	@Override

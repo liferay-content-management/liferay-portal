@@ -31,12 +31,21 @@ public abstract class BasePasswordEncryptor implements PasswordEncryptor {
 		throws PwdEncryptorException {
 
 		return encrypt(
-			getDefaultPasswordAlgorithmType(), plainTextPassword,
+			getDefaultPasswordEncryptionAlgorithm(), plainTextPassword,
 			encryptedPassword);
 	}
 
 	@Override
-	public String getDefaultPasswordAlgorithmType() {
+	public String encrypt(
+			String algorithm, String plainTextPassword,
+			String encryptedPassword)
+		throws PwdEncryptorException {
+
+		return encrypt(algorithm, plainTextPassword, encryptedPassword, false);
+	}
+
+	@Override
+	public String getDefaultPasswordEncryptionAlgorithm() {
 		return _PASSWORDS_ENCRYPTION_ALGORITHM;
 	}
 

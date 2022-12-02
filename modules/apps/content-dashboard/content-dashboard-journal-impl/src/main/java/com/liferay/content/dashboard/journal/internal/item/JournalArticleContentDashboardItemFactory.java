@@ -18,12 +18,12 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.content.dashboard.item.ContentDashboardItem;
 import com.liferay.content.dashboard.item.ContentDashboardItemFactory;
-import com.liferay.content.dashboard.item.action.ContentDashboardItemActionProviderTracker;
-import com.liferay.content.dashboard.item.action.ContentDashboardItemVersionActionProviderTracker;
+import com.liferay.content.dashboard.item.action.ContentDashboardItemActionProviderRegistry;
+import com.liferay.content.dashboard.item.action.ContentDashboardItemVersionActionProviderRegistry;
 import com.liferay.content.dashboard.item.type.ContentDashboardItemSubtypeFactory;
-import com.liferay.content.dashboard.item.type.ContentDashboardItemSubtypeFactoryTracker;
+import com.liferay.content.dashboard.item.type.ContentDashboardItemSubtypeFactoryRegistry;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.journal.constants.JournalArticleConstants;
 import com.liferay.journal.model.JournalArticle;
@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -90,7 +89,7 @@ public class JournalArticleContentDashboardItemFactory
 
 		InfoItemFieldValuesProvider<JournalArticle>
 			infoItemFieldValuesProvider =
-				infoItemServiceTracker.getFirstInfoItemService(
+				infoItemServiceRegistry.getFirstInfoItemService(
 					InfoItemFieldValuesProvider.class,
 					JournalArticle.class.getName());
 
@@ -100,8 +99,8 @@ public class JournalArticleContentDashboardItemFactory
 
 		return new JournalArticleContentDashboardItem(
 			assetEntry.getCategories(), assetEntry.getTags(),
-			_contentDashboardItemActionProviderTracker,
-			_contentDashboardItemVersionActionProviderTracker,
+			_contentDashboardItemActionProviderRegistry,
+			_contentDashboardItemVersionActionProviderRegistry,
 			contentDashboardItemSubtypeFactory.create(
 				ddmStructure.getStructureId(),
 				journalArticle.getResourcePrimKey()),
@@ -114,28 +113,28 @@ public class JournalArticleContentDashboardItemFactory
 	public Optional<ContentDashboardItemSubtypeFactory>
 		getContentDashboardItemSubtypeFactoryOptional() {
 
-		return _contentDashboardItemSubtypeFactoryTracker.
+		return _contentDashboardItemSubtypeFactoryRegistry.
 			getContentDashboardItemSubtypeFactoryOptional(
 				DDMStructure.class.getName());
 	}
 
 	@Reference
-	protected InfoItemServiceTracker infoItemServiceTracker;
+	protected InfoItemServiceRegistry infoItemServiceRegistry;
 
 	@Reference
 	private AssetEntryLocalService _assetEntryLocalService;
 
 	@Reference
-	private ContentDashboardItemActionProviderTracker
-		_contentDashboardItemActionProviderTracker;
+	private ContentDashboardItemActionProviderRegistry
+		_contentDashboardItemActionProviderRegistry;
 
 	@Reference
-	private ContentDashboardItemSubtypeFactoryTracker
-		_contentDashboardItemSubtypeFactoryTracker;
+	private ContentDashboardItemSubtypeFactoryRegistry
+		_contentDashboardItemSubtypeFactoryRegistry;
 
 	@Reference
-	private ContentDashboardItemVersionActionProviderTracker
-		_contentDashboardItemVersionActionProviderTracker;
+	private ContentDashboardItemVersionActionProviderRegistry
+		_contentDashboardItemVersionActionProviderRegistry;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
@@ -151,8 +150,5 @@ public class JournalArticleContentDashboardItemFactory
 
 	@Reference
 	private Portal _portal;
-
-	@Reference
-	private UserLocalService _userLocalService;
 
 }

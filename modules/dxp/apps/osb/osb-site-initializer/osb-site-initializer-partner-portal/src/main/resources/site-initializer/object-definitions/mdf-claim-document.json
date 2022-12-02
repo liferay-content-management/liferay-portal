@@ -13,19 +13,30 @@
 				"en_US": "URL"
 			},
 			"name": "url",
+			"required": false,
+			"type": "String"
+		},
+		{
+			"DBType": "String",
+			"businessType": "Text",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "File Name"
+			},
+			"name": "fileName",
 			"required": true,
 			"type": "String"
 		},
 		{
 			"DBType": "String",
-			"businessType": "Picklist",
+			"businessType": "Text",
 			"indexed": true,
 			"indexedAsKeyword": false,
 			"label": {
-				"en_US": "Type"
+				"en_US": "File Size"
 			},
-			"listTypeDefinitionId": "[$LIST_TYPE_DEFINITION_ID:MDF Document Types$]",
-			"name": "type",
+			"name": "fileSize",
 			"required": true,
 			"type": "String"
 		}

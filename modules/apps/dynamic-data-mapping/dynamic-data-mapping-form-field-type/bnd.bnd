@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Dynamic Data Mapping Form Field Type
 Bundle-SymbolicName: com.liferay.dynamic.data.mapping.form.field.type
-Bundle-Version: 6.0.112
+Bundle-Version: 6.0.122
 Provide-Capability:\
 	soy;\
 		type:String="LiferayFormField"

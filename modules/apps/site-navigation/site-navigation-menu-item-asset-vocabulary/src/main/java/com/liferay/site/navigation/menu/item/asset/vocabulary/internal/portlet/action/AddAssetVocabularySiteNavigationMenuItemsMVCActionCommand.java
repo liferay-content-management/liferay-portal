@@ -16,7 +16,7 @@ package com.liferay.site.navigation.menu.item.asset.vocabulary.internal.portlet.
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
@@ -45,7 +45,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Lourdes Fernández Besada
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + SiteNavigationAdminPortletKeys.SITE_NAVIGATION_ADMIN,
 		"mvc.command.name=/navigation_menu/add_asset_vocabulary_type_site_navigation_menu_items"
@@ -60,7 +59,7 @@ public class AddAssetVocabularySiteNavigationMenuItemsMVCActionCommand
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
 		long siteNavigationMenuId = ParamUtil.getLong(
 			actionRequest, "siteNavigationMenuId");
@@ -72,7 +71,7 @@ public class AddAssetVocabularySiteNavigationMenuItemsMVCActionCommand
 			ServiceContext serviceContext = ServiceContextFactory.getInstance(
 				actionRequest);
 
-			JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+			JSONArray jsonArray = _jsonFactory.createJSONArray(
 				ParamUtil.getString(actionRequest, "items"));
 
 			for (int i = 0; i < jsonArray.length(); i++) {
@@ -126,6 +125,9 @@ public class AddAssetVocabularySiteNavigationMenuItemsMVCActionCommand
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		AddAssetVocabularySiteNavigationMenuItemsMVCActionCommand.class);
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

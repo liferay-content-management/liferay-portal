@@ -19,7 +19,7 @@ import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.info.display.url.provider.InfoEditURLProvider;
-import com.liferay.info.display.url.provider.InfoEditURLProviderTracker;
+import com.liferay.info.display.url.provider.InfoEditURLProviderRegistry;
 import com.liferay.info.item.InfoItemDetails;
 import com.liferay.info.item.InfoItemReference;
 import com.liferay.layout.type.controller.display.page.internal.constants.DisplayPageLayoutTypeControllerWebKeys;
@@ -54,7 +54,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = {
 		"product.navigation.control.menu.category.key=" + ProductNavigationControlMenuCategoryKeys.USER,
 		"product.navigation.control.menu.entry.order:Integer=50"
@@ -91,7 +90,7 @@ public class EditDisplayPageMenuProductNavigationControlMenuEntry
 				InfoDisplayWebKeys.INFO_ITEM_DETAILS);
 
 		InfoEditURLProvider<Object> infoEditURLProvider =
-			_infoEditURLProviderTracker.getInfoEditURLProvider(
+			_infoEditURLProviderRegistry.getInfoEditURLProvider(
 				infoItemDetails.getClassName());
 
 		httpServletRequest.setAttribute(
@@ -173,7 +172,7 @@ public class EditDisplayPageMenuProductNavigationControlMenuEntry
 	}
 
 	@Reference
-	private InfoEditURLProviderTracker _infoEditURLProviderTracker;
+	private InfoEditURLProviderRegistry _infoEditURLProviderRegistry;
 
 	@Reference
 	private Portal _portal;

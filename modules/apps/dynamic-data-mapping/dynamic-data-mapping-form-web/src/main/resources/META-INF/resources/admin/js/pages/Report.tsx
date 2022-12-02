@@ -21,7 +21,11 @@ import React from 'react';
 import './Report.scss';
 
 export default function Report() {
-	const {dataEngineModule, formReportDataURL} = useConfig();
+	const {
+		dataEngineModule,
+		displayChartAsTable,
+		formReportDataURL,
+	} = useConfig();
 	const {resource} = useResource({link: formReportDataURL});
 	const {
 		data,
@@ -63,18 +67,16 @@ export default function Report() {
 			</ClayNavigationBar>
 
 			<hr className="m-0" />
-
-			<div className="container-fluid container-fluid-max-xl lfr-ddm__form-report__cards">
-				<FormReport
-					data={data}
-					dataEngineModule={dataEngineModule}
-					fields={fields}
-					formReportRecordsFieldValuesURL={
-						formReportRecordsFieldValuesURL
-					}
-					portletNamespace={portletNamespace}
-				/>
-			</div>
+			<FormReport
+				data={data}
+				dataEngineModule={dataEngineModule}
+				displayChartAsTable={displayChartAsTable}
+				fields={fields}
+				formReportRecordsFieldValuesURL={
+					formReportRecordsFieldValuesURL
+				}
+				portletNamespace={portletNamespace}
+			/>
 		</>
 	);
 }

@@ -200,6 +200,13 @@ components:
             type: object
         WorkflowDefinition:
             properties:
+                actions:
+                    additionalProperties:
+                        additionalProperties:
+                            type: string
+                        type: object
+                    readOnly: true
+                    type: object
                 active:
                     type: boolean
                 content:
@@ -215,6 +222,10 @@ components:
                 description:
                     readOnly: true
                     type: string
+                id:
+                    format: int64
+                    readOnly: true
+                    type: integer
                 name:
                     type: string
                 nodes:
@@ -241,6 +252,13 @@ components:
             description:
                 Represents an instance to be executed in a workflow.
             properties:
+                actions:
+                    additionalProperties:
+                        additionalProperties:
+                            type: string
+                        type: object
+                    readOnly: true
+                    type: object
                 completed:
                     description:
                         A flag that indicates whether the instance is complete.
@@ -397,6 +415,13 @@ components:
             description:
                 Represents a task to be executed in a workflow.
             properties:
+                actions:
+                    additionalProperties:
+                        additionalProperties:
+                            type: string
+                        type: object
+                    readOnly: true
+                    type: object
                 assigneePerson:
                     allOf:
                         - $ref: "#/components/schemas/Creator"
@@ -625,7 +650,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.admin.workflow.client', and version '4.0.14'."
+        'com.liferay.headless.admin.workflow.client', and version '4.0.16'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -667,6 +692,26 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/WorkflowDefinition"
                                 type: array
+            tags: ["WorkflowDefinition"]
+        post:
+            operationId: postWorkflowDefinition
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowDefinition"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowDefinition"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowDefinition"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowDefinition"
             tags: ["WorkflowDefinition"]
     "/workflow-definitions/by-name/{name}":
         get:
@@ -772,6 +817,68 @@ paths:
                   required: true
                   schema:
                       type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowDefinition"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowDefinition"
+            tags: ["WorkflowDefinition"]
+    "/workflow-definitions/{workflowDefinitionId}":
+        delete:
+            operationId: deleteWorkflowDefinition
+            parameters:
+                - in: path
+                  name: workflowDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["WorkflowDefinition"]
+        get:
+            operationId: getWorkflowDefinition
+            parameters:
+                - in: path
+                  name: workflowDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowDefinition"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowDefinition"
+            tags: ["WorkflowDefinition"]
+        put:
+            operationId: putWorkflowDefinition
+            parameters:
+                - in: path
+                  name: workflowDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowDefinition"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/WorkflowDefinition"
             responses:
                 200:
                     content:

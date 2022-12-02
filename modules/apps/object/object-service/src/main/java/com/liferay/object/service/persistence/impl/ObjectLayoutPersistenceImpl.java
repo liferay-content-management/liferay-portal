@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -77,7 +76,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Marco Leo
  * @generated
  */
-@Component(service = {ObjectLayoutPersistence.class, BasePersistence.class})
+@Component(service = ObjectLayoutPersistence.class)
 public class ObjectLayoutPersistenceImpl
 	extends BasePersistenceImpl<ObjectLayout>
 	implements ObjectLayoutPersistence {
@@ -194,7 +193,7 @@ public class ObjectLayoutPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<ObjectLayout>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (ObjectLayout objectLayout : list) {
@@ -574,7 +573,7 @@ public class ObjectLayoutPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -733,7 +732,7 @@ public class ObjectLayoutPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<ObjectLayout>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (ObjectLayout objectLayout : list) {
@@ -1147,7 +1146,7 @@ public class ObjectLayoutPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1310,7 +1309,7 @@ public class ObjectLayoutPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<ObjectLayout>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (ObjectLayout objectLayout : list) {
@@ -1677,7 +1676,7 @@ public class ObjectLayoutPersistenceImpl
 
 		Object[] finderArgs = new Object[] {objectDefinitionId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1830,7 +1829,7 @@ public class ObjectLayoutPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<ObjectLayout>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (ObjectLayout objectLayout : list) {
@@ -2229,7 +2228,7 @@ public class ObjectLayoutPersistenceImpl
 			objectDefinitionId, defaultObjectLayout
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -2695,7 +2694,7 @@ public class ObjectLayoutPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<ObjectLayout>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2765,7 +2764,7 @@ public class ObjectLayoutPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

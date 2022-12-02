@@ -36,7 +36,7 @@ definition {
 			Alert.viewDuplicateErrorMessage();
 		}
 		else if ("${userGroupNameVariation}" == "Null") {
-			Alert.viewRequiredField();
+			Alert.viewSpecificRequiredField(fieldFieldLabel = "Name");
 		}
 		else {
 			Alert.viewSuccessMessage();
@@ -160,17 +160,25 @@ definition {
 	macro gotoAddPageCP {
 		Search.searchCP(searchTerm = "${userGroupName}");
 
-		LexiconEntry.gotoEllipsisMenuItem(
-			menuItem = "Manage Pages",
-			rowEntry = "${userGroupName}");
+		Click.waitForMenuToggleJSClick(
+			key_tableEntry = "${userGroupName}",
+			locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		MenuItem.click(menuItem = "Manage Pages");
 	}
 
 	macro gotoProfilePages {
 		Search.searchCP(searchTerm = "${userGroupName}");
 
-		LexiconEntry.gotoEllipsisMenuItem(
-			menuItem = "Go to Profile Pages",
-			rowEntry = "${userGroupName}");
+		Click.waitForMenuToggleJSClick(
+			key_tableEntry = "${userGroupName}",
+			locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		MenuItem.click(menuItem = "Go to Profile Pages");
 
 		SelectWindow(locator1 = "Home - ${userGroupName} - ${siteName}");
 	}

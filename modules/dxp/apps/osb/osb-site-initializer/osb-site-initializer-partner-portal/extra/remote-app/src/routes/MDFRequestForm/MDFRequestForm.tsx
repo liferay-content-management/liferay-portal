@@ -14,28 +14,28 @@ import {useState} from 'react';
 
 import PRMFormik from '../../common/components/PRMFormik';
 import {PRMPageRoute} from '../../common/enums/prmPageRoute';
-import {RequestStatus} from '../../common/enums/requestStatus';
+import {Status} from '../../common/enums/status';
 import useLiferayNavigate from '../../common/hooks/useLiferayNavigate';
 import MDFRequest from '../../common/interfaces/mdfRequest';
 import {Liferay} from '../../common/services/liferay';
+import isObjectEmpty from '../../common/utils/isObjectEmpty';
 import {StepType} from './enums/stepType';
 import Activities from './steps/Activities';
 import activitiesSchema from './steps/Activities/schema/yup';
 import Goals from './steps/Goals';
 import goalsSchema from './steps/Goals/schema/yup';
 import Review from './steps/Review/Review';
-import isObjectEmpty from './utils/isObjectEmpty';
 import submitForm from './utils/submitForm';
 
 const initialFormValues: MDFRequest = {
 	activities: [],
 	additionalOption: {},
-	campaignName: '',
 	company: {},
 	country: {},
 	liferayBusinessSalesGoals: [],
 	overallCampaignDescription: '',
-	requestStatus: RequestStatus.PENDING,
+	overallCampaignName: '',
+	requestStatus: Status.PENDING,
 	targetAudienceRoles: [],
 	targetMarkets: [],
 };
@@ -81,14 +81,7 @@ const MDFRequestForm = () => {
 						FormikHelpers<MDFRequest>,
 						'setFieldValue'
 					>
-				) =>
-					submitForm(
-						values,
-						formikHelpers,
-						siteURL,
-						RequestStatus.DRAFT
-					)
-				}
+				) => submitForm(values, formikHelpers, siteURL, Status.DRAFT)}
 				validationSchema={goalsSchema}
 			/>
 		),
@@ -105,14 +98,7 @@ const MDFRequestForm = () => {
 						FormikHelpers<MDFRequest>,
 						'setFieldValue'
 					>
-				) =>
-					submitForm(
-						values,
-						formikHelpers,
-						siteURL,
-						RequestStatus.DRAFT
-					)
-				}
+				) => submitForm(values, formikHelpers, siteURL, Status.DRAFT)}
 				validationSchema={activitiesSchema}
 			/>
 		),
@@ -126,14 +112,7 @@ const MDFRequestForm = () => {
 						FormikHelpers<MDFRequest>,
 						'setFieldValue'
 					>
-				) =>
-					submitForm(
-						values,
-						formikHelpers,
-						siteURL,
-						RequestStatus.DRAFT
-					)
-				}
+				) => submitForm(values, formikHelpers, siteURL, Status.DRAFT)}
 			/>
 		),
 	};

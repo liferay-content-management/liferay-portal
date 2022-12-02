@@ -25,6 +25,429 @@ definition {
 		}
 		else {
 			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
+
+			ObjectAdmin.deleteAllCustomObjectsViaAPI();
+
+			JSONUser.tearDownNonAdminUsers();
+		}
+	}
+
+	@description = "This is a test for LPS-162848. The page creator without view permission for custom object cannot see Form Components in page editor."
+	@priority = "4"
+	test CannotSeeFormComponentsInPageEditorAsUserWithoutViewPermissionForCustomObject {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		task ("Given a page creator doesn't have view permission for custom object") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Purchase Order",
+				objectName = "PurchaseOrder",
+				pluralLabelName = "Purchase Orders");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Region",
+				fieldName = "region",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "PurchaseOrder");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "PurchaseOrder");
+
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "Userfn",
+				userLastName = "Userln",
+				userScreenName = "usersn");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignRoleToUser(
+				roleTitle = "Power User",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignSiteRoleToUser(
+				groupName = "Test Site Name",
+				roleTitle = "Site Administrator",
+				userEmailAddress = "userea@liferay.com");
+
+			User.logoutAndLoginPG(userLoginEmailAddress = "userea@liferay.com");
+		}
+
+		task ("When the page creator navigates to the content page at edit mode") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Page Name",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+
+		task ("When the page creator navigates to the display page template at edit mode") {
+			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+				contentType = "Web Content Article",
+				displayPageTemplateEntryName = "Display Page Name",
+				groupName = "Test Site Name",
+				subType = "Basic Web Content");
+
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+
+		task ("When the page creator navigates to the master page at edit mode") {
+			JSONLayoutpagetemplate.addMasterPageTemplateEntry(
+				groupName = "Test Site Name",
+				masterPageTemplateEntryName = "Master Page Template");
+
+			MastersPageTemplatesAdmin.openMastersAdmin(siteURLKey = "test-site-name");
+
+			MastersPageTemplatesAdmin.gotoMasters(masterLayoutName = "Master Page Template");
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+
+		task ("When the page creator navigates to the content page template at edit mode") {
+			JSONLayoutpagetemplate.addLayoutPageTemplateCollection(
+				groupName = "Test Site Name",
+				layoutPageTemplateCollectionName = "Page Template Collection");
+
+			JSONLayoutpagetemplate.addLayoutPageTemplateEntry(
+				groupName = "Test Site Name",
+				layoutPageTemplateCollectionName = "Page Template Collection",
+				layoutPageTemplateEntryName = "Page Template Name",
+				layoutPageTemplateStatus = "Draft",
+				layoutPageTemplateType = "Content Page Template");
+
+			PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "test-site-name");
+
+			Navigator.gotoNavNested(navNested = "Page Template Collection");
+
+			PageTemplatesAdmin.gotoPageTemplate(pageTemplateName = "Page Template Name");
+
+			PageEditor.assertFragmentSidebarLoaded();
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+
+		task ("When the page creator navigates to the collection page at edit mode") {
+			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
+
+			ContentPages.addCollectionPage(
+				collectionName = "Most Viewed Assets",
+				pageName = "Collection Page Name",
+				tabName = "Collection Providers");
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+	}
+
+	@description = "This is a test for LPS-162848. The page creator cannot see Form Components in page editor when no approved custom objects exist."
+	@priority = "5"
+	test CannotSeeFormComponentsInPageEditorWhenNoApprovedCustomObjectExist {
+		task ("Given a page creator only has a draft custom object") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Purchase Order",
+				objectName = "PurchaseOrder",
+				pluralLabelName = "Purchase Orders");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Region",
+				fieldName = "region",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "PurchaseOrder");
+		}
+
+		task ("When the page creator navigates to the content page at edit mode") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Page Name",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+
+		task ("When the page creator navigates to the display page template at edit mode") {
+			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+				contentType = "Web Content Article",
+				displayPageTemplateEntryName = "Display Page Name",
+				groupName = "Test Site Name",
+				subType = "Basic Web Content");
+
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+
+		task ("When the page creator navigates to the master page at edit mode") {
+			JSONLayoutpagetemplate.addMasterPageTemplateEntry(
+				groupName = "Test Site Name",
+				masterPageTemplateEntryName = "Master Page Template");
+
+			MastersPageTemplatesAdmin.openMastersAdmin(siteURLKey = "test-site-name");
+
+			MastersPageTemplatesAdmin.gotoMasters(masterLayoutName = "Master Page Template");
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+
+		task ("When the page creator navigates to the content page template at edit mode") {
+			JSONLayoutpagetemplate.addLayoutPageTemplateCollection(
+				groupName = "Test Site Name",
+				layoutPageTemplateCollectionName = "Page Template Collection");
+
+			JSONLayoutpagetemplate.addLayoutPageTemplateEntry(
+				groupName = "Test Site Name",
+				layoutPageTemplateCollectionName = "Page Template Collection",
+				layoutPageTemplateEntryName = "Page Template Name",
+				layoutPageTemplateStatus = "Draft",
+				layoutPageTemplateType = "Content Page Template");
+
+			PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "test-site-name");
+
+			Navigator.gotoNavNested(navNested = "Page Template Collection");
+
+			PageTemplatesAdmin.gotoPageTemplate(pageTemplateName = "Page Template Name");
+
+			PageEditor.assertFragmentSidebarLoaded();
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+
+		task ("When the page creator navigates to the collection page at edit mode") {
+			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
+
+			ContentPages.addCollectionPage(
+				collectionName = "Most Viewed Assets",
+				pageName = "Collection Page Name",
+				tabName = "Collection Providers");
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertElementNotPresent(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+		}
+	}
+
+	@description = "This is a test for LPS-162848. The Form Components should be available to Fragments admin and style book by default."
+	@priority = "4"
+	test ViewFormComponentsInFragmentsAdminAndStyleBook {
+		task ("Given a site designer doesn't have any custom object") {
+			ApplicationsMenu.gotoSite(site = "Test Site Name");
+		}
+
+		task ("When the site designer navigates to the Fragments admin") {
+			FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "test-site-name");
+		}
+
+		task ("Then the site designer can see the Form Components fragment set") {
+			FragmentsAdminNavigator.gotoCollection(collectionName = "Form Components");
+
+			for (var fragmentName : list "CAPTCHA,Checkbox,Date,File Upload,Numeric Input,Select from List,Submit Button,Text Input") {
+				FragmentsAdmin.viewEntryPresent(entry = "${fragmentName}");
+			}
+		}
+
+		task ("When the site designer navigates to a style book editor") {
+			JSONStylebooks.addStyleBookEntry(
+				groupName = "Test Site Name",
+				styleBookEntryName = "Test Style Book Name");
+
+			StyleBooksAdmin.openStyleBooksAdmin(siteURLKey = "test-site-name");
+
+			StyleBooksAdmin.gotoStyleBookEllipsisItem(
+				item = "Edit",
+				styleBookName = "Test Style Book Name");
+		}
+
+		task ("Then the site designer can preview the Form Components in preview window") {
+			StyleBooks.selectPreviewItem(previewItem = "Form Components");
+
+			SelectFrame.selectFrameNoLoading(locator1 = "StyleBookEditor#PAGE_PREVIEW_IFRAME");
+
+			ContentPages.viewFragmentText(
+				fragmentName = "button",
+				id = "submit-button-text",
+				text = "Submit");
+
+			ScrollBy(value1 = "0, 500");
+
+			AssertVisible(
+				index = "1",
+				locator1 = "Fragment#INPUT_CAPTCHA_BODY");
+
+			ScrollBy(value1 = "0, 300");
+
+			AssertNotChecked.assertNotCheckedNotVisible(
+				index = "1",
+				locator1 = "Fragment#INPUT_FIELD",
+				type = "checkbox");
+
+			ScrollBy(value1 = "0, 300");
+
+			AssertVisible(
+				index = "1",
+				locator1 = "Fragment#INPUT_FIELD",
+				type = "date");
+
+			ScrollBy(value1 = "0, 300");
+
+			AssertVisible(locator1 = "Button#SELECT_FILE");
+
+			ScrollBy(value1 = "0, 300");
+
+			AssertVisible(
+				index = "1",
+				locator1 = "Fragment#INPUT_FIELD",
+				type = "numeric-input");
+
+			ScrollBy(value1 = "0, 300");
+
+			AssertVisible(
+				index = "1",
+				locator1 = "Fragment#INPUT_TOGGLE",
+				type = "select-from-list");
+
+			ScrollBy(value1 = "0, 300");
+
+			AssertVisible(
+				index = "1",
+				locator1 = "Fragment#INPUT_FIELD",
+				type = "text-input");
+		}
+	}
+
+	@description = "This is a test for LPS-162848. The page creator with view permission for custom object can see Form Components in page editor."
+	@priority = "4"
+	test ViewFormComponentsInPageEditorAsUserWithViewPermissionForCustomObject {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		task ("Given a page creator has view permission for custom object") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Purchase Order",
+				objectName = "PurchaseOrder",
+				pluralLabelName = "Purchase Orders");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Region",
+				fieldName = "region",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "PurchaseOrder");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "PurchaseOrder");
+
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "Userfn",
+				userLastName = "Userln",
+				userScreenName = "usersn");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONUser.addUserToSite(
+				groupName = "Test Site Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.addRegularRole(roleTitle = "Regular Role Name");
+
+			Permissions.definePermissionViaJSONAPI(
+				resourceAction = "UPDATE",
+				resourceName = "com.liferay.portal.kernel.model.Layout",
+				roleTitle = "Regular Role Name");
+
+			var objectId = JSONObject.getObjectId(objectName = "PurchaseOrder");
+
+			Permissions.definePermissionViaJSONAPI(
+				resourceAction = "VIEW",
+				resourceName = "com_liferay_object_web_internal_object_definitions_portlet_ObjectDefinitionsPortlet_${objectId}",
+				roleTitle = "Regular Role Name");
+
+			JSONRole.assignRoleToUser(
+				roleTitle = "Regular Role Name",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Page Name",
+				type = "content");
+
+			User.logoutAndLoginPG(userLoginEmailAddress = "userea@liferay.com");
+		}
+
+		task ("When the page creator navigates to the content page at edit mode") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("Then the page creator cannot see the Form Components in Fragments and Widgets panel") {
+			AssertVisible(
+				key_collectionName = "Form Components",
+				locator1 = "PageEditor#FRAGMENT_SIDEBAR_COLLECTION_PANEL");
+
+			JSONRole.deleteRole(roleTitle = "Regular Role Name");
 		}
 	}
 

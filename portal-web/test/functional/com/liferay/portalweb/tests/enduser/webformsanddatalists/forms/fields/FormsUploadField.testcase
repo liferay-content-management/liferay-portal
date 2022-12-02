@@ -3,7 +3,7 @@ definition {
 
 	property custom.properties = "minifier.enabled=true";
 	property osgi.module.configuration.file.names = "com.liferay.frontend.js.loader.modules.extender.internal.configuration.Details.config";
-	property osgi.module.configurations = "waitTimeout=&quot;15&quot;";
+	property osgi.module.configurations = "waitTimeout=\"15\"";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Forms";
@@ -557,8 +557,7 @@ definition {
 	@description = "LPS-122760 - Verify that a guest user can upload a file"
 	@priority = "5"
 	test CanBeSubmittedByGuestUser {
-		property portal.acceptance = "quarantine";
-		property portal.upstream = "quarantine";
+		property portal.acceptance = "true";
 
 		FormsAdmin.addForm();
 
@@ -646,8 +645,7 @@ definition {
 	@description = "This is a use case for LPS-125499."
 	@priority = "2"
 	test GuestUserCannotUploadFileWithInvalidSize {
-		property portal.acceptance = "quarantine";
-		property portal.upstream = "quarantine";
+		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "FormsUploadField#GuestUserCannotUploadFileWithInvalidSize";
 
 		FormsAdmin.addForm();
@@ -866,13 +864,30 @@ definition {
 	}
 
 	@description = "Veriy that the Field Label can be hidden"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test LabelCanBeHidden {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
-		// TODO LPS-133220 LabelCanBeHidden pending implementation
+		FormsAdmin.addForm();
 
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Upload",
+			formPageNumber = "0");
+
+		Form.gotoAdvancedTab();
+
+		FormViewBuilder.clickShowLabel();
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormFields.viewFieldLabelNotPresent(fieldLabel = "Upload");
 	}
 
 	@description = "Verify that the Field Reference can be Edited"

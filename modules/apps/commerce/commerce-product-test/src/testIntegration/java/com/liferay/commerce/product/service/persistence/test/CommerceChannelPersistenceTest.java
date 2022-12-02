@@ -15,6 +15,7 @@
 package com.liferay.commerce.product.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.commerce.product.exception.DuplicateCommerceChannelExternalReferenceCodeException;
 import com.liferay.commerce.product.exception.NoSuchChannelException;
 import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.service.CommerceChannelLocalServiceUtil;
@@ -214,6 +215,28 @@ public class CommerceChannelPersistenceTest {
 			newCommerceChannel.isDiscountsTargetNetPrice());
 	}
 
+	@Test(
+		expected = DuplicateCommerceChannelExternalReferenceCodeException.class
+	)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		CommerceChannel commerceChannel = addCommerceChannel();
+
+		CommerceChannel newCommerceChannel = addCommerceChannel();
+
+		newCommerceChannel.setCompanyId(commerceChannel.getCompanyId());
+
+		newCommerceChannel = _persistence.update(newCommerceChannel);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newCommerceChannel);
+
+		newCommerceChannel.setExternalReferenceCode(
+			commerceChannel.getExternalReferenceCode());
+
+		_persistence.update(newCommerceChannel);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -247,12 +270,12 @@ public class CommerceChannelPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -563,15 +586,15 @@ public class CommerceChannelPersistenceTest {
 				new Class<?>[] {String.class}, "siteGroupId"));
 
 		Assert.assertEquals(
-			Long.valueOf(commerceChannel.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				commerceChannel, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			commerceChannel.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				commerceChannel, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(commerceChannel.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				commerceChannel, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected CommerceChannel addCommerceChannel() throws Exception {

@@ -23,7 +23,7 @@ import com.liferay.layout.admin.web.internal.servlet.taglib.util.LayoutActionDro
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.layout.util.template.LayoutConverterRegistry;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Layout;
@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.service.LayoutService;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.staging.StagingGroupHelper;
-import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterTracker;
 import com.liferay.translation.security.permission.TranslationPermission;
 import com.liferay.translation.url.provider.TranslationURLProvider;
 
@@ -51,7 +50,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + LayoutAdminPortletKeys.GROUP_PAGES,
 		"mvc.command.name=/layout_admin/move_layout"
@@ -67,7 +65,7 @@ public class MoveLayoutMVCActionCommand extends BaseAddLayoutMVCActionCommand {
 
 		long parentPlid = ParamUtil.getLong(actionRequest, "parentPlid");
 
-		JSONArray plidsJSONArray = JSONFactoryUtil.createJSONArray(
+		JSONArray plidsJSONArray = _jsonFactory.createJSONArray(
 			ParamUtil.getString(actionRequest, "plids"));
 
 		Iterator<JSONObject> iterator = plidsJSONArray.iterator();
@@ -115,8 +113,7 @@ public class MoveLayoutMVCActionCommand extends BaseAddLayoutMVCActionCommand {
 								_translationPermission,
 								_translationURLProvider),
 							layoutsAdminDisplayContext, liferayPortletRequest,
-							liferayPortletResponse,
-							_translationInfoItemFieldValuesExporterTracker);
+							liferayPortletResponse);
 
 					return millerColumnsDisplayContext.
 						getLayoutColumnsJSONArray();
@@ -137,6 +134,9 @@ public class MoveLayoutMVCActionCommand extends BaseAddLayoutMVCActionCommand {
 	private ItemSelector _itemSelector;
 
 	@Reference
+	private JSONFactory _jsonFactory;
+
+	@Reference
 	private LayoutConverterRegistry _layoutConverterRegistry;
 
 	@Reference
@@ -153,10 +153,6 @@ public class MoveLayoutMVCActionCommand extends BaseAddLayoutMVCActionCommand {
 
 	@Reference
 	private StagingGroupHelper _stagingGroupHelper;
-
-	@Reference
-	private TranslationInfoItemFieldValuesExporterTracker
-		_translationInfoItemFieldValuesExporterTracker;
 
 	@Reference
 	private TranslationPermission _translationPermission;

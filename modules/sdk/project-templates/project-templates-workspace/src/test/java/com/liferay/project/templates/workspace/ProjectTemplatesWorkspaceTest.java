@@ -71,7 +71,7 @@ public class ProjectTemplatesWorkspaceTest
 			temporaryFolder, "gradle", "foows", getDefaultLiferayVersion(),
 			mavenExecutor);
 
-		testExists(workspaceProjectDir, "configs/dev/portal-env.properties");
+		testExists(workspaceProjectDir, "configs/dev/portal-ext.properties");
 		testExists(workspaceProjectDir, "gradle.properties");
 		testExists(workspaceProjectDir, "modules");
 		testExists(workspaceProjectDir, "themes");
@@ -108,7 +108,7 @@ public class ProjectTemplatesWorkspaceTest
 
 		File modulesProjectDir = buildTemplateWithGradle(
 			new File(workspaceProjectDir, "modules"), "mvc-portlet",
-			"foo-portlet", "--product", "dxp");
+			"foo-portlet", "--liferay-product", "dxp");
 
 		testContains(modulesProjectDir, "build.gradle", "release.dxp.api");
 
@@ -359,6 +359,25 @@ public class ProjectTemplatesWorkspaceTest
 			mavenWorkspaceDir, "pom.xml",
 			"<artifactId>com.liferay.portal.tools.bundle.support</artifactId>" +
 				"\n\t\t\t\t<version>" + portalToolsBundleSupportVersion);
+	}
+
+	@Test
+	public void testCreateMavenWorksapce() throws Exception {
+		Assume.assumeTrue(isBuildProjects());
+
+		File destinationDir = temporaryFolder.newFolder("mavenWorkspace");
+		String liferayVersion = "7.2.10.4";
+
+		File workspaceDir = buildTemplateWithMaven(
+			destinationDir, destinationDir, "workspace", "mavenWS", "com.test",
+			mavenExecutor, "-DliferayProduct=dxp",
+			"-DliferayVersion=" + liferayVersion, "-Dpackage=com.test");
+
+		Assume.assumeTrue(workspaceDir.exists());
+
+		testContains(
+			workspaceDir, "pom.xml",
+			"<liferay.bom.version>7.2.10.4</liferay.bom.version>");
 	}
 
 	@Rule

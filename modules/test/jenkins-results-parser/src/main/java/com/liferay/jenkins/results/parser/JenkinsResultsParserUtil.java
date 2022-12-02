@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -214,6 +215,22 @@ public class JenkinsResultsParserUtil {
 
 			cacheFile.deleteOnExit();
 		}
+	}
+
+	public static void cancelQueuedItem(
+		int itemID, JenkinsMaster jenkinsMaster) {
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("def queue = Jenkins.instance.queue;\n");
+
+		sb.append("def items = queue.items.findAll{it.getId() == ");
+		sb.append(itemID);
+		sb.append("};\n");
+
+		sb.append("queue.cancel(items[0]);");
+
+		executeJenkinsScript(jenkinsMaster.getName(), sb.toString());
 	}
 
 	public static void clearCache() {
@@ -3452,6 +3469,97 @@ public class JenkinsResultsParserUtil {
 		return lastIndex;
 	}
 
+	public static void loadBalanceQueuedBuilds(
+			String jobName, JenkinsMaster jenkinsMaster)
+		throws IOException {
+
+		List<JenkinsMaster> availableJenkinsMasters = new ArrayList<>();
+
+		JenkinsCohort jenkinsCohort = jenkinsMaster.getJenkinsCohort();
+
+		for (JenkinsMaster availableJenkinsMaster :
+				jenkinsCohort.getJenkinsMasters()) {
+
+			if (!availableJenkinsMaster.isAvailable() ||
+				availableJenkinsMaster.isBlackListed()) {
+
+				continue;
+			}
+
+			availableJenkinsMasters.add(availableJenkinsMaster);
+		}
+
+		JSONObject jsonObject = toJSONObject(
+			combine(
+				"https://", jenkinsMaster.getName(),
+				".liferay.com/queue/api/json"));
+
+		JSONArray itemsJSONArray = jsonObject.getJSONArray("items");
+
+		for (int i = 0; i < itemsJSONArray.length(); i++) {
+			JSONObject itemJSONObject = itemsJSONArray.getJSONObject(i);
+
+			JSONObject taskJSONObject = itemJSONObject.getJSONObject("task");
+
+			String name = taskJSONObject.getString("name");
+
+			if (!name.equals(jobName)) {
+				continue;
+			}
+
+			JSONArray actionsJSONArray = itemJSONObject.optJSONArray("actions");
+
+			StringBuilder sb = new StringBuilder();
+
+			JenkinsMaster availableJenkinsMaster = getRandomListItem(
+				availableJenkinsMasters);
+
+			sb.append("http://");
+			sb.append(availableJenkinsMaster.getName());
+			sb.append("/job/");
+			sb.append(jobName);
+			sb.append("/buildWithParameters?");
+			sb.append("token=raen3Aib");
+
+			for (int j = 0; j < actionsJSONArray.length(); j++) {
+				JSONObject actionJSONObject = actionsJSONArray.getJSONObject(j);
+
+				if (!Objects.equals(
+						actionJSONObject.optString("_class"),
+						"hudson.model.ParametersAction")) {
+
+					continue;
+				}
+
+				JSONArray parametersJSONArray = actionJSONObject.optJSONArray(
+					"parameters");
+
+				for (int k = 0; k < parametersJSONArray.length(); k++) {
+					JSONObject parameterJSONObject =
+						parametersJSONArray.getJSONObject(k);
+
+					String paramName = parameterJSONObject.getString("name");
+					String paramValue = parameterJSONObject.getString("value");
+
+					if (isNullOrEmpty(paramName) || isNullOrEmpty(paramValue)) {
+						continue;
+					}
+
+					sb.append("&");
+					sb.append(paramName);
+					sb.append("=");
+					sb.append(paramValue);
+				}
+			}
+
+			System.out.println(sb);
+
+			toString(sb.toString());
+
+			cancelQueuedItem(itemJSONObject.getInt("id"), jenkinsMaster);
+		}
+	}
+
 	public static void move(File sourceFile, File targetFile)
 		throws IOException {
 
@@ -3460,6 +3568,25 @@ public class JenkinsResultsParserUtil {
 		if (!delete(sourceFile)) {
 			throw new IOException("Unable to delete " + sourceFile);
 		}
+	}
+
+	public static FilenameFilter newFilenameFilter(String patternString) {
+		final Pattern pattern = Pattern.compile(patternString);
+
+		return new FilenameFilter() {
+
+			@Override
+			public boolean accept(File dir, String name) {
+				Matcher matcher = pattern.matcher(name);
+
+				if (matcher.matches()) {
+					return true;
+				}
+
+				return false;
+			}
+
+		};
 	}
 
 	public static <T> List<List<T>> partitionByCount(List<T> list, int count) {

@@ -165,6 +165,8 @@ definition {
 	@description = "Restore bookmark subfolder and bookmark from recycle bin."
 	@priority = "3"
 	test RecycleBinBookmarks {
+		property portal.release = "false";
+
 		task ("Add bookmarks widget to page") {
 			JSONLayout.addWidgetToPublicLayout(
 				groupName = "Site Name",
@@ -289,7 +291,8 @@ definition {
 			MessageboardsThread.editCP(
 				mbAttachmentFile = "Document_1.doc",
 				threadAttachmentRemove = "true",
-				threadBodyEdit = "MB Body Edit");
+				threadBodyEdit = "MB Body Edit",
+				threadSubject = "MB Subject");
 
 			PortletEntry.publish();
 		}
@@ -739,7 +742,7 @@ definition {
 
 			AssertTextEquals(
 				locator1 = "Search#SEARCH_INFO",
-				value1 = "2 Results for &quot;Comment&quot;");
+				value1 = "2 Results for \"Comment\"");
 
 			for (var title : list "Blogs Entry Title 1,Blogs Entry Title 2") {
 				Blogs.viewEntryTitle(entryTitle = "${title}");
@@ -757,7 +760,7 @@ definition {
 
 			AssertTextEquals(
 				locator1 = "Search#SEARCH_INFO",
-				value1 = "1 Result for &quot;Comment&quot;");
+				value1 = "1 Result for \"Comment\"");
 
 			Blogs.viewEntryTitle(entryTitle = "Blogs Entry Title 2");
 

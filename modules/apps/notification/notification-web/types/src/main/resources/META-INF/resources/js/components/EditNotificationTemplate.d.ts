@@ -15,30 +15,42 @@
 /// <reference types="react" />
 
 import './EditNotificationTemplate.scss';
-export default function EditNotificationTemplate({
-	baseResourceURL,
-	editorConfig,
-	notificationTemplateId,
-	notificationTemplateType,
-}: IProps): JSX.Element;
+declare type editorTypeOptions = 'freemarker' | 'richText';
 interface IProps {
 	baseResourceURL: string;
 	editorConfig: object;
 	notificationTemplateId: number;
 	notificationTemplateType: string;
 }
-export declare type TNotificationTemplate = {
-	attachmentObjectFieldIds: string[] | number[];
+declare type TEmailRecipients = {
 	bcc: string;
-	body: LocalizedValue<string>;
 	cc: string;
-	description: string;
 	from: string;
 	fromName: LocalizedValue<string>;
+	to: LocalizedValue<string>;
+};
+declare type TUserNotificationRecipients = {
+	[key in 'term' | 'userScreenName' | 'roleName']?: string;
+};
+export declare type TNotificationTemplate = {
+	attachmentObjectFieldIds: string[] | number[];
+	body: LocalizedValue<string>;
+	description: string;
+	editorType: editorTypeOptions;
 	name: string;
 	objectDefinitionId: number | null;
+	recipientType: string;
+	recipients:
+		| Partial<TEmailRecipients>[]
+		| Partial<TUserNotificationRecipients>[]
+		| [];
 	subject: LocalizedValue<string>;
-	to: LocalizedValue<string>;
 	type: string;
 };
+export default function EditNotificationTemplate({
+	baseResourceURL,
+	editorConfig,
+	notificationTemplateId,
+	notificationTemplateType,
+}: IProps): JSX.Element;
 export {};

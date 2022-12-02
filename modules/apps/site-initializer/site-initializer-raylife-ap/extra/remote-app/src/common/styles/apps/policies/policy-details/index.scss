@@ -1,0 +1,27 @@
+.policy-details-container {
+	min-width: 270px;
+	overflow-x: hidden;
+}
+
+.policy-summary-container,
+.action-detail-container {
+	min-height: 443px;
+}
+
+.policy-details-container .policy-detail-content {
+	padding: 30px 200px !important;
+}
+
+@media screen and (max-width: 1500px) {
+	.policy-details-container .policy-detail-content {
+		display: flex;
+		flex-wrap: wrap;
+		padding: 30px 50px !important;
+	}
+}
+
+@media screen and (max-width: 576px) {
+	.policy-details-container .policy-detail-content {
+		padding: 30px 20px !important;
+	}
+}

@@ -17,7 +17,7 @@
 <%@ include file="/admin/init.jsp" %>
 
 <%
-KBTemplatesManagementToolbarDisplayContext kbTemplatesManagementToolbarDisplayContext = new KBTemplatesManagementToolbarDisplayContext(request, liferayPortletRequest, liferayPortletResponse);
+ViewKBTemplatesDisplayContext viewKBTemplatesDisplayContext = (ViewKBTemplatesDisplayContext)request.getAttribute(ViewKBTemplatesDisplayContext.class.getName());
 %>
 
 <c:choose>
@@ -31,49 +31,21 @@ KBTemplatesManagementToolbarDisplayContext kbTemplatesManagementToolbarDisplayCo
 	</c:otherwise>
 </c:choose>
 
-<liferay-portlet:actionURL name="/knowledge_base/delete_kb_templates" var="deleteKBTemplatesURL">
-	<portlet:param name="redirect" value="<%= currentURL %>" />
-</liferay-portlet:actionURL>
-
 <clay:management-toolbar
-	actionDropdownItems="<%= kbTemplatesManagementToolbarDisplayContext.getActionDropdownItems() %>"
-	additionalProps='<%=
-		HashMapBuilder.<String, Object>put(
-			"deleteKBTemplatesURL", deleteKBTemplatesURL.toString()
-		).build()
-	%>'
-	clearResultsURL="<%= String.valueOf(kbTemplatesManagementToolbarDisplayContext.getSearchURL()) %>"
-	creationMenu="<%= kbTemplatesManagementToolbarDisplayContext.getCreationMenu() %>"
-	disabled="<%= kbTemplatesManagementToolbarDisplayContext.isDisabled() %>"
-	filterDropdownItems="<%= kbTemplatesManagementToolbarDisplayContext.getFilterDropdownItems() %>"
-	itemsTotal="<%= kbTemplatesManagementToolbarDisplayContext.getTotal() %>"
+	managementToolbarDisplayContext="<%= viewKBTemplatesDisplayContext.getManagementToolbarDisplayContext() %>"
 	propsTransformer="admin/js/TemplatesManagementToolbarPropsTransformer"
-	searchActionURL="<%= String.valueOf(kbTemplatesManagementToolbarDisplayContext.getSearchURL()) %>"
 	searchContainerId="kbTemplates"
-	selectable="<%= true %>"
-	sortingOrder="<%= kbTemplatesManagementToolbarDisplayContext.getOrderByType() %>"
-	sortingURL="<%= String.valueOf(kbTemplatesManagementToolbarDisplayContext.getSortingURL()) %>"
 />
 
 <clay:container-fluid>
-	<liferay-portlet:renderURL varImpl="searchURL">
-		<portlet:param name="mvcPath" value="/admin/view_kb_templates.jsp" />
-	</liferay-portlet:renderURL>
-
-	<aui:form action="<%= searchURL %>" method="get" name="fm">
-		<liferay-portlet:renderURLParams varImpl="searchURL" />
+	<aui:form action="<%= viewKBTemplatesDisplayContext.getSearchURL() %>" method="get" name="fm">
 		<aui:input name="kbTemplateIds" type="hidden" />
 
-		<%
-		SearchContainer<KBTemplate> kbTemplatesManagementToolbarDisplayContextSearchContainer = kbTemplatesManagementToolbarDisplayContext.getSearchContainer();
-		%>
-
 		<c:choose>
-			<c:when test='<%= !GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-156421")) || kbTemplatesManagementToolbarDisplayContextSearchContainer.hasResults() || kbTemplatesManagementToolbarDisplayContextSearchContainer.isSearch() %>'>
+			<c:when test="<%= viewKBTemplatesDisplayContext.hasKBTemplates() %>">
 				<liferay-ui:search-container
 					id="kbTemplates"
-					rowChecker="<%= AdminPermission.contains(permissionChecker, scopeGroupId, KBActionKeys.DELETE_KB_TEMPLATES) ? new RowChecker(renderResponse) : null %>"
-					searchContainer="<%= kbTemplatesManagementToolbarDisplayContextSearchContainer %>"
+					searchContainer="<%= viewKBTemplatesDisplayContext.getSearchContainer() %>"
 				>
 					<liferay-ui:search-container-row
 						className="com.liferay.knowledge.base.model.KBTemplate"
@@ -84,7 +56,7 @@ KBTemplatesManagementToolbarDisplayContext kbTemplatesManagementToolbarDisplayCo
 						<%
 						row.setData(
 							HashMapBuilder.<String, Object>put(
-								"actions", StringUtil.merge(kbTemplatesManagementToolbarDisplayContext.getAvailableActions(kbTemplate))
+								"actions", StringUtil.merge(viewKBTemplatesDisplayContext.getAvailableActions(kbTemplate))
 							).build());
 						%>
 
@@ -96,38 +68,21 @@ KBTemplatesManagementToolbarDisplayContext kbTemplatesManagementToolbarDisplayCo
 						<liferay-ui:search-container-column-text
 							colspan="<%= 2 %>"
 						>
-
-							<%
-							Date modifiedDate = kbTemplate.getModifiedDate();
-
-							String modifiedDateDescription = LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - modifiedDate.getTime(), true);
-							%>
-
-							<span class="text-default">
-							<liferay-ui:message arguments="<%= new String[] {HtmlUtil.escape(kbTemplate.getUserName()), modifiedDateDescription} %>" key="x-modified-x-ago" />
-						</span>
-
-							<liferay-portlet:renderURL var="editURL">
-								<portlet:param name="mvcPath" value="/admin/common/edit_kb_template.jsp" />
-								<portlet:param name="redirect" value="<%= currentURL %>" />
-								<portlet:param name="kbTemplateId" value="<%= String.valueOf(kbTemplate.getKbTemplateId()) %>" />
-							</liferay-portlet:renderURL>
-
 							<h2 class="h5">
-								<aui:a href="<%= editURL.toString() %>">
+								<aui:a href="<%= viewKBTemplatesDisplayContext.getEditKBTemplateURL(kbTemplate) %>">
 									<%= HtmlUtil.escape(kbTemplate.getTitle()) %>
 								</aui:a>
 							</h2>
+
+							<span class="text-default">
+								<liferay-ui:message arguments="<%= new String[] {HtmlUtil.escape(kbTemplate.getUserName()), viewKBTemplatesDisplayContext.getKBTemplateModifiedDateDescription(kbTemplate)} %>" key="x-modified-x-ago" />
+							</span>
 						</liferay-ui:search-container-column-text>
 
 						<liferay-ui:search-container-column-text>
-
-							<%
-							KBDropdownItemsProvider kbDropdownItemsProvider = new KBDropdownItemsProvider(liferayPortletRequest, liferayPortletResponse);
-							%>
-
 							<clay:dropdown-actions
-								dropdownItems="<%= kbDropdownItemsProvider.getKBTemplateDropdownItems(kbTemplate) %>"
+								aria-label='<%= LanguageUtil.get(request, "show-actions") %>'
+								dropdownItems="<%= viewKBTemplatesDisplayContext.getKBTemplateDropdownItems(kbTemplate) %>"
 								propsTransformer="admin/js/KBDropdownPropsTransformer"
 							/>
 						</liferay-ui:search-container-column-text>
@@ -141,7 +96,7 @@ KBTemplatesManagementToolbarDisplayContext kbTemplatesManagementToolbarDisplayCo
 			</c:when>
 			<c:otherwise>
 				<liferay-frontend:empty-result-message
-					actionDropdownItems="<%= kbTemplatesManagementToolbarDisplayContext.getEmptyStateActionDropdownItems() %>"
+					actionDropdownItems="<%= viewKBTemplatesDisplayContext.getEmptyStateActionDropdownItems() %>"
 					animationType="<%= EmptyResultMessageKeys.AnimationType.EMPTY %>"
 					buttonCssClass="secondary"
 					title='<%= LanguageUtil.get(request, "there-are-no-article-templates") %>'

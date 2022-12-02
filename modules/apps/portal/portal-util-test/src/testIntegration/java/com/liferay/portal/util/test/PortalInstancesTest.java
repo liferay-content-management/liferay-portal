@@ -18,6 +18,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -32,12 +33,19 @@ import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TreeMapBuilder;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.util.PropsValues;
+
+import java.util.Locale;
+
+import javax.servlet.http.HttpSession;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -129,6 +137,46 @@ public class PortalInstancesTest {
 			_nondefaultGroupPublicLayout.getLayoutSet());
 	}
 
+	@Test
+	public void testGetI18nLanguageId() throws Exception {
+		Group group = GroupTestUtil.addGroupToCompany(_company.getCompanyId());
+
+		UnicodeProperties typeSettingsUnicodeProperties =
+			group.getTypeSettingsProperties();
+
+		typeSettingsUnicodeProperties.setProperty(PropsKeys.LOCALES, "es_ES");
+		typeSettingsUnicodeProperties.setProperty("languageId", "es_ES");
+
+		group.setTypeSettingsProperties(typeSettingsUnicodeProperties);
+
+		group = _groupLocalService.updateGroup(group);
+
+		String hostname =
+			RandomTestUtil.randomString(6) + "." +
+				RandomTestUtil.randomString(3);
+
+		// Blank virtual host language
+
+		_updateLayoutSetVirtualHostname(
+			StringPool.BLANK, group.getPublicLayoutSet(), hostname);
+
+		_testGetI18NLanguageId(null, hostname, null);
+		_testGetI18NLanguageId(null, hostname, LanguageUtil.getLocale("vi_VN"));
+
+		// Spanish virtual host language
+
+		_updateLayoutSetVirtualHostname(
+			"es_ES", group.getPublicLayoutSet(), hostname);
+
+		_testGetI18NLanguageId("es_ES", hostname, null);
+
+		// Company available locale is still usable
+
+		_testGetI18NLanguageId(
+			LanguageUtil.getLanguageId(_company.getLocale()), hostname,
+			_company.getLocale());
+	}
+
 	private void _testGetCompanyId(
 		String hostname, LayoutSet expectedLayoutSet) {
 
@@ -149,18 +197,48 @@ public class PortalInstancesTest {
 				WebKeys.VIRTUAL_HOST_LAYOUT_SET));
 	}
 
+	private void _testGetI18NLanguageId(
+		String expectedLanguageId, String hostname, Locale locale) {
+
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
+		mockHttpServletRequest.addHeader("Host", hostname);
+		mockHttpServletRequest.setServerName(hostname);
+
+		if (locale != null) {
+			HttpSession httpSession = mockHttpServletRequest.getSession(true);
+
+			httpSession.setAttribute(WebKeys.LOCALE, locale);
+
+			mockHttpServletRequest.setSession(httpSession);
+		}
+
+		Assert.assertEquals(
+			_company.getCompanyId(),
+			PortalInstances.getCompanyId(mockHttpServletRequest));
+		Assert.assertEquals(
+			expectedLanguageId,
+			mockHttpServletRequest.getAttribute(WebKeys.I18N_LANGUAGE_ID));
+	}
+
 	private void _updateLayoutSetVirtualHostname(
 		Layout layout, String layoutHostname) {
 
-		LayoutSet layoutSet = layout.getLayoutSet();
+		_updateLayoutSetVirtualHostname(
+			StringPool.BLANK, layout.getLayoutSet(), layoutHostname);
+
+		layout.setLayoutSet(null);
+	}
+
+	private void _updateLayoutSetVirtualHostname(
+		String languageId, LayoutSet layoutSet, String layoutHostname) {
 
 		_virtualHostLocalService.updateVirtualHosts(
 			_company.getCompanyId(), layoutSet.getLayoutSetId(),
 			TreeMapBuilder.put(
-				layoutHostname, StringPool.BLANK
+				StringUtil.toLowerCase(layoutHostname), languageId
 			).build());
-
-		layout.setLayoutSet(null);
 	}
 
 	private Company _company;

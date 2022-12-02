@@ -247,6 +247,19 @@
 			height: 24px;
 			width: 44px;
 
+			&[aria-disabled='true'] {
+				cursor: not-allowed;
+
+				& ~ .toggle-switch-bar {
+					&::before {
+						box-shadow: none;
+					}
+
+					cursor: not-allowed;
+					opacity: 0.4;
+				}
+			}
+
 			&:checked ~ .toggle-switch-bar:after {
 				left: 24px;
 			}

@@ -58,8 +58,7 @@ public class DownloadFolderPortletConfigurationIcon
 
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)), "download");
+		return _language.get(getLocale(portletRequest), "download");
 	}
 
 	@Override
@@ -119,11 +118,6 @@ public class DownloadFolderPortletConfigurationIcon
 					themeDisplay.getScopeGroupId(), folder.getFolderId(),
 					ActionKeys.VIEW);
 			});
-	}
-
-	@Override
-	public boolean isToolTip() {
-		return false;
 	}
 
 	@Reference(

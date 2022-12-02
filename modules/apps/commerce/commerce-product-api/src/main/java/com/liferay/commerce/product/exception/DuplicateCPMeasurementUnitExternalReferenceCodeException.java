@@ -14,13 +14,13 @@
 
 package com.liferay.commerce.product.exception;
 
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 
 /**
  * @author Marco Leo
  */
 public class DuplicateCPMeasurementUnitExternalReferenceCodeException
-	extends PortalException {
+	extends SystemException {
 
 	public DuplicateCPMeasurementUnitExternalReferenceCodeException() {
 	}

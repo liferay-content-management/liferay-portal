@@ -47,7 +47,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Marco Leo
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"javax.portlet.name=" + CommerceProductAssetCategoriesPortletKeys.ASSET_CATEGORIES_ADMIN,
 		"mvc.command.name=/commerce_product_asset_categories/edit_asset_category_friendly_url"
@@ -118,7 +117,7 @@ public class EditAssetCategoryFriendlyURLMVCActionCommand
 
 				urlTitle = _friendlyURLEntryLocalService.getUniqueUrlTitle(
 					assetCategory.getGroupId(), classNameId,
-					assetCategory.getCategoryId(), urlTitle);
+					assetCategory.getCategoryId(), urlTitle, null);
 
 				newUrlTitleMap.put(LocaleUtil.toLanguageId(locale), urlTitle);
 			}

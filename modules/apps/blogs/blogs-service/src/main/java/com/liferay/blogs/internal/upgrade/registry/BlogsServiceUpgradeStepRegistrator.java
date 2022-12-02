@@ -51,7 +51,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Adolfo Pérez
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(service = UpgradeStepRegistrator.class)
 public class BlogsServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -96,7 +96,7 @@ public class BlogsServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {"BlogsEntry", "BlogsStatsUser"};
 				}
 

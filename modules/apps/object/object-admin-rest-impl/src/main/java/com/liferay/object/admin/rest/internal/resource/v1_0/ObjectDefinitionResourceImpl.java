@@ -14,6 +14,8 @@
 
 package com.liferay.object.admin.rest.internal.resource.v1_0;
 
+import com.liferay.list.type.service.ListTypeDefinitionLocalService;
+import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectAction;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
@@ -40,6 +42,7 @@ import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.exception.ObjectDefinitionStorageTypeException;
 import com.liferay.object.service.ObjectActionLocalService;
 import com.liferay.object.service.ObjectActionService;
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectFieldSettingLocalService;
@@ -48,8 +51,9 @@ import com.liferay.object.service.ObjectLayoutLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.service.ObjectViewLocalService;
 import com.liferay.object.service.ObjectViewService;
+import com.liferay.object.system.JaxRsApplicationDescriptor;
 import com.liferay.object.system.SystemObjectDefinitionMetadata;
-import com.liferay.object.system.SystemObjectDefinitionMetadataTracker;
+import com.liferay.object.system.SystemObjectDefinitionMetadataRegistry;
 import com.liferay.object.util.LocalizedMapUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -60,6 +64,7 @@ import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.language.LanguageResources;
@@ -219,6 +224,8 @@ public class ObjectDefinitionResourceImpl
 			throw new ObjectDefinitionStorageTypeException();
 		}
 
+		_addListTypeDefinition(objectDefinition);
+
 		com.liferay.object.model.ObjectDefinition
 			serviceBuilderObjectDefinition =
 				_objectDefinitionService.addCustomObjectDefinition(
@@ -234,7 +241,8 @@ public class ObjectDefinitionResourceImpl
 					transformToList(
 						objectDefinition.getObjectFields(),
 						objectField -> ObjectFieldUtil.toObjectField(
-							objectField, _objectFieldLocalService,
+							_listTypeDefinitionLocalService, objectField,
+							_objectFieldLocalService,
 							_objectFieldSettingLocalService,
 							_objectFilterLocalService)));
 
@@ -282,7 +290,9 @@ public class ObjectDefinitionResourceImpl
 
 		// TODO Move logic to service
 
-		if (!Validator.isBlank(objectDefinition.getStorageType())) {
+		if (!Validator.isBlank(objectDefinition.getStorageType()) &&
+			!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-135430"))) {
+
 			throw new ObjectDefinitionStorageTypeException();
 		}
 
@@ -290,6 +300,25 @@ public class ObjectDefinitionResourceImpl
 			serviceBuilderObjectDefinition =
 				_objectDefinitionService.getObjectDefinition(
 					objectDefinitionId);
+
+		if (!serviceBuilderObjectDefinition.isApproved()) {
+			_addListTypeDefinition(objectDefinition);
+		}
+
+		long accountEntryRestrictedObjectFieldId = 0;
+
+		com.liferay.object.model.ObjectField
+			accountEntryRestrictedServiceBuilderObjectField =
+				_objectFieldLocalService.fetchObjectField(
+					objectDefinitionId,
+					objectDefinition.
+						getAccountEntryRestrictedObjectFieldName());
+
+		if (accountEntryRestrictedServiceBuilderObjectField != null) {
+			accountEntryRestrictedObjectFieldId =
+				accountEntryRestrictedServiceBuilderObjectField.
+					getObjectFieldId();
+		}
 
 		long titleObjectFieldId = 0;
 
@@ -309,30 +338,19 @@ public class ObjectDefinitionResourceImpl
 					objectDefinitionId, titleObjectFieldId));
 		}
 
-		boolean enableCategorization = true;
-		boolean enableComments = false;
-		boolean enableObjectEntryHistory = false;
-
-		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158672"))) {
-			enableCategorization = objectDefinition.getEnableCategorization();
-			enableComments = objectDefinition.getEnableComments();
-		}
-
-		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-158473"))) {
-			enableObjectEntryHistory =
-				objectDefinition.getEnableObjectEntryHistory();
-		}
-
 		serviceBuilderObjectDefinition =
 			_objectDefinitionService.updateCustomObjectDefinition(
 				objectDefinition.getExternalReferenceCode(), objectDefinitionId,
-				GetterUtil.getLong(
-					objectDefinition.getAccountEntryRestrictedObjectFieldId()),
-				0, titleObjectFieldId,
+				GetterUtil.getLong(accountEntryRestrictedObjectFieldId), 0,
+				titleObjectFieldId,
 				GetterUtil.getBoolean(
 					objectDefinition.getAccountEntryRestricted()),
 				GetterUtil.getBoolean(objectDefinition.getActive(), true),
-				enableCategorization, enableComments, enableObjectEntryHistory,
+				GetterUtil.getBoolean(
+					objectDefinition.getEnableCategorization(), true),
+				GetterUtil.getBoolean(objectDefinition.getEnableComments()),
+				GetterUtil.getBoolean(
+					objectDefinition.getEnableObjectEntryHistory()),
 				LocalizedMapUtil.getLocalizedMap(objectDefinition.getLabel()),
 				objectDefinition.getName(), objectDefinition.getPanelAppOrder(),
 				objectDefinition.getPanelCategoryKey(),
@@ -346,14 +364,18 @@ public class ObjectDefinitionResourceImpl
 				_objectFieldLocalService.getObjectFields(objectDefinitionId));
 
 		for (ObjectField objectField : objectDefinition.getObjectFields()) {
+			long listTypeDefinitionId = ObjectFieldUtil.getListTypeDefinitionId(
+				serviceBuilderObjectDefinition.getCompanyId(),
+				_listTypeDefinitionLocalService, objectField);
+
 			_objectFieldLocalService.updateObjectField(
-				contextUser.getUserId(), objectDefinitionId,
-				GetterUtil.getLong(objectField.getId()),
 				objectField.getExternalReferenceCode(),
-				GetterUtil.getLong(objectField.getListTypeDefinitionId()),
-				objectField.getBusinessTypeAsString(), null, null,
-				objectField.getDBTypeAsString(), objectField.getDefaultValue(),
-				objectField.getIndexed(), objectField.getIndexedAsKeyword(),
+				GetterUtil.getLong(objectField.getId()),
+				contextUser.getUserId(), listTypeDefinitionId,
+				objectDefinitionId, objectField.getBusinessTypeAsString(), null,
+				null, objectField.getDBTypeAsString(),
+				objectField.getDefaultValue(), objectField.getIndexed(),
+				objectField.getIndexedAsKeyword(),
 				objectField.getIndexedLanguageId(),
 				com.liferay.portal.vulcan.util.LocalizedMapUtil.getLocalizedMap(
 					objectField.getLabel()),
@@ -365,7 +387,8 @@ public class ObjectDefinitionResourceImpl
 					objectFieldSetting ->
 						ObjectFieldSettingUtil.toObjectFieldSetting(
 							objectField.getBusinessTypeAsString(),
-							objectFieldSetting, _objectFieldSettingLocalService,
+							listTypeDefinitionId, objectFieldSetting,
+							_objectFieldSettingLocalService,
 							_objectFilterLocalService)));
 
 			serviceBuilderObjectFields.removeIf(
@@ -441,6 +464,26 @@ public class ObjectDefinitionResourceImpl
 		}
 
 		return postObjectDefinition(objectDefinition);
+	}
+
+	private void _addListTypeDefinition(ObjectDefinition objectDefinition)
+		throws Exception {
+
+		if (objectDefinition.getObjectFields() == null) {
+			return;
+		}
+
+		for (ObjectField objectField : objectDefinition.getObjectFields()) {
+			if (StringUtil.equals(
+					objectField.getBusinessTypeAsString(),
+					ObjectFieldConstants.BUSINESS_TYPE_PICKLIST)) {
+
+				ObjectFieldUtil.addListTypeDefinition(
+					contextUser.getCompanyId(), _listTypeDefinitionLocalService,
+					_listTypeEntryLocalService, objectField,
+					contextUser.getUserId());
+			}
+		}
 	}
 
 	private void _addObjectDefinitionResources(
@@ -522,13 +565,17 @@ public class ObjectDefinitionResourceImpl
 
 		if (objectDefinition.isSystem()) {
 			SystemObjectDefinitionMetadata systemObjectDefinitionMetadata =
-				_systemObjectDefinitionMetadataTracker.
+				_systemObjectDefinitionMetadataRegistry.
 					getSystemObjectDefinitionMetadata(
 						objectDefinition.getName());
 
 			if (systemObjectDefinitionMetadata != null) {
+				JaxRsApplicationDescriptor jaxRsApplicationDescriptor =
+					systemObjectDefinitionMetadata.
+						getJaxRsApplicationDescriptor();
+
 				restContextPath =
-					"/o/" + systemObjectDefinitionMetadata.getRESTContextPath();
+					"/o/" + jaxRsApplicationDescriptor.getRESTContextPath();
 			}
 		}
 		else {
@@ -541,8 +588,6 @@ public class ObjectDefinitionResourceImpl
 			{
 				accountEntryRestricted =
 					objectDefinition.isAccountEntryRestricted();
-				accountEntryRestrictedObjectFieldId =
-					objectDefinition.getAccountEntryRestrictedObjectFieldId();
 				actions = HashMapBuilder.put(
 					"delete",
 					() -> {
@@ -594,22 +639,11 @@ public class ObjectDefinitionResourceImpl
 				active = objectDefinition.isActive();
 				dateCreated = objectDefinition.getCreateDate();
 				dateModified = objectDefinition.getModifiedDate();
-
-				if (GetterUtil.getBoolean(
-						PropsUtil.get("feature.flag.LPS-158672"))) {
-
-					enableCategorization =
-						objectDefinition.getEnableCategorization();
-					enableComments = objectDefinition.getEnableComments();
-				}
-
-				if (GetterUtil.getBoolean(
-						PropsUtil.get("feature.flag.LPS-158473"))) {
-
-					enableObjectEntryHistory =
-						objectDefinition.getEnableObjectEntryHistory();
-				}
-
+				enableCategorization =
+					objectDefinition.getEnableCategorization();
+				enableComments = objectDefinition.getEnableComments();
+				enableObjectEntryHistory =
+					objectDefinition.getEnableObjectEntryHistory();
 				externalReferenceCode =
 					objectDefinition.getExternalReferenceCode();
 				id = objectDefinition.getObjectDefinitionId();
@@ -637,7 +671,8 @@ public class ObjectDefinitionResourceImpl
 					_objectLayoutLocalService.getObjectLayouts(
 						objectDefinition.getObjectDefinitionId()),
 					objectLayout -> ObjectLayoutUtil.toObjectLayout(
-						null, _objectFieldLocalService, objectLayout),
+						null, _objectDefinitionLocalService,
+						_objectFieldLocalService, objectLayout),
 					ObjectLayout.class);
 				objectRelationships = transformToArray(
 					_objectRelationshipLocalService.getObjectRelationships(
@@ -666,13 +701,7 @@ public class ObjectDefinitionResourceImpl
 				pluralLabel = LocalizedMapUtil.getLanguageIdMap(
 					objectDefinition.getPluralLabelMap());
 				portlet = objectDefinition.getPortlet();
-
-				if (GetterUtil.getBoolean(
-						PropsUtil.get("feature.flag.LPS-152650"))) {
-
-					restContextPath = finalRESTContextPath;
-				}
-
+				restContextPath = finalRESTContextPath;
 				scope = objectDefinition.getScope();
 				status = new Status() {
 					{
@@ -695,6 +724,20 @@ public class ObjectDefinitionResourceImpl
 
 				system = objectDefinition.isSystem();
 
+				setAccountEntryRestrictedObjectFieldName(
+					() -> {
+						com.liferay.object.model.ObjectField
+							serviceBuilderObjectField =
+								_objectFieldLocalService.fetchObjectField(
+									objectDefinition.
+										getAccountEntryRestrictedObjectFieldId());
+
+						if (serviceBuilderObjectField == null) {
+							return "";
+						}
+
+						return serviceBuilderObjectField.getName();
+					});
 				setTitleObjectFieldName(
 					() -> {
 						com.liferay.object.model.ObjectField
@@ -719,6 +762,12 @@ public class ObjectDefinitionResourceImpl
 	private Language _language;
 
 	@Reference
+	private ListTypeDefinitionLocalService _listTypeDefinitionLocalService;
+
+	@Reference
+	private ListTypeEntryLocalService _listTypeEntryLocalService;
+
+	@Reference
 	private ObjectActionLocalService _objectActionLocalService;
 
 	@Reference
@@ -726,6 +775,9 @@ public class ObjectDefinitionResourceImpl
 
 	@Reference
 	private ObjectActionService _objectActionService;
+
+	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	@Reference
 	private ObjectDefinitionService _objectDefinitionService;
@@ -771,7 +823,7 @@ public class ObjectDefinitionResourceImpl
 	private ObjectViewService _objectViewService;
 
 	@Reference
-	private SystemObjectDefinitionMetadataTracker
-		_systemObjectDefinitionMetadataTracker;
+	private SystemObjectDefinitionMetadataRegistry
+		_systemObjectDefinitionMetadataRegistry;
 
 }

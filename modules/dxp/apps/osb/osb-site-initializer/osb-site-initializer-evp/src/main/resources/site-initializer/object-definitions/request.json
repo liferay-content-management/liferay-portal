@@ -1,6 +1,6 @@
 {
 	"accountEntryRestricted": false,
-	"accountEntryRestrictedObjectFieldId": 0,
+	"accountEntryRestrictedObjectFieldName": "",
 	"actions": {
 		"delete": {
 		},
@@ -11,7 +11,7 @@
 		"update": {
 		}
 	},
-	"active": true,
+	"active": false,
 	"label": {
 		"en_US": "EVP Request"
 	},
@@ -25,7 +25,7 @@
 			"defaultValue": "",
 			"indexed": true,
 			"indexedAsKeyword": false,
-			"indexedLanguageId": "",
+			"indexedLanguageId": "en_US",
 			"label": {
 				"en_US": "Full Name"
 			},
@@ -243,7 +243,7 @@
 			},
 			"listTypeDefinitionId": "[$LIST_TYPE_DEFINITION_ID:Request: Request Status$]",
 			"name": "requestStatus",
-			"required": false,
+			"required": true,
 			"state": true,
 			"type": "String"
 		},
@@ -273,15 +273,15 @@
 	],
 	"objectViews": [
 	],
-	"panelCategoryKey": "",
+	"panelCategoryKey": "control_panel.object",
 	"parameterRequired": false,
 	"pluralLabel": {
-		"en_US": "EVP Requests"
+		"en_US": "EVP Request"
 	},
 	"portlet": false,
 	"scope": "company",
 	"status": {
-		"code": 0,
+		"code": 2,
 		"label": "approved",
 		"label_i18n": "Approved"
 	},

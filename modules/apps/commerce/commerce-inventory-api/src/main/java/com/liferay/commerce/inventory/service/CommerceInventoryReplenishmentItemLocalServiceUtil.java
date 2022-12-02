@@ -265,33 +265,13 @@ public class CommerceInventoryReplenishmentItemLocalServiceUtil {
 			companyId, sku, orderByComparator);
 	}
 
-	/**
-	 * Returns the commerce inventory replenishment item with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the commerce inventory replenishment item's external reference code
-	 * @return the matching commerce inventory replenishment item, or <code>null</code> if a matching commerce inventory replenishment item could not be found
-	 */
 	public static CommerceInventoryReplenishmentItem
 		fetchCommerceInventoryReplenishmentItemByExternalReferenceCode(
-			long companyId, String externalReferenceCode) {
+			String externalReferenceCode, long companyId) {
 
 		return getService().
 			fetchCommerceInventoryReplenishmentItemByExternalReferenceCode(
-				companyId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchCommerceInventoryReplenishmentItemByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	public static CommerceInventoryReplenishmentItem
-		fetchCommerceInventoryReplenishmentItemByReferenceCode(
-			long companyId, String externalReferenceCode) {
-
-		return getService().
-			fetchCommerceInventoryReplenishmentItemByReferenceCode(
-				companyId, externalReferenceCode);
+				externalReferenceCode, companyId);
 	}
 
 	/**
@@ -332,22 +312,14 @@ public class CommerceInventoryReplenishmentItemLocalServiceUtil {
 			commerceInventoryReplenishmentItemId);
 	}
 
-	/**
-	 * Returns the commerce inventory replenishment item with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the commerce inventory replenishment item's external reference code
-	 * @return the matching commerce inventory replenishment item
-	 * @throws PortalException if a matching commerce inventory replenishment item could not be found
-	 */
 	public static CommerceInventoryReplenishmentItem
 			getCommerceInventoryReplenishmentItemByExternalReferenceCode(
-				long companyId, String externalReferenceCode)
+				String externalReferenceCode, long companyId)
 		throws PortalException {
 
 		return getService().
 			getCommerceInventoryReplenishmentItemByExternalReferenceCode(
-				companyId, externalReferenceCode);
+				externalReferenceCode, companyId);
 	}
 
 	/**

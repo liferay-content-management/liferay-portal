@@ -72,7 +72,7 @@ public class DefinitionLocalServiceImpl extends DefinitionLocalServiceBaseImpl {
 		User user = _userLocalService.getUser(userId);
 		Date date = new Date();
 
-		validate(nameMap);
+		_validate(nameMap);
 
 		long definitionId = counterLocalService.increment();
 
@@ -101,7 +101,7 @@ public class DefinitionLocalServiceImpl extends DefinitionLocalServiceBaseImpl {
 		// Attachments
 
 		if (Validator.isNotNull(fileName) && (inputStream != null)) {
-			addDefinitionFile(
+			_addDefinitionFile(
 				user.getCompanyId(), definition, fileName, inputStream);
 		}
 		else {
@@ -198,7 +198,7 @@ public class DefinitionLocalServiceImpl extends DefinitionLocalServiceBaseImpl {
 		Definition definition = definitionPersistence.findByPrimaryKey(
 			definitionId);
 
-		validate(nameMap);
+		_validate(nameMap);
 
 		definition.setModifiedDate(serviceContext.getModifiedDate(null));
 		definition.setNameMap(nameMap);
@@ -240,7 +240,7 @@ public class DefinitionLocalServiceImpl extends DefinitionLocalServiceBaseImpl {
 				companyId, CompanyConstants.SYSTEM,
 				definition.getAttachmentsDir());
 
-			addDefinitionFile(companyId, definition, fileName, inputStream);
+			_addDefinitionFile(companyId, definition, fileName, inputStream);
 		}
 
 		return definition;
@@ -258,7 +258,7 @@ public class DefinitionLocalServiceImpl extends DefinitionLocalServiceBaseImpl {
 			communityPermissions, guestPermissions);
 	}
 
-	protected void addDefinitionFile(
+	private void _addDefinitionFile(
 			long companyId, Definition definition, String fileName,
 			InputStream inputStream)
 		throws PortalException {
@@ -277,9 +277,7 @@ public class DefinitionLocalServiceImpl extends DefinitionLocalServiceBaseImpl {
 			inputStream);
 	}
 
-	protected void validate(Map<Locale, String> nameMap)
-		throws PortalException {
-
+	private void _validate(Map<Locale, String> nameMap) throws PortalException {
 		Locale locale = LocaleUtil.getDefault();
 
 		String name = nameMap.get(locale);

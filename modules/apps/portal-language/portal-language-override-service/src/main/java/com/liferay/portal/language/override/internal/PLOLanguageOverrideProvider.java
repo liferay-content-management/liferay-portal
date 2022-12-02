@@ -16,9 +16,9 @@ package com.liferay.portal.language.override.internal;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.language.LanguageOverrideProvider;
 import com.liferay.portal.language.override.internal.provider.PLOOriginalTranslationThreadLocal;
 import com.liferay.portal.language.override.model.PLOEntry;
@@ -77,12 +77,14 @@ public class PLOLanguageOverrideProvider implements LanguageOverrideProvider {
 	protected void activate() {
 		_ploEntriesMap = new ConcurrentHashMap<>();
 
-		for (PLOEntry ploEntry :
-				_ploEntryLocalService.getPLOEntries(
-					QueryUtil.ALL_POS, QueryUtil.ALL_POS)) {
+		_companyLocalService.forEachCompanyId(
+			companyId -> {
+				for (PLOEntry ploEntry :
+						_ploEntryLocalService.getPLOEntries(companyId)) {
 
-			add(ploEntry);
-		}
+					add(ploEntry);
+				}
+			});
 	}
 
 	protected void add(PLOEntry ploEntry) {
@@ -137,6 +139,9 @@ public class PLOLanguageOverrideProvider implements LanguageOverrideProvider {
 
 		return overrideMap;
 	}
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private Language _language;

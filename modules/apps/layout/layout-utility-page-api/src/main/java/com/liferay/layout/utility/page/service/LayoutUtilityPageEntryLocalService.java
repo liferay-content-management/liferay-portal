@@ -27,12 +27,15 @@ import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.PersistedModel;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
 import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -86,7 +89,12 @@ public interface LayoutUtilityPageEntryLocalService
 
 	public LayoutUtilityPageEntry addLayoutUtilityPageEntry(
 			String externalReferenceCode, long userId, long groupId,
-			String name, int type, long masterLayoutPlid)
+			String name, String type, long masterLayoutPlid)
+		throws PortalException;
+
+	public LayoutUtilityPageEntry copyLayoutUtilityPageEntry(
+			long userId, long groupId, long layoutUtilityPageEntryId,
+			ServiceContext serviceContext)
 		throws PortalException;
 
 	/**
@@ -114,10 +122,13 @@ public interface LayoutUtilityPageEntryLocalService
 	 *
 	 * @param layoutUtilityPageEntry the layout utility page entry
 	 * @return the layout utility page entry that was removed
+	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public LayoutUtilityPageEntry deleteLayoutUtilityPageEntry(
-		LayoutUtilityPageEntry layoutUtilityPageEntry);
+			LayoutUtilityPageEntry layoutUtilityPageEntry)
+		throws PortalException;
 
 	/**
 	 * Deletes the layout utility page entry with the primary key from the database. Also notifies the appropriate model listeners.
@@ -216,31 +227,16 @@ public interface LayoutUtilityPageEntryLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public LayoutUtilityPageEntry fetchDefaultLayoutUtilityPageEntry(
-		long groupId, int type);
+		long groupId, String type);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public LayoutUtilityPageEntry fetchLayoutUtilityPageEntry(
 		long LayoutUtilityPageEntryId);
 
-	/**
-	 * Returns the layout utility page entry with the matching external reference code and group.
-	 *
-	 * @param groupId the primary key of the group
-	 * @param externalReferenceCode the layout utility page entry's external reference code
-	 * @return the matching layout utility page entry, or <code>null</code> if a matching layout utility page entry could not be found
-	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public LayoutUtilityPageEntry
 		fetchLayoutUtilityPageEntryByExternalReferenceCode(
-			long groupId, String externalReferenceCode);
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchLayoutUtilityPageEntryByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public LayoutUtilityPageEntry fetchLayoutUtilityPageEntryByReferenceCode(
-		long groupId, String externalReferenceCode);
+			String externalReferenceCode, long groupId);
 
 	/**
 	 * Returns the layout utility page entry matching the UUID and group.
@@ -258,7 +254,7 @@ public interface LayoutUtilityPageEntryLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public LayoutUtilityPageEntry getDefaultLayoutUtilityPageEntry(
-			long groupId, int type)
+			long groupId, String type)
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -289,12 +285,12 @@ public interface LayoutUtilityPageEntryLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<LayoutUtilityPageEntry> getLayoutUtilityPageEntries(
-		long groupId, int type, int start, int end,
+		long groupId, int start, int end,
 		OrderByComparator<LayoutUtilityPageEntry> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<LayoutUtilityPageEntry> getLayoutUtilityPageEntries(
-		long groupId, int start, int end,
+		long groupId, String type, int start, int end,
 		OrderByComparator<LayoutUtilityPageEntry> orderByComparator);
 
 	/**
@@ -348,18 +344,10 @@ public interface LayoutUtilityPageEntryLocalService
 			long LayoutUtilityPageEntryId)
 		throws PortalException;
 
-	/**
-	 * Returns the layout utility page entry with the matching external reference code and group.
-	 *
-	 * @param groupId the primary key of the group
-	 * @param externalReferenceCode the layout utility page entry's external reference code
-	 * @return the matching layout utility page entry
-	 * @throws PortalException if a matching layout utility page entry could not be found
-	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public LayoutUtilityPageEntry
 			getLayoutUtilityPageEntryByExternalReferenceCode(
-				long groupId, String externalReferenceCode)
+				String externalReferenceCode, long groupId)
 		throws PortalException;
 
 	/**
@@ -407,6 +395,9 @@ public interface LayoutUtilityPageEntryLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public LayoutUtilityPageEntry updateLayoutUtilityPageEntry(
 		LayoutUtilityPageEntry layoutUtilityPageEntry);
+
+	public LayoutUtilityPageEntry updateLayoutUtilityPageEntry(
+		long layoutUtilityPageEntryId, long previewFileEntryId);
 
 	public LayoutUtilityPageEntry updateLayoutUtilityPageEntry(
 			long layoutUtilityPageEntryId, String name)

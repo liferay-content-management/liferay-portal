@@ -38,91 +38,93 @@ boolean override = BeanParamUtil.getBoolean(cpDefinitionVirtualSetting, request,
 	<aui:input name="sampleFileEntryId" type="hidden" value="<%= (cpDefinitionVirtualSetting == null) ? StringPool.BLANK : cpDefinitionVirtualSetting.getSampleFileEntryId() %>" />
 	<aui:input name="termsOfUseJournalArticleResourcePrimKey" type="hidden" value="<%= (cpDefinitionVirtualSetting == null) ? StringPool.BLANK : cpDefinitionVirtualSetting.getTermsOfUseJournalArticleResourcePrimKey() %>" />
 
-	<aui:fieldset-group markupView="lexicon">
-		<aui:fieldset>
-			<aui:input checked="<%= override %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="override" type="toggle-switch" value="<%= override %>" />
-		</aui:fieldset>
-
-		<div id="<portlet:namespace />cpDefinitionVirtualSettingContainer">
-			<aui:fieldset collapsible="<%= true %>" label="details">
-
-				<%
-				FileEntry fileEntry = cpDefinitionVirtualSettingDisplayContext.getFileEntry();
-
-				long fileEntryId = BeanParamUtil.getLong(cpDefinitionVirtualSetting, request, "fileEntryId");
-
-				String textCssClass = "text-default ";
-
-				boolean useFileEntry = false;
-
-				if (fileEntryId > 0) {
-					textCssClass += "hide";
-
-					useFileEntry = true;
-				}
-				%>
-
-				<%@ include file="/details.jspf" %>
+	<div class="sheet">
+		<div class="panel-group panel-group-flush">
+			<aui:fieldset>
+				<aui:input checked="<%= override %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="override" type="toggle-switch" value="<%= override %>" />
 			</aui:fieldset>
 
-			<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="base-information">
+			<div id="<portlet:namespace />cpDefinitionVirtualSettingContainer">
+				<aui:fieldset collapsible="<%= true %>" label="details">
 
-				<%
-				boolean durationDisabled = true;
+					<%
+					FileEntry fileEntry = cpDefinitionVirtualSettingDisplayContext.getFileEntry();
 
-				if (cpInstance.getCPSubscriptionInfo() == null) {
-					durationDisabled = false;
-				}
+					long fileEntryId = BeanParamUtil.getLong(cpDefinitionVirtualSetting, request, "fileEntryId");
 
-				long durationDays = 0;
+					String textCssClass = "text-default ";
 
-				if ((cpDefinitionVirtualSetting != null) && (cpDefinitionVirtualSetting.getDuration() > 0)) {
-					durationDays = cpDefinitionVirtualSetting.getDuration() / Time.DAY;
-				}
-				%>
+					boolean useFileEntry = false;
 
-				<%@ include file="/base_information.jspf" %>
-			</aui:fieldset>
+					if (fileEntryId > 0) {
+						textCssClass += "hide";
 
-			<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="sample">
+						useFileEntry = true;
+					}
+					%>
 
-				<%
-				FileEntry sampleFileEntry = cpDefinitionVirtualSettingDisplayContext.getSampleFileEntry();
+					<%@ include file="/details.jspf" %>
+				</aui:fieldset>
 
-				long sampleFileEntryId = BeanParamUtil.getLong(cpDefinitionVirtualSetting, request, "sampleFileEntryId");
+				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="base-information">
 
-				String textCssClass = "text-default ";
+					<%
+					boolean durationDisabled = true;
 
-				boolean useSampleFileEntry = false;
+					if (cpInstance.getCPSubscriptionInfo() == null) {
+						durationDisabled = false;
+					}
 
-				if (sampleFileEntryId > 0) {
-					textCssClass += "hide";
+					long durationDays = 0;
 
-					useSampleFileEntry = true;
-				}
-				%>
+					if ((cpDefinitionVirtualSetting != null) && (cpDefinitionVirtualSetting.getDuration() > 0)) {
+						durationDays = cpDefinitionVirtualSetting.getDuration() / Time.DAY;
+					}
+					%>
 
-				<%@ include file="/sample.jspf" %>
-			</aui:fieldset>
+					<%@ include file="/base_information.jspf" %>
+				</aui:fieldset>
 
-			<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="terms-of-use">
+				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="sample">
 
-				<%
-				JournalArticle journalArticle = cpDefinitionVirtualSettingDisplayContext.getJournalArticle();
+					<%
+					FileEntry sampleFileEntry = cpDefinitionVirtualSettingDisplayContext.getSampleFileEntry();
 
-				long termsOfUseJournalArticleResourcePrimKey = BeanParamUtil.getLong(cpDefinitionVirtualSetting, request, "termsOfUseJournalArticleResourcePrimKey");
+					long sampleFileEntryId = BeanParamUtil.getLong(cpDefinitionVirtualSetting, request, "sampleFileEntryId");
 
-				boolean useTermsOfUseJournal = false;
+					String textCssClass = "text-default ";
 
-				if (termsOfUseJournalArticleResourcePrimKey > 0) {
-					useTermsOfUseJournal = true;
-				}
-				%>
+					boolean useSampleFileEntry = false;
 
-				<%@ include file="/terms_of_use.jspf" %>
-			</aui:fieldset>
+					if (sampleFileEntryId > 0) {
+						textCssClass += "hide";
+
+						useSampleFileEntry = true;
+					}
+					%>
+
+					<%@ include file="/sample.jspf" %>
+				</aui:fieldset>
+
+				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="terms-of-use">
+
+					<%
+					JournalArticle journalArticle = cpDefinitionVirtualSettingDisplayContext.getJournalArticle();
+
+					long termsOfUseJournalArticleResourcePrimKey = BeanParamUtil.getLong(cpDefinitionVirtualSetting, request, "termsOfUseJournalArticleResourcePrimKey");
+
+					boolean useTermsOfUseJournal = false;
+
+					if (termsOfUseJournalArticleResourcePrimKey > 0) {
+						useTermsOfUseJournal = true;
+					}
+					%>
+
+					<%@ include file="/terms_of_use.jspf" %>
+				</aui:fieldset>
+			</div>
 		</div>
-	</aui:fieldset-group>
+	</div>
 
 	<aui:button-row>
 		<aui:button cssClass="btn-lg" type="submit" />

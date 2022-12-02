@@ -18,7 +18,11 @@ import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import ClaySticker from '@clayui/sticker';
 import classnames from 'classnames';
-import {DRAG_TYPES} from 'data-engine-js-components-web';
+import {
+	DRAG_TYPES,
+	useSetKeyboardDNDSourceItem,
+} from 'data-engine-js-components-web';
+import {sub} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 import {useDrag} from 'react-dnd';
 import {getEmptyImage} from 'react-dnd-html5-backend';
@@ -56,6 +60,8 @@ const FieldType = (props) => {
 		onDoubleClick,
 	} = props;
 
+	const setKeyboardDNDSourceItem = useSetKeyboardDNDSourceItem();
+
 	const [{dragging}, drag, preview] = useDrag({
 		canDrag: (_) => !disabled && draggable,
 		collect: (monitor) => ({
@@ -84,6 +90,17 @@ const FieldType = (props) => {
 		onDoubleClick?.({...props});
 	};
 
+	const handleOnKeyDown = (event) => {
+		if (event.key === ' ' || event.key === 'Enter') {
+			event.preventDefault();
+
+			setKeyboardDNDSourceItem({
+				dragType: 'add',
+				fieldType: props,
+			});
+		}
+	};
+
 	const [loading, setLoading] = useState(false);
 
 	const fieldIcon = ICONS[icon] ? ICONS[icon] : icon;
@@ -97,15 +114,27 @@ const FieldType = (props) => {
 				loading,
 			})}
 			data-field-type-name={name}
-			onClick={onClick && handleOnClick}
-			onDoubleClick={handleOnDoubleClick}
-			ref={drag}
+			onClick={!disabled && onClick ? handleOnClick : null}
+			onDoubleClick={disabled ? null : handleOnDoubleClick}
+			ref={disabled ? null : drag}
+			role="button"
 			title={label}
 			verticalAlign="center"
 		>
 			{draggable && dragAlignment === 'left' && (
 				<ClayLayout.ContentCol className="pl-2 pr-2">
-					<ClayIcon symbol="drag" />
+					<ClayButtonWithIcon
+						aria-label={sub(
+							Liferay.Language.get('press-enter-to-add-x-field'),
+							[label]
+						)}
+						disabled={disabled}
+						displayType="unstyled"
+						onKeyDown={disabled ? null : handleOnKeyDown}
+						role="application"
+						size="xs"
+						symbol="drag"
+					/>
 				</ClayLayout.ContentCol>
 			)}
 

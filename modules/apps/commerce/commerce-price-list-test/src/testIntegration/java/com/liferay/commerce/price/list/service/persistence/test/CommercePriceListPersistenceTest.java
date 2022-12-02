@@ -15,6 +15,7 @@
 package com.liferay.commerce.price.list.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.commerce.price.list.exception.DuplicateCommercePriceListExternalReferenceCodeException;
 import com.liferay.commerce.price.list.exception.NoSuchPriceListException;
 import com.liferay.commerce.price.list.model.CommercePriceList;
 import com.liferay.commerce.price.list.service.CommercePriceListLocalServiceUtil;
@@ -262,6 +263,28 @@ public class CommercePriceListPersistenceTest {
 			Time.getShortTimestamp(newCommercePriceList.getStatusDate()));
 	}
 
+	@Test(
+		expected = DuplicateCommercePriceListExternalReferenceCodeException.class
+	)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		CommercePriceList commercePriceList = addCommercePriceList();
+
+		CommercePriceList newCommercePriceList = addCommercePriceList();
+
+		newCommercePriceList.setCompanyId(commercePriceList.getCompanyId());
+
+		newCommercePriceList = _persistence.update(newCommercePriceList);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newCommercePriceList);
+
+		newCommercePriceList.setExternalReferenceCode(
+			commercePriceList.getExternalReferenceCode());
+
+		_persistence.update(newCommercePriceList);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -425,12 +448,12 @@ public class CommercePriceListPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -788,15 +811,15 @@ public class CommercePriceListPersistenceTest {
 				new Class<?>[] {String.class}, "type_"));
 
 		Assert.assertEquals(
-			Long.valueOf(commercePriceList.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				commercePriceList, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			commercePriceList.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				commercePriceList, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(commercePriceList.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				commercePriceList, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected CommercePriceList addCommercePriceList() throws Exception {

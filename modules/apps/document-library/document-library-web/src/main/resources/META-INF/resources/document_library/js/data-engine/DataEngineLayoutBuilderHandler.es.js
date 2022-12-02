@@ -35,6 +35,7 @@ export default function DataEngineLayoutBuilderHandler({namespace}) {
 		if (
 			isElementInnerSelector(
 				target,
+				'.cke_dialog',
 				'.clay-color-dropdown-menu',
 				'.date-picker-dropdown-menu',
 				'.ddm-form-builder-wrapper',

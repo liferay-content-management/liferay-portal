@@ -809,8 +809,8 @@ public class AssetCategoryLocalServiceImpl
 			return;
 		}
 
-		AssetCategory assetCategory = assetCategoryPersistence.fetchByG_ERC(
-			groupId, externalReferenceCode);
+		AssetCategory assetCategory = assetCategoryPersistence.fetchByERC_G(
+			externalReferenceCode, groupId);
 
 		if (assetCategory != null) {
 			throw new DuplicateCategoryExternalReferenceCodeException(

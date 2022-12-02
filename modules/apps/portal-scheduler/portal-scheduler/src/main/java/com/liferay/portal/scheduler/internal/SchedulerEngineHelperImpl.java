@@ -51,7 +51,6 @@ import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.InetAddressUtil;
-import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -98,7 +97,7 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 	@Override
 	public void addScriptingJob(
 			Trigger trigger, StorageType storageType, String description,
-			String language, String script, int exceptionsMaxSize)
+			String language, String script)
 		throws SchedulerException {
 
 		Message message = new Message();
@@ -108,7 +107,7 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 
 		schedule(
 			trigger, storageType, description,
-			DestinationNames.SCHEDULER_SCRIPTING, message, exceptionsMaxSize);
+			DestinationNames.SCHEDULER_SCRIPTING, message);
 	}
 
 	@Override
@@ -370,32 +369,6 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 	}
 
 	@Override
-	public ObjectValuePair<Exception, Date>[] getJobExceptions(
-		SchedulerResponse schedulerResponse) {
-
-		Message message = schedulerResponse.getMessage();
-
-		JobState jobState = (JobState)message.get(SchedulerEngine.JOB_STATE);
-
-		return jobState.getExceptions();
-	}
-
-	@Override
-	public ObjectValuePair<Exception, Date>[] getJobExceptions(
-			String jobName, String groupName, StorageType storageType)
-		throws SchedulerException {
-
-		SchedulerResponse schedulerResponse = getScheduledJob(
-			jobName, groupName, storageType);
-
-		if (schedulerResponse != null) {
-			return getJobExceptions(schedulerResponse);
-		}
-
-		return null;
-	}
-
-	@Override
 	public TriggerState getJobState(SchedulerResponse schedulerResponse) {
 		Message message = schedulerResponse.getMessage();
 
@@ -572,24 +545,6 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 
 		Class<?> messageListenerClass = messageListener.getClass();
 
-		ServiceRegistration<SchedulerEventMessageListener> serviceRegistration =
-			_serviceRegistrations.get(messageListenerClass.getName());
-
-		if (serviceRegistration != null) {
-			SchedulerEventMessageListenerWrapper
-				schedulerEventMessageListenerWrapper =
-					(SchedulerEventMessageListenerWrapper)
-						_bundleContext.getService(
-							serviceRegistration.getReference());
-
-			schedulerEventMessageListenerWrapper.setSchedulerEntry(
-				schedulerEntry);
-
-			serviceRegistration.setProperties(properties);
-
-			return;
-		}
-
 		SchedulerEventMessageListenerWrapper
 			schedulerEventMessageListenerWrapper =
 				new SchedulerEventMessageListenerWrapper();
@@ -599,9 +554,10 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 
 		schedulerEventMessageListenerWrapper.setSchedulerEntry(schedulerEntry);
 
-		serviceRegistration = _bundleContext.registerService(
-			SchedulerEventMessageListener.class,
-			schedulerEventMessageListenerWrapper, properties);
+		ServiceRegistration<SchedulerEventMessageListener> serviceRegistration =
+			_bundleContext.registerService(
+				SchedulerEventMessageListener.class,
+				schedulerEventMessageListenerWrapper, properties);
 
 		_serviceRegistrations.put(
 			messageListenerClass.getName(), serviceRegistration);
@@ -625,7 +581,7 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 	@Override
 	public void schedule(
 			Trigger trigger, StorageType storageType, String description,
-			String destinationName, Message message, int exceptionsMaxSize)
+			String destinationName, Message message)
 		throws SchedulerException {
 
 		_schedulerEngine.validateTrigger(trigger, storageType);
@@ -634,8 +590,6 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 			message = new Message();
 		}
 
-		message.put(SchedulerEngine.EXCEPTIONS_MAX_SIZE, exceptionsMaxSize);
-
 		_schedulerEngine.schedule(
 			trigger, description, destinationName, message, storageType);
 	}
@@ -643,16 +597,14 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 	@Override
 	public void schedule(
 			Trigger trigger, StorageType storageType, String description,
-			String destinationName, Object payload, int exceptionsMaxSize)
+			String destinationName, Object payload)
 		throws SchedulerException {
 
 		Message message = new Message();
 
 		message.setPayload(payload);
 
-		schedule(
-			trigger, storageType, description, destinationName, message,
-			exceptionsMaxSize);
+		schedule(trigger, storageType, description, destinationName, message);
 	}
 
 	@Override
@@ -666,24 +618,15 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 	}
 
 	@Override
-	public void suppressError(
-			String jobName, String groupName, StorageType storageType)
-		throws SchedulerException {
-
-		_schedulerEngine.suppressError(jobName, groupName, storageType);
-	}
-
-	@Override
 	public void unregister(MessageListener messageListener) {
 		Class<?> messageListenerClass = messageListener.getClass();
 
-		_serviceRegistrations.compute(
-			messageListenerClass.getName(),
-			(key, value) -> {
-				value.unregister();
+		ServiceRegistration<?> serviceRegistration =
+			_serviceRegistrations.remove(messageListenerClass.getName());
 
-				return null;
-			});
+		if (serviceRegistration != null) {
+			serviceRegistration.unregister();
+		}
 	}
 
 	@Override
@@ -714,8 +657,7 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 	@Override
 	public void update(
 			String jobName, String groupName, StorageType storageType,
-			String description, String language, String script,
-			int exceptionsMaxSize)
+			String description, String language, String script)
 		throws SchedulerException {
 
 		SchedulerResponse schedulerResponse = getScheduledJob(
@@ -737,9 +679,7 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 			return;
 		}
 
-		addScriptingJob(
-			trigger, storageType, description, language, script,
-			exceptionsMaxSize);
+		addScriptingJob(trigger, storageType, description, language, script);
 	}
 
 	@Override
@@ -778,9 +718,7 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 		scriptingDestination.register(schedulerEventMessageListenerWrapper);
 
 		_serviceTracker = ServiceTrackerFactory.open(
-			_bundleContext,
-			"(objectClass=" + SchedulerEventMessageListener.class.getName() +
-				")",
+			_bundleContext, SchedulerEventMessageListener.class,
 			new SchedulerEventMessageListenerServiceTrackerCustomizer());
 
 		DependencyManagerSyncUtil.registerSyncCallable(
@@ -884,11 +822,6 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 	@Reference
 	private DestinationFactory _destinationFactory;
 
-	@Reference(
-		target = "(&(destination.name=" + DestinationNames.SCHEDULER_ENGINE + ")(destination.ready=true))"
-	)
-	private Object _destinationReady;
-
 	private final Set<ServiceRegistration<Destination>>
 		_destinationServiceRegistrations = new HashSet<>();
 
@@ -962,39 +895,15 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 			try {
 				schedule(
 					schedulerEntry.getTrigger(), storageType,
-					schedulerEntry.getDescription(), destinationName, null, 0);
-
-				ServiceRegistration<MessageListener> serviceRegistration =
-					_messageListenerServiceRegistrations.get(
-						schedulerEntry.getEventListenerClass());
-
-				if (serviceRegistration != null) {
-					ServiceReference<MessageListener> oldServiceReference =
-						serviceRegistration.getReference();
-
-					MessageListener messageListener = bundleContext.getService(
-						oldServiceReference);
-
-					SchedulerEventMessageListenerWrapper
-						schedulerEventMessageListenerWrapper =
-							(SchedulerEventMessageListenerWrapper)
-								messageListener;
-
-					schedulerEventMessageListenerWrapper.setSchedulerEntry(
-						schedulerEntry);
-
-					return null;
-				}
-
-				serviceRegistration = bundleContext.registerService(
-					MessageListener.class, schedulerEventMessageListener,
-					HashMapDictionaryBuilder.<String, Object>put(
-						"destination.name", destinationName
-					).build());
+					schedulerEntry.getDescription(), destinationName, null);
 
 				_messageListenerServiceRegistrations.put(
 					schedulerEntry.getEventListenerClass(),
-					serviceRegistration);
+					bundleContext.registerService(
+						MessageListener.class, schedulerEventMessageListener,
+						HashMapDictionaryBuilder.<String, Object>put(
+							"destination.name", destinationName
+						).build()));
 
 				return schedulerEventMessageListener;
 			}
@@ -1013,38 +922,6 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 		public void modifiedService(
 			ServiceReference<SchedulerEventMessageListener> serviceReference,
 			SchedulerEventMessageListener schedulerEventMessageListener) {
-
-			SchedulerEntry schedulerEntry =
-				schedulerEventMessageListener.getSchedulerEntry();
-
-			if ((schedulerEntry == null) ||
-				(schedulerEntry.getTrigger() == null)) {
-
-				return;
-			}
-
-			StorageType storageType = StorageType.MEMORY_CLUSTERED;
-
-			if (schedulerEntry instanceof StorageTypeAware) {
-				StorageTypeAware storageTypeAware =
-					(StorageTypeAware)schedulerEntry;
-
-				storageType = storageTypeAware.getStorageType();
-			}
-
-			ClusterableContextThreadLocal.putThreadLocalContext(
-				SchedulerEngine.SCHEDULER_CLUSTER_INVOKING, false);
-
-			try {
-				update(schedulerEntry.getTrigger(), storageType);
-			}
-			catch (SchedulerException schedulerException) {
-				_log.error(schedulerException);
-			}
-			finally {
-				ClusterableContextThreadLocal.putThreadLocalContext(
-					SchedulerEngine.SCHEDULER_CLUSTER_INVOKING, true);
-			}
 		}
 
 		@Override
@@ -1060,10 +937,6 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 
 			SchedulerEntry schedulerEntry =
 				schedulerEntryMessageListener.getSchedulerEntry();
-
-			if (schedulerEntry == null) {
-				return;
-			}
 
 			StorageType storageType = StorageType.MEMORY_CLUSTERED;
 

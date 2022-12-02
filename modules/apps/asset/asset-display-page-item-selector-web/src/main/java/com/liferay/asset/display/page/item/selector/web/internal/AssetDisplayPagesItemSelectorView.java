@@ -15,26 +15,22 @@
 package com.liferay.asset.display.page.item.selector.web.internal;
 
 import com.liferay.asset.display.page.item.selector.criterion.AssetDisplayPageSelectorCriterion;
-import com.liferay.asset.display.page.item.selector.web.internal.constants.AssetDisplayPageItemSelectorWebKeys;
 import com.liferay.asset.display.page.item.selector.web.internal.display.context.AssetDisplayPagesItemSelectorViewDisplayContext;
-import com.liferay.info.constants.InfoDisplayWebKeys;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.asset.display.page.item.selector.web.internal.item.selector.AssetDisplayPageItemSelectorViewDescriptor;
 import com.liferay.item.selector.ItemSelectorReturnType;
 import com.liferay.item.selector.ItemSelectorView;
+import com.liferay.item.selector.ItemSelectorViewDescriptorRenderer;
 import com.liferay.item.selector.criteria.UUIDItemSelectorReturnType;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.language.Language;
 
 import java.io.IOException;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.portlet.PortletURL;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -46,7 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Jürgen Kappler
  */
-@Component(immediate = true, service = ItemSelectorView.class)
+@Component(service = ItemSelectorView.class)
 public class AssetDisplayPagesItemSelectorView
 	implements ItemSelectorView<AssetDisplayPageSelectorCriterion> {
 
@@ -64,11 +60,7 @@ public class AssetDisplayPagesItemSelectorView
 
 	@Override
 	public String getTitle(Locale locale) {
-		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
-			locale, AssetDisplayPagesItemSelectorView.class);
-
-		return ResourceBundleUtil.getString(
-			resourceBundle, "display-page-templates");
+		return _language.get(locale, "display-page-templates");
 	}
 
 	@Override
@@ -78,30 +70,13 @@ public class AssetDisplayPagesItemSelectorView
 			PortletURL portletURL, String itemSelectedEventName, boolean search)
 		throws IOException, ServletException {
 
-		HttpServletRequest httpServletRequest =
-			(HttpServletRequest)servletRequest;
-
-		AssetDisplayPagesItemSelectorViewDisplayContext
-			assetDisplayPagesItemSelectorViewDisplayContext =
+		_itemSelectorViewDescriptorRenderer.renderHTML(
+			servletRequest, servletResponse, assetDisplayPageSelectorCriterion,
+			portletURL, itemSelectedEventName, search,
+			new AssetDisplayPageItemSelectorViewDescriptor(
 				new AssetDisplayPagesItemSelectorViewDisplayContext(
-					httpServletRequest, assetDisplayPageSelectorCriterion,
-					itemSelectedEventName, portletURL);
-
-		servletRequest.setAttribute(
-			AssetDisplayPageItemSelectorWebKeys.
-				ASSET_DISPLAY_PAGES_ITEM_SELECTOR_VIEW_DISPLAY_CONTEXT,
-			assetDisplayPagesItemSelectorViewDisplayContext);
-
-		servletRequest.setAttribute(
-			InfoDisplayWebKeys.INFO_ITEM_SERVICE_TRACKER,
-			_infoItemServiceTracker);
-
-		ServletContext servletContext = _servletContext;
-
-		RequestDispatcher requestDispatcher =
-			servletContext.getRequestDispatcher("/display_pages.jsp");
-
-		requestDispatcher.include(servletRequest, servletResponse);
+					(HttpServletRequest)servletRequest,
+					assetDisplayPageSelectorCriterion, portletURL)));
 	}
 
 	private static final List<ItemSelectorReturnType>
@@ -109,11 +84,10 @@ public class AssetDisplayPagesItemSelectorView
 			new UUIDItemSelectorReturnType());
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private ItemSelectorViewDescriptorRenderer
+		<AssetDisplayPageSelectorCriterion> _itemSelectorViewDescriptorRenderer;
 
-	@Reference(
-		target = "(osgi.web.symbolicname=com.liferay.asset.display.page.item.selector.web)"
-	)
-	private ServletContext _servletContext;
+	@Reference
+	private Language _language;
 
 }

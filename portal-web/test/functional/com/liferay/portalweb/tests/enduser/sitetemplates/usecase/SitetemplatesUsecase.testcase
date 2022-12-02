@@ -43,52 +43,60 @@ definition {
 	@description = "This is a use case for LPS-87055. Adding a page template with an already used name fails with a clear error message."
 	@priority = "3"
 	test AddPageTemplatesWithDuplicateNameViaSiteTemplate {
-		SiteTemplates.addCP(
-			siteTemplateActive = "Yes",
-			siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site template") {
+			SiteTemplates.addCP(
+				siteTemplateActive = "Yes",
+				siteTemplateName = "Site Template Name");
+		}
 
-		LexiconEntry.gotoEntryMenuItem(
-			menuItem = "Manage",
-			rowEntry = "Site Template Name");
+		task ("And: Add a new Page template collection with a page on the Site Template") {
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Manage",
+				rowEntry = "Site Template Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Design",
-			portlet = "Page Templates");
+			ProductMenu.gotoPortlet(
+				category = "Design",
+				portlet = "Page Templates");
 
-		NavItem.gotoPageTemplates();
+			NavItem.gotoPageTemplates();
 
-		PageTemplatesAdmin.addCollection(collectionName = "Page Template Collection");
+			PageTemplatesAdmin.addCollection(collectionName = "Page Template Collection");
 
-		Navigator.gotoNavNested(navNested = "Page Template Collection");
+			Navigator.gotoNavNested(navNested = "Page Template Collection");
 
-		PageTemplatesAdmin.addPageTemplate(
-			pageTemplateName = "Test",
-			siteTemplate = "true");
+			PageTemplatesAdmin.addPageTemplate(
+				pageTemplateName = "Test",
+				siteTemplate = "true");
+		}
 
-		Navigator.openURL();
+		task ("When: User add a new page template with the same name as the existing one") {
+			Navigator.openURL();
 
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+			SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
-		LexiconEntry.gotoEntryMenuItem(
-			menuItem = "Manage",
-			rowEntry = "Site Template Name");
+			LexiconEntry.gotoEntryMenuItem(
+				menuItem = "Manage",
+				rowEntry = "Site Template Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			portlet = "Pages");
+			ProductMenu.gotoPortlet(
+				category = "Site Builder",
+				portlet = "Pages");
 
-		ProductMenu.gotoPortlet(
-			category = "Design",
-			portlet = "Page Templates");
+			ProductMenu.gotoPortlet(
+				category = "Design",
+				portlet = "Page Templates");
 
-		NavItem.gotoPageTemplates();
+			NavItem.gotoPageTemplates();
 
-		Navigator.gotoNavNested(navNested = "Page Template Collection");
+			Navigator.gotoNavNested(navNested = "Page Template Collection");
+		}
 
-		PageTemplatesAdmin.addDuplicatePageTemplate(
-			duplicatePageTemplate = "true",
-			pageTemplateName = "Test",
-			siteTemplate = "true");
+		task ("Then: The process will fail with a clear error message") {
+			PageTemplatesAdmin.addDuplicatePageTemplate(
+				duplicatePageTemplate = "true",
+				pageTemplateName = "Test",
+				siteTemplate = "true");
+		}
 	}
 
 	@description = "This is a use case for LPS-51432 and LPS-95113. Pages associated with a site template cannot be deleted and removing a parent page on a site template will delete the same page and the child page also on the connected sites, if propagation is enabled."
@@ -97,58 +105,70 @@ definition {
 		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "SitetemplatesUsecase#AdminCanNotAddASubpageOfAChildPageLinkedToSiteTemplatePage";
 
-		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site template with a page") {
+			SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Site Page Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Site Page Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+		task ("And: Add a child page to the Site template page") {
+			SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
-		SiteTemplates.addChildPageViaSiteTemplateCP(
-			childSitepageName = "true",
-			pageName = "Site Page Name",
-			siteChildPageName = "Site Child Page Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.addChildPageViaSiteTemplateCP(
+				childSitepageName = "true",
+				pageName = "Site Page Name",
+				siteChildPageName = "Site Child Page Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Site.openSitesAdmin();
+		task ("When: User add a new Site based on the Site template") {
+			Site.openSitesAdmin();
 
-		Site.addSiteTemplateCP(
-			siteName = "Site Name",
-			siteTemplateName = "Site Template Name");
+			Site.addSiteTemplateCP(
+				siteName = "Site Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Navigator.gotoSitePage(
-			pageName = "Home",
-			siteName = "Site Name");
+		task ("And: Is not able to delete the child page on the Site which is connected to the Site template") {
+			Navigator.gotoSitePage(
+				pageName = "Home",
+				siteName = "Site Name");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			portlet = "Pages");
+			ProductMenu.gotoPortlet(
+				category = "Site Builder",
+				portlet = "Pages");
 
-		PagesAdmin.cannotDeletePagesAssociatedWithSiteTemplate(
-			page = "Site Child Page Name",
-			pageName = "Site Page Name");
+			PagesAdmin.cannotDeletePagesAssociatedWithSiteTemplate(
+				page = "Site Child Page Name",
+				pageName = "Site Page Name");
+		}
 
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+		task ("And: User delete the page on the Site template") {
+			SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
-		SiteTemplates.deletePage(
-			hasChildren = "true",
-			pageName = "Site Page Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.deletePage(
+				hasChildren = "true",
+				pageName = "Site Page Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Navigator.openSiteURL(siteName = "Site Name");
+		task ("Then: The page and the connected child page will be deleted also on the Site created from the template") {
+			Navigator.openSiteURL(siteName = "Site Name");
 
-		Refresh();
+			Refresh();
 
-		Page.viewNoPG(pageName = "Site Page Name");
+			Page.viewNoPG(pageName = "Site Page Name");
 
-		Page.viewNoPG(pageName = "Site Child Page Name");
+			Page.viewNoPG(pageName = "Site Child Page Name");
 
-		PagesAdmin.viewPageItemNotPresent(pageName = "Site Page Name");
+			PagesAdmin.viewPageItemNotPresent(pageName = "Site Page Name");
 
-		PagesAdmin.viewPageItemNotPresent(pageName = "Site Child Page Name");
+			PagesAdmin.viewPageItemNotPresent(pageName = "Site Child Page Name");
 
-		AssertConsoleTextNotPresent(value1 = "java.lang.NullPointerException");
+			AssertConsoleTextNotPresent(value1 = "java.lang.NullPointerException");
+		}
 	}
 
 	@description = "This is a use case for LPS-81629. Newly created pages are visible next to the home page on site template and on the site created from that template."
@@ -158,75 +178,93 @@ definition {
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site template with 2 page") {
+			SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Page1 Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Page1 Name",
+				siteTemplateName = "Site Template Name");
 
-		SiteTemplatesNavigator.gotoSiteTemplatesPage(
-			pageName = "Home",
-			siteName = "${siteName}",
-			siteTemplateName = "Site Template Name");
+			SiteTemplatesNavigator.gotoSiteTemplatesPage(
+				pageName = "Home",
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Page2 Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Page2 Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		SiteTemplatesNavigator.gotoSiteTemplatesPage(
-			pageName = "Page1 Name",
-			siteName = "${siteName}",
-			siteTemplateName = "Site Template Name");
+		task ("When: Pages are visible on the Site template") {
+			SiteTemplatesNavigator.gotoSiteTemplatesPage(
+				pageName = "Page1 Name",
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Site.openSitesAdmin();
+		task ("And: User create a new Site based on the Site Template") {
+			Site.openSitesAdmin();
 
-		Site.addSiteTemplateCP(
-			siteName = "Site Name",
-			siteTemplateName = "Site Template Name");
+			Site.addSiteTemplateCP(
+				siteName = "Site Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Navigator.gotoSitePage(
-			pageName = "Home",
-			siteName = "Site Name");
+		task ("Then: The previously created site pages are visible both on the site and on the site template") {
+			Navigator.gotoSitePage(
+				pageName = "Home",
+				siteName = "Site Name");
 
-		Navigator.gotoSitePage(
-			pageName = "Page1 Name",
-			siteName = "Site Name");
+			Navigator.gotoSitePage(
+				pageName = "Page1 Name",
+				siteName = "Site Name");
+		}
 	}
 
 	@description = "User can edit the permission of a page on site templates in the page admin menu."
 	@priority = "4"
 	test EditSiteTemplateGuestPermissions {
-		SiteTemplates.addCP(siteTemplateName = "${siteTemplateName}");
+		task ("Given: User add a new Site template and a site based on the template") {
+			SiteTemplates.addCP(siteTemplateName = "${siteTemplateName}");
 
-		Site.openSitesAdmin();
+			Site.openSitesAdmin();
 
-		Site.addSiteTemplateCP(
-			siteName = "Site Name",
-			siteTemplateName = "Site Template Name");
+			Site.addSiteTemplateCP(
+				siteName = "Site Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			portlet = "Pages");
+		task ("When: User navigate to the Permissions of the created site") {
+			ProductMenu.gotoPortlet(
+				category = "Site Builder",
+				portlet = "Pages");
 
-		PagesAdmin.gotoPageEllipsisMenuItem(
-			menuItem = "Permissions",
-			pageName = "Home");
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Permissions",
+				pageName = "Home");
+		}
 
-		Role.removePermissionPG(
-			permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
-			roleTitle = "Guest");
+		task ("And: Edit the permission of the page to remove the VIEW permission of the Guest role") {
+			Role.removePermissionPG(
+				permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
+				roleTitle = "Guest");
 
-		Navigator.gotoSitePage(
-			pageName = "Home",
-			siteName = "Site Name");
+			Navigator.gotoSitePage(
+				pageName = "Home",
+				siteName = "Site Name");
+		}
 
-		PermissionsInline.gotoSiteTemplateCP(
-			page = "Home",
-			site = "Site Name");
+		task ("And: User navigate to the home page of the Site Template") {
+			PermissionsInline.gotoSiteTemplateCP(
+				page = "Home",
+				site = "Site Name");
+		}
 
-		Role.definePermissionPG(
-			permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
-			roleTitle = "Guest");
+		task ("Then: User can define new permission for the site template page") {
+			Role.definePermissionPG(
+				permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
+				roleTitle = "Guest");
+		}
 	}
 
 	@description = "Site templates with older versions can be imported."
@@ -234,12 +272,16 @@ definition {
 	test ImportOldSchemaVersion {
 		property test.name.skip.portal.instance = "SitetemplatesUsecase#ImportOldSchemaVerion";
 
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+		task ("When: User navigate to Site template admin page") {
+			SiteTemplatesNavigator.openSiteTemplatesAdmin();
+		}
 
-		LAR.importPortlet(
-			importSchemaVersionMismatching = "true",
-			larFileName = "class-site-template-7.0.lar",
-			uploadFrom = "dependencies");
+		task ("Then: User can import site template from older versions") {
+			LAR.importPortlet(
+				importSchemaVersionMismatching = "true",
+				larFileName = "class-site-template-7.0.lar",
+				uploadFrom = "dependencies");
+		}
 	}
 
 	@description = "This is a use case for LPS-42067. Portlet preferences are configurable and stay unchanged when the same portlet with the same name is created on different pages."
@@ -247,90 +289,110 @@ definition {
 	test PortletPreferencesPersistWithSiteTemplateWhenSamePortletAddedOnSecondPage {
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site Template with a page") {
+			SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Page1 Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Page1 Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		SiteTemplatesNavigator.gotoSiteTemplatesPage(
-			pageName = "Page1 Name",
-			siteName = "${siteName}",
-			siteTemplateName = "Site Template Name");
+		task ("And: Add a portlet on the created page") {
+			SiteTemplatesNavigator.gotoSiteTemplatesPage(
+				pageName = "Page1 Name",
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
 
-		Portlet.addPG(
-			defaultURL = "false",
-			portletName = "IFrame");
+			Portlet.addPG(
+				defaultURL = "false",
+				portletName = "IFrame");
+		}
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Page2 Name",
-			siteTemplateName = "Site Template Name");
+		task ("And: Add a second page to the Site Template") {
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Page2 Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Site.openSitesAdmin();
+		task ("When: User add a new Site based on the Site Template") {
+			Site.openSitesAdmin();
 
-		Site.addSiteTemplateCP(
-			siteName = "Site Name",
-			siteTemplateName = "Site Template Name");
+			Site.addSiteTemplateCP(
+				siteName = "Site Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Navigator.gotoSitePage(
-			pageName = "Page1 Name",
-			siteName = "Site Name");
+		task ("And: Remove the VIEW permission of Guest role on the created portlet on the site's page") {
+			Navigator.gotoSitePage(
+				pageName = "Page1 Name",
+				siteName = "Site Name");
 
-		PermissionsInline.gotoConfigurationPG(portletName = "IFrame");
+			PermissionsInline.gotoConfigurationPG(portletName = "IFrame");
 
-		Role.removePermissionPG(
-			permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
-			roleTitle = "Guest");
+			Role.removePermissionPG(
+				permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
+				roleTitle = "Guest");
 
-		Refresh();
+			Refresh();
+		}
 
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+		task ("And: Add a portlet with the same name on the second page of the Site Template") {
+			SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
-		SiteTemplates.gotoViewPages(
-			siteName = "${siteName}",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.gotoViewPages(
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
 
-		AssertClick(
-			locator1 = "Home#PAGE_TEMPLATE_3",
-			value1 = "Page2 Name");
+			AssertClick(
+				locator1 = "Home#PAGE_TEMPLATE_3",
+				value1 = "Page2 Name");
 
-		Portlet.addPG(
-			defaultURL = "false",
-			portletName = "IFrame");
+			Portlet.addPG(
+				defaultURL = "false",
+				portletName = "IFrame");
+		}
 
-		Navigator.gotoSitePage(
-			pageName = "Page1 Name",
-			siteName = "Site Name");
+		task ("Then: The new portlet on the second template page will inherit the settings of the similar portlet from the first page") {
+			Navigator.gotoSitePage(
+				pageName = "Page1 Name",
+				siteName = "Site Name");
 
-		PermissionsInline.gotoConfigurationPG(portletName = "IFrame");
+			PermissionsInline.gotoConfigurationPG(portletName = "IFrame");
 
-		Role.viewPermissionPG(
-			permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
-			permissionFlagged = "false",
-			roleTitle = "Guest");
+			Role.viewPermissionPG(
+				permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
+				permissionFlagged = "false",
+				roleTitle = "Guest");
+		}
 	}
 
 	@description = "Site admin should not be able to delete pages that were created from site templates."
 	@priority = "3"
 	test SiteAdminCannotDeletePagesThatWereCreatedBySiteTemplates {
-		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site Template and add it to a new User group") {
+			SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		UserGroup.openUserGroupsAdmin();
+			UserGroup.openUserGroupsAdmin();
 
-		UserGroup.addCP(
-			selectSiteTemplate = "true",
-			siteTemplateName = "Site Template Name",
-			userGroupName = "UG UserGroup Name");
+			UserGroup.addCP(
+				selectSiteTemplate = "true",
+				siteTemplateName = "Site Template Name",
+				userGroupName = "UG UserGroup Name");
+		}
 
-		UserGroup.openUserGroupsAdmin();
+		task ("When: User navigate to the Page admin menu on the Site of the User group") {
+			UserGroup.openUserGroupsAdmin();
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Manage Pages");
+			LexiconEntry.gotoEllipsisMenuItem(menuItem = "Manage Pages");
 
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			portlet = "Pages");
+			ProductMenu.gotoPortlet(
+				category = "Site Builder",
+				portlet = "Pages");
+		}
 
-		PagesAdmin.cannotDeletePagesAssociatedWithSiteTemplate(page = "Home");
+		task ("Then: User as a Site admin is not able to delete page which is created from Site template") {
+			PagesAdmin.cannotDeletePagesAssociatedWithSiteTemplate(page = "Home");
+		}
 	}
 
 	@description = "LRQA-73456. Site template preferences and contents are inherited on User group sites."
@@ -341,67 +403,79 @@ definition {
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site Template") {
+			SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+		}
 
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+		task ("And: Add a Message Boards widget to the Home page of the Site Template then publish it") {
+			SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
-		SiteTemplates.gotoViewPages(
-			siteName = "${siteName}",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.gotoViewPages(
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
 
-		ContentPages.gotoPageEditor();
+			ContentPages.gotoPageEditor();
 
-		PageEditor.addWidget(portletName = "Message Boards");
+			PageEditor.addWidget(portletName = "Message Boards");
 
-		PageEditor.publish();
+			PageEditor.publish();
+		}
 
-		MessageboardsThread.addPG(
-			threadBody = "Message Boards Body",
-			threadSubject = "Message Boards Subject");
+		task ("And: Add a thread to the Message Boards widget") {
+			MessageboardsThread.addPG(
+				threadBody = "Message Boards Body",
+				threadSubject = "Message Boards Subject");
+		}
 
-		JSONUser.addUser(
-			userEmailAddress = "userea@liferay.com",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
+		task ("And: Add a new user and give Guest and Administrator role to it") {
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
 
-		JSONUser.setFirstPassword(
-			agreeToTermsAndAnswerReminderQuery = "true",
-			requireReset = "false",
-			userEmailAddress = "userea@liferay.com");
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
 
-		JSONUser.addUserToSite(
-			groupName = "Guest",
-			userEmailAddress = "userea@liferay.com");
+			JSONUser.addUserToSite(
+				groupName = "Guest",
+				userEmailAddress = "userea@liferay.com");
 
-		JSONRole.assignRoleToUser(
-			roleTitle = "Administrator",
-			userEmailAddress = "userea@liferay.com");
+			JSONRole.assignRoleToUser(
+				roleTitle = "Administrator",
+				userEmailAddress = "userea@liferay.com");
+		}
 
-		User.firstLoginPG(
-			password = "test",
-			userEmailAddress = "userea@liferay.com");
+		task ("When: When the new user adds a new User group and add the Site template to it") {
+			User.firstLoginPG(
+				password = "test",
+				userEmailAddress = "userea@liferay.com");
 
-		UserGroup.openUserGroupsAdmin();
+			UserGroup.openUserGroupsAdmin();
 
-		UserGroup.addCP(
-			selectSiteTemplate = "true",
-			siteTemplateName = "Site Template Name",
-			userGroupName = "User Group Test");
+			UserGroup.addCP(
+				selectSiteTemplate = "true",
+				siteTemplateName = "Site Template Name",
+				userGroupName = "User Group Test");
+		}
 
-		UserGroup.gotoProfilePages(
-			siteName = "${siteName}",
-			userGroupName = "User Group Test");
+		task ("Then: The settings and contens are inherited from the Site template to the Site of the User group") {
+			UserGroup.gotoProfilePages(
+				siteName = "${siteName}",
+				userGroupName = "User Group Test");
 
-		MessageboardsThread.gotoPG(
-			lastPostUserName = "Test Test",
-			replyCount = "0",
-			threadBody = "Message Boards Body",
-			threadSubject = "Message Boards Subject");
+			MessageboardsThread.gotoPG(
+				lastPostUserName = "Test Test",
+				replyCount = "0",
+				threadBody = "Message Boards Body",
+				threadSubject = "Message Boards Subject");
 
-		MessageboardsThread.viewPG(
-			threadBody = "Message Boards Body",
-			threadSubject = "Message Boards Subject");
+			MessageboardsThread.viewPG(
+				threadBody = "Message Boards Body",
+				threadSubject = "Message Boards Subject");
+		}
 	}
 
 	@description = "This is a use case for LRQA-73458. The preferences and contents of a personal site will inherit from site templates."
@@ -411,63 +485,73 @@ definition {
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site Template and a page to it") {
+			SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Test Page Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Test Page Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		SiteTemplatesNavigator.gotoSiteTemplatesPage(
-			pageName = "Test Page Name",
-			siteName = "${siteName}",
-			siteTemplateName = "Site Template Name");
+		task ("And: Add a DM portlet on the new template page and configure it to enable actions") {
+			SiteTemplatesNavigator.gotoSiteTemplatesPage(
+				pageName = "Test Page Name",
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
 
-		Portlet.addPG(portletName = "Documents and Media");
+			Portlet.addPG(portletName = "Documents and Media");
 
-		SiteTemplates.enableActionsOnDMInSiteTemplate();
+			SiteTemplates.enableActionsOnDMInSiteTemplate();
+		}
 
-		SiteTemplatesNavigator.gotoSiteTemplatesPage(
-			pageName = "Test Page Name",
-			siteName = "${siteName}",
-			siteTemplateName = "Site Template Name");
+		task ("When: User add a new document to the DM portlet") {
+			SiteTemplatesNavigator.gotoSiteTemplatesPage(
+				pageName = "Test Page Name",
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
 
-		DMDocument.addPG(
-			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.png",
-			dmDocumentTitle = "Document_1.png");
+			DMDocument.addPG(
+				dmDocumentDescription = "DM Document Description",
+				dmDocumentFile = "Document_1.png",
+				dmDocumentTitle = "Document_1.png");
+		}
 
-		JSONUser.addUser(
-			userEmailAddress = "userea@liferay.com",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
+		task ("And: Add a new user to the site with a personal site based on the site template") {
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
 
-		User.openUsersAdmin();
+			User.openUsersAdmin();
 
-		User.addPersonalSiteCP(
-			siteTemplateName = "Site Template Name",
-			userScreenName = "usersn");
+			User.addPersonalSiteCP(
+				siteTemplateName = "Site Template Name",
+				userScreenName = "usersn");
 
-		User.openUsersAdmin();
+			User.openUsersAdmin();
 
-		User.editPasswordCP(
-			userEmailAddress = "userea@liferay.com",
-			userScreenName = "usersn");
+			User.editPasswordCP(
+				userEmailAddress = "userea@liferay.com",
+				userScreenName = "usersn");
 
-		User.logoutPG();
+			User.logoutPG();
+		}
 
-		User.firstLoginPG(
-			password = "test",
-			userEmailAddress = "userea@liferay.com");
+		task ("Then: The content and settings is inherited on the new personal site from the Site Template") {
+			User.firstLoginPG(
+				password = "test",
+				userEmailAddress = "userea@liferay.com");
 
-		UserBar.gotoDropdownItem(dropdownItem = "My Dashboard");
+			UserBar.gotoDropdownItem(dropdownItem = "My Dashboard");
 
-		Navigator._gotoPage(pageName = "Test Page Name");
+			Navigator._gotoPage(pageName = "Test Page Name");
 
-		DMDocument.viewPG(
-			dmDocumentDescription = "DM Document Description",
-			dmDocumentFile = "Document_1.png",
-			dmDocumentTitle = "Document_1.png");
+			DMDocument.viewPG(
+				dmDocumentDescription = "DM Document Description",
+				dmDocumentFile = "Document_1.png",
+				dmDocumentTitle = "Document_1.png");
+		}
 	}
 
 	@description = "This is a use case for LPS-86487. Page links on sites which were created in site templates should redirect correctly to other pages."
@@ -479,71 +563,83 @@ definition {
 		var portalURL = PropsUtil.get("portal.url");
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		SiteTemplates.addCP(siteTemplateName = "Template Site");
+		task ("Given: User add a new Site Template and 2 page to it") {
+			SiteTemplates.addCP(siteTemplateName = "Template Site");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Page1 Name",
-			siteTemplateName = "Template Site");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Page1 Name",
+				siteTemplateName = "Template Site");
 
-		Navigator.openURL();
+			Navigator.openURL();
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Page2 Name",
-			siteTemplateName = "Template Site");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Page2 Name",
+				siteTemplateName = "Template Site");
+		}
 
-		SiteTemplatesNavigator.gotoSiteTemplatesPage(
-			pageName = "Page2 Name",
-			siteName = "${siteName}",
-			siteTemplateName = "Template Site");
+		task ("And: Copies the URL of the second site template page as external URL") {
+			SiteTemplatesNavigator.gotoSiteTemplatesPage(
+				pageName = "Page2 Name",
+				siteName = "${siteName}",
+				siteTemplateName = "Template Site");
 
-		var page2URL = Navigator.getCurrentURL();
+			var page2URL = Navigator.getCurrentURL();
 
-		var entryExternalURL = StringUtil.replace("${page2URL}", "http://", "");
+			var entryExternalURL = StringUtil.replace("${page2URL}", "http://", "");
+		}
 
-		ProductMenu.gotoPortlet(
-			category = "Content & Data",
-			portlet = "Web Content");
+		task ("And: Create WC on the Site template and use the copied URL as external URL") {
+			ProductMenu.gotoPortlet(
+				category = "Content & Data",
+				portlet = "Web Content");
 
-		WebContentNavigator.gotoAddCP();
+			WebContentNavigator.gotoAddCP();
 
-		PortletEntry.inputTitle(title = "Web Content Title");
+			PortletEntry.inputTitle(title = "Web Content Title");
 
-		CKEditor.addEntryExternalURL(
-			displayText = "${page2URL}",
-			entryExternalURL = "${entryExternalURL}",
-			fieldLabel = "Content");
+			CKEditor.addEntryExternalURL(
+				displayText = "${page2URL}",
+				entryExternalURL = "${entryExternalURL}",
+				fieldLabel = "Content");
 
-		PortletEntry.publish();
+			PortletEntry.publish();
 
-		Close.closeAndSelectWindow(locator1 = "Site Templates - ${siteName}");
+			Close.closeAndSelectWindow(locator1 = "Site Templates - ${siteName}");
+		}
 
-		Site.openSitesAdmin();
+		task ("When: User add a new Site based on the Site Template") {
+			Site.openSitesAdmin();
 
-		Site.addCP(
-			siteName = "Site Name",
-			siteType = "Template");
+			Site.addCP(
+				siteName = "Site Name",
+				siteType = "Template");
+		}
 
-		JSONLayout.addWidgetToPublicLayout(
-			groupName = "Site Name",
-			layoutName = "Page1 Name",
-			widgetName = "Web Content Display");
+		task ("And: Add a WCD portlet to the first page then use the created Web Content in it") {
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Site Name",
+				layoutName = "Page1 Name",
+				widgetName = "Web Content Display");
 
-		Navigator.gotoSitePage(
-			pageName = "Page1 Name",
-			siteName = "Site Name");
+			Navigator.gotoSitePage(
+				pageName = "Page1 Name",
+				siteName = "Site Name");
 
-		WebContentDisplayPortlet.selectWebContent(
-			portletName = "Web Content Display",
-			webContentTitle = "Web Content Title");
+			WebContentDisplayPortlet.selectWebContent(
+				portletName = "Web Content Display",
+				webContentTitle = "Web Content Title");
+		}
 
-		Navigator.gotoSitePage(
-			pageName = "Page1 Name",
-			siteName = "Site Name");
+		task ("Then: The page link in the WCD portlet is be present") {
+			Navigator.gotoSitePage(
+				pageName = "Page1 Name",
+				siteName = "Site Name");
 
-		WebContentDisplayPortlet.viewContent(
-			displayText = "${page2URL}",
-			url = "${portalURL}/web/site-name/page2-name",
-			webContentTitle = "Web Content Title");
+			WebContentDisplayPortlet.viewContent(
+				displayText = "${page2URL}",
+				url = "${portalURL}/web/site-name/page2-name",
+				webContentTitle = "Web Content Title");
+		}
 	}
 
 	@description = "This is a use case for LPS-74081. Site pages with numeric friendly URL's can be imported from LAR files."
@@ -553,137 +649,161 @@ definition {
 
 		var portalURL = PropsUtil.get("portal.url");
 
-		Site.openSitesAdmin();
+		task ("Given: User add a new Site and 1 page to it, then verify that it has correct friendly URL") {
+			Site.openSitesAdmin();
 
-		JSONGroup.addGroup(groupName = "Export");
+			JSONGroup.addGroup(groupName = "Export");
 
-		JSONLayout.addPublicLayout(
-			groupName = "Export",
-			layoutName = "1");
+			JSONLayout.addPublicLayout(
+				groupName = "Export",
+				layoutName = "1");
 
-		PagesAdmin.openPagesAdmin(siteURLKey = "export");
+			PagesAdmin.openPagesAdmin(siteURLKey = "export");
 
-		PagesAdmin.gotoPageEllipsisMenuItem(
-			menuItem = "Configure",
-			pageName = "1");
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Configure",
+				pageName = "1");
 
-		AssertTextEquals(
-			inputFieldId = "friendlyURL",
-			locator1 = "TextInput#INPUT_ID",
-			value1 = "/1");
+			AssertTextEquals(
+				inputFieldId = "friendlyURL",
+				locator1 = "TextInput#INPUT_ID",
+				value1 = "/1");
+		}
 
-		JSONLayout.addPublicLayout(
-			groupName = "Export",
-			layoutName = "2");
+		task ("And: Add a second page to the new site then verify that it has correct friendly URL") {
+			JSONLayout.addPublicLayout(
+				groupName = "Export",
+				layoutName = "2");
 
-		PagesAdmin.openPagesAdmin(siteURLKey = "export");
+			PagesAdmin.openPagesAdmin(siteURLKey = "export");
 
-		PagesAdmin.gotoPageEllipsisMenuItem(
-			menuItem = "Configure",
-			pageName = "2");
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Configure",
+				pageName = "2");
 
-		AssertTextEquals(
-			inputFieldId = "friendlyURL",
-			locator1 = "TextInput#INPUT_ID",
-			value1 = "/2");
+			AssertTextEquals(
+				inputFieldId = "friendlyURL",
+				locator1 = "TextInput#INPUT_ID",
+				value1 = "/2");
+		}
 
-		JSONLayout.addPublicLayout(
-			groupName = "Export",
-			layoutName = "Hello");
+		task ("And: Add a third page to the new site then verify that it has correct friendly URL") {
+			JSONLayout.addPublicLayout(
+				groupName = "Export",
+				layoutName = "Hello");
 
-		PagesAdmin.openPagesAdmin(siteURLKey = "export");
+			PagesAdmin.openPagesAdmin(siteURLKey = "export");
 
-		PagesAdmin.gotoPageEllipsisMenuItem(
-			menuItem = "Configure",
-			pageName = "Hello");
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Configure",
+				pageName = "Hello");
 
-		AssertTextEquals(
-			inputFieldId = "friendlyURL",
-			locator1 = "TextInput#INPUT_ID",
-			value1 = "/hello");
+			AssertTextEquals(
+				inputFieldId = "friendlyURL",
+				locator1 = "TextInput#INPUT_ID",
+				value1 = "/hello");
+		}
 
-		LAR.exportSiteCP(
-			larFileName = "Export",
-			siteScopeName = "Export");
+		task ("When: User export the site as a LAR file and download it") {
+			LAR.exportSiteCP(
+				larFileName = "Export",
+				siteScopeName = "Export");
 
-		var larFileName = LAR.getLarFileName();
+			var larFileName = LAR.getLarFileName();
 
-		LAR.downloadLar();
+			LAR.downloadLar();
+		}
 
-		SiteTemplates.addCP(siteTemplateName = "New Site Template");
+		task ("And: Import the LAR file on a new site") {
+			SiteTemplates.addCP(siteTemplateName = "New Site Template");
 
-		Site.openSitesAdmin();
+			Site.openSitesAdmin();
 
-		Site.addCP(
-			siteName = "New Site",
-			siteTemplateName = "New Site Template");
+			Site.addCP(
+				siteName = "New Site",
+				siteTemplateName = "New Site Template");
 
-		LAR.importSiteCP(
-			larFileName = "${larFileName}",
-			siteName = "New Site");
+			LAR.importSiteCP(
+				larFileName = "${larFileName}",
+				siteName = "New Site");
+		}
 
-		PagesAdmin.openPagesAdmin(siteURLKey = "new-site");
+		task ("Then: The import is successful and all page is present in the expected order") {
+			PagesAdmin.openPagesAdmin(siteURLKey = "new-site");
 
-		PagesAdmin.viewPagesOrder(
-			depth = "1",
-			pageNameList = "Home,1,2,Hello");
+			PagesAdmin.viewPagesOrder(
+				depth = "1",
+				pageNameList = "Home,1,2,Hello");
+		}
 	}
 
 	@description = "This is a use case for LPS-107677. Additional info button should not be present on a newly imported site when it has no difference compared to the site template it was created from."
 	@priority = "3"
 	test ViewImportedSitePageWithoutInfoMessage {
-		SiteTemplates.addCP(
-			siteTemplateActive = "Yes",
-			siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site Template") {
+			SiteTemplates.addCP(
+				siteTemplateActive = "Yes",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Site.openSitesAdmin();
+		task ("And: Create a Site based on the template then check that there is no info message on it") {
+			Site.openSitesAdmin();
 
-		Site.addSiteTemplateCP(
-			siteName = "Site A",
-			siteTemplateName = "Site Template Name");
+			Site.addSiteTemplateCP(
+				siteName = "Site A",
+				siteTemplateName = "Site Template Name");
 
-		Navigator.gotoSitePage(
-			pageName = "Home",
-			siteName = "Site A");
+			Navigator.gotoSitePage(
+				pageName = "Home",
+				siteName = "Site A");
 
-		SiteTemplates.viewNoInfoMessage();
+			SiteTemplates.viewNoInfoMessage();
+		}
 
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+		task ("When: User export the Site Template and the Site then download them") {
+			SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
-		LAR.exportPortlet(
-			larFileName = "site-template-name.lar",
-			portletName = "Site Templates");
+			LAR.exportPortlet(
+				larFileName = "site-template-name.lar",
+				portletName = "Site Templates");
 
-		LAR.exportSiteCP(siteScopeName = "Site A");
+			LAR.exportSiteCP(siteScopeName = "Site A");
 
-		var key_larFileName = "${larFileName}";
-		var larFileName = LAR.getLarFileName();
+			var key_larFileName = "${larFileName}";
+			var larFileName = LAR.getLarFileName();
 
-		LAR.downloadLar();
+			LAR.downloadLar();
+		}
 
-		JSONGroup.deleteGroupByName(groupName = "Site A");
+		task ("And: Delete the created site template and site") {
+			JSONGroup.deleteGroupByName(groupName = "Site A");
 
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+			SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
-		SiteTemplates.deleteCP(siteTemplateName = "Site Template Name");
+			SiteTemplates.deleteCP(siteTemplateName = "Site Template Name");
+		}
 
-		SiteTemplatesNavigator.openSiteTemplatesAdmin();
+		task ("Then: User import the Site Template and the Site") {
+			SiteTemplatesNavigator.openSiteTemplatesAdmin();
 
-		LAR.importPortlet(larFileName = "site-template-name.lar");
+			LAR.importPortlet(larFileName = "site-template-name.lar");
 
-		SiteTemplates.viewCP(siteTemplateName = "Site Template Name");
+			SiteTemplates.viewCP(siteTemplateName = "Site Template Name");
 
-		JSONGroup.addGroup(groupName = "Site B");
+			JSONGroup.addGroup(groupName = "Site B");
 
-		LAR.importSiteCP(
-			larFileName = "${larFileName}",
-			siteName = "Site B");
+			LAR.importSiteCP(
+				larFileName = "${larFileName}",
+				siteName = "Site B");
+		}
 
-		Navigator.gotoSitePage(
-			pageName = "Home",
-			siteName = "Site B");
+		task ("And: The Site has no Info message button as there is no difference between the Site and the Site Template") {
+			Navigator.gotoSitePage(
+				pageName = "Home",
+				siteName = "Site B");
 
-		SiteTemplates.viewNoInfoMessage();
+			SiteTemplates.viewNoInfoMessage();
+		}
 	}
 
 	@description = "Portlets on the site templates should give guests view permission by default."
@@ -691,34 +811,40 @@ definition {
 	test ViewInlineGuestPermissionsInSiteTemplatesViaWCD {
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site Template and a page to it") {
+			SiteTemplates.addCP(siteTemplateName = "Site Template Name");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Test Page Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Test Page Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		SiteTemplatesNavigator.gotoSiteTemplatesPage(
-			pageName = "Test Page Name",
-			siteName = "${siteName}",
-			siteTemplateName = "Site Template Name");
+		task ("When: User add a WCD portlet to the page") {
+			SiteTemplatesNavigator.gotoSiteTemplatesPage(
+				pageName = "Test Page Name",
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
 
-		Portlet.addPG(
-			defaultURL = "false",
-			portletName = "Web Content Display");
+			Portlet.addPG(
+				defaultURL = "false",
+				portletName = "Web Content Display");
+		}
 
-		SiteTemplatesNavigator.gotoSiteTemplatesPage(
-			pageName = "Test Page Name",
-			siteName = "${siteName}",
-			siteTemplateName = "Site Template Name");
+		task ("Then: The portlet have view permission for guests by default") {
+			SiteTemplatesNavigator.gotoSiteTemplatesPage(
+				pageName = "Test Page Name",
+				siteName = "${siteName}",
+				siteTemplateName = "Site Template Name");
 
-		PermissionsInline.gotoConfigurationPG(
-			portletName = "Web Content Display",
-			siteTemplate = "true");
+			PermissionsInline.gotoConfigurationPG(
+				portletName = "Web Content Display",
+				siteTemplate = "true");
 
-		Role.viewPermissionPG(
-			permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
-			permissionFlagged = "true",
-			roleTitle = "Guest");
+			Role.viewPermissionPG(
+				permissionDefinitionKey = "CONTENT_PERMISSIONS_VIEW_CHECKBOX",
+				permissionFlagged = "true",
+				roleTitle = "Guest");
+		}
 	}
 
 	@description = "This is a use case for LPS-92663. Navigation menus are copied when a site is created from a site template."
@@ -728,94 +854,106 @@ definition {
 
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		SiteTemplates.addCP(
-			siteTemplateActive = "Yes",
-			siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site Template and 2 page to it") {
+			SiteTemplates.addCP(
+				siteTemplateActive = "Yes",
+				siteTemplateName = "Site Template Name");
 
-		var siteTemplateId = JSONSiteTemplate.getSiteTemplateIdByName(siteTemplateName = "Site Template Name");
+			var siteTemplateId = JSONSiteTemplate.getSiteTemplateIdByName(siteTemplateName = "Site Template Name");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Page1 Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Page1 Name",
+				siteTemplateName = "Site Template Name");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			pageName = "Page2 Name",
-			siteTemplateName = "Site Template Name");
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				pageName = "Page2 Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		NavigationMenusAdmin.openNavigationMenusAdmin(siteURLKey = "${siteTemplateId}");
+		task ("And: Create new page navigation menu item for both template page then verify that they are visible") {
+			NavigationMenusAdmin.openNavigationMenusAdmin(siteURLKey = "${siteTemplateId}");
 
-		NavigationMenusAdmin.addMenu(menuName = "Test Navigation Menu Name");
+			NavigationMenusAdmin.addMenu(menuName = "Test Navigation Menu Name");
 
-		NavigationMenusAdmin.addItem(
-			item = "Page",
-			pageNameList = "Page1 Name,Page2 Name",
-			privacy = "Private Pages");
+			NavigationMenusAdmin.addItem(
+				item = "Page",
+				pageNameList = "Page1 Name,Page2 Name",
+				privacy = "Private Pages");
 
-		NavigationMenusAdmin.viewItem(itemName = "Page1 Name");
+			NavigationMenusAdmin.viewItem(itemName = "Page1 Name");
 
-		NavigationMenusAdmin.viewItem(itemName = "Page2 Name");
+			NavigationMenusAdmin.viewItem(itemName = "Page2 Name");
+		}
 
-		NavigationMenusAdmin.addItem(
-			item = "URL",
-			url = "https://www.liferay.com/",
-			urlName = "Liferay");
+		task ("And: Add new navigation menu item for URL of Liferay and Google then verify that they are visible") {
+			NavigationMenusAdmin.addItem(
+				item = "URL",
+				url = "https://www.liferay.com/",
+				urlName = "Liferay");
 
-		NavigationMenusAdmin.viewItem(itemName = "Liferay");
+			NavigationMenusAdmin.viewItem(itemName = "Liferay");
 
-		NavigationMenusAdmin.addItem(
-			item = "URL",
-			url = "https://www.google.com/",
-			urlName = "Google");
+			NavigationMenusAdmin.addItem(
+				item = "URL",
+				url = "https://www.google.com/",
+				urlName = "Google");
 
-		NavigationMenusAdmin.viewItem(itemName = "Google");
+			NavigationMenusAdmin.viewItem(itemName = "Google");
+		}
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteTemplateId}");
+		task ("And: After saving the navigation menu items on the template, they are visible in on the navigation menu") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteTemplateId}");
 
-		NavigationMenusWidget.gotoNavigationMenuWidgetConfig();
+			NavigationMenusWidget.gotoNavigationMenuWidgetConfig();
 
-		NavigationMenusWidget.chooseMenu(menuName = "Test Navigation Menu Name");
+			NavigationMenusWidget.chooseMenu(menuName = "Test Navigation Menu Name");
 
-		Portlet.saveAndCloseConfig();
+			Portlet.saveAndCloseConfig();
 
-		AssertVisible(
-			key_pageName = "Page1 Name",
-			locator1 = "Home#PAGE");
+			AssertVisible(
+				key_pageName = "Page1 Name",
+				locator1 = "Home#PAGE");
 
-		AssertVisible(
-			key_pageName = "Page2 Name",
-			locator1 = "Home#PAGE");
+			AssertVisible(
+				key_pageName = "Page2 Name",
+				locator1 = "Home#PAGE");
 
-		AssertVisible(
-			key_pageName = "Liferay",
-			locator1 = "Home#PAGE");
+			AssertVisible(
+				key_pageName = "Liferay",
+				locator1 = "Home#PAGE");
 
-		AssertVisible(
-			key_pageName = "Google",
-			locator1 = "Home#PAGE");
+			AssertVisible(
+				key_pageName = "Google",
+				locator1 = "Home#PAGE");
+		}
 
-		Site.openSitesAdmin();
+		task ("When: User create a new Site from the Site Template") {
+			Site.openSitesAdmin();
 
-		Site.addSiteTemplateCP(
-			siteName = "Site Name",
-			siteTemplateName = "Site Template Name");
+			Site.addSiteTemplateCP(
+				siteName = "Site Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Navigator.openSiteURL(siteName = "Site Name");
+		task ("Then: Navigation menus are inherited from the Site Template") {
+			Navigator.openSiteURL(siteName = "Site Name");
 
-		AssertVisible(
-			key_pageName = "Page1 Name",
-			locator1 = "Home#PAGE");
+			AssertVisible(
+				key_pageName = "Page1 Name",
+				locator1 = "Home#PAGE");
 
-		AssertVisible(
-			key_pageName = "Page2 Name",
-			locator1 = "Home#PAGE");
+			AssertVisible(
+				key_pageName = "Page2 Name",
+				locator1 = "Home#PAGE");
 
-		AssertVisible(
-			key_pageName = "Liferay",
-			locator1 = "Home#PAGE");
+			AssertVisible(
+				key_pageName = "Liferay",
+				locator1 = "Home#PAGE");
 
-		AssertVisible(
-			key_pageName = "Google",
-			locator1 = "Home#PAGE");
+			AssertVisible(
+				key_pageName = "Google",
+				locator1 = "Home#PAGE");
+		}
 	}
 
 	@description = "This is a use case for LPS-113145. Portlet configuration is copied when a site is created from a site template."
@@ -823,39 +961,49 @@ definition {
 	test ViewPortletConfigurationOfGlobalTemplatesPageCopyFromSitesTemplate {
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		SiteTemplates.addCP(
-			siteTemplateActive = "Yes",
-			siteTemplateName = "Site Template Name");
+		task ("Given: User add a new Site Template") {
+			SiteTemplates.addCP(
+				siteTemplateActive = "Yes",
+				siteTemplateName = "Site Template Name");
+		}
 
 		var siteTemplateId = JSONSiteTemplate.getSiteTemplateIdByName(siteTemplateName = "Site Template Name");
 
-		SiteTemplates.addSitePageViaSiteTemplateCP(
-			inheritChanges = "disable",
-			pageName = "Page Name",
-			pageTemplateName = "Search",
-			siteTemplateName = "Site Template Name");
+		task ("And: Add a page based on Search page template and the created Site Template, disabling change inheritance") {
+			SiteTemplates.addSitePageViaSiteTemplateCP(
+				inheritChanges = "disable",
+				pageName = "Page Name",
+				pageTemplateName = "Search",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteTemplateId}/page-name");
+		task ("When: User add a new AP portlet on the new template page and configure it to manual asset selection") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteTemplateId}/page-name");
 
-		Portlet.addPG(portletName = "Asset Publisher");
+			Portlet.addPG(portletName = "Asset Publisher");
 
-		AssetPublisherPortlet.configureManualAssetSelectionPG();
+			AssetPublisherPortlet.configureManualAssetSelectionPG();
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteTemplateId}/page-name");
+			Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteTemplateId}/page-name");
 
-		AssetPublisherPortlet.viewManualAssetSelectionConfigurationPG(portletName = "Asset Publisher");
+			AssetPublisherPortlet.viewManualAssetSelectionConfigurationPG(portletName = "Asset Publisher");
+		}
 
-		Site.openSitesAdmin();
+		task ("And: Create a new Site fom the Site Template") {
+			Site.openSitesAdmin();
 
-		Site.addSiteTemplateCP(
-			siteName = "Site Name",
-			siteTemplateName = "Site Template Name");
+			Site.addSiteTemplateCP(
+				siteName = "Site Name",
+				siteTemplateName = "Site Template Name");
+		}
 
-		Navigator.gotoSitePage(
-			pageName = "Page Name",
-			siteName = "Site Name");
+		task ("Then: The portlet inherit the configuration from the Site template") {
+			Navigator.gotoSitePage(
+				pageName = "Page Name",
+				siteName = "Site Name");
 
-		AssetPublisherPortlet.viewManualAssetSelectionConfigurationPG(portletName = "Asset Publisher");
+			AssetPublisherPortlet.viewManualAssetSelectionConfigurationPG(portletName = "Asset Publisher");
+		}
 	}
 
 }

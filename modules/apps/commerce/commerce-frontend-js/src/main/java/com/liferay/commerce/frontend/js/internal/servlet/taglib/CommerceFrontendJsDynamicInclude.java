@@ -32,7 +32,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Fabio Mastrorilli
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "service.ranking:Integer=" + Integer.MAX_VALUE,
 	service = DynamicInclude.class
 )

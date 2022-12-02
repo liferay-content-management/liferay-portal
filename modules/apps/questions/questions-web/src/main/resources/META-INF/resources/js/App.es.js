@@ -33,6 +33,14 @@ export default function App(props) {
 
 	const packageName = props.npmResolvedPackageName;
 
+	const questionsComponent = Liferay.FeatureFlags['LPS-165491']
+		? `${packageName}/js/pages/questions/Questions.new.es`
+		: `${packageName}/js/pages/questions/Questions.es`;
+
+	const userActivityPage = Liferay.FeatureFlags['LPS-167151']
+		? `${packageName}/js/pages/home/UserActivity.new.es`
+		: `${packageName}/js/pages/home/UserActivity.es`;
+
 	let path = props.historyRouterBasePath;
 
 	if (path && props.i18nPath) {
@@ -91,7 +99,7 @@ export default function App(props) {
 								<Route
 									component={(props) => (
 										<Component
-											module={`${packageName}/js/pages/home/UserActivity.es`}
+											module={userActivityPage}
 											props={props}
 										/>
 									)}
@@ -113,7 +121,7 @@ export default function App(props) {
 								<Route
 									component={(props) => (
 										<Component
-											module={`${packageName}/js/pages/questions/Questions.es`}
+											module={questionsComponent}
 											props={props}
 										/>
 									)}
@@ -151,7 +159,9 @@ export default function App(props) {
 												<Route
 													component={(props) => (
 														<Component
-															module={`${packageName}/js/pages/questions/Questions.es`}
+															module={
+																questionsComponent
+															}
 															props={props}
 														/>
 													)}
@@ -162,7 +172,9 @@ export default function App(props) {
 												<Route
 													component={(props) => (
 														<Component
-															module={`${packageName}/js/pages/questions/Questions.es`}
+															module={
+																questionsComponent
+															}
 															props={props}
 														/>
 													)}
@@ -206,7 +218,9 @@ export default function App(props) {
 												<Route
 													component={(props) => (
 														<Component
-															module={`${packageName}/js/pages/questions/Questions.es`}
+															module={
+																questionsComponent
+															}
 															props={props}
 														/>
 													)}

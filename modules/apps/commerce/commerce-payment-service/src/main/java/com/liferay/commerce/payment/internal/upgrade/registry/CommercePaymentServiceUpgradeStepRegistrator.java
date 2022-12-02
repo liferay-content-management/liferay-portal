@@ -31,9 +31,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Marco Leo
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommercePaymentServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -53,7 +51,7 @@ public class CommercePaymentServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {"CommercePaymentMethodGroupRel"};
 				}
 

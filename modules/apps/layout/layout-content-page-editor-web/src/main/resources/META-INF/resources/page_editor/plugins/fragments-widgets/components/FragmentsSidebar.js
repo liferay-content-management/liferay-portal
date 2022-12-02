@@ -28,15 +28,17 @@ import {
 } from '../../../app/contexts/StoreContext';
 import selectWidgetFragmentEntryLinks from '../../../app/selectors/selectWidgetFragmentEntryLinks';
 import loadWidgets from '../../../app/thunks/loadWidgets';
+import isNullOrUndefined from '../../../app/utils/isNullOrUndefined';
 import SearchForm from '../../../common/components/SearchForm';
+import SearchResultsMessage from '../../../common/components/SearchResultsMessage';
 import SidebarPanelHeader from '../../../common/components/SidebarPanelHeader';
 import {useSessionState} from '../../../core/hooks/useSessionState';
 import SearchResultsPanel from './SearchResultsPanel';
 import TabsPanel from './TabsPanel';
 
 export const COLLECTION_IDS = {
-	fragments: 'fragments',
-	widgets: 'widgets',
+	fragments: 0,
+	widgets: 1,
 };
 
 const collectionFilter = (collections, searchValue) => {
@@ -147,7 +149,7 @@ export default function FragmentsSidebar() {
 
 	const [activeTabId, setActiveTabId] = useSessionState(
 		`${config.portletNamespace}_fragments-sidebar_active-tab-id`,
-		COLLECTION_IDS.fragments
+		0
 	);
 
 	const [displayStyle, setDisplayStyle] = useSessionState(
@@ -155,8 +157,7 @@ export default function FragmentsSidebar() {
 		FRAGMENTS_DISPLAY_STYLES.LIST
 	);
 
-	const [searchValue, setSearchValue] = useState('');
-
+	const [searchValue, setSearchValue] = useState(null);
 	const [showReorderModal, setShowReorderModal] = useState(false);
 
 	const tabs = useMemo(
@@ -204,6 +205,15 @@ export default function FragmentsSidebar() {
 	const displayStyleButtonDisabled =
 		searchValue || activeTabId === COLLECTION_IDS.widgets;
 
+	const numberOfResults = useMemo(
+		() =>
+			isNullOrUndefined(searchValue)
+				? null
+				: filteredTabs.flatMap((tab) => tab.collections).length,
+
+		[filteredTabs, searchValue]
+	);
+
 	useEffect(() => {
 		if (searchValue && !widgets) {
 			setLoadingWidgets(true);
@@ -222,10 +232,15 @@ export default function FragmentsSidebar() {
 				{Liferay.Language.get('fragments-and-widgets')}
 			</SidebarPanelHeader>
 
+			<SearchResultsMessage numberOfResults={numberOfResults} />
+
 			<div className="d-flex flex-column page-editor__sidebar__fragments-widgets-panel">
 				<div className="align-items-center d-flex flex-shrink-0 justify-content-between mb-3 px-3">
 					<SearchForm
 						className="flex-grow-1 mb-0"
+						label={Liferay.Language.get(
+							'search-fragments-and-widgets'
+						)}
 						onChange={setSearchValue}
 					/>
 

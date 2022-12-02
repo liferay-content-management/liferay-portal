@@ -16,7 +16,6 @@ package com.liferay.headless.commerce.admin.channel.internal.dto.v1_0.converter;
 
 import com.liferay.commerce.payment.model.CommercePaymentMethodGroupRelQualifier;
 import com.liferay.commerce.payment.service.CommercePaymentMethodGroupRelQualifierService;
-import com.liferay.commerce.payment.service.CommercePaymentMethodGroupRelService;
 import com.liferay.commerce.term.model.CommerceTermEntry;
 import com.liferay.commerce.term.service.CommerceTermEntryService;
 import com.liferay.headless.commerce.admin.channel.dto.v1_0.PaymentMethodGroupRelTerm;
@@ -30,7 +29,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Riccardo Alberti
  */
 @Component(
-	enabled = false,
 	property = "dto.class.name=com.liferay.commerce.payment.model.CommercePaymentMethodGroupRelQualifier-Term",
 	service = {DTOConverter.class, PaymentMethodGroupRelTermDTOConverter.class}
 )
@@ -77,10 +75,6 @@ public class PaymentMethodGroupRelTermDTOConverter
 	@Reference
 	private CommercePaymentMethodGroupRelQualifierService
 		_commercePaymentMethodGroupRelQualifierService;
-
-	@Reference
-	private CommercePaymentMethodGroupRelService
-		_commercePaymentMethodGroupRelService;
 
 	@Reference
 	private CommerceTermEntryService _commerceTermEntryService;

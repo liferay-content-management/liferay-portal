@@ -18,7 +18,6 @@ import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.product.model.CPInstance;
 import com.liferay.commerce.product.service.CPDefinitionLocalService;
 import com.liferay.commerce.product.service.CPInstanceLocalService;
-import com.liferay.commerce.product.service.CProductLocalService;
 import com.liferay.commerce.product.type.virtual.exception.CPDefinitionVirtualSettingException;
 import com.liferay.commerce.product.type.virtual.exception.CPDefinitionVirtualSettingFileEntryIdException;
 import com.liferay.commerce.product.type.virtual.exception.CPDefinitionVirtualSettingSampleException;
@@ -37,7 +36,9 @@ import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUID;
@@ -54,7 +55,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.product.type.virtual.model.CPDefinitionVirtualSetting",
 	service = AopService.class
 )
@@ -72,7 +72,7 @@ public class CPDefinitionVirtualSettingLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		User user = userLocalService.getUser(serviceContext.getUserId());
+		User user = _userLocalService.getUser(serviceContext.getUserId());
 		long groupId = serviceContext.getScopeGroupId();
 
 		if (Validator.isNotNull(url)) {
@@ -221,7 +221,7 @@ public class CPDefinitionVirtualSettingLocalServiceImpl
 			String className, long classPK)
 		throws PortalException {
 
-		long classNameId = classNameLocalService.getClassNameId(className);
+		long classNameId = _classNameLocalService.getClassNameId(className);
 
 		CPDefinitionVirtualSetting cpDefinitionVirtualSetting =
 			cpDefinitionVirtualSettingPersistence.fetchByC_C(
@@ -272,7 +272,7 @@ public class CPDefinitionVirtualSettingLocalServiceImpl
 		String className, long classPK) {
 
 		return cpDefinitionVirtualSettingPersistence.fetchByC_C(
-			classNameLocalService.getClassNameId(className), classPK);
+			_classNameLocalService.getClassNameId(className), classPK);
 	}
 
 	@Override
@@ -281,7 +281,7 @@ public class CPDefinitionVirtualSettingLocalServiceImpl
 		throws PortalException {
 
 		return cpDefinitionVirtualSettingPersistence.fetchByC_C(
-			classNameLocalService.getClassNameId(className), classPK);
+			_classNameLocalService.getClassNameId(className), classPK);
 	}
 
 	@Override
@@ -337,9 +337,9 @@ public class CPDefinitionVirtualSettingLocalServiceImpl
 			termsOfUseRequired, termsOfUseContentMap,
 			termsOfUseJournalArticleResourcePrimKey);
 
-		long cpDefinitionClassNameId = classNameLocalService.getClassNameId(
+		long cpDefinitionClassNameId = _classNameLocalService.getClassNameId(
 			CPDefinition.class);
-		long cpInstanceClassNameId = classNameLocalService.getClassNameId(
+		long cpInstanceClassNameId = _classNameLocalService.getClassNameId(
 			CPInstance.class);
 
 		if ((cpDefinitionVirtualSetting.getClassNameId() ==
@@ -497,13 +497,13 @@ public class CPDefinitionVirtualSettingLocalServiceImpl
 	}
 
 	@Reference
+	private ClassNameLocalService _classNameLocalService;
+
+	@Reference
 	private CPDefinitionLocalService _cpDefinitionLocalService;
 
 	@Reference
 	private CPInstanceLocalService _cpInstanceLocalService;
-
-	@Reference
-	private CProductLocalService _cProductLocalService;
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;
@@ -513,5 +513,8 @@ public class CPDefinitionVirtualSettingLocalServiceImpl
 
 	@Reference
 	private PortalUUID _portalUUID;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

@@ -1,7 +1,6 @@
 Bundle-Name: Liferay Commerce Punch Out OAuth2 Provider API
 Bundle-SymbolicName: com.liferay.commerce.punchout.oauth2.provider.api
-Bundle-Version: 5.0.6
+Bundle-Version: 5.0.7
 Export-Package:\
 	com.liferay.commerce.punchout.oauth2.provider,\
 	com.liferay.commerce.punchout.oauth2.provider.model
-Liferay-Enterprise-App: dxp.only=true;product.id=9a473157-06a6-44b6-b017-a360ffaf5f38

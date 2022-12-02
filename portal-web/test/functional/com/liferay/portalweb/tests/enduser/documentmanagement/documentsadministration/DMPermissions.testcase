@@ -479,7 +479,7 @@ definition {
 			category = "Content & Data",
 			portlet = "Documents and Media");
 
-		DMNavigator.gotoDocumentPermissionsCP(dmDocumentTitle = "DM Folder Name");
+		DMNavigator.gotoFolderPermissions(dmFolderName = "DM Folder Name");
 
 		PermissionsInline.addOrRemoveAccessPermissionFromAllRoles(
 			addOrRemoveViewPermission = "Add",
@@ -653,7 +653,7 @@ definition {
 			category = "Content & Data",
 			portlet = "Documents and Media");
 
-		DMNavigator.gotoDocumentPermissionsCP(dmDocumentTitle = "DM Folder Name");
+		DMNavigator.gotoFolderPermissions(dmFolderName = "DM Folder Name");
 
 		PermissionsInline.addOrRemoveAccessPermissionFromAllRoles(
 			addOrRemoveViewPermission = "Add",
@@ -1196,13 +1196,35 @@ definition {
 
 		JSONRole.addRegularRole(roleTitle = "Regular Role Name");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Roles");
+		for (var resourceActionIndex : list "ACCESS_IN_CONTROL_PANEL,VIEW") {
+			Permissions.definePermissionViaJSONAPI(
+				resourceAction = "${resourceActionIndex}",
+				resourceName = "com_liferay_document_library_web_portlet_DLAdminPortlet",
+				roleTitle = "Regular Role Name");
+		}
 
-		Role.definePermissionCmdCP(
-			permissionDefinitionKeys = "SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_GENERAL_PERMISSIONS_ACCESS_IN_SITE_ADMINISTRATION_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_GENERAL_PERMISSIONS_VIEW_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_ADD_FOLDER_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_VIEW_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_FOLDER_ADD_SUBFOLDER_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENTS_FOLDER_VIEW_CHECKBOX,SITE_ADMIN_CONTENT_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_UPDATE_CHECKBOX",
+		for (var resourceActionIndex : list "ADD_FOLDER,VIEW") {
+			Permissions.definePermissionViaJSONAPI(
+				resourceAction = "${resourceActionIndex}",
+				resourceName = "com.liferay.document.library",
+				roleTitle = "Regular Role Name");
+		}
+
+		for (var resourceActionIndex : list "ADD_SUBFOLDER,VIEW,") {
+			Permissions.definePermissionViaJSONAPI(
+				resourceAction = "${resourceActionIndex}",
+				resourceName = "com.liferay.document.library.kernel.model.DLFolder",
+				roleTitle = "Regular Role Name");
+		}
+
+		Permissions.definePermissionViaJSONAPI(
+			resourceAction = "UPDATE",
+			resourceName = "com.liferay.document.library.kernel.model.DLFileEntry",
+			roleTitle = "Regular Role Name");
+
+		Permissions.definePermissionViaJSONAPI(
+			resourceAction = "VIEW_SITE_ADMINISTRATION",
+			resourceName = "com.liferay.portal.kernel.model.Group",
 			roleTitle = "Regular Role Name");
 
 		JSONUser.addUser(
@@ -2364,7 +2386,7 @@ definition {
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");
 
-		DMNavigator.gotoDocumentPermissionsCP(dmDocumentTitle = "DM Folder Name");
+		DMNavigator.gotoFolderPermissions(dmFolderName = "DM Folder Name");
 
 		PermissionsInline.addOrRemoveAccessPermissionFromAllRoles(
 			addOrRemoveViewPermission = "Add",
@@ -2947,14 +2969,7 @@ definition {
 			requireReset = "false",
 			userEmailAddress = "userea@liferay.com");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		Organization.addCP(
-			orgName = "Organization Name",
-			orgType = "Organization");
+		JSONOrganization.addOrganization(organizationName = "Organization Name");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -2969,12 +2984,7 @@ definition {
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		UsersAndOrganizationsNavigator.gotoOrganizations();
+		Organization.openOrganizationsAdmin();
 
 		Organization.addSiteCP(orgName = "Organization Name");
 
@@ -2985,15 +2995,11 @@ definition {
 
 		UsersAndOrganizationsNavigator.gotoOrganizations();
 
-		Organization.gotoCP(
-			orgName = "Organization Name",
-			searchToken = "Organization Name");
+		Organization.gotoCP(orgName = "Organization Name");
 
 		User.searchCP(searchTerm = "usersn");
 
-		Organization.viewAssignMemberCP(
-			userName = "userfn userln",
-			userScreenName = "usersn");
+		Organization.viewUser(userName = "userfn userln");
 
 		PagesAdmin.openPagesAdmin(siteURLKey = "Organization Name");
 
@@ -3098,6 +3104,7 @@ definition {
 	test ViewSearchResultsForChildObjectRespectsParentFolderPermissions {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property portal.acceptance = "quarantine";
+		property test.name.skip.portal.instance = "DMPermissions#ViewSearchResultsForChildObjectRespectsParentFolderPermissions";
 		property testray.component.names = "Training";
 
 		SearchAdministration.executeReindex();
@@ -3209,7 +3216,7 @@ definition {
 			category = "Content & Data",
 			portlet = "Documents and Media");
 
-		DMNavigator.gotoDocumentPermissionsCP(dmDocumentTitle = "DM Folder Name");
+		DMNavigator.gotoFolderPermissions(dmFolderName = "DM Folder Name");
 
 		PermissionsInline.addOrRemoveViewPermissionFromAllRoles(
 			addOrRemoveViewPermission = "Remove",
@@ -3223,7 +3230,7 @@ definition {
 
 		DMNavigator.gotoFolder(dmFolderName = "DM Folder Name");
 
-		DMNavigator.gotoDocumentPermissionsCP(dmDocumentTitle = "DM SubFolder Name");
+		DMNavigator.gotoFolderPermissions(dmFolderName = "DM SubFolder Name");
 
 		PermissionsInline.viewPermissionsChecked(
 			permissionDefinitionKey = "CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX",

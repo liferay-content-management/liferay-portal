@@ -270,48 +270,21 @@ public abstract class UserGroupLocalServiceBaseImpl
 		return userGroupPersistence.fetchByUuid_C_First(uuid, companyId, null);
 	}
 
-	/**
-	 * Returns the user group with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the user group's external reference code
-	 * @return the matching user group, or <code>null</code> if a matching user group could not be found
-	 */
 	@Override
 	public UserGroup fetchUserGroupByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
-		return userGroupPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return userGroupPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchUserGroupByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public UserGroup fetchUserGroupByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return fetchUserGroupByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * Returns the user group with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the user group's external reference code
-	 * @return the matching user group
-	 * @throws PortalException if a matching user group could not be found
-	 */
 	@Override
 	public UserGroup getUserGroupByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		return userGroupPersistence.findByC_ERC(
-			companyId, externalReferenceCode);
+		return userGroupPersistence.findByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -790,30 +763,42 @@ public abstract class UserGroupLocalServiceBaseImpl
 	}
 
 	/**
+	 * @throws PortalException
 	 */
 	@Override
-	public void addUserUserGroup(long userId, long userGroupId) {
+	public void addUserUserGroup(long userId, long userGroupId)
+		throws PortalException {
+
 		userPersistence.addUserGroup(userId, userGroupId);
 	}
 
 	/**
+	 * @throws PortalException
 	 */
 	@Override
-	public void addUserUserGroup(long userId, UserGroup userGroup) {
+	public void addUserUserGroup(long userId, UserGroup userGroup)
+		throws PortalException {
+
 		userPersistence.addUserGroup(userId, userGroup);
 	}
 
 	/**
+	 * @throws PortalException
 	 */
 	@Override
-	public void addUserUserGroups(long userId, long[] userGroupIds) {
+	public void addUserUserGroups(long userId, long[] userGroupIds)
+		throws PortalException {
+
 		userPersistence.addUserGroups(userId, userGroupIds);
 	}
 
 	/**
+	 * @throws PortalException
 	 */
 	@Override
-	public void addUserUserGroups(long userId, List<UserGroup> userGroups) {
+	public void addUserUserGroups(long userId, List<UserGroup> userGroups)
+		throws PortalException {
+
 		userPersistence.addUserGroups(userId, userGroups);
 	}
 

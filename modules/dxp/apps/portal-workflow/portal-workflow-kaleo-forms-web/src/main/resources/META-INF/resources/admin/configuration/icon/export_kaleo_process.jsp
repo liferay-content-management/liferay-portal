@@ -24,17 +24,11 @@ long kaleoProcessId = ParamUtil.getLong(request, liferayPortletResponse.getNames
 	<portlet:param name="kaleoProcessId" value="<%= String.valueOf(kaleoProcessId) %>" />
 </portlet:resourceURL>
 
-<%
-StringBundler sb = new StringBundler(5);
-
-sb.append("javascript:");
-sb.append(liferayPortletResponse.getNamespace());
-sb.append("exportKaleoProcess('");
-sb.append(exportURL);
-sb.append("');");
-%>
-
-<liferay-ui:icon
-	message="export"
-	url="<%= sb.toString() %>"
-/>
+<aui:script>
+	Liferay.Util.setPortletConfigurationIconAction(
+		'<portlet:namespace />exportKaleoProcess',
+		() => {
+			<portlet:namespace />exportKaleoProcess('<%= exportURL %>');
+		}
+	);
+</aui:script>

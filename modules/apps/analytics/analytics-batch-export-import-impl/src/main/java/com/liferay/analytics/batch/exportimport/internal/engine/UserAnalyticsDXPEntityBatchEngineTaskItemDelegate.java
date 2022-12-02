@@ -17,7 +17,7 @@ package com.liferay.analytics.batch.exportimport.internal.engine;
 import com.liferay.analytics.dxp.entity.rest.dto.v1_0.DXPEntity;
 import com.liferay.analytics.dxp.entity.rest.dto.v1_0.converter.DXPEntityDTOConverter;
 import com.liferay.analytics.settings.configuration.AnalyticsConfiguration;
-import com.liferay.analytics.settings.configuration.AnalyticsConfigurationTracker;
+import com.liferay.analytics.settings.configuration.AnalyticsConfigurationRegistry;
 import com.liferay.analytics.settings.security.constants.AnalyticsSecurityConstants;
 import com.liferay.batch.engine.BatchEngineTaskItemDelegate;
 import com.liferay.batch.engine.pagination.Page;
@@ -47,7 +47,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Marcos Martins
  */
 @Component(
-	immediate = true,
 	property = "batch.engine.task.item.delegate.name=user-analytics-dxp-entities",
 	service = BatchEngineTaskItemDelegate.class
 )
@@ -105,7 +104,8 @@ public class UserAnalyticsDXPEntityBatchEngineTaskItemDelegate
 			BooleanClauseOccur.MUST_NOT);
 
 		AnalyticsConfiguration analyticsConfiguration =
-			_analyticsConfigurationTracker.getAnalyticsConfiguration(companyId);
+			_analyticsConfigurationRegistry.getAnalyticsConfiguration(
+				companyId);
 
 		if (analyticsConfiguration.syncAllContacts()) {
 			return booleanFilter;
@@ -140,7 +140,7 @@ public class UserAnalyticsDXPEntityBatchEngineTaskItemDelegate
 	}
 
 	@Reference
-	private AnalyticsConfigurationTracker _analyticsConfigurationTracker;
+	private AnalyticsConfigurationRegistry _analyticsConfigurationRegistry;
 
 	@Reference
 	private DXPEntityDTOConverter _dxpEntityDTOConverter;

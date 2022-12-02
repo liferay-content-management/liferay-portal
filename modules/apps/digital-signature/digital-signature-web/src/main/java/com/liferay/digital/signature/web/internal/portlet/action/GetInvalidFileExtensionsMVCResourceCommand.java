@@ -18,7 +18,7 @@ import com.liferay.digital.signature.constants.DigitalSignatureConstants;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -39,7 +39,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Keven Leone
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + DigitalSignaturePortletKeys.COLLECT_DIGITAL_SIGNATURE,
 		"mvc.command.name=/digital_signature/get_invalid_file_extensions"
@@ -61,7 +60,7 @@ public class GetInvalidFileExtensionsMVCResourceCommand
 	}
 
 	private JSONArray _toJSONArray(long[] fileEntryIds) {
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
 		for (long fileEntryId : fileEntryIds) {
 			try {
@@ -93,5 +92,8 @@ public class GetInvalidFileExtensionsMVCResourceCommand
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 }

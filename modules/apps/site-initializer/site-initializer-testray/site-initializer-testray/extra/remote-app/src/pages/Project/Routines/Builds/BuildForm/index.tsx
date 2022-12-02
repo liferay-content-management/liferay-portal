@@ -13,7 +13,7 @@
  */
 
 import {ClayButtonWithIcon} from '@clayui/button';
-import ClayForm, {ClayCheckbox} from '@clayui/form';
+import ClayForm from '@clayui/form';
 import {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {useOutletContext, useParams} from 'react-router-dom';
@@ -26,6 +26,7 @@ import useFormActions from '../../../../../hooks/useFormActions';
 import useFormModal from '../../../../../hooks/useFormModal';
 import i18n from '../../../../../i18n';
 import yupSchema, {yupResolver} from '../../../../../schema/yup';
+import {Liferay} from '../../../../../services/liferay';
 import {
 	APIResponse,
 	TestrayBuild,
@@ -47,8 +48,14 @@ type OutletContext = {
 
 const BuildForm = () => {
 	const [caseIds, setCaseIds] = useState<number[]>([]);
-	const {buildId} = useParams();
-	const {projectId, routineId} = useParams();
+
+	const {
+		buildId,
+		buildTemplate,
+		buildTemplateId,
+		projectId,
+		routineId,
+	} = useParams();
 
 	useEffect(() => {
 		if (buildId) {
@@ -57,7 +64,14 @@ const BuildForm = () => {
 				.then(setCaseIds)
 				.catch(console.error);
 		}
-	}, [buildId]);
+
+		if (buildTemplateId) {
+			testrayBuildImpl
+				.getCurrentCaseIds(buildTemplateId)
+				.then(setCaseIds)
+				.catch(console.error);
+		}
+	}, [buildId, buildTemplateId]);
 
 	const {data: productVersionsData, mutate} = useFetch<
 		APIResponse<TestrayProductVersion>
@@ -111,8 +125,10 @@ const BuildForm = () => {
 					gitHash: testrayBuild.gitHash,
 					name: testrayBuild.name,
 					productVersionId: String(testrayBuild.productVersion?.id),
+					projectId: Number(projectId),
 					routineId: String(testrayBuild.routine?.id || routineId),
 					template: testrayBuild.template,
+					templateTestrayBuildId: buildTemplateId ?? '',
 			  }
 			: {
 					active: true,
@@ -120,8 +136,11 @@ const BuildForm = () => {
 					projectId: Number(projectId),
 					routineId,
 					template: false,
+					templateTestrayBuildId: buildTemplateId ?? '',
 			  },
-		resolver: yupResolver(yupSchema.build),
+		resolver: yupResolver(
+			buildTemplate ? yupSchema.buildTemplate : yupSchema.build
+		),
 	});
 
 	useHeader({
@@ -132,14 +151,32 @@ const BuildForm = () => {
 	const productVersionId = watch('productVersionId');
 	const productVersions = productVersionsData?.items || [];
 	const routines = routinesData?.items || [];
-	const template = watch('template');
 
 	const inputProps = {
 		errors,
 		register,
 	};
 
+	if (buildTemplate) {
+		setValue('template', true);
+	}
+
 	const _onSubmit = async (data: BuildFormType) => {
+		const hasFactorStacks = data.factorStacks.some((factorStack: any) =>
+			Object.keys(factorStack).some(
+				(key) => !!Object.keys(factorStack[key]).length
+			)
+		);
+
+		if (!hasFactorStacks) {
+			return Liferay.Util.openToast({
+				message: i18n.translate(
+					'at-least-one-environment-stack-is-required'
+				),
+				type: 'danger',
+			});
+		}
+
 		data.caseIds = caseIds;
 
 		if (testrayBuild) {
@@ -161,12 +198,6 @@ const BuildForm = () => {
 	return (
 		<Container className="container">
 			<ClayForm className="container pt-2">
-				<ClayCheckbox
-					checked={template as boolean}
-					label={i18n.translate('template')}
-					onChange={() => setValue('template', !template)}
-				/>
-
 				<Form.Input
 					{...inputProps}
 					label={i18n.translate('name')}
@@ -185,31 +216,33 @@ const BuildForm = () => {
 					}))}
 				/>
 
-				<div className="row">
-					<div className="col-md-6">
-						<Form.Select
-							{...inputProps}
-							label="product-version"
-							name="productVersionId"
-							options={productVersions.map(
-								({id: value, name: label}) => ({
-									label,
-									value,
-								})
-							)}
-							required
-							value={productVersionId}
+				{!buildTemplate && (
+					<div className="row">
+						<div className="col-md-6">
+							<Form.Select
+								{...inputProps}
+								label="product-version"
+								name="productVersionId"
+								options={productVersions.map(
+									({id: value, name: label}) => ({
+										label,
+										value,
+									})
+								)}
+								required
+								value={productVersionId}
+							/>
+						</div>
+
+						<ClayButtonWithIcon
+							className="mt-5"
+							displayType="primary"
+							onClick={() => newProductVersionModal.open()}
+							symbol="plus"
+							title={i18n.sub('add-x', 'product-version')}
 						/>
 					</div>
-
-					<ClayButtonWithIcon
-						className="mt-5"
-						displayType="primary"
-						onClick={() => newProductVersionModal.open()}
-						symbol="plus"
-						title={i18n.sub('add-x', 'product-version')}
-					/>
-				</div>
+				)}
 
 				<Form.Input
 					{...inputProps}
@@ -226,7 +259,11 @@ const BuildForm = () => {
 
 				<BuildFormRun control={control} register={register} />
 
-				<BuildFormCases caseIds={caseIds} setCaseIds={setCaseIds} />
+				<BuildFormCases
+					caseIds={caseIds}
+					setCaseIds={setCaseIds}
+					title={i18n.translate('cases')}
+				/>
 
 				<div className="mt-4">
 					<Form.Footer

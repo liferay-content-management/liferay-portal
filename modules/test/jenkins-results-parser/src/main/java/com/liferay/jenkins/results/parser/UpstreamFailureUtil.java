@@ -34,32 +34,6 @@ import org.json.JSONObject;
  */
 public class UpstreamFailureUtil {
 
-	public static int getUpstreamJobFailuresBuildNumber(
-		TopLevelBuild topLevelBuild) {
-
-		TopLevelBuildReport topLevelBuildReport =
-			getUpstreamTopLevelBuildReport(topLevelBuild);
-
-		if (topLevelBuildReport == null) {
-			return 0;
-		}
-
-		return topLevelBuildReport.getBuildNumber();
-	}
-
-	public static int getUpstreamJobFailuresBuildNumber(
-		TopLevelBuild topLevelBuild, String upstreamBranchSHA) {
-
-		TopLevelBuildReport topLevelBuildReport =
-			getUpstreamTopLevelBuildReport(topLevelBuild, upstreamBranchSHA);
-
-		if (topLevelBuildReport == null) {
-			return 0;
-		}
-
-		return topLevelBuildReport.getBuildNumber();
-	}
-
 	public static String getUpstreamJobFailuresSHA(
 		TopLevelBuild topLevelBuild) {
 
@@ -312,7 +286,7 @@ public class UpstreamFailureUtil {
 		return jobVariant.replaceAll("_stable$", "");
 	}
 
-	private static List<String> _getUpstreamJobFailures(
+	private static synchronized List<String> _getUpstreamJobFailures(
 		String type, TopLevelBuild topLevelBuild) {
 
 		if (_upstreamFailures.containsKey(type)) {
@@ -352,9 +326,13 @@ public class UpstreamFailureUtil {
 				for (TestReport testReport :
 						downstreamBuildReport.getTestReports()) {
 
-					upstreamFailures.add(
-						_formatUpstreamTestFailure(
-							batchName, testReport.getTestName()));
+					String testReportStatus = testReport.getStatus();
+
+					if (!testReportStatus.equals("PASSED")) {
+						upstreamFailures.add(
+							_formatUpstreamTestFailure(
+								batchName, testReport.getTestName()));
+					}
 				}
 			}
 		}

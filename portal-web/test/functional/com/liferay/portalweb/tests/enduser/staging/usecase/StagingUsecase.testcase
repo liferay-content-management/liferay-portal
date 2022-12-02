@@ -774,6 +774,7 @@ definition {
 	@priority = "5"
 	test ImportLARsOnStagedSite {
 		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "StagingUsecase#ImportLARsOnStagedSite";
 		property testray.component.names = "Site Pages Administration,Training,Web Content Administration";
 
 		task ("Given: User import home page from LAR file on staging site") {
@@ -823,15 +824,7 @@ definition {
 			}
 		}
 
-		task ("When: User import a LAR file containing web contents") {
-			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name-staging");
-
-			LAR.importPortlet(
-				larFileName = "HR_WebContent_master.lar",
-				uploadFrom = "dependencies");
-		}
-
-		task ("And: Delete the imported portlets on the staging site then publish it") {
+		task ("When: Delete the imported portlets on the staging site then publish it") {
 			Navigator.gotoStagedSitePage(
 				pageName = "Home",
 				siteName = "Site Name");
@@ -859,58 +852,28 @@ definition {
 			Portlet.viewNoSpecificPG(portletName = "Web Content Display");
 		}
 
-		task ("And: Add new content widget to the staging site") {
-			WidgetPages.addRecentContent(assetTitle = "Enrollment Features");
-
+		task ("And: Publish the staging site") {
 			Navigator.gotoStagedSitePage(
 				pageName = "Home",
 				siteName = "Site Name");
-
-			WidgetPages.addRecentContent(assetTitle = "The SPACE Family");
-		}
-
-		task ("And: Configure Barebone decorator for the WCD then publish the staging site") {
-			Portlet.gotoPortletOptions(
-				portletName = "Web Content Display",
-				portletOption = "Look and Feel Configuration");
-
-			IFrame.selectConfigurationFrame();
-
-			Portlet.configureGeneralViaLookAndFeelPG(applicationDecorators = "Barebone");
-
-			Navigator.gotoStagedSitePage(
-				pageName = "Home",
-				siteName = "Site Name");
-
-			Portlet.viewApplicationDecorator(decorator = "Barebone");
 
 			Staging.gotoPublishToLive();
 
 			Staging.publishToLive();
 		}
 
-		task ("Then: Only the configured and not deleted portlets will be visible from the imported LAR files") {
+		task ("Then: Assert that changes are published to live site") {
 			Navigator.gotoSitePage(
 				pageName = "Home",
 				siteName = "Site Name");
 
 			Portlet.viewNoSpecificPG(portletName = "Activities");
 
-			Portlet.viewApplicationDecorator(decorator = "Barebone");
-
-			AssertTextEquals(
-				index = "2",
-				locator1 = "WCD#WEB_CONTENT_CONTENT",
-				value1 = "You're a part of the S.P.A.C.E. family");
-
-			AssertTextEquals.assertPartialText(
-				index = "1",
-				locator1 = "WCD#WEB_CONTENT_CONTENT",
-				value1 = "Faculty Meet-and-Greet Brunch");
+			Portlet.viewNoSpecificPG(portletName = "Web Content Display");
 
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
 
-			for (var webContentTitle : list "Meet and Greet,Orientation,Physicals,Enrollment Features,The SPACE Family") {
+			for (var webContentTitle : list "Meet and Greet,Orientation,Physicals") {
 				WebContent.viewTitle(
 					onLive = "true",
 					webContentTitle = "${webContentTitle}");
@@ -1223,139 +1186,221 @@ definition {
 		}
 	}
 
-	@description = "This is a use case for LPS-82757."
-	@priority = "3"
-	test PublishWebContentWithFeeds {
-		property test.name.skip.portal.instance = "StagingUsecase#PublishWebContentWithFeeds";
-		property testray.component.names = "Web Content Administration";
+	@description = "This is a use case for LPS-149374. TC-3: Verify the state of portlets and contents in Live when publishing with Publish Displayed Content by Default and Replicate Individual Deletions."
+	@priority = "5"
+	test PublishWithDefaultTrueAndReplicateIndividualDeletions {
+		property test.name.skip.portal.instance = "StagingUsecase#PublishWithDefaultTrueAndReplicateIndividualDeletions";
 
-		task ("Given: User enable feeds for Web Contents in the settings") {
+		task ("Given: Enable the publish displayed content by default function") {
 			SystemSettings.openSystemSettingsAdmin();
 
 			SystemSettings.gotoConfiguration(
-				configurationCategory = "Web Content",
-				configurationName = "Administration",
-				configurationScope = "System Scope");
+				configurationCategory = "Infrastructure",
+				configurationName = "Staging",
+				configurationScope = "Virtual Instance Scope");
 
-			FormFields.enableCheckbox(fieldName = "Show Feeds");
-
-			SystemSettings.saveConfiguration();
+			SystemSettings.configureSystemSetting(
+				enableSetting = "true",
+				settingFieldName = "Publish Displayed Content by Default");
 		}
 
-		task ("And: Add AP portlet to the staging site") {
-			JSONLayout.addWidgetToPublicLayout(
-				column = "1",
-				groupName = "Site Name (Staging)",
-				layoutName = "Staging Test Page",
-				site = "false",
-				widgetName = "Asset Publisher");
-		}
-
-		task ("And: Add WC feed then publish the site") {
-			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name-staging");
-
-			NavItem.gotoFeeds();
-
-			WebContentFeeds.addCP(
-				feedTitle = "Web Content Feed",
-				pageFriendlyURL = "/web/site-name-staging/staging-test-page",
-				structureName = "Basic Web Content");
-
-			WebContentFeeds.viewTableEntryCP(feedName = "Web Content Feed");
-
-			Navigator.gotoStagedSitePage(
-				pageName = "Staging Test Page",
-				siteName = "Site Name");
-
-			Staging.gotoPublishToLive();
-
-			Staging.publishToLive();
-
-			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
-
-			NavItem.gotoFeeds();
-
-			WebContentFeeds.viewTableEntryCP(feedName = "Web Content Feed");
-		}
-
-		task ("And: Add a second page to the default site with a WC display widget") {
-			JSONLayout.addPublicLayout(
-				groupName = "Site Name (Staging)",
-				layoutName = "Second Page",
-				site = "false");
-
-			JSONLayout.addWidgetToPublicLayout(
-				column = "1",
-				groupName = "Site Name (Staging)",
-				layoutName = "Second Page",
-				site = "false",
-				widgetName = "Web Content Display");
-		}
-
-		task ("And: Save the Id and the external URL of the feed on staging") {
-			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name-staging");
-
-			NavItem.gotoFeeds();
-
-			WebContentNavigator.gotoEditFeed(feedName = "Web Content Feed");
-
-			var webContentFeedURL = selenium.getAttribute("//a[contains(@href,'rss') and contains(.,'Preview')]@href");
-
-			var stagingFeedId = StringUtil.extractLast("${webContentFeedURL}", "/");
-			var entryExternalURL = StringUtil.replace("${webContentFeedURL}", "http://", "");
-
-			echo("## * Staging FeedId: ${stagingFeedId}");
-		}
-
-		task ("And: Add a new WC which points to external URL we previously saved then publish it") {
+		task ("And: Create 1WC, 1Form, 1Wiki content, 1DDL and connect them to display portlets on the page") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name-staging");
 
 			WebContentNavigator.gotoAddCP();
 
-			PortletEntry.inputTitle(title = "Web Content Title");
+			WebContent.addCP(
+				webContentContent = "Web Content Content",
+				webContentTitle = "Web Content Title");
 
-			CKEditor.addEntryExternalURL(
-				displayText = "${webContentFeedURL}",
-				entryExternalURL = "${entryExternalURL}",
-				fieldLabel = "Content");
+			PortletEntry.publish();
 
-			Button.clickPublish();
+			FormsAdmin.openFormsAdmin(siteURLKey = "site-name-staging");
 
-			VerifyElementPresent(locator1 = "Message#SUCCESS");
-		}
+			FormsAdminNavigator.gotoAddForm();
 
-		task ("When: User select this new WC for the WC display widget on the second stage on staging") {
+			Form.editName(formName = "Form Name");
+
+			Form.addTextField(fieldPositionNumber = "0");
+
+			Form.editFieldLabelMetal(fieldValue = "Text Field");
+
+			Form.publishForm();
+
+			WikiNavigator.openWikiAdmin(siteURLKey = "site-name-staging");
+
+			WikiNode.addCP(wikiNodeName = "Wiki Node Name");
+
+			WikiNavigator.gotoNode(wikiNodeName = "Wiki Node Name");
+
+			WikiPage.addCP(
+				wikiPageContent = "Wiki Page Content",
+				wikiPageTitle = "Wiki Page Title");
+
+			DDLList.openDynamicDataListsAdmin(siteURLKey = "site-name-staging");
+
+			DDLList.addCP(
+				ddlListDescription = "Contacts Description",
+				ddlListName = "Contacts");
+
+			DDLDataDefinition.selectCP(ddlDataDefinitionName = "Contacts");
+
+			DDLDataDefinition.save();
+
+			DDLRecord.addCP(
+				ddlDataDefinitionName = "Contacts",
+				ddlListName = "Contacts");
+
+			DDLRecord.populateFieldText(
+				ddlRecordFieldData = "Liferay",
+				fieldFieldLabel = "Company",
+				fieldName = "company");
+
+			PortletEntry.publish();
+
+			PagesAdmin.openPagesAdmin(siteURLKey = "site-name-staging");
+
+			PagesAdmin.configurePage(
+				columnName = "1 Column",
+				pageName = "Staging Test Page",
+				sitePageType = "Widget Page");
+
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Site Name (Staging)",
+				layoutName = "Staging Test Page",
+				site = "false",
+				widgetName = "Web Content Display");
+
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Site Name (Staging)",
+				layoutName = "Staging Test Page",
+				site = "false",
+				widgetName = "Form");
+
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Site Name (Staging)",
+				layoutName = "Staging Test Page",
+				site = "false",
+				widgetName = "Wiki Display");
+
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Site Name (Staging)",
+				layoutName = "Staging Test Page",
+				site = "false",
+				widgetName = "Dynamic Data Lists Display");
+
 			Navigator.gotoStagedSitePage(
-				pageName = "Second Page",
+				pageName = "Staging Test Page",
 				siteName = "Site Name");
 
 			WebContentDisplayPortlet.selectWebContent(webContentTitle = "Web Content Title");
+
+			IFrame.closeFrame();
+
+			FormPortletNavigator.gotoSelectForm();
+
+			FormPortletConfiguration.selectForm(formName = "Form Name");
+
+			PortletEntry.save();
+
+			IFrame.closeFrame();
+
+			WikiDisplayPortlet.configureSetupPG(
+				wikiNodeName = "Wiki Node Name",
+				wikiPageName = "Wiki Page Title");
+
+			IFrame.closeFrame();
+
+			DDLList.selectViaDDLDisplayPG(ddlListName = "Contacts");
+
+			IFrame.closeFrame();
 		}
 
-		task ("And: Make a publish process from staging") {
+		task ("And: Publish staging without any content and verify that on Live the portlets are present with the contents displayed in them") {
+			Staging.gotoPublishToLive();
+
+			Staging.configurePublishToLive(
+				checkPageName = "Staging Test Page",
+				contentDateRange = "All",
+				uncheckContentNameList = "Dynamic Data Lists,Web Content,Forms,Wiki");
+
+			Staging.publishToLive();
+
+			Navigator.gotoSitePage(
+				pageName = "Staging Test Page",
+				siteName = "Site Name");
+
+			WebContentDisplayPortlet.viewContent(
+				webContentContent = "Web Content Content",
+				webContentTitle = "Web Content Title");
+
+			FormFields.viewTextLabel(
+				fieldLabel = "Text Field",
+				fieldName = "Text");
+
+			WikiPage.viewPG(
+				wikiPageContent = "Wiki Page Content",
+				wikiPageTitle = "Wiki Page Title");
+
+			AssertElementPresent(
+				key_ddlRecordFieldData = "Liferay",
+				key_fieldFieldLabel = "Company",
+				locator1 = "DDL#RECORD_TABLE_ENTRY");
+		}
+
+		task ("When: Delete the previously created contents and republish staging with checking the replicate individual deletions function and all deleted contents") {
+			JSONWebcontent.deleteWebContent(
+				groupName = "Site Name (Staging)",
+				site = "false",
+				title = "Web Content Title");
+
+			FormsAdmin.openFormsAdmin(siteURLKey = "site-name-staging");
+
+			FormsAdmin.deleteForm(formName = "Form Name");
+
+			DDLList.openDynamicDataListsAdmin(siteURLKey = "site-name-staging");
+
+			DDLList.deleteCP(ddlListName = "Contacts");
+
+			WikiNavigator.openWikiAdmin(siteURLKey = "site-name-staging");
+
+			WikiNode.deleteCP(wikiNodeName = "Wiki Node Name");
+
+			JSONRecycleBin.emptyRecycleBin(
+				groupName = "Site Name (Staging)",
+				site = "false");
+
 			Navigator.gotoStagedSitePage(
 				pageName = "Staging Test Page",
 				siteName = "Site Name");
 
 			Staging.gotoPublishToLive();
 
+			Staging.configurePublishToLive(
+				checkContentNameList = "Dynamic Data Lists,Web Content,Wiki",
+				checkPageName = "Staging Test Page",
+				contentDateRange = "All",
+				contentDeletion = "true");
+
 			Staging.publishToLive();
 		}
 
-		task ("Then: The feedId on staging and on live should be different") {
+		task ("Then: Verify that on Live the portlets are present but not the contents from them") {
 			Navigator.gotoSitePage(
-				pageName = "Second Page",
+				pageName = "Staging Test Page",
 				siteName = "Site Name");
 
-			var webContentFeedURL = selenium.getAttribute("//div[contains(@class,'journal-content-article')]//a[contains(@href,'rss')]@href");
+			Alert.viewWarningSpecific(warningMessage = "The selected web content no longer exists.");
 
-			var liveFeedId = StringUtil.extractLast("${webContentFeedURL}", "/");
+			Alert.viewWarningSpecific(warningMessage = "This form is not available or it was not published.");
 
-			echo("## * Live FeedId: ${liveFeedId}");
+			Portlet.viewPG(
+				portletBody = "Please configure this portlet to make it visible to all users.",
+				portletName = "Wiki Display");
 
-			if ("${liveFeedId}" == "${stagingFeedId}") {
-				fail("The feedID should be different in live site.");
-			}
+			AssertTextPresent(
+				locator1 = "Message#ERROR",
+				value1 = "Error:The record set could not be found.");
 		}
 	}
 
@@ -2439,15 +2484,6 @@ definition {
 				title = "Web Content Title");
 		}
 
-		task ("And: Add new Bookmark to the staging site") {
-			JSONBookmarks.addBookmarks(
-				description = "This is a test bookmark",
-				groupName = "Site Name (Staging)",
-				name = "Test Bookmark",
-				site = "false",
-				url = "https://www.liferay.com");
-		}
-
 		task ("And: Add new Document file to the staging site") {
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentDescription = "DM Document Description",
@@ -2464,12 +2500,6 @@ definition {
 				confirmMessage = "Are you sure you want to publish the selected web content?",
 				entry = "Web Content Title");
 
-			Bookmark.openBookmarksAdmin(siteURLKey = "site-name-staging");
-
-			Staging.publishViaSAP(
-				confirmMessage = "Are you sure you want to publish to live?",
-				entry = "Test Bookmark");
-
 			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name-staging");
 
 			Staging.publishViaSAP(
@@ -2483,12 +2513,6 @@ definition {
 			WebContent.viewTitle(
 				onLive = "true",
 				webContentTitle = "Web Content Title");
-
-			Bookmark.openBookmarksAdmin(siteURLKey = "site-name");
-
-			Bookmark.viewBookmark(
-				bookmarkName = "Test Bookmark",
-				bookmarkURL = "https://www.liferay.com");
 
 			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");
 

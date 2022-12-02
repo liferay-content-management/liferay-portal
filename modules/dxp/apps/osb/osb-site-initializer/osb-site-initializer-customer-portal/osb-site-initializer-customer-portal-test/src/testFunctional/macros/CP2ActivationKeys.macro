@@ -32,6 +32,50 @@ definition {
 		AssertVisible(locator1 = "CP2ActivationKeys#DROPDOWN");
 	}
 
+	macro assertInfoNewKeyCard {
+		if (isSet(product)) {
+			var key_label = "Product";
+			var key_value = "${product}";
+
+			AssertElementPresent(locator1 = "CP2ActivationKeys#INFO_NEW_KEY_CARD");
+		}
+
+		if (isSet(version)) {
+			var key_label = "Version";
+			var key_value = "${version}";
+
+			AssertElementPresent(locator1 = "CP2ActivationKeys#INFO_NEW_KEY_CARD");
+		}
+
+		if (isSet(licenseType)) {
+			var key_label = "License Type";
+			var key_value = "${licenseType}";
+
+			AssertElementPresent(locator1 = "CP2ActivationKeys#INFO_NEW_KEY_CARD");
+		}
+
+		if (isSet(subscription)) {
+			var key_label = "Subscription";
+			var key_value = "${subscription}";
+
+			AssertElementPresent(locator1 = "CP2ActivationKeys#INFO_NEW_KEY_CARD");
+		}
+
+		if (isSet(activationsAvailable)) {
+			var key_label = "Key Activations Available";
+			var key_value = "${activationsAvailable}";
+
+			AssertElementPresent(locator1 = "CP2ActivationKeys#INFO_NEW_KEY_CARD");
+		}
+
+		if (isSet(instanceSize)) {
+			var key_label = "Instance Size";
+			var key_value = "${instanceSize}";
+
+			AssertElementPresent(locator1 = "CP2ActivationKeys#INFO_NEW_KEY_CARD");
+		}
+	}
+
 	macro assertInstructionsTable {
 		for (var text : list "${textList}") {
 			var key_text = "${text}";
@@ -158,6 +202,14 @@ definition {
 			value1 = "${option}");
 	}
 
+	macro assertSignatureWithNoKeysIsVisible {
+		AssertVisible(locator1 = "CP2ActivationKeys#SUBSCRIPTION_KEY_DISABLED");
+	}
+
+	macro assertTableIsNotVisible {
+		AssertElementNotPresent(locator1 = "CP2ActivationKeys#TABLE");
+	}
+
 	macro assertTextAtTable {
 		var key_linePosition = "${linePosition}";
 		var key_colunmPosition = "${lineColunm}";
@@ -166,6 +218,16 @@ definition {
 		AssertTextEquals(
 			locator1 = "CP2ActivationKeys#TABLE_ELEMENT_BY_POSITION",
 			value1 = "${text}");
+	}
+
+	macro assertTextButton {
+		var key_text = "${text}";
+
+		AssertVisible(locator1 = "CustomerPortalSite#BUTTON");
+	}
+
+	macro assertThatPaginationDoesNotAppear {
+		AssertElementNotPresent(locator1 = "CP2ActivationKeys#PAGINATION_BUTTON");
 	}
 
 	macro assertTooltipIsVisible {
@@ -220,20 +282,32 @@ definition {
 		Button.click(button = "Deactivate");
 
 		WaitForElementPresent(
-			key_text = "I certify that the instances activated with the selected activation keys has have been shut down and that there is no liferay software installed deployed used or executed that is activated with the selected activation keys.",
+			key_text = "I certify that the instances activated with the selected activation keys have been shut down and that there is no Liferay software installed, deployed, used or executed that is activated with the selected activation keys.",
 			locator1 = "CP2ActivationKeys#KEY_DEACTIVATION_TERMS");
 
 		Button.click(button = "Confirm Deactivate Keys");
 
-		Button.click(button = "continue");
+		Button.click(button = "Continue");
 
 		Alert.viewSuccessMessage();
 	}
 
-	macro exportAllKeyDetails {
-		CustomerPortal.clickAtButton(text = "Actions");
+	macro environmentDetails {
+		var key_environmentDetails = "${environmentDetails}";
 
-		CP2ActivationKeys.clickAtDropdownItem(dropdownItem = "Export All Key Details (csv)");
+		Type(
+			locator1 = "CP2ActivationKeys#ENVIRONMENT_DETAILS",
+			value1 = "${value}");
+	}
+
+	macro exportAllKeyDetails {
+		Click(
+			key_text = "Actions",
+			locator1 = "Button#ANY");
+
+		Click(
+			key_action = "Export All Key Details (csv)",
+			locator1 = "CP2ActivationKeys#ACTIONS_DROPDOWN");
 
 		Alert.viewSuccessMessage();
 
@@ -363,12 +437,46 @@ definition {
 			value1 = "${content}");
 	}
 
+	macro generateKeyFlow {
+		CustomerPortal.search(searchItem = "${project}");
+
+		CustomerPortal.enterOnProject(title = "${project}");
+
+		CP2NavigationMenu.goToProductActivation();
+
+		CP2NavigationMenu.clickOnProductButton(product = "${product}");
+
+		CP2ActivationKeys.generateNewKey();
+	}
+
 	macro generateNewKey {
 		CustomerPortal.clickAtButton(text = "Actions");
 
 		CP2ActivationKeys.clickAtDropdownItem(dropdownItem = "Generate New");
 
 		AssertElementPresent(locator1 = "CP2ActivationKeys#GENERATE_KEY_FORM");
+	}
+
+	macro getStartDateTextFromSignature {
+		var key_index = "1";
+
+		if (isSet(index)) {
+			var key_index = "${index}";
+		}
+
+		WaitForElementPresent(locator1 = "CP2ActivationKeys#SIGNATURE_PERIOD_TEXT");
+
+		var signatureDate = selenium.getText("CP2ActivationKeys#SIGNATURE_PERIOD_TEXT");
+
+		var startDate = StringUtil.substring("${signatureDate}", "0", "12");
+
+		var endsWithWhiteSpace = StringUtil.endsWith("${startDate}", " ");
+
+		if ("${endsWithWhiteSpace}" == "true") {
+			var startDate = StringUtil.substring("${signatureDate}", "0", "11");
+		}
+
+		return "${startDate}";
 	}
 
 	macro gotoKeyDeactivation {
@@ -397,8 +505,21 @@ definition {
 		MouseOver(locator1 = "CP2ActivationKeys#TABLE_ELEMENT_BY_TEXT");
 	}
 
+	macro putMouseOverStatusElementAtTable {
+		var key_linePosition = "${linePosition}";
+		var key_status = "${status}";
+
+		MouseOver(locator1 = "CP2ActivationKeys#TABLE_ELEMENT_BY_STATUS");
+	}
+
 	macro selectAllKeysOnPage {
 		Check(locator1 = "CP2ActivationKeys#KEY_CHECKBOX_ALL");
+	}
+
+	macro selectClusterNodes {
+		Select(
+			locator1 = "CP2ActivationKeys#CLUSTER_NODES",
+			value1 = "${key_option}");
 	}
 
 	macro selectFistActiveSubscriptionInput {
@@ -450,6 +571,28 @@ definition {
 		Click(
 			key_position = "${position}",
 			locator1 = "CP2ActivationKeys#SUBSCRIPTION_CHOICE");
+	}
+
+	macro typeEnvironmentDetailsFields {
+		CP2ActivationKeys.environmentDetails(
+			environmentDetails = "name",
+			value = "Liferay Test");
+
+		CP2ActivationKeys.environmentDetails(
+			environmentDetails = "description",
+			value = "Liferay Dev Environmet");
+
+		CP2ActivationKeys.environmentDetails(
+			environmentDetails = "host",
+			value = "Host Name");
+
+		CP2ActivationKeys.environmentDetails(
+			environmentDetails = "ipAddresses",
+			value = "1.1.1.1");
+
+		CP2ActivationKeys.environmentDetails(
+			environmentDetails = "macAddresses",
+			value = "20-20-20-20-20-20");
 	}
 
 	macro viewActivationKeyDetails {

@@ -14,6 +14,8 @@
 
 package com.liferay.portal.search.web.internal.facet.display.context;
 
+import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.search.facet.Facet;
@@ -28,6 +30,7 @@ import com.liferay.portal.search.web.internal.facet.display.context.builder.Scop
 import com.liferay.portal.search.web.internal.site.facet.configuration.SiteFacetPortletInstanceConfiguration;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -68,13 +71,11 @@ public class ScopeSearchFacetDisplayContextTest {
 		ScopeSearchFacetDisplayContext scopeSearchFacetDisplayContext =
 			createDisplayContext(parameterValue);
 
-		List<ScopeSearchFacetTermDisplayContext>
-			scopeSearchFacetTermDisplayContexts =
-				scopeSearchFacetDisplayContext.getTermDisplayContexts();
+		List<BucketDisplayContext> bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
 
 		Assert.assertEquals(
-			scopeSearchFacetTermDisplayContexts.toString(), 0,
-			scopeSearchFacetTermDisplayContexts.size());
+			bucketDisplayContexts.toString(), 0, bucketDisplayContexts.size());
 
 		Assert.assertEquals(
 			parameterValue, scopeSearchFacetDisplayContext.getParameterValue());
@@ -94,24 +95,21 @@ public class ScopeSearchFacetDisplayContextTest {
 		ScopeSearchFacetDisplayContext scopeSearchFacetDisplayContext =
 			createDisplayContext(parameterValue);
 
-		List<ScopeSearchFacetTermDisplayContext>
-			scopeSearchFacetTermDisplayContexts =
-				scopeSearchFacetDisplayContext.getTermDisplayContexts();
+		List<BucketDisplayContext> bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
 
 		Assert.assertEquals(
-			scopeSearchFacetTermDisplayContexts.toString(), 1,
-			scopeSearchFacetTermDisplayContexts.size());
+			bucketDisplayContexts.toString(), 1, bucketDisplayContexts.size());
 
-		ScopeSearchFacetTermDisplayContext scopeSearchFacetTermDisplayContext =
-			scopeSearchFacetTermDisplayContexts.get(0);
+		BucketDisplayContext bucketDisplayContext = bucketDisplayContexts.get(
+			0);
 
-		Assert.assertEquals(0, scopeSearchFacetTermDisplayContext.getCount());
+		Assert.assertEquals(name, bucketDisplayContext.getBucketText());
 		Assert.assertEquals(
-			name, scopeSearchFacetTermDisplayContext.getDescriptiveName());
-		Assert.assertEquals(
-			groupId, scopeSearchFacetTermDisplayContext.getGroupId());
-		Assert.assertTrue(scopeSearchFacetTermDisplayContext.isSelected());
-		Assert.assertTrue(scopeSearchFacetTermDisplayContext.isShowCount());
+			String.valueOf(groupId), bucketDisplayContext.getFilterValue());
+		Assert.assertEquals(0, bucketDisplayContext.getFrequency());
+		Assert.assertTrue(bucketDisplayContext.isFrequencyVisible());
+		Assert.assertTrue(bucketDisplayContext.isSelected());
 
 		Assert.assertEquals(
 			parameterValue, scopeSearchFacetDisplayContext.getParameterValue());
@@ -135,25 +133,21 @@ public class ScopeSearchFacetDisplayContextTest {
 		ScopeSearchFacetDisplayContext scopeSearchFacetDisplayContext =
 			createDisplayContext(parameterValue);
 
-		List<ScopeSearchFacetTermDisplayContext>
-			scopeSearchFacetTermDisplayContexts =
-				scopeSearchFacetDisplayContext.getTermDisplayContexts();
+		List<BucketDisplayContext> bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
 
 		Assert.assertEquals(
-			scopeSearchFacetTermDisplayContexts.toString(), 1,
-			scopeSearchFacetTermDisplayContexts.size());
+			bucketDisplayContexts.toString(), 1, bucketDisplayContexts.size());
 
-		ScopeSearchFacetTermDisplayContext scopeSearchFacetTermDisplayContext =
-			scopeSearchFacetTermDisplayContexts.get(0);
+		BucketDisplayContext bucketDisplayContext = bucketDisplayContexts.get(
+			0);
 
+		Assert.assertEquals(name, bucketDisplayContext.getBucketText());
 		Assert.assertEquals(
-			count, scopeSearchFacetTermDisplayContext.getCount());
-		Assert.assertEquals(
-			name, scopeSearchFacetTermDisplayContext.getDescriptiveName());
-		Assert.assertEquals(
-			groupId, scopeSearchFacetTermDisplayContext.getGroupId());
-		Assert.assertFalse(scopeSearchFacetTermDisplayContext.isSelected());
-		Assert.assertTrue(scopeSearchFacetTermDisplayContext.isShowCount());
+			String.valueOf(groupId), bucketDisplayContext.getFilterValue());
+		Assert.assertEquals(count, bucketDisplayContext.getFrequency());
+		Assert.assertTrue(bucketDisplayContext.isFrequencyVisible());
+		Assert.assertFalse(bucketDisplayContext.isSelected());
 
 		Assert.assertEquals(
 			parameterValue, scopeSearchFacetDisplayContext.getParameterValue());
@@ -177,25 +171,21 @@ public class ScopeSearchFacetDisplayContextTest {
 		ScopeSearchFacetDisplayContext scopeSearchFacetDisplayContext =
 			createDisplayContext(parameterValue);
 
-		List<ScopeSearchFacetTermDisplayContext>
-			scopeSearchFacetTermDisplayContexts =
-				scopeSearchFacetDisplayContext.getTermDisplayContexts();
+		List<BucketDisplayContext> bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
 
 		Assert.assertEquals(
-			scopeSearchFacetTermDisplayContexts.toString(), 1,
-			scopeSearchFacetTermDisplayContexts.size());
+			bucketDisplayContexts.toString(), 1, bucketDisplayContexts.size());
 
-		ScopeSearchFacetTermDisplayContext scopeSearchFacetTermDisplayContext =
-			scopeSearchFacetTermDisplayContexts.get(0);
+		BucketDisplayContext bucketDisplayContext = bucketDisplayContexts.get(
+			0);
 
+		Assert.assertEquals(name, bucketDisplayContext.getBucketText());
 		Assert.assertEquals(
-			count, scopeSearchFacetTermDisplayContext.getCount());
-		Assert.assertEquals(
-			name, scopeSearchFacetTermDisplayContext.getDescriptiveName());
-		Assert.assertEquals(
-			groupId, scopeSearchFacetTermDisplayContext.getGroupId());
-		Assert.assertTrue(scopeSearchFacetTermDisplayContext.isSelected());
-		Assert.assertTrue(scopeSearchFacetTermDisplayContext.isShowCount());
+			String.valueOf(groupId), bucketDisplayContext.getFilterValue());
+		Assert.assertEquals(count, bucketDisplayContext.getFrequency());
+		Assert.assertTrue(bucketDisplayContext.isFrequencyVisible());
+		Assert.assertTrue(bucketDisplayContext.isSelected());
 
 		Assert.assertEquals(
 			parameterValue, scopeSearchFacetDisplayContext.getParameterValue());
@@ -203,8 +193,171 @@ public class ScopeSearchFacetDisplayContextTest {
 		Assert.assertFalse(scopeSearchFacetDisplayContext.isRenderNothing());
 	}
 
+	@Test
+	public void testOrderByTermFrequencyAscending() throws Exception {
+		List<TermCollector> termCollectors = _getTermCollectors(
+			new String[] {"able", "baker", "dog", "charlie"},
+			new int[] {6, 5, 4, 3});
+
+		_setUpMultipleTermCollectors(termCollectors);
+
+		ScopeSearchFacetDisplayContext scopeSearchFacetDisplayContext =
+			createDisplayContext(StringPool.BLANK, "count:asc");
+
+		List<BucketDisplayContext> bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
+
+		String nameFrequencyString = _buildNameFrequencyString(
+			bucketDisplayContexts);
+
+		Assert.assertEquals(
+			bucketDisplayContexts.toString(), "charlie:3|dog:4|baker:5|able:6",
+			nameFrequencyString);
+
+		termCollectors = _getTermCollectors(
+			new String[] {"charlie", "dog", "baker", "able"},
+			new int[] {6, 5, 5, 4});
+
+		_setUpMultipleTermCollectors(termCollectors);
+
+		scopeSearchFacetDisplayContext = createDisplayContext(
+			StringPool.BLANK, "count:asc");
+
+		bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
+
+		nameFrequencyString = _buildNameFrequencyString(bucketDisplayContexts);
+
+		Assert.assertEquals(
+			bucketDisplayContexts.toString(), "able:4|baker:5|dog:5|charlie:6",
+			nameFrequencyString);
+	}
+
+	@Test
+	public void testOrderByTermFrequencyDescending() throws Exception {
+		List<TermCollector> termCollectors = _getTermCollectors(
+			new String[] {"able", "charlie", "baker", "dog"},
+			new int[] {3, 4, 5, 6});
+
+		_setUpMultipleTermCollectors(termCollectors);
+
+		ScopeSearchFacetDisplayContext scopeSearchFacetDisplayContext =
+			createDisplayContext(StringPool.BLANK, "count:desc");
+
+		List<BucketDisplayContext> bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
+
+		String nameFrequencyString = _buildNameFrequencyString(
+			bucketDisplayContexts);
+
+		Assert.assertEquals(
+			bucketDisplayContexts.toString(), "dog:6|baker:5|charlie:4|able:3",
+			nameFrequencyString);
+
+		termCollectors = _getTermCollectors(
+			new String[] {"able", "dog", "baker", "charlie"},
+			new int[] {4, 5, 5, 6});
+
+		_setUpMultipleTermCollectors(termCollectors);
+
+		scopeSearchFacetDisplayContext = createDisplayContext(
+			StringPool.BLANK, "count:desc");
+
+		bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
+
+		nameFrequencyString = _buildNameFrequencyString(bucketDisplayContexts);
+
+		Assert.assertEquals(
+			bucketDisplayContexts.toString(), "charlie:6|baker:5|dog:5|able:4",
+			nameFrequencyString);
+	}
+
+	@Test
+	public void testOrderByTermValueAscending() throws Exception {
+		List<TermCollector> termCollectors = _getTermCollectors(
+			"baker", "dog", "able", "charlie");
+
+		_setUpMultipleTermCollectors(termCollectors);
+
+		ScopeSearchFacetDisplayContext scopeSearchFacetDisplayContext =
+			createDisplayContext(StringPool.BLANK, "key:asc");
+
+		List<BucketDisplayContext> bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
+
+		String nameFrequencyString = _buildNameFrequencyString(
+			bucketDisplayContexts);
+
+		Assert.assertEquals(
+			bucketDisplayContexts.toString(), "able:3|baker:1|charlie:4|dog:2",
+			nameFrequencyString);
+
+		termCollectors = _getTermCollectors(
+			"baker", "able", "baker", "charlie");
+
+		_setUpMultipleTermCollectors(termCollectors);
+
+		scopeSearchFacetDisplayContext = createDisplayContext(
+			StringPool.BLANK, "key:asc");
+
+		bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
+
+		nameFrequencyString = _buildNameFrequencyString(bucketDisplayContexts);
+
+		Assert.assertEquals(
+			bucketDisplayContexts.toString(),
+			"able:2|baker:3|baker:1|charlie:4", nameFrequencyString);
+	}
+
+	@Test
+	public void testOrderByTermValueDescending() throws Exception {
+		List<TermCollector> termCollectors = _getTermCollectors(
+			"baker", "dog", "able", "charlie");
+
+		_setUpMultipleTermCollectors(termCollectors);
+
+		ScopeSearchFacetDisplayContext scopeSearchFacetDisplayContext =
+			createDisplayContext(StringPool.BLANK, "key:desc");
+
+		List<BucketDisplayContext> bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
+
+		String nameFrequencyString = _buildNameFrequencyString(
+			bucketDisplayContexts);
+
+		Assert.assertEquals(
+			bucketDisplayContexts.toString(), "dog:2|charlie:4|baker:1|able:3",
+			nameFrequencyString);
+
+		termCollectors = _getTermCollectors(
+			"baker", "able", "baker", "charlie");
+
+		_setUpMultipleTermCollectors(termCollectors);
+
+		scopeSearchFacetDisplayContext = createDisplayContext(
+			StringPool.BLANK, "key:desc");
+
+		bucketDisplayContexts =
+			scopeSearchFacetDisplayContext.getBucketDisplayContexts();
+
+		nameFrequencyString = _buildNameFrequencyString(bucketDisplayContexts);
+
+		Assert.assertEquals(
+			bucketDisplayContexts.toString(),
+			"charlie:4|baker:3|baker:1|able:2", nameFrequencyString);
+	}
+
 	protected ScopeSearchFacetDisplayContext createDisplayContext(
 			String parameterValue)
+		throws ConfigurationException {
+
+		return createDisplayContext(parameterValue, "count:desc");
+	}
+
+	protected ScopeSearchFacetDisplayContext createDisplayContext(
+			String parameterValue, String order)
 		throws ConfigurationException {
 
 		ScopeSearchFacetDisplayContextBuilder
@@ -215,6 +368,7 @@ public class ScopeSearchFacetDisplayContextTest {
 		scopeSearchFacetDisplayContextBuilder.setFrequenciesVisible(true);
 		scopeSearchFacetDisplayContextBuilder.setGroupLocalService(
 			_groupLocalService);
+		scopeSearchFacetDisplayContextBuilder.setOrder(order);
 		scopeSearchFacetDisplayContextBuilder.setParameterValue(parameterValue);
 
 		return scopeSearchFacetDisplayContextBuilder.build();
@@ -314,6 +468,71 @@ public class ScopeSearchFacetDisplayContextTest {
 		).fetchGroup(
 			groupId
 		);
+	}
+
+	private String _buildNameFrequencyString(
+			List<BucketDisplayContext> bucketDisplayContexts)
+		throws Exception {
+
+		StringBundler sb = new StringBundler(bucketDisplayContexts.size() * 4);
+
+		for (BucketDisplayContext bucketDisplayContext :
+				bucketDisplayContexts) {
+
+			sb.append(bucketDisplayContext.getBucketText());
+			sb.append(StringPool.COLON);
+			sb.append(bucketDisplayContext.getFrequency());
+			sb.append(StringPool.PIPE);
+		}
+
+		sb.setIndex(sb.index() - 1);
+
+		return sb.toString();
+	}
+
+	private List<TermCollector> _getTermCollectors(String... groupNames)
+		throws Exception {
+
+		List<TermCollector> termCollectors = new ArrayList<>();
+
+		int groupId = 0;
+
+		for (String groupName : groupNames) {
+			_addGroup(groupId, groupName);
+
+			int frequency = groupId + 1;
+
+			termCollectors.add(createTermCollector(groupId, frequency));
+
+			groupId++;
+		}
+
+		return termCollectors;
+	}
+
+	private List<TermCollector> _getTermCollectors(
+			String[] groupNames, int[] frequencies)
+		throws Exception {
+
+		List<TermCollector> termCollectors = new ArrayList<>();
+
+		for (int i = 1; i <= groupNames.length; i++) {
+			_addGroup(i, groupNames[i - 1]);
+
+			termCollectors.add(createTermCollector(i, frequencies[i - 1]));
+		}
+
+		return termCollectors;
+	}
+
+	private void _setUpMultipleTermCollectors(
+		List<TermCollector> termCollectors) {
+
+		Mockito.doReturn(
+			termCollectors
+		).when(
+			_facetCollector
+		).getTermCollectors();
 	}
 
 	private final Facet _facet = Mockito.mock(Facet.class);

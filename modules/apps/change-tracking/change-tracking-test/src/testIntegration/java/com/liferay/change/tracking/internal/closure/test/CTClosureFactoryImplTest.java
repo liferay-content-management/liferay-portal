@@ -194,8 +194,7 @@ public class CTClosureFactoryImplTest {
 					"CTCollectionLocalServiceImpl",
 				LoggerTestUtil.WARN)) {
 
-			_ctCollectionLocalService.deleteCTCollection(
-				_ctCollection.getCtCollectionId());
+			_ctCollectionLocalService.deleteCTCollection(_ctCollection);
 		}
 
 		_db.runSQL("drop table GrandParentTable");
@@ -916,11 +915,6 @@ public class CTClosureFactoryImplTest {
 
 		@Override
 		public void setPrimaryKeyObj(Serializable primaryKeyObj) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public String toXmlString() {
 			throw new UnsupportedOperationException();
 		}
 

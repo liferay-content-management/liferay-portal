@@ -16,13 +16,16 @@ package com.liferay.jenkins.results.parser.test.clazz.group;
 
 import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 import com.liferay.jenkins.results.parser.Job;
+import com.liferay.jenkins.results.parser.JobFactory;
 import com.liferay.jenkins.results.parser.PortalAWSJob;
 import com.liferay.jenkins.results.parser.PortalEnvironmentJob;
 import com.liferay.jenkins.results.parser.PortalTestClassJob;
 import com.liferay.jenkins.results.parser.QAWebsitesGitRepositoryJob;
-import com.liferay.jenkins.results.parser.RootCauseAnalysisToolJob;
 
 import java.io.File;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
@@ -128,9 +131,7 @@ public class TestClassGroupFactory {
 				batchTestClassGroup);
 		}
 
-		if (batchTestClassGroup instanceof FunctionalBatchTestClassGroup ||
-			batchTestClassGroup instanceof FunctionalRCABatchTestClassGroup) {
-
+		if (batchTestClassGroup instanceof FunctionalBatchTestClassGroup) {
 			Job job = batchTestClassGroup.getJob();
 
 			if (job instanceof PortalAWSJob) {
@@ -150,9 +151,7 @@ public class TestClassGroupFactory {
 
 			return new FunctionalSegmentTestClassGroup(batchTestClassGroup);
 		}
-		else if (batchTestClassGroup instanceof JUnitBatchTestClassGroup ||
-				 batchTestClassGroup instanceof JUnitRCABatchTestClassGroup) {
-
+		else if (batchTestClassGroup instanceof JUnitBatchTestClassGroup) {
 			if (jsonObject != null) {
 				return new JUnitSegmentTestClassGroup(
 					batchTestClassGroup, jsonObject);
@@ -213,9 +212,14 @@ public class TestClassGroupFactory {
 			batchName = jsonObject.getString("batch_name");
 		}
 
-		BatchTestClassGroup batchTestClassGroup = null;
+		String key = JobFactory.getKey(job) + "_" + batchName;
 
-		if (job instanceof PortalEnvironmentJob) {
+		BatchTestClassGroup batchTestClassGroup = _batchTestClassGroups.get(
+			key);
+
+		if ((batchTestClassGroup == null) &&
+			(job instanceof PortalEnvironmentJob)) {
+
 			if (jsonObject != null) {
 				batchTestClassGroup =
 					new EnvironmentFunctionalBatchTestClassGroup(
@@ -225,45 +229,6 @@ public class TestClassGroupFactory {
 				batchTestClassGroup =
 					new EnvironmentFunctionalBatchTestClassGroup(
 						batchName, (PortalEnvironmentJob)job);
-			}
-		}
-
-		if ((batchTestClassGroup == null) &&
-			(job instanceof RootCauseAnalysisToolJob)) {
-
-			if (batchName.startsWith("functional-")) {
-				if (jsonObject != null) {
-					batchTestClassGroup = new FunctionalRCABatchTestClassGroup(
-						jsonObject, (RootCauseAnalysisToolJob)job);
-				}
-				else {
-					batchTestClassGroup = new FunctionalRCABatchTestClassGroup(
-						batchName, (RootCauseAnalysisToolJob)job);
-				}
-			}
-			else if (batchName.startsWith("integration-") ||
-					 batchName.startsWith("modules-integration-") ||
-					 batchName.startsWith("modules-unit-") ||
-					 batchName.startsWith("unit-")) {
-
-				if (jsonObject != null) {
-					batchTestClassGroup = new JUnitRCABatchTestClassGroup(
-						jsonObject, (RootCauseAnalysisToolJob)job);
-				}
-				else {
-					batchTestClassGroup = new JUnitRCABatchTestClassGroup(
-						batchName, (RootCauseAnalysisToolJob)job);
-				}
-			}
-			else {
-				if (jsonObject != null) {
-					batchTestClassGroup = new RCABatchTestClassGroup(
-						jsonObject, (RootCauseAnalysisToolJob)job);
-				}
-				else {
-					batchTestClassGroup = new RCABatchTestClassGroup(
-						batchName, (RootCauseAnalysisToolJob)job);
-				}
 			}
 		}
 
@@ -457,7 +422,12 @@ public class TestClassGroupFactory {
 			throw new IllegalArgumentException("Unknown test class group");
 		}
 
+		_batchTestClassGroups.put(key, batchTestClassGroup);
+
 		return batchTestClassGroup;
 	}
+
+	private static final Map<String, BatchTestClassGroup>
+		_batchTestClassGroups = new ConcurrentHashMap<>();
 
 }

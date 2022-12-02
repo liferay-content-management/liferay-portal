@@ -12,58 +12,131 @@
  * details.
  */
 
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useParams} from 'react-router-dom';
 
 import Form from '../../../../components/Form';
-import Container from '../../../../components/Layout/Container';
 import ListView from '../../../../components/ListView';
 import Modal from '../../../../components/Modal';
 import {withVisibleContent} from '../../../../hoc/withVisibleContent';
 import {FormModalOptions} from '../../../../hooks/useFormModal';
 import i18n from '../../../../i18n';
 import {filters} from '../../../../schema/filter';
+import fetcher from '../../../../services/fetcher';
+import {APIResponse, TestraySuiteCase} from '../../../../services/rest';
+import {getUniqueList} from '../../../../util';
 import {searchUtil} from '../../../../util/search';
+import SelectCase from '../../Suites/modal/SelectCase';
+
+type ModalType = {
+	type: 'select-cases' | 'select-suites';
+};
 
 type BuildSelectSuitesModalProps = {
+	displayTitle?: boolean;
 	modal: FormModalOptions;
+	type: 'select-cases' | 'select-suites';
 };
 
 const BuildSelectSuitesModal: React.FC<BuildSelectSuitesModalProps> = ({
-	modal: {observer, onClose, onSave, visible},
+	displayTitle = false,
+	modal: {modalState, observer, onClose, onSave, visible},
 }) => {
-	const [state, setState] = useState<any>({});
+	const [caseIds, setCaseIds] = useState<number[]>([]);
+	const [suiteIds, setSuiteIds] = useState<number[]>([]);
 	const {projectId} = useParams();
+	const [modalType, setModalType] = useState<ModalType>({
+		type: 'select-suites',
+	});
+
+	const setCaseIdsState = useCallback(
+		(newCaseIds: number[]) =>
+			setCaseIds(getUniqueList([...caseIds, ...newCaseIds])),
+		[caseIds]
+	);
+
+	function onSubmit() {
+		if (modalType.type === 'select-cases') {
+			return onSave(caseIds);
+		}
+
+		if (modalType.type === 'select-suites') {
+			fetcher<APIResponse<TestraySuiteCase>>(
+				`/suitescaseses?fields=r_caseToSuitesCases_c_caseId&filter=${searchUtil.in(
+					'suiteId',
+					suiteIds
+				)}&pageSize=1000`
+			).then((response) => {
+				if (response?.totalCount) {
+					setCaseIds((prevCaseIds) => {
+						const allCaseIds = getUniqueList([
+							...prevCaseIds,
+							...response.items.map(
+								({r_caseToSuitesCases_c_caseId}) =>
+									r_caseToSuitesCases_c_caseId
+							),
+						]);
+
+						onSave([...modalState, ...caseIds, ...allCaseIds]);
+
+						return allCaseIds;
+					});
+				}
+			});
+		}
+	}
 
 	return (
 		<Modal
 			last={
 				<Form.Footer
 					onClose={onClose}
-					onSubmit={() => onSave(state)}
+					onSubmit={() => onSubmit()}
 					primaryButtonProps={{
-						title: i18n.translate('select-suites'),
+						title: i18n.translate(modalType.type),
 					}}
 				/>
 			}
 			observer={observer}
 			size="full-screen"
-			title={i18n.translate('select-suites')}
+			title={i18n.translate(modalType.type)}
 			visible={visible}
 		>
-			<Container>
+			{modalType.type === 'select-cases' && (
+				<SelectCase
+					displayTitle={displayTitle}
+					selectedCaseIds={modalState}
+					setState={setCaseIdsState}
+				/>
+			)}
+
+			{modalType.type === 'select-suites' && (
 				<ListView
 					managementToolbarProps={{
 						filterFields: filters.suites as any,
-						title: i18n.translate('suites'),
+
+						title: displayTitle ? i18n.translate('suites') : '',
 					}}
-					onContextChange={({selectedRows}) => setState(selectedRows)}
+					onContextChange={({selectedRows}) =>
+						setSuiteIds(selectedRows)
+					}
 					resource="/suites"
 					tableProps={{
 						columns: [
 							{
 								clickable: true,
 								key: 'name',
+								render: (name: string) => (
+									<span
+										onClick={() =>
+											setModalType({
+												type: 'select-cases',
+											})
+										}
+									>
+										{name}
+									</span>
+								),
 								sorteable: true,
 								value: i18n.translate('name'),
 							},
@@ -78,7 +151,7 @@ const BuildSelectSuitesModal: React.FC<BuildSelectSuitesModalProps> = ({
 						filter: searchUtil.eq('projectId', projectId as string),
 					}}
 				/>
-			</Container>
+			)}
 		</Modal>
 	);
 };

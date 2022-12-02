@@ -14,20 +14,8 @@
 import PropTypes from 'prop-types';
 import React, {useContext, useState} from 'react';
 
-import {DEFAULT_LANGUAGE} from '../../../../../../source-builder/constants';
 import {DiagramBuilderContext} from '../../../../../DiagramBuilderContext';
 import BaseActionsInfo from '../../shared-components/BaseActionsInfo';
-
-const scriptLanguageOptions = [
-	{
-		label: Liferay.Language.get('groovy'),
-		value: 'groovy',
-	},
-	{
-		label: Liferay.Language.get('java'),
-		value: 'java',
-	},
-];
 
 const ActionTypeAction = ({
 	actionData,
@@ -35,13 +23,40 @@ const ActionTypeAction = ({
 	actionType,
 	setActionSections,
 }) => {
-	const {selectedItem} = useContext(DiagramBuilderContext);
+	const {functionActionExecutors, selectedItem} = useContext(
+		DiagramBuilderContext
+	);
 	const validActionData =
 		actionData.actionType === 'timerActions' ? actionData : null;
 	const [script, setScript] = useState(validActionData?.script || '');
 	const [scriptLanguage, setScriptLanguage] = useState(
-		validActionData?.scriptLanguage?.[actionSectionsIndex] ||
-			DEFAULT_LANGUAGE
+		validActionData?.scriptLanguage || 'select-a-script-type'
+	);
+	const actionTypeOptions = [
+		{
+			label: Liferay.Language.get('groovy'),
+			type: 'script',
+			value: 'groovy',
+		},
+		{
+			label: Liferay.Language.get('java'),
+			type: 'script',
+			value: 'java',
+		},
+	];
+
+	if (functionActionExecutors?.length) {
+		actionTypeOptions.push(
+			...functionActionExecutors.map((item) => ({
+				label: item,
+				type: 'functionActionExecutor',
+				value: item,
+			}))
+		);
+	}
+
+	const [selectedActionType, setSelectedActionType] = useState(
+		actionTypeOptions.find((item) => item.value === scriptLanguage)
 	);
 	const [description, setDescription] = useState(
 		validActionData?.description || ''
@@ -50,7 +65,12 @@ const ActionTypeAction = ({
 	const [priority, setPriority] = useState(validActionData?.priority || 1);
 
 	const updateActionInfo = (item) => {
-		if (item.name && item.script) {
+		if (
+			item.name &&
+			(item.script ||
+				(selectedActionType?.type === 'functionActionExecutor' &&
+					item.script === ''))
+		) {
 			setActionSections((previousSections) => {
 				const updatedSections = [...previousSections];
 
@@ -67,6 +87,7 @@ const ActionTypeAction = ({
 
 	return (
 		<BaseActionsInfo
+			actionTypes={actionTypeOptions}
 			description={description}
 			name={name}
 			placeholderName={Liferay.Language.get('my-action')}
@@ -74,13 +95,14 @@ const ActionTypeAction = ({
 			priority={priority}
 			script={script}
 			scriptLanguage={scriptLanguage}
-			scriptLanguageOptions={scriptLanguageOptions}
+			selectedActionType={selectedActionType}
 			selectedItem={selectedItem}
 			setDescription={setDescription}
 			setName={setName}
 			setPriority={setPriority}
 			setScript={setScript}
 			setScriptLanguage={setScriptLanguage}
+			setSelectedActionType={setSelectedActionType}
 			updateActionInfo={updateActionInfo}
 		/>
 	);
@@ -88,9 +110,9 @@ const ActionTypeAction = ({
 
 ActionTypeAction.propTypes = {
 	actionSectionsIndex: PropTypes.number.isRequired,
-	actionSubSectionsIndex: PropTypes.number.isRequired,
+	actionSubSectionsIndex: PropTypes.number,
 	timersIndex: PropTypes.number.isRequired,
-	updateSelectedItem: PropTypes.func.isRequired,
+	updateSelectedItem: PropTypes.func,
 };
 
 export default ActionTypeAction;

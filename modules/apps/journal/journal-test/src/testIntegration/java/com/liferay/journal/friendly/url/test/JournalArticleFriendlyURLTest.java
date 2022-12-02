@@ -126,10 +126,10 @@ public class JournalArticleFriendlyURLTest {
 		Map<Locale, String> friendlyURLMap = updatedArticle.getFriendlyURLMap();
 
 		Assert.assertEquals(
-			FriendlyURLNormalizerUtil.normalizeWithEncoding(title2 + "-2"),
+			FriendlyURLNormalizerUtil.normalizeWithEncoding(title2 + "-1"),
 			friendlyURLMap.get(LocaleUtil.US));
 		Assert.assertEquals(
-			FriendlyURLNormalizerUtil.normalizeWithEncoding(title2 + "-2-1"),
+			FriendlyURLNormalizerUtil.normalizeWithEncoding(title2 + "-1"),
 			friendlyURLMap.get(LocaleUtil.FRANCE));
 	}
 
@@ -188,8 +188,33 @@ public class JournalArticleFriendlyURLTest {
 			FriendlyURLNormalizerUtil.normalizeWithEncoding(title),
 			friendlyURLMap.get(LocaleUtil.US));
 		Assert.assertEquals(
-			FriendlyURLNormalizerUtil.normalizeWithEncoding(title + "-1"),
+			FriendlyURLNormalizerUtil.normalizeWithEncoding(title),
 			friendlyURLMap.get(LocaleUtil.FRANCE));
+	}
+
+	@Test
+	public void testUniqueFriendlyURLForSameTitlesInNotDefaultLocaleWithExistingArticle()
+		throws Exception {
+
+		String frTitle = RandomTestUtil.randomString();
+
+		_addJournalArticleWithTitleMap(
+			HashMapBuilder.put(
+				LocaleUtil.FRANCE, frTitle
+			).put(
+				LocaleUtil.US, RandomTestUtil.randomString()
+			).build());
+
+		JournalArticle article = _addJournalArticleWithTitleMap(
+			HashMapBuilder.put(
+				LocaleUtil.US, frTitle
+			).build());
+
+		Map<Locale, String> friendlyURLMap = article.getFriendlyURLMap();
+
+		Assert.assertEquals(
+			FriendlyURLNormalizerUtil.normalizeWithEncoding(frTitle + "-1"),
+			friendlyURLMap.get(LocaleUtil.US));
 	}
 
 	@Test
@@ -208,10 +233,10 @@ public class JournalArticleFriendlyURLTest {
 		Map<Locale, String> friendlyURLMap = article.getFriendlyURLMap();
 
 		Assert.assertEquals(
-			FriendlyURLNormalizerUtil.normalizeWithEncoding(title + "-2"),
+			FriendlyURLNormalizerUtil.normalizeWithEncoding(title + "-1"),
 			friendlyURLMap.get(LocaleUtil.US));
 		Assert.assertEquals(
-			FriendlyURLNormalizerUtil.normalizeWithEncoding(title + "-2-1"),
+			FriendlyURLNormalizerUtil.normalizeWithEncoding(title + "-1"),
 			friendlyURLMap.get(LocaleUtil.FRANCE));
 	}
 

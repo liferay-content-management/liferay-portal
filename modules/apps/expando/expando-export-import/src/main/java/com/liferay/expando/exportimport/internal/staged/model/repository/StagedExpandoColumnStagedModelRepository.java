@@ -34,7 +34,7 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -53,7 +53,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Akos Thurzo
  */
 @Component(
-	immediate = true,
 	property = "model.class.name=com.liferay.expando.kernel.model.adapter.StagedExpandoColumn",
 	service = StagedModelRepository.class
 )
@@ -96,7 +95,7 @@ public class StagedExpandoColumnStagedModelRepository
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException {
 
-		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject(
+		JSONObject extraDataJSONObject = _jsonFactory.createJSONObject(
 			extraData);
 
 		List<StagedExpandoColumn> stagedExpandoColumns =
@@ -325,6 +324,9 @@ public class StagedExpandoColumnStagedModelRepository
 
 	@Reference
 	private ExportImportHelper _exportImportHelper;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference(
 		target = "(model.class.name=com.liferay.expando.kernel.model.adapter.StagedExpandoTable)"

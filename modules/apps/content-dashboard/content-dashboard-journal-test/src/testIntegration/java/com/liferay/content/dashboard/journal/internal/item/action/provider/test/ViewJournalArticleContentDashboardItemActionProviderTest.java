@@ -142,6 +142,7 @@ public class ViewJournalArticleContentDashboardItemActionProviderTest {
 
 			String url = contentDashboardItemAction.getURL();
 
+			Assert.assertNotNull(url);
 			Assert.assertTrue(
 				url.contains(
 					StringUtil.toLowerCase(
@@ -240,16 +241,16 @@ public class ViewJournalArticleContentDashboardItemActionProviderTest {
 					getContentDashboardItemAction(
 						journalArticle, mockHttpServletRequest);
 
-			String spainUrl = contentDashboardItemAction.getURL(
+			String spainURL = contentDashboardItemAction.getURL(
 				LocaleUtil.SPAIN);
 
+			Assert.assertNotNull(spainURL);
 			Assert.assertTrue(
-				spainUrl.contains(
+				spainURL.contains(
 					StringUtil.toLowerCase(
 						journalArticle.getTitle(LocaleUtil.US))));
-
 			Assert.assertTrue(
-				spainUrl.contains(StringUtil.toLowerCase("/es/")));
+				spainURL.contains(StringUtil.toLowerCase("/es/")));
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();

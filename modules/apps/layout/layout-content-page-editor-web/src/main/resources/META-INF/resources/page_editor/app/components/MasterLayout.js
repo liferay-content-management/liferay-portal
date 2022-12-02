@@ -111,6 +111,7 @@ function Root({children}) {
 function CollectionItem({children}) {
 	return <div>{children}</div>;
 }
+
 function Fragment({item}) {
 	const ref = useRef(null);
 	const selectItem = useSelectItem();
@@ -135,9 +136,13 @@ function Fragment({item}) {
 		};
 
 		element.addEventListener('click', handler);
+		element.setAttribute('inert', '');
+		element.setAttribute('aria-hidden', 'true');
 
 		return () => {
 			element.removeEventListener('click', handler);
+			element.removeAttribute('inert');
+			element.removeAttribute('aria-hidden');
 		};
 	});
 

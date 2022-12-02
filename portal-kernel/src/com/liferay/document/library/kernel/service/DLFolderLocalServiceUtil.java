@@ -315,29 +315,11 @@ public class DLFolderLocalServiceUtil {
 		return getService().fetchDLFolder(folderId);
 	}
 
-	/**
-	 * Returns the document library folder with the matching external reference code and group.
-	 *
-	 * @param groupId the primary key of the group
-	 * @param externalReferenceCode the document library folder's external reference code
-	 * @return the matching document library folder, or <code>null</code> if a matching document library folder could not be found
-	 */
 	public static DLFolder fetchDLFolderByExternalReferenceCode(
-		long groupId, String externalReferenceCode) {
+		String externalReferenceCode, long groupId) {
 
 		return getService().fetchDLFolderByExternalReferenceCode(
-			groupId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchDLFolderByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	public static DLFolder fetchDLFolderByReferenceCode(
-		long groupId, String externalReferenceCode) {
-
-		return getService().fetchDLFolderByReferenceCode(
-			groupId, externalReferenceCode);
+			externalReferenceCode, groupId);
 	}
 
 	/**
@@ -429,20 +411,12 @@ public class DLFolderLocalServiceUtil {
 		return getService().getDLFolder(folderId);
 	}
 
-	/**
-	 * Returns the document library folder with the matching external reference code and group.
-	 *
-	 * @param groupId the primary key of the group
-	 * @param externalReferenceCode the document library folder's external reference code
-	 * @return the matching document library folder
-	 * @throws PortalException if a matching document library folder could not be found
-	 */
 	public static DLFolder getDLFolderByExternalReferenceCode(
-			long groupId, String externalReferenceCode)
+			String externalReferenceCode, long groupId)
 		throws PortalException {
 
 		return getService().getDLFolderByExternalReferenceCode(
-			groupId, externalReferenceCode);
+			externalReferenceCode, groupId);
 	}
 
 	/**

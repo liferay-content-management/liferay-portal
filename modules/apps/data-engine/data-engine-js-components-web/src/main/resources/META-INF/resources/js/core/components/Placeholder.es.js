@@ -14,13 +14,23 @@
 
 import ClayLayout from '@clayui/layout';
 import classnames from 'classnames';
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 
 import {DND_ORIGIN_TYPE, useDrop} from '../hooks/useDrop.es';
 import {ParentFieldContext} from './Field/ParentFieldContext.es';
+import {useIsOverTarget as useIsOverKeyboardTarget} from './KeyboardDNDContext';
 
-export function Placeholder({columnIndex, isRow, pageIndex, rowIndex, size}) {
+export function Placeholder({
+	columnIndex,
+	isRow,
+	keyboardDNDPosition,
+	pageIndex,
+	rowIndex,
+	size,
+}) {
 	const parentField = useContext(ParentFieldContext);
+	const placeholderRef = useRef(null);
+
 	const {canDrop, drop, overTarget} = useDrop({
 		columnIndex: columnIndex ?? 0,
 		origin: DND_ORIGIN_TYPE.EMPTY,
@@ -28,6 +38,21 @@ export function Placeholder({columnIndex, isRow, pageIndex, rowIndex, size}) {
 		parentField,
 		rowIndex,
 	});
+
+	const overKeyboardTarget = useIsOverKeyboardTarget(
+		keyboardDNDPosition.itemPath,
+		keyboardDNDPosition.position
+	);
+
+	useEffect(() => {
+		if (overKeyboardTarget && placeholderRef.current) {
+			placeholderRef.current.scrollIntoView({
+				behavior: 'auto',
+				block: 'center',
+				inline: 'center',
+			});
+		}
+	}, [overKeyboardTarget]);
 
 	const Content = (
 		<ClayLayout.Col
@@ -40,11 +65,18 @@ export function Placeholder({columnIndex, isRow, pageIndex, rowIndex, size}) {
 			<div
 				className={classnames('ddm-target', {
 					'target-over targetOver':
-						overTarget &&
-						canDrop &&
-						!parentField.root?.ddmStructureId,
+						(overTarget &&
+							canDrop &&
+							!parentField.root?.ddmStructureId) ||
+						overKeyboardTarget,
 				})}
-				ref={!parentField.root?.ddmStructureId ? drop : undefined}
+				ref={(element) => {
+					if (!parentField.root?.ddmStructureId && drop) {
+						drop(element);
+					}
+
+					placeholderRef.current = element;
+				}}
 			/>
 		</ClayLayout.Col>
 	);

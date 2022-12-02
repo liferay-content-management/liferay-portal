@@ -15,7 +15,7 @@
 package com.liferay.saml.opensaml.integration.internal.servlet.profile;
 
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -114,7 +114,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 /**
  * @author Mika Koivisto
  */
-@Component(immediate = true, service = SingleLogoutProfile.class)
+@Component(service = SingleLogoutProfile.class)
 public class SingleLogoutProfileImpl
 	extends BaseProfile implements SingleLogoutProfile {
 
@@ -339,9 +339,10 @@ public class SingleLogoutProfileImpl
 
 			samlSpSessionLocalService.deleteSamlSpSession(samlSpSession);
 
-			addCookie(
+			CookiesManagerUtil.deleteCookies(
+				CookiesManagerUtil.getDomain(httpServletRequest),
 				httpServletRequest, httpServletResponse,
-				SamlWebKeys.SAML_SP_SESSION_KEY, StringPool.BLANK, 0);
+				SamlWebKeys.SAML_SP_SESSION_KEY);
 		}
 		catch (SystemException systemException) {
 			if (_log.isDebugEnabled()) {
@@ -392,9 +393,10 @@ public class SingleLogoutProfileImpl
 			}
 		}
 
-		addCookie(
+		CookiesManagerUtil.deleteCookies(
+			CookiesManagerUtil.getDomain(httpServletRequest),
 			httpServletRequest, httpServletResponse,
-			SamlWebKeys.SAML_SSO_SESSION_ID, StringPool.BLANK, 0);
+			SamlWebKeys.SAML_SSO_SESSION_ID);
 	}
 
 	protected void performIdpSpLogout(

@@ -27,10 +27,26 @@ definition {
 		Button.click(button = "Done");
 	}
 
-	macro clearAndDeleteCloudEntries {
-		CustomerPortal.clearActivationStatus(status = "${status}");
+	macro assertFieldExtraIsNotVisible {
+		var key_index = "${position}";
 
-		ApplicationsMenu.gotoSite(key_site = "Customer Portal Site");
+		AssertElementNotPresent(
+			label = "${field}",
+			locator1 = "CustomerPortalSite#SETUP_FIELDS");
+	}
+
+	macro assertFieldExtraIsVisible {
+		var key_index = "${position}";
+
+		AssertVisible(
+			label = "${field}",
+			locator1 = "CustomerPortalSite#SETUP_FIELDS");
+	}
+
+	macro clearAndDeleteCloudEntries {
+		CustomerPortal.clearActivationStatus(
+			position = "${position}",
+			status = "${status}");
 
 		CP2DXPCloudSetup.deleteEntryCloudEnvironments(
 			entry = "${entry}",
@@ -71,7 +87,7 @@ definition {
 
 		CP2AnalyticsCloudSetup.typeSetupAnalyticsCloudInfoFields(
 			label = "timeZone",
-			value = "UTC-08:00");
+			value = "UTC-03:00");
 
 		CP2AnalyticsCloudSetup.typeSetupAnalyticsCloudInfoFields(
 			label = "email",

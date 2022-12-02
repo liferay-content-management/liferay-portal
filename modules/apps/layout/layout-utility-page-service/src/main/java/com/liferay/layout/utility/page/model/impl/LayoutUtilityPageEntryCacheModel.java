@@ -78,7 +78,7 @@ public class LayoutUtilityPageEntryCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(33);
+		StringBundler sb = new StringBundler(35);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -104,6 +104,8 @@ public class LayoutUtilityPageEntryCacheModel
 		sb.append(modifiedDate);
 		sb.append(", plid=");
 		sb.append(plid);
+		sb.append(", previewFileEntryId=");
+		sb.append(previewFileEntryId);
 		sb.append(", defaultLayoutUtilityPageEntry=");
 		sb.append(defaultLayoutUtilityPageEntry);
 		sb.append(", name=");
@@ -168,6 +170,7 @@ public class LayoutUtilityPageEntryCacheModel
 		}
 
 		layoutUtilityPageEntryImpl.setPlid(plid);
+		layoutUtilityPageEntryImpl.setPreviewFileEntryId(previewFileEntryId);
 		layoutUtilityPageEntryImpl.setDefaultLayoutUtilityPageEntry(
 			defaultLayoutUtilityPageEntry);
 
@@ -178,7 +181,12 @@ public class LayoutUtilityPageEntryCacheModel
 			layoutUtilityPageEntryImpl.setName(name);
 		}
 
-		layoutUtilityPageEntryImpl.setType(type);
+		if (type == null) {
+			layoutUtilityPageEntryImpl.setType("");
+		}
+		else {
+			layoutUtilityPageEntryImpl.setType(type);
+		}
 
 		if (lastPublishDate == Long.MIN_VALUE) {
 			layoutUtilityPageEntryImpl.setLastPublishDate(null);
@@ -214,10 +222,11 @@ public class LayoutUtilityPageEntryCacheModel
 
 		plid = objectInput.readLong();
 
+		previewFileEntryId = objectInput.readLong();
+
 		defaultLayoutUtilityPageEntry = objectInput.readBoolean();
 		name = objectInput.readUTF();
-
-		type = objectInput.readInt();
+		type = objectInput.readUTF();
 		lastPublishDate = objectInput.readLong();
 	}
 
@@ -261,6 +270,8 @@ public class LayoutUtilityPageEntryCacheModel
 
 		objectOutput.writeLong(plid);
 
+		objectOutput.writeLong(previewFileEntryId);
+
 		objectOutput.writeBoolean(defaultLayoutUtilityPageEntry);
 
 		if (name == null) {
@@ -270,7 +281,13 @@ public class LayoutUtilityPageEntryCacheModel
 			objectOutput.writeUTF(name);
 		}
 
-		objectOutput.writeInt(type);
+		if (type == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(type);
+		}
+
 		objectOutput.writeLong(lastPublishDate);
 	}
 
@@ -286,9 +303,10 @@ public class LayoutUtilityPageEntryCacheModel
 	public long createDate;
 	public long modifiedDate;
 	public long plid;
+	public long previewFileEntryId;
 	public boolean defaultLayoutUtilityPageEntry;
 	public String name;
-	public int type;
+	public String type;
 	public long lastPublishDate;
 
 }

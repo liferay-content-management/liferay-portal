@@ -22,7 +22,6 @@ import React, {useEffect, useState} from 'react';
 import useLazy from '../../core/hooks/useLazy';
 import useLoad from '../../core/hooks/useLoad';
 import usePlugins from '../../core/hooks/usePlugins';
-import CreateLayoutPageTemplateEntryButton from '../../plugins/create-layout-page-template-entry-modal/components/CreateLayoutPageTemplateEntryButton';
 import * as Actions from '../actions/index';
 import {LAYOUT_TYPES} from '../config/constants/layoutTypes';
 import {SERVICE_NETWORK_STATUS_TYPES} from '../config/constants/serviceNetworkStatusTypes';
@@ -60,6 +59,7 @@ function ToolbarBody({className}) {
 	const canPublish = selectCanPublish(store);
 
 	const [publishPending, setPublishPending] = useState(false);
+	const [enableDiscard, setEnableDiscard] = useState(false);
 
 	const {
 		network,
@@ -67,6 +67,14 @@ function ToolbarBody({className}) {
 		segmentsExperimentStatus,
 		selectedViewportSize,
 	} = store;
+
+	useEffect(() => {
+		setEnableDiscard(
+			network.status === SERVICE_NETWORK_STATUS_TYPES.draftSaved ||
+				config.draft ||
+				config.isConversionDraft
+		);
+	}, [network]);
 
 	const loadingRef = useRef(() => {
 		Promise.all(
@@ -123,7 +131,7 @@ function ToolbarBody({className}) {
 		}, [])
 	);
 
-	const handleDiscardVariant = (event) => {
+	const handleDiscardDraft = (event) => {
 		openConfirmModal({
 			message: Liferay.Language.get(
 				'are-you-sure-you-want-to-discard-current-draft-and-apply-latest-published-changes'
@@ -168,6 +176,15 @@ function ToolbarBody({className}) {
 		}
 	};
 
+	let draftButtonLabel = Liferay.Language.get('discard-draft');
+
+	if (config.isConversionDraft) {
+		draftButtonLabel = Liferay.Language.get('discard-conversion-draft');
+	}
+	else if (config.singleSegmentsExperienceMode) {
+		draftButtonLabel = Liferay.Language.get('discard-variant');
+	}
+
 	let publishButtonLabel = Liferay.Language.get('publish');
 
 	if (config.layoutType === LAYOUT_TYPES.master) {
@@ -210,6 +227,9 @@ function ToolbarBody({className}) {
 									<Suspense
 										fallback={
 											<UnsafeHTML
+												hideFromAccessibilityTree={
+													false
+												}
 												markup={loadingPlaceholder}
 											/>
 										}
@@ -278,30 +298,23 @@ function ToolbarBody({className}) {
 						<li className="nav-item">
 							<HideSidebarButton />
 						</li>
-
-						{config.layoutType === LAYOUT_TYPES.content && (
-							<li className="nav-item">
-								<CreateLayoutPageTemplateEntryButton />
-							</li>
-						)}
 					</ul>
 				</li>
 
-				{config.singleSegmentsExperienceMode && (
-					<li className="nav-item">
-						<form action={config.discardDraftURL} method="POST">
-							<ClayButton
-								className="btn btn-secondary"
-								displayType="secondary"
-								onClick={handleDiscardVariant}
-								small
-								type="submit"
-							>
-								{Liferay.Language.get('discard-variant')}
-							</ClayButton>
-						</form>
-					</li>
-				)}
+				<li className="nav-item">
+					<form action={config.discardDraftURL} method="POST">
+						<ClayButton
+							className="btn btn-secondary"
+							disabled={!enableDiscard}
+							displayType="secondary"
+							onClick={handleDiscardDraft}
+							small
+							type="submit"
+						>
+							{draftButtonLabel}
+						</ClayButton>
+					</form>
+				</li>
 
 				<li className="nav-item">
 					<PublishButton

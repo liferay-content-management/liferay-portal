@@ -23,6 +23,7 @@ class StringInput extends React.Component {
 		disabled: propTypes.bool,
 		onChange: propTypes.func.isRequired,
 		options: propTypes.array,
+		propertyLabel: propTypes.string.isRequired,
 		renderEmptyValueErrors: propTypes.bool,
 		value: propTypes.oneOfType([propTypes.string, propTypes.number]),
 	};
@@ -54,10 +55,19 @@ class StringInput extends React.Component {
 	};
 
 	render() {
-		const {disabled, options, renderEmptyValueErrors, value} = this.props;
+		const {
+			disabled,
+			options,
+			propertyLabel,
+			renderEmptyValueErrors,
+			value,
+		} = this.props;
 
 		return !options.length ? (
 			<input
+				aria-label={`${propertyLabel}: ${Liferay.Language.get(
+					'input-a-value'
+				)}`}
 				className={classNames('criterion-input form-control', {
 					'criterion-input--error': !value && renderEmptyValueErrors,
 				})}
@@ -69,6 +79,9 @@ class StringInput extends React.Component {
 			/>
 		) : (
 			<ClaySelectWithOption
+				aria-label={`${propertyLabel}: ${Liferay.Language.get(
+					'select-option'
+				)}`}
 				className={classNames('criterion-input form-control', {
 					'criterion-input--error': !value,
 				})}

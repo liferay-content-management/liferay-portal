@@ -28,7 +28,7 @@ CommercePriceList basePromotionCommercePriceList = commerceCatalogDisplayContext
 
 long fileEntryId = BeanParamUtil.getLong(fileEntry, request, "fileEntryId");
 
-boolean isViewOnly = !commerceCatalogDisplayContext.hasPermission(commerceCatalog.getCommerceCatalogId(), ActionKeys.UPDATE);
+boolean viewOnly = !commerceCatalogDisplayContext.hasPermission(commerceCatalog.getCommerceCatalogId(), ActionKeys.UPDATE);
 %>
 
 <portlet:actionURL name="/commerce_catalogs/edit_commerce_catalog" var="editCommerceCatalogActionURL" />
@@ -50,9 +50,9 @@ boolean isViewOnly = !commerceCatalogDisplayContext.hasPermission(commerceCatalo
 				title='<%= LanguageUtil.get(request, "details") %>'
 			>
 				<div class="col-12 lfr-form-content">
-					<aui:input bean="<%= commerceCatalog %>" disabled="<%= isViewOnly %>" model="<%= CommerceCatalog.class %>" name="name" required="<%= true %>" />
+					<aui:input bean="<%= commerceCatalog %>" disabled="<%= viewOnly %>" model="<%= CommerceCatalog.class %>" name="name" required="<%= true %>" />
 
-					<aui:select disabled="<%= isViewOnly %>" helpMessage="the-default-language-for-the-content-within-this-catalog" label="default-catalog-language" name="catalogDefaultLanguageId" required="<%= true %>" title="language">
+					<aui:select disabled="<%= viewOnly %>" helpMessage="the-default-language-for-the-content-within-this-catalog" label="default-catalog-language" name="catalogDefaultLanguageId" required="<%= true %>" title="language">
 
 						<%
 						String catalogDefaultLanguageId = themeDisplay.getLanguageId();
@@ -74,7 +74,7 @@ boolean isViewOnly = !commerceCatalogDisplayContext.hasPermission(commerceCatalo
 
 					</aui:select>
 
-					<aui:select disabled="<%= isViewOnly %>" label="currency" name="commerceCurrencyCode" required="<%= true %>" title="currency">
+					<aui:select disabled="<%= viewOnly %>" label="currency" name="commerceCurrencyCode" required="<%= true %>" title="currency">
 
 						<%
 						for (CommerceCurrency commerceCurrency : commerceCurrencies) {
@@ -82,6 +82,20 @@ boolean isViewOnly = !commerceCatalogDisplayContext.hasPermission(commerceCatalo
 						%>
 
 							<aui:option label="<%= HtmlUtil.escape(commerceCurrency.getName(locale)) %>" selected="<%= (commerceCatalog == null) ? commerceCurrency.isPrimary() : commerceCurrencyCode.equals(commerceCatalog.getCommerceCurrencyCode()) %>" value="<%= HtmlUtil.escape(commerceCurrencyCode) %>" />
+
+						<%
+						}
+						%>
+
+					</aui:select>
+
+					<aui:select label="inventory-method-key" name="inventorySettings--inventoryMethodKey--" required="<%= true %>">
+
+						<%
+						for (CommerceInventoryMethod commerceInventoryMethod : commerceCatalogDisplayContext.getCommerceInventoryMethods()) {
+						%>
+
+							<aui:option label="<%= commerceInventoryMethod.getLabel(locale) %>" selected="<%= commerceCatalogDisplayContext.isCommerceInventoryMethodSelected(commerceCatalog.getGroupId(), commerceInventoryMethod.getKey()) %>" value="<%= commerceInventoryMethod.getKey() %>" />
 
 						<%
 						}

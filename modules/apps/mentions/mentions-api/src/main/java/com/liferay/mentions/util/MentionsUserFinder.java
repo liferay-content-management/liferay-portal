@@ -20,10 +20,18 @@ import com.liferay.social.kernel.util.SocialInteractionsConfiguration;
 
 import java.util.List;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Sergio González
  */
+@ProviderType
 public interface MentionsUserFinder {
+
+	public List<User> getUsers(
+			long companyId, long groupId, long userId, String query,
+			SocialInteractionsConfiguration socialInteractionsConfiguration)
+		throws PortalException;
 
 	public List<User> getUsers(
 			long companyId, long userId, String query,

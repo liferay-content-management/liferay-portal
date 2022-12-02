@@ -33,8 +33,9 @@ const _getComponent = (props) => {
 };
 
 jest.mock('frontend-js-web', () => ({
-		openConfirmModal: jest.fn(({message, onConfirm}) => onConfirm(true)),
-		openToast: jest.fn(),
+	openConfirmModal: jest.fn(({onConfirm}) => onConfirm(true)),
+	openToast: jest.fn(),
+	sub: jest.fn(),
 }));
 
 jest.mock(

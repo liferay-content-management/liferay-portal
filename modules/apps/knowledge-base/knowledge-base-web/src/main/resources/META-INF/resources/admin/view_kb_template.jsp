@@ -28,19 +28,34 @@
 </c:choose>
 
 <%
+String backURL = ParamUtil.getString(request, "backURL");
+
 KBTemplate kbTemplate = (KBTemplate)request.getAttribute(KBWebKeys.KNOWLEDGE_BASE_KB_TEMPLATE);
+
+if (Validator.isNotNull(backURL)) {
+	portletDisplay.setURLBack(backURL);
+}
+
+boolean portletTitleBasedNavigation = GetterUtil.getBoolean(portletConfig.getInitParameter("portlet-title-based-navigation"));
+
+if (portletTitleBasedNavigation) {
+	portletDisplay.setShowBackIcon(true);
+	portletDisplay.setURLBack(redirect);
+
+	renderResponse.setTitle(kbTemplate.getTitle());
+}
 %>
 
-<div class="kb-entity-header">
-	<div class="kb-title">
-		<%= HtmlUtil.escape(kbTemplate.getTitle()) %>
+<div class="container-fluid container-fluid-max-xl container-form-lg">
+	<div class="kb-article sheet">
+		<div class="kb-entity-body">
+			<div class="kb-article-title">
+				<%= HtmlUtil.escape(kbTemplate.getTitle()) %>
+			</div>
+
+			<%= kbTemplate.getContent() %>
+		</div>
 	</div>
-</div>
-
-<div class="kb-entity-body">
-	<%= kbTemplate.getContent() %>
-
-	<liferay-util:include page="/admin/kb_template_comments.jsp" servletContext="<%= application %>" />
 </div>
 
 <c:if test='<%= GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-156421")) %>'>

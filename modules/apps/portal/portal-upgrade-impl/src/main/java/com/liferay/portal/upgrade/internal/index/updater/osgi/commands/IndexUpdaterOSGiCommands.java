@@ -15,7 +15,8 @@
 package com.liferay.portal.upgrade.internal.index.updater.osgi.commands;
 
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.upgrade.internal.index.updater.IndexUpdaterUtil;
+import com.liferay.portal.db.index.IndexUpdaterUtil;
+import com.liferay.portal.module.util.BundleUtil;
 
 import org.apache.felix.service.command.Descriptor;
 
@@ -46,7 +47,7 @@ public class IndexUpdaterOSGiCommands {
 				"Module " + bundleId + " does not exist");
 		}
 
-		if (IndexUpdaterUtil.isLiferayServiceBundle(bundle)) {
+		if (BundleUtil.isLiferayServiceBundle(bundle)) {
 			IndexUpdaterUtil.updateIndexes(bundle);
 
 			return "Completed update of indexes for module " + bundleId;
@@ -59,10 +60,10 @@ public class IndexUpdaterOSGiCommands {
 		"Update database indexes for specific a module via symbolic name"
 	)
 	public String updateIndexes(String bundleSymbolicName) throws Exception {
-		Bundle bundle = IndexUpdaterUtil.getBundle(
+		Bundle bundle = BundleUtil.getBundle(
 			_bundleContext, bundleSymbolicName);
 
-		if (IndexUpdaterUtil.isLiferayServiceBundle(bundle)) {
+		if (BundleUtil.isLiferayServiceBundle(bundle)) {
 			IndexUpdaterUtil.updateIndexes(bundle);
 
 			return "Completed update of indexes for module " +

@@ -36,7 +36,7 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
 import org.yaml.snakeyaml.representer.Representer;
 
 /**
- * @author     Peter Shin
+ * @author Peter Shin
  */
 public class YAMLUtil {
 

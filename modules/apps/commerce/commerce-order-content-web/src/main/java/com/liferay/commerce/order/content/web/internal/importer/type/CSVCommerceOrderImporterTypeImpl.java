@@ -36,6 +36,7 @@ import com.liferay.commerce.service.CommerceOrderItemService;
 import com.liferay.commerce.service.CommerceOrderService;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
@@ -47,12 +48,11 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.settings.GroupServiceSettingsLocator;
-import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.File;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.io.IOException;
 
@@ -81,7 +81,6 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.commerce.configuration.CommerceOrderImporterTypeConfiguration",
-	enabled = false, immediate = true,
 	property = "commerce.order.importer.type.key=" + CSVCommerceOrderImporterTypeImpl.KEY,
 	service = CommerceOrderImporterType.class
 )
@@ -223,7 +222,7 @@ public class CSVCommerceOrderImporterTypeImpl
 
 		try {
 			return CSVParser.parse(
-				FileUtil.createTempFile(fileEntry.getContentStream()),
+				_file.createTempFile(fileEntry.getContentStream()),
 				Charset.defaultCharset(), csvFormat);
 		}
 		catch (IOException ioException) {
@@ -256,7 +255,7 @@ public class CSVCommerceOrderImporterTypeImpl
 		if (cpInstance == null) {
 			cpInstance =
 				_cpInstanceLocalService.fetchCPInstanceByExternalReferenceCode(
-					companyId, sku);
+					sku, companyId);
 		}
 
 		CommerceOrderImporterItemImpl commerceOrderImporterItemImpl =
@@ -359,6 +358,9 @@ public class CSVCommerceOrderImporterTypeImpl
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;
+
+	@Reference
+	private File _file;
 
 	@Reference
 	private JSPRenderer _jspRenderer;

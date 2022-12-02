@@ -46,6 +46,11 @@ definition {
 
 				SelectFrameTop();
 			}
+			else if (isSet(imageSourceURL)) {
+				ItemSelector.addImageFromURL(
+					imageSourceURL = "${imageSourceURL}",
+					navTab = "URL");
+			}
 			else {
 				SelectFrame(locator1 = "ItemSelector#ITEM_SELECTOR_IFRAME");
 
@@ -142,6 +147,7 @@ definition {
 		RelatedAssets.selectAsset(
 			assetTitle = "${assetTitle}",
 			assetType = "${assetType}",
+			otherSite = "${otherSite}",
 			scopeSite = "${scopeSite}");
 
 		SelectFrame(value1 = "relative=top");
@@ -468,7 +474,7 @@ definition {
 				locator1 = "WCEditWebContent#COLOR_PICKER");
 
 			Click(
-				key_colorSwatchItem = "${webContentColor}",
+				key_colorSwatchItem = "#${webContentColor}",
 				locator1 = "Button#COLOR_SWATCH_ITEM");
 		}
 
@@ -1587,10 +1593,7 @@ definition {
 			locator1 = "AssetRelatedAssets#RELATED_ASSETS_SELECT",
 			value1 = "Select");
 
-		AssertClick(
-			key_assetType = "${assetType}",
-			locator1 = "APConfiguration#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_ASSET",
-			value1 = "${assetType}");
+		MenuItem.click(menuItem = "${assetType}");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
@@ -1711,6 +1714,48 @@ definition {
 			inputFieldId = "folderName",
 			locator1 = "TextInput#INPUT_ID",
 			value1 = "${folderName}");
+	}
+
+	macro selectPreviewDisplayPage {
+		if (IsTextEqual(key_text = "Display Page", locator1 = "TextInput#ANY", value1 = "")) {
+			Click(
+				key_fieldLabel = "Display Page",
+				key_text = "plus",
+				locator1 = "Icon#ANY_ITEM_SELECTOR");
+		}
+		else {
+			Click(
+				key_fieldLabel = "Display Page",
+				key_text = "change",
+				locator1 = "Icon#ANY_ITEM_SELECTOR");
+		}
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		LexiconCard.clickCard(card = "${displayPageName}");
+
+		SelectFrameTop();
+	}
+
+	macro selectPreviewSite {
+		Click(
+			key_fieldLabel = "Site",
+			locator1 = "Dropdown#DROPDOWN_TOGGLE_BUTTON_WITH_LABEL");
+
+		if ((IsElementNotPresent(key_menuItem = "${siteName}", locator1 = "MenuItem#ANY_MENU_ITEM")) && (IsElementPresent(key_text = "More", locator1 = "Button#ANY"))) {
+			Button.clickMore();
+
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+			Navigator.gotoNavItem(navItem = "All Sites");
+
+			LexiconEntry.gotoEntry(rowEntry = "${siteName}");
+
+			SelectFrameTop();
+		}
+		else {
+			MenuItem.click(menuItem = "${siteName}");
+		}
 	}
 
 	macro selectRepositoryWC {
@@ -2248,12 +2293,6 @@ definition {
 		AssertElementNotPresent(locator1 = "TextInput#TITLE");
 	}
 
-	macro viewPageBreak {
-		AssertTextEquals.assertPartialText(
-			locator1 = "Pagination#PAGES",
-			value1 = "Pages");
-	}
-
 	macro viewPaginateRelatedAssets {
 		AssertTextEquals.assertPartialText(
 			locator1 = "Pagination#ITEMS_PER_PAGE_SELECT",
@@ -2292,6 +2331,15 @@ definition {
 		AssertTextEquals.assertPartialText(
 			locator1 = "APAsset#ASSET_VIEW_CONTENT",
 			value1 = "${webContentContent}");
+	}
+
+	macro viewPublicationTimelineEntry {
+		Click(locator1 = "WCEditWebContent#TIMELINE_TAB");
+
+		AssertElementPresent(
+			key_index = "${index}",
+			key_publicationName = "${publicationName}",
+			locator1 = "WCEditWebContent#TIMELINE_ENTRY_SPECIFIC");
 	}
 
 	macro viewRepeatedField {

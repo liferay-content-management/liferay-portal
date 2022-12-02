@@ -71,6 +71,43 @@ public class NotificationTemplateSerDes {
 			sb.append(_toJSON(notificationTemplate.getActions()));
 		}
 
+		if (notificationTemplate.
+				getAttachmentObjectFieldExternalReferenceCodes() != null) {
+
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"attachmentObjectFieldExternalReferenceCodes\": ");
+
+			sb.append("[");
+
+			for (int i = 0;
+				 i < notificationTemplate.
+					 getAttachmentObjectFieldExternalReferenceCodes().length;
+				 i++) {
+
+				sb.append("\"");
+
+				sb.append(
+					_escape(
+						notificationTemplate.
+							getAttachmentObjectFieldExternalReferenceCodes()
+							[i]));
+
+				sb.append("\"");
+
+				if ((i + 1) < notificationTemplate.
+						getAttachmentObjectFieldExternalReferenceCodes().
+							length) {
+
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		if (notificationTemplate.getAttachmentObjectFieldIds() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -98,20 +135,6 @@ public class NotificationTemplateSerDes {
 			sb.append("]");
 		}
 
-		if (notificationTemplate.getBcc() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"bcc\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(notificationTemplate.getBcc()));
-
-			sb.append("\"");
-		}
-
 		if (notificationTemplate.getBody() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -120,20 +143,6 @@ public class NotificationTemplateSerDes {
 			sb.append("\"body\": ");
 
 			sb.append(_toJSON(notificationTemplate.getBody()));
-		}
-
-		if (notificationTemplate.getCc() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"cc\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(notificationTemplate.getCc()));
-
-			sb.append("\"");
 		}
 
 		if (notificationTemplate.getDateCreated() != null) {
@@ -182,28 +191,32 @@ public class NotificationTemplateSerDes {
 			sb.append("\"");
 		}
 
-		if (notificationTemplate.getFrom() != null) {
+		if (notificationTemplate.getEditorType() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"from\": ");
+			sb.append("\"editorType\": ");
 
 			sb.append("\"");
 
-			sb.append(_escape(notificationTemplate.getFrom()));
+			sb.append(notificationTemplate.getEditorType());
 
 			sb.append("\"");
 		}
 
-		if (notificationTemplate.getFromName() != null) {
+		if (notificationTemplate.getExternalReferenceCode() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"fromName\": ");
+			sb.append("\"externalReferenceCode\": ");
 
-			sb.append(_toJSON(notificationTemplate.getFromName()));
+			sb.append("\"");
+
+			sb.append(_escape(notificationTemplate.getExternalReferenceCode()));
+
+			sb.append("\"");
 		}
 
 		if (notificationTemplate.getId() != null) {
@@ -240,6 +253,25 @@ public class NotificationTemplateSerDes {
 			sb.append(_toJSON(notificationTemplate.getName_i18n()));
 		}
 
+		if (notificationTemplate.getObjectDefinitionExternalReferenceCode() !=
+				null) {
+
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectDefinitionExternalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(
+				_escape(
+					notificationTemplate.
+						getObjectDefinitionExternalReferenceCode()));
+
+			sb.append("\"");
+		}
+
 		if (notificationTemplate.getObjectDefinitionId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -259,9 +291,35 @@ public class NotificationTemplateSerDes {
 
 			sb.append("\"");
 
-			sb.append(notificationTemplate.getRecipientType());
+			sb.append(_escape(notificationTemplate.getRecipientType()));
 
 			sb.append("\"");
+		}
+
+		if (notificationTemplate.getRecipients() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"recipients\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < notificationTemplate.getRecipients().length;
+				 i++) {
+
+				sb.append("\"");
+
+				sb.append(_escape(notificationTemplate.getRecipients()[i]));
+
+				sb.append("\"");
+
+				if ((i + 1) < notificationTemplate.getRecipients().length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		if (notificationTemplate.getSubject() != null) {
@@ -274,16 +332,6 @@ public class NotificationTemplateSerDes {
 			sb.append(_toJSON(notificationTemplate.getSubject()));
 		}
 
-		if (notificationTemplate.getTo() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"to\": ");
-
-			sb.append(_toJSON(notificationTemplate.getTo()));
-		}
-
 		if (notificationTemplate.getType() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -293,7 +341,21 @@ public class NotificationTemplateSerDes {
 
 			sb.append("\"");
 
-			sb.append(notificationTemplate.getType());
+			sb.append(_escape(notificationTemplate.getType()));
+
+			sb.append("\"");
+		}
+
+		if (notificationTemplate.getTypeLabel() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"typeLabel\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(notificationTemplate.getTypeLabel()));
 
 			sb.append("\"");
 		}
@@ -330,6 +392,19 @@ public class NotificationTemplateSerDes {
 				"actions", String.valueOf(notificationTemplate.getActions()));
 		}
 
+		if (notificationTemplate.
+				getAttachmentObjectFieldExternalReferenceCodes() == null) {
+
+			map.put("attachmentObjectFieldExternalReferenceCodes", null);
+		}
+		else {
+			map.put(
+				"attachmentObjectFieldExternalReferenceCodes",
+				String.valueOf(
+					notificationTemplate.
+						getAttachmentObjectFieldExternalReferenceCodes()));
+		}
+
 		if (notificationTemplate.getAttachmentObjectFieldIds() == null) {
 			map.put("attachmentObjectFieldIds", null);
 		}
@@ -340,25 +415,11 @@ public class NotificationTemplateSerDes {
 					notificationTemplate.getAttachmentObjectFieldIds()));
 		}
 
-		if (notificationTemplate.getBcc() == null) {
-			map.put("bcc", null);
-		}
-		else {
-			map.put("bcc", String.valueOf(notificationTemplate.getBcc()));
-		}
-
 		if (notificationTemplate.getBody() == null) {
 			map.put("body", null);
 		}
 		else {
 			map.put("body", String.valueOf(notificationTemplate.getBody()));
-		}
-
-		if (notificationTemplate.getCc() == null) {
-			map.put("cc", null);
-		}
-		else {
-			map.put("cc", String.valueOf(notificationTemplate.getCc()));
 		}
 
 		if (notificationTemplate.getDateCreated() == null) {
@@ -390,19 +451,23 @@ public class NotificationTemplateSerDes {
 				String.valueOf(notificationTemplate.getDescription()));
 		}
 
-		if (notificationTemplate.getFrom() == null) {
-			map.put("from", null);
-		}
-		else {
-			map.put("from", String.valueOf(notificationTemplate.getFrom()));
-		}
-
-		if (notificationTemplate.getFromName() == null) {
-			map.put("fromName", null);
+		if (notificationTemplate.getEditorType() == null) {
+			map.put("editorType", null);
 		}
 		else {
 			map.put(
-				"fromName", String.valueOf(notificationTemplate.getFromName()));
+				"editorType",
+				String.valueOf(notificationTemplate.getEditorType()));
+		}
+
+		if (notificationTemplate.getExternalReferenceCode() == null) {
+			map.put("externalReferenceCode", null);
+		}
+		else {
+			map.put(
+				"externalReferenceCode",
+				String.valueOf(
+					notificationTemplate.getExternalReferenceCode()));
 		}
 
 		if (notificationTemplate.getId() == null) {
@@ -428,6 +493,19 @@ public class NotificationTemplateSerDes {
 				String.valueOf(notificationTemplate.getName_i18n()));
 		}
 
+		if (notificationTemplate.getObjectDefinitionExternalReferenceCode() ==
+				null) {
+
+			map.put("objectDefinitionExternalReferenceCode", null);
+		}
+		else {
+			map.put(
+				"objectDefinitionExternalReferenceCode",
+				String.valueOf(
+					notificationTemplate.
+						getObjectDefinitionExternalReferenceCode()));
+		}
+
 		if (notificationTemplate.getObjectDefinitionId() == null) {
 			map.put("objectDefinitionId", null);
 		}
@@ -446,6 +524,15 @@ public class NotificationTemplateSerDes {
 				String.valueOf(notificationTemplate.getRecipientType()));
 		}
 
+		if (notificationTemplate.getRecipients() == null) {
+			map.put("recipients", null);
+		}
+		else {
+			map.put(
+				"recipients",
+				String.valueOf(notificationTemplate.getRecipients()));
+		}
+
 		if (notificationTemplate.getSubject() == null) {
 			map.put("subject", null);
 		}
@@ -454,18 +541,20 @@ public class NotificationTemplateSerDes {
 				"subject", String.valueOf(notificationTemplate.getSubject()));
 		}
 
-		if (notificationTemplate.getTo() == null) {
-			map.put("to", null);
-		}
-		else {
-			map.put("to", String.valueOf(notificationTemplate.getTo()));
-		}
-
 		if (notificationTemplate.getType() == null) {
 			map.put("type", null);
 		}
 		else {
 			map.put("type", String.valueOf(notificationTemplate.getType()));
+		}
+
+		if (notificationTemplate.getTypeLabel() == null) {
+			map.put("typeLabel", null);
+		}
+		else {
+			map.put(
+				"typeLabel",
+				String.valueOf(notificationTemplate.getTypeLabel()));
 		}
 
 		return map;
@@ -497,6 +586,16 @@ public class NotificationTemplateSerDes {
 				}
 			}
 			else if (Objects.equals(
+						jsonParserFieldName,
+						"attachmentObjectFieldExternalReferenceCodes")) {
+
+				if (jsonParserFieldValue != null) {
+					notificationTemplate.
+						setAttachmentObjectFieldExternalReferenceCodes(
+							toStrings((Object[])jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(
 						jsonParserFieldName, "attachmentObjectFieldIds")) {
 
 				if (jsonParserFieldValue != null) {
@@ -504,21 +603,11 @@ public class NotificationTemplateSerDes {
 						toLongs((Object[])jsonParserFieldValue));
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "bcc")) {
-				if (jsonParserFieldValue != null) {
-					notificationTemplate.setBcc((String)jsonParserFieldValue);
-				}
-			}
 			else if (Objects.equals(jsonParserFieldName, "body")) {
 				if (jsonParserFieldValue != null) {
 					notificationTemplate.setBody(
 						(Map)NotificationTemplateSerDes.toMap(
 							(String)jsonParserFieldValue));
-				}
-			}
-			else if (Objects.equals(jsonParserFieldName, "cc")) {
-				if (jsonParserFieldValue != null) {
-					notificationTemplate.setCc((String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "dateCreated")) {
@@ -539,16 +628,19 @@ public class NotificationTemplateSerDes {
 						(String)jsonParserFieldValue);
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "from")) {
+			else if (Objects.equals(jsonParserFieldName, "editorType")) {
 				if (jsonParserFieldValue != null) {
-					notificationTemplate.setFrom((String)jsonParserFieldValue);
+					notificationTemplate.setEditorType(
+						NotificationTemplate.EditorType.create(
+							(String)jsonParserFieldValue));
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "fromName")) {
+			else if (Objects.equals(
+						jsonParserFieldName, "externalReferenceCode")) {
+
 				if (jsonParserFieldValue != null) {
-					notificationTemplate.setFromName(
-						(Map)NotificationTemplateSerDes.toMap(
-							(String)jsonParserFieldValue));
+					notificationTemplate.setExternalReferenceCode(
+						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
@@ -570,6 +662,16 @@ public class NotificationTemplateSerDes {
 				}
 			}
 			else if (Objects.equals(
+						jsonParserFieldName,
+						"objectDefinitionExternalReferenceCode")) {
+
+				if (jsonParserFieldValue != null) {
+					notificationTemplate.
+						setObjectDefinitionExternalReferenceCode(
+							(String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(
 						jsonParserFieldName, "objectDefinitionId")) {
 
 				if (jsonParserFieldValue != null) {
@@ -580,8 +682,13 @@ public class NotificationTemplateSerDes {
 			else if (Objects.equals(jsonParserFieldName, "recipientType")) {
 				if (jsonParserFieldValue != null) {
 					notificationTemplate.setRecipientType(
-						NotificationTemplate.RecipientType.create(
-							(String)jsonParserFieldValue));
+						(String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "recipients")) {
+				if (jsonParserFieldValue != null) {
+					notificationTemplate.setRecipients(
+						(Object[])jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "subject")) {
@@ -591,18 +698,15 @@ public class NotificationTemplateSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "to")) {
-				if (jsonParserFieldValue != null) {
-					notificationTemplate.setTo(
-						(Map)NotificationTemplateSerDes.toMap(
-							(String)jsonParserFieldValue));
-				}
-			}
 			else if (Objects.equals(jsonParserFieldName, "type")) {
 				if (jsonParserFieldValue != null) {
-					notificationTemplate.setType(
-						NotificationTemplate.Type.create(
-							(String)jsonParserFieldValue));
+					notificationTemplate.setType((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "typeLabel")) {
+				if (jsonParserFieldValue != null) {
+					notificationTemplate.setTypeLabel(
+						(String)jsonParserFieldValue);
 				}
 			}
 		}

@@ -52,9 +52,10 @@ public class PriceModifierProductUtil {
 				priceModifierProduct.getProductId());
 		}
 		else {
-			cProduct = cProductLocalService.fetchCProductByReferenceCode(
-				serviceContext.getCompanyId(),
-				priceModifierProduct.getProductExternalReferenceCode());
+			cProduct =
+				cProductLocalService.fetchCProductByExternalReferenceCode(
+					priceModifierProduct.getProductExternalReferenceCode(),
+					serviceContext.getCompanyId());
 
 			if (cProduct == null) {
 				throw new NoSuchPricingClassException(

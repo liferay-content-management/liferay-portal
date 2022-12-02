@@ -51,6 +51,7 @@ import com.liferay.dynamic.data.mapping.expression.internal.parser.DDMExpression
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.lang.reflect.Method;
 
@@ -587,7 +588,13 @@ public class DDMExpressionEvaluatorVisitor
 			return (BigDecimal)comparable;
 		}
 
-		return new BigDecimal(comparable.toString());
+		String value = comparable.toString();
+
+		if (Validator.isNull(value)) {
+			return BigDecimal.ZERO;
+		}
+
+		return new BigDecimal(value);
 	}
 
 	private Class<?>[] _getInterfaces(Class<?> clazz) {

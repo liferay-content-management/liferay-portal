@@ -11,9 +11,10 @@ create table LayoutUtilityPageEntry (
 	createDate DATE null,
 	modifiedDate DATE null,
 	plid LONG,
+	previewFileEntryId LONG,
 	defaultLayoutUtilityPageEntry BOOLEAN,
 	name VARCHAR(75) null,
-	type_ INTEGER,
+	type_ VARCHAR(75) null,
 	lastPublishDate DATE null,
 	primary key (LayoutUtilityPageEntryId, ctCollectionId)
 );

@@ -24,22 +24,22 @@ int status = GetterUtil.getInteger(request.getAttribute(UsersAdminWebKeys.STATUS
 	<liferay-portlet:param name="status" value="<%= String.valueOf(status) %>" />
 </liferay-portlet:resourceURL>
 
-<liferay-util:buffer
-	var="onClickFn"
->
-	Liferay.Util.openConfirmModal({
-		message: '<liferay-ui:message key="warning-this-csv-file-contains-user-supplied-inputs" unicode="<%= true %>" />',
-		onConfirm: (isConfirmed) => {
-			if (isConfirmed) {
-				submitForm(document.hrefFm, '<%= exportURL + "&compress=0&etag=0&strip=0" %>');
-			}
+<aui:script>
+	Liferay.Util.setPortletConfigurationIconAction(
+		'<portlet:namespace />exportUsers',
+		() => {
+			Liferay.Util.openConfirmModal({
+				message:
+					'<liferay-ui:message key="warning-this-csv-file-contains-user-supplied-inputs" unicode="<%= true %>" />',
+				onConfirm: (isConfirmed) => {
+					if (isConfirmed) {
+						submitForm(
+							document.hrefFm,
+							'<%= exportURL + "&compress=0&etag=0&strip=0" %>'
+						);
+					}
+				},
+			});
 		}
-	});
-</liferay-util:buffer>
-
-<liferay-ui:icon
-	message="export-users"
-	method="get"
-	onClick="<%= onClickFn %>"
-	url="javascript:void(0);"
-/>
+	);
+</aui:script>

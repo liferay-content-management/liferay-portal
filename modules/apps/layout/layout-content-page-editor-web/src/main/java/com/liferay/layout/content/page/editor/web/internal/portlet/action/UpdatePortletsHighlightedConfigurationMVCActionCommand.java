@@ -17,7 +17,7 @@ package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -67,7 +67,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Lourdes Fernández Besada
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + ContentPageEditorPortletKeys.CONTENT_PAGE_EDITOR_PORTLET,
 		"mvc.command.name=/layout_content_page_editor/update_portlets_highlighted_configuration"
@@ -96,10 +95,10 @@ public class UpdatePortletsHighlightedConfigurationMVCActionCommand
 				PortletPreferences.class.getName());
 
 		if (ListUtil.isEmpty(portletItems)) {
-			return JSONFactoryUtil.createJSONArray();
+			return _jsonFactory.createJSONArray();
 		}
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
 		for (PortletItem portletItem : portletItems) {
 			jsonArray.put(
@@ -157,7 +156,7 @@ public class UpdatePortletsHighlightedConfigurationMVCActionCommand
 		HttpServletRequest httpServletRequest, Set<String> portletIds,
 		ThemeDisplay themeDisplay) {
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
 		HttpSession httpSession = httpServletRequest.getSession();
 
@@ -287,6 +286,9 @@ public class UpdatePortletsHighlightedConfigurationMVCActionCommand
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		UpdatePortletsHighlightedConfigurationMVCActionCommand.class);
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

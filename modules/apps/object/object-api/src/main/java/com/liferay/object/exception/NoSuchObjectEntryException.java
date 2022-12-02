@@ -28,6 +28,13 @@ public class NoSuchObjectEntryException extends NoSuchModelException {
 		super(msg);
 	}
 
+	public NoSuchObjectEntryException(
+		String externalReferenceCode, long objectDefinitionId) {
+
+		_externalReferenceCode = externalReferenceCode;
+		_objectDefinitionId = objectDefinitionId;
+	}
+
 	public NoSuchObjectEntryException(String msg, Throwable throwable) {
 		super(msg, throwable);
 	}
@@ -35,5 +42,16 @@ public class NoSuchObjectEntryException extends NoSuchModelException {
 	public NoSuchObjectEntryException(Throwable throwable) {
 		super(throwable);
 	}
+
+	public String getExternalReferenceCode() {
+		return _externalReferenceCode;
+	}
+
+	public long getObjectDefinitionId() {
+		return _objectDefinitionId;
+	}
+
+	private String _externalReferenceCode;
+	private long _objectDefinitionId;
 
 }

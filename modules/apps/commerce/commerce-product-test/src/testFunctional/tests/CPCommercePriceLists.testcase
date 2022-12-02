@@ -44,16 +44,9 @@ definition {
 
 		CommerceEntry.gotoMenuTab(menuTab = "Entries");
 
-		Type(
-			key_title = "Add SKUs",
-			locator1 = "CommerceEntry#ADD_RELATION_FIELD",
-			value1 = "'MIN55861'");
-
-		WaitForElementPresent(
-			key_text = "Select",
-			locator1 = "Button#ANY");
-
-		Button.clickSelect();
+		CommerceRelations.assignSingleRelationToProductsEntry(
+			entryName = "MIN55861",
+			title = "Add SKUs");
 
 		Refresh();
 
@@ -621,15 +614,15 @@ definition {
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
-		Accounts.openAccountsAdmin();
+		Account.openAccountsAdmin();
 
-		Accounts.addBusinessAccount(
+		Account.addBusinessAccount(
 			accountDescription = "This is an Account added for Account Group.",
 			accountName = "Account1");
 
 		Navigator.gotoBack();
 
-		Accounts.addBusinessAccount(
+		Account.addBusinessAccount(
 			accountDescription = "This is an Account added for Account Group.",
 			accountName = "Account2");
 
@@ -928,16 +921,11 @@ definition {
 
 		CommerceEntry.gotoMenuTab(menuTab = "Entries");
 
-		var priceListEntryProduct = '''"MIN55861"''';
+		var priceListEntryProduct = "MIN55861";
 
-		Type(
-			key_title = "Add SKUs",
-			locator1 = "CommerceEntry#ADD_RELATION_FIELD",
-			value1 = "${priceListEntryProduct}");
-
-		AssertElementPresent(locator1 = "Button#SELECT");
-
-		Button.clickSelect();
+		CommerceRelations.assignSingleRelationToProductsEntry(
+			entryName = "${priceListEntryProduct}",
+			title = "Add SKUs");
 
 		Refresh();
 
@@ -953,14 +941,9 @@ definition {
 
 		CommerceEntry.gotoMenuTab(menuTab = "Entries");
 
-		Type(
-			key_title = "Add SKUs",
-			locator1 = "CommerceEntry#ADD_RELATION_FIELD",
-			value1 = "${priceListEntryProduct}");
-
-		AssertElementPresent(locator1 = "Button#SELECT");
-
-		Button.clickSelect();
+		CommerceRelations.assignSingleRelationToProductsEntry(
+			entryName = "${priceListEntryProduct}",
+			title = "Add SKUs");
 
 		Refresh();
 
@@ -1116,8 +1099,8 @@ definition {
 	test AllowMultiplePriceEntriesInTheSamePriceList {
 		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
 		property osgi.module.configuration.file.names = "com.liferay.commerce.price.list.configuration.CommercePriceEntryConfiguration.config";
-		property osgi.module.configurations = "checkInterval=&quot;1&quot;";
-		property portal.acceptance = "false";
+		property osgi.module.configurations = "checkInterval=\"1\"";
+		property portal.acceptance = "true";
 		property release.feature.flags.disable.DISABLE_PRIVATE_LAYOUTS = "true";
 
 		// TODO COMMERCE-9089 Find alternative to having a pause to wait for a timed expiration and publication
@@ -1495,7 +1478,7 @@ definition {
 
 		Button.click(button = "Submit");
 
-		Alert.viewRequiredField();
+		Alert.viewSpecificRequiredField(fieldFieldLabel = "Name");
 
 		Click(locator1 = "Icon#CLOSE");
 
@@ -1520,11 +1503,11 @@ definition {
 
 		Button.click(button = "Submit");
 
-		Alert.viewRequiredField();
+		Alert.viewSpecificRequiredField(fieldFieldLabel = "Currency");
 	}
 
 	test AssertPriceListIsAppliedToAllAssociatedAccounts {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 		property portal.upstream = "true";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
@@ -1605,6 +1588,151 @@ definition {
 		AssertTextEquals.assertPartialText(
 			locator1 = "CommerceAccelerators#PRODUCT_DETAILS_LIST_PRICE",
 			value1 = "50.00");
+	}
+
+	@description = "Test for COMMERCE-9405. User with Discount Manager role can add price list entries"
+	@priority = "3"
+	test CanDiscountManagerViewPriceLists {
+		property portal.acceptance = "false";
+
+		task ("Given a Minium site") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+		}
+
+		task ("And Discount Manager role has VIEW Commerce Catalog permission") {
+			Role.openRolesAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Discount Manager");
+
+			Navigator.gotoNavItem(navItem = "Define Permissions");
+
+			Role.viewPermissionCP(
+				permissionDefinitionValue = "View",
+				permissionNavigationValue = "Catalogs > Commerce Catalog");
+		}
+
+		task ("And a user with Discount Manager role is created") {
+			JSONUser.addUserWithRole(
+				roleTitle = "Discount Manager",
+				userEmailAddress = "discount.manager@liferay.com",
+				userFirstName = "Discount",
+				userLastName = "Manager",
+				userScreenName = "discount.manager");
+		}
+
+		task ("When the Discount Manager logs in") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "discount.manager@liferay.com",
+				userLoginFullName = "Discount Manager");
+		}
+
+		task ("Then on the Applications Menu -> Commerce, the Discount Manager can see only Price Lists and Promotions") {
+			ApplicationsMenuHelper.openApplicationsMenu();
+
+			ApplicationsMenu.gotoPanel(panel = "Commerce");
+
+			for (var portlet : list "Catalogs,Channels,Inventory,Orders,Products,Shipments") {
+				AssertElementNotPresent(
+					key_category = "",
+					key_portlet = "${portlet}",
+					locator1 = "ApplicationsMenu#PORTLET");
+			}
+
+			for (var portlet : list "Price Lists,Promotions") {
+				AssertElementPresent(
+					key_category = "Pricing",
+					key_portlet = "${portlet}",
+					locator1 = "ApplicationsMenu#PORTLET");
+			}
+		}
+
+		task ("When the Discount Manager navigates to Price Lists page") {
+			ApplicationsMenuHelper.gotoPortlet(
+				category = "Pricing",
+				portlet = "Price Lists");
+		}
+
+		task ("Then the user is able to create a new price list") {
+			for (var entry : list "Master Base Price List,Minium Base Price List") {
+				AssertElementPresent(
+					key_entryName = "${entry}",
+					locator1 = "CommerceNavigation#ENTRY_NAME");
+			}
+		}
+	}
+
+	@description = "This is a test for COMMERCE-7597. We cannot delete base price lists and base promotions."
+	@priority = "3"
+	test CanNotDeleteBasePriceListsAndPromotions {
+		property portal.acceptance = "false";
+
+		task ("Given a Minium site") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+		}
+
+		task ("When admin goes to the Price Lists section") {
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				panel = "Commerce",
+				portlet = "Price Lists");
+		}
+
+		task ("Then verifies that there is no Delete button for Master and Minium Base Price Lists") {
+			for (var basePriceListName : list "Master Base Price List,Minium Base Price List") {
+				CommercePriceLists.assertDeleteButtonNotPresent(baseEntryName = "${basePriceListName}");
+			}
+		}
+
+		task ("When admin adds a new Price List") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+				catalogName = "Minium",
+				currencyCode = "USD",
+				priceListName = "Test Price List");
+
+			Refresh();
+		}
+
+		task ("Then verifies that there is a Delete button for the new price list") {
+			Click(
+				key_value = "Test Price List",
+				locator1 = "CommerceEntry#BODY_VERTICAL_ELLIPSIS");
+
+			AssertElementPresent(
+				key_menuItem = "Delete",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+		}
+
+		task ("When admin goes to the Promotions section") {
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				panel = "Commerce",
+				portlet = "Promotions");
+		}
+
+		task ("Then verifies that there is no Delete button for Master and Minium Base Promotions") {
+			for (var basePromotionName : list "Master Base Promotion,Minium Base Promotion") {
+				CommercePriceLists.assertDeleteButtonNotPresent(baseEntryName = "${basePromotionName}");
+			}
+		}
+
+		task ("When admin adds a new Promotion") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPromotion(
+				catalogName = "Minium",
+				currencyCode = "USD",
+				promotionName = "Test Promotion");
+
+			Refresh();
+		}
+
+		task ("Then verifies that there is a Delete button for the new promotion") {
+			Click(
+				key_value = "Test Promotion",
+				locator1 = "CommerceEntry#BODY_VERTICAL_ELLIPSIS");
+
+			AssertElementPresent(
+				key_menuItem = "Delete",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+		}
 	}
 
 	@description = "This is a test for COMMERCE-6220. When creating a price list only catalogs for which the user has permission should be visible in the drop down"
@@ -1895,7 +2023,7 @@ definition {
 
 		Button.clickSave();
 
-		WaitForElementNotPresent(locator1 = "Message#SUCCESS");
+		CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Pricing",
@@ -1977,7 +2105,7 @@ definition {
 			panel = "Commerce",
 			portlet = "Price Lists");
 
-		while ((IsElementPresent(key_name = "Test Price List", locator1 = "CommerceEntry#ASSERT_PRICE_LIST_STATUS", value1 = "APPROVED")) && (maxIterations = "40")) {
+		while ((IsTextEqual(key_name = "Test Price List", locator1 = "CommerceEntry#ASSERT_PRICE_LIST_STATUS", value1 = "APPROVED")) && (maxIterations = "40")) {
 
 			// We need this pause for waiting for the Price List to expire
 
@@ -2022,7 +2150,7 @@ definition {
 
 		Button.clickSave();
 
-		WaitForElementNotPresent(locator1 = "Message#SUCCESS");
+		CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Pricing",
@@ -2048,12 +2176,9 @@ definition {
 
 		var sku = "MIN55861";
 
-		Type(
-			key_title = "Add SKUs",
-			locator1 = "CommerceEntry#ADD_RELATION_FIELD",
-			value1 = "'MIN55861'");
-
-		Button.clickSelect();
+		CommerceRelations.assignSingleRelationToProductsEntry(
+			entryName = "${sku}",
+			title = "Add SKUs");
 
 		Refresh();
 
@@ -2132,7 +2257,7 @@ definition {
 			locator1 = "CommerceAccelerators#PRODUCT_CARD_PRICE",
 			value1 = "$ 30.00");
 
-		while ((IsElementPresent(key_productName = "U-Joint", locator1 = "CommerceAccelerators#PRODUCT_CARD_PRICE", value1 = "$ 30.00")) && (maxIterations = "40")) {
+		while ((IsTextEqual(key_productName = "U-Joint", locator1 = "CommerceAccelerators#PRODUCT_CARD_PRICE", value1 = "$ 30.00")) && (maxIterations = "40")) {
 
 			// We need this pause for waiting for the Price List to expire
 
@@ -2162,7 +2287,7 @@ definition {
 	test ViewExpiredTierPriceEntry {
 		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false";
 		property osgi.module.configuration.file.names = "com.liferay.commerce.price.list.configuration.CommerceTierPriceEntryConfiguration.config";
-		property osgi.module.configurations = "checkInterval=&quot;1&quot;";
+		property osgi.module.configurations = "checkInterval=\"1\"";
 		property portal.acceptance = "false";
 
 		// TODO Review
@@ -2369,7 +2494,7 @@ definition {
 
 		Button.clickSave();
 
-		WaitForElementNotPresent(locator1 = "Message#SUCCESS");
+		CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Pricing",
@@ -2394,16 +2519,9 @@ definition {
 		CommerceEntry.gotoMenuTab(menuTab = "Entries");
 
 		for (var sku : list "MIN55861,MIN93015") {
-			var quotedSku = '''"${sku}"''';
-
-			Type(
-				key_title = "Add SKUs",
-				locator1 = "CommerceEntry#ADD_RELATION_FIELD",
-				value1 = "${quotedSku}");
-
-			AssertElementPresent(locator1 = "Button#SELECT");
-
-			Button.clickSelect();
+			CommerceRelations.assignSingleRelationToProductsEntry(
+				entryName = "${sku}",
+				title = "Add SKUs");
 
 			Refresh();
 
@@ -2491,7 +2609,7 @@ definition {
 
 		CommerceAcceleratorsInitializer.changeProductsSorting(sortingType = "Relevance");
 
-		while ((IsElementPresent(key_productName = "U-Joint", locator1 = "CommerceAccelerators#PRODUCT_CARD_PRICE", value1 = "$ 30.00")) && (maxIterations = "40")) {
+		while ((IsTextEqual(key_productName = "U-Joint", locator1 = "CommerceAccelerators#PRODUCT_CARD_PRICE", value1 = "$ 30.00")) && (maxIterations = "40")) {
 
 			// We need this pause for waiting for the Price List to expire
 

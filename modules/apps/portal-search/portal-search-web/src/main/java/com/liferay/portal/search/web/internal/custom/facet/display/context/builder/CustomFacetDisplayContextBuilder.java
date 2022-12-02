@@ -22,7 +22,7 @@ import com.liferay.portal.kernel.search.facet.collector.TermCollector;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.web.internal.custom.facet.display.context.CustomFacetDisplayContext;
-import com.liferay.portal.search.web.internal.custom.facet.display.context.CustomFacetTermDisplayContext;
+import com.liferay.portal.search.web.internal.facet.display.context.BucketDisplayContext;
 import com.liferay.portal.search.web.internal.util.SearchStringUtil;
 
 import java.util.ArrayList;
@@ -58,6 +58,8 @@ public class CustomFacetDisplayContextBuilder {
 		CustomFacetDisplayContext customFacetDisplayContext =
 			new CustomFacetDisplayContext(_httpServletRequest);
 
+		customFacetDisplayContext.setBucketDisplayContexts(
+			_buildBucketDisplayContexts(termCollectors));
 		customFacetDisplayContext.setDisplayCaption(getDisplayCaption());
 		customFacetDisplayContext.setNothingSelected(nothingSelected);
 		customFacetDisplayContext.setPaginationStartParameterName(
@@ -66,8 +68,6 @@ public class CustomFacetDisplayContextBuilder {
 		customFacetDisplayContext.setParameterValue(_getFirstParameterValue());
 		customFacetDisplayContext.setParameterValues(_parameterValues);
 		customFacetDisplayContext.setRenderNothing(renderNothing);
-		customFacetDisplayContext.setTermDisplayContexts(
-			_buildTermDisplayContexts(termCollectors));
 
 		return customFacetDisplayContext;
 	}
@@ -194,32 +194,32 @@ public class CustomFacetDisplayContextBuilder {
 		return false;
 	}
 
-	private CustomFacetTermDisplayContext _buildTermDisplayContext(
+	private BucketDisplayContext _buildBucketDisplayContext(
 		TermCollector termCollector) {
+
+		BucketDisplayContext bucketDisplayContext = new BucketDisplayContext();
 
 		String term = GetterUtil.getString(termCollector.getTerm());
 
-		CustomFacetTermDisplayContext customFacetTermDisplayContext =
-			new CustomFacetTermDisplayContext();
+		bucketDisplayContext.setBucketText(term);
+		bucketDisplayContext.setFilterValue(term);
 
-		customFacetTermDisplayContext.setFrequency(
-			termCollector.getFrequency());
-		customFacetTermDisplayContext.setFrequencyVisible(_frequenciesVisible);
-		customFacetTermDisplayContext.setSelected(isSelected(term));
-		customFacetTermDisplayContext.setFieldName(term);
+		bucketDisplayContext.setFrequency(termCollector.getFrequency());
+		bucketDisplayContext.setFrequencyVisible(_frequenciesVisible);
+		bucketDisplayContext.setSelected(isSelected(term));
 
-		return customFacetTermDisplayContext;
+		return bucketDisplayContext;
 	}
 
-	private List<CustomFacetTermDisplayContext> _buildTermDisplayContexts(
+	private List<BucketDisplayContext> _buildBucketDisplayContexts(
 		List<TermCollector> termCollectors) {
 
 		if (termCollectors.isEmpty()) {
-			return _getEmptyTermDisplayContexts();
+			return _getEmptyBucketDisplayContexts();
 		}
 
-		List<CustomFacetTermDisplayContext> customFacetTermDisplayContexts =
-			new ArrayList<>(termCollectors.size());
+		List<BucketDisplayContext> bucketDisplayContexts = new ArrayList<>(
+			termCollectors.size());
 
 		for (int i = 0; i < termCollectors.size(); i++) {
 			TermCollector termCollector = termCollectors.get(i);
@@ -231,27 +231,27 @@ public class CustomFacetDisplayContextBuilder {
 				break;
 			}
 
-			customFacetTermDisplayContexts.add(
-				_buildTermDisplayContext(termCollector));
+			bucketDisplayContexts.add(
+				_buildBucketDisplayContext(termCollector));
 		}
 
-		return customFacetTermDisplayContexts;
+		return bucketDisplayContexts;
 	}
 
-	private List<CustomFacetTermDisplayContext> _getEmptyTermDisplayContexts() {
+	private List<BucketDisplayContext> _getEmptyBucketDisplayContexts() {
 		if (_parameterValues.isEmpty()) {
 			return Collections.emptyList();
 		}
 
-		CustomFacetTermDisplayContext customFacetTermDisplayContext =
-			new CustomFacetTermDisplayContext();
+		BucketDisplayContext bucketDisplayContext = new BucketDisplayContext();
 
-		customFacetTermDisplayContext.setFrequency(0);
-		customFacetTermDisplayContext.setFrequencyVisible(_frequenciesVisible);
-		customFacetTermDisplayContext.setSelected(true);
-		customFacetTermDisplayContext.setFieldName(_parameterValues.get(0));
+		bucketDisplayContext.setBucketText(_parameterValues.get(0));
+		bucketDisplayContext.setFilterValue(_parameterValues.get(0));
+		bucketDisplayContext.setFrequency(0);
+		bucketDisplayContext.setFrequencyVisible(_frequenciesVisible);
+		bucketDisplayContext.setSelected(true);
 
-		return Collections.singletonList(customFacetTermDisplayContext);
+		return Collections.singletonList(bucketDisplayContext);
 	}
 
 	private String _getFirstParameterValue() {

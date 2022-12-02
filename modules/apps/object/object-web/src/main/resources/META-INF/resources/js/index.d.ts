@@ -34,10 +34,13 @@ interface ObjectAction {
 	active: boolean;
 	conditionExpression?: string;
 	description?: string;
+	errorMessage: LocalizedValue<string>;
 	id?: number;
+	label: LocalizedValue<string>;
 	name: string;
 	objectActionExecutorKey: string;
 	objectActionTriggerKey: string;
+	objectDefinitionId?: number;
 	objectDefinitionsRelationshipsURL: string;
 	parameters?: ObjectActionParameters;
 	script?: string;
@@ -59,9 +62,11 @@ type ObjectFieldBusinessType =
 	| 'Attachment'
 	| 'Date'
 	| 'Decimal'
+	| 'Formula'
 	| 'Integer'
 	| 'LongInteger'
 	| 'LongText'
+	| 'MultiselectPicklist'
 	| 'Picklist'
 	| 'PrecisionDecimal'
 	| 'Relationship'
@@ -75,7 +80,7 @@ interface ObjectFieldType {
 }
 interface ObjectField {
 	DBType: string;
-	businessType: ObjectFieldBusinessType | string;
+	businessType: ObjectFieldBusinessType;
 	defaultValue?: string;
 	externalReferenceCode?: string;
 	id: number;
@@ -83,7 +88,8 @@ interface ObjectField {
 	indexedAsKeyword: boolean;
 	indexedLanguageId: Locale | null;
 	label: LocalizedValue<string>;
-	listTypeDefinitionId: number;
+	listTypeDefinitionExternalReferenceCode: string;
+	listTypeDefinitionId?: number;
 	name: string;
 	objectFieldSettings?: ObjectFieldSetting[];
 	relationshipId?: number;
@@ -104,7 +110,7 @@ interface ObjectDefinition {
 	active: boolean;
 	dateCreated: string;
 	dateModified: string;
-	enabledCategorization: boolean;
+	enableCategorization: boolean;
 	id: number;
 	label: LocalizedValue<string>;
 	name: string;
@@ -214,8 +220,13 @@ type ObjectFieldSettingName =
 	| 'function'
 	| 'maxLength'
 	| 'maximumFileSize'
+	| 'objectDefinition1ShortName'
 	| 'objectFieldName'
 	| 'objectRelationshipName'
+	| 'output'
+	| 'readOnly'
+	| 'readOnlyScript'
+	| 'script'
 	| 'showCounter'
 	| 'showFilesInDocumentsAndMedia'
 	| 'stateFlow'
@@ -243,7 +254,7 @@ interface ObjectRelationship {
 	readonly objectDefinitionName2: string;
 	objectRelationshipId: number;
 	parameterObjectFieldId?: number;
-	reverse?: boolean;
+	reverse: boolean;
 	type: ObjectRelationshipType;
 }
 
@@ -262,6 +273,7 @@ type ObjectValidationType = {
 
 interface PickList {
 	actions: Actions;
+	externalReferenceCode: string;
 	id: number;
 	listTypeEntries: PickListItem[];
 	name: string;
@@ -289,6 +301,7 @@ interface HTTPMethod {
 
 interface PredefinedValue {
 	inputAsValue: boolean;
+	label: LocalizedValue<string>;
 	name: string;
 	value: string;
 }

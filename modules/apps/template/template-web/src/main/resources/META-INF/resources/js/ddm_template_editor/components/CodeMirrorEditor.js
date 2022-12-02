@@ -45,6 +45,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 
 import 'codemirror/mode/javascript/javascript';
+import {CodeMirrorKeyboardMessage} from '@liferay/layout-content-page-editor-web';
 import CodeMirror from 'codemirror';
 import PropTypes from 'prop-types';
 import React, {useEffect, useRef, useState} from 'react';
@@ -59,31 +60,66 @@ export function CodeMirrorEditor({
 	const [editor, setEditor] = useState();
 	const [editorWrapper, setEditorWrapper] = useState();
 	const initialContentRef = useRef(content);
+	const [isEnabled, setIsEnabled] = useState(true);
+	const [isFocused, setIsFocused] = useState(null);
 
 	useEffect(() => {
 		if (!editorWrapper) {
 			return;
 		}
 
-		setEditor(
-			CodeMirror(editorWrapper, {
-				autoCloseTags: true,
-				autoRefresh: true,
-				extraKeys: {
-					'Ctrl-Space': 'autocomplete',
+		const hasEnabledTabKey = ({state: {keyMaps}}) =>
+			keyMaps.every((key) => key.name !== 'tabKey');
+
+		const codeMirror = CodeMirror(editorWrapper, {
+			autoCloseTags: true,
+			autoRefresh: true,
+			extraKeys: {
+				'Ctrl-M'(cm) {
+					const tabKeyIsEnabled = hasEnabledTabKey(cm);
+
+					setIsEnabled(tabKeyIsEnabled);
+
+					if (tabKeyIsEnabled) {
+						cm.addKeyMap({
+							'Shift-Tab': false,
+							'Tab': false,
+							'name': 'tabKey',
+						});
+					}
+					else {
+						cm.removeKeyMap('tabKey');
+					}
 				},
-				foldGutter: true,
-				gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-				indentWithTabs: true,
-				inputStyle: 'contenteditable',
-				lineNumbers: true,
-				matchBrackets: true,
-				showHint: true,
-				tabSize: 2,
-				value: initialContentRef.current,
-				viewportMargin: Infinity,
-			})
-		);
+				'Ctrl-Space': 'autocomplete',
+			},
+			foldGutter: true,
+			gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+			indentWithTabs: true,
+			inputStyle: 'contenteditable',
+			lineNumbers: true,
+			matchBrackets: true,
+			showHint: true,
+			tabSize: 2,
+			value: initialContentRef.current,
+			viewportMargin: Infinity,
+		});
+
+		setEditor(codeMirror);
+
+		codeMirror.on('focus', (cm) => {
+			setIsFocused(true);
+
+			if (hasEnabledTabKey(cm)) {
+				cm.addKeyMap({
+					'Shift-Tab': false,
+					'Tab': false,
+					'name': 'tabKey',
+				});
+			}
+		});
+
+		codeMirror.on('blur', () => setIsFocused(false));
 	}, [editorWrapper]);
 
 	useEffect(() => {
@@ -236,10 +272,19 @@ export function CodeMirrorEditor({
 	}, [editor, inputChannel]);
 
 	return (
-		<div
-			className="ddm_template_editor__CodeMirrorEditor"
-			ref={setEditorWrapper}
-		/>
+		<div className="d-flex flex-column flex-grow-1 position-relative">
+			{isFocused ? (
+				<CodeMirrorKeyboardMessage keyIsEnabled={isEnabled} />
+			) : null}
+
+			<div
+				aria-label={Liferay.Language.get(
+					'use-ctrl-m-to-enable-or-disable-the-tab-key'
+				)}
+				className="ddm_template_editor__CodeMirrorEditor"
+				ref={setEditorWrapper}
+			/>
+		</div>
 	);
 }
 

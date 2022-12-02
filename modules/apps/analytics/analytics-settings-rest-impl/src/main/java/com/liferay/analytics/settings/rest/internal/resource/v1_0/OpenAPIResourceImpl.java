@@ -98,7 +98,25 @@ public class OpenAPIResourceImpl {
 
 	private final Set<Class<?>> _resourceClasses = new HashSet<Class<?>>() {
 		{
+			add(ChannelResourceImpl.class);
+
+			add(CommerceChannelResourceImpl.class);
+
+			add(ContactAccountGroupResourceImpl.class);
+
+			add(ContactConfigurationResourceImpl.class);
+
+			add(ContactOrganizationResourceImpl.class);
+
+			add(ContactUserGroupResourceImpl.class);
+
 			add(DataSourceResourceImpl.class);
+
+			add(FieldResourceImpl.class);
+
+			add(FieldSummaryResourceImpl.class);
+
+			add(SiteResourceImpl.class);
 
 			add(OpenAPIResourceImpl.class);
 		}

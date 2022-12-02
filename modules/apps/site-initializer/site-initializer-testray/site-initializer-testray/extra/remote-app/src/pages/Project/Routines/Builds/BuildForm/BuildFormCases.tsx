@@ -14,20 +14,14 @@
 
 import ClayAlert from '@clayui/alert';
 import ClayButton from '@clayui/button';
-import {Dispatch, SetStateAction} from 'react';
+import {Dispatch, SetStateAction, useState} from 'react';
 import {useParams} from 'react-router-dom';
 
 import Form from '../../../../../components/Form';
 import {useFetch} from '../../../../../hooks/useFetch';
 import useFormModal from '../../../../../hooks/useFormModal';
 import i18n from '../../../../../i18n';
-import fetcher from '../../../../../services/fetcher';
-import {
-	APIResponse,
-	TestrayCase,
-	TestraySuiteCase,
-} from '../../../../../services/rest';
-import {getUniqueList} from '../../../../../util';
+import {APIResponse, TestrayCase} from '../../../../../services/rest';
 import {searchUtil} from '../../../../../util/search';
 import {CaseListView} from '../../../Cases';
 import SuiteFormSelectModal from '../../../Suites/modal';
@@ -36,11 +30,17 @@ import BuildSelectSuitesModal from '../BuildSelectSuitesModal';
 type BuildFormCasesProps = {
 	caseIds: number[];
 	setCaseIds: Dispatch<SetStateAction<number[]>>;
+	title?: string;
+};
+
+type ModalType = {
+	type: 'select-cases' | 'select-suites';
 };
 
 const BuildFormCases: React.FC<BuildFormCasesProps> = ({
 	caseIds,
 	setCaseIds,
+	title,
 }) => {
 	const {projectId} = useParams();
 
@@ -51,33 +51,16 @@ const BuildFormCases: React.FC<BuildFormCasesProps> = ({
 		)}&pageSize=1&fields=id`
 	);
 
+	const [modalType, setModalType] = useState<ModalType>({
+		type: 'select-cases',
+	});
+
 	const {modal} = useFormModal({
 		onSave: setCaseIds,
 	});
 
 	const {modal: buildSelectSuitesModal} = useFormModal({
-		onSave: (newSuites) => {
-			if (newSuites?.length) {
-				fetcher<APIResponse<TestraySuiteCase>>(
-					`/suitescaseses?fields=r_caseToSuitesCases_c_caseId&filter=${searchUtil.in(
-						'suiteId',
-						newSuites
-					)}`
-				).then((response) => {
-					if (response?.totalCount) {
-						setCaseIds((prevCases) =>
-							getUniqueList([
-								...prevCases,
-								...response.items.map(
-									({r_caseToSuitesCases_c_caseId}) =>
-										r_caseToSuitesCases_c_caseId
-								),
-							])
-						);
-					}
-				});
-			}
-		},
+		onSave: setCaseIds,
 	});
 
 	if (casesResponse?.totalCount === 0) {
@@ -92,14 +75,18 @@ const BuildFormCases: React.FC<BuildFormCasesProps> = ({
 
 	return (
 		<>
-			<h3>{i18n.translate('cases')}</h3>
+			{title && (
+				<>
+					<h3>{title}</h3>
 
-			<Form.Divider />
+					<Form.Divider />
+				</>
+			)}
 
 			<ClayButton.Group className="mb-4">
 				<ClayButton
 					displayType="secondary"
-					onClick={() => modal.open()}
+					onClick={() => modal.open(caseIds)}
 				>
 					{i18n.translate('add-cases')}
 				</ClayButton>
@@ -107,7 +94,11 @@ const BuildFormCases: React.FC<BuildFormCasesProps> = ({
 				<ClayButton
 					className="ml-1"
 					displayType="secondary"
-					onClick={() => buildSelectSuitesModal.open()}
+					onClick={() => {
+						setModalType({type: 'select-suites'});
+
+						buildSelectSuitesModal.open(caseIds);
+					}}
 				>
 					{i18n.translate('add-suites')}
 				</ClayButton>
@@ -127,12 +118,14 @@ const BuildFormCases: React.FC<BuildFormCasesProps> = ({
 													prevCase !== id
 											)
 										),
+									icon: 'trash',
 									name: i18n.translate('delete'),
 								},
 							] as any,
 							columns: [
 								{
 									key: 'priority',
+									size: 'lg',
 									value: i18n.translate('priority'),
 								},
 								{
@@ -158,7 +151,11 @@ const BuildFormCases: React.FC<BuildFormCasesProps> = ({
 				</ClayAlert>
 			)}
 
-			<BuildSelectSuitesModal modal={buildSelectSuitesModal} />
+			<BuildSelectSuitesModal
+				modal={buildSelectSuitesModal}
+				type={modalType.type}
+			/>
+
 			<SuiteFormSelectModal
 				modal={modal}
 				selectedCaseIds={caseIds}

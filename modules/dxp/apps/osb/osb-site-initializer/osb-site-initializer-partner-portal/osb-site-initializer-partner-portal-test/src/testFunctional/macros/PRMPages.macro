@@ -1,0 +1,21 @@
+definition {
+
+	macro assertPageTitle {
+		AssertElementPresent(
+			key_title = "${pageTitle}",
+			locator1 = "Header#H1_TITLE");
+	}
+
+	macro clickBannerButton {
+		Click(
+			key_buttonText = "${buttonText}",
+			locator1 = "PRMPages#BANNER_BUTTON");
+	}
+
+	macro dismissBanner {
+		Click(
+			key_text = "Dismiss",
+			locator1 = "Button#ANY");
+	}
+
+}

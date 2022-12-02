@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -75,7 +74,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(service = {FolderPersistence.class, BasePersistence.class})
+@Component(service = FolderPersistence.class)
 public class FolderPersistenceImpl
 	extends BasePersistenceImpl<Folder> implements FolderPersistence {
 
@@ -190,7 +189,8 @@ public class FolderPersistenceImpl
 		List<Folder> list = null;
 
 		if (useFinderCache) {
-			list = (List<Folder>)finderCache.getResult(finderPath, finderArgs);
+			list = (List<Folder>)finderCache.getResult(
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (Folder folder : list) {
@@ -545,7 +545,7 @@ public class FolderPersistenceImpl
 
 		Object[] finderArgs = new Object[] {accountId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -660,7 +660,8 @@ public class FolderPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByA_F, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByA_F, finderArgs, this);
 		}
 
 		if (result instanceof Folder) {
@@ -786,7 +787,7 @@ public class FolderPersistenceImpl
 
 		Object[] finderArgs = new Object[] {accountId, fullName};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1251,7 +1252,8 @@ public class FolderPersistenceImpl
 		List<Folder> list = null;
 
 		if (useFinderCache) {
-			list = (List<Folder>)finderCache.getResult(finderPath, finderArgs);
+			list = (List<Folder>)finderCache.getResult(
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -1321,7 +1323,7 @@ public class FolderPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

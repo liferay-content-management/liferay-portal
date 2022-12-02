@@ -46,7 +46,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Mika Koivisto
  */
 @Component(
-	immediate = true,
 	property = Constants.SERVICE_PID + "=" + SamlProviderConfigurationHelperImpl.FACTORY_PID,
 	service = {
 		ManagedServiceFactory.class, SamlProviderConfigurationHelper.class
@@ -160,7 +159,19 @@ public class SamlProviderConfigurationHelperImpl
 			samlProviderConfiguration, pid);
 
 		_configurationHolderByCompanyId.put(companyId, configurationHolder);
-		_configurationHolderByPid.put(pid, configurationHolder);
+
+		ConfigurationHolder oldConfigurationHolder =
+			_configurationHolderByPid.put(pid, configurationHolder);
+
+		if (oldConfigurationHolder != null) {
+			SamlProviderConfiguration oldSamlProviderConfiguration =
+				oldConfigurationHolder.getSamlProviderConfiguration();
+
+			if (oldSamlProviderConfiguration.companyId() != companyId) {
+				_configurationHolderByCompanyId.remove(
+					oldSamlProviderConfiguration.companyId());
+			}
+		}
 	}
 
 	@Override

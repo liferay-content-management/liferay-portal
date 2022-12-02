@@ -142,19 +142,11 @@ public class NotificationQueueEntryPersistenceTest {
 		newNotificationQueueEntry.setNotificationTemplateId(
 			RandomTestUtil.nextLong());
 
-		newNotificationQueueEntry.setBcc(RandomTestUtil.randomString());
-
 		newNotificationQueueEntry.setBody(RandomTestUtil.randomString());
-
-		newNotificationQueueEntry.setCc(RandomTestUtil.randomString());
 
 		newNotificationQueueEntry.setClassNameId(RandomTestUtil.nextLong());
 
 		newNotificationQueueEntry.setClassPK(RandomTestUtil.nextLong());
-
-		newNotificationQueueEntry.setFrom(RandomTestUtil.randomString());
-
-		newNotificationQueueEntry.setFromName(RandomTestUtil.randomString());
 
 		newNotificationQueueEntry.setPriority(RandomTestUtil.nextDouble());
 
@@ -162,9 +154,7 @@ public class NotificationQueueEntryPersistenceTest {
 
 		newNotificationQueueEntry.setSubject(RandomTestUtil.randomString());
 
-		newNotificationQueueEntry.setTo(RandomTestUtil.randomString());
-
-		newNotificationQueueEntry.setToName(RandomTestUtil.randomString());
+		newNotificationQueueEntry.setType(RandomTestUtil.randomString());
 
 		newNotificationQueueEntry.setStatus(RandomTestUtil.nextInt());
 
@@ -203,26 +193,14 @@ public class NotificationQueueEntryPersistenceTest {
 			existingNotificationQueueEntry.getNotificationTemplateId(),
 			newNotificationQueueEntry.getNotificationTemplateId());
 		Assert.assertEquals(
-			existingNotificationQueueEntry.getBcc(),
-			newNotificationQueueEntry.getBcc());
-		Assert.assertEquals(
 			existingNotificationQueueEntry.getBody(),
 			newNotificationQueueEntry.getBody());
-		Assert.assertEquals(
-			existingNotificationQueueEntry.getCc(),
-			newNotificationQueueEntry.getCc());
 		Assert.assertEquals(
 			existingNotificationQueueEntry.getClassNameId(),
 			newNotificationQueueEntry.getClassNameId());
 		Assert.assertEquals(
 			existingNotificationQueueEntry.getClassPK(),
 			newNotificationQueueEntry.getClassPK());
-		Assert.assertEquals(
-			existingNotificationQueueEntry.getFrom(),
-			newNotificationQueueEntry.getFrom());
-		Assert.assertEquals(
-			existingNotificationQueueEntry.getFromName(),
-			newNotificationQueueEntry.getFromName());
 		AssertUtils.assertEquals(
 			existingNotificationQueueEntry.getPriority(),
 			newNotificationQueueEntry.getPriority());
@@ -234,11 +212,8 @@ public class NotificationQueueEntryPersistenceTest {
 			existingNotificationQueueEntry.getSubject(),
 			newNotificationQueueEntry.getSubject());
 		Assert.assertEquals(
-			existingNotificationQueueEntry.getTo(),
-			newNotificationQueueEntry.getTo());
-		Assert.assertEquals(
-			existingNotificationQueueEntry.getToName(),
-			newNotificationQueueEntry.getToName());
+			existingNotificationQueueEntry.getType(),
+			newNotificationQueueEntry.getType());
 		Assert.assertEquals(
 			existingNotificationQueueEntry.getStatus(),
 			newNotificationQueueEntry.getStatus());
@@ -259,10 +234,12 @@ public class NotificationQueueEntryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByStatus() throws Exception {
-		_persistence.countByStatus(RandomTestUtil.nextInt());
+	public void testCountByT_S() throws Exception {
+		_persistence.countByT_S("", RandomTestUtil.nextInt());
 
-		_persistence.countByStatus(0);
+		_persistence.countByT_S("null", 0);
+
+		_persistence.countByT_S((String)null, 0);
 	}
 
 	@Test
@@ -296,10 +273,9 @@ public class NotificationQueueEntryPersistenceTest {
 			"NotificationQueueEntry", "mvccVersion", true,
 			"notificationQueueEntryId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
-			"notificationTemplateId", true, "bcc", true, "cc", true,
-			"classNameId", true, "classPK", true, "from", true, "fromName",
-			true, "priority", true, "sentDate", true, "subject", true, "to",
-			true, "toName", true, "status", true);
+			"notificationTemplateId", true, "classNameId", true, "classPK",
+			true, "priority", true, "sentDate", true, "subject", true, "type",
+			true, "status", true);
 	}
 
 	@Test
@@ -560,19 +536,11 @@ public class NotificationQueueEntryPersistenceTest {
 		notificationQueueEntry.setNotificationTemplateId(
 			RandomTestUtil.nextLong());
 
-		notificationQueueEntry.setBcc(RandomTestUtil.randomString());
-
 		notificationQueueEntry.setBody(RandomTestUtil.randomString());
-
-		notificationQueueEntry.setCc(RandomTestUtil.randomString());
 
 		notificationQueueEntry.setClassNameId(RandomTestUtil.nextLong());
 
 		notificationQueueEntry.setClassPK(RandomTestUtil.nextLong());
-
-		notificationQueueEntry.setFrom(RandomTestUtil.randomString());
-
-		notificationQueueEntry.setFromName(RandomTestUtil.randomString());
 
 		notificationQueueEntry.setPriority(RandomTestUtil.nextDouble());
 
@@ -580,9 +548,7 @@ public class NotificationQueueEntryPersistenceTest {
 
 		notificationQueueEntry.setSubject(RandomTestUtil.randomString());
 
-		notificationQueueEntry.setTo(RandomTestUtil.randomString());
-
-		notificationQueueEntry.setToName(RandomTestUtil.randomString());
+		notificationQueueEntry.setType(RandomTestUtil.randomString());
 
 		notificationQueueEntry.setStatus(RandomTestUtil.nextInt());
 

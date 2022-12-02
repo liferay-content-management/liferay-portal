@@ -18,7 +18,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
 /**
- * @author     Javier de Arcos
+ * @author Javier de Arcos
  */
 public class ResponseCode {
 

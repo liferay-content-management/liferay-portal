@@ -11,18 +11,26 @@
 
 import ClayAlert from '@clayui/alert';
 import ClayButton from '@clayui/button';
+import ClayIcon from '@clayui/icon';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {ClayPaginationBarWithBasicItems} from '@clayui/pagination-bar';
 
+import Table from '../../common/components/Table';
+import DropDownWithDrillDown from '../../common/components/TableHeader/Filter/components/DropDownWithDrillDown';
+import DateFilter from '../../common/components/TableHeader/Filter/components/filters/DateFilter/DateFilter';
+import Search from '../../common/components/TableHeader/Search/Search';
+import TableHeader from '../../common/components/TableHeader/TableHeader';
 import {MDFColumnKey} from '../../common/enums/mdfColumnKey';
 import {PRMPageRoute} from '../../common/enums/prmPageRoute';
 import useLiferayNavigate from '../../common/hooks/useLiferayNavigate';
+import usePagination from '../../common/hooks/usePagination';
 import {MDFRequestListItem} from '../../common/interfaces/mdfRequestListItem';
 import TableColumn from '../../common/interfaces/tableColumn';
 import {Liferay} from '../../common/services/liferay';
-import Table from './components/Table';
+import getDropDownFilterMenus from '../../common/utils/getDropDownFilterMenus';
+import useFilters from './hooks/useFilters';
 import useGetMDFRequestListData from './hooks/useGetMDFRequestListData';
-import usePagination from './hooks/usePagination';
+import {INITIAL_FILTER} from './utils/constants/initialFilter';
 import getMDFListColumns from './utils/getMDFListColumns';
 
 type MDFRequestItem = {
@@ -30,10 +38,13 @@ type MDFRequestItem = {
 };
 
 const MDFRequestList = () => {
+	const {filters, filtersTerm, onFilter} = useFilters();
+
 	const pagination = usePagination();
 	const {data, isValidating} = useGetMDFRequestListData(
 		pagination.activePage,
-		pagination.activeDelta
+		pagination.activeDelta,
+		filtersTerm
 	);
 
 	const siteURL = useLiferayNavigate();
@@ -64,6 +75,7 @@ const MDFRequestList = () => {
 					<Table<MDFRequestListItem>
 						borderless
 						columns={columns}
+						noWrap
 						responsive
 						rows={items}
 					/>
@@ -78,22 +90,102 @@ const MDFRequestList = () => {
 	};
 
 	return (
-		<div className="border-0 pb-3 pt-5 px-6 sheet">
+		<div className="border-0 my-4">
 			<h1>MDF Requests</h1>
 
-			<div className="bg-neutral-1 d-flex justify-content-end p-3 rounded">
-				<ClayButton
-					onClick={() =>
-						Liferay.Util.navigate(
-							`${siteURL}/${PRMPageRoute.CREATE_MDF_REQUEST}`
-						)
-					}
-				>
-					New Request
-				</ClayButton>
-			</div>
+			<TableHeader>
+				<div className="d-flex">
+					<div>
+						<Search
+							onSearchSubmit={(searchTerm: string) =>
+								onFilter({
+									searchTerm,
+								})
+							}
+						/>
 
-			{isValidating && <ClayLoadingIndicator />}
+						<div className="bd-highlight flex-shrink-2 mt-1">
+							{!!filters.searchTerm &&
+								!!data.listItems.items?.length &&
+								!isValidating && (
+									<div>
+										<p className="font-weight-semi-bold m-0 ml-1 mt-3 text-paragraph-sm">
+											{data.listItems.items?.length > 1
+												? `${data.listItems.items?.length} results for ${filters.searchTerm}`
+												: `${data.listItems.items?.length} result for ${filters.searchTerm}`}
+										</p>
+									</div>
+								)}
+
+							{filters.hasValue && (
+								<ClayButton
+									borderless
+									className="link"
+									onClick={() => {
+										onFilter({
+											...INITIAL_FILTER,
+											searchTerm: filters.searchTerm,
+										});
+									}}
+									small
+								>
+									<ClayIcon
+										className="ml-n2 mr-1"
+										symbol="times-circle"
+									/>
+									Clear All Filters
+								</ClayButton>
+							)}
+						</div>
+					</div>
+
+					<DropDownWithDrillDown
+						className=""
+						initialActiveMenu="x0a0"
+						menus={getDropDownFilterMenus([
+							{
+								component: (
+									<DateFilter
+										dateFilters={(dates: {
+											endDate: string;
+											startDate: string;
+										}) => {
+											onFilter({
+												activityPeriod: {
+													dates,
+												},
+											});
+										}}
+										filterDescription="Activity Date "
+									/>
+								),
+								name: 'Activity Period',
+							},
+						])}
+						trigger={
+							<ClayButton borderless className="btn-secondary">
+								<span className="inline-item inline-item-before">
+									<ClayIcon symbol="filter" />
+								</span>
+								Filter
+							</ClayButton>
+						}
+					/>
+				</div>
+
+				<div className="mb-2 mb-lg-0">
+					<ClayButton
+						className="mr-2 mr-md-2"
+						onClick={() =>
+							Liferay.Util.navigate(
+								`${siteURL}/${PRMPageRoute.CREATE_MDF_REQUEST}`
+							)
+						}
+					>
+						New Request
+					</ClayButton>
+				</div>
+			</TableHeader>
 
 			{!isValidating &&
 				getTable(
@@ -101,6 +193,8 @@ const MDFRequestList = () => {
 					data.listItems.items,
 					columns
 				)}
+
+			{isValidating && <ClayLoadingIndicator />}
 		</div>
 	);
 };

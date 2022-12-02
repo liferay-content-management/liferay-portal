@@ -272,32 +272,13 @@ public class AddressLocalServiceWrapper
 		return _addressLocalService.fetchAddress(addressId);
 	}
 
-	/**
-	 * Returns the address with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the address's external reference code
-	 * @return the matching address, or <code>null</code> if a matching address could not be found
-	 */
 	@Override
 	public com.liferay.portal.kernel.model.Address
 		fetchAddressByExternalReferenceCode(
-			long companyId, java.lang.String externalReferenceCode) {
+			java.lang.String externalReferenceCode, long companyId) {
 
 		return _addressLocalService.fetchAddressByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchAddressByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.model.Address fetchAddressByReferenceCode(
-		long companyId, java.lang.String externalReferenceCode) {
-
-		return _addressLocalService.fetchAddressByReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -336,22 +317,14 @@ public class AddressLocalServiceWrapper
 		return _addressLocalService.getAddress(addressId);
 	}
 
-	/**
-	 * Returns the address with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the address's external reference code
-	 * @return the matching address
-	 * @throws PortalException if a matching address could not be found
-	 */
 	@Override
 	public com.liferay.portal.kernel.model.Address
 			getAddressByExternalReferenceCode(
-				long companyId, java.lang.String externalReferenceCode)
+				java.lang.String externalReferenceCode, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _addressLocalService.getAddressByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**

@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -85,7 +86,9 @@ public class MimeTypesImpl implements MimeTypes, MimeTypesReaderMetKeys {
 
 	@Override
 	public String getContentType(InputStream inputStream, String fileName) {
-		String contentType = _contentTypes.get(_getExtension(fileName));
+		String extension = _getExtension(fileName);
+
+		String contentType = _contentTypes.get(extension);
 
 		if (contentType != null) {
 			return contentType;
@@ -108,6 +111,20 @@ public class MimeTypesImpl implements MimeTypes, MimeTypesReaderMetKeys {
 		}
 		catch (IOException ioException) {
 			_log.error(ioException);
+		}
+
+		if (inputStream != null) {
+			return contentType;
+		}
+
+		Set<String> extensions = _extensionsMap.get(
+			ContentTypes.APPLICATION_OCTET_STREAM);
+
+		if (!extensions.contains(extension) &&
+			Objects.equals(
+				contentType, ContentTypes.APPLICATION_OCTET_STREAM)) {
+
+			return null;
 		}
 
 		return contentType;
@@ -153,8 +170,8 @@ public class MimeTypesImpl implements MimeTypes, MimeTypesReaderMetKeys {
 			extensionsMap);
 
 		for (Map.Entry<String, Set<String>> entry : extensionsMap.entrySet()) {
-			for (String mimeType : entry.getValue()) {
-				_contentTypes.put(mimeType, entry.getKey());
+			for (String extension : entry.getValue()) {
+				_contentTypes.put(extension, entry.getKey());
 			}
 		}
 	}

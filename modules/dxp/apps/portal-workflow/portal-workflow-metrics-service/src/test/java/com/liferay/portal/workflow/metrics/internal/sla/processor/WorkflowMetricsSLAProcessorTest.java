@@ -21,9 +21,9 @@ import com.liferay.portal.search.document.DocumentBuilder;
 import com.liferay.portal.search.internal.document.DocumentBuilderImpl;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 import com.liferay.portal.workflow.metrics.internal.sla.calendar.DefaultWorkflowMetricsSLACalendar;
-import com.liferay.portal.workflow.metrics.internal.sla.calendar.WorkflowMetricsSLACalendarTrackerImpl;
+import com.liferay.portal.workflow.metrics.internal.sla.calendar.WorkflowMetricsSLACalendarRegistryImpl;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinitionVersion;
-import com.liferay.portal.workflow.metrics.sla.calendar.WorkflowMetricsSLACalendarTracker;
+import com.liferay.portal.workflow.metrics.sla.calendar.WorkflowMetricsSLACalendarRegistry;
 import com.liferay.portal.workflow.metrics.sla.processor.WorkflowMetricsSLAStatus;
 
 import java.time.LocalDateTime;
@@ -604,20 +604,20 @@ public class WorkflowMetricsSLAProcessorTest {
 		return _dateTimeFormatter.format(nowLocalDateTime);
 	}
 
-	private WorkflowMetricsSLACalendarTracker
-			_mockWorkflowMetricsSLACalendarTracker()
+	private WorkflowMetricsSLACalendarRegistry
+			_mockWorkflowMetricsSLACalendarRegistry()
 		throws Exception {
 
-		WorkflowMetricsSLACalendarTrackerImpl
-			workflowMetricsSLACalendarTrackerImpl =
-				new WorkflowMetricsSLACalendarTrackerImpl();
+		WorkflowMetricsSLACalendarRegistryImpl
+			workflowMetricsSLACalendarRegistryImpl =
+				new WorkflowMetricsSLACalendarRegistryImpl();
 
 		ReflectionTestUtil.setFieldValue(
-			workflowMetricsSLACalendarTrackerImpl,
+			workflowMetricsSLACalendarRegistryImpl,
 			"_defaultWorkflowMetricsSLACalendar",
 			new DefaultWorkflowMetricsSLACalendar());
 
-		return workflowMetricsSLACalendarTrackerImpl;
+		return workflowMetricsSLACalendarRegistryImpl;
 	}
 
 	private void _test(
@@ -670,8 +670,8 @@ public class WorkflowMetricsSLAProcessorTest {
 			new WorkflowMetricsSLAProcessor();
 
 		ReflectionTestUtil.setFieldValue(
-			workflowMetricsSLAProcessor, "_workflowMetricsSLACalendarTracker",
-			_mockWorkflowMetricsSLACalendarTracker());
+			workflowMetricsSLAProcessor, "_workflowMetricsSLACalendarRegistry",
+			_mockWorkflowMetricsSLACalendarRegistry());
 
 		WorkflowMetricsSLAInstanceResult workflowMetricsSLAInstanceResult =
 			workflowMetricsSLAProcessor.process(

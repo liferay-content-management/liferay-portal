@@ -18,6 +18,7 @@ import {
 	openConfirmModal,
 	openModal,
 	openSelectionModal,
+	openToast,
 	sub,
 } from 'frontend-js-web';
 
@@ -25,12 +26,12 @@ import {collectDigitalSignature} from './digital-signature/DigitalSignatureUtil'
 
 export default function propsTransformer({
 	additionalProps: {
+		bulkPermissionsConfiguration: {defaultModelClassName, permissionsURLs},
 		collectDigitalSignaturePortlet,
 		downloadEntryURL,
 		editEntryURL,
 		folderConfiguration,
 		openViewMoreFileEntryTypesURL,
-		permissionsURL,
 		selectFileEntryTypeURL,
 		selectFolderURL,
 		trashEnabled,
@@ -234,7 +235,36 @@ export default function propsTransformer({
 	};
 
 	const permissions = () => {
-		const keys = getAllSelectedElements().get('value');
+		const map = new Map();
+
+		getAllSelectedElements().each((element) => {
+			const modelClassName =
+				element.getData('modelclassname') ?? defaultModelClassName;
+
+			map.set(modelClassName, [
+				...(map.get(modelClassName) ?? []),
+				element.get('value'),
+			]);
+		});
+
+		if (map.size > 1) {
+			openToast({
+				message: Liferay.Language.get(
+					'it-is-not-possible-to-simultaneously-change-the-permissions-of-different-asset-types'
+				),
+				title: Liferay.Language.get('error'),
+				type: 'danger',
+			});
+
+			return;
+		}
+
+		const [
+			selectedModelClassName,
+			selectedFileEntries,
+		] = map.entries()?.next().value;
+
+		const permissionsURL = permissionsURLs[selectedModelClassName];
 
 		const url = new URL(permissionsURL);
 
@@ -244,7 +274,7 @@ export default function propsTransformer({
 				{
 					[`_${url.searchParams.get(
 						'p_p_id'
-					)}_resourcePrimKey`]: keys.join(','),
+					)}_resourcePrimKey`]: selectedFileEntries.join(','),
 				},
 				permissionsURL
 			),

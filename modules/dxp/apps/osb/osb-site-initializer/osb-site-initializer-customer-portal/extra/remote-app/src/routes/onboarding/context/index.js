@@ -22,7 +22,7 @@ import {
 	getLiferayExperienceCloudEnvironments,
 	getUserAccount,
 } from '../../../common/services/liferay/graphql/queries';
-import {getCurrentSession} from '../../../common/services/okta/rest/sessions';
+import {getCurrentSession} from '../../../common/services/okta/rest/getCurrentSession';
 import {ROLE_TYPES, ROUTE_TYPES} from '../../../common/utils/constants';
 import {getAccountKey} from '../../../common/utils/getAccountKey';
 import {isValidPage} from '../../../common/utils/page.validation';
@@ -274,7 +274,10 @@ const AppContextProvider = ({children}) => {
 				);
 
 				if (accountBrief) {
-					getProject(projectExternalReferenceCode, accountBrief);
+					const project = await getProject(
+						projectExternalReferenceCode,
+						accountBrief
+					);
 					getSubscriptionGroups(projectExternalReferenceCode);
 					getDXPCloudActivationStatus(projectExternalReferenceCode);
 					getAnalyticsCloudActivationStatus(
@@ -289,13 +292,17 @@ const AppContextProvider = ({children}) => {
 					client.mutate({
 						context: {
 							displaySuccess: false,
+							type: 'liferay-rest',
 						},
 						mutation: addAccountFlag,
 						variables: {
 							accountFlag: {
+								accountEntryId: project?.id,
 								accountKey: projectExternalReferenceCode,
 								finished: true,
 								name: ROUTE_TYPES.onboarding,
+								r_accountEntryToAccountFlag_accountEntryId:
+									accountBrief?.id,
 							},
 						},
 					});

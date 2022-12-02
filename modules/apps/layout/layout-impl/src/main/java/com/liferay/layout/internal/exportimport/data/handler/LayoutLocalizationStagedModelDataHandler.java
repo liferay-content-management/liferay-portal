@@ -35,7 +35,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	service = {
 		LayoutLocalizationStagedModelDataHandler.class,
 		StagedModelDataHandler.class
@@ -114,6 +113,8 @@ public class LayoutLocalizationStagedModelDataHandler
 		LayoutLocalization importedLayoutLocalization =
 			(LayoutLocalization)layoutLocalization.clone();
 
+		importedLayoutLocalization.setGroupId(
+			portletDataContext.getScopeGroupId());
 		importedLayoutLocalization.setCompanyId(
 			portletDataContext.getCompanyId());
 
@@ -128,7 +129,7 @@ public class LayoutLocalizationStagedModelDataHandler
 
 		LayoutLocalization existingLayoutLocalization =
 			_layoutLocalizationLocalService.fetchLayoutLocalization(
-				portletDataContext.getCompanyId(),
+				portletDataContext.getGroupId(),
 				layoutLocalization.getLanguageId(), plid);
 
 		if (existingLayoutLocalization == null) {

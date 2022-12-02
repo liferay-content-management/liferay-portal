@@ -14,7 +14,6 @@
 
 package com.liferay.portal.properties.swapper.internal;
 
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -22,12 +21,11 @@ import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
+import com.liferay.portal.kernel.util.Portal;
 
 import java.io.InputStream;
 
 import java.net.URL;
-
-import java.util.List;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -43,12 +41,8 @@ public class DefaultGuestGroupLogoSwapper {
 
 	@Activate
 	protected void activate(BundleContext bundleContext) throws Exception {
-		List<Company> companies = _companyLocalService.getCompanies();
-
-		Company company = companies.get(0);
-
 		Group group = _groupLocalService.getGroup(
-			company.getCompanyId(), GroupConstants.GUEST);
+			_portal.getDefaultCompanyId(), GroupConstants.GUEST);
 
 		LayoutSet layoutSet = _layoutSetLocalService.getLayoutSet(
 			group.getGroupId(), false);
@@ -80,5 +74,8 @@ public class DefaultGuestGroupLogoSwapper {
 
 	@Reference(target = ModuleServiceLifecycle.PORTLETS_INITIALIZED)
 	private ModuleServiceLifecycle _moduleServiceLifecycle;
+
+	@Reference
+	private Portal _portal;
 
 }

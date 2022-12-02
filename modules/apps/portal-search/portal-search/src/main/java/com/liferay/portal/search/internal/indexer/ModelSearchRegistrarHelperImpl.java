@@ -33,7 +33,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author André de Oliveira
  */
-@Component(immediate = true, service = ModelSearchRegistrarHelper.class)
+@Component(service = ModelSearchRegistrarHelper.class)
 public class ModelSearchRegistrarHelperImpl
 	implements ModelSearchRegistrarHelper {
 
@@ -109,11 +109,6 @@ public class ModelSearchRegistrarHelperImpl
 			ModelVisibilityContributor modelVisibilityContributor) {
 
 			_modelVisibilityContributor = modelVisibilityContributor;
-		}
-
-		@Override
-		public void setSearchEngineId(String searchEngineId) {
-			_modelSearchSettingsImpl.setSearchEngineId(searchEngineId);
 		}
 
 		@Override

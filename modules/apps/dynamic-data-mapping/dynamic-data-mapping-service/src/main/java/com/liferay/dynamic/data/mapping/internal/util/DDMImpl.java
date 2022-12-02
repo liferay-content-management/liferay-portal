@@ -57,7 +57,7 @@ import com.liferay.dynamic.data.mapping.util.comparator.TemplateModifiedDateComp
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -114,7 +114,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eduardo García
  * @author Marcellus Tavares
  */
-@Component(immediate = true, service = DDM.class)
+@Component(service = DDM.class)
 public class DDMImpl implements DDM {
 
 	@Override
@@ -220,6 +220,29 @@ public class DDMImpl implements DDM {
 
 	@Override
 	public DDMFormValues getDDMFormValues(
+			long ddmStructureId, long ddmTemplateId, String fieldNamespace,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		DDMStructure ddmStructure = _getDDMStructure(
+			ddmStructureId, ddmTemplateId);
+
+		String serializedDDMFormValues = GetterUtil.getString(
+			serviceContext.getAttribute(fieldNamespace + "ddmFormValues"));
+
+		if (Validator.isNotNull(serializedDDMFormValues)) {
+			return getDDMFormValues(
+				ddmStructure.getFullHierarchyDDMForm(),
+				serializedDDMFormValues);
+		}
+
+		return _fieldsToDDMFormValuesConverter.convert(
+			ddmStructure,
+			getFields(ddmStructureId, 0, fieldNamespace, serviceContext));
+	}
+
+	@Override
+	public DDMFormValues getDDMFormValues(
 			long ddmStructureId, String fieldNamespace,
 			ServiceContext serviceContext)
 		throws PortalException {
@@ -296,8 +319,7 @@ public class DDMImpl implements DDM {
 
 			String valueString = String.valueOf(fieldValue);
 
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-				valueString);
+			JSONObject jsonObject = _jsonFactory.createJSONObject(valueString);
 
 			String uuid = jsonObject.getString("uuid");
 			long groupId = jsonObject.getLong("groupId");
@@ -316,8 +338,7 @@ public class DDMImpl implements DDM {
 
 			String valueString = String.valueOf(fieldValue);
 
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-				valueString);
+			JSONObject jsonObject = _jsonFactory.createJSONObject(valueString);
 
 			long groupId = jsonObject.getLong("groupId");
 			boolean privateLayout = jsonObject.getBoolean("privateLayout");
@@ -330,7 +351,7 @@ public class DDMImpl implements DDM {
 		else if (type.equals(DDMFormFieldType.SELECT)) {
 			String valueString = String.valueOf(fieldValue);
 
-			JSONArray jsonArray = JSONFactoryUtil.createJSONArray(valueString);
+			JSONArray jsonArray = _jsonFactory.createJSONArray(valueString);
 
 			String[] stringArray = ArrayUtil.toStringArray(jsonArray);
 
@@ -460,7 +481,7 @@ public class DDMImpl implements DDM {
 		else if (type.equals(DDMFormFieldType.SELECT)) {
 			String valueString = (String)fieldValue;
 
-			JSONArray jsonArray = JSONFactoryUtil.createJSONArray(valueString);
+			JSONArray jsonArray = _jsonFactory.createJSONArray(valueString);
 
 			String[] stringArray = ArrayUtil.toStringArray(jsonArray);
 
@@ -652,7 +673,7 @@ public class DDMImpl implements DDM {
 		List<DDMFormField> ddmFormFields, Set<Locale> availableLocales,
 		Locale defaultLocale) {
 
-		JSONArray ddmFormFieldsJSONArray = JSONFactoryUtil.createJSONArray();
+		JSONArray ddmFormFieldsJSONArray = _jsonFactory.createJSONArray();
 
 		for (DDMFormField ddmFormField : ddmFormFields) {
 			JSONObject jsonObject = JSONUtil.put(
@@ -686,11 +707,11 @@ public class DDMImpl implements DDM {
 				jsonObject, ddmFormField, availableLocales, defaultLocale);
 
 			JSONObject localizationMapJSONObject =
-				JSONFactoryUtil.createJSONObject();
+				_jsonFactory.createJSONObject();
 
 			for (Locale availableLocale : availableLocales) {
 				JSONObject localeMapJSONObject =
-					JSONFactoryUtil.createJSONObject();
+					_jsonFactory.createJSONObject();
 
 				_addDDMFormFieldLocalizedProperties(
 					localeMapJSONObject, ddmFormField, availableLocale,
@@ -776,8 +797,7 @@ public class DDMImpl implements DDM {
 
 			try {
 				jsonObject.put(
-					propertyName,
-					JSONFactoryUtil.createJSONArray(propertyValue));
+					propertyName, _jsonFactory.createJSONArray(propertyValue));
 			}
 			catch (Exception exception) {
 				if (_log.isDebugEnabled()) {
@@ -805,7 +825,7 @@ public class DDMImpl implements DDM {
 
 		String fieldName = ddmFormField.getName();
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
 		DDMFormFieldOptions ddmFormFieldOptions =
 			ddmFormField.getDDMFormFieldOptions();
@@ -829,11 +849,11 @@ public class DDMImpl implements DDM {
 				defaultLocale, "option");
 
 			JSONObject localizationMapJSONObject =
-				JSONFactoryUtil.createJSONObject();
+				_jsonFactory.createJSONObject();
 
 			for (Locale availableLocale : availableLocales) {
 				JSONObject localeMapJSONObject =
-					JSONFactoryUtil.createJSONObject();
+					_jsonFactory.createJSONObject();
 
 				_addDDMFormFieldLocalizedProperty(
 					localeMapJSONObject, "label",
@@ -1093,7 +1113,7 @@ public class DDMImpl implements DDM {
 
 					fieldValue = new String[] {String.valueOf(fieldValue)};
 
-					fieldValue = JSONFactoryUtil.serialize(fieldValue);
+					fieldValue = _jsonFactory.serialize(fieldValue);
 				}
 			}
 
@@ -1324,6 +1344,9 @@ public class DDMImpl implements DDM {
 
 	@Reference(target = "(ddm.form.values.serializer.type=json)")
 	private DDMFormValuesSerializer _jsonDDMFormValuesSerializer;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

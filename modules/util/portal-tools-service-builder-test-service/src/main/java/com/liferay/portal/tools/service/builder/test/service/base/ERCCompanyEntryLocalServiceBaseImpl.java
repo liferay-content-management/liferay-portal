@@ -261,48 +261,21 @@ public abstract class ERCCompanyEntryLocalServiceBaseImpl
 			uuid, companyId, null);
 	}
 
-	/**
-	 * Returns the erc company entry with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the erc company entry's external reference code
-	 * @return the matching erc company entry, or <code>null</code> if a matching erc company entry could not be found
-	 */
 	@Override
 	public ERCCompanyEntry fetchERCCompanyEntryByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
-		return ercCompanyEntryPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return ercCompanyEntryPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchERCCompanyEntryByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public ERCCompanyEntry fetchERCCompanyEntryByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return fetchERCCompanyEntryByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * Returns the erc company entry with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the erc company entry's external reference code
-	 * @return the matching erc company entry
-	 * @throws PortalException if a matching erc company entry could not be found
-	 */
 	@Override
 	public ERCCompanyEntry getERCCompanyEntryByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		return ercCompanyEntryPersistence.findByC_ERC(
-			companyId, externalReferenceCode);
+		return ercCompanyEntryPersistence.findByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	/**

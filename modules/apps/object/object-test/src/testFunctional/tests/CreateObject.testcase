@@ -1314,9 +1314,9 @@ definition {
 
 		Role.definePermissionCP(
 			permissionDefinitionKey = "CONTROL_PANEL_OBJECTS_PERMISSIONS_APPLICATION_PERMISSION_ACCESS_CONTROL_PANEL_CHECKBOX",
-			permissionDefinitionValue = "",
+			permissionDefinitionValue = "Access in Control Panel",
 			permissionNavigationKey = "CONTROL_PANEL_OBJECTS_PERMISSIONS",
-			permissionNavigationValue = "Custom Objects 35",
+			permissionNavigationValue = "Object",
 			roleTitle = "Regular Role",
 			roleType = "Regular");
 
@@ -1327,9 +1327,9 @@ definition {
 
 		Role.definePermissionCP(
 			permissionDefinitionKey = "CONTROL_PANEL_OBJECTS_PERMISSIONS_RESOURCE_PERMISSION_VIEW_OBJECT_DEFINITION_CHECKBOX",
-			permissionDefinitionValue = "",
+			permissionDefinitionValue = "View",
 			permissionNavigationKey = "CONTROL_PANEL_OBJECTS_PERMISSIONS",
-			permissionNavigationValue = "Objects",
+			permissionNavigationValue = "Object",
 			roleTitle = "Regular Role",
 			roleType = "Regular");
 
@@ -1340,9 +1340,9 @@ definition {
 
 		Role.definePermissionCP(
 			permissionDefinitionKey = "CONTROL_PANEL_OBJECTS_PERMISSIONS_RESOURCE_PERMISSIONS_DELETE_CHECKBOX",
-			permissionDefinitionValue = "",
+			permissionDefinitionValue = "Delete",
 			permissionNavigationKey = "CONTROL_PANEL_OBJECTS_PERMISSIONS",
-			permissionNavigationValue = "Objects",
+			permissionNavigationValue = "Object",
 			roleTitle = "Regular Role",
 			roleType = "Regular");
 
@@ -2499,8 +2499,6 @@ definition {
 	@description = "LPS-135635 - Verify it is not possible to update the Searchable section after the Object is published"
 	@priority = "4"
 	test CannotUpdateSearchableSectionAfterPublished {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 68",
 			objectName = "CustomObject68",
@@ -2524,7 +2522,7 @@ definition {
 
 		ObjectAdmin.goToFieldsDetails(label = "Text");
 
-		AssertElementPresent(locator1 = "ObjectAdmin#VIEW_SEARCHABLE_SECTION_DISABLED");
+		AssertElementPresent(locator1 = "ObjectAdmin#VIEW_SEARCHABLE_SECTION_ENABLED");
 	}
 
 	@description = "LPS-135649 - Verify that the Object is not displayed on Process Builder settings before Published"
@@ -2871,8 +2869,6 @@ definition {
 	@description = "LPS-135401 - Verify that it is possible to relate to many other entries on both objects"
 	@priority = "5"
 	test CanRelateManyOtherEntriesBothObjects {
-		property portal.acceptance = "quarantine";
-
 		for (var nameObject : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object ${nameObject} 74",
@@ -3185,8 +3181,6 @@ definition {
 	@description = "LPS-139803 - Verify it is possible to search for the Object Entry Title on the Relationship field"
 	@priority = "4"
 	test CanSearchObjectEntryTitleOnRelationshipField {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 79",
 			objectName = "CustomObject79",
@@ -3646,8 +3640,6 @@ definition {
 	@description = "LPS-135635 - Verify it is possible to update the Name of a Field before the Object is published"
 	@priority = "4"
 	test CanUpdateFieldNameBeforePublished {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 90",
 			objectName = "CustomObject90",
@@ -4824,8 +4816,6 @@ definition {
 	@description = "LPS-139803 - Verify it the Object Entry Title is displayed on the Relationship tab"
 	@priority = "4"
 	test CanViewObjectEntryTitleOnRelationshipTab {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 141620",
 			objectName = "CustomObject141620",
@@ -5602,8 +5592,6 @@ definition {
 	@description = "LPS-135401 - Verify that when adding an entry that was already related to another it will keep related to both entries"
 	@priority = "4"
 	test ChoosingAlreadyRelatedEntryWillKeepOnBothEntries {
-		property portal.upstream = "quarantine";
-
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object ${letter} 125",
@@ -6671,15 +6659,6 @@ definition {
 			key_workflowProcessName = "Single Approver");
 	}
 
-	@description = "LPS-139005 - Verify that pending and completed Object entries with workflow are not displayed on the Workflow Metrics page when inactivated"
-	@ignore = "Test Stub"
-	@priority = "4"
-	test ObjectEntriesDisappearsWorkflowMetricsWhenInactivated {
-
-		// TODO LPS-140866 ObjectEntriesDisappearsWorkflowMetricsWhenInactivated pending implementation
-
-	}
-
 	@description = "LPS-135649 - Verify that pending and completed Object entries disappears from Workflow pages (My Workflow Tasks, Submissions, and My Submissions) when they are deleted"
 	@priority = "4"
 	test ObjectEntriesDisappearsWorkflowPagesWhenDeleted {
@@ -6732,8 +6711,6 @@ definition {
 	@description = "LPS-139005 - Verify that pending and completed Object entries with workflow are not displayed on the workflow pages (My Workflow Tasks, My Submissions, and Submissions) when inactivated"
 	@priority = "4"
 	test ObjectEntriesDisappearsWorkflowPagesWhenInactivated {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 140865",
 			objectName = "CustomObject140865",
@@ -6817,8 +6794,6 @@ definition {
 	@description = "LPS-139005 - Verify that the Object entries are displayed again on Page fragments from an Object that was reactivated"
 	@priority = "4"
 	test ObjectEntriesReappearsPageFragmentsWhenReactivated {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 142598",
 			objectName = "CustomObject142598",
@@ -6963,8 +6938,6 @@ definition {
 	@description = "LPS-139005 - Verify that pending and completed Object entries with workflow are displayed again on the workflow pages (My Workflow Tasks, My Submissions, and Submissions) when reactivated"
 	@priority = "4"
 	test ObjectEntriesReappearsWorkflowPagesWhenReactivated {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 140887",
 			objectName = "CustomObject140887",
@@ -7119,8 +7092,6 @@ definition {
 	@description = "LPS-139603 - Verify that the Object Name is displayed on the Relationship tab when a Relationship is created"
 	@priority = "4"
 	test ObjectNameDisplayedOnTheRelationshipTab {
-		property portal.upstream = "quarantine";
-
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object ${letter} 149",
@@ -7169,8 +7140,6 @@ definition {
 	@description = "LPS-135649 - Verify that when Objects are not scoped by Site it should not be displayed on the Workflow settings from the Site Menu"
 	@priority = "4"
 	test ObjectNotScopedBySiteNotDisplayedOnSiteMenu {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 151",
 			objectName = "CustomObject151",
@@ -7187,7 +7156,6 @@ definition {
 	@priority = "5"
 	test ObjectPorletDisappearsOpenMenuWhenInactivated {
 		property portal.acceptance = "true";
-		property portal.upstream = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 140856",
@@ -7225,8 +7193,6 @@ definition {
 	@description = "LPS-139005 - Verify that the Object portlet is no longer displayed on the Site Menu when inactivated"
 	@priority = "4"
 	test ObjectPorletDisappearsSiteMenuWhenInactivated {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 152",
 			objectName = "CustomObject152",
@@ -7259,8 +7225,6 @@ definition {
 	@description = "LPS-139005 - Verify that the Object portlet is displayed again on the Open Menu when reactivated"
 	@priority = "4"
 	test ObjectPortletReappearsOpenMenuWhenReactivated {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 153",
 			objectName = "CustomObject153",
@@ -8159,8 +8123,6 @@ definition {
 	@description = "LPS-139005 - Verify that the Relationship field will not be displayed to be selected for a Page fragment when the parent object is inactivated"
 	@priority = "4"
 	test RelationshipFieldCannotBeSelectedForPageFragmentWhenInactivated {
-		property portal.upstream = "quarantine";
-
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object ${letter} 170",
@@ -8226,8 +8188,6 @@ definition {
 	@description = "LPS-139005 - Verify that the Relationship field is no longer displayed when the parent object is inactivated (One to Many)"
 	@priority = "4"
 	test RelationshipFieldDisappearsWhenInactivatedOneToMany {
-		property portal.upstream = "quarantine";
-
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object ${letter} 171",
@@ -8296,8 +8256,6 @@ definition {
 	@description = "LPS-135401 - Verify that the Relationship field is not created"
 	@priority = "4"
 	test RelationshipFieldNotCreatedOnManyToMany {
-		property portal.upstream = "quarantine";
-
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object 141659 ${letter}",
@@ -8324,8 +8282,6 @@ definition {
 	@description = "LPS-139005 - Verify that the Relationship field is displayed again when the parent object is reactivated (One to Many)"
 	@priority = "4"
 	test RelationshipFieldReappearsWhenReactivatedOneToMany {
-		property portal.upstream = "quarantine";
-
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object ${letter} 172",
@@ -8400,8 +8356,6 @@ definition {
 	@description = "LPS-139005 - Verify that the Relationship tab is no longer displayed when the other object is inactivated (Many to Many)"
 	@priority = "4"
 	test RelationshipTabDisappearsWhenInactivatedManyToMany {
-		property portal.upstream = "quarantine";
-
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object ${letter} 173",
@@ -8594,8 +8548,6 @@ definition {
 	@description = "LPS-139005 - Verify that the Relationship tab is displayed again when the other object is reactivated (Many to Many)"
 	@priority = "4"
 	test RelationshipTabReappearsWhenReactivatedManyToMany {
-		property portal.upstream = "quarantine";
-
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object 140875 ${letter}",
@@ -8699,8 +8651,6 @@ definition {
 	@description = "LPS-139005 - Verify that the Relationship tab is displayed again when the child object is reactivated (One to Many)"
 	@priority = "4"
 	test RelationshipTabReappearsWhenReactivatedOneToMany {
-		property portal.upstream = "quarantine";
-
 		for (var letter : list "A,B") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object 140873 ${letter}",
@@ -8810,8 +8760,6 @@ definition {
 	@description = "LPS-138213 - Verify that updated data is kept when clicking on the Publish button"
 	@priority = "4"
 	test UpdatedDataIsKeptWhenPublishing {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 141685",
 			objectName = "CustomObject141685",

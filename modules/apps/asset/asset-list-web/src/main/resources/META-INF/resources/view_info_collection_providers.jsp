@@ -41,7 +41,7 @@ InfoCollectionProviderDisplayContext infoCollectionProviderDisplayContext = (Inf
 			modelVar="infoCollectionProvider"
 		>
 			<liferay-ui:search-container-column-icon
-				icon="list"
+				icon="bolt"
 			/>
 
 			<liferay-ui:search-container-column-text
@@ -62,6 +62,7 @@ InfoCollectionProviderDisplayContext infoCollectionProviderDisplayContext = (Inf
 
 			<liferay-ui:search-container-column-text>
 				<clay:dropdown-actions
+					aria-label='<%= LanguageUtil.get(request, "show-actions") %>'
 					dropdownItems="<%= infoCollectionProviderActionDropdownItems.getActionDropdownItems() %>"
 					propsTransformer="js/InfoCollectionProviderDropdownDefaultPropsTransformer"
 				/>

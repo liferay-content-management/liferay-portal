@@ -61,6 +61,10 @@ public interface ObjectDefinition
 
 	public String getExtensionDBTableName();
 
+	public String getOSGiJaxRsName();
+
+	public String getOSGiJaxRsName(String className);
+
 	public String getPortletId();
 
 	public String getResourceName();

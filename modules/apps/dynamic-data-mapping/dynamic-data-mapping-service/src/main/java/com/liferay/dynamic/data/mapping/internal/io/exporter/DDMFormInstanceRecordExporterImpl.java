@@ -15,15 +15,15 @@
 package com.liferay.dynamic.data.mapping.internal.io.exporter;
 
 import com.liferay.dynamic.data.mapping.exception.FormInstanceRecordExporterException;
-import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesRegistry;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueRenderer;
 import com.liferay.dynamic.data.mapping.io.exporter.DDMFormInstanceRecordExporter;
 import com.liferay.dynamic.data.mapping.io.exporter.DDMFormInstanceRecordExporterRequest;
 import com.liferay.dynamic.data.mapping.io.exporter.DDMFormInstanceRecordExporterResponse;
 import com.liferay.dynamic.data.mapping.io.exporter.DDMFormInstanceRecordWriter;
+import com.liferay.dynamic.data.mapping.io.exporter.DDMFormInstanceRecordWriterRegistry;
 import com.liferay.dynamic.data.mapping.io.exporter.DDMFormInstanceRecordWriterRequest;
 import com.liferay.dynamic.data.mapping.io.exporter.DDMFormInstanceRecordWriterResponse;
-import com.liferay.dynamic.data.mapping.io.exporter.DDMFormInstanceRecordWriterTracker;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
@@ -65,7 +65,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Leonardo Barros
  */
-@Component(immediate = true, service = DDMFormInstanceRecordExporter.class)
+@Component(service = DDMFormInstanceRecordExporter.class)
 public class DDMFormInstanceRecordExporterImpl
 	implements DDMFormInstanceRecordExporter {
 
@@ -147,7 +147,7 @@ public class DDMFormInstanceRecordExporterImpl
 			ddmFormField.getFieldReference());
 
 		DDMFormFieldValueRenderer ddmFormFieldValueRenderer =
-			ddmFormFieldTypeServicesTracker.getDDMFormFieldValueRenderer(
+			ddmFormFieldTypeServicesRegistry.getDDMFormFieldValueRenderer(
 				ddmFormField.getType());
 
 		Stream<DDMFormFieldValue> stream = ddmFormFieldValues.stream();
@@ -289,7 +289,7 @@ public class DDMFormInstanceRecordExporterImpl
 		throws Exception {
 
 		DDMFormInstanceRecordWriter ddmFormInstanceRecordWriter =
-			ddmFormInstanceRecordWriterTracker.getDDMFormInstanceRecordWriter(
+			ddmFormInstanceRecordWriterRegistry.getDDMFormInstanceRecordWriter(
 				type);
 
 		DDMFormInstanceRecordWriterRequest.Builder builder =
@@ -308,15 +308,15 @@ public class DDMFormInstanceRecordExporterImpl
 	}
 
 	@Reference
-	protected DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker;
+	protected DDMFormFieldTypeServicesRegistry ddmFormFieldTypeServicesRegistry;
 
 	@Reference
 	protected DDMFormInstanceRecordLocalService
 		ddmFormInstanceRecordLocalService;
 
 	@Reference
-	protected DDMFormInstanceRecordWriterTracker
-		ddmFormInstanceRecordWriterTracker;
+	protected DDMFormInstanceRecordWriterRegistry
+		ddmFormInstanceRecordWriterRegistry;
 
 	@Reference
 	protected DDMFormInstanceVersionLocalService

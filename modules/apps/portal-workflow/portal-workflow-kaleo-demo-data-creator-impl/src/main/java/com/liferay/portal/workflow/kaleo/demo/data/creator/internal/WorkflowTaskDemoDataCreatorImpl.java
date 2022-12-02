@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
 import com.liferay.portal.workflow.kaleo.demo.data.creator.WorkflowTaskDemoDataCreator;
 import com.liferay.portal.workflow.kaleo.demo.data.creator.internal.util.WorkflowDemoDataCreatorUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
-import com.liferay.portal.workflow.kaleo.service.KaleoInstanceLocalService;
 import com.liferay.portal.workflow.kaleo.service.KaleoTaskInstanceTokenLocalService;
 
 import java.io.Serializable;
@@ -164,19 +163,16 @@ public class WorkflowTaskDemoDataCreatorImpl
 	}
 
 	@Reference
-	private KaleoInstanceLocalService _kaleoInstanceLocalService;
-
-	@Reference
 	private KaleoTaskInstanceTokenLocalService
 		_kaleoTaskInstanceTokenLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;
 
-	@Reference(target = "(proxy.bean=false)")
+	@Reference
 	private WorkflowInstanceManager _workflowInstanceManager;
 
-	@Reference(target = "(proxy.bean=false)")
+	@Reference
 	private WorkflowTaskManager _workflowTaskManager;
 
 }

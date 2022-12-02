@@ -48,15 +48,18 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalService;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
+import com.liferay.portal.kernel.service.permission.ModelPermissionsFactory;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -731,6 +734,13 @@ public class DLFileEntryTypeLocalServiceImpl
 			dlFileEntryType.getUserId(), DLFileEntryType.class.getName(),
 			dlFileEntryType.getFileEntryTypeId(), false, addGroupPermissions,
 			addGuestPermissions);
+
+		_resourceLocalService.addResources(
+			dlFileEntryType.getCompanyId(), dlFileEntryType.getGroupId(),
+			dlFileEntryType.getUserId(),
+			_DL_FILE_ENTRY_METADATA_DDM_STRUCTURE_CLASS_NAME,
+			dlFileEntryType.getDataDefinitionId(), false, addGroupPermissions,
+			addGuestPermissions);
 	}
 
 	protected void addFileEntryTypeResources(
@@ -741,6 +751,52 @@ public class DLFileEntryTypeLocalServiceImpl
 			dlFileEntryType.getCompanyId(), dlFileEntryType.getGroupId(),
 			dlFileEntryType.getUserId(), DLFileEntryType.class.getName(),
 			dlFileEntryType.getFileEntryTypeId(), modelPermissions);
+
+		ModelPermissions dlFileEntryMetadataDDMStructureModelPermissions = null;
+
+		if (modelPermissions != null) {
+			dlFileEntryMetadataDDMStructureModelPermissions =
+				ModelPermissionsFactory.create(
+					_DL_FILE_ENTRY_METADATA_DDM_STRUCTURE_CLASS_NAME);
+
+			List<ResourceAction> dlFileEntryMetadataResourceActions =
+				_resourceActionLocalService.getResourceActions(
+					_DL_FILE_ENTRY_METADATA_DDM_STRUCTURE_CLASS_NAME);
+
+			Set<String> dlFileEntryMetadataActionIds = new HashSet<>();
+
+			for (ResourceAction resourceAction :
+					dlFileEntryMetadataResourceActions) {
+
+				dlFileEntryMetadataActionIds.add(resourceAction.getActionId());
+			}
+
+			for (String roleName : modelPermissions.getRoleNames()) {
+				Set<String> dlFileEntryMetadataDDMStructureActionIds =
+					new HashSet<>();
+
+				for (String actionId :
+						modelPermissions.getActionIds(roleName)) {
+
+					if (dlFileEntryMetadataActionIds.contains(actionId)) {
+						dlFileEntryMetadataDDMStructureActionIds.add(actionId);
+					}
+				}
+
+				dlFileEntryMetadataDDMStructureModelPermissions.
+					addRolePermissions(
+						roleName,
+						dlFileEntryMetadataDDMStructureActionIds.toArray(
+							new String[0]));
+			}
+		}
+
+		_resourceLocalService.addModelResources(
+			dlFileEntryType.getCompanyId(), dlFileEntryType.getGroupId(),
+			dlFileEntryType.getUserId(),
+			_DL_FILE_ENTRY_METADATA_DDM_STRUCTURE_CLASS_NAME,
+			dlFileEntryType.getDataDefinitionId(),
+			dlFileEntryMetadataDDMStructureModelPermissions);
 	}
 
 	protected void cascadeFileEntryTypes(
@@ -1039,6 +1095,11 @@ public class DLFileEntryTypeLocalServiceImpl
 		}
 	}
 
+	private static final String
+		_DL_FILE_ENTRY_METADATA_DDM_STRUCTURE_CLASS_NAME =
+			"com.liferay.document.library.kernel.model.DLFileEntryMetadata-" +
+				"com.liferay.dynamic.data.mapping.model.DDMStructure";
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		DLFileEntryTypeLocalServiceImpl.class);
 
@@ -1059,6 +1120,9 @@ public class DLFileEntryTypeLocalServiceImpl
 
 	@BeanReference(type = DLFolderPersistence.class)
 	private DLFolderPersistence _dlFolderPersistence;
+
+	@BeanReference(type = ResourceActionLocalService.class)
+	private ResourceActionLocalService _resourceActionLocalService;
 
 	@BeanReference(type = ResourceLocalService.class)
 	private ResourceLocalService _resourceLocalService;

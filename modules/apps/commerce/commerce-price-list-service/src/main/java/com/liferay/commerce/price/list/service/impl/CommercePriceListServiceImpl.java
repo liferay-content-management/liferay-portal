@@ -47,7 +47,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Zoltán Takács
  */
 @Component(
-	enabled = false,
 	property = {
 		"json.web.service.context.name=commerce",
 		"json.web.service.context.path=CommercePriceList"
@@ -122,8 +121,8 @@ public class CommercePriceListServiceImpl
 
 		if (Validator.isNotNull(externalReferenceCode)) {
 			CommercePriceList commercePriceList =
-				commercePriceListPersistence.fetchByC_ERC(
-					serviceContext.getCompanyId(), externalReferenceCode);
+				commercePriceListPersistence.fetchByERC_C(
+					externalReferenceCode, serviceContext.getCompanyId());
 
 			if (commercePriceList != null) {
 				return updateCommercePriceList(

@@ -53,7 +53,7 @@ public class WebsiteWrapper
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("classPK", getClassPK());
 		attributes.put("url", getUrl());
-		attributes.put("typeId", getTypeId());
+		attributes.put("listTypeId", getListTypeId());
 		attributes.put("primary", isPrimary());
 		attributes.put("lastPublishDate", getLastPublishDate());
 
@@ -128,10 +128,10 @@ public class WebsiteWrapper
 			setUrl(url);
 		}
 
-		Long typeId = (Long)attributes.get("typeId");
+		Long listTypeId = (Long)attributes.get("listTypeId");
 
-		if (typeId != null) {
-			setTypeId(typeId);
+		if (listTypeId != null) {
+			setListTypeId(listTypeId);
 		}
 
 		Boolean primary = (Boolean)attributes.get("primary");
@@ -212,6 +212,23 @@ public class WebsiteWrapper
 		return model.getLastPublishDate();
 	}
 
+	@Override
+	public ListType getListType()
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return model.getListType();
+	}
+
+	/**
+	 * Returns the list type ID of this website.
+	 *
+	 * @return the list type ID of this website
+	 */
+	@Override
+	public long getListTypeId() {
+		return model.getListTypeId();
+	}
+
 	/**
 	 * Returns the modified date of this website.
 	 *
@@ -250,23 +267,6 @@ public class WebsiteWrapper
 	@Override
 	public long getPrimaryKey() {
 		return model.getPrimaryKey();
-	}
-
-	@Override
-	public ListType getType()
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return model.getType();
-	}
-
-	/**
-	 * Returns the type ID of this website.
-	 *
-	 * @return the type ID of this website
-	 */
-	@Override
-	public long getTypeId() {
-		return model.getTypeId();
 	}
 
 	/**
@@ -400,6 +400,16 @@ public class WebsiteWrapper
 	}
 
 	/**
+	 * Sets the list type ID of this website.
+	 *
+	 * @param listTypeId the list type ID of this website
+	 */
+	@Override
+	public void setListTypeId(long listTypeId) {
+		model.setListTypeId(listTypeId);
+	}
+
+	/**
 	 * Sets the modified date of this website.
 	 *
 	 * @param modifiedDate the modified date of this website
@@ -437,16 +447,6 @@ public class WebsiteWrapper
 	@Override
 	public void setPrimaryKey(long primaryKey) {
 		model.setPrimaryKey(primaryKey);
-	}
-
-	/**
-	 * Sets the type ID of this website.
-	 *
-	 * @param typeId the type ID of this website
-	 */
-	@Override
-	public void setTypeId(long typeId) {
-		model.setTypeId(typeId);
 	}
 
 	/**
@@ -507,6 +507,11 @@ public class WebsiteWrapper
 	@Override
 	public void setWebsiteId(long websiteId) {
 		model.setWebsiteId(websiteId);
+	}
+
+	@Override
+	public String toXmlString() {
+		return model.toXmlString();
 	}
 
 	@Override

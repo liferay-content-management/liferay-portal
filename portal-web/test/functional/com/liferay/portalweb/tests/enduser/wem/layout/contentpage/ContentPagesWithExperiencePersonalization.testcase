@@ -35,6 +35,75 @@ definition {
 		}
 	}
 
+	@description = "LPS-157033 Given the View mode of a page
+	When an experience is active in the Control Menu
+	Then the ACTIVE label will appear next to the experience name"
+	@priority = "3"
+	test ActiveExperienceLabelInControlMenu {
+		task ("Create an experience and add on content page") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			ContentPages.gotoPageEditor();
+
+			PageEditor.addExperience(
+				experienceName = "NewAnyoneExperience",
+				segmentName = "Anyone");
+
+			PageEditor.prioritizeExperience(experienceName = "NewAnyoneExperience");
+
+			PageEditor.publish();
+		}
+
+		task ("Go to the view mode of the page") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("Switch to the new experience") {
+			ContentPages.changeExperience(experienceName = "NewAnyoneExperience");
+		}
+
+		task ("Assert the Active label is present") {
+			PageEditor.viewExperienceActiveInViewModeControlMenu(experienceName = "NewAnyoneExperience");
+		}
+	}
+
+	@description = "LPS-157033 Given the View mode of a page
+	When the Experience dropdown menu is displayed
+	And there experiences active
+	Then the ACTIVE label will appear next to each experience name active"
+	@priority = "3"
+	test ActiveExperienceLabelInViewDropdown {
+		task ("Create an experience and add on content page") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			ContentPages.gotoPageEditor();
+
+			PageEditor.addExperience(
+				experienceName = "NewAnyoneExperience",
+				segmentName = "Anyone");
+
+			PageEditor.prioritizeExperience(experienceName = "NewAnyoneExperience");
+
+			PageEditor.publish();
+		}
+
+		task ("Go to the view mode of the page") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("Assert the Active label is present") {
+			PageEditor.viewExperienceActiveInViewModeDropdown(experienceName = "NewAnyoneExperience");
+		}
+	}
+
 	@description = "This is a test for LPS-142290. The user cannot modify experiences at view mode."
 	@priority = "4"
 	test CannotModifyExperienceAtViewMode {
@@ -183,6 +252,71 @@ definition {
 			PageTemplatesAdmin.gotoPageTemplate(pageTemplateName = "Content Page Template Name");
 
 			PageEditor.viewFragment(fragmentName = "Heading");
+		}
+	}
+
+	@description = "LPS-157033 Given the View mode of a page
+	When an experience is inactive in the Control Menu
+	Then the INACTIVE label will appear next to the experience name"
+	@priority = "3"
+	test InactiveExperienceLabelInControlMenu {
+		task ("Create an experience and add on content page") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			ContentPages.gotoPageEditor();
+
+			PageEditor.addExperience(
+				experienceName = "NewAnyoneExperience",
+				segmentName = "Anyone");
+
+			PageEditor.publish();
+		}
+
+		task ("Go to the view mode of the page") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("Switch to the new experience") {
+			ContentPages.changeExperience(experienceName = "NewAnyoneExperience");
+		}
+
+		task ("Assert the Inactive label is present") {
+			PageEditor.viewExperienceNotActiveInViewModeControlMenu(experienceName = "NewAnyoneExperience");
+		}
+	}
+
+	@description = "LPS-157033 Given the View mode of a page
+	When the Experience dropdown menu is displayed
+	And there experiences inactive
+	Then the INACTIVE label will appear next to each experience name inactive"
+	@priority = "3"
+	test InactiveExperienceLabelInViewDropdown {
+		task ("Create an experience and add on content page") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+
+			ContentPages.gotoPageEditor();
+
+			PageEditor.addExperience(
+				experienceName = "NewAnyoneExperience",
+				segmentName = "Anyone");
+
+			PageEditor.publish();
+		}
+
+		task ("Go to the view mode of the page") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Test Site Name");
+		}
+
+		task ("Assert the Inactive label is present") {
+			PageEditor.viewExperienceNotActiveInViewModeDropdown(experienceName = "NewAnyoneExperience");
 		}
 	}
 
@@ -507,7 +641,7 @@ definition {
 		task ("View both web contents shown in collection items when select Anyone personalized variation") {
 			AssetListsAdmin.openAssetListsAdmin(siteURLKey = "test-site-name");
 
-			AssetListsAdmin.viewCollectionItems(
+			AssetListsAdmin.viewContent(
 				assetListTitle = "Dynamic Collection",
 				assetTitleList = "Web Content Title 1,Web Content Title 2");
 		}
@@ -601,6 +735,7 @@ definition {
 	}
 
 	@description = "This is a test for LPS-141773. Able to land in the experience selected at view mode in page editor."
+	@ignore = "true"
 	@priority = "5"
 	test ViewExperienceInViewMode {
 		property portal.acceptance = "true";
@@ -666,6 +801,7 @@ definition {
 	}
 
 	@description = "This is a test for LPS-141773. Able to land in the experience selected at preview draft page in page editor."
+	@ignore = "true"
 	@priority = "5"
 	test ViewExperienceSelectedInPreviewDraftPage {
 		property portal.acceptance = "true";
@@ -759,6 +895,7 @@ definition {
 	}
 
 	@description = "This is a test for LPS-122148. Only the inline text items from current experience shown in Page Content panel."
+	@ignore = "true"
 	@priority = "5"
 	test ViewInlineTextItemsFromCurrentExperienceInPageContentPanel {
 		property portal.acceptance = "true";

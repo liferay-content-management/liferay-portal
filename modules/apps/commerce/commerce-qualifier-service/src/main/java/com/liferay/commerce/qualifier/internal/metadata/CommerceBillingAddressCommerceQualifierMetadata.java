@@ -41,7 +41,6 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.commerce.qualifier.configuration.AddressCommerceQualifierConfiguration",
-	enabled = false, immediate = true,
 	service = {CommerceQualifierMetadata.class, ModelListener.class}
 )
 public class CommerceBillingAddressCommerceQualifierMetadata

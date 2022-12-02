@@ -104,7 +104,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Marco Leo
  * @author Alessio Antonio Rendina
  */
-@Component(enabled = false, immediate = true, service = Indexer.class)
+@Component(service = Indexer.class)
 public class CPDefinitionIndexer extends BaseIndexer<CPDefinition> {
 
 	public static final String CLASS_NAME = CPDefinition.class.getName();
@@ -290,8 +290,14 @@ public class CPDefinitionIndexer extends BaseIndexer<CPDefinition> {
 				CPField.ACCOUNT_GROUP_FILTER_ENABLED, Boolean.FALSE.toString(),
 				BooleanClauseOccur.SHOULD);
 
-			contextBooleanFilter.add(
-				commerceAccountGroupsBooleanFilter, BooleanClauseOccur.MUST);
+			boolean ignoreCommerceAccountGroup = GetterUtil.getBoolean(
+				attributes.get("ignoreCommerceAccountGroup"));
+
+			if (!ignoreCommerceAccountGroup) {
+				contextBooleanFilter.add(
+					commerceAccountGroupsBooleanFilter,
+					BooleanClauseOccur.MUST);
+			}
 		}
 		else {
 			long[] commerceCatalogIds = _getUserCommerceCatalogIds(
@@ -884,8 +890,7 @@ public class CPDefinitionIndexer extends BaseIndexer<CPDefinition> {
 	@Override
 	protected void doReindex(CPDefinition cpDefinition) throws Exception {
 		_indexWriterHelper.updateDocument(
-			getSearchEngineId(), cpDefinition.getCompanyId(),
-			getDocument(cpDefinition), isCommitImmediately());
+			cpDefinition.getCompanyId(), getDocument(cpDefinition));
 	}
 
 	@Override
@@ -965,7 +970,6 @@ public class CPDefinitionIndexer extends BaseIndexer<CPDefinition> {
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}

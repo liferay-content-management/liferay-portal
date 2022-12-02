@@ -35,12 +35,14 @@ if (classPK > 0) {
 		<%
 		for (Website website : websites) {
 			website = website.toEscapedModel();
+
+			ListType listType = website.getListType();
 		%>
 
 			<li class="<%= (website.isPrimary() && !websites.isEmpty()) ? "icon-star" : StringPool.BLANK %>">
 				<a href="<%= website.getUrl() %>"><%= website.getUrl() %></a>
 
-				<liferay-ui:message key="<%= website.getType().getName() %>" />
+				<liferay-ui:message key="<%= listType.getName() %>" />
 			</li>
 
 		<%

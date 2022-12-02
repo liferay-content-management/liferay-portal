@@ -32,9 +32,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Rachael Koestartyo
  */
-@Component(
-	immediate = true, service = {EntityModelListener.class, ModelListener.class}
-)
+@Component(service = {EntityModelListener.class, ModelListener.class})
 public class UserGroupModelListener extends BaseEntityModelListener<UserGroup> {
 
 	@Override
@@ -56,7 +54,7 @@ public class UserGroupModelListener extends BaseEntityModelListener<UserGroup> {
 	public void onAfterRemove(UserGroup userGroup)
 		throws ModelListenerException {
 
-		if (!analyticsConfigurationTracker.isActive() ||
+		if (!analyticsConfigurationRegistry.isActive() ||
 			isExcluded(userGroup)) {
 
 			return;

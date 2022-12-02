@@ -12,6 +12,8 @@
  * details.
  */
 
+// @ts-ignore
+
 import {Collapse} from '@liferay/layout-content-page-editor-web';
 import React from 'react';
 

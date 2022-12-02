@@ -50,9 +50,9 @@ public class PriceModifierCategoryUtil {
 			assetCategory =
 				assetCategoryLocalService.
 					fetchAssetCategoryByExternalReferenceCode(
-						groupId,
 						priceModifierCategory.
-							getCategoryExternalReferenceCode());
+							getCategoryExternalReferenceCode(),
+						groupId);
 
 			if (assetCategory == null) {
 				String categoryExternalReferenceCode =

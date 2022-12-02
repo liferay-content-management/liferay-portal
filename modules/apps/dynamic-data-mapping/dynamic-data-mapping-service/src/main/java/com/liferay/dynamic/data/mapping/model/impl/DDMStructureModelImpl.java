@@ -1088,6 +1088,17 @@ public class DDMStructureModelImpl
 		com.liferay.dynamic.data.mapping.model.DDMForm ddmForm) {
 	}
 
+	public Map<String, com.liferay.dynamic.data.mapping.model.DDMFormField>
+		getDDMFormFieldsMap() {
+
+		return null;
+	}
+
+	public void setDDMFormFieldsMap(
+		Map<String, com.liferay.dynamic.data.mapping.model.DDMFormField>
+			ddmFormFieldsMap) {
+	}
+
 	@Override
 	public StagedModelType getStagedModelType() {
 		return new StagedModelType(
@@ -1385,6 +1396,8 @@ public class DDMStructureModelImpl
 
 		setDDMForm(null);
 
+		setDDMFormFieldsMap(null);
+
 		_columnBitmask = 0;
 	}
 
@@ -1520,6 +1533,10 @@ public class DDMStructureModelImpl
 
 		ddmStructureCacheModel._ddmForm = getDDMForm();
 
+		setDDMFormFieldsMap(null);
+
+		ddmStructureCacheModel._ddmFormFieldsMap = getDDMFormFieldsMap();
+
 		return ddmStructureCacheModel;
 	}
 
@@ -1568,37 +1585,6 @@ public class DDMStructureModelImpl
 		}
 
 		sb.append("}");
-
-		return sb.toString();
-	}
-
-	@Override
-	public String toXmlString() {
-		Map<String, Function<DDMStructure, Object>> attributeGetterFunctions =
-			getAttributeGetterFunctions();
-
-		StringBundler sb = new StringBundler(
-			(5 * attributeGetterFunctions.size()) + 4);
-
-		sb.append("<model><model-name>");
-		sb.append(getModelClassName());
-		sb.append("</model-name>");
-
-		for (Map.Entry<String, Function<DDMStructure, Object>> entry :
-				attributeGetterFunctions.entrySet()) {
-
-			String attributeName = entry.getKey();
-			Function<DDMStructure, Object> attributeGetterFunction =
-				entry.getValue();
-
-			sb.append("<column><column-name>");
-			sb.append(attributeName);
-			sb.append("</column-name><column-value><![CDATA[");
-			sb.append(attributeGetterFunction.apply((DDMStructure)this));
-			sb.append("]]></column-value></column>");
-		}
-
-		sb.append("</model>");
 
 		return sb.toString();
 	}

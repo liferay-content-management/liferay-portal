@@ -17,8 +17,6 @@ package com.liferay.fragment.entry.processor.editable.internal.mapper;
 import com.liferay.fragment.entry.processor.editable.mapper.EditableElementMapper;
 import com.liferay.fragment.entry.processor.helper.FragmentEntryProcessorHelper;
 import com.liferay.fragment.processor.FragmentEntryProcessorContext;
-import com.liferay.info.constants.InfoDisplayWebKeys;
-import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -59,70 +57,25 @@ public class LinkEditableElementMapper implements EditableElementMapper {
 			FragmentEntryProcessorContext fragmentEntryProcessorContext)
 		throws PortalException {
 
-		String href = configJSONObject.getString("href");
+		String href = null;
 
 		JSONObject hrefJSONObject = configJSONObject.getJSONObject("href");
 
-		boolean assetDisplayPage =
-			_fragmentEntryProcessorHelper.isAssetDisplayPage(
-				fragmentEntryProcessorContext.getMode());
-		boolean collectionMapped =
-			_fragmentEntryProcessorHelper.isMappedCollection(configJSONObject);
-		boolean layoutMapped = _fragmentEntryProcessorHelper.isMappedLayout(
-			configJSONObject);
-		boolean mapped = _fragmentEntryProcessorHelper.isMapped(
-			configJSONObject);
+		if (_fragmentEntryProcessorHelper.isMapped(configJSONObject) ||
+			_fragmentEntryProcessorHelper.isMappedCollection(
+				configJSONObject) ||
+			_fragmentEntryProcessorHelper.isMappedDisplayPage(
+				configJSONObject)) {
 
-		if (Validator.isNull(href) && (hrefJSONObject == null) &&
-			!assetDisplayPage && !collectionMapped && !layoutMapped &&
-			!mapped) {
-
-			return;
-		}
-
-		if (collectionMapped) {
 			href = GetterUtil.getString(
-				_fragmentEntryProcessorHelper.getMappedCollectionValue(
-					fragmentEntryProcessorContext.getDisplayObjectOptional(),
-					configJSONObject,
-					fragmentEntryProcessorContext.getLocale()));
+				_fragmentEntryProcessorHelper.getFieldValue(
+					configJSONObject, new HashMap<>(),
+					fragmentEntryProcessorContext));
 		}
-		else if (layoutMapped) {
+		else if (_isMappedLayout(configJSONObject)) {
 			href = GetterUtil.getString(
 				_getMappedLayoutValue(
 					configJSONObject, fragmentEntryProcessorContext));
-		}
-		else if (mapped) {
-			href = GetterUtil.getString(
-				_fragmentEntryProcessorHelper.getMappedInfoItemFieldValue(
-					configJSONObject, new HashMap<>(),
-					fragmentEntryProcessorContext.getLocale(),
-					fragmentEntryProcessorContext.getMode(),
-					fragmentEntryProcessorContext.getPreviewClassPK(),
-					fragmentEntryProcessorContext.getPreviewVersion()));
-		}
-		else if (assetDisplayPage && configJSONObject.has("mappedField")) {
-			HttpServletRequest httpServletRequest =
-				fragmentEntryProcessorContext.getHttpServletRequest();
-
-			if (httpServletRequest != null) {
-				String mappedField = configJSONObject.getString("mappedField");
-
-				Object infoItem = httpServletRequest.getAttribute(
-					InfoDisplayWebKeys.INFO_ITEM);
-
-				InfoItemFieldValuesProvider<Object>
-					infoItemFieldValuesProvider =
-						(InfoItemFieldValuesProvider)
-							httpServletRequest.getAttribute(
-								InfoDisplayWebKeys.
-									INFO_ITEM_FIELD_VALUES_PROVIDER);
-
-				href = GetterUtil.getString(
-					_fragmentEntryProcessorHelper.getMappedInfoItemFieldValue(
-						mappedField, infoItemFieldValuesProvider,
-						fragmentEntryProcessorContext.getLocale(), infoItem));
-			}
 		}
 		else if (hrefJSONObject != null) {
 			String languageId = LocaleUtil.toLanguageId(
@@ -134,6 +87,13 @@ public class LinkEditableElementMapper implements EditableElementMapper {
 			}
 
 			href = hrefJSONObject.getString(languageId);
+		}
+		else {
+			href = configJSONObject.getString("href");
+		}
+
+		if (Validator.isNull(href)) {
+			return;
 		}
 
 		Element linkElement = new Element("a");
@@ -198,7 +158,7 @@ public class LinkEditableElementMapper implements EditableElementMapper {
 			FragmentEntryProcessorContext fragmentEntryProcessorContext)
 		throws PortalException {
 
-		if (!_fragmentEntryProcessorHelper.isMappedLayout(jsonObject)) {
+		if (!_isMappedLayout(jsonObject)) {
 			return StringPool.BLANK;
 		}
 
@@ -236,6 +196,14 @@ public class LinkEditableElementMapper implements EditableElementMapper {
 		}
 
 		return _portal.getLayoutRelativeURL(layout, themeDisplay);
+	}
+
+	private boolean _isMappedLayout(JSONObject jsonObject) {
+		if (jsonObject.has("layout")) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private void _replaceLinkContent(

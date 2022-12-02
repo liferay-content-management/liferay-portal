@@ -79,10 +79,6 @@ html#{$cadmin-selector} {
 	}
 
 	.lfr-configurator-visibility {
-		@include media-breakpoint-down(sm) {
-			opacity: 0.5;
-		}
-
 		@include media-breakpoint-up(sm) {
 			.portlet {
 				&:hover,
@@ -92,10 +88,6 @@ html#{$cadmin-selector} {
 						opacity: 0.5;
 					}
 				}
-			}
-
-			.portlet-content-editable {
-				opacity: 0.5;
 			}
 		}
 	}
@@ -117,6 +109,14 @@ html#{$cadmin-selector} {
 					@include media-breakpoint-up(md) {
 						opacity: 1;
 						transform: translateY(-97%);
+					}
+				}
+			}
+
+			&.open {
+				> .cadmin.portlet-topper {
+					@include media-breakpoint-up(md) {
+						transition-duration: 0ms;
 					}
 				}
 			}
@@ -192,12 +192,6 @@ html#{$cadmin-selector} {
 			border-color: $portlet-topper-border;
 			border-top-left-radius: 0;
 			border-top-right-radius: 0;
-		}
-	}
-
-	@include media-breakpoint-up(sm) {
-		.lfr-configurator-visibility & {
-			opacity: 0.5;
 		}
 	}
 }
@@ -283,11 +277,5 @@ html#{$cadmin-selector} {
 
 	.controls-visible & {
 		display: block;
-	}
-}
-
-.lfr-configurator-visibility {
-	@include media-breakpoint-down(sm) {
-		opacity: 0.5;
 	}
 }

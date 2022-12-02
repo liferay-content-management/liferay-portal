@@ -68,12 +68,20 @@ public interface ObjectFieldBusinessType {
 		return Collections.emptySet();
 	}
 
+	public default Object getValue(
+			ObjectField objectField, Map<String, Object> values)
+		throws PortalException {
+
+		return values.get(objectField.getName());
+	}
+
 	public default boolean isVisible() {
 		return true;
 	}
 
 	public default void predefineObjectFieldSettings(
-			ObjectField newObjectField, ObjectField oldObjectField)
+			ObjectField newObjectField, ObjectField oldObjectField,
+			List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException {
 	}
 

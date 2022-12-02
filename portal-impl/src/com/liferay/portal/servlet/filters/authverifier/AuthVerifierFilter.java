@@ -236,10 +236,10 @@ public class AuthVerifierFilter extends BasePortalFilter {
 			String authVerifierPropertyName = propertyName.substring(
 				PropsKeys.AUTH_VERIFIER.length());
 
-			int indexOf = authVerifierPropertyName.indexOf('.');
+			int index = authVerifierPropertyName.indexOf('.');
 
 			String authVerifierClassName = authVerifierPropertyName.substring(
-				0, indexOf);
+				0, index);
 
 			Integer authVerifierConfigurationIndex =
 				authVerifierConfigurationIndexs.get(authVerifierClassName);
@@ -269,7 +269,7 @@ public class AuthVerifierFilter extends BasePortalFilter {
 			Properties properties = authVerifierConfiguration.getProperties();
 
 			properties.put(
-				authVerifierPropertyName.substring(indexOf + 1),
+				authVerifierPropertyName.substring(index + 1),
 				entry.getValue());
 		}
 

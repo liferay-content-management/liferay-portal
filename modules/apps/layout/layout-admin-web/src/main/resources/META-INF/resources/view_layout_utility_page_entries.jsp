@@ -22,6 +22,7 @@ LayoutUtilityPageEntryDisplayContext layoutUtilityPageEntryDisplayContext = new 
 
 <clay:management-toolbar
 	managementToolbarDisplayContext="<%= new LayoutUtilityPageEntryManagementToolbarDisplayContext(request, layoutUtilityPageEntryDisplayContext, liferayPortletRequest, liferayPortletResponse) %>"
+	propsTransformer="js/LayoutUtilityPageEntriesManagementToolbarPropsTransformer"
 />
 
 <aui:form cssClass="container-fluid container-fluid-max-xl container-view" name="fm">
@@ -36,10 +37,18 @@ LayoutUtilityPageEntryDisplayContext layoutUtilityPageEntryDisplayContext = new 
 			keyProperty="layoutUtilityPageEntryId"
 			modelVar="layoutUtilityPageEntry"
 		>
+
+			<%
+			row.setData(
+				HashMapBuilder.<String, Object>put(
+					"actions", layoutUtilityPageEntryDisplayContext.getAvailableActions(layoutUtilityPageEntry)
+				).build());
+			%>
+
 			<liferay-ui:search-container-column-text>
 				<clay:vertical-card
 					propsTransformer="js/LayoutUtilityPageEntryDropdownPropsTransformer"
-					verticalCard="<%= new LayoutUtilityPageEntryVerticalCard(layoutUtilityPageEntry, renderRequest, renderResponse) %>"
+					verticalCard="<%= new LayoutUtilityPageEntryVerticalCard(layoutUtilityPageEntry, renderRequest, renderResponse, searchContainer.getRowChecker()) %>"
 				/>
 			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
@@ -49,4 +58,13 @@ LayoutUtilityPageEntryDisplayContext layoutUtilityPageEntryDisplayContext = new 
 			markupView="lexicon"
 		/>
 	</liferay-ui:search-container>
+</aui:form>
+
+<portlet:actionURL name="/layout_admin/update_layout_utility_page_entry_preview" var="updateLayoutUtilityPageEntryPreviewURL">
+	<portlet:param name="redirect" value="<%= currentURL %>" />
+</portlet:actionURL>
+
+<aui:form action="<%= updateLayoutUtilityPageEntryPreviewURL %>" name="layoutUtilityPageEntryPreviewFm">
+	<aui:input name="layoutUtilityPageEntryId" type="hidden" />
+	<aui:input name="fileEntryId" type="hidden" />
 </aui:form>

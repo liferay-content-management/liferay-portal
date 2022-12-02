@@ -45,41 +45,41 @@ renderResponse.setTitle((region == null) ? LanguageUtil.get(request, "add-region
 	<aui:model-context bean="<%= region %>" model="<%= Region.class %>" />
 
 	<liferay-frontend:edit-form-body>
-		<liferay-frontend:fieldset-group>
-			<div class="form-group">
-				<label>
-					<liferay-ui:message key="name" />
+		<div class="form-group">
+			<label>
+				<liferay-ui:message key="name" />
 
-					<liferay-ui:icon-help message="region-name-field-help" />
-				</label>
+				<liferay-ui:icon-help message="region-name-field-help" />
+			</label>
 
-				<liferay-ui:input-localized
-					autoFocus="<%= true %>"
-					cssClass="form-group"
-					name="title"
-					xml="<%= (region == null) ? StringPool.BLANK : region.getTitleMapAsXML() %>"
-				/>
-			</div>
+			<liferay-ui:input-localized
+				autoFocus="<%= true %>"
+				cssClass="form-group"
+				name="title"
+				xml="<%= (region == null) ? StringPool.BLANK : region.getTitleMapAsXML() %>"
+			/>
+		</div>
 
-			<aui:input helpMessage="region-key-field-help" label="key" name="name" />
+		<aui:input helpMessage="region-key-field-help" label="key" name="name" />
 
-			<aui:input label="region-code" name="regionCode" />
+		<aui:input label="region-code" name="regionCode" />
 
-			<aui:input id="priority" label="priority" name="position" />
+		<aui:input id="priority" label="priority" name="position" />
 
-			<aui:input checked="<%= (region == null) ? true : region.isActive() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="active" type="toggle-switch" />
-		</liferay-frontend:fieldset-group>
+		<aui:input checked="<%= (region == null) ? true : region.isActive() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="active" type="toggle-switch" />
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
-		<aui:button type="submit" />
-
-		<aui:button href="<%= backURL %>" type="cancel" />
+		<liferay-frontend:edit-form-buttons
+			redirect="<%= backURL %>"
+		/>
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>
 
 <c:if test="<%= region == null %>">
-	<aui:script require="frontend-js-web/liferay/debounce/debounce.es as debounceModule">
+	<aui:script require="frontend-js-web/index as frontendJsWeb">
+		var {debounce} = frontendJsWeb;
+
 		var form = document.getElementById('<portlet:namespace />fm');
 
 		if (form) {
@@ -87,8 +87,6 @@ renderResponse.setTitle((region == null) ? LanguageUtil.get(request, "add-region
 			var titleInput = form.querySelector('#<portlet:namespace />title');
 
 			if (nameInput && titleInput) {
-				var debounce = debounceModule.default;
-
 				var handleOnTitleInput = function (event) {
 					var value = event.target.value;
 

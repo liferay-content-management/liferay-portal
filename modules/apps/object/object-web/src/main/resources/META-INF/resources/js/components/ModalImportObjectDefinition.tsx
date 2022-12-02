@@ -16,7 +16,7 @@ import ClayAlert from '@clayui/alert';
 import ClayButton from '@clayui/button';
 import ClayForm, {ClayInput} from '@clayui/form';
 import ClayModal, {useModal} from '@clayui/modal';
-import {API, Input, openToast} from '@liferay/object-js-components-web';
+import {API, Input} from '@liferay/object-js-components-web';
 import {fetch} from 'frontend-js-web';
 import React, {FormEvent, useEffect, useRef, useState} from 'react';
 
@@ -38,6 +38,7 @@ const ModalImportObjectDefinition: React.FC<IProps> = ({
 	nameMaxLength,
 	portletNamespace,
 }) => {
+	const [error, setError] = useState<string>('');
 	const [externalReferenceCode, setExternalReferenceCode] = useState<string>(
 		''
 	);
@@ -71,11 +72,7 @@ const ModalImportObjectDefinition: React.FC<IProps> = ({
 			window.location.reload();
 		}
 		catch (error) {
-			onClose();
-			openToast({
-				message: (error as Error).message,
-				type: 'danger',
-			});
+			setError((error as Error).message);
 		}
 	};
 
@@ -87,7 +84,7 @@ const ModalImportObjectDefinition: React.FC<IProps> = ({
 			`/o/object-admin/v1.0/object-definitions/by-external-reference-code/${externalReferenceCode}`
 		);
 
-		if (!Liferay.FeatureFlags['LPS-155914'] || response.status === 204) {
+		if (response.status === 204) {
 			handleImport(formData);
 		}
 		else {
@@ -129,6 +126,10 @@ const ModalImportObjectDefinition: React.FC<IProps> = ({
 					id={importObjectDefinitionFormId}
 					onSubmit={handleSubmit}
 				>
+					{error && (
+						<ClayAlert displayType="danger">{error}</ClayAlert>
+					)}
+
 					<ClayAlert
 						displayType="info"
 						title={`${Liferay.Language.get('info')}:`}
@@ -197,21 +198,20 @@ const ModalImportObjectDefinition: React.FC<IProps> = ({
 						</ClayInput.Group>
 					</ClayForm.Group>
 
-					{Liferay.FeatureFlags['LPS-155914'] &&
-						externalReferenceCode && (
-							<Input
-								disabled
-								feedbackMessage={Liferay.Language.get(
-									'internal-key-to-reference-the-object-definition'
-								)}
-								id="externalReferenceCode"
-								label={Liferay.Language.get(
-									'external-reference-code'
-								)}
-								name="externalReferenceCode"
-								value={externalReferenceCode}
-							/>
-						)}
+					{externalReferenceCode && (
+						<Input
+							disabled
+							feedbackMessage={Liferay.Language.get(
+								'internal-key-to-reference-the-object-definition'
+							)}
+							id="externalReferenceCode"
+							label={Liferay.Language.get(
+								'external-reference-code'
+							)}
+							name="externalReferenceCode"
+							value={externalReferenceCode}
+						/>
+					)}
 
 					<input
 						className="d-none"
@@ -224,10 +224,6 @@ const ModalImportObjectDefinition: React.FC<IProps> = ({
 								inputFile,
 								inputFileValue: target.value,
 							});
-
-							if (!Liferay.FeatureFlags['LPS-155914']) {
-								return;
-							}
 
 							const fileReader = new FileReader();
 

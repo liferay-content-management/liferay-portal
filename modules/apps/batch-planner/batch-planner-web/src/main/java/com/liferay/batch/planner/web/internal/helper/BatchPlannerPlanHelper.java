@@ -20,7 +20,6 @@ import com.liferay.batch.planner.model.BatchPlannerPlan;
 import com.liferay.batch.planner.model.BatchPlannerPolicy;
 import com.liferay.batch.planner.service.BatchPlannerMappingLocalService;
 import com.liferay.batch.planner.service.BatchPlannerMappingService;
-import com.liferay.batch.planner.service.BatchPlannerPlanLocalService;
 import com.liferay.batch.planner.service.BatchPlannerPlanService;
 import com.liferay.batch.planner.service.BatchPlannerPolicyLocalService;
 import com.liferay.batch.planner.service.BatchPlannerPolicyService;
@@ -33,7 +32,6 @@ import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUti
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.File;
@@ -223,7 +221,8 @@ public class BatchPlannerPlanHelper {
 				templateBatchPlannerPlan.isExport(),
 				templateBatchPlannerPlan.getExternalType(), externalURL,
 				templateBatchPlannerPlan.getInternalClassName(), name,
-				(int)file.length(), null, false);
+				(int)file.length(),
+				templateBatchPlannerPlan.getTaskItemDelegateName(), false);
 
 		List<BatchPlannerMapping> batchPlannerMappings =
 			_batchPlannerMappingService.getBatchPlannerMappings(
@@ -308,8 +307,8 @@ public class BatchPlannerPlanHelper {
 				continue;
 			}
 
-			String suffix = StringUtil.extractLast(
-				parameterName, StringPool.UNDERLINE);
+			String suffix = parameterName.substring(
+				"externalFieldName_".length());
 
 			String internalFieldName = ParamUtil.getString(
 				portletRequest, "internalFieldName_" + suffix);
@@ -356,7 +355,7 @@ public class BatchPlannerPlanHelper {
 			return taskItemDelegateName;
 		}
 
-		return internalClassName.substring(index + 3);
+		return internalClassName.substring(index + 1);
 	}
 
 	private BatchPlannerPlan _updateBatchPlannerPlan(
@@ -435,9 +434,6 @@ public class BatchPlannerPlanHelper {
 
 	@Reference
 	private BatchPlannerMappingService _batchPlannerMappingService;
-
-	@Reference
-	private BatchPlannerPlanLocalService _batchPlannerPlanLocalService;
 
 	@Reference
 	private BatchPlannerPlanService _batchPlannerPlanService;

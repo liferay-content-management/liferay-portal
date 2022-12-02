@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -81,7 +80,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  * @generated
  */
-@Component(service = {CSDiagramEntryPersistence.class, BasePersistence.class})
+@Component(service = CSDiagramEntryPersistence.class)
 public class CSDiagramEntryPersistenceImpl
 	extends BasePersistenceImpl<CSDiagramEntry>
 	implements CSDiagramEntryPersistence {
@@ -205,7 +204,7 @@ public class CSDiagramEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CSDiagramEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CSDiagramEntry csDiagramEntry : list) {
@@ -580,7 +579,7 @@ public class CSDiagramEntryPersistenceImpl
 
 			finderArgs = new Object[] {CPDefinitionId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -725,7 +724,7 @@ public class CSDiagramEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CSDiagramEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CSDiagramEntry csDiagramEntry : list) {
@@ -1098,7 +1097,7 @@ public class CSDiagramEntryPersistenceImpl
 
 			finderArgs = new Object[] {CPInstanceId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1220,7 +1219,7 @@ public class CSDiagramEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByCPDI_S, finderArgs);
+				_finderPathFetchByCPDI_S, finderArgs, this);
 		}
 
 		if (result instanceof CSDiagramEntry) {
@@ -1340,7 +1339,7 @@ public class CSDiagramEntryPersistenceImpl
 
 			finderArgs = new Object[] {CPDefinitionId, sequence};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1994,7 +1993,7 @@ public class CSDiagramEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CSDiagramEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2070,7 +2069,7 @@ public class CSDiagramEntryPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

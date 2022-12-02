@@ -58,6 +58,9 @@ const AccountSubscriptionsList = ({
 		<div className="d-flex flex-wrap">
 			{open && (
 				<AccountSubscriptionModal
+					accountSubscriptionsStatus={
+						currentAccountSubscription.subscriptionStatus
+					}
 					externalReferenceCode={
 						currentAccountSubscription?.externalReferenceCode
 					}
@@ -66,7 +69,11 @@ const AccountSubscriptionsList = ({
 					}
 					observer={observer}
 					onClose={() => onOpenChange(false)}
-					title={`${selectedAccountSubscriptionGroup?.name} ${currentAccountSubscription?.name}`}
+					title={
+						selectedAccountSubscriptionGroup?.name === 'Other'
+							? `${currentAccountSubscription?.name}`
+							: `${selectedAccountSubscriptionGroup?.name} ${currentAccountSubscription?.name}`
+					}
 				/>
 			)}
 

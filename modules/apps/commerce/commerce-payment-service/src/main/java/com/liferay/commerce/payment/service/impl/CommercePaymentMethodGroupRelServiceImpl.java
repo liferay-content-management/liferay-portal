@@ -42,7 +42,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = {
 		"json.web.service.context.name=commerce",
 		"json.web.service.context.path=CommercePaymentMethodGroupRel"
@@ -143,6 +142,23 @@ public class CommercePaymentMethodGroupRelServiceImpl
 
 		commercePaymentMethodGroupRelLocalService.
 			deleteCommercePaymentMethodGroupRel(commercePaymentMethodGroupRel);
+	}
+
+	@Override
+	public CommercePaymentMethodGroupRel fetchCommercePaymentMethodGroupRel(
+			long commercePaymentMethodGroupRelId)
+		throws PortalException {
+
+		CommercePaymentMethodGroupRel commercePaymentMethodGroupRel =
+			commercePaymentMethodGroupRelLocalService.
+				fetchCommercePaymentMethodGroupRel(
+					commercePaymentMethodGroupRelId);
+
+		if (commercePaymentMethodGroupRel != null) {
+			_checkCommerceChannel(commercePaymentMethodGroupRel.getGroupId());
+		}
+
+		return commercePaymentMethodGroupRel;
 	}
 
 	@Override

@@ -36,6 +36,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>H2_HEADER_VERTICAL_ELLIPSIS</td>
+	<td>//h2[contains(.,'${key_headerName}')]//*[contains(@class,'dropdown-toggle')][.//*[name()='svg'][contains(@class,'icon-ellipsis')]]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>H2_HEADER_2</td>
 	<td>xpath=(//div[contains(@class,'portlet-header')]//h2)[2]</td>
 	<td></td>
@@ -97,7 +102,7 @@
 </tr>
 <tr>
 	<td>OPTIONS_ICON</td>
-	<td>//div[@id='main-content']//div[contains(@class,'portlet-options')]/a</td>
+	<td>//div[@id='main-content']//button[*//*[name()='svg'][contains(@class,'icon-ellipsis-v')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -142,17 +147,17 @@
 </tr>
 <tr>
 	<td>SPECIFIC_BORDERLESS_ELLIPSIS_ICON</td>
-	<td>//header[contains(@class,'portlet-topper') and contains(.,'${key_portletName}')]//div[contains(@class,'portlet-options')]/a</td>
+	<td>//header[contains(@class,'portlet-topper') and contains(.,'${key_portletName}')]//button[*//*[name()='svg'][contains(@class,'icon-ellipsis-v')]]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>SPECIFIC_BORDERLESS_ELLIPSIS_ICON_INDEX</td>
-	<td>xpath=(//header[contains(@class,'portlet-topper') and contains(.,'${key_portletName}')]//div[contains(@class,'portlet-options')]/a)[${portletIndex}]</td>
+	<td>xpath=(//header[contains(@class,'portlet-topper') and contains(.,'${key_portletName}')])[${portletIndex}]//button[*//*[name()='svg'][contains(@class,'icon-ellipsis-v')]]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>SPECIFIC_ELLIPSIS_ICON</td>
-	<td>//div[@id='main-content']//header[contains(.,'${key_portletName}')]//menu/div[contains(@class,'portlet-options')]/a</td>
+	<td>//div[@id='main-content']//header[contains(.,'${key_portletName}')]//button[*//*[name()='svg'][contains(@class,'icon-ellipsis-v')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -177,7 +182,7 @@
 </tr>
 <tr>
 	<td>TITLE</td>
-	<td>//h2[contains(@class,'portlet-title') and contains(.,'${key_portletName}')] | //h1[contains(text(), '${key_portletName}')]</td>
+	<td>//h2[contains(@class,'portlet-title') and contains(.,'${key_portletName}')]</td>
 	<td></td>
 </tr>
 

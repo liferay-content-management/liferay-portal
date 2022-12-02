@@ -14,15 +14,25 @@
 
 import {buildFragment, openSelectionModal, sub} from 'frontend-js-web';
 
+const HTML5_UPLOAD =
+	window && window.File && window.FormData && window.XMLHttpRequest;
+
 export default function DocumentLibrary({
 	editEntryUrl,
 	namespace,
 	searchContainerId,
 	selectFolderURL,
+	...config
 }) {
 	let searchContainer;
 
 	const form = document[`${namespace}fm2`];
+
+	const entriesContainer = document.getElementById(
+		`${namespace}entriesContainer`
+	);
+
+	let documentLibraryUploadComponent;
 
 	Liferay.componentReady(`${namespace}${searchContainerId}`).then(
 		(searchContainerComponent) => {
@@ -33,6 +43,19 @@ export default function DocumentLibrary({
 			searchContainer.on('rowToggled', _handleSearchContainerRowToggled);
 		}
 	);
+
+	if (
+		config.uploadable &&
+		HTML5_UPLOAD &&
+		themeDisplay.isSignedIn() &&
+		entriesContainer
+	) {
+		config.appViewEntryTemplates = document.getElementById(
+			`${namespace}appViewEntryTemplates`
+		);
+
+		document.addEventListener('dragenter', _plugUpload, {once: true});
+	}
 
 	function _handleSearchContainerRowToggled() {
 		const bulkSelection =
@@ -105,6 +128,26 @@ export default function DocumentLibrary({
 		submitForm(form, editEntryUrl, false);
 	}
 
+	function _plugUpload() {
+		AUI().use('document-library-upload-component', () => {
+			documentLibraryUploadComponent = new Liferay.DocumentLibraryUploadComponent(
+				{
+					appViewEntryTemplates: config.appViewEntryTemplates,
+					columnNames: config.columnNames,
+					displayStyle: config.displayStyle,
+					documentLibraryNamespace: namespace,
+					entriesContainer,
+					folderId: config.defaultParentFolderId,
+					maxFileSize: config.maxFileSize,
+					redirect: encodeURIComponent(config.redirect),
+					scopeGroupId: config.scopeGroupId,
+					uploadURL: config.uploadURL,
+					viewFileEntryURL: config.viewFileEntryURL,
+				}
+			);
+		});
+	}
+
 	window[`${namespace}move`] = function (
 		selectedItems,
 		parameterName,
@@ -135,5 +178,13 @@ export default function DocumentLibrary({
 			title: sub(dialogTitle, [selectedItems]),
 			url: selectFolderURL,
 		});
+	};
+
+	return {
+		dispose() {
+			document.removeEventListener('dragenter', _plugUpload);
+
+			documentLibraryUploadComponent?.destroy();
+		},
 	};
 }

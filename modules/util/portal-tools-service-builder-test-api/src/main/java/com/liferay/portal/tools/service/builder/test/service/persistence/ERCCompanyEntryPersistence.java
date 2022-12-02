@@ -340,57 +340,57 @@ public interface ERCCompanyEntryPersistence
 	public int countByUuid_C(String uuid, long companyId);
 
 	/**
-	 * Returns the erc company entry where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchERCCompanyEntryException</code> if it could not be found.
+	 * Returns the erc company entry where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchERCCompanyEntryException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching erc company entry
 	 * @throws NoSuchERCCompanyEntryException if a matching erc company entry could not be found
 	 */
-	public ERCCompanyEntry findByC_ERC(
-			long companyId, String externalReferenceCode)
+	public ERCCompanyEntry findByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchERCCompanyEntryException;
 
 	/**
-	 * Returns the erc company entry where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the erc company entry where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching erc company entry, or <code>null</code> if a matching erc company entry could not be found
 	 */
-	public ERCCompanyEntry fetchByC_ERC(
-		long companyId, String externalReferenceCode);
+	public ERCCompanyEntry fetchByERC_C(
+		String externalReferenceCode, long companyId);
 
 	/**
-	 * Returns the erc company entry where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the erc company entry where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching erc company entry, or <code>null</code> if a matching erc company entry could not be found
 	 */
-	public ERCCompanyEntry fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache);
+	public ERCCompanyEntry fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache);
 
 	/**
-	 * Removes the erc company entry where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the erc company entry where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the erc company entry that was removed
 	 */
-	public ERCCompanyEntry removeByC_ERC(
-			long companyId, String externalReferenceCode)
+	public ERCCompanyEntry removeByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchERCCompanyEntryException;
 
 	/**
-	 * Returns the number of erc company entries where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of erc company entries where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching erc company entries
 	 */
-	public int countByC_ERC(long companyId, String externalReferenceCode);
+	public int countByERC_C(String externalReferenceCode, long companyId);
 
 	/**
 	 * Caches the erc company entry in the entity cache if it is enabled.

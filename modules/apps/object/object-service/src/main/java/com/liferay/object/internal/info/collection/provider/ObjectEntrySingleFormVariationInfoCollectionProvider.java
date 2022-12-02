@@ -48,11 +48,14 @@ import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectLayout;
 import com.liferay.object.model.ObjectLayoutTab;
+import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
+import com.liferay.object.rest.manager.v1_0.ObjectEntryManagerRegistry;
 import com.liferay.object.scope.ObjectScopeProvider;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectLayoutLocalService;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -68,9 +71,9 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
-import com.liferay.portal.kernel.search.ParseException;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
 import com.liferay.portal.kernel.search.generic.NestedQuery;
 import com.liferay.portal.kernel.search.generic.TermQueryImpl;
@@ -78,6 +81,7 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -85,7 +89,8 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.vulcan.util.TransformUtil;
+import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
+import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portlet.asset.util.comparator.AssetTagNameComparator;
 
 import java.util.ArrayList;
@@ -114,6 +119,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 		ListTypeEntryLocalService listTypeEntryLocalService,
 		ObjectDefinition objectDefinition,
 		ObjectEntryLocalService objectEntryLocalService,
+		ObjectEntryManagerRegistry objectEntryManagerRegistry,
 		ObjectFieldLocalService objectFieldLocalService,
 		ObjectLayoutLocalService objectLayoutLocalService,
 		ObjectScopeProviderRegistry objectScopeProviderRegistry) {
@@ -125,6 +131,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 		_listTypeEntryLocalService = listTypeEntryLocalService;
 		_objectDefinition = objectDefinition;
 		_objectEntryLocalService = objectEntryLocalService;
+		_objectEntryManagerRegistry = objectEntryManagerRegistry;
 		_objectFieldLocalService = objectFieldLocalService;
 		_objectLayoutLocalService = objectLayoutLocalService;
 		_objectScopeProviderRegistry = objectScopeProviderRegistry;
@@ -135,28 +142,18 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 		CollectionQuery collectionQuery) {
 
 		try {
-			Indexer<ObjectEntry> indexer = IndexerRegistryUtil.getIndexer(
-				_objectDefinition.getClassName());
+			if (_objectDefinition.isDefaultStorageType()) {
+				return _getCollectionInfoPageByDefaultStorageType(
+					collectionQuery);
+			}
 
-			Hits hits = indexer.search(_buildSearchContext(collectionQuery));
-
-			return InfoPage.of(
-				TransformUtil.transformToList(
-					hits.getDocs(),
-					document -> {
-						long classPK = GetterUtil.getLong(
-							document.get(Field.ENTRY_CLASS_PK));
-
-						return _objectEntryLocalService.fetchObjectEntry(
-							classPK);
-					}),
-				collectionQuery.getPagination(), hits.getLength());
+			return _getCollectionInfoPageByObjectEntryManager(collectionQuery);
 		}
-		catch (PortalException portalException) {
+		catch (Exception exception) {
 			throw new RuntimeException(
 				"Unable to get object entries for object definition " +
 					_objectDefinition.getObjectDefinitionId(),
-				portalException);
+				exception);
 		}
 	}
 
@@ -235,7 +232,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 	public String getKey() {
 		return StringBundler.concat(
 			SingleFormVariationInfoCollectionProvider.super.getKey(), "_",
-			_objectDefinition.getName());
+			_objectDefinition.getCompanyId(), "_", _objectDefinition.getName());
 	}
 
 	@Override
@@ -260,7 +257,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 	}
 
 	private SearchContext _buildSearchContext(CollectionQuery collectionQuery)
-		throws PortalException {
+		throws Exception {
 
 		SearchContext searchContext = new SearchContext();
 
@@ -357,7 +354,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 	}
 
 	private BooleanClause[] _getBooleanClauses(CollectionQuery collectionQuery)
-		throws ParseException {
+		throws Exception {
 
 		BooleanQuery booleanQuery = new BooleanQueryImpl();
 
@@ -408,6 +405,67 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 		};
 	}
 
+	private InfoPage<ObjectEntry> _getCollectionInfoPageByDefaultStorageType(
+			CollectionQuery collectionQuery)
+		throws Exception {
+
+		Indexer<ObjectEntry> indexer = IndexerRegistryUtil.getIndexer(
+			_objectDefinition.getClassName());
+
+		Hits hits = indexer.search(_buildSearchContext(collectionQuery));
+
+		return InfoPage.of(
+			TransformUtil.transformToList(
+				hits.getDocs(),
+				document -> {
+					long classPK = GetterUtil.getLong(
+						document.get(Field.ENTRY_CLASS_PK));
+
+					return _objectEntryLocalService.fetchObjectEntry(classPK);
+				}),
+			collectionQuery.getPagination(), hits.getLength());
+	}
+
+	private InfoPage<ObjectEntry> _getCollectionInfoPageByObjectEntryManager(
+			CollectionQuery collectionQuery)
+		throws Exception {
+
+		ObjectEntryManager objectEntryManager =
+			_objectEntryManagerRegistry.getObjectEntryManager(
+				_objectDefinition.getStorageType());
+
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		ThemeDisplay themeDisplay = serviceContext.getThemeDisplay();
+
+		Group scopeGroup = themeDisplay.getScopeGroup();
+
+		Pagination pagination = collectionQuery.getPagination();
+
+		Page<com.liferay.object.rest.dto.v1_0.ObjectEntry> objectEntriesPage =
+			objectEntryManager.getObjectEntries(
+				themeDisplay.getCompanyId(), _objectDefinition,
+				scopeGroup.getGroupKey(), null,
+				new DefaultDTOConverterContext(
+					false, null, null, null, null, themeDisplay.getLocale(),
+					null, themeDisplay.getUser()),
+				(Filter)null,
+				com.liferay.portal.vulcan.pagination.Pagination.of(
+					1, pagination.getEnd()),
+				null, null);
+
+		List<com.liferay.object.rest.dto.v1_0.ObjectEntry> objectEntries =
+			new ArrayList<>(objectEntriesPage.getItems());
+
+		return InfoPage.of(
+			TransformUtil.transform(
+				objectEntries,
+				objectEntry -> _toObjectEntry(
+					_objectDefinition.getObjectDefinitionId(), objectEntry)),
+			collectionQuery.getPagination(), objectEntries.size());
+	}
+
 	private String _getFieldName(ObjectField objectField) {
 		if (Objects.equals(
 				objectField.getDBType(),
@@ -425,7 +483,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 		return "";
 	}
 
-	private long _getGroupId() throws PortalException {
+	private long _getGroupId() throws Exception {
 		ObjectScopeProvider objectScopeProvider =
 			_objectScopeProviderRegistry.getObjectScopeProvider(
 				_objectDefinition.getScope());
@@ -622,7 +680,9 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 				_objectDefinition.getObjectDefinitionId());
 		}
 		catch (PortalException portalException) {
-			_log.error(portalException);
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
 
 			return false;
 		}
@@ -643,6 +703,20 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 		return false;
 	}
 
+	private ObjectEntry _toObjectEntry(
+		long objectDefinitionId,
+		com.liferay.object.rest.dto.v1_0.ObjectEntry objectEntry) {
+
+		ObjectEntry serviceBuilderObjectEntry =
+			_objectEntryLocalService.createObjectEntry(0L);
+
+		serviceBuilderObjectEntry.setExternalReferenceCode(
+			objectEntry.getExternalReferenceCode());
+		serviceBuilderObjectEntry.setObjectDefinitionId(objectDefinitionId);
+
+		return serviceBuilderObjectEntry;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		ObjectEntrySingleFormVariationInfoCollectionProvider.class);
 
@@ -653,6 +727,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 	private final ListTypeEntryLocalService _listTypeEntryLocalService;
 	private final ObjectDefinition _objectDefinition;
 	private final ObjectEntryLocalService _objectEntryLocalService;
+	private final ObjectEntryManagerRegistry _objectEntryManagerRegistry;
 	private final ObjectFieldLocalService _objectFieldLocalService;
 	private final ObjectLayoutLocalService _objectLayoutLocalService;
 	private final ObjectScopeProviderRegistry _objectScopeProviderRegistry;

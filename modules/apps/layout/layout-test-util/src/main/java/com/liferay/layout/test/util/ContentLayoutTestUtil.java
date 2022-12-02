@@ -24,7 +24,7 @@ import com.liferay.info.field.InfoField;
 import com.liferay.info.field.type.InfoFieldType;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalServiceUtil;
-import com.liferay.layout.page.template.util.LayoutStructureUtil;
+import com.liferay.layout.provider.LayoutStructureProvider;
 import com.liferay.layout.util.constants.LayoutDataItemTypeConstants;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.petra.string.StringBundler;
@@ -42,6 +42,7 @@ import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.servlet.PortletServlet;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionResponse;
@@ -76,30 +77,31 @@ import org.springframework.mock.web.MockHttpServletRequest;
 public class ContentLayoutTestUtil {
 
 	public static JSONObject addFormToLayout(
-			Layout layout, String classNameId, String classTypeId,
-			long segmentsExperienceId, boolean addCaptcha,
-			InfoField... infoFields)
+			boolean addCaptcha, String classNameId, String classTypeId,
+			Layout layout, LayoutStructureProvider layoutStructureProvider,
+			long segmentsExperienceId, InfoField... infoFields)
 		throws Exception {
 
 		return addFormToLayout(
-			layout, classNameId, classTypeId, _INPUT_HTML, segmentsExperienceId,
-			addCaptcha, infoFields);
+			addCaptcha, classNameId, classTypeId, _INPUT_HTML, layout,
+			layoutStructureProvider, segmentsExperienceId, infoFields);
 	}
 
 	public static JSONObject addFormToLayout(
-			Layout layout, String classNameId, String classTypeId,
-			String inputHTML, long segmentsExperienceId, boolean addCaptcha,
-			InfoField... infoFields)
+			boolean addCaptcha, String classNameId, String classTypeId,
+			String inputHTML, Layout layout,
+			LayoutStructureProvider layoutStructureProvider,
+			long segmentsExperienceId, InfoField... infoFields)
 		throws Exception {
 
 		JSONObject jsonObject = addItemToLayout(
-			layout,
 			JSONUtil.put(
 				"classNameId", classNameId
 			).put(
 				"classTypeId", classTypeId
 			).toString(),
-			LayoutDataItemTypeConstants.TYPE_FORM, segmentsExperienceId);
+			LayoutDataItemTypeConstants.TYPE_FORM, layout,
+			layoutStructureProvider, segmentsExperienceId);
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -124,17 +126,16 @@ public class ContentLayoutTestUtil {
 					WorkflowConstants.STATUS_APPROVED, serviceContext);
 
 			addFragmentEntryLinkToLayout(
-				layout, fragmentEntry.getFragmentEntryId(),
-				segmentsExperienceId, fragmentEntry.getCss(),
-				fragmentEntry.getHtml(), fragmentEntry.getJs(),
-				fragmentEntry.getConfiguration(),
 				JSONUtil.put(
 					FragmentEntryProcessorConstants.
 						KEY_FREEMARKER_FRAGMENT_ENTRY_PROCESSOR,
 					JSONUtil.put("inputFieldId", infoField.getUniqueId())
 				).toString(),
+				fragmentEntry.getCss(), fragmentEntry.getConfiguration(),
+				fragmentEntry.getFragmentEntryId(), fragmentEntry.getHtml(),
+				fragmentEntry.getJs(), layout,
 				fragmentEntry.getFragmentEntryKey(), fragmentEntry.getType(),
-				parentItemId, i);
+				parentItemId, i, segmentsExperienceId);
 		}
 
 		if (addCaptcha) {
@@ -151,34 +152,36 @@ public class ContentLayoutTestUtil {
 					WorkflowConstants.STATUS_APPROVED, serviceContext);
 
 			addFragmentEntryLinkToLayout(
-				layout, fragmentEntry.getFragmentEntryId(),
-				segmentsExperienceId, fragmentEntry.getCss(),
-				fragmentEntry.getHtml(), fragmentEntry.getJs(),
-				fragmentEntry.getConfiguration(), StringPool.BLANK,
+				StringPool.BLANK, fragmentEntry.getCss(),
+				fragmentEntry.getConfiguration(),
+				fragmentEntry.getFragmentEntryId(), fragmentEntry.getHtml(),
+				fragmentEntry.getJs(), layout,
 				fragmentEntry.getFragmentEntryKey(), fragmentEntry.getType(),
-				parentItemId, infoFields.length);
+				parentItemId, infoFields.length, segmentsExperienceId);
 		}
 
 		jsonObject.put(
 			"layoutData",
-			LayoutStructureUtil.getLayoutStructure(
+			layoutStructureProvider.getLayoutStructure(
 				layout.getPlid(), segmentsExperienceId));
 
 		return jsonObject;
 	}
 
 	public static String addFormToPublishedLayout(
-			Layout layout, boolean addCaptcha, String classNameId,
-			String classTypeId, InfoField<?>... infoField)
+			boolean addCaptcha, String classNameId, String classTypeId,
+			Layout layout, LayoutStructureProvider layoutStructureProvider,
+			InfoField<?>... infoField)
 		throws Exception {
 
 		Layout draftLayout = layout.fetchDraftLayout();
 
 		JSONObject jsonObject = addFormToLayout(
-			draftLayout, classNameId, classTypeId,
+			addCaptcha, classNameId, classTypeId, draftLayout,
+			layoutStructureProvider,
 			SegmentsExperienceLocalServiceUtil.fetchDefaultSegmentsExperienceId(
 				draftLayout.getPlid()),
-			addCaptcha, infoField);
+			infoField);
 
 		publishLayout(draftLayout, layout);
 
@@ -186,21 +189,43 @@ public class ContentLayoutTestUtil {
 	}
 
 	public static FragmentEntryLink addFragmentEntryLinkToLayout(
-			Layout layout, long fragmentEntryId, long segmentsExperienceId,
-			String css, String html, String js, String configuration,
-			String editableValues, String rendererKey, int type)
+			String editableValues, Layout layout, long segmentsExperienceId)
 		throws Exception {
 
 		return addFragmentEntryLinkToLayout(
-			layout, fragmentEntryId, segmentsExperienceId, css, html, js,
-			configuration, editableValues, rendererKey, type, null, 0);
+			editableValues, layout, null, 0, segmentsExperienceId);
 	}
 
 	public static FragmentEntryLink addFragmentEntryLinkToLayout(
-			Layout layout, long fragmentEntryId, long segmentsExperienceId,
-			String css, String html, String js, String configuration,
-			String editableValues, String rendererKey, int type,
-			String parentItemId, int position)
+			String editableValues, Layout layout, String parentItemId,
+			int position, long segmentsExperienceId)
+		throws Exception {
+
+		FragmentEntry fragmentEntry =
+			FragmentEntryLocalServiceUtil.addFragmentEntry(
+				TestPropsValues.getUserId(), layout.getGroupId(), 0,
+				StringUtil.randomString(), StringUtil.randomString(),
+				RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(), false, "{fieldSets: []}", null,
+				0, FragmentConstants.TYPE_COMPONENT, null,
+				WorkflowConstants.STATUS_APPROVED,
+				ServiceContextTestUtil.getServiceContext(
+					layout.getGroupId(), TestPropsValues.getUserId()));
+
+		return addFragmentEntryLinkToLayout(
+			editableValues, fragmentEntry.getCss(),
+			fragmentEntry.getConfiguration(),
+			fragmentEntry.getFragmentEntryId(), fragmentEntry.getHtml(),
+			fragmentEntry.getJs(), layout, fragmentEntry.getFragmentEntryKey(),
+			fragmentEntry.getType(), parentItemId, position,
+			segmentsExperienceId);
+	}
+
+	public static FragmentEntryLink addFragmentEntryLinkToLayout(
+			String editableValues, String css, String configuration,
+			long fragmentEntryId, String html, String js, Layout layout,
+			String rendererKey, int type, String parentItemId, int position,
+			long segmentsExperienceId)
 		throws Exception {
 
 		FragmentEntryLink fragmentEntryLink =
@@ -239,53 +264,33 @@ public class ContentLayoutTestUtil {
 	}
 
 	public static FragmentEntryLink addFragmentEntryLinkToLayout(
-			Layout layout, long segmentsExperienceId, String editableValues)
+			String editableValues, String css, String configuration,
+			long fragmentEntryId, String html, String js, Layout layout,
+			String rendererKey, long segmentsExperienceId, int type)
 		throws Exception {
 
 		return addFragmentEntryLinkToLayout(
-			layout, segmentsExperienceId, editableValues, null, 0);
-	}
-
-	public static FragmentEntryLink addFragmentEntryLinkToLayout(
-			Layout layout, long segmentsExperienceId, String editableValues,
-			String parentItemId, int position)
-		throws Exception {
-
-		FragmentEntry fragmentEntry =
-			FragmentEntryLocalServiceUtil.addFragmentEntry(
-				TestPropsValues.getUserId(), layout.getGroupId(), 0,
-				StringUtil.randomString(), StringUtil.randomString(),
-				RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-				RandomTestUtil.randomString(), false, "{fieldSets: []}", null,
-				0, FragmentConstants.TYPE_COMPONENT, null,
-				WorkflowConstants.STATUS_APPROVED,
-				ServiceContextTestUtil.getServiceContext(
-					layout.getGroupId(), TestPropsValues.getUserId()));
-
-		return addFragmentEntryLinkToLayout(
-			layout, fragmentEntry.getFragmentEntryId(), segmentsExperienceId,
-			fragmentEntry.getCss(), fragmentEntry.getHtml(),
-			fragmentEntry.getJs(), fragmentEntry.getConfiguration(),
-			editableValues, fragmentEntry.getFragmentEntryKey(),
-			fragmentEntry.getType(), parentItemId, position);
+			editableValues, css, configuration, fragmentEntryId, html, js,
+			layout, rendererKey, type, null, 0, segmentsExperienceId);
 	}
 
 	public static JSONObject addItemToLayout(
-			Layout layout, String itemConfig, String itemType,
+			String itemConfig, String itemType, Layout layout,
+			LayoutStructureProvider layoutStructureProvider,
 			long segmentsExperienceId)
 		throws Exception {
 
 		LayoutStructure layoutStructure =
-			LayoutStructureUtil.getLayoutStructure(
+			layoutStructureProvider.getLayoutStructure(
 				layout.getPlid(), segmentsExperienceId);
 
 		return addItemToLayout(
-			layout, itemConfig, itemType, layoutStructure.getMainItemId(), 0,
+			itemConfig, itemType, layout, layoutStructure.getMainItemId(), 0,
 			segmentsExperienceId);
 	}
 
 	public static JSONObject addItemToLayout(
-			Layout layout, String itemConfig, String itemType,
+			String itemConfig, String itemType, Layout layout,
 			String parentItemId, int position, long segmentsExperienceId)
 		throws Exception {
 
@@ -381,9 +386,26 @@ public class ContentLayoutTestUtil {
 		mockLiferayPortletActionRequest.setAttribute(
 			JavaConstants.JAVAX_PORTLET_RESPONSE,
 			new MockLiferayPortletActionResponse());
-		mockLiferayPortletActionRequest.setAttribute(WebKeys.LAYOUT, layout);
+
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
+		mockHttpServletRequest.setAttribute(WebKeys.LAYOUT, layout);
+
+		ThemeDisplay themeDisplay = getThemeDisplay(company, group, layout);
+
+		themeDisplay.setRequest(mockHttpServletRequest);
+
+		mockHttpServletRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, themeDisplay);
+
 		mockLiferayPortletActionRequest.setAttribute(
-			WebKeys.THEME_DISPLAY, getThemeDisplay(company, group, layout));
+			PortletServlet.PORTLET_SERVLET_REQUEST, mockHttpServletRequest);
+
+		mockLiferayPortletActionRequest.setAttribute(WebKeys.LAYOUT, layout);
+
+		mockLiferayPortletActionRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, themeDisplay);
 
 		mockLiferayPortletActionRequest.addParameter(
 			"segmentsExperienceId",
@@ -445,7 +467,7 @@ public class ContentLayoutTestUtil {
 	}
 
 	public static JSONObject markItemForDeletionFromLayout(
-			Layout layout, String portletId, String itemId)
+			String itemId, Layout layout, String portletId)
 		throws Exception {
 
 		MVCActionCommand markItemForDeletionMVCActionCommand =
@@ -485,10 +507,15 @@ public class ContentLayoutTestUtil {
 			ReflectionTestUtil.invoke(
 				publishLayoutMVCActionCommand, "_publishLayout",
 				new Class<?>[] {
-					Layout.class, Layout.class, ServiceContext.class, long.class
+					ActionRequest.class, ActionResponse.class, Layout.class,
+					Layout.class, ServiceContext.class, long.class
 				},
-				draftLayout, layout, serviceContext,
-				TestPropsValues.getUserId());
+				getMockLiferayPortletActionRequest(
+					CompanyLocalServiceUtil.getCompany(layout.getCompanyId()),
+					GroupLocalServiceUtil.getGroup(layout.getGroupId()),
+					layout),
+				new MockLiferayPortletActionResponse(), draftLayout, layout,
+				serviceContext, TestPropsValues.getUserId());
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();

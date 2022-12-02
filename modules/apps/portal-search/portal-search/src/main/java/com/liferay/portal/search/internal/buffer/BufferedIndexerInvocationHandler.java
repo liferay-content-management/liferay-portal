@@ -18,9 +18,12 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.ClassedModel;
+import com.liferay.portal.kernel.model.ResourcedModel;
 import com.liferay.portal.kernel.search.Bufferable;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.util.MethodKey;
 import com.liferay.portal.search.configuration.IndexerRegistryConfiguration;
 import com.liferay.portal.search.index.IndexStatusManager;
@@ -40,11 +43,14 @@ public class BufferedIndexerInvocationHandler implements InvocationHandler {
 
 	public BufferedIndexerInvocationHandler(
 		Indexer<?> indexer, IndexStatusManager indexStatusManager,
-		IndexerRegistryConfiguration indexerRegistryConfiguration) {
+		IndexerRegistryConfiguration indexerRegistryConfiguration,
+		PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry) {
 
 		_indexer = indexer;
 		_indexStatusManager = indexStatusManager;
 		_indexerRegistryConfiguration = indexerRegistryConfiguration;
+		_persistedModelLocalServiceRegistry =
+			persistedModelLocalServiceRegistry;
 	}
 
 	@Override
@@ -103,6 +109,12 @@ public class BufferedIndexerInvocationHandler implements InvocationHandler {
 
 			Long classPK = (Long)classedModel.getPrimaryKeyObj();
 
+			if (args[0] instanceof ResourcedModel) {
+				ResourcedModel resourcedModel = (ResourcedModel)args[0];
+
+				classPK = resourcedModel.getResourcePrimKey();
+			}
+
 			bufferRequest(
 				methodKey, classedModel.getModelClassName(), classPK,
 				indexerRequestBuffer);
@@ -118,7 +130,28 @@ public class BufferedIndexerInvocationHandler implements InvocationHandler {
 				Indexer.class, method.getName(), String.class, Long.TYPE);
 
 			String className = (String)args[0];
+
+			PersistedModelLocalService persistedModelLocalService =
+				_persistedModelLocalServiceRegistry.
+					getPersistedModelLocalService(className);
+
 			Long classPK = (Long)args[1];
+
+			try {
+				Object object = persistedModelLocalService.getPersistedModel(
+					classPK);
+
+				if (object instanceof ResourcedModel) {
+					ResourcedModel resourcedModel = (ResourcedModel)object;
+
+					classPK = resourcedModel.getResourcePrimKey();
+				}
+			}
+			catch (Exception exception) {
+				if (_log.isTraceEnabled()) {
+					_log.trace(exception);
+				}
+			}
 
 			bufferRequest(methodKey, className, classPK, indexerRequestBuffer);
 		}
@@ -219,5 +252,7 @@ public class BufferedIndexerInvocationHandler implements InvocationHandler {
 	private volatile IndexerRequestBufferOverflowHandler
 		_indexerRequestBufferOverflowHandler;
 	private final IndexStatusManager _indexStatusManager;
+	private final PersistedModelLocalServiceRegistry
+		_persistedModelLocalServiceRegistry;
 
 }

@@ -14,14 +14,12 @@
 
 import React from 'react';
 
-import Connect from '../../components/Connect';
-import {TGenericComponent} from './WizardPage';
+import Connect from '../../components/connect/Connect';
+import {ESteps, IGenericStepProps} from './WizardPage';
 
-interface IStepProps extends TGenericComponent {}
-
-const Step: React.FC<IStepProps> = ({onChangeStep}) => (
+const Step: React.FC<IGenericStepProps> = ({onChangeStep}) => (
 	<Connect
-		onChangeStep={onChangeStep}
+		onConnect={() => onChangeStep(ESteps.Property)}
 		title={Liferay.Language.get('connect-analytics-cloud')}
 	/>
 );

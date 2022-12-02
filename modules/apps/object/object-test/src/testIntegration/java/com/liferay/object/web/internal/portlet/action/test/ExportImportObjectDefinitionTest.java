@@ -22,6 +22,9 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionResponse;
 import com.liferay.portal.kernel.test.portlet.MockLiferayResourceRequest;
@@ -34,12 +37,10 @@ import com.liferay.portal.kernel.util.File;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.impl.LayoutImpl;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
@@ -70,10 +71,11 @@ public class ExportImportObjectDefinitionTest {
 
 	@Test
 	public void testExportImportObjectDefinition() throws Exception {
-		PropsUtil.addProperties(
-			UnicodePropertiesBuilder.setProperty(
-				"feature.flag.LPS-158672", "true"
-			).build());
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(TestPropsValues.getUser()));
 
 		ObjectDefinition objectDefinition = _importObjectDefinition();
 
@@ -97,10 +99,7 @@ public class ExportImportObjectDefinitionTest {
 		_objectDefinitionResource.deleteObjectDefinition(
 			objectDefinition.getId());
 
-		PropsUtil.addProperties(
-			UnicodePropertiesBuilder.setProperty(
-				"feature.flag.LPS-158672", "false"
-			).build());
+		PermissionThreadLocal.setPermissionChecker(permissionChecker);
 	}
 
 	private MockLiferayPortletActionRequest
@@ -202,14 +201,14 @@ public class ExportImportObjectDefinitionTest {
 			new MockLiferayPortletActionResponse());
 
 		ObjectDefinitionResource.Builder builder =
-			ObjectDefinitionResource.builder();
+			_objectDefinitionResourceFactory.create();
 
-		_objectDefinitionResource = builder.user(
+		ObjectDefinitionResource objectDefinitionResource = builder.user(
 			TestPropsValues.getUser()
 		).build();
 
 		Page<ObjectDefinition> page =
-			_objectDefinitionResource.getObjectDefinitionsPage(
+			objectDefinitionResource.getObjectDefinitionsPage(
 				"ImportedObjectDefinition", null, null, Pagination.of(1, 1),
 				null);
 
@@ -233,5 +232,8 @@ public class ExportImportObjectDefinitionTest {
 
 	@Inject
 	private ObjectDefinitionResource _objectDefinitionResource;
+
+	@Inject
+	private ObjectDefinitionResource.Factory _objectDefinitionResourceFactory;
 
 }

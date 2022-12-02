@@ -433,8 +433,8 @@ public class DLFileEntryServiceImpl extends DLFileEntryServiceBaseImpl {
 			long groupId, String externalReferenceCode)
 		throws PortalException {
 
-		DLFileEntry dlFileEntry = dlFileEntryPersistence.findByG_ERC(
-			groupId, externalReferenceCode);
+		DLFileEntry dlFileEntry = dlFileEntryPersistence.findByERC_G(
+			externalReferenceCode, groupId);
 
 		_dlFileEntryModelResourcePermission.check(
 			getPermissionChecker(), dlFileEntry, ActionKeys.VIEW);

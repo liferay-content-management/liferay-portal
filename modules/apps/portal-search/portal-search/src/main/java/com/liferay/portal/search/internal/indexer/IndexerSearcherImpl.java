@@ -124,9 +124,6 @@ public class IndexerSearcherImpl<T extends BaseModel<?>>
 		queryConfig.setQueryIndexingEnabled(false);
 		queryConfig.setQuerySuggestionEnabled(false);
 
-		searchContext.setSearchEngineId(
-			_modelSearchSettings.getSearchEngineId());
-
 		BooleanQuery fullQuery = _indexerQueryBuilder.getQuery(searchContext);
 
 		fullQuery.setQueryConfig(queryConfig);
@@ -135,9 +132,6 @@ public class IndexerSearcherImpl<T extends BaseModel<?>>
 	}
 
 	private Hits _doSearch(SearchContext searchContext) {
-		searchContext.setSearchEngineId(
-			_modelSearchSettings.getSearchEngineId());
-
 		Query fullQuery = _indexerQueryBuilder.getQuery(searchContext);
 
 		fullQuery.setQueryConfig(searchContext.getQueryConfig());

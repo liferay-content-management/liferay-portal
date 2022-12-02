@@ -14,7 +14,7 @@ definition {
 
 			User.firstLoginPG();
 
-			Testray.createTestraySite(siteName = "Testray 2");
+			Testray.addTestraySite();
 
 			Refresh();
 		}
@@ -112,27 +112,69 @@ definition {
 	@description = "This is a test for LPS-160586 - Verify if as an Administrator I should be able to delete a routine that contains builds "
 	@priority = "5"
 	test AdminCanDeleteRoutineWithBuilds {
-		task ("Given that the user add a new Routine") {
-			TestrayManage.createProductVersion(
-				manageOption = "Manage Product Versions",
-				nameOptions = "Projects_1 Project",
-				version = "1.x");
+		task ("Given that the user add a new Routine and a new Case") {
+			TestrayContextMenu.clickContextMenuProjects(name = "Projects_1 Project");
 
-			Click(locator1 = "TestrayManage#CLOSE_MODAL");
+			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Manage Teams");
+
+			TestrayManage.createTeam(teamName = "Components_1 Team");
+
+			TestrayManage.closeModalInOptions();
+
+			TestrayContextMenu.clickContextMenuProjects(name = "Projects_1 Project");
+
+			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Manage Components");
+
+			Testray.addNewComponent(
+				componentName = "Components_1 Project 1",
+				teamName = "Components_1 Team");
+
+			Refresh();
+
+			Testray.changePagination(
+				numberItems = "20",
+				valuePagination = "150");
 
 			Testray.goToProjectPage(projectName = "Projects_1 Project");
 
 			TestrayRoutines.createRoutine(key_name = "Routines_1 Routine");
+
+			Testray.projectTabNavigator(navTabName = "Cases");
+
+			TestrayCases.typeCasesField(
+				caseName = "Cases_1 Case",
+				caseTypeId = "Automated Functional Test",
+				componentId = "Components_1 Project 1",
+				description = "Cases_1 Case Description",
+				duration = "40",
+				priority = "5",
+				steps = "Auto Test Steps");
+
+			Testray.projectTabNavigator(navTabName = "Routine");
 		}
 
-		task ("When the user goes add a new build") {
+		task ("When the user goes add a new build with enviroments") {
+			TestrayContextMenu.clickContextMenuProjects(name = "Routines_1 Routine");
+
+			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Select Default Environment Factors");
+
+			TestrayBuild.selectDefaultEnvironmentFactors(
+				label = "Application Server",
+				label1 = "Browser",
+				listCategory = "Application Server,Browser",
+				listOption = "Tomcat 6.0",
+				listOption1 = "Chrome 57");
+
 			TestrayRoutines.goToRoutine(routineName = "Routines_1 Routine");
 
 			TestrayBuild.createBuild(
+				addVersion = "1.2",
+				caseName = "Cases_1 Case",
 				description = "Routines_4 Build Description",
+				dropdownItem = "New Build",
 				fieldName = "Routines_4 Build",
 				gitHash = "12345",
-				productVersion = "1.x",
+				productVersion = "1.2",
 				routine = "Routines_1 Routine");
 
 			Testray.assertItemName(key_name = "Routines_4 Build");
@@ -140,7 +182,7 @@ definition {
 			TestrayLayout.clickResultsOnSidebar();
 		}
 
-		task ("And when a build is deleted") {
+		task ("And when a routine is deleted") {
 			Testray.changePagination(
 				numberItems = "20",
 				valuePagination = "150");
@@ -178,12 +220,19 @@ definition {
 	}
 
 	@description = "This is a test for LPS-160585 - Verify if as an Administrator I should not be able to add a duplicate routine"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test AdminCanNotAddDuplicateRoutine {
+		task ("Given that the user add Routine with duplicated name") {
+			Testray.goToProjectPage(projectName = "Projects_1 Project");
 
-		// TODO LPS-160585 AdminCanNotAddDuplicateRoutine pending implementation
+			TestrayRoutines.createRoutine(key_name = "Routines_1 Routine");
 
+			TestrayRoutines.createRoutine(key_name = "Routines_1 Routine");
+		}
+
+		task ("Then the error message should appear") {
+			Alert.viewErrorMessage(errorMessage = "The Routine name already exists");
+		}
 	}
 
 	@description = "This is a test for LPS-164145 - Verify that the user can not create a routine if all the required fields are not filled in"
@@ -195,7 +244,7 @@ definition {
 			TestrayRoutines.createRoutine(key_name = "");
 		}
 
-		task ("Then the error message should appear") {
+		task ("Then a warning message is displayed") {
 			Testray.viewErrorMessage(
 				fieldLabel = "Name",
 				warningMessage = "name is a required field");

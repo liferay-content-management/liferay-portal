@@ -1959,7 +1959,7 @@ definition {
 	@description = "This test changes pagination and assert export processes display properly."
 	@priority = "2"
 	test PaginationWorksInExportPersonalData {
-		task ("Log in as new user and create data across several different applications") {
+		task ("Given there are data across several different applications") {
 			JSONBlog.addEntry(
 				entryContent = "Blogs Entry Content",
 				entryTitle = "Blogs Entry Title",
@@ -2014,9 +2014,7 @@ definition {
 			WikiPage.addCP(
 				wikiPageContent = "Wiki Page Content",
 				wikiPageTitle = "Wiki Page Title");
-		}
 
-		task ("Log back in as super user to begin data export process on new user") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "test@liferay.com",
 				userLoginFullName = "Test Test");
@@ -2032,13 +2030,13 @@ definition {
 				userLastName = "userln");
 		}
 
-		task ("Order by Name in descending order") {
+		task ("and entries in Export Personal Data are ordered by name in descending order") {
 			ManagementBar.setFilterAndOrder(orderBy = "Name");
 
 			ManagementBar.toggleViewOrder(order = "list-down");
 		}
 
-		task ("Assert pagination can be changed and correct number of entries are listed") {
+		task ("When pagination is changed, assert the correct number of entries are listed") {
 			for (var listEntries : list "4,8,20,40,60") {
 				Pagination.changePagination(itemsPerPage = "${listEntries}");
 
@@ -2075,7 +2073,9 @@ definition {
 	@description = "This test changes pagination and assert entries display properly."
 	@priority = "2"
 	test PaginationWorksInNewDataExport {
-		task ("Bring up the New Data Export page") {
+		property portal.release = "false";
+
+		task ("Given a user is exporting new user data") {
 			User.logoutAndLoginPG(
 				userLoginEmailAddress = "test@liferay.com",
 				userLoginFullName = "Test Test");
@@ -2094,49 +2094,128 @@ definition {
 				locator1 = "ExportPersonalData#ADD_PROCESS_HEADER");
 		}
 
-		task ("Assert pagination can be changed and correct number of entries are listed") {
+		// Assert the application com.liferay.portal.tools.service.builder.test.uad specific for upstream bundle,there isn't the app in release bundle.
+
+		task ("When pagination is changed, the correct number of entries are listed") {
 			for (var listEntries : list "4,8,20,40,60") {
 				Pagination.changePagination(itemsPerPage = "${listEntries}");
 
 				if ("${listEntries}" == "4") {
-					Pagination.viewResults(results = "Showing 1 to 4 of 10 entries.");
-
-					for (var listedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center") {
-						LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
-					}
-
-					for (var unlistedEntries : list "Documents and Media,Forms,Web Content,Message Boards,com.liferay.portal.tools.service.builder.test.uad,Wiki") {
-						LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
-					}
+					Click(locator1 = "Pagination#NEXT_LINK");
 
 					Click(locator1 = "Pagination#NEXT_LINK");
 
-					Pagination.viewResults(results = "Showing 5 to 8 of 10 entries.");
+					if (IsElementPresent(key_rowEntry = "com.liferay.portal.tools.service.builder.test.uad", locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME")) {
+						Pagination.viewResults(results = "Showing 9 to 10 of 10 entries.");
 
-					for (var listedEntries : list "Documents and Media,Forms,Web Content,Message Boards") {
-						LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						for (var listedEntries : list "com.liferay.portal.tools.service.builder.test.uad,Wiki") {
+							LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						}
+
+						for (var unlistedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards") {
+							LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
+						}
+
+						Click(locator1 = "Pagination#PREVIOUS_LINK");
+
+						Pagination.viewResults(results = "Showing 5 to 8 of 10 entries.");
+
+						for (var listedEntries : list "Documents and Media,Forms,Web Content,Message Boards") {
+							LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						}
+
+						for (var unlistedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,com.liferay.portal.tools.service.builder.test.uad,Wiki") {
+							LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
+						}
 					}
+					else {
+						Pagination.viewResults(results = "Showing 9 to 9 of 9 entries.");
 
-					for (var unlistedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,com.liferay.portal.tools.service.builder.test.uad,Wiki") {
-						LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
+						for (var listedEntries : list "Wiki") {
+							LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						}
+
+						for (var unlistedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards") {
+							LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
+						}
+
+						Click(locator1 = "Pagination#PREVIOUS_LINK");
+
+						Pagination.viewResults(results = "Showing 5 to 8 of 9 entries.");
+
+						for (var listedEntries : list "Documents and Media,Forms,Web Content,Message Boards") {
+							LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						}
+
+						for (var unlistedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Wiki") {
+							LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
+						}
 					}
 				}
 				else if ("${listEntries}" == "8") {
-					if (IsElementPresent(locator1 = "Pagination#RESULTS", results = "Showing 8 to 10 of 10 entries.")) {
+					Click(locator1 = "Pagination#NEXT_LINK");
+
+					if (IsElementPresent(key_rowEntry = "com.liferay.portal.tools.service.builder.test.uad", locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME")) {
+						Pagination.viewResults(results = "Showing 9 to 10 of 10 entries.");
+
+						for (var listedEntries : list "com.liferay.portal.tools.service.builder.test.uad,Wiki") {
+							LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						}
+
+						for (var unlistedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards") {
+							LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
+						}
+
 						Click(locator1 = "Pagination#PREVIOUS_LINK");
+
+						Pagination.viewResults(results = "Showing 1 to 8 of 10 entries.");
+
+						for (var listedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards") {
+							LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						}
+
+						for (var unlistedEntries : list "com.liferay.portal.tools.service.builder.test.uad,Wiki") {
+							LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
+						}
 					}
+					else {
+						Pagination.viewResults(results = "Showing 9 to 9 of 9 entries.");
 
-					Pagination.viewResults(results = "Showing 1 to 8 of 10 entries.");
+						for (var listedEntries : list "Wiki") {
+							LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						}
 
-					for (var listedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards") {
-						LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						for (var unlistedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards") {
+							LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
+						}
+
+						Click(locator1 = "Pagination#PREVIOUS_LINK");
+
+						Pagination.viewResults(results = "Showing 1 to 8 of 9 entries.");
+
+						for (var listedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards") {
+							LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						}
+
+						for (var unlistedEntries : list "Wiki") {
+							LexiconEntry.viewNoEntry(rowEntry = "${unlistedEntries}");
+						}
 					}
 				}
 				else {
-					Pagination.viewResults(results = "Showing 1 to 10 of 10 entries.");
+					if (IsElementPresent(key_rowEntry = "com.liferay.portal.tools.service.builder.test.uad", locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME")) {
+						Pagination.viewResults(results = "Showing 1 to 10 of 10 entries.");
 
-					for (var allEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards,com.liferay.portal.tools.service.builder.test.uad,Wiki") {
-						LexiconEntry.viewEntryName(rowEntry = "${allEntries}");
+						for (var listedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards,com.liferay.portal.tools.service.builder.test.uad,Wiki") {
+							LexiconEntry.viewEntryName(rowEntry = "${listedEntries}");
+						}
+					}
+					else if (IsElementNotPresent(key_rowEntry = "com.liferay.portal.tools.service.builder.test.uad", locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME")) {
+						Pagination.viewResults(results = "Showing 1 to 9 of 9 entries.");
+
+						for (var listedEntries : list "Announcements,Blogs,Bookmarks,Contacts Center,Documents and Media,Forms,Web Content,Message Boards,Wiki") {
+							LexiconEntry.viewEntryName(rowEntry = "${unlistedEntries}");
+						}
 					}
 				}
 			}

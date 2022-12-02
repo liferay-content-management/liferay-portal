@@ -19,7 +19,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceReport;
 import com.liferay.dynamic.data.mapping.report.DDMFormFieldTypeReportProcessor;
-import com.liferay.dynamic.data.mapping.report.DDMFormFieldTypeReportProcessorTracker;
+import com.liferay.dynamic.data.mapping.report.DDMFormFieldTypeReportProcessorRegistry;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.base.DDMFormInstanceReportLocalServiceBaseImpl;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMFormInstancePersistence;
@@ -29,7 +29,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -133,8 +133,7 @@ public class DDMFormInstanceReportLocalServiceImpl
 					ddmFormInstanceRecordVersion.getFormInstanceId());
 
 			JSONObject ddmFormInstanceReportDataJSONObject =
-				JSONFactoryUtil.createJSONObject(
-					ddmFormInstanceReport.getData());
+				_jsonFactory.createJSONObject(ddmFormInstanceReport.getData());
 
 			DDMFormValues ddmFormValues =
 				ddmFormInstanceRecordVersion.getDDMFormValues();
@@ -192,7 +191,7 @@ public class DDMFormInstanceReportLocalServiceImpl
 		throws Exception, JSONException {
 
 		DDMFormFieldTypeReportProcessor ddmFormFieldTypeReportProcessor =
-			_ddmFormFieldTypeReportProcessorTracker.
+			_ddmFormFieldTypeReportProcessorRegistry.
 				getDDMFormFieldTypeReportProcessor(ddmFormFieldValue.getType());
 
 		if (ddmFormFieldTypeReportProcessor != null) {
@@ -205,15 +204,14 @@ public class DDMFormInstanceReportLocalServiceImpl
 				fieldJSONObject = JSONUtil.put(
 					"type", ddmFormFieldValue.getType()
 				).put(
-					"values", JSONFactoryUtil.createJSONObject()
+					"values", _jsonFactory.createJSONObject()
 				);
 			}
 
 			JSONObject processedFieldJSONObject =
 				ddmFormFieldTypeReportProcessor.process(
 					ddmFormFieldValue,
-					JSONFactoryUtil.createJSONObject(
-						fieldJSONObject.toString()),
+					_jsonFactory.createJSONObject(fieldJSONObject.toString()),
 					ddmFormInstanceRecordVersion.getFormInstanceRecordId(),
 					ddmFormInstanceReportEvent);
 
@@ -226,8 +224,8 @@ public class DDMFormInstanceReportLocalServiceImpl
 		DDMFormInstanceReportLocalServiceImpl.class);
 
 	@Reference
-	private DDMFormFieldTypeReportProcessorTracker
-		_ddmFormFieldTypeReportProcessorTracker;
+	private DDMFormFieldTypeReportProcessorRegistry
+		_ddmFormFieldTypeReportProcessorRegistry;
 
 	@Reference
 	private DDMFormInstancePersistence _ddmFormInstancePersistence;
@@ -235,5 +233,8 @@ public class DDMFormInstanceReportLocalServiceImpl
 	@Reference
 	private DDMFormInstanceRecordVersionLocalService
 		_ddmFormInstanceRecordVersionLocalService;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 }

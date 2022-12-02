@@ -1629,6 +1629,11 @@ public class LayoutWrapper
 		return model.isDraftLayout();
 	}
 
+	@Override
+	public boolean isEmbeddedPersonalApplication() {
+		return model.isEmbeddedPersonalApplication();
+	}
+
 	/**
 	 * Returns <code>true</code> if this layout is expired.
 	 *
@@ -2656,6 +2661,11 @@ public class LayoutWrapper
 	@Override
 	public void setUuid(String uuid) {
 		model.setUuid(uuid);
+	}
+
+	@Override
+	public String toXmlString() {
+		return model.toXmlString();
 	}
 
 	@Override

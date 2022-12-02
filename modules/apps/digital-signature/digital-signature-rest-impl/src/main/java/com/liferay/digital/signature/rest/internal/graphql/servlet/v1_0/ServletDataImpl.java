@@ -16,8 +16,13 @@ package com.liferay.digital.signature.rest.internal.graphql.servlet.v1_0;
 
 import com.liferay.digital.signature.rest.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.digital.signature.rest.internal.graphql.query.v1_0.Query;
+import com.liferay.digital.signature.rest.internal.resource.v1_0.DSEnvelopeResourceImpl;
 import com.liferay.digital.signature.rest.resource.v1_0.DSEnvelopeResource;
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -32,7 +37,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author José Abelenda
  * @generated
  */
-@Component(immediate = true, service = ServletData.class)
+@Component(service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
@@ -43,6 +48,10 @@ public class ServletDataImpl implements ServletData {
 
 		Query.setDSEnvelopeResourceComponentServiceObjects(
 			_dsEnvelopeResourceComponentServiceObjects);
+	}
+
+	public String getApplicationName() {
+		return "Liferay.Digital.Signature.REST";
 	}
 
 	@Override
@@ -59,6 +68,44 @@ public class ServletDataImpl implements ServletData {
 	public Query getQuery() {
 		return new Query();
 	}
+
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(
+		String methodName, boolean mutation) {
+
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get(
+				"mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>>
+		_resourceMethodObjectValuePairs =
+			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+				{
+					put(
+						"mutation#createSiteDSEnvelope",
+						new ObjectValuePair<>(
+							DSEnvelopeResourceImpl.class,
+							"postSiteDSEnvelope"));
+					put(
+						"mutation#createSiteDSEnvelopeBatch",
+						new ObjectValuePair<>(
+							DSEnvelopeResourceImpl.class,
+							"postSiteDSEnvelopeBatch"));
+
+					put(
+						"query#dSEnvelopes",
+						new ObjectValuePair<>(
+							DSEnvelopeResourceImpl.class,
+							"getSiteDSEnvelopesPage"));
+					put(
+						"query#dSEnvelope",
+						new ObjectValuePair<>(
+							DSEnvelopeResourceImpl.class, "getSiteDSEnvelope"));
+				}
+			};
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<DSEnvelopeResource>

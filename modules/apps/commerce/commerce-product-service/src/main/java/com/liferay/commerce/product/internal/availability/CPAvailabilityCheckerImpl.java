@@ -17,7 +17,6 @@ package com.liferay.commerce.product.internal.availability;
 import com.liferay.commerce.inventory.CPDefinitionInventoryEngine;
 import com.liferay.commerce.inventory.CPDefinitionInventoryEngineRegistry;
 import com.liferay.commerce.inventory.engine.CommerceInventoryEngine;
-import com.liferay.commerce.inventory.service.CommerceInventoryBookedQuantityLocalService;
 import com.liferay.commerce.model.CPDefinitionInventory;
 import com.liferay.commerce.product.availability.CPAvailabilityChecker;
 import com.liferay.commerce.product.model.CPDefinition;
@@ -31,9 +30,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alessio Antonio Rendina
  */
-@Component(
-	enabled = false, immediate = true, service = CPAvailabilityChecker.class
-)
+@Component(service = CPAvailabilityChecker.class)
 public class CPAvailabilityCheckerImpl implements CPAvailabilityChecker {
 
 	@Override
@@ -78,12 +75,13 @@ public class CPAvailabilityCheckerImpl implements CPAvailabilityChecker {
 
 		if (commerceChannelGroupId > 0) {
 			stockQuantity = _commerceInventoryEngine.getStockQuantity(
-				cpInstance.getCompanyId(), commerceChannelGroupId,
-				cpInstance.getSku());
+				cpInstance.getCompanyId(), cpInstance.getGroupId(),
+				commerceChannelGroupId, cpInstance.getSku());
 		}
 		else {
 			stockQuantity = _commerceInventoryEngine.getStockQuantity(
-				cpInstance.getCompanyId(), cpInstance.getSku());
+				cpInstance.getCompanyId(), cpDefinition.getGroupId(),
+				cpInstance.getSku());
 		}
 
 		if (quantity > stockQuantity) {
@@ -109,10 +107,6 @@ public class CPAvailabilityCheckerImpl implements CPAvailabilityChecker {
 
 		return true;
 	}
-
-	@Reference
-	private CommerceInventoryBookedQuantityLocalService
-		_commerceInventoryBookedQuantityLocalService;
 
 	@Reference
 	private CommerceInventoryEngine _commerceInventoryEngine;

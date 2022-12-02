@@ -113,21 +113,28 @@ function ItemConfigurationContent({
 				</ClayAlert>
 			) : (
 				<>
-					<ClayTabs className="flex-nowrap pt-2 px-3">
+					<ClayTabs
+						activation="automatic"
+						active={panels.findIndex(
+							(panel) => panel.panelId === activePanel.id
+						)}
+						className="flex-nowrap pt-2 px-3"
+						onActiveChange={(activeIndex) => {
+							const panel = panels[activeIndex];
+
+							setActivePanel({
+								id: panel.panelId,
+								type: panel.type || null,
+							});
+						}}
+					>
 						{panels.map((panel) => (
 							<ClayTabs.Item
-								active={panel.panelId === activePanel.id}
 								innerProps={{
 									'aria-controls': `${panelIdPrefix}-${panel.panelId}`,
 									'id': `${tabIdPrefix}-${panel.panelId}`,
 								}}
 								key={panel.panelId}
-								onClick={() => {
-									setActivePanel({
-										id: panel.panelId,
-										type: panel.type || null,
-									});
-								}}
 							>
 								<span
 									className="c-inner page-editor__page-structure__item-configuration-tab text-truncate"

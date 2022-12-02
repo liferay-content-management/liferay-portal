@@ -14,71 +14,27 @@
 
 package com.liferay.analytics.message.sender.internal.messaging;
 
-import com.liferay.analytics.message.sender.client.AnalyticsMessageSenderClient;
 import com.liferay.analytics.message.sender.constants.AnalyticsMessagesDestinationNames;
 import com.liferay.analytics.message.sender.constants.AnalyticsMessagesProcessorCommand;
-import com.liferay.analytics.message.storage.model.AnalyticsMessage;
-import com.liferay.analytics.message.storage.service.AnalyticsMessageLocalService;
-import com.liferay.analytics.settings.configuration.AnalyticsConfigurationTracker;
-import com.liferay.petra.io.StreamUtil;
-import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.analytics.settings.configuration.AnalyticsConfigurationRegistry;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
-import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
-import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
-import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
-import com.liferay.portal.kernel.scheduler.SchedulerEntry;
-import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
-import com.liferay.portal.kernel.scheduler.TimeUnit;
-import com.liferay.portal.kernel.scheduler.Trigger;
-import com.liferay.portal.kernel.scheduler.TriggerFactory;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 
-import java.nio.charset.StandardCharsets;
-
-import java.util.List;
-
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Rachael Koestartyo
  */
 @Component(
-	immediate = true,
 	property = "destination.name=" + AnalyticsMessagesDestinationNames.ANALYTICS_MESSAGES_PROCESSOR,
 	service = MessageListener.class
 )
 public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
-
-	@Activate
-	protected void activate() {
-		Class<?> clazz = getClass();
-
-		String className = clazz.getName();
-
-		Trigger trigger = _triggerFactory.createTrigger(
-			className, className, null, null, 1, TimeUnit.HOUR);
-
-		SchedulerEntry schedulerEntry = new SchedulerEntryImpl(
-			className, trigger);
-
-		_schedulerEngineHelper.register(
-			this, schedulerEntry, DestinationNames.SCHEDULER_DISPATCH);
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		_schedulerEngineHelper.unregister(this);
-	}
 
 	@Override
 	protected void doReceive(Message message) throws Exception {
@@ -86,7 +42,8 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 			return;
 		}
 
-		_companyLocalService.forEachCompanyId(companyId -> _process(companyId));
+		_companyLocalService.forEachCompanyId(
+			companyId -> _analyticsMessagesHelper.send(companyId));
 	}
 
 	@Override
@@ -95,65 +52,12 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 			return;
 		}
 
-		_process(companyId);
-	}
-
-	private void _process(long companyId) throws Exception {
-		while (true) {
-			List<AnalyticsMessage> analyticsMessages =
-				_analyticsMessageLocalService.getAnalyticsMessages(
-					companyId, 0, _BATCH_SIZE);
-
-			if (analyticsMessages.isEmpty()) {
-				if (_log.isInfoEnabled()) {
-					_log.info("Finished processing analytics messages");
-				}
-
-				return;
-			}
-
-			JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
-
-			for (AnalyticsMessage analyticsMessage : analyticsMessages) {
-				String json = new String(
-					StreamUtil.toByteArray(
-						_analyticsMessageLocalService.openBodyInputStream(
-							analyticsMessage.getAnalyticsMessageId())),
-					StandardCharsets.UTF_8);
-
-				jsonArray.put(JSONFactoryUtil.createJSONObject(json));
-			}
-
-			try {
-				_analyticsMessageSenderClient.send(
-					jsonArray.toString(), companyId);
-
-				if (_log.isInfoEnabled()) {
-					_log.info(
-						"Sent " + jsonArray.length() + " analytics messages");
-				}
-			}
-			catch (Exception exception) {
-				_log.error(
-					"Unable to send analytics messages for company " +
-						companyId,
-					exception);
-			}
-
-			_analyticsMessageLocalService.deleteAnalyticsMessages(
-				analyticsMessages);
-
-			if (_log.isInfoEnabled()) {
-				_log.info(
-					"Deleted " + analyticsMessages.size() +
-						" analytics messages");
-			}
-		}
+		_analyticsMessagesHelper.send(companyId);
 	}
 
 	private boolean _skipProcess(Message message) {
 		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LRAC-10632")) ||
-			!_analyticsConfigurationTracker.isActive()) {
+			!_analyticsConfigurationRegistry.isActive()) {
 
 			return true;
 		}
@@ -171,30 +75,13 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 		return false;
 	}
 
-	private static final int _BATCH_SIZE = 100;
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		SendAnalyticsMessagesMessageListener.class);
+	@Reference
+	private AnalyticsConfigurationRegistry _analyticsConfigurationRegistry;
 
 	@Reference
-	private AnalyticsConfigurationTracker _analyticsConfigurationTracker;
-
-	@Reference
-	private AnalyticsMessageLocalService _analyticsMessageLocalService;
-
-	@Reference
-	private AnalyticsMessageSenderClient _analyticsMessageSenderClient;
+	private AnalyticsMessagesHelper _analyticsMessagesHelper;
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
-
-	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED)
-	private ModuleServiceLifecycle _moduleServiceLifecycle;
-
-	@Reference
-	private SchedulerEngineHelper _schedulerEngineHelper;
-
-	@Reference
-	private TriggerFactory _triggerFactory;
 
 }

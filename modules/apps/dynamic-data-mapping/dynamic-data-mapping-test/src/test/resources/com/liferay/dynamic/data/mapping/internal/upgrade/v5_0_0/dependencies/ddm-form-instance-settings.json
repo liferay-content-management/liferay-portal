@@ -11,6 +11,11 @@
 			"value": "true"
 		},
 		{
+			"fieldReference": "displayChartAsTable",
+			"name": "displayChartAsTable",
+			"value": "false"
+		},
+		{
 			"fieldReference": "emailFromAddress",
 			"name": "emailFromAddress",
 			"value": ""
@@ -39,6 +44,16 @@
 			"fieldReference": "limitToOneSubmissionPerUser",
 			"name": "limitToOneSubmissionPerUser",
 			"value": "false"
+		},
+		{
+			"fieldReference": "limitToOneSubmissionPerUserBody",
+			"name": "limitToOneSubmissionPerUserBody",
+			"value": ""
+		},
+		{
+			"fieldReference": "limitToOneSubmissionPerUserHeader",
+			"name": "limitToOneSubmissionPerUserHeader",
+			"value": ""
 		},
 		{
 			"fieldReference": "neverExpire",

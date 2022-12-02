@@ -14,6 +14,7 @@
 
 package com.liferay.commerce.product.service.persistence.impl;
 
+import com.liferay.commerce.product.exception.DuplicateCPTaxCategoryExternalReferenceCodeException;
 import com.liferay.commerce.product.exception.NoSuchCPTaxCategoryException;
 import com.liferay.commerce.product.model.CPTaxCategory;
 import com.liferay.commerce.product.model.CPTaxCategoryTable;
@@ -21,8 +22,10 @@ import com.liferay.commerce.product.model.impl.CPTaxCategoryImpl;
 import com.liferay.commerce.product.model.impl.CPTaxCategoryModelImpl;
 import com.liferay.commerce.product.service.persistence.CPTaxCategoryPersistence;
 import com.liferay.commerce.product.service.persistence.CPTaxCategoryUtil;
+import com.liferay.commerce.product.service.persistence.impl.constants.CommercePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
+import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -30,6 +33,7 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
@@ -45,7 +49,6 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUID;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
 
@@ -64,6 +67,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.sql.DataSource;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * The persistence implementation for the cp tax category service.
  *
@@ -74,6 +84,7 @@ import java.util.Set;
  * @author Marco Leo
  * @generated
  */
+@Component(service = CPTaxCategoryPersistence.class)
 public class CPTaxCategoryPersistenceImpl
 	extends BasePersistenceImpl<CPTaxCategory>
 	implements CPTaxCategoryPersistence {
@@ -193,7 +204,7 @@ public class CPTaxCategoryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CPTaxCategory>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CPTaxCategory cpTaxCategory : list) {
@@ -584,7 +595,7 @@ public class CPTaxCategoryPersistenceImpl
 
 			finderArgs = new Object[] {uuid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -749,7 +760,7 @@ public class CPTaxCategoryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CPTaxCategory>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CPTaxCategory cpTaxCategory : list) {
@@ -1174,7 +1185,7 @@ public class CPTaxCategoryPersistenceImpl
 
 			finderArgs = new Object[] {uuid, companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1339,7 +1350,7 @@ public class CPTaxCategoryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CPTaxCategory>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CPTaxCategory cpTaxCategory : list) {
@@ -1707,7 +1718,7 @@ public class CPTaxCategoryPersistenceImpl
 
 			finderArgs = new Object[] {companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1750,35 +1761,35 @@ public class CPTaxCategoryPersistenceImpl
 	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 =
 		"cpTaxCategory.companyId = ?";
 
-	private FinderPath _finderPathFetchByC_ERC;
-	private FinderPath _finderPathCountByC_ERC;
+	private FinderPath _finderPathFetchByERC_C;
+	private FinderPath _finderPathCountByERC_C;
 
 	/**
-	 * Returns the cp tax category where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchCPTaxCategoryException</code> if it could not be found.
+	 * Returns the cp tax category where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchCPTaxCategoryException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching cp tax category
 	 * @throws NoSuchCPTaxCategoryException if a matching cp tax category could not be found
 	 */
 	@Override
-	public CPTaxCategory findByC_ERC(
-			long companyId, String externalReferenceCode)
+	public CPTaxCategory findByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchCPTaxCategoryException {
 
-		CPTaxCategory cpTaxCategory = fetchByC_ERC(
-			companyId, externalReferenceCode);
+		CPTaxCategory cpTaxCategory = fetchByERC_C(
+			externalReferenceCode, companyId);
 
 		if (cpTaxCategory == null) {
 			StringBundler sb = new StringBundler(6);
 
 			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
 
-			sb.append("companyId=");
-			sb.append(companyId);
-
-			sb.append(", externalReferenceCode=");
+			sb.append("externalReferenceCode=");
 			sb.append(externalReferenceCode);
+
+			sb.append(", companyId=");
+			sb.append(companyId);
 
 			sb.append("}");
 
@@ -1793,30 +1804,30 @@ public class CPTaxCategoryPersistenceImpl
 	}
 
 	/**
-	 * Returns the cp tax category where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the cp tax category where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching cp tax category, or <code>null</code> if a matching cp tax category could not be found
 	 */
 	@Override
-	public CPTaxCategory fetchByC_ERC(
-		long companyId, String externalReferenceCode) {
+	public CPTaxCategory fetchByERC_C(
+		String externalReferenceCode, long companyId) {
 
-		return fetchByC_ERC(companyId, externalReferenceCode, true);
+		return fetchByERC_C(externalReferenceCode, companyId, true);
 	}
 
 	/**
-	 * Returns the cp tax category where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the cp tax category where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching cp tax category, or <code>null</code> if a matching cp tax category could not be found
 	 */
 	@Override
-	public CPTaxCategory fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache) {
+	public CPTaxCategory fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache) {
 
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
@@ -1826,22 +1837,23 @@ public class CPTaxCategoryPersistenceImpl
 		Object[] finderArgs = null;
 
 		if (useFinderCache && productionMode) {
-			finderArgs = new Object[] {companyId, externalReferenceCode};
+			finderArgs = new Object[] {externalReferenceCode, companyId};
 		}
 
 		Object result = null;
 
 		if (useFinderCache && productionMode) {
-			result = finderCache.getResult(_finderPathFetchByC_ERC, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByERC_C, finderArgs, this);
 		}
 
 		if (result instanceof CPTaxCategory) {
 			CPTaxCategory cpTaxCategory = (CPTaxCategory)result;
 
-			if ((companyId != cpTaxCategory.getCompanyId()) ||
-				!Objects.equals(
+			if (!Objects.equals(
 					externalReferenceCode,
-					cpTaxCategory.getExternalReferenceCode())) {
+					cpTaxCategory.getExternalReferenceCode()) ||
+				(companyId != cpTaxCategory.getCompanyId())) {
 
 				result = null;
 			}
@@ -1852,18 +1864,18 @@ public class CPTaxCategoryPersistenceImpl
 
 			sb.append(_SQL_SELECT_CPTAXCATEGORY_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_ERC_COMPANYID_2);
-
 			boolean bindExternalReferenceCode = false;
 
 			if (externalReferenceCode.isEmpty()) {
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
 			}
 			else {
 				bindExternalReferenceCode = true;
 
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
 			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
 
 			String sql = sb.toString();
 
@@ -1876,18 +1888,18 @@ public class CPTaxCategoryPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(companyId);
-
 				if (bindExternalReferenceCode) {
 					queryPos.add(externalReferenceCode);
 				}
+
+				queryPos.add(companyId);
 
 				List<CPTaxCategory> list = query.list();
 
 				if (list.isEmpty()) {
 					if (useFinderCache && productionMode) {
 						finderCache.putResult(
-							_finderPathFetchByC_ERC, finderArgs, list);
+							_finderPathFetchByERC_C, finderArgs, list);
 					}
 				}
 				else {
@@ -1915,32 +1927,32 @@ public class CPTaxCategoryPersistenceImpl
 	}
 
 	/**
-	 * Removes the cp tax category where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the cp tax category where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the cp tax category that was removed
 	 */
 	@Override
-	public CPTaxCategory removeByC_ERC(
-			long companyId, String externalReferenceCode)
+	public CPTaxCategory removeByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchCPTaxCategoryException {
 
-		CPTaxCategory cpTaxCategory = findByC_ERC(
-			companyId, externalReferenceCode);
+		CPTaxCategory cpTaxCategory = findByERC_C(
+			externalReferenceCode, companyId);
 
 		return remove(cpTaxCategory);
 	}
 
 	/**
-	 * Returns the number of cp tax categories where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of cp tax categories where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching cp tax categories
 	 */
 	@Override
-	public int countByC_ERC(long companyId, String externalReferenceCode) {
+	public int countByERC_C(String externalReferenceCode, long companyId) {
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
 		boolean productionMode = ctPersistenceHelper.isProductionMode(
@@ -1952,11 +1964,11 @@ public class CPTaxCategoryPersistenceImpl
 		Long count = null;
 
 		if (productionMode) {
-			finderPath = _finderPathCountByC_ERC;
+			finderPath = _finderPathCountByERC_C;
 
-			finderArgs = new Object[] {companyId, externalReferenceCode};
+			finderArgs = new Object[] {externalReferenceCode, companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1964,18 +1976,18 @@ public class CPTaxCategoryPersistenceImpl
 
 			sb.append(_SQL_COUNT_CPTAXCATEGORY_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_ERC_COMPANYID_2);
-
 			boolean bindExternalReferenceCode = false;
 
 			if (externalReferenceCode.isEmpty()) {
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
 			}
 			else {
 				bindExternalReferenceCode = true;
 
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
 			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
 
 			String sql = sb.toString();
 
@@ -1988,11 +2000,11 @@ public class CPTaxCategoryPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(companyId);
-
 				if (bindExternalReferenceCode) {
 					queryPos.add(externalReferenceCode);
 				}
+
+				queryPos.add(companyId);
 
 				count = (Long)query.uniqueResult();
 
@@ -2011,14 +2023,14 @@ public class CPTaxCategoryPersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_C_ERC_COMPANYID_2 =
-		"cpTaxCategory.companyId = ? AND ";
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2 =
+		"cpTaxCategory.externalReferenceCode = ? AND ";
 
-	private static final String _FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2 =
-		"cpTaxCategory.externalReferenceCode = ?";
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3 =
+		"(cpTaxCategory.externalReferenceCode IS NULL OR cpTaxCategory.externalReferenceCode = '') AND ";
 
-	private static final String _FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3 =
-		"(cpTaxCategory.externalReferenceCode IS NULL OR cpTaxCategory.externalReferenceCode = '')";
+	private static final String _FINDER_COLUMN_ERC_C_COMPANYID_2 =
+		"cpTaxCategory.companyId = ?";
 
 	public CPTaxCategoryPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -2051,10 +2063,10 @@ public class CPTaxCategoryPersistenceImpl
 			cpTaxCategory);
 
 		finderCache.putResult(
-			_finderPathFetchByC_ERC,
+			_finderPathFetchByERC_C,
 			new Object[] {
-				cpTaxCategory.getCompanyId(),
-				cpTaxCategory.getExternalReferenceCode()
+				cpTaxCategory.getExternalReferenceCode(),
+				cpTaxCategory.getCompanyId()
 			},
 			cpTaxCategory);
 	}
@@ -2135,13 +2147,13 @@ public class CPTaxCategoryPersistenceImpl
 		CPTaxCategoryModelImpl cpTaxCategoryModelImpl) {
 
 		Object[] args = new Object[] {
-			cpTaxCategoryModelImpl.getCompanyId(),
-			cpTaxCategoryModelImpl.getExternalReferenceCode()
+			cpTaxCategoryModelImpl.getExternalReferenceCode(),
+			cpTaxCategoryModelImpl.getCompanyId()
 		};
 
-		finderCache.putResult(_finderPathCountByC_ERC, args, Long.valueOf(1));
+		finderCache.putResult(_finderPathCountByERC_C, args, Long.valueOf(1));
 		finderCache.putResult(
-			_finderPathFetchByC_ERC, args, cpTaxCategoryModelImpl);
+			_finderPathFetchByERC_C, args, cpTaxCategoryModelImpl);
 	}
 
 	/**
@@ -2285,6 +2297,29 @@ public class CPTaxCategoryPersistenceImpl
 
 		if (Validator.isNull(cpTaxCategory.getExternalReferenceCode())) {
 			cpTaxCategory.setExternalReferenceCode(cpTaxCategory.getUuid());
+		}
+		else {
+			CPTaxCategory ercCPTaxCategory = fetchByERC_C(
+				cpTaxCategory.getExternalReferenceCode(),
+				cpTaxCategory.getCompanyId());
+
+			if (isNew) {
+				if (ercCPTaxCategory != null) {
+					throw new DuplicateCPTaxCategoryExternalReferenceCodeException(
+						"Duplicate cp tax category with external reference code " +
+							cpTaxCategory.getExternalReferenceCode());
+				}
+			}
+			else {
+				if ((ercCPTaxCategory != null) &&
+					(cpTaxCategory.getCPTaxCategoryId() !=
+						ercCPTaxCategory.getCPTaxCategoryId())) {
+
+					throw new DuplicateCPTaxCategoryExternalReferenceCodeException(
+						"Duplicate cp tax category with external reference code " +
+							cpTaxCategory.getExternalReferenceCode());
+				}
+			}
 		}
 
 		ServiceContext serviceContext =
@@ -2628,7 +2663,7 @@ public class CPTaxCategoryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CPTaxCategory>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2704,7 +2739,7 @@ public class CPTaxCategoryPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {
@@ -2817,13 +2852,14 @@ public class CPTaxCategoryPersistenceImpl
 			CTColumnResolutionType.STRICT, ctStrictColumnNames);
 
 		_uniqueIndexColumnNames.add(
-			new String[] {"companyId", "externalReferenceCode"});
+			new String[] {"externalReferenceCode", "companyId"});
 	}
 
 	/**
 	 * Initializes the cp tax category persistence.
 	 */
-	public void afterPropertiesSet() {
+	@Activate
+	public void activate() {
 		_valueObjectFinderCacheListThreshold = GetterUtil.getInteger(
 			PropsUtil.get(PropsKeys.VALUE_OBJECT_FINDER_CACHE_LIST_THRESHOLD));
 
@@ -2894,20 +2930,21 @@ public class CPTaxCategoryPersistenceImpl
 			new String[] {Long.class.getName()}, new String[] {"companyId"},
 			false);
 
-		_finderPathFetchByC_ERC = new FinderPath(
-			FINDER_CLASS_NAME_ENTITY, "fetchByC_ERC",
-			new String[] {Long.class.getName(), String.class.getName()},
-			new String[] {"companyId", "externalReferenceCode"}, true);
+		_finderPathFetchByERC_C = new FinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByERC_C",
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"externalReferenceCode", "companyId"}, true);
 
-		_finderPathCountByC_ERC = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_ERC",
-			new String[] {Long.class.getName(), String.class.getName()},
-			new String[] {"companyId", "externalReferenceCode"}, false);
+		_finderPathCountByERC_C = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByERC_C",
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"externalReferenceCode", "companyId"}, false);
 
 		_setCPTaxCategoryUtilPersistence(this);
 	}
 
-	public void destroy() {
+	@Deactivate
+	public void deactivate() {
 		_setCPTaxCategoryUtilPersistence(null);
 
 		entityCache.removeCache(CPTaxCategoryImpl.class.getName());
@@ -2929,13 +2966,39 @@ public class CPTaxCategoryPersistenceImpl
 		}
 	}
 
-	@ServiceReference(type = CTPersistenceHelper.class)
+	@Override
+	@Reference(
+		target = CommercePersistenceConstants.SERVICE_CONFIGURATION_FILTER,
+		unbind = "-"
+	)
+	public void setConfiguration(Configuration configuration) {
+	}
+
+	@Override
+	@Reference(
+		target = CommercePersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setDataSource(DataSource dataSource) {
+		super.setDataSource(dataSource);
+	}
+
+	@Override
+	@Reference(
+		target = CommercePersistenceConstants.ORIGIN_BUNDLE_SYMBOLIC_NAME_FILTER,
+		unbind = "-"
+	)
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		super.setSessionFactory(sessionFactory);
+	}
+
+	@Reference
 	protected CTPersistenceHelper ctPersistenceHelper;
 
-	@ServiceReference(type = EntityCache.class)
+	@Reference
 	protected EntityCache entityCache;
 
-	@ServiceReference(type = FinderCache.class)
+	@Reference
 	protected FinderCache finderCache;
 
 	private static final String _SQL_SELECT_CPTAXCATEGORY =
@@ -2969,7 +3032,7 @@ public class CPTaxCategoryPersistenceImpl
 		return finderCache;
 	}
 
-	@ServiceReference(type = PortalUUID.class)
+	@Reference
 	private PortalUUID _portalUUID;
 
 }

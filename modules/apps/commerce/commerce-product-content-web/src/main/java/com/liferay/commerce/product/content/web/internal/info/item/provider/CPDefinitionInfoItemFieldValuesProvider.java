@@ -66,10 +66,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alec Sloan
  * @author Allen Ziegenfus
  */
-@Component(
-	enabled = false, immediate = true,
-	service = InfoItemFieldValuesProvider.class
-)
+@Component(service = InfoItemFieldValuesProvider.class)
 public class CPDefinitionInfoItemFieldValuesProvider
 	implements InfoItemFieldValuesProvider<CPDefinition> {
 
@@ -135,7 +132,8 @@ public class CPDefinitionInfoItemFieldValuesProvider
 
 		if (displayAvailability) {
 			return _commerceInventoryEngine.getAvailabilityStatus(
-				cpInstance.getCompanyId(), commerceChannel.getGroupId(),
+				cpInstance.getCompanyId(), cpInstance.getGroupId(),
+				commerceChannel.getGroupId(),
 				cpDefinitionInventoryEngine.getMinStockQuantity(cpInstance),
 				cpInstance.getSku());
 		}
@@ -573,8 +571,8 @@ public class CPDefinitionInfoItemFieldValuesProvider
 						themeDisplay.getScopeGroupId());
 
 			return _commerceInventoryEngine.getStockQuantity(
-				cpInstance.getCompanyId(), commerceChannelGroupId,
-				cpInstance.getSku());
+				cpInstance.getCompanyId(), cpInstance.getGroupId(),
+				commerceChannelGroupId, cpInstance.getSku());
 		}
 
 		return null;

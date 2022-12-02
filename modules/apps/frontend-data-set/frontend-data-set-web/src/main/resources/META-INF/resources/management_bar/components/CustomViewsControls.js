@@ -17,7 +17,7 @@ import ClayDropDown from '@clayui/drop-down';
 import ClayForm, {ClayInput} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import {ManagementToolbar} from 'frontend-js-components-web';
-import {fetch, openModal, openToast} from 'frontend-js-web';
+import {fetch, objectToFormData, openModal, openToast} from 'frontend-js-web';
 import React, {useContext, useRef, useState} from 'react';
 
 import FrontendDataSetContext from '../../FrontendDataSetContext';
@@ -25,9 +25,6 @@ import ViewsContext from '../../views/ViewsContext';
 import {VIEWS_ACTION_TYPES} from '../../views/viewsReducer';
 
 const CustomViewsControls = () => {
-	const [viewsDropdownActive, setViewsDropdownActive] = useState(false);
-	const [actionsDropdownActive, setActionsDropdownActive] = useState(false);
-
 	const {appURL, id: fdsName, namespace, portletId} = useContext(
 		FrontendDataSetContext
 	);
@@ -45,6 +42,9 @@ const CustomViewsControls = () => {
 		viewsDispatch,
 	] = useContext(ViewsContext);
 
+	const [viewsDropdownActive, setViewsDropdownActive] = useState(false);
+	const [actionsDropdownActive, setActionsDropdownActive] = useState(false);
+
 	const customViewLabelInputRef = useRef();
 
 	const SaveCustomViewModalBody = () => (
@@ -57,46 +57,15 @@ const CustomViewsControls = () => {
 
 			<ClayInput
 				autoFocus={true}
+				defaultValue={
+					activeCustomViewId &&
+					customViews[activeCustomViewId].customViewLabel
+				}
 				id={`${namespace}customViewLabelInput`}
 				ref={customViewLabelInputRef}
 				type="text"
 			/>
 		</ClayForm.Group>
-	);
-
-	const ActionsItemList = () => (
-		<ClayDropDown.ItemList>
-			{activeCustomViewId && (
-				<ClayDropDown.Item
-					onClick={() => {
-						saveCustomView({
-							id: activeCustomViewId,
-						});
-
-						setActionsDropdownActive(false);
-					}}
-					symbolLeft="disk"
-				>
-					{Liferay.Language.get('save-view')}
-				</ClayDropDown.Item>
-			)}
-
-			<ClayDropDown.Item
-				onClick={openSaveCustomViewModal}
-				symbolLeft="disk"
-			>
-				{Liferay.Language.get('save-view-as')}
-			</ClayDropDown.Item>
-
-			{activeCustomViewId && (
-				<ClayDropDown.Item
-					onClick={openDeleteCustomViewModal}
-					symbolLeft="trash"
-				>
-					{Liferay.Language.get('delete-view')}
-				</ClayDropDown.Item>
-			)}
-		</ClayDropDown.ItemList>
 	);
 
 	const getNextCustomViewId = () => {
@@ -190,6 +159,81 @@ const CustomViewsControls = () => {
 					onClick: ({processClose}) => {
 						saveCustomView({
 							id: getNextCustomViewId(),
+							label: customViewLabelInputRef.current.value,
+							processClose,
+						});
+					},
+				},
+			],
+			title: Liferay.Language.get('save-new-view-as'),
+		});
+	};
+
+	const renameActiveCustomView = ({label, processClose}) => {
+		const url = new URL(
+			`${appURL}/fds/${fdsName}/custom-views/${activeCustomViewId}/label`
+		);
+
+		url.searchParams.append('portletId', portletId);
+
+		fetch(url, {
+			body: objectToFormData({
+				customViewLabel: label,
+			}),
+			method: 'POST',
+		})
+			.then((response) => {
+				if (response.ok) {
+					if (processClose) {
+						processClose();
+					}
+
+					openToast({
+						message: Liferay.Language.get(
+							'view-was-renamed-successfully'
+						),
+						type: 'success',
+					});
+
+					viewsDispatch({
+						type: VIEWS_ACTION_TYPES.RENAME_ACTIVE_CUSTOM_VIEW,
+						value: {
+							label,
+						},
+					});
+				}
+				else {
+					openToast({
+						message: Liferay.Language.get(
+							'an-unexpected-error-occurred'
+						),
+						type: 'danger',
+					});
+				}
+			})
+			.catch(() => {
+				openToast({
+					message: Liferay.Language.get(
+						'an-unexpected-error-occurred'
+					),
+					type: 'danger',
+				});
+			});
+	};
+
+	const openRenameCustomViewModal = () => {
+		openModal({
+			bodyComponent: SaveCustomViewModalBody,
+			buttons: [
+				{
+					displayType: 'secondary',
+					label: Liferay.Language.get('cancel'),
+					type: 'cancel',
+				},
+				{
+					label: Liferay.Language.get('save'),
+					onClick: ({processClose}) => {
+						renameActiveCustomView({
 							label: customViewLabelInputRef.current.value,
 							processClose,
 						});
@@ -333,10 +377,6 @@ const CustomViewsControls = () => {
 							{Liferay.Language.get('default-view')}
 						</ClayDropDown.Item>
 					</ClayDropDown.ItemList>
-
-					<ClayDropDown.Divider />
-
-					<ActionsItemList />
 				</ClayDropDown>
 			</ManagementToolbar.Item>
 
@@ -347,12 +387,55 @@ const CustomViewsControls = () => {
 					hasLeftSymbols
 					onActiveChange={setActionsDropdownActive}
 					trigger={
-						<ClayButton displayType="unstyled">
+						<ClayButton
+							displayType="unstyled"
+							title={Liferay.Language.get('show-view-actions')}
+						>
 							<ClayIcon symbol="ellipsis-v" />
 						</ClayButton>
 					}
 				>
-					<ActionsItemList />
+					<ClayDropDown.ItemList>
+						{activeCustomViewId && (
+							<ClayDropDown.Item
+								onClick={() => {
+									saveCustomView({
+										id: activeCustomViewId,
+									});
+
+									setActionsDropdownActive(false);
+								}}
+								symbolLeft="disk"
+							>
+								{Liferay.Language.get('save-view')}
+							</ClayDropDown.Item>
+						)}
+
+						<ClayDropDown.Item
+							onClick={openSaveCustomViewModal}
+							symbolLeft="disk"
+						>
+							{Liferay.Language.get('save-view-as')}
+						</ClayDropDown.Item>
+
+						{activeCustomViewId && (
+							<>
+								<ClayDropDown.Item
+									onClick={openRenameCustomViewModal}
+									symbolLeft="pencil"
+								>
+									{Liferay.Language.get('rename-view')}
+								</ClayDropDown.Item>
+
+								<ClayDropDown.Item
+									onClick={openDeleteCustomViewModal}
+									symbolLeft="trash"
+								>
+									{Liferay.Language.get('delete-view')}
+								</ClayDropDown.Item>
+							</>
+						)}
+					</ClayDropDown.ItemList>
 				</ClayDropDown>
 			</ManagementToolbar.Item>
 		</>

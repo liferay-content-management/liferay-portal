@@ -14,8 +14,7 @@
 
 package com.liferay.journal.internal.validation;
 
-import com.liferay.depot.service.DepotEntryLocalService;
-import com.liferay.depot.util.SiteConnectedGroupGroupProviderUtil;
+import com.liferay.depot.group.provider.SiteConnectedGroupGroupProvider;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
 import com.liferay.dynamic.data.mapping.exception.NoSuchTemplateException;
 import com.liferay.dynamic.data.mapping.exception.StorageFieldNameException;
@@ -330,7 +329,7 @@ public class JournalArticleModelValidator
 
 		List<DDMStructure> folderDDMStructures =
 			_journalFolderLocalService.getDDMStructures(
-				SiteConnectedGroupGroupProviderUtil.
+				_siteConnectedGroupGroupProvider.
 					getCurrentAndAncestorSiteAndDepotGroupIds(groupId, true),
 				folderId, restrictionType);
 
@@ -529,9 +528,6 @@ public class JournalArticleModelValidator
 	private DDMTemplateLocalService _ddmTemplateLocalService;
 
 	@Reference
-	private DepotEntryLocalService _depotEntryLocalService;
-
-	@Reference
 	private ImageLocalService _imageLocalService;
 
 	@Reference
@@ -557,5 +553,8 @@ public class JournalArticleModelValidator
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private SiteConnectedGroupGroupProvider _siteConnectedGroupGroupProvider;
 
 }

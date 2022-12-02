@@ -23,6 +23,7 @@ const deleteResource = (resource: RequestInfo) => {
 
 export {deleteResource};
 
+export * from './LiferayMessageBoard';
 export * from './LiferayUserAccounts';
 export * from './TestrayBuild';
 export * from './TestrayCase';
@@ -33,12 +34,15 @@ export * from './TestrayComponent';
 export * from './TestrayFactor';
 export * from './TestrayFactorCategory';
 export * from './TestrayFactorOptions';
+export * from './TestrayIssues';
 export * from './TestrayProductVersion';
 export * from './TestrayProject';
 export * from './TestrayRequirement';
 export * from './TestrayRequirementCase';
 export * from './TestrayRoutine';
 export * from './TestrayRun';
+export * from './TestraySubtask';
+export * from './TestraySubtaskCaseResults';
 export * from './TestraySuite';
 export * from './TestraySuiteCases';
 export * from './TestrayTask';

@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -77,9 +76,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Andrea Di Giorgi
  * @generated
  */
-@Component(
-	service = {CPDefinitionGroupedEntryPersistence.class, BasePersistence.class}
-)
+@Component(service = CPDefinitionGroupedEntryPersistence.class)
 public class CPDefinitionGroupedEntryPersistenceImpl
 	extends BasePersistenceImpl<CPDefinitionGroupedEntry>
 	implements CPDefinitionGroupedEntryPersistence {
@@ -198,7 +195,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CPDefinitionGroupedEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CPDefinitionGroupedEntry cpDefinitionGroupedEntry : list) {
@@ -592,7 +589,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -723,7 +720,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		if (useFinderCache) {
 			result = finderCache.getResult(
-				_finderPathFetchByUUID_G, finderArgs);
+				_finderPathFetchByUUID_G, finderArgs, this);
 		}
 
 		if (result instanceof CPDefinitionGroupedEntry) {
@@ -837,7 +834,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, groupId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1005,7 +1002,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CPDefinitionGroupedEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CPDefinitionGroupedEntry cpDefinitionGroupedEntry : list) {
@@ -1425,7 +1422,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1587,7 +1584,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CPDefinitionGroupedEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CPDefinitionGroupedEntry cpDefinitionGroupedEntry : list) {
@@ -1959,7 +1956,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {CPDefinitionId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -2076,7 +2073,8 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByC_E, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByC_E, finderArgs, this);
 		}
 
 		if (result instanceof CPDefinitionGroupedEntry) {
@@ -2180,7 +2178,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {CPDefinitionId, entryCProductId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -2720,7 +2718,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CPDefinitionGroupedEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2791,7 +2789,7 @@ public class CPDefinitionGroupedEntryPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

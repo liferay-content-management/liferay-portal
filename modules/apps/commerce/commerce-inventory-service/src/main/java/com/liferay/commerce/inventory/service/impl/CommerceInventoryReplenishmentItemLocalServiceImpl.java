@@ -42,7 +42,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.inventory.model.CommerceInventoryReplenishmentItem",
 	service = AopService.class
 )
@@ -226,8 +225,8 @@ public class CommerceInventoryReplenishmentItemLocalServiceImpl
 		}
 
 		CommerceInventoryReplenishmentItem commerceInventoryReplenishmentItem =
-			commerceInventoryReplenishmentItemPersistence.fetchByC_ERC(
-				companyId, externalReferenceCode);
+			commerceInventoryReplenishmentItemPersistence.fetchByERC_C(
+				externalReferenceCode, companyId);
 
 		if (commerceInventoryReplenishmentItem == null) {
 			return;

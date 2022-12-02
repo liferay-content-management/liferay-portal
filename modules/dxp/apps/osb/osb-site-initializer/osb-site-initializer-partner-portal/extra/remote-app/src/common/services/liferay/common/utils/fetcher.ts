@@ -31,28 +31,49 @@ export default async function liferayFetcher<T>(
 	return response.json();
 }
 
-liferayFetcher.post = <T>(url: string, token: string, data: T) =>
-	liferayFetcher<T>(url, token, {
+liferayFetcher.post = <T>(
+	url: string,
+	token: string,
+	data: T,
+	options?: RequestInit
+) => {
+	return liferayFetcher<T>(url, token, {
 		body: JSON.stringify(data),
 		headers: {
 			'Content-Type': 'application/json',
 		},
 		method: 'POST',
+		...options,
 	});
+};
 
-liferayFetcher.put = <T>(url: string, token: string, data: Partial<T>) =>
+liferayFetcher.put = <T>(
+	url: string,
+	token: string,
+	data: Partial<T>,
+	options?: RequestInit
+) =>
 	liferayFetcher<T>(url, token, {
+		...options,
 		body: JSON.stringify(data),
 		headers: {
+			...options?.headers,
 			'Content-Type': 'application/json',
 		},
 		method: 'PUT',
 	});
 
-liferayFetcher.patch = <T>(url: string, token: string, data: Partial<T>) =>
+liferayFetcher.patch = <T>(
+	url: string,
+	token: string,
+	data: Partial<T>,
+	options?: RequestInit
+) =>
 	liferayFetcher<T>(url, token, {
+		...options,
 		body: JSON.stringify(data),
 		headers: {
+			...options?.headers,
 			'Content-Type': 'application/json',
 		},
 		method: 'PATCH',

@@ -277,11 +277,11 @@ definition {
 
 			IFrame.selectPermissionsFrame();
 
-			AssertChecked(
+			AssertChecked.assertCheckedNotVisible(
 				key_roleTitle = "guest",
 				locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 
-			Uncheck(
+			Uncheck.uncheckNotVisible(
 				key_roleTitle = "guest",
 				locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 
@@ -357,7 +357,7 @@ definition {
 
 			AssertTextEquals(
 				locator1 = "Modal#BODY",
-				value1 = "Are you sure you want to delete the page &quot;Test Content Page Name&quot;? It will be removed immediately.");
+				value1 = "Are you sure you want to delete the page \"Test Content Page Name\"? It will be removed immediately.");
 
 			Click(
 				key_text = "Delete",
@@ -373,57 +373,100 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-78726. Discarding a draft will revert a content page back to its most recent published version."
+	@description = "This is a test for LPS-78726 and LPS-168168. Discarding a draft will revert a content page back to its most recent published version."
 	@priority = "5"
 	test DiscardContentPageDraft {
 		property portal.acceptance = "true";
 
-		task ("Assert the Discard Draft button starts off not shown but Publish button starts off enabled") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
+		task ("Given a page designer has a draft content page without any content") {
+			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
+		}
 
+		task ("When the page designer accesses to the page editor") {
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Edit",
+				pageName = "Test Content Page Name");
+
+			PageEditor.assertFragmentSidebarLoaded();
+		}
+
+		task ("Then the page designer see the Discard Draft button is disabled but the Publish button is enabled") {
 			AssertVisible(
 				key_text = "Publish",
 				locator1 = "Button#ANY_ENABLED");
 
+			AssertVisible(
+				key_text = "Discard Draft",
+				locator1 = "Button#ANY_DISABLED");
+		}
+
+		task ("When the page designer accesses to the Pages admin") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
 			WaitForPageLoad();
+		}
 
+		task ("Then the page designer cannot see the Discard Draft action on dropdown menu of page item") {
 			PagesAdmin.openPageEllipsisMenu(pageName = "Test Content Page Name");
 
 			MenuItem.viewNotPresent(menuItem = "Discard Draft");
 		}
 
-		task ("Add a Heading fragment to the content page") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
+		task ("When the page designer makes some changes in page editor") {
+			MenuItem.click(menuItem = "Edit");
 
 			PageEditor.addFragment(
 				collectionName = "Basic Components",
 				fragmentName = "Heading");
 		}
 
-		task ("Discard the draft") {
+		task ("Then the page designer could discard draft in page editor") {
+			PageEditor.discardDraft();
+
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Edit",
+				pageName = "Test Content Page Name");
+
+			PageEditor.viewFragmentNotPresent(fragmentName = "Heading");
+
+			AssertVisible(
+				key_text = "Publish",
+				locator1 = "Button#ANY_ENABLED");
+
+			AssertVisible(
+				key_text = "Discard Draft",
+				locator1 = "Button#ANY_DISABLED");
+		}
+
+		task ("When the page designer makes some changes in page editor") {
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				fragmentName = "Heading");
+		}
+
+		task ("Then the page designer could discard draft in the Pages admin") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
 			PagesAdmin.discardDraft(pageName = "Test Content Page Name");
-		}
 
-		task ("Assert the Title fragment is no longer present") {
-			ContentPagesNavigator.openEditContentPage(
+			PagesAdmin.viewPageStatus(
+				index = "1",
 				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
+				status = "Draft");
+
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Edit",
+				pageName = "Test Content Page Name");
 
 			PageEditor.viewFragmentNotPresent(fragmentName = "Heading");
-		}
 
-		task ("Assert the Discard Draft button is not shown but Publish button still is enabled") {
 			AssertVisible(
 				key_text = "Publish",
 				locator1 = "Button#ANY_ENABLED");
+
+			AssertVisible(
+				key_text = "Discard Draft",
+				locator1 = "Button#ANY_DISABLED");
 
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
@@ -434,120 +477,23 @@ definition {
 			MenuItem.viewNotPresent(menuItem = "Discard Draft");
 		}
 
-		task ("Add a Heading fragment to the content page") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
+		task ("When the page designer makes some changes on a published content page") {
+			MenuItem.click(menuItem = "Edit");
 
 			PageEditor.addFragment(
 				collectionName = "Basic Components",
 				fragmentName = "Heading");
-		}
-
-		task ("Assert the Discard Draft is shown and Publish button is now enabled") {
-			AssertVisible(
-				key_text = "Publish",
-				locator1 = "Button#ANY_ENABLED");
-
-			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
-
-			WaitForPageLoad();
-
-			PagesAdmin.openPageEllipsisMenu(pageName = "Test Content Page Name");
-
-			MenuItem.viewPresent(menuItem = "Discard Draft");
-		}
-
-		task ("Publish the content page") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
 
 			PageEditor.publish();
-		}
 
-		task ("Navigate to the content page in Edit mode") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
-		}
-
-		task ("Assert the Discard Draft button is not shown but Publish button is enabled") {
-			AssertVisible(
-				key_text = "Publish",
-				locator1 = "Button#ANY_ENABLED");
-
-			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
-
-			WaitForPageLoad();
-
-			PagesAdmin.openPageEllipsisMenu(pageName = "Test Content Page Name");
-
-			MenuItem.viewNotPresent(menuItem = "Discard Draft");
-		}
-
-		task ("Edit inline content of Heading") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Edit",
+				pageName = "Test Content Page Name");
 
 			PageEditor.editFragmentText(
 				fragmentName = "Heading",
 				id = "element-text",
 				text = "New editable fragment text");
-		}
-
-		task ("Assert the Discard Draft is shown and Publish button is now enabled") {
-			AssertVisible(
-				key_text = "Publish",
-				locator1 = "Button#ANY_ENABLED");
-
-			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
-
-			WaitForPageLoad();
-
-			PagesAdmin.openPageEllipsisMenu(pageName = "Test Content Page Name");
-
-			MenuItem.viewPresent(menuItem = "Discard Draft");
-		}
-
-		task ("Discard the draft") {
-			MenuItem.clickNoError(menuItem = "Discard Draft");
-
-			AssertConfirm(value1 = "Are you sure you want to discard the current draft and apply the latest published changes?");
-
-			Alert.viewSuccessMessage();
-		}
-
-		task ("Assert the inline content is back to default") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
-
-			PageEditor.viewFragmentEditableText(
-				editableText = "Heading Example",
-				fragmentName = "Heading",
-				id = "element-text");
-		}
-
-		task ("Assert the Discard Draft button is not shown but Publish button still is enabled") {
-			AssertVisible(
-				key_text = "Publish",
-				locator1 = "Button#ANY_ENABLED");
-
-			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
-
-			WaitForPageLoad();
-
-			PagesAdmin.openPageEllipsisMenu(pageName = "Test Content Page Name");
-
-			MenuItem.viewNotPresent(menuItem = "Discard Draft");
-		}
-
-		task ("Add a Paragraph fragment to the content page") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
 
 			PageEditor.addFragment(
 				collectionName = "Basic Components",
@@ -555,40 +501,69 @@ definition {
 				targetFragmentName = "Heading");
 		}
 
-		task ("Assert the Discard Draft is shown and Publish button is now enabled") {
-			AssertVisible(
-				key_text = "Publish",
-				locator1 = "Button#ANY_ENABLED");
+		task ("Then the page designer could discard draft in page editor") {
+			PageEditor.discardDraft();
 
-			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Edit",
+				pageName = "Test Content Page Name");
 
-			WaitForPageLoad();
-
-			PagesAdmin.openPageEllipsisMenu(pageName = "Test Content Page Name");
-
-			MenuItem.viewPresent(menuItem = "Discard Draft");
-		}
-
-		task ("Discard the draft") {
-			MenuItem.clickNoError(menuItem = "Discard Draft");
-
-			AssertConfirm(value1 = "Are you sure you want to discard the current draft and apply the latest published changes?");
-
-			Alert.viewSuccessMessage();
-		}
-
-		task ("Assert the Paragraph fragment has been removed") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
+			PageEditor.viewFragmentEditableText(
+				editableText = "Heading Example",
+				fragmentName = "Heading",
+				id = "element-text");
 
 			PageEditor.viewFragmentNotPresent(fragmentName = "Paragraph");
-		}
 
-		task ("Assert the Discard Draft button is not shown but Publish button still is enabled") {
 			AssertVisible(
 				key_text = "Publish",
 				locator1 = "Button#ANY_ENABLED");
+
+			AssertVisible(
+				key_text = "Discard Draft",
+				locator1 = "Button#ANY_DISABLED");
+		}
+
+		task ("When the page designer makes some changes in page editor") {
+			PageEditor.editFragmentText(
+				fragmentName = "Heading",
+				id = "element-text",
+				text = "New editable fragment text");
+
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				fragmentName = "Paragraph",
+				targetFragmentName = "Heading");
+		}
+
+		task ("Then the page designer could discard draft in the Pages admin") {
+			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
+
+			PagesAdmin.discardDraft(pageName = "Test Content Page Name");
+
+			AssertElementNotPresent(
+				index = "1",
+				key_itemName = "Test Content Page Name",
+				locator1 = "PagesAdmin#LIST_GROUP_ITEM_PAGE_STATUS");
+
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "Edit",
+				pageName = "Test Content Page Name");
+
+			PageEditor.viewFragmentEditableText(
+				editableText = "Heading Example",
+				fragmentName = "Heading",
+				id = "element-text");
+
+			PageEditor.viewFragmentNotPresent(fragmentName = "Paragraph");
+
+			AssertVisible(
+				key_text = "Publish",
+				locator1 = "Button#ANY_ENABLED");
+
+			AssertVisible(
+				key_text = "Discard Draft",
+				locator1 = "Button#ANY_DISABLED");
 
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
@@ -1732,11 +1707,11 @@ definition {
 
 			IFrame.selectPermissionsFrame();
 
-			AssertChecked(
+			AssertChecked.assertCheckedNotVisible(
 				key_roleTitle = "guest",
 				locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 
-			Uncheck(
+			Uncheck.uncheckNotVisible(
 				key_roleTitle = "guest",
 				locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 
@@ -1773,7 +1748,7 @@ definition {
 
 			IFrame.selectPermissionsFrame();
 
-			AssertNotChecked(
+			AssertNotChecked.assertNotCheckedNotVisible(
 				key_roleTitle = "guest",
 				locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 		}
@@ -1823,15 +1798,15 @@ definition {
 
 			IFrame.selectPermissionsFrame();
 
-			AssertChecked(
+			AssertChecked.assertCheckedNotVisible(
 				key_roleTitle = "guest",
 				locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 
-			Uncheck(
+			Uncheck.uncheckNotVisible(
 				key_roleTitle = "guest",
 				locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 
-			AssertNotChecked(
+			AssertNotChecked.assertNotCheckedNotVisible(
 				key_roleTitle = "guest",
 				locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 
@@ -1876,6 +1851,91 @@ definition {
 				locator1 = "AP#ASSET_ABSTRACT_TITLE");
 
 			Alert.viewErrorMessage(errorMessage = "You do not have the roles required to access this portlet.");
+		}
+	}
+
+	@description = "This is a test for LPS-162323. The pages propagated from a Site Template should refer to the master page from site."
+	@priority = "4"
+	test ViewReferredMasterPageOfPagesPropagatedFromSiteTemplate {
+		task ("Given a page creator has a site with a page from a site template") {
+			task ("Add a site template") {
+				JSONSiteTemplate.addSiteTemplate(
+					description = "Site description",
+					siteTemplateName = "Site Template Name");
+
+				SiteTemplatesNavigator.openSiteTemplatesAdmin();
+
+				LexiconEntry.gotoEntryMenuItem(
+					menuItem = "Manage",
+					rowEntry = "Site Template Name");
+			}
+
+			task ("Add a master page template") {
+				ProductMenu.gotoPortlet(
+					category = "Design",
+					portlet = "Page Templates");
+
+				MastersPageTemplatesAdmin.addMasters(masterLayoutName = "Custom Masters Page Template");
+
+				MastersPageTemplates.publishMaster();
+			}
+
+			task ("Add a page based on master page in the site template") {
+				SiteTemplates.addSitePageViaSiteTemplateCP(
+					masterLayoutName = "Custom Masters Page Template",
+					pageName = "Test Page Name 1",
+					sitePageType = "Content Page",
+					siteTemplateName = "Site Template Name");
+
+				PageEditor.publish();
+			}
+
+			task ("Add a site based on site template") {
+				Site.openSitesAdmin();
+
+				Site.addSiteTemplateCP(
+					siteName = "Test Site Name 2",
+					siteTemplateName = "Site Template Name");
+			}
+
+			task ("Add another page based on master page in the site template") {
+				SiteTemplates.addSitePageViaSiteTemplateCP(
+					masterLayoutName = "Custom Masters Page Template",
+					pageName = "Test Page Name 2",
+					sitePageType = "Content Page",
+					siteTemplateName = "Site Template Name");
+
+				PageEditor.publish();
+			}
+		}
+
+		task ("When the page creator makes some changes in master page from site") {
+			MastersPageTemplatesAdmin.openMastersAdmin(siteURLKey = "Test Site Name 2");
+
+			MastersPageTemplatesAdmin.gotoMastersEllipsisItem(
+				item = "Edit",
+				masterLayoutName = "Custom Masters Page Template");
+
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				dropTarget = "Header",
+				fragmentName = "Heading",
+				scope = "Master");
+
+			MastersPageTemplates.propagateChange();
+		}
+
+		task ("Then the page creator can see changes on propagated pages") {
+			for (var pageName : list "Test Page Name 1,Test Page Name 2") {
+				ContentPagesNavigator.openViewContentPage(
+					pageName = "${pageName}",
+					siteName = "Test Site Name 2");
+
+				ContentPages.viewFragmentText(
+					fragmentName = "heading",
+					id = "element-text",
+					text = "Heading Example");
+			}
 		}
 	}
 

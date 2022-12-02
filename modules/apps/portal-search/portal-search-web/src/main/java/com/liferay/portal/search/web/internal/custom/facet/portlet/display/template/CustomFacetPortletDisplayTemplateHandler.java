@@ -22,7 +22,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.search.web.internal.custom.facet.constants.CustomFacetPortletKeys;
 import com.liferay.portal.search.web.internal.custom.facet.display.context.CustomFacetDisplayContext;
-import com.liferay.portal.search.web.internal.custom.facet.display.context.CustomFacetTermDisplayContext;
+import com.liferay.portal.search.web.internal.facet.display.context.BucketDisplayContext;
 import com.liferay.portlet.display.template.constants.PortletDisplayTemplateConstants;
 
 import java.util.List;
@@ -39,7 +39,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.portal.search.web.internal.custom.facet.configuration.SearchFacetsWebTemplateConfiguration",
-	configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true,
+	configurationPolicy = ConfigurationPolicy.OPTIONAL,
 	property = "javax.portlet.name=" + CustomFacetPortletKeys.CUSTOM_FACET,
 	service = TemplateHandler.class
 )
@@ -48,7 +48,7 @@ public class CustomFacetPortletDisplayTemplateHandler
 
 	@Override
 	public String getClassName() {
-		return CustomFacetTermDisplayContext.class.getName();
+		return CustomFacetDisplayContext.class.getName();
 	}
 
 	@Override
@@ -86,14 +86,14 @@ public class CustomFacetPortletDisplayTemplateHandler
 			"customFacetDisplayContext");
 		templateVariableGroup.addVariable(
 			"term-field-name", String.class,
-			PortletDisplayTemplateConstants.ENTRY, "getFieldName()");
+			PortletDisplayTemplateConstants.ENTRY, "getBucketText()");
 		templateVariableGroup.addVariable(
 			"term-frequency", Integer.class,
 			PortletDisplayTemplateConstants.ENTRY, "getFrequency()");
 		templateVariableGroup.addCollectionVariable(
 			"terms", List.class, PortletDisplayTemplateConstants.ENTRIES,
-			"term", CustomFacetTermDisplayContext.class,
-			PortletDisplayTemplateConstants.ENTRY, "getFieldName()");
+			"term", BucketDisplayContext.class,
+			PortletDisplayTemplateConstants.ENTRY, "getBucketText()");
 
 		TemplateVariableGroup customFacetServicesTemplateVariableGroup =
 			new TemplateVariableGroup(

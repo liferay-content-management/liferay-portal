@@ -45,6 +45,7 @@ public class ListTypeDefinitionWrapper
 
 		attributes.put("mvccVersion", getMvccVersion());
 		attributes.put("uuid", getUuid());
+		attributes.put("externalReferenceCode", getExternalReferenceCode());
 		attributes.put("listTypeDefinitionId", getListTypeDefinitionId());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
@@ -68,6 +69,13 @@ public class ListTypeDefinitionWrapper
 
 		if (uuid != null) {
 			setUuid(uuid);
+		}
+
+		String externalReferenceCode = (String)attributes.get(
+			"externalReferenceCode");
+
+		if (externalReferenceCode != null) {
+			setExternalReferenceCode(externalReferenceCode);
 		}
 
 		Long listTypeDefinitionId = (Long)attributes.get(
@@ -147,6 +155,16 @@ public class ListTypeDefinitionWrapper
 	@Override
 	public String getDefaultLanguageId() {
 		return model.getDefaultLanguageId();
+	}
+
+	/**
+	 * Returns the external reference code of this list type definition.
+	 *
+	 * @return the external reference code of this list type definition
+	 */
+	@Override
+	public String getExternalReferenceCode() {
+		return model.getExternalReferenceCode();
 	}
 
 	/**
@@ -346,6 +364,16 @@ public class ListTypeDefinitionWrapper
 	}
 
 	/**
+	 * Sets the external reference code of this list type definition.
+	 *
+	 * @param externalReferenceCode the external reference code of this list type definition
+	 */
+	@Override
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		model.setExternalReferenceCode(externalReferenceCode);
+	}
+
+	/**
 	 * Sets the list type definition ID of this list type definition.
 	 *
 	 * @param listTypeDefinitionId the list type definition ID of this list type definition
@@ -486,6 +514,11 @@ public class ListTypeDefinitionWrapper
 	@Override
 	public void setUuid(String uuid) {
 		model.setUuid(uuid);
+	}
+
+	@Override
+	public String toXmlString() {
+		return model.toXmlString();
 	}
 
 	@Override

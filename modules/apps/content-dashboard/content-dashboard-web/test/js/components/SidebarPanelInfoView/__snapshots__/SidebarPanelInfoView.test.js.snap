@@ -9,7 +9,7 @@ exports[`SidebarPanelInfoView renders 1`] = `
       class="content-dashboard sidebar sidebar-light sidebar-sm"
     >
       <section
-        class="sidebar-header is-sticky"
+        class="is-sticky sidebar-header"
       >
         <div
           class="sidebar-section autofit-row"
@@ -163,6 +163,7 @@ exports[`SidebarPanelInfoView renders 1`] = `
               aria-labelledby="tab-1"
               class="tab-pane active fade show"
               role="tabpanel"
+              tabindex="0"
             >
               <div
                 class="panel panel-unstyled"
@@ -1357,15 +1358,6 @@ exports[`SidebarPanelInfoView renders 1`] = `
                   </div>
                 </div>
               </div>
-            </div>
-            <div
-              aria-labelledby="tab-2"
-              class="tab-pane fade"
-              role="tabpanel"
-            >
-              <ul
-                class="list-group sidebar-list-group"
-              />
             </div>
           </div>
         </div>

@@ -12,13 +12,15 @@
  * details.
  */
 
-import {StatusBarOptions} from '../components/StatusBadge/StatusBadge';
-
 export enum RoleTypes {
 	REGULAR = 1,
 	SITE = 2,
 	ORGANIZATION = 3,
 	ASSET_LIBRARY = 5,
+}
+
+export enum STORAGE_KEYS {
+	EXPORT_CASE_IDS = '@testray/export-case-ids',
 }
 
 export const DATA_COLORS = {
@@ -73,48 +75,7 @@ export const PAGINATION = {
 	ellipsisBuffer: 3,
 };
 
-export enum TEST_STATUS {
-	Blocked = 4,
-	'Did Not Run' = 6,
-	Failed = 3,
-	'In Progress' = 1,
-	'Passed' = 2,
-	'Test Fix' = 7,
-	'Untested' = 0,
-}
-
-export const TEST_STATUS_LABEL: any = {
-	0: 'Untested',
-	1: 'In Progress',
-	2: 'Passed',
-	3: 'Failed',
-	4: 'Blocked',
-	6: 'Did Not Run',
-	7: 'Test Fix',
-};
-
-const getStatusLabel = (status: number): StatusBarOptions =>
-	String(
-		(TEST_STATUS_LABEL as any)[status]
-	)?.toLowerCase() as StatusBarOptions;
-
-export enum SUB_TASK_STATUS {
-	'ABANDONED' = 2,
-	'COMPLETE' = 3,
-	'IN_ANALYSIS' = 1,
-	'OPEN' = 4,
-}
-
-export const SUBTASK_STATUS = {
-	1: {color: 'label-chart-in-analysis', label: 'IN ANALYSIS'},
-	2: {color: 'label-secondary', label: 'ABANDONED'},
-	3: {color: 'label-primary', label: 'COMPLETE'},
-	4: {color: 'label-secondary', label: 'OPEN'},
-};
-
 export const BUILD_STATUS = {
 	0: {color: 'label-chart-in-analysis', label: 'IN ANALYSIS'},
 	2: {color: 'label-secondary', label: 'OPEN'},
 };
-
-export {getStatusLabel};

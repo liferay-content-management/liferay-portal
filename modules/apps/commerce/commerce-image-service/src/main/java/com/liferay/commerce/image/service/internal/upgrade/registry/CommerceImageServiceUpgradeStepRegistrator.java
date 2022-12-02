@@ -28,14 +28,14 @@ import org.osgi.service.component.annotations.Reference;
  * @author Adolfo Pérez
  * @author Alicia García
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceImageServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
 	@Override
 	public void register(Registry registry) {
+		registry.registerInitialization();
+
 		registry.register(
 			"0.0.1", "1.0.0",
 			new ImageCompanyIdUpgradeProcess<>(

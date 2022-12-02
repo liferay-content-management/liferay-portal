@@ -36,6 +36,18 @@ definition {
 		Alert.viewSuccessMessage();
 	}
 
+	macro activeStatusViaDropdown {
+		Click(locator1 = "CustomerPortalSite#DROPDOWN_STATUS");
+
+		CP2ActivationKeys.clickAtDropdownItem(dropdownItem = "${dropdownItem}");
+
+		Type(
+			locator1 = "CustomerPortalSite#ID_CONFIRMATION",
+			value1 = "${value}");
+
+		CustomerPortal.clickAtButton(text = "Confirm");
+	}
+
 	macro addCPObject {
 		ApplicationsMenu.gotoPortlet(
 			category = "Object",
@@ -119,6 +131,12 @@ definition {
 				accountEntryName = "${account}",
 				userEmailAddress = "${userEmailAddress}");
 		}
+	}
+
+	macro assertAlertInfoMessage {
+		AssertTextEquals(
+			locator1 = "CustomerPortalSite#ALERT_INFO_MESSAGE",
+			value1 = "${messageText}");
 	}
 
 	macro assertButtonIsActive {
@@ -217,7 +235,7 @@ definition {
 
 		Navigator.gotoNavTab(navTab = "Users");
 
-		Accounts.goToEntryMenuItem(
+		Account.goToEntryMenuItem(
 			menuItem = "Assign Roles",
 			rowEntry = "${accountUserName}");
 
@@ -249,10 +267,14 @@ definition {
 		var key_status = "${status}";
 
 		if (IsElementPresent(locator1 = "CustomerPortalSite#DND_TABLE_ELEMENT")) {
-			CustomerPortal.viewCPObjectInfo();
+			CustomerPortal.viewCPObjectCustomInfo(position = "${position}");
 
 			CP2DXPCloudSetup.typeSetupDXPCloudInfoFields(
 				label = "activationStatus",
+				value = "");
+
+			CP2DXPCloudSetup.typeSetupDXPCloudInfoFields(
+				label = "manageContactsURL",
 				value = "");
 
 			Click(locator1 = "Button#SAVE");
@@ -277,6 +299,12 @@ definition {
 		Click(locator1 = "CustomerPortalSite#FINISH_ACTIVATION");
 	}
 
+	macro clickOnModal {
+		var key_text = "${text}";
+
+		Click(locator1 = "CustomerPortalSite#MODAL_INFO");
+	}
+
 	macro clickOnSkipForNowButton {
 		Click(locator1 = "CustomerPortalSite#SKIP_FOR_NOW_BUTTON");
 	}
@@ -297,6 +325,27 @@ definition {
 		CustomerPortal.showCPObject(title = "Koroneiki Account");
 	}
 
+	macro createUserForCP {
+		JSONUser.addUser(
+			userEmailAddress = "test.user@liferay.com",
+			userFirstName = "${userFirstName}",
+			userLastName = "${userLastName}",
+			userScreenName = "${userScreenName}");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "test.user@liferay.com");
+
+		Account.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "${accountName}");
+
+		Account.assignUsers(
+			accountName = "${accountName}",
+			assigneeName = "${userName}");
+	}
+
 	macro customerPortalApisTearDown {
 		CommerceJSONAccountsAPI._deleteAllCommerceAccounts();
 
@@ -308,7 +357,7 @@ definition {
 	}
 
 	macro customerPortalTearDown {
-		CustomerPortal.deleteEntryAccountFlag(entry = "ERC-001");
+		CustomerPortal.deleteEntryAccountFlag(entry = "ERC-");
 
 		CustomerPortal.customerPortalApisTearDown();
 	}
@@ -441,13 +490,13 @@ definition {
 	}
 
 	macro openAccountsAdminForCP {
-		Accounts.openAccountsAdmin();
+		Account.openAccountsAdmin();
 
 		CustomerPortal.accountTableProject(title = "Test Account LXC - SM");
 
 		Navigator.gotoNavTab(navTab = "Users");
 
-		Accounts.goToEntryMenuItem(
+		Account.goToEntryMenuItem(
 			menuItem = "Assign Roles",
 			rowEntry = "Test Test");
 	}
@@ -698,6 +747,12 @@ definition {
 		AssertVisible(locator1 = "CustomerPortalSite#ALERT_NOTIFICATIONS");
 	}
 
+	macro viewAlertInfo {
+		var key_alertText = "${alertText}";
+
+		AssertElementPresent(locator1 = "CustomerPortalSite#ALERT_INFO");
+	}
+
 	macro viewAllProjectsTitlePage {
 		AssertElementPresent(locator1 = "CustomerPortalSite#PROJECT_TITLE_MAIN_PAGE");
 	}
@@ -728,9 +783,20 @@ definition {
 			status = "Active");
 	}
 
+	macro viewConfirmationModal {
+		var key_text = "${text}";
+
+		AssertElementPresent(locator1 = "CustomerPortalSite#MODAL_INFO");
+	}
+
 	macro viewCPObjectCustomInfo {
+		if (!(isSet(position))) {
+			var position = "1";
+		}
+
+		var key_index = "${position}";
+
 		Click(
-			key_index = "${index}",
 			key_text = "",
 			locator1 = "Icon#VERTICAL_ELLIPSIS_INDEXED");
 
@@ -833,6 +899,18 @@ definition {
 		CustomerPortal.viewObjectInfo(index = "${index}");
 
 		AssertElementPresent(locator1 = "CustomerPortalSite#FIELDS_KORONEIKI");
+	}
+
+	macro viewVersions {
+		Click(
+			key_dropdownLabel = "${dropDownLabel}",
+			locator1 = "CustomerPortalSite#VERSION_DROPDOWN");
+
+		for (var dropDownItem : list "${dropDownItems}") {
+			AssertVisible(
+				key_text = "${dropDownItem}",
+				locator1 = "CustomerPortalSite#VERSION_DROPDOWN");
+		}
 	}
 
 	macro waitCP20PageToLoad {

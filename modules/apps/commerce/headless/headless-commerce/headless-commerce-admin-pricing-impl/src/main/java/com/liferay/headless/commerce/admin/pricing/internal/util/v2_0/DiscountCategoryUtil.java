@@ -50,8 +50,8 @@ public class DiscountCategoryUtil {
 			assetCategory =
 				assetCategoryLocalService.
 					fetchAssetCategoryByExternalReferenceCode(
-						groupId,
-						discountCategory.getCategoryExternalReferenceCode());
+						discountCategory.getCategoryExternalReferenceCode(),
+						groupId);
 
 			if (assetCategory == null) {
 				throw new NoSuchCategoryException(

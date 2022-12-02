@@ -22,6 +22,7 @@ import com.liferay.fragment.processor.FragmentEntryProcessorRegistry;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.util.structure.DeletedLayoutStructureItem;
+import com.liferay.layout.util.structure.FragmentDropZoneLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -29,14 +30,21 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import org.osgi.service.component.annotations.Component;
@@ -123,6 +131,47 @@ public class DropZoneFragmentEntryLinkListener
 		}
 	}
 
+	private FragmentDropZoneLayoutStructureItem
+		_getDeletedFragmentDropZoneStructureItem(
+			String fragmentDropZoneId, LayoutStructure layoutStructure,
+			String parentItemId) {
+
+		List<DeletedLayoutStructureItem> deletedLayoutStructureItems =
+			layoutStructure.getDeletedLayoutStructureItems();
+
+		for (DeletedLayoutStructureItem deletedLayoutStructureItem :
+				deletedLayoutStructureItems) {
+
+			LayoutStructureItem layoutStructureItem =
+				layoutStructure.getLayoutStructureItem(
+					deletedLayoutStructureItem.getItemId());
+
+			if (!(layoutStructureItem instanceof
+					FragmentDropZoneLayoutStructureItem)) {
+
+				continue;
+			}
+
+			FragmentDropZoneLayoutStructureItem
+				fragmentDropZoneLayoutStructureItem =
+					(FragmentDropZoneLayoutStructureItem)layoutStructureItem;
+
+			if (Objects.equals(
+					fragmentDropZoneLayoutStructureItem.getParentItemId(),
+					parentItemId) &&
+				(Validator.isBlank(fragmentDropZoneId) ||
+				 Objects.equals(
+					 fragmentDropZoneId,
+					 fragmentDropZoneLayoutStructureItem.
+						 getFragmentDropZoneId()))) {
+
+				return fragmentDropZoneLayoutStructureItem;
+			}
+		}
+
+		return null;
+	}
+
 	private Document _getDocument(String html) {
 		Document document = Jsoup.parseBodyFragment(html);
 
@@ -196,33 +245,196 @@ public class DropZoneFragmentEntryLinkListener
 			return;
 		}
 
-		List<String> childrenItemIds =
-			parentLayoutStructureItem.getChildrenItemIds();
+		List<String> elementDropZoneIds = new LinkedList<>();
 
-		if (childrenItemIds.size() == elements.size()) {
+		for (Element element : elements) {
+			String dropZoneId = element.attr("data-lfr-drop-zone-id");
+
+			if (Validator.isBlank(dropZoneId)) {
+				break;
+			}
+
+			elementDropZoneIds.add(dropZoneId);
+		}
+
+		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-167932")) ||
+			(elementDropZoneIds.size() < elements.size())) {
+
+			List<String> childrenItemIds =
+				parentLayoutStructureItem.getChildrenItemIds();
+
+			if (childrenItemIds.size() == elements.size()) {
+				return;
+			}
+
+			if (childrenItemIds.size() > elements.size()) {
+				List<String> childrenItemIdsToRemove = childrenItemIds.subList(
+					elements.size(), childrenItemIds.size());
+
+				childrenItemIdsToRemove.forEach(
+					itemId ->
+						layoutStructure.markLayoutStructureItemForDeletion(
+							itemId, Collections.emptyList()));
+			}
+			else {
+				for (int i = childrenItemIds.size(); i < elements.size(); i++) {
+					_addOrRestoreDropZoneLayoutStructureItem(
+						layoutStructure, parentLayoutStructureItem);
+				}
+			}
+
+			_layoutPageTemplateStructureLocalService.
+				updateLayoutPageTemplateStructureData(
+					fragmentEntryLink.getGroupId(), fragmentEntryLink.getPlid(),
+					fragmentEntryLink.getSegmentsExperienceId(),
+					layoutStructure.toString());
+
 			return;
 		}
 
-		if (childrenItemIds.size() > elements.size()) {
-			List<String> childrenItemIdsToRemove = childrenItemIds.subList(
-				elements.size(), childrenItemIds.size());
+		List<String> childrenItemIds = new LinkedList<>(
+			parentLayoutStructureItem.getChildrenItemIds());
 
-			childrenItemIdsToRemove.forEach(
-				itemId -> layoutStructure.markLayoutStructureItemForDeletion(
-					itemId, Collections.emptyList()));
-		}
-		else {
-			for (int i = childrenItemIds.size(); i < elements.size(); i++) {
-				_addOrRestoreDropZoneLayoutStructureItem(
-					layoutStructure, parentLayoutStructureItem);
+		Map<String, FragmentDropZoneLayoutStructureItem>
+			fragmentDropZoneLayoutStructureItemsMap = new LinkedHashMap<>();
+
+		List<FragmentDropZoneLayoutStructureItem>
+			noExistingIdFragmentDropZoneLayoutStructureItems =
+				new LinkedList<>();
+
+		List<FragmentDropZoneLayoutStructureItem>
+			noIdFragmentDropZoneLayoutStructureItems = new LinkedList<>();
+
+		for (String childrenItemId : childrenItemIds) {
+			LayoutStructureItem layoutStructureItem =
+				layoutStructure.getLayoutStructureItem(childrenItemId);
+
+			if (!(layoutStructureItem instanceof
+					FragmentDropZoneLayoutStructureItem)) {
+
+				continue;
+			}
+
+			FragmentDropZoneLayoutStructureItem
+				fragmentDropZoneLayoutStructureItem =
+					(FragmentDropZoneLayoutStructureItem)layoutStructureItem;
+
+			String fragmentDropZoneId =
+				fragmentDropZoneLayoutStructureItem.getFragmentDropZoneId();
+
+			if (Validator.isBlank(fragmentDropZoneId)) {
+				noIdFragmentDropZoneLayoutStructureItems.add(
+					fragmentDropZoneLayoutStructureItem);
+			}
+			else if (elementDropZoneIds.contains(fragmentDropZoneId)) {
+				fragmentDropZoneLayoutStructureItemsMap.put(
+					fragmentDropZoneId, fragmentDropZoneLayoutStructureItem);
+			}
+			else {
+				noExistingIdFragmentDropZoneLayoutStructureItems.add(
+					fragmentDropZoneLayoutStructureItem);
 			}
 		}
 
-		_layoutPageTemplateStructureLocalService.
-			updateLayoutPageTemplateStructureData(
-				fragmentEntryLink.getGroupId(), fragmentEntryLink.getPlid(),
-				fragmentEntryLink.getSegmentsExperienceId(),
-				layoutStructure.toString());
+		boolean update = false;
+
+		for (int index = 0; index < elementDropZoneIds.size(); index++) {
+			String dropZoneId = elementDropZoneIds.get(index);
+
+			FragmentDropZoneLayoutStructureItem
+				fragmentDropZoneLayoutStructureItem =
+					fragmentDropZoneLayoutStructureItemsMap.remove(dropZoneId);
+
+			if (fragmentDropZoneLayoutStructureItem != null) {
+				String itemId = fragmentDropZoneLayoutStructureItem.getItemId();
+
+				if (index != childrenItemIds.indexOf(itemId)) {
+					layoutStructure.moveLayoutStructureItem(
+						itemId, parentLayoutStructureItem.getItemId(), index);
+
+					update = true;
+				}
+
+				continue;
+			}
+
+			fragmentDropZoneLayoutStructureItem =
+				_getDeletedFragmentDropZoneStructureItem(
+					dropZoneId, layoutStructure,
+					parentLayoutStructureItem.getItemId());
+
+			if (fragmentDropZoneLayoutStructureItem != null) {
+				String itemId = fragmentDropZoneLayoutStructureItem.getItemId();
+
+				layoutStructure.unmarkLayoutStructureItemForDeletion(itemId);
+
+				layoutStructure.moveLayoutStructureItem(
+					itemId, parentLayoutStructureItem.getItemId(), index);
+
+				update = true;
+
+				continue;
+			}
+
+			if (ListUtil.isNotEmpty(noIdFragmentDropZoneLayoutStructureItems)) {
+				fragmentDropZoneLayoutStructureItem =
+					noIdFragmentDropZoneLayoutStructureItems.remove(0);
+
+				fragmentDropZoneLayoutStructureItem.setFragmentDropZoneId(
+					dropZoneId);
+
+				String itemId = fragmentDropZoneLayoutStructureItem.getItemId();
+
+				if (index != childrenItemIds.indexOf(itemId)) {
+					layoutStructure.moveLayoutStructureItem(
+						itemId, parentLayoutStructureItem.getItemId(), index);
+				}
+
+				update = true;
+
+				continue;
+			}
+
+			fragmentDropZoneLayoutStructureItem =
+				(FragmentDropZoneLayoutStructureItem)
+					layoutStructure.addFragmentDropZoneLayoutStructureItem(
+						parentLayoutStructureItem.getItemId(), index);
+
+			fragmentDropZoneLayoutStructureItem.setFragmentDropZoneId(
+				dropZoneId);
+
+			update = true;
+		}
+
+		for (FragmentDropZoneLayoutStructureItem
+				fragmentDropZoneLayoutStructureItem :
+					noExistingIdFragmentDropZoneLayoutStructureItems) {
+
+			layoutStructure.markLayoutStructureItemForDeletion(
+				fragmentDropZoneLayoutStructureItem.getItemId(),
+				Collections.emptyList());
+
+			update = true;
+		}
+
+		for (FragmentDropZoneLayoutStructureItem
+				fragmentDropZoneLayoutStructureItem :
+					noIdFragmentDropZoneLayoutStructureItems) {
+
+			layoutStructure.markLayoutStructureItemForDeletion(
+				fragmentDropZoneLayoutStructureItem.getItemId(),
+				Collections.emptyList());
+
+			update = true;
+		}
+
+		if (update) {
+			_layoutPageTemplateStructureLocalService.
+				updateLayoutPageTemplateStructureData(
+					fragmentEntryLink.getGroupId(), fragmentEntryLink.getPlid(),
+					fragmentEntryLink.getSegmentsExperienceId(),
+					layoutStructure.toString());
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

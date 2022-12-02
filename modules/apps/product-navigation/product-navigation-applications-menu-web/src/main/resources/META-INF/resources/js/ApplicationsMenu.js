@@ -29,7 +29,7 @@ import '../css/ApplicationsMenu.scss';
 
 const getOpenMenuTooltip = (keyLabel) => (
 	<>
-		<div>{Liferay.Language.get('open-menu')}</div>
+		<div>{Liferay.Language.get('open-applications-menu')}</div>
 		<kbd className="c-kbd c-kbd-dark">
 			<kbd className="c-kbd">{keyLabel}</kbd>
 
@@ -52,40 +52,39 @@ const SitesPanel = ({portletNamespace, sites, virtualInstance}) => {
 			</h2>
 
 			<div className="c-mt-2">
-				<ul className="c-mb-0 list-unstyled">
-					{virtualInstance && (
-						<li className="applications-menu-virtual-instance c-mt-2">
-							<a
-								className="applications-menu-nav-link"
-								href={virtualInstance.url}
-							>
-								<ClayLayout.ContentRow verticalAlign="center">
-									<ClayLayout.ContentCol>
-										<ClaySticker>
-											<img
-												alt=""
-												height="32px"
-												src={virtualInstance.logoURL}
-											/>
-										</ClaySticker>
-									</ClayLayout.ContentCol>
+				{virtualInstance && (
+					<a
+						className="applications-menu-nav-link applications-menu-virtual-instance"
+						href={virtualInstance.url}
+					>
+						<ClayLayout.ContentRow verticalAlign="center">
+							<ClayLayout.ContentCol>
+								<ClaySticker>
+									<img
+										alt=""
+										height="32px"
+										src={virtualInstance.logoURL}
+									/>
+								</ClaySticker>
+							</ClayLayout.ContentCol>
 
-									<ClayLayout.ContentCol className="applications-menu-shrink c-ml-2">
-										<span className="text-truncate">
-											{virtualInstance.label}
-										</span>
-									</ClayLayout.ContentCol>
-								</ClayLayout.ContentRow>
-							</a>
-						</li>
-					)}
-				</ul>
+							<ClayLayout.ContentCol className="applications-menu-shrink c-ml-2">
+								<span className="text-truncate">
+									{virtualInstance.label}
+								</span>
+							</ClayLayout.ContentCol>
+						</ClayLayout.ContentRow>
+					</a>
+				)}
 			</div>
 
 			<div className="applications-menu-nav-divider c-my-3"></div>
 
 			<div className="applications-menu-sites c-my-2">
-				<ul className="list-unstyled">
+				<ul
+					aria-label={Liferay.Language.get('sites')}
+					className="list-unstyled"
+				>
 					{sites && (
 						<Sites
 							mySites={sites.mySites}
@@ -147,7 +146,10 @@ const Sites = ({mySites, portletNamespace, recentSites, viewAllURL}) => {
 				))}
 
 			{recentSites?.length > 0 && mySites?.length > 0 && (
-				<li className="applications-menu-nav-divider c-mt-3"></li>
+				<li
+					className="applications-menu-nav-divider c-mt-3"
+					role="presentation"
+				></li>
 			)}
 
 			{mySites?.length > 0 &&
@@ -212,11 +214,7 @@ const AppsPanel = ({
 
 	return (
 		<div className="applications-menu-wrapper">
-			<h1 className="sr-only">
-				{Liferay.Language.get('applications-menu')}
-			</h1>
-
-			<div className="applications-menu-header">
+			<div className="applications-menu-header flex-shrink-0">
 				<ClayLayout.ContainerFluid>
 					<ClayLayout.Row>
 						<ClayLayout.Col>
@@ -262,7 +260,7 @@ const AppsPanel = ({
 
 			<div className="applications-menu-bg applications-menu-border-top applications-menu-content">
 				<ClayLayout.ContainerFluid>
-					<ClayLayout.Row>
+					<ClayLayout.Row className="flex-md-nowrap">
 						<ClayLayout.Col lg="9" md="8">
 							<ClayTabs.Content activeIndex={activeTab}>
 								{categories.map(({childCategories}, index) => (
@@ -346,12 +344,12 @@ const AppsPanel = ({
 				</ClayLayout.ContainerFluid>
 			</div>
 
-			<div className="applications-menu-bg applications-menu-footer">
+			<div className="applications-menu-bg applications-menu-footer flex-shrink-0">
 				<ClayLayout.ContainerFluid>
 					<ClayLayout.Row>
 						<ClayLayout.Col lg="9" md="8">
 							<ClayLayout.ContentRow
-								className="applications-menu-border-top c-py-3"
+								className="applications-menu-border-top bg-white c-py-3"
 								verticalAlign="center"
 							>
 								<ClayLayout.ContentCol expand>
@@ -398,10 +396,14 @@ const ApplicationsMenu = ({
 	virtualInstance,
 }) => {
 	const [appsPanelData, setAppsPanelData] = useState({});
+	const buttonRef = useRef();
 	const [visible, setVisible] = useState(false);
 
 	const {observer, onClose} = useModal({
-		onClose: () => setVisible(false),
+		onClose: () => {
+			setVisible(false);
+			buttonRef.current.focus();
+		},
 	});
 
 	const buttonTitle = useMemo(() => {
@@ -481,6 +483,10 @@ const ApplicationsMenu = ({
 					observer={observer}
 					status="info"
 				>
+					<ClayModal.Header className="sr-only">
+						{Liferay.Language.get('applications-menu')}
+					</ClayModal.Header>
+
 					<ClayModal.Body>
 						<AppsPanel
 							handleCloseButtonClick={onClose}
@@ -494,7 +500,15 @@ const ApplicationsMenu = ({
 			)}
 
 			<ClayButtonWithIcon
-				aria-label={Liferay.Language.get('open-menu')}
+				aria-label={
+					Liferay.Browser.isMac()
+						? Liferay.Language.get(
+								'open-applications-menu-or-use-cmd-shift-m'
+						  )
+						: Liferay.Language.get(
+								'open-applications-menu-or-use-ctrl-shift-m'
+						  )
+				}
 				className="dropdown-toggle lfr-portal-tooltip"
 				data-qa-id="applicationsMenu"
 				data-title-set-as-html
@@ -503,6 +517,7 @@ const ApplicationsMenu = ({
 				onClick={handleTriggerButtonClick}
 				onFocus={fetchCategories}
 				onMouseOver={fetchCategories}
+				ref={buttonRef}
 				small
 				symbol="grid"
 				title={ReactDOMServer.renderToString(buttonTitle)}

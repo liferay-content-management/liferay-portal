@@ -867,8 +867,6 @@ public class LiferayRepository
 			indexer = IndexerRegistryUtil.getIndexer(DLFileEntry.class);
 		}
 
-		searchContext.setSearchEngineId(indexer.getSearchEngineId());
-
 		return indexer.search(searchContext);
 	}
 

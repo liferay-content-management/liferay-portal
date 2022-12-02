@@ -23,7 +23,6 @@ import org.osgi.service.component.annotations.Component;
  * @author Danny Situ
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "model.class.name=com.liferay.commerce.model.CommerceOrder",
 	service = BaseSearcher.class
 )

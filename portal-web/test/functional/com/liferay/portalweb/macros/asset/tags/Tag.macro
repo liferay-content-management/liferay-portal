@@ -58,7 +58,9 @@ definition {
 
 		AssertElementPresent(locator1 = "Icon#ASTERISK");
 
-		Alert.viewRequiredField();
+		AssertTextEquals(
+			locator1 = "Message#REQUIRED_INFO",
+			value1 = "The Name field is required.");
 	}
 
 	macro cancelEditCP {
@@ -150,7 +152,7 @@ definition {
 
 		ClickNoError(locator1 = "Button#SAVE");
 
-		var message = "Are you sure you want to merge &quot;${tagNameList}&quot; into &quot;${mergedTag}&quot;? This will change all items tagged with &quot;${tagNameList}&quot; to instead be tagged with &quot;${mergedTag}&quot;.";
+		var message = "Are you sure you want to merge \"${tagNameList}\" into \"${mergedTag}\"? This will change all items tagged with \"${tagNameList}\" to instead be tagged with \"${mergedTag}\".";
 
 		AssertConfirm(value1 = "${message}");
 

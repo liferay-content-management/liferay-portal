@@ -37,6 +37,8 @@ config = {
 	},
 	rules: {
 		'@liferay/no-get-data-attribute': 'off',
+		'@liferay/portal/no-document-cookie': 'off',
+		'@liferay/portal/no-global-storage': 'off',
 		'no-empty': ['error', {allowEmptyCatch: true}],
 		'notice/notice': [
 			'error',

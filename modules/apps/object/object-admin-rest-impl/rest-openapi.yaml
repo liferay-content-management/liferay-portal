@@ -23,10 +23,18 @@ components:
                     type: string
                 description:
                     type: string
+                errorMessage:
+                    additionalProperties:
+                        type: string
+                    type: object
                 id:
                     format: int64
                     readOnly: true
                     type: integer
+                label:
+                    additionalProperties:
+                        type: string
+                    type: object
                 name:
                     type: string
                 objectActionExecutorKey:
@@ -44,9 +52,8 @@ components:
             properties:
                 accountEntryRestricted:
                     type: boolean
-                accountEntryRestrictedObjectFieldId:
-                    format: int64
-                    type: integer
+                accountEntryRestrictedObjectFieldName:
+                    type: string
                 actions:
                     additionalProperties:
                         additionalProperties:
@@ -144,7 +151,7 @@ components:
                     readOnly: true
                     type: object
                 businessType:
-                    enum: [Aggregation, Attachment, Boolean, Date, Decimal, Integer, LongInteger, LongText, Picklist, PrecisionDecimal, Relationship, RichText, Text]
+                    enum: [Aggregation, Attachment, Boolean, Date, Decimal, Formula, Integer, LongInteger, LongText, MultiselectPicklist, Picklist, PrecisionDecimal, Relationship, RichText, Text]
                     type: string
                 defaultValue:
                     type: string
@@ -164,6 +171,8 @@ components:
                     additionalProperties:
                         type: string
                     type: object
+                listTypeDefinitionExternalReferenceCode:
+                    type: string
                 listTypeDefinitionId:
                     format: int64
                     type: integer
@@ -227,6 +236,8 @@ components:
                     additionalProperties:
                         type: string
                     type: object
+                objectDefinitionExternalReferenceCode:
+                    type: string
                 objectDefinitionId:
                     format: int64
                     type: integer
@@ -511,7 +522,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.object.admin.rest.client', and version '1.0.39'."
+        'com.liferay.object.admin.rest.client', and version '1.0.42'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

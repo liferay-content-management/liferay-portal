@@ -799,9 +799,7 @@ definition {
 			locator1 = "AssetRelatedAssets#RELATED_ASSETS_SELECT",
 			value1 = "Select");
 
-		AssertClick(
-			locator1 = "APConfiguration#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_ASSET",
-			value1 = "${assetType}");
+		MenuItem.click(menuItem = "${assetType}");
 
 		var key_assetTitle = "${assetTitle}";
 
@@ -937,9 +935,7 @@ definition {
 			locator1 = "Message#CHECKOUT_SUCCESS",
 			value1 = "You now have a lock on this document. No one else can edit this document until you unlock it. This lock will automatically expire in 1 day.");
 
-		AssertClick(
-			locator1 = "Button#CANCEL_CHECKOUT",
-			value1 = "Cancel Checkout");
+		DMNavigator.gotoVerticalEllipsisMenuItem(menuItem = "Cancel Checkout");
 
 		Alert.viewSuccessMessage();
 	}
@@ -966,7 +962,7 @@ definition {
 	macro checkDocumentCheckboxCP {
 		var key_dmDocumentTitle = "${dmDocumentTitle}";
 
-		Check(locator1 = "DocumentsAndMedia#ICON_DOCUMENT_CHECKBOX");
+		Check.checkNotVisible(locator1 = "DocumentsAndMedia#ICON_DOCUMENT_CHECKBOX");
 	}
 
 	macro checkDocumentCheckboxPG {
@@ -1142,9 +1138,7 @@ definition {
 			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE",
 			value1 = "${dmDocumentTitle}");
 
-		AssertClick(
-			locator1 = "Button#CHECKOUT",
-			value1 = "Checkout");
+		DMNavigator.gotoVerticalEllipsisMenuItem(menuItem = "Checkout");
 
 		Alert.viewSuccessMessage();
 
@@ -1328,9 +1322,7 @@ definition {
 
 		DMDocument.viewDocumentTitleCmdPG(dmDocumentTitle = "${dmDocumentTitle}");
 
-		AssertClick(
-			locator1 = "Button#MOVE_TO_RECYCLE_BIN",
-			value1 = "Delete");
+		DMNavigator.gotoVerticalEllipsisMenuItem(menuItem = "Delete");
 
 		Alert.viewSuccessMessage();
 	}
@@ -1804,7 +1796,7 @@ definition {
 				locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE",
 				value1 = "${dmDocumentTitle}");
 
-			Click(locator1 = "Button#EDIT");
+			DMNavigator.gotoVerticalEllipsisMenuItem(menuItem = "Edit");
 		}
 
 		WaitForPageLoad();
@@ -1822,13 +1814,15 @@ definition {
 		var key_assetTitle = "${assetTitle}";
 		var key_portletName = "${portletName}";
 
+		WaitForElementPresent(locator1 = "AP#ASSET_ABSTRACT_EDIT");
+
 		Click(locator1 = "AP#ASSET_ABSTRACT_EDIT");
 
 		ScrollWebElementIntoView(locator1 = "Portlet#TITLE");
 
-		MouseOver.mouseOverNotVisible(locator1 = "AP#ASSET_EDIT");
+		//MouseOver.mouseOverNotVisible(locator1 = "AP#ASSET_EDIT");
 
-		Click.clickNoMouseOver(locator1 = "AP#ASSET_EDIT");
+		Click.mouseOverClick(locator1 = "AP#ASSET_EDIT");
 
 		if (isSet(dmDocumentTitleEdit)) {
 			Type(
@@ -1859,7 +1853,7 @@ definition {
 		AssertTextEquals(
 			key_mgDocumentTitle = "${mgDocumentTitleEdit}",
 			locator1 = "MediaGallery#IMAGE_TITLE",
-			value1 = "${mgDocumentTitleEdit}");
+			value1 = "${mgDocumentTitleEdit} - ${mgDocumentDescriptionEdit}");
 	}
 
 	macro editSavePG {
@@ -1912,13 +1906,27 @@ definition {
 				value1 = "You are editing the tags for the selected item.");
 		}
 
-		Type(
-			locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
-			value1 = "${tagName}");
+		if (isSet(autocomplete)) {
+			Click(locator1 = "Modal#BODY");
 
-		KeyPress(
-			locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
-			value1 = ",");
+			Type.sendKeys(
+				locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
+				value1 = "ta");
+
+			AssertClick(
+				key_tagName = "tagone",
+				locator1 = "AssetCategorization#TAG_AUTOCOMPLETE_SPECIFIC",
+				value1 = "tagone");
+		}
+		else {
+			Type(
+				locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
+				value1 = "${tagName}");
+
+			KeyPress(
+				locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
+				value1 = ",");
+		}
 
 		Button.clickSave();
 
@@ -2080,7 +2088,7 @@ definition {
 			MenuItem.click(menuItem = "Move");
 		}
 
-		SelectFrame(locator1 = "DocumentsAndMediaSelectFolder#SELECT_FOLDER_IFRAME");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		if ("${dmFolderName}" == "Home") {
 			if (IsElementPresent(key_breadcrumbName = "Home", locator1 = "BreadcrumbPortlet#BREADCRUMB_FOLDER")) {
@@ -2138,7 +2146,7 @@ definition {
 			MenuItem.click(menuItem = "Move");
 		}
 
-		SelectFrame(locator1 = "IFrame#SELECT_FOLDER");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		var key_dmFolderName = "${dmFolderName}";
 
@@ -2196,7 +2204,7 @@ definition {
 
 		MenuItem.click(menuItem = "Move");
 
-		SelectFrame(locator1 = "DocumentsAndMediaSelectFolder#SELECT_FOLDER_IFRAME");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		var key_dmFolderName = "${dmSubFolderName}";
 
@@ -2914,7 +2922,7 @@ definition {
 			}
 		}
 		else {
-			var cacheControlAttribute = "Cache-Control: ${cacheControl}, max-age: ${maxAge}";
+			var cacheControlAttribute = "Cache-Control: ${cacheControl}, max-age= ${maxAge}";
 
 			if (contains("${responseHeader}", "${cacheControlAttribute}")) {
 				echo("The cache control setting is correct");
@@ -3255,33 +3263,22 @@ definition {
 	}
 
 	macro viewDocumentToolbarCmdPG {
-		AssertVisible(
-			locator1 = "Button#DOWNLOAD",
-			value1 = "Download");
+		Click(locator1 = "Icon#TOOLBAR_ELLIPSIS");
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "Button#DOWNLOAD",
+			key_item = "Download",
+			locator1 = "ManagementBar#ACTIVE_DROPDOWN_ITEM",
 			value1 = "Download");
 
-		AssertTextEquals(
-			locator1 = "Button#EDIT",
-			value1 = "Edit");
+		MenuItem.viewVisible(menuItem = "Edit");
 
-		AssertTextEquals(
-			locator1 = "Button#MOVE",
-			value1 = "Move");
+		MenuItem.viewVisible(menuItem = "Move");
 
-		AssertTextEquals(
-			locator1 = "Button#CHECKOUT",
-			value1 = "Checkout");
+		MenuItem.viewVisible(menuItem = "Checkout");
 
-		AssertTextEquals(
-			locator1 = "Button#PERMISSIONS",
-			value1 = "Permissions");
+		MenuItem.viewVisible(menuItem = "Permissions");
 
-		AssertTextEquals(
-			locator1 = "Button#MOVE_TO_RECYCLE_BIN",
-			value1 = "Delete");
+		MenuItem.viewVisible(menuItem = "Delete");
 	}
 
 	macro viewDocumentTypePG {

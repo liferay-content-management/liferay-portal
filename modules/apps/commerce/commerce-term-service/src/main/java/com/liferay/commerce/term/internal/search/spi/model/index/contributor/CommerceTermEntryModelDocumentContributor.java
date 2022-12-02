@@ -30,7 +30,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "indexer.class.name=com.liferay.commerce.term.model.CommerceTermEntry",
 	service = ModelDocumentContributor.class
 )

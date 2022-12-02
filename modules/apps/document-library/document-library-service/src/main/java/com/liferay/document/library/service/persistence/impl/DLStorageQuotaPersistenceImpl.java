@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -69,7 +68,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(service = {DLStorageQuotaPersistence.class, BasePersistence.class})
+@Component(service = DLStorageQuotaPersistence.class)
 public class DLStorageQuotaPersistenceImpl
 	extends BasePersistenceImpl<DLStorageQuota>
 	implements DLStorageQuotaPersistence {
@@ -159,7 +158,7 @@ public class DLStorageQuotaPersistenceImpl
 
 		if (useFinderCache) {
 			result = finderCache.getResult(
-				_finderPathFetchByCompanyId, finderArgs);
+				_finderPathFetchByCompanyId, finderArgs, this);
 		}
 
 		if (result instanceof DLStorageQuota) {
@@ -249,7 +248,7 @@ public class DLStorageQuotaPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -688,7 +687,7 @@ public class DLStorageQuotaPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<DLStorageQuota>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -758,7 +757,7 @@ public class DLStorageQuotaPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

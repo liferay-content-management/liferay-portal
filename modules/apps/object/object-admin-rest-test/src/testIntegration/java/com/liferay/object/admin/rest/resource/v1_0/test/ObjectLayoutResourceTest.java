@@ -62,7 +62,7 @@ public class ObjectLayoutResourceTest extends BaseObjectLayoutResourceTestCase {
 				Collections.emptyList());
 
 		_objectField = _objectFieldLocalService.addCustomObjectField(
-			TestPropsValues.getUserId(), 0,
+			null, TestPropsValues.getUserId(), 0,
 			_objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectFieldConstants.DB_TYPE_STRING, null, false, false, null,
@@ -100,6 +100,8 @@ public class ObjectLayoutResourceTest extends BaseObjectLayoutResourceTestCase {
 		objectLayout.setDefaultObjectLayout(false);
 		objectLayout.setName(
 			Collections.singletonMap("en-US", RandomTestUtil.randomString()));
+		objectLayout.setObjectDefinitionExternalReferenceCode(
+			_objectDefinition.getExternalReferenceCode());
 		objectLayout.setObjectDefinitionId(
 			_objectDefinition.getObjectDefinitionId());
 		objectLayout.setObjectLayoutTabs(

@@ -175,6 +175,13 @@ definition {
 		ACUtils.clickAnyButton(button = "${key_actionButton}");
 	}
 
+	macro getColumnBreakdownValue {
+		var index = "${index}";
+		var breakdownValue = selenium.getText("ACEventAnalysis#COLUMN_BREAKDOWN_VALUES");
+
+		return "${breakdownValue}";
+	}
+
 	macro removeFromAnalysis {
 		var key_removeValue = "${removeValue}";
 

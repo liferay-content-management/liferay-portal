@@ -80,8 +80,13 @@ public class AddToCartTag extends IncludeTag {
 
 			if (_cpCatalogEntry != null) {
 				cpSku = _cpContentHelper.getDefaultCPSku(_cpCatalogEntry);
+
+				long cpDefinitionId = _cpCatalogEntry.getCPDefinitionId();
+
 				hasChildCPDefinitions = _cpContentHelper.hasChildCPDefinitions(
-					_cpCatalogEntry.getCPDefinitionId());
+					cpDefinitionId);
+				_productSettingsModel = _productHelper.getProductSettingsModel(
+					cpDefinitionId);
 			}
 
 			String sku = null;
@@ -110,10 +115,8 @@ public class AddToCartTag extends IncludeTag {
 			if (sku != null) {
 				_stockQuantity = _commerceInventoryEngine.getStockQuantity(
 					PortalUtil.getCompanyId(httpServletRequest),
+					_cpCatalogEntry.getGroupId(),
 					commerceContext.getCommerceChannelGroupId(), sku);
-
-				_productSettingsModel = _productHelper.getProductSettingsModel(
-					cpSku.getCPInstanceId());
 
 				if (!_disabled) {
 					_disabled =

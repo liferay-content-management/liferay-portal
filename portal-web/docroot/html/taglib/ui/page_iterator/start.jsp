@@ -180,7 +180,7 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 						<a class="dropdown-toggle page-link page-link" data-toggle="liferay-dropdown" href="javascript:void(0);">
 							<span aria-hidden="true">...</span>
 
-							<span class="sr-only"><liferay-ui:message key="intermediate-pages" /></span>
+							<span class="sr-only"><liferay-ui:message key="intermediate-pages" />&nbsp;<liferay-ui:message key="use-tab-to-navigate" /></span>
 						</a>
 
 						<div class="dropdown-menu dropdown-menu-top-center">
@@ -216,7 +216,7 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 						<a class="dropdown-toggle page-link" data-toggle="liferay-dropdown" href="javascript:void(0);">
 							<span aria-hidden="true">...</span>
 
-							<span class="sr-only"><liferay-ui:message key="intermediate-pages" /></span>
+							<span class="sr-only"><liferay-ui:message key="intermediate-pages" />&nbsp;<liferay-ui:message key="use-tab-to-navigate" /></span>
 						</a>
 
 						<div class="dropdown-menu dropdown-menu-top-center">
@@ -257,7 +257,7 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 							<a class="dropdown-toggle page-link" data-toggle="liferay-dropdown" href="javascript:void(0);">
 								<span aria-hidden="true">...</span>
 
-								<span class="sr-only"><liferay-ui:message key="intermediate-pages" /></span>
+								<span class="sr-only"><liferay-ui:message key="intermediate-pages" />&nbsp;<liferay-ui:message key="use-tab-to-navigate" /></span>
 							</a>
 
 							<div class="dropdown-menu dropdown-menu-top-center">
@@ -303,7 +303,7 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 							<a class="dropdown-toggle page-link" data-toggle="liferay-dropdown" href="javascript:void(0);">
 								<span aria-hidden="true">...</span>
 
-								<span class="sr-only"><liferay-ui:message key="intermediate-pages" /></span>
+								<span class="sr-only"><liferay-ui:message key="intermediate-pages" />&nbsp;<liferay-ui:message key="use-tab-to-navigate" /></span>
 							</a>
 
 							<div class="dropdown-menu dropdown-menu-top-center">
@@ -358,10 +358,12 @@ NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
 </c:if>
 
 <c:if test="<%= pages > initialPages %>">
-	<aui:script require="frontend-js-web/liferay/DynamicInlineScroll.es as DynamicInlineScroll">
+	<aui:script require="frontend-js-web/index as frontendJsWeb">
+		var {DynamicInlineScroll} = frontendJsWeb;
+
 		Liferay.component(
 			'<%= randomNamespace %>dynamicInlineScroll',
-			new DynamicInlineScroll.default(
+			new DynamicInlineScroll(
 				{
 					cur: '<%= cur %>',
 					curParam: '<%= curParam %>',

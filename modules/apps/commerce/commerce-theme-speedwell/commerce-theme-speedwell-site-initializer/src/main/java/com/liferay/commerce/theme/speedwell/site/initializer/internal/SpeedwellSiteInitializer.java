@@ -95,7 +95,6 @@ import com.liferay.portal.kernel.settings.ModifiableSettings;
 import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
@@ -132,7 +131,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Gianmarco Brunialti Masera
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "site.initializer.key=" + SpeedwellSiteInitializer.KEY,
 	service = SiteInitializer.class
 )
@@ -189,7 +187,7 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 			CommerceChannel commerceChannel = _createChannel(
 				commerceCatalog, serviceContext);
 
-			_configureB2CSite(commerceChannel.getGroupId(), serviceContext);
+			_configureB2CSite(commerceChannel.getGroup(), serviceContext);
 
 			_speedwellLayoutsInitializer.initialize(serviceContext);
 
@@ -293,10 +291,8 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 		_cpDefinitions = null;
 	}
 
-	private void _configureB2CSite(long groupId, ServiceContext serviceContext)
+	private void _configureB2CSite(Group group, ServiceContext serviceContext)
 		throws Exception {
-
-		Group group = _groupLocalService.getGroup(groupId);
 
 		group.setType(GroupConstants.TYPE_SITE_OPEN);
 		group.setManualMembership(true);
@@ -312,7 +308,7 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 
 		Settings settings = _settingsFactory.getSettings(
 			new GroupServiceSettingsLocator(
-				groupId, CommerceAccountConstants.SERVICE_NAME));
+				group.getGroupId(), CommerceAccountConstants.SERVICE_NAME));
 
 		ModifiableSettings modifiableSettings =
 			settings.getModifiableSettings();
@@ -324,7 +320,8 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 		modifiableSettings.store();
 
 		_accountEntryGroupSettings.setAllowedTypes(
-			serviceContext.getScopeGroupId(), _getAllowedTypes(groupId));
+			serviceContext.getScopeGroupId(),
+			_getAllowedTypes(group.getGroupId()));
 	}
 
 	private CommerceCatalog _createCatalog(ServiceContext serviceContext)
@@ -908,7 +905,7 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 		File file = null;
 
 		try {
-			file = FileUtil.createTempFile(inputStream);
+			file = _file.createTempFile(inputStream);
 
 			String mimeType = MimeTypesUtil.getContentType(file);
 
@@ -922,7 +919,7 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 		}
 		finally {
 			if (file != null) {
-				FileUtil.delete(file);
+				_file.delete(file);
 			}
 		}
 	}
@@ -952,7 +949,7 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 			_speedwellDependencyResolver.getImageDependencyPath() +
 				"Speedwell_Logo.png");
 
-		File file = FileUtil.createTempFile(inputStream);
+		File file = _file.createTempFile(inputStream);
 
 		_cpFileImporter.updateLogo(file, false, true, serviceContext);
 		_cpFileImporter.updateLogo(file, true, true, serviceContext);
@@ -1089,6 +1086,9 @@ public class SpeedwellSiteInitializer implements SiteInitializer {
 
 	@Reference
 	private DLImporter _dlImporter;
+
+	@Reference
+	private com.liferay.portal.kernel.util.File _file;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

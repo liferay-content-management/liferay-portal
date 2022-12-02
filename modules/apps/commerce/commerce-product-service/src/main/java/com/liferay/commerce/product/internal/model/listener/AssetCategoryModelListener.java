@@ -38,7 +38,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alessio Antonio Rendina
  */
-@Component(enabled = false, immediate = true, service = ModelListener.class)
+@Component(service = ModelListener.class)
 public class AssetCategoryModelListener
 	extends BaseModelListener<AssetCategory> {
 
@@ -91,7 +91,7 @@ public class AssetCategoryModelListener
 			String urlTitle = _friendlyURLEntryLocalService.getUniqueUrlTitle(
 				assetCategory.getGroupId(),
 				_portal.getClassNameId(AssetCategory.class),
-				assetCategory.getCategoryId(), titleEntry.getValue());
+				assetCategory.getCategoryId(), titleEntry.getValue(), null);
 
 			urlTitleMap.put(
 				LocaleUtil.toLanguageId(titleEntry.getKey()), urlTitle);

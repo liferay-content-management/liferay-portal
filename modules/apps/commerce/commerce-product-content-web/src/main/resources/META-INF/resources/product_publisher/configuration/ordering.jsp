@@ -20,8 +20,12 @@
 CPPublisherConfigurationDisplayContext cpPublisherConfigurationDisplayContext = (CPPublisherConfigurationDisplayContext)request.getAttribute(WebKeys.PORTLET_DISPLAY_CONTEXT);
 %>
 
-<aui:row id="ordering">
-	<aui:col width="<%= 50 %>">
+<clay:row
+	id="ordering"
+>
+	<clay:col
+		size="6"
+	>
 		<aui:select label="order-by" name="preferences--orderByColumn1--" value="<%= cpPublisherConfigurationDisplayContext.getOrderByColumn1() %>" wrapperCssClass="field-inline w90">
 			<aui:option label="title" />
 			<aui:option label="create-date" value="createDate" />
@@ -53,9 +57,11 @@ CPPublisherConfigurationDisplayContext cpPublisherConfigurationDisplayContext = 
 
 			<aui:input cssClass="order-by-type-field" name="preferences--orderByType1--" type="hidden" value="<%= orderByType1 %>" />
 		</aui:field-wrapper>
-	</aui:col>
+	</clay:col>
 
-	<aui:col width="<%= 50 %>">
+	<clay:col
+		size="6"
+	>
 
 		<%
 		String orderByColumn2 = cpPublisherConfigurationDisplayContext.getOrderByColumn2();
@@ -92,8 +98,8 @@ CPPublisherConfigurationDisplayContext cpPublisherConfigurationDisplayContext = 
 
 			<aui:input cssClass="order-by-type-field" name="preferences--orderByType2--" type="hidden" value="<%= orderByType2 %>" />
 		</aui:field-wrapper>
-	</aui:col>
-</aui:row>
+	</clay:col>
+</clay:row>
 
 <aui:script use="aui-base">
 	A.one('#<portlet:namespace />ordering').delegate(

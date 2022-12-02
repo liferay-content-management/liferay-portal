@@ -15,6 +15,26 @@ definition {
 		}
 	}
 
+	macro assertTextInMySQLStatementResult {
+		var sqlResults = SQL.executeMySQLStatement(mysqlStatement = "${mysqlStatement}");
+
+		if (!(contains("${sqlResults}", "${text}"))) {
+			fail("The MySql query result does not contain text: ${text}");
+		}
+	}
+
+	macro dropMySQLIndex {
+		Variables.assertDefined(parameterList = "${indexName},${tableName}");
+
+		SQL.executeMySQLStatement(mysqlStatement = "drop index ${indexName} on ${tableName};");
+
+		var hasMySQLIndex = SQL.hasMySQLIndex(indexName = "${indexName}");
+
+		if ("${hasMySQLIndex}" == "true") {
+			fail("Index ${indexName} wasn't dropped");
+		}
+	}
+
 	macro executeMySQLStatement {
 		Variables.assertDefined(parameterList = "${mysqlStatement}");
 
@@ -31,6 +51,21 @@ definition {
 		var output = FileUtil.read("${liferayHome}/${outputFile}");
 
 		return "${output}";
+	}
+
+	macro hasMySQLIndex {
+		Variables.assertDefined(parameterList = "${indexName}");
+
+		var indexQuery = "SELECT COUNT(DISTINCT(index_name)) FROM information_schema.statistics WHERE index_schema = database() AND index_name = '${indexName}';";
+
+		var index = SQL.executeMySQLStatement(mysqlStatement = "${indexQuery}");
+
+		if (contains("${index}", "1")) {
+			return "true";
+		}
+		else {
+			return "false";
+		}
 	}
 
 }

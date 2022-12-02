@@ -10,11 +10,34 @@
 			"indexed": true,
 			"indexedAsKeyword": false,
 			"label": {
-				"en_US": "Claim Amount"
+				"en_US": "Invoice Amount"
 			},
-			"name": "claimAmount",
+			"name": "invoiceAmount",
 			"required": false,
 			"type": "String"
+		},
+		{
+			"DBType": "String",
+			"businessType": "Text",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Expense Name"
+			},
+			"name": "expenseName",
+			"required": false,
+			"type": "String"
+		},
+		{
+			"DBType": "Boolean",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Selected"
+			},
+			"name": "selected",
+			"required": false,
+			"type": "Boolean"
 		}
 	],
 	"pluralLabel": {

@@ -28,13 +28,13 @@ import com.liferay.dynamic.data.mapping.form.evaluator.internal.expression.DDMFo
 import com.liferay.dynamic.data.mapping.form.evaluator.internal.expression.DDMFormEvaluatorExpressionFieldAccessor;
 import com.liferay.dynamic.data.mapping.form.evaluator.internal.expression.DDMFormEvaluatorExpressionObserver;
 import com.liferay.dynamic.data.mapping.form.evaluator.internal.expression.DDMFormEvaluatorExpressionParameterAccessor;
-import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesRegistry;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueEditingAware;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueLocalizer;
 import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.form.page.change.DDMFormPageChange;
-import com.liferay.dynamic.data.mapping.form.page.change.DDMFormPageChangeTracker;
+import com.liferay.dynamic.data.mapping.form.page.change.DDMFormPageChangeRegistry;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
@@ -77,13 +77,13 @@ public class DDMFormEvaluatorHelper {
 	public DDMFormEvaluatorHelper(
 		DDMExpressionFactory ddmExpressionFactory,
 		DDMFormEvaluatorEvaluateRequest ddmFormEvaluatorEvaluateRequest,
-		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
-		DDMFormPageChangeTracker ddmFormPageChangeTracker) {
+		DDMFormFieldTypeServicesRegistry ddmFormFieldTypeServicesRegistry,
+		DDMFormPageChangeRegistry ddmFormPageChangeRegistry) {
 
 		_ddmExpressionFactory = ddmExpressionFactory;
 		_ddmFormEvaluatorEvaluateRequest = ddmFormEvaluatorEvaluateRequest;
-		_ddmFormFieldTypeServicesTracker = ddmFormFieldTypeServicesTracker;
-		_ddmFormPageChangeTracker = ddmFormPageChangeTracker;
+		_ddmFormFieldTypeServicesRegistry = ddmFormFieldTypeServicesRegistry;
+		_ddmFormPageChangeRegistry = ddmFormPageChangeRegistry;
 
 		_ddmForm = ddmFormEvaluatorEvaluateRequest.getDDMForm();
 
@@ -106,7 +106,8 @@ public class DDMFormEvaluatorHelper {
 		ddmFormEvaluatorDDMExpressionFieldAccessor =
 			new DDMFormEvaluatorExpressionFieldAccessor(
 				_ddmFormEvaluatorFormValuesHelper, _ddmFormFieldsMap,
-				_ddmFormFieldsPropertyChanges, _ddmFormFieldTypeServicesTracker,
+				_ddmFormFieldsPropertyChanges,
+				_ddmFormFieldTypeServicesRegistry,
 				ddmFormEvaluatorEvaluateRequest.getLocale());
 
 		ddmFormEvaluatorExpressionActionHandler =
@@ -176,7 +177,8 @@ public class DDMFormEvaluatorHelper {
 		String type) {
 
 		DDMFormFieldValueAccessor<?> ddmFormFieldValueAccessor =
-			_ddmFormFieldTypeServicesTracker.getDDMFormFieldValueAccessor(type);
+			_ddmFormFieldTypeServicesRegistry.getDDMFormFieldValueAccessor(
+				type);
 
 		if (ddmFormFieldValueAccessor != null) {
 			return ddmFormFieldValueAccessor;
@@ -251,7 +253,7 @@ public class DDMFormEvaluatorHelper {
 		}
 
 		DDMFormPageChange ddmFormPageChange =
-			_ddmFormPageChangeTracker.getDDMFormPageChangeByDDMFormInstanceId(
+			_ddmFormPageChangeRegistry.getDDMFormPageChangeByDDMFormInstanceId(
 				String.valueOf(
 					_ddmFormEvaluatorEvaluateRequest.getDDMFormInstanceId()));
 
@@ -709,7 +711,7 @@ public class DDMFormEvaluatorHelper {
 			entry -> {
 				if (Validator.isNotNull(entry.getValue())) {
 					DDMFormFieldValueLocalizer ddmFormFieldValueLocalizer =
-						_ddmFormFieldTypeServicesTracker.
+						_ddmFormFieldTypeServicesRegistry.
 							getDDMFormFieldValueLocalizer(
 								ddmFormFieldValue.getType());
 
@@ -1064,10 +1066,10 @@ public class DDMFormEvaluatorHelper {
 	private final Map<String, DDMFormField> _ddmFormFieldsMap;
 	private final Map<DDMFormEvaluatorFieldContextKey, Map<String, Object>>
 		_ddmFormFieldsPropertyChanges = new HashMap<>();
-	private final DDMFormFieldTypeServicesTracker
-		_ddmFormFieldTypeServicesTracker;
+	private final DDMFormFieldTypeServicesRegistry
+		_ddmFormFieldTypeServicesRegistry;
 	private final DDMFormLayout _ddmFormLayout;
-	private final DDMFormPageChangeTracker _ddmFormPageChangeTracker;
+	private final DDMFormPageChangeRegistry _ddmFormPageChangeRegistry;
 	private List<String> _evaluatedActions;
 	private final Map<Integer, Integer> _pageFlow = new HashMap<>();
 

@@ -23,7 +23,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.constants.SearchContextAttributes;
 import com.liferay.portal.search.internal.indexer.IndexerProvidedClausesUtil;
-import com.liferay.portal.search.internal.indexer.KeywordQueryContributorsHolder;
+import com.liferay.portal.search.internal.indexer.KeywordQueryContributorsRegistry;
 import com.liferay.portal.search.internal.util.SearchStringUtil;
 import com.liferay.portal.search.spi.model.query.contributor.KeywordQueryContributor;
 import com.liferay.portal.search.spi.model.query.contributor.helper.KeywordQueryContributorHelper;
@@ -39,9 +39,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author André de Oliveira
  */
-@Component(
-	immediate = true, service = AddSearchKeywordsQueryContributorHelper.class
-)
+@Component(service = AddSearchKeywordsQueryContributorHelper.class)
 public class AddSearchKeywordsQueryContributorHelperImpl
 	implements AddSearchKeywordsQueryContributorHelper {
 
@@ -66,7 +64,7 @@ public class AddSearchKeywordsQueryContributorHelperImpl
 	}
 
 	@Reference
-	protected KeywordQueryContributorsHolder keywordQueryContributorsHolder;
+	protected KeywordQueryContributorsRegistry keywordQueryContributorsRegistry;
 
 	private void _addKeywordQueryContributorClauses(
 		BooleanQuery booleanQuery, SearchContext searchContext) {
@@ -84,7 +82,7 @@ public class AddSearchKeywordsQueryContributorHelperImpl
 		}
 
 		Stream<KeywordQueryContributor> stream =
-			keywordQueryContributorsHolder.stream(
+			keywordQueryContributorsRegistry.stream(
 				getStrings(
 					"search.full.query.clause.contributors.excludes",
 					searchContext),

@@ -21,6 +21,7 @@ import SingleFileUploader from '../../item_selector_uploader/js/SingleFileUpload
 
 export default function ItemSelectorRepositoryEntryBrowser({
 	closeCaption,
+	editImageURL,
 	itemSelectedEventName,
 	portletNamespace,
 	rootNode,
@@ -108,6 +109,7 @@ export default function ItemSelectorRepositoryEntryBrowser({
 			{uploaderEnabled && (
 				<SingleFileUploader
 					closeCaption={closeCaption}
+					editImageURL={editImageURL}
 					itemSelectedEventName={itemSelectedEventName}
 					{...uploaderProps}
 				/>
@@ -117,6 +119,7 @@ export default function ItemSelectorRepositoryEntryBrowser({
 				<div className="item-selector-preview-container">
 					<ItemSelectorPreview
 						currentIndex={itemSelectorPreviewIndex}
+						editImageURL={editImageURL}
 						handleClose={() => setItemSelectorPreviewOpen(false)}
 						handleSelectedItem={handleSelectedItem}
 						headerTitle={closeCaption}

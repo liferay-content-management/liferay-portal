@@ -161,6 +161,14 @@ public class LayoutPageTemplateCollectionLocalServiceImpl
 	}
 
 	@Override
+	public LayoutPageTemplateCollection fetchLayoutPageTemplateCollectionByName(
+		long groupId, String name) {
+
+		return layoutPageTemplateCollectionPersistence.fetchByG_N(
+			groupId, name);
+	}
+
+	@Override
 	public List<LayoutPageTemplateCollection> getLayoutPageTemplateCollections(
 		long groupId, int start, int end) {
 
@@ -226,6 +234,9 @@ public class LayoutPageTemplateCollectionLocalServiceImpl
 		}
 
 		layoutPageTemplateCollection.setModifiedDate(new Date());
+		layoutPageTemplateCollection.setLayoutPageTemplateCollectionKey(
+			_generateLayoutPageTemplateCollectionKey(
+				layoutPageTemplateCollection.getGroupId(), name));
 		layoutPageTemplateCollection.setName(name);
 		layoutPageTemplateCollection.setDescription(description);
 

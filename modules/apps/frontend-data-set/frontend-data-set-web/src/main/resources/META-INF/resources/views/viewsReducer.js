@@ -17,9 +17,11 @@ import getViewComponent from './getViewComponent';
 export const VIEWS_ACTION_TYPES = {
 	ADD_OR_UPDATE_CUSTOM_VIEW: 'ADD_OR_UPDATE_CUSTOM_VIEW',
 	DELETE_CUSTOM_VIEW: 'DELETE_CUSTOM_VIEW',
+	RENAME_ACTIVE_CUSTOM_VIEW: 'RENAME_ACTIVE_CUSTOM_VIEW',
 	RESET_TO_DEFAULT_VIEW: 'RESET_TO_DEFAULT_VIEW',
 	UPDATE_ACTIVE_CUSTOM_VIEW: 'UPDATE_ACTIVE_CUSTOM_VIEW',
 	UPDATE_ACTIVE_VIEW: 'UPDATE_ACTIVE_VIEW',
+	UPDATE_FIELD: 'UPDATE_FIELD',
 	UPDATE_FILTERS: 'UPDATE_FILTERS',
 	UPDATE_PAGINATION_DELTA: 'UPDATE_PAGINATION_DELTA',
 	UPDATE_SORTING: 'UPDATE_SORTING',
@@ -28,7 +30,14 @@ export const VIEWS_ACTION_TYPES = {
 };
 
 export function viewsReducer(state, {type, value}) {
-	const {activeView, customViews, defaultView, views} = state;
+	const {
+		activeCustomViewId,
+		activeView,
+		customViews,
+		defaultView,
+		modifiedFields,
+		views,
+	} = state;
 
 	if (type === VIEWS_ACTION_TYPES.ADD_OR_UPDATE_CUSTOM_VIEW) {
 		const {id, viewState} = value;
@@ -55,11 +64,25 @@ export function viewsReducer(state, {type, value}) {
 			viewUpdated: false,
 		};
 	}
+	else if (type === VIEWS_ACTION_TYPES.RENAME_ACTIVE_CUSTOM_VIEW) {
+		const customView = customViews[activeCustomViewId];
+
+		customView.customViewLabel = value.label;
+
+		return {
+			...state,
+			customViews: {
+				...customViews,
+				[activeCustomViewId]: customView,
+			},
+		};
+	}
 	else if (type === VIEWS_ACTION_TYPES.RESET_TO_DEFAULT_VIEW) {
 		return {
 			...state,
 			...defaultView,
 			activeCustomViewId: null,
+			modifiedFields: {},
 			viewUpdated: false,
 		};
 	}
@@ -82,6 +105,7 @@ export function viewsReducer(state, {type, value}) {
 			...state,
 			...activeCustomView,
 			activeCustomViewId: value,
+			modifiedFields: {},
 			viewUpdated: false,
 		};
 	}
@@ -103,6 +127,19 @@ export function viewsReducer(state, {type, value}) {
 			...state,
 			filters: value,
 			viewUpdated: true,
+		};
+	}
+	else if (type === VIEWS_ACTION_TYPES.UPDATE_FIELD) {
+		const {name} = value;
+
+		const fieldAttributes = modifiedFields[name] ?? {};
+
+		return {
+			...state,
+			modifiedFields: {
+				...modifiedFields,
+				[name]: {...fieldAttributes, ...value},
+			},
 		};
 	}
 	else if (type === VIEWS_ACTION_TYPES.UPDATE_PAGINATION_DELTA) {
@@ -142,8 +179,22 @@ export function viewsReducer(state, {type, value}) {
 		};
 	}
 	else if (type === VIEWS_ACTION_TYPES.UPDATE_VISIBLE_FIELD_NAMES) {
+		const fieldNames = Object.keys(value);
+
+		const fields = {};
+
+		fieldNames.forEach((fieldName) => {
+			const fieldAttributes = modifiedFields[fieldName] ?? {};
+
+			fieldAttributes.visible = value[fieldName];
+			fieldAttributes.width = null;
+
+			fields[fieldName] = fieldAttributes;
+		});
+
 		return {
 			...state,
+			modifiedFields: fields,
 			viewUpdated: true,
 			visibleFieldNames: value,
 		};

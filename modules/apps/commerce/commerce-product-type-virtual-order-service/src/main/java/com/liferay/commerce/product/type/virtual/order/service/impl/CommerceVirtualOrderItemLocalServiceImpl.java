@@ -36,8 +36,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
-import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
@@ -63,7 +63,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.product.type.virtual.order.model.CommerceVirtualOrderItem",
 	service = AopService.class
 )
@@ -77,7 +76,7 @@ public class CommerceVirtualOrderItemLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		User user = userLocalService.getUser(serviceContext.getUserId());
+		User user = _userLocalService.getUser(serviceContext.getUserId());
 		long groupId = serviceContext.getScopeGroupId();
 
 		CommerceOrderItem commerceOrderItem =
@@ -250,7 +249,7 @@ public class CommerceVirtualOrderItemLocalServiceImpl
 			}
 		}
 
-		File tempFile = FileUtil.createTempFile(contentInputStream);
+		File tempFile = _file.createTempFile(contentInputStream);
 
 		File file = new File(
 			tempFile.getParent(),
@@ -376,7 +375,7 @@ public class CommerceVirtualOrderItemLocalServiceImpl
 			return new Date(Long.MIN_VALUE);
 		}
 
-		User defaultUser = userLocalService.getDefaultUser(
+		User defaultUser = _userLocalService.getDefaultUser(
 			commerceVirtualOrderItem.getCompanyId());
 
 		Calendar calendar = CalendarFactoryUtil.getCalendar(
@@ -465,5 +464,11 @@ public class CommerceVirtualOrderItemLocalServiceImpl
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;
+
+	@Reference
+	private com.liferay.portal.kernel.util.File _file;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

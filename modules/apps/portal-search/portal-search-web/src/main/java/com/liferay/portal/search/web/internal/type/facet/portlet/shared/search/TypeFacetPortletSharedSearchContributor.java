@@ -32,7 +32,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Lino Alves
  */
 @Component(
-	immediate = true,
 	property = "javax.portlet.name=" + TypeFacetPortletKeys.TYPE_FACET,
 	service = PortletSharedSearchContributor.class
 )
@@ -54,7 +53,7 @@ public class TypeFacetPortletSharedSearchContributor
 
 		typeFacetSearchContributor.contribute(
 			searchRequestBuilder,
-			siteFacetBuilder -> siteFacetBuilder.aggregationName(
+			typeFacetBuilder -> typeFacetBuilder.aggregationName(
 				portletSharedSearchSettings.getPortletId()
 			).frequencyThreshold(
 				typeFacetPortletPreferences.getFrequencyThreshold()

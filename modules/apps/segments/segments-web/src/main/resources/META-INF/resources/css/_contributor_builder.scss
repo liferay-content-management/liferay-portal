@@ -35,7 +35,23 @@
 				transition: all 0.5s ease;
 
 				.content-wrapper {
-					padding: 40px 24px;
+					.panel-header-link {
+						border-bottom: 1px solid $mainLighten74;
+						border-bottom-left-radius: 0;
+						border-bottom-right-radius: 0;
+						padding-bottom: 16px;
+						padding-left: 24px;
+						padding-top: 16px;
+					}
+
+					.panel-header-link {
+						border-bottom-left-radius: 0;
+						border-bottom-right-radius: 0;
+						padding-bottom: 16px;
+						padding-left: 24px;
+						padding-right: 64px;
+						padding-top: 16px;
+					}
 
 					> .conjunction-button {
 						margin: 16px 0;
@@ -65,7 +81,7 @@
 
 	.criteria-builder-section-sidebar {
 		height: calc(100% - 121px);
-		overflow: hidden;
+		overflow-x: hidden;
 		position: fixed;
 		right: 0;
 		top: 121px;

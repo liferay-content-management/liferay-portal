@@ -40,6 +40,23 @@
 	margin: 20px 0;
 }
 
-.modal-description {
-	line-height: 1.75rem;
+.list-group-item {
+	cursor: pointer;
+}
+
+.list-group-item-disabled {
+	.lexicon-icon,
+	.list-group-title,
+	.list-group-text {
+		color: #9e9ea6 !important;
+	}
+}
+
+.loading-absolute {
+	bottom: 0;
+	left: 0;
+	margin: auto !important;
+	position: absolute;
+	right: 0;
+	top: 0;
 }

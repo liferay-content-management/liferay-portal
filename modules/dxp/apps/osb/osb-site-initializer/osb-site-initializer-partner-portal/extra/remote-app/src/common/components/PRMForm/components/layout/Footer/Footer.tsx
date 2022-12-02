@@ -1,4 +1,5 @@
 /**
+
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of the Liferay Enterprise
@@ -9,12 +10,21 @@
  * distribution rights of the Software.
  */
 
+import classNames from 'classnames';
 interface IProps {
 	children?: React.ReactNode;
 }
 
-const Footer = ({children}: IProps) => (
-	<div className="border-neutral-2 border-top d-flex mt-4 pt-4">
+const Footer = ({
+	children,
+	className,
+}: IProps & React.HTMLAttributes<HTMLDivElement>) => (
+	<div
+		className={classNames(
+			'border-neutral-2 border-top d-md-flex mt-4 pt-4',
+			className
+		)}
+	>
 		{children}
 	</div>
 );

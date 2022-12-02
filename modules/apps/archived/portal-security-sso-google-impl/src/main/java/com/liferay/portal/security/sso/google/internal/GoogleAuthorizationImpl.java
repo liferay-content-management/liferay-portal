@@ -224,8 +224,8 @@ public class GoogleAuthorizationImpl implements GoogleAuthorization {
 		String firstName = userinfoplus.getGivenName();
 		String middleName = StringPool.BLANK;
 		String lastName = userinfoplus.getFamilyName();
-		long prefixId = 0;
-		long suffixId = 0;
+		long prefixListTypeId = 0;
+		long suffixListTypeId = 0;
 		boolean male = Objects.equals(userinfoplus.getGender(), "male");
 		int birthdayMonth = Calendar.JANUARY;
 		int birthdayDay = 1;
@@ -240,9 +240,10 @@ public class GoogleAuthorizationImpl implements GoogleAuthorization {
 		User user = _userLocalService.addUser(
 			creatorUserId, companyId, autoPassword, password1, password2,
 			autoScreenName, screenName, emailAddress, locale, firstName,
-			middleName, lastName, prefixId, suffixId, male, birthdayMonth,
-			birthdayDay, birthdayYear, jobTitle, groupIds, organizationIds,
-			roleIds, userGroupIds, sendEmail, new ServiceContext());
+			middleName, lastName, prefixListTypeId, suffixListTypeId, male,
+			birthdayMonth, birthdayDay, birthdayYear, jobTitle, groupIds,
+			organizationIds, roleIds, userGroupIds, sendEmail,
+			new ServiceContext());
 
 		user = _userLocalService.updateGoogleUserId(
 			user.getUserId(), googleUserId);
@@ -393,8 +394,8 @@ public class GoogleAuthorizationImpl implements GoogleAuthorization {
 			user.getReminderQueryAnswer(), user.getScreenName(), emailAddress,
 			true, null, user.getLanguageId(), user.getTimeZoneId(),
 			user.getGreeting(), user.getComments(), firstName,
-			user.getMiddleName(), lastName, contact.getPrefixId(),
-			contact.getSuffixId(), male, birthdayMonth, birthdayDay,
+			user.getMiddleName(), lastName, contact.getPrefixListTypeId(),
+			contact.getSuffixListTypeId(), male, birthdayMonth, birthdayDay,
 			birthdayYear, contact.getSmsSn(), contact.getFacebookSn(),
 			contact.getJabberSn(), contact.getSkypeSn(), contact.getTwitterSn(),
 			contact.getJobTitle(), groupIds, organizationIds, roleIds,

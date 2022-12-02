@@ -34,9 +34,10 @@ import com.liferay.commerce.product.service.CPMeasurementUnitLocalService;
 import com.liferay.commerce.product.service.CPOptionCategoryLocalService;
 import com.liferay.commerce.product.util.CPCompareHelper;
 import com.liferay.commerce.product.util.CPDefinitionHelper;
-import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesRegistry;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
@@ -44,7 +45,6 @@ import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -69,9 +69,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alessio Antonio Rendina
  */
-@Component(
-	enabled = false, immediate = true, service = CPCompareContentHelper.class
-)
+@Component(service = CPCompareContentHelper.class)
 public class CPCompareContentHelperImpl implements CPCompareContentHelper {
 
 	@Override
@@ -125,9 +123,9 @@ public class CPCompareContentHelperImpl implements CPCompareContentHelper {
 
 		return _cpCompareHelper.getCPCatalogEntries(
 			groupId, commerceAccountId,
-			CookieKeys.getCookie(
-				httpServletRequest,
-				_cpCompareHelper.getCPDefinitionIdsCookieKey(groupId)));
+			CookiesManagerUtil.getCookieValue(
+				_cpCompareHelper.getCPDefinitionIdsCookieKey(groupId),
+				httpServletRequest));
 	}
 
 	@Override
@@ -386,7 +384,7 @@ public class CPCompareContentHelperImpl implements CPCompareContentHelper {
 				cpDefinition.getCPDefinitionOptionRels()) {
 
 			Map<String, Object> properties =
-				_ddmFormFieldTypeServicesTracker.getDDMFormFieldTypeProperties(
+				_ddmFormFieldTypeServicesRegistry.getDDMFormFieldTypeProperties(
 					cpDefinitionOptionRel.getDDMFormFieldTypeName());
 
 			String fieldTypeDataDomain = MapUtil.getString(
@@ -422,7 +420,7 @@ public class CPCompareContentHelperImpl implements CPCompareContentHelper {
 	private CPOptionCategoryLocalService _cpOptionCategoryLocalService;
 
 	@Reference
-	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
+	private DDMFormFieldTypeServicesRegistry _ddmFormFieldTypeServicesRegistry;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

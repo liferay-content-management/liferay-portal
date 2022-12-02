@@ -183,7 +183,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		throws PortalException {
 
 		UserGroup userGroup = fetchUserGroupByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 
 		if (userGroup != null) {
 			return updateUserGroup(
@@ -197,6 +197,30 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		userGroup.setExternalReferenceCode(externalReferenceCode);
 
 		return userGroupPersistence.update(userGroup);
+	}
+
+	@Override
+	public void addTeamUserGroup(long teamId, UserGroup userGroup) {
+		super.addTeamUserGroup(teamId, userGroup);
+
+		try {
+			reindexUsers(userGroup);
+		}
+		catch (PortalException portalException) {
+			throw new SystemException(portalException);
+		}
+	}
+
+	@Override
+	public void addTeamUserGroups(long teamId, long[] userGroupIds) {
+		super.addTeamUserGroups(teamId, userGroupIds);
+
+		try {
+			reindexUsers(userGroupIds);
+		}
+		catch (PortalException portalException) {
+			throw new SystemException(portalException);
+		}
 	}
 
 	/**
@@ -269,12 +293,49 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 
 		// Indexer
 
-		Indexer<UserGroup> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-			UserGroup.class);
-
-		indexer.reindex(userGroup);
+		reindexUserGroup(userGroup);
 
 		return userGroup;
+	}
+
+	@Override
+	public void addUserUserGroup(long userId, long userGroupId)
+		throws PortalException {
+
+		super.addUserUserGroup(userId, userGroupId);
+
+		reindexUserGroup(getUserGroup(userGroupId));
+	}
+
+	@Override
+	public void addUserUserGroup(long userId, UserGroup userGroup)
+		throws PortalException {
+
+		super.addUserUserGroup(userId, userGroup);
+
+		reindexUserGroup(userGroup);
+	}
+
+	@Override
+	public void addUserUserGroups(long userId, List<UserGroup> userGroups)
+		throws PortalException {
+
+		super.addUserUserGroups(userId, userGroups);
+
+		for (UserGroup userGroup : userGroups) {
+			reindexUserGroup(userGroup);
+		}
+	}
+
+	@Override
+	public void addUserUserGroups(long userId, long[] userGroupIds)
+		throws PortalException {
+
+		super.addUserUserGroups(userId, userGroupIds);
+
+		for (long userGroupId : userGroupIds) {
+			reindexUserGroup(getUserGroup(userGroupId));
+		}
 	}
 
 	/**
@@ -887,6 +948,13 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	@Override
 	public void unsetTeamUserGroups(long teamId, long[] userGroupIds) {
 		_teamPersistence.removeUserGroups(teamId, userGroupIds);
+
+		try {
+			reindexUsers(userGroupIds);
+		}
+		catch (PortalException portalException) {
+			throw new SystemException(portalException);
+		}
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -942,10 +1010,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 
 		// Indexer
 
-		Indexer<UserGroup> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-			UserGroup.class);
-
-		indexer.reindex(userGroup);
+		reindexUserGroup(userGroup);
 
 		return userGroup;
 	}
@@ -963,6 +1028,14 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 
 		attributes.put("description", description);
 		attributes.put("name", name);
+
+		if (params != null) {
+			long[] userIds = (long[])params.get("userIds");
+
+			if (ArrayUtil.isNotEmpty(userIds)) {
+				attributes.put("userIds", userIds);
+			}
+		}
 
 		searchContext.setAttributes(attributes);
 
@@ -1183,6 +1256,15 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		_reindexerBridge.reindex(companyId, User.class.getName(), userIds);
 	}
 
+	protected void reindexUserGroup(UserGroup userGroup)
+		throws PortalException {
+
+		Indexer<UserGroup> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+			UserGroup.class);
+
+		indexer.reindex(userGroup);
+	}
+
 	protected void reindexUsers(List<UserGroup> userGroups)
 		throws PortalException {
 
@@ -1286,7 +1368,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		UserGroup userGroup = getUserGroup(userGroupId);
 
 		userGroup = fetchUserGroupByExternalReferenceCode(
-			userGroup.getCompanyId(), externalReferenceCode);
+			externalReferenceCode, userGroup.getCompanyId());
 
 		if (userGroup == null) {
 			return;

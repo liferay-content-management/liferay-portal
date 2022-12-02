@@ -43,7 +43,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.multipart.BinaryFile;
 import com.liferay.portal.vulcan.multipart.MultipartBody;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -132,7 +131,7 @@ public class ImportTaskResourceImpl extends BaseImportTaskResourceImpl {
 		return _toImportTask(
 			_batchEngineImportTaskLocalService.
 				getBatchEngineImportTaskByExternalReferenceCode(
-					contextCompany.getCompanyId(), externalReferenceCode));
+					externalReferenceCode, contextCompany.getCompanyId()));
 	}
 
 	@Override
@@ -143,7 +142,7 @@ public class ImportTaskResourceImpl extends BaseImportTaskResourceImpl {
 		return _getImportTaskContent(
 			_batchEngineImportTaskLocalService.
 				getBatchEngineImportTaskByExternalReferenceCode(
-					contextCompany.getCompanyId(), externalReferenceCode));
+					externalReferenceCode, contextCompany.getCompanyId()));
 	}
 
 	@Override
@@ -154,7 +153,7 @@ public class ImportTaskResourceImpl extends BaseImportTaskResourceImpl {
 		BatchEngineImportTask batchEngineImportTask =
 			_batchEngineImportTaskLocalService.
 				getBatchEngineImportTaskByExternalReferenceCode(
-					contextCompany.getCompanyId(), externalReferenceCode);
+					externalReferenceCode, contextCompany.getCompanyId());
 
 		return _getImportTaskFailedItemReport(
 			batchEngineImportTask.getBatchEngineImportTaskId());
@@ -521,7 +520,7 @@ public class ImportTaskResourceImpl extends BaseImportTaskResourceImpl {
 					batchEngineImportTask.getExecuteStatus());
 				externalReferenceCode =
 					batchEngineImportTask.getExternalReferenceCode();
-				failedItems = TransformUtil.transformToArray(
+				failedItems = transformToArray(
 					batchEngineImportTask.getBatchEngineImportTaskErrors(),
 					batchEngineImportTaskError -> _toFailedItem(
 						batchEngineImportTaskError),

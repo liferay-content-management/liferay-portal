@@ -31,7 +31,10 @@ const AppRoutes = {
 };
 
 const CustomerPortalApp = ({apis, route, ...properties}) => {
-	const {client, networkStatus} = useApollo();
+	const {client, networkStatus} = useApollo(
+		apis.provisioningServerAPI,
+		apis.oktaSessionAPI
+	);
 	useGlobalNetworkIndicator(networkStatus);
 
 	if (!client) {
@@ -62,7 +65,9 @@ class CustomerPortalWebComponent extends HTMLElement {
 			articleDeployingActivationKeysURL: super.getAttribute(
 				'article-deploying-activation-keys-url'
 			),
-			importDate: super.getAttribute('import-date'),
+			importDate:
+				super.getAttribute('import-date') &&
+				new Date(super.getAttribute('import-date')),
 			liferayWebDAV: super.getAttribute('liferaywebdavurl'),
 			submitSupportTicketURL: super.getAttribute(
 				'submit-support-ticket-url'

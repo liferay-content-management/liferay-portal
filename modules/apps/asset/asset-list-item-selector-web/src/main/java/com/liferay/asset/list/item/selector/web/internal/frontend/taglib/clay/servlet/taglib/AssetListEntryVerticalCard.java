@@ -14,11 +14,17 @@
 
 package com.liferay.asset.list.item.selector.web.internal.frontend.taglib.clay.servlet.taglib;
 
+import com.liferay.asset.list.constants.AssetListEntryTypeConstants;
 import com.liferay.asset.list.item.selector.web.internal.display.context.AssetListEntryItemSelectorDisplayContext;
 import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.frontend.taglib.clay.servlet.taglib.BaseVerticalCard;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItem;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.LabelItemListBuilder;
 import com.liferay.portal.kernel.dao.search.RowChecker;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.Validator;
+
+import java.util.List;
 
 import javax.portlet.RenderRequest;
 
@@ -47,12 +53,45 @@ public class AssetListEntryVerticalCard extends BaseVerticalCard {
 
 	@Override
 	public String getIcon() {
+		if (_assetListEntry.getType() ==
+				AssetListEntryTypeConstants.TYPE_DYNAMIC) {
+
+			return "bolt";
+		}
+
 		return "list";
 	}
 
 	@Override
 	public String getInputValue() {
 		return null;
+	}
+
+	@Override
+	public List<LabelItem> getLabels() {
+		int assetListEntrySegmentsEntryRelsCount =
+			_assetListEntryItemSelectorDisplayContext.
+				getAssetListEntrySegmentsEntryRelsCount(_assetListEntry);
+
+		if (assetListEntrySegmentsEntryRelsCount > 0) {
+			return LabelItemListBuilder.add(
+				labelItem -> {
+					labelItem.setDisplayType("info");
+					labelItem.setLabel(
+						LanguageUtil.format(
+							themeDisplay.getLocale(), "x-variations",
+							new String[] {
+								String.valueOf(
+									assetListEntrySegmentsEntryRelsCount)
+							}));
+				}
+			).build();
+		}
+
+		return LabelItemListBuilder.add(
+			labelItem -> labelItem.setLabel(
+				LanguageUtil.get(themeDisplay.getLocale(), "no-variations"))
+		).build();
 	}
 
 	@Override

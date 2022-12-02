@@ -28,9 +28,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Alessio Antonio Rendina
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceShippingEngineFixedServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -62,7 +60,7 @@ public class CommerceShippingEngineFixedServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"CShippingFixedOptionRel", "CommerceShippingFixedOption"
 					};

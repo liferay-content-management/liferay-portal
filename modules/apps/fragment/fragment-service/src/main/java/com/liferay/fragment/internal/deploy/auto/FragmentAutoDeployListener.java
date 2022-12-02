@@ -15,7 +15,7 @@
 package com.liferay.fragment.internal.deploy.auto;
 
 import com.liferay.fragment.importer.FragmentsImporter;
-import com.liferay.layout.page.template.importer.LayoutPageTemplatesImporter;
+import com.liferay.layout.importer.LayoutsImporter;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.deploy.auto.AutoDeployException;
@@ -23,7 +23,7 @@ import com.liferay.portal.kernel.deploy.auto.AutoDeployListener;
 import com.liferay.portal.kernel.deploy.auto.AutoDeployer;
 import com.liferay.portal.kernel.deploy.auto.context.AutoDeploymentContext;
 import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -196,7 +196,7 @@ public class FragmentAutoDeployListener implements AutoDeployListener {
 		if ((company != null) && (group != null) &&
 			(company.getGroupId() != group.getGroupId())) {
 
-			_layoutPageTemplatesImporter.importFile(
+			_layoutsImporter.importFile(
 				user.getUserId(), groupId, 0L, file, true);
 		}
 	}
@@ -211,7 +211,7 @@ public class FragmentAutoDeployListener implements AutoDeployListener {
 				return null;
 			}
 
-			return JSONFactoryUtil.createJSONObject(
+			return _jsonFactory.createJSONObject(
 				StringUtil.read(zipFile.getInputStream(zipEntry)));
 		}
 	}
@@ -300,7 +300,10 @@ public class FragmentAutoDeployListener implements AutoDeployListener {
 	private GroupLocalService _groupLocalService;
 
 	@Reference
-	private LayoutPageTemplatesImporter _layoutPageTemplatesImporter;
+	private JSONFactory _jsonFactory;
+
+	@Reference
+	private LayoutsImporter _layoutsImporter;
 
 	@Reference
 	private RoleLocalService _roleLocalService;

@@ -292,51 +292,23 @@ public abstract class CommerceInventoryReplenishmentItemLocalServiceBaseImpl
 			fetchByUuid_C_First(uuid, companyId, null);
 	}
 
-	/**
-	 * Returns the commerce inventory replenishment item with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the commerce inventory replenishment item's external reference code
-	 * @return the matching commerce inventory replenishment item, or <code>null</code> if a matching commerce inventory replenishment item could not be found
-	 */
 	@Override
 	public CommerceInventoryReplenishmentItem
 		fetchCommerceInventoryReplenishmentItemByExternalReferenceCode(
-			long companyId, String externalReferenceCode) {
+			String externalReferenceCode, long companyId) {
 
-		return commerceInventoryReplenishmentItemPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceInventoryReplenishmentItemPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchCommerceInventoryReplenishmentItemByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public CommerceInventoryReplenishmentItem
-		fetchCommerceInventoryReplenishmentItemByReferenceCode(
-			long companyId, String externalReferenceCode) {
-
-		return fetchCommerceInventoryReplenishmentItemByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * Returns the commerce inventory replenishment item with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the commerce inventory replenishment item's external reference code
-	 * @return the matching commerce inventory replenishment item
-	 * @throws PortalException if a matching commerce inventory replenishment item could not be found
-	 */
 	@Override
 	public CommerceInventoryReplenishmentItem
 			getCommerceInventoryReplenishmentItemByExternalReferenceCode(
-				long companyId, String externalReferenceCode)
+				String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		return commerceInventoryReplenishmentItemPersistence.findByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceInventoryReplenishmentItemPersistence.findByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	/**

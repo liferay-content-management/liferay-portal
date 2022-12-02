@@ -29,7 +29,6 @@ import com.liferay.portal.vulcan.fields.NestedField;
 import com.liferay.portal.vulcan.fields.NestedFieldId;
 import com.liferay.portal.vulcan.fields.NestedFieldSupport;
 import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -39,7 +38,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Andrea Sbarra
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/placed-order-item-shipment.properties",
 	scope = ServiceScope.PROTOTYPE,
 	service = {NestedFieldSupport.class, PlacedOrderItemShipmentResource.class}
@@ -67,7 +65,7 @@ public class PlacedOrderItemShipmentResourceImpl
 		}
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceShipmentItemService.
 					getCommerceShipmentItemsByCommerceOrderItemId(
 						placedOrderItemId),

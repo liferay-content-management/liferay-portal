@@ -61,7 +61,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Daniel Kocsis
  */
-@Component(immediate = true, service = StagedModelDataHandler.class)
+@Component(service = StagedModelDataHandler.class)
 public class KBArticleStagedModelDataHandler
 	extends BaseStagedModelDataHandler<KBArticle> {
 
@@ -330,10 +330,9 @@ public class KBArticleStagedModelDataHandler
 			kbArticle.getExternalReferenceCode(), userId,
 			parentResourceClassNameId, parentResourcePrimKey,
 			kbArticle.getTitle(), kbArticle.getUrlTitle(),
-			kbArticle.getContent(), kbArticle.getDescription(),
-			kbArticle.getSourceURL(), sections, null,
-			kbArticle.getExpirationDate(), kbArticle.getReviewDate(),
-			serviceContext);
+			kbArticle.getContent(), kbArticle.getDescription(), sections,
+			kbArticle.getSourceURL(), kbArticle.getExpirationDate(),
+			kbArticle.getReviewDate(), null, serviceContext);
 
 		ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
@@ -489,10 +488,9 @@ public class KBArticleStagedModelDataHandler
 
 		_kbArticleLocalService.updateKBArticle(
 			userId, resourcePrimKey, kbArticle.getTitle(),
-			kbArticle.getContent(), kbArticle.getDescription(),
-			kbArticle.getSourceURL(), sections, null, null,
-			kbArticle.getExpirationDate(), kbArticle.getReviewDate(),
-			serviceContext);
+			kbArticle.getContent(), kbArticle.getDescription(), sections,
+			kbArticle.getSourceURL(), kbArticle.getExpirationDate(),
+			kbArticle.getReviewDate(), null, null, serviceContext);
 
 		ServiceContextThreadLocal.pushServiceContext(serviceContext);
 

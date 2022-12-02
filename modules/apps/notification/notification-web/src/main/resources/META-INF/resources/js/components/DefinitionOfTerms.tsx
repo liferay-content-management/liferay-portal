@@ -15,7 +15,6 @@
 import ClayPanel from '@clayui/panel';
 import {FrontendDataSet} from '@liferay/frontend-data-set-web';
 import {
-	API,
 	AutoComplete,
 	filterArrayByQuery,
 	onActionDropdownItemClick,
@@ -23,12 +22,22 @@ import {
 import {createResourceURL, fetch} from 'frontend-js-web';
 import React, {useEffect, useMemo, useState} from 'react';
 
-const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
+import {defaultLanguageId} from '../util/constants';
 
-export function DefinitionOfTerms({baseResourceURL}: IProps) {
-	const [objectDefinitions, setObjectDefinitions] = useState<
-		ObjectDefinition[]
-	>();
+interface DefinitionOfTermsProps {
+	baseResourceURL: string;
+	objectDefinitions: ObjectDefinition[];
+}
+
+interface Item {
+	name: string;
+	term: string;
+}
+
+export function DefinitionOfTerms({
+	baseResourceURL,
+	objectDefinitions,
+}: DefinitionOfTermsProps) {
 	const [selectedEntity, setSelectedEntity] = useState<ObjectDefinition>();
 	const [query, setQuery] = useState<string>('');
 
@@ -39,21 +48,6 @@ export function DefinitionOfTerms({baseResourceURL}: IProps) {
 			return filterArrayByQuery(objectDefinitions, 'label', query);
 		}
 	}, [objectDefinitions, query]);
-
-	useEffect(() => {
-		API.getAllObjectDefinitions().then((items) => {
-			if (!Liferay.FeatureFlags['LPS-158482']) {
-				const objectDefinitions = items.filter(
-					({system}: ObjectDefinition) => !system
-				);
-
-				setObjectDefinitions(objectDefinitions);
-			}
-			else {
-				setObjectDefinitions(items);
-			}
-		});
-	}, []);
 
 	const getEntityFields = async (objectDefinition: ObjectDefinition) => {
 		const response = await fetch(
@@ -90,14 +84,14 @@ export function DefinitionOfTerms({baseResourceURL}: IProps) {
 			showCollapseIcon={true}
 		>
 			<ClayPanel.Body>
-				<AutoComplete
+				<AutoComplete<ObjectDefinition>
 					emptyStateMessage={Liferay.Language.get(
 						'no-entities-were-found'
 					)}
 					items={filteredObjectDefinitions ?? []}
 					label={Liferay.Language.get('entity')}
 					onChangeQuery={setQuery}
-					onSelectItem={(item: ObjectDefinition) => {
+					onSelectItem={(item) => {
 						getEntityFields(item);
 						setSelectedEntity(item);
 					}}
@@ -153,13 +147,4 @@ export function DefinitionOfTerms({baseResourceURL}: IProps) {
 			</ClayPanel.Body>
 		</ClayPanel>
 	);
-}
-
-interface IProps {
-	baseResourceURL: string;
-}
-
-interface Item {
-	name: string;
-	term: string;
 }

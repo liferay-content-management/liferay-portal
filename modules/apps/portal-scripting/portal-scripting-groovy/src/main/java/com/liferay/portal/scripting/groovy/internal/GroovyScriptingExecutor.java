@@ -34,7 +34,6 @@ import org.osgi.service.component.annotations.Component;
  * @author Brian Wing Shun Chan
  */
 @Component(
-	immediate = true,
 	property = "scripting.language=" + GroovyScriptingExecutor.LANGUAGE,
 	service = ScriptingExecutor.class
 )
@@ -71,7 +70,10 @@ public class GroovyScriptingExecutor extends BaseScriptingExecutor {
 			Map<String, Object> outputObjects = new HashMap<>();
 
 			for (String outputName : outputNames) {
-				outputObjects.put(outputName, binding.getVariable(outputName));
+				if (binding.hasVariable(outputName)) {
+					outputObjects.put(
+						outputName, binding.getVariable(outputName));
+				}
 			}
 
 			return outputObjects;

@@ -22,9 +22,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Cheryl Tang
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceProductTypeVirtualOrderServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -35,7 +33,7 @@ public class CommerceProductTypeVirtualOrderServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {"CommerceVirtualOrderItem"};
 				}
 

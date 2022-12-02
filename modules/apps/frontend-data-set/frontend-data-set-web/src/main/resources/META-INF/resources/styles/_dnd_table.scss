@@ -19,16 +19,21 @@
 
 .dnd-td,
 .dnd-th {
-	border-right: 1px solid $table-list-border-color;
+	border-color: $table-list-border-color;
+	border-style: solid;
+	border-width: 0 1px 1px 0;
 	display: table-cell;
-	opacity: 0;
 	overflow: hidden;
 	padding: $table-cell-padding;
-	transition: opacity 0.1s ease-in;
+	vertical-align: middle;
 	white-space: normal;
 
 	&:last-child {
 		border-right: none;
+	}
+
+	&.item-actions {
+		min-height: 58px;
 	}
 
 	&.item-actions,
@@ -48,7 +53,6 @@
 }
 
 .dnd-tr {
-	border-bottom: 1px solid $table-list-border-color;
 	display: table-row;
 	min-width: 100%;
 	position: relative;
@@ -119,7 +123,6 @@
 		align-items: center;
 		display: flex;
 		min-width: auto;
-		opacity: 1;
 	}
 
 	.dnd-tr {
@@ -161,7 +164,8 @@
 	}
 
 	&.with-quick-actions {
-		.dnd-tr:hover:not(.nested):not(.selected) {
+		.dnd-tr:hover:not(.nested):not(.selected),
+		.dnd-tr.menu-active:not(.nested):not(.selected) {
 			.item-actions {
 				overflow: visible;
 				position: relative;

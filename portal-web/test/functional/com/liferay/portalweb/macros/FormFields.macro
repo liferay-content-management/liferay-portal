@@ -157,7 +157,7 @@ definition {
 
 	macro duplicateField {
 		while (IsElementNotPresent(locator1 = "Form#SIDEBAR_MENUITEM_DUPLICATE_FIELD")) {
-			Click(locator1 = "Form#SIDEBAR_ELLIPSIS");
+			Click(locator1 = "FormViewBuilder#FIELD_ELLIPSIS");
 		}
 
 		AssertClick(
@@ -1205,7 +1205,7 @@ definition {
 			value1 = "${colorValue}");
 
 		AssertElementPresent(
-			key_colorValue = "${colorValue}",
+			key_colorValue = "#${colorValue}",
 			key_fieldLabel = "${fieldLabel}",
 			key_rowNumber = "${rowNumber}",
 			locator1 = "FormFields#COLOR_FROM_COLOR_PICKER_BY_ROW");

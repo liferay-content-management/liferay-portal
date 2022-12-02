@@ -229,10 +229,7 @@ const DropdownListWithSearch = ({
 
 	return (
 		<>
-			<ClayDropDown.Search
-				onChange={(event) => setQuery(event.target.value)}
-				value={query}
-			/>
+			<ClayDropDown.Search onChange={setQuery} value={query} />
 			{filteredOptions.length ? (
 				<DropdownList
 					currentValue={currentValue}
@@ -282,6 +279,7 @@ const Trigger = forwardRef(
 );
 
 const Select = ({
+	defaultSearch,
 	multiple,
 	onCloseButtonClicked,
 	onDropdownItemClicked,
@@ -348,6 +346,16 @@ const Select = ({
 			triggerElementRef.current.firstChild.focus();
 		}
 	};
+
+	const inputTrigger = document.querySelector(
+		'.lfr__ddm-select-input-trigger'
+	);
+	let leftRect;
+
+	if (inputTrigger) {
+		const rect = inputTrigger.getBoundingClientRect();
+		leftRect = rect.left;
+	}
 
 	return (
 		<>
@@ -437,8 +445,13 @@ const Select = ({
 				}}
 				onSetActive={setExpand}
 				ref={menuElementRef}
+				style={{
+					left: leftRect,
+					maxWidth: inputTrigger ? inputTrigger.offsetWidth : '500px',
+					width: '100%',
+				}}
 			>
-				{options.length > MAX_ITEMS ? (
+				{options.length > MAX_ITEMS || defaultSearch ? (
 					<DropdownListWithSearch
 						currentValue={currentValue}
 						expand={expand}
@@ -462,6 +475,7 @@ const Select = ({
 };
 
 const Main = ({
+	defaultSearch = false,
 	editingLanguageId,
 	fixedOptions = [],
 	label,
@@ -523,6 +537,7 @@ const Main = ({
 			{...otherProps}
 		>
 			<Select
+				defaultSearch={defaultSearch}
 				multiple={multiple}
 				name={`${name}_field`}
 				onCloseButtonClicked={({event, value}) =>

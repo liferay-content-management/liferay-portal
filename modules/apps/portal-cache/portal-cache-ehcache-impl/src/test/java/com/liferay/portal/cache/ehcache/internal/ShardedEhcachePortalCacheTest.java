@@ -15,6 +15,7 @@
 package com.liferay.portal.cache.ehcache.internal;
 
 import com.liferay.portal.cache.AggregatedPortalCacheListener;
+import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.kernel.cache.PortalCacheListener;
 import com.liferay.portal.kernel.cache.PortalCacheListenerScope;
 import com.liferay.portal.kernel.model.CompanyConstants;
@@ -49,6 +50,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
+
 /**
  * @author Tina Tian
  */
@@ -77,6 +82,20 @@ public class ShardedEhcachePortalCacheTest {
 				_MAX_ENTRIES_LOCAL_HEAP_TEST_CACHE_COMPANY_1));
 
 		_cacheManager = new CacheManager(configuration);
+
+		_dbPartitionUtilMockedStatic.when(
+			DBPartitionUtil::getCurrentCompanyId
+		).thenAnswer(
+			(Answer<Long>)invocationOnMock -> {
+				long currentCompanyId = _companyIdThreadLocal.get();
+
+				if (_companyIdThreadLocal.get() == CompanyConstants.SYSTEM) {
+					currentCompanyId = _TEST_COMPANY_ID_1;
+				}
+
+				return currentCompanyId;
+			}
+		);
 
 		_ehcachePortalCacheManager = new EhcachePortalCacheManager();
 
@@ -107,6 +126,7 @@ public class ShardedEhcachePortalCacheTest {
 	@After
 	public void tearDown() {
 		_cacheManager.shutdown();
+		_dbPartitionUtilMockedStatic.close();
 	}
 
 	@Test
@@ -167,10 +187,22 @@ public class ShardedEhcachePortalCacheTest {
 	}
 
 	@Test
+	public void testEhcacheName() {
+		_assertEhcacheName(CompanyConstants.SYSTEM);
+		_assertEhcacheName(_TEST_COMPANY_ID_1);
+		_assertEhcacheName(_TEST_COMPANY_ID_2);
+	}
+
+	@Test
 	public void testGet() {
 		_companyIdThreadLocal.set(CompanyConstants.SYSTEM);
 
-		Assert.assertNull(_shardedEhcachePortalCache.get(_TEST_KEY_SYSTEM));
+		Assert.assertSame(
+			_TEST_VALUE_1, _shardedEhcachePortalCache.get(_TEST_KEY_1));
+		Assert.assertNull(_shardedEhcachePortalCache.get(_TEST_KEY_2));
+		Assert.assertSame(
+			_TEST_VALUE_SYSTEM,
+			_shardedEhcachePortalCache.get(_TEST_KEY_SYSTEM));
 
 		_companyIdThreadLocal.set(_TEST_COMPANY_ID_1);
 
@@ -190,7 +222,7 @@ public class ShardedEhcachePortalCacheTest {
 		_companyIdThreadLocal.set(_TEST_COMPANY_ID_1);
 
 		Assert.assertEquals(
-			Collections.singletonList(_TEST_KEY_1),
+			Arrays.asList(_TEST_KEY_1, _TEST_KEY_SYSTEM),
 			_shardedEhcachePortalCache.getKeys());
 
 		_companyIdThreadLocal.set(_TEST_COMPANY_ID_2);
@@ -553,6 +585,19 @@ public class ShardedEhcachePortalCacheTest {
 			maxEntriesLocalHeap, cacheConfiguration.getMaxEntriesLocalHeap());
 	}
 
+	private void _assertEhcacheName(long companyId) {
+		_companyIdThreadLocal.set(companyId);
+
+		Ehcache ehcache = _shardedEhcachePortalCache.getEhcache();
+
+		Assert.assertEquals(
+			_getShardedCacheName(
+				_TEST_CACHE_NAME,
+				(companyId == CompanyConstants.SYSTEM) ? _TEST_COMPANY_ID_1 :
+					companyId),
+			ehcache.getName());
+	}
+
 	private void _assertPortalCacheListener(
 		String cacheName,
 		PortalCacheListener<?, ?>... registeredPortalCacheListeners) {
@@ -643,6 +688,8 @@ public class ShardedEhcachePortalCacheTest {
 	private static ThreadLocal<Long> _companyIdThreadLocal;
 	private static EhcachePortalCacheManager _ehcachePortalCacheManager;
 
+	private final MockedStatic<DBPartitionUtil> _dbPartitionUtilMockedStatic =
+		Mockito.mockStatic(DBPartitionUtil.class);
 	private ShardedEhcachePortalCache _shardedEhcachePortalCache;
 
 }

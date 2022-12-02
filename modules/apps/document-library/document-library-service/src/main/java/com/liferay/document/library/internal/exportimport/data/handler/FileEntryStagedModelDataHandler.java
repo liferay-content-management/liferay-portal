@@ -16,8 +16,6 @@ package com.liferay.document.library.internal.exportimport.data.handler;
 
 import com.liferay.asset.display.page.model.AssetDisplayPageEntry;
 import com.liferay.asset.display.page.service.AssetDisplayPageEntryLocalService;
-import com.liferay.changeset.service.ChangesetCollectionLocalService;
-import com.liferay.changeset.service.ChangesetEntryLocalService;
 import com.liferay.document.library.exportimport.data.handler.DLPluggableContentDataHandler;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
@@ -622,7 +620,8 @@ public class FileEntryStagedModelDataHandler
 									DLFileEntryConstants.
 										PRIVATE_WORKING_COPY_VERSION)) {
 
-								_dlAppService.deleteFileVersion(
+								_dlFileEntryLocalService.deleteFileVersion(
+									userId,
 									latestExistingFileVersion.getFileEntryId(),
 									latestExistingFileVersion.getVersion());
 							}
@@ -1254,12 +1253,6 @@ public class FileEntryStagedModelDataHandler
 	@Reference
 	private AssetDisplayPageEntryLocalService
 		_assetDisplayPageEntryLocalService;
-
-	@Reference
-	private ChangesetCollectionLocalService _changesetCollectionLocalService;
-
-	@Reference
-	private ChangesetEntryLocalService _changesetEntryLocalService;
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;

@@ -43,7 +43,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Bruno Basto
  */
-@Component(immediate = true, service = Indexer.class)
+@Component(service = Indexer.class)
 public class ClientExtensionEntryIndexer
 	extends BaseIndexer<ClientExtensionEntry> {
 
@@ -130,8 +130,8 @@ public class ClientExtensionEntryIndexer
 		throws Exception {
 
 		_indexWriterHelper.updateDocument(
-			getSearchEngineId(), clientExtensionEntry.getCompanyId(),
-			getDocument(clientExtensionEntry), isCommitImmediately());
+			clientExtensionEntry.getCompanyId(),
+			getDocument(clientExtensionEntry));
 	}
 
 	@Override
@@ -173,7 +173,6 @@ public class ClientExtensionEntryIndexer
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}

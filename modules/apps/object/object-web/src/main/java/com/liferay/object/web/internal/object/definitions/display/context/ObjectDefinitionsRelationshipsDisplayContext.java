@@ -20,8 +20,9 @@ import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectDefinitionService;
+import com.liferay.object.system.JaxRsApplicationDescriptor;
 import com.liferay.object.system.SystemObjectDefinitionMetadata;
-import com.liferay.object.system.SystemObjectDefinitionMetadataTracker;
+import com.liferay.object.system.SystemObjectDefinitionMetadataRegistry;
 import com.liferay.object.web.internal.configuration.activator.FFOneToOneRelationshipConfigurationActivator;
 import com.liferay.object.web.internal.display.context.helper.ObjectRequestHelper;
 import com.liferay.petra.function.UnsafeConsumer;
@@ -53,8 +54,8 @@ public class ObjectDefinitionsRelationshipsDisplayContext
 		ModelResourcePermission<ObjectDefinition>
 			objectDefinitionModelResourcePermission,
 		ObjectDefinitionService objectDefinitionService,
-		SystemObjectDefinitionMetadataTracker
-			systemObjectDefinitionMetadataTracker) {
+		SystemObjectDefinitionMetadataRegistry
+			systemObjectDefinitionMetadataRegistry) {
 
 		super(httpServletRequest, objectDefinitionModelResourcePermission);
 
@@ -63,8 +64,8 @@ public class ObjectDefinitionsRelationshipsDisplayContext
 		_objectDefinitionModelResourcePermission =
 			objectDefinitionModelResourcePermission;
 		_objectDefinitionService = objectDefinitionService;
-		_systemObjectDefinitionMetadataTracker =
-			systemObjectDefinitionMetadataTracker;
+		_systemObjectDefinitionMetadataRegistry =
+			systemObjectDefinitionMetadataRegistry;
 
 		_objectRequestHelper = new ObjectRequestHelper(httpServletRequest);
 	}
@@ -164,14 +165,17 @@ public class ObjectDefinitionsRelationshipsDisplayContext
 		}
 
 		SystemObjectDefinitionMetadata systemObjectDefinitionMetadata =
-			_systemObjectDefinitionMetadataTracker.
+			_systemObjectDefinitionMetadataRegistry.
 				getSystemObjectDefinitionMetadata(objectDefinition.getName());
 
 		if (systemObjectDefinitionMetadata == null) {
 			return StringPool.BLANK;
 		}
 
-		return systemObjectDefinitionMetadata.getRESTContextPath();
+		JaxRsApplicationDescriptor jaxRsApplicationDescriptor =
+			systemObjectDefinitionMetadata.getJaxRsApplicationDescriptor();
+
+		return jaxRsApplicationDescriptor.getRESTContextPath();
 	}
 
 	public boolean isFFOneToOneRelationshipConfigurationEnabled() {
@@ -213,7 +217,7 @@ public class ObjectDefinitionsRelationshipsDisplayContext
 		_objectDefinitionModelResourcePermission;
 	private final ObjectDefinitionService _objectDefinitionService;
 	private final ObjectRequestHelper _objectRequestHelper;
-	private final SystemObjectDefinitionMetadataTracker
-		_systemObjectDefinitionMetadataTracker;
+	private final SystemObjectDefinitionMetadataRegistry
+		_systemObjectDefinitionMetadataRegistry;
 
 }

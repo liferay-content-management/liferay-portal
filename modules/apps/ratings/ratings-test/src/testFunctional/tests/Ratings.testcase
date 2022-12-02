@@ -1022,7 +1022,7 @@ definition {
 			layoutName = "Blogs Page");
 
 		JSONLayout.addWidgetToPublicLayout(
-			column = "1",
+			column = "2",
 			groupName = "Guest",
 			layoutName = "Blogs Page",
 			widgetName = "Blogs");
@@ -1033,6 +1033,10 @@ definition {
 			groupName = "Guest");
 
 		Navigator.openWithAppendToBaseURL(urlAppend = "ja/web/guest/blogs-page");
+
+		BlogsNavigator.gotoEntryPG(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
 
 		Ratings.viewRateThumb(
 			ratingResult = "高評価",

@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -78,7 +77,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(service = {DDMFieldPersistence.class, BasePersistence.class})
+@Component(service = DDMFieldPersistence.class)
 public class DDMFieldPersistenceImpl
 	extends BasePersistenceImpl<DDMField> implements DDMFieldPersistence {
 
@@ -197,7 +196,7 @@ public class DDMFieldPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<DDMField>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (DDMField ddmField : list) {
@@ -563,7 +562,7 @@ public class DDMFieldPersistenceImpl
 
 			finderArgs = new Object[] {storageId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -708,7 +707,7 @@ public class DDMFieldPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<DDMField>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (DDMField ddmField : list) {
@@ -1083,7 +1082,7 @@ public class DDMFieldPersistenceImpl
 
 			finderArgs = new Object[] {structureVersionId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1234,7 +1233,7 @@ public class DDMFieldPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<DDMField>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (DDMField ddmField : list) {
@@ -1657,7 +1656,7 @@ public class DDMFieldPersistenceImpl
 
 			finderArgs = new Object[] {companyId, fieldType};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1799,7 +1798,8 @@ public class DDMFieldPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache && productionMode) {
-			result = finderCache.getResult(_finderPathFetchByS_I, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByS_I, finderArgs, this);
 		}
 
 		if (result instanceof DDMField) {
@@ -1919,7 +1919,7 @@ public class DDMFieldPersistenceImpl
 
 			finderArgs = new Object[] {storageId, instanceId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2524,7 +2524,7 @@ public class DDMFieldPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<DDMField>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2600,7 +2600,7 @@ public class DDMFieldPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

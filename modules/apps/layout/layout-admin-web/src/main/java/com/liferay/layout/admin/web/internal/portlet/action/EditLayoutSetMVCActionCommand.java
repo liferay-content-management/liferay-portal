@@ -52,7 +52,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + LayoutAdminPortletKeys.GROUP_PAGES,
 		"mvc.command.name=/layout_admin/edit_layout_set"
@@ -132,7 +131,7 @@ public class EditLayoutSetMVCActionCommand extends BaseMVCActionCommand {
 			ClientExtensionEntryRel clientExtensionEntryRel =
 				_clientExtensionEntryRelLocalService.
 					fetchClientExtensionEntryRelByExternalReferenceCode(
-						layoutSet.getCompanyId(), cetExternalReferenceCode);
+						cetExternalReferenceCode, layoutSet.getCompanyId());
 
 			if (clientExtensionEntryRel == null) {
 				_clientExtensionEntryRelLocalService.

@@ -19,6 +19,7 @@ import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.exception.NoSuchObjectFieldException;
+import com.liferay.object.exception.ObjectDefinitionEnableObjectEntryHistoryException;
 import com.liferay.object.exception.ObjectDefinitionLabelException;
 import com.liferay.object.exception.ObjectDefinitionNameException;
 import com.liferay.object.exception.ObjectDefinitionPluralLabelException;
@@ -27,6 +28,7 @@ import com.liferay.object.exception.ObjectDefinitionStatusException;
 import com.liferay.object.exception.ObjectDefinitionVersionException;
 import com.liferay.object.exception.ObjectFieldRelationshipTypeException;
 import com.liferay.object.field.builder.ObjectFieldBuilder;
+import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntryTable;
 import com.liferay.object.model.ObjectField;
@@ -36,8 +38,8 @@ import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.service.test.util.ObjectDefinitionTestUtil;
 import com.liferay.object.system.BaseSystemObjectDefinitionMetadata;
+import com.liferay.object.system.JaxRsApplicationDescriptor;
 import com.liferay.object.util.LocalizedMapUtil;
-import com.liferay.object.util.ObjectFieldUtil;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
 import com.liferay.portal.kernel.dao.db.DBInspector;
@@ -181,7 +183,7 @@ public class ObjectDefinitionLocalServiceTest {
 				objectDefinitionNameException.getMessage());
 		}
 
-		// Names must be less than 41 characters
+		// Name must be less than 41 characters
 
 		_testAddCustomObjectDefinition(
 			"A123456789a123456789a123456789a1234567891");
@@ -194,7 +196,7 @@ public class ObjectDefinitionLocalServiceTest {
 		}
 		catch (ObjectDefinitionNameException objectDefinitionNameException) {
 			Assert.assertEquals(
-				"Names must be less than 41 characters",
+				"Name must be less than 41 characters",
 				objectDefinitionNameException.getMessage());
 		}
 
@@ -300,7 +302,7 @@ public class ObjectDefinitionLocalServiceTest {
 						false)));
 
 		_objectFieldLocalService.addCustomObjectField(
-			TestPropsValues.getUserId(), 0,
+			null, TestPropsValues.getUserId(), 0,
 			objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectFieldConstants.DB_TYPE_STRING, null, false, false, null,
@@ -348,7 +350,7 @@ public class ObjectDefinitionLocalServiceTest {
 				objectDefinition.getObjectDefinitionId());
 
 		_objectFieldLocalService.addCustomObjectField(
-			TestPropsValues.getUserId(), 0,
+			null, TestPropsValues.getUserId(), 0,
 			objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectFieldConstants.DB_TYPE_STRING, null, false, false, null,
@@ -422,8 +424,25 @@ public class ObjectDefinitionLocalServiceTest {
 					}
 
 					@Override
-					public String getJaxRsApplicationName() {
-						return "";
+					public BaseModel<?> getBaseModelByExternalReferenceCode(
+							String externalReferenceCode, long companyId)
+						throws PortalException {
+
+						return null;
+					}
+
+					@Override
+					public String getExternalReferenceCode(long primaryKey)
+						throws PortalException {
+
+						return null;
+					}
+
+					@Override
+					public JaxRsApplicationDescriptor
+						getJaxRsApplicationDescriptor() {
+
+						return null;
 					}
 
 					@Override
@@ -465,11 +484,6 @@ public class ObjectDefinitionLocalServiceTest {
 					public Column<?, Long> getPrimaryKeyColumn() {
 						return UserNotificationEventTable.INSTANCE.
 							userNotificationEventId;
-					}
-
-					@Override
-					public String getRESTContextPath() {
-						return "/";
 					}
 
 					@Override
@@ -530,8 +544,25 @@ public class ObjectDefinitionLocalServiceTest {
 					}
 
 					@Override
-					public String getJaxRsApplicationName() {
-						return "";
+					public BaseModel<?> getBaseModelByExternalReferenceCode(
+							String externalReferenceCode, long companyId)
+						throws PortalException {
+
+						return null;
+					}
+
+					@Override
+					public String getExternalReferenceCode(long primaryKey)
+						throws PortalException {
+
+						return null;
+					}
+
+					@Override
+					public JaxRsApplicationDescriptor
+						getJaxRsApplicationDescriptor() {
+
+						return null;
 					}
 
 					@Override
@@ -572,11 +603,6 @@ public class ObjectDefinitionLocalServiceTest {
 					public Column<?, Long> getPrimaryKeyColumn() {
 						return UserNotificationEventTable.INSTANCE.
 							userNotificationEventId;
-					}
-
-					@Override
-					public String getRESTContextPath() {
-						return "/";
 					}
 
 					@Override
@@ -708,7 +734,7 @@ public class ObjectDefinitionLocalServiceTest {
 				objectDefinitionNameException.getMessage());
 		}
 
-		// Names must be less than 41 characters
+		// Name must be less than 41 characters
 
 		_testAddSystemObjectDefinition(
 			"A123456789a123456789a123456789a1234567891");
@@ -721,7 +747,7 @@ public class ObjectDefinitionLocalServiceTest {
 		}
 		catch (ObjectDefinitionNameException objectDefinitionNameException) {
 			Assert.assertEquals(
-				"Names must be less than 41 characters",
+				"Name must be less than 41 characters",
 				objectDefinitionNameException.getMessage());
 		}
 
@@ -843,7 +869,7 @@ public class ObjectDefinitionLocalServiceTest {
 				Collections.<ObjectField>emptyList());
 
 		_objectFieldLocalService.addCustomObjectField(
-			TestPropsValues.getUserId(), 0,
+			null, TestPropsValues.getUserId(), 0,
 			objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectFieldConstants.DB_TYPE_STRING, null, false, false, null,
@@ -1018,7 +1044,7 @@ public class ObjectDefinitionLocalServiceTest {
 				LocalizedMapUtil.getLocalizedMap("Able"), "Able", null, null,
 				LocalizedMapUtil.getLocalizedMap("Ables"),
 				ObjectDefinitionConstants.SCOPE_COMPANY,
-				ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
+				ObjectDefinitionConstants.STORAGE_TYPE_SALESFORCE,
 				Collections.emptyList());
 
 		Assert.assertFalse(objectDefinition.isActive());
@@ -1029,6 +1055,38 @@ public class ObjectDefinitionLocalServiceTest {
 		Assert.assertEquals(
 			LocalizedMapUtil.getLocalizedMap("Ables"),
 			objectDefinition.getPluralLabelMap());
+		Assert.assertEquals(
+			ObjectDefinitionConstants.STORAGE_TYPE_SALESFORCE,
+			objectDefinition.getStorageType());
+
+		try {
+			_objectDefinitionLocalService.updateCustomObjectDefinition(
+				null, objectDefinition.getObjectDefinitionId(), 0, 0, 0, false,
+				false, false, false, true,
+				LocalizedMapUtil.getLocalizedMap("Able"), "Able", null, null,
+				false, LocalizedMapUtil.getLocalizedMap("Ables"),
+				objectDefinition.getScope());
+
+			Assert.fail();
+		}
+		catch (ObjectDefinitionEnableObjectEntryHistoryException
+					objectDefinitionEnableObjectEntryHistoryException) {
+
+			Assert.assertEquals(
+				"Enable object entry history is allowed only for object " +
+					"definitions with the default storage type",
+				objectDefinitionEnableObjectEntryHistoryException.getMessage());
+		}
+
+		objectDefinition.setStorageType(
+			ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT);
+
+		objectDefinition = _objectDefinitionLocalService.updateObjectDefinition(
+			objectDefinition);
+
+		Assert.assertEquals(
+			ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
+			objectDefinition.getStorageType());
 
 		try {
 			objectDefinition =
@@ -1047,7 +1105,7 @@ public class ObjectDefinitionLocalServiceTest {
 		}
 
 		ObjectField objectField = _objectFieldLocalService.addCustomObjectField(
-			TestPropsValues.getUserId(), 0,
+			null, TestPropsValues.getUserId(), 0,
 			objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectFieldConstants.DB_TYPE_STRING, null, false, false, null,
@@ -1085,6 +1143,7 @@ public class ObjectDefinitionLocalServiceTest {
 		Assert.assertEquals(0, objectDefinition.getDescriptionObjectFieldId());
 		Assert.assertEquals(0, objectDefinition.getTitleObjectFieldId());
 		Assert.assertFalse(objectDefinition.isActive());
+		Assert.assertFalse(objectDefinition.isEnableObjectEntryHistory());
 		Assert.assertEquals(
 			LocalizedMapUtil.getLocalizedMap("Able"),
 			objectDefinition.getLabelMap());
@@ -1096,12 +1155,13 @@ public class ObjectDefinitionLocalServiceTest {
 		objectDefinition =
 			_objectDefinitionLocalService.updateCustomObjectDefinition(
 				null, objectDefinition.getObjectDefinitionId(), 0, 0, 0, false,
-				objectDefinition.isActive(), true, false, false,
+				objectDefinition.isActive(), true, false, true,
 				LocalizedMapUtil.getLocalizedMap("Baker"), "Baker", null, null,
 				false, LocalizedMapUtil.getLocalizedMap("Bakers"),
 				objectDefinition.getScope());
 
 		Assert.assertFalse(objectDefinition.isActive());
+		Assert.assertTrue(objectDefinition.isEnableObjectEntryHistory());
 		Assert.assertEquals(
 			LocalizedMapUtil.getLocalizedMap("Baker"),
 			objectDefinition.getLabelMap());
@@ -1114,7 +1174,7 @@ public class ObjectDefinitionLocalServiceTest {
 			TestPropsValues.getUserId(),
 			objectDefinition.getObjectDefinitionId());
 
-		objectDefinition =
+		try {
 			_objectDefinitionLocalService.updateCustomObjectDefinition(
 				null, objectDefinition.getObjectDefinitionId(), 0, 0, 0, false,
 				true, true, false, false,
@@ -1122,7 +1182,27 @@ public class ObjectDefinitionLocalServiceTest {
 				null, false, LocalizedMapUtil.getLocalizedMap("Charlies"),
 				objectDefinition.getScope());
 
+			Assert.fail();
+		}
+		catch (ObjectDefinitionEnableObjectEntryHistoryException
+					objectDefinitionEnableObjectEntryHistoryException) {
+
+			Assert.assertEquals(
+				"Enable object entry history cannot be updated when the " +
+					"object definition is published",
+				objectDefinitionEnableObjectEntryHistoryException.getMessage());
+		}
+
+		objectDefinition =
+			_objectDefinitionLocalService.updateCustomObjectDefinition(
+				null, objectDefinition.getObjectDefinitionId(), 0, 0, 0, false,
+				true, true, false, true,
+				LocalizedMapUtil.getLocalizedMap("Charlie"), "Charlie", null,
+				null, false, LocalizedMapUtil.getLocalizedMap("Charlies"),
+				objectDefinition.getScope());
+
 		Assert.assertTrue(objectDefinition.isActive());
+		Assert.assertTrue(objectDefinition.isEnableObjectEntryHistory());
 		Assert.assertEquals(
 			LocalizedMapUtil.getLocalizedMap("Charlie"),
 			objectDefinition.getLabelMap());
@@ -1156,7 +1236,7 @@ public class ObjectDefinitionLocalServiceTest {
 		}
 
 		ObjectField objectField = _objectFieldLocalService.addCustomObjectField(
-			TestPropsValues.getUserId(), 0,
+			null, TestPropsValues.getUserId(), 0,
 			objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectFieldConstants.DB_TYPE_STRING, null, false, false, null,
@@ -1321,8 +1401,7 @@ public class ObjectDefinitionLocalServiceTest {
 
 		boolean system = objectDefinition.isSystem();
 
-		Assert.assertEquals(
-			objectFields.toString(), system ? 5 : 6, objectFields.size());
+		Assert.assertEquals(objectFields.toString(), 6, objectFields.size());
 
 		ListIterator<ObjectField> iterator = objectFields.listIterator();
 
@@ -1381,28 +1460,26 @@ public class ObjectDefinitionLocalServiceTest {
 			).build(),
 			iterator.next());
 
-		if (!system) {
-			Assert.assertTrue(iterator.hasNext());
+		Assert.assertTrue(iterator.hasNext());
 
-			_assertSystemObjectFields(
-				new ObjectFieldBuilder(
-				).businessType(
-					ObjectFieldConstants.BUSINESS_TYPE_TEXT
-				).dbColumnName(
-					objectEntryTable.externalReferenceCode.getName()
-				).dbTableName(
-					dbTableName
-				).dbType(
-					ObjectFieldConstants.DB_TYPE_STRING
-				).labelMap(
-					LocalizedMapUtil.getLocalizedMap(
-						LanguageUtil.get(
-							LocaleUtil.getDefault(), "external-reference-code"))
-				).name(
-					"externalReferenceCode"
-				).build(),
-				iterator.next());
-		}
+		_assertSystemObjectFields(
+			new ObjectFieldBuilder(
+			).businessType(
+				ObjectFieldConstants.BUSINESS_TYPE_TEXT
+			).dbColumnName(
+				objectEntryTable.externalReferenceCode.getName()
+			).dbTableName(
+				dbTableName
+			).dbType(
+				ObjectFieldConstants.DB_TYPE_STRING
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(
+					LanguageUtil.get(
+						LocaleUtil.getDefault(), "external-reference-code"))
+			).name(
+				"externalReferenceCode"
+			).build(),
+			iterator.next());
 
 		Assert.assertTrue(iterator.hasNext());
 

@@ -39,7 +39,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -75,7 +74,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(service = {OAuthClientEntryPersistence.class, BasePersistence.class})
+@Component(service = OAuthClientEntryPersistence.class)
 public class OAuthClientEntryPersistenceImpl
 	extends BasePersistenceImpl<OAuthClientEntry>
 	implements OAuthClientEntryPersistence {
@@ -195,7 +194,7 @@ public class OAuthClientEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuthClientEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (OAuthClientEntry oAuthClientEntry : list) {
@@ -893,7 +892,7 @@ public class OAuthClientEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1076,7 +1075,7 @@ public class OAuthClientEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuthClientEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (OAuthClientEntry oAuthClientEntry : list) {
@@ -1772,7 +1771,7 @@ public class OAuthClientEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {userId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1969,7 +1968,7 @@ public class OAuthClientEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuthClientEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (OAuthClientEntry oAuthClientEntry : list) {
@@ -2774,7 +2773,7 @@ public class OAuthClientEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, authServerWellKnownURI};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -2990,7 +2989,8 @@ public class OAuthClientEntryPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByC_A_C, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByC_A_C, finderArgs, this);
 		}
 
 		if (result instanceof OAuthClientEntry) {
@@ -3128,7 +3128,7 @@ public class OAuthClientEntryPersistenceImpl
 			companyId, authServerWellKnownURI, clientId
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -3646,7 +3646,7 @@ public class OAuthClientEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuthClientEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -3716,7 +3716,7 @@ public class OAuthClientEntryPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

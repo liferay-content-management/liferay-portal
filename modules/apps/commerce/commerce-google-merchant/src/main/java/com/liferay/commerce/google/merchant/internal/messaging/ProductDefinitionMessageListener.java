@@ -42,7 +42,6 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.commerce.google.merchant.internal.configuration.ProductDefinitionConfiguration",
-	enabled = false, immediate = true,
 	service = ProductDefinitionMessageListener.class
 )
 public class ProductDefinitionMessageListener extends BaseMessageListener {

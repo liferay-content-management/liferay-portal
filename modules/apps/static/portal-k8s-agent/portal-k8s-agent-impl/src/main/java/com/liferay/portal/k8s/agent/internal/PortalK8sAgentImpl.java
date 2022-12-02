@@ -18,6 +18,7 @@ import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.configuration.persistence.InMemoryOnlyConfigurationThreadLocal;
 import com.liferay.portal.k8s.agent.PortalK8sConfigMapModifier;
 import com.liferay.portal.k8s.agent.configuration.PortalK8sAgentConfiguration;
 import com.liferay.portal.k8s.agent.mutator.PortalK8sConfigurationPropertiesMutator;
@@ -70,7 +71,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  */
 @Component(
 	configurationPid = "com.liferay.portal.k8s.agent.configuration.PortalK8sAgentConfiguration",
-	configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true,
+	configurationPolicy = ConfigurationPolicy.REQUIRE,
 	property = "portalK8sConfigurationPropertiesMutators.cardinality.minimum:Integer=3",
 	service = PortalK8sConfigMapModifier.class
 )
@@ -236,6 +237,18 @@ public class PortalK8sAgentImpl implements PortalK8sConfigMapModifier {
 					}
 
 				});
+
+			if (binaryData.isEmpty() && data.isEmpty()) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(
+						StringBundler.concat(
+							"Config map does not exist and no data was ",
+							"supplied for ", configMapName,
+							" resulting in no change"));
+				}
+
+				return Result.UNCHANGED;
+			}
 
 			_validateLabels(configMapName, labels);
 
@@ -494,7 +507,14 @@ public class PortalK8sAgentImpl implements PortalK8sConfigMapModifier {
 			_log.debug("Processed configuration " + properties);
 		}
 
-		configuration.updateIfDifferent(properties);
+		try {
+			InMemoryOnlyConfigurationThreadLocal.setInMemoryOnly(true);
+
+			configuration.updateIfDifferent(properties);
+		}
+		finally {
+			InMemoryOnlyConfigurationThreadLocal.setInMemoryOnly(false);
+		}
 
 		configuration.addAttributes(
 			Configuration.ConfigurationAttribute.READ_ONLY);

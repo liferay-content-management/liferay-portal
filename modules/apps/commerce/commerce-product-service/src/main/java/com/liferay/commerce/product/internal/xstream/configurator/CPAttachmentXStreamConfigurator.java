@@ -28,9 +28,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Danny Situ
  */
-@Component(
-	enabled = false, immediate = true, service = XStreamConfigurator.class
-)
+@Component(service = XStreamConfigurator.class)
 public class CPAttachmentXStreamConfigurator implements XStreamConfigurator {
 
 	@Override

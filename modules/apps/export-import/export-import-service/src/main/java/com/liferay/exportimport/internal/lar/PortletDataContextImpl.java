@@ -422,11 +422,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 		String referenceKey = _getReferenceKey(classedModel);
 
 		if (missing) {
+			referenceElement.addAttribute("missing", Boolean.TRUE.toString());
+
 			if (_references.contains(referenceKey)) {
 				return referenceElement;
 			}
-
-			referenceElement.addAttribute("missing", Boolean.TRUE.toString());
 
 			if (!_missingReferences.contains(referenceKey)) {
 				_missingReferences.add(referenceKey);
@@ -1497,6 +1497,10 @@ public class PortletDataContextImpl implements PortletDataContext {
 	public void importPortletPermissions(String resourceName)
 		throws PortalException {
 
+		if (getGroupId() != getScopeGroupId()) {
+			return;
+		}
+
 		importPermissions(resourceName, getSourceGroupId(), getScopeGroupId());
 	}
 
@@ -1922,6 +1926,12 @@ public class PortletDataContextImpl implements PortletDataContext {
 			serviceContext.setCreateDate(auditedModel.getCreateDate());
 			serviceContext.setModifiedDate(auditedModel.getModifiedDate());
 			serviceContext.setUserId(getUserId(auditedModel));
+		}
+		else if (classedModel instanceof StagedModel) {
+			StagedModel stagedModel = (StagedModel)classedModel;
+
+			serviceContext.setCreateDate(stagedModel.getCreateDate());
+			serviceContext.setModifiedDate(stagedModel.getModifiedDate());
 		}
 
 		// Permissions

@@ -21,37 +21,53 @@ import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.field.builder.ObjectFieldBuilder;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
-import com.liferay.object.rest.odata.entity.v1_0.ObjectEntryEntityModel;
+import com.liferay.object.model.ObjectFieldSetting;
+import com.liferay.object.model.ObjectRelationship;
+import com.liferay.object.rest.dto.v1_0.ObjectEntry;
+import com.liferay.object.rest.resource.v1_0.ObjectEntryResource;
 import com.liferay.object.service.ObjectDefinitionLocalService;
-import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.object.service.ObjectFieldSettingLocalService;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.util.LocalizedMapUtil;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.CollectionEntityField;
 import com.liferay.portal.odata.entity.DateTimeEntityField;
 import com.liferay.portal.odata.entity.EntityField;
+import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.odata.entity.IdEntityField;
 import com.liferay.portal.odata.entity.IntegerEntityField;
 import com.liferay.portal.odata.entity.StringEntityField;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.vulcan.resource.EntityModelResource;
 
+import java.lang.reflect.Method;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * @author Feliphe Marinho
@@ -64,25 +80,40 @@ public class ObjectEntryEntityModelTest {
 	public static final LiferayIntegrationTestRule liferayIntegrationTestRule =
 		new LiferayIntegrationTestRule();
 
-	@Test
-	public void testGetEntityFieldsMap() throws PortalException {
-		String value = "A" + RandomTestUtil.randomString();
+	@After
+	public void tearDown() throws Exception {
+		for (ObjectRelationship objectRelationship : _objectRelationships) {
+			_objectRelationshipLocalService.deleteObjectRelationship(
+				objectRelationship);
+		}
 
-		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.addCustomObjectDefinition(
-				TestPropsValues.getUserId(),
-				LocalizedMapUtil.getLocalizedMap(value), value, null, null,
-				LocalizedMapUtil.getLocalizedMap(value),
-				ObjectDefinitionConstants.SCOPE_COMPANY,
-				ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
-				Collections.emptyList());
+		for (ObjectDefinition objectDefinition : _objectDefinitions) {
+			_objectDefinitionLocalService.deleteObjectDefinition(
+				objectDefinition);
+		}
+
+		_serviceTrackerMap.close();
+	}
+
+	@Test
+	public void testGetEntityFieldsMap() throws Exception {
+		String value = "A" + RandomTestUtil.randomString();
 
 		List<ObjectField> customObjectFields = Arrays.asList(
 			new ObjectFieldBuilder(
 			).businessType(
 				ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT
+			).dbType(
+				ObjectFieldConstants.DB_TYPE_LONG
 			).name(
-				RandomTestUtil.randomString()
+				"a" + RandomTestUtil.randomString()
+			).objectFieldSettings(
+				Arrays.asList(
+					_createObjectFieldSetting("acceptedFileExtensions", "txt"),
+					_createObjectFieldSetting("fileSource", "userComputer"),
+					_createObjectFieldSetting("maximumFileSize", "100"))
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(value)
 			).build(),
 			_createObjectField(ObjectFieldConstants.DB_TYPE_BIG_DECIMAL),
 			_createObjectField(ObjectFieldConstants.DB_TYPE_BOOLEAN),
@@ -91,95 +122,18 @@ public class ObjectEntryEntityModelTest {
 			_createObjectField(ObjectFieldConstants.DB_TYPE_DOUBLE),
 			_createObjectField(ObjectFieldConstants.DB_TYPE_INTEGER),
 			_createObjectField(ObjectFieldConstants.DB_TYPE_LONG),
-			new ObjectFieldBuilder(
-			).relationshipType(
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY
-			).name(
-				RandomTestUtil.randomString()
-			).build(),
 			_createObjectField(ObjectFieldConstants.DB_TYPE_STRING));
 
-		for (ObjectField customObjectField : customObjectFields) {
-			EntityField entityField = _toExpectedEntityField(customObjectField);
+		ObjectDefinition objectDefinition = _publishObjectDefinition(
+			value, customObjectFields);
 
-			_expectedEntityFieldsMap.put(entityField.getName(), entityField);
-		}
+		ObjectDefinition relatedObjectDefinition = _publishObjectDefinition(
+			"A" + RandomTestUtil.randomString(), customObjectFields);
 
-		ObjectEntryEntityModel objectEntryEntityModel =
-			new ObjectEntryEntityModel(
-				ListUtil.concat(
-					_objectFieldLocalService.getObjectFields(
-						objectDefinition.getObjectDefinitionId()),
-					customObjectFields));
+		ObjectRelationship objectRelationship = _addObjectRelationship(
+			objectDefinition, relatedObjectDefinition);
 
 		_assertEquals(
-			_expectedEntityFieldsMap,
-			objectEntryEntityModel.getEntityFieldsMap());
-	}
-
-	private void _assertEquals(
-		Map<String, EntityField> expectedEntityFieldsMap,
-		Map<String, EntityField> actualEntityFieldsMap) {
-
-		Assert.assertEquals(
-			actualEntityFieldsMap.toString(), _expectedEntityFieldsMap.size(),
-			actualEntityFieldsMap.size());
-
-		for (Map.Entry<String, EntityField> entry :
-				expectedEntityFieldsMap.entrySet()) {
-
-			EntityField expectedEntityField = entry.getValue();
-			EntityField actualEntityField = actualEntityFieldsMap.get(
-				entry.getKey());
-
-			Assert.assertEquals(
-				actualEntityFieldsMap.toString(), expectedEntityField.getName(),
-				actualEntityField.getName());
-			Assert.assertEquals(
-				actualEntityField.toString(), expectedEntityField.getType(),
-				actualEntityField.getType());
-		}
-	}
-
-	private ObjectField _createObjectField(String dbType) {
-		return new ObjectFieldBuilder(
-		).dbType(
-			dbType
-		).name(
-			RandomTestUtil.randomString()
-		).build();
-	}
-
-	private EntityField _toExpectedEntityField(ObjectField objectField) {
-		if (Objects.equals(
-				ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT,
-				objectField.getBusinessType())) {
-
-			return new StringEntityField(
-				objectField.getName(), locale -> objectField.getName());
-		}
-
-		if (Objects.equals(
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY,
-				objectField.getRelationshipType())) {
-
-			String objectFieldName = objectField.getName();
-
-			return new IdEntityField(
-				objectFieldName.substring(
-					objectFieldName.lastIndexOf(StringPool.UNDERLINE) + 1),
-				locale -> objectFieldName, String::valueOf);
-		}
-
-		return new EntityField(
-			objectField.getName(),
-			_objectFieldDBTypeEntityFieldTypeMap.get(objectField.getDBType()),
-			locale -> objectField.getName(), locale -> objectField.getName(),
-			String::valueOf);
-	}
-
-	private static final Map<String, EntityField> _expectedEntityFieldsMap =
-		HashMapBuilder.create(
 			HashMapBuilder.<String, EntityField>put(
 				"creator", new StringEntityField("creator", locale -> "creator")
 			).put(
@@ -215,8 +169,208 @@ public class ObjectEntryEntityModelTest {
 			).put(
 				"userId",
 				new IntegerEntityField("userId", locale -> Field.USER_ID)
-			).build()
+			).putAll(
+				_getExpectedEntityFieldsMap(
+					customObjectFields, objectRelationship,
+					relatedObjectDefinition)
+			).build(),
+			_getObjectDefinitionEntityFieldsMap(objectDefinition));
+	}
+
+	private ObjectRelationship _addObjectRelationship(
+			ObjectDefinition objectDefinition,
+			ObjectDefinition relatedObjectDefinition)
+		throws Exception {
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.addObjectRelationship(
+				TestPropsValues.getUserId(),
+				relatedObjectDefinition.getObjectDefinitionId(),
+				objectDefinition.getObjectDefinitionId(), 0,
+				ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				StringUtil.randomId(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+
+		_objectRelationships.add(objectRelationship);
+
+		return objectRelationship;
+	}
+
+	private void _assertEquals(
+		Map<String, EntityField> expectedEntityFieldsMap,
+		Map<String, EntityField> actualEntityFieldsMap) {
+
+		Assert.assertEquals(
+			actualEntityFieldsMap.toString(), expectedEntityFieldsMap.size(),
+			actualEntityFieldsMap.size());
+
+		for (Map.Entry<String, EntityField> entry :
+				expectedEntityFieldsMap.entrySet()) {
+
+			EntityField expectedEntityField = entry.getValue();
+			EntityField actualEntityField = actualEntityFieldsMap.get(
+				entry.getKey());
+
+			Assert.assertEquals(
+				actualEntityFieldsMap.toString(), expectedEntityField.getName(),
+				actualEntityField.getName());
+			Assert.assertEquals(
+				actualEntityField.toString(), expectedEntityField.getType(),
+				actualEntityField.getType());
+		}
+	}
+
+	private ObjectField _createObjectField(String dbType) {
+		return new ObjectFieldBuilder(
+		).dbType(
+			dbType
+		).labelMap(
+			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+		).name(
+			"a" + RandomTestUtil.randomString()
+		).objectFieldSettings(
+			Collections.emptyList()
 		).build();
+	}
+
+	private ObjectFieldSetting _createObjectFieldSetting(
+		String name, String value) {
+
+		ObjectFieldSetting objectFieldSetting =
+			_objectFieldSettingLocalService.createObjectFieldSetting(0L);
+
+		objectFieldSetting.setName(name);
+		objectFieldSetting.setValue(value);
+
+		return objectFieldSetting;
+	}
+
+	private Map<String, EntityField> _getExpectedEntityFieldsMap(
+		List<ObjectField> customObjectFields,
+		ObjectRelationship objectRelationship,
+		ObjectDefinition relatedObjectDefinition) {
+
+		Map<String, EntityField> expectedEntityFieldsMap = new HashMap<>();
+
+		for (ObjectField customObjectField : customObjectFields) {
+			EntityField entityField = _toExpectedEntityField(customObjectField);
+
+			expectedEntityFieldsMap.put(entityField.getName(), entityField);
+		}
+
+		String pkObjectFieldName =
+			relatedObjectDefinition.getPKObjectFieldName();
+		String relationshipEntityFieldPrefix = StringBundler.concat(
+			"r_", objectRelationship.getName(), "_");
+
+		String expectedObjectFieldName =
+			relationshipEntityFieldPrefix + pkObjectFieldName;
+
+		expectedEntityFieldsMap.put(
+			expectedObjectFieldName,
+			new IdEntityField(
+				expectedObjectFieldName, locale -> expectedObjectFieldName,
+				String::valueOf));
+
+		String expectedObjectRelationshipERCObjectFieldName =
+			relationshipEntityFieldPrefix +
+				StringUtil.replaceLast(pkObjectFieldName, "Id", "ERC");
+
+		expectedEntityFieldsMap.put(
+			expectedObjectRelationshipERCObjectFieldName,
+			new StringEntityField(
+				expectedObjectRelationshipERCObjectFieldName,
+				locale -> expectedObjectFieldName));
+
+		String expectedRelatedObjectDefinitionIdObjectFieldName =
+			pkObjectFieldName.replaceFirst("c_", "");
+
+		expectedEntityFieldsMap.put(
+			expectedRelatedObjectDefinitionIdObjectFieldName,
+			new IdEntityField(
+				expectedRelatedObjectDefinitionIdObjectFieldName,
+				locale -> expectedObjectFieldName, String::valueOf));
+
+		return expectedEntityFieldsMap;
+	}
+
+	private Map<String, EntityField> _getObjectDefinitionEntityFieldsMap(
+			ObjectDefinition objectDefinition)
+		throws Exception {
+
+		Map<String, EntityField> objectEntityFieldsMap = null;
+
+		Bundle bundle = FrameworkUtil.getBundle(
+			ObjectEntryEntityModelTest.class);
+
+		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
+			bundle.getBundleContext(), ObjectEntryResource.class,
+			"entity.class.name");
+
+		ObjectEntryResource objectEntryResource = _serviceTrackerMap.getService(
+			StringBundler.concat(
+				ObjectEntry.class.getName(), StringPool.POUND,
+				objectDefinition.getOSGiJaxRsName()));
+
+		if (objectEntryResource instanceof EntityModelResource) {
+			Class<?> clazz = objectEntryResource.getClass();
+
+			Method method = clazz.getMethod(
+				"setObjectDefinition", ObjectDefinition.class);
+
+			method.invoke(objectEntryResource, objectDefinition);
+
+			EntityModelResource entityModelResource =
+				(EntityModelResource)objectEntryResource;
+
+			EntityModel entityModel = entityModelResource.getEntityModel(null);
+
+			objectEntityFieldsMap = entityModel.getEntityFieldsMap();
+		}
+
+		return objectEntityFieldsMap;
+	}
+
+	private ObjectDefinition _publishObjectDefinition(
+			String objectDefinitionName, List<ObjectField> objectFields)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.addCustomObjectDefinition(
+				TestPropsValues.getUserId(),
+				LocalizedMapUtil.getLocalizedMap(objectDefinitionName),
+				objectDefinitionName, null, null,
+				LocalizedMapUtil.getLocalizedMap(objectDefinitionName),
+				ObjectDefinitionConstants.SCOPE_COMPANY,
+				ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT, objectFields);
+
+		objectDefinition =
+			_objectDefinitionLocalService.publishCustomObjectDefinition(
+				TestPropsValues.getUserId(),
+				objectDefinition.getObjectDefinitionId());
+
+		_objectDefinitions.add(objectDefinition);
+
+		return objectDefinition;
+	}
+
+	private EntityField _toExpectedEntityField(ObjectField objectField) {
+		if (Objects.equals(
+				ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT,
+				objectField.getBusinessType())) {
+
+			return new StringEntityField(
+				objectField.getName(), locale -> objectField.getName());
+		}
+
+		return new EntityField(
+			objectField.getName(),
+			_objectFieldDBTypeEntityFieldTypeMap.get(objectField.getDBType()),
+			locale -> objectField.getName(), locale -> objectField.getName(),
+			String::valueOf);
+	}
+
 	private static final Map<String, EntityField.Type>
 		_objectFieldDBTypeEntityFieldTypeMap = HashMapBuilder.put(
 			ObjectFieldConstants.DB_TYPE_BIG_DECIMAL, EntityField.Type.DOUBLE
@@ -239,7 +393,16 @@ public class ObjectEntryEntityModelTest {
 	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
+	private final List<ObjectDefinition> _objectDefinitions = new ArrayList<>();
+
 	@Inject
-	private ObjectFieldLocalService _objectFieldLocalService;
+	private ObjectFieldSettingLocalService _objectFieldSettingLocalService;
+
+	@Inject
+	private ObjectRelationshipLocalService _objectRelationshipLocalService;
+
+	private final List<ObjectRelationship> _objectRelationships =
+		new ArrayList<>();
+	private ServiceTrackerMap<String, ObjectEntryResource> _serviceTrackerMap;
 
 }

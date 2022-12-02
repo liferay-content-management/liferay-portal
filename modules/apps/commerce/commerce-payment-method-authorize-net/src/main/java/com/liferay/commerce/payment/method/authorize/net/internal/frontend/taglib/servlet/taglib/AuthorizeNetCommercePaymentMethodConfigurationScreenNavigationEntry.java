@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.settings.GroupServiceSettingsLocator;
 import com.liferay.portal.kernel.settings.ParameterMapSettingsLocator;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
 
 import java.io.IOException;
 
@@ -46,7 +45,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luca Pellizzon
  */
 @Component(
-	enabled = false, property = "screen.navigation.entry.order:Integer=20",
+	property = "screen.navigation.entry.order:Integer=20",
 	service = ScreenNavigationEntry.class
 )
 public class AuthorizeNetCommercePaymentMethodConfigurationScreenNavigationEntry
@@ -147,9 +146,6 @@ public class AuthorizeNetCommercePaymentMethodConfigurationScreenNavigationEntry
 
 	@Reference
 	private Language _language;
-
-	@Reference
-	private Portal _portal;
 
 	@Reference(
 		target = "(osgi.web.symbolicname=com.liferay.commerce.payment.method.authorize.net)"

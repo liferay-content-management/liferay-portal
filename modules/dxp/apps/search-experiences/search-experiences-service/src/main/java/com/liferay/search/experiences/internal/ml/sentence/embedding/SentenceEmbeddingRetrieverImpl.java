@@ -18,9 +18,12 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.search.experiences.configuration.SentenceTransformerConfiguration;
+import com.liferay.search.experiences.configuration.SemanticSearchConfiguration;
+import com.liferay.search.experiences.ml.sentence.embedding.SentenceEmbeddingRetriever;
 
+import java.util.List;
 import java.util.Map;
 
 import org.osgi.framework.BundleContext;
@@ -32,36 +35,51 @@ import org.osgi.service.component.annotations.Deactivate;
  * @author Petteri Karttunen
  */
 @Component(
-	configurationPid = "com.liferay.search.experiences.configuration.SentenceTransformerConfiguration",
-	enabled = false, immediate = true,
-	service = SentenceEmbeddingRetriever.class
+	configurationPid = "com.liferay.search.experiences.configuration.SemanticSearchConfiguration",
+	enabled = false, service = SentenceEmbeddingRetriever.class
 )
 public class SentenceEmbeddingRetrieverImpl
 	implements SentenceEmbeddingRetriever {
 
 	@Override
-	public Double[] getSentenceEmbedding(String text) {
-		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-163688"))) {
+	public List<String> getAvailableSentenceTransformerNames() {
+		return ListUtil.fromCollection(
+			_sentenceTransformerServiceTrackerMap.keySet());
+	}
+
+	@Override
+	public Double[] getSentenceEmbedding(
+		SemanticSearchConfiguration semanticSearchConfiguration, String text) {
+
+		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-163688")) ||
+			!semanticSearchConfiguration.sentenceTransformerEnabled()) {
+
 			return new Double[0];
 		}
 
 		SentenceTransformer sentenceTransformer =
 			_sentenceTransformerServiceTrackerMap.getService(
-				_sentenceTransformerConfiguration.sentenceTransformProvider());
+				semanticSearchConfiguration.sentenceTransformer());
 
 		if (sentenceTransformer == null) {
 			return new Double[0];
 		}
 
-		return sentenceTransformer.getSentenceEmbedding(text);
+		return sentenceTransformer.getSentenceEmbedding(
+			semanticSearchConfiguration, text);
+	}
+
+	@Override
+	public Double[] getSentenceEmbedding(String text) {
+		return getSentenceEmbedding(_semanticSearchConfiguration, text);
 	}
 
 	@Activate
 	protected void activate(
 		Map<String, Object> properties, BundleContext bundleContext) {
 
-		_sentenceTransformerConfiguration = ConfigurableUtil.createConfigurable(
-			SentenceTransformerConfiguration.class, properties);
+		_semanticSearchConfiguration = ConfigurableUtil.createConfigurable(
+			SemanticSearchConfiguration.class, properties);
 
 		_sentenceTransformerServiceTrackerMap =
 			ServiceTrackerMapFactory.openSingleValueMap(
@@ -74,8 +92,7 @@ public class SentenceEmbeddingRetrieverImpl
 		_sentenceTransformerServiceTrackerMap.close();
 	}
 
-	private volatile SentenceTransformerConfiguration
-		_sentenceTransformerConfiguration;
+	private volatile SemanticSearchConfiguration _semanticSearchConfiguration;
 	private ServiceTrackerMap<String, SentenceTransformer>
 		_sentenceTransformerServiceTrackerMap;
 

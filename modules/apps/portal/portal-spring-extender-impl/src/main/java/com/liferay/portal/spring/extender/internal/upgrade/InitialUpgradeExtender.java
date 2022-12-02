@@ -16,6 +16,7 @@ package com.liferay.portal.spring.extender.internal.upgrade;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.db.DBResourceUtil;
 import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBContext;
@@ -27,16 +28,11 @@ import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionary;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.module.util.BundleUtil;
 import com.liferay.portal.spring.extender.internal.configuration.ConfigurationUtil;
 import com.liferay.portal.spring.extender.internal.upgrade.InitialUpgradeExtender.InitialUpgradeExtension;
 import com.liferay.portal.spring.hibernate.DialectDetector;
-
-import java.io.IOException;
-import java.io.InputStream;
-
-import java.net.URL;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -69,10 +65,7 @@ public class InitialUpgradeExtender
 	public InitialUpgradeExtension addingBundle(
 		Bundle bundle, BundleEvent bundleEvent) {
 
-		Dictionary<String, String> headers = bundle.getHeaders(
-			StringPool.BLANK);
-
-		if (headers.get("Liferay-Service") == null) {
+		if (!BundleUtil.isLiferayServiceBundle(bundle)) {
 			return null;
 		}
 
@@ -244,32 +237,10 @@ public class InitialUpgradeExtender
 			_bundle = bundle;
 		}
 
-		private String _getSQLTemplateString(String templateName)
-			throws UpgradeException {
-
-			URL resource = _bundle.getResource("/META-INF/sql/" + templateName);
-
-			if (resource == null) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("Unable to locate SQL template " + templateName);
-				}
-
-				return null;
-			}
-
-			try (InputStream inputStream = resource.openStream()) {
-				return StringUtil.read(inputStream);
-			}
-			catch (IOException ioException) {
-				throw new UpgradeException(
-					"Unable to read SQL template " + templateName, ioException);
-			}
-		}
-
 		private void _upgrade() throws UpgradeException {
-			String tablesSQL = _getSQLTemplateString("tables.sql");
-			String sequencesSQL = _getSQLTemplateString("sequences.sql");
-			String indexesSQL = _getSQLTemplateString("indexes.sql");
+			String indexesSQL = DBResourceUtil.getModuleIndexesSQL(_bundle);
+			String sequencesSQL = DBResourceUtil.getModuleSequencesSQL(_bundle);
+			String tablesSQL = DBResourceUtil.getModuleTablesSQL(_bundle);
 
 			try (Connection connection = _dataSource.getConnection()) {
 				if (tablesSQL != null) {

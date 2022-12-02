@@ -44,7 +44,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alec Sloan
  */
-@Component(enabled = false, immediate = true, service = Indexer.class)
+@Component(service = Indexer.class)
 public class CommerceShippingFixedOptionIndexer
 	extends BaseIndexer<CommerceShippingFixedOption> {
 
@@ -150,8 +150,8 @@ public class CommerceShippingFixedOptionIndexer
 		throws Exception {
 
 		_indexWriterHelper.updateDocument(
-			getSearchEngineId(), commerceShippingFixedOption.getCompanyId(),
-			getDocument(commerceShippingFixedOption), isCommitImmediately());
+			commerceShippingFixedOption.getCompanyId(),
+			getDocument(commerceShippingFixedOption));
 	}
 
 	@Override
@@ -210,7 +210,6 @@ public class CommerceShippingFixedOptionIndexer
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}

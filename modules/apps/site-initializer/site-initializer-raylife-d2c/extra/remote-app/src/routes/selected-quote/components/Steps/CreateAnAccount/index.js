@@ -41,7 +41,7 @@ const _isEmailValid = (email) => {
 	return regex.test(email);
 };
 
-export function CreateAnAccount() {
+export function CreateAnAccount({createAnAccount, setCreateAnAccount}) {
 	const [, dispatch] = useContext(SelectedQuoteContext);
 	const [alert, setAlert] = useState(NATURAL_VALUE);
 	const [confirmPassword, setConfirmPassword] = useState('');
@@ -52,7 +52,6 @@ export function CreateAnAccount() {
 	const [captcha, setCaptcha] = useState('');
 	const [hasError, setHasError] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [createAnAccount, setCreateAnAccount] = useState(false);
 
 	useEffect(() => {
 		setAlert(NATURAL_VALUE);
@@ -63,7 +62,7 @@ export function CreateAnAccount() {
 			setLoading(true);
 
 			SendAccountRequest(email, password, captcha)
-				.then((response) => {
+				.then(() => {
 					dispatch({
 						payload: {
 							panelKey: 'uploadDocuments',
@@ -86,11 +85,6 @@ export function CreateAnAccount() {
 							value: true,
 						},
 						type: ACTIONS.SET_STEP_CHECKED,
-					});
-
-					dispatch({
-						payload: response.id,
-						type: ACTIONS.SET_ACCOUNT_ID,
 					});
 				})
 				.catch(() => {

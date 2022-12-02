@@ -99,9 +99,9 @@
 			"name": "Test Account Portal",
 			"partner": false,
 			"region": "India",
-			"slaCurrentEndDate": "2022-08-24 00:00:00.0",
-			"slaCurrentStartDate": "2021-08-24 00:00:00.0",
-			"slaFuture": "Gold Subscription"
+			"slaCurrentEndDate": "2025-08-24 00:00:00.0",
+			"slaFuture": "Gold Subscription",
+			"slaFutureStartDate": "2024-08-24 00:00:00.0"
 		},
 		{
 			"accountKey": "ERC-007",
@@ -218,6 +218,7 @@
 			"accountKey": "ERC-014",
 			"code": "TESTACCOUNT14",
 			"dxpVersion": "7.4",
+			"externalReferenceCode": "ERC-014",
 			"liferayContactEmailAddress": "customer-service@liferay.com",
 			"liferayContactName": "Liferay Support",
 			"maxRequestors": -1,

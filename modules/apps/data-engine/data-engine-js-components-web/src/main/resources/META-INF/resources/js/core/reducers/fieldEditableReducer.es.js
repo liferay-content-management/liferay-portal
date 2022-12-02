@@ -645,6 +645,22 @@ export default function fieldEditableReducer(state, action, config) {
 			return {
 				fieldHovered: action.payload,
 			};
+		case EVENT_TYPES.DND.MOVE: {
+			const {focusedField, pages} = state;
+
+			if (!focusedField.fieldName) {
+				return state;
+			}
+
+			const updatedFocusedField = FormSupport.findFieldByFieldName(
+				pages,
+				focusedField.fieldName
+			);
+
+			return {
+				focusedField: updatedFocusedField,
+			};
+		}
 		case EVENT_TYPES.SECTION.ADD: {
 			const {
 				activePage,

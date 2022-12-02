@@ -19,6 +19,7 @@ import ClayLink from '@clayui/link';
 import ClaySticker from '@clayui/sticker';
 import ClayTabs from '@clayui/tabs';
 import classNames from 'classnames';
+import {sub} from 'frontend-js-web';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 
 import {LAYOUT_TYPES} from '../../../app/config/constants/layoutTypes';
@@ -129,31 +130,34 @@ export default function PageDesignOptionsSidebar() {
 
 	return (
 		<>
-			<SidebarPanelHeader>
-				<span className="align-items-center d-flex justify-content-between">
-					{Liferay.Language.get('page-design-options')}
-
+			<SidebarPanelHeader
+				iconRight={
 					<ClayLink
 						displayType="secondary"
 						href={config.lookAndFeelURL}
 						monospaced
-						title={Liferay.Language.get('more')}
+						title={Liferay.Language.get('more-page-design-options')}
 					>
 						<ClayIcon symbol="cog" />
 					</ClayLink>
-				</span>
+				}
+			>
+				{Liferay.Language.get('page-design-options')}
 			</SidebarPanelHeader>
 
-			<ClayTabs className="flex-shrink-0 page-editor__sidebar__page-design-options__tabs px-3">
+			<ClayTabs
+				activation="automatic"
+				active={activeTabId}
+				className="flex-shrink-0 page-editor__sidebar__page-design-options__tabs px-3"
+				onActiveChange={setActiveTabId}
+			>
 				{tabs.map((tab, index) => (
 					<ClayTabs.Item
-						active={activeTabId === index}
 						innerProps={{
 							'aria-controls': getTabPanelId(index),
 							'id': getTabId(index),
 						}}
 						key={index}
-						onClick={() => setActiveTabId(index)}
 					>
 						{tab.label}
 					</ClayTabs.Item>
@@ -165,9 +169,12 @@ export default function PageDesignOptionsSidebar() {
 				className="overflow-auto px-3"
 				fade
 			>
-				{tabs.map(({icon, options, type}, index) => (
+				{tabs.map(({icon, label, options, type}, index) => (
 					<ClayTabs.TabPane
-						aria-labelledby={getTabId(index)}
+						aria-label={sub(
+							Liferay.Language.get('select-x'),
+							label
+						)}
 						id={getTabPanelId(index)}
 						key={index}
 					>
@@ -213,7 +220,14 @@ const OptionList = ({options = [], icon, type}) => {
 									onClick();
 								}
 							}}
+							onKeyDown={(event) => {
+								if (event.key === 'Enter' && !isActive) {
+									onClick();
+								}
+							}}
+							role="button"
 							selectable
+							tabIndex="0"
 						>
 							<ClayCard.AspectRatio
 								className="card-item-first"

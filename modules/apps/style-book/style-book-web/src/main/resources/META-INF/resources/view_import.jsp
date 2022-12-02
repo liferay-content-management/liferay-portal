@@ -33,17 +33,6 @@ ImportStyleBookDisplayContext importStyleBookDisplayContext = new ImportStyleBoo
 	<liferay-frontend:edit-form-body>
 
 		<%
-		List<String> draftStyleBookEntryZipProcessorImportResultEntryNames = importStyleBookDisplayContext.getStyleBookEntryZipProcessorImportResultEntryNames(StyleBookEntryZipProcessorImportResultEntry.Status.IMPORTED_DRAFT);
-		%>
-
-		<c:if test="<%= ListUtil.isNotEmpty(draftStyleBookEntryZipProcessorImportResultEntryNames) %>">
-			<clay:alert
-				dismissible="<%= true %>"
-				message='<%= LanguageUtil.format(request, "the-following-style-books-have-validation-issues.-they-have-been-left-in-draft-status-x", "<strong>" + StringUtil.merge(draftStyleBookEntryZipProcessorImportResultEntryNames, StringPool.COMMA_AND_SPACE) + "</strong>", false) %>'
-			/>
-		</c:if>
-
-		<%
 		List<String> invalidStyleBookEntryZipProcessorImportResultEntryNames = importStyleBookDisplayContext.getStyleBookEntryZipProcessorImportResultEntryNames(StyleBookEntryZipProcessorImportResultEntry.Status.INVALID);
 		%>
 
@@ -66,24 +55,36 @@ ImportStyleBookDisplayContext importStyleBookDisplayContext = new ImportStyleBoo
 
 		<liferay-ui:error exception="<%= StyleBookEntryFileException.class %>" message="the-selected-file-is-not-a-valid-zip-file" />
 
-		<liferay-frontend:fieldset-group>
-			<liferay-frontend:fieldset>
-				<aui:input label="select-file" name="file" type="file">
-					<aui:validator name="required" />
+		<c:if test='<%= SessionMessages.contains(renderRequest, "styleBookFrontendTokensValuesNotValidated") %>'>
+			<aui:script>
+				Liferay.Util.openToast({
+					message:
+						'<liferay-ui:message key="one-or-more-of-the-style-books-are-based-on-a-theme-that-is-different-from-the-site-default-theme" />',
+					title: Liferay.Language.get('warning'),
+					toastProps: {
+						autoClose: 5000,
+					},
+					type: 'warning',
+				});
+			</aui:script>
+		</c:if>
 
-					<aui:validator name="acceptFiles">
-						'zip'
-					</aui:validator>
-				</aui:input>
+		<liferay-frontend:fieldset>
+			<aui:input label="select-file" name="file" type="file">
+				<aui:validator name="required" />
 
-				<aui:input checked="<%= true %>" label="overwrite-existing-style-books" name="overwrite" type="checkbox" />
-			</liferay-frontend:fieldset>
-		</liferay-frontend:fieldset-group>
+				<aui:validator name="acceptFiles">
+					'zip'
+				</aui:validator>
+			</aui:input>
+
+			<aui:input checked="<%= true %>" label="overwrite-existing-style-books" name="overwrite" type="checkbox" />
+		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
-		<aui:button type="submit" value="import" />
-
-		<aui:button type="cancel" />
+		<liferay-frontend:edit-form-buttons
+			submitLabel="import"
+		/>
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>

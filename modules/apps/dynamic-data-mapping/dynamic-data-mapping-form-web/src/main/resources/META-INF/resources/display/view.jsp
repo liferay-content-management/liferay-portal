@@ -93,8 +93,10 @@ boolean limitToOneSubmissionPerUser = DDMFormInstanceSubmissionLimitStatusUtil.i
 					pageTitle = ddmFormDisplayContext.getSuccessPageTitle(displayLocale);
 				}
 				else {
-					pageDescription = LanguageUtil.get(request, "you-can-fill-out-this-form-only-once.-contact-the-owner-of-the-form-if-you-think-this-is-a-mistake");
-					pageTitle = LanguageUtil.get(request, "you-have-already-responded");
+					Map<String, String> limitToOneSubmissionPerUserMap = ddmFormDisplayContext.getLimitToOneSubmissionPerUserMap();
+
+					pageDescription = limitToOneSubmissionPerUserMap.get("limitToOneSubmissionPerUserBody");
+					pageTitle = limitToOneSubmissionPerUserMap.get("limitToOneSubmissionPerUserHeader");
 				}
 				%>
 
@@ -103,6 +105,8 @@ boolean limitToOneSubmissionPerUser = DDMFormInstanceSubmissionLimitStatusUtil.i
 					props='<%=
 						HashMapBuilder.<String, Object>put(
 							"dataEngineModule", ddmFormDisplayContext.getDataEngineModule()
+						).put(
+							"displayChartAsTable", ddmFormDisplayContext.isDisplayChartAsTable()
 						).put(
 							"formDescription", formInstance.getDescription(displayLocale)
 						).put(
@@ -271,6 +275,8 @@ boolean limitToOneSubmissionPerUser = DDMFormInstanceSubmissionLimitStatusUtil.i
 									).put(
 										"description", StringUtil.trim(formInstance.getDescription(displayLocale))
 									).put(
+										"displayChartAsTable", ddmFormDisplayContext.isDisplayChartAsTable()
+									).put(
 										"formReportDataURL", formReportDataURL.toString()
 									).put(
 										"title", formInstance.getName(displayLocale)
@@ -413,9 +419,7 @@ boolean limitToOneSubmissionPerUser = DDMFormInstanceSubmissionLimitStatusUtil.i
 						</c:choose>
 					}
 
-					<c:if test="<%= ddmFormDisplayContext.isRememberMe() %>">
-						var rememberMe = true;
-					</c:if>
+					var rememberMe = <%= ddmFormDisplayContext.isRememberMe() %>;
 
 					window.<portlet:namespace />sessionIntervalId = setInterval(() => {
 						if (Liferay.Session || rememberMe) {

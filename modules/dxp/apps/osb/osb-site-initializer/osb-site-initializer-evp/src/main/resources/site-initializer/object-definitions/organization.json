@@ -1,6 +1,6 @@
 {
 	"accountEntryRestricted": false,
-	"accountEntryRestrictedObjectFieldId": 0,
+	"accountEntryRestrictedObjectFieldName": "",
 	"actions": {
 		"delete": {
 		},
@@ -384,13 +384,26 @@
 			"state": false,
 			"system": false,
 			"type": "String"
+		},
+		{
+			"DBType": "String",
+			"businessType": "Picklist",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Organization Status"
+			},
+			"listTypeDefinitionId": "[$LIST_TYPE_DEFINITION_ID:Organization: Organization Status$]",
+			"name": "organizationStatus",
+			"required": false,
+			"type": "String"
 		}
 	],
 	"objectLayouts": [
 	],
 	"objectViews": [
 	],
-	"panelCategoryKey": "",
+	"panelCategoryKey": "control_panel.object",
 	"parameterRequired": false,
 	"pluralLabel": {
 		"en_US": "EVP Organization"

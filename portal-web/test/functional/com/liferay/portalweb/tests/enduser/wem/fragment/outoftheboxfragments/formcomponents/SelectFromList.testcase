@@ -64,8 +64,10 @@ definition {
 	}
 
 	@description = "This is a test for LPS-151159. The page designer map the Select from List fragment to objects fields on content pages."
-	@priority = "4"
+	@priority = "5"
 	test MapPicklistFieldOnContentPage {
+		property portal.acceptance = "true";
+
 		task ("Given a page designer has a mapped Form Container on content page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -106,7 +108,7 @@ definition {
 				locator1 = "Fragment#INPUT_TOGGLE",
 				type = "select-from-list");
 
-			MenuItem.viewOrder(menuItemList = "Choose an Option,Reserved,Giveaways,Members");
+			MenuItem.viewOrder(menuItemList = "Reserved,Giveaways,Members");
 		}
 
 		task ("When the page designer navigates to published content page at view mode") {
@@ -130,7 +132,7 @@ definition {
 				locator1 = "Fragment#INPUT_TOGGLE",
 				type = "select-from-list");
 
-			MenuItem.viewOrder(menuItemList = "Choose an Option,Reserved,Giveaways,Members");
+			MenuItem.viewOrder(menuItemList = "Reserved,Giveaways,Members");
 		}
 	}
 
@@ -212,9 +214,10 @@ definition {
 		}
 
 		task ("Then the page designer can only see 10 options on dropdown menu") {
-			AssertTextEquals(
+			AssertAttributeValue(
+				attribute1 = "placeholder",
 				index = "1",
-				locator1 = "Fragment#INPUT_TOGGLE",
+				locator1 = "Fragment#INPUT_FIELD",
 				type = "select-from-list",
 				value1 = "Choose an Option");
 
@@ -223,7 +226,7 @@ definition {
 				locator1 = "Fragment#INPUT_TOGGLE",
 				type = "select-from-list");
 
-			MenuItem.viewOrder(menuItemList = "Choose an Option,Fried chicken,Omelet,Pizza,Kebab,Fish,Steak,Broth,Tossed Salad,Dressing,Pasta");
+			MenuItem.viewOrder(menuItemList = "Fried chicken,Omelet,Pizza,Kebab,Fish,Steak,Broth,Tossed Salad,Dressing,Pasta");
 
 			MenuItem.viewNotPresent(menuItem = "Rice");
 
@@ -242,14 +245,16 @@ definition {
 				locator1 = "Fragment#INPUT_TOGGLE",
 				type = "select-from-list");
 
-			MenuItem.viewOrder(menuItemList = "Choose an Option,Fried chicken,Omelet,Pizza,Kebab,Fish,Steak,Broth,Tossed Salad,Dressing,Pasta");
+			MenuItem.viewOrder(menuItemList = "Fried chicken,Omelet,Pizza,Kebab,Fish,Steak,Broth,Tossed Salad,Dressing,Pasta");
 
 			MenuItem.viewNotPresent(menuItem = "Rice");
 		}
 
 		task ("When the page designer searches an non-existing option") {
-			Type(
-				locator1 = "MenuItem#SEARCH_FIELD",
+			Type.sendKeys(
+				index = "1",
+				locator1 = "Fragment#INPUT_FIELD",
+				type = "select-from-list",
 				value1 = "Non-Existing");
 		}
 
@@ -258,8 +263,15 @@ definition {
 		}
 
 		task ("When the page designer searches for the 11th entry") {
-			Type(
-				locator1 = "MenuItem#SEARCH_FIELD",
+			Click(
+				index = "1",
+				locator1 = "Fragment#INPUT_TOGGLE",
+				type = "select-from-list");
+
+			Type.sendKeys(
+				index = "1",
+				locator1 = "Fragment#INPUT_FIELD",
+				type = "select-from-list",
 				value1 = "Rice");
 		}
 
@@ -275,8 +287,10 @@ definition {
 	}
 
 	@description = "This is a test for LPS-154568. The page designer can map a Form Container to Object field with relationship on system object"
-	@priority = "4"
+	@priority = "5"
 	test MapRelationshipWithSystemObject {
+		property portal.acceptance = "true";
+
 		task ("Given a page designer has a mapped Form Container to an Object with relationship on system object") {
 			task ("Add relationship with Account object") {
 				ObjectAdmin.addObjectRelationshipViaAPI(
@@ -337,7 +351,7 @@ definition {
 				locator1 = "Fragment#INPUT_TOGGLE",
 				type = "select-from-list");
 
-			MenuItem.viewOrder(menuItemList = "Choose an Option,Assets,Equity,Expenses,Free");
+			MenuItem.viewOrder(menuItemList = "Assets,Equity,Expenses,Free");
 		}
 
 		task ("When the page designer navigates to published content page at view mode") {
@@ -354,7 +368,7 @@ definition {
 				locator1 = "Fragment#INPUT_TOGGLE",
 				type = "select-from-list");
 
-			MenuItem.viewOrder(menuItemList = "Choose an Option,Assets,Equity,Expenses,Free");
+			MenuItem.viewOrder(menuItemList = "Assets,Equity,Expenses,Free");
 		}
 
 		task ("When the page designer adds six accounts") {
@@ -375,9 +389,7 @@ definition {
 				locator1 = "Fragment#INPUT_TOGGLE",
 				type = "select-from-list");
 
-			MenuItem.viewOrder(menuItemList = "Choose an Option,Assets,Equity,Expenses,Free,Liabilities,Nominal,Personal,Real,Revenue,Saving");
-
-			AssertNotVisible(locator1 = "MenuItem#SEARCH_FIELD");
+			MenuItem.viewOrder(menuItemList = "Assets,Equity,Expenses,Free,Liabilities,Nominal,Personal,Real,Revenue,Saving");
 
 			var objectDefinitionId = ObjectDefinitionAPI.getObjectDefinitionIdByName(name = "AccountEntry");
 
@@ -418,15 +430,15 @@ definition {
 				pageName = "Test Page Name",
 				siteName = "Test Site Name");
 
-			SetElementAttribute(
-				attribute1 = "data-option-value",
-				locator1 = "//li[contains(@class,'dropdown')][normalize-space(text())='Reserved']",
-				value = "invalid");
-
 			Click(
 				index = "1",
 				locator1 = "Fragment#INPUT_TOGGLE",
 				type = "select-from-list");
+
+			SetElementAttribute(
+				attribute1 = "data-option-value",
+				locator1 = "//li[contains(@class,'dropdown')][normalize-space(text())='Reserved']",
+				value1 = "invalid");
 
 			MenuItem.click(menuItem = "Reserved");
 

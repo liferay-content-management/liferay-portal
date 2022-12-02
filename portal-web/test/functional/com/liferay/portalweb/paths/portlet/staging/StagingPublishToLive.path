@@ -118,7 +118,7 @@
 
 <tr>
 	<td>PAGES_CHOOSE_PAGE_DELETION_CHECKBOX</td>
-	<td>//span[contains(.,'Publish Page Deletions')]//span[contains(@class,'deletions')]/../../input</td>
+	<td>//input[contains(@data-qa-id,'DELETE_LAYOUTS')]</td>
 	<td></td>
 </tr>
 <tr>

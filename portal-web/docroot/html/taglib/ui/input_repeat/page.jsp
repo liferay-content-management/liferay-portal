@@ -32,7 +32,7 @@ int yearlyMonth1 = ParamUtil.getInteger(request, "yearlyMonth1", Calendar.JANUAR
 %>
 
 <aui:fieldset cssClass='<%= "taglib-input-repeat " + cssClass %>'>
-	<aui:col id="eventsContainer" width="<%= 25 %>">
+	<div class="col-md-3" id="<portlet:namespace />eventsContainer">
 		<aui:field-wrapper label="repeat" name="recurrenceType">
 			<aui:input checked="<%= recurrenceType == Recurrence.NO_RECURRENCE %>" id="recurrenceTypeNever" label="never" name="recurrenceType" type="radio" value="<%= Recurrence.NO_RECURRENCE %>" />
 
@@ -44,9 +44,9 @@ int yearlyMonth1 = ParamUtil.getInteger(request, "yearlyMonth1", Calendar.JANUAR
 
 			<aui:input checked="<%= recurrenceType == Recurrence.YEARLY %>" id="recurrenceTypeYearly" label="yearly" name="recurrenceType" type="radio" value="<%= Recurrence.YEARLY %>" />
 		</aui:field-wrapper>
-	</aui:col>
+	</div>
 
-	<aui:col last="<%= true %>" width="<%= 75 %>">
+	<div class="col-md-9">
 		<div class="<%= (recurrenceType != Recurrence.NO_RECURRENCE) ? "hide" : StringPool.BLANK %>" id="<portlet:namespace />recurrenceTypeNeverTable">
 			<liferay-ui:message key="do-not-repeat-this-event" />
 		</div>
@@ -66,29 +66,29 @@ int yearlyMonth1 = ParamUtil.getInteger(request, "yearlyMonth1", Calendar.JANUAR
 			String[] days = CalendarUtil.getDays(locale);
 			%>
 
-			<aui:row cssClass="clearfix pt-3 weekdays">
-				<aui:col width="<%= 25 %>">
+			<div class="clearfix pt-3 row weekdays">
+				<div class="col-md-3">
 					<aui:input inlineLabel="right" label="<%= days[0] %>" name='<%= "weeklyDayPos" + Calendar.SUNDAY %>' type="checkbox" value="<%= _getWeeklyDayPos(request, Calendar.SUNDAY, recurrence) %>" />
 
 					<aui:input inlineLabel="right" label="<%= days[4] %>" name='<%= "weeklyDayPos" + Calendar.THURSDAY %>' type="checkbox" value="<%= _getWeeklyDayPos(request, Calendar.THURSDAY, recurrence) %>" />
-				</aui:col>
+				</div>
 
-				<aui:col width="<%= 25 %>">
+				<div class="col-md-3">
 					<aui:input inlineLabel="right" label="<%= days[1] %>" name='<%= "weeklyDayPos" + Calendar.MONDAY %>' type="checkbox" value="<%= _getWeeklyDayPos(request, Calendar.MONDAY, recurrence) %>" />
 
 					<aui:input inlineLabel="right" label="<%= days[5] %>" name='<%= "weeklyDayPos" + Calendar.FRIDAY %>' type="checkbox" value="<%= _getWeeklyDayPos(request, Calendar.FRIDAY, recurrence) %>" />
-				</aui:col>
+				</div>
 
-				<aui:col width="<%= 25 %>">
+				<div class="col-md-3">
 					<aui:input inlineLabel="right" label="<%= days[2] %>" name='<%= "weeklyDayPos" + Calendar.TUESDAY %>' type="checkbox" value="<%= _getWeeklyDayPos(request, Calendar.TUESDAY, recurrence) %>" />
 
 					<aui:input inlineLabel="right" label="<%= days[6] %>" name='<%= "weeklyDayPos" + Calendar.SATURDAY %>' type="checkbox" value="<%= _getWeeklyDayPos(request, Calendar.SATURDAY, recurrence) %>" />
-				</aui:col>
+				</div>
 
-				<aui:col width="<%= 25 %>">
+				<div class="col-md-3">
 					<aui:input inlineLabel="right" label="<%= days[3] %>" name='<%= "weeklyDayPos" + Calendar.WEDNESDAY %>' type="checkbox" value="<%= _getWeeklyDayPos(request, Calendar.WEDNESDAY, recurrence) %>" />
-				</aui:col>
-			</aui:row>
+				</div>
+			</div>
 		</div>
 
 		<div class="<%= (recurrenceType != Recurrence.MONTHLY) ? "hide" : StringPool.BLANK %>" id="<portlet:namespace />recurrenceTypeMonthlyTable">
@@ -189,17 +189,17 @@ int yearlyMonth1 = ParamUtil.getInteger(request, "yearlyMonth1", Calendar.JANUAR
 				<aui:input inlineField="<%= true %>" inlineLabel="right" label="year-s" maxlength="2" name="yearlyInterval1" size="2" type="text" value='<%= ParamUtil.getInteger(request, "yearlyInterval1", 1) %>' />
 			</span>
 		</div>
-	</aui:col>
+	</div>
 </aui:fieldset>
 
-<aui:script require="frontend-js-web/liferay/delegate/delegate.es as delegateModule">
+<aui:script require="frontend-js-web/index as frontendJsWeb">
+	var {delegate} = frontendJsWeb;
+
 	var tables = document.querySelectorAll('#<portlet:namespace />recurrenceTypeDailyTable, #<portlet:namespace />recurrenceTypeMonthlyTable, #<portlet:namespace />recurrenceTypeNeverTable, #<portlet:namespace />recurrenceTypeWeeklyTable, #<portlet:namespace />recurrenceTypeYearlyTable');
 
 	var eventsContainer = document.getElementById('<portlet:namespace />eventsContainer');
 
 	if (eventsContainer) {
-		var delegate = delegateModule.default;
-
 		delegate(
 			eventsContainer,
 			'change',

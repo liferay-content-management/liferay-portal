@@ -18,7 +18,7 @@ import com.liferay.frontend.token.definition.FrontendToken;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.frontend.token.definition.FrontendTokenMapping;
-import com.liferay.layout.page.template.util.LayoutStructureUtil;
+import com.liferay.layout.provider.LayoutStructureProvider;
 import com.liferay.layout.responsive.ViewportSize;
 import com.liferay.layout.taglib.internal.util.SegmentsExperienceUtil;
 import com.liferay.layout.util.structure.CommonStylesUtil;
@@ -28,7 +28,7 @@ import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.layout.util.structure.StyledLayoutStructureItem;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -75,7 +75,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Víctor Galán
  */
 @Component(
-	immediate = true,
 	property = {
 		"osgi.http.whiteboard.context.path=/layout-common-styles",
 		"osgi.http.whiteboard.servlet.name=com.liferay.layout.taglib.internal.servlet.LayoutStructureCommonStylesCSSServlet",
@@ -111,7 +110,7 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 		}
 
 		LayoutStructure layoutStructure =
-			LayoutStructureUtil.getLayoutStructure(
+			_layoutStructureProvider.getLayoutStructure(
 				layout.getPlid(),
 				SegmentsExperienceUtil.getSegmentsExperienceId(
 					httpServletRequest));
@@ -183,14 +182,14 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 
 	private JSONObject _createJSONObject(String json) {
 		try {
-			return JSONFactoryUtil.createJSONObject(json);
+			return _jsonFactory.createJSONObject(json);
 		}
 		catch (JSONException jsonException) {
 			if (_log.isDebugEnabled()) {
 				_log.debug(jsonException);
 			}
 
-			return JSONFactoryUtil.createJSONObject();
+			return _jsonFactory.createJSONObject();
 		}
 	}
 
@@ -211,8 +210,7 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 	private JSONObject _getFrontendTokensJSONObject(
 		long groupId, Layout layout, boolean styleBookEntryPreview) {
 
-		JSONObject frontendTokensJSONObject =
-			JSONFactoryUtil.createJSONObject();
+		JSONObject frontendTokensJSONObject = _jsonFactory.createJSONObject();
 
 		StyleBookEntry styleBookEntry = null;
 
@@ -222,7 +220,7 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 		}
 
 		JSONObject frontendTokenValuesJSONObject =
-			JSONFactoryUtil.createJSONObject();
+			_jsonFactory.createJSONObject();
 
 		if (styleBookEntry != null) {
 			frontendTokenValuesJSONObject = _createJSONObject(
@@ -232,7 +230,7 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 		Group group = _groupLocalService.fetchGroup(groupId);
 
 		if (group == null) {
-			return JSONFactoryUtil.createJSONObject();
+			return _jsonFactory.createJSONObject();
 		}
 
 		LayoutSet layoutSet = _layoutSetLocalService.fetchLayoutSet(
@@ -246,7 +244,7 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 				layoutSet.getThemeId());
 
 		if (frontendTokenDefinition == null) {
-			return JSONFactoryUtil.createJSONObject();
+			return _jsonFactory.createJSONObject();
 		}
 
 		Collection<FrontendToken> frontendTokens =
@@ -362,7 +360,7 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 		).map(
 			viewportJSONObject -> viewportJSONObject.getJSONObject("styles")
 		).orElse(
-			JSONFactoryUtil.createJSONObject()
+			_jsonFactory.createJSONObject()
 		);
 	}
 
@@ -374,11 +372,18 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 		if (styleName.startsWith("margin") || styleName.startsWith("padding")) {
 			StringBundler sb = new StringBundler(5);
 
-			sb.append("var(--spacer-");
-			sb.append(value);
-			sb.append(StringPool.COMMA);
-			sb.append(_spacings.get(value));
-			sb.append("rem)");
+			String spacingValue = _spacings.get(value);
+
+			if (Validator.isNotNull(spacingValue)) {
+				sb.append("var(--spacer-");
+				sb.append(value);
+				sb.append(StringPool.COMMA);
+				sb.append(spacingValue);
+				sb.append("rem)");
+			}
+			else {
+				sb.append(value);
+			}
 
 			return sb.toString();
 		}
@@ -474,9 +479,15 @@ public class LayoutStructureCommonStylesCSSServlet extends HttpServlet {
 	private GroupLocalService _groupLocalService;
 
 	@Reference
+	private JSONFactory _jsonFactory;
+
+	@Reference
 	private LayoutLocalService _layoutLocalService;
 
 	@Reference
 	private LayoutSetLocalService _layoutSetLocalService;
+
+	@Reference
+	private LayoutStructureProvider _layoutStructureProvider;
 
 }

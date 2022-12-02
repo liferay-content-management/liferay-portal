@@ -12,9 +12,12 @@
  * details.
  */
 
+import TestrayError from '../../TestrayError';
+import i18n from '../../i18n';
 import yupSchema from '../../schema/yup';
+import {SearchBuilder} from '../../util/search';
 import Rest from './Rest';
-import {TestraySuite} from './types';
+import {APIResponse, TestraySuite} from './types';
 
 type Suite = typeof yupSchema.suite.__outputType & {projectId: number};
 
@@ -40,6 +43,36 @@ class TestraySuiteRest extends Rest<Suite, TestraySuite> {
 			}),
 			uri: 'suites',
 		});
+	}
+	protected async validate(suite: Suite, id?: number) {
+		const searchBuilder = new SearchBuilder();
+
+		if (id) {
+			searchBuilder.ne('id', id).and();
+		}
+
+		const filters = searchBuilder
+			.eq('name', suite.name)
+			.and()
+			.eq('projectId', suite.projectId)
+			.build();
+
+		const response = await this.fetcher<APIResponse<TestraySuite>>(
+			`/suites?filter=${filters}`
+		);
+
+		if (response?.totalCount) {
+			throw new TestrayError(
+				i18n.sub('the-x-name-already-exists', 'suite')
+			);
+		}
+	}
+	protected async beforeCreate(suite: Suite): Promise<void> {
+		await this.validate(suite);
+	}
+
+	protected async beforeUpdate(id: number, suite: Suite): Promise<void> {
+		await this.validate(suite, id);
 	}
 }
 

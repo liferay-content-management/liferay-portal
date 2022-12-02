@@ -16,15 +16,15 @@ package com.liferay.fragment.entry.processor.helper;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.fragment.processor.FragmentEntryProcessorContext;
 import com.liferay.info.item.InfoItemFieldValues;
-import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
+import com.liferay.info.item.InfoItemReference;
 import com.liferay.info.type.WebImage;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Eudaldo Alonso
@@ -32,51 +32,29 @@ import java.util.Optional;
 @ProviderType
 public interface FragmentEntryProcessorHelper {
 
-	public String formatMappedValue(Object value, Locale locale);
-
 	public String getEditableValue(JSONObject jsonObject, Locale locale);
+
+	public Object getFieldValue(
+			JSONObject editableValueJSONObject,
+			Map<Long, InfoItemFieldValues> infoDisplaysFieldValues,
+			FragmentEntryProcessorContext fragmentEntryProcessorContext)
+		throws PortalException;
+
+	public long getFileEntryId(
+		InfoItemReference infoItemReference, String fieldName, Locale locale);
 
 	public long getFileEntryId(
 			long classNameId, long classPK, String fieldName, Locale locale)
 		throws PortalException;
 
-	public long getFileEntryId(
-		Object displayObject, String fieldName, Locale locale);
-
 	public long getFileEntryId(String className, long classPK);
 
 	public long getFileEntryId(WebImage webImage);
-
-	public Object getMappedCollectionValue(
-			Optional<Object> displayObjectOptional, JSONObject jsonObject,
-			Locale locale)
-		throws PortalException;
-
-	public Object getMappedInfoItemFieldValue(
-			JSONObject jsonObject,
-			Map<Long, InfoItemFieldValues> infoItemFieldValuesMap,
-			Locale locale, String mode, long previewClassPK,
-			String previewVersion)
-		throws PortalException;
-
-	public Object getMappedInfoItemFieldValue(
-			JSONObject jsonObject,
-			Map<Long, InfoItemFieldValues> infoItemFieldValuesMap, String mode,
-			Locale locale, long previewClassPK, long previewClassNameId,
-			int previewType)
-		throws PortalException;
-
-	public Object getMappedInfoItemFieldValue(
-		String fieldName,
-		InfoItemFieldValuesProvider infoItemFieldValuesProvider, Locale locale,
-		Object object);
-
-	public boolean isAssetDisplayPage(String mode);
 
 	public boolean isMapped(JSONObject jsonObject);
 
 	public boolean isMappedCollection(JSONObject jsonObject);
 
-	public boolean isMappedLayout(JSONObject jsonObject);
+	public boolean isMappedDisplayPage(JSONObject jsonObject);
 
 }

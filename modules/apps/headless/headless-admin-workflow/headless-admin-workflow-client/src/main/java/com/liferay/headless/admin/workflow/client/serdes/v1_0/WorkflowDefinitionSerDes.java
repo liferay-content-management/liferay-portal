@@ -64,6 +64,16 @@ public class WorkflowDefinitionSerDes {
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssXX");
 
+		if (workflowDefinition.getActions() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"actions\": ");
+
+			sb.append(_toJSON(workflowDefinition.getActions()));
+		}
+
 		if (workflowDefinition.getActive() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -132,6 +142,16 @@ public class WorkflowDefinitionSerDes {
 			sb.append(_escape(workflowDefinition.getDescription()));
 
 			sb.append("\"");
+		}
+
+		if (workflowDefinition.getId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"id\": ");
+
+			sb.append(workflowDefinition.getId());
 		}
 
 		if (workflowDefinition.getName() != null) {
@@ -253,6 +273,13 @@ public class WorkflowDefinitionSerDes {
 		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssXX");
 
+		if (workflowDefinition.getActions() == null) {
+			map.put("actions", null);
+		}
+		else {
+			map.put("actions", String.valueOf(workflowDefinition.getActions()));
+		}
+
 		if (workflowDefinition.getActive() == null) {
 			map.put("active", null);
 		}
@@ -294,6 +321,13 @@ public class WorkflowDefinitionSerDes {
 			map.put(
 				"description",
 				String.valueOf(workflowDefinition.getDescription()));
+		}
+
+		if (workflowDefinition.getId() == null) {
+			map.put("id", null);
+		}
+		else {
+			map.put("id", String.valueOf(workflowDefinition.getId()));
 		}
 
 		if (workflowDefinition.getName() == null) {
@@ -363,7 +397,14 @@ public class WorkflowDefinitionSerDes {
 			WorkflowDefinition workflowDefinition, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "active")) {
+			if (Objects.equals(jsonParserFieldName, "actions")) {
+				if (jsonParserFieldValue != null) {
+					workflowDefinition.setActions(
+						(Map)WorkflowDefinitionSerDes.toMap(
+							(String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "active")) {
 				if (jsonParserFieldValue != null) {
 					workflowDefinition.setActive((Boolean)jsonParserFieldValue);
 				}
@@ -389,6 +430,12 @@ public class WorkflowDefinitionSerDes {
 				if (jsonParserFieldValue != null) {
 					workflowDefinition.setDescription(
 						(String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "id")) {
+				if (jsonParserFieldValue != null) {
+					workflowDefinition.setId(
+						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "name")) {

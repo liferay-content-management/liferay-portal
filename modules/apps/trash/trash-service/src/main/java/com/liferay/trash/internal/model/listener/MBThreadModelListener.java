@@ -18,6 +18,7 @@ import com.liferay.message.boards.model.MBThread;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.trash.TrashHelper;
 import com.liferay.trash.service.TrashEntryLocalService;
 import com.liferay.trash.service.TrashVersionLocalService;
 
@@ -27,14 +28,14 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Eudaldo Alonso
  */
-@Component(immediate = true, service = ModelListener.class)
+@Component(service = ModelListener.class)
 public class MBThreadModelListener extends BaseModelListener<MBThread> {
 
 	@Override
 	public void onBeforeRemove(MBThread mbThread)
 		throws ModelListenerException {
 
-		if (mbThread.isInTrashExplicitly()) {
+		if (_trashHelper.isInTrashExplicitly(mbThread)) {
 			_trashEntryLocalService.deleteEntry(
 				MBThread.class.getName(), mbThread.getThreadId());
 		}
@@ -46,6 +47,9 @@ public class MBThreadModelListener extends BaseModelListener<MBThread> {
 
 	@Reference
 	private TrashEntryLocalService _trashEntryLocalService;
+
+	@Reference
+	private TrashHelper _trashHelper;
 
 	@Reference
 	private TrashVersionLocalService _trashVersionLocalService;

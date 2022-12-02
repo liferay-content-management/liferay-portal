@@ -40,7 +40,6 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.commerce.currency.configuration.CommerceCurrencyConfiguration",
-	enabled = false, immediate = true,
 	service = UpdateExchangeRateMessageListener.class
 )
 public class UpdateExchangeRateMessageListener extends BaseMessageListener {

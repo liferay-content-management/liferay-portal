@@ -199,10 +199,11 @@ public class DownstreamBuild extends BaseBuild {
 
 		if (result.equals("UNSTABLE")) {
 			List<Element> failureElements = getTestResultGitHubElements(
-				getUniqueFailureTestResults());
+				getUniqueFailureTestResults(), true);
 
 			List<Element> upstreamJobFailureElements =
-				getTestResultGitHubElements(getUpstreamJobFailureTestResults());
+				getTestResultGitHubElements(
+					getUpstreamJobFailureTestResults(), false);
 
 			if (!upstreamJobFailureElements.isEmpty()) {
 				upstreamJobFailureMessageElement = messageElement.createCopy();
@@ -326,6 +327,14 @@ public class DownstreamBuild extends BaseBuild {
 		}
 
 		return warningMessages;
+	}
+
+	public synchronized void update() {
+		super.update();
+
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(getResult())) {
+			setStatus("completed");
+		}
 	}
 
 	protected DownstreamBuild(String url, TopLevelBuild topLevelBuild) {
@@ -696,15 +705,52 @@ public class DownstreamBuild extends BaseBuild {
 	}
 
 	protected List<Element> getTestResultGitHubElements(
-		List<TestResult> testResults) {
+		List<TestResult> testResults, boolean uniqueFailures) {
 
 		List<Element> testResultGitHubElements = new ArrayList<>();
 
+		List<TestClassResult> testClassResults = new ArrayList<>();
+
 		for (TestResult testResult : testResults) {
-			testResultGitHubElements.add(testResult.getGitHubElement());
+			if (testResult instanceof PoshiJUnitTestResult) {
+				testResultGitHubElements.add(testResult.getGitHubElement());
+
+				continue;
+			}
+
+			TestClassResult testClassResult = testResult.getTestClassResult();
+
+			if (testClassResult == null) {
+				testResultGitHubElements.add(testResult.getGitHubElement());
+
+				continue;
+			}
+
+			if (testClassResults.contains(testClassResult)) {
+				continue;
+			}
+
+			Element gitHubElement = testClassResult.getGitHubElement(
+				uniqueFailures);
+
+			if (gitHubElement == null) {
+				continue;
+			}
+
+			testResultGitHubElements.add(gitHubElement);
+
+			testClassResults.add(testClassResult);
 		}
 
 		return testResultGitHubElements;
+	}
+
+	protected void setResult(String result) {
+		this.result = result;
+
+		if (JenkinsResultsParserUtil.isNullOrEmpty(result)) {
+			setStatus("running");
+		}
 	}
 
 	private static final FailureMessageGenerator[] _FAILURE_MESSAGE_GENERATORS =

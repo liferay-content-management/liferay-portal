@@ -14,6 +14,7 @@
 
 package com.liferay.fragment.model.impl;
 
+import com.liferay.document.library.kernel.service.DLAppServiceUtil;
 import com.liferay.fragment.constants.FragmentExportImportConstants;
 import com.liferay.fragment.constants.FragmentPortletKeys;
 import com.liferay.fragment.model.FragmentComposition;
@@ -27,18 +28,21 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
-import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.zip.ZipWriter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Eudaldo Alonso
@@ -46,18 +50,33 @@ import java.util.List;
 public class FragmentCollectionImpl extends FragmentCollectionBaseImpl {
 
 	@Override
-	public List<FileEntry> getResources() throws PortalException {
-		long groupId = getGroupId();
+	public FileEntry getResource(String path) {
+		try {
+			Repository repository = _getRepository();
 
-		if (groupId == 0) {
-			Company company = CompanyLocalServiceUtil.getCompany(
-				getCompanyId());
-
-			groupId = company.getGroupId();
+			return PortletFileRepositoryUtil.fetchPortletFileEntry(
+				getGroupId(),
+				_getResourcesFolderId(
+					getResourcesFolderId(true), path,
+					repository.getRepositoryId()),
+				_getFileName(path));
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Unable to get file entry", portalException);
+			}
 		}
 
-		return PortletFileRepositoryUtil.getPortletFileEntries(
-			groupId, getResourcesFolderId());
+		return null;
+	}
+
+	@Override
+	public List<FileEntry> getResources() throws PortalException {
+		Map<String, FileEntry> resourcesMap = _getResourcesMap(
+			PortletFileRepositoryUtil.getPortletFolder(getResourcesFolderId()),
+			null);
+
+		return new ArrayList<>(resourcesMap.values());
 	}
 
 	@Override
@@ -73,34 +92,14 @@ public class FragmentCollectionImpl extends FragmentCollectionBaseImpl {
 			return _resourcesFolderId;
 		}
 
-		long groupId = getGroupId();
-
-		if (groupId == 0) {
-			User user = UserLocalServiceUtil.getUser(getUserId());
-
-			groupId = user.getGroupId();
-		}
-
-		Repository repository =
-			PortletFileRepositoryUtil.fetchPortletRepository(
-				groupId, FragmentPortletKeys.FRAGMENT);
-
-		if (repository == null) {
-			ServiceContext serviceContext = new ServiceContext();
-
-			serviceContext.setAddGroupPermissions(true);
-			serviceContext.setAddGuestPermissions(true);
-
-			repository = PortletFileRepositoryUtil.addPortletRepository(
-				groupId, FragmentPortletKeys.FRAGMENT, serviceContext);
-		}
+		Repository repository = _getRepository();
 
 		Folder folder = null;
 
 		try {
 			folder = PortletFileRepositoryUtil.getPortletFolder(
 				repository.getRepositoryId(), repository.getDlFolderId(),
-				String.valueOf(getFragmentCollectionId()));
+				getFragmentCollectionKey());
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
@@ -115,8 +114,8 @@ public class FragmentCollectionImpl extends FragmentCollectionBaseImpl {
 
 				folder = PortletFileRepositoryUtil.addPortletFolder(
 					getUserId(), repository.getRepositoryId(),
-					repository.getDlFolderId(),
-					String.valueOf(getFragmentCollectionId()), serviceContext);
+					repository.getDlFolderId(), getFragmentCollectionKey(),
+					serviceContext);
 			}
 			else {
 				return 0;
@@ -128,11 +127,20 @@ public class FragmentCollectionImpl extends FragmentCollectionBaseImpl {
 		return _resourcesFolderId;
 	}
 
+	public Map<String, FileEntry> getResourcesMap() throws PortalException {
+		return _getResourcesMap(
+			PortletFileRepositoryUtil.getPortletFolder(getResourcesFolderId()),
+			null);
+	}
+
 	@Override
 	public boolean hasResources() throws PortalException {
+		Repository repository = _getRepository();
+
 		int fileEntriesCount =
-			PortletFileRepositoryUtil.getPortletFileEntriesCount(
-				getGroupId(), getResourcesFolderId());
+			DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcutsCount(
+				repository.getRepositoryId(), getResourcesFolderId(),
+				WorkflowConstants.STATUS_APPROVED, false);
 
 		if (fileEntriesCount <= 0) {
 			return false;
@@ -187,17 +195,152 @@ public class FragmentCollectionImpl extends FragmentCollectionBaseImpl {
 			return;
 		}
 
-		for (FileEntry fileEntry : getResources()) {
+		Map<String, FileEntry> resourcesMap = getResourcesMap();
+
+		for (Map.Entry<String, FileEntry> entry : resourcesMap.entrySet()) {
+			FileEntry fileEntry = entry.getValue();
+
 			zipWriter.addEntry(
-				StringBundler.concat(
-					path, "/resources/", fileEntry.getFileName()),
+				StringBundler.concat(path, "/resources/", entry.getKey()),
 				fileEntry.getContentStream());
 		}
+	}
+
+	private String _getFileName(String path) {
+		if (Validator.isNull(path) || path.endsWith(StringPool.SLASH)) {
+			return StringPool.BLANK;
+		}
+
+		if (path.startsWith(StringPool.SLASH)) {
+			path = path.substring(1);
+		}
+
+		int index = path.lastIndexOf(StringPool.SLASH);
+
+		if (index == -1) {
+			return path;
+		}
+
+		return path.substring(index + 1);
+	}
+
+	private Repository _getRepository() throws PortalException {
+		if (_repository != null) {
+			return _repository;
+		}
+
+		long groupId = getGroupId();
+
+		if (groupId == 0) {
+			User user = UserLocalServiceUtil.getUser(getUserId());
+
+			groupId = user.getGroupId();
+		}
+
+		Repository repository =
+			PortletFileRepositoryUtil.fetchPortletRepository(
+				groupId, FragmentPortletKeys.FRAGMENT);
+
+		if (repository == null) {
+			ServiceContext serviceContext = new ServiceContext();
+
+			serviceContext.setAddGroupPermissions(true);
+			serviceContext.setAddGuestPermissions(true);
+
+			repository = PortletFileRepositoryUtil.addPortletRepository(
+				groupId, FragmentPortletKeys.FRAGMENT, serviceContext);
+		}
+
+		_repository = repository;
+
+		return _repository;
+	}
+
+	private long _getResourcesFolderId(
+		long folderId, String path, long repositoryId) {
+
+		if (Validator.isNull(path) || path.endsWith(StringPool.SLASH)) {
+			return folderId;
+		}
+
+		if (path.startsWith(StringPool.SLASH)) {
+			path = path.substring(1);
+		}
+
+		String[] pathArray = path.split(StringPool.SLASH);
+
+		if (pathArray.length == 1) {
+			return folderId;
+		}
+
+		try {
+			Folder folder = DLAppServiceUtil.getFolder(
+				repositoryId, folderId, pathArray[0]);
+
+			return _getResourcesFolderId(
+				folder.getFolderId(),
+				path.substring(path.indexOf(StringPool.SLASH)), repositoryId);
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"No resource folder found with name " + pathArray[0],
+					exception);
+			}
+
+			return 0;
+		}
+	}
+
+	private Map<String, FileEntry> _getResourcesMap(
+			Folder folder, String parentPath)
+		throws PortalException {
+
+		Map<String, FileEntry> resourcesMap = new HashMap<>();
+
+		Repository repository = _getRepository();
+
+		List<Object> foldersAndFileEntriesAndFileShortcuts =
+			DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcuts(
+				repository.getRepositoryId(), folder.getFolderId(),
+				WorkflowConstants.STATUS_APPROVED, false, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS);
+
+		for (Object object : foldersAndFileEntriesAndFileShortcuts) {
+			if (object instanceof Folder) {
+				Folder childFolder = (Folder)object;
+
+				String childFolderPath = childFolder.getName();
+
+				if (!Validator.isBlank(parentPath)) {
+					childFolderPath =
+						parentPath + StringPool.SLASH + childFolderPath;
+				}
+
+				resourcesMap.putAll(
+					_getResourcesMap(childFolder, childFolderPath));
+			}
+			else if (object instanceof FileEntry) {
+				FileEntry fileEntry = (FileEntry)object;
+
+				String fileEntryPath = fileEntry.getTitle();
+
+				if (!Validator.isBlank(parentPath)) {
+					fileEntryPath =
+						parentPath + StringPool.SLASH + fileEntryPath;
+				}
+
+				resourcesMap.put(fileEntryPath, fileEntry);
+			}
+		}
+
+		return resourcesMap;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		FragmentCollectionImpl.class);
 
+	private Repository _repository;
 	private long _resourcesFolderId;
 
 }

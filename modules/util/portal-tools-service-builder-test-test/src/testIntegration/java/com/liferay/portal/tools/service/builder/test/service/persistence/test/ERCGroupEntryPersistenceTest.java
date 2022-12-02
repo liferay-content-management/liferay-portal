@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 import com.liferay.portal.test.rule.TransactionalTestRule;
+import com.liferay.portal.tools.service.builder.test.exception.DuplicateERCGroupEntryExternalReferenceCodeException;
 import com.liferay.portal.tools.service.builder.test.exception.NoSuchERCGroupEntryException;
 import com.liferay.portal.tools.service.builder.test.model.ERCGroupEntry;
 import com.liferay.portal.tools.service.builder.test.service.ERCGroupEntryLocalServiceUtil;
@@ -153,6 +154,26 @@ public class ERCGroupEntryPersistenceTest {
 			newERCGroupEntry.getCompanyId());
 	}
 
+	@Test(expected = DuplicateERCGroupEntryExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		ERCGroupEntry ercGroupEntry = addERCGroupEntry();
+
+		ERCGroupEntry newERCGroupEntry = addERCGroupEntry();
+
+		newERCGroupEntry.setGroupId(ercGroupEntry.getGroupId());
+
+		newERCGroupEntry = _persistence.update(newERCGroupEntry);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newERCGroupEntry);
+
+		newERCGroupEntry.setExternalReferenceCode(
+			ercGroupEntry.getExternalReferenceCode());
+
+		_persistence.update(newERCGroupEntry);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -181,12 +202,12 @@ public class ERCGroupEntryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByG_ERC() throws Exception {
-		_persistence.countByG_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_G() throws Exception {
+		_persistence.countByERC_G("", RandomTestUtil.nextLong());
 
-		_persistence.countByG_ERC(0L, "null");
+		_persistence.countByERC_G("null", 0L);
 
-		_persistence.countByG_ERC(0L, (String)null);
+		_persistence.countByERC_G((String)null, 0L);
 	}
 
 	@Test
@@ -494,15 +515,15 @@ public class ERCGroupEntryPersistenceTest {
 				new Class<?>[] {String.class}, "groupId"));
 
 		Assert.assertEquals(
-			Long.valueOf(ercGroupEntry.getGroupId()),
-			ReflectionTestUtil.<Long>invoke(
-				ercGroupEntry, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "groupId"));
-		Assert.assertEquals(
 			ercGroupEntry.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				ercGroupEntry, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(ercGroupEntry.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(
+				ercGroupEntry, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
 	}
 
 	protected ERCGroupEntry addERCGroupEntry() throws Exception {

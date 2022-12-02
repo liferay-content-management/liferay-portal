@@ -16,7 +16,6 @@ package com.liferay.headless.commerce.admin.channel.internal.dto.v1_0.converter;
 
 import com.liferay.commerce.shipping.engine.fixed.model.CommerceShippingFixedOptionQualifier;
 import com.liferay.commerce.shipping.engine.fixed.service.CommerceShippingFixedOptionQualifierService;
-import com.liferay.commerce.shipping.engine.fixed.service.CommerceShippingFixedOptionService;
 import com.liferay.commerce.term.model.CommerceTermEntry;
 import com.liferay.commerce.term.service.CommerceTermEntryService;
 import com.liferay.headless.commerce.admin.channel.dto.v1_0.ShippingFixedOptionTerm;
@@ -30,7 +29,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = "dto.class.name=com.liferay.commerce.payment.model.CommerceShippingFixedOptionQualifier-Term",
 	service = {DTOConverter.class, ShippingFixedOptionTermDTOConverter.class}
 )
@@ -77,10 +75,6 @@ public class ShippingFixedOptionTermDTOConverter
 	@Reference
 	private CommerceShippingFixedOptionQualifierService
 		_commerceShippingFixedOptionQualifierService;
-
-	@Reference
-	private CommerceShippingFixedOptionService
-		_commerceShippingFixedOptionService;
 
 	@Reference
 	private CommerceTermEntryService _commerceTermEntryService;

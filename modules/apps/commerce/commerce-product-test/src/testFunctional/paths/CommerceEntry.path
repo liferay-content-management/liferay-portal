@@ -16,6 +16,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>CHANNEL_ACCOUNT_DEFAULTS_MODAL_DROPDOWN</td>
+	<td>//div[contains(@class,'form-group input-select-wrapper')]//option[contains(text(),'${key_value}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ANY_MENU_ITEM</td>
 	<td>//div[contains(@class,'show')]//button[contains(.,'${key_menuItem}')] | //div[contains(@class,'show')]//a[contains(.,'${key_menuItem}')]</td>
 	<td></td>
@@ -133,6 +138,11 @@
 <tr>
 	<td>CHANGE_TAX_CATEGORY</td>
 	<td>//label[text()='Shipping Tax Category']/..//input[@type='text']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COMMERCE_OBJECT_NAME_ON_HEADER</td>
+	<td>//h1[contains(@class,'control-menu-level-1-heading') and contains(.,'${value1}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -312,7 +322,7 @@
 </tr>
 <tr>
 	<td>OPTION_SELECT</td>
-	<td>//div[contains (@class, 'select-field-trigger')]/a</td>
+	<td>//div[contains (@class, 'select-field-trigger')]//a</td>
 	<td></td>
 </tr>
 <tr>
@@ -581,6 +591,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>BODY_VERTICAL_ELLIPSIS_ORDER</td>
+	<td>//div[contains(@class,'portlet') and contains(@class,'container')]//a[span/*[name()='svg'][contains(@class,'icon-ellipsis')]] | //*[contains(@class,'sheet-title')]//*[contains(@class,'dropdown-toggle')][.//*[name()='svg'][contains(@class,'icon-ellipsis')]]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CHANNEL_TYPE_VALUE</td>
 	<td>//header[contains(., 'Type')]/../div[@class='description']</td>
 	<td></td>
@@ -688,6 +703,11 @@
 <tr>
 	<td>TABLE_ENTRY_EDIT_BUTTON</td>
 	<td>//h4[contains(.,'${key_table}')]//..//div/a[contains(.,'${key_entryName}')]//..//..//../div/a[contains(.,'Edit')] | //div[contains(.,'${key_table}')]//div[@class='dnd-tr'][contains(.,'${key_entryName}')]//a[contains(text(),'Edit')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TABLE_ASSERT_TWO_COLUMNS_EDIT_BUTTON</td>
+	<td>//div[contains(@id,'${key_table}')]//div[1][@class='dnd-td' and contains(.,'${key_firstColumnValue}')]/../div[@class='dnd-td' and contains (.,'${key_secondColumnValue}')]/../div[contains(.,'Edit')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -1076,6 +1096,11 @@
 <tr>
 	<td>PRODUCT_STATUS_BASED_ON_PRODUCT_NAME_WITH_ROW</td>
 	<td>xpath=((//a[text()='${key_productName}'])[${key_row}]/../../..//strong[contains(.,'${key_status}')])</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PRODUCT_ENTRY_CHECKBOX</td>
+	<td>//a[text()='${key_productName}']/../../..//input[@type='checkbox']</td>
 	<td></td>
 </tr>
 

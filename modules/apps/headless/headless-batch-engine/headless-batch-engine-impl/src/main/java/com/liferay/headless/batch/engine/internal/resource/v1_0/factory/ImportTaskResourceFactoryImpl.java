@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.lang.reflect.Constructor;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	immediate = true,
 	property = "resource.locator.key=/headless-batch-engine/v1.0/ImportTask",
 	service = ImportTaskResource.Factory.class
 )
@@ -140,16 +138,6 @@ public class ImportTaskResourceFactoryImpl
 		};
 	}
 
-	@Activate
-	protected void activate() {
-		ImportTaskResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		ImportTaskResource.FactoryHolder.factory = null;
-	}
-
 	private static Function<InvocationHandler, ImportTaskResource>
 		_getProxyProviderFunction() {
 
@@ -222,6 +210,7 @@ public class ImportTaskResourceFactoryImpl
 		importTaskResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		importTaskResource.setRoleLocalService(_roleLocalService);
+		importTaskResource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(importTaskResource, arguments);
@@ -270,6 +259,9 @@ public class ImportTaskResourceFactoryImpl
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

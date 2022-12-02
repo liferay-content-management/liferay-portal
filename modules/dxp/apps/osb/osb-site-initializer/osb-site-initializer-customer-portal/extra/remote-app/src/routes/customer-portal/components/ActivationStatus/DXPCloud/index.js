@@ -29,12 +29,14 @@ import {useCustomerPortal} from '../../../context';
 import {actionTypes} from '../../../context/reducer';
 import {
 	AUTO_CLOSE_ALERT_TIME,
+	LIST_TYPES,
 	STATUS_TAG_TYPES,
 	STATUS_TAG_TYPE_NAMES,
 } from '../../../utils/constants';
 import ModalDXPCActivationStatus from '../../ModalDXPCActivationStatus';
 import AlreadySubmittedFormModal from '../AlreadySubmittedModal';
 import ActivationStatusLayout from '../Layout';
+import PopoverIcon from './components/PopoverIcon';
 
 const submittedModalTexts = {
 	paragraph: i18n.translate(
@@ -68,8 +70,10 @@ const SetupDXPCloudModal = ({
 			) : (
 				<SetupDXPCloudForm
 					client={client}
+					dxpVersion={project.dxpVersion}
 					handlePage={onClose}
 					leftButton={i18n.translate('cancel')}
+					listType={LIST_TYPES.dxpVersion}
 					project={project}
 					setFormAlreadySubmitted={setFormAlreadySubmitted}
 					subscriptionGroupId={subscriptionGroupId}
@@ -140,7 +144,7 @@ const ActivationStatusDXPCloud = ({
 			buttonLink: (
 				<a
 					className="font-weight-semi-bold m-0 p-0 text-brand-primary text-paragraph"
-					href={`https://console.liferay.cloud/projects/${dxpCloudEnvironment?.projectId}/overview`}
+					href="https://console.liferay.cloud"
 					rel="noopener noreferrer"
 					target="_blank"
 				>
@@ -150,8 +154,14 @@ const ActivationStatusDXPCloud = ({
 				</a>
 			),
 			id: STATUS_TAG_TYPES.active,
-			subtitle: i18n.translate(
-				'your-lxc-sm-environments-are-ready-go-to-the-product-console-to-view-lxc-sm-details'
+			subtitle: (
+				<>
+					{i18n.translate('your-lxc-sm')}
+					<PopoverIcon />
+					{i18n.translate(
+						'environments-are-ready-go-to-the-product-console-to-view-lxc-sm-details'
+					)}
+				</>
 			),
 			title: i18n.translate('activation-status'),
 		},
@@ -179,8 +189,14 @@ const ActivationStatusDXPCloud = ({
 				/>
 			),
 			id: STATUS_TAG_TYPES.inProgress,
-			subtitle: i18n.translate(
-				'your-lxc-sm-environments-are-being-set-up-and-will-be-available-soon'
+			subtitle: (
+				<>
+					{i18n.translate('your-lxc-sm')}
+					<PopoverIcon />
+					{i18n.translate(
+						'environments-are-being-set-up-and-will-be-available-soon'
+					)}
+				</>
 			),
 			title: i18n.translate('activation-status'),
 		},
@@ -196,8 +212,12 @@ const ActivationStatusDXPCloud = ({
 				</Button>
 			),
 			id: STATUS_TAG_TYPES.notActivated,
-			subtitle: i18n.translate(
-				'almost-there-setup-lxc-sm-by-finishing-the-activation-form'
+			subtitle: (
+				<>
+					{i18n.translate('almost-there-setup-lxc-sm')}
+					<PopoverIcon />
+					{i18n.translate('by-finishing-the-activation-form')}
+				</>
 			),
 			title: i18n.translate('activation-status'),
 		},
@@ -235,6 +255,8 @@ const ActivationStatusDXPCloud = ({
 			{visibleSetup && (
 				<SetupDXPCloudModal
 					{...setupModalProps}
+					dxpVersion={project.dxpVersion}
+					listType={LIST_TYPES.dxpVersion}
 					onClose={onCloseSetupModal}
 					project={project}
 					subscriptionGroupId={

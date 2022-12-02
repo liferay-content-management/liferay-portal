@@ -15,6 +15,7 @@
 package com.liferay.commerce.product.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.commerce.product.exception.DuplicateCProductExternalReferenceCodeException;
 import com.liferay.commerce.product.exception.NoSuchCProductException;
 import com.liferay.commerce.product.model.CProduct;
 import com.liferay.commerce.product.service.CProductLocalServiceUtil;
@@ -186,6 +187,26 @@ public class CProductPersistenceTest {
 			newCProduct.getLatestVersion());
 	}
 
+	@Test(expected = DuplicateCProductExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		CProduct cProduct = addCProduct();
+
+		CProduct newCProduct = addCProduct();
+
+		newCProduct.setCompanyId(cProduct.getCompanyId());
+
+		newCProduct = _persistence.update(newCProduct);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newCProduct);
+
+		newCProduct.setExternalReferenceCode(
+			cProduct.getExternalReferenceCode());
+
+		_persistence.update(newCProduct);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -221,12 +242,12 @@ public class CProductPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -530,15 +551,15 @@ public class CProductPersistenceTest {
 				new Class<?>[] {String.class}, "groupId"));
 
 		Assert.assertEquals(
-			Long.valueOf(cProduct.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				cProduct, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			cProduct.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				cProduct, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(cProduct.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				cProduct, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected CProduct addCProduct() throws Exception {

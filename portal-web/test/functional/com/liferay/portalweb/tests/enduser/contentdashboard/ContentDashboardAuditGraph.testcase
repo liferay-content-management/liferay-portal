@@ -77,9 +77,14 @@ definition {
 		}
 
 		task ("Assert if only one asset is displayed") {
-			LexiconTable.viewTableEntryTitle(tableEntry = "Web Content Title 1");
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 1");
 
-			LexiconTable.viewTableEntryNotPresent(tableEntry = "Web Content Title 2");
+			AssertElementNotPresent(
+				key_tableEntry = "Web Content Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY");
 		}
 	}
 
@@ -250,15 +255,20 @@ definition {
 		}
 
 		task ("Assert if filter was applied") {
-			AssertElementPresent(
+			AssertVisible(
 				categoryName = "Audience 1",
 				locator1 = "ContentDashboard#FILTER_CATEGORY_NAME");
 		}
 
 		task ("Assert if only one asset is displayed") {
-			LexiconTable.viewTableEntryTitle(tableEntry = "Web Content Title 1");
+			AssertTextEquals(
+				key_tableEntry = "Web Content Title 1",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE",
+				value1 = "Web Content Title 1");
 
-			LexiconTable.viewTableEntryNotPresent(tableEntry = "Web Content Title 2");
+			AssertElementNotPresent(
+				key_tableEntry = "Web Content Title 2",
+				locator1 = "LexiconTable#TABLE_ENTRY");
 		}
 	}
 
@@ -285,7 +295,7 @@ definition {
 				value1 = "WC Title",
 				xAxisCtegoryName = "Stage 1");
 
-			ContentDashboard.flipAxesButtonClick();
+			ContentDashboard.flipGraphAxes();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#X_AXIS_VOCABULARY_NAME",
@@ -304,7 +314,7 @@ definition {
 		}
 
 		task ("Check if flip axes button is disabaled") {
-			AssertElementPresent(locator1 = "ContentDashboard#FLIP_AXES_BUTTON_DISABLED");
+			AssertVisible(locator1 = "Icon#FLIP_DISABLED");
 		}
 	}
 
@@ -345,7 +355,7 @@ definition {
 		}
 
 		task ("Prioritize stage vocabulary") {
-			ContentDashboard.stageFirstVocabularyConfiguration();
+			ContentDashboard.setVocabularyInUseTopPosition(key_vocabularyName = "Stage");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#X_AXIS_VOCABULARY_NAME",
@@ -434,7 +444,7 @@ definition {
 		}
 
 		task ("Prioritize stage vocabulary") {
-			ContentDashboard.stageFirstVocabularyConfiguration();
+			ContentDashboard.setVocabularyInUseTopPosition(key_vocabularyName = "Stage");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#X_AXIS_VOCABULARY_NAME",
@@ -517,21 +527,21 @@ definition {
 		}
 
 		task ("Check bars display") {
-			AssertElementPresent(
+			AssertVisible(
 				fillColor = "4B9FFF",
 				locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
 
-			AssertElementPresent(
+			AssertVisible(
 				fillColor = "FFB46E",
 				locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
 
-			ContentDashboard.flipAxesButtonClick();
+			ContentDashboard.flipGraphAxes();
 
-			AssertElementPresent(
+			AssertVisible(
 				fillColor = "4B9FFF",
 				locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
 
-			AssertElementPresent(
+			AssertVisible(
 				fillColor = "FFB46E",
 				locator1 = "ContentDashboard#BAR_FROM_NO_VOCABULARY_SPECIFIED");
 		}
@@ -555,7 +565,9 @@ definition {
 		}
 
 		task ("Uncheck categories checkboxes and assert message") {
-			ContentDashboard.uncheckCheckbox(auditGraphCheckboxName = "Stage 1");
+			Click.javaScriptClick(
+				checkboxName = "Stage 1",
+				locator1 = "Checkbox#ANY_CHECKBOX");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#NO_CATEGORIES_SELECTED_TEXT",
@@ -599,18 +611,11 @@ definition {
 		}
 
 		task ("Go to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
-		task ("Move vocabulary from available to in use") {
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Audience");
-		}
-
-		task ("Move vocabulary from available to in use") {
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Vocabulary Name 1");
+		task ("Move vocabularies between In Use and Available") {
+			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Audience,Vocabulary Name 1");
 		}
 
 		task ("Assert the site vocabularies in the graph") {
@@ -619,7 +624,7 @@ definition {
 				value1 = "WC Title",
 				xAxisCtegoryName = "Stage 2");
 
-			ContentDashboard.flipAxesButtonClick();
+			ContentDashboard.flipGraphAxes();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#X_AXIS_VOCABULARY_NAME",
@@ -666,26 +671,11 @@ definition {
 		}
 
 		task ("Navigate to Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
-		task ("Move vocabulary from In use to Available") {
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Audience");
-		}
-
-		task ("Move vocabulary from available to in use") {
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Vocabulary Name 1");
-		}
-
-		task ("Move vocabulary from In use to Available") {
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Stage");
-		}
-
-		task ("Move vocabulary from available to in use") {
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Vocabulary Name 2");
+		task ("Move vocabularies between In Use and Available") {
+			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Audience,Vocabulary Name 1,Stage,Vocabulary Name 2");
 		}
 
 		task ("Assert the site vocabularies in the graph") {
@@ -694,7 +684,7 @@ definition {
 				value1 = "WC Title",
 				xAxisCtegoryName = "Category 1");
 
-			ContentDashboard.flipAxesButtonClick();
+			ContentDashboard.flipGraphAxes();
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#X_AXIS_VOCABULARY_NAME",
@@ -708,20 +698,14 @@ definition {
 	Then the document is counted as an asset in the graph"
 	@priority = "4"
 	test BlogWithOneCategory {
-		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFBlogsEntryContentDashboardItemConfiguration.config";
-		property osgi.module.configurations = "blogsEntryEnabled=B&quot;true&quot;";
 		property portal.acceptance = "true";
 
-		task ("Add a vocabulary for Test Site Name") {
-			JSONCategory.addVocabulary(
-				groupName = "Test Site Name",
-				title = "Vocabulary 1");
-		}
-
-		task ("Add a vocabulary for Test Site Name") {
-			JSONCategory.addVocabulary(
-				groupName = "Test Site Name",
-				title = "Vocabulary 2");
+		task ("Create 2 new vocabularies") {
+			for (var vocabularyNumber : list "1,2") {
+				JSONCategory.addVocabulary(
+					groupName = "Test Site Name",
+					title = "Vocabulary ${vocabularyNumber}");
+			}
 		}
 
 		task ("Create a category for Vocabulary 1") {
@@ -750,14 +734,8 @@ definition {
 			ContentDashboard.goToContentDashboard();
 		}
 
-		task ("Configure the audit graph with the previous created categories") {
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Audience");
-
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Vocabulary 1");
-
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Stage");
-
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Vocabulary 2");
+		task ("Move vocabularies between In Use and Available") {
+			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Audience,Vocabulary Name 1,Stage,Vocabulary Name 2");
 		}
 
 		task ("Assert the blog is counted as an asset") {
@@ -771,6 +749,8 @@ definition {
 	@description = "LPS-133797 When the user selects the option Available, the modal lists all the existing Global Vocabularies"
 	@priority = "5"
 	test CheckAvailableVocabulariesDisplayed {
+		property portal.acceptance = "true";
+
 		task ("Create 2 new vocabularies") {
 			for (var vocabularyNumber : list "1,2") {
 				JSONCategory.addVocabulary(
@@ -780,20 +760,17 @@ definition {
 		}
 
 		task ("Check if vocabularies are avalible") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 
 			ContentDashboard.openAuditGraphConfiguration();
 
-			AssertElementPresent(
-				locator1 = "ContentDashboard#AUDIT_GRAPH_CONFIGURATION_VOCABULARY_AVAILABLE",
-				vocabularyName = "Vocabulary Name 1");
+			AssertVisible(
+				key_vocabularyName = "Vocabulary Name 1",
+				locator1 = "ContentDashboard#AUDIT_GRAPH_CONFIGURATION_VOCABULARY_AVAILABLE");
 
-			AssertElementPresent(
-				locator1 = "ContentDashboard#AUDIT_GRAPH_CONFIGURATION_VOCABULARY_AVAILABLE",
-				vocabularyName = "Vocabulary Name 2");
+			AssertVisible(
+				key_vocabularyName = "Vocabulary Name 2",
+				locator1 = "ContentDashboard#AUDIT_GRAPH_CONFIGURATION_VOCABULARY_AVAILABLE");
 		}
 
 		task ("Delete the vocabularies created") {
@@ -823,14 +800,14 @@ definition {
 		}
 
 		task ("Check which vocabulary is displayed in x-axis") {
-			ContentDashboard.setVocabularyInUseSecondPosition(vocabularyName = "Stage");
+			ContentDashboard.setVocabularyInUseSecondPosition(key_vocabularyName = "Stage");
 
 			AssertTextPresent(
 				auditGraphCheckboxName = "Stage 1",
 				locator1 = "ContentDashboard#AUDIT_GRAPH_CATEGORY_CHECKBOX",
 				value1 = "WC Title");
 
-			ContentDashboard.setVocabularyInUseSecondPosition(vocabularyName = "Audience");
+			ContentDashboard.setVocabularyInUseSecondPosition(key_vocabularyName = "Audience");
 
 			AssertTextPresent(
 				auditGraphCheckboxName = "Audience 1",
@@ -857,14 +834,14 @@ definition {
 		}
 
 		task ("Check which vocabulary is displayed in x-axis") {
-			ContentDashboard.setVocabularyInUseTopPosition(vocabularyName = "Stage");
+			ContentDashboard.setVocabularyInUseTopPosition(key_vocabularyName = "Stage");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#X_AXIS_VOCABULARY_NAME",
 				value1 = "WC Title",
 				xAxisCategoryName = "Stage 1");
 
-			ContentDashboard.setVocabularyInUseTopPosition(vocabularyName = "Audience");
+			ContentDashboard.setVocabularyInUseTopPosition(key_vocabularyName = "Audience");
 
 			AssertTextPresent(
 				locator1 = "ContentDashboard#X_AXIS_VOCABULARY_NAME",
@@ -876,8 +853,6 @@ definition {
 	@description = "LPS-119966 Given a document with no categories in any of the vocabularies featured in the graph then the document is NOT counted as an asset in the graph"
 	@priority = "4"
 	test DocumentWithNoCategories {
-		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFContentDashboardDocumentConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
 		property portal.acceptance = "true";
 
 		task ("Create a new Document") {
@@ -888,10 +863,7 @@ definition {
 		}
 
 		task ("Navigate Content Dashboard") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
 		task ("Assert the are no info in the Audit Graph") {
@@ -904,8 +876,6 @@ definition {
 	@description = "LPS-119966 Given a document with at least one category in one of the vocabularies featured in the graph then the document is counted as an asset in the graph"
 	@priority = "4"
 	test DocumentWithOneCategory {
-		property osgi.module.configuration.file.names = "com.liferay.content.dashboard.web.internal.configuration.FFContentDashboardDocumentConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
 		property portal.acceptance = "true";
 
 		task ("Create a new Document") {
@@ -930,20 +900,52 @@ definition {
 
 	@description = "LPS-133797 When clicks on the left or right arrows within Configuration and selects one or more vocabularies, the vocabularies go from Available to In use and vice versa"
 	@priority = "3"
+	@uitest
 	test MoveVocabulariesAcrossConfiguration {
 		task ("Navigate Content Dashboard > Audic Graph configuration") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Content",
-				panel = "Applications",
-				portlet = "Content Dashboard");
+			ContentDashboard.goToContentDashboard();
 		}
 
-		task ("Move vocabulary from in use to available") {
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Audience");
+		task ("Open Configure Chart") {
+			ContentDashboard.openAuditGraphConfiguration();
 		}
 
-		task ("Move vocabulary from available to in use") {
-			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Topic");
+		task ("Move vocabulary from In Use to Available using") {
+			Click.clickNoMouseOver(
+				key_vocabularyName = "Audience",
+				locator1 = "ContentDashboard#AUDIT_GRAPH_CONFIGURATION_VOCABULARY_IN_USE");
+
+			Click(
+				ariaLabel = "Transfer Item Right to Left",
+				locator1 = "Button#ANY_WITH_ARIA_LABEL");
+		}
+
+		task ("Check that Vocabulary was moved") {
+			AssertVisible(
+				key_vocabularyName = "Audience",
+				locator1 = "ContentDashboard#AUDIT_GRAPH_CONFIGURATION_VOCABULARY_AVAILABLE");
+		}
+
+		task ("Open Configure Chart") {
+			AssertClick(
+				locator1 = "Button#SAVE",
+				value1 = "Save");
+		}
+
+		task ("Move vocabulary from Available to In Use using") {
+			Click.clickNoMouseOver(
+				key_vocabularyName = "Topic",
+				locator1 = "ContentDashboard#AUDIT_GRAPH_CONFIGURATION_VOCABULARY_AVAILABLE");
+
+			Click(
+				ariaLabel = "Transfer Item Left to Right",
+				locator1 = "Button#ANY_WITH_ARIA_LABEL");
+		}
+
+		task ("Check that Vocabulary was moved") {
+			AssertVisible(
+				key_vocabularyName = "Topic",
+				locator1 = "ContentDashboard#AUDIT_GRAPH_CONFIGURATION_VOCABULARY_IN_USE");
 		}
 	}
 
@@ -966,10 +968,8 @@ definition {
 			ContentDashboard.moveVocabularyDisplayConfiguration(vocabularyName = "Audience");
 
 			ContentDashboard.moveVocabularyDisplayConfiguration(
-				notCloseFrame = "true",
-				vocabularyName = "Stage");
-
-			Alert.viewWarningSpecific(warningMessage = "You have not selected any vocabularies");
+				vocabularyName = "Stage",
+				warningMessage = "You have not selected any vocabularies");
 		}
 	}
 

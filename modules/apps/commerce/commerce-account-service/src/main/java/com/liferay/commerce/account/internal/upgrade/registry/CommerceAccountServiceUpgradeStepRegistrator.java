@@ -20,7 +20,6 @@ import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.account.service.AccountGroupLocalService;
 import com.liferay.account.service.AccountGroupRelLocalService;
 import com.liferay.account.service.AccountRoleLocalService;
-import com.liferay.commerce.account.internal.upgrade.v10_0_0.AccountEntryUpgradeProcess;
 import com.liferay.commerce.account.internal.upgrade.v1_1_0.CommerceAccountUpgradeProcess;
 import com.liferay.commerce.account.internal.upgrade.v1_2_0.util.CommerceAccountGroupCommerceAccountRelTable;
 import com.liferay.commerce.account.internal.upgrade.v1_2_0.util.CommerceAccountGroupRelTable;
@@ -56,9 +55,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alessio Antonio Rendina
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceAccountServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -177,10 +174,24 @@ public class CommerceAccountServiceUpgradeStepRegistrator
 
 		registry.register(
 			"9.5.0", "10.0.0",
-			new AccountEntryUpgradeProcess(
-				_addressLocalService,
-				_commerceChannelAccountEntryRelLocalService,
-				_commerceTermEntryLocalService));
+			new com.liferay.commerce.account.internal.upgrade.v10_0_0.
+				AccountEntryUpgradeProcess(
+					_addressLocalService,
+					_commerceChannelAccountEntryRelLocalService,
+					_commerceTermEntryLocalService));
+
+		registry.register(
+			"10.0.0", "10.1.0",
+			new com.liferay.commerce.account.internal.upgrade.v10_1_0.
+				AccountEntryUpgradeProcess(
+					_commerceChannelAccountEntryRelLocalService));
+
+		registry.register(
+			"10.1.0", "10.2.0",
+			new com.liferay.commerce.account.internal.upgrade.v10_2_0.
+				CommerceAccountRoleUpgradeProcess(
+					_companyLocalService, _resourceActionLocalService,
+					_resourcePermissionLocalService, _roleLocalService));
 
 		if (_log.isInfoEnabled()) {
 			_log.info("Commerce account upgrade step registrator finished");

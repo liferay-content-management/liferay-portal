@@ -16,26 +16,15 @@
 			"type": "Long"
 		},
 		{
-			"DBType": "Long",
+			"DBType": "Clob",
 			"indexed": false,
 			"indexedAsKeyword": false,
 			"label": {
-				"en_US": "Merged To Testray Subtask Id"
+				"en_US": "Errors"
 			},
-			"name": "mergedToTestraySubtaskId",
+			"name": "errors",
 			"required": false,
-			"type": "Long"
-		},
-		{
-			"DBType": "Long",
-			"indexed": false,
-			"indexedAsKeyword": false,
-			"label": {
-				"en_US": "Split From Testray Subtask Id"
-			},
-			"name": "splitFromTestraySubtaskId",
-			"required": false,
-			"type": "Long"
+			"type": "Clob"
 		},
 		{
 			"DBType": "String",
@@ -60,15 +49,17 @@
 			"type": "Integer"
 		},
 		{
-			"DBType": "Integer",
+			"DBType": "String",
+			"businessType": "Picklist",
 			"indexed": true,
-			"indexedAsKeyword": false,
+			"indexedAsKeyword": true,
 			"label": {
-				"en_US": "Status"
+				"en_US": "Due Status"
 			},
+			"listTypeDefinitionId": "[$LIST_TYPE_DEFINITION_ID:SubTask Statuses$]",
 			"name": "dueStatus",
-			"required": true,
-			"type": "Integer"
+			"required": false,
+			"type": "String"
 		},
 		{
 			"DBType": "Date",

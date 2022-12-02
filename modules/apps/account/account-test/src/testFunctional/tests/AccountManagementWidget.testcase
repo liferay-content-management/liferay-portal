@@ -14,8 +14,12 @@ definition {
 			groupName = "Guest",
 			layoutName = "Account Page");
 
+		JSONLayout.updateLayoutTemplateOfPublicLayout(
+			groupName = "Guest",
+			layoutName = "Account Page",
+			layoutTemplate = "1 Column");
+
 		JSONLayout.addWidgetToPublicLayout(
-			column = "1",
 			groupName = "Guest",
 			layoutName = "Account Page",
 			widgetName = "Account Management");
@@ -39,7 +43,7 @@ definition {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			Accounts.tearDownCP();
+			Account.tearDownCP();
 		}
 	}
 
@@ -47,11 +51,11 @@ definition {
 	@priority = "5"
 	test AllowedAccountTypeIsSiteWide {
 		task ("Given that the allowed account type is set to Person") {
-			Accounts.setAllowedAccountTypeInSiteSettings(allowedType = "Person");
+			Account.setAllowedAccountTypeInSiteSettings(allowedType = "Person");
 		}
 
 		task ("and a non admin user has permissions to add an account entry") {
-			Accounts.setAddAccountEntryPermissions(
+			Account.setAddAccountEntryPermissions(
 				roleTitle = "Reg Role Name",
 				userEmailAddress = "userea@liferay.com");
 		}
@@ -69,11 +73,11 @@ definition {
 				accountEntryName = "Person Account",
 				accountEntryType = "Person");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
-			Accounts.gotoEdit(accountName = "Person Account");
+			Account.gotoEdit(accountName = "Person Account");
 
-			Accounts.assignExistingUserToPersonAccount(accountUserName = "userfn");
+			Account.assignExistingUserToPersonAccount(accountUserName = "userfn");
 		}
 
 		task ("When a new site with an Account Management widget is created") {
@@ -110,13 +114,13 @@ definition {
 		}
 
 		task ("and non admin user has the option to add both Business and Person account") {
-			Accounts.addBusinessAccount(accountName = "Business Account 2");
+			Account.addBusinessAccount(accountName = "Business Account 2");
 
 			Navigator.gotoSitePage(
 				pageName = "Another Account Page",
 				siteName = "Site Name");
 
-			Accounts.addPersonAccount(accountName = "Person Account 2");
+			Account.addPersonAccount(accountName = "Person Account 2");
 		}
 	}
 
@@ -126,13 +130,13 @@ definition {
 		property portal.acceptance = "true";
 
 		task ("Given a non admin user has permissions to add an account entry") {
-			Accounts.setAddAccountEntryPermissions(
+			Account.setAddAccountEntryPermissions(
 				roleTitle = "Reg Role Name",
 				userEmailAddress = "userea@liferay.com");
 		}
 
 		task ("When Allowed Account Type is set to Business") {
-			Accounts.setAllowedAccountTypeInSiteSettings(allowedType = "Business");
+			Account.setAllowedAccountTypeInSiteSettings(allowedType = "Business");
 		}
 
 		task ("Then a non admin user can only add a Business account, not a Person account") {
@@ -169,13 +173,13 @@ definition {
 		property portal.acceptance = "true";
 
 		task ("Given a non admin user has permissions to add an account entry") {
-			Accounts.setAddAccountEntryPermissions(
+			Account.setAddAccountEntryPermissions(
 				roleTitle = "Reg Role Name",
 				userEmailAddress = "userea@liferay.com");
 		}
 
 		task ("When Allowed Account Type is set to Business") {
-			Accounts.setAllowedAccountTypeInSiteSettings(allowedType = "Person");
+			Account.setAllowedAccountTypeInSiteSettings(allowedType = "Person");
 		}
 
 		task ("Then a non admin user can only add a Business account, not a Person account") {
@@ -224,11 +228,11 @@ definition {
 				accountEntryName = "Person Account",
 				accountEntryType = "Person");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
-			Accounts.gotoEdit(accountName = "Person Account");
+			Account.gotoEdit(accountName = "Person Account");
 
-			Accounts.assignExistingUserToPersonAccount(accountUserName = "userfn");
+			Account.assignExistingUserToPersonAccount(accountUserName = "userfn");
 		}
 
 		task ("When the allowed account type is set to Business") {
@@ -236,7 +240,7 @@ definition {
 
 			ApplicationsMenu.gotoSite(site = "${siteName}");
 
-			Accounts.setAllowedAccountTypeInSiteSettings(allowedType = "Business");
+			Account.setAllowedAccountTypeInSiteSettings(allowedType = "Business");
 		}
 
 		task ("Then only the Business Account displays on the Account Management widget") {
@@ -308,13 +312,13 @@ definition {
 		task ("Then a user can set an Active account") {
 			Navigator.gotoPage(pageName = "Account Page");
 
-			Accounts.goToEntryMenuItem(
+			Account.goToEntryMenuItem(
 				menuItem = "Select Account",
 				rowEntry = "Account Name 2");
 		}
 
 		task ("and user can distinguish which one is set to Active via Account Management widget") {
-			Accounts.viewSelectedAccount(entryName = "Account Name 2");
+			Account.viewSelectedAccount(entryName = "Account Name 2");
 
 			AssertElementNotPresent(
 				key_entryName = "Account Name 1",

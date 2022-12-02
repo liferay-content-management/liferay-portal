@@ -24,8 +24,8 @@ import com.liferay.portal.kernel.service.ListTypeServiceUtil;
 public class OrgLaborImpl extends OrgLaborBaseImpl {
 
 	@Override
-	public ListType getType() throws PortalException {
-		return ListTypeServiceUtil.getListType(getTypeId());
+	public ListType getListType() throws PortalException {
+		return ListTypeServiceUtil.getListType(getListTypeId());
 	}
 
 }

@@ -96,11 +96,7 @@ const ExperienceItem = ({
 	});
 
 	return (
-		<ClayList.Item
-			aria-checked={active}
-			className={itemClassName}
-			role="listitem"
-		>
+		<ClayList.Item aria-current={active} className={itemClassName}>
 			<ClayList.ItemField expand>
 				<ClayButton displayType="unstyled" onClick={handleSelect}>
 					<div className="c-inner" tabIndex="-1">
@@ -122,12 +118,21 @@ const ExperienceItem = ({
 											<ExperienceLockIcon />
 										)}
 
-										{experience.active && (
+										{experience.active ? (
 											<ClayLabel
-												className="inline-item-after"
+												className="flex-shrink-0 inline-item-after"
 												displayType="success"
 											>
 												{Liferay.Language.get('active')}
+											</ClayLabel>
+										) : (
+											<ClayLabel
+												className="flex-shrink-0 inline-item-after"
+												displayType="secondary"
+											>
+												{Liferay.Language.get(
+													'inactive'
+												)}
 											</ClayLabel>
 										)}
 									</span>

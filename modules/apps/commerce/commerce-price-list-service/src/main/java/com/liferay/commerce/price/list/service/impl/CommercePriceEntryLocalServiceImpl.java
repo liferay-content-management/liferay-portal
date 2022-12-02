@@ -92,7 +92,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Zoltán Takács
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.price.list.model.CommercePriceEntry",
 	service = AopService.class
 )
@@ -405,8 +404,8 @@ public class CommercePriceEntryLocalServiceImpl
 		}
 
 		if (!Validator.isBlank(externalReferenceCode)) {
-			commercePriceEntry = commercePriceEntryPersistence.fetchByC_ERC(
-				serviceContext.getCompanyId(), externalReferenceCode);
+			commercePriceEntry = commercePriceEntryPersistence.fetchByERC_C(
+				externalReferenceCode, serviceContext.getCompanyId());
 		}
 
 		if (commercePriceEntry != null) {
@@ -632,8 +631,8 @@ public class CommercePriceEntryLocalServiceImpl
 			return null;
 		}
 
-		return commercePriceEntryPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commercePriceEntryPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -1480,8 +1479,8 @@ public class CommercePriceEntryLocalServiceImpl
 		}
 
 		CommercePriceEntry commercePriceEntry =
-			commercePriceEntryPersistence.fetchByC_ERC(
-				companyId, externalReferenceCode);
+			commercePriceEntryPersistence.fetchByERC_C(
+				externalReferenceCode, companyId);
 
 		if (commercePriceEntry != null) {
 			throw new DuplicateCommercePriceEntryException(

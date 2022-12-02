@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -85,9 +84,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(
-	service = {SiteNavigationMenuItemPersistence.class, BasePersistence.class}
-)
+@Component(service = SiteNavigationMenuItemPersistence.class)
 public class SiteNavigationMenuItemPersistenceImpl
 	extends BasePersistenceImpl<SiteNavigationMenuItem>
 	implements SiteNavigationMenuItemPersistence {
@@ -209,7 +206,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<SiteNavigationMenuItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SiteNavigationMenuItem siteNavigationMenuItem : list) {
@@ -610,7 +607,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 			finderArgs = new Object[] {uuid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -747,7 +744,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByUUID_G, finderArgs);
+				_finderPathFetchByUUID_G, finderArgs, this);
 		}
 
 		if (result instanceof SiteNavigationMenuItem) {
@@ -869,7 +866,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 			finderArgs = new Object[] {uuid, groupId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1043,7 +1040,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<SiteNavigationMenuItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SiteNavigationMenuItem siteNavigationMenuItem : list) {
@@ -1470,7 +1467,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 			finderArgs = new Object[] {uuid, companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1635,7 +1632,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<SiteNavigationMenuItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SiteNavigationMenuItem siteNavigationMenuItem : list) {
@@ -2012,7 +2009,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 			finderArgs = new Object[] {companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2161,7 +2158,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<SiteNavigationMenuItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SiteNavigationMenuItem siteNavigationMenuItem : list) {
@@ -2544,7 +2541,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 			finderArgs = new Object[] {siteNavigationMenuId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2700,7 +2697,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<SiteNavigationMenuItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SiteNavigationMenuItem siteNavigationMenuItem : list) {
@@ -3096,7 +3093,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 			finderArgs = new Object[] {parentSiteNavigationMenuItemId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -3259,7 +3256,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<SiteNavigationMenuItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SiteNavigationMenuItem siteNavigationMenuItem : list) {
@@ -3675,7 +3672,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 				siteNavigationMenuId, parentSiteNavigationMenuItemId
 			};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -3826,7 +3823,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<SiteNavigationMenuItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SiteNavigationMenuItem siteNavigationMenuItem : list) {
@@ -4257,7 +4254,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 			finderArgs = new Object[] {siteNavigationMenuId, name};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -4961,7 +4958,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<SiteNavigationMenuItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -5037,7 +5034,7 @@ public class SiteNavigationMenuItemPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

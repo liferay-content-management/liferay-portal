@@ -730,54 +730,54 @@ public interface CPOptionPersistence
 	public int countByC_K(long companyId, String key);
 
 	/**
-	 * Returns the cp option where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchCPOptionException</code> if it could not be found.
+	 * Returns the cp option where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchCPOptionException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching cp option
 	 * @throws NoSuchCPOptionException if a matching cp option could not be found
 	 */
-	public CPOption findByC_ERC(long companyId, String externalReferenceCode)
+	public CPOption findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchCPOptionException;
 
 	/**
-	 * Returns the cp option where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the cp option where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching cp option, or <code>null</code> if a matching cp option could not be found
 	 */
-	public CPOption fetchByC_ERC(long companyId, String externalReferenceCode);
+	public CPOption fetchByERC_C(String externalReferenceCode, long companyId);
 
 	/**
-	 * Returns the cp option where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the cp option where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching cp option, or <code>null</code> if a matching cp option could not be found
 	 */
-	public CPOption fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache);
+	public CPOption fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache);
 
 	/**
-	 * Removes the cp option where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the cp option where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the cp option that was removed
 	 */
-	public CPOption removeByC_ERC(long companyId, String externalReferenceCode)
+	public CPOption removeByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchCPOptionException;
 
 	/**
-	 * Returns the number of cp options where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of cp options where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching cp options
 	 */
-	public int countByC_ERC(long companyId, String externalReferenceCode);
+	public int countByERC_C(String externalReferenceCode, long companyId);
 
 	/**
 	 * Caches the cp option in the entity cache if it is enabled.

@@ -1,328 +1,215 @@
-const RAPID_TEXT_DELAY = 300;
+const buttonElement = fragmentElement.querySelector('.btn');
+const dropdownElement = fragmentElement.querySelector('.dropdown-menu');
+const optionListElement = fragmentElement.querySelector('.list-unstyled');
 
-let rapidText = '';
-let rapidTextTime = Date.now();
+const chooseOptionElement = document.getElementById(
+	// eslint-disable-next-line no-undef
+	`${fragmentEntryLinkNamespace}-choose-option-message`
+);
+const labelInputElement = document.getElementById(
+	// eslint-disable-next-line no-undef
+	`${fragmentEntryLinkNamespace}-label-input`
+);
+const loadingResultsElement = document.getElementById(
+	// eslint-disable-next-line no-undef
+	`${fragmentEntryLinkNamespace}-loading-results-message`
+);
+const noResultsElement = document.getElementById(
+	// eslint-disable-next-line no-undef
+	`${fragmentEntryLinkNamespace}-no-results-message`
+);
+const uiInputElement = document.getElementById(
+	// eslint-disable-next-line no-undef
+	`${fragmentEntryLinkNamespace}-select-from-list-input`
+);
+const valueInputElement = document.getElementById(
+	// eslint-disable-next-line no-undef
+	`${fragmentEntryLinkNamespace}-value-input`
+);
 
-const wrapper = fragmentElement;
+buttonElement.addEventListener('click', toggleDropdown);
+buttonElement.addEventListener('blur', handleResultListBlur);
+uiInputElement.addEventListener('click', toggleDropdown);
+uiInputElement.addEventListener('input', debounce(handleInputChange, 1000));
+uiInputElement.addEventListener('blur', handleInputBlur);
+uiInputElement.addEventListener('keydown', handleInputKeyDown);
+optionListElement.addEventListener('click', handleResultListClick);
 
-const button = wrapper.querySelector('.form-control');
-const buttonLabel = button.querySelector('.forms-select-from-list-label');
-const defaultOptionLabel = document.getElementById(
-	`${fragmentNamespace}-option--`
-).textContent;
-const dropdown = wrapper.querySelector('.dropdown-menu');
-const inputElement = wrapper.querySelector(`input[name="${input.name}"]`);
-const labelInputElement = wrapper.querySelector(
-	`input[name="${input.name}-label"]`
-);
-const listbox = wrapper.querySelector('.list-unstyled');
-const loadingResultsMessage = wrapper.querySelector(
-	'.forms-select-from-list-loading-results'
-);
-const noResultsMessage = wrapper.querySelector(
-	'.forms-select-from-list-no-results'
-);
-const searchInput = wrapper.querySelector('.forms-select-from-list-search');
-const searchInputWrapper = wrapper.querySelector(
-	'.forms-select-from-list-search-wrapper'
-);
+window.addEventListener('resize', handleWindowResizeOrScroll, {
+	passive: true,
+});
+window.addEventListener('scroll', handleWindowResizeOrScroll, {
+	passive: true,
+});
 
 const MAX_ITEMS = 10;
 
-let defaultOptions = (input.attributes.options || []).slice(0, MAX_ITEMS);
 let lastSearchAbortController = new AbortController();
 let lastSearchQuery = null;
 
-function debounce(fn, delay) {
-	let debounceId = null;
+const KEYS = {
+	ArrowDown: 'ArrowDown',
+	ArrowUp: 'ArrowUp',
+	End: 'End',
+	Enter: 'Enter',
+	Home: 'Home',
+};
 
-	return function (...args) {
-		clearTimeout(debounceId);
-		debounceId = setTimeout(() => fn(...args), delay);
-	};
-}
+const optionList = (input.attributes.options || []).map((option) => ({
+	textContent: option.label,
+	textValue: option.label.toLowerCase(),
+	value: option.value,
+}));
 
-function hideElement(element) {
-	element.classList.add('d-none');
-	element.setAttribute('aria-hidden', 'true');
-}
+function handleResultListClick(event) {
+	let selectedOptionElement = null;
 
-function isVisible(element) {
-	return !element.hasAttribute('aria-hidden');
-}
-
-function showElement(element) {
-	element.classList.remove('d-none');
-	element.removeAttribute('aria-hidden');
-}
-
-function repositionDropdown() {
-	const buttonRect = button.getBoundingClientRect();
-
-	if (layoutMode === 'edit') {
-		dropdown.style.position = 'fixed';
-
-		dropdown.style.transform = `
-			translateX(${buttonRect.left}px)
-			translateY(${buttonRect.bottom}px)
-		`;
+	if (event.target.matches('.dropdown-item')) {
+		selectedOptionElement = event.target;
 	}
-	else {
-		if (document.body.contains(wrapper)) {
-			if (wrapper.contains(dropdown)) {
-				document.body.appendChild(dropdown);
-			}
-		}
-		else if (document.body.contains(dropdown)) {
-			dropdown.parentNode.removeChild(dropdown);
-		}
+	else if (event.target.closest('.dropdown-item')) {
+		selectedOptionElement = event.target.closest('.dropdown-item');
+	}
 
-		dropdown.style.position = 'absolute';
-
-		dropdown.style.transform = `
-			translateX(${buttonRect.left + window.scrollX}px)
-			translateY(${buttonRect.bottom + window.scrollY}px)
-		`;
+	if (selectedOptionElement) {
+		setFocusedOption(selectedOptionElement);
+		setSelectedOption(selectedOptionElement);
 	}
 }
 
-function showDropdown() {
-	const canFetchOptions = input.attributes.relationshipURL && searchInput;
+function handleInputBlur() {
+	uiInputElement.value = labelInputElement.value;
 
-	if (canFetchOptions || defaultOptions.length) {
-		repositionDropdown();
-		button.setAttribute('aria-expanded', 'true');
-		dropdown.classList.add('show');
-	}
-
-	if (canFetchOptions && !defaultOptions.length) {
-		showElement(loadingResultsMessage);
-
-		fetchRemoteOptions('', lastSearchAbortController)
-			.then((items) => {
-				defaultOptions = items.slice(0, MAX_ITEMS);
-
-				if (items.length > MAX_ITEMS) {
-					showElement(searchInputWrapper);
-				}
-				else {
-					hideElement(searchInputWrapper);
-				}
-
-				setListboxItems(defaultOptions);
-			})
-			.finally(() => {
-				hideElement(loadingResultsMessage);
-			});
+	if (checkIsOpenDropdown()) {
+		setTimeout(() => closeDropdown(), 500);
 	}
 }
 
-function hideDropdown() {
-	button.removeAttribute('aria-expanded');
-	dropdown.classList.remove('show');
+function handleResultListBlur() {
+	if (checkIsOpenDropdown()) {
+		setTimeout(() => closeDropdown(), 500);
+	}
 }
 
-function getActiveDesdendant() {
-	return document.getElementById(
-		listbox.getAttribute('aria-activedescendant')
+function handleInputKeyDown(event) {
+	if (!optionListElement.firstElementChild) {
+		return;
+	}
+
+	const currentFocusedOption = document.getElementById(
+		optionListElement.getAttribute('aria-activedescendant')
 	);
-}
 
-function setActiveDescendant(element) {
-	const previousItem = getActiveDesdendant();
-
-	if (previousItem && previousItem !== element) {
-		previousItem.classList.remove('active');
-		previousItem.removeAttribute('aria-selected');
+	if (KEYS[event.key]) {
+		openDropdown();
+		event.preventDefault();
 	}
 
-	if (element) {
-		buttonLabel.textContent = element.textContent;
-
-		buttonLabel.classList.toggle(
-			'text-muted',
-			!element.dataset.optionValue
-		);
-
-		listbox.setAttribute('aria-activedescendant', element.id);
-		inputElement.value = element.dataset.optionValue;
-		labelInputElement.value = element.textContent;
-
-		element.classList.add('active');
-		element.setAttribute('aria-selected', 'true');
-
-		element.scrollIntoView({
-			block: 'nearest',
-		});
-	}
-	else {
-		buttonLabel.textContent = '';
-		listbox.removeAttribute('aria-activedescendant');
-		inputElement.value = '';
-	}
-}
-
-function handleButtonClick() {
-	if (button.hasAttribute('aria-expanded')) {
-		hideDropdown();
-		button.focus();
-	}
-	else {
-		showDropdown();
-
-		if (isVisible(searchInputWrapper)) {
-			searchInput.focus();
-			searchInput.setSelectionRange(0, searchInput.value.length);
+	if (event.key === KEYS.ArrowDown && !event.altKey) {
+		if (currentFocusedOption) {
+			setFocusedOption(
+				currentFocusedOption.nextElementSibling ||
+					optionListElement.firstElementChild
+			);
 		}
 		else {
-			listbox.focus();
+			setFocusedOption(optionListElement.firstElementChild);
 		}
 	}
-}
-
-function handleMovementKeys(event) {
-	const currentActiveDescendant = getActiveDesdendant();
-
-	if (event.key === 'Enter' && dropdown.classList.contains('show')) {
-		hideDropdown();
-		button.focus();
-		event.preventDefault();
-	}
-	else if (event.key === 'ArrowDown') {
-		showDropdown();
-		listbox.focus();
-
-		setActiveDescendant(
-			currentActiveDescendant.nextElementSibling ||
-				currentActiveDescendant ||
-				listbox.firstElementChild
-		);
-
-		event.preventDefault();
-	}
-	else if (event.key === 'ArrowUp') {
-		showDropdown();
-		listbox.focus();
-
-		setActiveDescendant(
-			currentActiveDescendant.previousElementSibling ||
-				currentActiveDescendant ||
-				listbox.firstElementChild
-		);
-
-		event.preventDefault();
-	}
-	else if (event.key === 'Escape') {
-		hideDropdown();
-		button.focus();
-		event.preventDefault();
-	}
-	else if (event.key === 'Home') {
-		showDropdown();
-		listbox.focus();
-		setActiveDescendant(listbox.firstElementChild);
-		event.preventDefault();
-	}
-	else if (event.key === 'End') {
-		showDropdown();
-		listbox.focus();
-		setActiveDescendant(listbox.lastElementChild);
-		event.preventDefault();
-	}
-}
-
-function handleKeydown(event) {
-	if (event.key.length === 1) {
-		const now = Date.now();
-
-		if (now - rapidTextTime > RAPID_TEXT_DELAY) {
-			rapidText = '';
+	else if (event.key === KEYS.ArrowUp) {
+		if (currentFocusedOption) {
+			setFocusedOption(
+				currentFocusedOption.previousElementSibling ||
+					optionListElement.lastElementChild
+			);
 		}
-
-		rapidText += event.key.toLowerCase();
-		rapidTextTime = now;
-
-		const rapidItem = Array.from(listbox.children).find(
-			(child) =>
-				child.dataset.optionValue &&
-				child.textContent.trim().toLowerCase().startsWith(rapidText)
-		);
-
-		if (rapidItem) {
-			showDropdown();
-			listbox.focus();
-			setActiveDescendant(rapidItem);
-			event.preventDefault();
+		else {
+			setFocusedOption(optionListElement.lastElementChild);
 		}
 	}
-	else {
-		handleMovementKeys(event);
+	else if (event.key === KEYS.Home) {
+		setFocusedOption(optionListElement.firstElementChild);
+	}
+	else if (event.key === KEYS.End) {
+		setFocusedOption(optionListElement.lastElementChild);
+	}
+	else if (event.key === KEYS.Enter && currentFocusedOption) {
+		setFocusedOption(currentFocusedOption);
+		setSelectedOption(currentFocusedOption);
 	}
 }
 
-function handleListboxClick(event) {
-	if (event.target.dataset?.optionValue !== undefined) {
-		setActiveDescendant(event.target);
-		hideDropdown();
-		button.focus();
-		event.preventDefault();
+function handleInputChange() {
+	const filterValue = uiInputElement.value.toLowerCase();
+
+	if (filterValue !== lastSearchQuery) {
+		openDropdown();
+
+		lastSearchQuery = filterValue;
+
+		chooseOptionElement.classList.add('d-none');
+		loadingResultsElement.classList.remove('d-none');
+
+		filterOptions(filterValue).then((filteredOptions) => {
+			loadingResultsElement.classList.add('d-none');
+			renderOptionList(filteredOptions);
+
+			if (optionListElement.firstElementChild) {
+				chooseOptionElement.classList.remove('d-none');
+				noResultsElement.classList.add('d-none');
+				setFocusedOption(optionListElement.firstElementChild);
+			}
+			else {
+				chooseOptionElement.classList.add('d-none');
+				noResultsElement.classList.remove('d-none');
+			}
+		});
 	}
 }
 
-function handleDocumentClick(event) {
-	if (!document.body.contains(wrapper)) {
-		document.removeEventListener('click', handleDocumentClick);
-
-		return;
-	}
-
-	if (
-		event.target !== wrapper &&
-		!wrapper.contains(event.target) &&
-		event.target !== dropdown &&
-		!dropdown.contains(event.target)
-	) {
-		hideDropdown();
-	}
-}
-
-function handleWindowResizeOrScroll() {
-	if (!document.body.contains(wrapper)) {
-		document.removeEventListener('click', handleDocumentClick);
-
-		return;
-	}
-
-	if (dropdown.classList.contains('show')) {
-		repositionDropdown();
-	}
+function filterOptions(query) {
+	return new Promise((resolve) => {
+		if (input.attributes.relationshipURL) {
+			lastSearchAbortController.abort();
+			lastSearchAbortController = new AbortController();
+			filterRemoteOptions(query, lastSearchAbortController).then(resolve);
+		}
+		else if (query) {
+			resolve(filterLocalOptions(query));
+		}
+		else {
+			resolve(optionList);
+		}
+	});
 }
 
 function filterLocalOptions(query) {
-	const preferedItems = [];
-	const restItems = [];
+	const options = [];
 
-	for (const item of input.attributes.options) {
-		if (preferedItems.length + restItems.length === MAX_ITEMS) {
-			break;
+	optionList.forEach((option) => {
+		if (!option.value) {
+			return;
 		}
 
-		const label = item.label.trim().toLowerCase();
-
-		if (label.startsWith(query)) {
-			preferedItems.push(item);
+		if (option.textValue.startsWith(query)) {
+			options.push(option);
 		}
-		else if (label.includes(query)) {
-			restItems.push(item);
-		}
-	}
+	});
 
-	return Promise.resolve(
-		[...preferedItems, ...restItems].slice(0, MAX_ITEMS)
-	);
+	optionList.forEach((option) => {
+		if (!option.value) {
+			return;
+		}
+
+		if (option.textValue.includes(query) && !options.includes(option)) {
+			options.push(option);
+		}
+	});
+
+	return options;
 }
 
-function fetchRemoteOptions(query, abortController) {
+function filterRemoteOptions(query, abortController) {
 	if (
 		!input.attributes.relationshipLabelFieldName ||
 		!input.attributes.relationshipURL ||
@@ -345,99 +232,172 @@ function fetchRemoteOptions(query, abortController) {
 		.then((response) => response.json())
 		.then((result) => {
 			return result.items.map((entry) => ({
-				label: entry[input.attributes.relationshipLabelFieldName],
-				value: entry[input.attributes.relationshipValueFieldName],
+				textContent: entry[input.attributes.relationshipLabelFieldName],
+				textValue: entry[input.attributes.relationshipLabelFieldName],
+				value: `${entry[input.attributes.relationshipValueFieldName]}`,
 			}));
 		});
 }
 
-function setListboxItems(items) {
-	listbox.innerHTML = '';
+function handleWindowResizeOrScroll() {
+	if (!document.body.contains(fragmentElement)) {
+		window.removeEventListener('resize', handleWindowResizeOrScroll);
+		window.removeEventListener('scroll', handleWindowResizeOrScroll);
 
-	if (items.length) {
-		showElement(listbox);
-		hideElement(noResultsMessage);
-	}
-	else {
-		hideElement(listbox);
-		showElement(noResultsMessage);
-	}
-
-	[{label: defaultOptionLabel, value: ''}, ...items].forEach((item) => {
-		const element = document.createElement('li');
-
-		element.classList.add('dropdown-item');
-
-		if (!item.value) {
-			element.classList.add('text-muted');
+		if (document.body.contains(dropdownElement)) {
+			dropdownElement.parentElement.removeChild(dropdownElement);
 		}
 
-		element.dataset.optionValue = item.value;
-		element.id = `${fragmentNamespace}-option-${item.value}`;
-		element.setAttribute('role', 'option');
-		element.textContent = item.label;
+		return;
+	}
 
-		listbox.appendChild(element);
+	if (checkIsOpenDropdown()) {
+		repositionDropdownElement();
+	}
+}
+
+function setFocusedOption(optionElement) {
+	const currentFocusedOption = document.getElementById(
+		optionListElement.getAttribute('aria-activedescendant')
+	);
+
+	if (currentFocusedOption) {
+		currentFocusedOption.removeAttribute('aria-selected');
+	}
+
+	if (optionElement) {
+		optionListElement.setAttribute(
+			'aria-activedescendant',
+			optionElement.id
+		);
+
+		optionElement.setAttribute('aria-selected', 'true');
+		optionElement.scrollIntoView({block: 'center'});
+	}
+	else {
+		optionListElement.removeAttribute('aria-activedescendant');
+	}
+}
+
+function createOptionElement(option) {
+	const optionElement = document.createElement('li');
+
+	optionElement.dataset.optionValue = option.value;
+	// eslint-disable-next-line no-undef
+	optionElement.id = `${fragmentEntryLinkNamespace}-option-${option.value}`;
+	optionElement.textContent = option.textContent;
+
+	optionElement.classList.add('dropdown-item');
+	optionElement.setAttribute('role', 'option');
+
+	if (
+		optionListElement.getAttribute('aria-activedescendant') ===
+		optionElement.id
+	) {
+		optionElement.setAttribute('aria-selected', 'true');
+		optionElement.scrollIntoView({block: 'center'});
+	}
+
+	if (valueInputElement.value === option.value) {
+		optionElement.classList.add('active');
+	}
+
+	return optionElement;
+}
+
+function setSelectedOption(optionElement) {
+	closeDropdown();
+
+	const selectedOption = document.getElementById(
+		// eslint-disable-next-line no-undef
+		`${fragmentEntryLinkNamespace}-option-${valueInputElement.value}`
+	);
+
+	if (selectedOption) {
+		selectedOption.classList.remove('active');
+	}
+
+	lastSearchQuery = optionElement.textContent.toLowerCase();
+
+	optionElement.classList.add('active');
+
+	labelInputElement.value = optionElement.textContent;
+	uiInputElement.value = optionElement.textContent;
+	valueInputElement.value = optionElement.dataset.optionValue;
+}
+
+function checkIsOpenDropdown() {
+	return (
+		uiInputElement.getAttribute('aria-expanded') === 'true' &&
+		buttonElement.getAttribute('aria-expanded') === 'true'
+	);
+}
+
+function openDropdown() {
+	const canFetchOptions = input.attributes.relationshipURL;
+
+	if (!canFetchOptions && !optionList.length) {
+		return;
+	}
+
+	dropdownElement.classList.replace('d-none', 'show');
+	uiInputElement.setAttribute('aria-expanded', 'true');
+	buttonElement.setAttribute('aria-expanded', 'true');
+
+	requestAnimationFrame(() => {
+		handleInputChange();
+		repositionDropdownElement();
 	});
-
-	setActiveDescendant(listbox.firstElementChild);
 }
 
-function handleSearchInput() {
-	if (searchInput.value === lastSearchQuery) {
-		return;
+function closeDropdown() {
+	dropdownElement.classList.replace('show', 'd-none');
+	uiInputElement.setAttribute('aria-expanded', 'false');
+	buttonElement.setAttribute('aria-expanded', 'false');
+}
+
+function toggleDropdown() {
+	if (checkIsOpenDropdown()) {
+		closeDropdown();
+	}
+	else {
+		openDropdown();
+	}
+}
+
+function repositionDropdownElement() {
+	const uiInputRect = uiInputElement.getBoundingClientRect();
+
+	if (document.body.contains(fragmentElement)) {
+		if (fragmentElement.contains(dropdownElement)) {
+			document.body.appendChild(dropdownElement);
+		}
+	}
+	else if (document.body.contains(dropdownElement)) {
+		dropdownElement.parentNode.removeChild(dropdownElement);
 	}
 
-	lastSearchAbortController.abort();
-	lastSearchAbortController = new AbortController();
-	lastSearchQuery = searchInput.value;
-
-	if (!lastSearchQuery) {
-		setListboxItems(defaultOptions);
-
-		return;
-	}
-
-	showElement(loadingResultsMessage);
-
-	const fetcher = input.attributes.relationshipURL
-		? fetchRemoteOptions
-		: filterLocalOptions;
-
-	fetcher(lastSearchQuery, lastSearchAbortController)
-		.then((items) => {
-			setListboxItems(items.slice(0, MAX_ITEMS));
-		})
-		.finally(() => {
-			hideElement(loadingResultsMessage);
-		});
+	dropdownElement.style.transform = `
+		translateX(${uiInputRect.left + window.scrollX}px)
+		translateY(${uiInputRect.bottom + window.scrollY}px)
+	`;
 }
 
-button.addEventListener('click', handleButtonClick);
-button.addEventListener('keydown', handleKeydown);
-listbox.addEventListener('keydown', handleKeydown);
-listbox.addEventListener('click', handleListboxClick);
-document.addEventListener('click', handleDocumentClick);
+function renderOptionList(options) {
+	optionListElement.innerHTML = '';
 
-searchInput.addEventListener('keydown', handleMovementKeys);
-searchInput.addEventListener('input', debounce(handleSearchInput, 500));
-
-if ((input.attributes.options || []).length > MAX_ITEMS) {
-	showElement(searchInputWrapper);
+	options
+		.slice(0, MAX_ITEMS)
+		.forEach((option) =>
+			optionListElement.appendChild(createOptionElement(option))
+		);
 }
 
-window.addEventListener('resize', handleWindowResizeOrScroll, {
-	passive: true,
-});
-window.addEventListener('scroll', handleWindowResizeOrScroll, {
-	passive: true,
-});
+function debounce(fn, delay) {
+	let debounceId = null;
 
-if (!getActiveDesdendant()) {
-	setActiveDescendant(listbox.firstElementChild);
+	return function (...args) {
+		clearTimeout(debounceId);
+		debounceId = setTimeout(() => fn(...args), delay);
+	};
 }
-
-dropdown.style.left = '0';
-dropdown.style.top = '0';
-
-repositionDropdown();

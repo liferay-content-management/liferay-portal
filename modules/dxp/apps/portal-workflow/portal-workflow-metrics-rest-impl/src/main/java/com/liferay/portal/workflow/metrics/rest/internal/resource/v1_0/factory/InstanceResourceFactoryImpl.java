@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.workflow.metrics.rest.internal.security.permission.LiberalPermissionChecker;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.InstanceResource;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	immediate = true,
 	property = "resource.locator.key=/portal-workflow-metrics/v1.0/Instance",
 	service = InstanceResource.Factory.class
 )
@@ -139,16 +137,6 @@ public class InstanceResourceFactoryImpl implements InstanceResource.Factory {
 		};
 	}
 
-	@Activate
-	protected void activate() {
-		InstanceResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		InstanceResource.FactoryHolder.factory = null;
-	}
-
 	private static Function<InvocationHandler, InstanceResource>
 		_getProxyProviderFunction() {
 
@@ -220,6 +208,7 @@ public class InstanceResourceFactoryImpl implements InstanceResource.Factory {
 		instanceResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		instanceResource.setRoleLocalService(_roleLocalService);
+		instanceResource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(instanceResource, arguments);
@@ -267,6 +256,9 @@ public class InstanceResourceFactoryImpl implements InstanceResource.Factory {
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

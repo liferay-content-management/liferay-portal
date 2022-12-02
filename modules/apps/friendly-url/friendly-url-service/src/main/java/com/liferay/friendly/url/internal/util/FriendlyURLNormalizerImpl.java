@@ -37,14 +37,14 @@ import org.osgi.service.component.annotations.Reference;
  * @author Shuyang Zhou
  */
 @Component(
-	immediate = true, property = "service.ranking:Integer=100",
+	property = "service.ranking:Integer=100",
 	service = FriendlyURLNormalizer.class
 )
 public class FriendlyURLNormalizerImpl implements FriendlyURLNormalizer {
 
 	@Override
 	public String normalize(String friendlyURL) {
-		return normalize(friendlyURL, false);
+		return _normalize(friendlyURL, false, false);
 	}
 
 	@Override
@@ -166,11 +166,18 @@ public class FriendlyURLNormalizerImpl implements FriendlyURLNormalizer {
 	}
 
 	@Override
-	public String normalizeWithPeriodsAndSlashes(String friendlyURL) {
-		return normalize(friendlyURL, true);
+	public String normalizeWithPeriods(String friendlyURL) {
+		return _normalize(friendlyURL, true, false);
 	}
 
-	protected String normalize(String friendlyURL, boolean periodsAndSlashes) {
+	@Override
+	public String normalizeWithPeriodsAndSlashes(String friendlyURL) {
+		return _normalize(friendlyURL, true, true);
+	}
+
+	private String _normalize(
+		String friendlyURL, boolean periods, boolean slashes) {
+
 		if (Validator.isNull(friendlyURL)) {
 			return friendlyURL;
 		}
@@ -193,8 +200,8 @@ public class FriendlyURLNormalizerImpl implements FriendlyURLNormalizer {
 					  (c <= CharPool.LOWER_CASE_Z)) ||
 					 ((CharPool.NUMBER_0 <= c) && (c <= CharPool.NUMBER_9)) ||
 					 (c == CharPool.UNDERLINE) ||
-					 (!periodsAndSlashes &&
-					  ((c == CharPool.SLASH) || (c == CharPool.PERIOD)))) {
+					 (!periods && (c == CharPool.PERIOD)) ||
+					 (!slashes && (c == CharPool.SLASH))) {
 
 				sb.append(c);
 			}

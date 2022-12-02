@@ -107,6 +107,406 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LPS-155637. Verify that it's possible to import exported web content structures with fieldsets."
+	@priority = "3"
+	test CanImportExportedWCStructuresWithFieldsets {
+		task ("Given: Add a new site") {
+			JSONGroup.addGroup(groupName = "Site Name");
+		}
+
+		task ("And: Add a new WC structure with fields") {
+			WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "site-name");
+
+			WebContentStructures.addCP(
+				structureDescription = "WC Structure Description",
+				structureName = "WC Structure Name");
+
+			DataEngine.addFields(fieldNameList = "Numeric,Text,Image");
+
+			WebContentStructures.saveCP(structureName = "WC Structure Name");
+		}
+
+		task ("And: Add new WC structures based on fieldsets") {
+			WebContentStructures.addCP(
+				structureDescription = "WC Structure Description",
+				structureName = "WC Structure Name 2");
+
+			DataEngine.addFieldsetToBuilder(fieldsetName = "WC Structure Name");
+
+			WebContentStructures.saveCP();
+
+			WebContentStructures.addCP(
+				structureDescription = "WC Structure Description",
+				structureName = "WC Structure Name 3");
+
+			DataEngine.addFieldsetToBuilder(fieldsetName = "WC Structure Name 2");
+
+			WebContentStructures.saveCP();
+		}
+
+		task ("And: Export the LAR file with structures") {
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
+
+			LAR.exportPortlet(larFileName = "WebContent_portlet_structures.lar");
+		}
+
+		task ("When: Import the exported LAR file to another site") {
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+			LAR.importPortlet(larFileName = "WebContent_portlet_structures.lar");
+		}
+
+		task ("Then: Import should be successful without error message on console") {
+			WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
+
+			WebContentStructures.viewCP(
+				structureDescription = "WC Structure Description",
+				structureName = "WC Structure Name 3");
+
+			AssertConsoleTextNotPresent(value1 = "java.sql.BatchUpdateException");
+
+			AssertConsoleTextNotPresent(value1 = "javax.persistence.PersistenceException");
+		}
+	}
+
+	@description = "This is a use case for LPS-128693. Verify can import a LAR containing WCD between instances."
+	@priority = "3"
+	test CanImportWCDBetweenInstances {
+		property test.name.skip.portal.instance = "WebContentExportImport#CanImportWCDBetweenInstances";
+
+		task ("Given: new site page with a web content display is exported") {
+			JSONWebcontent.addWebContent(
+				content = "WC WebContent Content",
+				groupName = "Guest",
+				title = "WC WebContent Title");
+
+			JSONLayout.addPublicLayout(
+				groupName = "Guest",
+				layoutName = "Test Page Name");
+
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Guest",
+				layoutName = "Test Page Name",
+				widgetName = "Web Content Display");
+
+			Navigator.openSitePage(
+				pageName = "Test Page Name",
+				siteName = "Guest");
+
+			WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title");
+
+			Navigator.openSitePage(
+				pageName = "Test Page Name",
+				siteName = "Guest");
+
+			WebContentDisplayPortlet.viewContent(
+				webContentContent = "WC WebContent Content",
+				webContentTitle = "WC WebContent Title");
+
+			LAR.exportSiteCP(siteScopeName = "Guest");
+
+			var key_larFileName = "${larFileName}";
+			var larFileName = LAR.getLarFileName();
+
+			LAR.downloadLar();
+		}
+
+		task ("When: The exported data is imported into a new virtual instance site") {
+			ApplicationsMenu.gotoPortlet(
+				category = "System",
+				panel = "Control Panel",
+				portlet = "Virtual Instances");
+
+			PortalInstances.addCP(
+				mailDomain = "www.able.com",
+				virtualHost = "www.able.com",
+				webId = "www.able.com");
+
+			User.firstLoginPG(
+				password = "test",
+				userEmailAddress = "test@www.able.com",
+				virtualHostsURL = "http://www.able.com:8080");
+
+			Navigator.openSpecificURL(url = "http://www.able.com:8080");
+
+			ApplicationsMenu.gotoPortlet(
+				category = "Sites",
+				panel = "Control Panel",
+				portlet = "Sites");
+
+			Site.addBlankCP(siteName = "Site Name");
+
+			LAR.importSiteCP(
+				baseURL = "http://www.able.com:8080",
+				larFileName = "${larFileName}",
+				siteName = "Site Name");
+
+			Navigator.openSitePage(
+				baseURL = "http://www.able.com:8080",
+				pageName = "Test Page Name",
+				siteName = "Site Name");
+		}
+
+		task ("Then: The web content is displayed with no errors") {
+			WebContentDisplayPortlet.viewContent(
+				webContentContent = "WC WebContent Content",
+				webContentTitle = "WC WebContent Title");
+		}
+
+		task ("And: Assert the usage on the page with the Web Content Display widget appears in the list") {
+			WebContentNavigator.openWebContentAdmin(
+				baseURL = "http://www.able.com:8080",
+				siteURLKey = "Site Name");
+
+			WebContent.viewTitle(webContentTitle = "WC WebContent Title");
+
+			WebContentNavigator.gotoEntryMenuItem(
+				entry = "WC WebContent Title",
+				menuItem = "View Usages");
+
+			AssertTextEquals(
+				locator1 = "//tr[1]/td[1]",
+				value1 = "Test Page Name");
+
+			AssertTextEquals(
+				locator1 = "//tr[1]/td[2]",
+				value1 = "Page");
+
+			AssertTextEquals(
+				locator1 = "//tr[1]/td[3]",
+				value1 = "Web Content Display Widget");
+
+			AssertConsoleTextNotPresent(value1 = "NullPointerException");
+		}
+	}
+
+	@description = "This is a test for LPS-114230. Verify that can show exported image global structures between instances."
+	@priority = "3"
+	test CanShowExportedGlobalStructuresImageBetweenInstances {
+		property test.name.skip.portal.instance = "WebContentExportImport#CanShowExportedGlobalStructuresImageBetweenInstances";
+
+		task ("Given: new web content with WC structure with an image field is exported") {
+			DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "global");
+
+			DMDocument.addCP(
+				dmDocumentDescription = "DM Document Description",
+				dmDocumentFile = "Document_1.png",
+				dmDocumentTitle = "Document Title");
+
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "global");
+
+			NavItem.gotoStructures();
+
+			WebContentStructures.addCP(
+				structureDescription = "WC Structure Description",
+				structureName = "WC Structure Name");
+
+			DataEngine.addField(
+				fieldFieldLabel = "Image",
+				fieldName = "Image");
+
+			WebContentStructures.saveCP(structureName = "WC Structure Name");
+
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "global");
+
+			NavItem.gotoTemplates();
+
+			WebContentTemplates.addCP(
+				structureName = "WC Structure Name",
+				templateDescription = "WC Template Description",
+				templateFieldNames = "Image",
+				templateName = "WC Template Name");
+
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "global");
+
+			WebContentNavigator.gotoAddWithStructureCP(structureName = "WC Structure Name");
+
+			WebContent.addWithStructureCP(
+				imageFileName = "Document Title",
+				navTab = "Documents and Media",
+				structureName = "WC Structure Name",
+				webContentImage = "Document Title",
+				webContentTitle = "WC Title");
+
+			PortletEntry.publish();
+
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "global");
+
+			LAR.exportPortlet(
+				contentLastRange = "Last",
+				larFileName = "WebContent_portlet_structures.lar");
+		}
+
+		task ("When: The exported data is imported into a new virtual instance site") {
+			HeadlessPortalInstanceAPI.addPortalInstance(
+				domain = "www.able.com",
+				portalInstanceId = "www.able.com",
+				virtualHost = "www.able.com");
+
+			User.firstLoginPG(
+				password = "test",
+				userEmailAddress = "test@www.able.com",
+				virtualHostsURL = "http://www.able.com:8080");
+
+			WebContentNavigator.openWebContentAdmin(
+				baseURL = "http://www.able.com:8080",
+				siteURLKey = "global");
+
+			LAR.importPortlet(larFileName = "WebContent_portlet_structures.lar");
+		}
+
+		task ("Then: Assert that the imported web content shows the image") {
+			WebContentNavigator.openWebContentAdmin(
+				baseURL = "http://www.able.com:8080",
+				siteURLKey = "global");
+
+			WebContent.viewWithStructureCP(
+				webContentImage = "Document Title",
+				webContentTitle = "WC Title");
+		}
+	}
+
+	@description = "This is a use case for LPS-162626. Verify order is preserved in repeatable web content fields when staging."
+	@priority = "3"
+	test ContentWillDisplayInOrderInRepeatableWCFields {
+		property osgi.module.configuration.file.names = "configuration.override.com.liferay.journal.configuration.JournalServiceConfiguration_journalArticleExportImportProcessorCacheEnabled=B\"false\"";
+
+		task ("Given a Web Content Structure with a repeatable fields group is created") {
+			WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "guest");
+
+			WebContentStructures.addCP(structureName = "STR_KV");
+
+			DataEngine.addField(
+				fieldFieldLabel = "Key",
+				fieldName = "Text",
+				fieldReference = "Key");
+
+			DataEngine.addFieldNested(
+				fieldFieldLabel = "Value",
+				fieldName = "Web Content",
+				fieldReference = "Value",
+				targetFieldLabel = "Key");
+
+			DataEngine.toggleFieldRepeatable(fieldsGroupLabel = "Fields Group");
+
+			WebContentStructures.saveCP(structureName = "STR_KV");
+		}
+
+		task ("And given a template is created for the structure to display keys and web content values") {
+			var templateScript = '''
+<#if Key.getSiblings()?has_content>
+	<#list Key.getSiblings() as cur_Key>
+	    Key -> 
+		<#if (cur_Key.getData())??>
+			${cur_Key.getData()}
+		</#if>		
+		<br>
+        Value ->
+        <#if (cur_Key.Value.getData())?? && (cur_Key.Value.getFriendlyUrl())??>
+            <#assign
+	        	webContentData = jsonFactoryUtil.createJSONObject(cur_Key.Value.getData())
+	        />
+        	${webContentData.title?if_exists}
+        </#if>   
+        </p>
+	</#list>
+</#if>
+			''';
+
+			NavItem.gotoTemplates();
+
+			WebContentTemplates.addCP(
+				structureName = "STR_KV",
+				templateName = "STR_KV Template",
+				templateScript = "${templateScript}");
+		}
+
+		task ("When Web Content is created using a structure with repeatable fields") {
+			NavItem.gotoWebContent();
+
+			JSONWebcontent.addWebContent(
+				content = "Basic WC",
+				groupName = "Guest",
+				title = "WC_BASIC");
+
+			WebContentNavigator.gotoAddWithStructureCP(structureName = "STR_KV");
+
+			WebContent.addWithStructureCP(
+				structureName = "STR_KV",
+				templateName = "STR_KV Template",
+				webContentTitle = "WC_KV");
+
+			DataEngine.addRepeatableField(fieldLabel = "Fields Group");
+
+			DataEngine.addRepeatableField(fieldLabel = "Fields Group");
+
+			WebContent.editFieldValue(
+				fieldFieldLabel = "Key",
+				index = "1",
+				value = "1. No");
+
+			WebContent.editFieldValue(
+				fieldFieldLabel = "Key",
+				index = "2",
+				value = "2. No");
+
+			WebContent.editFieldValue(
+				fieldFieldLabel = "Key",
+				index = "3",
+				value = "3. Yes");
+
+			Click(
+				key_fieldLabel = "Value",
+				key_index = "3",
+				locator1 = "DataEngineRenderer#SELECTOR_INPUT_INDEXED");
+
+			SelectFrame(
+				key_title = "Web Content",
+				locator1 = "IFrame#MODAL_ANY");
+
+			LexiconEntry.gotoEntry(rowEntry = "WC_BASIC");
+
+			SelectFrame(value1 = "relative=top");
+
+			PortletEntry.publish();
+		}
+
+		task ("And when a page is created with an Asset Publisher to display the Web Content and then staged") {
+			JSONLayout.addPublicLayout(
+				groupName = "Guest",
+				layoutName = "PAGE_KV");
+
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Guest",
+				layoutName = "PAGE_KV",
+				widgetName = "Asset Publisher");
+
+			Navigator.openSitePage(
+				pageName = "PAGE_KV",
+				siteName = "Guest");
+
+			Portlet.gotoPortletOptions(
+				portletName = "Asset Publisher",
+				portletOption = "Configuration");
+
+			AssetPublisherPortlet.configureDisplayTemplatePG(displayTemplate = "Full Content");
+
+			JSONStaging.enableLocalStaging(groupName = "Guest");
+		}
+
+		task ("Then the Web Content will be displayed in the order they were entered on the staged site") {
+			PagesAdmin.openPagesAdmin(siteURLKey = "guest-staging");
+
+			PagesAdmin.gotoPageEllipsisMenuItem(
+				menuItem = "View",
+				pageName = "PAGE_KV");
+
+			AssertTextEquals(
+				locator1 = "PageEditor#CONTENT_PAGE_WEB_CONTENT_CONTENT",
+				value1 = "Key -> 1. No Value -> Key -> 2. No Value -> Key -> 3. Yes Value -> WC_BASIC");
+		}
+	}
+
 	@priority = "4"
 	test ExportLARWithNestedWebContent {
 		property testray.component.names = "Web Content Administration";
@@ -764,8 +1164,7 @@ definition {
 
 			RelatedAssets.selectAsset(
 				assetTitle = "Blogs Entry Title",
-				assetType = "Blogs Entry",
-				scopeSite = "Current Site");
+				assetType = "Blogs Entry");
 		}
 
 		task ("Cancel reset the default values") {

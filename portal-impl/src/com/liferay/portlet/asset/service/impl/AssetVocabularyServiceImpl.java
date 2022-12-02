@@ -192,7 +192,7 @@ public class AssetVocabularyServiceImpl extends AssetVocabularyServiceBaseImpl {
 		AssetVocabulary vocabulary =
 			assetVocabularyLocalService.
 				getAssetVocabularyByExternalReferenceCode(
-					groupId, externalReferenceCode);
+					externalReferenceCode, groupId);
 
 		AssetVocabularyPermission.check(
 			getPermissionChecker(), vocabulary.getVocabularyId(),

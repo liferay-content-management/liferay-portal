@@ -17,6 +17,7 @@ package com.liferay.source.formatter.check;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.NaturalOrderStringComparator;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.ToolsUtil;
@@ -87,7 +88,7 @@ public class JavaComponentAnnotationsCheck extends JavaAnnotationsCheck {
 			false);
 
 		if (extendedClassNames.contains("MVCPortlet")) {
-			annotation = _formatMVCPortletProperties(annotation);
+			annotation = _formatMVCPortletProperties(absolutePath, annotation);
 		}
 
 		return annotation;
@@ -137,6 +138,16 @@ public class JavaComponentAnnotationsCheck extends JavaAnnotationsCheck {
 			annotation, ')',
 			StringBundler.concat(
 				", ", attributeName, " = ", attributeValue, ")"));
+	}
+
+	private String _addNewProperties(String newProperties, String properties) {
+		newProperties = StringUtil.trimTrailing(newProperties);
+
+		if (!newProperties.endsWith(StringPool.COMMA)) {
+			newProperties += StringPool.COMMA;
+		}
+
+		return newProperties + properties;
 	}
 
 	private String _formatAnnotationParameterProperties(String annotation) {
@@ -302,7 +313,9 @@ public class JavaComponentAnnotationsCheck extends JavaAnnotationsCheck {
 		return annotation;
 	}
 
-	private String _formatMVCPortletProperties(String annotation) {
+	private String _formatMVCPortletProperties(
+		String absolutePath, String annotation) {
+
 		int x = annotation.indexOf("property = {");
 
 		if (x == -1) {
@@ -333,13 +346,33 @@ public class JavaComponentAnnotationsCheck extends JavaAnnotationsCheck {
 				"\"javax.portlet.init-param.config-template=") &&
 			!newProperties.contains("javax.portlet.portlet-mode=")) {
 
-			newProperties = StringUtil.trimTrailing(newProperties);
+			newProperties = _addNewProperties(
+				newProperties,
+				"\"javax.portlet.portlet-mode=text/html;config\"");
+		}
 
-			if (!newProperties.endsWith(StringPool.COMMA)) {
-				newProperties += StringPool.COMMA;
+		if (isAttributeValue(_CHECK_PORTLET_VERSION_KEY, absolutePath) &&
+			!absolutePath.contains("/modules/apps/archived/") &&
+			!absolutePath.contains("/modules/sdk/") &&
+			!newProperties.contains("\"javax.portlet.version=3.0\"")) {
+
+			String serviceAttributeValue = _getAttributeValue(
+				annotation, "service");
+
+			if (serviceAttributeValue.startsWith(StringPool.OPEN_CURLY_BRACE) &&
+				serviceAttributeValue.endsWith(StringPool.CLOSE_CURLY_BRACE)) {
+
+				serviceAttributeValue = serviceAttributeValue.substring(
+					1, serviceAttributeValue.length() - 1);
 			}
 
-			newProperties += "\"javax.portlet.portlet-mode=text/html;config\"";
+			List<String> serviceAttributeValues = ListUtil.fromString(
+				serviceAttributeValue, StringPool.COMMA);
+
+			if (serviceAttributeValues.contains("Portlet.class")) {
+				newProperties = _addNewProperties(
+					newProperties, "\"javax.portlet.version=3.0\"");
+			}
 		}
 
 		return StringUtil.replace(annotation, properties, newProperties);
@@ -484,6 +517,9 @@ public class JavaComponentAnnotationsCheck extends JavaAnnotationsCheck {
 
 	private static final String _CHECK_MISMATCHED_SERVICE_ATTRIBUTE_KEY =
 		"checkMismatchedServiceAttribute";
+
+	private static final String _CHECK_PORTLET_VERSION_KEY =
+		"checkPortletVersion";
 
 	private static final String _CHECK_SELF_REGISTRATION_KEY =
 		"checkSelfRegistration";

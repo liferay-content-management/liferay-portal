@@ -71,6 +71,71 @@ definition {
 		Alert.viewSuccessMessage();
 	}
 
+	macro assertOrderImportPreview {
+		Variables.assertDefined(parameterList = "${productNames}");
+
+		if (!(isSet(productImportStatuses))) {
+			var productImportStatuses = "";
+		}
+
+		if (!(isSet(productQuantities))) {
+			var productQuantities = "";
+		}
+
+		if (!(isSet(productRequestedDeliveryDates))) {
+			var productRequestedDeliveryDates = "";
+		}
+
+		if (!(isSet(productSkus))) {
+			var productSkus = "";
+		}
+
+		if (!(isSet(productTotalPrices))) {
+			var productTotalPrices = "";
+		}
+
+		if (!(isSet(productUnitPrices))) {
+			var productUnitPrices = "";
+		}
+
+		var productNamesList = ListUtil.newListFromString("${productNames}");
+		var productSkusList = ListUtil.newListFromString("${productSkus}");
+		var productUnitPricesList = ListUtil.newListFromString("${productUnitPrices}");
+		var productQuantitiesList = ListUtil.newListFromString("${productQuantities}");
+		var productTotalPricesList = ListUtil.newListFromString("${productTotalPrices}");
+		var productImportStatusesList = ListUtil.newListFromString("${productImportStatuses}");
+		var productRequestedDeliveryDatesList = ListUtil.newListFromString("${productRequestedDeliveryDates}");
+		var size = ListUtil.size("${productNamesList}");
+		var count = "0";
+
+		var isLessThanSize = MathUtil.isLessThan("${count}", "${size}");
+
+		while (("${isLessThanSize}" == "true")) {
+			var productName = ListUtil.get("${productNamesList}", "${count}");
+			var productSku = ListUtil.get("${productSkusList}", "${count}");
+			var productUnitPrice = ListUtil.get("${productUnitPricesList}", "${count}");
+			var productQuantity = ListUtil.get("${productQuantitiesList}", "${count}");
+			var productTotalPrice = ListUtil.get("${productTotalPricesList}", "${count}");
+			var productImportStatus = ListUtil.get("${productImportStatusesList}", "${count}");
+			var productRequestedDeliveryDate = ListUtil.get("${productRequestedDeliveryDatesList}", "${count}");
+
+			CommerceOrders.assertOrderImportPreviewEntry(
+				importStatus = "${productImportStatus}",
+				productName = "${productName}",
+				productQuantity = "${productQuantity}",
+				productSku = "${productSku}",
+				requestedDeliveryDate = "${productRequestedDeliveryDate}",
+				totalPrice = "${productTotalPrice}",
+				unitPrice = "${productUnitPrice}");
+
+			var count = ${count} + 1;
+
+			var count = StringUtil.valueOf("${count}");
+
+			var isLessThanSize = MathUtil.isLessThan("${count}", "${size}");
+		}
+	}
+
 	macro assertOrderImportPreviewEntry {
 		if (isSet(productSku)) {
 			AssertTextEquals(
@@ -485,6 +550,17 @@ definition {
 
 		Button.click(button = "Select");
 
+		if (isSet(productNames)) {
+			CommerceOrders.assertOrderImportPreview(
+				productImportStatuses = "${productImportStatuses}",
+				productNames = "${productNames}",
+				productQuantities = "${productQuantities}",
+				productRequestedDeliveryDates = "${productRequestedDeliveryDates}",
+				productSkus = "${productSkus}",
+				productTotalPrices = "${productTotalPrices}",
+				productUnitPrices = "${productUnitPrices}");
+		}
+
 		Button.click(button = "Import");
 
 		IFrame.selectTopFrame();
@@ -530,120 +606,6 @@ definition {
 		Click(
 			key_entryName = "${orderId}",
 			locator1 = "CommerceEntry#SEARCH_ORDER_ID_RESULT");
-	}
-
-	macro setAccountOrderDefaults {
-		CommerceNavigator.gotoMiniumAccountOrderDefaults(accountName = "${accountName}");
-
-		if (isSet(paymentMethod)) {
-			WaitForPageLoad();
-
-			Click(
-				key_text = "Set Default Commerce Payment Method",
-				locator1 = "Button#ANY");
-
-			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
-
-			Click.clickAtNotVisible(
-				key_radioOption = "${paymentMethod}",
-				locator1 = "CommerceEntry#RADIO_BUTTON");
-
-			IFrame.selectTopFrame();
-
-			Button.clickSave();
-
-			AssertTextEquals(
-				key_defaultOption = "Payment Method",
-				locator1 = "CommerceEntry#ACCOUNT_ORDER_DEFAULTS_ENTRY",
-				value1 = "${paymentMethod}");
-		}
-
-		if (isSet(paymentTerm)) {
-			WaitForPageLoad();
-
-			Click(
-				key_text = "Set Default Commerce Payment Method",
-				locator1 = "Button#ANY");
-
-			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
-
-			Click.clickAtNotVisible(
-				key_radioOption = "${paymentTerm}",
-				locator1 = "CommerceEntry#RADIO_BUTTON");
-
-			IFrame.selectTopFrame();
-
-			Button.clickSave();
-
-			AssertTextEquals(
-				key_defaultOption = "Payment",
-				locator1 = "CommerceEntry#ACCOUNT_ORDER_DEFAULTS_ENTRY",
-				value1 = "${paymentTerm}");
-		}
-
-		if (isSet(deliveryTerm)) {
-			WaitForPageLoad();
-
-			Click(
-				key_text = "Set Default Commerce Payment Method",
-				locator1 = "Button#ANY");
-
-			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
-
-			Click.clickAtNotVisible(
-				key_radioOption = "${deliveryTerm}",
-				locator1 = "CommerceEntry#RADIO_BUTTON");
-
-			IFrame.selectTopFrame();
-
-			Button.clickSave();
-
-			AssertTextEquals(
-				key_defaultOption = "Delivery",
-				locator1 = "CommerceEntry#ACCOUNT_ORDER_DEFAULTS_ENTRY",
-				value1 = "${deliveryTerm}");
-		}
-
-		if (isSet(shippingOption) && isSet(channelName)) {
-			Click(
-				key_entryName = "${channelName}",
-				key_table = "Default Account Commerce Channels Shipping Options",
-				locator1 = "CommerceEntry#TABLE_ENTRY_EDIT_BUTTON");
-
-			SelectFrameTop();
-
-			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
-
-			if ("${shippingOption}" == "Use Priority Settings") {
-				var shippingMethod = "Use Priority Settings";
-				var shippingOption = "Use Priority Settings";
-
-				Click.clickAtNotVisible(
-					key_radioOption = "Use Priority Settings",
-					locator1 = "CommerceEntry#RADIO_BUTTON");
-			}
-			else {
-				Click.clickAtNotVisible(
-					key_radioOption = "${shippingMethod} / ${shippingOption}",
-					locator1 = "CommerceEntry#RADIO_BUTTON");
-			}
-
-			Button.clickSave();
-
-			IFrame.selectTopFrame();
-
-			AssertElementPresent(
-				key_columnNumber = "1",
-				key_productName = "${channelName}",
-				key_value = "${shippingMethod}",
-				locator1 = "CommerceEntry#TABLE_SEARCH_BY_NAME_AND_COLUMN_CONTENT");
-
-			AssertElementPresent(
-				key_columnNumber = "2",
-				key_productName = "${channelName}",
-				key_value = "${shippingOption}",
-				locator1 = "CommerceEntry#TABLE_SEARCH_BY_NAME_AND_COLUMN_CONTENT");
-		}
 	}
 
 	macro viewJasperTemplateFromPlacedOrders {

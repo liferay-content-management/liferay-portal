@@ -25,9 +25,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Ethan Bustad
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceProductTypeGroupedServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -47,7 +45,7 @@ public class CommerceProductTypeGroupedServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {"CPDefinitionGroupedEntry"};
 				}
 

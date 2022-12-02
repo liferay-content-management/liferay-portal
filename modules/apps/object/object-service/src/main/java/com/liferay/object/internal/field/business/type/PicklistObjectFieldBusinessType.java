@@ -24,20 +24,21 @@ import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.field.business.type.ObjectFieldBusinessType;
 import com.liferay.object.field.render.ObjectFieldRenderingContext;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectFieldSetting;
 import com.liferay.object.model.ObjectState;
 import com.liferay.object.model.ObjectStateFlow;
 import com.liferay.object.rest.dto.v1_0.ListEntry;
 import com.liferay.object.service.ObjectStateFlowLocalService;
 import com.liferay.object.service.ObjectStateLocalService;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.SetUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.vulcan.extension.PropertyDefinition;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,18 +78,12 @@ public class PicklistObjectFieldBusinessType
 
 	@Override
 	public String getDescription(Locale locale) {
-		return _language.get(
-			ResourceBundleUtil.getModuleAndPortalResourceBundle(
-				locale, getClass()),
-			"choose-from-a-picklist");
+		return _language.get(locale, "choose-from-a-picklist");
 	}
 
 	@Override
 	public String getLabel(Locale locale) {
-		return _language.get(
-			ResourceBundleUtil.getModuleAndPortalResourceBundle(
-				locale, getClass()),
-			"picklist");
+		return _language.get(locale, "picklist");
 	}
 
 	@Override
@@ -119,18 +114,37 @@ public class PicklistObjectFieldBusinessType
 
 	@Override
 	public void predefineObjectFieldSettings(
-			ObjectField newObjectField, ObjectField oldObjectField)
+			ObjectField newObjectField, ObjectField oldObjectField,
+			List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException {
 
-		if (oldObjectField == null) {
-			_objectStateFlowLocalService.addDefaultObjectStateFlow(
-				newObjectField);
+		if (oldObjectField != null) {
+			_objectStateFlowLocalService.updateDefaultObjectStateFlow(
+				newObjectField, oldObjectField);
 
 			return;
 		}
 
-		_objectStateFlowLocalService.updateDefaultObjectStateFlow(
-			newObjectField, oldObjectField);
+		for (ObjectFieldSetting objectFieldSetting : objectFieldSettings) {
+			if (!StringUtil.equals(
+					objectFieldSetting.getName(),
+					ObjectFieldSettingConstants.NAME_STATE_FLOW) ||
+				(objectFieldSetting.getObjectStateFlow() == null)) {
+
+				continue;
+			}
+
+			ObjectStateFlow objectStateFlow =
+				objectFieldSetting.getObjectStateFlow();
+
+			_objectStateFlowLocalService.addObjectStateFlow(
+				newObjectField.getUserId(), newObjectField.getObjectFieldId(),
+				objectStateFlow.getObjectStates());
+
+			return;
+		}
+
+		_objectStateFlowLocalService.addDefaultObjectStateFlow(newObjectField);
 	}
 
 	private DDMFormFieldOptions _getDDMFormFieldOptions(

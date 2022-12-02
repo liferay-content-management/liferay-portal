@@ -413,39 +413,6 @@ public class SegmentsExperimentLocalServiceImpl
 			winnerSegmentsExperienceId, status);
 	}
 
-	protected void sendNotificationEvent(SegmentsExperiment segmentsExperiment)
-		throws PortalException {
-
-		ServiceContext serviceContext =
-			ServiceContextThreadLocal.getServiceContext();
-
-		if ((serviceContext == null) ||
-			(serviceContext.getUserId() == segmentsExperiment.getUserId()) ||
-			!UserNotificationManagerUtil.isDeliver(
-				segmentsExperiment.getUserId(),
-				SegmentsPortletKeys.SEGMENTS_EXPERIMENT, 0,
-				SegmentsExperimentConstants.NOTIFICATION_TYPE_UPDATE_STATUS,
-				UserNotificationDeliveryConstants.TYPE_WEBSITE)) {
-
-			return;
-		}
-
-		_userNotificationEventLocalService.sendUserNotificationEvents(
-			segmentsExperiment.getUserId(),
-			SegmentsPortletKeys.SEGMENTS_EXPERIMENT,
-			UserNotificationDeliveryConstants.TYPE_WEBSITE,
-			JSONUtil.put(
-				"classPK", segmentsExperiment.getSegmentsExperimentId()
-			).put(
-				"referrerClassNameId", segmentsExperiment.getClassNameId()
-			).put(
-				"referrerClassPK", segmentsExperiment.getClassPK()
-			).put(
-				"segmentsExperimentKey",
-				segmentsExperiment.getSegmentsExperimentKey()
-			));
-	}
-
 	private DynamicQuery _getSegmentsExperienceIdsDynamicQuery(
 		long segmentsEntryId) {
 
@@ -507,6 +474,39 @@ public class SegmentsExperimentLocalServiceImpl
 			variantSegmentsExperience);
 	}
 
+	private void _sendNotificationEvent(SegmentsExperiment segmentsExperiment)
+		throws PortalException {
+
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		if ((serviceContext == null) ||
+			(serviceContext.getUserId() == segmentsExperiment.getUserId()) ||
+			!UserNotificationManagerUtil.isDeliver(
+				segmentsExperiment.getUserId(),
+				SegmentsPortletKeys.SEGMENTS_EXPERIMENT, 0,
+				SegmentsExperimentConstants.NOTIFICATION_TYPE_UPDATE_STATUS,
+				UserNotificationDeliveryConstants.TYPE_WEBSITE)) {
+
+			return;
+		}
+
+		_userNotificationEventLocalService.sendUserNotificationEvents(
+			segmentsExperiment.getUserId(),
+			SegmentsPortletKeys.SEGMENTS_EXPERIMENT,
+			UserNotificationDeliveryConstants.TYPE_WEBSITE,
+			JSONUtil.put(
+				"classPK", segmentsExperiment.getSegmentsExperimentId()
+			).put(
+				"referrerClassNameId", segmentsExperiment.getClassNameId()
+			).put(
+				"referrerClassPK", segmentsExperiment.getClassPK()
+			).put(
+				"segmentsExperimentKey",
+				segmentsExperiment.getSegmentsExperimentKey()
+			));
+	}
+
 	private SegmentsExperiment _updateSegmentsExperimentStatus(
 			SegmentsExperiment segmentsExperiment,
 			long winnerSegmentsExperienceId, int status)
@@ -530,7 +530,7 @@ public class SegmentsExperimentLocalServiceImpl
 		segmentsExperiment = segmentsExperimentPersistence.update(
 			segmentsExperiment);
 
-		sendNotificationEvent(segmentsExperiment);
+		_sendNotificationEvent(segmentsExperiment);
 
 		return segmentsExperiment;
 	}

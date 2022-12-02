@@ -4,7 +4,7 @@
 <service-builder auto-import-default-references="false" auto-namespace-tables="false" change-tracking-enabled="true" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.commerce.price.list">
 	<author>Alessio Antonio Rendina</author>
 	<namespace>Commerce</namespace>
-	<entity external-reference-code="true" local-service="true" name="CommercePriceEntry" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommercePriceEntry" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -75,7 +75,7 @@
 			<finder-column name="status" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommercePriceList" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommercePriceList" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -354,7 +354,7 @@
 			<finder-column name="commerceOrderTypeId" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceTierPriceEntry" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceTierPriceEntry" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 

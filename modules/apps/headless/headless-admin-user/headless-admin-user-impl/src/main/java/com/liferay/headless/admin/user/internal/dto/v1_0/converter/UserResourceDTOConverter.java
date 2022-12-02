@@ -41,6 +41,7 @@ import com.liferay.headless.admin.user.internal.dto.v1_0.util.PhoneUtil;
 import com.liferay.headless.admin.user.internal.dto.v1_0.util.PostalAddressUtil;
 import com.liferay.headless.admin.user.internal.dto.v1_0.util.ServiceBuilderListTypeUtil;
 import com.liferay.headless.admin.user.internal.dto.v1_0.util.WebUrlUtil;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Group;
@@ -61,7 +62,6 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -70,7 +70,10 @@ import org.osgi.service.component.annotations.Reference;
  * @author Drew Brokke
  */
 @Component(
-	property = "dto.class.name=com.liferay.portal.kernel.model.User",
+	property = {
+		"application.name=Liferay.Headless.Admin.User",
+		"dto.class.name=com.liferay.portal.kernel.model.User", "version=v1.0"
+	},
 	service = {DTOConverter.class, UserResourceDTOConverter.class}
 )
 public class UserResourceDTOConverter
@@ -84,7 +87,7 @@ public class UserResourceDTOConverter
 	@Override
 	public User getObject(String externalReferenceCode) throws Exception {
 		User user = _userLocalService.fetchUserByExternalReferenceCode(
-			CompanyThreadLocal.getCompanyId(), externalReferenceCode);
+			externalReferenceCode, CompanyThreadLocal.getCompanyId());
 
 		if (user == null) {
 			user = _userLocalService.getUser(
@@ -135,10 +138,12 @@ public class UserResourceDTOConverter
 				givenName = user.getFirstName();
 				honorificPrefix =
 					ServiceBuilderListTypeUtil.getServiceBuilderListTypeMessage(
-						contact.getPrefixId(), dtoConverterContext.getLocale());
+						contact.getPrefixListTypeId(),
+						dtoConverterContext.getLocale());
 				honorificSuffix =
 					ServiceBuilderListTypeUtil.getServiceBuilderListTypeMessage(
-						contact.getSuffixId(), dtoConverterContext.getLocale());
+						contact.getSuffixListTypeId(),
+						dtoConverterContext.getLocale());
 				id = user.getUserId();
 				jobTitle = user.getJobTitle();
 				keywords = ListUtil.toArray(

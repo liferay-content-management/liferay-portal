@@ -16,7 +16,7 @@ package com.liferay.commerce.product.definitions.web.internal.frontend.data.set.
 
 import com.liferay.commerce.product.definitions.web.internal.constants.CommerceProductFDSNames;
 import com.liferay.commerce.product.type.CPType;
-import com.liferay.commerce.product.type.CPTypeServicesTracker;
+import com.liferay.commerce.product.type.CPTypeRegistry;
 import com.liferay.frontend.data.set.filter.BaseSelectionFDSFilter;
 import com.liferay.frontend.data.set.filter.FDSFilter;
 import com.liferay.frontend.data.set.filter.SelectionFDSFilterItem;
@@ -32,7 +32,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Marco Leo
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "frontend.data.set.name=" + CommerceProductFDSNames.PRODUCT_DEFINITIONS,
 	service = FDSFilter.class
 )
@@ -55,7 +54,7 @@ public class ProductTypeFDSFilter extends BaseSelectionFDSFilter {
 		List<SelectionFDSFilterItem> selectionFDSFilterItems =
 			new ArrayList<>();
 
-		for (CPType cpType : _cpTypeServicesTracker.getCPTypes()) {
+		for (CPType cpType : _cpTypeRegistry.getCPTypes()) {
 			selectionFDSFilterItems.add(
 				new SelectionFDSFilterItem(
 					cpType.getLabel(locale), cpType.getName()));
@@ -70,6 +69,6 @@ public class ProductTypeFDSFilter extends BaseSelectionFDSFilter {
 	}
 
 	@Reference
-	private CPTypeServicesTracker _cpTypeServicesTracker;
+	private CPTypeRegistry _cpTypeRegistry;
 
 }

@@ -26,22 +26,40 @@ import com.liferay.marketplace.store.web.internal.util.MarketplaceLicenseUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.patcher.Patcher;
+import com.liferay.portal.kernel.portlet.PortletResponseUtil;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.servlet.HttpHeaders;
+import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,22 +73,29 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 import javax.portlet.WindowState;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import org.scribe.model.OAuthConstants;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Token;
 import org.scribe.model.Verb;
+import org.scribe.model.Verifier;
+import org.scribe.oauth.OAuthService;
 
 /**
  * @author Ryan Park
  * @author Joan Kim
  */
 @Component(
-	immediate = true,
 	property = {
 		"com.liferay.portlet.css-class-wrapper=marketplace-portlet",
 		"com.liferay.portlet.display-category=category.hidden",
@@ -93,7 +118,47 @@ import org.scribe.model.Verb;
 	},
 	service = Portlet.class
 )
-public class MarketplaceStorePortlet extends RemoteMVCPortlet {
+public class MarketplaceStorePortlet extends MVCPortlet {
+
+	public void authorize(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		OAuthService oAuthService = oAuthManager.getOAuthService();
+
+		Token requestToken = oAuthService.getRequestToken();
+
+		oAuthManager.updateRequestToken(themeDisplay.getUser(), requestToken);
+
+		String redirect = oAuthService.getAuthorizationUrl(requestToken);
+
+		String callbackURL = ParamUtil.getString(actionRequest, "callbackURL");
+
+		redirect = HttpComponentsUtil.addParameter(
+			redirect, OAuthConstants.CALLBACK, callbackURL);
+
+		actionResponse.sendRedirect(redirect);
+	}
+
+	public void deauthorize(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		oAuthManager.deleteAccessToken(themeDisplay.getUser());
+
+		actionResponse.sendRedirect(
+			PortletURLBuilder.createRenderURL(
+				portal.getLiferayPortletResponse(actionResponse)
+			).setMVCPath(
+				"/view.jsp"
+			).buildString());
+	}
 
 	public void downloadApp(
 			ActionRequest actionRequest, ActionResponse actionResponse)
@@ -107,10 +172,9 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 		try {
 			file = FileUtil.createTempFile();
 
-			downloadApp(
-				actionRequest, actionResponse, appPackageId, unlicensed, file);
+			downloadApp(actionRequest, appPackageId, unlicensed, file);
 
-			App app = _appService.updateApp(file);
+			App app = appService.updateApp(file);
 
 			JSONObject jsonObject = _getAppJSONObject(app.getRemoteAppId());
 
@@ -171,7 +235,7 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 		OAuthRequest oAuthRequest = new OAuthRequest(
 			Verb.POST, getServerPortletURL());
 
-		setBaseRequestParameters(actionRequest, actionResponse, oAuthRequest);
+		setBaseRequestParameters(actionRequest, oAuthRequest);
 
 		addOAuthParameter(oAuthRequest, "p_p_lifecycle", "1");
 		addOAuthParameter(
@@ -187,9 +251,9 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 			"getPrepackagedApps");
 
 		Map<String, String> prepackagedApps =
-			_appLocalService.getPrepackagedApps();
+			appLocalService.getPrepackagedApps();
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = jsonFactory.createJSONObject();
 
 		Set<String> keys = prepackagedApps.keySet();
 
@@ -203,7 +267,7 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 
 		Response response = getResponse(themeDisplay.getUser(), oAuthRequest);
 
-		JSONObject responseJSONObject = JSONFactoryUtil.createJSONObject(
+		JSONObject responseJSONObject = jsonFactory.createJSONObject(
 			response.getBody());
 
 		writeJSON(actionRequest, actionResponse, responseJSONObject);
@@ -215,7 +279,7 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 
 		long remoteAppId = ParamUtil.getLong(actionRequest, "appId");
 
-		_appService.installApp(remoteAppId);
+		appService.installApp(remoteAppId);
 
 		JSONObject jsonObject = _getAppJSONObject(remoteAppId);
 
@@ -229,12 +293,70 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 	}
 
 	@Override
+	public void processAction(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws IOException, PortletException {
+
+		_checkOmniAdmin();
+
+		try {
+			String actionName = ParamUtil.getString(
+				actionRequest, ActionRequest.ACTION_NAME);
+
+			getActionMethod(actionName);
+
+			super.processAction(actionRequest, actionResponse);
+
+			return;
+		}
+		catch (NoSuchMethodException noSuchMethodException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(noSuchMethodException);
+			}
+		}
+
+		try {
+			_remoteProcessAction(actionRequest, actionResponse);
+		}
+		catch (IOException ioException) {
+			throw ioException;
+		}
+		catch (Exception exception) {
+			throw new PortletException(exception);
+		}
+	}
+
+	@Override
 	public void render(
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws IOException, PortletException {
 
 		try {
-			super.render(renderRequest, renderResponse);
+			_checkOmniAdmin();
+
+			HttpServletRequest httpServletRequest =
+				portal.getHttpServletRequest(renderRequest);
+
+			httpServletRequest = portal.getOriginalServletRequest(
+				httpServletRequest);
+
+			String oAuthVerifier = httpServletRequest.getParameter(
+				OAuthConstants.VERIFIER);
+
+			if (oAuthVerifier != null) {
+				_updateAccessToken(renderRequest, oAuthVerifier);
+			}
+
+			String remoteMVCPath = renderRequest.getParameter("remoteMVCPath");
+
+			if (remoteMVCPath != null) {
+				_remoteRender(renderRequest, renderResponse);
+
+				return;
+			}
+		}
+		catch (IOException ioException) {
+			throw ioException;
 		}
 		catch (PortletException portletException) {
 			if (_log.isDebugEnabled()) {
@@ -242,6 +364,29 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 			}
 
 			include("/error.jsp", renderRequest, renderResponse);
+		}
+		catch (Exception exception) {
+			throw new PortletException(exception);
+		}
+
+		super.render(renderRequest, renderResponse);
+	}
+
+	@Override
+	public void serveResource(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws IOException, PortletException {
+
+		_checkOmniAdmin();
+
+		try {
+			_remoteServeResource(resourceRequest, resourceResponse);
+		}
+		catch (IOException ioException) {
+			throw ioException;
+		}
+		catch (Exception exception) {
+			throw new PortletException(exception);
 		}
 	}
 
@@ -251,7 +396,7 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 
 		long remoteAppId = ParamUtil.getLong(actionRequest, "appId");
 
-		_appService.uninstallApp(remoteAppId);
+		appService.uninstallApp(remoteAppId);
 
 		JSONObject jsonObject = _getAppJSONObject(remoteAppId);
 
@@ -279,10 +424,9 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 		try {
 			file = FileUtil.createTempFile();
 
-			downloadApp(
-				actionRequest, actionResponse, appPackageId, unlicensed, file);
+			downloadApp(actionRequest, appPackageId, unlicensed, file);
 
-			App app = _appService.updateApp(file);
+			App app = appService.updateApp(file);
 
 			if (Validator.isNull(orderUuid) &&
 				Validator.isNotNull(productEntryName)) {
@@ -295,7 +439,7 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 					orderUuid, productEntryName);
 			}
 
-			_appService.installApp(app.getRemoteAppId());
+			appService.installApp(app.getRemoteAppId());
 
 			JSONObject jsonObject = _getAppJSONObject(app.getRemoteAppId());
 
@@ -357,7 +501,7 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 				long[] appPackageIds = ParamUtil.getLongValues(
 					actionRequest, "appPackageIds");
 
-				JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+				JSONArray jsonArray = jsonFactory.createJSONArray();
 
 				for (long appPackageId : appPackageIds) {
 					File file = null;
@@ -365,13 +509,11 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 					try {
 						file = FileUtil.createTempFile();
 
-						downloadApp(
-							actionRequest, actionResponse, appPackageId, false,
-							file);
+						downloadApp(actionRequest, appPackageId, false, file);
 
-						App app = _appService.updateApp(file);
+						App app = appService.updateApp(file);
 
-						_appService.installApp(app.getRemoteAppId());
+						appService.installApp(app.getRemoteAppId());
 
 						jsonArray.put(_getAppJSONObject(app));
 					}
@@ -400,6 +542,17 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 		}
 
 		writeJSON(actionRequest, actionResponse, jsonObject);
+	}
+
+	protected void addOAuthParameter(
+		OAuthRequest oAuthRequest, String key, String value) {
+
+		if (oAuthRequest.getVerb() == Verb.GET) {
+			oAuthRequest.addQuerystringParameter(key, value);
+		}
+		else if (oAuthRequest.getVerb() == Verb.POST) {
+			oAuthRequest.addBodyParameter(key, value);
+		}
 	}
 
 	@Override
@@ -431,8 +584,8 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 	}
 
 	protected void downloadApp(
-			PortletRequest portletRequest, PortletResponse portletResponse,
-			long appPackageId, boolean unlicensed, File file)
+			PortletRequest portletRequest, long appPackageId,
+			boolean unlicensed, File file)
 		throws Exception {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
@@ -441,7 +594,7 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 		OAuthRequest oAuthRequest = new OAuthRequest(
 			Verb.GET, getServerPortletURL());
 
-		setBaseRequestParameters(portletRequest, portletResponse, oAuthRequest);
+		setBaseRequestParameters(portletRequest, oAuthRequest);
 
 		String serverNamespace = getServerNamespace();
 
@@ -464,23 +617,39 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 		FileUtil.write(file, response.getStream());
 	}
 
-	@Override
 	protected String getClientPortletId() {
 		return MarketplaceStorePortletKeys.MARKETPLACE_STORE;
 	}
 
-	@Override
+	protected Response getResponse(User user, OAuthRequest oAuthRequest)
+		throws Exception {
+
+		Token token = oAuthManager.getAccessToken(user);
+
+		if (token != null) {
+			OAuthService oAuthService = oAuthManager.getOAuthService();
+
+			oAuthService.signRequest(token, oAuthRequest);
+		}
+
+		oAuthRequest.setFollowRedirects(false);
+
+		return oAuthRequest.send();
+	}
+
+	protected String getServerNamespace() {
+		return portal.getPortletNamespace(getServerPortletId());
+	}
+
 	protected String getServerPortletId() {
 		return MarketplaceStoreWebConfigurationValues.MARKETPLACE_PORTLET_ID;
 	}
 
-	@Override
 	protected String getServerPortletURL() {
 		return MarketplaceStoreWebConfigurationValues.MARKETPLACE_URL +
 			"/osb-portlet/mp_server";
 	}
 
-	@Override
 	protected void processPortletParameterMap(
 		PortletRequest portletRequest, PortletResponse portletResponse,
 		Map<String, String[]> parameterMap) {
@@ -500,24 +669,54 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 			"supportsHotDeploy", new String[] {Boolean.TRUE.toString()});
 	}
 
-	@Reference(unbind = "-")
-	protected void setAppLocalService(AppLocalService appLocalService) {
-		_appLocalService = appLocalService;
-	}
+	protected void setBaseRequestParameters(
+		PortletRequest portletRequest, OAuthRequest oAuthRequest) {
 
-	@Reference(unbind = "-")
-	protected void setAppService(AppService appService) {
-		_appService = appService;
-	}
+		HttpServletRequest httpServletRequest = portal.getHttpServletRequest(
+			portletRequest);
 
-	@Override
-	@Reference(unbind = "-")
-	protected void setOAuthManager(OAuthManager oAuthManager) {
-		super.setOAuthManager(oAuthManager);
+		String clientAuthToken = AuthTokenUtil.getToken(httpServletRequest);
+
+		addOAuthParameter(oAuthRequest, "clientAuthToken", clientAuthToken);
+
+		addOAuthParameter(
+			oAuthRequest, "clientPortletId", getClientPortletId());
+		addOAuthParameter(
+			oAuthRequest, "clientURL",
+			portal.getCurrentCompleteURL(httpServletRequest));
+		addOAuthParameter(oAuthRequest, "p_p_id", getServerPortletId());
 	}
 
 	@Reference
+	protected AppLocalService appLocalService;
+
+	@Reference
+	protected AppService appService;
+
+	@Reference
+	protected JSONFactory jsonFactory;
+
+	@Reference
+	protected OAuthManager oAuthManager;
+
+	@Reference
 	protected Patcher patcher;
+
+	@Reference
+	protected Portal portal;
+
+	private void _checkOmniAdmin() throws PortletException {
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		if (!permissionChecker.isOmniadmin()) {
+			PrincipalException principalException =
+				new PrincipalException.MustBeCompanyAdmin(
+					permissionChecker.getUserId());
+
+			throw new PortletException(principalException);
+		}
+	}
 
 	private JSONObject _getAppJSONObject(App app) throws Exception {
 		return JSONUtil.put(
@@ -532,7 +731,7 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 	}
 
 	private JSONObject _getAppJSONObject(long remoteAppId) throws Exception {
-		App app = _appLocalService.fetchRemoteApp(remoteAppId);
+		App app = appLocalService.fetchRemoteApp(remoteAppId);
 
 		if (app != null) {
 			return _getAppJSONObject(app);
@@ -549,10 +748,21 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 		);
 	}
 
-	private JSONArray _getInstalledAppsJSONArray() throws Exception {
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+	private String _getFileName(String contentDisposition) {
+		int pos = contentDisposition.indexOf("filename=\"");
 
-		List<App> apps = _appLocalService.getInstalledApps();
+		if (pos == -1) {
+			return StringPool.BLANK;
+		}
+
+		return contentDisposition.substring(
+			pos + 10, contentDisposition.length() - 1);
+	}
+
+	private JSONArray _getInstalledAppsJSONArray() throws Exception {
+		JSONArray jsonArray = jsonFactory.createJSONArray();
+
+		List<App> apps = appLocalService.getInstalledApps();
 
 		for (App app : apps) {
 			if (app.getRemoteAppId() > 0) {
@@ -563,11 +773,158 @@ public class MarketplaceStorePortlet extends RemoteMVCPortlet {
 		return jsonArray;
 	}
 
+	private void _remoteProcessAction(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		OAuthRequest oAuthRequest = new OAuthRequest(
+			Verb.POST, getServerPortletURL());
+
+		_setRequestParameters(actionRequest, actionResponse, oAuthRequest);
+
+		addOAuthParameter(oAuthRequest, "p_p_lifecycle", "1");
+		addOAuthParameter(
+			oAuthRequest, "p_p_state", WindowState.NORMAL.toString());
+
+		Response response = getResponse(themeDisplay.getUser(), oAuthRequest);
+
+		if (response.getCode() == HttpServletResponse.SC_FOUND) {
+			String redirectLocation = response.getHeader(HttpHeaders.LOCATION);
+
+			actionResponse.sendRedirect(redirectLocation);
+		}
+		else {
+			HttpServletResponse httpServletResponse =
+				portal.getHttpServletResponse(actionResponse);
+
+			httpServletResponse.setContentType(
+				response.getHeader(HttpHeaders.CONTENT_TYPE));
+
+			ServletResponseUtil.write(
+				httpServletResponse, response.getStream());
+		}
+	}
+
+	private void _remoteRender(
+			RenderRequest renderRequest, RenderResponse renderResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		OAuthRequest oAuthRequest = new OAuthRequest(
+			Verb.GET, getServerPortletURL());
+
+		_setRequestParameters(renderRequest, renderResponse, oAuthRequest);
+
+		Response response = getResponse(themeDisplay.getUser(), oAuthRequest);
+
+		renderResponse.setContentType(ContentTypes.TEXT_HTML);
+
+		PrintWriter printWriter = renderResponse.getWriter();
+
+		printWriter.write(response.getBody());
+	}
+
+	private void _remoteServeResource(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		OAuthRequest oAuthRequest = new OAuthRequest(
+			Verb.GET, getServerPortletURL());
+
+		_setRequestParameters(resourceRequest, resourceResponse, oAuthRequest);
+
+		addOAuthParameter(oAuthRequest, "p_p_lifecycle", "2");
+		addOAuthParameter(
+			oAuthRequest, "p_p_resource_id", resourceRequest.getResourceID());
+
+		Response response = getResponse(themeDisplay.getUser(), oAuthRequest);
+
+		String contentType = response.getHeader(HttpHeaders.CONTENT_TYPE);
+
+		if (contentType.startsWith(ContentTypes.APPLICATION_OCTET_STREAM)) {
+			String contentDisposition = response.getHeader(
+				HttpHeaders.CONTENT_DISPOSITION);
+			int contentLength = GetterUtil.getInteger(
+				response.getHeader(HttpHeaders.CONTENT_LENGTH));
+
+			PortletResponseUtil.sendFile(
+				resourceRequest, resourceResponse,
+				_getFileName(contentDisposition), response.getStream(),
+				contentLength, contentType,
+				HttpHeaders.CONTENT_DISPOSITION_ATTACHMENT);
+		}
+		else {
+			resourceResponse.setContentType(contentType);
+
+			PortletResponseUtil.write(resourceResponse, response.getStream());
+		}
+	}
+
+	private void _setRequestParameters(
+		PortletRequest portletRequest, PortletResponse portletResponse,
+		OAuthRequest oAuthRequest) {
+
+		setBaseRequestParameters(portletRequest, oAuthRequest);
+
+		Map<String, String[]> parameterMap = new HashMap<>();
+
+		MapUtil.copy(portletRequest.getParameterMap(), parameterMap);
+
+		processPortletParameterMap(
+			portletRequest, portletResponse, parameterMap);
+
+		String serverNamespace = getServerNamespace();
+
+		for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+			String key = entry.getKey();
+			String[] values = entry.getValue();
+
+			if (key.equals("remoteWindowState")) {
+				key = "p_p_state";
+			}
+			else {
+				key = serverNamespace.concat(key);
+			}
+
+			if (ArrayUtil.isEmpty(values) || Validator.isNull(values[0])) {
+				continue;
+			}
+
+			addOAuthParameter(oAuthRequest, key, values[0]);
+		}
+	}
+
+	private void _updateAccessToken(
+			RenderRequest renderRequest, String oAuthVerifier)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		Token requestToken = oAuthManager.getRequestToken(
+			themeDisplay.getUser());
+
+		OAuthService oAuthService = oAuthManager.getOAuthService();
+
+		oAuthManager.updateAccessToken(
+			themeDisplay.getUser(),
+			oAuthService.getAccessToken(
+				requestToken, new Verifier(oAuthVerifier)));
+
+		oAuthManager.deleteRequestToken(themeDisplay.getUser());
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		MarketplaceStorePortlet.class);
 
-	private AppLocalService _appLocalService;
-	private AppService _appService;
 	private final ReentrantLock _reentrantLock = new ReentrantLock();
 
 }

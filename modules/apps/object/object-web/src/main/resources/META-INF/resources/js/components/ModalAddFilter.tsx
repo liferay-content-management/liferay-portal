@@ -41,6 +41,7 @@ import {
 
 import './ModalAddFilter.scss';
 interface IProps {
+	aggregationFilter?: boolean;
 	currentFilters: CurrentFilter[];
 	disableDateValues?: boolean;
 	editingFilter: boolean;
@@ -112,6 +113,7 @@ type CurrentFilter = {
 const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
 
 export function ModalAddFilter({
+	aggregationFilter,
 	currentFilters,
 	disableDateValues,
 	editingFilter,
@@ -176,26 +178,34 @@ export function ModalAddFilter({
 
 	const setFieldValues = useCallback(
 		(objectField: ObjectField) => {
-			if (objectField?.businessType === 'Picklist') {
+			if (
+				objectField.businessType === 'MultiselectPicklist' ||
+				objectField?.businessType === 'Picklist'
+			) {
 				const makeFetch = async () => {
-					const items = await API.getPickListItems(
-						objectField.listTypeDefinitionId
-					);
+					if (objectField.listTypeDefinitionId) {
+						const items = await API.getPickListItems(
+							objectField.listTypeDefinitionId
+						);
 
-					if (editingFilter) {
-						setItems(
-							getCheckedPickListItems(items, setEditingFilterType)
-						);
-					}
-					else {
-						setItems(
-							items.map((item) => {
-								return {
-									label: item.name,
-									value: item.key,
-								};
-							})
-						);
+						if (editingFilter) {
+							setItems(
+								getCheckedPickListItems(
+									items,
+									setEditingFilterType
+								)
+							);
+						}
+						else {
+							setItems(
+								items.map((item) => {
+									return {
+										label: item.name,
+										value: item.key,
+									};
+								})
+							);
+						}
 					}
 				};
 
@@ -355,6 +365,7 @@ export function ModalAddFilter({
 				selectedFilterBy?.businessType,
 				selectedFilterType?.value,
 				selectedFilterBy?.name === 'status' ||
+					selectedFilterBy?.businessType === 'MultiselectPicklist' ||
 					selectedFilterBy?.businessType === 'Picklist' ||
 					selectedFilterBy?.businessType === 'Relationship'
 					? checkedItems
@@ -370,6 +381,7 @@ export function ModalAddFilter({
 				selectedFilterBy?.businessType,
 				selectedFilterType?.value,
 				selectedFilterBy?.name === 'status' ||
+					selectedFilterBy?.businessType === 'MultiselectPicklist' ||
 					selectedFilterBy?.businessType === 'Picklist' ||
 					selectedFilterBy?.businessType === 'Relationship'
 					? checkedItems
@@ -383,13 +395,32 @@ export function ModalAddFilter({
 		onClose();
 	};
 
+	const isMultiSelectValue = () => {
+		if (
+			aggregationFilter &&
+			selectedFilterBy?.businessType === 'Relationship'
+		) {
+			return false;
+		}
+
+		if (
+			selectedFilterType &&
+			(selectedFilterBy?.name === 'status' ||
+				selectedFilterBy?.businessType === 'MultiselectPicklist' ||
+				selectedFilterBy?.businessType === 'Picklist' ||
+				selectedFilterBy?.businessType === 'Relationship')
+		) {
+			return true;
+		}
+	};
+
 	return (
 		<ClayModal observer={observer}>
 			<ClayModal.Header>{header}</ClayModal.Header>
 
 			<ClayModal.Body>
 				{!editingFilter && (
-					<AutoComplete
+					<AutoComplete<ObjectField>
 						emptyStateMessage={Liferay.Language.get(
 							'there-are-no-columns-available'
 						)}
@@ -398,9 +429,27 @@ export function ModalAddFilter({
 						label={Liferay.Language.get('filter-by')}
 						onChangeQuery={setQuery}
 						onSelectItem={(item) => {
+							const userRelationship = !!item.objectFieldSettings?.find(
+								({name, value}) =>
+									name === 'objectDefinition1ShortName' &&
+									value === 'User'
+							);
+
 							setSelectedFilterBy(item);
-							setSelectedFilterType(null);
 							setValue('');
+
+							if (
+								item.businessType === 'Relationship' &&
+								userRelationship &&
+								aggregationFilter
+							) {
+								return setSelectedFilterType({
+									label: 'currentUser',
+									value: 'currentUser',
+								});
+							}
+
+							setSelectedFilterType(null);
 						}}
 						query={query}
 						required
@@ -415,7 +464,8 @@ export function ModalAddFilter({
 				)}
 
 				{selectedFilterBy &&
-					selectedFilterBy?.businessType !== 'Date' && (
+					selectedFilterBy?.businessType !== 'Date' &&
+					selectedFilterBy?.businessType !== 'Relationship' && (
 						<SingleSelect
 							error={errors.selectedFilterType}
 							label={Liferay.Language.get('filter-type')}
@@ -464,18 +514,15 @@ export function ModalAddFilter({
 						/>
 					)}
 
-				{selectedFilterType &&
-					(selectedFilterBy?.name === 'status' ||
-						selectedFilterBy?.businessType === 'Picklist' ||
-						selectedFilterBy?.businessType === 'Relationship') && (
-						<MultipleSelect
-							error={errors.items}
-							label={Liferay.Language.get('value')}
-							options={items}
-							required
-							setOptions={setItems}
-						/>
-					)}
+				{isMultiSelectValue() && (
+					<MultipleSelect
+						error={errors.items}
+						label={Liferay.Language.get('value')}
+						options={items}
+						required
+						setOptions={setItems}
+					/>
+				)}
 
 				{selectedFilterType &&
 					selectedFilterBy?.businessType === 'Date' &&

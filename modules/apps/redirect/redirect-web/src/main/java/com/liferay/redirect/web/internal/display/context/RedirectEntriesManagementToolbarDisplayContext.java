@@ -21,7 +21,6 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemListBuilder;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -29,12 +28,11 @@ import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.redirect.model.RedirectEntry;
-import com.liferay.redirect.web.internal.security.permission.resource.RedirectEntryPermission;
-import com.liferay.redirect.web.internal.security.permission.resource.RedirectPermission;
 
 import java.util.List;
 import java.util.Map;
@@ -51,11 +49,14 @@ public class RedirectEntriesManagementToolbarDisplayContext
 		HttpServletRequest httpServletRequest,
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse,
+		PortletResourcePermission portletResourcePermission,
 		SearchContainer<RedirectEntry> searchContainer) {
 
 		super(
 			httpServletRequest, liferayPortletRequest, liferayPortletResponse,
 			searchContainer);
+
+		_portletResourcePermission = portletResourcePermission;
 
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -66,7 +67,7 @@ public class RedirectEntriesManagementToolbarDisplayContext
 		return DropdownItemListBuilder.add(
 			dropdownItem -> {
 				dropdownItem.putData("action", "deleteSelectedRedirectEntries");
-				dropdownItem.setIcon("times-circle");
+				dropdownItem.setIcon("trash");
 				dropdownItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "delete"));
 				dropdownItem.setQuickAction(true);
@@ -86,19 +87,6 @@ public class RedirectEntriesManagementToolbarDisplayContext
 		).build();
 	}
 
-	public String getAvailableActions(RedirectEntry redirectEntry)
-		throws PortalException {
-
-		if (RedirectEntryPermission.contains(
-				_themeDisplay.getPermissionChecker(), redirectEntry,
-				ActionKeys.DELETE)) {
-
-			return "deleteSelectedRedirectEntries";
-		}
-
-		return StringPool.BLANK;
-	}
-
 	@Override
 	public String getClearResultsURL() {
 		return PortletURLBuilder.create(
@@ -114,7 +102,7 @@ public class RedirectEntriesManagementToolbarDisplayContext
 
 	@Override
 	public CreationMenu getCreationMenu() {
-		if (!RedirectPermission.contains(
+		if (!_portletResourcePermission.contains(
 				_themeDisplay.getPermissionChecker(),
 				_themeDisplay.getScopeGroupId(), ActionKeys.ADD_ENTRY)) {
 
@@ -179,6 +167,7 @@ public class RedirectEntriesManagementToolbarDisplayContext
 	private static final Log _log = LogFactoryUtil.getLog(
 		RedirectEntriesManagementToolbarDisplayContext.class);
 
+	private final PortletResourcePermission _portletResourcePermission;
 	private final ThemeDisplay _themeDisplay;
 
 }

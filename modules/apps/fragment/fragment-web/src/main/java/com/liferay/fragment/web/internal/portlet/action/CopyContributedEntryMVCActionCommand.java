@@ -15,7 +15,7 @@
 package com.liferay.fragment.web.internal.portlet.action;
 
 import com.liferay.fragment.constants.FragmentPortletKeys;
-import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
+import com.liferay.fragment.contributor.FragmentCollectionContributorRegistry;
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentComposition;
 import com.liferay.fragment.model.FragmentEntry;
@@ -97,11 +97,11 @@ public class CopyContributedEntryMVCActionCommand extends BaseMVCActionCommand {
 
 					for (String contributedEntryKey : contributedEntryKeys) {
 						FragmentComposition fragmentComposition =
-							_fragmentCollectionContributorTracker.
+							_fragmentCollectionContributorRegistry.
 								getFragmentComposition(contributedEntryKey);
 
 						FragmentEntry fragmentEntry =
-							_fragmentCollectionContributorTracker.
+							_fragmentCollectionContributorRegistry.
 								getFragmentEntry(contributedEntryKey);
 
 						if (fragmentComposition != null) {
@@ -221,7 +221,7 @@ public class CopyContributedEntryMVCActionCommand extends BaseMVCActionCommand {
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to get preview entry image URL", exception);
+				_log.debug(exception);
 			}
 		}
 
@@ -232,8 +232,8 @@ public class CopyContributedEntryMVCActionCommand extends BaseMVCActionCommand {
 		CopyContributedEntryMVCActionCommand.class);
 
 	@Reference
-	private FragmentCollectionContributorTracker
-		_fragmentCollectionContributorTracker;
+	private FragmentCollectionContributorRegistry
+		_fragmentCollectionContributorRegistry;
 
 	@Reference
 	private FragmentCompositionService _fragmentCompositionService;

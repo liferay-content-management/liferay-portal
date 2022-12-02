@@ -16,6 +16,7 @@ package com.liferay.fragment.web.internal.frontend.taglib.clay.servlet.taglib;
 
 import com.liferay.fragment.constants.FragmentActionKeys;
 import com.liferay.fragment.model.FragmentEntry;
+import com.liferay.fragment.service.FragmentEntryLinkLocalServiceUtil;
 import com.liferay.fragment.web.internal.security.permission.resource.FragmentPermission;
 import com.liferay.fragment.web.internal.servlet.taglib.util.BasicFragmentEntryActionDropdownItemsProvider;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
@@ -29,7 +30,6 @@ import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.portlet.RenderRequest;
@@ -119,14 +119,11 @@ public class BasicFragmentEntryVerticalCard
 
 	@Override
 	public String getSubtitle() {
-		Date modifiedDate = fragmentEntry.getModifiedDate();
-
-		String modifiedDateDescription = LanguageUtil.getTimeDescription(
-			_httpServletRequest,
-			System.currentTimeMillis() - modifiedDate.getTime(), true);
-
 		return LanguageUtil.format(
-			_httpServletRequest, "modified-x-ago", modifiedDateDescription);
+			_httpServletRequest, "x-usages",
+			FragmentEntryLinkLocalServiceUtil.
+				getFragmentEntryLinksCountByFragmentEntryId(
+					fragmentEntry.getFragmentEntryId()));
 	}
 
 	@Override

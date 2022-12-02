@@ -15,14 +15,12 @@
 package com.liferay.analytics.reports.layout.display.page.internal.request.attributes.contributor;
 
 import com.liferay.analytics.reports.constants.AnalyticsReportsWebKeys;
-import com.liferay.analytics.reports.info.item.AnalyticsReportsInfoItemTracker;
+import com.liferay.analytics.reports.info.item.AnalyticsReportsInfoItemRegistry;
 import com.liferay.analytics.reports.info.item.ClassNameClassPKInfoItemIdentifier;
 import com.liferay.info.display.request.attributes.contributor.InfoDisplayRequestAttributesContributor;
 import com.liferay.info.item.InfoItemReference;
 import com.liferay.layout.display.page.LayoutDisplayPageObjectProvider;
 import com.liferay.layout.display.page.constants.LayoutDisplayPageWebKeys;
-import com.liferay.portal.kernel.model.ClassName;
-import com.liferay.portal.kernel.service.ClassNameLocalService;
 
 import java.util.Optional;
 
@@ -49,31 +47,25 @@ public class
 			return;
 		}
 
-		ClassName className = _classNameLocalService.fetchClassName(
-			layoutDisplayPageObjectProvider.getClassNameId());
-
 		httpServletRequest.setAttribute(
-			AnalyticsReportsWebKeys.INFO_ITEM_REFERENCE,
+			AnalyticsReportsWebKeys.ANALYTICS_INFO_ITEM_REFERENCE,
 			Optional.ofNullable(
-				_analyticsReportsInfoItemTracker.getAnalyticsReportsInfoItem(
-					className.getClassName())
+				_analyticsReportsInfoItemRegistry.getAnalyticsReportsInfoItem(
+					layoutDisplayPageObjectProvider.getClassName())
 			).map(
 				analyticsReportsInfoItem -> new InfoItemReference(
-					className.getClassName(),
+					layoutDisplayPageObjectProvider.getClassName(),
 					layoutDisplayPageObjectProvider.getClassPK())
 			).orElseGet(
 				() -> new InfoItemReference(
 					LayoutDisplayPageObjectProvider.class.getName(),
 					new ClassNameClassPKInfoItemIdentifier(
-						className.getClassName(),
+						layoutDisplayPageObjectProvider.getClassName(),
 						layoutDisplayPageObjectProvider.getClassPK()))
 			));
 	}
 
 	@Reference
-	private AnalyticsReportsInfoItemTracker _analyticsReportsInfoItemTracker;
-
-	@Reference
-	private ClassNameLocalService _classNameLocalService;
+	private AnalyticsReportsInfoItemRegistry _analyticsReportsInfoItemRegistry;
 
 }

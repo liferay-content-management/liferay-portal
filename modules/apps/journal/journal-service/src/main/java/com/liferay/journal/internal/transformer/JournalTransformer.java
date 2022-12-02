@@ -28,6 +28,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.mobile.device.Device;
@@ -453,13 +454,10 @@ public class JournalTransformer {
 
 		String type = ddmFormField.getType();
 
-		if (Objects.equals(type, DDMFormFieldTypeConstants.SELECT) ||
-			Objects.equals(type, DDMFormFieldTypeConstants.RADIO)) {
+		if (Objects.equals(type, DDMFormFieldTypeConstants.CHECKBOX_MULTIPLE) ||
+			(Objects.equals(type, DDMFormFieldTypeConstants.SELECT) &&
+			 ddmFormField.isMultiple())) {
 
-			return optionsReferences.getOrDefault(data, data);
-		}
-
-		if (Objects.equals(type, DDMFormFieldTypeConstants.CHECKBOX_MULTIPLE)) {
 			try {
 				JSONArray nextJSONArray = JSONFactoryUtil.createJSONArray();
 
@@ -481,8 +479,7 @@ public class JournalTransformer {
 				}
 			}
 		}
-
-		if (Objects.equals(type, DDMFormFieldTypeConstants.GRID)) {
+		else if (Objects.equals(type, DDMFormFieldTypeConstants.GRID)) {
 			try {
 				JSONObject nextJSONObject = JSONFactoryUtil.createJSONObject();
 
@@ -515,6 +512,11 @@ public class JournalTransformer {
 					_log.debug(exception);
 				}
 			}
+		}
+		else if (Objects.equals(type, DDMFormFieldTypeConstants.RADIO) ||
+				 Objects.equals(type, DDMFormFieldTypeConstants.SELECT)) {
+
+			return optionsReferences.getOrDefault(data, data);
 		}
 
 		return data;
@@ -551,6 +553,22 @@ public class JournalTransformer {
 
 				attributes.put(key, value);
 			}
+		}
+		else if (type.equals(DDMFormFieldTypeConstants.SELECT) &&
+				 ddmFormField.isMultiple()) {
+
+			JSONArray dataJSONArray = JSONFactoryUtil.createJSONArray();
+
+			Iterator<Element> iterator = dynamicContentElement.elementIterator(
+				"option");
+
+			while (iterator.hasNext()) {
+				Element optionElement = iterator.next();
+
+				dataJSONArray.put(optionElement.getData());
+			}
+
+			data = JSONUtil.toString(dataJSONArray);
 		}
 
 		if (dynamicContentElement != null) {

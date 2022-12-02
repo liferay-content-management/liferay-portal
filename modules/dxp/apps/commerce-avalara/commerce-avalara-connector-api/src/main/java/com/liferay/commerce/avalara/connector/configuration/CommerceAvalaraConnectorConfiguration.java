@@ -16,14 +16,9 @@ package com.liferay.commerce.avalara.connector.configuration;
 
 import aQute.bnd.annotation.metatype.Meta;
 
-import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
-
 /**
- * @author Calvin Keum
+ * @author Katie Nesterovich
  */
-@ExtendedObjectClassDefinition(
-	category = "tax-rate", scope = ExtendedObjectClassDefinition.Scope.GROUP
-)
 @Meta.OCD(
 	id = "com.liferay.commerce.avalara.connector.configuration.CommerceAvalaraConnectorConfiguration",
 	localization = "content/Language",
@@ -39,13 +34,5 @@ public interface CommerceAvalaraConnectorConfiguration {
 
 	@Meta.AD(name = "service-url", required = false)
 	public String serviceURL();
-
-	@Meta.AD(name = "company-code", required = false)
-	public String companyCode();
-
-	@Meta.AD(
-		deflt = "false", name = "disabled-document-recording", required = false
-	)
-	public boolean disabledDocumentRecording();
 
 }

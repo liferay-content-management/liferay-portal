@@ -3,7 +3,7 @@ definition {
 
 	property custom.properties = "minifier.enabled=true";
 	property osgi.module.configuration.file.names = "com.liferay.frontend.js.loader.modules.extender.internal.configuration.Details.config";
-	property osgi.module.configurations = "waitTimeout=&quot;15&quot;";
+	property osgi.module.configurations = "waitTimeout=\"15\"";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Forms";
@@ -359,7 +359,7 @@ definition {
 		ItemSelector.gotoItemSelectorViaSelectButton();
 
 		FormFields.editColor(
-			colorSwatchItem = "2BA676",
+			colorSwatchItem = "#2BA676",
 			fieldLabel = "Color");
 
 		ItemSelector.uploadFile(
@@ -367,6 +367,209 @@ definition {
 			uploadFileName = "Document_1.jpg");
 
 		FormPortlet.submitSuccessfully();
+	}
+
+	@description = "LPS-167567 - Verify that the Field Reference property is not vulnerable to Cross Site Scripting"
+	@priority = "5"
+	test CheckFieldReferenceCrossSiteScripting {
+		property portal.acceptance = "true";
+
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Form");
+
+		Form.addTextFieldReference(
+			fieldPositionNumber = "0",
+			key_fieldReferenceText = "<script>alert(123)</script>");
+
+		Form.save();
+
+		FormsAdminNavigator.gotoBack();
+
+		FormsAdminNavigator.gotoEditFormByName(formName = "Form");
+
+		FormFields.viewFieldReference(
+			fieldName = "Text",
+			key_fieldReferenceValue = "scriptalert123script");
+	}
+
+	@description = "LPS-167565 - Verify that the Help Text property is not vulnerable to Cross Site Scripting."
+	@priority = "5"
+	test CheckHelpTextCrossSiteScripting {
+		property portal.acceptance = "true";
+
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Form");
+
+		Form.addTextField(fieldPositionNumber = "0");
+
+		FormViewBuilder.setFieldHelpText(fieldLabel = "<script>alert(123)</script>");
+
+		Form.gotoAdvancedTab();
+
+		var textFieldName = FormFields.getFieldName();
+
+		Form.publishForm();
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
+		PagesAdmin.addPage(pageName = "Form Page");
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		Portlet.addPG(
+			pageName = "Form Page",
+			portletName = "Form");
+
+		FormPortletNavigator.gotoSelectForm();
+
+		FormPortletConfiguration.selectForm(formTitle = "Form");
+
+		PortletEntry.save();
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		FormFields.viewFieldHelpText(
+			fieldHelpText = "<script>alert(123)</script>",
+			fieldName = "${textFieldName}");
+	}
+
+	@description = "LPS-167564 - Verify that the Label property is not vulnerable to Cross Site Scripting."
+	@priority = "5"
+	test CheckLabelCrossSiteScripting {
+		property portal.acceptance = "true";
+
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Form");
+
+		Form.addTextField(fieldPositionNumber = "0");
+
+		Form.editFieldLabelMetal(fieldValue = "<script>alert(123)</script>");
+
+		Form.gotoAdvancedTab();
+
+		var textFieldName = FormFields.getFieldName();
+
+		Form.closeSidebar();
+
+		Form.publishForm();
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
+		PagesAdmin.addPage(pageName = "Form Page");
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		Portlet.addPG(
+			pageName = "Form Page",
+			portletName = "Form");
+
+		FormPortletNavigator.gotoSelectForm();
+
+		FormPortletConfiguration.selectForm(formTitle = "Form");
+
+		PortletEntry.save();
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		FormFields.viewTextField(
+			fieldLabel = "<script>alert(123)</script>",
+			fieldName = "${textFieldName}");
+	}
+
+	@description = "LPS-167568 - Verify that the Placeholder Text property is not vulnerable to Cross Site Scripting"
+	@priority = "5"
+	test CheckPlaceholderTextCrossSiteScripting {
+		property portal.acceptance = "true";
+
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Form");
+
+		Form.addTextField(fieldPositionNumber = "0");
+
+		FormViewBuilder.setPlaceholder(fieldValue = "<script>alert(123)</script>");
+
+		Form.gotoAdvancedTab();
+
+		var textFieldName = FormFields.getFieldName();
+
+		Form.publishForm();
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
+		PagesAdmin.addPage(pageName = "Form Page");
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		Portlet.addPG(
+			pageName = "Form Page",
+			portletName = "Form");
+
+		FormPortletNavigator.gotoSelectForm();
+
+		FormPortletConfiguration.selectForm(formTitle = "Form");
+
+		PortletEntry.save();
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		FormFields.viewFieldPlaceholderText(
+			fieldName = "${textFieldName}",
+			placeHolder = "<script>alert(123)</script>");
+	}
+
+	@description = "LPS-167566 - Verify that the Predefined Value property is not vulnerable to Cross Site Scripting."
+	@priority = "5"
+	test CheckPredefinedValueCrossSiteScripting {
+		property portal.acceptance = "true";
+
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Form");
+
+		Form.addTextField(fieldPositionNumber = "0");
+
+		FormFields.editPredefinedValue(key_predefinedValue = "<script>alert(123)</script>");
+
+		Form.gotoAdvancedTab();
+
+		var textFieldName = FormFields.getFieldName();
+
+		Form.publishForm();
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
+		PagesAdmin.addPage(pageName = "Form Page");
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		Portlet.addPG(
+			pageName = "Form Page",
+			portletName = "Form");
+
+		FormPortletNavigator.gotoSelectForm();
+
+		FormPortletConfiguration.selectForm(formTitle = "Form");
+
+		PortletEntry.save();
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		AssertTextEquals(
+			key_fieldName = "Text",
+			locator1 = "FormViewBuilder#TEXT_FIELD",
+			value1 = "<script>alert(123)</script>");
 	}
 
 	@description = "LPS-70560 - Verify that a user is not able to bypass field validation by pressing Next twice"

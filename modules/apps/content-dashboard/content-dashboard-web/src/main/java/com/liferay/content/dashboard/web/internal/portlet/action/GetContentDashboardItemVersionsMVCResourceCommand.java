@@ -19,11 +19,11 @@ import com.liferay.content.dashboard.item.ContentDashboardItemFactory;
 import com.liferay.content.dashboard.item.ContentDashboardItemVersion;
 import com.liferay.content.dashboard.item.VersionableContentDashboardItem;
 import com.liferay.content.dashboard.web.internal.constants.ContentDashboardPortletKeys;
-import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactoryTracker;
+import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactoryRegistry;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -51,7 +51,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Stefan Tanasie
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + ContentDashboardPortletKeys.CONTENT_DASHBOARD_ADMIN,
 		"mvc.command.name=/content_dashboard/get_content_dashboard_item_versions"
@@ -90,14 +89,10 @@ public class GetContentDashboardItemVersionsMVCResourceCommand
 	}
 
 	private JSONArray _getContentDashboardItemVersionsJSONArray(
-		int displayVersions, HttpServletRequest httpServletRequest,
-		VersionableContentDashboardItem versionableContentDashboardItem) {
+		List<ContentDashboardItemVersion> contentDashboardItemVersions,
+		int displayVersions) {
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
-
-		List<ContentDashboardItemVersion> contentDashboardItemVersions =
-			versionableContentDashboardItem.getAllContentDashboardItemVersions(
-				httpServletRequest);
+		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
 		if (ListUtil.isEmpty(contentDashboardItemVersions)) {
 			return jsonArray;
@@ -122,11 +117,11 @@ public class GetContentDashboardItemVersionsMVCResourceCommand
 		String className = ParamUtil.getString(resourceRequest, "className");
 
 		ContentDashboardItemFactory<?> contentDashboardItemFactory =
-			_contentDashboardItemFactoryTracker.getContentDashboardItemFactory(
+			_contentDashboardItemFactoryRegistry.getContentDashboardItemFactory(
 				className);
 
 		if (contentDashboardItemFactory == null) {
-			return JSONFactoryUtil.createJSONObject();
+			return _jsonFactory.createJSONObject();
 		}
 
 		long classPK = GetterUtil.getLong(
@@ -139,7 +134,7 @@ public class GetContentDashboardItemVersionsMVCResourceCommand
 			!(contentDashboardItem instanceof
 				VersionableContentDashboardItem)) {
 
-			return JSONFactoryUtil.createJSONObject();
+			return _jsonFactory.createJSONObject();
 		}
 
 		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
@@ -158,8 +153,7 @@ public class GetContentDashboardItemVersionsMVCResourceCommand
 		return JSONUtil.put(
 			"versions",
 			_getContentDashboardItemVersionsJSONArray(
-				displayVersions, httpServletRequest,
-				versionableContentDashboardItem)
+				contentDashboardItemVersions, displayVersions)
 		).put(
 			"viewVersionsURL",
 			() -> {
@@ -179,8 +173,11 @@ public class GetContentDashboardItemVersionsMVCResourceCommand
 		GetContentDashboardItemVersionsMVCResourceCommand.class);
 
 	@Reference
-	private ContentDashboardItemFactoryTracker
-		_contentDashboardItemFactoryTracker;
+	private ContentDashboardItemFactoryRegistry
+		_contentDashboardItemFactoryRegistry;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Portal _portal;

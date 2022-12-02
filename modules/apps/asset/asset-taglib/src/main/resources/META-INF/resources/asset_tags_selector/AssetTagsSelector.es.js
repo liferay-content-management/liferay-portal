@@ -13,13 +13,12 @@
  */
 
 import ClayButton from '@clayui/button';
-import {useResource} from '@clayui/data-provider';
 import ClayForm, {ClayInput} from '@clayui/form';
 import ClayMultiSelect, {itemLabelFilter} from '@clayui/multi-select';
 import {usePrevious} from '@liferay/frontend-js-react-web';
-import {objectToFormData, openSelectionModal} from 'frontend-js-web';
+import {fetch, openSelectionModal, sub} from 'frontend-js-web';
 import PropTypes from 'prop-types';
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 const noop = () => {};
 
@@ -29,7 +28,7 @@ function AssetTagsSelector({
 	id,
 	inputName,
 	inputValue,
-	label,
+	label = Liferay.Language.get('tags'),
 	onInputValueChange = noop,
 	onSelectedItemsChange = noop,
 	portletURL,
@@ -37,35 +36,40 @@ function AssetTagsSelector({
 	selectedItems = [],
 	showSelectButton,
 }) {
-	const {refetch, resource} = useResource({
-		fetchOptions: {
-			'body': objectToFormData({
-				cmd: JSON.stringify({
-					'/assettag/search': {
-						end: 20,
-						groupIds,
-						name: `%${inputValue === '*' ? '' : inputValue}%`,
-						start: 0,
-						tagProperties: '',
-					},
-				}),
-				p_auth: Liferay.authToken,
-			}),
-			'credentials': 'include',
-			'method': 'POST',
-			'x-csrf-token': Liferay.authToken,
-		},
-		link: `${window.location.origin}${themeDisplay.getPathContext()}
-				/api/jsonws/invoke`,
-	});
+	const selectButtonRef = useRef();
+
+	const [resource, setResource] = useState([]);
 
 	const previousInputValue = usePrevious(inputValue);
 
 	useEffect(() => {
 		if (inputValue && inputValue !== previousInputValue) {
-			refetch();
+			fetch(
+				`${
+					window.location.origin
+				}${themeDisplay.getPathContext()}/api/jsonws/invoke`,
+				{
+					body: new URLSearchParams({
+						cmd: JSON.stringify({
+							'/assettag/search': {
+								end: 20,
+								groupIds,
+								name: `%${
+									inputValue === '*' ? '' : inputValue
+								}%`,
+								start: 0,
+								tagProperties: '',
+							},
+						}),
+						p_auth: Liferay.authToken,
+					}),
+					method: 'POST',
+				}
+			)
+				.then((response) => response.json())
+				.then((response) => setResource(response));
 		}
-	}, [inputValue, previousInputValue, refetch]);
+	}, [groupIds, inputValue, previousInputValue]);
 
 	const callGlobalCallback = (callback, item) => {
 		if (callback && typeof window[callback] === 'function') {
@@ -132,6 +136,9 @@ function AssetTagsSelector({
 			buttonAddLabel: Liferay.Language.get('done'),
 			getSelectedItemsOnly: false,
 			multiple: true,
+			onClose: () => {
+				selectButtonRef.current?.focus();
+			},
 			onSelect: (dialogSelectedItems) => {
 				if (!dialogSelectedItems?.length) {
 					return;
@@ -204,9 +211,7 @@ function AssetTagsSelector({
 	return (
 		<div className="lfr-tags-selector-content" id={id}>
 			<ClayForm.Group>
-				<label htmlFor={inputName + '_MultiSelect'}>
-					{label || Liferay.Language.get('tags')}
-				</label>
+				<label htmlFor={inputName + '_MultiSelect'}>{label}</label>
 
 				<ClayInput.Group>
 					<ClayInput.GroupItem>
@@ -237,8 +242,14 @@ function AssetTagsSelector({
 					{showSelectButton && (
 						<ClayInput.GroupItem shrink>
 							<ClayButton
+								aria-haspopup="dialog"
+								aria-label={sub(
+									Liferay.Language.get('select-x'),
+									label
+								)}
 								displayType="secondary"
 								onClick={handleSelectButtonClick}
+								ref={selectButtonRef}
 							>
 								{Liferay.Language.get('select')}
 							</ClayButton>

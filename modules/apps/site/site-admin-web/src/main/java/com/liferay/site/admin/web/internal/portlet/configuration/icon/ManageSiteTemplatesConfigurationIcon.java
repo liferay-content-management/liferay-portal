@@ -41,7 +41,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = "javax.portlet.name=" + SiteAdminPortletKeys.SITE_ADMIN,
 	service = PortletConfigurationIcon.class
 )
@@ -50,9 +49,7 @@ public class ManageSiteTemplatesConfigurationIcon
 
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)),
-			"manage-site-template");
+		return _language.get(getLocale(portletRequest), "manage-site-template");
 	}
 
 	@Override

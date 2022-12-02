@@ -43,8 +43,12 @@ public class CryptPasswordEncryptor
 	@Override
 	public String encrypt(
 			String algorithm, String plainTextPassword,
-			String encryptedPassword)
+			String encryptedPassword, boolean upgradeHashSecurity)
 		throws PwdEncryptorException {
+
+		if (upgradeHashSecurity) {
+			encryptedPassword = null;
+		}
 
 		byte[] saltBytes = getSalt(encryptedPassword);
 

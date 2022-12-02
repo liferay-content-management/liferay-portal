@@ -14,8 +14,10 @@
 
 package com.liferay.jenkins.results.parser.test.clazz;
 
+import com.liferay.jenkins.results.parser.BatchHistory;
 import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 import com.liferay.jenkins.results.parser.PortalGitWorkingDirectory;
+import com.liferay.jenkins.results.parser.TestHistory;
 import com.liferay.jenkins.results.parser.test.clazz.group.BatchTestClassGroup;
 
 import java.io.File;
@@ -60,16 +62,30 @@ public abstract class BaseTestClass implements TestClass {
 
 	@Override
 	public long getAverageDuration() {
+		if (_averageDuration != null) {
+			return _averageDuration;
+		}
+
 		BatchTestClassGroup batchTestClassGroup = getBatchTestClassGroup();
 
-		return batchTestClassGroup.getAverageTestDuration(getName());
+		_averageDuration = batchTestClassGroup.getAverageTestDuration(
+			getTestName());
+
+		return _averageDuration;
 	}
 
 	@Override
 	public long getAverageOverheadDuration() {
+		if (_averageOverheadDuration != null) {
+			return _averageOverheadDuration;
+		}
+
 		BatchTestClassGroup batchTestClassGroup = getBatchTestClassGroup();
 
-		return batchTestClassGroup.getAverageTestOverheadDuration(getName());
+		_averageOverheadDuration =
+			batchTestClassGroup.getAverageTestOverheadDuration(getTestName());
+
+		return _averageOverheadDuration;
 	}
 
 	@Override
@@ -113,6 +129,21 @@ public abstract class BaseTestClass implements TestClass {
 	@Override
 	public List<TestClassMethod> getTestClassMethods() {
 		return _testClassMethods;
+	}
+
+	@Override
+	public TestHistory getTestHistory() {
+		if (_testHistory != null) {
+			return _testHistory;
+		}
+
+		BatchTestClassGroup batchTestClassGroup = getBatchTestClassGroup();
+
+		BatchHistory batchHistory = batchTestClassGroup.getBatchHistory();
+
+		_testHistory = batchHistory.getTestHistory(getTestName());
+
+		return _testHistory;
 	}
 
 	@Override
@@ -200,8 +231,15 @@ public abstract class BaseTestClass implements TestClass {
 		return portalGitWorkingDirectory.getWorkingDirectory();
 	}
 
+	protected String getTestName() {
+		return getName();
+	}
+
+	private Long _averageDuration;
+	private Long _averageOverheadDuration;
 	private final BatchTestClassGroup _batchTestClassGroup;
 	private final File _testClassFile;
 	private final List<TestClassMethod> _testClassMethods = new ArrayList<>();
+	private TestHistory _testHistory;
 
 }

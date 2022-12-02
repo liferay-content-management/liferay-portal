@@ -1,5 +1,8 @@
 {
 	"dependencies": {
+		"@liferay/frontend-js-state-web": "*",
+		"frontend-js-web": "*",
+		"item-selector-taglib": "*"
 	},
 	"name": "blogs-web",
 	"scripts": {
@@ -7,5 +10,5 @@
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "6.0.67"
+	"version": "6.0.74"
 }

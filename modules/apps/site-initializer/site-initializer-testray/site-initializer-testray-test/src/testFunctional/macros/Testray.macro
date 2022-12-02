@@ -19,19 +19,27 @@ definition {
 		Button.clickSave();
 	}
 
-	macro addNewTeam {
-		SelectFrame(locator1 = "Testray#MODAL_BODY");
+	macro addTestraySite {
+		Site.openSitesAdmin();
 
-		for (var teamName : list "${teamName}") {
-			Click(locator1 = "TestrayManage#ADD_PROJECT_ON_MODAL");
+		LexiconEntry.gotoAdd();
 
-			SelectFrame(locator1 = "Testray#MODAL_BODY");
+		LexiconCard.clickCard(card = "Liferay Site Initializer Testray");
 
-			Type(
-				locator1 = "TestrayManage#NEW_OPTION_NAME",
-				value1 = "${teamName}");
+		SelectFrame(
+			key_title = "Add Site",
+			locator1 = "IFrame#MODAL_ANY");
 
-			Button.clickSave();
+		PortletEntry.inputName(name = "Testray 2");
+
+		Button.click(button = "Add");
+
+		Site.openSitesAdmin();
+
+		while (IsElementNotPresent(key_siteName = "Testray 2", locator1 = "Sites#SITE_TABLE_NAME")) {
+			Refresh();
+
+			WaitForPageLoad();
 		}
 	}
 
@@ -103,6 +111,14 @@ definition {
 			locator1 = "Testray#ITEMS_PER_PAGE_SELECT");
 	}
 
+	macro checkSuccessAlertAppearsAndDisappears {
+		WaitForElementPresent(locator1 = "Message#SUCCESS");
+
+		Alert.closeMessage(messageType = "SUCCESS");
+
+		WaitForElementNotPresent(locator1 = "Message#SUCCESS");
+	}
+
 	macro clickOnPageNumber {
 		Click(
 			key_pageNumber = "${pageNumber}",
@@ -145,27 +161,6 @@ definition {
 			value1 = "${description}");
 
 		Click(locator1 = "TestrayManage#SAVE_BUTTON");
-	}
-
-	macro createTestraySite {
-		ApplicationsMenu.gotoPortlet(
-			category = "Sites",
-			panel = "Control Panel",
-			portlet = "Sites");
-
-		LexiconEntry.gotoAdd();
-
-		LexiconCard.clickCard(card = "Liferay Site Initializer Testray");
-
-		SelectFrame(
-			key_title = "Add Site",
-			locator1 = "IFrame#MODAL_ANY");
-
-		PortletEntry.inputName(name = "${siteName}");
-
-		Click(locator1 = "Button#ADD");
-
-		Alert.viewSuccessMessage();
 	}
 
 	macro createTestrayTasks {
@@ -307,6 +302,14 @@ definition {
 
 	macro goToTestflow {
 		Click(locator1 = "Testray#TESTFLOW_SIDEBAR");
+	}
+
+	macro kebabMenuOption {
+		Click(locator1 = "ObjectAdmin#KEBAB_MENU");
+
+		Click(
+			key_kebabOption = "${kebabOption}",
+			locator1 = "ObjectAdmin#KEBAB_MENU_OPTION");
 	}
 
 	macro projectTabNavigator {

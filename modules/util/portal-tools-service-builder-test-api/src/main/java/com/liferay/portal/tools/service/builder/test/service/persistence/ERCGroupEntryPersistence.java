@@ -390,56 +390,56 @@ public interface ERCGroupEntryPersistence
 	public int countByUuid_C(String uuid, long companyId);
 
 	/**
-	 * Returns the erc group entry where groupId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchERCGroupEntryException</code> if it could not be found.
+	 * Returns the erc group entry where externalReferenceCode = &#63; and groupId = &#63; or throws a <code>NoSuchERCGroupEntryException</code> if it could not be found.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @return the matching erc group entry
 	 * @throws NoSuchERCGroupEntryException if a matching erc group entry could not be found
 	 */
-	public ERCGroupEntry findByG_ERC(long groupId, String externalReferenceCode)
+	public ERCGroupEntry findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchERCGroupEntryException;
 
 	/**
-	 * Returns the erc group entry where groupId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the erc group entry where externalReferenceCode = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @return the matching erc group entry, or <code>null</code> if a matching erc group entry could not be found
 	 */
-	public ERCGroupEntry fetchByG_ERC(
-		long groupId, String externalReferenceCode);
+	public ERCGroupEntry fetchByERC_G(
+		String externalReferenceCode, long groupId);
 
 	/**
-	 * Returns the erc group entry where groupId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the erc group entry where externalReferenceCode = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching erc group entry, or <code>null</code> if a matching erc group entry could not be found
 	 */
-	public ERCGroupEntry fetchByG_ERC(
-		long groupId, String externalReferenceCode, boolean useFinderCache);
+	public ERCGroupEntry fetchByERC_G(
+		String externalReferenceCode, long groupId, boolean useFinderCache);
 
 	/**
-	 * Removes the erc group entry where groupId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the erc group entry where externalReferenceCode = &#63; and groupId = &#63; from the database.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @return the erc group entry that was removed
 	 */
-	public ERCGroupEntry removeByG_ERC(
-			long groupId, String externalReferenceCode)
+	public ERCGroupEntry removeByERC_G(
+			String externalReferenceCode, long groupId)
 		throws NoSuchERCGroupEntryException;
 
 	/**
-	 * Returns the number of erc group entries where groupId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of erc group entries where externalReferenceCode = &#63; and groupId = &#63;.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @return the number of matching erc group entries
 	 */
-	public int countByG_ERC(long groupId, String externalReferenceCode);
+	public int countByERC_G(String externalReferenceCode, long groupId);
 
 	/**
 	 * Caches the erc group entry in the entity cache if it is enabled.

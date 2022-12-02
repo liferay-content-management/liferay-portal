@@ -2,7 +2,8 @@
 	"dependencies": {
 		"clipboard": "2.0.4",
 		"codemirror": "^5.59.0",
-		"moment": "^2.24.0"
+		"frontend-js-web": "*",
+		"moment": "2.29.4"
 	},
 	"jest": {
 		"setupFilesAfterEnv": [
@@ -19,5 +20,5 @@
 		"format": "liferay-npm-scripts fix",
 		"test": "liferay-npm-scripts test"
 	},
-	"version": "6.0.71"
+	"version": "6.0.79"
 }

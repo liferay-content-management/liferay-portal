@@ -272,46 +272,19 @@ public abstract class DLFolderLocalServiceBaseImpl
 		return dlFolderPersistence.fetchByUUID_G(uuid, groupId);
 	}
 
-	/**
-	 * Returns the document library folder with the matching external reference code and group.
-	 *
-	 * @param groupId the primary key of the group
-	 * @param externalReferenceCode the document library folder's external reference code
-	 * @return the matching document library folder, or <code>null</code> if a matching document library folder could not be found
-	 */
 	@Override
 	public DLFolder fetchDLFolderByExternalReferenceCode(
-		long groupId, String externalReferenceCode) {
+		String externalReferenceCode, long groupId) {
 
-		return dlFolderPersistence.fetchByG_ERC(groupId, externalReferenceCode);
+		return dlFolderPersistence.fetchByERC_G(externalReferenceCode, groupId);
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchDLFolderByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public DLFolder fetchDLFolderByReferenceCode(
-		long groupId, String externalReferenceCode) {
-
-		return fetchDLFolderByExternalReferenceCode(
-			groupId, externalReferenceCode);
-	}
-
-	/**
-	 * Returns the document library folder with the matching external reference code and group.
-	 *
-	 * @param groupId the primary key of the group
-	 * @param externalReferenceCode the document library folder's external reference code
-	 * @return the matching document library folder
-	 * @throws PortalException if a matching document library folder could not be found
-	 */
 	@Override
 	public DLFolder getDLFolderByExternalReferenceCode(
-			long groupId, String externalReferenceCode)
+			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		return dlFolderPersistence.findByG_ERC(groupId, externalReferenceCode);
+		return dlFolderPersistence.findByERC_G(externalReferenceCode, groupId);
 	}
 
 	/**

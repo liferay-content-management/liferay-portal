@@ -10,12 +10,12 @@
  */
 
 const getRecipientType = (assignments) => {
-	return assignments?.assignmentType[0] === 'user' &&
+	return assignments?.assignmentType?.[0] === 'user' &&
 		!Object.keys(assignments).includes('emailAddress')
 		? 'assetCreator'
-		: assignments?.assignmentType[0] === 'roleId'
+		: assignments?.assignmentType?.[0] === 'roleId'
 		? 'role'
-		: assignments?.assignmentType[0];
+		: 'assetCreator';
 };
 
 export {getRecipientType};

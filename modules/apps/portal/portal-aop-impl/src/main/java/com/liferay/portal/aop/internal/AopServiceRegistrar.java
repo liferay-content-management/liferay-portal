@@ -15,11 +15,11 @@
 package com.liferay.portal.aop.internal;
 
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.module.util.BundleUtil;
 import com.liferay.portal.spring.aop.AopCacheManager;
 import com.liferay.portal.spring.aop.AopInvocationHandler;
 import com.liferay.portal.spring.transaction.TransactionHandler;
@@ -53,16 +53,11 @@ public class AopServiceRegistrar {
 		_aopService = aopService;
 		_aopServiceInterfaces = aopServiceInterfaces;
 
-		Bundle bundle = serviceReference.getBundle();
-
-		Dictionary<String, String> headers = bundle.getHeaders(
-			StringPool.BLANK);
-
-		if (headers.get("Liferay-Service") == null) {
-			_liferayService = false;
+		if (BundleUtil.isLiferayServiceBundle(serviceReference.getBundle())) {
+			_liferayService = true;
 		}
 		else {
-			_liferayService = true;
+			_liferayService = false;
 		}
 	}
 

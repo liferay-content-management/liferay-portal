@@ -25,48 +25,15 @@ ViewSharedAssetsDisplayContext viewSharedAssetsDisplayContext = (ViewSharedAsset
 	navigationItems="<%= viewSharedAssetsDisplayContext.getNavigationItems() %>"
 />
 
-<%
-PortletURL viewAssetTypeURL = PortletURLBuilder.create(
-	PortletURLUtil.clone(currentURLObj, liferayPortletResponse)
-).setParameter(
-	"className", (String)null
-).buildPortletURL();
-
-PortletURL selectAssetTypeURL = viewSharedAssetsDisplayContext.getSelectAssetTypeURL();
-%>
-
 <clay:management-toolbar
-	additionalProps='<%=
-		HashMapBuilder.<String, Object>put(
-			"selectAssetTypeURL", selectAssetTypeURL.toString()
-		).put(
-			"viewAssetTypeURL", viewAssetTypeURL.toString()
-		).build()
-	%>'
-	filterDropdownItems="<%= viewSharedAssetsDisplayContext.getFilterDropdownItems() %>"
+	managementToolbarDisplayContext="<%= viewSharedAssetsDisplayContext.getManagementToolbarDisplayContext() %>"
 	propsTransformer="shared_assets/js/SharedAssetsManagementToolbarPropsTransformer"
-	selectable="<%= false %>"
-	showSearch="<%= false %>"
-	sortingOrder="<%= viewSharedAssetsDisplayContext.getSortingOrder() %>"
-	sortingURL="<%= String.valueOf(viewSharedAssetsDisplayContext.getSortingURL()) %>"
 />
-
-<%
-PortletURL portletURL = PortletURLBuilder.createRenderURL(
-	renderResponse
-).setMVCRenderCommandName(
-	"/blogs/view"
-).buildPortletURL();
-
-SearchContainer<SharingEntry> sharingEntriesSearchContainer = new SearchContainer(renderRequest, PortletURLUtil.clone(portletURL, liferayPortletResponse), null, "no-entries-were-found");
-
-viewSharedAssetsDisplayContext.populateResults(sharingEntriesSearchContainer);
-%>
 
 <clay:container-fluid>
 	<liferay-ui:search-container
 		id="sharingEntries"
-		searchContainer="<%= sharingEntriesSearchContainer %>"
+		searchContainer="<%= viewSharedAssetsDisplayContext.getSearchContainer() %>"
 	>
 		<liferay-ui:search-container-row
 			className="com.liferay.sharing.model.SharingEntry"
@@ -74,24 +41,18 @@ viewSharedAssetsDisplayContext.populateResults(sharingEntriesSearchContainer);
 			keyProperty="sharingEntryId"
 			modelVar="sharingEntry"
 		>
-			<liferay-portlet:renderURL varImpl="rowURL">
-				<portlet:param name="mvcRenderCommandName" value="/sharing/view_sharing_entry" />
-				<portlet:param name="redirect" value="<%= currentURL %>" />
-				<portlet:param name="sharingEntryId" value="<%= String.valueOf(sharingEntry.getSharingEntryId()) %>" />
-			</liferay-portlet:renderURL>
-
 			<liferay-ui:search-container-column-text
 				cssClass="table-cell-expand"
-				href="<%= viewSharedAssetsDisplayContext.isVisible(sharingEntry) ? rowURL : null %>"
+				href="<%= viewSharedAssetsDisplayContext.getSharingEntryRowPortletURL(sharingEntry) %>"
 				name="title"
 				orderable="<%= false %>"
-				value="<%= viewSharedAssetsDisplayContext.getTitle(sharingEntry) %>"
+				value="<%= viewSharedAssetsDisplayContext.getSharingEntryTitle(sharingEntry) %>"
 			/>
 
 			<liferay-ui:search-container-column-text
 				name="asset-type"
 				orderable="<%= false %>"
-				value="<%= viewSharedAssetsDisplayContext.getAssetTypeTitle(sharingEntry) %>"
+				value="<%= viewSharedAssetsDisplayContext.getSharingEntryAssetTypeTitle(sharingEntry) %>"
 			/>
 
 			<liferay-ui:search-container-column-text
@@ -99,7 +60,7 @@ viewSharedAssetsDisplayContext.populateResults(sharingEntriesSearchContainer);
 				name="status"
 				orderable="<%= false %>"
 			>
-				<c:if test="<%= !viewSharedAssetsDisplayContext.isVisible(sharingEntry) %>">
+				<c:if test="<%= !viewSharedAssetsDisplayContext.isSharingEntryVisible(sharingEntry) %>">
 					<clay:label
 						displayType="info"
 						label="not-visible"
@@ -113,9 +74,11 @@ viewSharedAssetsDisplayContext.populateResults(sharingEntriesSearchContainer);
 				value="<%= sharingEntry.getModifiedDate() %>"
 			/>
 
-			<liferay-ui:search-container-column-jsp
-				path="/shared_assets/sharing_entry_action.jsp"
-			/>
+			<liferay-ui:search-container-column-text>
+				<clay:dropdown-actions
+					dropdownItems="<%= viewSharedAssetsDisplayContext.getSharingEntryDropdownItems(sharingEntry) %>"
+				/>
+			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
 
 		<liferay-ui:search-iterator

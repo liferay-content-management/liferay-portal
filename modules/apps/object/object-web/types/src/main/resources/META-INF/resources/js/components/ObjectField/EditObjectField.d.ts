@@ -15,7 +15,7 @@
 /// <reference types="react" />
 
 import './EditObjectField.scss';
-interface IProps {
+interface EditObjectFieldProps {
 	filterOperators: TFilterOperators;
 	forbiddenChars: string[];
 	forbiddenLastChars: string[];
@@ -38,11 +38,11 @@ export default function EditObjectField({
 	isApproved,
 	isDefaultStorageType,
 	objectDefinitionId,
-	objectField: initialValues,
+	objectField,
 	objectFieldTypes,
 	objectName,
 	objectRelationshipId,
 	readOnly,
 	workflowStatusJSONArray,
-}: IProps): JSX.Element;
+}: EditObjectFieldProps): JSX.Element;
 export {};

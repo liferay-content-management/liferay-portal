@@ -272,7 +272,7 @@ definition {
 			pageRef = "identity",
 			property = "dataSourceId");
 
-		TestUtils.assertEquals(
+		TestUtils.assertPartialEquals(
 			actual = "${actualDataSourceId}",
 			expected = "${expectedDataSourceId}");
 
@@ -581,6 +581,10 @@ definition {
 			var layoutName = "AC Page";
 		}
 
+		if (!(isSet(portletIndex))) {
+			var portletIndex = "1";
+		}
+
 		if (!(isSet(webContentTitle))) {
 			var webContentTitle = "Web Content AC Title";
 		}
@@ -605,7 +609,9 @@ definition {
 			layoutName = "${layoutName}",
 			widgetName = "Web Content Display");
 
-		WebContentDisplayPortlet.selectWebContent(webContentTitle = "${webContentTitle}");
+		WebContentDisplayPortlet.selectWebContent(
+			portletIndex = "${portletIndex}",
+			webContentTitle = "${webContentTitle}");
 
 		Navigator.gotoSitePage(
 			pageName = "${layoutName}",
@@ -796,10 +802,7 @@ definition {
 				siteName = "${siteName}");
 
 			if ("${actionType}" == "View WC") {
-
-				// Pause is necessary because the web content event is sent too fast and doesn't have time to process if you navigate to another page quickly. See LRAC-11461
-
-				Pause(locator1 = "5000");
+				ACUtils.waitForSendingRequest();
 			}
 
 			if ("${actionType}" == "View Blog") {
@@ -820,8 +823,16 @@ definition {
 				DMDocument.downloadPG(dmDocumentTitle = "${documentTitle}");
 			}
 
+			if ("${actionType}" == "Comment DM") {
+				DMNavigator.gotoDocumentPG(dmDocumentTitle = "${documentTitle}");
+
+				Comments.addPG(entryComment = "${commentText}");
+			}
+
 			if ("${actionType}" == "View Form") {
 				FormPortlet.waitFormRenderer(text = "Submit");
+
+				ACUtils.waitForSendingRequest();
 			}
 
 			if ("${actionType}" == "Submit Form") {

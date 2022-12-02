@@ -14,7 +14,6 @@
 
 package com.liferay.layout.content.page.editor.web.internal.product.navigation.control.menu;
 
-import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -35,13 +34,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = {
 		"product.navigation.control.menu.category.key=" + ProductNavigationControlMenuCategoryKeys.USER,
 		"product.navigation.control.menu.entry.order:Integer=50"
@@ -102,9 +99,5 @@ public class InfoItemSelectorProductNavigationControlMenuEntry
 		InfoItemSelectorProductNavigationControlMenuEntry.class,
 		"/META-INF/resources/control/menu" +
 			"/info_item_selector_control_menu_entry_icon.tmpl");
-
-	@Reference
-	private LayoutPageTemplateEntryLocalService
-		_layoutPageTemplateEntryLocalService;
 
 }

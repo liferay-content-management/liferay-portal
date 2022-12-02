@@ -96,6 +96,7 @@ TrashHandler trashHandler = trashDisplayContext.getTrashHandler();
 
 								<liferay-ui:search-container-column-text>
 									<clay:dropdown-actions
+										aria-label='<%= LanguageUtil.get(request, "show-actions") %>'
 										dropdownItems="<%= trashDisplayContext.getTrashViewContentActionDropdownItems(modelClassName, curTrashedModel.getTrashEntryClassPK()) %>"
 										propsTransformer="js/EntriesPropsTransformer"
 									/>
@@ -138,6 +139,7 @@ TrashHandler trashHandler = trashDisplayContext.getTrashHandler();
 
 								<liferay-ui:search-container-column-text>
 									<clay:dropdown-actions
+										aria-label='<%= LanguageUtil.get(request, "show-actions") %>'
 										dropdownItems="<%= trashDisplayContext.getTrashViewContentActionDropdownItems(modelClassName, curTrashedModel.getTrashEntryClassPK()) %>"
 										propsTransformer="js/EntriesPropsTransformer"
 									/>
@@ -166,14 +168,14 @@ TrashHandler trashHandler = trashDisplayContext.getTrashHandler();
 		renderResponse.setTitle(trashRenderer.getTitle(locale));
 		%>
 
-		<clay:container-fluid>
-			<aui:fieldset-group markupView="lexicon">
-				<aui:fieldset>
-					<liferay-asset:asset-display
-						renderer="<%= trashRenderer %>"
-					/>
-				</aui:fieldset>
-			</aui:fieldset-group>
+		<clay:container-fluid
+			cssClass="container-view"
+		>
+			<clay:sheet>
+				<liferay-asset:asset-display
+					renderer="<%= trashRenderer %>"
+				/>
+			</clay:sheet>
 		</clay:container-fluid>
 	</c:otherwise>
 </c:choose>

@@ -47,7 +47,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Pavel Savinov
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(service = UpgradeStepRegistrator.class)
 public class LayoutPageTemplateServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -98,7 +98,7 @@ public class LayoutPageTemplateServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"LayoutPageTemplateCollection",
 						"LayoutPageTemplateEntry",

@@ -20,12 +20,12 @@ import com.liferay.asset.util.LinkedAssetEntryIdsUtil;
 import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.info.display.request.attributes.contributor.InfoDisplayRequestAttributesContributor;
 import com.liferay.info.item.InfoItemReference;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemDetailsProvider;
 import com.liferay.info.item.provider.InfoItemObjectProvider;
 import com.liferay.layout.display.page.LayoutDisplayPageObjectProvider;
 import com.liferay.layout.display.page.LayoutDisplayPageProvider;
-import com.liferay.layout.display.page.LayoutDisplayPageProviderTracker;
+import com.liferay.layout.display.page.LayoutDisplayPageProviderRegistry;
 import com.liferay.layout.display.page.constants.LayoutDisplayPageWebKeys;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -40,9 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Pavel Savinov
  */
-@Component(
-	immediate = true, service = InfoDisplayRequestAttributesContributor.class
-)
+@Component(service = InfoDisplayRequestAttributesContributor.class)
 public class AssetInfoDisplayRequestAttributesContributor
 	implements InfoDisplayRequestAttributesContributor {
 
@@ -71,7 +69,7 @@ public class AssetInfoDisplayRequestAttributesContributor
 		}
 
 		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
-			_layoutDisplayPageProviderTracker.
+			_layoutDisplayPageProviderRegistry.
 				getLayoutDisplayPageProviderByClassName(
 					assetEntry.getClassName());
 
@@ -93,7 +91,7 @@ public class AssetInfoDisplayRequestAttributesContributor
 			}
 
 			InfoItemObjectProvider<?> infoItemObjectProvider =
-				_infoItemServiceTracker.getFirstInfoItemService(
+				_infoItemServiceRegistry.getFirstInfoItemService(
 					InfoItemObjectProvider.class, assetEntry.getClassName());
 
 			if (infoItemObjectProvider != null) {
@@ -104,7 +102,7 @@ public class AssetInfoDisplayRequestAttributesContributor
 					InfoDisplayWebKeys.INFO_ITEM, infoItem);
 
 				InfoItemDetailsProvider infoItemDetailsProvider =
-					_infoItemServiceTracker.getFirstInfoItemService(
+					_infoItemServiceRegistry.getFirstInfoItemService(
 						InfoItemDetailsProvider.class,
 						assetEntry.getClassName());
 
@@ -130,9 +128,10 @@ public class AssetInfoDisplayRequestAttributesContributor
 	private AssetEntryLocalService _assetEntryLocalService;
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	@Reference
-	private LayoutDisplayPageProviderTracker _layoutDisplayPageProviderTracker;
+	private LayoutDisplayPageProviderRegistry
+		_layoutDisplayPageProviderRegistry;
 
 }

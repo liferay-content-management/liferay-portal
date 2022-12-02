@@ -28,18 +28,10 @@ import java.util.Map;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.nio.reactor.IOReactorException;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-
 /**
  * @author Ivica Cardic
  * @author Igor Beslic
  */
-@Component(
-	factory = "com.liferay.portal.json.web.service.client.JSONWebServiceClient",
-	service = {}
-)
 public class JSONWebServiceClientImpl extends BaseJSONWebServiceClientImpl {
 
 	@Override
@@ -47,7 +39,6 @@ public class JSONWebServiceClientImpl extends BaseJSONWebServiceClientImpl {
 		super.afterPropertiesSet();
 	}
 
-	@Activate
 	protected void activate(Map<String, Object> properties)
 		throws IOReactorException {
 
@@ -87,11 +78,6 @@ public class JSONWebServiceClientImpl extends BaseJSONWebServiceClientImpl {
 		}
 
 		afterPropertiesSet();
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.destroy();
 	}
 
 	protected String getString(String key, Map<String, Object> properties) {

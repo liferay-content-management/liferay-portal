@@ -343,6 +343,17 @@ public class PortalK8sAgentImplTest {
 		catch (NullPointerException nullPointerException) {
 			Assert.assertNotNull(nullPointerException);
 		}
+
+		PortalK8sConfigMapModifier.Result result =
+			_portalK8sConfigMapModifier.modifyConfigMap(
+				configMapModel -> {
+				},
+				StringBundler.concat(
+					RandomTestUtil.randomString(), StringPool.DASH,
+					TestPropsValues.COMPANY_WEB_ID, "-lxc-ext-init-metadata"));
+
+		Assert.assertEquals(
+			PortalK8sConfigMapModifier.Result.UNCHANGED, result);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

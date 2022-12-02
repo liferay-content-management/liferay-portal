@@ -105,6 +105,15 @@ public class JSPSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testMissingTaglibAttributes() throws Exception {
+		test(
+			"MissingTaglibAttributes.testjsp",
+			"When using <clay:dropdown-actions>, always specify one of the " +
+				"follwing attributes: 'aria-label', 'aria-labelledby', 'title'",
+			19);
+	}
+
+	@Test
 	public void testMissingTaglibs() throws Exception {
 		test(
 			"MissingTaglibs.testjsp",

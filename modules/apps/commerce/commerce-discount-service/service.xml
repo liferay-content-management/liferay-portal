@@ -4,7 +4,7 @@
 <service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.commerce.discount">
 	<author>Marco Leo</author>
 	<namespace>Commerce</namespace>
-	<entity external-reference-code="true" local-service="true" name="CommerceDiscount" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceDiscount" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 

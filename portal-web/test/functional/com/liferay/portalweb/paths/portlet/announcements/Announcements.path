@@ -11,6 +11,26 @@
 
 <tbody>
 <tr>
+	<td>ANNOUNCEMENT_TITLE</td>
+	<td>//tbody/tr/td[contains(@class,'lfr-title-column')]/a[contains(.,'${key_entryTitle}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANNOUNCEMENT_TITLE_ANY</td>
+	<td>//tbody/tr/td[contains(@class,'lfr-title-column')]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANNOUNCEMENT_ENTRY_TITLE</td>
+	<td>//div[contains(@class,'entry-title')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANNOUNCEMENT_ENTRY_CONTENT</td>
+	<td>//div[contains(@class,'entry-content')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PRIORITY_IMPORTANT</td>
 	<td>//span[contains(text(),'Important')]</td>
 	<td></td>
@@ -64,6 +84,11 @@
 <tr>
 	<td>CARD_VIEW_ENTRY_CONTENT</td>
 	<td>//*[contains(@class,'entry-content') and contains(.,'${key_entryContent}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CARD_VIEW_ENTRY_VERTICAL_ELLIPSIS</td>
+	<td>//div[contains(@class,'control-entry')]//*[contains(@class,'dropdown-toggle')][.//*[name()='svg'][contains(@class,'icon-ellipsis')]]</td>
 	<td></td>
 </tr>
 </tbody>

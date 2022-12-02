@@ -44,31 +44,31 @@ public class ProjectTemplatesNpmReactPortletTest
 	public static final MavenExecutor mavenExecutor = new MavenExecutor();
 
 	@Parameterized.Parameters(
-		name = "Testcase-{index}: testing {0}, {1}, {2}, {3}, {4}"
+		name = "Testcase-{index}: testing {0}, {1}, {2}, {3}, {4}, {5}"
 	)
 	public static Iterable<Object[]> data() {
 		return Arrays.asList(
 			new Object[][] {
-				{"foo", "foo", "Foo", "7.0.6-2", "yarn"},
-				{"foo", "foo", "Foo", "7.1.3-1", "yarn"},
-				{"foo", "foo", "Foo", "7.2.1-1", "yarn"},
-				{"foo", "foo", "Foo", "7.3.7", "yarn"},
-				{"foo", "foo", "Foo", "7.4.3.36", "yarn"},
-				{"foo-bar", "foo.bar", "FooBar", "7.0.6-2", "yarn"},
-				{"foo-bar", "foo.bar", "FooBar", "7.1.3-1", "yarn"},
-				{"foo-bar", "foo.bar", "FooBar", "7.2.1-1", "yarn"},
-				{"foo-bar", "foo.bar", "FooBar", "7.3.7", "yarn"},
-				{"foo-bar", "foo.bar", "FooBar", "7.4.3.36", "yarn"},
-				{"foo", "foo", "Foo", "7.0.6-2", "npm"},
-				{"foo", "foo", "Foo", "7.1.3-1", "npm"},
-				{"foo", "foo", "Foo", "7.2.1-1", "npm"},
-				{"foo", "foo", "Foo", "7.3.7", "npm"},
-				{"foo", "foo", "Foo", "7.4.3.36", "npm"},
-				{"foo-bar", "foo.bar", "FooBar", "7.0.6-2", "npm"},
-				{"foo-bar", "foo.bar", "FooBar", "7.1.3-1", "npm"},
-				{"foo-bar", "foo.bar", "FooBar", "7.2.1-1", "npm"},
-				{"foo-bar", "foo.bar", "FooBar", "7.3.7", "npm"},
-				{"foo-bar", "foo.bar", "FooBar", "7.4.3.36", "npm"}
+				{"foo", "foo", "Foo", "dxp", "7.0.10.17", "yarn"},
+				{"foo", "foo", "Foo", "dxp", "7.1.10.7", "yarn"},
+				{"foo", "foo", "Foo", "dxp", "7.2.10.7", "yarn"},
+				{"foo", "foo", "Foo", "portal", "7.3.7", "yarn"},
+				{"foo", "foo", "Foo", "portal", "7.4.3.36", "yarn"},
+				{"foo-bar", "foo.bar", "FooBar", "dxp", "7.0.10.17", "yarn"},
+				{"foo-bar", "foo.bar", "FooBar", "dxp", "7.1.10.7", "yarn"},
+				{"foo-bar", "foo.bar", "FooBar", "dxp", "7.2.10.7", "yarn"},
+				{"foo-bar", "foo.bar", "FooBar", "portal", "7.3.7", "yarn"},
+				{"foo-bar", "foo.bar", "FooBar", "portal", "7.4.3.36", "yarn"},
+				{"foo", "foo", "Foo", "dxp", "7.0.10.17", "npm"},
+				{"foo", "foo", "Foo", "dxp", "7.1.10.7", "npm"},
+				{"foo", "foo", "Foo", "dxp", "7.2.10.7", "npm"},
+				{"foo", "foo", "Foo", "portal", "7.3.7", "npm"},
+				{"foo", "foo", "Foo", "portal", "7.4.3.36", "npm"},
+				{"foo-bar", "foo.bar", "FooBar", "dxp", "7.0.10.17", "npm"},
+				{"foo-bar", "foo.bar", "FooBar", "dxp", "7.1.10.7", "npm"},
+				{"foo-bar", "foo.bar", "FooBar", "dxp", "7.2.10.7", "npm"},
+				{"foo-bar", "foo.bar", "FooBar", "portal", "7.3.7", "npm"},
+				{"foo-bar", "foo.bar", "FooBar", "portal", "7.4.3.36", "npm"}
 			});
 	}
 
@@ -90,11 +90,13 @@ public class ProjectTemplatesNpmReactPortletTest
 
 	public ProjectTemplatesNpmReactPortletTest(
 		String name, String packageName, String className,
-		String liferayVersion, String nodePackageManager) {
+		String liferayProduct, String liferayVersion,
+		String nodePackageManager) {
 
 		_name = name;
 		_packageName = packageName;
 		_className = className;
+		_liferayProduct = liferayProduct;
 		_liferayVersion = liferayVersion;
 		_nodePackageManager = nodePackageManager;
 	}
@@ -105,7 +107,7 @@ public class ProjectTemplatesNpmReactPortletTest
 
 		testBuildTemplateNpm(
 			temporaryFolder, mavenExecutor, template, _name, _packageName,
-			_className, _liferayVersion, _nodePackageManager,
+			_className, _liferayProduct, _liferayVersion, _nodePackageManager,
 			_gradleDistribution);
 	}
 
@@ -115,6 +117,7 @@ public class ProjectTemplatesNpmReactPortletTest
 	private static URI _gradleDistribution;
 
 	private final String _className;
+	private final String _liferayProduct;
 	private final String _liferayVersion;
 	private final String _name;
 	private final String _nodePackageManager;

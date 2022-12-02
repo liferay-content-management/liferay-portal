@@ -15,12 +15,18 @@
 import {ClayButtonWithIcon} from '@clayui/button';
 import ClayCard from '@clayui/card';
 import ClayIcon from '@clayui/icon';
+import {useEventListener} from '@liferay/frontend-js-react-web';
 import classNames from 'classnames';
+import {sub} from 'frontend-js-web';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useCallback, useRef} from 'react';
 
 import {FRAGMENTS_DISPLAY_STYLES} from '../../../app/config/constants/fragmentsDisplayStyles';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../../app/config/constants/layoutDataItemTypes';
+import {
+	useDisableKeyboardMovement,
+	useSetMovementSource,
+} from '../../../app/contexts/KeyboardMovementContext';
 import {useDispatch} from '../../../app/contexts/StoreContext';
 import addFragment from '../../../app/thunks/addFragment';
 import addItem from '../../../app/thunks/addItem';
@@ -41,7 +47,7 @@ const ITEM_PROPTYPES_SHAPE = PropTypes.shape({
 export default function TabItem({displayStyle, item}) {
 	const dispatch = useDispatch();
 
-	const onToggleHighlighted = () => {
+	const onToggleHighlighted = useCallback(() => {
 		if (item.data.portletId) {
 			dispatch(
 				toggleWidgetHighlighted({
@@ -60,7 +66,7 @@ export default function TabItem({displayStyle, item}) {
 				})
 			);
 		}
-	};
+	}, [dispatch, item]);
 
 	const {isDraggingSource, sourceRef} = useDragSymbol(
 		{
@@ -123,7 +129,7 @@ const ListItem = React.forwardRef(
 		return (
 			<li
 				className={classNames(
-					'align-items-center mb-1 d-flex page-editor__fragments-widgets__tab-list-item rounded',
+					'align-items-center d-flex justify-content-between mb-1 page-editor__fragments-widgets__tab-list-item rounded',
 					{
 						disabled,
 						'ml-3 page-editor__fragments-widgets__tab-portlet-item':
@@ -137,6 +143,8 @@ const ListItem = React.forwardRef(
 
 					<div className="text-truncate title">{item.label}</div>
 				</div>
+
+				{!disabled && <AddButton item={item} />}
 
 				<HighlightButton
 					item={item}
@@ -202,6 +210,12 @@ const CardItem = React.forwardRef(
 								</section>
 							</div>
 
+							{!disabled && (
+								<div className="autofit-col">
+									<AddButton item={item} />
+								</div>
+							)}
+
 							<div className="autofit-col">
 								<HighlightButton
 									item={item}
@@ -228,27 +242,22 @@ const HighlightButton = ({item, onToggleHighlighted}) => {
 	}
 
 	const {highlighted} = item;
+	const title = highlighted
+		? sub(Liferay.Language.get('unmark-x-as-favorite'), item.label)
+		: sub(Liferay.Language.get('mark-x-as-favorite'), item.label);
 
 	return (
 		<ClayButtonWithIcon
-			aria-label={
-				highlighted
-					? Liferay.Language.get('unmark-favorite')
-					: Liferay.Language.get('mark-favorite')
-			}
+			aria-label={title}
 			borderless
 			className={classNames(
-				'page-editor__fragments-widgets__tab-highlight-button',
+				'page-editor__fragments-widgets__tab__highlight-button',
 				{highlighted}
 			)}
 			displayType="secondary"
 			onClick={onToggleHighlighted}
 			symbol={highlighted ? 'star' : 'star-o'}
-			title={
-				highlighted
-					? Liferay.Language.get('unmark-favorite')
-					: Liferay.Language.get('mark-favorite')
-			}
+			title={title}
 		/>
 	);
 };
@@ -256,4 +265,40 @@ const HighlightButton = ({item, onToggleHighlighted}) => {
 HighlightButton.propTypes = {
 	item: ITEM_PROPTYPES_SHAPE.isRequired,
 	onToggleHighlighted: PropTypes.func.isRequired,
+};
+
+const AddButton = ({item}) => {
+	const setMovementSource = useSetMovementSource();
+	const disableMovement = useDisableKeyboardMovement();
+
+	const buttonRef = useRef(null);
+
+	useEventListener('blur', () => disableMovement(), false, buttonRef.current);
+
+	return (
+		<ClayButtonWithIcon
+			aria-label={sub(Liferay.Language.get('add-x'), item.label)}
+			borderless
+			className="mr-2 my-0 page-editor__fragments-widgets__tab__add-button"
+			displayType="secondary"
+			onClick={() =>
+				setMovementSource({
+					...item.data,
+					fragmentEntryType: item.data.type,
+					icon: item.icon,
+					isWidget: Boolean(item.data.portletId),
+					name: item.label,
+					type: item.type,
+				})
+			}
+			ref={buttonRef}
+			role="application"
+			symbol="plus"
+			title={sub(Liferay.Language.get('add-x'), item.label)}
+		/>
+	);
+};
+
+AddButton.propTypes = {
+	item: PropTypes.object.isRequired,
 };

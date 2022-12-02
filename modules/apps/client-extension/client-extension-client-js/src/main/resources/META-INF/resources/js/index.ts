@@ -14,6 +14,14 @@
 
 import {default as logger} from './log';
 
+type JSONValue =
+	| boolean
+	| null
+	| number
+	| string
+	| {[property: string]: JSONValue}
+	| Array<JSONValue>;
+
 /**
  * Subset of the full-fledged `Response` type that can actually be serialized
  * across iframes.

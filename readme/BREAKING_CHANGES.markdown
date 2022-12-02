@@ -1,4 +1,4 @@
-# What are the Breaking Changes for Liferay 7.4?
+# 7.4 Breaking Changes
 
 This document presents a chronological list of changes that break existing functionality, APIs, or contracts with third party Liferay developers or users. We try our best to minimize these disruptions, but sometimes they are unavoidable.
 
@@ -12,7 +12,7 @@ Here are some of the types of changes documented in this file:
 * Execution requirements: Java version, J2EE Version, browser versions, etc.
 * Deprecations or end of support: For example, warning that a certain feature or API will be dropped in an upcoming version.
 
-*This document has been reviewed through the breaking change entry at commit `851ef01d7128`.*
+*This document has been reviewed through the breaking change entry at commit `90502b5fc445441164332bdb2317533d1c0c4164`.*
 
 Each change must have a brief descriptive title and contain the following information:
 
@@ -932,7 +932,7 @@ This was done to clarify the folder that `buildService` should target.
 
 ### What changed?
 
-The `addFragmentEntry` methods in `FragmentEntryLocalService` and `FragmentEntryService` have been updated.
+The `addFragmentEntry` methods in `FragmentEntryLocalService` and `FragmentEntryService` have a new parameter for the icon of a `FragmentEntry`.
 
 ### Who is affected?
 
@@ -940,7 +940,7 @@ This affects anyone using `FragmentEntryLocalService` and `FragmentEntryService`
 
 ### How should I update my code?
 
-Use the new `addFragmentEntry` methods in `FragmentEntryLocalService` and `FragmentEntryService`. Note, that they include a new `String` parameter for the `icon` of a `FragmentEntry`.
+When you use the new `addFragmentEntry` methods in `FragmentEntryLocalService` and `FragmentEntryService`, you must include a new `String` parameter for the `icon` of a `FragmentEntry`.
 
 ### Why was this change made?
 
@@ -989,7 +989,126 @@ No code changes are necessary. Administrators may need to reconfigure the Google
 
 ---------------------------------------
 
-## Elasticsearch sortable type mappings were changed from keyword to icu_collation_keyword
+## Redirect URLs removed from Portal Properties
+- **Date:** 2022-May-24
+- **JIRA Ticket:** [LPS-128837](https://issues.liferay.com/browse/LPS-128837)
+
+### What changed?
+
+Redirect URL configuration is no longer configurable via portal properties. It can be configured in the UI, under [Redirect URLs](../../system-administration/configuring-liferay/virtual-instances/redirect-urls.md) in Instance Settings.
+
+### Who is affected?
+
+This affects anyone using portal properties to configure redirect URLs.
+
+### How should I update my code?
+
+Set your necessary configurations in the UI, under [Redirect URLs](../../system-administration/configuring-liferay/virtual-instances/redirect-urls.md) in Instance Settings.
+
+### Why was this change made?
+
+This change was made so that administrators can set separate redirect URL configurations for each Liferay instance.
+
+---------------------------------------
+
+## Portal Libs Cleanup
+
+- **Date** 2022-May-26
+- **JIRA Ticket** [LPS-142130](https://issues.liferay.com/browse/LPS-142130)
+
+### Removed
+
+- abdera.jar, axiom-api.jar and axiom-impl.jar - [LPS-142131](https://issues.liferay.com/browse/LPS-142131)
+- xuggle-xuggler-noarch.jar - [LPS-143939](https://issues.liferay.com/browse/LPS-143939) Note, FFmpeg replaced Xuggler. See [Enabling FFmpeg for Audio and View Previews](../../content-authoring-and-management/documents-and-media/devops/enabling-ffmpeg-for-audio-and-video-previews.md) to learn more.
+- bcmail.jar and bcprov.jar - [LPS-143945](https://issues.liferay.com/browse/LPS-143945)
+- ant.jar - [LPS-143953](https://issues.liferay.com/browse/LPS-143953)
+- aspectj-rt.jar and aspectj-weaver.jar - [LPS-143999](https://issues.liferay.com/browse/LPS-143999)
+- jfreechart.jar and jcommon.jar - [LPS-144001](https://issues.liferay.com/browse/LPS-144001)
+- boilerpipe.jar - [LPS-144005](https://issues.liferay.com/browse/LPS-144005)
+- ecs.jar - [LPS-144081](https://issues.liferay.com/browse/LPS-144081)
+- chardet.jar - [LPS-144084](https://issues.liferay.com/browse/LPS-144084)
+- ical4j.jar - [LPS-144119](https://issues.liferay.com/browse/LPS-144119)
+- jrcs-diff.jar - [LPS-144476](https://issues.liferay.com/browse/LPS-144476)
+- curvesapi.jar - [LPS-144549](https://issues.liferay.com/browse/LPS-144549)
+- concurrent.jar - [LPS-144640](https://issues.liferay.com/browse/LPS-144640)
+- gif89.jar - [LPS-144861](https://issues.liferay.com/browse/LPS-144861)
+- antlr2.jar and antlr3.jar - [LPS-144863](https://issues.liferay.com/browse/LPS-144863)
+- bsf.jar - [LPS-145153](https://issues.liferay.com/browse/LPS-145153)
+- commons-chain.jar - [LPS-145154](https://issues.liferay.com/browse/LPS-145154)
+- freshcookies-security.jar - [LPS-145155](https://issues.liferay.com/browse/LPS-145155)
+- htmlparser.jar - [LPS-145367](https://issues.liferay.com/browse/LPS-145367)
+- jakarta-regexp.jar - [LPS-145500](https://issues.liferay.com/browse/LPS-145500)
+- xmpcore.jar - [LPS-145541](https://issues.liferay.com/browse/LPS-145541)
+- jcifs.jar - [LPS-145556](https://issues.liferay.com/browse/LPS-145556)
+- juh.jar, jurt.jar, ridl.jar and unoil.jar - [LPS-145918](https://issues.liferay.com/browse/LPS-145918)
+- xalan.jar - [LPS-145946](https://issues.liferay.com/browse/LPS-145946)
+- wsdl4j.jar - [LPS-145991](https://issues.liferay.com/browse/LPS-145991)
+- jsr107cache.jar - [LPS-146007](https://issues.liferay.com/browse/LPS-146007)
+- xstream.jar - [LPS-146069](https://issues.liferay.com/browse/LPS-146069)
+- liferay-icu.jar - [LPS-146089](https://issues.liferay.com/browse/LPS-146089)
+- stringtemplate.jar - [LPS-146169](https://issues.liferay.com/browse/LPS-146169)
+- rhino.jar - [LPS-146440](https://issues.liferay.com/browse/LPS-146440)
+- odmg.jar - [LPS-146547](https://issues.liferay.com/browse/LPS-146547)
+- closure-compiler.jar - [LPS-147006](https://issues.liferay.com/browse/LPS-147006)
+- nekohtml.jar - [LPS-147042](https://issues.liferay.com/browse/LPS-147042)
+- hessian.jar - [LPS-147424](https://issues.liferay.com/browse/LPS-147424)
+- jericho-html.jar - [LPS-147656](https://issues.liferay.com/browse/LPS-147656)
+- rmi-api.jar - [LPS-148863](https://issues.liferay.com/browse/LPS-148863)
+- commons-beanutils.jar - [LPS-149082](https://issues.liferay.com/browse/LPS-149082)
+- soap.jar - [LPS-149611](https://issues.liferay.com/browse/LPS-149611)
+- serializer.jar - [LPS-150261](https://issues.liferay.com/browse/LPS-150261)
+- jaxws-rt.jar - [LPS-150410](https://issues.liferay.com/browse/LPS-150410)
+- xbean-spring.jar - [LPS-150448](https://issues.liferay.com/browse/LPS-150448)
+- commons-math.jar - [LPS-150548](https://issues.liferay.com/browse/LPS-150548)
+- streambuffer.jar, mimepull.jar, saaj-api.jar and saaj-impl.jar - [LPS-150781](https://issues.liferay.com/browse/LPS-150781)
+- DBCP, c3p0 and Tomcat pool - [LPS-151028](https://issues.liferay.com/browse/LPS-151028)
+- stax.jar - [LPS-151308](https://issues.liferay.com/browse/LPS-151308)
+
+### Moved to Modules
+
+- im4java.jar and monte-cc.jar - [LPS-144170](https://issues.liferay.com/browse/LPS-144170)
+- java-diff.jar, daisydiff.jar and eclipse-core-runtime.jar - [LPS-144201](https://issues.liferay.com/browse/LPS-144201)
+- urlrewritefilter.jar - [LPS-145186](https://issues.liferay.com/browse/LPS-145186)
+- jai_core.jar and jai-codec.jar - [LPS-145778](https://issues.liferay.com/browse/LPS-145778)
+- ccpp.jar, ccpp-ri.jar, jena.jar, oro.jar and reffilter.jar - [LPS-145917](https://issues.liferay.com/browse/LPS-145917)
+- netty-buffer.jar, netty-codec.jar, netty-common.jar, netty-handler.jar, netty-resolver.jar and netty-transport.jar - [LPS-146451](https://issues.liferay.com/browse/LPS-146451)
+- jazzy.jar - [LPS-146894](https://issues.liferay.com/browse/LPS-146894)
+- commons-discovery.jar - [LPS-147205](https://issues.liferay.com/browse/LPS-147205)
+- scribe.jar - [LPS-147542](https://issues.liferay.com/browse/LPS-147542)
+- tika-core.jar, tika-parsers.jar, vorbis-java-core.jar and vorbis-java-tika.jar - [LPS-147938](https://issues.liferay.com/browse/LPS-147938)
+- commons-lang3.jar - [LPS-148100](https://issues.liferay.com/browse/LPS-148100)
+- commons-digester.jar and commons-validator.jar - [LPS-148191](https://issues.liferay.com/browse/LPS-148191)
+- jmatio.jar - [LPS-148218](https://issues.liferay.com/browse/LPS-148218)
+- mime4j.jar - [LPS-148287](https://issues.liferay.com/browse/LPS-148287)
+- poi.jar - [LPS-148302](https://issues.liferay.com/browse/LPS-148302)
+- metadata-extractor.jar and xmpcore.jar - [LPS-148460](https://issues.liferay.com/browse/LPS-148460)
+- commons-compress.jar - [LPS-148461](https://issues.liferay.com/browse/LPS-148461)
+- tagsoup.jar - [LPS-148497](https://issues.liferay.com/browse/LPS-148497)
+- java-libpstjar - [LPS-148577](https://issues.liferay.com/browse/LPS-148577)
+- mp4parser.jar - [LPS-148582](https://issues.liferay.com/browse/LPS-148582)
+- juniversalchardet.jar - [LPS-148666](https://issues.liferay.com/browse/LPS-148666)
+- jhighlight.jar - [LPS-148670](https://issues.liferay.com/browse/LPS-148670)
+- jna.jar - [LPS-148671](https://issues.liferay.com/browse/LPS-148671)
+- sparse-bit-set.jar - [LPS-148757](https://issues.liferay.com/browse/LPS-148757)
+- netcdf.jar - [LPS-148925](https://issues.liferay.com/browse/LPS-148925)
+- jaxb-runtime.jar and istack-commons-runtime.jar - [LPS-148926](https://issues.liferay.com/browse/LPS-148926)
+- commons-exec.jar - [LPS-149097](https://issues.liferay.com/browse/LPS-149097)
+- commons-collections4.jar - [LPS-149099](https://issues.liferay.com/browse/LPS-149099)
+- commons-math3.jar - [LPS-149151](https://issues.liferay.com/browse/LPS-149151)
+- pdfbox.jar - [LPS-149426](https://issues.liferay.com/browse/LPS-149426)
+- rometools.jar - [LPS-150149](https://issues.liferay.com/browse/LPS-150149)
+- passwordencryptor.jar - [LPS-150150](https://issues.liferay.com/browse/LPS-150150)
+- jdom2.jar - [LPS-150423](https://issues.liferay.com/browse/LPS-150423)
+- xbean.jar - [LPS-150447](https://issues.liferay.com/browse/LPS-150447)
+- asm.jar - [LPS-151419](https://issues.liferay.com/browse/LPS-151419)
+
+### Why was this change made ?
+
+This change was made to address vulnerabilities in outdated libraries that are no longer maintained.
+
+---------------------------------------
+
+## Elasticsearch Sortable Type Mappings Were Changed from keyword to icu_collation_keyword
 
 - **Date:** 2022-May-12
 - **JIRA Ticket:** [LPS-152937](https://issues.liferay.com/browse/LPS-152937)
@@ -998,41 +1117,118 @@ No code changes are necessary. Administrators may need to reconfigure the Google
 
 The Elasticsearch type mapping of localized sortable `*_<languageId>_sortable` and nested `ddmFieldArray.ddmFieldValueText_<languageId>_String_sortable` fields were changed from `keyword` to `icu_collation_keyword`
 
-The indexed information of these fields is now stored in an encoded format, for example, the `entity title` text is now stored as `MkRQOlBaBFA6UEAyARABEAA=`
+These fields' indexed information is now stored in an encoded format. For example, the `entity title` text is now stored as `MkRQOlBaBFA6UEAyARABEAA=`
 
-This new `icu_collation_keyword` type allows sorting using the correct collation rules of each language for more information see https://www.elastic.co/guide/en/elasticsearch/plugins/7.17/analysis-icu-collation-keyword-field.html
+This new `icu_collation_keyword` type allows sorting using the correct collation rules of each language. For more information see <https://www.elastic.co/guide/en/elasticsearch/plugins/7.17/analysis-icu-collation-keyword-field.html>.
 
-If you update your existing Liferay installation, this change won't be applied until a full reindex is executed and Elasticsearch mappings are recreated.
+When updating an existing Liferay installation, perform a full reindex to create the new mappings.
 
 ### Who is affected?
 
-If you are using the `*_<languageId>_sortable` and `ddmFieldArray.ddmFieldValueText_<languageId>_String_sortable` fields in your custom Elasticsearch queries:
-   - **To sort your results:** you will find that now they are sorted using the correct collation rules of each language.
-   - **To retrieve some information from the Elasticsearch index:** you will find that now the returned information is returned in an encoded format.
+If you use the `*_<languageId>_sortable` and `ddmFieldArray.ddmFieldValueText_<languageId>_String_sortable` fields,
+
+- Results are now sorted using each language's correct collation rules
+
+- Indexed information is now encoded when returned
 
 ### How should I update my code?
 
-If you want to maintain the old sort behavior, you will have to customize the Elasticsearch mappings, removing the `icu_collation_keyword`. For more information about how to personalize them, see: https://learn.liferay.com/dxp/latest/en/using-search/installing-and-upgrading-a-search-engine/elasticsearch/advanced-configuration-of-the-liferay-elasticsearch-connector.html
+If you want to maintain the old sort behavior, you must customize the Elasticsearch mappings, removing the `icu_collation_keyword`. For more information about how to configure mappings, see https://learn.liferay.com/dxp/latest/en/using-search/installing-and-upgrading-a-search-engine/elasticsearch/advanced-configuration-of-the-liferay-elasticsearch-connector.html
 
-If you need to retrieve data from these fields, you can get the same information from the _source field of Elasticsearch https://www.elastic.co/guide/en/elasticsearch/reference/7.17/mapping-source-field.html or you can also remove the `icu_collation_keyword` as it is explained in the previous paragraph.
+You can retrieve data from these fields from Elasticsearch's `_source` field (<https://www.elastic.co/guide/en/elasticsearch/reference/7.17/mapping-source-field.html>). Alternatively, remove the `icu_collation_keyword` as explained above.
 
 ---------------------------------------
 
 ## Upgraded MySQL Connector to 8.0.29 and Forced to Use Protocol TLSv1.2 for MySQL
 
 - **Date:** 2022-Jul-20
-- **JIRA Ticket:** [LPS-157036](https://issues.liferay.com/browse/LPS-157036)
+- **JIRA Ticket:** [LPS-157036](https://issues.liferay.com/browse/LPS-157036), [LPS-157039](https://issues.liferay.com/browse/LPS-157039)
 
 ### What changed?
 
-- MySQL connector has been upgraded to version 8.0.29, it is forced to use protocol TLSv1.2 because it does not support TLSv1 and TLSv1.1 any more. (See https://dev.mysql.com/doc/refman/8.0/en/encrypted-connection-protocols-ciphers.html)
+TLS 1.2 requires updating MySQL to 5.7.28 with MySQL Connector 8.0.29 or above.
 
 ### Who is affected?
 
-- For the clients who use MySQL with version less than 5.7.28, and if they use the auto-downloaded MySQL connector on DXP U37 or higher, or they manually installed MySQL connector 8.0.28 or higher.
+Anyone using a MySQL version lower than 5.7.28, especially if they use the auto-downloaded MySQL connector on DXP U37 or higher.
 
 ### How should I update my code?
-Upgrade MySQL to 5.7.28 or higher or set the protocol to TLSv1.2 manually (See https://dev.mysql.com/doc/refman/5.7/en/encrypted-connection-protocols-ciphers.html#encrypted-connection-supported-protocols).
+
+Upgrade MySQL to version 5.7.28 or higher, or set the protocol to TLSv1.2 manually (See https://dev.mysql.com/doc/refman/5.7/en/encrypted-connection-protocols-ciphers.html#encrypted-connection-supported-protocols).
 
 ### Why was this change made?
-- This change was made due to security vulnerability.
+
+This change was made to address security vulnerabilities.
+
+---------------------------------------
+
+## Removed UtilLocator
+
+- **Date:** 2022-Nov-2
+- **JIRA Ticket:** [LPS-165363](https://issues.liferay.com/browse/LPS-165363)
+
+### What changed?
+
+`UtilLocator` is removed. Templates can no longer use `utilLocator.findUtil()` to access `*Util` classes.
+
+### Who is affected?
+
+Anyone currently using `utilLocator` within templates to access `*Util` classes.
+
+### How should I update my code?
+
+There is no replacement for this removal.
+
+The workaround is to set the environment variable `LIFERAY_TEMPLATE_PERIOD_ENGINE_PERIOD_SERVICE_PERIOD_LOCATOR_PERIOD_RESTRICT` to false and access the desired util class using `ServiceLocator` instead. However, `ServiceLocator` opens unrestricted access to all published OSGi services within templates. Proceed with caution.
+
+### Why was this change made?
+
+This change was made to address a security vulnerability.
+
+`UtilLocator` currently gives unrestricted access to all `*Util` classes in templates, exposing these classes for misuse or a malicious attack. Commonly used `Util` classes such as `StringUtil` are already included in the template context and ready to be used.
+
+---------------------------------------
+
+## Removed ConfigurationBeanDeclaration
+
+- **Date:** 2022-Nov-11
+- **JIRA Ticket:** [LPS-162830](https://issues.liferay.com/browse/LPS-162830)
+
+### What changed?
+
+Because `ConfigurationProvider` is no longer required to retrieve an annotated `*Configuration.java` interface, `ConfigurationBeanDeclaration` is removed.
+
+### Who is affected?
+
+Anyone who has implemented `ConfigurationBeanDeclaration` or references the class in their code.
+
+### How should I update my code?
+
+Delete implementations of `ConfigurationBeanDeclaration` and remove references to the class.
+
+### Why was this change made?
+
+`ConfigurationBeanDeclaration` was used to register configuration classes with the `ConfigurationProvider` framework, to be tracked by OSGi managed services. Liferay now analyzes a bundle's metatype information and registers configuration classes automatically at container registration. Now developers don't have to register configuration classes manually, because it happens in the background.
+
+---------------------------------------
+
+## Removed FieldSetGroupTag
+
+- **Date:** 2022-Nov-22
+- **JIRA Ticket:** [LPS-168309](https://issues.liferay.com/browse/LPS-168309)
+
+### What changed?
+
+Because <aui:fieldset-group> and <liferay-frontend:fieldset-group> are no longer needed.
+
+### Who is affected?
+
+Anyone who has using <aui:fieldset-group> and <liferay-frontend:fieldset-group>.
+
+### How should I update my code?
+
+Delete usages of <liferay-frontend:fieldset-group> and replace usages <aui:fieldset-group> with <div class="sheet"><div class="panel-group panel-group-flush">.
+
+### Why was this change made?
+
+<aui:fieldset-group> and <liferay-frontend:fieldset-group> were adding unnecessary markup to the page and those were causing accessibility issues.

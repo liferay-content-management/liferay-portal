@@ -14,9 +14,20 @@
 
 package com.liferay.analytics.settings.rest.resource.v1_0.test;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+
+import com.liferay.analytics.settings.rest.client.dto.v1_0.DataSource;
+import com.liferay.analytics.settings.rest.client.dto.v1_0.Field;
 import com.liferay.analytics.settings.rest.client.http.HttpInvoker;
 import com.liferay.analytics.settings.rest.client.pagination.Page;
 import com.liferay.analytics.settings.rest.client.resource.v1_0.DataSourceResource;
+import com.liferay.analytics.settings.rest.client.serdes.v1_0.DataSourceSerDes;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -27,6 +38,7 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -109,6 +121,76 @@ public abstract class BaseDataSourceResourceTestCase {
 	}
 
 	@Test
+	public void testClientSerDesToDTO() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				enable(SerializationFeature.INDENT_OUTPUT);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
+
+		DataSource dataSource1 = randomDataSource();
+
+		String json = objectMapper.writeValueAsString(dataSource1);
+
+		DataSource dataSource2 = DataSourceSerDes.toDTO(json);
+
+		Assert.assertTrue(equals(dataSource1, dataSource2));
+	}
+
+	@Test
+	public void testClientSerDesToJSON() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper() {
+			{
+				configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+				configure(
+					SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+				setDateFormat(new ISO8601DateFormat());
+				setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+				setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				setVisibility(
+					PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+				setVisibility(
+					PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+			}
+		};
+
+		DataSource dataSource = randomDataSource();
+
+		String json1 = objectMapper.writeValueAsString(dataSource);
+		String json2 = DataSourceSerDes.toJSON(dataSource);
+
+		Assert.assertEquals(
+			objectMapper.readTree(json1), objectMapper.readTree(json2));
+	}
+
+	@Test
+	public void testEscapeRegexInStringFields() throws Exception {
+		String regex = "^[0-9]+(\\.[0-9]{1,2})\"?";
+
+		DataSource dataSource = randomDataSource();
+
+		dataSource.setDataSourceId(regex);
+
+		String json = DataSourceSerDes.toJSON(dataSource);
+
+		Assert.assertFalse(json.contains(regex));
+
+		dataSource = DataSourceSerDes.toDTO(json);
+
+		Assert.assertEquals(regex, dataSource.getDataSourceId());
+	}
+
+	@Test
 	public void testDeleteDataSource() throws Exception {
 		Assert.assertTrue(false);
 	}
@@ -123,10 +205,12 @@ public abstract class BaseDataSourceResourceTestCase {
 		Assert.assertTrue(false);
 	}
 
-	protected void assertContains(Object dataSource, List<Object> dataSources) {
+	protected void assertContains(
+		DataSource dataSource, List<DataSource> dataSources) {
+
 		boolean contains = false;
 
-		for (Object item : dataSources) {
+		for (DataSource item : dataSources) {
 			if (equals(dataSource, item)) {
 				contains = true;
 
@@ -146,34 +230,36 @@ public abstract class BaseDataSourceResourceTestCase {
 			expectedHttpResponseStatusCode, actualHttpResponse.getStatusCode());
 	}
 
-	protected void assertEquals(Object dataSource1, Object dataSource2) {
+	protected void assertEquals(
+		DataSource dataSource1, DataSource dataSource2) {
+
 		Assert.assertTrue(
 			dataSource1 + " does not equal " + dataSource2,
 			equals(dataSource1, dataSource2));
 	}
 
 	protected void assertEquals(
-		List<Object> dataSources1, List<Object> dataSources2) {
+		List<DataSource> dataSources1, List<DataSource> dataSources2) {
 
 		Assert.assertEquals(dataSources1.size(), dataSources2.size());
 
 		for (int i = 0; i < dataSources1.size(); i++) {
-			Object dataSource1 = dataSources1.get(i);
-			Object dataSource2 = dataSources2.get(i);
+			DataSource dataSource1 = dataSources1.get(i);
+			DataSource dataSource2 = dataSources2.get(i);
 
 			assertEquals(dataSource1, dataSource2);
 		}
 	}
 
 	protected void assertEqualsIgnoringOrder(
-		List<Object> dataSources1, List<Object> dataSources2) {
+		List<DataSource> dataSources1, List<DataSource> dataSources2) {
 
 		Assert.assertEquals(dataSources1.size(), dataSources2.size());
 
-		for (Object dataSource1 : dataSources1) {
+		for (DataSource dataSource1 : dataSources1) {
 			boolean contains = false;
 
-			for (Object dataSource2 : dataSources2) {
+			for (DataSource dataSource2 : dataSources2) {
 				if (equals(dataSource1, dataSource2)) {
 					contains = true;
 
@@ -186,11 +272,37 @@ public abstract class BaseDataSourceResourceTestCase {
 		}
 	}
 
-	protected void assertValid(Object dataSource) throws Exception {
+	protected void assertValid(DataSource dataSource) throws Exception {
 		boolean valid = true;
 
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"commerceChannelIds", additionalAssertFieldName)) {
+
+				if (dataSource.getCommerceChannelIds() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dataSourceId", additionalAssertFieldName)) {
+				if (dataSource.getDataSourceId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("siteIds", additionalAssertFieldName)) {
+				if (dataSource.getSiteIds() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
 
 			throw new IllegalArgumentException(
 				"Invalid additional assert field name " +
@@ -200,10 +312,10 @@ public abstract class BaseDataSourceResourceTestCase {
 		Assert.assertTrue(valid);
 	}
 
-	protected void assertValid(Page<Object> page) {
+	protected void assertValid(Page<DataSource> page) {
 		boolean valid = false;
 
-		java.util.Collection<Object> dataSources = page.getItems();
+		java.util.Collection<DataSource> dataSources = page.getItems();
 
 		int size = dataSources.size();
 
@@ -223,6 +335,20 @@ public abstract class BaseDataSourceResourceTestCase {
 
 	protected List<GraphQLField> getGraphQLFields() throws Exception {
 		List<GraphQLField> graphQLFields = new ArrayList<>();
+
+		for (java.lang.reflect.Field field :
+				getDeclaredFields(
+					com.liferay.analytics.settings.rest.dto.v1_0.DataSource.
+						class)) {
+
+			if (!ArrayUtil.contains(
+					getAdditionalAssertFieldNames(), field.getName())) {
+
+				continue;
+			}
+
+			graphQLFields.addAll(getGraphQLFields(field));
+		}
 
 		return graphQLFields;
 	}
@@ -261,13 +387,47 @@ public abstract class BaseDataSourceResourceTestCase {
 		return new String[0];
 	}
 
-	protected boolean equals(Object dataSource1, Object dataSource2) {
+	protected boolean equals(DataSource dataSource1, DataSource dataSource2) {
 		if (dataSource1 == dataSource2) {
 			return true;
 		}
 
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"commerceChannelIds", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						dataSource1.getCommerceChannelIds(),
+						dataSource2.getCommerceChannelIds())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dataSourceId", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataSource1.getDataSourceId(),
+						dataSource2.getDataSourceId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("siteIds", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataSource1.getSiteIds(), dataSource2.getSiteIds())) {
+
+					return false;
+				}
+
+				continue;
+			}
 
 			throw new IllegalArgumentException(
 				"Invalid additional assert field name " +
@@ -354,7 +514,7 @@ public abstract class BaseDataSourceResourceTestCase {
 	}
 
 	protected String getFilterString(
-		EntityField entityField, String operator, Object dataSource) {
+		EntityField entityField, String operator, DataSource dataSource) {
 
 		StringBundler sb = new StringBundler();
 
@@ -365,6 +525,24 @@ public abstract class BaseDataSourceResourceTestCase {
 		sb.append(" ");
 		sb.append(operator);
 		sb.append(" ");
+
+		if (entityFieldName.equals("commerceChannelIds")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("dataSourceId")) {
+			sb.append("'");
+			sb.append(String.valueOf(dataSource.getDataSourceId()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("siteIds")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
 
 		throw new IllegalArgumentException(
 			"Invalid entity field " + entityFieldName);
@@ -405,6 +583,25 @@ public abstract class BaseDataSourceResourceTestCase {
 
 		return JSONFactoryUtil.createJSONObject(
 			invoke(queryGraphQLField.toString()));
+	}
+
+	protected DataSource randomDataSource() throws Exception {
+		return new DataSource() {
+			{
+				dataSourceId = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
+			}
+		};
+	}
+
+	protected DataSource randomIrrelevantDataSource() throws Exception {
+		DataSource randomIrrelevantDataSource = randomDataSource();
+
+		return randomIrrelevantDataSource;
+	}
+
+	protected DataSource randomPatchDataSource() throws Exception {
+		return randomDataSource();
 	}
 
 	protected DataSourceResource dataSourceResource;

@@ -1371,9 +1371,8 @@ public class WebServerServlet extends HttpServlet {
 			DLAppLocalServiceUtil.getFileEntry(fileShortcut.getToFileEntryId());
 		}
 		else if (pathArray.length == 2) {
-
-			// Unable to check with UUID because of multiple repositories
-
+			DLAppLocalServiceUtil.getFileEntryByUuidAndGroupId(
+				pathArray[1], GetterUtil.getLong(pathArray[0]));
 		}
 		else if (pathArray.length == 3) {
 			long groupId = GetterUtil.getLong(pathArray[0]);

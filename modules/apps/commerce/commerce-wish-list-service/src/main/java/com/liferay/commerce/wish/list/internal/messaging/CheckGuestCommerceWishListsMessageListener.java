@@ -36,7 +36,6 @@ import java.util.Map;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -44,14 +43,12 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.commerce.wish.list.internal.configuration.CommerceWishListConfiguration",
-	enabled = false, immediate = true,
 	service = CheckGuestCommerceWishListsMessageListener.class
 )
 public class CheckGuestCommerceWishListsMessageListener
 	extends BaseMessageListener {
 
 	@Activate
-	@Modified
 	protected void activate(Map<String, Object> properties) {
 		Class<?> clazz = getClass();
 

@@ -17,9 +17,12 @@ package com.liferay.layout.type.controller.collection.internal.display.context;
 import com.liferay.asset.list.asset.entry.provider.AssetListAssetEntryProvider;
 import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.asset.list.service.AssetListEntryLocalService;
+import com.liferay.asset.util.AssetPublisherAddItemHolder;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
 import com.liferay.info.collection.provider.CollectionQuery;
 import com.liferay.info.collection.provider.InfoCollectionProvider;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
 import com.liferay.info.pagination.InfoPage;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
@@ -51,14 +54,14 @@ public class CollectionItemsDetailDisplayContext {
 	public CollectionItemsDetailDisplayContext(
 		AssetListEntryLocalService assetListEntryLocalService,
 		AssetListAssetEntryProvider assetListAssetEntryProvider,
-		InfoItemServiceTracker infoItemServiceTracker,
+		InfoItemServiceRegistry infoItemServiceRegistry,
 		LiferayRenderRequest liferayRenderRequest,
 		LiferayRenderResponse liferayRenderResponse,
 		ThemeDisplay themeDisplay) {
 
 		_assetListEntryLocalService = assetListEntryLocalService;
 		_assetListAssetEntryProvider = assetListAssetEntryProvider;
-		_infoItemServiceTracker = infoItemServiceTracker;
+		_infoItemServiceRegistry = infoItemServiceRegistry;
 		_liferayRenderRequest = liferayRenderRequest;
 		_liferayRenderResponse = liferayRenderResponse;
 		_themeDisplay = themeDisplay;
@@ -91,6 +94,28 @@ public class CollectionItemsDetailDisplayContext {
 		}
 
 		return 0;
+	}
+
+	public List<DropdownItem> getDropdownItems(
+		List<AssetPublisherAddItemHolder> assetPublisherAddItemHolders) {
+
+		return new DropdownItemList() {
+			{
+				for (AssetPublisherAddItemHolder assetPublisherAddItemHolder :
+						assetPublisherAddItemHolders) {
+
+					add(
+						dropdownItem -> {
+							dropdownItem.setHref(
+								String.valueOf(
+									assetPublisherAddItemHolder.
+										getPortletURL()));
+							dropdownItem.setLabel(
+								assetPublisherAddItemHolder.getModelResource());
+						});
+				}
+			}
+		};
 	}
 
 	public String getNamespace() {
@@ -146,7 +171,7 @@ public class CollectionItemsDetailDisplayContext {
 	private long _getInfoCollectionProviderItemCount(String collectionPK) {
 		List<InfoCollectionProvider<?>> infoCollectionProviders =
 			(List<InfoCollectionProvider<?>>)
-				(List<?>)_infoItemServiceTracker.getAllInfoItemServices(
+				(List<?>)_infoItemServiceRegistry.getAllInfoItemServices(
 					InfoCollectionProvider.class);
 
 		Stream<InfoCollectionProvider<?>> stream =
@@ -173,7 +198,7 @@ public class CollectionItemsDetailDisplayContext {
 
 	private final AssetListAssetEntryProvider _assetListAssetEntryProvider;
 	private final AssetListEntryLocalService _assetListEntryLocalService;
-	private final InfoItemServiceTracker _infoItemServiceTracker;
+	private final InfoItemServiceRegistry _infoItemServiceRegistry;
 	private final LiferayRenderRequest _liferayRenderRequest;
 	private final LiferayRenderResponse _liferayRenderResponse;
 	private final ThemeDisplay _themeDisplay;

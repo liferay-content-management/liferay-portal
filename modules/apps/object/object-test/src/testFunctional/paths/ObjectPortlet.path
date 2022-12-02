@@ -72,7 +72,7 @@
 	</tr>
 	<tr>
 		<td>ENTRY_KEBAB_MENU</td>
-		<td>//div[contains(@class,'dnd-tbody')]//*[contains(text(),'${key_entry}')]/parent::div/following-sibling::div//button | //div[contains(@class,'dnd-tbody')]//*[contains(text(),'${key_entry}')]/following-sibling::div//button</td>
+		<td>//div[contains(@class,'dnd-tbody')]//*[contains(text(),'${key_entry}')]/parent::div/following-sibling::div//button | //div[contains(@class, 'dnd-td') and contains(., '${key_entry}')]/following-sibling::div//button</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -97,7 +97,7 @@
 	</tr>
 	<tr>
 		<td>OBJECT_PORTLET_HEADER</td>
-		<td>//span[@data-qa-id='headerTitle' and contains (text(),'${key_objectLabel}')]</td>
+		<td>//h1[@data-qa-id='headerTitle' and contains (text(),'${key_objectLabel}')]</td>
 		<td></td>
 	</tr>
 	<tr>

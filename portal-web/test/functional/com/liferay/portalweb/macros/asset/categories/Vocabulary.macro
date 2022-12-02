@@ -100,7 +100,9 @@ definition {
 
 		Button.clickSave();
 
-		Alert.viewRequiredField();
+		AssertTextEquals(
+			locator1 = "Message#REQUIRED_INFO",
+			value1 = "The Name field is required.");
 	}
 
 	macro addWithAssociatedAssetTypeCP {
@@ -146,7 +148,13 @@ definition {
 	macro deleteAssociatedAssetTypeViaVocabularyCP {
 		Navigator.gotoNavNested(navNested = "${vocabularyName}");
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Edit");
+		Click.waitForMenuToggleJSClick(
+			key_headerName = "${vocabularyName}",
+			locator1 = "Portlet#H2_HEADER_VERTICAL_ELLIPSIS");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		MenuItem.click(menuItem = "Edit");
 
 		Panel.expandPanel(panel = "Associated Asset Types");
 
@@ -231,7 +239,11 @@ definition {
 	macro editCP {
 		Navigator.gotoNavNested(navNested = "${vocabularyName}");
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Edit");
+		Click.waitForMenuToggleJSClick(
+			key_headerName = "${vocabularyName}",
+			locator1 = "Portlet#H2_HEADER_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Edit");
 
 		if (isSet(vocabularyNameEdit)) {
 			PortletEntry.inputTitle(title = "${vocabularyNameEdit}");
@@ -313,7 +325,13 @@ definition {
 		if ("${allowMultipleCategories}" == "false") {
 			Navigator.gotoNavNested(navNested = "${vocabularyName}");
 
-			LexiconEntry.gotoEllipsisMenuItem(menuItem = "Edit");
+			Click.waitForMenuToggleJSClick(
+				key_headerName = "${vocabularyName}",
+				locator1 = "Portlet#H2_HEADER_VERTICAL_ELLIPSIS");
+
+			WaitForLiferayEvent.initializeLiferayEventLog();
+
+			MenuItem.click(menuItem = "Edit");
 
 			AssertNotChecked.assertNotCheckedNotVisible(locator1 = "CategoriesEditVocabulary#ALLOW_MULTIPLE_CATEGORIES_TOGGLE_SWITCH");
 		}
@@ -346,18 +364,22 @@ definition {
 
 		WaitForLiferayEvent.initializeLiferayEventLog();
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Permissions");
+		Click.waitForMenuToggleJSClick(
+			key_headerName = "${vocabularyName}",
+			locator1 = "Portlet#H2_HEADER_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Permissions");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		if ("${viewableBy}" == "Anyone (Guest Role)") {
-			AssertChecked(locator1 = "AssetPermissions#GUEST_VIEW_CHECKBOX");
+			AssertChecked.assertCheckedNotVisible(locator1 = "AssetPermissions#GUEST_VIEW_CHECKBOX");
 		}
 		else if ("${viewableBy}" == "Owner") {
-			AssertChecked(locator1 = "AssetPermissions#OWNER_VIEW_CHECKBOX");
+			AssertChecked.assertCheckedNotVisible(locator1 = "AssetPermissions#OWNER_VIEW_CHECKBOX");
 		}
 		else if ("${viewableBy}" == "Site Members") {
-			AssertChecked(locator1 = "AssetPermissions#SITE_MEMBER_VIEW_CHECKBOX");
+			AssertChecked.assertCheckedNotVisible(locator1 = "AssetPermissions#SITE_MEMBER_VIEW_CHECKBOX");
 		}
 
 		SelectFrameTop(value1 = "relative=top");
@@ -376,7 +398,13 @@ definition {
 	macro viewWithAssociatedAssetTypeCP {
 		Navigator.gotoNavNested(navNested = "${vocabularyName}");
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Edit");
+		Click.waitForMenuToggleJSClick(
+			key_headerName = "${vocabularyName}",
+			locator1 = "Portlet#H2_HEADER_VERTICAL_ELLIPSIS");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		MenuItem.click(menuItem = "Edit");
 
 		Panel.expandPanel(panel = "Associated Asset Types");
 

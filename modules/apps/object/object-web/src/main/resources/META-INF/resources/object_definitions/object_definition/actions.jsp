@@ -35,13 +35,13 @@ renderResponse.setTitle(objectDefinition.getLabel(locale, true));
 	fdsActionDropdownItems="<%= objectDefinitionsActionsDisplayContext.getFDSActionDropdownItems() %>"
 	formName="fm"
 	id="<%= ObjectDefinitionsFDSNames.OBJECT_ACTIONS %>"
-	propsTransformer="js/ObjectDefinitionsActionsFDSPropsTransformer"
+	propsTransformer="js/components/FDSPropsTransformer/ObjectActionsFDSPropsTransformer"
 	style="fluid"
 />
 
 <div>
 	<react:component
-		module="js/components/ObjectAction/ExpressionBuilderModal"
+		module="js/components/ExpressionBuilderModal"
 		props='<%=
 			HashMapBuilder.<String, Object>put(
 				"sidebarElements", objectDefinitionsActionsDisplayContext.getObjectActionCodeEditorElements()

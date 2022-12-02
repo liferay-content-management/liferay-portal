@@ -137,25 +137,44 @@ public class UserGroupLocalServiceWrapper
 		return _userGroupLocalService.addUserGroup(userGroup);
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
-	public void addUserUserGroup(long userId, long userGroupId) {
+	public void addUserUserGroup(long userId, long userGroupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
 		_userGroupLocalService.addUserUserGroup(userId, userGroupId);
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
-	public void addUserUserGroup(long userId, UserGroup userGroup) {
+	public void addUserUserGroup(long userId, UserGroup userGroup)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
 		_userGroupLocalService.addUserUserGroup(userId, userGroup);
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
 	public void addUserUserGroups(
-		long userId, java.util.List<UserGroup> userGroups) {
+			long userId, java.util.List<UserGroup> userGroups)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		_userGroupLocalService.addUserUserGroups(userId, userGroups);
 	}
 
+	/**
+	 * @throws PortalException
+	 */
 	@Override
-	public void addUserUserGroups(long userId, long[] userGroupIds) {
+	public void addUserUserGroups(long userId, long[] userGroupIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
 		_userGroupLocalService.addUserUserGroups(userId, userGroupIds);
 	}
 
@@ -428,31 +447,12 @@ public class UserGroupLocalServiceWrapper
 		return _userGroupLocalService.fetchUserGroup(companyId, name);
 	}
 
-	/**
-	 * Returns the user group with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the user group's external reference code
-	 * @return the matching user group, or <code>null</code> if a matching user group could not be found
-	 */
 	@Override
 	public UserGroup fetchUserGroupByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
 		return _userGroupLocalService.fetchUserGroupByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchUserGroupByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public UserGroup fetchUserGroupByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return _userGroupLocalService.fetchUserGroupByReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -627,21 +627,13 @@ public class UserGroupLocalServiceWrapper
 		return _userGroupLocalService.getUserGroup(companyId, name);
 	}
 
-	/**
-	 * Returns the user group with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the user group's external reference code
-	 * @return the matching user group
-	 * @throws PortalException if a matching user group could not be found
-	 */
 	@Override
 	public UserGroup getUserGroupByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _userGroupLocalService.getUserGroupByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**

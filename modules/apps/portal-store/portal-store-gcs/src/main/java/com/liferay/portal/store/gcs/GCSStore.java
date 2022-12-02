@@ -388,11 +388,21 @@ public class GCSStore implements Store {
 	private void _initGCSStore() throws PortalException {
 		String serviceAccountKey = _gcsStoreConfiguration.serviceAccountKey();
 
-		try (InputStream inputStream = new ByteArrayInputStream(
-				serviceAccountKey.getBytes())) {
+		try {
+			if (Validator.isBlank(serviceAccountKey)) {
+				if (_log.isInfoEnabled()) {
+					_log.info(
+						"Using application default credentials because " +
+							"service account key was not set");
+				}
 
-			_googleCredentials = ServiceAccountCredentials.fromStream(
-				inputStream);
+				_googleCredentials =
+					ServiceAccountCredentials.getApplicationDefault();
+			}
+			else {
+				_googleCredentials = ServiceAccountCredentials.fromStream(
+					new ByteArrayInputStream(serviceAccountKey.getBytes()));
+			}
 		}
 		catch (IOException ioException) {
 			throw new PortalException(

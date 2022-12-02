@@ -33,7 +33,7 @@ import com.liferay.journal.util.comparator.ArticleModifiedDateComparator;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
@@ -48,7 +48,7 @@ import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.Html;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
@@ -593,7 +593,7 @@ public class JournalRSSHelper {
 			Document document = SAXReaderUtil.read(
 				article.getContentByLocale(languageId));
 
-			contentField = HtmlUtil.escapeXPathAttribute(contentField);
+			contentField = _html.escapeXPathAttribute(contentField);
 
 			XPath xPathSelector = SAXReaderUtil.createXPath(
 				"//dynamic-element[@name=" + contentField + "]");
@@ -611,7 +611,7 @@ public class JournalRSSHelper {
 			if (elType.equals("document_library")) {
 				String url = element.elementText("dynamic-content");
 
-				JSONObject jsonObject = JSONFactoryUtil.createJSONObject(url);
+				JSONObject jsonObject = _jsonFactory.createJSONObject(url);
 
 				String uuid = jsonObject.getString("uuid");
 				long groupId = jsonObject.getLong("groupId");
@@ -696,6 +696,9 @@ public class JournalRSSHelper {
 	private DLURLHelper _dlURLHelper;
 
 	@Reference
+	private Html _html;
+
+	@Reference
 	private ImageLocalService _imageLocalService;
 
 	@Reference
@@ -709,6 +712,9 @@ public class JournalRSSHelper {
 
 	@Reference
 	private JournalFeedLocalService _journalFeedLocalService;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

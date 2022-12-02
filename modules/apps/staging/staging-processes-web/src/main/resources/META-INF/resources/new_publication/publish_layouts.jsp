@@ -55,69 +55,71 @@
 				localPublishing="<%= localPublishing %>"
 			/>
 
-			<aui:fieldset-group markupView="lexicon">
-				<aui:fieldset>
-					<c:choose>
-						<c:when test="<%= exportImportConfiguration == null %>">
-							<aui:input label="title" maxlength='<%= ModelHintsUtil.getMaxLength(ExportImportConfiguration.class.getName(), "name") %>' name="name" placeholder="process-name-placeholder" />
-						</c:when>
-						<c:otherwise>
-							<aui:input label="title" maxlength='<%= ModelHintsUtil.getMaxLength(ExportImportConfiguration.class.getName(), "name") %>' name="name" value="<%= exportImportConfiguration.getName() %>" />
-						</c:otherwise>
-					</c:choose>
-				</aui:fieldset>
+			<div class="sheet">
+				<div class="panel-group panel-group-flush">
+					<aui:fieldset>
+						<c:choose>
+							<c:when test="<%= exportImportConfiguration == null %>">
+								<aui:input label="title" maxlength='<%= ModelHintsUtil.getMaxLength(ExportImportConfiguration.class.getName(), "name") %>' name="name" placeholder="process-name-placeholder" />
+							</c:when>
+							<c:otherwise>
+								<aui:input label="title" maxlength='<%= ModelHintsUtil.getMaxLength(ExportImportConfiguration.class.getName(), "name") %>' name="name" value="<%= exportImportConfiguration.getName() %>" />
+							</c:otherwise>
+						</c:choose>
+					</aui:fieldset>
 
-				<aui:fieldset cssClass="options-group">
-					<clay:sheet-section>
-						<h3 class="sheet-subtitle"><liferay-ui:message key="date" /></h3>
+					<aui:fieldset cssClass="options-group">
+						<clay:sheet-section>
+							<h3 class="sheet-subtitle"><liferay-ui:message key="date" /></h3>
 
-						<%@ include file="/new_publication/publish_layouts_scheduler.jspf" %>
-					</clay:sheet-section>
-				</aui:fieldset>
+							<%@ include file="/new_publication/publish_layouts_scheduler.jspf" %>
+						</clay:sheet-section>
+					</aui:fieldset>
 
-				<liferay-staging:deletions
-					cmd="<%= Constants.PUBLISH %>"
-					disableInputs="<%= configuredPublish %>"
-					exportImportConfigurationId="<%= exportImportConfigurationId %>"
-				/>
-
-				<c:if test="<%= !group.isCompany() && GroupCapabilityUtil.isSupportsPages(group) %>">
-					<liferay-staging:select-pages
-						action="<%= Constants.PUBLISH %>"
+					<liferay-staging:deletions
+						cmd="<%= Constants.PUBLISH %>"
 						disableInputs="<%= configuredPublish %>"
 						exportImportConfigurationId="<%= exportImportConfigurationId %>"
-						groupId="<%= groupId %>"
-						privateLayout="<%= privateLayout %>"
-						treeId="<%= treeId %>"
 					/>
-				</c:if>
 
-				<liferay-staging:content
-					cmd="<%= cmd %>"
-					disableInputs="<%= configuredPublish %>"
-					exportImportConfigurationId="<%= exportImportConfigurationId %>"
-					type="<%= localPublishing ? Constants.PUBLISH_TO_LIVE : Constants.PUBLISH_TO_REMOTE %>"
-				/>
-
-				<liferay-staging:permissions
-					action="<%= Constants.PUBLISH %>"
-					descriptionCSSClass="permissions-description"
-					disableInputs="<%= configuredPublish %>"
-					exportImportConfigurationId="<%= exportImportConfigurationId %>"
-					global="<%= group.isCompany() %>"
-					labelCSSClass="permissions-label"
-				/>
-
-				<c:if test="<%= !localPublishing %>">
-					<aui:fieldset collapsible="<%= true %>" cssClass="options-group" label="remote-live-connection-settings">
-						<liferay-staging:remote-options
+					<c:if test="<%= !group.isCompany() && GroupCapabilityUtil.isSupportsPages(group) %>">
+						<liferay-staging:select-pages
+							action="<%= Constants.PUBLISH %>"
 							disableInputs="<%= configuredPublish %>"
 							exportImportConfigurationId="<%= exportImportConfigurationId %>"
+							groupId="<%= groupId %>"
 							privateLayout="<%= privateLayout %>"
+							treeId="<%= treeId %>"
 						/>
-					</aui:fieldset>
-				</c:if>
-			</aui:fieldset-group>
+					</c:if>
+
+					<liferay-staging:content
+						cmd="<%= cmd %>"
+						disableInputs="<%= configuredPublish %>"
+						exportImportConfigurationId="<%= exportImportConfigurationId %>"
+						type="<%= localPublishing ? Constants.PUBLISH_TO_LIVE : Constants.PUBLISH_TO_REMOTE %>"
+					/>
+
+					<liferay-staging:permissions
+						action="<%= Constants.PUBLISH %>"
+						descriptionCSSClass="permissions-description"
+						disableInputs="<%= configuredPublish %>"
+						exportImportConfigurationId="<%= exportImportConfigurationId %>"
+						global="<%= group.isCompany() %>"
+						labelCSSClass="permissions-label"
+					/>
+
+					<c:if test="<%= !localPublishing %>">
+						<aui:fieldset collapsible="<%= true %>" cssClass="options-group" label="remote-live-connection-settings">
+							<liferay-staging:remote-options
+								disableInputs="<%= configuredPublish %>"
+								exportImportConfigurationId="<%= exportImportConfigurationId %>"
+								privateLayout="<%= privateLayout %>"
+							/>
+						</aui:fieldset>
+					</c:if>
+				</div>
+			</div>
 		</div>
 
 		<aui:button-row>

@@ -1,14 +1,12 @@
 definition {
 
 	macro gotoDefineRolePermissions {
-		if (contains("Asset Library,Organization,Site", "${roleType}")) {
+		if (contains("Account,Asset Library,Organization,Site", "${roleType}")) {
 			Navigator.gotoNavItem(navItem = "${roleType} Roles");
 		}
 		else {
 			Navigator.gotoNavItem(navItem = "Regular Roles");
 		}
-
-		Search.searchCP(searchTerm = "${roleTitle}");
 
 		AssertClick(
 			key_itemName = "${roleTitle}",
@@ -17,21 +15,27 @@ definition {
 
 		Navigator.gotoNavItem(navItem = "Define Permissions");
 
-		Type(
-			locator1 = "RolesPermissionsNavigation#SEARCH_FIELD",
-			value1 = "${portlet}");
+		if (isSet(portlet)) {
+			Type(
+				locator1 = "RolesPermissionsNavigation#SEARCH_FIELD",
+				value1 = "${portlet}");
 
-		AssertClick(
-			locator1 = "RolesPermissionsNavigation#${permissionNavigationKey}",
-			value1 = "${portlet}");
+			AssertClick(
+				locator1 = "RolesPermissionsNavigation#${permissionNavigationKey}",
+				value1 = "${portlet}");
 
-		AssertTextEquals(
-			locator1 = "RolesPermissions#PERMISSION_HEADER",
-			permissionNavigationValue = "${portlet}",
-			value1 = "${portlet}");
+			AssertTextEquals(
+				locator1 = "RolesPermissions#PERMISSION_HEADER",
+				permissionNavigationValue = "${portlet}",
+				value1 = "${portlet}");
+		}
 	}
 
 	macro gotoRoleType {
+		if (!(isSet(roleType))) {
+			var roleType = "Regular";
+		}
+
 		Navigator.gotoNavItem(navItem = "${roleType} Roles");
 	}
 
@@ -42,8 +46,6 @@ definition {
 		else {
 			Navigator.gotoNavItem(navItem = "Regular Roles");
 		}
-
-		Search.searchCP(searchTerm = "${roleTitle}");
 
 		AssertClick(
 			key_itemName = "${roleTitle}",

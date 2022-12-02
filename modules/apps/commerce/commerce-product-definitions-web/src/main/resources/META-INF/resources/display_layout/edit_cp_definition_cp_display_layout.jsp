@@ -73,64 +73,66 @@ String searchContainerId = "CPDefinitionsSearchContainer";
 
 		<aui:model-context bean="<%= cpDisplayLayout %>" model="<%= CPDisplayLayout.class %>" />
 
-		<aui:fieldset-group markupView="lexicon">
-			<aui:fieldset>
-				<liferay-ui:search-container
-					curParam="cpDefinitionCur"
-					headerNames="null,null"
-					id="<%= searchContainerId %>"
-					iteratorURL="<%= currentURLObj %>"
-					total="<%= cpDefinitionAsList.size() %>"
-				>
-					<liferay-ui:search-container-results
-						results="<%= cpDefinitionAsList %>"
-					/>
-
-					<liferay-ui:search-container-row
-						className="com.liferay.commerce.product.model.CPDefinition"
-						keyProperty="CPDefinitionId"
-						modelVar="cpDefinition"
+		<div class="sheet">
+			<div class="panel-group panel-group-flush">
+				<aui:fieldset>
+					<liferay-ui:search-container
+						curParam="cpDefinitionCur"
+						headerNames="null,null"
+						id="<%= searchContainerId %>"
+						iteratorURL="<%= currentURLObj %>"
+						total="<%= cpDefinitionAsList.size() %>"
 					>
-						<liferay-ui:search-container-column-text
-							cssClass="table-cell-expand"
-							value="<%= HtmlUtil.escape(cpDefinition.getName(languageId)) %>"
+						<liferay-ui:search-container-results
+							results="<%= cpDefinitionAsList %>"
 						/>
 
-						<liferay-ui:search-container-column-text>
-							<a class="float-right modify-link" data-rowId="<%= cpDefinition.getCPDefinitionId() %>" href="javascript:void(0);"><%= removeCPDefinitionIcon %></a>
-						</liferay-ui:search-container-column-text>
-					</liferay-ui:search-container-row>
+						<liferay-ui:search-container-row
+							className="com.liferay.commerce.product.model.CPDefinition"
+							keyProperty="CPDefinitionId"
+							modelVar="cpDefinition"
+						>
+							<liferay-ui:search-container-column-text
+								cssClass="table-cell-expand"
+								value="<%= HtmlUtil.escape(cpDefinition.getName(languageId)) %>"
+							/>
 
-					<liferay-ui:search-iterator
-						markupView="lexicon"
-					/>
-				</liferay-ui:search-container>
+							<liferay-ui:search-container-column-text>
+								<a class="float-right modify-link" data-rowId="<%= cpDefinition.getCPDefinitionId() %>" href="javascript:void(0);"><%= removeCPDefinitionIcon %></a>
+							</liferay-ui:search-container-column-text>
+						</liferay-ui:search-container-row>
 
-				<aui:button cssClass="mb-4" name="selectProduct" value='<%= LanguageUtil.format(locale, "select-x", "product") %>' />
+						<liferay-ui:search-iterator
+							markupView="lexicon"
+						/>
+					</liferay-ui:search-container>
 
-				<aui:input id="pagesContainerInput" ignoreRequestValue="<%= true %>" name="layoutUuid" type="hidden" value="<%= (cpDisplayLayout == null) ? StringPool.BLANK : cpDisplayLayout.getLayoutUuid() %>" />
+					<aui:button cssClass="mb-4" name="selectProduct" value='<%= LanguageUtil.format(locale, "select-x", "product") %>' />
 
-				<aui:field-wrapper helpMessage="product-display-page-help" label="product-display-page">
-					<p class="text-default">
-						<span class="<%= Validator.isNull(layoutBreadcrumb) ? "hide" : StringPool.BLANK %>" id="<portlet:namespace />displayPageItemRemove" role="button">
-							<aui:icon cssClass="icon-monospaced" image="times" markupView="lexicon" />
-						</span>
-						<span id="<portlet:namespace />displayPageNameInput">
-							<c:choose>
-								<c:when test="<%= Validator.isNull(layoutBreadcrumb) %>">
-									<span class="text-muted"><liferay-ui:message key="none" /></span>
-								</c:when>
-								<c:otherwise>
-									<%= layoutBreadcrumb %>
-								</c:otherwise>
-							</c:choose>
-						</span>
-					</p>
-				</aui:field-wrapper>
+					<aui:input id="pagesContainerInput" ignoreRequestValue="<%= true %>" name="layoutUuid" type="hidden" value="<%= (cpDisplayLayout == null) ? StringPool.BLANK : cpDisplayLayout.getLayoutUuid() %>" />
 
-				<aui:button name="chooseDisplayPage" value="choose" />
-			</aui:fieldset>
-		</aui:fieldset-group>
+					<aui:field-wrapper helpMessage="product-display-page-help" label="product-display-page">
+						<p class="text-default">
+							<span class="<%= Validator.isNull(layoutBreadcrumb) ? "hide" : StringPool.BLANK %>" id="<portlet:namespace />displayPageItemRemove" role="button">
+								<aui:icon cssClass="icon-monospaced" image="times" markupView="lexicon" />
+							</span>
+							<span id="<portlet:namespace />displayPageNameInput">
+								<c:choose>
+									<c:when test="<%= Validator.isNull(layoutBreadcrumb) %>">
+										<span class="text-muted"><liferay-ui:message key="none" /></span>
+									</c:when>
+									<c:otherwise>
+										<%= layoutBreadcrumb %>
+									</c:otherwise>
+								</c:choose>
+							</span>
+						</p>
+					</aui:field-wrapper>
+
+					<aui:button name="chooseDisplayPage" value="choose" />
+				</aui:fieldset>
+			</div>
+		</div>
 
 		<aui:button-row>
 			<aui:button cssClass="btn-lg" type="submit" />

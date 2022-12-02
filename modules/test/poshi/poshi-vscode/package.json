@@ -7,6 +7,16 @@
 		"Testing"
 	],
 	"contributes": {
+		"commands": [
+			{
+				"command": "poshi.run.test.case.in.file",
+				"title": "Poshi: Run test case in file"
+			},
+			{
+				"command": "poshi.run.test.case.under.cursor",
+				"title": "Poshi: Run test case under cursor"
+			}
+		],
 		"configuration": {
 			"properties": {
 				"poshi.completion.enabled": {
@@ -54,7 +64,25 @@
 				],
 				"id": "poshi"
 			}
-		]
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "poshi.run.test.case.in.file",
+					"when": "resourceExtname == .testcase"
+				},
+				{
+					"command": "poshi.run.test.case.under.cursor",
+					"when": "resourceExtname == .testcase"
+				}
+			],
+			"editor/context": [
+				{
+					"command": "poshi.run.test.case.under.cursor",
+					"when": "resourceExtname == .testcase"
+				}
+			]
+		}
 	},
 	"dependencies": {
 		"@vscode/ripgrep": "^1.14.2",

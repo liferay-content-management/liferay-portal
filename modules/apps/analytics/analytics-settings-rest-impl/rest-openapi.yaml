@@ -1,8 +1,128 @@
 components:
     schemas:
+        Channel:
+            properties:
+                channelId:
+                    type: string
+                commerceSyncEnabled:
+                    type: boolean
+                createDate:
+                    format: date
+                    type: string
+                dataSources:
+                    items:
+                        $ref: "#/components/schemas/DataSource"
+                    type: array
+                name:
+                    type: string
+        CommerceChannel:
+            properties:
+                channelName:
+                    type: string
+                id:
+                    format: int64
+                    type: integer
+                name:
+                    type: string
+                siteName:
+                    type: string
+        ContactAccountGroup:
+            properties:
+                id:
+                    format: int64
+                    type: integer
+                name:
+                    type: string
+                selected:
+                    type: boolean
+        ContactConfiguration:
+            properties:
+                syncAllAccounts:
+                    type: boolean
+                syncAllContacts:
+                    type: boolean
+                syncedAccountGroupIds:
+                    items:
+                        type: string
+                    type: array
+                syncedOrganizationIds:
+                    items:
+                        type: string
+                    type: array
+                syncedUserGroupIds:
+                    items:
+                        type: string
+                    type: array
+        ContactOrganization:
+            properties:
+                id:
+                    format: int64
+                    type: integer
+                name:
+                    type: string
+                selected:
+                    type: boolean
+        ContactUserGroup:
+            properties:
+                id:
+                    format: int64
+                    type: integer
+                name:
+                    type: string
+                selected:
+                    type: boolean
+        DataSource:
+            properties:
+                commerceChannelIds:
+                    items:
+                        format: int64
+                        type: integer
+                    type: array
+                dataSourceId:
+                    type: string
+                siteIds:
+                    items:
+                        format: int64
+                        type: integer
+                    type: array
         DataSourceToken:
             properties:
                 token:
+                    type: string
+        Field:
+            properties:
+                example:
+                    type: string
+                name:
+                    type: string
+                required:
+                    type: boolean
+                selected:
+                    type: boolean
+                source:
+                    type: string
+                type:
+                    type: string
+        FieldSummary:
+            properties:
+                account:
+                    type: integer
+                order:
+                    type: integer
+                people:
+                    type: integer
+                product:
+                    type: integer
+        Site:
+            properties:
+                channelName:
+                    type: string
+                friendlyURL:
+                    type: string
+                id:
+                    format: int64
+                    type: integer
+                name:
                     type: string
 info:
     license:
@@ -12,8 +132,272 @@ info:
     version: v1.0
 openapi: 3.0.1
 paths:
-    "/data-source":
+    "/channels":
+        get:
+            operationId: getChannelsPage
+            parameters:
+                - in: query
+                  name: keywords
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Channel"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Channel"
+                                type: array
+            tags: ["Channel"]
+        patch:
+            operationId: patchChannel
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Channel"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Channel"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Channel"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Channel"
+                    descritpion:
+                        Patch Channel
+                500:
+                    content:
+                        application/json:
+                            schema:
+                            type: string
+                        application/xml:
+                            schema:
+                            type: string
+                    description:
+                        Unexpected error
+            tags: ["Channel"]
+        post:
+            operationId: postChannel
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Channel"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Channel"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Channel"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Channel"
+                    descritpion:
+                        Post New Channel
+                500:
+                    content:
+                        application/json:
+                            schema:
+                            type: string
+                        application/xml:
+                            schema:
+                            type: string
+                    description:
+                        Unexpected error
+            tags: ["Channel"]
+    "/commerce-channels":
+        get:
+            operationId: getCommerceChannelsPage
+            parameters:
+                - in: query
+                  name: keywords
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/CommerceChannel"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/CommerceChannel"
+                                type: array
+            tags: ["CommerceChannel"]
+    "/contacts/account-groups":
+        get:
+            operationId: getContactAccountGroupsPage
+            parameters:
+                - in: query
+                  name: keywords
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ContactAccountGroup"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ContactAccountGroup"
+                                type: array
+            tags: ["ContactAccountGroup"]
+    "/contacts/configuration":
+        get:
+            operationId: getContactConfiguration
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ContactConfiguration"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ContactConfiguration"
+            tags: ["ContactConfiguration"]
+        put:
+            operationId: putContactConfiguration
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ContactConfiguration"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/ContactConfiguration"
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["ContactConfiguration"]
+    "/contacts/organizations":
+        get:
+            operationId: getContactOrganizationsPage
+            parameters:
+                - in: query
+                  name: keywords
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ContactOrganization"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ContactOrganization"
+                                type: array
+            tags: ["ContactOrganization"]
+    "/contacts/user-groups":
+        get:
+            operationId: getContactUserGroupsPage
+            parameters:
+                - in: query
+                  name: keywords
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ContactUserGroup"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ContactUserGroup"
+                                type: array
+            tags: ["ContactUserGroup"]
+    "/data-sources":
         delete:
+            operationId: deleteDataSource
             responses:
                 204:
                     content:
@@ -33,6 +417,7 @@ paths:
                         Unexpected error
             tags: ["DataSource"]
         post:
+            operationId: postDataSource
             requestBody:
                 content:
                     application/json:
@@ -59,3 +444,158 @@ paths:
                     description:
                         Unexpected error
             tags: ["DataSource"]
+    "/fields":
+        get:
+            operationId: getField
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/FieldSummary"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/FieldSummary"
+            tags: ["FieldSummary"]
+    "/fields/accounts":
+        get:
+            operationId: getFieldsAccountsPage
+            parameters:
+                - in: query
+                  name: keyword
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Field"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Field"
+                                type: array
+            tags: ["Field"]
+        patch:
+            operationId: patchFieldAccount
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/Field"
+                            type: array
+                    application/xml:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/Field"
+                            type: array
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["Field"]
+    "/fields/people":
+        get:
+            operationId: getFieldsPeoplePage
+            parameters:
+                - in: query
+                  name: keyword
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Field"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Field"
+                                type: array
+            tags: ["Field"]
+        patch:
+            operationId: patchFieldPeople
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/Field"
+                            type: array
+                    application/xml:
+                        schema:
+                            items:
+                                $ref: "#/components/schemas/Field"
+                            type: array
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["Field"]
+    "/sites":
+        get:
+            operationId: getSitesPage
+            parameters:
+                - in: query
+                  name: keywords
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Site"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Site"
+                                type: array
+            tags: ["Site"]

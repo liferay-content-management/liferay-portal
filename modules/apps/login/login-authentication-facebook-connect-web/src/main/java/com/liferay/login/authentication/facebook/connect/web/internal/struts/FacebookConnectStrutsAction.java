@@ -18,7 +18,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.UserEmailAddressException;
 import com.liferay.portal.kernel.facebook.FacebookConnect;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -107,7 +107,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Mika Koivisto
  */
 @Component(
-	immediate = true,
 	property = {
 		"/common/referer_jsp.jsp=/common/referer_jsp.jsp",
 		"path=/portal/facebook_connect_oauth"
@@ -137,7 +136,7 @@ public class FacebookConnectStrutsAction implements StrutsAction {
 
 		String state = ParamUtil.getString(httpServletRequest, "state");
 
-		JSONObject stateJSONObject = JSONFactoryUtil.createJSONObject(state);
+		JSONObject stateJSONObject = _jsonFactory.createJSONObject(state);
 
 		String stateNonce = stateJSONObject.getString("stateNonce");
 
@@ -231,8 +230,8 @@ public class FacebookConnectStrutsAction implements StrutsAction {
 		String firstName = jsonObject.getString("first_name");
 		String middleName = StringPool.BLANK;
 		String lastName = jsonObject.getString("last_name");
-		long prefixId = 0;
-		long suffixId = 0;
+		long prefixListTypeId = 0;
+		long suffixListTypeId = 0;
 		boolean male = Objects.equals(jsonObject.getString("gender"), "male");
 		int birthdayMonth = Calendar.JANUARY;
 		int birthdayDay = 1;
@@ -247,9 +246,9 @@ public class FacebookConnectStrutsAction implements StrutsAction {
 		User user = _userLocalService.addUser(
 			creatorUserId, companyId, autoPassword, password1, password2,
 			autoScreenName, screenName, emailAddress, locale, firstName,
-			middleName, lastName, prefixId, suffixId, male, birthdayMonth,
-			birthdayDay, birthdayYear, jobTitle, groupIds, organizationIds,
-			roleIds, userGroupIds, sendEmail, serviceContext);
+			middleName, lastName, prefixListTypeId, suffixListTypeId, male,
+			birthdayMonth, birthdayDay, birthdayYear, jobTitle, groupIds,
+			organizationIds, roleIds, userGroupIds, sendEmail, serviceContext);
 
 		user = _userLocalService.updateLastLogin(
 			user.getUserId(), user.getLoginIP());
@@ -468,8 +467,8 @@ public class FacebookConnectStrutsAction implements StrutsAction {
 			user.getReminderQueryAnswer(), user.getScreenName(), emailAddress,
 			true, null, user.getLanguageId(), user.getTimeZoneId(),
 			user.getGreeting(), user.getComments(), firstName,
-			user.getMiddleName(), lastName, contact.getPrefixId(),
-			contact.getSuffixId(), male, birthdayMonth, birthdayDay,
+			user.getMiddleName(), lastName, contact.getPrefixListTypeId(),
+			contact.getSuffixListTypeId(), male, birthdayMonth, birthdayDay,
 			birthdayYear, contact.getSmsSn(), contact.getFacebookSn(),
 			contact.getJabberSn(), contact.getSkypeSn(), contact.getTwitterSn(),
 			contact.getJobTitle(), groupIds, organizationIds, roleIds,
@@ -486,6 +485,9 @@ public class FacebookConnectStrutsAction implements StrutsAction {
 	private FacebookConnect _facebookConnect;
 
 	private String _forward;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Portal _portal;

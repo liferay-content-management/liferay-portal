@@ -16,10 +16,10 @@ package com.liferay.fragment.web.internal.struts;
 
 import com.liferay.fragment.importer.FragmentsImporter;
 import com.liferay.fragment.importer.FragmentsImporterResultEntry;
-import com.liferay.layout.page.template.importer.LayoutPageTemplatesImporter;
-import com.liferay.layout.page.template.importer.LayoutPageTemplatesImporterResultEntry;
+import com.liferay.layout.importer.LayoutsImporter;
+import com.liferay.layout.importer.LayoutsImporterResultEntry;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -64,7 +64,7 @@ public class ImportFragmentEntriesStrutsAction implements StrutsAction {
 
 		File file = uploadServletRequest.getFile("file");
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
 		if (file == null) {
 			jsonObject.put(
@@ -75,7 +75,7 @@ public class ImportFragmentEntriesStrutsAction implements StrutsAction {
 		}
 		else {
 			JSONArray fragmentEntriesImportResultJSONArray =
-				JSONFactoryUtil.createJSONArray();
+				_jsonFactory.createJSONArray();
 
 			ThemeDisplay themeDisplay =
 				(ThemeDisplay)httpServletRequest.getAttribute(
@@ -110,30 +110,26 @@ public class ImportFragmentEntriesStrutsAction implements StrutsAction {
 				fragmentEntriesImportResultJSONArray);
 
 			JSONArray pageTemplatesImportResultJSONArray =
-				JSONFactoryUtil.createJSONArray();
+				_jsonFactory.createJSONArray();
 
-			List<LayoutPageTemplatesImporterResultEntry>
-				layoutPageTemplatesImporterResultEntries =
-					_layoutPageTemplatesImporter.importFile(
-						themeDisplay.getUserId(), groupId, 0L, file, true);
+			List<LayoutsImporterResultEntry> layoutsImporterResultEntries =
+				_layoutsImporter.importFile(
+					themeDisplay.getUserId(), groupId, 0L, file, true);
 
-			for (LayoutPageTemplatesImporterResultEntry
-					layoutPageTemplatesImporterResultEntry :
-						layoutPageTemplatesImporterResultEntries) {
+			for (LayoutsImporterResultEntry layoutsImporterResultEntry :
+					layoutsImporterResultEntries) {
 
 				pageTemplatesImportResultJSONArray.put(
 					JSONUtil.put(
 						"errorMessage",
-						layoutPageTemplatesImporterResultEntry.getErrorMessage()
+						layoutsImporterResultEntry.getErrorMessage()
 					).put(
-						"name", layoutPageTemplatesImporterResultEntry.getName()
+						"name", layoutsImporterResultEntry.getName()
 					).put(
 						"status",
 						() -> {
-							LayoutPageTemplatesImporterResultEntry.Status
-								status =
-									layoutPageTemplatesImporterResultEntry.
-										getStatus();
+							LayoutsImporterResultEntry.Status status =
+								layoutsImporterResultEntry.getStatus();
 
 							return status.getLabel();
 						}
@@ -154,10 +150,13 @@ public class ImportFragmentEntriesStrutsAction implements StrutsAction {
 	private FragmentsImporter _fragmentsImporter;
 
 	@Reference
+	private JSONFactory _jsonFactory;
+
+	@Reference
 	private Language _language;
 
 	@Reference
-	private LayoutPageTemplatesImporter _layoutPageTemplatesImporter;
+	private LayoutsImporter _layoutsImporter;
 
 	@Reference
 	private Portal _portal;

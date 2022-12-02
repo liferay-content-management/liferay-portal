@@ -240,31 +240,12 @@ public class CProductLocalServiceWrapper
 		return _cProductLocalService.fetchCProduct(CProductId);
 	}
 
-	/**
-	 * Returns the c product with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the c product's external reference code
-	 * @return the matching c product, or <code>null</code> if a matching c product could not be found
-	 */
 	@Override
 	public CProduct fetchCProductByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
 		return _cProductLocalService.fetchCProductByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchCProductByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public CProduct fetchCProductByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return _cProductLocalService.fetchCProductByReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -309,21 +290,13 @@ public class CProductLocalServiceWrapper
 			cpInstanceUuid);
 	}
 
-	/**
-	 * Returns the c product with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the c product's external reference code
-	 * @return the matching c product
-	 * @throws PortalException if a matching c product could not be found
-	 */
 	@Override
 	public CProduct getCProductByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cProductLocalService.getCProductByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**

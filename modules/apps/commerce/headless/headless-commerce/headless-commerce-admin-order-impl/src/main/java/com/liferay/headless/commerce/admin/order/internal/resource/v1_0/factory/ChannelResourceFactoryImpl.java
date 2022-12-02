@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.lang.reflect.Constructor;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "resource.locator.key=/headless-commerce-admin-order/v1.0/Channel",
 	service = ChannelResource.Factory.class
 )
@@ -139,16 +137,6 @@ public class ChannelResourceFactoryImpl implements ChannelResource.Factory {
 		};
 	}
 
-	@Activate
-	protected void activate() {
-		ChannelResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		ChannelResource.FactoryHolder.factory = null;
-	}
-
 	private static Function<InvocationHandler, ChannelResource>
 		_getProxyProviderFunction() {
 
@@ -219,6 +207,7 @@ public class ChannelResourceFactoryImpl implements ChannelResource.Factory {
 		channelResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		channelResource.setRoleLocalService(_roleLocalService);
+		channelResource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(channelResource, arguments);
@@ -266,6 +255,9 @@ public class ChannelResourceFactoryImpl implements ChannelResource.Factory {
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

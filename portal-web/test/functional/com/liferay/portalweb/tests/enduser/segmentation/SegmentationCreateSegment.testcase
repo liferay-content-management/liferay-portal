@@ -7,15 +7,21 @@ definition {
 	property testray.main.component.name = "Segmentation";
 
 	setUp {
-		TestCase.setUpPortalInstance();
+		task ("Set up instance and sign in") {
+			TestCase.setUpPortalInstance();
 
-		User.firstLoginPG();
+			User.firstLoginPG();
+		}
 
-		Navigator.openURL();
+		task ("Add a site") {
+			JSONGroup.addGroup(groupName = "Test Site Name");
+		}
 
-		ProductMenu.gotoPortlet(
-			category = "People",
-			portlet = "Segments");
+		task ("Open Segmentation Admin") {
+			Navigator.openURL();
+
+			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
+		}
 	}
 
 	tearDown {
@@ -25,23 +31,19 @@ definition {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			Category.openCategoriesAdmin(siteURLKey = "guest");
-
-			if (IsElementPresent(locator1 = "Segmentation#SEGMENT_LIST")) {
-				Segmentation.tearDown();
-			}
-
-			JSONUser.tearDownNonAdminUsers();
-
-			JSONOrganization.deleteOrganizationByName(
-				organizationName = "Organization Name",
-				parentOrganizationName = "Parent Organization Name");
-
-			JSONOrganization.deleteOrganizationByName(organizationName = "Parent Organization Name");
+			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
 		}
+
+		JSONUser.tearDownNonAdminUsers();
+
+		JSONOrganization.deleteOrganizationByName(
+			organizationName = "Organization Name",
+			parentOrganizationName = "Parent Organization Name");
+
+		JSONOrganization.deleteOrganizationByName(organizationName = "Parent Organization Name");
 	}
 
-	@description = "This is a test for LPS-130281."
+	@description = "Test Automation for LPS-130281: Validate if it's posible to create a segment based on Organization > Country criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOrganizationCountry {
@@ -61,31 +63,16 @@ definition {
 		}
 
 		task ("Add organization and add the user to the organization") {
-			JSONOrganization.addOrganization(organizationName = "Organization Name");
+			JSONOrganization.addOrganization(
+				organizationCountry = "Spain",
+				organizationName = "Organization Name");
 
 			JSONOrganization.assignUserToOrganization(
 				organizationName = "Organization Name",
 				userEmailAddress = "userea@liferay.com");
 		}
 
-		task ("Select country for the organization") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Users",
-				panel = "Control Panel",
-				portlet = "Users and Organizations");
-
-			Organization.editOrganizationCP(orgName = "Organization Name");
-
-			Select(
-				locator1 = "Select#COUNTRY",
-				value1 = "Spain");
-
-			PortletEntry.save();
-		}
-
 		task ("Add segment and check the user Belongs To the segment") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
-
 			LexiconEntry.gotoAdd();
 
 			Segmentation.gotoSidebar(fieldType = "Organization");
@@ -106,13 +93,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByOrganizationCountry Test");
 
-			Segmentation.viewSegment(
-				criterion = "options",
-				value = "spain");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "spain");
 		}
 	}
 
-	@description = "This is a test for LPS-130275."
+	@description = "Test Automation for LPS-130275: Validate if it's posible to create a segment based on Organization > Date modified criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOrganizationDateModified {
@@ -160,11 +147,15 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByOrganizationDateModified Test");
 
-			Segmentation.checkModifiedDate();
+			var currentDate = DateUtil.getFormattedCurrentDate("yyyy-MM-dd");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "${currentDate}");
 		}
 	}
 
-	@description = "This is a test for LPS-130276."
+	@description = "Test Automation for LPS-130276: Validate if it's posible to create a segment based on Organization > Hierarchy path criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOrganizationHierarchyPath {
@@ -198,7 +189,7 @@ definition {
 
 			Segmentation.addProperties(propertyOption = "Hierarchy Path");
 
-			Segmentation.fillProperty(propertyField = "Organization Name");
+			Segmentation.fillProperty(criterionValue = "Organization Name");
 
 			Segmentation.fillTitle(titleField = "AddSegmentByOrganizationHierarchyPath Test");
 
@@ -212,11 +203,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByOrganizationHierarchyPath Test");
 
-			Segmentation.viewSegment(propertyField = "Organization Name");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Organization Name");
 		}
 	}
 
-	@description = "This is a test for LPS-130277."
+	@description = "Test Automation for LPS-130277: Validate if it's posible to create a segment based on Organization > Name criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOrganizationName {
@@ -250,7 +243,7 @@ definition {
 
 			Segmentation.addProperties(propertyOption = "Name");
 
-			Segmentation.fillProperty(propertyField = "Organization Name");
+			Segmentation.fillProperty(criterionValue = "Organization Name");
 
 			Segmentation.fillTitle(titleField = "AddSegmentByOrganizationName Test");
 
@@ -264,11 +257,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByOrganizationName Test");
 
-			Segmentation.viewSegment(propertyField = "Organization Name");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Organization Name");
 		}
 	}
 
-	@description = "This is a test for LPS-130278."
+	@description = "Test Automation for LPS-130278: Validate if it's posible to create a segment based on Organization > Organization criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOrganizationOrganization {
@@ -316,13 +311,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByOrganizationOrganization Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "Organization Name");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Organization Name");
 		}
 	}
 
-	@description = "This is a test for LPS-130279."
+	@description = "Test Automation for LPS-130279: Validate if it's posible to create a segment based on Organization > Parent Organization criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOrganizationParentOrganization {
@@ -375,17 +370,18 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByOrganizationParentOrganization Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "Parent Organization Name");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Parent Organization Name");
 		}
 	}
 
-	@description = "This is a test for LPS-130282."
+	@description = "Test Automation for LPS-130282: Validate if it's posible to create a segment based on Organization > Region criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOrganizationRegion {
 		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "SegmentationCreateSegment#AddSegmentByOrganizationRegion";
 
 		task ("Add user") {
 			JSONUser.addUser(
@@ -401,35 +397,17 @@ definition {
 		}
 
 		task ("Add organization and add the user to the organization") {
-			JSONOrganization.addOrganization(organizationName = "Organization Name");
+			JSONOrganization.addOrganization(
+				organizationCountry = "Spain",
+				organizationName = "Organization Name",
+				organizationRegion = "Madrid");
 
 			JSONOrganization.assignUserToOrganization(
 				organizationName = "Organization Name",
 				userEmailAddress = "userea@liferay.com");
 		}
 
-		task ("Select region for the organization") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Users",
-				panel = "Control Panel",
-				portlet = "Users and Organizations");
-
-			Organization.editOrganizationCP(orgName = "Organization Name");
-
-			Select(
-				locator1 = "Select#COUNTRY",
-				value1 = "Spain");
-
-			Select(
-				locator1 = "Select#REGION",
-				value1 = "Madrid");
-
-			PortletEntry.save();
-		}
-
 		task ("Add segment and check the user Belongs To the segment") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
-
 			LexiconEntry.gotoAdd();
 
 			Segmentation.gotoSidebar(fieldType = "Organization");
@@ -450,13 +428,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByOrganizationRegion Test");
 
-			Segmentation.viewSegment(
-				criterion = "options",
-				value = "madrid");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "madrid");
 		}
 	}
 
-	@description = "This is a test for LPS-130283."
+	@description = "Test Automation for LPS-130283: Validate if it's posible to create a segment based on Organization > Tag criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOrganizationTag {
@@ -484,12 +462,9 @@ definition {
 		}
 
 		task ("Select tag for the organization") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Users",
-				panel = "Control Panel",
-				portlet = "Users and Organizations");
+			Organization.openOrganizationsAdmin();
 
-			Organization.editOrganizationCP(orgName = "Organization Name");
+			Organization.gotoEdit(orgName = "Organization Name");
 
 			AssetCategorization.addTag(tagName = "tagName");
 
@@ -497,7 +472,7 @@ definition {
 		}
 
 		task ("Add segment and check the user Belongs To the segment") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
+			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
 			LexiconEntry.gotoAdd();
 
@@ -519,13 +494,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByOrganizationTag Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "tagname");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "tagname");
 		}
 	}
 
-	@description = "This is a test for LPS-130280."
+	@description = "Test Automation for LPS-130280: Validate if it's posible to create a segment based on Organization > Type criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOrganizationType {
@@ -559,7 +534,7 @@ definition {
 
 			Segmentation.addProperties(propertyOption = "Type");
 
-			Segmentation.fillProperty(propertyField = "organization");
+			Segmentation.fillProperty(criterionValue = "organization");
 
 			Segmentation.fillTitle(titleField = "AddSegmentByOrganizationType Test");
 
@@ -573,11 +548,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByOrganizationType Test");
 
-			Segmentation.viewSegment(propertyField = "organization");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "organization");
 		}
 	}
 
-	@description = "This is a test for LPS-130345."
+	@description = "Test Automation for LPS-130345: Segment member preview count shows the correct number of users when segments are combined"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOtherSegments {
@@ -600,14 +577,14 @@ definition {
 		task ("Add 2 segments") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "Screen Name",
-				groupName = "Global",
+				groupName = "Test Site Name",
 				operator = "equals",
 				segmentName = "Segment With User1",
 				text = "usersn1");
 
 			JSONSegmentsentry.addSegment(
 				fieldName = "Screen Name",
-				groupName = "Global",
+				groupName = "Test Site Name",
 				operator = "equals",
 				segmentName = "Segment With User2",
 				text = "usersn2");
@@ -633,14 +610,10 @@ definition {
 			Segmentation.fillTitle(titleField = "AddSegmentByOtherSegments Test");
 
 			Segmentation.viewMembers(memberNameList = "userfn1 userln1,userfn2 userln2");
-
-			Button.clickSave();
-
-			Alert.viewSuccessMessage();
 		}
 	}
 
-	@description = "This is a test for LPS-130346."
+	@description = "Test Automation for LPS-130346: Segments based on segments are not available to create new segments"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOtherSegmentsUnableToAddNewSegments {
@@ -667,7 +640,7 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-130347."
+	@description = "Test Automation for LPS-130347: Segments editor displays a warning if an entity name is not found"
 	@priority = "5"
 	@uitest
 	test AddSegmentByOtherSegmentsWarning {
@@ -690,14 +663,14 @@ definition {
 		task ("Add 2 segments") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "First Name",
-				groupName = "Global",
+				groupName = "Test Site Name",
 				operator = "equals",
 				segmentName = "Segment With User1",
 				text = "userfn1");
 
 			JSONSegmentsentry.addSegment(
 				fieldName = "First Name",
-				groupName = "Global",
+				groupName = "Test Site Name",
 				operator = "equals",
 				segmentName = "Segment With User2",
 				text = "userfn2");
@@ -726,9 +699,11 @@ definition {
 		}
 
 		task ("Delete one of the segments") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
+			JSONSegmentsentry.deleteSegment(
+				groupName = "Test Site Name",
+				segmentName = "Segment With User1");
 
-			Segmentation.deleteSegment(entry = "Segment With User1");
+			Refresh();
 		}
 
 		task ("Assert that a warning is shown") {
@@ -738,7 +713,7 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-130313."
+	@description = "Test Automation for LPS-130313: Validate if it's posible to create a segment based on Session > Browser criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionBrowser {
@@ -753,7 +728,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentBySessionBrowser Test");
 
-			Segmentation.fillProperty(propertyField = "Chrome");
+			Segmentation.fillProperty(criterionValue = "Chrome");
 
 			Button.clickSave();
 
@@ -763,11 +738,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionBrowser Test");
 
-			Segmentation.viewSegment(propertyField = "Chrome");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Chrome");
 		}
 	}
 
-	@description = "This is a test for LPS-130314."
+	@description = "Test Automation for LPS-130314: Validate if it's posible to create a segment based on Session > Cookies criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionCookies {
@@ -794,13 +771,17 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionCookies Test");
 
-			Segmentation.viewSegment(
-				criterionKey = "GUEST_LANGUAGE_ID",
-				criterionValue = "en_US");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "en_US");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_KEY_ANY",
+				value1 = "GUEST_LANGUAGE_ID");
 		}
 	}
 
-	@description = "This is a test for LPS-130315."
+	@description = "Test Automation for LPS-130315: Validate if it's posible to create a segment based on Session > Device brand criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionDeviceBrand {
@@ -815,7 +796,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentBySessionDeviceBrand Test");
 
-			Segmentation.fillProperty(propertyField = "Apple");
+			Segmentation.fillProperty(criterionValue = "Apple");
 
 			Button.clickSave();
 
@@ -825,11 +806,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionDeviceBrand Test");
 
-			Segmentation.viewSegment(propertyField = "Apple");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Apple");
 		}
 	}
 
-	@description = "This is a test for LPS-130316."
+	@description = "Test Automation for LPS-130316: Validate if it's posible to create a segment based on Session > Device model criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionDeviceModel {
@@ -844,7 +827,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentBySessionDeviceModel Test");
 
-			Segmentation.fillProperty(propertyField = "ios");
+			Segmentation.fillProperty(criterionValue = "ios");
 
 			Button.clickSave();
 
@@ -854,11 +837,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionDeviceModel Test");
 
-			Segmentation.viewSegment(propertyField = "ios");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "ios");
 		}
 	}
 
-	@description = "This is a test for LPS-130317."
+	@description = "Test Automation for LPS-130317: Validate if it's posible to create a segment based on Session > Device screen resolution height criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionDeviceScreenResolutionHeight {
@@ -873,7 +858,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentBySessionDeviceScreenResolutionHeight Test");
 
-			Segmentation.fillProperty(resolutionValue = "480");
+			Segmentation.fillProperty(criterionValue = "480");
 
 			Button.clickSave();
 
@@ -883,13 +868,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionDeviceScreenResolutionHeight Test");
 
-			Segmentation.viewSegment(
-				criterion = "decimal-number",
-				value = "480.00");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "480.00");
 		}
 	}
 
-	@description = "This is a test for LPS-130318."
+	@description = "Test Automation for LPS-130318: Validate if it's posible to create a segment based on Session > Device screen resolution width criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionDeviceScreenResolutionWidth {
@@ -904,7 +889,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentBySessionDeviceScreenResolutionWidth Test");
 
-			Segmentation.fillProperty(resolutionValue = "320");
+			Segmentation.fillProperty(criterionValue = "320");
 
 			Button.clickSave();
 
@@ -914,13 +899,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionDeviceScreenResolutionWidth Test");
 
-			Segmentation.viewSegment(
-				criterion = "decimal-number",
-				value = "320.00");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "320.00");
 		}
 	}
 
-	@description = "This is a test for LPS-130319."
+	@description = "Test Automation for LPS-130319: Validate if it's posible to create a segment based on Session > Hostname criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionHostname {
@@ -935,7 +920,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentBySessionHostname Test");
 
-			Segmentation.fillProperty(propertyField = "localhost");
+			Segmentation.fillProperty(criterionValue = "localhost");
 
 			Button.clickSave();
 
@@ -945,7 +930,9 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionHostname Test");
 
-			Segmentation.viewSegment(propertyField = "localhost");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "localhost");
 		}
 	}
 
@@ -972,13 +959,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionIPGeocoderCountry Test");
 
-			Segmentation.viewSegment(
-				criterion = "options-string",
-				value = "ES");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "ES");
 		}
 	}
 
-	@description = "This is a test for LPS-130351."
+	@description = "Test Automation for LPS-130351: Validate if it's posible to create a segment based on Session > Languagecriteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionLanguage {
@@ -994,8 +981,7 @@ definition {
 			Segmentation.fillTitle(titleField = "AddSegmentBySessionLanguage Test");
 
 			Select(
-				key_criterion = "options",
-				locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
 				value1 = "Spanish (Spain)");
 
 			Button.clickSave();
@@ -1006,13 +992,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionLanguage Test");
 
-			Segmentation.viewSegment(
-				criterion = "options",
-				value = "es_ES");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "es_ES");
 		}
 	}
 
-	@description = "This is a test for LPS-130320."
+	@description = "Test Automation for LPS-130320: Validate if it's posible to create a segment based on Session > Last sign in date criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionLastSignInDate {
@@ -1037,13 +1023,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionLastSignInDate Test");
 
-			Segmentation.viewSegment(
-				criterion = "date",
-				value = "2021-03-31");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "2021-03-31");
 		}
 	}
 
-	@description = "This is a test for LPS-130321."
+	@description = "Test Automation for LPS-130321: Validate if it's posible to create a segment based on Session > Local date criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionLocalDate {
@@ -1068,13 +1054,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionLocalDate Test");
 
-			Segmentation.viewSegment(
-				criterion = "date",
-				value = "2021-03-31");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "2021-03-31");
 		}
 	}
 
-	@description = "This is a test for LPS-130322."
+	@description = "Test Automation for LPS-130322: Validate if it's posible to create a segment based on Session > Referrer URL criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionReferrerURL {
@@ -1089,7 +1075,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentBySessionReferrerURL Test");
 
-			Segmentation.fillProperty(propertyField = "http://localhost:8080");
+			Segmentation.fillProperty(criterionValue = "http://localhost:8080");
 
 			Button.clickSave();
 
@@ -1099,11 +1085,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionReferrerURL Test");
 
-			Segmentation.viewSegment(propertyField = "http://localhost:8080");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "http://localhost:8080");
 		}
 	}
 
-	@description = "This is a test for LPS-130323."
+	@description = "Test Automation for LPS-130323: Validate if it's posible to create a segment based on Session > Request Parameters criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionRequestParameters {
@@ -1130,13 +1118,17 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionRequestParameters Test");
 
-			Segmentation.viewSegment(
-				criterionKey = "languageId",
-				criterionValue = "en_US");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "en_US");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_KEY_ANY",
+				value1 = "languageId");
 		}
 	}
 
-	@description = "This is a test for LPS-130324."
+	@description = "Test Automation for LPS-130324: Validate if it's posible to create a segment based on Session > Signed In criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionSignedIn {
@@ -1152,8 +1144,7 @@ definition {
 			Segmentation.fillTitle(titleField = "Signed In Test");
 
 			Select(
-				key_criterion = "options",
-				locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
 				value1 = "False");
 
 			Button.clickSave();
@@ -1164,13 +1155,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "Signed In Test");
 
-			Segmentation.viewSegment(
-				criterion = "options",
-				value = "false");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "false");
 		}
 	}
 
-	@description = "This is a test for LPS-130325."
+	@description = "Test Automation for LPS-130325: Validate if it's posible to create a segment based on Session > URL criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionURL {
@@ -1185,7 +1176,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentBySessionURL Test");
 
-			Segmentation.fillProperty(propertyField = "http://localhost:8080");
+			Segmentation.fillProperty(criterionValue = "http://localhost:8080");
 
 			Button.clickSave();
 
@@ -1195,11 +1186,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionURL Test");
 
-			Segmentation.viewSegment(propertyField = "http://localhost:8080");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "http://localhost:8080");
 		}
 	}
 
-	@description = "This is a test for LPS-130326."
+	@description = "Test Automation for LPS-130326: Validate if it's posible to create a segment based on Session > User Agent criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentBySessionUserAgent {
@@ -1216,7 +1209,7 @@ definition {
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
-			Segmentation.fillProperty(propertyField = "Chrome");
+			Segmentation.fillProperty(criterionValue = "Chrome");
 
 			Button.clickSave();
 
@@ -1226,13 +1219,17 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentBySessionUserAgent Test");
 
-			Segmentation.viewSegment(
-				criterionInputOption = "contains",
-				propertyField = "Chrome");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Chrome");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_OPERATOR",
+				value1 = "contains");
 		}
 	}
 
-	@description = "This is a test for LPS-130284."
+	@description = "Test Automation for LPS-130284: Validate if it's posible to create a segment based on User > Date modified criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserDateModified {
@@ -1270,11 +1267,15 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserDateModified Test");
 
-			Segmentation.checkModifiedDate();
+			var currentDate = DateUtil.getFormattedCurrentDate("yyyy-MM-dd");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "${currentDate}");
 		}
 	}
 
-	@description = "This is a test for LPS-130285."
+	@description = "Test Automation for LPS-130285: Validate if it's posible to create a segment based on User > Date of birth criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserDateOfBirth {
@@ -1312,13 +1313,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserDateOfBirth Test");
 
-			Segmentation.viewSegment(
-				criterion = "date",
-				value = "1986-05-31");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "1986-05-31");
 		}
 	}
 
-	@description = "This is a test for LPS-130291."
+	@description = "Test Automation for LPS-130291: Validate if it's posible to create a segment based on User > Email Adress criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserEmailAddress {
@@ -1346,7 +1347,7 @@ definition {
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
-			Segmentation.fillProperty(propertyField = "liferay");
+			Segmentation.fillProperty(criterionValue = "liferay");
 
 			Segmentation.viewMembers(memberName = "userfn userln");
 
@@ -1358,7 +1359,9 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserEmailAddress Test");
 
-			Segmentation.viewSegment(propertyField = "liferay");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "liferay");
 		}
 	}
 
@@ -1377,11 +1380,23 @@ definition {
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Equals");
 
-			Segmentation.fillProperty(propertyField = "liferay");
+			Segmentation.fillProperty(criterionValue = "liferay");
 
 			Button.clickSave();
 
 			Alert.viewSuccessMessage();
+		}
+
+		task ("Assert the segment is correctly created") {
+			Segmentation.editSegment(entry = "AddSegmentUserEmailAddressEquals Test");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "liferay");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_OPERATOR",
+				value1 = "eq");
 		}
 	}
 
@@ -1400,11 +1415,23 @@ definition {
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Not Contains");
 
-			Segmentation.fillProperty(propertyField = "liferay");
+			Segmentation.fillProperty(criterionValue = "liferay");
 
 			Button.clickSave();
 
 			Alert.viewSuccessMessage();
+		}
+
+		task ("Assert the segment is correctly created") {
+			Segmentation.editSegment(entry = "AddSegmentUserEmailAddressNotContains Test");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "liferay");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_OPERATOR",
+				value1 = "not-contains");
 		}
 	}
 
@@ -1423,15 +1450,27 @@ definition {
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Not Equals");
 
-			Segmentation.fillProperty(propertyField = "liferay");
+			Segmentation.fillProperty(criterionValue = "liferay");
 
 			Button.clickSave();
 
 			Alert.viewSuccessMessage();
 		}
+
+		task ("Assert the segment is correctly created") {
+			Segmentation.editSegment(entry = "AddSegmentUserEmailAddressNotEquals Test");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "liferay");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_OPERATOR",
+				value1 = "not-eq");
+		}
 	}
 
-	@description = "This is a test for LPS-130286."
+	@description = "Test Automation for LPS-130286: Validate if it's posible to create a segment based on User > First Name criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserFirstName {
@@ -1457,7 +1496,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentByUserFirstName Test");
 
-			Segmentation.fillProperty(propertyField = "userfn");
+			Segmentation.fillProperty(criterionValue = "userfn");
 
 			Segmentation.viewMembers(memberName = "userfn userln");
 
@@ -1469,11 +1508,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserFirstName Test");
 
-			Segmentation.viewSegment(propertyField = "userfn");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "userfn");
 		}
 	}
 
-	@description = "This is a test for LPS-130287."
+	@description = "Test Automation for LPS-130287: Validate if it's posible to create a segment based on User > Job Title criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserJobTitle {
@@ -1500,7 +1541,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentByUserJobTitle Test");
 
-			Segmentation.fillProperty(propertyField = "QA");
+			Segmentation.fillProperty(criterionValue = "QA");
 
 			Segmentation.viewMembers(memberName = "userfn userln");
 
@@ -1512,11 +1553,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserJobTitle Test");
 
-			Segmentation.viewSegment(propertyField = "QA");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "QA");
 		}
 	}
 
-	@description = "This is a test for LPS-130288."
+	@description = "Test Automation for LPS-130288: Validate if it's posible to create a segment based on User > Last Name criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserLastName {
@@ -1542,7 +1585,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentByUserLastName Test");
 
-			Segmentation.fillProperty(propertyField = "userln");
+			Segmentation.fillProperty(criterionValue = "userln");
 
 			Segmentation.viewMembers(memberName = "userfn userln");
 
@@ -1554,11 +1597,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserLastName Test");
 
-			Segmentation.viewSegment(propertyField = "userln");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "userln");
 		}
 	}
 
-	@description = "This is a test for LPS-130292."
+	@description = "Test Automation for LPS-130292: Validate if it's posible to create a segment based on User > Name criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserName {
@@ -1584,7 +1629,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentByUserName Test");
 
-			Segmentation.fillProperty(propertyField = "userfn userln");
+			Segmentation.fillProperty(criterionValue = "userfn userln");
 
 			Segmentation.viewMembers(memberName = "userfn userln");
 
@@ -1596,11 +1641,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserName Test");
 
-			Segmentation.viewSegment(propertyField = "userfn userln");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "userfn userln");
 		}
 	}
 
-	@description = "This is a test for LPS-130289."
+	@description = "Test Automation for LPS-130289: Validate if it's posible to create a segment based on User > Role criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserRole {
@@ -1643,13 +1690,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserRole Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "Regular Role");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Regular Role");
 		}
 	}
 
-	@description = "This is a test for LPS-130290."
+	@description = "Test Automation for LPS-130290: Validate if it's posible to create a segment based on User > Screen Name criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserScreenName {
@@ -1675,7 +1722,7 @@ definition {
 
 			Segmentation.fillTitle(titleField = "AddSegmentByUserScreenName Test");
 
-			Segmentation.fillProperty(propertyField = "usersn");
+			Segmentation.fillProperty(criterionValue = "usersn");
 
 			Segmentation.viewMembers(memberName = "userfn userln");
 
@@ -1687,11 +1734,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserScreenName Test");
 
-			Segmentation.viewSegment(propertyField = "usersn");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "usersn");
 		}
 	}
 
-	@description = "This is a test for LPS-132107."
+	@description = "Test Automation for LPS-132107: Validate if it's posible to create a segment based on User > Site criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserSite {
@@ -1732,13 +1781,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserSite Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "Test Site Name");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Test Site Name");
 		}
 	}
 
-	@description = "This is a test for LPS-132108."
+	@description = "Test Automation for LPS-132108: Validate if it's posible to create a segment based on User > Site and Organization Role criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserSiteOrganizationRole {
@@ -1770,13 +1819,9 @@ definition {
 				groupName = "Test Site Name",
 				roleTitle = "Site Role Name",
 				userEmailAddress = "userea@liferay.com");
-
-			SearchAdministration.executeReindex();
 		}
 
 		task ("Add segment and check the user Belongs To the segment") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
-
 			LexiconEntry.gotoAdd();
 
 			Segmentation.addProperties(propertyOption = "Site and Organization Role");
@@ -1795,13 +1840,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserSiteOrganizationRole Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "Site Role Name");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Site Role Name");
 		}
 	}
 
-	@description = "This is a test for LPS-132109."
+	@description = "Test Automation for LPS-132109: Validate if it's posible to create a segment based on User > Tag criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserTag {
@@ -1835,13 +1880,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserSiteOrganizationRole Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "tagname");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "tagname");
 		}
 	}
 
-	@description = "This is a test for LPS-132110."
+	@description = "Test Automation for LPS-132110: Validate if it's posible to create a segment based on User > Team criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserTeam {
@@ -1864,20 +1909,18 @@ definition {
 		}
 
 		task ("Add team and assign to the user") {
-			Site.openSiteTeamsAdmin(siteURLKey = "test-site-name");
-
-			Team.addCP(
+			JSONTeam.addTeam(
+				siteName = "Test Site Name",
 				teamDescription = "Site Team Description",
 				teamName = "Site Team Name");
 
-			Team.assignMembersCP(
+			JSONTeam.addUserToTeam(
+				siteName = "Test Site Name",
 				teamName = "Site Team Name",
-				userScreenName = "usersn");
+				userEmailAddress = "userea@liferay.com");
 		}
 
 		task ("Add segment and check the user Belongs To the segment") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
-
 			LexiconEntry.gotoAdd();
 
 			Segmentation.addProperties(propertyOption = "Team");
@@ -1896,13 +1939,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserTeam Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "Site Team Name");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Site Team Name");
 		}
 	}
 
-	@description = "This is a test for LPS-132111."
+	@description = "Test Automation for LPS-132111: Validate if it's posible to create a segment based on User > User criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserUser {
@@ -1935,13 +1978,13 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserUser Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "userfn userln");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "userfn userln");
 		}
 	}
 
-	@description = "This is a test for LPS-132112."
+	@description = "Test Automation for LPS-132112: Validate if it's posible to create a segment based on User > User Group criteria"
 	@priority = "5"
 	@uitest
 	test AddSegmentByUserUserGroup {
@@ -1964,13 +2007,9 @@ definition {
 			JSONUser.addUserToUserGroup(
 				userEmailAddress = "userea@liferay.com",
 				userGroupName = "UG UserGroup Name");
-
-			SearchAdministration.executeReindex();
 		}
 
 		task ("Add segment and check the user Belongs To the segment") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
-
 			LexiconEntry.gotoAdd();
 
 			Segmentation.addProperties(propertyOption = "User Group");
@@ -1989,9 +2028,9 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "AddSegmentByUserUserGroup Test");
 
-			Segmentation.viewSegment(
-				criterion = "select-input",
-				value = "UG UserGroup Name");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "UG UserGroup Name");
 		}
 	}
 
@@ -2036,17 +2075,13 @@ definition {
 		}
 
 		task ("Create a segment using the custom field") {
-			Navigator.openURL();
-
-			ProductMenu.gotoPortlet(
-				category = "People",
-				portlet = "Segments");
+			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
 			LexiconEntry.gotoAdd();
 
 			Segmentation.addProperties(propertyOption = "Business Unit");
 
-			Segmentation.fillProperty(propertyField = "COIN");
+			Segmentation.fillProperty(criterionValue = "COIN");
 
 			Segmentation.fillTitle(titleField = "COINers");
 
@@ -2060,7 +2095,9 @@ definition {
 		task ("Assert the segment is correctly created") {
 			Segmentation.editSegment(entry = "COINers");
 
-			Segmentation.viewSegment(propertyField = "COIN");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "COIN");
 		}
 	}
 
@@ -2084,7 +2121,7 @@ definition {
 
 			Segmentation.addProperties(propertyOption = "Last Name");
 
-			Segmentation.fillProperty(propertyField = "O'Neal");
+			Segmentation.fillProperty(criterionValue = "O'Neal");
 		}
 
 		task ("Check that segment includes user") {
@@ -2118,10 +2155,7 @@ definition {
 	@priority = "3"
 	test AnonymousUserSegmentsCacheExpirationCheckText {
 		task ("Go to Instance Settings > Segments") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Configuration",
-				panel = "Control Panel",
-				portlet = "Instance Settings");
+			PortalSettings.openInstanceSettingsAdmin();
 
 			SystemSettings.gotoConfiguration(
 				configurationCategory = "Segments",
@@ -2140,8 +2174,6 @@ definition {
 	@priority = "3"
 	test CanCreateSegmentNameWithScriptTags {
 		task ("Add segment with script tag name") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
-
 			LexiconEntry.gotoAdd();
 
 			Segmentation.addProperties(propertyOption = "First Name");
@@ -2150,7 +2182,7 @@ definition {
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
-			Segmentation.fillProperty(propertyField = "</script>");
+			Segmentation.fillProperty(criterionValue = "</script>");
 
 			Button.clickSave();
 
@@ -2160,13 +2192,13 @@ definition {
 		task ("Assert the name and property remain with script tag after saving") {
 			Segmentation.editSegment(entry = "</script>");
 
-			Segmentation.viewSegment(
-				criterionInputOption = "contains",
-				propertyField = "</script>");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "</script>");
 		}
 	}
 
-	@description = "Test Automation for LPS-106196: Conjunction selector works as a switch"
+	@description = "Test Automation for LPS-106196 Bug: Conjunction selector works as a switch"
 	@priority = "3"
 	test CanEditConjunctionInConditionsSegments {
 		task ("Add segment with condition and change the default conjunction") {
@@ -2178,9 +2210,9 @@ definition {
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
-			Segmentation.fillProperty(propertyField = "@liferay.com");
+			Segmentation.fillProperty(criterionValue = "@liferay.com");
 
-			Segmentation.addConditionWithConjunction();
+			Segmentation.duplicateCriteria();
 
 			AssertTextEquals(
 				locator1 = "Segmentation#CRITERION_CONJUNCTION",
@@ -2189,8 +2221,8 @@ definition {
 			Segmentation.changeCriterionConjunction(criterionConjunctionItem = "Or");
 
 			Segmentation.fillProperty(
-				indexNumber = "2",
-				propertyField = "@liferay2.com");
+				criterionValue = "@liferay2.com",
+				indexNumber = "2");
 
 			AssertTextEquals(
 				locator1 = "Segmentation#CRITERION_CONJUNCTION",
@@ -2234,18 +2266,18 @@ definition {
 		task ("Create first segmentation") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "First Name",
-				groupName = "Guest",
+				groupName = "Test Site Name",
 				operator = "equals",
 				segmentName = "First Segment",
 				text = "Test");
 		}
 
 		task ("Edit first segmentation") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
+			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
 			Segmentation.editSegment(entry = "First Segment");
 
-			Segmentation.fillProperty(propertyField = "User");
+			Segmentation.fillProperty(criterionValue = "User");
 
 			Button.clickSave();
 
@@ -2255,17 +2287,19 @@ definition {
 		task ("Checks if the first segmentation is edited correctly") {
 			Segmentation.editSegment(entry = "First Segment");
 
-			Segmentation.viewSegment(propertyField = "User");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "User");
 		}
 
 		task ("Create second segmentation") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
+			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
 			LexiconEntry.gotoAdd();
 
 			Segmentation.addProperties(propertyOption = "Last Name");
 
-			Segmentation.fillProperty(propertyField = "Test");
+			Segmentation.fillProperty(criterionValue = "Test");
 
 			Segmentation.fillTitle(titleField = "Second Segment");
 
@@ -2279,7 +2313,7 @@ definition {
 		task ("Edit second segmentation") {
 			Segmentation.editSegment(entry = "Second Segment");
 
-			Segmentation.fillProperty(propertyField = "User");
+			Segmentation.fillProperty(criterionValue = "User");
 
 			Button.clickSave();
 
@@ -2289,7 +2323,9 @@ definition {
 		task ("Checks if the second segmentation is edited correctly") {
 			Segmentation.editSegment(entry = "Second Segment");
 
-			Segmentation.viewSegment(propertyField = "User");
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "User");
 		}
 	}
 
@@ -2302,10 +2338,17 @@ definition {
 			LexiconEntry.gotoAdd();
 		}
 
-		task ("Validate tag name") {
-			Segmentation.assetLanguageTag(
-				locale = "${defaultLanguage}",
-				tagName = "Default Value");
+		task ("Open localizations dropdwon") {
+			Click.clickNoMouseOver(
+				key_currentLocale = "en-us",
+				locator1 = "Button#TRANSLATIONS_LOCALIZATION");
+		}
+
+		task ("Validate tag text") {
+			AssertTextEquals(
+				key_locale = StringUtil.replace("${defaultLanguage}", "_", "-"),
+				locator1 = "Translation#TRANSLATION_LANGUAGE_STATUS_LABEL",
+				value1 = "Default");
 		}
 	}
 
@@ -2315,7 +2358,7 @@ definition {
 		task ("Create a segment") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "Screen Name",
-				groupName = "Guest",
+				groupName = "Test Site Name",
 				operator = "contains",
 				segmentName = "Original Segment",
 				text = "Test");
@@ -2342,13 +2385,13 @@ definition {
 
 			AssertElementPresent(locator1 = "Segmentation#TITLE_FIELD_READ_ONLY");
 
-			Check.checkToggleSwitch(locator1 = "Segmentation#EDIT_TOGGLE");
+			Check.checkToggleSwitch(locator1 = "ToggleSwitch#EDIT_TOGGLE");
 
 			AssertElementNotPresent(locator1 = "Segmentation#TITLE_FIELD_READ_ONLY");
 		}
 	}
 
-	@description = "This is a test for LPS-134561."
+	@description = "LPS-134561 Bug: Apostrophe in segment property value breaks filter"
 	@priority = "4"
 	@uitest
 	test CheckSegmentationWithApostropheValueFilter {
@@ -2368,15 +2411,13 @@ definition {
 		}
 
 		task ("Add segment and check the user Belongs To the segment") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
-
 			LexiconEntry.gotoAdd();
 
 			Segmentation.addProperties(propertyOption = "Last Name");
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
-			Segmentation.fillProperty(propertyField = "user'ln");
+			Segmentation.fillProperty(criterionValue = "user'ln");
 
 			Segmentation.fillTitle(titleField = "CheckSegmentationWithApostropheValueFilter Test");
 
@@ -2386,6 +2427,14 @@ definition {
 
 			Alert.viewSuccessMessage();
 		}
+
+		task ("Checks if the second segmentation is edited correctly") {
+			Segmentation.editSegment(entry = "CheckSegmentationWithApostropheValueFilter Test");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "user'ln");
+		}
 	}
 
 	@description = "LPS-135495 Validate if, The title shown in the segments list shows the value for the current user language or the value for the criteria default language."
@@ -2394,22 +2443,12 @@ definition {
 		task ("Create new segment") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "Screen Name",
-				groupName = "Guest",
+				groupName = "Test Site Name",
 				operator = "contains",
 				segmentName = "Original Segment",
 				text = "Test");
 
 			Refresh();
-		}
-
-		task ("Check if default language") {
-			Segmentation.editSegment(entry = "Original Segment");
-
-			Segmentation.assetLanguageTag(
-				locale = "en-US",
-				tagName = "Default Value");
-
-			Button.clickCancel();
 		}
 
 		task ("Create segment's translation") {
@@ -2439,15 +2478,13 @@ definition {
 		task ("Create a first segment with any criteria") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "Email Address",
-				groupName = "Guest",
+				groupName = "Test Site Name",
 				operator = "contains",
 				segmentName = "First Segment",
 				text = "test");
 		}
 
 		task ("Create a second segment usign two criterias, one being the first segment") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
-
 			LexiconEntry.gotoAdd();
 
 			Segmentation.fillTitle(titleField = "Second Segment");
@@ -2462,19 +2499,23 @@ definition {
 
 			Segmentation.addProperties(propertyOption = "First Name");
 
-			Segmentation.fillProperty(propertyField = "liferay");
+			Segmentation.fillProperty(criterionValue = "liferay");
 
 			Button.clickSave();
 		}
 
 		task ("Delete the first criteria") {
-			Segmentation.deleteSegment(entry = "First Segment");
+			JSONSegmentsentry.deleteSegment(
+				groupName = "Test Site Name",
+				segmentName = "First Segment");
+
+			Refresh();
 		}
 
 		task ("Remove from second segment criteria related to the first segment") {
 			Segmentation.editSegment(entry = "Second Segment");
 
-			Button.clickDelete();
+			Segmentation.deletePropertyElementNotExisting();
 
 			Button.clickSave();
 		}
@@ -2496,10 +2537,7 @@ definition {
 		property test.name.skip.portal.instance = "SegmentationCreateSegment#InstanceSettingsSessionPropertyVocabulariesBreadcrumb";
 
 		task ("Go to Instance Settings > Segments > Session Property Vocabulary") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Configuration",
-				panel = "Control Panel",
-				portlet = "Instance Settings");
+			PortalSettings.openInstanceSettingsAdmin();
 
 			SystemSettings.gotoConfiguration(
 				configurationCategory = "Segments",
@@ -2508,7 +2546,7 @@ definition {
 		}
 
 		task ("Click on add") {
-			Button.click(button = "Add");
+			Button.clickAdd();
 		}
 
 		task ("Click on the breadcrumb at Segments") {
@@ -2532,10 +2570,7 @@ definition {
 		property test.name.skip.portal.instance = "SegmentationCreateSegment#InstanceSettingsSessionPropertyVocabulariesCancelButton";
 
 		task ("Go to Instance Settings > Segments > Session Property Vocabulary") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Configuration",
-				panel = "Control Panel",
-				portlet = "Instance Settings");
+			PortalSettings.openInstanceSettingsAdmin();
 
 			SystemSettings.gotoConfiguration(
 				configurationCategory = "Segments",
@@ -2544,11 +2579,11 @@ definition {
 		}
 
 		task ("Click on add") {
-			Button.click(button = "Add");
+			Button.clickAdd();
 		}
 
 		task ("Click on Cancel") {
-			Button.click(button = "Cancel");
+			Button.clickCancel();
 		}
 
 		task ("Check the user is lead to the main tab Session Property Vocabularies") {
@@ -2567,19 +2602,7 @@ definition {
 		property test.name.skip.portal.instance = "SegmentationCreateSegment#InstanceSettingsSessionPropertyVocabularyInSegmentsEditor";
 
 		task ("Set Session Property Vocabulary") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Configuration",
-				panel = "Control Panel",
-				portlet = "Instance Settings");
-
-			SystemSettings.gotoConfiguration(
-				configurationCategory = "Segments",
-				configurationName = "Session Property Vocabularies",
-				configurationScope = "Virtual Instance Scope");
-
-			Button.click(button = "Add");
-
-			Segmentation.setVocabularySessionPropertyDropdown(
+			Segmentation.setVocabularySessionProperty(
 				propertyName = "Browser",
 				vocabularyName = "Audience");
 		}
@@ -2592,7 +2615,7 @@ definition {
 		}
 
 		task ("Create Segment with Vocabulary") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
+			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
 			LexiconEntry.gotoAdd();
 
@@ -2605,6 +2628,16 @@ definition {
 			Segmentation.fillProperty(optionsValue = "Audience Category 1");
 
 			Button.clickSave();
+
+			Alert.viewSuccessMessage();
+		}
+
+		task ("Checks if the second segmentation is edited correctly") {
+			Segmentation.editSegment(entry = "Segment Test");
+
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
+				value1 = "Audience Category 1");
 		}
 	}
 
@@ -2614,10 +2647,7 @@ definition {
 	@priority = "3"
 	test InterestTermsCacheCacheExpirationCheckText {
 		task ("Go to Instance Settings > Segments") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Configuration",
-				panel = "Control Panel",
-				portlet = "Instance Settings");
+			PortalSettings.openInstanceSettingsAdmin();
 
 			SystemSettings.gotoConfiguration(
 				configurationCategory = "Segments",
@@ -2639,19 +2669,7 @@ definition {
 		property test.name.skip.portal.instance = "SegmentationCreateSegment#KeepInfomationOfDeleteVocabularyInSegment";
 
 		task ("Set Session Property Vocabulary") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Configuration",
-				panel = "Control Panel",
-				portlet = "System Settings");
-
-			SystemSettings.gotoConfiguration(
-				configurationCategory = "Segments",
-				configurationName = "Session Property Vocabularies",
-				configurationScope = "System Scope");
-
-			Button.click(button = "Add");
-
-			Segmentation.setVocabularySessionPropertyDropdown(
+			Segmentation.setVocabularySessionProperty(
 				propertyName = "Browser",
 				vocabularyName = "Audience");
 		}
@@ -2664,7 +2682,7 @@ definition {
 		}
 
 		task ("Create Segment with Vocabulary") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
+			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
 			LexiconEntry.gotoAdd();
 
@@ -2687,12 +2705,12 @@ definition {
 		}
 
 		task ("Assert if segment kept category") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
+			Refresh();
 
 			Segmentation.editSegment(entry = "KeepInfomationOfDeleteVocabularyInSegment Test");
 
 			AssertValue(
-				locator1 = "Segmentation#PROPERTY_FIELD",
+				locator1 = "Segmentation#CRITERION_INPUT_ANY",
 				value1 = "Audience Category 1");
 		}
 	}
@@ -2703,10 +2721,6 @@ definition {
 		property portal.acceptance = "true";
 
 		task ("Go to segments editor page") {
-			ProductMenu.gotoPortlet(
-				category = "People",
-				portlet = "Segments");
-
 			LexiconEntry.gotoAdd();
 		}
 
@@ -2733,7 +2747,7 @@ definition {
 		}
 	}
 
-	@description = "Validate if the members are assigned correctly depending on the criteria selected"
+	@description = "LPS-87031: Validate if the members are assigned correctly depending on the criteria selected"
 	@priority = "5"
 	@uitest
 	test SegmentationCheckMembers {
@@ -2756,7 +2770,7 @@ definition {
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
-			Segmentation.fillProperty(propertyField = "test");
+			Segmentation.fillProperty(criterionValue = "test");
 
 			AssertTextEquals(
 				locator1 = "Segmentation#MEMBERS_MATCHED",
@@ -2766,7 +2780,7 @@ definition {
 		task ("Modify the criteria and check the user Belongs To the segment") {
 			Segmentation.viewMembers(memberName = "Test");
 
-			Segmentation.fillProperty(propertyField = "liferay");
+			Segmentation.fillProperty(criterionValue = "liferay");
 
 			AssertTextEquals(
 				locator1 = "Segmentation#MEMBERS_MATCHED",
@@ -2795,19 +2809,19 @@ definition {
 		}
 
 		task ("Add segment with conditions") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
+			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
 			LexiconEntry.gotoAdd();
 
 			Segmentation.addProperties(propertyOption = "Job Title");
 
-			Segmentation.fillProperty(propertyField = "Developer");
+			Segmentation.fillProperty(criterionValue = "Developer");
 
 			Segmentation.addProperties(propertyOption = "First Name");
 
 			Segmentation.fillProperty(
-				indexNumber = "2",
-				propertyField = "Test");
+				criterionValue = "Test",
+				indexNumber = "2");
 
 			Segmentation.fillTitle(titleField = "SegmentationCheckMembersWithConditions Test");
 		}
@@ -2827,7 +2841,7 @@ definition {
 		}
 	}
 
-	@description = "This is a use case for LPS-131815"
+	@description = "This is a use case for LPS-131815: Validate if the segment created with special characters, segment the users"
 	@priority = "5"
 	@uitest
 	test SegmentationCheckSpecialCharacters {
@@ -2850,7 +2864,7 @@ definition {
 
 			Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
-			Segmentation.fillProperty(propertyField = "+ / ? # &");
+			Segmentation.fillProperty(criterionValue = "+ / ? # &");
 
 			AssertTextEquals(
 				locator1 = "Segmentation#MEMBERS_MATCHED",
@@ -2861,6 +2875,44 @@ definition {
 			Button.clickSave();
 
 			Alert.viewSuccessMessage();
+		}
+	}
+
+	@description = "LPS-153509 Bug: Segment name is not localizable but it works as if it were"
+	@priority = "4"
+	@uitest
+	test SegmentAvailableInAnyLocale {
+		var portalURL = PropsUtil.get("portal.url");
+
+		task ("Navigate to Segment Admin using not default language") {
+			Navigator.openSpecificURL(url = "${portalURL}/es/group/test-site-name/~/control_panel/manage/-/segments/entries");
+		}
+
+		task ("Create a Segment") {
+			LexiconEntry.gotoAdd();
+
+			Segmentation.addProperties(propertyOption = "Apellido");
+
+			Segmentation.fillProperty(criterionValue = "Test");
+
+			Segmentation.fillTitle(titleField = "Segmento Espanol");
+
+			Click.mouseDownMouseUp(
+				key_text = "Guardar",
+				locator1 = "Button#ANY");
+
+			Alert.viewSuccessMessage();
+		}
+
+		task ("Navigate to Segment Admin using another language") {
+			Navigator.openSpecificURL(url = "${portalURL}/pt/group/test-site-name/~/control_panel/manage/-/segments/entries");
+		}
+
+		task ("Check that the segment still present") {
+			AssertTextEquals(
+				key_tableEntry = "Segmento Espanol",
+				locator1 = "LexiconTable#TABLE_ENTRY_TITLE_LINK",
+				value1 = "Segmento Espanol");
 		}
 	}
 
@@ -2996,7 +3048,7 @@ definition {
 		task ("Create a segment") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "Screen Name",
-				groupName = "Guest",
+				groupName = "Test Site Name",
 				operator = "contains",
 				segmentName = "Segment With Multiple Conditions",
 				text = "Test");
@@ -3095,7 +3147,7 @@ definition {
 		task ("Create a segment using the property") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "Regular Role",
-				groupName = "Guest",
+				groupName = "Test Site Name",
 				operator = "equals",
 				segmentName = "Validade Role Segment",
 				text = "${roleId}");
@@ -3126,7 +3178,7 @@ definition {
 		task ("Create a segment using the property") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "Site",
-				groupName = "Guest",
+				groupName = "Test Site Name",
 				operator = "equals",
 				segmentName = "Validade Site Segment",
 				text = "${siteId}");
@@ -3148,22 +3200,19 @@ definition {
 	test ValidateTeamFieldInputInViewMode {
 		property portal.acceptance = "true";
 
-		task ("Add team") {
-			Site.openSiteTeamsAdmin(siteURLKey = "guest");
-
-			Team.addCP(
+		task ("Add team using JSONWS") {
+			JSONTeam.addTeam(
+				siteName = "Test Site Name",
 				teamDescription = "Site Team Description",
-				teamName = "Site Team Name");
+				teamName = "Test Site Name");
 		}
 
 		task ("Create segment using the property") {
-			Segmentation.openSegmentsAdmin(siteURLKey = "guest");
-
 			LexiconEntry.gotoAdd();
 
 			Segmentation.addProperties(propertyOption = "Team");
 
-			Segmentation.fillProperty(selectLink = "Site Team Name");
+			Segmentation.fillProperty(selectLink = "Test Site Name");
 
 			Segmentation.fillTitle(titleField = "Validade Team Segment");
 
@@ -3177,7 +3226,7 @@ definition {
 
 			AssertElementPresent(
 				locator1 = "Segmentation#CRITERION_VIEW_MODE",
-				propertyValue = "Site Team Name");
+				propertyValue = "Test Site Name");
 		}
 	}
 
@@ -3193,7 +3242,7 @@ definition {
 		task ("Create a segment using the property") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "User",
-				groupName = "Guest",
+				groupName = "Test Site Name",
 				operator = "equals",
 				segmentName = "Validade User Segment",
 				text = "${userId}");
@@ -3224,7 +3273,7 @@ definition {
 		task ("Create a segment using the property") {
 			JSONSegmentsentry.addSegment(
 				fieldName = "User Group",
-				groupName = "Guest",
+				groupName = "Test Site Name",
 				operator = "equals",
 				segmentName = "Validade User Group Segment",
 				text = "${userGroupId}");
@@ -3241,7 +3290,7 @@ definition {
 		}
 	}
 
-	@description = "This is a use case for LPS-103516."
+	@description = "This is a use case for LPS-103516 Bug: Session fields are not displayed in segments editor"
 	@priority = "3"
 	@uitest
 	test ViewSegmentFieldsType {
@@ -3283,19 +3332,23 @@ definition {
 				configurationName = "Session Property Vocabularies",
 				configurationScope = "System Scope");
 
-			Button.click(button = "Add");
+			Button.clickAdd();
+		}
+
+		task ("Open Vocabulary Name dropdown") {
+			Click(
+				key_fieldName = "Vocabulary Name",
+				locator1 = "FormFields#SELECT_FIELD");
 		}
 
 		task ("Check if Vocabularies Created are being displayed") {
-			Click(locator1 = "Segmentation#SESSION_PROPERTY_SESSION_LINK_VOCABULARY");
+			AssertElementPresent(
+				key_selectOption = "Vocabulary Name 1",
+				locator1 = "FormFields#SELECT_FIELD_OPTIONS_LIST");
 
 			AssertElementPresent(
-				locator1 = "Segmentation#SESSION_PROPERTY_SESSION_LINK_VOCABULARY_OPTION",
-				vocabularyName = "Vocabulary Name 1");
-
-			AssertElementPresent(
-				locator1 = "Segmentation#SESSION_PROPERTY_SESSION_LINK_VOCABULARY_OPTION",
-				vocabularyName = "Vocabulary Name 2");
+				key_selectOption = "Vocabulary Name 2",
+				locator1 = "FormFields#SELECT_FIELD_OPTIONS_LIST");
 		}
 	}
 

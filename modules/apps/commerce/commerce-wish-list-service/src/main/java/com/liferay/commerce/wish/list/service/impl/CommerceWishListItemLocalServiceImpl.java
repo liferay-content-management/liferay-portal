@@ -27,7 +27,6 @@ import com.liferay.commerce.wish.list.model.CommerceWishList;
 import com.liferay.commerce.wish.list.model.CommerceWishListItem;
 import com.liferay.commerce.wish.list.service.base.CommerceWishListItemLocalServiceBaseImpl;
 import com.liferay.commerce.wish.list.service.persistence.CommerceWishListPersistence;
-import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -46,7 +45,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Andrea Di Giorgi
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.wish.list.model.CommerceWishListItem",
 	service = AopService.class
 )
@@ -92,7 +90,7 @@ public class CommerceWishListItemLocalServiceImpl
 
 		_validate(commerceWishList, cProductId, cpInstanceUuid);
 
-		long commerceWishListItemId = _counterLocalService.increment();
+		long commerceWishListItemId = counterLocalService.increment();
 
 		CommerceWishListItem commerceWishListItem =
 			commerceWishListItemPersistence.create(commerceWishListItemId);
@@ -228,9 +226,6 @@ public class CommerceWishListItemLocalServiceImpl
 
 	@Reference
 	private CommerceWishListPersistence _commerceWishListPersistence;
-
-	@Reference
-	private CounterLocalService _counterLocalService;
 
 	@Reference
 	private CPDefinitionLocalService _cpDefinitionLocalService;

@@ -14,27 +14,26 @@
 
 package com.liferay.asset.browser.web.internal.display.context;
 
-import com.liferay.asset.browser.web.internal.configuration.AssetBrowserWebConfigurationValues;
 import com.liferay.asset.browser.web.internal.constants.AssetBrowserPortletKeys;
 import com.liferay.asset.browser.web.internal.search.AddAssetEntryChecker;
 import com.liferay.asset.browser.web.internal.search.AssetBrowserSearch;
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
-import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.util.AssetHelper;
 import com.liferay.depot.model.DepotEntry;
-import com.liferay.depot.service.DepotEntryServiceUtil;
+import com.liferay.depot.service.DepotEntryService;
 import com.liferay.item.selector.constants.ItemSelectorPortletKeys;
 import com.liferay.item.selector.criteria.constants.ItemSelectorCriteriaConstants;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.ConfigurationFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.portlet.PortalPreferences;
-import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.portlet.SearchDisplayStyleUtil;
 import com.liferay.portal.kernel.portlet.SearchOrderByUtil;
@@ -42,14 +41,15 @@ import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Sort;
-import com.liferay.portal.kernel.service.GroupServiceUtil;
+import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -73,18 +73,22 @@ import javax.servlet.http.HttpServletRequest;
 public class AssetBrowserDisplayContext {
 
 	public AssetBrowserDisplayContext(
-		AssetHelper assetHelper, HttpServletRequest httpServletRequest,
+		AssetEntryLocalService assetEntryLocalService, AssetHelper assetHelper,
+		DepotEntryService depotEntryService, GroupService groupService,
+		HttpServletRequest httpServletRequest, Language language, Portal portal,
 		PortletURL portletURL, RenderRequest renderRequest,
 		RenderResponse renderResponse) {
 
+		_assetEntryLocalService = assetEntryLocalService;
 		_assetHelper = assetHelper;
+		_depotEntryService = depotEntryService;
+		_groupService = groupService;
 		_httpServletRequest = httpServletRequest;
+		_language = language;
+		_portal = portal;
 		_portletURL = portletURL;
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
-
-		_portalPreferences = PortletPreferencesFactoryUtil.getPortalPreferences(
-			_httpServletRequest);
 	}
 
 	public AssetBrowserSearch getAssetBrowserSearch()
@@ -100,20 +104,20 @@ public class AssetBrowserDisplayContext {
 		assetBrowserSearch.setOrderByCol(getOrderByCol());
 		assetBrowserSearch.setOrderByType(getOrderByType());
 
-		if (AssetBrowserWebConfigurationValues.SEARCH_WITH_DATABASE) {
+		if (_isSearchWithDatabase()) {
 			long[] subtypeSelectionIds = ArrayUtil.filter(
 				new long[] {getSubtypeSelectionId()},
 				subtypeSelectionId -> subtypeSelectionId >= 0);
 
 			assetBrowserSearch.setResultsAndTotal(
-				() -> AssetEntryLocalServiceUtil.getEntries(
+				() -> _assetEntryLocalService.getEntries(
 					_getFilterGroupIds(), _getClassNameIds(),
 					subtypeSelectionIds, _getKeywords(), _getKeywords(),
 					_getKeywords(), _getKeywords(), _getListable(), false,
 					false, assetBrowserSearch.getStart(),
 					assetBrowserSearch.getEnd(), "modifiedDate",
 					StringPool.BLANK, getOrderByType(), StringPool.BLANK),
-				AssetEntryLocalServiceUtil.getEntriesCount(
+				_assetEntryLocalService.getEntriesCount(
 					_getFilterGroupIds(), _getClassNameIds(),
 					subtypeSelectionIds, _getKeywords(), _getKeywords(),
 					_getKeywords(), _getKeywords(), _getListable(), false,
@@ -153,7 +157,7 @@ public class AssetBrowserDisplayContext {
 				Sort.STRING_TYPE, !orderByAsc);
 		}
 
-		Hits hits = AssetEntryLocalServiceUtil.search(
+		Hits hits = _assetEntryLocalService.search(
 			themeDisplay.getCompanyId(), _getFilterGroupIds(),
 			themeDisplay.getUserId(), _getClassNameIds(),
 			getSubtypeSelectionId(), _getKeywords(), _isShowNonindexable(),
@@ -215,7 +219,7 @@ public class AssetBrowserDisplayContext {
 	}
 
 	public String getGroupCssIcon(long groupId) throws PortalException {
-		Group group = GroupServiceUtil.getGroup(groupId);
+		Group group = _groupService.getGroup(groupId);
 
 		return group.getIconCssClass();
 	}
@@ -237,7 +241,7 @@ public class AssetBrowserDisplayContext {
 	public String getGroupLabel(long groupId, Locale locale)
 		throws PortalException {
 
-		Group group = GroupServiceUtil.getGroup(groupId);
+		Group group = _groupService.getGroup(groupId);
 
 		return group.getDescriptiveName(locale);
 	}
@@ -252,8 +256,7 @@ public class AssetBrowserDisplayContext {
 	public PortletURL getPortletURL() throws PortletException {
 		return PortletURLBuilder.create(
 			PortletURLUtil.clone(
-				_portletURL,
-				PortalUtil.getLiferayPortletResponse(_renderResponse))
+				_portletURL, _portal.getLiferayPortletResponse(_renderResponse))
 		).setParameter(
 			"eventName", getEventName()
 		).setParameter(
@@ -345,7 +348,7 @@ public class AssetBrowserDisplayContext {
 				WebKeys.THEME_DISPLAY);
 
 		try {
-			return PortalUtil.getSharedContentSiteGroupIds(
+			return _portal.getSharedContentSiteGroupIds(
 				themeDisplay.getCompanyId(),
 				ParamUtil.getLong(_httpServletRequest, "selectedGroupId"),
 				themeDisplay.getUserId());
@@ -485,9 +488,7 @@ public class AssetBrowserDisplayContext {
 	}
 
 	protected boolean isSearch() {
-		if (AssetBrowserWebConfigurationValues.SEARCH_WITH_DATABASE ||
-			Validator.isNull(_getKeywords())) {
-
+		if (_isSearchWithDatabase() || Validator.isNull(_getKeywords())) {
 			return false;
 		}
 
@@ -522,9 +523,9 @@ public class AssetBrowserDisplayContext {
 		}
 		else {
 			_filterGroupIds = ArrayUtil.append(
-				PortalUtil.getCurrentAndAncestorSiteGroupIds(getGroupId()),
+				_portal.getCurrentAndAncestorSiteGroupIds(getGroupId()),
 				ListUtil.toLongArray(
-					DepotEntryServiceUtil.getGroupConnectedDepotEntries(
+					_depotEntryService.getGroupConnectedDepotEntries(
 						getGroupId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS),
 					DepotEntry::getGroupId));
 		}
@@ -573,12 +574,12 @@ public class AssetBrowserDisplayContext {
 		BreadcrumbEntry breadcrumbEntry = new BreadcrumbEntry();
 
 		breadcrumbEntry.setTitle(
-			LanguageUtil.get(_httpServletRequest, "sites-and-libraries"));
+			_language.get(_httpServletRequest, "sites-and-libraries"));
 		breadcrumbEntry.setURL(
 			PortletURLBuilder.create(
 				PortletURLUtil.clone(
 					_portletURL,
-					PortalUtil.getLiferayPortletResponse(_renderResponse))
+					_portal.getLiferayPortletResponse(_renderResponse))
 			).setParameter(
 				"groupType", "site"
 			).setParameter(
@@ -602,6 +603,20 @@ public class AssetBrowserDisplayContext {
 		}
 
 		return statuses;
+	}
+
+	private boolean _isSearchWithDatabase() {
+		if (_searchWithDatabase != null) {
+			return _searchWithDatabase;
+		}
+
+		Configuration configuration = ConfigurationFactoryUtil.getConfiguration(
+			AssetBrowserDisplayContext.class.getClassLoader(), "portlet");
+
+		_searchWithDatabase = GetterUtil.getBoolean(
+			configuration.get("search.with.database"));
+
+		return _searchWithDatabase;
 	}
 
 	private boolean _isShowNonindexable() {
@@ -630,24 +645,29 @@ public class AssetBrowserDisplayContext {
 		AssetBrowserDisplayContext.class);
 
 	private AssetBrowserSearch _assetBrowserSearch;
+	private final AssetEntryLocalService _assetEntryLocalService;
 	private final AssetHelper _assetHelper;
 	private AssetRendererFactory<?> _assetRendererFactory;
 	private long[] _classNameIds;
+	private final DepotEntryService _depotEntryService;
 	private String _displayStyle;
 	private String _eventName;
 	private long[] _filterGroupIds;
 	private Long _groupId;
+	private final GroupService _groupService;
 	private final HttpServletRequest _httpServletRequest;
 	private String _keywords;
+	private final Language _language;
 	private Boolean _multipleSelection;
 	private String _orderByCol;
 	private String _orderByType;
-	private final PortalPreferences _portalPreferences;
+	private final Portal _portal;
 	private final PortletURL _portletURL;
 	private Long _refererAssetEntryId;
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private Boolean _searchEverywhere;
+	private Boolean _searchWithDatabase;
 	private Boolean _showAddButton;
 	private Boolean _showNonindexable;
 	private Boolean _showScheduled;

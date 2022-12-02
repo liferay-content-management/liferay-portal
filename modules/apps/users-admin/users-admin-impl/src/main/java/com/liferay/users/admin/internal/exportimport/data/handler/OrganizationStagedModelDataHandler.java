@@ -58,7 +58,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author David Mendez Gonzalez
  */
-@Component(immediate = true, service = StagedModelDataHandler.class)
+@Component(service = StagedModelDataHandler.class)
 public class OrganizationStagedModelDataHandler
 	extends BaseStagedModelDataHandler<Organization> {
 
@@ -183,7 +183,7 @@ public class OrganizationStagedModelDataHandler
 			importedOrganization = _organizationLocalService.addOrganization(
 				userId, parentOrganizationId, organization.getName(),
 				organization.getType(), organization.getRegionId(),
-				organization.getCountryId(), organization.getStatusId(),
+				organization.getCountryId(), organization.getStatusListTypeId(),
 				organization.getComments(), false, serviceContext);
 		}
 		else {
@@ -192,8 +192,8 @@ public class OrganizationStagedModelDataHandler
 				existingOrganization.getOrganizationId(), parentOrganizationId,
 				organization.getName(), organization.getType(),
 				organization.getRegionId(), organization.getCountryId(),
-				organization.getStatusId(), organization.getComments(), true,
-				null, false, serviceContext);
+				organization.getStatusListTypeId(), organization.getComments(),
+				true, null, false, serviceContext);
 		}
 
 		_importAddresses(

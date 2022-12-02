@@ -224,8 +224,8 @@ public class PortletDataRendererImplTest {
 			"AMD requires are correctly rendered",
 			code.contains(
 				StringBundler.concat(
-					"Liferay.Loader.require(\n", "  'frontend-js-web',\n",
-					"  'react',\n", "function(frontendJsWeb, react0) {\n")));
+					"Liferay.Loader.require(\n", "'frontend-js-web',\n",
+					"'react',\n", "function(frontendJsWeb, react0) {\n")));
 
 		Assert.assertTrue(
 			"First JS fragment is correctly rendered",
@@ -248,6 +248,49 @@ public class PortletDataRendererImplTest {
 					"(function() {\n", "const react = react0;\n",
 					"const myOpenDialog2 = openDialog;\n", "content3\n",
 					"})();\n")));
+	}
+
+	@Test
+	public void testScriptTypeIsModuleWhenESMImportsArePresent()
+		throws Exception {
+
+		PortletDataRendererImpl portletDataRendererImpl =
+			new PortletDataRendererImpl();
+
+		PortletData portletData = new PortletData();
+
+		portletData.add(
+			new JSFragment(
+				null, null, "content",
+				Arrays.asList(new ESImport("frontend-js-web", "openDialog"))));
+
+		Writer writer = new CharArrayWriter();
+
+		portletDataRendererImpl.write(Arrays.asList(portletData), writer);
+
+		String code = writer.toString();
+
+		Assert.assertTrue(code.contains("<script type=\"module\">"));
+	}
+
+	@Test
+	public void testScriptTypeIsTextJavascriptWhenESMImportsAreMissing()
+		throws Exception {
+
+		PortletDataRendererImpl portletDataRendererImpl =
+			new PortletDataRendererImpl();
+
+		PortletData portletData = new PortletData();
+
+		portletData.add(new JSFragment(null, null, "content", null));
+
+		Writer writer = new CharArrayWriter();
+
+		portletDataRendererImpl.write(Arrays.asList(portletData), writer);
+
+		String code = writer.toString();
+
+		Assert.assertTrue(code.contains("<script type=\"text/javascript\">"));
 	}
 
 	private void _assertAliases(String code, String... aliases) {

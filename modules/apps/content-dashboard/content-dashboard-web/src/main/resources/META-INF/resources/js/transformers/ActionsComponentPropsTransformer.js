@@ -16,8 +16,11 @@ import {render} from '@liferay/frontend-js-react-web';
 
 import SidebarPanel from '../components/SidebarPanel';
 import SidebarPanelInfoView from '../components/SidebarPanelInfoView/SidebarPanelInfoView';
-import SidebarPanelInfoViewCollapsable from '../components/SidebarPanelInfoView/SidebarPanelInfoViewCollapsable';
 import SidebarPanelMetricsView from '../components/SidebarPanelMetricsView';
+import {
+	DEFAULT_ACTIVE_PANEL_TAB,
+	TABS_STATE_SESSION_KEY,
+} from '../utils/constants';
 import {
 	handlePanelStateFromSession,
 	handleSessionOnSidebarOpen,
@@ -106,12 +109,15 @@ const actions = {
 				rowId,
 				selectedItemRowId,
 			});
+
+			Liferay.Util.Session.set(
+				TABS_STATE_SESSION_KEY,
+				DEFAULT_ACTIVE_PANEL_TAB
+			);
 		}
 
 		showSidebar({
-			View: Liferay.FeatureFlags['LPS-161013']
-				? SidebarPanelInfoView
-				: SidebarPanelInfoViewCollapsable,
+			View: SidebarPanelInfoView,
 			fetchURL,
 			portletNamespace,
 			singlePageApplicationEnabled,

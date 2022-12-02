@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.model.change.tracking.CTModel;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
-import com.liferay.portal.kernel.util.Html;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -59,7 +58,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Samuel Trong Tran
  */
-@Component(immediate = true, service = CTDisplayRendererRegistry.class)
+@Component(service = CTDisplayRendererRegistry.class)
 public class CTDisplayRendererRegistry {
 
 	public <T extends BaseModel<T>> T fetchCTModel(
@@ -460,9 +459,6 @@ public class CTDisplayRendererRegistry {
 
 	private ServiceTrackerMap<Long, CTService<?>> _ctServiceServiceTrackerMap;
 	private CTDisplayRenderer<?> _defaultCTDisplayRenderer;
-
-	@Reference
-	private Html _html;
 
 	@Reference
 	private Language _language;

@@ -15,6 +15,7 @@
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.document.library.kernel.exception.DuplicateDLFolderExternalReferenceCodeException;
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.service.DLFolderLocalServiceUtil;
@@ -242,6 +243,26 @@ public class DLFolderPersistenceTest {
 			Time.getShortTimestamp(newDLFolder.getStatusDate()));
 	}
 
+	@Test(expected = DuplicateDLFolderExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		DLFolder dlFolder = addDLFolder();
+
+		DLFolder newDLFolder = addDLFolder();
+
+		newDLFolder.setGroupId(dlFolder.getGroupId());
+
+		newDLFolder = _persistence.update(newDLFolder);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newDLFolder);
+
+		newDLFolder.setExternalReferenceCode(
+			dlFolder.getExternalReferenceCode());
+
+		_persistence.update(newDLFolder);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -431,12 +452,12 @@ public class DLFolderPersistenceTest {
 	}
 
 	@Test
-	public void testCountByG_ERC() throws Exception {
-		_persistence.countByG_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_G() throws Exception {
+		_persistence.countByERC_G("", RandomTestUtil.nextLong());
 
-		_persistence.countByG_ERC(0L, "null");
+		_persistence.countByERC_G("null", 0L);
 
-		_persistence.countByG_ERC(0L, (String)null);
+		_persistence.countByERC_G((String)null, 0L);
 	}
 
 	@Test
@@ -771,15 +792,15 @@ public class DLFolderPersistenceTest {
 				new Class<?>[] {String.class}, "name"));
 
 		Assert.assertEquals(
-			Long.valueOf(dlFolder.getGroupId()),
-			ReflectionTestUtil.<Long>invoke(
-				dlFolder, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "groupId"));
-		Assert.assertEquals(
 			dlFolder.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				dlFolder, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(dlFolder.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(
+				dlFolder, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
 	}
 
 	protected DLFolder addDLFolder() throws Exception {

@@ -66,27 +66,33 @@ export const searchUtil = {
 	ne: (key: Key, value: Value) => `${key} ne '${value}'`,
 };
 
+export interface SearchBuilderConstructor {
+	useURIEncode?: boolean;
+}
+
 export class SearchBuilder {
-	#query: string = '';
+	private lock: boolean = false;
+	private query: string = '';
+	private useURIEncode?: boolean = true;
 
-	#setContext(query: string) {
-		this.#query += ` ${query}`;
-
-		return this;
+	constructor({useURIEncode}: SearchBuilderConstructor = {}) {
+		this.useURIEncode = useURIEncode;
 	}
 
-	and() {
-		return this.#setContext('and');
+	public and() {
+		return this.setContext('and');
 	}
 
-	build() {
-		const query = this.#query.trim();
+	public build() {
+		const query = this.query.trim();
 
 		if (query.endsWith('or') || query.endsWith('and')) {
 			return query.substring(0, query.length - 3);
 		}
 
-		return query;
+		this.lock = true;
+
+		return this.useURIEncode ? encodeURIComponent(query) : query;
 	}
 
 	static removeEmptyFilter(filter: Filter) {
@@ -125,23 +131,31 @@ export class SearchBuilder {
 		return _filter.join(' and ');
 	}
 
-	contains(key: Key, value: Value) {
-		return this.#setContext(searchUtil.contains(key, value));
+	public contains(key: Key, value: Value) {
+		return this.setContext(searchUtil.contains(key, value));
 	}
 
-	eq(key: Key, value: Value) {
-		return this.#setContext(searchUtil.eq(key, value));
+	public eq(key: Key, value: Value) {
+		return this.setContext(searchUtil.eq(key, value));
 	}
 
-	in(key: Key, values: Value[]) {
-		return this.#setContext(searchUtil.in(key, values));
+	public in(key: Key, values: Value[]) {
+		return this.setContext(searchUtil.in(key, values));
 	}
 
-	ne(key: Key, value: Value) {
-		return this.#setContext(searchUtil.ne(key, value));
+	public ne(key: Key, value: Value) {
+		return this.setContext(searchUtil.ne(key, value));
 	}
 
-	or() {
-		return this.#setContext('or');
+	private setContext(query: string) {
+		if (!this.lock) {
+			this.query += ` ${query}`;
+		}
+
+		return this;
+	}
+
+	public or() {
+		return this.setContext('or');
 	}
 }

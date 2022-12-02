@@ -24,7 +24,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"osgi.command.function=checkSubscriptionEntriesStatus",
 		"osgi.command.scope=commerce"

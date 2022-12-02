@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.search.SortFactoryUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserGroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -203,6 +204,21 @@ public class UserGroupLocalServiceTest {
 	}
 
 	@Test
+	public void testSearchUserGroupsWithUserIds() throws Exception {
+		User user = UserTestUtil.addUser();
+
+		_userGroupLocalService.addUserUserGroup(user.getUserId(), _userGroup1);
+
+		List<UserGroup> userGroups = _search(
+			null,
+			LinkedHashMapBuilder.<String, Object>put(
+				"userIds", () -> new long[] {user.getUserId()}
+			).build());
+
+		Assert.assertEquals(userGroups.toString(), 1, userGroups.size());
+	}
+
+	@Test
 	public void testSearchUserGroupWithDescendingOrder()
 		throws PortalException {
 
@@ -274,5 +290,8 @@ public class UserGroupLocalServiceTest {
 
 	@Inject
 	private UserGroupLocalService _userGroupLocalService;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 }

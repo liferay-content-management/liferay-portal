@@ -1,22 +1,34 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+import {chain as _chain} from 'lodash';
 import * as vscode from 'vscode';
-import { chain as _chain } from 'lodash';
-import { ripgrep, RipgrepMatch, ripgrepMatches } from '../ripgrep';
-import { isCompletionEnabled } from '../configurationProvider';
+
+import {isCompletionEnabled} from '../configurationProvider';
+import {RipgrepMatch, ripgrep, ripgrepMatches} from '../ripgrep';
 
 const classNamePattern = /\b([A-Z][A-Za-z]+)/g;
 const pathNamePattern = /"([A-Z][A-Za-z]+)/g;
 
-function isCompleteProperty(
-	lineText: vscode.TextLine,
-	position: vscode.Position,
-) {
+function isCompleteProperty(lineText: vscode.TextLine) {
 	return lineText.text.trimLeft().startsWith('property');
 }
 
 function getPatternMatch(
 	lineText: vscode.TextLine,
 	position: vscode.Position,
-	pattern: RegExp,
+	pattern: RegExp
 ) {
 	const matches = lineText.text.matchAll(new RegExp(pattern));
 
@@ -39,7 +51,7 @@ function getPatternMatch(
 const getFunctionCompletionItem = (label: string) => {
 	const completionItem = new vscode.CompletionItem(
 		label,
-		vscode.CompletionItemKind.Function,
+		vscode.CompletionItemKind.Function
 	);
 
 	const snippetString = new vscode.SnippetString();
@@ -57,7 +69,7 @@ const getFunctionCompletionItem = (label: string) => {
 const getLocatorCompletionItem = (label: string) => {
 	const completionItem = new vscode.CompletionItem(
 		label,
-		vscode.CompletionItemKind.Field,
+		vscode.CompletionItemKind.Field
 	);
 
 	const snippetString = new vscode.SnippetString();
@@ -72,7 +84,7 @@ const getLocatorCompletionItem = (label: string) => {
 const getPropertyCompletionItem = (label: string) => {
 	const completionItem = new vscode.CompletionItem(
 		label,
-		vscode.CompletionItemKind.Property,
+		vscode.CompletionItemKind.Property
 	);
 
 	const snippetString = new vscode.SnippetString();
@@ -100,7 +112,7 @@ export class CompletionItemProviderImpl
 		document: vscode.TextDocument,
 		position: vscode.Position,
 		_token: vscode.CancellationToken,
-		context: vscode.CompletionContext,
+		context: vscode.CompletionContext
 	): Promise<vscode.CompletionList | undefined> {
 		if (!isCompletionEnabled()) {
 			return;
@@ -118,22 +130,22 @@ export class CompletionItemProviderImpl
 				completionList.items.push(
 					new vscode.CompletionItem(
 						'definition',
-						vscode.CompletionItemKind.Keyword,
-					),
+						vscode.CompletionItemKind.Keyword
+					)
 				);
 			} else if (position.character > 0) {
 				return new vscode.CompletionList(
 					[
 						new vscode.CompletionItem(
 							'property',
-							vscode.CompletionItemKind.Keyword,
+							vscode.CompletionItemKind.Keyword
 						),
 						new vscode.CompletionItem(
 							'setUp',
-							vscode.CompletionItemKind.Keyword,
+							vscode.CompletionItemKind.Keyword
 						),
 					],
-					false,
+					false
 				);
 			}
 		}
@@ -142,18 +154,18 @@ export class CompletionItemProviderImpl
 			const functionOrMacroFileBaseName = getPatternMatch(
 				line,
 				position,
-				classNamePattern,
+				classNamePattern
 			);
 
-			if (!!functionOrMacroFileBaseName) {
+			if (functionOrMacroFileBaseName) {
 				const functionOrMacroNames = await this._getItems(
 					`**/${functionOrMacroFileBaseName}.{function,macro}`,
-					'(?:macro|function) ([_a-zA-Z]+)',
+					'(?:macro|function) ([_a-zA-Z]+)'
 				);
 
 				return new vscode.CompletionList(
 					functionOrMacroNames.map(getFunctionCompletionItem),
-					false,
+					false
 				);
 			}
 		}
@@ -161,32 +173,29 @@ export class CompletionItemProviderImpl
 		if (context.triggerCharacter === '#') {
 			const pathName = getPatternMatch(line, position, pathNamePattern);
 
-			if (!!pathName) {
+			if (pathName) {
 				const locatorNames = await this._getItems(
 					`**/${pathName}.path`,
-					'<td>([A-Z][A-Z_-]+)</td>',
+					'<td>([A-Z][A-Z_-]+)</td>'
 				);
 
 				return new vscode.CompletionList(
 					locatorNames.map(getLocatorCompletionItem),
-					false,
+					false
 				);
 			}
 		}
 
-		if (
-			context.triggerCharacter === ' ' &&
-			isCompleteProperty(line, position)
-		) {
+		if (context.triggerCharacter === ' ' && isCompleteProperty(line)) {
 			const workspaceFolder = vscode.workspace.getWorkspaceFolder(
-				document.uri,
+				document.uri
 			);
 
 			if (workspaceFolder) {
 				const props = await this._getProps(workspaceFolder.uri);
 
 				return new vscode.CompletionList(
-					props.map(getPropertyCompletionItem),
+					props.map(getPropertyCompletionItem)
 				);
 			}
 		}
@@ -194,15 +203,15 @@ export class CompletionItemProviderImpl
 
 	private async _getProps(workspaceUri: vscode.Uri): Promise<string[]> {
 		const lines: string[] = await ripgrep({
-			search: 'test.case.available.property.names=.*?\n\n',
+			args: ['--multiline', '--multiline-dotall'],
 			paths: [
 				vscode.Uri.joinPath(workspaceUri, 'test.properties').fsPath,
 			],
-			args: ['--multiline', '--multiline-dotall'],
+			search: 'test.case.available.property.names=.*?\n\n',
 		});
 
 		const results = [];
-		const pattern = new RegExp(/^\s*([a-z\.]+),\\/);
+		const pattern = new RegExp(/^\s*([a-z.]+),\\/);
 
 		for (const line of lines) {
 			const match = line.match(pattern);
@@ -219,8 +228,8 @@ export class CompletionItemProviderImpl
 		const uris: vscode.Uri[] = await vscode.workspace.findFiles(glob);
 
 		const matches: RipgrepMatch[] = await ripgrepMatches({
-			search: search,
 			paths: uris.map((uri) => uri.fsPath),
+			search,
 		});
 
 		return _chain(matches)

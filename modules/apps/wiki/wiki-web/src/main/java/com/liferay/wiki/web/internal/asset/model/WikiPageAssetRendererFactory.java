@@ -31,7 +31,6 @@ import com.liferay.wiki.engine.WikiEngineRenderer;
 import com.liferay.wiki.exception.NoSuchPageException;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.service.WikiPageLocalService;
-import com.liferay.wiki.service.WikiPageResourceLocalService;
 import com.liferay.wiki.web.internal.security.permission.resource.WikiPagePermission;
 
 import javax.portlet.PortletRequest;
@@ -52,7 +51,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sergio González
  */
 @Component(
-	immediate = true, property = "javax.portlet.name=" + WikiPortletKeys.WIKI,
+	property = "javax.portlet.name=" + WikiPortletKeys.WIKI,
 	service = AssetRendererFactory.class
 )
 public class WikiPageAssetRendererFactory
@@ -173,8 +172,5 @@ public class WikiPageAssetRendererFactory
 
 	@Reference
 	private WikiPageLocalService _wikiPageLocalService;
-
-	@Reference
-	private WikiPageResourceLocalService _wikiPageResourceLocalService;
 
 }

@@ -14,10 +14,15 @@
 
 package com.liferay.saml.admin.rest.internal.graphql.servlet.v1_0;
 
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
 import com.liferay.saml.admin.rest.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.saml.admin.rest.internal.graphql.query.v1_0.Query;
+import com.liferay.saml.admin.rest.internal.resource.v1_0.SamlProviderResourceImpl;
 import com.liferay.saml.admin.rest.resource.v1_0.SamlProviderResource;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -32,7 +37,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Stian Sigvartsen
  * @generated
  */
-@Component(immediate = true, service = ServletData.class)
+@Component(service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
@@ -43,6 +48,10 @@ public class ServletDataImpl implements ServletData {
 
 		Query.setSamlProviderResourceComponentServiceObjects(
 			_samlProviderResourceComponentServiceObjects);
+	}
+
+	public String getApplicationName() {
+		return "Liferay.Saml.Admin.REST";
 	}
 
 	@Override
@@ -59,6 +68,44 @@ public class ServletDataImpl implements ServletData {
 	public Query getQuery() {
 		return new Query();
 	}
+
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(
+		String methodName, boolean mutation) {
+
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get(
+				"mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>>
+		_resourceMethodObjectValuePairs =
+			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+				{
+					put(
+						"mutation#patchSamlProvider",
+						new ObjectValuePair<>(
+							SamlProviderResourceImpl.class,
+							"patchSamlProvider"));
+					put(
+						"mutation#createSamlProvider",
+						new ObjectValuePair<>(
+							SamlProviderResourceImpl.class,
+							"postSamlProvider"));
+					put(
+						"mutation#createSamlProviderBatch",
+						new ObjectValuePair<>(
+							SamlProviderResourceImpl.class,
+							"postSamlProviderBatch"));
+
+					put(
+						"query#samlProvider",
+						new ObjectValuePair<>(
+							SamlProviderResourceImpl.class, "getSamlProvider"));
+				}
+			};
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<SamlProviderResource>

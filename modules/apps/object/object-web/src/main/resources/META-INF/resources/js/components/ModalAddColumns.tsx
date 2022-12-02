@@ -27,6 +27,8 @@ function ModalAddColumns<T extends ModalItem>() {
 	const [
 		{
 			disableRequired,
+			disableRequiredChecked,
+			getLabel,
 			getName,
 			header,
 			items,
@@ -72,7 +74,9 @@ function ModalAddColumns<T extends ModalItem>() {
 				filtered.push({
 					...item,
 					checked:
-						disableRequired && item.required
+						disableRequired &&
+						item.required &&
+						!disableRequiredChecked
 							? true
 							: selectedIds.has(item.id),
 				});
@@ -80,7 +84,14 @@ function ModalAddColumns<T extends ModalItem>() {
 		});
 
 		return filtered;
-	}, [disableRequired, getName, searchTerm, selected, items]);
+	}, [
+		disableRequired,
+		disableRequiredChecked,
+		getName,
+		searchTerm,
+		selected,
+		items,
+	]);
 
 	const toggleFieldCheckbox = (id: unknown, checked: boolean) => {
 		let selectedItems: T[];
@@ -147,8 +158,12 @@ function ModalAddColumns<T extends ModalItem>() {
 					<ClayList.Item flex key={`list-item-${index}`}>
 						<ClayCheckbox
 							checked={!!item.checked}
-							disabled={disableRequired && item.required}
-							label={getName?.(item)}
+							disabled={
+								disableRequired &&
+								item.required &&
+								!disableRequiredChecked
+							}
+							label={getLabel?.(item) ?? getName?.(item)}
 							onChange={() => {
 								toggleFieldCheckbox(item.id, !item.checked);
 							}}
@@ -200,7 +215,9 @@ interface ModalItem {
 
 interface IState<T extends ModalItem> {
 	disableRequired?: boolean;
-	getName?: (label: T) => string;
+	disableRequiredChecked?: boolean;
+	getLabel?: (label: T) => string;
+	getName?: (name: T) => string;
 	header?: string;
 	items: T[];
 	onSave?: (selected: T[]) => void;

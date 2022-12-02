@@ -11,8 +11,18 @@
 
 <tbody>
 <tr>
+	<td>ARTICLE_PREVIEW_VERSION_NUMBER</td>
+	<td>//span[contains(@class,'workflow-version')]/span[contains(@class,'workflow-value')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>KB_TOOLS</td>
 	<td>//div[@class='kb-tools']//span[.='${key_kbTool}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTENT_IMAGE_NAME</td>
+	<td>//img[contains(@src,'${key_contentImageName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -106,6 +116,16 @@
 <!--CHILD_ARTICLES-->
 
 <tr>
+	<td>CHILD_PAGE_CONTENT</td>
+	<td>//p[@class='list-group-subtext']//span[contains(.,'${key_kbChildArticleContent}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHILD_PAGE_HEADER</td>
+	<td>//div[contains(@class,'container-fluid')]//span[contains(.,'Child Articles')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CHILD_PAGE_TITLE</td>
 	<td>//li[@class='list-group-item']//a[contains(.,'${key_kbChildArticleTitle}')]</td>
 	<td></td>
@@ -125,7 +145,7 @@
 </tr>
 <tr>
 	<td>DISPLAY_TITLE</td>
-	<td>//h3[@class='header-title']//span</td>
+	<td>//div[contains(@class,'kb-article-container')]//h1</td>
 	<td></td>
 </tr>
 <tr>
@@ -280,8 +300,13 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PAGE_TREE_ITEM_HIGHLIGHT</td>
+	<td>//li[contains(@class,'treeview-item')]//div[contains(@class,'knowledge-base-navigation-item-active')]//div[normalize-space(text())='${key_itemName}']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PAGE_TREE_ITEM_LINK</td>
-	<td>//li[contains(@class,'treeview-item')]//a[contains(@class,'link-secondary')][normalize-space(text())='${key_itemLinkName}']</td>
+	<td>//li[contains(@class,'treeview-item')]//a[contains(@class,'link-secondary')]//span[normalize-space(text())='${key_itemLinkName}']</td>
 	<td></td>
 </tr>
 <tr>

@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.workflow.metrics.rest.internal.security.permission.LiberalPermissionChecker;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.ReindexStatusResource;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	immediate = true,
 	property = "resource.locator.key=/portal-workflow-metrics/v1.0/ReindexStatus",
 	service = ReindexStatusResource.Factory.class
 )
@@ -140,16 +138,6 @@ public class ReindexStatusResourceFactoryImpl
 		};
 	}
 
-	@Activate
-	protected void activate() {
-		ReindexStatusResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		ReindexStatusResource.FactoryHolder.factory = null;
-	}
-
 	private static Function<InvocationHandler, ReindexStatusResource>
 		_getProxyProviderFunction() {
 
@@ -223,6 +211,7 @@ public class ReindexStatusResourceFactoryImpl
 		reindexStatusResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		reindexStatusResource.setRoleLocalService(_roleLocalService);
+		reindexStatusResource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(reindexStatusResource, arguments);
@@ -272,6 +261,9 @@ public class ReindexStatusResourceFactoryImpl
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

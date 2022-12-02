@@ -15,13 +15,13 @@
 package com.liferay.fragment.internal.renderer;
 
 import com.liferay.fragment.constants.FragmentEntryLinkConstants;
-import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
+import com.liferay.fragment.contributor.FragmentCollectionContributorRegistry;
 import com.liferay.fragment.exception.FragmentEntryContentException;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.fragment.renderer.FragmentRendererContext;
 import com.liferay.fragment.renderer.FragmentRendererController;
-import com.liferay.fragment.renderer.FragmentRendererTracker;
+import com.liferay.fragment.renderer.FragmentRendererRegistry;
 import com.liferay.fragment.renderer.constants.FragmentRendererConstants;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
 import com.liferay.layout.adaptive.media.LayoutAdaptiveMediaProcessor;
@@ -29,7 +29,7 @@ import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
@@ -69,7 +69,7 @@ public class FragmentRendererControllerImpl
 			fragmentRendererContext.getFragmentEntryLink());
 
 		try {
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			JSONObject jsonObject = _jsonFactory.createJSONObject(
 				fragmentRenderer.getConfiguration(fragmentRendererContext));
 
 			return _translateConfigurationFields(
@@ -185,18 +185,18 @@ public class FragmentRendererControllerImpl
 		FragmentRenderer fragmentRenderer = null;
 
 		if (Validator.isNotNull(fragmentEntryLink.getRendererKey())) {
-			fragmentRenderer = _fragmentRendererTracker.getFragmentRenderer(
+			fragmentRenderer = _fragmentRendererRegistry.getFragmentRenderer(
 				fragmentEntryLink.getRendererKey());
 		}
 
 		if ((fragmentRenderer == null) && fragmentEntryLink.isTypeReact()) {
-			fragmentRenderer = _fragmentRendererTracker.getFragmentRenderer(
+			fragmentRenderer = _fragmentRendererRegistry.getFragmentRenderer(
 				FragmentRendererConstants.
 					FRAGMENT_ENTRY_FRAGMENT_RENDERER_KEY_REACT);
 		}
 
 		if (fragmentRenderer == null) {
-			fragmentRenderer = _fragmentRendererTracker.getFragmentRenderer(
+			fragmentRenderer = _fragmentRendererRegistry.getFragmentRenderer(
 				FragmentRendererConstants.FRAGMENT_ENTRY_FRAGMENT_RENDERER_KEY);
 		}
 
@@ -209,7 +209,7 @@ public class FragmentRendererControllerImpl
 		ResourceBundleLoader resourceBundleLoader =
 			new AggregateResourceBundleLoader(
 				ResourceBundleLoaderUtil.getPortalResourceBundleLoader(),
-				_fragmentCollectionContributorTracker.
+				_fragmentCollectionContributorRegistry.
 					getResourceBundleLoader());
 
 		ResourceBundle resourceBundle = resourceBundleLoader.loadResourceBundle(
@@ -223,14 +223,17 @@ public class FragmentRendererControllerImpl
 		FragmentRendererControllerImpl.class);
 
 	@Reference
-	private FragmentCollectionContributorTracker
-		_fragmentCollectionContributorTracker;
+	private FragmentCollectionContributorRegistry
+		_fragmentCollectionContributorRegistry;
 
 	@Reference
 	private FragmentEntryConfigurationParser _fragmentEntryConfigurationParser;
 
 	@Reference
-	private FragmentRendererTracker _fragmentRendererTracker;
+	private FragmentRendererRegistry _fragmentRendererRegistry;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

@@ -18,11 +18,11 @@ import com.liferay.info.item.ClassPKInfoItemIdentifier;
 import com.liferay.info.item.HierarchicalInfoItemReference;
 import com.liferay.info.item.InfoItemReference;
 import com.liferay.layout.display.page.LayoutDisplayPageMultiSelectionProvider;
-import com.liferay.layout.display.page.LayoutDisplayPageMultiSelectionProviderTracker;
+import com.liferay.layout.display.page.LayoutDisplayPageMultiSelectionProviderRegistry;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
@@ -58,7 +58,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Lourdes Fernández Besada
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + SiteNavigationAdminPortletKeys.SITE_NAVIGATION_ADMIN,
 		"mvc.command.name=/navigation_menu/add_multiple_display_page_type_site_navigation_menu_item"
@@ -73,7 +72,7 @@ public class AddMultipleDisplayPageTypeSiteNavigationMenuItemMVCActionCommand
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
 		String siteNavigationMenuItemType = ParamUtil.getString(
 			actionRequest, "siteNavigationMenuItemType");
@@ -93,7 +92,7 @@ public class AddMultipleDisplayPageTypeSiteNavigationMenuItemMVCActionCommand
 				List<InfoItemReference> infoItemReferences = new ArrayList<>();
 				Map<Long, JSONObject> jsonObjects = new HashMap<>();
 
-				JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+				JSONArray jsonArray = _jsonFactory.createJSONArray(
 					ParamUtil.getString(actionRequest, "items"));
 
 				for (int i = 0; i < jsonArray.length(); i++) {
@@ -116,7 +115,7 @@ public class AddMultipleDisplayPageTypeSiteNavigationMenuItemMVCActionCommand
 
 				LayoutDisplayPageMultiSelectionProvider<?>
 					layoutDisplayPageMultiSelectionProvider =
-						_layoutDisplayPageMultiSelectionProviderTracker.
+						_layoutDisplayPageMultiSelectionProviderRegistry.
 							getLayoutDisplayPageMultiSelectionProvider(
 								siteNavigationMenuItemType);
 
@@ -236,11 +235,14 @@ public class AddMultipleDisplayPageTypeSiteNavigationMenuItemMVCActionCommand
 		AddMultipleDisplayPageTypeSiteNavigationMenuItemMVCActionCommand.class);
 
 	@Reference
+	private JSONFactory _jsonFactory;
+
+	@Reference
 	private Language _language;
 
 	@Reference
-	private LayoutDisplayPageMultiSelectionProviderTracker
-		_layoutDisplayPageMultiSelectionProviderTracker;
+	private LayoutDisplayPageMultiSelectionProviderRegistry
+		_layoutDisplayPageMultiSelectionProviderRegistry;
 
 	@Reference
 	private Portal _portal;

@@ -186,6 +186,18 @@ definition {
 		Button.clickDone();
 	}
 
+	macro configureOneSubmissionPerUser {
+		AssertClick(
+			locator1 = "Form#SETTINGS_TAB_SUBMISSIONS",
+			value1 = "Submissions");
+
+		Click.javaScriptClick(
+			checkboxName = "Limit to One Submission per User",
+			locator1 = "Checkbox#ANY_CHECKBOX");
+
+		Button.clickDone();
+	}
+
 	macro configureRedirectURL {
 		AssertClick(
 			locator1 = "Form#SETTINGS_TAB_PERSONALIZATION",
@@ -303,7 +315,7 @@ definition {
 				locator1 = "Form#FIELD_LABEL");
 		}
 
-		Click(locator1 = "Form#SIDEBAR_ELLIPSIS");
+		Click(locator1 = "FormViewBuilder#FIELD_ELLIPSIS");
 
 		AssertClick(
 			locator1 = "Form#SIDEBAR_MENUITEM_DUPLICATE_FIELD",
@@ -636,6 +648,10 @@ definition {
 				locator1 = "Form#SIDEBAR_PROPERTIES_TAB",
 				value1 = "Properties");
 		}
+	}
+
+	macro gotoSubmissionsTab {
+		Click(locator1 = "Form#SETTINGS_TAB_SUBMISSIONS");
 	}
 
 	macro modifyModuleDefinitionTimeout {

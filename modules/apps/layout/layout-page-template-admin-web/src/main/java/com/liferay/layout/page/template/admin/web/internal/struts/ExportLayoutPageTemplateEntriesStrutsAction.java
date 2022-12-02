@@ -16,8 +16,7 @@ package com.liferay.layout.page.template.admin.web.internal.struts;
 
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.service.FragmentCollectionService;
-import com.liferay.fragment.service.FragmentCompositionService;
-import com.liferay.layout.page.template.admin.web.internal.exporter.LayoutPageTemplatesExporter;
+import com.liferay.layout.exporter.LayoutsExporter;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -43,7 +42,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Jürgen Kappler
  */
 @Component(
-	immediate = true,
 	property = "path=/portal/layout_page_template/export_layout_page_template_entries",
 	service = StrutsAction.class
 )
@@ -58,8 +56,7 @@ public class ExportLayoutPageTemplateEntriesStrutsAction
 
 		long groupId = ParamUtil.getLong(httpServletRequest, "groupId");
 
-		File file = _layoutPageTemplatesExporter.exportGroupLayoutPageTemplates(
-			groupId);
+		File file = _layoutsExporter.exportLayoutPageTemplateEntries(groupId);
 
 		ZipWriter zipWriter = _zipWriterFactory.getZipWriter(file);
 
@@ -92,10 +89,7 @@ public class ExportLayoutPageTemplateEntriesStrutsAction
 	private FragmentCollectionService _fragmentCollectionService;
 
 	@Reference
-	private FragmentCompositionService _fragmentCompositionService;
-
-	@Reference
-	private LayoutPageTemplatesExporter _layoutPageTemplatesExporter;
+	private LayoutsExporter _layoutsExporter;
 
 	@Reference
 	private Portal _portal;

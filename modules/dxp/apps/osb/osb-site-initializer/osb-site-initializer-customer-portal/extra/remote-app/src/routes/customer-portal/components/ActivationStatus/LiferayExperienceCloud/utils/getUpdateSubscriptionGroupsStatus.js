@@ -13,22 +13,23 @@ import {actionTypes} from '../../../../context/reducer';
 import {STATUS_TAG_TYPE_NAMES} from '../../../../utils/constants';
 
 export default function getUpdateSubscriptionGroupsStatus(
-	handleStatusLxcActivation,
-	handleFinishUpdate,
-	project,
-	subscriptionGroupLxcEnvironment,
 	dispatch,
+	handleFinishUpdate,
+	handleStatusLxcActivation,
+	project,
+	projectIdValue,
+	subscriptionGroupLxcEnvironment,
 	subscriptionGroups,
 	updateAccountSubscriptionGroup
 ) {
 	updateAccountSubscriptionGroup({
-		context: {
-			displaySuccess: false,
-		},
 		variables: {
 			AccountSubscriptionGroup: {
-				accountKey: project.accountKey,
+				accountKey: project?.accountKey,
 				activationStatus: STATUS_TAG_TYPE_NAMES.active,
+				manageContactsURL: `http://${projectIdValue}.lxc.liferay.com`,
+				r_accountEntryToAccountSubscriptionGroup_accountEntryId:
+					project?.id,
 			},
 			accountSubscriptionGroupId:
 				subscriptionGroupLxcEnvironment?.accountSubscriptionGroupId,

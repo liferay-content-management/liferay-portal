@@ -46,7 +46,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Pei-Jung Lan
  */
-@Component(immediate = true, service = OnDemandAdminTicketGenerator.class)
+@Component(service = OnDemandAdminTicketGenerator.class)
 public class OnDemandAdminTicketGeneratorImpl
 	implements OnDemandAdminTicketGenerator {
 
@@ -66,7 +66,13 @@ public class OnDemandAdminTicketGeneratorImpl
 			User.class.getName(), requestorUserId, null);
 
 		auditMessage.setAdditionalInfo(
-			JSONUtil.put("justification", justification));
+			JSONUtil.put(
+				"justification", justification
+			).put(
+				"requestedCompanyId", company.getCompanyId()
+			).put(
+				"requestedCompanyWebId", company.getWebId()
+			));
 
 		_auditRouter.route(auditMessage);
 

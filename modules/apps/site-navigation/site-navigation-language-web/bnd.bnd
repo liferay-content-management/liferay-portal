@@ -1,5 +1,5 @@
 Bundle-Name: Liferay Site Navigation Language Web
 Bundle-SymbolicName: com.liferay.site.navigation.language.web
-Bundle-Version: 7.0.19
+Bundle-Version: 7.0.23
 Web-ContextPath: /site-navigation-language-web
 -dsannotations-options: inherit

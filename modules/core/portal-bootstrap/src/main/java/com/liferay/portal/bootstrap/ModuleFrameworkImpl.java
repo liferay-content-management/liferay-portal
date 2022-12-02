@@ -845,7 +845,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 	private String _getSystemPackagesExtra(String exportedPackages) {
 		String[] systemPackagesExtra =
-			PropsValues.MODULE_FRAMEWORK_SYSTEM_PACKAGES_EXTRA;
+			ModuleFrameworkPropsValues.MODULE_FRAMEWORK_SYSTEM_PACKAGES_EXTRA;
 
 		StringBundler sb = new StringBundler();
 
@@ -1260,7 +1260,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 		Set<String> names = OSGiBeanProperties.Service.interfaceNames(
 			bean, osgiBeanProperties,
-			PropsValues.MODULE_FRAMEWORK_SERVICES_IGNORED_INTERFACES);
+			ModuleFrameworkPropsValues.
+				MODULE_FRAMEWORK_SERVICES_IGNORED_INTERFACES);
 
 		if (names.isEmpty()) {
 			return null;
@@ -1335,7 +1336,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			});
 
 		for (String staticJarFileName :
-				PropsValues.MODULE_FRAMEWORK_STATIC_JARS) {
+				ModuleFrameworkPropsValues.MODULE_FRAMEWORK_STATIC_JARS) {
 
 			Path staticJarPath = Paths.get(
 				PropsValues.LIFERAY_SHIELDED_CONTAINER_LIB_PORTAL_DIR,
@@ -1776,7 +1777,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 	private static final List<String> _configurationBundleSymbolicNames =
 		Arrays.asList(
-			PropsValues.MODULE_FRAMEWORK_CONFIGURATION_BUNDLE_SYMBOLIC_NAMES);
+			ModuleFrameworkPropsValues.
+				MODULE_FRAMEWORK_CONFIGURATION_BUNDLE_SYMBOLIC_NAMES);
 
 	private BundleListener _bundleListener;
 	private Framework _framework;

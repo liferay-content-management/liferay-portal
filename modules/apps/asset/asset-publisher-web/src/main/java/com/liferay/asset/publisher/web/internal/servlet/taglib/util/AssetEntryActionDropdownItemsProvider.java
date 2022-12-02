@@ -30,9 +30,11 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.RenderLayoutContentThreadLocal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.portlet.PortletURL;
@@ -64,6 +66,10 @@ public class AssetEntryActionDropdownItemsProvider {
 	}
 
 	public List<DropdownItem> getActionDropdownItems() {
+		if (RenderLayoutContentThreadLocal.isRenderLayoutContent()) {
+			return Collections.emptyList();
+		}
+
 		return new DropdownItemList() {
 			{
 				PortletURL editAssetEntryURL = _getEditAssetEntryURL();
@@ -71,8 +77,6 @@ public class AssetEntryActionDropdownItemsProvider {
 				if (editAssetEntryURL != null) {
 					add(
 						dropdownItem -> {
-							dropdownItem.putData(
-								"useDialog", Boolean.FALSE.toString());
 							dropdownItem.setHref(editAssetEntryURL.toString());
 							dropdownItem.setIcon("pencil");
 							dropdownItem.setLabel(
@@ -109,14 +113,16 @@ public class AssetEntryActionDropdownItemsProvider {
 						add(
 							dropdownItem -> {
 								dropdownItem.putData(
-									"destroyOnHide", Boolean.TRUE.toString());
-								dropdownItem.putData("title", title);
+									"action", "assetEntryAction");
 								dropdownItem.putData(
-									"useDialog", Boolean.TRUE.toString());
-								dropdownItem.setHref(
+									"assetEntryActionTitle", title);
+								dropdownItem.putData(
+									"assetEntryActionURL",
 									objectAssetEntryAction.getDialogURL(
 										_httpServletRequest,
 										(AssetRenderer<Object>)_assetRenderer));
+								dropdownItem.putData(
+									"useDialog", Boolean.TRUE.toString());
 								dropdownItem.setIcon(
 									objectAssetEntryAction.getIcon());
 								dropdownItem.setLabel(title);

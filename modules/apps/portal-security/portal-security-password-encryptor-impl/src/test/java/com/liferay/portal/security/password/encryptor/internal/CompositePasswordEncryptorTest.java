@@ -260,7 +260,7 @@ public class CompositePasswordEncryptorTest {
 		String plainPassword = "password";
 
 		String expectedPassword = PasswordEncryptorUtil.encrypt(
-			algorithm, plainPassword, null);
+			algorithm, plainPassword, (String)null);
 
 		testEncrypt(plainPassword, expectedPassword);
 	}

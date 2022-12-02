@@ -43,7 +43,6 @@ import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
-import com.liferay.portal.vulcan.util.TransformUtil;
 import com.liferay.portlet.asset.util.AssetSearcher;
 
 import java.util.HashMap;
@@ -102,8 +101,7 @@ public class ContentElementResourceImpl extends BaseContentElementResourceImpl {
 		assetSearcher.setAssetEntryQuery(assetEntryQuery);
 
 		return Page.of(
-			new HashMap<>(),
-			TransformUtil.transform(facets.values(), FacetUtil::toFacet),
+			new HashMap<>(), transform(facets.values(), FacetUtil::toFacet),
 			transform(
 				_assetHelper.getAssetEntries(
 					assetSearcher.search(searchContext)),

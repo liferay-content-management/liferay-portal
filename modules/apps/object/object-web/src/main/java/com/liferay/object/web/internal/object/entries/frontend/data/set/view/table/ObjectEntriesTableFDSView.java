@@ -163,6 +163,14 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 
 				stringFDSTableSchemaField.setContentRenderer("link");
 			}
+			else if (Objects.equals(
+						businessType,
+						ObjectFieldConstants.
+							BUSINESS_TYPE_MULTISELECT_PICKLIST)) {
+
+				stringFDSTableSchemaField.setContentRenderer(
+					"multiselectPicklistDataRenderer");
+			}
 
 			stringFDSTableSchemaField.setFieldName(fieldName);
 			stringFDSTableSchemaField.setLabel(label);
@@ -201,7 +209,9 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 			fdsTableSchemaField.setContentRenderer(contentRenderer);
 		}
 
-		if (!Objects.equals(dbType, ObjectFieldConstants.DB_TYPE_BLOB) &&
+		if (!Objects.equals(
+				businessType, ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
+			!Objects.equals(dbType, ObjectFieldConstants.DB_TYPE_BLOB) &&
 			sortable) {
 
 			fdsTableSchemaField.setSortable(true);
@@ -214,14 +224,14 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 		FDSTableSchemaBuilder fdsTableSchemaBuilder, String fieldLabel,
 		String fieldName) {
 
-		if (Objects.equals(fieldName, "creator")) {
-			_addFDSTableSchemaField(
-				null, null, null, fdsTableSchemaBuilder, fieldName + ".name",
-				fieldLabel, true, true);
-		}
-		else if (Objects.equals(fieldName, "createDate")) {
+		if (Objects.equals(fieldName, "createDate")) {
 			_addFDSTableSchemaField(
 				null, null, "Date", fdsTableSchemaBuilder, "dateCreated",
+				fieldLabel, true, true);
+		}
+		else if (Objects.equals(fieldName, "creator")) {
+			_addFDSTableSchemaField(
+				null, null, null, fdsTableSchemaBuilder, fieldName + ".name",
 				fieldLabel, true, true);
 		}
 		else if (Objects.equals(fieldName, "externalReferenceCode")) {
@@ -287,7 +297,8 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 			}
 			else {
 				_addFDSTableSchemaField(
-					titleObjectField.getBusinessType(), null,
+					titleObjectField.getBusinessType(),
+					_getContentRenderer(titleObjectField.getName()),
 					titleObjectField.getDBType(), fdsTableSchemaBuilder,
 					_getFieldName(
 						titleObjectField.getBusinessType(),
@@ -300,7 +311,29 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 		}
 	}
 
+	private String _getContentRenderer(String fieldName) {
+		if (Objects.equals(fieldName, "status")) {
+			return "status";
+		}
+
+		return null;
+	}
+
 	private String _getFieldName(String businessType, String fieldName) {
+		if (fieldName.contains(".creator")) {
+			return StringUtil.replaceLast(fieldName, "creator", "creator.name");
+		}
+
+		if (fieldName.contains(".createDate")) {
+			return StringUtil.replaceLast(
+				fieldName, "createDate", "dateCreated");
+		}
+
+		if (fieldName.contains(".modifiedDate")) {
+			return StringUtil.replace(
+				fieldName, "modifiedDate", "dateModified");
+		}
+
 		if (Objects.equals(
 				businessType, ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
 

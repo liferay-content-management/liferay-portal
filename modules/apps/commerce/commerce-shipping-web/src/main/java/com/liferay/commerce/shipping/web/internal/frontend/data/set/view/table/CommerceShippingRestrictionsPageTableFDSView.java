@@ -59,7 +59,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"fds.data.provider.key=" + CommerceShippingFDSNames.SHIPPING_RESTRICTIONS,
 		"frontend.data.set.name=" + CommerceShippingFDSNames.SHIPPING_RESTRICTIONS

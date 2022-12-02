@@ -230,8 +230,8 @@ public class DDMFormInstanceRecordIndexer
 		throws Exception {
 
 		indexWriterHelper.updateDocument(
-			getSearchEngineId(), ddmFormInstanceRecord.getCompanyId(),
-			getDocument(ddmFormInstanceRecord), isCommitImmediately());
+			ddmFormInstanceRecord.getCompanyId(),
+			getDocument(ddmFormInstanceRecord));
 	}
 
 	@Override
@@ -376,7 +376,6 @@ public class DDMFormInstanceRecordIndexer
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}

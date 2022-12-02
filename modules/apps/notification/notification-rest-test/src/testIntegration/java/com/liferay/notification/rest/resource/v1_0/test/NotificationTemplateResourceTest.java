@@ -15,9 +15,11 @@
 package com.liferay.notification.rest.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.notification.constants.NotificationConstants;
+import com.liferay.notification.constants.NotificationRecipientConstants;
 import com.liferay.notification.rest.client.dto.v1_0.NotificationTemplate;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
@@ -65,6 +67,19 @@ public class NotificationTemplateResourceTest
 	@Ignore
 	@Override
 	@Test
+	public void testGraphQLGetNotificationTemplateByExternalReferenceCode()
+		throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLGetNotificationTemplateByExternalReferenceCodeNotFound() {
+	}
+
+	@Ignore
+	@Override
+	@Test
 	public void testGraphQLGetNotificationTemplateNotFound() {
 	}
 
@@ -78,26 +93,25 @@ public class NotificationTemplateResourceTest
 	protected NotificationTemplate randomNotificationTemplate()
 		throws Exception {
 
-		return new NotificationTemplate() {
-			{
-				bcc = StringUtil.toLowerCase(RandomTestUtil.randomString());
-				body = LocalizedMapUtil.getI18nMap(
-					RandomTestUtil.randomLocaleStringMap());
-				cc = StringUtil.toLowerCase(RandomTestUtil.randomString());
-				dateCreated = RandomTestUtil.nextDate();
-				dateModified = RandomTestUtil.nextDate();
-				description = StringUtil.toLowerCase(
-					RandomTestUtil.randomString());
-				from = StringUtil.toLowerCase(RandomTestUtil.randomString());
-				fromName = LocalizedMapUtil.getI18nMap(
-					RandomTestUtil.randomLocaleStringMap());
-				id = RandomTestUtil.randomLong();
-				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
-				objectDefinitionId = 0L;
-				subject = LocalizedMapUtil.getI18nMap(
-					RandomTestUtil.randomLocaleStringMap());
-			}
-		};
+		NotificationTemplate notificationTemplate =
+			super.randomNotificationTemplate();
+
+		notificationTemplate.setBody(
+			LocalizedMapUtil.getI18nMap(
+				RandomTestUtil.randomLocaleStringMap()));
+		notificationTemplate.setObjectDefinitionExternalReferenceCode(
+			StringPool.BLANK);
+		notificationTemplate.setObjectDefinitionId(0L);
+		notificationTemplate.setRecipients(new Object[0]);
+		notificationTemplate.setRecipientType(
+			NotificationRecipientConstants.TYPE_USER);
+		notificationTemplate.setSubject(
+			LocalizedMapUtil.getI18nMap(
+				RandomTestUtil.randomLocaleStringMap()));
+		notificationTemplate.setType(
+			NotificationConstants.TYPE_USER_NOTIFICATION);
+
+		return notificationTemplate;
 	}
 
 	@Override
@@ -111,6 +125,14 @@ public class NotificationTemplateResourceTest
 	@Override
 	protected NotificationTemplate
 			testGetNotificationTemplate_addNotificationTemplate()
+		throws Exception {
+
+		return _addNotificationTemplate(randomNotificationTemplate());
+	}
+
+	@Override
+	protected NotificationTemplate
+			testGetNotificationTemplateByExternalReferenceCode_addNotificationTemplate()
 		throws Exception {
 
 		return _addNotificationTemplate(randomNotificationTemplate());
@@ -152,7 +174,24 @@ public class NotificationTemplateResourceTest
 
 	@Override
 	protected NotificationTemplate
+			testPostNotificationTemplateCopy_addNotificationTemplate(
+				NotificationTemplate notificationTemplate)
+		throws Exception {
+
+		return _addNotificationTemplate(notificationTemplate);
+	}
+
+	@Override
+	protected NotificationTemplate
 			testPutNotificationTemplate_addNotificationTemplate()
+		throws Exception {
+
+		return _addNotificationTemplate(randomNotificationTemplate());
+	}
+
+	@Override
+	protected NotificationTemplate
+			testPutNotificationTemplateByExternalReferenceCode_addNotificationTemplate()
 		throws Exception {
 
 		return _addNotificationTemplate(randomNotificationTemplate());

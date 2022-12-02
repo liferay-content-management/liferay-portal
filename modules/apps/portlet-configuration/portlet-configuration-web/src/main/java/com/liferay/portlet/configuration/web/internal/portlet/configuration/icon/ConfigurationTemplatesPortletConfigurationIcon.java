@@ -46,7 +46,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Eudaldo Alonso
  */
-@Component(immediate = true, service = PortletConfigurationIcon.class)
+@Component(service = PortletConfigurationIcon.class)
 public class ConfigurationTemplatesPortletConfigurationIcon
 	extends BasePortletConfigurationIcon {
 
@@ -162,7 +162,7 @@ public class ConfigurationTemplatesPortletConfigurationIcon
 		Layout layout = themeDisplay.getLayout();
 
 		if (layout.isTypeControlPanel() ||
-			isEmbeddedPersonalApplicationLayout(layout)) {
+			layout.isEmbeddedPersonalApplication()) {
 
 			return false;
 		}

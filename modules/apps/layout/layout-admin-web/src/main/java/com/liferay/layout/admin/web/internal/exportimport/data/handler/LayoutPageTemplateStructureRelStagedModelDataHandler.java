@@ -35,12 +35,11 @@ import com.liferay.layout.util.structure.FormStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.FragmentStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -59,7 +58,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Eduardo García
  */
-@Component(immediate = true, service = StagedModelDataHandler.class)
+@Component(service = StagedModelDataHandler.class)
 public class LayoutPageTemplateStructureRelStagedModelDataHandler
 	extends BaseStagedModelDataHandler<LayoutPageTemplateStructureRel> {
 
@@ -344,7 +343,7 @@ public class LayoutPageTemplateStructureRelStagedModelDataHandler
 			return data;
 		}
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(data);
+		JSONObject jsonObject = _jsonFactory.createJSONObject(data);
 
 		if (!jsonObject.has("items")) {
 			return data;
@@ -405,7 +404,7 @@ public class LayoutPageTemplateStructureRelStagedModelDataHandler
 	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
 
 	@Reference
-	private LayoutLocalService _layoutLocalService;
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private LayoutPageTemplateStructureLocalService

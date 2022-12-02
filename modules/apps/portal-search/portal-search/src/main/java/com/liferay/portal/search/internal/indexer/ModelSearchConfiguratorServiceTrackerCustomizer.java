@@ -77,10 +77,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 /**
  * @author Michael C. Han
  */
-@Component(
-	immediate = true,
-	service = ModelSearchConfiguratorServiceTrackerCustomizer.class
-)
+@Component(service = {})
 public class ModelSearchConfiguratorServiceTrackerCustomizer
 	<T extends BaseModel<?>>
 		implements ServiceTrackerCustomizer
@@ -291,7 +288,7 @@ public class ModelSearchConfiguratorServiceTrackerCustomizer
 				addSearchKeywordsQueryContributorHelper,
 				expandoQueryContributorHelper, indexerRegistry,
 				modelSearchConfigurator.getModelSearchSettings(),
-				new ModelKeywordQueryContributorsHolderImpl(
+				new ModelKeywordQueryContributorsRegistryImpl(
 					modelSearchConfigurator.getKeywordQueryContributors()),
 				modelSearchConfigurator.getSearchContextContributors(),
 				preFilterContributorHelper, _searchContextContributors,

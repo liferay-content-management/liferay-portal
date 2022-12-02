@@ -14,7 +14,7 @@
 
 // AC Version
 
-export const ANALYTICS_CLIENT_VERSION = '1.0.8';
+export const ANALYTICS_CLIENT_VERSION = '1.1.3';
 
 // Application ID
 
@@ -50,18 +50,20 @@ export const QUEUE_PRIORITY_IDENTITY = 10;
 
 // Local Storage keys
 
+export const STORAGE_KEY_CHANNEL_ID = 'ac_client_channel_id';
+
 export const STORAGE_KEY_CONTEXTS = 'ac_client_context';
 
 export const STORAGE_KEY_EVENTS = 'ac_client_batch';
 
 export const STORAGE_KEY_IDENTITY = 'ac_client_identity';
 
-export const STORAGE_KEY_IDENTITY_LAST_UPDATED_DATE =
-	'ac_client_identity_last_updated_date';
-
 export const STORAGE_KEY_MESSAGES = 'ac_message_queue';
 
 export const STORAGE_KEY_MESSAGE_IDENTITY = 'ac_message_queue_identity';
+
+export const STORAGE_KEY_PREV_EMAIL_ADDRESS_HASHED =
+	'ac_client_previous_email_address_hash';
 
 export const STORAGE_KEY_USER_ID = 'ac_client_user_id';
 

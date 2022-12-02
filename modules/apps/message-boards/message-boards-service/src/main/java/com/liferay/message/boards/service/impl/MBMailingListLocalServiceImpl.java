@@ -23,7 +23,6 @@ import com.liferay.message.boards.exception.MailingListOutUserNameException;
 import com.liferay.message.boards.internal.messaging.MailingListRequest;
 import com.liferay.message.boards.model.MBMailingList;
 import com.liferay.message.boards.service.base.MBMailingListLocalServiceBaseImpl;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
@@ -31,14 +30,13 @@ import com.liferay.portal.json.jabsorb.serializer.LiferayJSONDeserializationWhit
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
-import com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
 import com.liferay.portal.kernel.scheduler.StorageType;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
-import com.liferay.portal.kernel.scheduler.TriggerFactoryUtil;
+import com.liferay.portal.kernel.scheduler.TriggerFactory;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
@@ -207,17 +205,10 @@ public class MBMailingListLocalServiceImpl
 
 		// Scheduler
 
+		_unscheduleMailingList(mailingList);
+
 		if (active) {
-			try (SafeCloseable safeCloseable =
-					ProxyModeThreadLocal.setWithSafeCloseable(true)) {
-
-				_unscheduleMailingList(mailingList);
-
-				_scheduleMailingList(mailingList);
-			}
-		}
-		else {
-			_unscheduleMailingList(mailingList);
+			_scheduleMailingList(mailingList);
 		}
 
 		return mailingList;
@@ -255,8 +246,8 @@ public class MBMailingListLocalServiceImpl
 
 		Calendar startDate = CalendarFactoryUtil.getCalendar();
 
-		Trigger trigger = TriggerFactoryUtil.createTrigger(
-			groupName, groupName, startDate.getTime(),
+		Trigger trigger = _triggerFactory.createTrigger(
+			groupName, groupName, startDate.getTime(), null,
 			mailingList.getInReadInterval(), TimeUnit.MINUTE);
 
 		MailingListRequest mailingListRequest = new MailingListRequest();
@@ -281,7 +272,7 @@ public class MBMailingListLocalServiceImpl
 
 		SchedulerEngineHelperUtil.schedule(
 			trigger, StorageType.PERSISTED, null,
-			DestinationNames.MESSAGE_BOARDS_MAILING_LIST, message, 0);
+			DestinationNames.MESSAGE_BOARDS_MAILING_LIST, message);
 	}
 
 	private void _unscheduleMailingList(MBMailingList mailingList)
@@ -331,6 +322,9 @@ public class MBMailingListLocalServiceImpl
 	@Reference
 	private LiferayJSONDeserializationWhitelist
 		_liferayJSONDeserializationWhitelist;
+
+	@Reference
+	private TriggerFactory _triggerFactory;
 
 	private Closeable _unregister;
 

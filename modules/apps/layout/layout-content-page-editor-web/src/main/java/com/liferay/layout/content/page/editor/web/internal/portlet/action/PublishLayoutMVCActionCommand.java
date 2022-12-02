@@ -15,10 +15,13 @@
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
+import com.liferay.layout.content.LayoutContentProvider;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.layout.service.LayoutLocalizationLocalService;
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutRevision;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -34,6 +37,7 @@ import com.liferay.portal.kernel.servlet.MultiSessionMessages;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -43,10 +47,14 @@ import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.sites.kernel.util.Sites;
 
 import java.util.Collections;
+import java.util.Locale;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -55,7 +63,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Pavel Savinov
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + ContentPageEditorPortletKeys.CONTENT_PAGE_EDITOR_PORTLET,
 		"mvc.command.name=/layout_content_page_editor/publish_layout"
@@ -103,7 +110,8 @@ public class PublishLayoutMVCActionCommand
 			actionRequest);
 
 		_publishLayout(
-			draftLayout, layout, serviceContext, themeDisplay.getUserId());
+			actionRequest, actionResponse, draftLayout, layout, serviceContext,
+			themeDisplay.getUserId());
 
 		String portletId = _portal.getPortletId(actionRequest);
 
@@ -121,6 +129,7 @@ public class PublishLayoutMVCActionCommand
 	}
 
 	private void _publishLayout(
+			ActionRequest actionRequest, ActionResponse actionResponse,
 			Layout draftLayout, Layout layout, ServiceContext serviceContext,
 			long userId)
 		throws Exception {
@@ -144,6 +153,9 @@ public class PublishLayoutMVCActionCommand
 			_layoutCopyHelper.copyLayout(draftLayout, layout);
 
 			layout = _layoutLocalService.getLayout(layout.getPlid());
+
+			_updateLayoutContent(
+				actionRequest, actionResponse, layout, serviceContext);
 
 			draftLayout = _layoutLocalService.getLayout(draftLayout.getPlid());
 
@@ -199,6 +211,26 @@ public class PublishLayoutMVCActionCommand
 		}
 	}
 
+	private void _updateLayoutContent(
+		ActionRequest actionRequest, ActionResponse actionResponse,
+		Layout layout, ServiceContext serviceContext) {
+
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
+			actionRequest);
+		HttpServletResponse httpServletResponse =
+			_portal.getHttpServletResponse(actionResponse);
+
+		for (Locale locale :
+				_language.getAvailableLocales(layout.getGroupId())) {
+
+			_layoutLocalizationLocalService.updateLayoutLocalization(
+				_layoutContentProvider.getLayoutContent(
+					httpServletRequest, httpServletResponse, layout, locale),
+				LocaleUtil.toLanguageId(locale), layout.getPlid(),
+				serviceContext);
+		}
+	}
+
 	private void _updateLayoutRevision(
 			Layout layout, ServiceContext serviceContext)
 		throws Exception {
@@ -222,7 +254,16 @@ public class PublishLayoutMVCActionCommand
 	}
 
 	@Reference
+	private Language _language;
+
+	@Reference
+	private LayoutContentProvider _layoutContentProvider;
+
+	@Reference
 	private LayoutCopyHelper _layoutCopyHelper;
+
+	@Reference
+	private LayoutLocalizationLocalService _layoutLocalizationLocalService;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

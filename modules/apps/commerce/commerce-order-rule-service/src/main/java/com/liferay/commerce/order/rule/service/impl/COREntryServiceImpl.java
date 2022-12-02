@@ -34,7 +34,6 @@ import org.osgi.service.component.annotations.Component;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = {
 		"json.web.service.context.name=commerce",
 		"json.web.service.context.path=COREntry"
@@ -83,7 +82,7 @@ public class COREntryServiceImpl extends COREntryServiceBaseImpl {
 
 		COREntry corEntry =
 			corEntryLocalService.fetchCOREntryByExternalReferenceCode(
-				companyId, externalReferenceCode);
+				externalReferenceCode, companyId);
 
 		if (corEntry != null) {
 			_corEntryModelResourcePermission.check(

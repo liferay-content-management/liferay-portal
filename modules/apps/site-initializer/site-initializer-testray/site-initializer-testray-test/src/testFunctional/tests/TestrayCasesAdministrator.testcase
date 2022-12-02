@@ -14,7 +14,7 @@ definition {
 
 			User.firstLoginPG();
 
-			Testray.createTestraySite(siteName = "Testray 2");
+			Testray.addTestraySite();
 
 			Refresh();
 		}
@@ -36,7 +36,7 @@ definition {
 
 			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Manage Teams");
 
-			Testray.addNewTeam(teamName = "Components_1 Team");
+			TestrayManage.createTeam(teamName = "Components_1 Team");
 
 			TestrayManage.closeModalInOptions();
 		}
@@ -64,6 +64,12 @@ definition {
 				numberItems = "20",
 				valuePagination = "150");
 		}
+
+		task ("Go to project and go to tab cases") {
+			Testray.goToProjectPage(projectName = "Projects_1 Project");
+
+			Testray.projectTabNavigator(navTabName = "Cases");
+		}
 	}
 
 	tearDown {
@@ -78,16 +84,19 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-163753 - Verify as an administrator I can add another Cases in the Add Another button"
+	@ignore = "Test Stub"
+	@priority = "3"
+	test AdminCanAddAnotherCase {
+
+		// TODO LPS-163753 AdminCanAddAnotherCase pending implementation
+
+	}
+
 	@description = "This is a test for LPS-156790 - Verify if as an Administrator I am able to add Cases without Subcomponents"
 	@priority = "5"
 	test AdminCanAddCase {
-		task ("Given that the user goes to project page") {
-			Testray.goToProjectPage(projectName = "Projects_1 Project");
-		}
-
-		task ("And given that the user adds a new Case") {
-			Testray.projectTabNavigator(navTabName = "Cases");
-
+		task ("Given that the user add a new Case") {
 			TestrayCases.typeCasesField(
 				caseName = "Cases_1 Case",
 				caseTypeId = "Automated Functional Test",
@@ -98,7 +107,7 @@ definition {
 				steps = "Auto Test Steps");
 		}
 
-		task ("Then the case is displayed with the new infos") {
+		task ("Then the case is created with the new infos") {
 			TestrayCases.verifyCase(
 				caseName = "Cases_1 Case",
 				casePriority = "5",
@@ -106,25 +115,10 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-156933 - Verify if as an Administrator I should not be able to add a duplicate case"
-	@ignore = "Test Stub"
-	@priority = "5"
-	test AdminCanAddDuplicateCase {
-
-		// TODO LPS-156933 AdminCanAddDuplicateCase pending implementation
-
-	}
-
 	@description = "This is a test for LPS-156791 - Verify if as an Administrator I am able to delete Cases without Subcomponents"
 	@priority = "5"
 	test AdminCanDeleteCase {
-		task ("Given that the user goes to project page") {
-			Testray.goToProjectPage(projectName = "Projects_1 Project");
-		}
-
-		task ("When given that the user adds a new Case") {
-			Testray.projectTabNavigator(navTabName = "Cases");
-
+		task ("Given that the user add a new Case") {
 			TestrayCases.typeCasesField(
 				caseName = "Cases_1 Case",
 				caseTypeId = "Automated Functional Test",
@@ -135,7 +129,7 @@ definition {
 				steps = "Auto Test Steps");
 		}
 
-		task ("When the user goes to delete a case") {
+		task ("When the user delete a case") {
 			TestrayContextMenu.clickContextMenuProjects(name = "Cases_1 Case");
 
 			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Delete");
@@ -143,7 +137,7 @@ definition {
 			AssertConfirm(value1 = "Are you sure you want to delete this item?");
 		}
 
-		task ("then the Case should not be displayed anymore") {
+		task ("Then the case should no longer be found") {
 			Testray.assertItemNotPresent(itemName = "Cases_1 Case");
 		}
 	}
@@ -151,13 +145,7 @@ definition {
 	@description = "This is a test for LPS-156793 - Verify if as an Administrator I am able to edit Cases without Subcomponents"
 	@priority = "5"
 	test AdminCanEditCase {
-		task ("Given that the user goes to project page") {
-			Testray.goToProjectPage(projectName = "Projects_1 Project");
-		}
-
-		task ("When given that the user adds a new Case") {
-			Testray.projectTabNavigator(navTabName = "Cases");
-
+		task ("Given that the user add a new Case") {
 			TestrayCases.typeCasesField(
 				caseName = "Cases_1 Case",
 				caseTypeId = "Automated Functional Test",
@@ -188,7 +176,7 @@ definition {
 				steps = "http://test.edit.com");
 		}
 
-		task ("Then the case is displayed with the new infos") {
+		task ("Then the case is edited with the new infos") {
 			TestrayCases.verifyCase(
 				caseName = "Cases_1 Case Edited",
 				casePriority = "4",
@@ -205,21 +193,118 @@ definition {
 
 	}
 
-	@description = "This is a test for LPS-156919 - Verify if as an Administrator, I should be able to link Requirements to a Case"
-	@ignore = "Test Stub"
+	@description = "This is a test for LPS-156919 - Verify if As an Administrator, I should be able to link and unlink Requirements to a Case"
 	@priority = "3"
-	test AdminCanLinkRequirements {
+	test AdminCanLinkAndUnlinkRequirements {
+		task ("Given that the user add a new Case") {
+			TestrayCases.typeCasesField(
+				caseName = "Cases_1 Case",
+				caseTypeId = "Automated Functional Test",
+				componentId = "Components_1 Project 1",
+				description = "Cases_1 Case Description",
+				duration = "60",
+				priority = "5",
+				steps = "Auto Test Steps");
+		}
 
-		// TODO LPS-156919 AdminCanLinkRequirements pending implementation
+		task ("And Add a new Requirement") {
+			Testray.projectTabNavigator(navTabName = "Requirements");
 
+			TestrayRequirements.addRequirement(
+				componentId = "Components_1 Project 1",
+				linkTitle = "ATF_Requirements Link Title",
+				linkURL = "https://www.google.com",
+				requirementDescription = "ATF_Requirements Description",
+				requirementName = "ATF_Requirements Summary");
+		}
+
+		task ("When the user goes to cases and link a requirements") {
+			Testray.projectTabNavigator(navTabName = "Cases");
+
+			Testray.goToProjectPage(projectName = "Cases_1 Case");
+
+			Testray.projectTabNavigator(navTabName = "Requirements");
+
+			TestrayCases.linkCasesRequirement(
+				buttonText = "Select Requirements",
+				linkText = "Link Requirements",
+				requirementName = "ATF_Requirements Summary");
+		}
+
+		task ("Then the requirements should be displayed on Case page") {
+			TestrayCases.verifyLinkCaseRequirement(
+				component = "Components_1 Project 1",
+				summary = "ATF_Requirements Summary",
+				teamName = "Components_1 Team");
+		}
+
+		task ("When the user goes to cases and unlink a requirement") {
+			TestrayCases.linkCasesRequirement(
+				buttonText = "Select Requirements",
+				linkText = "Link Requirements",
+				requirementName = "ATF_Requirements Summary");
+		}
+
+		task ("Then the requirement should not be displayed on Case page") {
+			Testray.assertItemNotPresent(itemName = "ATF_Requirements Summary");
+		}
+	}
+
+	@description = "This is a test for LPS-166791 - Verify that cannot add cases with an estimated duration less than zero"
+	@priority = "4"
+	test AdminCanNotAddCasesWithEstimatedDurationLessThanZero {
+		task ("Given that the user add a new Case") {
+			TestrayCases.typeCasesField(
+				caseName = "Cases_1 Case",
+				caseTypeId = "Automated Functional Test",
+				componentId = "Components_1 Project 1",
+				description = "",
+				duration = "-1",
+				priority = "5",
+				steps = "");
+		}
+
+		task ("Then a warning message is displayed") {
+			Testray.viewErrorMessage(
+				fieldLabel = "Estimated Duration",
+				warningMessage = "estimatedDuration must be greater than or equal to 0");
+		}
+	}
+
+	@description = "This is a test for LPS-156933 - Verify if as an Administrator I should not be able to add a duplicate case"
+	@priority = "5"
+	test AdminCannotAddDuplicatedCase {
+		task ("Given that the user add a new Case duplicate") {
+			TestrayCases.typeCasesField(
+				caseName = "Cases_1 Case",
+				caseTypeId = "Automated Functional Test",
+				componentId = "Components_1 Project 1",
+				description = "Cases_1 Case Description",
+				duration = "60",
+				priority = "5",
+				steps = "Auto Test Steps");
+
+			TestrayCases.typeCasesField(
+				caseName = "Cases_1 Case",
+				caseTypeId = "Automated Functional Test",
+				componentId = "Components_1 Project 1",
+				description = "Cases_1 Case Description",
+				duration = "60",
+				priority = "5",
+				steps = "Auto Test Steps");
+		}
+
+		task ("Then the error message should appear") {
+			Alert.viewErrorMessage(errorMessage = "The Case name already exists");
+		}
 	}
 
 	@description = "This is a test for LPS-156950 - Verify if as an Administrator I should be able to Sort by Errors"
 	@ignore = "Test Stub"
 	@priority = "4"
-	test AdminCanSortErros {
+	test AdminCanSortErrors {
 
-		// TODO LPS-156950 AdminCanSortErros pending implementation
+		// TODO LPS-156950 AdminCanSortErrors pending implementation
 
 	}
 
@@ -241,13 +326,33 @@ definition {
 
 	}
 
-	@description = "This is a test for LPS-156923 - Verify if as an Administrator, I should be able to unlink Requirements to a Case"
-	@ignore = "Test Stub"
+	@description = "This is a test for LPS-164133 - Verify that the user can not create a case if all the required fields are not filled in"
 	@priority = "3"
-	test AdminCanUnlinkRequirements {
+	test AdminCanViewRequiredField {
+		task ("Given that the user add a new Case") {
+			TestrayCases.typeCasesField(
+				caseName = "",
+				caseTypeId = "",
+				componentId = "",
+				description = "Cases_1 Case Description",
+				duration = "60",
+				priority = "5",
+				steps = "Auto Test Steps");
+		}
 
-		// TODO LPS-156923 AdminCanUnlinkRequirements pending implementation
+		task ("Then a warning message is displayed") {
+			Testray.viewErrorMessage(
+				fieldLabel = "Name",
+				warningMessage = "name is a required field");
 
+			Testray.viewErrorMessage(
+				fieldLabel = "Type",
+				warningMessage = "caseTypeId is a required field");
+
+			Testray.viewErrorMessage(
+				fieldLabel = "Main Component",
+				warningMessage = "componentId is a required field");
+		}
 	}
 
 }

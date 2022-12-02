@@ -17,6 +17,8 @@ package com.liferay.portal.util;
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.events.EventsProcessorUtil;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
+import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.exception.NoSuchVirtualHostException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -38,7 +40,6 @@ import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.service.VirtualHostLocalServiceUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -53,6 +54,7 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
@@ -60,6 +62,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author Brian Wing Shun Chan
@@ -112,8 +115,9 @@ public class PortalInstances {
 
 		if (companyId <= 0) {
 			long cookieCompanyId = GetterUtil.getLong(
-				CookieKeys.getCookie(
-					httpServletRequest, CookieKeys.COMPANY_ID, false));
+				CookiesManagerUtil.getCookieValue(
+					CookiesConstants.NAME_COMPANY_ID, httpServletRequest,
+					false));
 
 			if (cookieCompanyId > 0) {
 				try {
@@ -220,6 +224,19 @@ public class PortalInstances {
 	}
 
 	public static long getDefaultCompanyId() {
+		if (_companyIds.isEmpty()) {
+			try {
+				return getDefaultCompanyIdBySQL();
+			}
+			catch (SQLException sqlException) {
+				_log.error(
+					"Unable to get the default company ID by SQL",
+					sqlException);
+
+				throw new RuntimeException(sqlException);
+			}
+		}
+
 		return _companyIds.get(0);
 	}
 
@@ -490,38 +507,7 @@ public class PortalInstances {
 			CompanyThreadLocal.setCompanyId(virtualHost.getCompanyId());
 
 			if (virtualHost.getLayoutSetId() != 0) {
-				LayoutSet layoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
-					virtualHost.getLayoutSetId());
-
-				if (_log.isDebugEnabled()) {
-					_log.debug(
-						StringBundler.concat(
-							"Company ", virtualHost.getCompanyId(),
-							" is associated with layout set ",
-							virtualHost.getLayoutSetId()));
-				}
-
-				httpServletRequest.setAttribute(
-					WebKeys.VIRTUAL_HOST_LAYOUT_SET, layoutSet);
-
-				// Virtual host default locale
-
-				String languageId = virtualHost.getLanguageId();
-
-				if (Validator.isNotNull(languageId) &&
-					LanguageUtil.isAvailableLocale(
-						layoutSet.getGroupId(), languageId)) {
-
-					if (_log.isDebugEnabled()) {
-						_log.debug(
-							StringBundler.concat(
-								"Virtual host ", virtualHost.getHostname(),
-								" has default language ", languageId));
-					}
-
-					httpServletRequest.setAttribute(
-						WebKeys.I18N_LANGUAGE_ID, languageId);
-				}
+				_setAttributes(virtualHost, httpServletRequest);
 			}
 
 			return virtualHost.getCompanyId();
@@ -573,6 +559,64 @@ public class PortalInstances {
 		}
 
 		return false;
+	}
+
+	private static void _setAttributes(
+			VirtualHost virtualHost, HttpServletRequest httpServletRequest)
+		throws PortalException {
+
+		LayoutSet layoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
+			virtualHost.getLayoutSetId());
+
+		if (_log.isDebugEnabled()) {
+			_log.debug(
+				StringBundler.concat(
+					"Company ", virtualHost.getCompanyId(),
+					" is associated with layout set ",
+					virtualHost.getLayoutSetId()));
+		}
+
+		httpServletRequest.setAttribute(
+			WebKeys.VIRTUAL_HOST_LAYOUT_SET, layoutSet);
+
+		HttpSession httpSession = httpServletRequest.getSession(false);
+
+		if (httpSession != null) {
+			Locale locale = (Locale)httpSession.getAttribute(WebKeys.LOCALE);
+
+			if (locale != null) {
+				String languageId = LanguageUtil.getLanguageId(locale);
+
+				if (LanguageUtil.isAvailableLocale(languageId)) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(
+							"Session has updated language " + languageId);
+					}
+
+					httpServletRequest.setAttribute(
+						WebKeys.I18N_LANGUAGE_ID, languageId);
+
+					return;
+				}
+			}
+		}
+
+		String languageId = virtualHost.getLanguageId();
+
+		if (Validator.isNotNull(languageId) &&
+			LanguageUtil.isAvailableLocale(
+				layoutSet.getGroupId(), languageId)) {
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					StringBundler.concat(
+						"Virtual host ", virtualHost.getHostname(),
+						" has default language ", languageId));
+			}
+
+			httpServletRequest.setAttribute(
+				WebKeys.I18N_LANGUAGE_ID, languageId);
+		}
 	}
 
 	private PortalInstances() {

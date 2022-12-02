@@ -28,16 +28,20 @@ exports[`CriteriaRow renders 1`] = `
         </b>
       </span>
       <select
+        aria-label="Test Property: select-property-operator-option"
         class="form-control criterion-input form-control operator-input"
       />
       <input
+        aria-label="Test Property: input-a-value"
         class="criterion-input form-control"
         data-testid="simple-string"
         type="text"
         value="test_val"
       />
       <button
+        aria-label="duplicate-segment-property"
         class="btn-outline-borderless btn-sm mr-1 btn btn-monospaced btn-secondary"
+        title="duplicate-segment-property"
         type="button"
       >
         <svg
@@ -50,7 +54,9 @@ exports[`CriteriaRow renders 1`] = `
         </svg>
       </button>
       <button
+        aria-label="delete-segment-property"
         class="btn-outline-borderless btn-sm btn btn-monospaced btn-secondary"
+        title="delete-segment-property"
         type="button"
       >
         <svg
@@ -95,10 +101,12 @@ exports[`CriteriaRow renders and inform there is an unknown property 1`] = `
         </b>
       </span>
       <select
+        aria-label="unknown_prop: select-property-operator-option"
         class="form-control criterion-input form-control operator-input"
         disabled=""
       />
       <input
+        aria-label="unknown_prop: input-a-value"
         class="criterion-input form-control"
         data-testid="simple-string"
         disabled=""
@@ -109,7 +117,7 @@ exports[`CriteriaRow renders and inform there is an unknown property 1`] = `
         class="btn-outline-danger btn-sm btn"
         type="button"
       >
-        delete
+        delete-segment-property
       </button>
     </div>
   </div>

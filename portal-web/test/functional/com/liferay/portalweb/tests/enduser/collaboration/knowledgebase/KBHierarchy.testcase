@@ -83,23 +83,23 @@ definition {
 
 		KBArticle.gotoKBArticleViaKBDisplayHierarchyNavigationPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 1",
 			kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
+		KBDisplayWidget.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 2");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 2");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 3");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 3");
 
 		KBArticle.gotoKBChildArticleViaKBDisplayHierarchyNavigationPG(
 			kbArticleTitle = "Knowledge Base Article Parent Title 2",
 			kbChildArticleTitle = "Knowledge Base Article Parent Title 2 Child 2");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 2 Child 2",
 			kbArticleTitle = "Knowledge Base Article Parent Title 2 Child 2");
 	}
@@ -243,17 +243,17 @@ definition {
 
 		KBArticle.gotoKBArticleViaKBDisplayHierarchyNavigationPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
+		KBDisplayWidget.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 2");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 2");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 3");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 3");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 4");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 4");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 5");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 5");
 
 		KBArticle.gotoKBChildArticleViaKBDisplayHierarchyNavigationPG(
 			kbArticleTitle = "Knowledge Base Article Parent Title 2",
@@ -277,17 +277,17 @@ definition {
 
 		KBArticle.gotoKBArticleViaKBDisplayHierarchyNavigationPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
+		KBDisplayWidget.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 2");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 2");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 3");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 3");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 4");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 4");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 5");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 5");
 	}
 
 	@priority = "3"
@@ -305,13 +305,17 @@ definition {
 			kbArticleContent = "Test Content",
 			kbArticleTitle = "Article 2 Title");
 
-		KBFolder.addCP(
+		JSONKnowledgeBase.addkBFolder(
+			groupName = "Guest",
 			kbFolderDescription = "KB Folder 1 Description",
 			kbFolderName = "Folder 1");
 
-		KBFolder.addCP(
+		JSONKnowledgeBase.addkBFolder(
+			groupName = "Guest",
 			kbFolderDescription = "KB Folder 2 Description",
 			kbFolderName = "Folder 2");
+
+		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.moveArticleCP(
 			kbArticleCurrentParent = "Home",
@@ -391,31 +395,31 @@ definition {
 
 		Refresh();
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Folder 2 Content 1",
 			kbArticleTitle = "Knowledge Base Article Folder 2 Title 1");
 
-		KBArticle.gotoKBGrandchildArticleViaKBDisplayHierarchyNavigationPG(
+		KBDisplayWidget.gotoKBGrandchildArticleViaKBDisplayHierarchyNavigationPG(
 			kbArticleTitle = "Knowledge Base Article Folder 2 Title 1",
 			kbChildArticleTitle = "Knowledge Base Article Folder 2 Title 1 Child",
 			kbGrandchildArticleTitle = "Knowledge Base Article Folder 2 Title 1 Grandchild");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Folder 2 Content 1 Grandchild",
 			kbArticleTitle = "Knowledge Base Article Folder 2 Title 1 Grandchild");
 
 		KBFolder.gotoViaKBDisplayPG(kbFolderName = "KB Folder 1");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Folder 1 Content 1",
 			kbArticleTitle = "Knowledge Base Article Folder 1 Title 1");
 
-		KBArticle.gotoKBGrandchildArticleViaKBDisplayHierarchyNavigationPG(
+		KBDisplayWidget.gotoKBGrandchildArticleViaKBDisplayHierarchyNavigationPG(
 			kbArticleTitle = "Knowledge Base Article Folder 1 Title 1",
 			kbChildArticleTitle = "Knowledge Base Article Folder 1 Title 1 Child",
 			kbGrandchildArticleTitle = "Knowledge Base Article Folder 1 Title 1 Grandchild");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Folder 1 Content 1 Grandchild",
 			kbArticleTitle = "Knowledge Base Article Folder 1 Title 1 Grandchild");
 	}
@@ -448,69 +452,69 @@ definition {
 
 		Navigator.gotoPage(pageName = "Knowledge Base Display Page");
 
-		KBArticle.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
+		KBDisplayWidget.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
 
 		KBArticle.gotoKBArticleViaKBDisplayHierarchyNavigationPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 1",
 			kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
 		KBArticle.gotoNextArticlePG(kbDisplayNextArticle = "Knowledge Base Article Parent Title 2");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 2",
 			kbArticleTitle = "Knowledge Base Article Parent Title 2");
 
 		KBArticle.gotoNextArticlePG(kbDisplayNextArticle = "Knowledge Base Article Parent Title 3");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 3",
 			kbArticleTitle = "Knowledge Base Article Parent Title 3");
 
 		KBArticle.gotoPreviousArticle(kbDisplayPreviousArticle = "Knowledge Base Article Parent Title 2");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 2",
 			kbArticleTitle = "Knowledge Base Article Parent Title 2");
 
 		KBArticle.gotoPreviousArticle(kbDisplayPreviousArticle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 1",
 			kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
 		Navigator.gotoPage(pageName = "Knowledge Base Display Page");
 
-		KBArticle.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
+		KBDisplayWidget.viewParentArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title");
 
 		KBArticle.gotoKBArticleViaKBDisplayHierarchyNavigationPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 1",
 			kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
 		KBArticle.gotoNextArticlePG(kbDisplayNextArticle = "Knowledge Base Article Parent Title 2");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 2",
 			kbArticleTitle = "Knowledge Base Article Parent Title 2");
 
 		KBArticle.gotoNextArticlePG(kbDisplayNextArticle = "Knowledge Base Article Parent Title 3");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 3",
 			kbArticleTitle = "Knowledge Base Article Parent Title 3");
 
 		KBArticle.gotoPreviousArticle(kbDisplayPreviousArticle = "Knowledge Base Article Parent Title 2");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 2",
 			kbArticleTitle = "Knowledge Base Article Parent Title 2");
 
 		KBArticle.gotoPreviousArticle(kbDisplayPreviousArticle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Parent Content 1",
 			kbArticleTitle = "Knowledge Base Article Parent Title 1");
 	}
@@ -518,19 +522,22 @@ definition {
 	@priority = "3"
 	@refactorneeded
 	test ViewKBArticleWithTheSameTitleAndPriorityInDifferentFolders {
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBFolder.addCP(
+		JSONKnowledgeBase.addkBFolder(
+			groupName = "Guest",
 			kbFolderDescription = "KB Folder Description",
 			kbFolderName = "KB Root Folder");
 
-		KBFolder.gotoCP(kbFolderName = "KB Root Folder");
-
-		KBFolder.addCP(
+		JSONKnowledgeBase.addkBFolder(
+			groupName = "Guest",
 			kbFolderDescription = "KB Folder 1",
-			kbFolderName = "KB Folder 1");
+			kbFolderName = "KB Folder 1",
+			parentFolderName = "KB Root Folder");
 
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
+		JSONKnowledgeBase.addkBFolder(
+			groupName = "Guest",
+			kbFolderDescription = "KB Folder 2",
+			kbFolderName = "KB Folder 2",
+			parentFolderName = "KB Root Folder");
 
 		JSONKnowledgeBase.addkBArticle(
 			folderName = "KB Folder 1",
@@ -545,14 +552,6 @@ definition {
 			kbArticleContent = "Knowledge Base Article Content 2",
 			kbArticleTitle = "Knowledge Base Article Title 2",
 			parentFolderName = "KB Root Folder");
-
-		KBAdmin.openKBAdmin(siteURLKey = "guest");
-
-		KBFolder.gotoCP(kbFolderName = "KB Root Folder");
-
-		KBFolder.addCP(
-			kbFolderDescription = "KB Folder 2",
-			kbFolderName = "KB Folder 2");
 
 		JSONKnowledgeBase.addkBArticle(
 			folderName = "KB Folder 2",
@@ -570,25 +569,25 @@ definition {
 
 		Navigator.gotoPage(pageName = "Knowledge Base Display Page");
 
-		KBArticle.configureKBFolderDisplay(kbFolderName = "KB Root Folder");
+		KBDisplayWidget.configureKBFolderDisplay(kbFolderName = "KB Root Folder");
 
 		Navigator.gotoPage(pageName = "Knowledge Base Display Page");
 
 		KBArticle.gotoKBArticleViaKBDisplayHierarchyNavigationPG(kbArticleTitle = "Knowledge Base Article Title 1");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Content 1",
 			kbArticleTitle = "Knowledge Base Article Title 1");
 
 		KBArticle.gotoKBArticleViaKBDisplayHierarchyNavigationPG(kbArticleTitle = "Knowledge Base Article Title 2");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Content 2",
 			kbArticleTitle = "Knowledge Base Article Title 2");
 
 		KBFolder.gotoViaKBDisplayPG(kbFolderName = "KB Folder 2");
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base Article Content 2",
 			kbArticleTitle = "Knowledge Base Article Title 2");
 	}
@@ -623,7 +622,7 @@ definition {
 
 		KBArticle.gotoKBArticleViaKBDisplayHierarchyNavigationPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
@@ -644,7 +643,7 @@ definition {
 
 		KBArticle.gotoKBArticleViaKBDisplayHierarchyNavigationPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
-		KBArticle.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
+		KBDisplayWidget.viewChildArticleHierarchyViaKBDisplayPG(kbArticleTitle = "Knowledge Base Article Parent Title 1");
 
 		KBArticle.gotoKBChildArticleViaKBDisplayHierarchyNavigationPG(
 			kbArticleTitle = "Knowledge Base Article Parent Title 1",

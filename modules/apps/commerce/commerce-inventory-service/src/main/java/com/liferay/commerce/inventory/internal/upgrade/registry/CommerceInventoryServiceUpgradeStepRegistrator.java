@@ -36,9 +36,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luca Pellizzon
  * @author Alessio Antonio Rendina
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceInventoryServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -65,7 +63,7 @@ public class CommerceInventoryServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"CIAudit", "CIBookedQuantity", "CIReplenishmentItem",
 						"CIWarehouse", "CIWarehouseGroupRel", "CIWarehouseItem"

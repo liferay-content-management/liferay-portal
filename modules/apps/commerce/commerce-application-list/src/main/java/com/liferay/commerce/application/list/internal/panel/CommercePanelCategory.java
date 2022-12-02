@@ -15,7 +15,6 @@
 package com.liferay.commerce.application.list.internal.panel;
 
 import com.liferay.application.list.BasePanelCategory;
-import com.liferay.application.list.PanelAppRegistry;
 import com.liferay.application.list.PanelCategory;
 import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.commerce.application.list.constants.CommercePanelCategoryKeys;
@@ -35,7 +34,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"panel.category.key=" + PanelCategoryKeys.APPLICATIONS_MENU,
 		"panel.category.order:Integer=80"
@@ -69,9 +67,6 @@ public class CommercePanelCategory extends BasePanelCategory {
 
 	@Reference
 	private Language _language;
-
-	@Reference
-	private PanelAppRegistry _panelAppRegistry;
 
 	@Reference
 	private PortalPermission _portalPermission;

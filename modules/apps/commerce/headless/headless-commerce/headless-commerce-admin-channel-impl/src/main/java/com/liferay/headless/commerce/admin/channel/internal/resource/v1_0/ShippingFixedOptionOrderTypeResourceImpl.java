@@ -33,7 +33,6 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Map;
 
@@ -45,7 +44,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/shipping-fixed-option-order-type.properties",
 	scope = ServiceScope.PROTOTYPE,
 	service = ShippingFixedOptionOrderTypeResource.class
@@ -76,7 +74,7 @@ public class ShippingFixedOptionOrderTypeResourceImpl
 		}
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceShippingFixedOptionQualifierService.
 					getCommerceOrderTypeCommerceShippingFixedOptionQualifiers(
 						id, search, pagination.getStartPosition(),

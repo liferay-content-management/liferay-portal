@@ -140,7 +140,7 @@ definition {
 		}
 
 		if (!(isSet(sku))) {
-			var sku = "default";
+			var sku = "${productName}_default";
 		}
 
 		var productSpecifications = "";
@@ -238,6 +238,9 @@ definition {
 						"multipleOrderQuantity": ${multipleOrderQuantity}
 					},
 					"productSpecifications": [${productSpecifications}],
+					"shippingConfiguration": {
+                        "freeShipping": false
+                     },
 					"skus": [
 				    {
 				      "cost": "${cost}",
@@ -265,6 +268,70 @@ definition {
 					  "label_i18n": "Approved"
 					}
 				}'
+			''';
+
+		com.liferay.poshi.runner.util.JSONCurlUtil.post("${curl}");
+
+		if (isSet(price)) {
+			var price = "${price}";
+			var priceListName = "${catalogName} Base Price List";
+
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "${price}",
+				priceListName = "${priceListName}",
+				productSKU = "${sku}");
+		}
+	}
+
+	macro _addCommerceProductImage {
+		var baseURL = PropsUtil.get("portal.url");
+
+		if (!(isSet(catalogName))) {
+			var catalogName = "Master";
+		}
+
+		if (!(isSet(productType))) {
+			var productType = "simple";
+		}
+
+		if (!(isSet(imageTitle))) {
+			var imageTitle = "Simple Image Title API";
+		}
+
+		if (!(isSet(productTitle))) {
+			var productTitle = "Simple Product API";
+		}
+
+		if (!(isSet(productStatus))) {
+			var productStatus = "0";
+		}
+
+		if (!(isSet(src))) {
+			var src = "${baseURL}/documents/d/guest/tree-png";
+		}
+
+		var catalogId = CommerceJSONCatalogsAPI._getCommerceCatalogIdByName(catalogName = "${catalogName}");
+
+		var curl = '''
+			${baseURL}/o/headless-commerce-admin-catalog/v1.0/products \
+			-u test@liferay.com:test \
+			-H 'accept: application/json' \
+  			-H 'Content-Type: application/json' \
+  			-d '{
+      			    "active": true,
+  					"catalogId": "${catalogId}",
+  					"productType": "${productType}",
+  					"images": [
+        				{
+            				"src": "${src}",
+            				"title": {
+                				"en_US": "${imageTitle}"
+            				}
+        				}
+    				],
+					"name": {"en_US": "${productTitle}"},
+  					"productStatus": ${productStatus}
+   				}'
 			''';
 
 		com.liferay.poshi.runner.util.JSONCurlUtil.post("${curl}");
@@ -409,6 +476,26 @@ definition {
 		}
 
 		return "${productImageIds}";
+	}
+
+	macro _getCommerceProductImageURL {
+		Variables.assertDefined(parameterList = "${channelId},${productId}");
+
+		var baseURL = "${baseURL}";
+
+		if (!(isSet(baseURL))) {
+			var baseURL = PropsUtil.get("portal.url");
+		}
+
+		var curl = '''
+			${baseURL}/o/headless-commerce-delivery-catalog/v1.0/channels/${channelId}/products/${productId} \
+			-u test@liferay.com:test \
+			-H 'accept: application/json' \
+		''';
+
+		var productImageURL = JSONCurlUtil.get("${curl}", "$..['urlImage']");
+
+		return "${productImageURL}";
 	}
 
 	macro _getCommerceProductOptionId {
@@ -649,73 +736,162 @@ definition {
 	macro _patchCommerceProductConfiguration {
 		Variables.assertDefined(parameterList = "${productName}");
 
-		var productId = CommerceJSONProductsAPI._getProductId(productName = "${productName}");
 		var baseURL = "${baseURL}";
-
-		if (!(isSet(allowBackOrder))) {
-			var allowBackOrder = "true";
-		}
-
-		if (!(isSet(allowedOrderQuantities))) {
-			var allowedOrderQuantities = "";
-		}
+		var fieldsList = ListUtil.newList();
+		var productId = CommerceJSONProductsAPI._getProductId(productName = "${productName}");
 
 		if (!(isSet(baseURL))) {
 			var baseURL = PropsUtil.get("portal.url");
 		}
 
-		if (!(isSet(displayAvailability))) {
-			var displayAvailability = "false";
+		if (isSet(allowBackOrder)) {
+			var allowBackOrder = '''"allowBackOrder": ${allowBackOrder}''';
+
+			ListUtil.add("${fieldsList}", "${allowBackOrder}");
 		}
 
-		if (!(isSet(displayStockQuantity))) {
-			var displayStockQuantity = "false";
+		if (isSet(allowedOrderQuantities)) {
+			var allowedOrderQuantities = StringUtil.replace("${allowedOrderQuantities}", ",", "-");
+
+			var allowedOrderQuantities = '''"allowedOrderQuantities": [${allowedOrderQuantities}]''';
+
+			ListUtil.add("${fieldsList}", "${allowedOrderQuantities}");
 		}
 
-		if (!(isSet(inventoryEngine))) {
-			var inventoryEngine = "default";
+		if (isSet(displayAvailability)) {
+			var displayAvailability = '''"displayAvailability": ${displayAvailability}''';
+
+			ListUtil.add("${fieldsList}", "${displayAvailability}");
 		}
 
-		if (!(isSet(lowStockAction))) {
-			var lowStockAction = "";
+		if (isSet(displayStockQuantity)) {
+			var displayStockQuantity = '''"displayStockQuantity": ${displayStockQuantity}''';
+
+			ListUtil.add("${fieldsList}", "${displayStockQuantity}");
 		}
 
-		if (!(isSet(maxOrderQuantity))) {
-			var maxOrderQuantity = "10000";
+		if (isSet(inventoryEngine)) {
+			var inventoryEngine = '''"inventoryEngine": "${inventoryEngine}"''';
+
+			ListUtil.add("${fieldsList}", "${inventoryEngine}");
 		}
 
-		if (!(isSet(minOrderQuantity))) {
-			var minOrderQuantity = "1";
+		if (isSet(lowStockAction)) {
+			var lowStockAction = '''"lowStockAction": "${lowStockAction}"''';
+
+			ListUtil.add("${fieldsList}", "${lowStockAction}");
 		}
 
-		if (!(isSet(minStockQuantity))) {
-			var minStockQuantity = "0";
+		if (isSet(maxOrderQuantity)) {
+			var maxOrderQuantity = '''"maxOrderQuantity": ${maxOrderQuantity}''';
+
+			ListUtil.add("${fieldsList}", "${maxOrderQuantity}");
 		}
 
-		if (!(isSet(multipleOrderQuantity))) {
-			var multipleOrderQuantity = "1";
+		if (isSet(minOrderQuantity)) {
+			var minOrderQuantity = '''"minOrderQuantity": ${minOrderQuantity}''';
+
+			ListUtil.add("${fieldsList}", "${minOrderQuantity}");
 		}
+
+		if (isSet(minStockQuantity)) {
+			var minStockQuantity = '''"minStockQuantity": ${minStockQuantity}''';
+
+			ListUtil.add("${fieldsList}", "${minStockQuantity}");
+		}
+
+		if (isSet(multipleOrderQuantity)) {
+			var multipleOrderQuantity = '''"multipleOrderQuantity": ${multipleOrderQuantity}''';
+
+			ListUtil.add("${fieldsList}", "${multipleOrderQuantity}");
+		}
+
+		var fieldsList = ListUtil.toString("${fieldsList}");
+
+		var payload = CommerceUtilities.getPayloadFromFieldsList(fieldsList = "${fieldsList}");
 
 		var curl = '''
 			${baseURL}/o/headless-commerce-admin-catalog/v1.0/products/${productId}/configuration \
 			-u test@liferay.com:test \
 			-H 'accept: application/json' \
   			-H 'Content-Type: application/json' \
-  			-d '{
-					"allowBackOrder": ${allowBackOrder},
-					"allowedOrderQuantities": [${allowedOrderQuantities}],
-					"displayAvailability": ${displayAvailability},
-					"displayStockQuantity": ${displayStockQuantity},
-					"inventoryEngine": "${inventoryEngine}",
-					"lowStockAction": "${lowStockAction}",
-					"maxOrderQuantity": ${maxOrderQuantity},
-					"minOrderQuantity": ${minOrderQuantity},
-					"minStockQuantity": ${minStockQuantity},
-					"multipleOrderQuantity": ${multipleOrderQuantity}
-				}'
+  			-d '{${payload}}'
 			''';
 
 		com.liferay.poshi.runner.util.JSONCurlUtil.patch("${curl}");
+	}
+
+	macro _patchCommerceProductImageUsingERC {
+		Variables.assertDefined(parameterList = "${productERC}");
+
+		var baseURL = PropsUtil.get("portal.url");
+
+		if (!(isSet(cdnEnabled))) {
+			var cdnEnabled = "false";
+		}
+
+		if (!(isSet(imageTitle))) {
+			var imageTitle = "Simple Image Title API";
+		}
+
+		if (!(isSet(cdnURL))) {
+			var cdnURL = "";
+		}
+
+		if (!(isSet(contentType))) {
+			var contentType = "";
+		}
+		else {
+			var contentType = '''"contentType": "${contentType}",''';
+		}
+
+		if (!(isSet(attachment))) {
+			var attachment = "";
+		}
+
+		if (!(isSet(displayDate))) {
+			var displayDate = "";
+		}
+
+		if (!(isSet(neverExpire))) {
+			var neverExpire = "true";
+		}
+
+		if (!(isSet(priority))) {
+			var priority = "0.0";
+		}
+
+		if (!(isSet(externalReferenceCode))) {
+			var externalReferenceCode = "";
+		}
+
+		var curl = '''
+			${baseURL}/o/headless-commerce-admin-catalog/v1.0/products/by-externalReferenceCode/${productERC} \
+			-u test@liferay.com:test \
+			-H 'accept: application/json' \
+  			-H 'Content-Type: application/json' \
+  			-d '{
+      			    "images": [
+    				{
+						"attachment": "${attachment}",
+      					"cdnEnabled": "${cdnEnabled}",
+      					"cdnURL": "${cdnURL}",
+						${contentType} 
+						"displayDate": "${displayDate}",  
+						"externalReferenceCode": "${externalReferenceCode}",
+      					"neverExpire": "${neverExpire}",
+      					"priority": "${priority}",
+						"title": {
+       						"en_US": "${imageTitle}"
+      					}  
+    				}
+  					]
+   				}'
+			''';
+
+		var responseBody = JSONCurlUtil.patch("${curl}");
+
+		return "${responseBody}";
 	}
 
 	macro _updateCommerceProduct {

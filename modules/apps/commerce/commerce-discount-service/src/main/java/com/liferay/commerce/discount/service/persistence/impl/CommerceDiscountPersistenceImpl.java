@@ -14,6 +14,7 @@
 
 package com.liferay.commerce.discount.service.persistence.impl;
 
+import com.liferay.commerce.discount.exception.DuplicateCommerceDiscountExternalReferenceCodeException;
 import com.liferay.commerce.discount.exception.NoSuchDiscountException;
 import com.liferay.commerce.discount.model.CommerceDiscount;
 import com.liferay.commerce.discount.model.CommerceDiscountTable;
@@ -39,7 +40,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -83,7 +83,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Marco Leo
  * @generated
  */
-@Component(service = {CommerceDiscountPersistence.class, BasePersistence.class})
+@Component(service = CommerceDiscountPersistence.class)
 public class CommerceDiscountPersistenceImpl
 	extends BasePersistenceImpl<CommerceDiscount>
 	implements CommerceDiscountPersistence {
@@ -200,7 +200,7 @@ public class CommerceDiscountPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceDiscount>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceDiscount commerceDiscount : list) {
@@ -946,7 +946,7 @@ public class CommerceDiscountPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1172,7 +1172,7 @@ public class CommerceDiscountPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceDiscount>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceDiscount commerceDiscount : list) {
@@ -1966,7 +1966,7 @@ public class CommerceDiscountPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -2197,7 +2197,7 @@ public class CommerceDiscountPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceDiscount>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceDiscount commerceDiscount : list) {
@@ -2895,7 +2895,7 @@ public class CommerceDiscountPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -3088,7 +3088,7 @@ public class CommerceDiscountPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceDiscount>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceDiscount commerceDiscount : list) {
@@ -3885,7 +3885,7 @@ public class CommerceDiscountPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, couponCode};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -4104,7 +4104,7 @@ public class CommerceDiscountPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceDiscount>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceDiscount commerceDiscount : list) {
@@ -4893,7 +4893,7 @@ public class CommerceDiscountPersistenceImpl
 
 		Object[] finderArgs = new Object[] {_getTime(displayDate), status};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -5110,7 +5110,7 @@ public class CommerceDiscountPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceDiscount>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceDiscount commerceDiscount : list) {
@@ -5899,7 +5899,7 @@ public class CommerceDiscountPersistenceImpl
 
 		Object[] finderArgs = new Object[] {_getTime(expirationDate), status};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -6110,7 +6110,8 @@ public class CommerceDiscountPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByC_C_A, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByC_C_A, finderArgs, this);
 		}
 
 		if (result instanceof CommerceDiscount) {
@@ -6247,7 +6248,7 @@ public class CommerceDiscountPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, couponCode, active};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -6434,7 +6435,7 @@ public class CommerceDiscountPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceDiscount>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceDiscount commerceDiscount : list) {
@@ -7311,7 +7312,7 @@ public class CommerceDiscountPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, level, active, status};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(5);
@@ -7473,35 +7474,35 @@ public class CommerceDiscountPersistenceImpl
 	private static final String _FINDER_COLUMN_C_L_A_S_STATUS_2 =
 		"commerceDiscount.status = ?";
 
-	private FinderPath _finderPathFetchByC_ERC;
-	private FinderPath _finderPathCountByC_ERC;
+	private FinderPath _finderPathFetchByERC_C;
+	private FinderPath _finderPathCountByERC_C;
 
 	/**
-	 * Returns the commerce discount where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchDiscountException</code> if it could not be found.
+	 * Returns the commerce discount where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchDiscountException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching commerce discount
 	 * @throws NoSuchDiscountException if a matching commerce discount could not be found
 	 */
 	@Override
-	public CommerceDiscount findByC_ERC(
-			long companyId, String externalReferenceCode)
+	public CommerceDiscount findByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchDiscountException {
 
-		CommerceDiscount commerceDiscount = fetchByC_ERC(
-			companyId, externalReferenceCode);
+		CommerceDiscount commerceDiscount = fetchByERC_C(
+			externalReferenceCode, companyId);
 
 		if (commerceDiscount == null) {
 			StringBundler sb = new StringBundler(6);
 
 			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
 
-			sb.append("companyId=");
-			sb.append(companyId);
-
-			sb.append(", externalReferenceCode=");
+			sb.append("externalReferenceCode=");
 			sb.append(externalReferenceCode);
+
+			sb.append(", companyId=");
+			sb.append(companyId);
 
 			sb.append("}");
 
@@ -7516,52 +7517,53 @@ public class CommerceDiscountPersistenceImpl
 	}
 
 	/**
-	 * Returns the commerce discount where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the commerce discount where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching commerce discount, or <code>null</code> if a matching commerce discount could not be found
 	 */
 	@Override
-	public CommerceDiscount fetchByC_ERC(
-		long companyId, String externalReferenceCode) {
+	public CommerceDiscount fetchByERC_C(
+		String externalReferenceCode, long companyId) {
 
-		return fetchByC_ERC(companyId, externalReferenceCode, true);
+		return fetchByERC_C(externalReferenceCode, companyId, true);
 	}
 
 	/**
-	 * Returns the commerce discount where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the commerce discount where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching commerce discount, or <code>null</code> if a matching commerce discount could not be found
 	 */
 	@Override
-	public CommerceDiscount fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache) {
+	public CommerceDiscount fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache) {
 
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
 		Object[] finderArgs = null;
 
 		if (useFinderCache) {
-			finderArgs = new Object[] {companyId, externalReferenceCode};
+			finderArgs = new Object[] {externalReferenceCode, companyId};
 		}
 
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByC_ERC, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByERC_C, finderArgs, this);
 		}
 
 		if (result instanceof CommerceDiscount) {
 			CommerceDiscount commerceDiscount = (CommerceDiscount)result;
 
-			if ((companyId != commerceDiscount.getCompanyId()) ||
-				!Objects.equals(
+			if (!Objects.equals(
 					externalReferenceCode,
-					commerceDiscount.getExternalReferenceCode())) {
+					commerceDiscount.getExternalReferenceCode()) ||
+				(companyId != commerceDiscount.getCompanyId())) {
 
 				result = null;
 			}
@@ -7572,18 +7574,18 @@ public class CommerceDiscountPersistenceImpl
 
 			sb.append(_SQL_SELECT_COMMERCEDISCOUNT_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_ERC_COMPANYID_2);
-
 			boolean bindExternalReferenceCode = false;
 
 			if (externalReferenceCode.isEmpty()) {
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
 			}
 			else {
 				bindExternalReferenceCode = true;
 
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
 			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
 
 			String sql = sb.toString();
 
@@ -7596,18 +7598,18 @@ public class CommerceDiscountPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(companyId);
-
 				if (bindExternalReferenceCode) {
 					queryPos.add(externalReferenceCode);
 				}
+
+				queryPos.add(companyId);
 
 				List<CommerceDiscount> list = query.list();
 
 				if (list.isEmpty()) {
 					if (useFinderCache) {
 						finderCache.putResult(
-							_finderPathFetchByC_ERC, finderArgs, list);
+							_finderPathFetchByERC_C, finderArgs, list);
 					}
 				}
 				else {
@@ -7635,57 +7637,57 @@ public class CommerceDiscountPersistenceImpl
 	}
 
 	/**
-	 * Removes the commerce discount where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the commerce discount where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the commerce discount that was removed
 	 */
 	@Override
-	public CommerceDiscount removeByC_ERC(
-			long companyId, String externalReferenceCode)
+	public CommerceDiscount removeByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchDiscountException {
 
-		CommerceDiscount commerceDiscount = findByC_ERC(
-			companyId, externalReferenceCode);
+		CommerceDiscount commerceDiscount = findByERC_C(
+			externalReferenceCode, companyId);
 
 		return remove(commerceDiscount);
 	}
 
 	/**
-	 * Returns the number of commerce discounts where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of commerce discounts where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching commerce discounts
 	 */
 	@Override
-	public int countByC_ERC(long companyId, String externalReferenceCode) {
+	public int countByERC_C(String externalReferenceCode, long companyId) {
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
-		FinderPath finderPath = _finderPathCountByC_ERC;
+		FinderPath finderPath = _finderPathCountByERC_C;
 
-		Object[] finderArgs = new Object[] {companyId, externalReferenceCode};
+		Object[] finderArgs = new Object[] {externalReferenceCode, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
 
 			sb.append(_SQL_COUNT_COMMERCEDISCOUNT_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_ERC_COMPANYID_2);
-
 			boolean bindExternalReferenceCode = false;
 
 			if (externalReferenceCode.isEmpty()) {
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
 			}
 			else {
 				bindExternalReferenceCode = true;
 
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
 			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
 
 			String sql = sb.toString();
 
@@ -7698,11 +7700,11 @@ public class CommerceDiscountPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(companyId);
-
 				if (bindExternalReferenceCode) {
 					queryPos.add(externalReferenceCode);
 				}
+
+				queryPos.add(companyId);
 
 				count = (Long)query.uniqueResult();
 
@@ -7719,14 +7721,14 @@ public class CommerceDiscountPersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_C_ERC_COMPANYID_2 =
-		"commerceDiscount.companyId = ? AND ";
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2 =
+		"commerceDiscount.externalReferenceCode = ? AND ";
 
-	private static final String _FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2 =
-		"commerceDiscount.externalReferenceCode = ?";
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3 =
+		"(commerceDiscount.externalReferenceCode IS NULL OR commerceDiscount.externalReferenceCode = '') AND ";
 
-	private static final String _FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3 =
-		"(commerceDiscount.externalReferenceCode IS NULL OR commerceDiscount.externalReferenceCode = '')";
+	private static final String _FINDER_COLUMN_ERC_C_COMPANYID_2 =
+		"commerceDiscount.companyId = ?";
 
 	public CommerceDiscountPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -7765,10 +7767,10 @@ public class CommerceDiscountPersistenceImpl
 			commerceDiscount);
 
 		finderCache.putResult(
-			_finderPathFetchByC_ERC,
+			_finderPathFetchByERC_C,
 			new Object[] {
-				commerceDiscount.getCompanyId(),
-				commerceDiscount.getExternalReferenceCode()
+				commerceDiscount.getExternalReferenceCode(),
+				commerceDiscount.getCompanyId()
 			},
 			commerceDiscount);
 	}
@@ -7857,13 +7859,13 @@ public class CommerceDiscountPersistenceImpl
 			_finderPathFetchByC_C_A, args, commerceDiscountModelImpl);
 
 		args = new Object[] {
-			commerceDiscountModelImpl.getCompanyId(),
-			commerceDiscountModelImpl.getExternalReferenceCode()
+			commerceDiscountModelImpl.getExternalReferenceCode(),
+			commerceDiscountModelImpl.getCompanyId()
 		};
 
-		finderCache.putResult(_finderPathCountByC_ERC, args, Long.valueOf(1));
+		finderCache.putResult(_finderPathCountByERC_C, args, Long.valueOf(1));
 		finderCache.putResult(
-			_finderPathFetchByC_ERC, args, commerceDiscountModelImpl);
+			_finderPathFetchByERC_C, args, commerceDiscountModelImpl);
 	}
 
 	/**
@@ -8007,6 +8009,29 @@ public class CommerceDiscountPersistenceImpl
 		if (Validator.isNull(commerceDiscount.getExternalReferenceCode())) {
 			commerceDiscount.setExternalReferenceCode(
 				commerceDiscount.getUuid());
+		}
+		else {
+			CommerceDiscount ercCommerceDiscount = fetchByERC_C(
+				commerceDiscount.getExternalReferenceCode(),
+				commerceDiscount.getCompanyId());
+
+			if (isNew) {
+				if (ercCommerceDiscount != null) {
+					throw new DuplicateCommerceDiscountExternalReferenceCodeException(
+						"Duplicate commerce discount with external reference code " +
+							commerceDiscount.getExternalReferenceCode());
+				}
+			}
+			else {
+				if ((ercCommerceDiscount != null) &&
+					(commerceDiscount.getCommerceDiscountId() !=
+						ercCommerceDiscount.getCommerceDiscountId())) {
+
+					throw new DuplicateCommerceDiscountExternalReferenceCodeException(
+						"Duplicate commerce discount with external reference code " +
+							commerceDiscount.getExternalReferenceCode());
+				}
+			}
 		}
 
 		ServiceContext serviceContext =
@@ -8203,7 +8228,7 @@ public class CommerceDiscountPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceDiscount>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -8273,7 +8298,7 @@ public class CommerceDiscountPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;
@@ -8489,15 +8514,15 @@ public class CommerceDiscountPersistenceImpl
 			new String[] {"companyId", "levelType", "active_", "status"},
 			false);
 
-		_finderPathFetchByC_ERC = new FinderPath(
-			FINDER_CLASS_NAME_ENTITY, "fetchByC_ERC",
-			new String[] {Long.class.getName(), String.class.getName()},
-			new String[] {"companyId", "externalReferenceCode"}, true);
+		_finderPathFetchByERC_C = new FinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByERC_C",
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"externalReferenceCode", "companyId"}, true);
 
-		_finderPathCountByC_ERC = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_ERC",
-			new String[] {Long.class.getName(), String.class.getName()},
-			new String[] {"companyId", "externalReferenceCode"}, false);
+		_finderPathCountByERC_C = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByERC_C",
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"externalReferenceCode", "companyId"}, false);
 
 		_setCommerceDiscountUtilPersistence(this);
 	}

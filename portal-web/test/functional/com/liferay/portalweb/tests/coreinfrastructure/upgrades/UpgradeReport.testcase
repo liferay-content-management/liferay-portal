@@ -7,40 +7,100 @@ definition {
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property portal.version = "7.4.13";
-	property testray.main.component.name = "Database Upgrade Framework";
+	property skip.start.app.server = "true";
+	property testcase.url = "http://www.example.com";
+	property testray.main.component.name = "Database Upgrade Tool";
 	property upgrade.reports.enabled = "true";
 
-	@description = "LPS-154683: Upgrade Report provides the version of the database"
+	@description = "LPS-158741: Upgrade Report provides the initial, final, and expected portal build number"
 	@priority = "3"
-	test DatabaseVersionLogged {
-		property skip.start.app.server = "true";
-		property test.name.skip.portal.instance = "UpgradeReport#DatabaseVersionProvided";
-		property testcase.url = "http://www.example.com";
+	test BuildNumberLogged {
+		property test.name.skip.portal.instance = "UpgradeReport#BuildNumberLogged";
 
 		task ("Look for the upgrade report") {
 			var liferayHome = PropsUtil.get("liferay.home.dir.name");
 
 			var fileContent = FileUtil.read("${liferayHome}/tools/portal-tools-db-upgrade-client/reports/upgrade_report.info");
-
-			echo("${fileContent}");
 		}
 
-		task ("Read the version is correct in the report") {
-			var databaseVersion = Upgrade.getDatabaseVersion();
+		task ("Read the intial portal build number") {
+			if (!(contains("${fileContent}", "Initial portal build number: 7413"))) {
+				echo("${fileContent}");
 
-			if (contains("${fileContent}", "Final portal build number: ${databaseVersion}")) {
-				fail("Database version is not present in upgrade report.");
+				fail("Inital portal build number is not present in upgrade report.");
+			}
+		}
+
+		task ("Read the final portal build number") {
+			var finalBuildVersion = Upgrade.getBuildNumber();
+
+			if (!(contains("${fileContent}", "Final portal build number: ${finalBuildVersion}"))) {
+				echo("${fileContent}");
+
+				fail("Final portal build number is not present in upgrade report.");
+			}
+		}
+
+		task ("Read the expected portal build number") {
+			var expectedBuildVersion = Upgrade.getBuildNumber();
+
+			if (!(contains("${fileContent}", "Expected portal build number: ${expectedBuildVersion}"))) {
+				echo("${fileContent}");
+
+				fail("Expected portal build number is not present in upgrade report.");
+			}
+		}
+	}
+
+	@description = "LPS-154683: Upgrade Report provides the type and version of the database"
+	@priority = "3"
+	test DatabaseLogged {
+		property database.types = "db2,mariadb,mysql,oracle,postgresql,sqlserver";
+		property test.name.skip.portal.instance = "UpgradeReport#DatabaseLogged";
+
+		task ("Look for the upgrade report") {
+			var liferayHome = PropsUtil.get("liferay.home.dir.name");
+
+			var fileContent = FileUtil.read("${liferayHome}/tools/portal-tools-db-upgrade-client/reports/upgrade_report.info");
+		}
+
+		task ("Read the type and version is correct in the report") {
+			var databaseType = PropsUtil.get("database.type");
+
+			var databaseVersion = PropsUtil.get("database.${databaseType}.version");
+
+			if (!(contains("${fileContent}", "Using ${databaseType} version ${databaseVersion}"))) {
+				echo("${fileContent}");
+
+				fail("Database type and version is not present in upgrade report.");
 			}
 		}
 	}
 
 	@description = "LPS-154683: The Upgrade Report Document Library Store and storage size."
-	@ignore = "Test Stub"
 	@priority = "4"
 	test DocumentLibraryLogged {
+		task ("Look for the upgrade report") {
+			var liferayHome = PropsUtil.get("liferay.home.dir.name");
 
-		// TODO The Upgrade Report should list which Document Library Store is being used and the amount of storage it contains in bytes
+			var fileContent = FileUtil.read("${liferayHome}/tools/portal-tools-db-upgrade-client/reports/upgrade_report.info");
+		}
 
+		task ("Read which Document Library Store is being used") {
+			if (!(contains("${fileContent}", "dl.store.impl=com.liferay.portal.store.file.system.FileSystemStore"))) {
+				echo("${fileContent}");
+
+				fail("Document library store is not present in upgrade report.");
+			}
+		}
+
+		task ("Read the size of document library storage") {
+			if (!(contains("${fileContent}", "The document library storage size is 750.03 KB"))) {
+				echo("${fileContent}");
+
+				fail("Size of document library storage is not present in upgrade report.");
+			}
+		}
 	}
 
 	@description = "LPS-154683: Upgrade Report shows errors"
@@ -49,16 +109,12 @@ definition {
 	@refactorneeded
 	test ErrorsLogged {
 		property portal.version = "6.0.12";
-		property skip.start.app.server = "true";
-		property test.name.skip.portal.instance = "UpgradeReport#ErrorsProvided";
-		property testcase.url = "http://www.example.com";
+		property test.name.skip.portal.instance = "UpgradeReport#ErrorsLogged";
 
 		task ("Look for the upgrade report") {
 			var liferayHome = PropsUtil.get("liferay.home.dir.name");
 
 			var fileContent = FileUtil.read("${liferayHome}/tools/portal-tools-db-upgrade-client/reports/upgrade_report.info");
-
-			echo("${fileContent}");
 		}
 
 		task ("Read the content. No errors expected") {
@@ -69,20 +125,27 @@ definition {
 	}
 
 	@description = "LPS-154683: The Upgrade Report logs the longest running upgrade processes."
-	@ignore = "Test Stub"
 	@priority = "4"
 	test LongestProcessesLogged {
+		task ("Look for the upgrade report") {
+			var liferayHome = PropsUtil.get("liferay.home.dir.name");
 
-		// TODO The Upgrade Report should list the 20 longest running upgrade process in the upgrade report in descending order
+			var fileContent = FileUtil.read("${liferayHome}/tools/portal-tools-db-upgrade-client/reports/upgrade_report.info");
+		}
 
+		task ("Read the processes list message") {
+			if (!(contains("${fileContent}", "Top 20 longest running upgrade processes"))) {
+				echo("${fileContent}");
+
+				fail("List with the 20 longest upgrade processes not found.");
+			}
+		}
 	}
 
 	@description = "LPS-154683: Upgrade Report is created when property is set to true"
 	@priority = "4"
 	test ReportGeneratedWhenEnabled {
-		property skip.start.app.server = "true";
 		property test.name.skip.portal.instance = "UpgradeReport#ReportGeneratedWhenEnabled";
-		property testcase.url = "http://www.example.com";
 
 		task ("Look for the upgrade report") {
 			var liferayHome = PropsUtil.get("liferay.home.dir.name");
@@ -100,9 +163,7 @@ definition {
 	@description = "LPS-154683: Upgrade Report is not created when property is not set to true"
 	@priority = "4"
 	test ReportNotGenerated {
-		property skip.start.app.server = "true";
 		property test.name.skip.portal.instance = "UpgradeReport#ReportNotGenerated";
-		property testcase.url = "http://www.example.com";
 		property upgrade.reports.enabled = "false";
 
 		task ("Look for the upgrade report") {
@@ -128,38 +189,118 @@ definition {
 	}
 
 	@description = "LPS-154683: The Upgrade Report logs the row counts for each table."
-	@ignore = "Test Stub"
 	@priority = "3"
 	test RowCountsLogged {
+		task ("Look for the upgrade report") {
+			var liferayHome = PropsUtil.get("liferay.home.dir.name");
 
-		// TODO The Upgrade Report should list the initial and final row counts for each database table sorted by initial row in descending order
+			var fileContent = FileUtil.read("${liferayHome}/tools/portal-tools-db-upgrade-client/reports/upgrade_report.info");
+		}
 
+		task ("Read the row counts references") {
+			if (!(contains("${fileContent}", "Rows (initial)"))) {
+				echo("${fileContent}");
+
+				fail("Initial rows numbers column not present in upgrade report.");
+			}
+
+			if (!(contains("${fileContent}", "Rows (final)"))) {
+				echo("${fileContent}");
+
+				fail("Final rows numbers column not present in upgrade report.");
+			}
+		}
 	}
 
-	@description = "LPS-154683: The Upgrade Report logs portal and schema versions."
-	@ignore = "Test Stub"
+	@description = "LPS-158741: The Upgrade Report should list the initial, expected, and final schema versions."
 	@priority = "4"
 	test SchemaVersionsLogged {
+		property test.name.skip.portal.instance = "UpgradeReport#SchemaVersionsLogged";
 
-		// TODO The Upgrade Report should list the initial, expected, and final portal versions and schema versions
+		task ("Look for the upgrade report") {
+			var liferayHome = PropsUtil.get("liferay.home.dir.name");
 
+			var fileContent = FileUtil.read("${liferayHome}/tools/portal-tools-db-upgrade-client/reports/upgrade_report.info");
+		}
+
+		task ("Read the intial schema version") {
+			if (!(contains("${fileContent}", "Initial portal schema version: 13.1.1"))) {
+				echo("${fileContent}");
+
+				fail("Inital schema version is not present in upgrade report.");
+			}
+		}
+
+		task ("Read the final schema version") {
+			var finalSchemaVersion = Upgrade.getSchemaVersion();
+
+			if (!(contains("${fileContent}", "Final portal schema version: ${finalSchemaVersion}"))) {
+				echo("${fileContent}");
+
+				fail("Final schema version is not present in upgrade report.");
+			}
+		}
+
+		task ("Read the expected schema version") {
+			var expectedSchemaVersion = Upgrade.getSchemaVersion();
+
+			if (!(contains("${fileContent}", "Expected portal schema version: ${expectedSchemaVersion}"))) {
+				echo("${fileContent}");
+
+				fail("Expected schema version is not present in upgrade report.");
+			}
+		}
 	}
 
 	@description = "LPS-154683: The Upgrade Report logs total upgrade runtime."
-	@ignore = "Test Stub"
+	@ignore = "true"
 	@priority = "4"
 	test TotalRuntimeLogged {
+		property test.name.skip.portal.instance = "UpgradeReport#TotalRuntimeLogged";
 
-		// TODO The Upgrade Report should give the total runtime of the upgrade
+		task ("Look for the upgrade logs") {
+			var liferayHome = PropsUtil.get("liferay.home.dir.name");
 
+			var fileContentLog = FileUtil.read("${liferayHome}/tools/portal-tools-db-upgrade-client/logs/upgrade.log");
+		}
+
+		task ("Look for the upgrade report") {
+			var fileContentReport = FileUtil.read("${liferayHome}/tools/portal-tools-db-upgrade-client/reports/upgrade_report.info");
+		}
+
+		task ("Capture the upgrade runtime in upgrade logs") {
+			var upgradeRunTimeLog = RegexUtil.replace("${fileContentLog}", "Completed Liferay core upgrade process i\"?n \"?(.*[0-9])", "1");
+
+			echo("Upgrade runtime reported by upgrade.log is ${upgradeRunTimeLog}");
+		}
+
+		task ("Capture the upgrade runtime in upgrade Report") {
+			var upgradeRunTimeReport = RegexUtil.replace("${fileContentReport}", "Upgrade completed i\"?n \"?(.*[0-9])", "1");
+
+			echo("Upgrade runtime reported by upgrade_report.info is ${upgradeRunTimeReport}");
+		}
+
+		task ("Read the total runtime to see if it's present") {
+			if (!(contains("${fileContentReport}", "Upgrade completed in ${upgradeRunTimeReport}"))) {
+				echo("${fileContentReport}");
+
+				fail("Total runtime is not present in upgrade report.");
+			}
+		}
+
+		task ("Read the total runtime comparing with the one got in the logs") {
+			if (!(contains("${fileContentReport}", "Upgrade completed in ${upgradeRunTimeLog}"))) {
+				echo("${fileContentReport}");
+
+				fail("Total runtime in upgrade report does not match the runtime in upgrade.log file.");
+			}
+		}
 	}
 
 	@description = "LPS-154683: Upgrade Report shows warnings"
 	@priority = "3"
 	test WarningsLogged {
-		property skip.start.app.server = "true";
-		property test.name.skip.portal.instance = "UpgradeReport#WarningsProvided";
-		property testcase.url = "http://www.example.com";
+		property test.name.skip.portal.instance = "UpgradeReport#WarningsLogged";
 
 		task ("Look for the upgrade report") {
 			var liferayHome = PropsUtil.get("liferay.home.dir.name");
@@ -169,7 +310,23 @@ definition {
 
 		task ("Read the content. Warnings expected") {
 			if (!(contains("${fileContent}", "Warnings thrown during upgrade process"))) {
+				echo("${fileContent}");
+
 				fail("Upgrade report does not contain expected warnings.");
+			}
+		}
+
+		task ("Read the content. Check for class name and message") {
+			if (!(contains("${fileContent}", "Class name:"))) {
+				echo("${fileContent}");
+
+				fail("Upgrade report does not contain the warning class name.");
+			}
+
+			if (!(contains("${fileContent}", "occurrences of the following warnings: "))) {
+				echo("${fileContent}");
+
+				fail("Upgrade report does not contain the warning message.");
 			}
 		}
 	}

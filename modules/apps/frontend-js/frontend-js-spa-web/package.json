@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"frontend-js-web": "*"
 	},
 	"main": "init.js",
 	"name": "frontend-js-spa-web",
@@ -9,5 +10,5 @@
 		"format": "liferay-npm-scripts fix",
 		"test": "liferay-npm-scripts test"
 	},
-	"version": "5.0.33"
+	"version": "5.0.35"
 }

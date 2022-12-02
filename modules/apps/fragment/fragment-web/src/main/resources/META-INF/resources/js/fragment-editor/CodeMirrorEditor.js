@@ -56,8 +56,9 @@ import 'codemirror/mode/javascript/javascript';
 
 import 'codemirror/mode/xml/xml';
 import ClayIcon from '@clayui/icon';
+import {CodeMirrorKeyboardMessage} from '@liferay/layout-content-page-editor-web';
 import CodeMirror from 'codemirror';
-import React, {useEffect, useMemo, useRef} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 
 const AUTOCOMPLETE_EXCLUDED_KEYS = new Set([
 	' ',
@@ -245,6 +246,8 @@ const CodeMirrorEditor = ({
 }) => {
 	const editorRef = useRef();
 	const ref = useRef();
+	const [isEnabled, setIsEnabled] = useState(true);
+	const [isFocused, setIsFocused] = useState(false);
 
 	const customEntitiesSymbolsRegex = useMemo(() => {
 		if (!customEntities) {
@@ -263,10 +266,29 @@ const CodeMirrorEditor = ({
 
 	useEffect(() => {
 		if (ref.current) {
+			const hasEnabledTabKey = ({state: {keyMaps}}) =>
+				keyMaps.every((key) => key.name !== 'tabKey');
+
 			const codeMirror = CodeMirror(ref.current, {
 				autoCloseTags: true,
 				autoRefresh: true,
 				extraKeys: {
+					'Ctrl-M'(cm) {
+						const tabKeyIsEnabled = hasEnabledTabKey(cm);
+
+						setIsEnabled(tabKeyIsEnabled);
+
+						if (tabKeyIsEnabled) {
+							cm.addKeyMap({
+								'Shift-Tab': false,
+								'Tab': false,
+								'name': 'tabKey',
+							});
+						}
+						else {
+							cm.removeKeyMap('tabKey');
+						}
+					},
 					'Ctrl-Space': readOnly ? '' : 'autocomplete',
 				},
 				foldGutter: true,
@@ -304,6 +326,20 @@ const CodeMirrorEditor = ({
 					codeMirror.showHint();
 				}
 			});
+
+			codeMirror.on('focus', (cm) => {
+				setIsFocused(true);
+
+				if (hasEnabledTabKey(cm)) {
+					cm.addKeyMap({
+						'Shift-Tab': false,
+						'Tab': false,
+						'name': 'tabKey',
+					});
+				}
+			});
+
+			codeMirror.on('blur', () => setIsFocused(false));
 
 			editorRef.current = codeMirror;
 		}
@@ -358,7 +394,23 @@ const CodeMirrorEditor = ({
 				/>
 			)}
 
-			<div className="codemirror-editor-wrapper" ref={ref}></div>
+			<div className="d-flex flex-column flex-grow-1 overflow-hidden position-relative">
+				{isFocused && !readOnly ? (
+					<CodeMirrorKeyboardMessage keyIsEnabled={isEnabled} />
+				) : null}
+
+				<div
+					aria-label={
+						readOnly
+							? null
+							: Liferay.Language.get(
+									'use-ctrl-m-to-enable-or-disable-the-tab-key'
+							  )
+					}
+					className="codemirror-editor-wrapper h-100"
+					ref={ref}
+				></div>
+			</div>
 
 			{codeFooterText && <FixedText text={codeFooterText} />}
 		</>

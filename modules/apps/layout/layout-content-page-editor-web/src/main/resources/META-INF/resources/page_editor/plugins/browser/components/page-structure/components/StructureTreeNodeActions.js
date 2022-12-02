@@ -15,9 +15,11 @@
 import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
+import {FocusScope} from '@clayui/shared';
 import classNames from 'classnames';
 import {openToast} from 'frontend-js-web';
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {flushSync} from 'react-dom';
 
 import SaveFragmentCompositionModal from '../../../../../app/components/SaveFragmentCompositionModal';
 import hasDropZoneChild from '../../../../../app/components/layout-data-items/hasDropZoneChild';
@@ -53,6 +55,19 @@ export default function StructureTreeNodeActions({
 	const alignElementRef = useRef();
 	const dropdownRef = useRef();
 
+	const updateActive = useCallback((nextActive) => {
+		flushSync(() => {
+			setActive(nextActive);
+		});
+
+		if (nextActive) {
+			dropdownRef.current?.querySelector('button')?.focus();
+		}
+		else {
+			alignElementRef.current?.focus();
+		}
+	}, []);
+
 	return (
 		<>
 			<ClayButton
@@ -65,7 +80,7 @@ export default function StructureTreeNodeActions({
 					}
 				)}
 				displayType="unstyled"
-				onClick={() => setActive((active) => !active)}
+				onClick={() => updateActive(!active)}
 				ref={alignElementRef}
 				small
 				title={Liferay.Language.get('options')}
@@ -79,13 +94,13 @@ export default function StructureTreeNodeActions({
 				containerProps={{
 					className: 'cadmin',
 				}}
-				onSetActive={setActive}
+				onActiveChange={updateActive}
 				ref={dropdownRef}
 			>
 				{active && (
 					<ActionList
 						item={item}
-						setActive={setActive}
+						setActive={updateActive}
 						setEditingName={setEditingName}
 						setOpenSaveModal={setOpenSaveModal}
 					/>
@@ -226,29 +241,33 @@ const ActionList = ({item, setActive, setEditingName, setOpenSaveModal}) => {
 	]);
 
 	return (
-		<ClayDropDown.ItemList>
-			{dropdownItems.map((dropdownItem, index, array) =>
-				dropdownItem.type === 'separator' ? (
-					index !== array.length - 1 && (
-						<ClayDropDown.Divider key={index} />
-					)
-				) : (
-					<React.Fragment key={index}>
-						<ClayDropDown.Item
-							onClick={() => {
-								setActive(false);
+		<FocusScope>
+			<div>
+				<ClayDropDown.ItemList>
+					{dropdownItems.map((dropdownItem, index, array) =>
+						dropdownItem.type === 'separator' ? (
+							index !== array.length - 1 && (
+								<ClayDropDown.Divider key={index} />
+							)
+						) : (
+							<React.Fragment key={index}>
+								<ClayDropDown.Item
+									onClick={() => {
+										setActive(false);
 
-								dropdownItem.action();
-							}}
-							symbolLeft={dropdownItem.icon}
-						>
-							<p className="d-inline-block m-0 ml-4">
-								{dropdownItem.label}
-							</p>
-						</ClayDropDown.Item>
-					</React.Fragment>
-				)
-			)}
-		</ClayDropDown.ItemList>
+										dropdownItem.action();
+									}}
+									symbolLeft={dropdownItem.icon}
+								>
+									<p className="d-inline-block m-0 ml-4">
+										{dropdownItem.label}
+									</p>
+								</ClayDropDown.Item>
+							</React.Fragment>
+						)
+					)}
+				</ClayDropDown.ItemList>
+			</div>
+		</FocusScope>
 	);
 };

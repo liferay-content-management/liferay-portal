@@ -69,6 +69,15 @@ public class ObjectEntryLocalServiceUtil {
 		return getService().addObjectEntry(objectEntry);
 	}
 
+	public static ObjectEntry addObjectEntry(
+			String externalReferenceCode, long userId,
+			com.liferay.object.model.ObjectDefinition objectDefinition)
+		throws PortalException {
+
+		return getService().addObjectEntry(
+			externalReferenceCode, userId, objectDefinition);
+	}
+
 	public static void addOrUpdateExtensionDynamicObjectDefinitionTableValues(
 			long userId,
 			com.liferay.object.model.ObjectDefinition objectDefinition,
@@ -267,6 +276,13 @@ public class ObjectEntryLocalServiceUtil {
 
 	public static ObjectEntry fetchObjectEntry(long objectEntryId) {
 		return getService().fetchObjectEntry(objectEntryId);
+	}
+
+	public static ObjectEntry fetchObjectEntry(
+		String externalReferenceCode, long objectDefinitionId) {
+
+		return getService().fetchObjectEntry(
+			externalReferenceCode, objectDefinitionId);
 	}
 
 	/**

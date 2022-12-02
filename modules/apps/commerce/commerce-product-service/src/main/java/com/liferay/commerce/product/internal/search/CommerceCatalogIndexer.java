@@ -45,7 +45,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alec Sloan
  */
-@Component(enabled = false, immediate = true, service = Indexer.class)
+@Component(service = Indexer.class)
 public class CommerceCatalogIndexer extends BaseIndexer<CommerceCatalog> {
 
 	public static final String CLASS_NAME = CommerceCatalog.class.getName();
@@ -143,8 +143,7 @@ public class CommerceCatalogIndexer extends BaseIndexer<CommerceCatalog> {
 	@Override
 	protected void doReindex(CommerceCatalog commerceCatalog) throws Exception {
 		_indexWriterHelper.updateDocument(
-			getSearchEngineId(), commerceCatalog.getCompanyId(),
-			getDocument(commerceCatalog), isCommitImmediately());
+			commerceCatalog.getCompanyId(), getDocument(commerceCatalog));
 	}
 
 	@Override
@@ -179,7 +178,6 @@ public class CommerceCatalogIndexer extends BaseIndexer<CommerceCatalog> {
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}

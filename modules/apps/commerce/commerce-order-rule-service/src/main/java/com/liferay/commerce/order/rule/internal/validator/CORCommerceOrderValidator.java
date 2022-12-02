@@ -24,7 +24,6 @@ import com.liferay.commerce.order.rule.entry.type.COREntryType;
 import com.liferay.commerce.order.rule.entry.type.COREntryTypeRegistry;
 import com.liferay.commerce.order.rule.model.COREntry;
 import com.liferay.commerce.order.rule.service.COREntryLocalService;
-import com.liferay.commerce.order.rule.service.COREntryRelLocalService;
 import com.liferay.commerce.product.model.CPInstance;
 import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.service.CommerceChannelLocalService;
@@ -43,7 +42,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luca Pellizzon
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"commerce.order.validator.key=" + CORCommerceOrderValidator.KEY,
 		"commerce.order.validator.priority:Integer=50"
@@ -311,9 +309,6 @@ public class CORCommerceOrderValidator implements CommerceOrderValidator {
 
 	@Reference
 	private COREntryLocalService _corEntryLocalService;
-
-	@Reference
-	private COREntryRelLocalService _corEntryRelLocalService;
 
 	@Reference
 	private COREntryTypeRegistry _corEntryTypeRegistry;

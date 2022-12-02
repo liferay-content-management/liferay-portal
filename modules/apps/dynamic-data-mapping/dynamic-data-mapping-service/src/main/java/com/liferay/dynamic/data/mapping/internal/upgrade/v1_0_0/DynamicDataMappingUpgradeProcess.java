@@ -1225,10 +1225,28 @@ public class DynamicDataMappingUpgradeProcess extends UpgradeProcess {
 
 			String resourceName = _getStructureModelResourceName(classNameId);
 
-			resourcePermission.setName(resourceName);
+			// A permission with the correct resource name may already exist.
+			// This means that Documents and Media has already migrated the
+			// structures for all its file entry types. In this case, we simply
+			// need to remove the old permission and continue with the upgrade
+			// process for the remaining resource permissions.
 
-			_resourcePermissionLocalService.updateResourcePermission(
-				resourcePermission);
+			ResourcePermission existingResourcePermission =
+				_resourcePermissionLocalService.fetchResourcePermission(
+					companyId, resourceName, ResourceConstants.SCOPE_INDIVIDUAL,
+					String.valueOf(structureId),
+					resourcePermission.getRoleId());
+
+			if (existingResourcePermission != null) {
+				_resourcePermissionLocalService.deleteResourcePermission(
+					resourcePermission.getResourcePermissionId());
+			}
+			else {
+				resourcePermission.setName(resourceName);
+
+				_resourcePermissionLocalService.updateResourcePermission(
+					resourcePermission);
+			}
 		}
 	}
 

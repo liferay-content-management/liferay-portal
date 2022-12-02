@@ -23,7 +23,9 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.batch.engine.resource.VulcanBatchEngineImportTaskResource;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
@@ -37,6 +39,7 @@ import javax.annotation.Generated;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -53,12 +56,16 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface WorkflowDefinitionResource {
 
-	public static Builder builder() {
-		return FactoryHolder.factory.create();
-	}
-
 	public Page<WorkflowDefinition> getWorkflowDefinitionsPage(
 			Boolean active, Pagination pagination, Sort[] sorts)
+		throws Exception;
+
+	public WorkflowDefinition postWorkflowDefinition(
+			WorkflowDefinition workflowDefinition)
+		throws Exception;
+
+	public Response postWorkflowDefinitionBatch(
+			String callbackURL, Object object)
 		throws Exception;
 
 	public WorkflowDefinition getWorkflowDefinitionByName(
@@ -78,6 +85,24 @@ public interface WorkflowDefinitionResource {
 
 	public WorkflowDefinition postWorkflowDefinitionUpdateActive(
 			Boolean active, String name, String version)
+		throws Exception;
+
+	public void deleteWorkflowDefinition(Long workflowDefinitionId)
+		throws Exception;
+
+	public Response deleteWorkflowDefinitionBatch(
+			String callbackURL, Object object)
+		throws Exception;
+
+	public WorkflowDefinition getWorkflowDefinition(Long workflowDefinitionId)
+		throws Exception;
+
+	public WorkflowDefinition putWorkflowDefinition(
+			Long workflowDefinitionId, WorkflowDefinition workflowDefinition)
+		throws Exception;
+
+	public Response putWorkflowDefinitionBatch(
+			String callbackURL, Object object)
 		throws Exception;
 
 	public default void setContextAcceptLanguage(
@@ -117,6 +142,12 @@ public interface WorkflowDefinitionResource {
 
 	public void setRoleLocalService(RoleLocalService roleLocalService);
 
+	public void setSortParserProvider(SortParserProvider sortParserProvider);
+
+	public void setVulcanBatchEngineImportTaskResource(
+		VulcanBatchEngineImportTaskResource
+			vulcanBatchEngineImportTaskResource);
+
 	public default Filter toFilter(String filterString) {
 		return toFilter(
 			filterString, Collections.<String, List<String>>emptyMap());
@@ -128,10 +159,8 @@ public interface WorkflowDefinitionResource {
 		return null;
 	}
 
-	public static class FactoryHolder {
-
-		public static volatile Factory factory;
-
+	public default Sort[] toSorts(String sortsString) {
+		return new Sort[0];
 	}
 
 	@ProviderType

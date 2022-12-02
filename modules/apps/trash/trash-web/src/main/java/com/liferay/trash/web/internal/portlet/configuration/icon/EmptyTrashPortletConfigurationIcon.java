@@ -14,11 +14,15 @@
 
 package com.liferay.trash.web.internal.portlet.configuration.icon;
 
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.portlet.configuration.icon.BaseJSPPortletConfigurationIcon;
 import com.liferay.portal.kernel.portlet.configuration.icon.PortletConfigurationIcon;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.trash.constants.TrashPortletKeys;
+
+import java.util.Map;
 
 import javax.portlet.PortletRequest;
 
@@ -35,15 +39,34 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true, property = "javax.portlet.name=" + TrashPortletKeys.TRASH,
+	property = "javax.portlet.name=" + TrashPortletKeys.TRASH,
 	service = PortletConfigurationIcon.class
 )
 public class EmptyTrashPortletConfigurationIcon
 	extends BaseJSPPortletConfigurationIcon {
 
 	@Override
+	public Map<String, Object> getContext(PortletRequest portletRequest) {
+		return HashMapBuilder.<String, Object>put(
+			"action", getNamespace(portletRequest) + "emptyTrash"
+		).put(
+			"globalAction", true
+		).build();
+	}
+
+	@Override
+	public String getIconCssClass() {
+		return "restore";
+	}
+
+	@Override
 	public String getJspPath() {
 		return "/configuration/icon/empty_trash.jsp";
+	}
+
+	@Override
+	public String getMessage(PortletRequest portletRequest) {
+		return _language.get(getLocale(portletRequest), "empty-trash");
 	}
 
 	@Override
@@ -66,6 +89,9 @@ public class EmptyTrashPortletConfigurationIcon
 	protected ServletContext getServletContext() {
 		return _servletContext;
 	}
+
+	@Reference
+	private Language _language;
 
 	@Reference(target = "(osgi.web.symbolicname=com.liferay.trash.web)")
 	private ServletContext _servletContext;

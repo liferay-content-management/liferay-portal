@@ -28,4 +28,29 @@ definition {
 		Click(locator1 = "TestrayUser#SIGN_IN_BUTTON");
 	}
 
+	macro enableChangePassword {
+		PasswordPolicies.openPasswordPoliciesAdmin();
+
+		PasswordPolicies.enableChangeable(
+			passwordPolicyName = "Default Password Policy",
+			passwordPolicyPanel = "Password Changes");
+
+		PortletEntry.save();
+
+		PortalSettings.gotoConfiguration(
+			configurationCategory = "User Authentication",
+			configurationName = "General",
+			configurationScope = "Virtual Instance Scope");
+
+		Uncheck(
+			checkboxName = "Allow strangers to create accounts with a company email address?",
+			locator1 = "Checkbox#ANY_CHECKBOX");
+
+		Uncheck(
+			checkboxName = "Require strangers to verify their email address?",
+			locator1 = "Checkbox#ANY_CHECKBOX");
+
+		Button.clickSave();
+	}
+
 }

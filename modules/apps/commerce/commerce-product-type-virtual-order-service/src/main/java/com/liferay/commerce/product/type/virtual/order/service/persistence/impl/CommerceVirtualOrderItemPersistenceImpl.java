@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -77,9 +76,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  * @generated
  */
-@Component(
-	service = {CommerceVirtualOrderItemPersistence.class, BasePersistence.class}
-)
+@Component(service = CommerceVirtualOrderItemPersistence.class)
 public class CommerceVirtualOrderItemPersistenceImpl
 	extends BasePersistenceImpl<CommerceVirtualOrderItem>
 	implements CommerceVirtualOrderItemPersistence {
@@ -198,7 +195,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceVirtualOrderItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceVirtualOrderItem commerceVirtualOrderItem : list) {
@@ -592,7 +589,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -723,7 +720,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 
 		if (useFinderCache) {
 			result = finderCache.getResult(
-				_finderPathFetchByUUID_G, finderArgs);
+				_finderPathFetchByUUID_G, finderArgs, this);
 		}
 
 		if (result instanceof CommerceVirtualOrderItem) {
@@ -837,7 +834,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, groupId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1005,7 +1002,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceVirtualOrderItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceVirtualOrderItem commerceVirtualOrderItem : list) {
@@ -1425,7 +1422,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1558,7 +1555,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 
 		if (useFinderCache) {
 			result = finderCache.getResult(
-				_finderPathFetchByCommerceOrderItemId, finderArgs);
+				_finderPathFetchByCommerceOrderItemId, finderArgs, this);
 		}
 
 		if (result instanceof CommerceVirtualOrderItem) {
@@ -1655,7 +1652,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 
 		Object[] finderArgs = new Object[] {commerceOrderItemId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -2188,7 +2185,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceVirtualOrderItem>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2259,7 +2256,7 @@ public class CommerceVirtualOrderItemPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

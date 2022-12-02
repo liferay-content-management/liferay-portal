@@ -28,7 +28,6 @@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/ratings" prefix="liferay-ratings" %><%@
 taglib uri="http://liferay.com/tld/react" prefix="react" %><%@
 taglib uri="http://liferay.com/tld/rss" prefix="liferay-rss" %><%@
-taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
 taglib uri="http://liferay.com/tld/site-navigation" prefix="liferay-site-navigation" %><%@
 taglib uri="http://liferay.com/tld/social-bookmarks" prefix="liferay-social-bookmarks" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
@@ -65,8 +64,10 @@ page import="com.liferay.knowledge.base.constants.KBPortletKeys" %><%@
 page import="com.liferay.knowledge.base.exception.DuplicateKBFolderNameException" %><%@
 page import="com.liferay.knowledge.base.exception.InvalidKBFolderNameException" %><%@
 page import="com.liferay.knowledge.base.exception.KBArticleContentException" %><%@
+page import="com.liferay.knowledge.base.exception.KBArticleExpirationDateException" %><%@
 page import="com.liferay.knowledge.base.exception.KBArticleImportException" %><%@
 page import="com.liferay.knowledge.base.exception.KBArticlePriorityException" %><%@
+page import="com.liferay.knowledge.base.exception.KBArticleReviewDateException" %><%@
 page import="com.liferay.knowledge.base.exception.KBArticleSourceURLException" %><%@
 page import="com.liferay.knowledge.base.exception.KBArticleStatusException" %><%@
 page import="com.liferay.knowledge.base.exception.KBArticleTitleException" %><%@
@@ -97,21 +98,19 @@ page import="com.liferay.knowledge.base.web.internal.constants.KBWebKeys" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.KBAdminManagementToolbarDisplayContext" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.KBAdminNavigationDisplayContext" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.KBAdminViewDisplayContext" %><%@
+page import="com.liferay.knowledge.base.web.internal.display.context.KBArticleConfigurationDisplayContext" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.KBNavigationDisplayContext" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.KBSearchDisplayContext" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.KBSelectParentDisplayContext" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.KBSuggestionListDisplayContext" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.KBSuggestionListManagementToolbarDisplayContext" %><%@
-page import="com.liferay.knowledge.base.web.internal.display.context.KBTemplatesManagementToolbarDisplayContext" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.ViewPrpKBArticlesDisplayContext" %><%@
 page import="com.liferay.knowledge.base.web.internal.display.context.helper.KBArticleURLHelper" %><%@
 page import="com.liferay.knowledge.base.web.internal.frontend.taglib.clay.servlet.taglib.KBArticleAttachmentHorizontalCard" %><%@
 page import="com.liferay.knowledge.base.web.internal.search.KBCommentsChecker" %><%@
 page import="com.liferay.knowledge.base.web.internal.search.KBObjectsSearch" %><%@
 page import="com.liferay.knowledge.base.web.internal.security.permission.resource.AdminPermission" %><%@
-page import="com.liferay.knowledge.base.web.internal.security.permission.resource.DisplayPermission" %><%@
 page import="com.liferay.knowledge.base.web.internal.security.permission.resource.KBArticlePermission" %><%@
-page import="com.liferay.knowledge.base.web.internal.security.permission.resource.KBCommentPermission" %><%@
 page import="com.liferay.knowledge.base.web.internal.social.SocialBookmarksUtil" %><%@
 page import="com.liferay.knowledge.base.web.internal.util.AdminUtil" %><%@
 page import="com.liferay.knowledge.base.web.internal.util.KBArticleAssetEntriesUtil" %><%@
@@ -175,7 +174,6 @@ page import="java.util.Collections" %><%@
 page import="java.util.Date" %><%@
 page import="java.util.List" %><%@
 page import="java.util.Map" %><%@
-page import="java.util.Objects" %><%@
 page import="java.util.TreeMap" %>
 
 <%@ page import="javax.portlet.PortletMode" %><%@

@@ -48,6 +48,26 @@ definition {
 		}
 	}
 
+	macro editFilters {
+		FDSFilters.openFilters();
+
+		FDSFilters.searchFilter(searchTerm = "${key_filter}");
+
+		Click(
+			key_filter = "${key_filter}",
+			locator1 = "FrontendDataSet#FILTER_SUMMARY_LABEL");
+
+		FDSFilters.disableStatusFilters(key_status = "${key_disableFilters}");
+
+		FDSFilters.enableStatusFilters(key_status = "${key_enableFilters}");
+
+		Click(locator1 = "FrontendDataSet#EDIT_FILTER_BUTTON");
+
+		Click(locator1 = "FrontendDataSet#FILTER_BUTTON");
+
+		FDSFilters.closeFilters();
+	}
+
 	macro enableStatusFilters {
 		if (IsElementPresent(key_filter = "Status", locator1 = "FrontendDataSet#FILTER_OPTION")) {
 			Click(
@@ -78,6 +98,19 @@ definition {
 		Click(
 			locator1 = "FrontendDataSet#REMOVE_FILTER",
 			value1 = "${key_filter}");
+	}
+
+	macro resetFilter {
+		if (!(isSet(reset_filter))) {
+			ClickNoError(
+				locator1 = "FrontendDataSet#RESET_FILTERS",
+				reset_filter = "Reset Filters");
+		}
+		else {
+			ClickNoError(
+				locator1 = "FrontendDataSet#RESET_FILTERS",
+				reset_filter = "${reset_filter}");
+		}
 	}
 
 	macro searchFilter {

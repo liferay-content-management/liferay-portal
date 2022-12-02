@@ -191,11 +191,13 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 		NotificationTemplate notificationTemplate =
 			randomNotificationTemplate();
 
-		notificationTemplate.setBcc(regex);
-		notificationTemplate.setCc(regex);
 		notificationTemplate.setDescription(regex);
-		notificationTemplate.setFrom(regex);
+		notificationTemplate.setExternalReferenceCode(regex);
 		notificationTemplate.setName(regex);
+		notificationTemplate.setObjectDefinitionExternalReferenceCode(regex);
+		notificationTemplate.setRecipientType(regex);
+		notificationTemplate.setType(regex);
+		notificationTemplate.setTypeLabel(regex);
 
 		String json = NotificationTemplateSerDes.toJSON(notificationTemplate);
 
@@ -203,11 +205,16 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 
 		notificationTemplate = NotificationTemplateSerDes.toDTO(json);
 
-		Assert.assertEquals(regex, notificationTemplate.getBcc());
-		Assert.assertEquals(regex, notificationTemplate.getCc());
 		Assert.assertEquals(regex, notificationTemplate.getDescription());
-		Assert.assertEquals(regex, notificationTemplate.getFrom());
+		Assert.assertEquals(
+			regex, notificationTemplate.getExternalReferenceCode());
 		Assert.assertEquals(regex, notificationTemplate.getName());
+		Assert.assertEquals(
+			regex,
+			notificationTemplate.getObjectDefinitionExternalReferenceCode());
+		Assert.assertEquals(regex, notificationTemplate.getRecipientType());
+		Assert.assertEquals(regex, notificationTemplate.getType());
+		Assert.assertEquals(regex, notificationTemplate.getTypeLabel());
 	}
 
 	@Test
@@ -633,6 +640,158 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 	}
 
 	@Test
+	public void testGetNotificationTemplateByExternalReferenceCode()
+		throws Exception {
+
+		NotificationTemplate postNotificationTemplate =
+			testGetNotificationTemplateByExternalReferenceCode_addNotificationTemplate();
+
+		NotificationTemplate getNotificationTemplate =
+			notificationTemplateResource.
+				getNotificationTemplateByExternalReferenceCode(
+					postNotificationTemplate.getExternalReferenceCode());
+
+		assertEquals(postNotificationTemplate, getNotificationTemplate);
+		assertValid(getNotificationTemplate);
+	}
+
+	protected NotificationTemplate
+			testGetNotificationTemplateByExternalReferenceCode_addNotificationTemplate()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testGraphQLGetNotificationTemplateByExternalReferenceCode()
+		throws Exception {
+
+		NotificationTemplate notificationTemplate =
+			testGraphQLGetNotificationTemplateByExternalReferenceCode_addNotificationTemplate();
+
+		Assert.assertTrue(
+			equals(
+				notificationTemplate,
+				NotificationTemplateSerDes.toDTO(
+					JSONUtil.getValueAsString(
+						invokeGraphQLQuery(
+							new GraphQLField(
+								"notificationTemplateByExternalReferenceCode",
+								new HashMap<String, Object>() {
+									{
+										put(
+											"externalReferenceCode",
+											"\"" +
+												notificationTemplate.
+													getExternalReferenceCode() +
+														"\"");
+									}
+								},
+								getGraphQLFields())),
+						"JSONObject/data",
+						"Object/notificationTemplateByExternalReferenceCode"))));
+	}
+
+	@Test
+	public void testGraphQLGetNotificationTemplateByExternalReferenceCodeNotFound()
+		throws Exception {
+
+		String irrelevantExternalReferenceCode =
+			"\"" + RandomTestUtil.randomString() + "\"";
+
+		Assert.assertEquals(
+			"Not Found",
+			JSONUtil.getValueAsString(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"notificationTemplateByExternalReferenceCode",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"externalReferenceCode",
+									irrelevantExternalReferenceCode);
+							}
+						},
+						getGraphQLFields())),
+				"JSONArray/errors", "Object/0", "JSONObject/extensions",
+				"Object/code"));
+	}
+
+	protected NotificationTemplate
+			testGraphQLGetNotificationTemplateByExternalReferenceCode_addNotificationTemplate()
+		throws Exception {
+
+		return testGraphQLNotificationTemplate_addNotificationTemplate();
+	}
+
+	@Test
+	public void testPutNotificationTemplateByExternalReferenceCode()
+		throws Exception {
+
+		NotificationTemplate postNotificationTemplate =
+			testPutNotificationTemplateByExternalReferenceCode_addNotificationTemplate();
+
+		NotificationTemplate randomNotificationTemplate =
+			randomNotificationTemplate();
+
+		NotificationTemplate putNotificationTemplate =
+			notificationTemplateResource.
+				putNotificationTemplateByExternalReferenceCode(
+					postNotificationTemplate.getExternalReferenceCode(),
+					randomNotificationTemplate);
+
+		assertEquals(randomNotificationTemplate, putNotificationTemplate);
+		assertValid(putNotificationTemplate);
+
+		NotificationTemplate getNotificationTemplate =
+			notificationTemplateResource.
+				getNotificationTemplateByExternalReferenceCode(
+					putNotificationTemplate.getExternalReferenceCode());
+
+		assertEquals(randomNotificationTemplate, getNotificationTemplate);
+		assertValid(getNotificationTemplate);
+
+		NotificationTemplate newNotificationTemplate =
+			testPutNotificationTemplateByExternalReferenceCode_createNotificationTemplate();
+
+		putNotificationTemplate =
+			notificationTemplateResource.
+				putNotificationTemplateByExternalReferenceCode(
+					newNotificationTemplate.getExternalReferenceCode(),
+					newNotificationTemplate);
+
+		assertEquals(newNotificationTemplate, putNotificationTemplate);
+		assertValid(putNotificationTemplate);
+
+		getNotificationTemplate =
+			notificationTemplateResource.
+				getNotificationTemplateByExternalReferenceCode(
+					putNotificationTemplate.getExternalReferenceCode());
+
+		assertEquals(newNotificationTemplate, getNotificationTemplate);
+
+		Assert.assertEquals(
+			newNotificationTemplate.getExternalReferenceCode(),
+			putNotificationTemplate.getExternalReferenceCode());
+	}
+
+	protected NotificationTemplate
+			testPutNotificationTemplateByExternalReferenceCode_createNotificationTemplate()
+		throws Exception {
+
+		return randomNotificationTemplate();
+	}
+
+	protected NotificationTemplate
+			testPutNotificationTemplateByExternalReferenceCode_addNotificationTemplate()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
 	public void testDeleteNotificationTemplate() throws Exception {
 		@SuppressWarnings("PMD.UnusedLocalVariable")
 		NotificationTemplate notificationTemplate =
@@ -846,6 +1005,28 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 			"This method needs to be implemented");
 	}
 
+	@Test
+	public void testPostNotificationTemplateCopy() throws Exception {
+		NotificationTemplate randomNotificationTemplate =
+			randomNotificationTemplate();
+
+		NotificationTemplate postNotificationTemplate =
+			testPostNotificationTemplateCopy_addNotificationTemplate(
+				randomNotificationTemplate);
+
+		assertEquals(randomNotificationTemplate, postNotificationTemplate);
+		assertValid(postNotificationTemplate);
+	}
+
+	protected NotificationTemplate
+			testPostNotificationTemplateCopy_addNotificationTemplate(
+				NotificationTemplate notificationTemplate)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
 	@Rule
 	public SearchTestRule searchTestRule = new SearchTestRule();
 
@@ -968,10 +1149,12 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 			}
 
 			if (Objects.equals(
-					"attachmentObjectFieldIds", additionalAssertFieldName)) {
+					"attachmentObjectFieldExternalReferenceCodes",
+					additionalAssertFieldName)) {
 
-				if (notificationTemplate.getAttachmentObjectFieldIds() ==
-						null) {
+				if (notificationTemplate.
+						getAttachmentObjectFieldExternalReferenceCodes() ==
+							null) {
 
 					valid = false;
 				}
@@ -979,8 +1162,12 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("bcc", additionalAssertFieldName)) {
-				if (notificationTemplate.getBcc() == null) {
+			if (Objects.equals(
+					"attachmentObjectFieldIds", additionalAssertFieldName)) {
+
+				if (notificationTemplate.getAttachmentObjectFieldIds() ==
+						null) {
+
 					valid = false;
 				}
 
@@ -995,14 +1182,6 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("cc", additionalAssertFieldName)) {
-				if (notificationTemplate.getCc() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
 			if (Objects.equals("description", additionalAssertFieldName)) {
 				if (notificationTemplate.getDescription() == null) {
 					valid = false;
@@ -1011,16 +1190,18 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("from", additionalAssertFieldName)) {
-				if (notificationTemplate.getFrom() == null) {
+			if (Objects.equals("editorType", additionalAssertFieldName)) {
+				if (notificationTemplate.getEditorType() == null) {
 					valid = false;
 				}
 
 				continue;
 			}
 
-			if (Objects.equals("fromName", additionalAssertFieldName)) {
-				if (notificationTemplate.getFromName() == null) {
+			if (Objects.equals(
+					"externalReferenceCode", additionalAssertFieldName)) {
+
+				if (notificationTemplate.getExternalReferenceCode() == null) {
 					valid = false;
 				}
 
@@ -1037,6 +1218,19 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 
 			if (Objects.equals("name_i18n", additionalAssertFieldName)) {
 				if (notificationTemplate.getName_i18n() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"objectDefinitionExternalReferenceCode",
+					additionalAssertFieldName)) {
+
+				if (notificationTemplate.
+						getObjectDefinitionExternalReferenceCode() == null) {
+
 					valid = false;
 				}
 
@@ -1061,6 +1255,14 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("recipients", additionalAssertFieldName)) {
+				if (notificationTemplate.getRecipients() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("subject", additionalAssertFieldName)) {
 				if (notificationTemplate.getSubject() == null) {
 					valid = false;
@@ -1069,16 +1271,16 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("to", additionalAssertFieldName)) {
-				if (notificationTemplate.getTo() == null) {
+			if (Objects.equals("type", additionalAssertFieldName)) {
+				if (notificationTemplate.getType() == null) {
 					valid = false;
 				}
 
 				continue;
 			}
 
-			if (Objects.equals("type", additionalAssertFieldName)) {
-				if (notificationTemplate.getType() == null) {
+			if (Objects.equals("typeLabel", additionalAssertFieldName)) {
+				if (notificationTemplate.getTypeLabel() == null) {
 					valid = false;
 				}
 
@@ -1192,6 +1394,22 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 			}
 
 			if (Objects.equals(
+					"attachmentObjectFieldExternalReferenceCodes",
+					additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						notificationTemplate1.
+							getAttachmentObjectFieldExternalReferenceCodes(),
+						notificationTemplate2.
+							getAttachmentObjectFieldExternalReferenceCodes())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
 					"attachmentObjectFieldIds", additionalAssertFieldName)) {
 
 				if (!Objects.deepEquals(
@@ -1204,32 +1422,10 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("bcc", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						notificationTemplate1.getBcc(),
-						notificationTemplate2.getBcc())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
 			if (Objects.equals("body", additionalAssertFieldName)) {
 				if (!equals(
 						(Map)notificationTemplate1.getBody(),
 						(Map)notificationTemplate2.getBody())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("cc", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						notificationTemplate1.getCc(),
-						notificationTemplate2.getCc())) {
 
 					return false;
 				}
@@ -1270,10 +1466,10 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("from", additionalAssertFieldName)) {
+			if (Objects.equals("editorType", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
-						notificationTemplate1.getFrom(),
-						notificationTemplate2.getFrom())) {
+						notificationTemplate1.getEditorType(),
+						notificationTemplate2.getEditorType())) {
 
 					return false;
 				}
@@ -1281,10 +1477,12 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("fromName", additionalAssertFieldName)) {
-				if (!equals(
-						(Map)notificationTemplate1.getFromName(),
-						(Map)notificationTemplate2.getFromName())) {
+			if (Objects.equals(
+					"externalReferenceCode", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						notificationTemplate1.getExternalReferenceCode(),
+						notificationTemplate2.getExternalReferenceCode())) {
 
 					return false;
 				}
@@ -1326,6 +1524,22 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 			}
 
 			if (Objects.equals(
+					"objectDefinitionExternalReferenceCode",
+					additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						notificationTemplate1.
+							getObjectDefinitionExternalReferenceCode(),
+						notificationTemplate2.
+							getObjectDefinitionExternalReferenceCode())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
 					"objectDefinitionId", additionalAssertFieldName)) {
 
 				if (!Objects.deepEquals(
@@ -1349,6 +1563,17 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("recipients", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						notificationTemplate1.getRecipients(),
+						notificationTemplate2.getRecipients())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("subject", additionalAssertFieldName)) {
 				if (!equals(
 						(Map)notificationTemplate1.getSubject(),
@@ -1360,10 +1585,10 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("to", additionalAssertFieldName)) {
-				if (!equals(
-						(Map)notificationTemplate1.getTo(),
-						(Map)notificationTemplate2.getTo())) {
+			if (Objects.equals("type", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						notificationTemplate1.getType(),
+						notificationTemplate2.getType())) {
 
 					return false;
 				}
@@ -1371,10 +1596,10 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("type", additionalAssertFieldName)) {
+			if (Objects.equals("typeLabel", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
-						notificationTemplate1.getType(),
-						notificationTemplate2.getType())) {
+						notificationTemplate1.getTypeLabel(),
+						notificationTemplate2.getTypeLabel())) {
 
 					return false;
 				}
@@ -1485,30 +1710,21 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals(
+				"attachmentObjectFieldExternalReferenceCodes")) {
+
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("attachmentObjectFieldIds")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
 
-		if (entityFieldName.equals("bcc")) {
-			sb.append("'");
-			sb.append(String.valueOf(notificationTemplate.getBcc()));
-			sb.append("'");
-
-			return sb.toString();
-		}
-
 		if (entityFieldName.equals("body")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
-		}
-
-		if (entityFieldName.equals("cc")) {
-			sb.append("'");
-			sb.append(String.valueOf(notificationTemplate.getCc()));
-			sb.append("'");
-
-			return sb.toString();
 		}
 
 		if (entityFieldName.equals("dateCreated")) {
@@ -1587,17 +1803,19 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 			return sb.toString();
 		}
 
-		if (entityFieldName.equals("from")) {
+		if (entityFieldName.equals("editorType")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("externalReferenceCode")) {
 			sb.append("'");
-			sb.append(String.valueOf(notificationTemplate.getFrom()));
+			sb.append(
+				String.valueOf(
+					notificationTemplate.getExternalReferenceCode()));
 			sb.append("'");
 
 			return sb.toString();
-		}
-
-		if (entityFieldName.equals("fromName")) {
-			throw new IllegalArgumentException(
-				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("id")) {
@@ -1618,12 +1836,31 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("objectDefinitionExternalReferenceCode")) {
+			sb.append("'");
+			sb.append(
+				String.valueOf(
+					notificationTemplate.
+						getObjectDefinitionExternalReferenceCode()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("objectDefinitionId")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("recipientType")) {
+			sb.append("'");
+			sb.append(String.valueOf(notificationTemplate.getRecipientType()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("recipients")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
@@ -1633,14 +1870,20 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
-		if (entityFieldName.equals("to")) {
-			throw new IllegalArgumentException(
-				"Invalid entity field " + entityFieldName);
+		if (entityFieldName.equals("type")) {
+			sb.append("'");
+			sb.append(String.valueOf(notificationTemplate.getType()));
+			sb.append("'");
+
+			return sb.toString();
 		}
 
-		if (entityFieldName.equals("type")) {
-			throw new IllegalArgumentException(
-				"Invalid entity field " + entityFieldName);
+		if (entityFieldName.equals("typeLabel")) {
+			sb.append("'");
+			sb.append(String.valueOf(notificationTemplate.getTypeLabel()));
+			sb.append("'");
+
+			return sb.toString();
 		}
 
 		throw new IllegalArgumentException(
@@ -1689,16 +1932,22 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 
 		return new NotificationTemplate() {
 			{
-				bcc = StringUtil.toLowerCase(RandomTestUtil.randomString());
-				cc = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
 				description = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
-				from = StringUtil.toLowerCase(RandomTestUtil.randomString());
+				externalReferenceCode = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				id = RandomTestUtil.randomLong();
 				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
+				objectDefinitionExternalReferenceCode = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				objectDefinitionId = RandomTestUtil.randomLong();
+				recipientType = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
+				type = StringUtil.toLowerCase(RandomTestUtil.randomString());
+				typeLabel = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 			}
 		};
 	}

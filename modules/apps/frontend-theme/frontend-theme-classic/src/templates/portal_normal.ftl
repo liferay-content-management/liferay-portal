@@ -27,11 +27,11 @@
 				<div class="navbar navbar-classic navbar-top py-3">
 					<div class="container-fluid container-fluid-max-xl user-personal-bar">
 						<div class="align-items-center autofit-row">
-							<a class="${logo_css_class} align-items-center d-md-inline-flex d-sm-none d-none logo-md" href="${site_default_url}" title="<@liferay.language_format arguments="" key="go-to-x" />">
+							<a class="${logo_css_class} align-items-center d-md-inline-flex d-sm-none d-none logo-md" href="${site_default_url}" title="<@liferay.language_format arguments="${site_name}" key="go-to-x" />">
 								<img alt="${logo_description}" class="mr-2" height="56" src="${site_logo}" />
 
 								<#if show_site_name>
-									<h2 class="font-weight-bold h2 mb-0 text-dark" role="heading" aria-level="1">${site_name}</h2>
+									<h1 class="font-weight-bold h2 mb-0 text-dark">${site_name}</h1>
 								</#if>
 							</a>
 
@@ -69,7 +69,7 @@
 		</#if>
 
 		<section class="${portal_content_css_class} flex-fill" id="content">
-			<h2 class="sr-only" role="heading" aria-level="1">${the_title}</h2>
+			<h2 class="sr-only">${htmlUtil.escape(the_title)}</h2>
 
 			<#if selectable>
 				<@liferay_util["include"] page=content_include />

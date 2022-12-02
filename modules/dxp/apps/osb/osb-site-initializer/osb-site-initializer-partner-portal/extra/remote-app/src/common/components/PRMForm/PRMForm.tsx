@@ -14,6 +14,7 @@ import CheckboxGroup from './components/fields/CheckboxGroup';
 import DatePicker from './components/fields/DatePicker';
 import InputCurrency from './components/fields/InputCurrency';
 import InputFile from './components/fields/InputFile';
+import InputMultipleFiles from './components/fields/InputMultipleFiles';
 import InputText from './components/fields/InputText';
 import RadioGroup from './components/fields/RadioGroup';
 import Select from './components/fields/Select';
@@ -35,7 +36,7 @@ const PRMForm = ({
 	name,
 	title,
 }: IProps & React.HTMLAttributes<HTMLDivElement>) => (
-	<div className="border-0 pb-3 pt-5 px-6 sheet">
+	<div className="border-0 pb-3 pt-5 px-2 px-lg-6 px-md-4 sheet">
 		<div className={className}>
 			<div className="font-weight-bold mb-1 text-primary text-small-caps">
 				{name}
@@ -55,12 +56,12 @@ const PRMForm = ({
 PRMForm.Footer = Footer;
 PRMForm.Group = Group;
 PRMForm.Section = Section;
-
 PRMForm.Checkbox = Checkbox;
 PRMForm.CheckboxGroup = CheckboxGroup;
 PRMForm.DatePicker = DatePicker;
 PRMForm.InputCurrency = InputCurrency;
 PRMForm.InputFile = InputFile;
+PRMForm.InputMultipleFiles = InputMultipleFiles;
 PRMForm.InputText = InputText;
 PRMForm.RadioGroup = RadioGroup;
 PRMForm.Select = Select;

@@ -3,7 +3,7 @@ definition {
 
 	property custom.properties = "minifier.enabled=true";
 	property osgi.module.configuration.file.names = "com.liferay.frontend.js.loader.modules.extender.internal.configuration.Details.config";
-	property osgi.module.configurations = "waitTimeout=&quot;15&quot;";
+	property osgi.module.configurations = "waitTimeout=\"15\"";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Forms";
@@ -384,6 +384,47 @@ definition {
 		FormFields.viewTextLabel(
 			fieldLabel = "Text",
 			fieldName = "Text");
+	}
+
+	@description = "LPS-163705 - Verify if you can add an expiration date to the form."
+	@priority = "5"
+	test CanAddExpirationDate {
+		property portal.acceptance = "true";
+		property portal.upstream = "true";
+
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.addTextField(fieldPositionNumber = "0");
+
+		FormsAdminNavigator.gotoSettings();
+
+		Form.gotoSubmissionsTab();
+
+		AssertElementPresent(locator1 = "Form#EXPIRATION_DATE_DISABLED");
+
+		Click(
+			key_checkboxOption = "Never Expire",
+			locator1 = "Form#CHECKBOX_SUBMISSIONS");
+
+		FormViewBuilder.editDate(
+			fieldName = "Date",
+			fieldValue = "01/01/2001");
+
+		AssertElementPresent(
+			key_feedbackMessage = "Please enter a valid expiration date. Only future dates are accepted.",
+			locator1 = "Form#FEEDBACK_MESSAGE");
+
+		FormViewBuilder.editDate(
+			fieldName = "Date",
+			fieldValue = "01/01/2100");
+
+		Click(locator1 = "FormFields#DATE_CALENDAR");
+
+		Form.save();
+
+		Alert.viewSuccessMessageText(successMessage = "Your request completed successfully.");
 	}
 
 	@description = "Verify that a Form can be created"
@@ -970,6 +1011,173 @@ definition {
 			fieldValue = "1/1/16");
 	}
 
+	@description = "LPS-167481 - Verify that the back button on the forms view entries page works correctly without creating new forms."
+	@priority = "4"
+	test CheckBackButtonFormsViewEntries {
+		property portal.acceptance = "true";
+
+		FormsAdmin.addForm();
+
+		Click(locator1 = "Form#FORM_BACK_BUTTON");
+
+		AssertElementPresent(
+			key_fieldLabel = "Form",
+			locator1 = "Form#FORM_PORTLET_HEADER");
+	}
+
+	@description = "Verify that the back button on the forms view entries page works correctly without creating new forms."
+	@priority = "4"
+	test CheckBackButtonViewEntries {
+		property portal.acceptance = "true";
+		property portal.upstream = "true";
+
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Test");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Single Selection");
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoBack();
+
+		Form.duplicate(formName = "Test");
+
+		FormsAdmin.viewForm(
+			formDescription = "",
+			formName = "Test");
+
+		FormsAdmin.viewForm(
+			formDescription = "",
+			formName = "Copy of Test");
+
+		FormsAdminNavigator.gotoViewEntries(formName = "Copy of Test");
+
+		FormsAdminNavigator.gotoBack();
+
+		FormsAdmin.viewForm(
+			formDescription = "",
+			formName = "Test");
+
+		FormsAdmin.viewForm(
+			formDescription = "",
+			formName = "Copy of Test");
+	}
+
+	@description = "LPS-161854 - Verify if title and description work correctly with line break"
+	@priority = "4"
+	test CheckTitleAndDescriptionWithLineBreak {
+		property portal.acceptance = "true";
+		property portal.upstream = "true";
+
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.editDescription(formDescription = "Form Description");
+
+		Form.addTextField(fieldPositionNumber = "0");
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		AssertTextEquals(
+			key_formDescription = "Form Description",
+			locator1 = "Form#PUBLISH_FORM_DESCRIPTION_FIELD",
+			value1 = "Form Description");
+
+		AssertTextEquals(
+			key_formName = "Form 1",
+			locator1 = "Form#PUBLISH_FORM_NAME_FIELD",
+			value1 = "Form 1");
+
+		Navigator.openURL();
+
+		PopulateObjectFormsConfiguration.openForm();
+
+		FormsAdminNavigator.gotoEditFormByName(formName = "Form 1");
+
+		Form.editName(formName = "Form 1");
+
+		for (var n : list "1,2") {
+			KeyPress(
+				locator1 = "Form#NAME_FIELD",
+				value1 = "\ENTER");
+		}
+
+		Form.editDescription(formDescription = "Form Description");
+
+		for (var n2 : list "1,2") {
+			KeyPress(
+				locator1 = "Form#DESCRIPTION_FIELD",
+				value1 = "\ENTER");
+		}
+
+		Form.save();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		AssertTextEquals(
+			key_formDescription = "Form Description",
+			locator1 = "Form#PUBLISH_FORM_DESCRIPTION_FIELD",
+			value1 = "Form Description");
+
+		AssertTextEquals(
+			key_formName = "Form 1",
+			locator1 = "Form#PUBLISH_FORM_NAME_FIELD",
+			value1 = "Form 1");
+	}
+
+	@description = "Verify if an unpublished form becomes unavailable on the page"
+	@priority = "4"
+	test CheckUnpublishedFormUnavailableOnPage {
+		property portal.acceptance = "true";
+		property portal.upstream = "true";
+
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Test Form");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Single Selection");
+
+		Form.save();
+
+		AssertElementPresent(
+			key_value = "Share",
+			locator1 = "Form#ANY_DISABLED_BUTTON");
+
+		Navigator.openURL();
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
+		PagesAdmin.addPage(pageName = "Form Page");
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		Portlet.addPG(
+			pageName = "Form Page",
+			portletName = "Form");
+
+		FormPortletNavigator.gotoSelectForm();
+
+		FormPortletConfiguration.selectForm(formName = "Test Form");
+
+		PortletEntry.save();
+
+		Navigator.gotoPage(pageName = "Form Page");
+
+		Alert.viewWarningSpecific(warningMessage = "This form is not available or it was not published.");
+	}
+
 	@description = "LPS-69214 - Verify that a confirmation appears when attempting to leave a Form without saving."
 	@priority = "3"
 	test ConfirmationAppearsWhenLeavingFormWithoutSaving {
@@ -1035,7 +1243,7 @@ definition {
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
-		Check(locator1 = "AssetPermissions#GUEST_VIEW_CHECKBOX");
+		Click.javaScriptClick(locator1 = "AssetPermissions#GUEST_VIEW_CHECKBOX");
 
 		Button.clickSave();
 

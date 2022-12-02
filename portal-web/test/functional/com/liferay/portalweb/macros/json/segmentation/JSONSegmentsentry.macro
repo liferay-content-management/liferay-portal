@@ -10,6 +10,7 @@ definition {
 		if (isSet(selectedOption)) {
 			var text = JSONSegmentsentrySetter.setSelectedOptionId(
 				fieldName = "${field}",
+				groupName = "${groupName}",
 				selectedOption = "${selectedOption}");
 		}
 
@@ -21,6 +22,19 @@ definition {
 				operator = "${operator}",
 				text = "${text}",
 				value = "${value}");
+		}
+		else if ("${conditionType}" == "Segments") {
+			var criteria = JSONSegmentsentrySetter.setSegmentCriteria(
+				conjunctionOperator = "${operator}",
+				firstSegmentId = "${firstSegmentId}",
+				secondSegmentId = "${secondSegmentId}");
+		}
+		else if ("${conditionType}" == "Organization") {
+			var criteria = JSONSegmentsentrySetter.setOrganizationCriteria(
+				date = "${date}",
+				field = "${field}",
+				operator = "${operator}",
+				text = "${text}");
 		}
 		else if (!(isSet(conditionType)) || ("${conditionType}" == "User")) {
 			var criteria = JSONSegmentsentrySetter.setCriteria(
@@ -38,11 +52,13 @@ definition {
 			site = "${site}",
 			workflowAction = "${workflowAction}");
 
-		JSONSegmentsentryAPI._addSegment(
+		var segmentId = JSONSegmentsentryAPI._addSegment(
 			criteria = "${criteria}",
 			descriptionMap = "${descriptionMap}",
 			nameMap = "${nameMap}",
 			serviceContext = "${serviceContext}");
+
+		return "${segmentId}";
 	}
 
 	@summary = "Delete a segment based on its name and group"

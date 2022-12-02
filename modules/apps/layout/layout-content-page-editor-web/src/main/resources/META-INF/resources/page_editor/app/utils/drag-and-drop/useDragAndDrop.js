@@ -27,6 +27,7 @@ import {getEmptyImage} from 'react-dnd-html5-backend';
 
 import {FRAGMENT_ENTRY_TYPES} from '../../config/constants/fragmentEntryTypes';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../config/constants/layoutDataItemTypes';
+import {config} from '../../config/index';
 import {
 	useCollectionItemIndex,
 	useParentToControlsId,
@@ -37,8 +38,8 @@ import {useSelectorRef} from '../../contexts/StoreContext';
 import {formIsMapped} from '../formIsMapped';
 import {hasFormParent} from '../hasFormParent';
 import {DRAG_DROP_TARGET_TYPE} from './constants/dragDropTargetType';
-import {TARGET_POSITIONS} from './constants/targetPositions';
 import defaultComputeHover from './defaultComputeHover';
+import getDropData from './getDropData';
 
 export const initialDragDrop = {
 	canDrag: true,
@@ -54,11 +55,6 @@ export const initialDragDrop = {
 	setCanDrag: () => {},
 
 	state: {
-
-		/**
-		 * Id of the closest container of drop item
-		 */
-		dropContainerId: null,
 
 		/**
 		 * Item that is being dragged
@@ -108,8 +104,15 @@ export const initialDragDrop = {
 
 const DragAndDropContext = React.createContext(initialDragDrop);
 
-export function useDropContainerId() {
-	return useContext(DragAndDropContext).state.dropContainerId;
+export function useDropTargetData() {
+	const {dropTargetItem, targetPositionWithMiddle} = useContext(
+		DragAndDropContext
+	).state;
+
+	return {
+		item: dropTargetItem,
+		position: targetPositionWithMiddle,
+	};
 }
 
 export function useIsDroppable() {
@@ -135,24 +138,20 @@ export function NotDraggableArea({children}) {
 }
 
 export function useDragItem(sourceItem, onDragEnd, onBegin = () => {}) {
-	const fragmentEntryLinksRef = useSelectorRef(
-		(state) => state.fragmentEntryLinks
-	);
-
-	const getSourceItem = useCallback(
-		() => ({
-			...sourceItem,
-			isWidget: sourceItem.isSymbol
-				? sourceItem.isWidget
-				: isWidget(sourceItem, fragmentEntryLinksRef.current),
-		}),
-		[fragmentEntryLinksRef, sourceItem]
-	);
-
 	const {canDrag, dispatch, layoutDataRef, state} = useContext(
 		DragAndDropContext
 	);
 	const sourceRef = useRef(null);
+
+	const item = {
+		...sourceItem,
+		id: sourceItem.itemId,
+		namespace: config.portletNamespace,
+	};
+
+	if (!sourceItem.origin) {
+		delete item.origin;
+	}
 
 	const [{isDraggingSource}, handlerRef, previewRef] = useDrag({
 		begin() {
@@ -174,14 +173,7 @@ export function useDragItem(sourceItem, onDragEnd, onBegin = () => {}) {
 			});
 		},
 
-		item: {
-			getSourceItem,
-			icon: sourceItem.icon,
-			id: sourceItem.itemId,
-			name: sourceItem.name,
-			type: sourceItem.type,
-			...(sourceItem.origin && {origin: sourceItem.origin}),
-		},
+		item,
 	});
 
 	useEffect(() => {
@@ -272,15 +264,15 @@ export function useDropTarget(_targetItem, computeHover = defaultComputeHover) {
 
 	const [, setDropTargetRef] = useDrop({
 		accept: Object.values(LAYOUT_DATA_ITEM_TYPES),
-		hover({getSourceItem}, monitor) {
-			if (getSourceItem().origin !== targetItem.origin) {
+		hover(source, monitor) {
+			if (source.origin !== targetItem.origin) {
 				return;
 			}
 			computeHover({
 				dispatch,
 				layoutDataRef,
 				monitor,
-				sourceItem: getSourceItem(),
+				sourceItem: source,
 				targetItem,
 				targetRefs,
 				toControlsId,
@@ -412,64 +404,16 @@ function computeDrop({dispatch, layoutDataRef, onDragEnd, state}) {
 	}
 
 	if (state.dropItem && state.dropTargetItem) {
-		if (state.elevate) {
-			const parentItem =
-				layoutDataRef.current.items[state.dropTargetItem.parentId];
+		const {dropItemId, position} = getDropData({
+			isElevation: state.elevate,
+			layoutDataRef,
+			sourceItemId: state.dropItem.itemId,
+			targetItemId: state.dropTargetItem.itemId,
+			targetPosition: state.targetPositionWithoutMiddle,
+		});
 
-			const position = Math.min(
-				parentItem.children.includes(state.dropItem.itemId)
-					? parentItem.children.length - 1
-					: parentItem.children.length,
-				getSiblingPosition(state, parentItem)
-			);
-
-			onDragEnd(parentItem.itemId, position);
-		}
-		else {
-			const position = state.dropTargetItem.children.includes(
-				state.dropItem.itemId
-			)
-				? state.dropTargetItem.children.length - 1
-				: state.dropTargetItem.children.length;
-
-			onDragEnd(state.dropTargetItem.itemId, position);
-		}
+		onDragEnd(dropItemId, position);
 	}
 
 	dispatch(initialDragDrop.state);
-}
-
-function getSiblingPosition(state, parentItem) {
-	const dropItemPosition = parentItem.children.indexOf(state.dropItem.itemId);
-	const siblingPosition = parentItem.children.indexOf(
-		state.dropTargetItem.itemId
-	);
-
-	if (
-		state.targetPositionWithoutMiddle === TARGET_POSITIONS.BOTTOM ||
-		state.targetPositionWithoutMiddle === TARGET_POSITIONS.RIGHT
-	) {
-		return siblingPosition + 1;
-	}
-	else if (
-		dropItemPosition !== -1 &&
-		dropItemPosition < siblingPosition &&
-		siblingPosition > 0
-	) {
-		return siblingPosition - 1;
-	}
-
-	return siblingPosition;
-}
-
-function isWidget(item, fragmentEntryLinks) {
-	const {fragmentEntryLinkId} = item.config;
-
-	if (!fragmentEntryLinkId) {
-		return false;
-	}
-
-	const fragmentEntryLink = fragmentEntryLinks[fragmentEntryLinkId];
-
-	return Boolean(fragmentEntryLink.portletId);
 }

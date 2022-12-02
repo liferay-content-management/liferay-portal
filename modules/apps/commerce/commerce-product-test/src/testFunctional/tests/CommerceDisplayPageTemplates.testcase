@@ -33,6 +33,8 @@ definition {
 	@description = "COMMERCE-9509 Verify that the Collection Display fragment with the product specifications can be deployed and that the buyer can see the specifications inside the Collection Display on the storefront"
 	@priority = "4"
 	test CanAddProductSpecificationsCollectionDisplay {
+		property portal.acceptance = "true";
+
 		task ("When a new Commerce Product type Display Page Template is created") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
 				contentType = "Commerce Product",
@@ -95,6 +97,8 @@ definition {
 	@description = "Verify a product's availability can be viewed via an availability fragment deployed on a default Commerce Product Display Page Template."
 	@priority = "3"
 	test CanAssertProductAvailabilityUsingAvailabilityFragment {
+		property portal.acceptance = "false";
+
 		task ("Given a new default Commerce Product type display page template") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
 				contentType = "Commerce Product",
@@ -257,6 +261,8 @@ definition {
 	@description = "Verify a Commerce Product Display Page Template marked as default overrides the Default Product Display Page."
 	@priority = "4"
 	test CanDefaultCommerceProductDPTOverrideDefaultProductDisplayPageSet {
+		property portal.acceptance = "false";
+
 		task ("Given a new Commerce Product type display page template marked as default") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
 				contentType = "Commerce Product",
@@ -341,7 +347,7 @@ definition {
 	@description = "This is a test for COMMERCE-7277 Verify mapped Basic Information fields to fragments are visible in Store Front"
 	@priority = "3"
 	test CanMapBasicInformationFieldsToFragments {
-		property portal.acceptance = "false";
+		property portal.acceptance = "true";
 
 		task ("Given a new Commerce Product type display page template with fragment created and mapped with the Basic Information fields") {
 			CommerceDisplayPageTemplates.addMappedDisplayPageTemplateEntry(
@@ -646,7 +652,7 @@ definition {
 		task ("Then verifies the mapped fragments are visible") {
 			var baseURL = PropsUtil.get("portal.url");
 
-			CommerceDisplayPageTemplates.viewMappedFragmentsText(fragmentsTextList = "${baseURL}/web/minium/p/simple-product,1/1/22 1:01 AM,1/1/23 1:01 AM");
+			CommerceDisplayPageTemplates.viewMappedFragmentsText(fragmentsTextList = "${baseURL}/web/minium/p/simple-product,01/01/22 01:01 AM,01/01/23 01:01 AM");
 		}
 	}
 
@@ -850,7 +856,7 @@ definition {
 		task ("And the Heading fragments are deployed on the page and the fields are mapped") {
 			CommerceDisplayPageTemplates.mapFragmentsToFields(
 				displayPageName = "Test Commerce Product Display Page Template",
-				fieldsList = "product custom field one,product custom field two",
+				fieldsList = "Product Custom Field One,Product Custom Field Two",
 				fragmentName = "Heading",
 				siteURLKey = "minium");
 		}
@@ -914,6 +920,8 @@ definition {
 	@description = "Verify users can mark and unmark a commerce product display page template as the Default page so that the template can become the default page for the Product Details page."
 	@priority = "4"
 	test CanMarkAndUnmarkCommerceProductDPTAsDefault {
+		property portal.acceptance = "false";
+
 		task ("Given a new Commerce Product type display page template is created") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
 				contentType = "Commerce Product",
@@ -1005,6 +1013,79 @@ definition {
 				productListPrice = "24.00",
 				productName = "U-Joint",
 				productSKU = "MIN55861");
+		}
+	}
+
+	@description = "Verify that order fields values are mapped to fragments."
+	@priority = "3"
+	test CanUseCommerceOrderFieldsWithFragments {
+		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}company.security.strangers.verify=false${line.separator}feature.flag.COMMERCE-9410=true";
+		property portal.acceptance = "false";
+
+		task ("Given buyer user logs in and completes an order with checkout") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+
+			FrontStore.addInitializerProductToCart(
+				productName = "U-Joint",
+				productQuantity = "1");
+
+			CommerceCheckout.gotoCheckoutViaMiniCart();
+
+			CommerceCheckout.initializersCheckout(
+				newAddressAddress = "Test Address",
+				newAddressCity = "Test City",
+				newAddressCountry = "United States",
+				newAddressName = "Address Name",
+				newAddressZipCode = "Test Zip Code",
+				productName = "U-Joint",
+				productQuantity = "1",
+				productUnitPrice = "24",
+				shippingMethod = "Standard");
+
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+		}
+
+		task ("And a new Commerce Order type display page template with fragments is created and mapped with the order related fields") {
+			CommerceDisplayPageTemplates.addMappedDisplayPageTemplateEntry(
+				contentType = "Commerce Order",
+				displayPageName = "Test Commerce Order Display Page Template",
+				fieldsList = "Account Name,Order Status,User Name,Formatted Total Amount,Approved",
+				fragmentName = "Heading",
+				groupName = "Minium",
+				siteURLKey = "minium");
+		}
+
+		task ("And 'Select Other Item...' is clicked from the dropdown of 'Preview With' and the placed order is chosen from the Orders tab") {
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Test Commerce Order Display Page Template");
+
+			Click(locator1 = "ControlMenu#DISPLAY_PAGE_PREVIEW_ITEM_SELECTOR");
+
+			DropdownMenuItem.click(menuItem = "Select Other Item");
+
+			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
+
+			var orderId = CommerceJSONOrdersAPI._getCommerceOrder();
+
+			Click(
+				key_entryName = "${orderId}",
+				locator1 = "ObjectAdmin#VIEW_ENTRY_NAME_ON_PAGE");
+		}
+
+		task ("Then it is verified that the mapped fragments for that order are listed") {
+			SelectFrameTop();
+
+			for (var entry : list "Commerce Account,1,Buyer User,$ 39.00,true") {
+				AssertElementPresent(
+					key_text = "${entry}",
+					locator1 = "Fragment#EDITABLE_FIELD_CONTENT");
+			}
 		}
 	}
 

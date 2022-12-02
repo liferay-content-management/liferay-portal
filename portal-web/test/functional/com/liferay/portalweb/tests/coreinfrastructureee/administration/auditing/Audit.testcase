@@ -17,7 +17,6 @@ definition {
 	@description = "LPS-133646 and LPS-133653 TC-1: Verify that information is present in the logs after enabling log context & Incoming X-Request-ID."
 	@priority = "5"
 	test AssertAuditConsoleInformationIsPresentAfterEnabledLog {
-		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "Audit#AssertAuditConsoleInformationIsPresentAfterEnabledLog";
 
 		var companyId = JSONCompany.getCompanyId();
@@ -40,7 +39,7 @@ definition {
 
 			var runGet = JSONCurlUtil.get("${curl}");
 
-			for (var logString : list "xRequestId,companyId=${companyId},virtualHostName,clientIP,emailAddress,serverName,userId=${userId}") {
+			for (var logString : list "xRequestId,companyId=${companyId},virtualHostName,clientIP,userEmailAddress,serverName,userId=${userId}") {
 				AuditLog.viewLogFileContent(logString = "${logString}");
 			}
 		}
@@ -49,7 +48,6 @@ definition {
 	@description = "This is a use case for LPS-155728. TC-1: Assert the email address is present in the audit log context in a human-readable format."
 	@priority = "2"
 	test AssertEmailAddressIsPresentInReadable {
-		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "Audit#AssertEmailAddressIsPresentInReadable";
 
 		task ("Given: Enable log context and Incoming X-Request-ID") {
@@ -67,7 +65,7 @@ definition {
 		}
 
 		task ("Then: Assert the email address is present in the audit log context in a human-readable format") {
-			AuditLog.viewLogFileContent(logString = "emailAddress=test@liferay.com");
+			AuditLog.viewLogFileContent(logString = "userEmailAddress=test@liferay.com");
 		}
 	}
 
@@ -75,7 +73,7 @@ definition {
 	@priority = "5"
 	test AssertInvalidXRequestId {
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.audit.wiring.internal.configuration.AuditLogContextConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;${line.separator}useIncomingXRequestId=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"${line.separator}useIncomingXRequestId=\"true\"";
 		property test.name.skip.portal.instance = "Audit#AssertInvalidXRequestId";
 
 		var companyId = JSONCompany.getCompanyId();
@@ -99,7 +97,7 @@ definition {
 	@description = "This is a use case for LPS-140258. TC-1: Assert that sessionId is not present in the audit log context."
 	@priority = "2"
 	test AssertSessionIdIsNotPresentInAuditLogContext {
-		property portal.acceptance = "ture";
+		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "Audit#AssertSessionIdIsNotPresentInAuditLogContext";
 
 		task ("Given: Enable log context and Incoming X-Request-ID") {
@@ -126,7 +124,7 @@ definition {
 	@description = "This is a use case for LPS-140258. TC-2: Assert that sessionId is not present in the Audit Log portlet's UI."
 	@priority = "2"
 	test AssertSessionIdIsNotPresentInAuditLogPortlet {
-		property portal.acceptance = "ture";
+		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "Audit#AssertSessionIdIsNotPresentInAuditLogPortlet";
 
 		task ("Given: Enable log context and Incoming X-Request-ID") {
@@ -165,7 +163,7 @@ definition {
 	@priority = "5"
 	test AssertValidXRequestId {
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.audit.wiring.internal.configuration.AuditLogContextConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;${line.separator}useIncomingXRequestId=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"${line.separator}useIncomingXRequestId=\"true\"";
 		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "Audit#AssertValidXRequestId";
 
@@ -189,7 +187,7 @@ definition {
 	@priority = "5"
 	test VerifyCorrectClientIP {
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.audit.wiring.internal.configuration.AuditLogContextConfiguration.config";
-		property osgi.module.configurations = "enabled=&quot;true&quot;${line.separator}useIncomingXRequestId=&quot;true&quot;";
+		property osgi.module.configurations = "enabled=\"true\"${line.separator}useIncomingXRequestId=\"true\"";
 		property test.name.skip.portal.instance = "Audit#VerifyCorrectClientIP";
 
 		task ("Add the OSGI configuration file") {

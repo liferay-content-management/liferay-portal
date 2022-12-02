@@ -26,6 +26,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>NEW_OPTION_IN_MODAL</td>
+	<td>//div[@Class='modal-body']//input[@id='name']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SELECT_CATEGORY</td>
 	<td>//select[contains(@id, 'category')]</td>
 	<td></td>
@@ -33,6 +38,11 @@
 <tr>
 	<td>SAVE_BUTTON</td>
 	<td>//button[contains(text(),'Save')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SAVE_BUTTON_IN_MODAL</td>
+	<td>//div[@class='modal-item-last']//button[@type='button'][normalize-space()='Save']</td>
 	<td></td>
 </tr>
 <tr>

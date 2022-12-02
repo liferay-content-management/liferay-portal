@@ -19,7 +19,7 @@ import ClayLink from '@clayui/link';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {useIsMounted} from '@liferay/frontend-js-react-web';
 import PropTypes from 'prop-types';
-import React, {useContext, useState} from 'react';
+import React, {useContext} from 'react';
 
 import FrontendDataSetContext from '../FrontendDataSetContext';
 import {formatActionURL} from '../utils/index';
@@ -67,11 +67,12 @@ function ActionsDropdown({
 	itemData,
 	itemId,
 	loading,
+	menuActive,
 	onClick,
+	onMenuActiveChange,
 	setLoading,
 }) {
 	const context = useContext(FrontendDataSetContext);
-	const [menuActive, setMenuActive] = useState(false);
 
 	const inlineEditingAvailable =
 		context.inlineEditingSettings && itemData.actions?.update;
@@ -98,7 +99,7 @@ function ActionsDropdown({
 			/>
 
 			{loading ? (
-				<ClayLoadingIndicator small />
+				<ClayLoadingIndicator className="mb-2 mt-2" />
 			) : (
 				<ClayButtonWithIcon
 					disabled={!itemChanges}
@@ -135,7 +136,7 @@ function ActionsDropdown({
 		}
 
 		if (loading) {
-			return <ClayLoadingIndicator small />;
+			return <ClayLoadingIndicator className="mb-2 mt-2" />;
 		}
 
 		const content = action.icon ? (
@@ -191,6 +192,7 @@ function ActionsDropdown({
 
 					handleAction(
 						{
+							errorMessage: actionData?.errorMessage,
 							event,
 							itemId,
 							method: action.method ?? actionData?.method,
@@ -209,7 +211,7 @@ function ActionsDropdown({
 	}
 
 	if (loading && !inlineEditingAlwaysOn) {
-		return <ClayLoadingIndicator small />;
+		return <ClayLoadingIndicator className="mb-2 mt-2" />;
 	}
 
 	const renderItems = (items) =>
@@ -227,7 +229,7 @@ function ActionsDropdown({
 			return (
 				<DropdownItem
 					action={item}
-					closeMenu={() => setMenuActive(false)}
+					closeMenu={() => onMenuActiveChange(false)}
 					handleAction={handleAction}
 					itemData={itemData}
 					itemId={itemId}
@@ -240,12 +242,12 @@ function ActionsDropdown({
 		});
 
 	return (
-		<div className="d-flex justify-content-end ml-auto">
+		<div className="d-flex justify-content-end">
 			{inlineEditingAlwaysOn && inlineEditingActions}
 
 			<ClayDropDown
 				active={menuActive}
-				onActiveChange={setMenuActive}
+				onActiveChange={onMenuActiveChange}
 				trigger={
 					<ClayButton
 						className="component-action dropdown-toggle ml-1"

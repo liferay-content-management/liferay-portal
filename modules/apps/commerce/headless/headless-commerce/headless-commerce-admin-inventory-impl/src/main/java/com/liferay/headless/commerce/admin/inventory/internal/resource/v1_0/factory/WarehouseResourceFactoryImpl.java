@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.lang.reflect.Constructor;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "resource.locator.key=/headless-commerce-admin-inventory/v1.0/Warehouse",
 	service = WarehouseResource.Factory.class
 )
@@ -139,16 +137,6 @@ public class WarehouseResourceFactoryImpl implements WarehouseResource.Factory {
 		};
 	}
 
-	@Activate
-	protected void activate() {
-		WarehouseResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		WarehouseResource.FactoryHolder.factory = null;
-	}
-
 	private static Function<InvocationHandler, WarehouseResource>
 		_getProxyProviderFunction() {
 
@@ -220,6 +208,7 @@ public class WarehouseResourceFactoryImpl implements WarehouseResource.Factory {
 		warehouseResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		warehouseResource.setRoleLocalService(_roleLocalService);
+		warehouseResource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(warehouseResource, arguments);
@@ -267,6 +256,9 @@ public class WarehouseResourceFactoryImpl implements WarehouseResource.Factory {
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

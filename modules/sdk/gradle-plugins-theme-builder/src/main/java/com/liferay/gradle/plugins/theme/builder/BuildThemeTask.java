@@ -91,6 +91,18 @@ public class BuildThemeTask extends JavaExec {
 		return GradleUtil.toString(_themeName);
 	}
 
+	@Input
+	@Optional
+	public Integer getThumbnailHeight() {
+		return GradleUtil.toInteger(_thumbnailHeight);
+	}
+
+	@Input
+	@Optional
+	public Integer getThumbnailWidth() {
+		return GradleUtil.toInteger(_thumbnailWidth);
+	}
+
 	@InputDirectory
 	@Optional
 	@PathSensitive(PathSensitivity.RELATIVE)
@@ -133,6 +145,14 @@ public class BuildThemeTask extends JavaExec {
 		_themeName = themeName;
 	}
 
+	public void setThumbnailHeight(Object thumbnailHeight) {
+		_thumbnailHeight = thumbnailHeight;
+	}
+
+	public void setThumbnailWidth(Object thumbnailWidth) {
+		_thumbnailWidth = thumbnailWidth;
+	}
+
 	public void setUnstyledDir(Object unstyledDir) {
 		_unstyledDir = unstyledDir;
 	}
@@ -163,6 +183,9 @@ public class BuildThemeTask extends JavaExec {
 		_addArg(args, "--parent-name", getParentName());
 		_addArg(args, "--parent-path", _getParentPath());
 		_addArg(args, "--template-extension", getTemplateExtension());
+		_addArg(
+			args, "--thumbnail-height", String.valueOf(getThumbnailHeight()));
+		_addArg(args, "--thumbnail-width", String.valueOf(getThumbnailWidth()));
 		_addArg(args, "--unstyled-path", _getUnstyledPath());
 
 		return args;
@@ -195,6 +218,8 @@ public class BuildThemeTask extends JavaExec {
 	private Object _parentName;
 	private Object _templateExtension;
 	private Object _themeName;
+	private Object _thumbnailHeight;
+	private Object _thumbnailWidth;
 	private Object _unstyledDir;
 	private Object _unstyledFile;
 

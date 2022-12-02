@@ -7,7 +7,7 @@
 	<description/>
 	<groupId>com.liferay</groupId>
 	<artifactId>com.liferay.portal.tools.theme.builder</artifactId>
-	<version>1.1.9</version>
+	<version>1.1.11</version>
 	<goalPrefix>theme-builder</goalPrefix>
 	<isolatedRealm>false</isolatedRealm>
 	<inheritedByDefault>true</inheritedByDefault>
@@ -86,6 +86,20 @@
 				<parameter>
 					<name>templateExtension</name>
 					<type>java.lang.String</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description/>
+				</parameter>
+				<parameter>
+					<name>thumbnailHeight</name>
+					<type>int</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description/>
+				</parameter>
+				<parameter>
+					<name>thumbnailWidth</name>
+					<type>int</type>
 					<required>false</required>
 					<editable>true</editable>
 					<description/>

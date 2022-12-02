@@ -348,20 +348,22 @@ public class ContactsUtil {
 		sb.append(user.getMiddleName());
 		sb.append(StringPool.SEMICOLON);
 
-		long prefixId = contact.getPrefixId();
+		long prefixListTypeId = contact.getPrefixListTypeId();
 
-		if (prefixId > 0) {
-			ListType listType = ListTypeServiceUtil.getListType(prefixId);
+		if (prefixListTypeId > 0) {
+			ListType listType = ListTypeServiceUtil.getListType(
+				prefixListTypeId);
 
 			sb.append(listType.getName());
 		}
 
 		sb.append(StringPool.SEMICOLON);
 
-		long suffixId = contact.getSuffixId();
+		long suffixListTypeId = contact.getSuffixListTypeId();
 
-		if (suffixId > 0) {
-			ListType listType = ListTypeServiceUtil.getListType(suffixId);
+		if (suffixListTypeId > 0) {
+			ListType listType = ListTypeServiceUtil.getListType(
+				suffixListTypeId);
 
 			sb.append(listType.getName());
 		}
@@ -417,9 +419,9 @@ public class ContactsUtil {
 		for (Website website : websites) {
 			sb.append("URL;TYPE=");
 
-			ListType listType = website.getType();
-
-			sb.append(StringUtil.toUpperCase(_getVCardListTypeName(listType)));
+			sb.append(
+				StringUtil.toUpperCase(
+					_getVCardListTypeName(website.getListType())));
 
 			sb.append(StringPool.COLON);
 

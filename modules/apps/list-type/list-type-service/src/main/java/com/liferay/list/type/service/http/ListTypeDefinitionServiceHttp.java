@@ -52,7 +52,7 @@ public class ListTypeDefinitionServiceHttp {
 
 	public static com.liferay.list.type.model.ListTypeDefinition
 			addListTypeDefinition(
-				HttpPrincipal httpPrincipal,
+				HttpPrincipal httpPrincipal, String externalReferenceCode,
 				java.util.Map<java.util.Locale, String> nameMap)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -61,7 +61,8 @@ public class ListTypeDefinitionServiceHttp {
 				ListTypeDefinitionServiceUtil.class, "addListTypeDefinition",
 				_addListTypeDefinitionParameterTypes0);
 
-			MethodHandler methodHandler = new MethodHandler(methodKey, nameMap);
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, externalReferenceCode, nameMap);
 
 			Object returnObj = null;
 
@@ -282,7 +283,8 @@ public class ListTypeDefinitionServiceHttp {
 
 	public static com.liferay.list.type.model.ListTypeDefinition
 			updateListTypeDefinition(
-				HttpPrincipal httpPrincipal, long listTypeDefinitionId,
+				HttpPrincipal httpPrincipal, String externalReferenceCode,
+				long listTypeDefinitionId,
 				java.util.Map<java.util.Locale, String> nameMap)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -292,7 +294,8 @@ public class ListTypeDefinitionServiceHttp {
 				_updateListTypeDefinitionParameterTypes6);
 
 			MethodHandler methodHandler = new MethodHandler(
-				methodKey, listTypeDefinitionId, nameMap);
+				methodKey, externalReferenceCode, listTypeDefinitionId,
+				nameMap);
 
 			Object returnObj = null;
 
@@ -326,7 +329,7 @@ public class ListTypeDefinitionServiceHttp {
 		ListTypeDefinitionServiceHttp.class);
 
 	private static final Class<?>[] _addListTypeDefinitionParameterTypes0 =
-		new Class[] {java.util.Map.class};
+		new Class[] {String.class, java.util.Map.class};
 	private static final Class<?>[] _deleteListTypeDefinitionParameterTypes1 =
 		new Class[] {com.liferay.list.type.model.ListTypeDefinition.class};
 	private static final Class<?>[] _deleteListTypeDefinitionParameterTypes2 =
@@ -338,6 +341,6 @@ public class ListTypeDefinitionServiceHttp {
 	private static final Class<?>[]
 		_getListTypeDefinitionsCountParameterTypes5 = new Class[] {};
 	private static final Class<?>[] _updateListTypeDefinitionParameterTypes6 =
-		new Class[] {long.class, java.util.Map.class};
+		new Class[] {String.class, long.class, java.util.Map.class};
 
 }

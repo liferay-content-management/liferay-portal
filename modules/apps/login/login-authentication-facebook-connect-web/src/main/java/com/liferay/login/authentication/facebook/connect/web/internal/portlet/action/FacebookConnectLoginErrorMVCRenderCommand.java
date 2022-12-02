@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.facebook.FacebookConnect;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.constants.MVCRenderConstants;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
-import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -47,7 +46,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Stian Sigvartsen
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + PortletKeys.FAST_LOGIN,
 		"javax.portlet.name=" + PortletKeys.LOGIN,
@@ -118,8 +116,5 @@ public class FacebookConnectLoginErrorMVCRenderCommand
 		target = "(osgi.web.symbolicname=com.liferay.login.authentication.facebook.connect.web)"
 	)
 	private ServletContext _servletContext;
-
-	@Reference
-	private UserLocalService _userLocalService;
 
 }

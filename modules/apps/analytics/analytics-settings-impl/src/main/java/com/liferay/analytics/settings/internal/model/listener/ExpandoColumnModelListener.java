@@ -36,7 +36,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Marcos Martins
  */
-@Component(immediate = true, service = ModelListener.class)
+@Component(service = ModelListener.class)
 public class ExpandoColumnModelListener
 	extends BaseAnalyticsDXPEntityModelListener<ExpandoColumn> {
 
@@ -50,7 +50,7 @@ public class ExpandoColumnModelListener
 
 		if (_isCustomField(User.class.getName(), expandoColumn.getTableId())) {
 			AnalyticsConfiguration analyticsConfiguration =
-				analyticsConfigurationTracker.getAnalyticsConfiguration(
+				analyticsConfigurationRegistry.getAnalyticsConfiguration(
 					expandoColumn.getCompanyId());
 
 			if (ArrayUtil.isEmpty(

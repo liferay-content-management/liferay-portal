@@ -31,6 +31,7 @@ import com.liferay.headless.admin.user.internal.dto.v1_0.util.EmailAddressUtil;
 import com.liferay.headless.admin.user.internal.dto.v1_0.util.PhoneUtil;
 import com.liferay.headless.admin.user.internal.dto.v1_0.util.PostalAddressUtil;
 import com.liferay.headless.admin.user.internal.dto.v1_0.util.WebUrlUtil;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Country;
 import com.liferay.portal.kernel.model.ListType;
@@ -52,7 +53,6 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -87,8 +87,8 @@ public class OrganizationResourceDTOConverter
 		throws Exception {
 
 		com.liferay.portal.kernel.model.Organization organization =
-			_organizationLocalService.fetchOrganizationByReferenceCode(
-				CompanyThreadLocal.getCompanyId(), externalReferenceCode);
+			_organizationLocalService.fetchOrganizationByExternalReferenceCode(
+				externalReferenceCode, CompanyThreadLocal.getCompanyId());
 
 		if (organization == null) {
 			organization = _organizationService.getOrganization(
@@ -273,7 +273,7 @@ public class OrganizationResourceDTOConverter
 	}
 
 	private Service _toService(OrgLabor orgLabor) throws Exception {
-		ListType listType = orgLabor.getType();
+		ListType listType = orgLabor.getListType();
 
 		return new Service() {
 			{

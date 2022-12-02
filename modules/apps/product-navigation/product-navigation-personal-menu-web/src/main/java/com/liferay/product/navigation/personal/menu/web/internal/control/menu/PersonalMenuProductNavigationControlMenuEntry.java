@@ -25,7 +25,7 @@ import com.liferay.product.navigation.control.menu.BaseJSPProductNavigationContr
 import com.liferay.product.navigation.control.menu.ProductNavigationControlMenuEntry;
 import com.liferay.product.navigation.control.menu.constants.ProductNavigationControlMenuCategoryKeys;
 import com.liferay.product.navigation.personal.menu.configuration.PersonalMenuConfiguration;
-import com.liferay.product.navigation.personal.menu.configuration.PersonalMenuConfigurationTracker;
+import com.liferay.product.navigation.personal.menu.configuration.PersonalMenuConfigurationRegistry;
 import com.liferay.product.navigation.personal.menu.web.internal.constants.PersonalMenuWebKeys;
 
 import java.io.IOException;
@@ -41,7 +41,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Samuel Trong Tran
  */
 @Component(
-	immediate = true,
 	property = {
 		"product.navigation.control.menu.category.key=" + ProductNavigationControlMenuCategoryKeys.USER,
 		"product.navigation.control.menu.entry.order:Integer=700"
@@ -93,7 +92,7 @@ public class PersonalMenuProductNavigationControlMenuEntry
 				WebKeys.THEME_DISPLAY);
 
 		PersonalMenuConfiguration personalMenuConfiguration =
-			_personalMenuConfigurationTracker.
+			_personalMenuConfigurationRegistry.
 				getCompanyPersonalMenuConfiguration(
 					themeDisplay.getCompanyId());
 
@@ -118,7 +117,8 @@ public class PersonalMenuProductNavigationControlMenuEntry
 	}
 
 	@Reference
-	private PersonalMenuConfigurationTracker _personalMenuConfigurationTracker;
+	private PersonalMenuConfigurationRegistry
+		_personalMenuConfigurationRegistry;
 
 	@Reference(
 		target = "(osgi.web.symbolicname=com.liferay.product.navigation.personal.menu.web)"

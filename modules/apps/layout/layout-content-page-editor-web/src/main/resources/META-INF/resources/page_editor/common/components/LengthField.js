@@ -79,15 +79,14 @@ export function LengthField({field, onEnter, onValueSelect, value}) {
 		<div className="align-items-center d-flex page-editor__length-field">
 			<LengthInput
 				className={field.icon ? 'mb-0' : null}
-				defaultUnit={
-					Liferay.FeatureFlags['LPS-163362']
-						? field.typeOptions?.defaultUnit
-						: null
-				}
+				defaultUnit={field.typeOptions?.defaultUnit}
 				field={field}
 				onEnter={onEnter}
 				onValueSelect={(name, value) => {
-					setShowRestoreButton(true);
+					if (RESTORABLE_FIELDS.has(field.name)) {
+						setShowRestoreButton(true);
+					}
+
 					onValueSelect(name, value);
 				}}
 				showLabel={!field.icon}
@@ -143,6 +142,8 @@ export function LengthInput({
 	const handleUnitSelect = (unit) => {
 		setActive(false);
 		setNextUnit(unit);
+
+		document.getElementById(triggerId)?.focus();
 
 		if (!nextValue || unit === nextUnit) {
 			return;
@@ -299,6 +300,7 @@ export function LengthInput({
 							},
 						}}
 						onActiveChange={setActive}
+						renderMenuOnClick
 						trigger={
 							<ClayButton
 								aria-expanded={active}

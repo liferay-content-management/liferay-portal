@@ -17,7 +17,6 @@ import {useEffect, useState} from 'react';
 import i18n from '../../../I18n';
 import {Badge, Button} from '../../../components';
 import {useAppPropertiesContext} from '../../../contexts/AppPropertiesContext';
-import {Liferay} from '../../../services/liferay';
 import {
 	addTeamMembersInvitation,
 	associateUserAccountWithAccountAndAccountRole,
@@ -56,9 +55,17 @@ const InviteTeamMembersPage = ({
 	);
 
 	const [
+		isSelectdAdministratorOrRequestorRole,
+		setIsSelectedAdministratorOrRequestorRole,
+	] = useState(false);
+
+	const [
 		associateUserAccount,
 		{error: associateUserAccountError},
-	] = useMutation(associateUserAccountWithAccountAndAccountRole);
+	] = useMutation(associateUserAccountWithAccountAndAccountRole, {
+		awaitRefetchQueries: true,
+		refetchQueries: ['getUserAccountsByAccountExternalReferenceCode'],
+	});
 
 	const [baseButtonDisabled, setBaseButtonDisabled] = useState(true);
 	const [hasInitialError, setInitialError] = useState();
@@ -113,13 +120,8 @@ const InviteTeamMembersPage = ({
 		};
 
 		getRoles();
-	}, [
-		availableAdministratorAssets,
-		client,
-		project,
-		projectHasSLAGoldPlatinum,
-		setFieldValue,
-	]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [availableAdministratorAssets, client, setFieldValue]);
 
 	useEffect(() => {
 		if (values && accountRoles?.length) {
@@ -154,55 +156,71 @@ const InviteTeamMembersPage = ({
 		if (filledEmails) {
 			const sucessfullyEmails = totalEmails - failedEmails;
 
-			setInitialError(false);
-			setBaseButtonDisabled(sucessfullyEmails !== totalEmails);
-			setshowEmptyEmailError(false);
+			if (
+				availableAdministratorAssets < 1 &&
+				isSelectdAdministratorOrRequestorRole
+			) {
+				setBaseButtonDisabled(true);
+			}
+			else {
+				setInitialError(false);
+				setBaseButtonDisabled(sucessfullyEmails !== totalEmails);
+				setshowEmptyEmailError(false);
+			}
 		}
 		else if (touched['invites']?.some((field) => field?.email)) {
 			setInitialError(true);
 			setBaseButtonDisabled(true);
 		}
-	}, [touched, values, errors]);
+	}, [
+		touched,
+		values,
+		availableAdministratorAssets,
+		isSelectdAdministratorOrRequestorRole,
+		errors,
+	]);
 
 	const handleSubmit = async () => {
 		const filledEmails = values?.invites?.filter(({email}) => email) || [];
 
 		if (filledEmails.length) {
 			setIsLoadingUserInvitation(true);
-			const newMembersData = await Promise.all(
-				filledEmails.map(async ({email, role}) => {
-					const invitedUser = await addTeamMemberInvitation({
-						context: {
-							displaySuccess: false,
-						},
-						variables: {
-							TeamMembersInvitation: {
-								email,
-								role: role.key,
-							},
-							scopeKey: Liferay.ThemeDisplay.getScopeGroupId(),
-						},
-					});
+			const newMembersData = await addTeamMemberInvitation({
+				context: {
+					type: 'liferay-rest',
+				},
+				variables: {
+					TeamMembersInvitation: filledEmails.map(
+						({email, role}) => ({
+							email,
+							r_accountEntryToDXPCloudEnvironment_accountEntryId:
+								project?.id,
+							role: role.key,
+						})
+					),
+				},
+			});
 
-					await associateUserAccount({
-						variables: {
-							accountKey: project.accountKey,
-							accountRoleId: role.id,
-							emailAddress: email,
-						},
-					});
+			filledEmails.map(async ({email, role}) => {
+				await associateUserAccount({
+					context: {
+						displaySuccess: false,
+					},
+					variables: {
+						accountKey: project.accountKey,
+						accountRoleId: role.id,
+						emailAddress: email,
+					},
+				});
 
-					await associateContactRoleNameByEmailByProject(
-						project.accountKey,
-						provisioningServerAPI,
-						sessionId,
-						encodeURI(email),
-						role.raysourceName
-					);
-
-					return invitedUser;
-				})
-			);
+				await associateContactRoleNameByEmailByProject(
+					project.accountKey,
+					provisioningServerAPI,
+					sessionId,
+					encodeURI(email),
+					role.raysourceName
+				);
+			});
 
 			setIsLoadingUserInvitation(false);
 
@@ -297,6 +315,11 @@ const InviteTeamMembersPage = ({
 										id={index}
 										invite={invite}
 										key={index}
+										onSelectRole={(role) => {
+											setIsSelectedAdministratorOrRequestorRole(
+												role
+											);
+										}}
 										options={accountRolesOptions}
 										placeholderEmail={`username@${
 											project?.code?.toLowerCase() ||

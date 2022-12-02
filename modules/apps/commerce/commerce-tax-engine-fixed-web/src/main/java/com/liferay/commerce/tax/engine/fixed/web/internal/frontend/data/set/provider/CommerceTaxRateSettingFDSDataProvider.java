@@ -30,6 +30,7 @@ import com.liferay.commerce.tax.model.CommerceTaxMethod;
 import com.liferay.frontend.data.set.provider.FDSDataProvider;
 import com.liferay.frontend.data.set.provider.search.FDSKeywords;
 import com.liferay.frontend.data.set.provider.search.FDSPagination;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Country;
@@ -42,7 +43,6 @@ import com.liferay.portal.kernel.util.WebKeys;
 
 import java.math.BigDecimal;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -55,7 +55,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alec Sloan
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "fds.data.provider.key=" + CommerceTaxRateSettingFDSNames.TAX_RATE_SETTING,
 	service = FDSDataProvider.class
 )
@@ -67,8 +66,6 @@ public class CommerceTaxRateSettingFDSDataProvider
 			FDSKeywords fdsKeywords, FDSPagination fdsPagination,
 			HttpServletRequest httpServletRequest, Sort sort)
 		throws PortalException {
-
-		List<TaxRateSetting> taxRateSettings = new ArrayList<>();
 
 		long commerceChannelId = ParamUtil.getLong(
 			httpServletRequest, "commerceChannelId");
@@ -91,18 +88,17 @@ public class CommerceTaxRateSettingFDSDataProvider
 				commerceChannel.getCompanyId(),
 				commerceChannel.getCommerceCurrencyCode());
 
-		for (CommerceTaxFixedRateAddressRel commerceTaxFixedRateAddressRel :
-				commerceTaxFixedRateAddressRels) {
+		return TransformUtil.transform(
+			commerceTaxFixedRateAddressRels,
+			commerceTaxFixedRateAddressRel -> {
+				ThemeDisplay themeDisplay =
+					(ThemeDisplay)httpServletRequest.getAttribute(
+						WebKeys.THEME_DISPLAY);
 
-			ThemeDisplay themeDisplay =
-				(ThemeDisplay)httpServletRequest.getAttribute(
-					WebKeys.THEME_DISPLAY);
+				CPTaxCategory cpTaxCategory =
+					commerceTaxFixedRateAddressRel.getCPTaxCategory();
 
-			CPTaxCategory cpTaxCategory =
-				commerceTaxFixedRateAddressRel.getCPTaxCategory();
-
-			taxRateSettings.add(
-				new TaxRateSetting(
+				return new TaxRateSetting(
 					_getCountry(
 						commerceTaxFixedRateAddressRel.getCountry(),
 						themeDisplay.getLanguageId()),
@@ -113,10 +109,8 @@ public class CommerceTaxRateSettingFDSDataProvider
 					cpTaxCategory.getName(themeDisplay.getLanguageId()),
 					commerceTaxFixedRateAddressRel.
 						getCommerceTaxFixedRateAddressRelId(),
-					_getZip(commerceTaxFixedRateAddressRel.getZip())));
-		}
-
-		return taxRateSettings;
+					_getZip(commerceTaxFixedRateAddressRel.getZip()));
+			});
 	}
 
 	@Override

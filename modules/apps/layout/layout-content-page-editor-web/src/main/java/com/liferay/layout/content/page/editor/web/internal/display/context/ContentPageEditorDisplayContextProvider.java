@@ -15,7 +15,8 @@
 package com.liferay.layout.content.page.editor.web.internal.display.context;
 
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
+import com.liferay.info.search.InfoSearchClassMapperRegistry;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorWebKeys;
 import com.liferay.layout.content.page.editor.sidebar.panel.ContentPageEditorSidebarPanel;
@@ -35,7 +36,6 @@ import com.liferay.segments.manager.SegmentsExperienceManager;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.staging.StagingGroupHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -57,7 +57,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.layout.content.page.editor.web.internal.configuration.PageEditorConfiguration",
-	immediate = true, service = ContentPageEditorDisplayContextProvider.class
+	service = ContentPageEditorDisplayContextProvider.class
 )
 public class ContentPageEditorDisplayContextProvider {
 
@@ -73,9 +73,9 @@ public class ContentPageEditorDisplayContextProvider {
 				_getContentPageEditorSidebarPanels(),
 				_fragmentCollectionManager, _fragmentEntryLinkManager,
 				_frontendTokenDefinitionRegistry, httpServletRequest,
-				_infoItemServiceTracker, _itemSelector,
-				_pageEditorConfiguration, portletRequest, renderResponse,
-				_segmentsConfigurationProvider,
+				_infoItemServiceRegistry, _infoSearchClassMapperRegistry,
+				_itemSelector, _pageEditorConfiguration, portletRequest,
+				renderResponse, _segmentsConfigurationProvider,
 				new SegmentsExperienceManager(_segmentsExperienceLocalService),
 				_stagingGroupHelper);
 		}
@@ -99,7 +99,8 @@ public class ContentPageEditorDisplayContextProvider {
 		return new ContentPageEditorLayoutPageTemplateDisplayContext(
 			_getContentPageEditorSidebarPanels(), _fragmentCollectionManager,
 			_fragmentEntryLinkManager, _frontendTokenDefinitionRegistry,
-			httpServletRequest, _infoItemServiceTracker, _itemSelector,
+			httpServletRequest, _infoItemServiceRegistry,
+			_infoSearchClassMapperRegistry, _itemSelector,
 			_pageEditorConfiguration, pageIsDisplayPage, portletRequest,
 			renderResponse, _segmentsConfigurationProvider,
 			new SegmentsExperienceManager(_segmentsExperienceLocalService),
@@ -125,16 +126,7 @@ public class ContentPageEditorDisplayContextProvider {
 	private List<ContentPageEditorSidebarPanel>
 		_getContentPageEditorSidebarPanels() {
 
-		List<ContentPageEditorSidebarPanel> contentPageEditorSidebarPanels =
-			new ArrayList<>(_serviceTrackerList.size());
-
-		for (ContentPageEditorSidebarPanel contentPageEditorSidebarPanel :
-				_serviceTrackerList) {
-
-			contentPageEditorSidebarPanels.add(contentPageEditorSidebarPanel);
-		}
-
-		return contentPageEditorSidebarPanels;
+		return _serviceTrackerList.toList();
 	}
 
 	@Reference
@@ -147,7 +139,10 @@ public class ContentPageEditorDisplayContextProvider {
 	private FrontendTokenDefinitionRegistry _frontendTokenDefinitionRegistry;
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
+
+	@Reference
+	private InfoSearchClassMapperRegistry _infoSearchClassMapperRegistry;
 
 	@Reference
 	private ItemSelector _itemSelector;

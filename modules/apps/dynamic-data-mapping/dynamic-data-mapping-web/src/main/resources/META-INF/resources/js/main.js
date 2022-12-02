@@ -693,6 +693,15 @@ AUI.add(
 								);
 							}
 						}
+						else if (
+							attributeName === 'multiple' &&
+							changed.value.newVal === 'false'
+						) {
+							editingField.set('multiple', changed.value.newVal);
+							editingField.set('predefinedValue', ['']);
+
+							instance.editField(editingField);
+						}
 					}
 				},
 

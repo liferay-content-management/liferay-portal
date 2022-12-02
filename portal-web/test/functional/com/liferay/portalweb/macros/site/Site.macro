@@ -737,7 +737,7 @@ definition {
 			locator1 = "TextInput#FRIENDLY_URL_SITE_SETTINGS",
 			value1 = "${siteFriendlyURLEdit}");
 
-		Button.clickSave();
+		Button.clickNoError(button = "Save");
 
 		if ("${friendlyURLInvalid}" == "true") {
 			Alert.viewRequestFailedToComplete();
@@ -776,7 +776,9 @@ definition {
 			locator1 = "TextInput#MATOMO",
 			value1 = "${matomo}");
 
-		Button.click(button = "Save");
+		ClickNoError.mouseDownMouseUp(
+			key_text = "Save",
+			locator1 = "Button#ANY");
 
 		if (isSet(confirmationText)) {
 			AssertConfirm(value1 = "${confirmationText}");
@@ -785,6 +787,21 @@ definition {
 		Alert.viewSuccessMessage();
 
 		WaitForLiferayEvent.initializeLiferayEventLog();
+	}
+
+	macro editVirtualHostLanguageCP {
+		Click(
+			key_itemName = "Site Configuration",
+			locator1 = "ListGroupItem#ITEM_TEXT");
+
+		Navigator.gotoNavTab(navTab = "Site URL");
+
+		Select(
+			key_selectFieldLabel = "Language",
+			locator1 = "Select#ANY",
+			value1 = "${languageVirtualHost}");
+
+		PortletEntry.save();
 	}
 
 	macro getSiteId {
@@ -1070,33 +1087,6 @@ definition {
 		Alert.viewSuccessMessage();
 	}
 
-	macro removeUserGroupCP {
-		LexiconEntry.changeDisplayStyle(displayStyle = "table");
-
-		if (isSet(bulkEditing)) {
-			for (var userGroupName : list "${userGroupNameList}") {
-				Check(
-					key_tableEntry = "${userGroupName}",
-					locator1 = "LexiconTable#TABLE_ENTRY_CHECKBOX");
-			}
-
-			ClickNoError(locator1 = "Icon#DELETE");
-		}
-		else {
-			Search.searchCP(searchTerm = "${userGroupName}");
-
-			Click.waitForMenuToggleJSClick(
-				key_rowEntry = "${userGroupName}",
-				locator1 = "Icon#TABLE_VERTICAL_ELLIPSIS");
-
-			MenuItem.clickNoError(menuItem = "Remove Membership");
-		}
-
-		Confirm();
-
-		Alert.viewSuccessMessage();
-	}
-
 	macro searchCP {
 		Search.searchCP(searchTerm = "Site Name");
 
@@ -1225,8 +1215,6 @@ definition {
 
 		Navigator.gotoNavItem(navItem = "User Groups");
 
-		Search.searchCP(searchTerm = "${userGroupName}");
-
 		LexiconEntry.changeDisplayStyle(displayStyle = "table");
 
 		AssertTextEquals(
@@ -1239,7 +1227,9 @@ definition {
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
-		LexiconEntry.changeDisplayStyle(displayStyle = "cards");
+		if (IsElementNotPresent(key_card = "${roleName}", locator1 = "Card#CARD")) {
+			LexiconEntry.changeDisplayStyle(displayStyle = "cards");
+		}
 
 		LexiconCard.checkCardCheckbox(card = "${roleName}");
 

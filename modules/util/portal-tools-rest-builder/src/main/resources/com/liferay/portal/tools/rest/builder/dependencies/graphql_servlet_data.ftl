@@ -1,17 +1,23 @@
 package ${configYAML.apiPackagePath}.internal.graphql.servlet.${escapedVersion};
 
 <#list allExternalSchemas?keys as schemaName>
+	import ${configYAML.apiPackagePath}.internal.resource.${escapedVersion}.${schemaName}ResourceImpl;
 	import ${configYAML.apiPackagePath}.resource.${escapedVersion}.${schemaName}Resource;
 </#list>
 
 <#list freeMarkerTool.getSchemas(openAPIYAML)?keys as schemaName>
+	import ${configYAML.apiPackagePath}.internal.resource.${escapedVersion}.${schemaName}ResourceImpl;
 	import ${configYAML.apiPackagePath}.resource.${escapedVersion}.${schemaName}Resource;
 </#list>
 
 import ${configYAML.apiPackagePath}.internal.graphql.mutation.${escapedVersion}.Mutation;
 import ${configYAML.apiPackagePath}.internal.graphql.query.${escapedVersion}.Query;
 
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -26,13 +32,18 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author ${configYAML.author}
  * @generated
  */
-@Component(<#if configYAML.liferayEnterpriseApp>enabled = false,</#if> immediate = true, service = ServletData.class)
+@Component(<#if configYAML.liferayEnterpriseApp>enabled = false,</#if> service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
 	<#assign
-		mutationSchemaNames = freeMarkerTool.getGraphQLSchemaNames(freeMarkerTool.getGraphQLJavaMethodSignatures(configYAML, "mutation", openAPIYAML))
-		querySchemaNames = freeMarkerTool.getGraphQLSchemaNames(freeMarkerTool.getGraphQLJavaMethodSignatures(configYAML, "query", openAPIYAML))
+		mutationJavaMethodSignatures = freeMarkerTool.getGraphQLJavaMethodSignatures(configYAML, "mutation", openAPIYAML)
+
+		mutationSchemaNames = freeMarkerTool.getGraphQLSchemaNames(mutationJavaMethodSignatures)
+
+		queryJavaMethodSignatures = freeMarkerTool.getGraphQLJavaMethodSignatures(configYAML, "query", openAPIYAML)
+
+		querySchemaNames = freeMarkerTool.getGraphQLSchemaNames(queryJavaMethodSignatures)
 	/>
 
 	@Activate
@@ -44,6 +55,10 @@ public class ServletDataImpl implements ServletData {
 		<#list querySchemaNames as schemaName>
 			Query.set${schemaName}ResourceComponentServiceObjects(_${freeMarkerTool.getSchemaVarName(schemaName)}ResourceComponentServiceObjects);
 		</#list>
+	}
+
+	public String getApplicationName() {
+		return "${configYAML.application.name}";
 	}
 
 	<#if configYAML.graphQLNamespace??>
@@ -67,6 +82,26 @@ public class ServletDataImpl implements ServletData {
 	public Query getQuery() {
 		return new Query();
 	}
+
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(String methodName, boolean mutation) {
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get("mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>> _resourceMethodObjectValuePairs = new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+		{
+			<#list mutationJavaMethodSignatures as javaMethodSignature>
+				put("mutation#${freeMarkerTool.getGraphQLMutationName(javaMethodSignature.methodName)}", new ObjectValuePair<>(${javaMethodSignature.schemaName}ResourceImpl.class, "${javaMethodSignature.methodName}"));
+			</#list>
+
+			<#list queryJavaMethodSignatures as javaMethodSignature>
+				put("query#${freeMarkerTool.getGraphQLPropertyName(javaMethodSignature, queryJavaMethodSignatures)}", new ObjectValuePair<>(${javaMethodSignature.schemaName}ResourceImpl.class, "${javaMethodSignature.methodName}"));
+			</#list>
+		}
+	};
 
 	<#assign schemaNames = mutationSchemaNames />
 

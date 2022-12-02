@@ -23,7 +23,7 @@ exports[`Select calls onChange callback when an item is selected using multisele
       </option>
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -60,25 +60,29 @@ exports[`Select calls onChange callback when an item is selected using multisele
             </span>
           </span>
         </li>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
         class="dropdown-menu ddm-btn-full ddm-select-dropdown show"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 0; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -354,7 +358,7 @@ exports[`Select filters according to the input and calls onChange callback when 
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -366,25 +370,29 @@ exports[`Select filters according to the input and calls onChange callback when 
         >
           choose-options
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
         class="dropdown-menu ddm-btn-full ddm-select-dropdown show"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 0; width: 100%; left: -1049px; top: -1003px;"
       >
         <form
           class=""
@@ -598,7 +606,7 @@ exports[`Select has a help text 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -610,25 +618,30 @@ exports[`Select has a help text 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -698,7 +711,7 @@ exports[`Select has a key 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -710,25 +723,30 @@ exports[`Select has a key 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -790,7 +808,7 @@ exports[`Select has a label 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -802,25 +820,30 @@ exports[`Select has a label 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -882,7 +905,7 @@ exports[`Select has a placeholder 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -894,25 +917,30 @@ exports[`Select has a placeholder 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -969,7 +997,7 @@ exports[`Select has a predefinedValue 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -981,25 +1009,30 @@ exports[`Select has a predefinedValue 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1056,7 +1089,7 @@ exports[`Select has a value 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1068,25 +1101,30 @@ exports[`Select has a value 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1143,7 +1181,7 @@ exports[`Select has an id 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1156,25 +1194,30 @@ exports[`Select has an id 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1231,7 +1274,7 @@ exports[`Select has class dropdown-opened when it's opened 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1243,25 +1286,30 @@ exports[`Select has class dropdown-opened when it's opened 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1318,7 +1366,7 @@ exports[`Select is closed by default 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1330,25 +1378,30 @@ exports[`Select is closed by default 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1405,7 +1458,7 @@ exports[`Select is not required 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1417,25 +1470,30 @@ exports[`Select is not required 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1509,7 +1567,7 @@ exports[`Select puts an asterisk when field is required 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1521,25 +1579,30 @@ exports[`Select puts an asterisk when field is required 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1608,7 +1671,7 @@ exports[`Select renders Label if showLabel is true 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1620,25 +1683,30 @@ exports[`Select renders Label if showLabel is true 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1700,7 +1768,7 @@ exports[`Select renders no options when options come empty 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1712,25 +1780,30 @@ exports[`Select renders no options when options come empty 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1787,7 +1860,7 @@ exports[`Select renders options 1`] = `
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1799,25 +1872,30 @@ exports[`Select renders options 1`] = `
         >
           choose-an-option
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
+        aria-hidden="true"
         class="dropdown-menu ddm-btn-full ddm-select-dropdown"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 500px; width: 100%; left: -1049px; top: -1003px;"
       >
         <ul
           class="list-unstyled"
@@ -1888,7 +1966,7 @@ exports[`Select shows a search input when the number of options is more than the
       />
     </select>
     <div
-      class="form-builder-select-field input-group-container"
+      class="form-builder-select-field input-group-container lfr__ddm-select-input-trigger"
       style=""
     >
       <div
@@ -1900,25 +1978,29 @@ exports[`Select shows a search input when the number of options is more than the
         >
           choose-options
         </div>
-        <a
-          class="select-arrow-down-container"
+        <div
+          class="lfr__ddm-form-field-type-select-arrow-down"
         >
-          <svg
-            class="lexicon-icon lexicon-icon-caret-double"
-            role="presentation"
+          <a
+            class="select-arrow-down-container"
           >
-            <use
-              xlink:href="#caret-double"
-            />
-          </svg>
-        </a>
+            <svg
+              class="lexicon-icon lexicon-icon-caret-double"
+              role="presentation"
+            >
+              <use
+                xlink:href="#caret-double"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
     <div>
       <div
         class="dropdown-menu ddm-btn-full ddm-select-dropdown show"
         role="presentation"
-        style="left: -999px; top: -1003px;"
+        style="max-width: 0; width: 100%; left: -1049px; top: -1003px;"
       >
         <form
           class=""

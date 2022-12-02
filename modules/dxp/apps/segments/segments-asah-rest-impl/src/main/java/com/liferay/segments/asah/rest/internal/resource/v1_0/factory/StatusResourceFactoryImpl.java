@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.segments.asah.rest.internal.security.permission.LiberalPermissionChecker;
 import com.liferay.segments.asah.rest.resource.v1_0.StatusResource;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	immediate = true,
 	property = "resource.locator.key=/segments-asah/v1.0/Status",
 	service = StatusResource.Factory.class
 )
@@ -139,16 +137,6 @@ public class StatusResourceFactoryImpl implements StatusResource.Factory {
 		};
 	}
 
-	@Activate
-	protected void activate() {
-		StatusResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		StatusResource.FactoryHolder.factory = null;
-	}
-
 	private static Function<InvocationHandler, StatusResource>
 		_getProxyProviderFunction() {
 
@@ -219,6 +207,7 @@ public class StatusResourceFactoryImpl implements StatusResource.Factory {
 		statusResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		statusResource.setRoleLocalService(_roleLocalService);
+		statusResource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(statusResource, arguments);
@@ -266,6 +255,9 @@ public class StatusResourceFactoryImpl implements StatusResource.Factory {
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

@@ -39,10 +39,6 @@ public class PollerRequest implements Serializable {
 		_receiveRequest = receiveRequest;
 	}
 
-	public PollerResponse createPollerResponse() {
-		return new DefaultPollerResponse();
-	}
-
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {

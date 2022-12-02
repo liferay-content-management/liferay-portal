@@ -26,18 +26,22 @@ definition {
 		}
 	}
 
+	@e2etest
 	@priority = "5"
 	@refactordone
 	test CanAddFolder {
+		property custom.properties = "feature.flag.LPS-156421=true";
 		property portal.acceptance = "true";
 
 		KBFolder.addCP(
 			kbFolderDescription = "KB Folder 1 Description",
 			kbFolderName = "KB Folder 1");
 
-		KBFolder.gotoCP(kbFolderName = "KB Folder 1");
+		KBFolder.gotoCP(
+			kbFolderName = "KB Folder 1",
+			pageTreePanel = "true");
 
-		KBArticle.viewDefaultCP();
+		KBArticle.viewDefaultCP(featureFlag = "true");
 	}
 
 	@description = "This test ensures that users can add folder via center pane button."
@@ -93,7 +97,9 @@ definition {
 			menuItem = "Delete",
 			navigationPane = "true");
 
-		KBArticle.viewDefaultCP(featureFlag = "true");
+		KBArticle.viewDefaultCP(
+			defaultHome = "true",
+			featureFlag = "true");
 	}
 
 	@priority = "4"
@@ -145,6 +151,7 @@ definition {
 
 		KBArticle.selectPGViaKBArticle(
 			kbArticleTitle = "KB Folder",
+			kbDisplay = "true",
 			pageName = "Knowledge Base Article Page");
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
@@ -238,7 +245,9 @@ definition {
 
 		KBFolder.selectParentCP(kbFolderName = "KB Folder 2");
 
-		KBFolder.gotoCP(kbFolderName = "KB Folder 2");
+		KBFolder.gotoCP(
+			highlight = "true",
+			kbFolderName = "KB Folder 2");
 
 		KBFolder.viewFolderNameCP(kbFolderName = "KB Folder 1");
 	}
@@ -312,7 +321,7 @@ definition {
 
 		Refresh();
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base 2017 Article Content",
 			kbArticleTitle = "Knowledge Base 2017 Article Title");
 
@@ -320,7 +329,7 @@ definition {
 
 		Refresh();
 
-		KBArticle.viewViaKBDisplayPG(
+		KBDisplayWidget.viewViaKBDisplayPG(
 			kbArticleContent = "Knowledge Base 2010 Article Content",
 			kbArticleTitle = "Knowledge Base 2010 Article Title");
 

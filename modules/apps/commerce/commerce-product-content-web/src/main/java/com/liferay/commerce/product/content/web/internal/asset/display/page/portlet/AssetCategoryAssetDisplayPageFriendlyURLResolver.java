@@ -69,7 +69,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alec Sloan
  * @author Ivica Cardic
  */
-@Component(enabled = false, service = FriendlyURLResolver.class)
+@Component(service = FriendlyURLResolver.class)
 public class AssetCategoryAssetDisplayPageFriendlyURLResolver
 	extends BaseAssetDisplayPageFriendlyURLResolver {
 
@@ -121,8 +121,7 @@ public class AssetCategoryAssetDisplayPageFriendlyURLResolver
 
 			String assetFriendlyURL =
 				_assetDisplayPageFriendlyURLProvider.getFriendlyURL(
-					_portal.getClassName(
-						layoutDisplayPageObjectProvider.getClassNameId()),
+					layoutDisplayPageObjectProvider.getClassName(),
 					layoutDisplayPageObjectProvider.getClassPK(),
 					_portal.getLocale(
 						(HttpServletRequest)requestContext.get("request")),
@@ -327,7 +326,7 @@ public class AssetCategoryAssetDisplayPageFriendlyURLResolver
 		_getLayoutDisplayPageObjectProvider(AssetCategory assetCategory) {
 
 		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
-			layoutDisplayPageProviderTracker.
+			layoutDisplayPageProviderRegistry.
 				getLayoutDisplayPageProviderByClassName(
 					AssetCategory.class.getName());
 

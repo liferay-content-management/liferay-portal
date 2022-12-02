@@ -79,7 +79,7 @@ public class UserGroupServiceImpl extends UserGroupServiceBaseImpl {
 
 		UserGroup userGroup =
 			userGroupLocalService.fetchUserGroupByExternalReferenceCode(
-				permissionChecker.getCompanyId(), externalReferenceCode);
+				externalReferenceCode, permissionChecker.getCompanyId());
 
 		if (userGroup == null) {
 			PortalPermissionUtil.check(
@@ -185,7 +185,7 @@ public class UserGroupServiceImpl extends UserGroupServiceBaseImpl {
 
 		UserGroup userGroup =
 			userGroupLocalService.fetchUserGroupByExternalReferenceCode(
-				companyId, externalReferenceCode);
+				externalReferenceCode, companyId);
 
 		if (userGroup != null) {
 			UserGroupPermissionUtil.check(

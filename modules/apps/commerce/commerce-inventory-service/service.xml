@@ -75,7 +75,7 @@
 			<finder-column name="sku" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" mvcc-enabled="true" name="CommerceInventoryReplenishmentItem" remote-service="true" table="CIReplenishmentItem" uuid="true">
+	<entity external-reference-code="company" local-service="true" mvcc-enabled="true" name="CommerceInventoryReplenishmentItem" remote-service="true" table="CIReplenishmentItem" uuid="true">
 
 		<!-- PK fields -->
 
@@ -116,7 +116,7 @@
 			<finder-column name="availabilityDate" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" mvcc-enabled="true" name="CommerceInventoryWarehouse" remote-service="true" table="CIWarehouse" uuid="true">
+	<entity external-reference-code="company" local-service="true" mvcc-enabled="true" name="CommerceInventoryWarehouse" remote-service="true" table="CIWarehouse" uuid="true">
 
 		<!-- PK fields -->
 
@@ -171,7 +171,7 @@
 			<finder-column name="countryTwoLettersISOCode" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" mvcc-enabled="true" name="CommerceInventoryWarehouseItem" remote-service="true" table="CIWarehouseItem" uuid="true">
+	<entity external-reference-code="company" local-service="true" mvcc-enabled="true" name="CommerceInventoryWarehouseItem" remote-service="true" table="CIWarehouseItem" uuid="true">
 
 		<!-- PK fields -->
 

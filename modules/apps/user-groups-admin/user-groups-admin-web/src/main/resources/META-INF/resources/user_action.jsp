@@ -17,23 +17,15 @@
 <%@ include file="/init.jsp" %>
 
 <%
-long userGroupId = ParamUtil.getLong(request, "userGroupId");
-
 ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
 
 User user2 = (User)row.getObject();
+
+UserActionDropdownItems userActionDropdownItems = new UserActionDropdownItems(renderRequest, renderResponse, user2);
 %>
 
-<portlet:actionURL name="editUserGroupAssignments" var="deleteUserGroupUsersURL">
-	<portlet:param name="redirect" value="<%= currentURL %>" />
-	<portlet:param name="userGroupId" value="<%= String.valueOf(userGroupId) %>" />
-	<portlet:param name="removeUserIds" value="<%= String.valueOf(user2.getUserId()) %>" />
-</portlet:actionURL>
-
-<liferay-ui:icon
-	icon="times-circle"
-	linkCssClass="table-action-link"
-	markupView="lexicon"
-	message="remove"
-	url="<%= deleteUserGroupUsersURL %>"
+<clay:dropdown-actions
+	aria-label='<%= LanguageUtil.get(request, "show-actions") %>'
+	dropdownItems="<%= userActionDropdownItems.getActionDropdownItems() %>"
+	propsTransformer="js/UserDropdownDefaultPropsTransformer"
 />

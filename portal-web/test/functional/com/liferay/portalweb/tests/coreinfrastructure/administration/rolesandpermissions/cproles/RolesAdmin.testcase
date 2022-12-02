@@ -116,11 +116,20 @@ definition {
 
 		Role.openRolesAdmin();
 
+		RoleNavigator.gotoRoleType();
+
+		LexiconEntry.gotoEntry(rowEntry = "Remove Permission Scope");
+
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
 
-		Role.definePermissionCmdCP(
-			permissionDefinitionKey = "SITE_ADMIN_APPLICATIONS_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_VIEW_CHECKBOX",
-			permissionDefinitionValue = "View",
+		// The define permission via json macro is not able to change the permission scope
+
+		Role.editPermissionCmdCPUI(
+			define = "true",
+			permissionNavHeader = "Content & Data",
+			permissionNavItem = "Documents and Media",
+			permissionSheetSubtitle = "Documents",
+			permissionValues = "View",
 			roleTitle = "Remove Permission Scope",
 			siteNameScope = "${siteName}");
 
@@ -131,9 +140,17 @@ definition {
 
 		Role.openRolesAdmin();
 
-		Role.definePermissionCmdCP(
-			permissionDefinitionKey = "SITE_ADMIN_APPLICATIONS_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_VIEW_CHECKBOX",
-			permissionDefinitionValue = "View",
+		RoleNavigator.gotoRoleType();
+
+		LexiconEntry.gotoEntry(rowEntry = "Remove Permission Scope");
+
+		// The define permission via json macro is not able to change the permission scope
+
+		Role.editPermissionCmdCPUI(
+			permissionNavHeader = "Content & Data",
+			permissionNavItem = "Documents and Media",
+			permissionSheetSubtitle = "Documents",
+			permissionValues = "View",
 			removeSiteScope = "${siteName}",
 			roleTitle = "Remove Permission Scope");
 
@@ -163,7 +180,7 @@ definition {
 		task ("Then only one result is displayed and the result is the newly created role") {
 			AssertTextEquals(
 				locator1 = "Search#SEARCH_INFO",
-				value1 = "1 Result for &quot;Role1 Name&quot;");
+				value1 = "1 Result for \"Role1 Name\"");
 
 			LexiconEntry.viewEntryName(rowEntry = "Role1 Name");
 		}
@@ -177,7 +194,7 @@ definition {
 		task ("Then only one result is displayed and the result is the newly created role") {
 			AssertTextEquals(
 				locator1 = "Search#SEARCH_INFO",
-				value1 = "1 Result for &quot;Role2 Key&quot;");
+				value1 = "1 Result for \"Role2 Key\"");
 
 			LexiconEntry.viewEntryName(rowEntry = "Role1 Name");
 		}
@@ -195,6 +212,8 @@ definition {
 			roleTitle = "Permission Scope");
 
 		Role.openRolesAdmin();
+
+		// The define permission via json macro is not able to change the permission scope
 
 		Role.definePermissionCmdCP(
 			permissionDefinitionKey = "SITE_ADMIN_APPLICATIONS_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_VIEW_CHECKBOX",
@@ -710,9 +729,7 @@ definition {
 	test UserCanAddARoleWithoutATitle {
 		Role.openRolesAdmin();
 
-		Role.viewCP(
-			roleKey = "Administrator",
-			toolTip = "A title is a localizable human-readable name for a role. If not provided, the key will be displayed by default.");
+		Role.viewCP(roleKey = "Administrator");
 
 		Role.openRolesAdmin();
 

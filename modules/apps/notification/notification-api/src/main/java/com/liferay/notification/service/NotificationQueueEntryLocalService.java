@@ -14,6 +14,7 @@
 
 package com.liferay.notification.service;
 
+import com.liferay.notification.context.NotificationContext;
 import com.liferay.notification.model.NotificationQueueEntry;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -65,10 +66,7 @@ public interface NotificationQueueEntryLocalService
 	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.notification.service.impl.NotificationQueueEntryLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the notification queue entry local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link NotificationQueueEntryLocalServiceUtil} if injection and service tracking are not available.
 	 */
 	public NotificationQueueEntry addNotificationQueueEntry(
-			long userId, long notificationTemplateId, String bcc, String body,
-			String cc, String className, long classPK, String from,
-			String fromName, double priority, String subject, String to,
-			String toName, List<Long> fileEntryIds)
+			NotificationContext notificationContext)
 		throws PortalException;
 
 	/**
@@ -276,11 +274,13 @@ public interface NotificationQueueEntryLocalService
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<NotificationQueueEntry> getUnsentNotificationEntries(
+		String type);
+
 	public NotificationQueueEntry resendNotificationQueueEntry(
 			long notificationQueueEntryId)
 		throws PortalException;
-
-	public void sendNotificationQueueEntries();
 
 	/**
 	 * Updates the notification queue entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.

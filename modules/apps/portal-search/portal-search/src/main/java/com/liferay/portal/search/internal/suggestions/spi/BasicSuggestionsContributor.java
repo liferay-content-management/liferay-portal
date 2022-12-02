@@ -19,6 +19,7 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
@@ -35,6 +36,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.search.document.Document;
@@ -53,10 +55,10 @@ import com.liferay.portal.search.suggestions.SuggestionBuilderFactory;
 import com.liferay.portal.search.suggestions.SuggestionsContributorResults;
 import com.liferay.portal.search.suggestions.SuggestionsContributorResultsBuilderFactory;
 import com.liferay.portal.search.web.constants.SearchResultsPortletKeys;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.portlet.MutableRenderParameters;
 import javax.portlet.PortletMode;
@@ -71,8 +73,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Petteri Karttunen
  */
 @Component(
-	enabled = true, immediate = true,
-	property = "search.suggestions.contributor.name=basic",
+	enabled = true, property = "search.suggestions.contributor.name=basic",
 	service = SuggestionsContributor.class
 )
 public class BasicSuggestionsContributor implements SuggestionsContributor {
@@ -84,6 +85,14 @@ public class BasicSuggestionsContributor implements SuggestionsContributor {
 		SearchContext searchContext,
 		SuggestionsContributorConfiguration
 			suggestionsContributorConfiguration) {
+
+		if (!_exceedsCharacterThreshold(
+				(Map<String, Object>)
+					suggestionsContributorConfiguration.getAttributes(),
+				searchContext.getKeywords())) {
+
+			return null;
+		}
 
 		SearchResponse searchResponse = _searcher.search(
 			_getSearchRequest(
@@ -101,6 +110,23 @@ public class BasicSuggestionsContributor implements SuggestionsContributor {
 			suggestionsContributorConfiguration.getDisplayGroupName(),
 			liferayPortletRequest, liferayPortletResponse, searchContext,
 			searchHits.getSearchHits());
+	}
+
+	private boolean _exceedsCharacterThreshold(
+		Map<String, Object> attributes, String keywords) {
+
+		int characterThreshold = _getCharacterThreshold(attributes);
+
+		if (Validator.isBlank(keywords)) {
+			if (characterThreshold == 0) {
+				return true;
+			}
+		}
+		else if (keywords.length() >= characterThreshold) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private Layout _fetchLayoutByFriendlyURL(long groupId, String friendlyURL) {
@@ -179,6 +205,15 @@ public class BasicSuggestionsContributor implements SuggestionsContributor {
 		}
 
 		return StringPool.BLANK;
+	}
+
+	private int _getCharacterThreshold(Map<String, Object> attributes) {
+		if (attributes == null) {
+			return _CHARACTER_THRESHOLD;
+		}
+
+		return MapUtil.getInteger(
+			attributes, "characterThreshold", _CHARACTER_THRESHOLD);
 	}
 
 	private SearchRequest _getSearchRequest(
@@ -320,6 +355,8 @@ public class BasicSuggestionsContributor implements SuggestionsContributor {
 					searchContext.getLocale(), searchHit, searchLayout))
 		).build();
 	}
+
+	private static final int _CHARACTER_THRESHOLD = 2;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BasicSuggestionsContributor.class);

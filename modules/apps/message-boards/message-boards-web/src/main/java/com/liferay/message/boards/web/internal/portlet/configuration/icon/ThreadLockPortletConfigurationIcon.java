@@ -44,7 +44,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sergio González
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + MBPortletKeys.MESSAGE_BOARDS_ADMIN,
 		"path=/message_boards/view_message"
@@ -67,8 +66,7 @@ public class ThreadLockPortletConfigurationIcon
 				key = "unlock";
 			}
 
-			return _language.get(
-				getResourceBundle(getLocale(portletRequest)), key);
+			return _language.get(getLocale(portletRequest), key);
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {

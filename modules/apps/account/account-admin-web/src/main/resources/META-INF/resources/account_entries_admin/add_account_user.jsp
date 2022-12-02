@@ -131,9 +131,9 @@ renderResponse.setTitle(LanguageUtil.format(request, "add-new-user-to-x", accoun
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
-		<aui:button type="submit" />
-
-		<aui:button href="<%= backURL %>" type="cancel" />
+		<liferay-frontend:edit-form-buttons
+			redirect="<%= backURL %>"
+		/>
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>
 
@@ -149,14 +149,14 @@ renderResponse.setTitle(LanguageUtil.format(request, "add-new-user-to-x", accoun
 	}
 
 	if (accountEntryDisplay.isValidateUserEmailAddress()) {
-		context.put("validDomains", StringUtil.merge(accountEntryDisplay.getDomains(), StringPool.COMMA));
+		context.put("validDomains", accountEntryDisplay.getDomains());
 
 		PortletURL viewValidDomainsURL = PortletURLBuilder.createRenderURL(
 			renderResponse
 		).setMVCPath(
 			"/account_users_admin/account_user/view_valid_domains.jsp"
 		).setParameter(
-			"validDomains", StringUtil.merge(accountEntryDisplay.getDomains(), StringPool.COMMA)
+			"validDomains", accountEntryDisplay.getDomains()
 		).setWindowState(
 			LiferayWindowState.POP_UP
 		).buildPortletURL();

@@ -21,6 +21,7 @@ import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
+import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
@@ -28,7 +29,6 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.util.LocalizedMapUtil;
-import com.liferay.object.util.ObjectFieldUtil;
 import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -103,7 +103,7 @@ public class AddInfoItemStrutsActionTest {
 
 		_classNameId = String.valueOf(
 			_portal.getClassNameId(
-				"com.liferay.object.model.ObjectDefinition#" +
+				ObjectDefinition.class.getName() + "#" +
 					_objectDefinition.getObjectDefinitionId()));
 
 		_layout = _addLayout();
@@ -234,7 +234,8 @@ public class AddInfoItemStrutsActionTest {
 				ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT, objectFields);
 
 		ObjectField objectField = _objectFieldLocalService.addCustomObjectField(
-			_user.getUserId(), 0, objectDefinition.getObjectDefinitionId(),
+			null, _user.getUserId(), 0,
+			objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectFieldConstants.DB_TYPE_STRING, null, true, true, null,
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),

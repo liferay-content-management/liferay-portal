@@ -140,7 +140,7 @@ public class AssetCategoryServiceImpl extends AssetCategoryServiceBaseImpl {
 
 		AssetCategory category =
 			assetCategoryLocalService.getAssetCategoryByExternalReferenceCode(
-				groupId, externalReferenceCode);
+				externalReferenceCode, groupId);
 
 		AssetCategoryPermission.check(
 			getPermissionChecker(), category.getCategoryId(), ActionKeys.VIEW);

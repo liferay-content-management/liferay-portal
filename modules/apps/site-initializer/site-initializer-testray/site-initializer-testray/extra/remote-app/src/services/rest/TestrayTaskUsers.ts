@@ -12,14 +12,15 @@
  * details.
  */
 
+import {InferType} from 'yup';
+
 import yupSchema from '../../schema/yup';
 import Rest from './Rest';
+import {TestrayTaskUser} from './types';
 
-type TaskToUser = typeof yupSchema.taskToUser.__outputType & {
-	projectId: number;
-};
+type TaskToUser = InferType<typeof yupSchema.taskToUser>;
 
-class TestrayTaskUsersImpl extends Rest {
+class TestrayTaskUsersImpl extends Rest<TaskToUser, TestrayTaskUser> {
 	constructor() {
 		super({
 			adapter: ({
@@ -31,20 +32,33 @@ class TestrayTaskUsersImpl extends Rest {
 				r_taskToTasksUsers_c_taskId,
 				r_userToTasksUsers_userId,
 			}),
-			nestedFields: '',
-			transformData: (TaskToUser) => ({
-				...TaskToUser,
-				taskId: TaskToUser.r_taskToTasksUsers_c_taskId,
-				userId: TaskToUser.r_userToTasksUsers_userId,
+			nestedFields: 'task.build.project,task.build.routine,user,',
+			transformData: (taskUser) => ({
+				...taskUser,
+				task: taskUser.r_taskToTasksUsers_c_task
+					? {
+							...taskUser.r_taskToTasksUsers_c_task,
+							build: taskUser?.r_taskToTasksUsers_c_task
+								?.r_buildToTasks_c_build
+								? {
+										...taskUser?.r_taskToTasksUsers_c_task
+											?.r_buildToTasks_c_build,
+										project:
+											taskUser?.r_taskToTasksUsers_c_task
+												?.r_buildToTasks_c_build
+												?.r_projectToBuilds_c_project,
+										routine:
+											taskUser?.r_taskToTasksUsers_c_task
+												?.r_buildToTasks_c_build
+												?.r_routineToBuilds_c_routine,
+								  }
+								: undefined,
+					  }
+					: undefined,
+				user: taskUser.r_userToTasksUsers_user,
 			}),
 			uri: 'tasksuserses',
 		});
-	}
-
-	public async create(data: TaskToUser): Promise<any> {
-		const taskTouser = await super.create(data);
-
-		return taskTouser;
 	}
 }
 

@@ -12,11 +12,20 @@
  * details.
  */
 
-import {openConfirmModal, openSimpleInputModal} from 'frontend-js-web';
+import {
+	openConfirmModal,
+	openModal,
+	openSelectionModal,
+	openSimpleInputModal,
+} from 'frontend-js-web';
 
 import openDeleteLayoutModal from './openDeleteLayoutModal';
 
 const ACTIONS = {
+	copyLayoutUtilityPageEntry({copyLayoutUtilityPageEntryURL}) {
+		send(copyLayoutUtilityPageEntryURL);
+	},
+
 	deleteLayoutUtilityPageEntry({
 		deleteLayoutUtilityPageEntryMessage,
 		deleteLayoutUtilityPageEntryURL,
@@ -49,6 +58,13 @@ const ACTIONS = {
 		}
 	},
 
+	permissionsLayoutUtilityPageEntry({permissionsLayoutUtilityPageEntryURL}) {
+		openModal({
+			title: Liferay.Language.get('permissions'),
+			url: permissionsLayoutUtilityPageEntryURL,
+		});
+	},
+
 	renameLayoutUtilityPageEntry(
 		{
 			layoutUtilityPageEntryId,
@@ -67,6 +83,50 @@ const ACTIONS = {
 			mainFieldPlaceholder: Liferay.Language.get('name'),
 			mainFieldValue: layoutUtilityPageEntryName,
 			namespace,
+		});
+	},
+
+	unmarkAsDefaultLayoutUtilityPageEntry({
+		unmarkAsDefaultLayoutUtilityPageEntryURL,
+	}) {
+		openConfirmModal({
+			message: Liferay.Language.get(
+				'are-you-sure-you-want-to-unmark-this'
+			),
+			onConfirm: (isConfirmed) => {
+				if (isConfirmed) {
+					send(unmarkAsDefaultLayoutUtilityPageEntryURL);
+				}
+			},
+		});
+	},
+
+	updateLayoutUtilityPageEntryPreview(
+		{itemSelectorURL, layoutUtilityPageEntryId},
+		namespace
+	) {
+		openSelectionModal({
+			onSelect: (selectedItem) => {
+				if (selectedItem) {
+					const itemValue = JSON.parse(selectedItem.value);
+
+					document.getElementById(
+						`${namespace}layoutUtilityPageEntryId`
+					).value = layoutUtilityPageEntryId;
+
+					document.getElementById(`${namespace}fileEntryId`).value =
+						itemValue.fileEntryId;
+
+					submitForm(
+						document.getElementById(
+							`${namespace}layoutUtilityPageEntryPreviewFm`
+						)
+					);
+				}
+			},
+			selectEventName: Liferay.Util.ns(namespace, 'changePreview'),
+			title: Liferay.Language.get('utility-page-thumbnail'),
+			url: itemSelectorURL,
 		});
 	},
 };

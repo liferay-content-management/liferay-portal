@@ -14,9 +14,13 @@
 
 package com.liferay.data.cleanup.internal.upgrade.registry;
 
+import com.liferay.change.tracking.service.CTCollectionLocalService;
+import com.liferay.change.tracking.service.CTEntryLocalService;
 import com.liferay.change.tracking.store.service.CTSContentLocalService;
 import com.liferay.data.cleanup.internal.configuration.DataCleanupConfiguration;
+import com.liferay.data.cleanup.internal.configuration.DataRemovalConfiguration;
 import com.liferay.data.cleanup.internal.upgrade.ChatUpgradeProcess;
+import com.liferay.data.cleanup.internal.upgrade.DLPreviewCTSContentDataUpgradeProcess;
 import com.liferay.data.cleanup.internal.upgrade.DictionaryUpgradeProcess;
 import com.liferay.data.cleanup.internal.upgrade.DirectoryUpgradeProcess;
 import com.liferay.data.cleanup.internal.upgrade.ExpiredJournalArticleUpgradeProcess;
@@ -31,11 +35,11 @@ import com.liferay.data.cleanup.internal.upgrade.SoftwareCatalogUpgradeProcess;
 import com.liferay.data.cleanup.internal.upgrade.TwitterUpgradeProcess;
 import com.liferay.data.cleanup.internal.upgrade.UpgradeHelloWorld;
 import com.liferay.data.cleanup.internal.upgrade.util.ConfigurationUtil;
+import com.liferay.expando.kernel.service.ExpandoTableLocalService;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.message.boards.service.MBMessageLocalService;
 import com.liferay.message.boards.service.MBThreadLocalService;
 import com.liferay.petra.reflect.ReflectionUtil;
-import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.service.ImageLocalService;
@@ -47,12 +51,10 @@ import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.ratings.kernel.service.RatingsStatsLocalService;
 import com.liferay.subscription.service.SubscriptionLocalService;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 import org.apache.felix.cm.PersistenceManager;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -60,8 +62,11 @@ import org.osgi.service.component.annotations.Reference;
  * @author Preston Crary
  */
 @Component(
-	configurationPid = "com.liferay.data.cleanup.internal.configuration.DataCleanupConfiguration",
-	immediate = true, service = UpgradeStepRegistrator.class
+	configurationPid = {
+		"com.liferay.data.cleanup.internal.configuration.DataCleanupConfiguration",
+		"com.liferay.data.cleanup.internal.configuration.DataRemovalConfiguration"
+	},
+	service = UpgradeStepRegistrator.class
 )
 public class DataCleanupUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
@@ -69,73 +74,72 @@ public class DataCleanupUpgradeStepRegistrator
 	@Override
 	public void register(Registry registry) {
 		try {
-			ConfigurationUtil.resetConfiguration(
-				_persistenceManager, DataCleanupConfiguration.class);
+			DataCleanupConfiguration dataCleanupConfiguration =
+				ConfigurationUtil.getAndResetConfiguration(
+					_persistenceManager, DataCleanupConfiguration.class);
 
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpChatModuleData,
+				dataCleanupConfiguration::cleanUpChatModuleData,
 				"com.liferay.chat.service", ChatUpgradeProcess::new);
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpDictionaryModuleData,
+				dataCleanupConfiguration::cleanUpDictionaryModuleData,
 				"com.liferay.dictionary.web", DictionaryUpgradeProcess::new);
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpDirectoryModuleData,
+				dataCleanupConfiguration::cleanUpDirectoryModuleData,
 				"com.liferay.directory.web", DirectoryUpgradeProcess::new);
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpImageEditorModuleData,
+				dataCleanupConfiguration::cleanUpImageEditorModuleData,
 				"com.liferay.frontend.image.editor.web",
 				ImageEditorUpgradeProcess::new);
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpHelloWorldModuleData,
+				dataCleanupConfiguration::cleanUpHelloWorldModuleData,
 				"com.liferay.hello.world.web", UpgradeHelloWorld::new);
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpInvitationModuleData,
+				dataCleanupConfiguration::cleanUpInvitationModuleData,
 				"com.liferay.invitation.web", InvitationUpgradeProcess::new);
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpMailReaderModuleData,
+				dataCleanupConfiguration::cleanUpMailReaderModuleData,
 				"com.liferay.mail.reader.service",
 				MailReaderUpgradeProcess::new);
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpShoppingModuleData,
+				dataCleanupConfiguration::cleanUpShoppingModuleData,
 				"com.liferay.shopping.service",
 				() -> new ShoppingUpgradeProcess(_imageLocalService));
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpPrivateMessagingModuleData,
+				dataCleanupConfiguration::cleanUpPrivateMessagingModuleData,
 				"com.liferay.social.privatemessaging.service",
 				() -> new PrivateMessagingUpgradeProcess(
 					_mbThreadLocalService));
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpSoftwareCatalogModuleData,
+				dataCleanupConfiguration::cleanUpSoftwareCatalogModuleData,
 				"com.liferay.softwarecatalog.service",
 				() -> new SoftwareCatalogUpgradeProcess(
 					_imageLocalService, _mbMessageLocalService,
 					_ratingsStatsLocalService, _subscriptionLocalService));
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpTwitterModuleData,
+				dataCleanupConfiguration::cleanUpTwitterModuleData,
 				"com.liferay.twitter.service", TwitterUpgradeProcess::new);
-
 			_cleanUpModuleData(
-				_dataCleanupConfiguration::cleanUpOpenSocialModuleData,
-				"opensocial-portlet", OpenSocialUpgradeProcess::new);
+				dataCleanupConfiguration::cleanUpOpenSocialModuleData,
+				"opensocial-portlet",
+				() -> new OpenSocialUpgradeProcess(_expandoTableLocalService));
+
+			DataRemovalConfiguration dataRemovalConfiguration =
+				ConfigurationUtil.getAndResetConfiguration(
+					_persistenceManager, DataRemovalConfiguration.class);
 
 			_removeModuleData(
-				_dataCleanupConfiguration::removePublishedCTSContentData,
+				dataRemovalConfiguration::removeDLPreviewCTSContentData,
+				"com.liferay.change.tracking.service",
+				() -> new DLPreviewCTSContentDataUpgradeProcess(
+					_ctCollectionLocalService, _ctEntryLocalService, _portal));
+			_removeModuleData(
+				dataRemovalConfiguration::removePublishedCTSContentData,
 				"com.liferay.change.tracking.store.service",
 				() -> new PublishedCTSContentDataUpgradeProcess(
 					_ctsContentLocalService, _portal));
-
 			_removeModuleData(
-				_dataCleanupConfiguration::removeExpiredJournalArticles,
+				dataRemovalConfiguration::removeExpiredJournalArticles,
 				"com.liferay.journal.service",
 				() -> new ExpiredJournalArticleUpgradeProcess(
 					_journalArticleLocalService));
@@ -143,12 +147,6 @@ public class DataCleanupUpgradeStepRegistrator
 		catch (Exception exception) {
 			ReflectionUtil.throwException(exception);
 		}
-	}
-
-	@Activate
-	protected void activate(Map<String, Object> properties) {
-		_dataCleanupConfiguration = ConfigurableUtil.createConfigurable(
-			DataCleanupConfiguration.class, properties);
 	}
 
 	private void _cleanUpModuleData(
@@ -175,27 +173,31 @@ public class DataCleanupUpgradeStepRegistrator
 			Supplier<UpgradeProcess> upgradeProcessSupplier)
 		throws UpgradeException {
 
-		if (!booleanSupplier.get()) {
-			return;
+		if (booleanSupplier.get()) {
+			Release release = _releaseLocalService.fetchRelease(
+				servletContextName);
+
+			if (release != null) {
+				UpgradeProcess upgradeProcess = upgradeProcessSupplier.get();
+
+				upgradeProcess.upgrade();
+
+				CacheRegistryUtil.clear();
+			}
 		}
-
-		Release release = _releaseLocalService.fetchRelease(servletContextName);
-
-		if (release == null) {
-			return;
-		}
-
-		UpgradeProcess upgradeProcess = upgradeProcessSupplier.get();
-
-		upgradeProcess.upgrade();
-
-		CacheRegistryUtil.clear();
 	}
+
+	@Reference
+	private CTCollectionLocalService _ctCollectionLocalService;
+
+	@Reference
+	private CTEntryLocalService _ctEntryLocalService;
 
 	@Reference
 	private CTSContentLocalService _ctsContentLocalService;
 
-	private DataCleanupConfiguration _dataCleanupConfiguration;
+	@Reference
+	private ExpandoTableLocalService _expandoTableLocalService;
 
 	@Reference
 	private ImageLocalService _imageLocalService;

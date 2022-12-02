@@ -1,8 +1,20 @@
 @import 'atlas-variables';
 
 $controlMenuHeight: 56px;
+$productMenuWidth: 320px;
+$productMenuTransitionDuration: 0.5s;
+$toolbarDesktopHeight: 4rem;
+$toolbarHeight: 6.875rem;
+$toolbarZIndex: 971;
 
 .knowledge-base-portlet-admin {
+	.kb-article {
+		.kb-article-title {
+			font-size: 2.5rem;
+			font-weight: $font-weight-bold;
+			margin-bottom: 1.5rem;
+		}
+	}
 	.knowledge-base-vertical-bar {
 		position: relative;
 		z-index: 1;
@@ -20,6 +32,10 @@ $controlMenuHeight: 56px;
 			background-color: $gray-200;
 			color: $dark;
 			font-weight: 600;
+
+			a.link-secondary {
+				color: $dark;
+			}
 		}
 
 		.sidebar {
@@ -62,5 +78,152 @@ $controlMenuHeight: 56px;
 	.knowledge-base-vertical-bar.not-expandable
 		+ .knowledge-base-admin-content {
 		transition: none;
+	}
+
+	.edit-knowledge-base-article-form {
+		.contextual-sidebar {
+			border-left: 1px $gray-300 solid;
+			box-shadow: none;
+			margin-top: 2.5rem;
+			overflow-y: scroll;
+			z-index: 1;
+
+			.sidebar-body {
+				.collapse-icon {
+					border-bottom: 1px solid $light;
+					color: $secondary;
+
+					&:hover {
+						color: $dark;
+					}
+
+					.collapse-icon-open {
+						color: $dark;
+					}
+				}
+
+				.panel {
+					margin-bottom: 0;
+
+					.panel-body {
+						padding-top: 0;
+					}
+				}
+			}
+
+			@include media-breakpoint-up(lg) {
+				margin-top: 0;
+			}
+		}
+
+		.contextual-sidebar-content .lfr-form-content {
+			margin-top: $toolbarHeight;
+
+			@include media-breakpoint-up(lg) {
+				margin-top: 2.5rem;
+			}
+		}
+
+		.tbar-knowledge-base-edit-article {
+			height: auto;
+			left: 0;
+			min-height: 3.5rem;
+			position: fixed;
+			transition: left ease $productMenuTransitionDuration,
+				width ease $productMenuTransitionDuration;
+			width: 100%;
+			z-index: $toolbarZIndex;
+
+			body.open & {
+				left: $productMenuWidth;
+				width: calc(100% - #{$productMenuWidth});
+
+				@media (max-width: 768px) {
+					left: 0;
+					width: 100%;
+				}
+			}
+
+			> .container-fluid {
+				padding: 0;
+
+				.tbar-nav {
+					flex-wrap: wrap;
+
+					> .tbar-item {
+						padding: 0.5em;
+					}
+
+					> .tbar-item:first-child {
+						border-top: solid thin #e7e7ed;
+						order: 1;
+						width: 100%;
+					}
+
+					> .tbar-item:last-child {
+						flex-grow: 1;
+						padding-right: 1em;
+
+						> .tbar-section {
+							display: flex;
+							justify-content: flex-end;
+						}
+					}
+
+					@include media-breakpoint-up(lg) {
+						flex-wrap: nowrap;
+
+						.tbar-item:first-child {
+							border-top: none;
+							order: 0;
+							width: auto;
+						}
+
+						> .tbar-item:last-child {
+							flex-grow: 0;
+						}
+					}
+				}
+			}
+
+			@include media-breakpoint-up(lg) {
+				min-height: $toolbarDesktopHeight;
+			}
+
+			.input-text-wrapper {
+				&:not(.has-error):not(.has-success) .form-control {
+					background-color: $gray-200;
+				}
+
+				.form-validator-stack {
+					display: none;
+				}
+			}
+		}
+
+		.kb-attachments {
+			margin-top: 0;
+
+			.lfr-dynamic-uploader .upload-target {
+				background-color: $gray-200;
+				border-color: $gray-400;
+				border-width: 2px;
+
+				.drop-file-text {
+					font-size: 0.875rem;
+					font-weight: 600;
+
+					.small {
+						display: inline;
+						font-weight: 600;
+						margin-left: 3px;
+					}
+				}
+			}
+		}
+	}
+
+	.lfr-search-container-wrapper .list-group .list-group-item h2.h5 {
+		font-weight: 600;
 	}
 }

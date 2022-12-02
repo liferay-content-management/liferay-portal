@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -38,7 +39,10 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Jürgen Kappler
  */
-@Component(service = ContentDashboardItemVersionActionProvider.class)
+@Component(
+	property = "service.ranking:Integer=400",
+	service = ContentDashboardItemVersionActionProvider.class
+)
 public class ExpireJournalArticleContentDashboardItemVersionActionProvider
 	implements ContentDashboardItemVersionActionProvider<JournalArticle> {
 
@@ -53,7 +57,7 @@ public class ExpireJournalArticleContentDashboardItemVersionActionProvider
 		}
 
 		return new ExpireJournalArticleContentDashboardItemVersionAction(
-			httpServletRequest, journalArticle, _language,
+			httpServletRequest, journalArticle, _language, _portal,
 			RequestBackedPortletURLFactoryUtil.create(httpServletRequest));
 	}
 
@@ -99,5 +103,8 @@ public class ExpireJournalArticleContentDashboardItemVersionActionProvider
 		target = "(model.class.name=com.liferay.journal.model.JournalArticle)"
 	)
 	private ModelResourcePermission<JournalArticle> _modelResourcePermission;
+
+	@Reference
+	private Portal _portal;
 
 }

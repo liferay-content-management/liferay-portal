@@ -53,7 +53,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/specification.properties",
 	scope = ServiceScope.PROTOTYPE, service = SpecificationResource.class
 )
@@ -214,11 +213,15 @@ public class SpecificationResourceImpl extends BaseSpecificationResourceImpl {
 
 		return _cpSpecificationOptionService.updateCPSpecificationOption(
 			cpSpecificationOption.getCPSpecificationOptionId(),
-			_getCPOptionCategoryId(specification),
+			GetterUtil.getLong(
+				cpSpecificationOption.getCPOptionCategoryId(),
+				_getCPOptionCategoryId(specification)),
 			LanguageUtils.getLocalizedMap(specification.getTitle()),
 			LanguageUtils.getLocalizedMap(specification.getDescription()),
-			_isFacetable(specification), specification.getKey(),
-			_serviceContextHelper.getServiceContext());
+			GetterUtil.getBoolean(
+				cpSpecificationOption.isFacetable(),
+				_isFacetable(specification)),
+			specification.getKey(), _serviceContextHelper.getServiceContext());
 	}
 
 	private CPSpecificationOption _updateSpecification(

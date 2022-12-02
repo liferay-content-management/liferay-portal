@@ -150,11 +150,21 @@ const NotificationsInfo = ({
 
 	const [items, setItems] = useState(notificationTypesOptions);
 
-	const [recipientType, setRecipientType] = useState(
-		getRecipientType(
+	let recipientTypeHolder;
+
+	if (
+		selectedItem.data.notifications?.recipients?.[notificationIndex]
+			?.length !== 0
+	) {
+		recipientTypeHolder = getRecipientType(
 			selectedItem.data.notifications?.recipients?.[notificationIndex]
-		) || 'assetCreator'
-	);
+		);
+	}
+	else {
+		recipientTypeHolder = 'assetCreator';
+	}
+
+	const [recipientType, setRecipientType] = useState(recipientTypeHolder);
 
 	const RecipientTypeComponent = recipientTypeComponents[recipientType];
 
@@ -169,7 +179,7 @@ const NotificationsInfo = ({
 	);
 
 	const [scriptLanguage, setScriptLanguage] = useState(
-		selectedItem.data.notifications?.recipients[notificationIndex]
+		selectedItem?.data.notifications?.recipients?.[notificationIndex]
 			?.scriptLanguage || DEFAULT_LANGUAGE
 	);
 
@@ -305,14 +315,14 @@ const NotificationsInfo = ({
 			})
 			.map((item) => item.label);
 
-		if (checkedTrue.includes('Email')) {
+		if (checkedTrue.includes(Liferay.Language.get('email'))) {
 			setNotificationTypeEmail(true);
 		}
 		else {
 			setNotificationTypeEmail(false);
 		}
 
-		if (checkedTrue.includes('User Notification')) {
+		if (checkedTrue.includes(Liferay.Language.get('user-notification'))) {
 			setNotificationTypeUserNotification(true);
 		}
 		else {

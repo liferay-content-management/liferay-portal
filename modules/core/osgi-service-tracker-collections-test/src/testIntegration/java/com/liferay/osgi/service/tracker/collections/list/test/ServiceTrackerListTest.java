@@ -22,10 +22,12 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -259,6 +261,34 @@ public class ServiceTrackerListTest {
 
 			Assert.assertEquals(
 				serviceTrackerList.toString(), 0, serviceTrackerList.size());
+		}
+	}
+
+	@Test
+	public void testToListAndArray() {
+		try (ServiceTrackerList<TrackedOne> serviceTrackerList =
+				ServiceTrackerListFactory.open(
+					_bundleContext, TrackedOne.class)) {
+
+			TrackedOne[] trackedOnes = {new TrackedOne(), new TrackedOne()};
+
+			Collection<ServiceRegistration<TrackedOne>> serviceRegistrations =
+				registerServices(TrackedOne.class, trackedOnes);
+
+			List<TrackedOne> toListTrackedOnes = serviceTrackerList.toList();
+
+			Assert.assertArrayEquals(
+				toListTrackedOnes.toString(), trackedOnes,
+				toListTrackedOnes.toArray(new TrackedOne[0]));
+
+			TrackedOne[] toArrayTrackedOnes = serviceTrackerList.toArray(
+				new TrackedOne[0]);
+
+			Assert.assertArrayEquals(
+				Arrays.toString(toArrayTrackedOnes), trackedOnes,
+				toArrayTrackedOnes);
+
+			unregister(serviceRegistrations);
 		}
 	}
 

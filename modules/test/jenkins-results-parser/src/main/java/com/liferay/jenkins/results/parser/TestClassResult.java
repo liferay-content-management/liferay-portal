@@ -14,7 +14,11 @@
 
 package com.liferay.jenkins.results.parser;
 
+import com.liferay.jenkins.results.parser.test.clazz.TestClass;
+
 import java.util.List;
+
+import org.dom4j.Element;
 
 /**
  * @author Michael Hashimoto
@@ -27,11 +31,21 @@ public interface TestClassResult {
 
 	public long getDuration();
 
+	public Element getGitHubElement();
+
+	public Element getGitHubElement(Boolean uniqueFailures);
+
 	public String getPackageName();
 
 	public String getSimpleClassName();
 
 	public String getStatus();
+
+	public TestClass getTestClass();
+
+	public String getTestClassReportURL();
+
+	public TestHistory getTestHistory();
 
 	public TestResult getTestResult(String testName);
 

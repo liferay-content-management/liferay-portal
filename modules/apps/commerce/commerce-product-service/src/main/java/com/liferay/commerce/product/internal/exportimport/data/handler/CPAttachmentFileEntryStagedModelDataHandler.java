@@ -26,12 +26,10 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.xml.Element;
 
 import java.util.Calendar;
@@ -44,9 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Danny Situ
  */
-@Component(
-	enabled = false, immediate = true, service = StagedModelDataHandler.class
-)
+@Component(service = StagedModelDataHandler.class)
 public class CPAttachmentFileEntryStagedModelDataHandler
 	extends BaseStagedModelDataHandler<CPAttachmentFileEntry> {
 
@@ -199,8 +195,8 @@ public class CPAttachmentFileEntryStagedModelDataHandler
 			CPAttachmentFileEntry companyCPAttachmentFileEntry =
 				_cpAttachmentFileEntryLocalService.
 					fetchCPAttachmentFileEntryByExternalReferenceCode(
-						cpAttachmentFileEntry.getCompanyId(),
-						cpAttachmentFileEntry.getExternalReferenceCode());
+						cpAttachmentFileEntry.getExternalReferenceCode(),
+						cpAttachmentFileEntry.getCompanyId());
 
 			if (companyCPAttachmentFileEntry != null) {
 				externalReferenceCode = null;
@@ -286,12 +282,6 @@ public class CPAttachmentFileEntryStagedModelDataHandler
 	@Reference
 	private CPAttachmentFileEntryLocalService
 		_cpAttachmentFileEntryLocalService;
-
-	@Reference
-	private GroupLocalService _groupLocalService;
-
-	@Reference
-	private Portal _portal;
 
 	@Reference
 	private PortletFileRepository _portletFileRepository;

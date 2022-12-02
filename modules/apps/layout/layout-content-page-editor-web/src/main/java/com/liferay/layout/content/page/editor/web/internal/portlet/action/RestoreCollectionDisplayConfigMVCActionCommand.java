@@ -19,7 +19,7 @@ import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
@@ -38,7 +38,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + ContentPageEditorPortletKeys.CONTENT_PAGE_EDITOR_PORTLET,
 		"mvc.command.name=/layout_content_page_editor/restore_collection_display_config"
@@ -61,13 +60,13 @@ public class RestoreCollectionDisplayConfigMVCActionCommand
 		String itemConfig = ParamUtil.getString(actionRequest, "itemConfig");
 		String itemId = ParamUtil.getString(actionRequest, "itemId");
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
 		String filterFragmentEntryLinks = ParamUtil.getString(
 			actionRequest, "filterFragmentEntryLinks");
 
 		JSONArray filterFragmentEntryLinksJSONArray =
-			JSONFactoryUtil.createJSONArray(filterFragmentEntryLinks);
+			_jsonFactory.createJSONArray(filterFragmentEntryLinks);
 
 		for (Object filterFragmentEntryLink :
 				filterFragmentEntryLinksJSONArray) {
@@ -90,7 +89,7 @@ public class RestoreCollectionDisplayConfigMVCActionCommand
 			themeDisplay.getScopeGroupId(), segmentsExperienceId,
 			themeDisplay.getPlid(),
 			layoutStructure -> layoutStructure.updateItemConfig(
-				JSONFactoryUtil.createJSONObject(itemConfig), itemId));
+				_jsonFactory.createJSONObject(itemConfig), itemId));
 
 		hideDefaultSuccessMessage(actionRequest);
 
@@ -100,5 +99,8 @@ public class RestoreCollectionDisplayConfigMVCActionCommand
 
 	@Reference
 	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 }

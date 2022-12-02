@@ -19,7 +19,7 @@ import com.liferay.blogs.service.BlogsEntryLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
@@ -29,7 +29,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.File;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 
 import java.io.InputStream;
@@ -42,7 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Steven Smith
  */
-@Component(enabled = false, service = BlogsImporter.class)
+@Component(service = BlogsImporter.class)
 public class BlogsImporter {
 
 	public void importBlogsEntries(
@@ -72,7 +72,7 @@ public class BlogsImporter {
 		throws PortalException {
 
 		if (jsonArray == null) {
-			jsonArray = JSONFactoryUtil.createJSONArray(
+			jsonArray = _jsonFactory.createJSONArray(
 				"[{\"actionIds\": [\"VIEW\"], \"roleName\": \"Site Member\"," +
 					"\"scope\": 4}]");
 		}
@@ -143,7 +143,7 @@ public class BlogsImporter {
 			imageDependenciesPath + fileName);
 
 		ImageSelector imageSelector = new ImageSelector(
-			FileUtil.getBytes(inputStream), fileName,
+			_file.getBytes(inputStream), fileName,
 			MimeTypesUtil.getContentType(fileName), StringPool.BLANK);
 
 		_blogsEntryLocalService.addCoverImage(
@@ -164,6 +164,12 @@ public class BlogsImporter {
 
 	@Reference
 	private BlogsEntryLocalService _blogsEntryLocalService;
+
+	@Reference
+	private File _file;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private ResourcePermissionLocalService _resourcePermissionLocalService;

@@ -84,7 +84,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Zoltán Takács
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.price.list.model.CommerceTierPriceEntry",
 	service = AopService.class
 )
@@ -307,8 +306,8 @@ public class CommerceTierPriceEntryLocalServiceImpl
 
 		if (Validator.isNotNull(externalReferenceCode)) {
 			CommerceTierPriceEntry commerceTierPriceEntry =
-				commerceTierPriceEntryPersistence.fetchByC_ERC(
-					serviceContext.getCompanyId(), externalReferenceCode);
+				commerceTierPriceEntryPersistence.fetchByERC_C(
+					externalReferenceCode, serviceContext.getCompanyId());
 
 			if (commerceTierPriceEntry != null) {
 				return commerceTierPriceEntryLocalService.
@@ -347,9 +346,9 @@ public class CommerceTierPriceEntryLocalServiceImpl
 
 		if (Validator.isNotNull(priceEntryExternalReferenceCode)) {
 			CommercePriceEntry commercePriceEntry =
-				_commercePriceEntryPersistence.findByC_ERC(
-					serviceContext.getCompanyId(),
-					priceEntryExternalReferenceCode);
+				_commercePriceEntryPersistence.findByERC_C(
+					priceEntryExternalReferenceCode,
+					serviceContext.getCompanyId());
 
 			_validate(
 				0L, commercePriceEntry.getCommercePriceEntryId(), minQuantity);
@@ -517,8 +516,8 @@ public class CommerceTierPriceEntryLocalServiceImpl
 			externalReferenceCode = null;
 		}
 
-		return commerceTierPriceEntryPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceTierPriceEntryPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	@Override
@@ -1034,8 +1033,8 @@ public class CommerceTierPriceEntryLocalServiceImpl
 		}
 
 		CommerceTierPriceEntry commerceTierPriceEntry =
-			commerceTierPriceEntryPersistence.fetchByC_ERC(
-				companyId, externalReferenceCode);
+			commerceTierPriceEntryPersistence.fetchByERC_C(
+				externalReferenceCode, companyId);
 
 		if (commerceTierPriceEntry != null) {
 			throw new DuplicateCommerceTierPriceEntryException(

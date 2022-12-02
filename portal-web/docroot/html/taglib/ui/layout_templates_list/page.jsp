@@ -42,7 +42,7 @@ List<LayoutTemplate> layoutTemplates = (List<LayoutTemplate>)request.getAttribut
 
 			<li class="card-page-item card-page-item-directory lfr-layout-template">
 				<div class="checkbox-card">
-					<label class="d-block" for="<portlet:namespace /><%= layoutTemplateIdPrefix + "layoutTemplateId" + i %>">
+					<label class="d-block" for="<portlet:namespace /><%= layoutTemplateIdPrefix %>layoutTemplateId<%= i %>">
 						<aui:input checked="<%= layoutTemplateId.equals(layoutTemplate.getLayoutTemplateId()) %>" id='<%= layoutTemplateIdPrefix + "layoutTemplateId" + i %>' label="" name="layoutTemplateId" type="radio" value="<%= layoutTemplate.getLayoutTemplateId() %>" wrappedField="<%= true %>" />
 
 						<div class="card card-interactive card-interactive-primary card-type-template <%= layoutTemplateId.equals(layoutTemplate.getLayoutTemplateId()) ? "active" : StringPool.BLANK %>">
@@ -69,8 +69,8 @@ List<LayoutTemplate> layoutTemplates = (List<LayoutTemplate>)request.getAttribut
 	</ul>
 </div>
 
-<aui:script require="frontend-js-web/liferay/delegate/delegate.es as delegateModule">
-	const delegate = delegateModule.default;
+<aui:script require="frontend-js-web/index as frontendJsWeb">
+	const {delegate} = frontendJsWeb;
 
 	const delegateHandler = delegate(document.querySelector('.<portlet:namespace />layout-template-list.lfr-page-layouts'), 'click', '.lfr-layout-template', (event) => {
 		const layoutTemplateInput = event.delegateTarget.querySelector('input');

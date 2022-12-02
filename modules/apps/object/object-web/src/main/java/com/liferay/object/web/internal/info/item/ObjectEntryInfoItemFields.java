@@ -27,6 +27,15 @@ import com.liferay.object.model.ObjectEntry;
  */
 public class ObjectEntryInfoItemFields {
 
+	public static final InfoField<TextInfoFieldType> authorInfoField =
+		BuilderHolder._builder.infoFieldType(
+			TextInfoFieldType.INSTANCE
+		).name(
+			"author"
+		).labelInfoLocalizedValue(
+			InfoLocalizedValue.localize(
+				ObjectEntryInfoItemFields.class, "author")
+		).build();
 	public static final InfoField<DateInfoFieldType> createDateInfoField =
 		BuilderHolder._builder.infoFieldType(
 			DateInfoFieldType.INSTANCE
@@ -45,6 +54,15 @@ public class ObjectEntryInfoItemFields {
 			InfoLocalizedValue.localize(
 				"com.liferay.asset.info.display.impl", "display-page-url")
 		).build();
+	public static final InfoField externalReferenceCodeInfoField =
+		BuilderHolder._builder.infoFieldType(
+			TextInfoFieldType.INSTANCE
+		).name(
+			"externalReferenceCode"
+		).labelInfoLocalizedValue(
+			InfoLocalizedValue.localize(
+				ObjectEntryInfoItemFields.class, "external-reference-code")
+		).build();
 	public static final InfoField<DateInfoFieldType> modifiedDateInfoField =
 		BuilderHolder._builder.infoFieldType(
 			DateInfoFieldType.INSTANCE
@@ -53,6 +71,14 @@ public class ObjectEntryInfoItemFields {
 		).labelInfoLocalizedValue(
 			InfoLocalizedValue.localize(
 				ObjectEntryInfoItemFields.class, "modified-date")
+		).build();
+	public static final InfoField objectEntryIdInfoField =
+		BuilderHolder._builder.infoFieldType(
+			TextInfoFieldType.INSTANCE
+		).name(
+			"objectEntryId"
+		).labelInfoLocalizedValue(
+			InfoLocalizedValue.localize(ObjectEntryInfoItemFields.class, "id")
 		).build();
 	public static final InfoField<DateInfoFieldType> publishDateInfoField =
 		BuilderHolder._builder.infoFieldType(
@@ -63,14 +89,14 @@ public class ObjectEntryInfoItemFields {
 			InfoLocalizedValue.localize(
 				ObjectEntryInfoItemFields.class, "publish-date")
 		).build();
-	public static final InfoField<TextInfoFieldType> userNameInfoField =
+	public static final InfoField statusInfoField =
 		BuilderHolder._builder.infoFieldType(
 			TextInfoFieldType.INSTANCE
 		).name(
-			"userName"
+			"status"
 		).labelInfoLocalizedValue(
 			InfoLocalizedValue.localize(
-				ObjectEntryInfoItemFields.class, "user-name")
+				ObjectEntryInfoItemFields.class, "status")
 		).build();
 	public static final InfoField userProfileImageInfoField =
 		BuilderHolder._builder.infoFieldType(

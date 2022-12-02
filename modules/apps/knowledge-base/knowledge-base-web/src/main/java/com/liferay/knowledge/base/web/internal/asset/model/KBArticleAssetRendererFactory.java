@@ -14,6 +14,7 @@
 
 package com.liferay.knowledge.base.web.internal.asset.model;
 
+import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
@@ -46,7 +47,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Peter Shin
  */
 @Component(
-	immediate = true,
 	property = "javax.portlet.name=" + KBPortletKeys.KNOWLEDGE_BASE_ADMIN,
 	service = AssetRendererFactory.class
 )
@@ -76,7 +76,8 @@ public class KBArticleAssetRendererFactory
 
 		KBArticleAssetRenderer kbArticleAssetRenderer =
 			new KBArticleAssetRenderer(
-				_htmlParser, _getKBArticle(classPK, _getTypeStatus(type)));
+				_assetDisplayPageFriendlyURLProvider, _htmlParser,
+				_getKBArticle(classPK, _getTypeStatus(type)));
 
 		kbArticleAssetRenderer.setAssetRendererType(type);
 		kbArticleAssetRenderer.setServletContext(_servletContext);
@@ -156,6 +157,10 @@ public class KBArticleAssetRendererFactory
 
 		return WorkflowConstants.STATUS_ANY;
 	}
+
+	@Reference
+	private AssetDisplayPageFriendlyURLProvider
+		_assetDisplayPageFriendlyURLProvider;
 
 	@Reference
 	private HtmlParser _htmlParser;

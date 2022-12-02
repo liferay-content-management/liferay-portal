@@ -16,6 +16,8 @@ package com.liferay.site.initializer.extender.internal.file.backed.osgi;
 
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
@@ -25,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -154,6 +157,21 @@ public class FileBackedBundleDelegate {
 	}
 
 	public URL getEntry(String path) {
+		File file = new File(path);
+
+		if (file.exists()) {
+			URI uri = file.toURI();
+
+			try {
+				return uri.toURL();
+			}
+			catch (MalformedURLException malformedURLException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(malformedURLException);
+				}
+			}
+		}
+
 		return null;
 	}
 
@@ -179,6 +197,9 @@ public class FileBackedBundleDelegate {
 			}
 		}
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		FileBackedBundleDelegate.class);
 
 	private final BundleContext _bundleContext;
 	private final ClassLoader _classLoader;

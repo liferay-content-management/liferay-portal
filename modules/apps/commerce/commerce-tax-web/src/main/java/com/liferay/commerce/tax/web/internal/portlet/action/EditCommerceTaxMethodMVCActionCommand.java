@@ -21,7 +21,6 @@ import com.liferay.commerce.tax.exception.CommerceTaxMethodNameException;
 import com.liferay.commerce.tax.exception.NoSuchTaxMethodException;
 import com.liferay.commerce.tax.model.CommerceTaxMethod;
 import com.liferay.commerce.tax.service.CommerceTaxMethodService;
-import com.liferay.commerce.util.CommerceTaxEngineRegistry;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -30,7 +29,6 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.Localization;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
 
 import java.util.Locale;
 import java.util.Map;
@@ -45,7 +43,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"javax.portlet.name=" + CommercePortletKeys.COMMERCE_TAX_METHODS,
 		"mvc.command.name=/commerce_tax_methods/edit_commerce_tax_method"
@@ -136,15 +133,9 @@ public class EditCommerceTaxMethodMVCActionCommand
 	private CommerceChannelService _commerceChannelService;
 
 	@Reference
-	private CommerceTaxEngineRegistry _commerceTaxEngineRegistry;
-
-	@Reference
 	private CommerceTaxMethodService _commerceTaxMethodService;
 
 	@Reference
 	private Localization _localization;
-
-	@Reference
-	private Portal _portal;
 
 }

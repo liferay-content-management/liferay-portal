@@ -15,7 +15,7 @@
 package com.liferay.segments.experiment.web.internal.portlet.action;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -52,7 +52,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sarai Díaz
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + SegmentsPortletKeys.SEGMENTS_EXPERIMENT,
 		"mvc.command.name=/segments_experiment/run_segments_experiment"
@@ -105,7 +104,7 @@ public class RunSegmentsExperimentMVCActionCommand
 			actionRequest, "segmentsExperimentRels");
 
 		JSONObject segmentsExperimentRelsJSONObject =
-			JSONFactoryUtil.createJSONObject(segmentsExperimentRels);
+			_jsonFactory.createJSONObject(segmentsExperimentRels);
 
 		Iterator<String> iterator = segmentsExperimentRelsJSONObject.keys();
 
@@ -146,6 +145,9 @@ public class RunSegmentsExperimentMVCActionCommand
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		RunSegmentsExperimentMVCActionCommand.class);
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

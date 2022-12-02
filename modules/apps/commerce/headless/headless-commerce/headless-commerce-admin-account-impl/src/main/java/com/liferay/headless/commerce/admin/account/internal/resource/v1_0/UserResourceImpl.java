@@ -45,7 +45,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, properties = "OSGI-INF/liferay/rest/v1_0/user.properties",
+	properties = "OSGI-INF/liferay/rest/v1_0/user.properties",
 	scope = ServiceScope.PROTOTYPE, service = UserResource.class
 )
 public class UserResourceImpl extends BaseUserResourceImpl {
@@ -75,7 +75,7 @@ public class UserResourceImpl extends BaseUserResourceImpl {
 		}
 		else if (Validator.isNotNull(user.getExternalReferenceCode())) {
 			invitedUser = _userLocalService.fetchUserByExternalReferenceCode(
-				contextCompany.getCompanyId(), user.getExternalReferenceCode());
+				user.getExternalReferenceCode(), contextCompany.getCompanyId());
 		}
 
 		if (invitedUser == null) {

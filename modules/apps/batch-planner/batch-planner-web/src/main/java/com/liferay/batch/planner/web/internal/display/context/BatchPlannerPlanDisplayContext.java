@@ -24,6 +24,7 @@ import com.liferay.batch.planner.constants.BatchPlannerPortletKeys;
 import com.liferay.batch.planner.model.BatchPlannerPlan;
 import com.liferay.batch.planner.service.BatchPlannerPlanServiceUtil;
 import com.liferay.batch.planner.web.internal.display.BatchPlannerPlanDisplay;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.SearchOrderByUtil;
@@ -33,7 +34,6 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Objects;
 
@@ -185,18 +185,20 @@ public class BatchPlannerPlanDisplayContext extends BaseDisplayContext {
 		BatchPlannerPlanDisplay.Builder builder =
 			new BatchPlannerPlanDisplay.Builder();
 
-		builder.batchPlannerPlanId(
+		builder.action(
+			_getAction(batchPlannerPlan.isExport())
+		).batchPlannerPlanId(
 			batchPlannerPlan.getBatchPlannerPlanId()
 		).createDate(
 			batchPlannerPlan.getCreateDate()
+		).export(
+			batchPlannerPlan.isExport()
 		).internalClassName(
 			batchPlannerPlan.getInternalClassName()
 		).title(
 			batchPlannerPlan.getName()
 		).userId(
 			batchPlannerPlan.getUserId()
-		).action(
-			_getAction(batchPlannerPlan.isExport())
 		).status(
 			BatchPlannerPlanConstants.STATUS_INACTIVE
 		);
@@ -211,9 +213,9 @@ public class BatchPlannerPlanDisplayContext extends BaseDisplayContext {
 			BatchEngineExportTask batchEngineExportTask =
 				BatchEngineExportTaskLocalServiceUtil.
 					getBatchEngineExportTaskByExternalReferenceCode(
-						batchPlannerPlan.getCompanyId(),
 						String.valueOf(
-							batchPlannerPlan.getBatchPlannerPlanId()));
+							batchPlannerPlan.getBatchPlannerPlanId()),
+						batchPlannerPlan.getCompanyId());
 
 			builder.processedItemsCount(
 				batchEngineExportTask.getProcessedItemsCount()
@@ -225,9 +227,9 @@ public class BatchPlannerPlanDisplayContext extends BaseDisplayContext {
 			BatchEngineImportTask batchEngineImportTask =
 				BatchEngineImportTaskLocalServiceUtil.
 					getBatchEngineImportTaskByExternalReferenceCode(
-						batchPlannerPlan.getCompanyId(),
 						String.valueOf(
-							batchPlannerPlan.getBatchPlannerPlanId()));
+							batchPlannerPlan.getBatchPlannerPlanId()),
+						batchPlannerPlan.getCompanyId());
 
 			int batchEngineImportTaskErrorsCount =
 				batchEngineImportTask.getBatchEngineImportTaskErrorsCount();

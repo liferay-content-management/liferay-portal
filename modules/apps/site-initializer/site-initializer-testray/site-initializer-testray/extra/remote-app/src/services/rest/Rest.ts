@@ -30,14 +30,19 @@ const getNestedFieldDepth = (nestedFields: string | undefined) => {
 	return Math.max(...nestedFieldsDepthCount);
 };
 
-interface RestContructor<YupModel = any, ObjectModel = any> {
+interface RestContructor<
+	YupModel = any,
+	ObjectModel = any,
+	NestedObjectOptions = any
+> {
 	adapter?: Adapter<YupModel>;
 	nestedFields?: string;
+	nestedObjects?: NestedObjectOptions;
 	transformData?: TransformData<ObjectModel>;
 	uri: string;
 }
 
-class Rest<YupModel = any, ObjectModel = any> {
+class Rest<YupModel = any, ObjectModel = any, NestedObjectOptions = any> {
 	private batchMinimumThreshold = 10;
 	private nestedFieldsDepth = 1;
 	protected adapter: Adapter = (data) => data;
@@ -52,7 +57,7 @@ class Rest<YupModel = any, ObjectModel = any> {
 		nestedFields,
 		transformData,
 		uri,
-	}: RestContructor<YupModel, ObjectModel>) {
+	}: RestContructor<YupModel, ObjectModel, NestedObjectOptions>) {
 		this.nestedFields = `nestedFields=${nestedFields}`;
 		this.uri = uri;
 		this.nestedFieldsDepth = getNestedFieldDepth(nestedFields);
@@ -98,6 +103,10 @@ class Rest<YupModel = any, ObjectModel = any> {
 		return this.fetcher(this.getResource(id));
 	}
 
+	public getNestedObject(objectName: NestedObjectOptions, parentId: number) {
+		return `/${this.uri}/${parentId}/${objectName}`;
+	}
+
 	public getResource(id: number | string) {
 		return `/${this.uri}/${id}?${this.nestedFields}&nestedFieldsDepth=${this.nestedFieldsDepth}`;
 	}
@@ -115,6 +124,15 @@ class Rest<YupModel = any, ObjectModel = any> {
 		await this.beforeUpdate(id, data as YupModel);
 
 		return fetcher.patch(`/${this.uri}/${id}`, this.adapter(data));
+	}
+
+	public async updateBatch(
+		ids: number[],
+		data: Partial<YupModel>[]
+	): Promise<PromiseSettledResult<ObjectModel>[]> {
+		return Promise.allSettled(
+			data.map((item, index) => this.update(ids[index], item))
+		);
 	}
 
 	public transformDataFromList(

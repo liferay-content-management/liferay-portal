@@ -28,9 +28,9 @@ import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalServiceUtil;
 import com.liferay.item.selector.ItemSelector;
-import com.liferay.item.selector.criteria.AssetEntryItemSelectorReturnType;
-import com.liferay.item.selector.criteria.asset.criterion.AssetEntryItemSelectorCriterion;
+import com.liferay.item.selector.criteria.InfoItemItemSelectorReturnType;
 import com.liferay.item.selector.criteria.constants.ItemSelectorCriteriaConstants;
+import com.liferay.item.selector.criteria.info.item.criterion.InfoItemItemSelectorCriterion;
 import com.liferay.journal.constants.JournalContentPortletKeys;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.constants.JournalWebKeys;
@@ -84,8 +84,9 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portlet.LiferayPortletUtil;
 import com.liferay.staging.StagingGroupHelper;
 import com.liferay.staging.StagingGroupHelperUtil;
+import com.liferay.trash.TrashHelper;
 import com.liferay.trash.constants.TrashActionKeys;
-import com.liferay.trash.kernel.model.TrashEntry;
+import com.liferay.trash.model.TrashEntry;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,7 +116,7 @@ public class JournalContentDisplayContext {
 			long ddmStructureClassNameId,
 			ModelResourcePermission<DDMTemplate>
 				ddmTemplateModelResourcePermission,
-			ItemSelector itemSelector)
+			ItemSelector itemSelector, TrashHelper trashHelper)
 		throws PortalException {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
@@ -137,7 +138,7 @@ public class JournalContentDisplayContext {
 				portletRequest, portletResponse, themeDisplay,
 				journalContentPortletInstanceConfiguration,
 				ddmStructureClassNameId, ddmTemplateModelResourcePermission,
-				itemSelector);
+				itemSelector, trashHelper);
 
 			portletRequest.setAttribute(
 				getRequestAttributeName(portletDisplay.getId()),
@@ -504,9 +505,6 @@ public class JournalContentDisplayContext {
 	}
 
 	public PortletURL getItemSelectorURL() {
-		ItemSelector itemSelector = (ItemSelector)_portletRequest.getAttribute(
-			ItemSelector.class.getName());
-
 		LiferayRenderRequest liferayRenderRequest =
 			(LiferayRenderRequest)LiferayPortletUtil.getLiferayPortletRequest(
 				_portletRequest);
@@ -518,24 +516,18 @@ public class JournalContentDisplayContext {
 			(LiferayRenderResponse)LiferayPortletUtil.getLiferayPortletResponse(
 				_portletResponse);
 
-		AssetEntryItemSelectorCriterion assetEntryItemSelectorCriterion =
-			new AssetEntryItemSelectorCriterion();
+		InfoItemItemSelectorCriterion itemSelectorCriterion =
+			new InfoItemItemSelectorCriterion();
 
-		assetEntryItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
-			new AssetEntryItemSelectorReturnType());
+		itemSelectorCriterion.setItemType(JournalArticle.class.getName());
+		itemSelectorCriterion.setDesiredItemSelectorReturnTypes(
+			new InfoItemItemSelectorReturnType());
+		itemSelectorCriterion.setStatus(WorkflowConstants.STATUS_ANY);
 
-		assetEntryItemSelectorCriterion.setGroupId(getGroupId());
-		assetEntryItemSelectorCriterion.setScopeGroupType(getScopeGroupType());
-		assetEntryItemSelectorCriterion.setShowNonindexable(true);
-		assetEntryItemSelectorCriterion.setShowScheduled(true);
-		assetEntryItemSelectorCriterion.setSingleSelect(true);
-		assetEntryItemSelectorCriterion.setTypeSelection(
-			JournalArticle.class.getName());
-
-		return itemSelector.getItemSelectorURL(
+		return _itemSelector.getItemSelectorURL(
 			requestBackedPortletURLFactory,
 			liferayRenderResponse.getNamespace() + "selectedItem",
-			assetEntryItemSelectorCriterion);
+			itemSelectorCriterion);
 	}
 
 	public Map<String, Object> getJournalTemplateContext() {
@@ -820,7 +812,7 @@ public class JournalContentDisplayContext {
 		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
 			JournalArticle.class.getName());
 
-		TrashEntry trashEntry = selectedArticle.getTrashEntry();
+		TrashEntry trashEntry = _trashHelper.getTrashEntry(selectedArticle);
 
 		return trashHandler.hasTrashPermission(
 			_themeDisplay.getPermissionChecker(), 0, trashEntry.getClassPK(),
@@ -936,19 +928,15 @@ public class JournalContentDisplayContext {
 
 		JournalArticleDisplay articleDisplay = getArticleDisplay();
 
-		if ((articleDisplay == null) || !hasViewPermission() || isExpired()) {
+		if ((articleDisplay == null) || !hasViewPermission()) {
 			_showArticle = false;
 
 			return _showArticle;
 		}
 
-		if (article.isScheduled() && !isPreview()) {
-			_showArticle = false;
+		if ((article.isPending() || article.isScheduled() || isExpired()) &&
+			!isPreview()) {
 
-			return _showArticle;
-		}
-
-		if (article.isPending() && !isPreview()) {
 			_showArticle = false;
 
 			return _showArticle;
@@ -1053,7 +1041,7 @@ public class JournalContentDisplayContext {
 			long ddmStructureClassNameId,
 			ModelResourcePermission<DDMTemplate>
 				ddmTemplateModelResourcePermission,
-			ItemSelector itemSelector)
+			ItemSelector itemSelector, TrashHelper trashHelper)
 		throws PortalException {
 
 		_portletRequest = portletRequest;
@@ -1065,6 +1053,7 @@ public class JournalContentDisplayContext {
 		_ddmTemplateModelResourcePermission =
 			ddmTemplateModelResourcePermission;
 		_itemSelector = itemSelector;
+		_trashHelper = trashHelper;
 
 		AssetEntry assetEntry = _getAssetEntry();
 
@@ -1227,6 +1216,7 @@ public class JournalContentDisplayContext {
 	private Boolean _showEditTemplateIcon;
 	private Boolean _showSelectArticleLink;
 	private final ThemeDisplay _themeDisplay;
+	private final TrashHelper _trashHelper;
 	private List<UserToolAssetAddonEntry> _userToolAssetAddonEntries;
 
 }

@@ -22,10 +22,10 @@ import {
 } from '@liferay/object-js-components-web';
 import React, {useEffect, useMemo, useState} from 'react';
 
+import {defaultLanguageId} from '../util/constants';
+
 import './Attachments.scss';
 import {TNotificationTemplate} from './EditNotificationTemplate';
-
-const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
 
 export function Attachments({setValues, values}: IProps) {
 	const [objectDefinitions, setObjectDefinitions] = useState<
@@ -77,6 +77,23 @@ export function Attachments({setValues, values}: IProps) {
 	};
 
 	useEffect(() => {
+		const makeFetch = async () => {
+			const objectDefinitions = await API.getAllObjectDefinitions();
+
+			const currentObjectDefinition = objectDefinitions?.find(
+				(item) => item.id === values.objectDefinitionId
+			);
+
+			setObjectDefinitions(
+				objectDefinitions?.filter(({system}) => !system)
+			);
+			setSelectedEntity(currentObjectDefinition);
+		};
+
+		makeFetch();
+	}, [values.objectDefinitionId]);
+
+	useEffect(() => {
 		const currentObjectDefinition = objectDefinitions?.find(
 			(item) => item.id === values.objectDefinitionId
 		);
@@ -96,14 +113,6 @@ export function Attachments({setValues, values}: IProps) {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [values.objectDefinitionId]);
-
-	useEffect(() => {
-		API.getAllObjectDefinitions().then((items) => {
-			const objectDefinitions = items.filter(({system}) => !system);
-
-			setObjectDefinitions(objectDefinitions);
-		});
-	}, []);
 
 	useEffect(() => {
 		setValues({
@@ -126,7 +135,7 @@ export function Attachments({setValues, values}: IProps) {
 			<ClayPanel.Body>
 				<div className="lfr__notification-template-attachments">
 					<div className="lfr__notification-template-attachments-fields">
-						<AutoComplete
+						<AutoComplete<ObjectDefinition>
 							emptyStateMessage={Liferay.Language.get(
 								'no-data-sources-were-found'
 							)}
@@ -134,7 +143,18 @@ export function Attachments({setValues, values}: IProps) {
 							items={filteredObjectDefinitions ?? []}
 							label={Liferay.Language.get('data-source')}
 							onChangeQuery={setQuery}
-							onSelectItem={(item: ObjectDefinition) => {
+							onSelectEmptyStateItem={(emptyStateItem) => {
+								setAttachmentsFields([]);
+								setSelectedEntity(null);
+
+								setValues({
+									...values,
+									objectDefinitionId: Number(
+										emptyStateItem.id
+									),
+								});
+							}}
+							onSelectItem={(item) => {
 								if (item.id) {
 									getAttachmentFields(item.id);
 									setSelectedEntity(item);

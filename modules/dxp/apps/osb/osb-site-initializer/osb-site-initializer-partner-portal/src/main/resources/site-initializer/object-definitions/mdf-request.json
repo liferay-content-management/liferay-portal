@@ -1,9 +1,22 @@
 {
+	"enableComments": true,
 	"label": {
 		"en_US": "MDF Request"
 	},
 	"name": "MDFRequest",
 	"objectFields": [
+		{
+			"DBType": "String",
+			"businessType": "Text",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "External Reference Code SF"
+			},
+			"name": "externalReferenceCodeSF",
+			"required": false,
+			"type": "String"
+		},
 		{
 			"DBType": "String",
 			"businessType": "Picklist",
@@ -18,19 +31,19 @@
 			"type": "String"
 		},
 		{
-			"DBType": "Clob",
+			"DBType": "String",
 			"businessType": "Text",
 			"indexed": true,
 			"indexedAsKeyword": false,
 			"label": {
-				"en_US": "Campaign Name"
+				"en_US": "Overall Campaign Name"
 			},
-			"name": "campaignName",
+			"name": "overallCampaignName",
 			"required": false,
-			"type": "Clob"
+			"type": "String"
 		},
 		{
-			"DBType": "Clob",
+			"DBType": "String",
 			"businessType": "Text",
 			"indexed": true,
 			"indexedAsKeyword": false,
@@ -39,7 +52,19 @@
 			},
 			"name": "overallCampaignDescription",
 			"required": false,
-			"type": "Clob"
+			"type": "String"
+		},
+		{
+			"DBType": "String",
+			"businessType": "Text",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Email Address"
+			},
+			"name": "emailAddress",
+			"required": false,
+			"type": "String"
 		},
 		{
 			"DBType": "Clob",

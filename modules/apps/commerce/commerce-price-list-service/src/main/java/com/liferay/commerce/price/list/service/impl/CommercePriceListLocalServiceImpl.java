@@ -119,7 +119,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Zoltán Takács
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.price.list.model.CommercePriceList",
 	service = AopService.class
 )
@@ -302,8 +301,8 @@ public class CommercePriceListLocalServiceImpl
 
 		if (Validator.isNotNull(externalReferenceCode)) {
 			CommercePriceList commercePriceList =
-				commercePriceListPersistence.fetchByC_ERC(
-					serviceContext.getCompanyId(), externalReferenceCode);
+				commercePriceListPersistence.fetchByERC_C(
+					externalReferenceCode, serviceContext.getCompanyId());
 
 			if (commercePriceList != null) {
 				return commercePriceListLocalService.updateCommercePriceList(
@@ -387,8 +386,8 @@ public class CommercePriceListLocalServiceImpl
 			return null;
 		}
 
-		return commercePriceListPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commercePriceListPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	@Override
@@ -1853,8 +1852,8 @@ public class CommercePriceListLocalServiceImpl
 		}
 
 		CommercePriceList commercePriceList =
-			commercePriceListPersistence.fetchByC_ERC(
-				companyId, externalReferenceCode);
+			commercePriceListPersistence.fetchByERC_C(
+				externalReferenceCode, companyId);
 
 		if (commercePriceList != null) {
 			throw new DuplicateCommercePriceListException(

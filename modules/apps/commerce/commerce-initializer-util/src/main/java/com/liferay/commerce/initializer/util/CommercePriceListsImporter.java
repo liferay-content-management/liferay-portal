@@ -44,7 +44,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alec Sloan
  */
-@Component(enabled = false, service = CommercePriceListsImporter.class)
+@Component(service = CommercePriceListsImporter.class)
 public class CommercePriceListsImporter {
 
 	public void importCommercePriceLists(
@@ -90,8 +90,8 @@ public class CommercePriceListsImporter {
 
 			CommercePriceList parentPriceList =
 				_commercePriceListLocalService.
-					fetchCommercePriceListByReferenceCode(
-						serviceContext.getCompanyId(), externalReferenceCode);
+					fetchCommercePriceListByExternalReferenceCode(
+						externalReferenceCode, serviceContext.getCompanyId());
 
 			parentPriceListId = parentPriceList.getParentCommercePriceListId();
 		}

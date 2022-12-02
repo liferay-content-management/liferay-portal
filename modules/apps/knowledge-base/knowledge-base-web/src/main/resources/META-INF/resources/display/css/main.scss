@@ -1,10 +1,8 @@
-// ---------- Configuration ----------
+@import 'atlas-variables';
 
 .portlet-configuration .kb-edit-link {
 	margin: 5px 0 0;
 }
-
-// ---------- Portlet ----------
 
 .knowledge-base-portlet-display {
 	.kb-article-body img {
@@ -15,12 +13,27 @@
 	.kbarticle-navigation {
 		li {
 			line-height: inherit;
-			margin: 15px 0;
+			list-style: none;
+			padding: 0.5rem 2rem;
+
+			a {
+				color: $gray-600;
+			}
+
+			&.kbarticle-selected {
+				background-color: $light-l1;
+				border-radius: 4px;
+				font-weight: bold;
+
+				a {
+					color: $dark;
+				}
+			}
 		}
 
-		li,
 		ul {
 			list-style: none;
+			padding-left: 0;
 		}
 
 		.kbarticle-expanded {
@@ -31,11 +44,6 @@
 			select {
 				display: inline;
 			}
-		}
-
-		.kbarticle-selected {
-			color: #555;
-			font-weight: bold;
 		}
 	}
 }

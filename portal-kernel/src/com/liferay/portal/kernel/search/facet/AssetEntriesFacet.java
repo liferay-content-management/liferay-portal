@@ -77,12 +77,6 @@ public class AssetEntriesFacet extends MultiValueFacet {
 				continue;
 			}
 
-			String searchEngineId = searchContext.getSearchEngineId();
-
-			if (!searchEngineId.equals(indexer.getSearchEngineId())) {
-				continue;
-			}
-
 			try {
 				BooleanFilter indexerBooleanFilter =
 					indexer.getFacetBooleanFilter(

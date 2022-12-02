@@ -17,7 +17,7 @@ package com.liferay.headless.commerce.delivery.order.internal.dto.v1_0;
 import com.liferay.commerce.model.CommerceShipment;
 import com.liferay.commerce.model.CommerceShipmentItem;
 import com.liferay.commerce.service.CommerceShipmentItemService;
-import com.liferay.commerce.service.CommerceShipmentService;
+import com.liferay.commerce.service.CommerceShipmentLocalService;
 import com.liferay.headless.commerce.delivery.order.dto.v1_0.PlacedOrderItemShipment;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
@@ -29,7 +29,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Andrea Sbarra
  */
 @Component(
-	enabled = false,
 	property = "dto.class.name=com.liferay.headless.commerce.delivery.order.dto.v1_0.PlacedOrderItemShipment",
 	service = {DTOConverter.class, PlacedOrderItemShipmentDTOConverter.class}
 )
@@ -51,7 +50,8 @@ public class PlacedOrderItemShipmentDTOConverter
 				(Long)dtoConverterContext.getId());
 
 		CommerceShipment commerceShipment =
-			commerceShipmentItem.getCommerceShipment();
+			_commerceShipmentLocalService.getCommerceShipment(
+				commerceShipmentItem.getCommerceShipmentId());
 
 		return new PlacedOrderItemShipment() {
 			{
@@ -77,6 +77,6 @@ public class PlacedOrderItemShipmentDTOConverter
 	private CommerceShipmentItemService _commerceShipmentItemService;
 
 	@Reference
-	private CommerceShipmentService _commerceShipmentService;
+	private CommerceShipmentLocalService _commerceShipmentLocalService;
 
 }

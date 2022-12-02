@@ -19,14 +19,40 @@ import ClayLayout from '@clayui/layout';
 import ClaySticker from '@clayui/sticker';
 import ClayTabs from '@clayui/tabs';
 import classnames from 'classnames';
+import {getSessionValue} from 'frontend-js-web';
 import PropTypes from 'prop-types';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useLayoutEffect, useState} from 'react';
 
+import {
+	DEFAULT_ACTIVE_PANEL_TAB,
+	TABS_STATE_SESSION_KEY,
+} from '../../utils/constants';
 import Sidebar from '../Sidebar';
 import DetailsContent from './DetailsContent';
 import ManageCollaborators from './ManageCollaborators';
 import Subscribe from './Subscribe';
 import VersionsContent from './VersionsContent';
+
+const useInitialActiveTabState = (singlePageApplicationEnabled) => {
+	const [activeTab, setActiveTab] = useState(
+		singlePageApplicationEnabled ? null : DEFAULT_ACTIVE_PANEL_TAB
+	);
+
+	useLayoutEffect(() => {
+		if (singlePageApplicationEnabled) {
+			getSessionValue(TABS_STATE_SESSION_KEY).then((value) => {
+				const parsedValue = parseInt(value, 10);
+				const safeValue = isNaN(parsedValue)
+					? DEFAULT_ACTIVE_PANEL_TAB
+					: parsedValue;
+
+				setActiveTab(safeValue);
+			});
+		}
+	}, [singlePageApplicationEnabled]);
+
+	return [activeTab, setActiveTab];
+};
 
 const SidebarPanelInfoView = ({
 	classPK,
@@ -46,11 +72,14 @@ const SidebarPanelInfoView = ({
 	preview,
 	fetchSharingButtonURL,
 	fetchSharingCollaboratorsURL,
+	singlePageApplicationEnabled,
 	user,
 	viewURLs = [],
 	vocabularies = {},
 }) => {
-	const [activeTabKeyValue, setActiveTabKeyValue] = useState(0);
+	const [activeTabKeyValue, setActiveTabKeyValue] = useInitialActiveTabState(
+		singlePageApplicationEnabled
+	);
 
 	const showTabs = !!getItemVersionsURL;
 
@@ -61,6 +90,14 @@ const SidebarPanelInfoView = ({
 	const handleError = useCallback(() => {
 		setError(true);
 	}, []);
+
+	const handleTabClick = (tab) => {
+		setActiveTabKeyValue(tab);
+
+		if (singlePageApplicationEnabled) {
+			Liferay.Util.Session.set(TABS_STATE_SESSION_KEY, tab);
+		}
+	};
 
 	return (
 		<>
@@ -150,14 +187,14 @@ const SidebarPanelInfoView = ({
 						</div>
 
 						<div className="mb-0 sidebar-section">
-							{showTabs && (
+							{showTabs && activeTabKeyValue !== null && (
 								<ClayTabs modern>
 									<ClayTabs.Item
 										active={activeTabKeyValue === 0}
 										innerProps={{
 											'aria-controls': 'details',
 										}}
-										onClick={() => setActiveTabKeyValue(0)}
+										onClick={() => handleTabClick(0)}
 									>
 										{Liferay.Language.get('details')}
 									</ClayTabs.Item>
@@ -167,7 +204,7 @@ const SidebarPanelInfoView = ({
 										innerProps={{
 											'aria-controls': 'versions',
 										}}
-										onClick={() => setActiveTabKeyValue(1)}
+										onClick={() => handleTabClick(1)}
 									>
 										{Liferay.Language.get('versions')}
 									</ClayTabs.Item>
@@ -199,13 +236,16 @@ const SidebarPanelInfoView = ({
 							/>
 						</ClayTabs.TabPane>
 
-						<ClayTabs.TabPane aria-labelledby="tab-2">
-							<VersionsContent
-								getItemVersionsURL={getItemVersionsURL}
-								languageTag={languageTag}
-								onError={handleError}
-							/>
-						</ClayTabs.TabPane>
+						{showTabs && (
+							<ClayTabs.TabPane aria-labelledby="tab-2">
+								<VersionsContent
+									active={activeTabKeyValue === 1}
+									getItemVersionsURL={getItemVersionsURL}
+									languageTag={languageTag}
+									onError={handleError}
+								/>
+							</ClayTabs.TabPane>
+						)}
 					</ClayTabs.Content>
 				</div>
 			</Sidebar.Body>
@@ -230,6 +270,7 @@ SidebarPanelInfoView.propTypes = {
 	latestVersions: PropTypes.array.isRequired,
 	modifiedDate: PropTypes.string.isRequired,
 	preview: PropTypes.object,
+	singlePageApplicationEnabled: PropTypes.bool.isRequired,
 	specificFields: PropTypes.object.isRequired,
 	subType: PropTypes.string.isRequired,
 	tags: PropTypes.array,

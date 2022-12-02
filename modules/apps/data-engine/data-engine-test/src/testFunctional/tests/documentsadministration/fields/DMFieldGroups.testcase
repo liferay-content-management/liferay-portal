@@ -68,6 +68,52 @@ definition {
 			value1 = "123");
 	}
 
+	@description = "LPS-134038. This test ensures data on a field group persists after a new nested field group is added to the document type."
+	@priority = "3"
+	test CheckIfFieldGroupDataPersistsAfterEditDocumentType {
+		property portal.acceptance = "false";
+
+		DDLDataDefinition.save();
+
+		Navigator.gotoNavItem(navItem = "Files");
+
+		DMDocument.addCP(
+			dmDocumentTitle = "DM Title",
+			dmDocumentTypeName = "DM Document Type Name",
+			textField = "Test Text");
+
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Edit",
+			rowEntry = "DM Title");
+
+		AssertTextEquals.assertValue(
+			locator1 = "TextInput#TEXT_SPECIFIC",
+			value1 = "Test Text");
+
+		Button.clickPublish();
+
+		Navigator.gotoNavItem(navItem = "Document Types");
+
+		DMNavigator.gotoEditDocumentType(dmDocumentTypeName = "DM Document Type Name");
+
+		DataEngine.addFieldNested(
+			fieldFieldLabel = "Numeric",
+			fieldName = "Numeric",
+			targetFieldLabel = "Text");
+
+		DDLDataDefinition.save();
+
+		Navigator.gotoNavItem(navItem = "Files");
+
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Edit",
+			rowEntry = "DM Title");
+
+		AssertTextEquals.assertValue(
+			locator1 = "TextInput#TEXT_SPECIFIC",
+			value1 = "Test Text");
+	}
+
 	@description = "This test ensures its possible to delete a field group inside another field group."
 	@priority = "5"
 	test DeleteNestedFieldGroupOnDocumentType {

@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -77,11 +76,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luca Pellizzon
  * @generated
  */
-@Component(
-	service = {
-		CommerceInventoryBookedQuantityPersistence.class, BasePersistence.class
-	}
-)
+@Component(service = CommerceInventoryBookedQuantityPersistence.class)
 public class CommerceInventoryBookedQuantityPersistenceImpl
 	extends BasePersistenceImpl<CommerceInventoryBookedQuantity>
 	implements CommerceInventoryBookedQuantityPersistence {
@@ -200,7 +195,7 @@ public class CommerceInventoryBookedQuantityPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceInventoryBookedQuantity>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceInventoryBookedQuantity
@@ -601,7 +596,7 @@ public class CommerceInventoryBookedQuantityPersistenceImpl
 
 		Object[] finderArgs = new Object[] {sku};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -745,7 +740,7 @@ public class CommerceInventoryBookedQuantityPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceInventoryBookedQuantity>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceInventoryBookedQuantity
@@ -1148,7 +1143,7 @@ public class CommerceInventoryBookedQuantityPersistenceImpl
 
 		Object[] finderArgs = new Object[] {_getTime(expirationDate)};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1310,7 +1305,7 @@ public class CommerceInventoryBookedQuantityPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceInventoryBookedQuantity>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceInventoryBookedQuantity
@@ -1737,7 +1732,7 @@ public class CommerceInventoryBookedQuantityPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, sku};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -2264,7 +2259,7 @@ public class CommerceInventoryBookedQuantityPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceInventoryBookedQuantity>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2337,7 +2332,7 @@ public class CommerceInventoryBookedQuantityPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

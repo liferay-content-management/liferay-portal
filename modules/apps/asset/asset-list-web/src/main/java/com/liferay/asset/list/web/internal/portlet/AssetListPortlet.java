@@ -31,9 +31,9 @@ import com.liferay.asset.list.web.internal.servlet.taglib.util.ListItemsActionDr
 import com.liferay.asset.util.AssetRendererFactoryClassProvider;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.dynamic.data.mapping.util.DDMIndexer;
-import com.liferay.info.display.url.provider.InfoEditURLProviderTracker;
-import com.liferay.info.item.InfoItemServiceTracker;
-import com.liferay.info.search.InfoSearchClassMapperTracker;
+import com.liferay.info.display.url.provider.InfoEditURLProviderRegistry;
+import com.liferay.info.item.InfoItemServiceRegistry;
+import com.liferay.info.search.InfoSearchClassMapperRegistry;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.util.Portal;
@@ -102,25 +102,25 @@ public class AssetListPortlet extends MVCPortlet {
 			AssetListWebKeys.EDIT_ASSET_LIST_DISPLAY_CONTEXT,
 			new EditAssetListDisplayContext(
 				_assetRendererFactoryClassProvider,
-				_infoSearchClassMapperTracker, _itemSelector, renderRequest,
+				_infoSearchClassMapperRegistry, _itemSelector, renderRequest,
 				renderResponse, _segmentsConfigurationProvider,
 				_getUnicodeProperties(assetListDisplayContext)));
 		renderRequest.setAttribute(
 			AssetListWebKeys.INFO_COLLECTION_PROVIDER_DISPLAY_CONTEXT,
 			new InfoCollectionProviderDisplayContext(
-				_infoItemServiceTracker, renderRequest, renderResponse));
+				_infoItemServiceRegistry, renderRequest, renderResponse));
 		renderRequest.setAttribute(
 			AssetListWebKeys.INFO_COLLECTION_PROVIDER_ITEMS_DISPLAY_CONTEXT,
 			new InfoCollectionProviderItemsDisplayContext(
-				_infoItemServiceTracker, renderRequest, renderResponse));
+				_infoItemServiceRegistry, renderRequest, renderResponse));
 		renderRequest.setAttribute(
 			AssetListWebKeys.ITEM_SELECTOR, _itemSelector);
 		renderRequest.setAttribute(
 			AssetListWebKeys.LIST_ITEMS_ACTION_DROPDOWN_ITEMS,
 			new ListItemsActionDropdownItems(
 				_assetDisplayPageFriendlyURLProvider, _dlAppService,
-				_infoEditURLProviderTracker, _infoItemServiceTracker,
-				_infoSearchClassMapperTracker,
+				_infoEditURLProviderRegistry, _infoItemServiceRegistry,
+				_infoSearchClassMapperRegistry,
 				_portal.getHttpServletRequest(renderRequest)));
 		renderRequest.setAttribute(
 			AssetListWebKeys.SELECT_STRUCTURE_FIELD_DISPLAY_CONTEXT,
@@ -177,13 +177,13 @@ public class AssetListPortlet extends MVCPortlet {
 	private DLAppService _dlAppService;
 
 	@Reference
-	private InfoEditURLProviderTracker _infoEditURLProviderTracker;
+	private InfoEditURLProviderRegistry _infoEditURLProviderRegistry;
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	@Reference
-	private InfoSearchClassMapperTracker _infoSearchClassMapperTracker;
+	private InfoSearchClassMapperRegistry _infoSearchClassMapperRegistry;
 
 	@Reference
 	private ItemSelector _itemSelector;

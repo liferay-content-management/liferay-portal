@@ -23,7 +23,7 @@ import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.Role;
@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -50,7 +49,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Steven Smith
  */
-@Component(enabled = false, service = DLImporter.class)
+@Component(service = DLImporter.class)
 public class DLImporter {
 
 	public void importDocuments(
@@ -79,7 +78,7 @@ public class DLImporter {
 		throws PortalException {
 
 		if (jsonArray == null) {
-			jsonArray = JSONFactoryUtil.createJSONArray(
+			jsonArray = _jsonFactory.createJSONArray(
 				"[{\"actionIds\": [\"VIEW\"], \"roleName\": \"Site Member\"," +
 					"\"scope\": 4}]");
 		}
@@ -151,7 +150,7 @@ public class DLImporter {
 			InputStream inputStream = classLoader.getResourceAsStream(
 				documentsDependencyPath + fileName);
 
-			File file = FileUtil.createTempFile(inputStream);
+			File file = _file.createTempFile(inputStream);
 
 			FileEntry fileEntry = _dlAppLocalService.addFileEntry(
 				null, userId, repository.getRepositoryId(),
@@ -236,6 +235,12 @@ public class DLImporter {
 
 	@Reference
 	private DLFolderLocalService _dlFolderLocalService;
+
+	@Reference
+	private com.liferay.portal.kernel.util.File _file;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private RepositoryLocalService _repositoryLocalService;

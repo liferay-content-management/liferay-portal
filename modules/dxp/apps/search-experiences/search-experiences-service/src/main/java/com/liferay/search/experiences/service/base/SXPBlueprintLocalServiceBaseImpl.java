@@ -278,48 +278,21 @@ public abstract class SXPBlueprintLocalServiceBaseImpl
 			uuid, companyId, null);
 	}
 
-	/**
-	 * Returns the sxp blueprint with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the sxp blueprint's external reference code
-	 * @return the matching sxp blueprint, or <code>null</code> if a matching sxp blueprint could not be found
-	 */
 	@Override
 	public SXPBlueprint fetchSXPBlueprintByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
-		return sxpBlueprintPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return sxpBlueprintPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchSXPBlueprintByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public SXPBlueprint fetchSXPBlueprintByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return fetchSXPBlueprintByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * Returns the sxp blueprint with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the sxp blueprint's external reference code
-	 * @return the matching sxp blueprint
-	 * @throws PortalException if a matching sxp blueprint could not be found
-	 */
 	@Override
 	public SXPBlueprint getSXPBlueprintByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		return sxpBlueprintPersistence.findByC_ERC(
-			companyId, externalReferenceCode);
+		return sxpBlueprintPersistence.findByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	/**

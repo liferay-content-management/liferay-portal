@@ -112,6 +112,26 @@ SearchContainer<AssetListEntry> searchContainer = assetListEntryItemSelectorDisp
 						<p class="h6 text-default">
 							<liferay-ui:message key="supports-filters" />
 						</p>
+
+						<%
+						int assetListEntrySegmentsEntryRelsCount = assetListEntryItemSelectorDisplayContext.getAssetListEntrySegmentsEntryRelsCount(assetListEntry);
+						%>
+
+						<c:choose>
+							<c:when test="<%= assetListEntrySegmentsEntryRelsCount > 0 %>">
+								<clay:label
+									cssClass="mr-auto"
+									displayType="info"
+									label='<%= LanguageUtil.format(locale, "x-variations", new String[] {String.valueOf(assetListEntrySegmentsEntryRelsCount)}) %>'
+								/>
+							</c:when>
+							<c:otherwise>
+								<clay:label
+									cssClass="mr-auto"
+									label='<%= LanguageUtil.get(request, "no-variations") %>'
+								/>
+							</c:otherwise>
+						</c:choose>
 					</liferay-ui:search-container-column-text>
 				</c:when>
 				<c:otherwise>

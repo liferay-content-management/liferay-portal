@@ -66,8 +66,7 @@ public class EditFolderPortletConfigurationIcon
 
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)), "edit");
+		return _language.get(getLocale(portletRequest), "edit");
 	}
 
 	@Override
@@ -164,11 +163,6 @@ public class EditFolderPortletConfigurationIcon
 					themeDisplay.getScopeGroupId(), folderId,
 					ActionKeys.UPDATE);
 			});
-	}
-
-	@Override
-	public boolean isToolTip() {
-		return false;
 	}
 
 	private boolean _isDLWorkflowEnabled() {

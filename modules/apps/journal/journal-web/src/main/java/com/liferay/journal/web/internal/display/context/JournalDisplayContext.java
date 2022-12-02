@@ -47,7 +47,6 @@ import com.liferay.journal.web.internal.constants.JournalWebConstants;
 import com.liferay.journal.web.internal.portlet.action.ActionUtil;
 import com.liferay.journal.web.internal.search.EntriesChecker;
 import com.liferay.journal.web.internal.search.EntriesMover;
-import com.liferay.journal.web.internal.search.JournalSearcher;
 import com.liferay.journal.web.internal.security.permission.resource.JournalArticlePermission;
 import com.liferay.journal.web.internal.security.permission.resource.JournalFolderPermission;
 import com.liferay.journal.web.internal.servlet.taglib.util.JournalArticleActionDropdownItemsProvider;
@@ -55,6 +54,7 @@ import com.liferay.journal.web.internal.servlet.taglib.util.JournalFolderActionD
 import com.liferay.journal.web.internal.util.JournalArticleTranslation;
 import com.liferay.journal.web.internal.util.JournalArticleTranslationRowChecker;
 import com.liferay.journal.web.internal.util.JournalPortletUtil;
+import com.liferay.journal.web.internal.util.JournalSearcherUtil;
 import com.liferay.message.boards.model.MBMessage;
 import com.liferay.message.boards.service.MBMessageLocalServiceUtil;
 import com.liferay.petra.string.StringBundler;
@@ -93,7 +93,6 @@ import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -1074,65 +1073,6 @@ public class JournalDisplayContext {
 		return false;
 	}
 
-	protected SearchContext buildSearchContext(
-		int start, int end, boolean showVersions) {
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setAndSearch(false);
-		searchContext.setAttributes(
-			HashMapBuilder.<String, Serializable>put(
-				Field.ARTICLE_ID, getKeywords()
-			).put(
-				Field.CLASS_NAME_ID,
-				JournalArticleConstants.CLASS_NAME_ID_DEFAULT
-			).put(
-				Field.CONTENT, getKeywords()
-			).put(
-				Field.DESCRIPTION, getKeywords()
-			).put(
-				Field.STATUS, getStatus()
-			).put(
-				Field.TITLE, getKeywords()
-			).put(
-				"ddmStructureKey", getDDMStructureKey()
-			).put(
-				"head", !showVersions
-			).put(
-				"latest", !showVersions
-			).put(
-				"params",
-				LinkedHashMapBuilder.<String, Object>put(
-					"expandoAttributes", getKeywords()
-				).put(
-					"keywords", getKeywords()
-				).build()
-			).put(
-				"showNonindexable", !showVersions
-			).build());
-		searchContext.setCompanyId(_themeDisplay.getCompanyId());
-		searchContext.setEnd(end);
-		searchContext.setFolderIds(_getFolderIds());
-		searchContext.setGroupIds(new long[] {_themeDisplay.getScopeGroupId()});
-		searchContext.setIncludeInternalAssetCategories(true);
-		searchContext.setKeywords(getKeywords());
-
-		QueryConfig queryConfig = searchContext.getQueryConfig();
-
-		queryConfig.setHighlightEnabled(false);
-		queryConfig.setScoreEnabled(false);
-
-		Sort sort = _getSort();
-
-		if (sort != null) {
-			searchContext.setSorts(sort);
-		}
-
-		searchContext.setStart(start);
-
-		return searchContext;
-	}
-
 	private JournalDisplayContext(
 		HttpServletRequest httpServletRequest,
 		LiferayPortletRequest liferayPortletRequest,
@@ -1217,13 +1157,16 @@ public class JournalDisplayContext {
 		if (Validator.isNotNull(getDDMStructureKey())) {
 			articleSearchContainer.setResultsAndTotal(
 				() -> JournalArticleServiceUtil.getArticlesByStructureId(
-					_themeDisplay.getScopeGroupId(), getDDMStructureKey(),
-					getStatus(), articleSearchContainer.getStart(),
+					_themeDisplay.getScopeGroupId(), getFolderId(),
+					JournalArticleConstants.CLASS_NAME_ID_DEFAULT,
+					getDDMStructureKey(), getStatus(),
+					articleSearchContainer.getStart(),
 					articleSearchContainer.getEnd(),
 					articleSearchContainer.getOrderByComparator()),
 				JournalArticleServiceUtil.getArticlesCountByStructureId(
-					_themeDisplay.getScopeGroupId(), getDDMStructureKey(),
-					getStatus()));
+					_themeDisplay.getScopeGroupId(), getFolderId(),
+					JournalArticleConstants.CLASS_NAME_ID_DEFAULT,
+					getDDMStructureKey(), getStatus()));
 			articleSearchContainer.setRowChecker(_getEntriesChecker());
 
 			if (!BrowserSnifferUtil.isMobile(_httpServletRequest)) {
@@ -1248,36 +1191,16 @@ public class JournalDisplayContext {
 		articleAndFolderSearchContainer.setOrderByType(getOrderByType());
 
 		if (isSearch()) {
-			Indexer<?> indexer = JournalSearcher.getInstance();
-
-			SearchContext searchContext = buildSearchContext(
-				articleAndFolderSearchContainer.getStart(),
-				articleAndFolderSearchContainer.getEnd(), false);
-
-			Hits hits = indexer.search(searchContext);
-
-			List<Object> results = new ArrayList<>();
-
-			Document[] documents = hits.getDocs();
-
-			for (Document document : documents) {
-				String className = document.get(Field.ENTRY_CLASS_NAME);
-				long classPK = GetterUtil.getLong(
-					document.get(Field.ENTRY_CLASS_PK));
-
-				if (className.equals(JournalArticle.class.getName())) {
-					results.add(
-						JournalArticleLocalServiceUtil.fetchLatestArticle(
-							classPK, WorkflowConstants.STATUS_ANY, false));
-				}
-				else if (className.equals(JournalFolder.class.getName())) {
-					results.add(
-						JournalFolderLocalServiceUtil.getFolder(classPK));
-				}
-			}
+			List<Object> results =
+				JournalSearcherUtil.searchJournalArticleAndFolders(
+					searchContext -> _populateSearchContext(
+						articleAndFolderSearchContainer.getStart(),
+						articleAndFolderSearchContainer.getEnd(), searchContext,
+						false));
 
 			articleAndFolderSearchContainer.setResultsAndTotal(
-				() -> results, hits.getLength());
+				() -> results, results.size());
+
 			articleAndFolderSearchContainer.setRowChecker(_getEntriesChecker());
 
 			if (!BrowserSnifferUtil.isMobile(_httpServletRequest)) {
@@ -1496,40 +1419,71 @@ public class JournalDisplayContext {
 				getOrderByCol(), getOrderByType()));
 		articleVersionsSearchContainer.setOrderByType(getOrderByType());
 
-		Indexer<JournalArticle> indexer = IndexerRegistryUtil.getIndexer(
-			JournalArticle.class);
-
-		SearchContext searchContext = buildSearchContext(
-			articleVersionsSearchContainer.getStart(),
-			articleVersionsSearchContainer.getEnd(), true);
-
-		Hits hits = indexer.search(searchContext);
-
-		List<JournalArticle> results = new ArrayList<>();
-
-		Document[] documents = hits.getDocs();
-
-		for (Document document : documents) {
-			if (!Objects.equals(
-					document.get(Field.ENTRY_CLASS_NAME),
-					JournalArticle.class.getName())) {
-
-				continue;
-			}
-
-			results.add(
-				JournalArticleLocalServiceUtil.fetchArticle(
-					GetterUtil.getLong(document.get(Field.GROUP_ID)),
-					document.get(Field.ARTICLE_ID),
-					GetterUtil.getDouble(document.get(Field.VERSION))));
-		}
+		List<JournalArticle> results =
+			JournalSearcherUtil.searchJournalArticles(
+				true,
+				searchContext -> _populateSearchContext(
+					articleVersionsSearchContainer.getStart(),
+					articleVersionsSearchContainer.getEnd(), searchContext,
+					true));
 
 		articleVersionsSearchContainer.setResultsAndTotal(
-			() -> results, hits.getLength());
+			() -> results, results.size());
 
 		_articleVersionsSearchContainer = articleVersionsSearchContainer;
 
 		return _articleVersionsSearchContainer;
+	}
+
+	private SearchContext _populateSearchContext(
+		int start, int end, SearchContext searchContext, boolean showVersions) {
+
+		searchContext.setAndSearch(false);
+
+		Map<String, Serializable> attributes = searchContext.getAttributes();
+
+		attributes.put(Field.ARTICLE_ID, getKeywords());
+		attributes.put(
+			Field.CLASS_NAME_ID, JournalArticleConstants.CLASS_NAME_ID_DEFAULT);
+		attributes.put(Field.CONTENT, getKeywords());
+		attributes.put(Field.DESCRIPTION, getKeywords());
+		attributes.put(Field.STATUS, getStatus());
+		attributes.put(Field.TITLE, getKeywords());
+		attributes.put("ddmStructureKey", getDDMStructureKey());
+		attributes.put("head", !showVersions);
+		attributes.put("latest", !showVersions);
+		attributes.put(
+			"params",
+			LinkedHashMapBuilder.<String, Object>put(
+				"expandoAttributes", getKeywords()
+			).put(
+				"keywords", getKeywords()
+			).build());
+		attributes.put("showNonindexable", !showVersions);
+
+		searchContext.setAttributes(attributes);
+
+		searchContext.setCompanyId(_themeDisplay.getCompanyId());
+		searchContext.setEnd(end);
+		searchContext.setFolderIds(_getFolderIds());
+		searchContext.setGroupIds(new long[] {_themeDisplay.getScopeGroupId()});
+		searchContext.setIncludeInternalAssetCategories(true);
+		searchContext.setKeywords(getKeywords());
+
+		QueryConfig queryConfig = searchContext.getQueryConfig();
+
+		queryConfig.setHighlightEnabled(false);
+		queryConfig.setScoreEnabled(false);
+
+		Sort sort = _getSort();
+
+		if (sort != null) {
+			searchContext.setSorts(sort);
+		}
+
+		searchContext.setStart(start);
+
+		return searchContext;
 	}
 
 	private String[] _addMenuFavItems;

@@ -30,7 +30,7 @@ public class PasswordEncryptorUtil {
 	public static String encrypt(String plainTextPassword)
 		throws PwdEncryptorException {
 
-		return encrypt(plainTextPassword, null);
+		return encrypt(plainTextPassword, (String)null);
 	}
 
 	public static String encrypt(
@@ -57,6 +57,19 @@ public class PasswordEncryptorUtil {
 	}
 
 	public static String encrypt(
+			String plainTextPassword, String encryptedPassword,
+			Boolean upgradeHashSecurity)
+		throws PwdEncryptorException {
+
+		if (upgradeHashSecurity) {
+			encryptedPassword = null;
+		}
+
+		return _passwordEncryptor.encrypt(
+			null, plainTextPassword, encryptedPassword, upgradeHashSecurity);
+	}
+
+	public static String encrypt(
 			String algorithm, String plainTextPassword,
 			String encryptedPassword)
 		throws PwdEncryptorException {
@@ -65,8 +78,8 @@ public class PasswordEncryptorUtil {
 			algorithm, plainTextPassword, encryptedPassword);
 	}
 
-	public static String getDefaultPasswordAlgorithmType() {
-		return _passwordEncryptor.getDefaultPasswordAlgorithmType();
+	public static String getDefaultPasswordEncryptionAlgorithm() {
+		return _passwordEncryptor.getDefaultPasswordEncryptionAlgorithm();
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

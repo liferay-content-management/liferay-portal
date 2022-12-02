@@ -48,7 +48,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Pavel Savinov
  */
-@Component(immediate = true, service = {})
+@Component(service = {})
 public class NavItemUtil {
 
 	public static List<NavItem> getBranchNavItems(
@@ -121,7 +121,7 @@ public class NavItemUtil {
 
 				if (!siteNavigationMenuItemType.isDynamic()) {
 					navItems.add(
-						new SiteNavigationMenuNavItem(
+						new SiteNavigationMenuNavItemImpl(
 							httpServletRequest, themeDisplay,
 							siteNavigationMenuItem));
 
@@ -133,7 +133,7 @@ public class NavItemUtil {
 							httpServletRequest, siteNavigationMenuItem)) {
 
 					navItems.add(
-						new SiteNavigationMenuNavItem(
+						new SiteNavigationMenuNavItemImpl(
 							httpServletRequest, themeDisplay,
 							dynamicSiteNavigationMenuItem));
 				}

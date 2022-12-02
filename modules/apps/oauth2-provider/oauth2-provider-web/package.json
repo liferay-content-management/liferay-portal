@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"frontend-js-web": "*",
 		"pkce-challenge": "^3.0.0"
 	},
 	"main": "js/liferay.js",
@@ -10,5 +11,5 @@
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "4.0.39"
+	"version": "4.0.46"
 }

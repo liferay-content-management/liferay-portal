@@ -19,9 +19,9 @@ package com.liferay.fragment.constants;
  */
 public class FragmentEntryLinkConstants {
 
-	public static final String ASSET_DISPLAY_PAGE = "ASSET_DISPLAY_PAGE";
-
 	public static final String EDIT = "EDIT";
+
+	public static final String INDEX = "INDEX";
 
 	public static final String VIEW = "VIEW";
 

@@ -29,10 +29,11 @@ import com.liferay.commerce.inventory.type.constants.CommerceInventoryAuditTypeC
 import com.liferay.commerce.model.CommerceOrderItem;
 import com.liferay.commerce.model.CommerceShipment;
 import com.liferay.commerce.model.CommerceShipmentItem;
+import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.service.CommerceOrderItemLocalService;
-import com.liferay.commerce.service.CommerceShipmentLocalService;
 import com.liferay.commerce.service.base.CommerceShipmentItemLocalServiceBaseImpl;
-import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.commerce.service.persistence.CommerceShipmentPersistence;
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -46,15 +47,21 @@ import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.util.List;
 import java.util.Objects;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Alessio Antonio Rendina
  * @author Luca Pellizzon
  */
+@Component(
+	property = "model.class.name=com.liferay.commerce.model.CommerceShipmentItem",
+	service = AopService.class
+)
 public class CommerceShipmentItemLocalServiceImpl
 	extends CommerceShipmentItemLocalServiceBaseImpl {
 
@@ -85,7 +92,7 @@ public class CommerceShipmentItemLocalServiceImpl
 		if (validateInventory) {
 			_validate(
 				commerceOrderItem,
-				_commerceShipmentLocalService.getCommerceShipment(
+				_commerceShipmentPersistence.findByPrimaryKey(
 					commerceShipmentId),
 				commerceInventoryWarehouseId, quantity, quantity);
 		}
@@ -164,8 +171,8 @@ public class CommerceShipmentItemLocalServiceImpl
 		CommerceShipmentItem commerceShipmentItem = null;
 
 		if (Validator.isNotNull(externalReferenceCode)) {
-			commerceShipmentItem = commerceShipmentItemPersistence.fetchByC_ERC(
-				serviceContext.getCompanyId(), externalReferenceCode);
+			commerceShipmentItem = commerceShipmentItemPersistence.fetchByERC_C(
+				externalReferenceCode, serviceContext.getCompanyId());
 		}
 
 		if (commerceShipmentItem == null) {
@@ -437,8 +444,16 @@ public class CommerceShipmentItemLocalServiceImpl
 			CommerceShipmentItem commerceShipmentItem, int quantity)
 		throws PortalException {
 
+		long commerceCatalogGroupId = 0;
+
+		CPDefinition cpDefinition = commerceOrderItem.getCPDefinition();
+
+		if (cpDefinition != null) {
+			commerceCatalogGroupId = cpDefinition.getGroupId();
+		}
+
 		_commerceInventoryEngine.increaseStockQuantity(
-			commerceShipmentItem.getUserId(),
+			commerceShipmentItem.getUserId(), commerceCatalogGroupId,
 			commerceShipmentItem.getCommerceInventoryWarehouseId(),
 			commerceOrderItem.getSku(), quantity);
 
@@ -480,8 +495,16 @@ public class CommerceShipmentItemLocalServiceImpl
 			commerceShipmentItemPersistence.findByPrimaryKey(
 				commerceShipmentItemId);
 
+		long commerceCatalogGroupId = 0;
+
+		CPDefinition cpDefinition = commerceOrderItem.getCPDefinition();
+
+		if (cpDefinition != null) {
+			commerceCatalogGroupId = cpDefinition.getGroupId();
+		}
+
 		_commerceInventoryEngine.consumeQuantity(
-			commerceShipmentItem.getUserId(),
+			commerceShipmentItem.getUserId(), commerceCatalogGroupId,
 			commerceShipmentItem.getCommerceInventoryWarehouseId(),
 			commerceOrderItem.getSku(), quantity,
 			commerceOrderItem.getBookedQuantityId(),
@@ -563,8 +586,8 @@ public class CommerceShipmentItemLocalServiceImpl
 		}
 
 		CommerceShipmentItem commerceShipmentItem =
-			commerceShipmentItemPersistence.fetchByC_ERC(
-				companyId, externalReferenceCode);
+			commerceShipmentItemPersistence.fetchByERC_C(
+				externalReferenceCode, companyId);
 
 		if (commerceShipmentItem == null) {
 			return;
@@ -582,28 +605,28 @@ public class CommerceShipmentItemLocalServiceImpl
 	private static final Log _log = LogFactoryUtil.getLog(
 		CommerceShipmentItemLocalServiceImpl.class);
 
-	@ServiceReference(type = CommerceInventoryBookedQuantityLocalService.class)
+	@Reference
 	private CommerceInventoryBookedQuantityLocalService
 		_commerceInventoryBookedQuantityLocalService;
 
-	@ServiceReference(type = CommerceInventoryEngine.class)
+	@Reference
 	private CommerceInventoryEngine _commerceInventoryEngine;
 
-	@ServiceReference(type = CommerceInventoryWarehouseItemLocalService.class)
+	@Reference
 	private CommerceInventoryWarehouseItemLocalService
 		_commerceInventoryWarehouseItemLocalService;
 
-	@ServiceReference(type = CommerceInventoryWarehouseLocalService.class)
+	@Reference
 	private CommerceInventoryWarehouseLocalService
 		_commerceInventoryWarehouseLocalService;
 
-	@BeanReference(type = CommerceOrderItemLocalService.class)
+	@Reference
 	private CommerceOrderItemLocalService _commerceOrderItemLocalService;
 
-	@BeanReference(type = CommerceShipmentLocalService.class)
-	private CommerceShipmentLocalService _commerceShipmentLocalService;
+	@Reference
+	private CommerceShipmentPersistence _commerceShipmentPersistence;
 
-	@ServiceReference(type = UserLocalService.class)
+	@Reference
 	private UserLocalService _userLocalService;
 
 }

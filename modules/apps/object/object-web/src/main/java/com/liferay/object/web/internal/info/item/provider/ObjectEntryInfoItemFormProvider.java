@@ -204,10 +204,18 @@ public class ObjectEntryInfoItemFormProvider
 		}
 		else if (Objects.equals(
 					objectField.getBusinessType(),
-					ObjectFieldConstants.BUSINESS_TYPE_PICKLIST)) {
+					ObjectFieldConstants.BUSINESS_TYPE_MULTISELECT_PICKLIST) ||
+				 Objects.equals(
+					 objectField.getBusinessType(),
+					 ObjectFieldConstants.BUSINESS_TYPE_PICKLIST)) {
 
 			finalStep.attribute(
-				SelectInfoFieldType.OPTIONS, _getOptions(objectField));
+				SelectInfoFieldType.MULTIPLE,
+				objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_MULTISELECT_PICKLIST)
+			).attribute(
+				SelectInfoFieldType.OPTIONS, _getOptions(objectField)
+			);
 		}
 		else if (Objects.equals(
 					objectField.getBusinessType(),
@@ -261,13 +269,19 @@ public class ObjectEntryInfoItemFormProvider
 	private InfoFieldSet _getBasicInformationInfoFieldSet() {
 		return InfoFieldSet.builder(
 		).infoFieldSetEntry(
+			ObjectEntryInfoItemFields.authorInfoField
+		).infoFieldSetEntry(
 			ObjectEntryInfoItemFields.createDateInfoField
+		).infoFieldSetEntry(
+			ObjectEntryInfoItemFields.externalReferenceCodeInfoField
 		).infoFieldSetEntry(
 			ObjectEntryInfoItemFields.modifiedDateInfoField
 		).infoFieldSetEntry(
+			ObjectEntryInfoItemFields.objectEntryIdInfoField
+		).infoFieldSetEntry(
 			ObjectEntryInfoItemFields.publishDateInfoField
 		).infoFieldSetEntry(
-			ObjectEntryInfoItemFields.userNameInfoField
+			ObjectEntryInfoItemFields.statusInfoField
 		).infoFieldSetEntry(
 			ObjectEntryInfoItemFields.userProfileImageInfoField
 		).labelInfoLocalizedValue(
@@ -336,6 +350,9 @@ public class ObjectEntryInfoItemFormProvider
 	private InfoForm _getInfoForm(long objectDefinitionId)
 		throws NoSuchFormVariationException {
 
+		String modelClassName =
+			ObjectDefinition.class.getName() + "#" + objectDefinitionId;
+
 		return InfoForm.builder(
 		).infoFieldSetEntry(
 			_getBasicInformationInfoFieldSet()
@@ -347,21 +364,18 @@ public class ObjectEntryInfoItemFormProvider
 				}
 			}
 		).infoFieldSetEntry(
-			_templateInfoItemFieldSetProvider.getInfoFieldSet(
-				"com.liferay.object.model.ObjectDefinition#" +
-					objectDefinitionId)
+			_templateInfoItemFieldSetProvider.getInfoFieldSet(modelClassName)
 		).infoFieldSetEntry(
 			_getDisplayPageInfoFieldSet()
 		).infoFieldSetEntry(
-			_infoItemFieldReaderFieldSetProvider.getInfoFieldSet(
-				ObjectEntry.class.getName())
+			_infoItemFieldReaderFieldSetProvider.getInfoFieldSet(modelClassName)
 		).labelInfoLocalizedValue(
 			InfoLocalizedValue.<String>builder(
 			).values(
 				_objectDefinition.getLabelMap()
 			).build()
 		).name(
-			_objectDefinition.getClassName()
+			modelClassName
 		).build();
 	}
 
@@ -478,6 +492,8 @@ public class ObjectEntryInfoItemFormProvider
 		for (ListTypeEntry listTypeEntry : listTypeEntries) {
 			options.add(
 				new SelectInfoFieldType.Option(
+					Objects.equals(
+						objectField.getDefaultValue(), listTypeEntry.getKey()),
 					new FunctionInfoLocalizedValue<>(listTypeEntry::getName),
 					listTypeEntry.getKey()));
 		}
@@ -505,6 +521,12 @@ public class ObjectEntryInfoItemFormProvider
 
 		if (titleObjectField == null) {
 			return "id";
+		}
+		else if (Objects.equals(titleObjectField.getName(), "createDate")) {
+			return "dateCreated";
+		}
+		else if (Objects.equals(titleObjectField.getName(), "modifiedDate")) {
+			return "dateModified";
 		}
 
 		return titleObjectField.getName();

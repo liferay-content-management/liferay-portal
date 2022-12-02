@@ -201,11 +201,11 @@ definition {
 		SearchPortlets.searchEmbedded(searchTerm = "apple");
 
 		AssertElementPresent(
-			key_text = "&quot;explain&quot;",
+			key_text = "\"explain\"",
 			locator1 = "SearchResults#SEARCH_INSIGHTS_WIDGET_REQUEST_QUERY");
 
 		AssertElementPresent(
-			key_text = "&quot;_explanation&quot;",
+			key_text = "\"_explanation\"",
 			locator1 = "SearchResults#SEARCH_INSIGHTS_WIDGET_RESPONSE_QUERY");
 
 		Portlet.gotoPortletOptions(
@@ -225,11 +225,11 @@ definition {
 		SearchPortlets.searchEmbedded(searchTerm = "apple");
 
 		AssertElementPresent(
-			key_text = "&quot;explain&quot;",
+			key_text = "\"explain\"",
 			locator1 = "SearchResults#SEARCH_INSIGHTS_WIDGET_REQUEST_QUERY");
 
 		AssertElementNotPresent(
-			key_text = "&quot;_explanation&quot;",
+			key_text = "\"_explanation\"",
 			locator1 = "SearchResults#SEARCH_INSIGHTS_WIDGET_RESPONSE_QUERY");
 	}
 
@@ -353,6 +353,35 @@ definition {
 		SearchResultPortlet.viewSearchResultNotPresent(
 			searchAssetTitle = "WC WebContent Title",
 			searchAssetType = "Web Content Article");
+	}
+
+	@priority = "3"
+	test BulkExecutionFailuresAreLoggedCorrectly {
+		property test.name.skip.portal.instance = "Elasticsearch7#BulkExecutionFailuresAreLoggedCorrectly";
+
+		SystemSettings.openToConfigInSystemSettings(portletId = "com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration");
+
+		FormFields.editTextMultiline(
+			fieldName = "additionalIndexConfigurations",
+			fieldValue = "index.mapping.total_fields.limit: 100");
+
+		SystemSettings.saveConfiguration();
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "Search");
+
+		Elasticsearch.assertElasticsearchIsReady();
+
+		SearchAdministration.executeReindex();
+
+		JSONWebcontent.addWebContent(
+			content = "WC Content",
+			groupName = "Guest",
+			title = "WC Title");
+
+		AssertConsoleTextPresent(value1 = "Limit of total fields \[100\] has been exceeded");
 	}
 
 	@priority = "4"
@@ -546,7 +575,7 @@ definition {
 	test OSGiConfigSmokeTest {
 		property embedded.elasticsearch.only = "true";
 		property osgi.module.configuration.file.names = "com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config";
-		property osgi.module.configurations = "clusterName=&quot;LiferayElasticsearchCluster1&quot;";
+		property osgi.module.configurations = "clusterName=\"LiferayElasticsearchCluster1\"";
 		property portal.acceptance = "true";
 		property search.environment.suite.exclude = "true";
 
@@ -554,7 +583,41 @@ definition {
 
 		Navigator.openSpecificURL(url = "http://${portalHostname}:9201");
 
-		Elasticsearch.viewClusterStatus(clusterStatus = "&quot;cluster_name&quot; : &quot;LiferayElasticsearchCluster1&quot;");
+		Elasticsearch.viewClusterStatus(clusterStatus = "\"cluster_name\" : \"LiferayElasticsearchCluster1\"");
+	}
+
+	@description = "Assert search is functional after Elasticsearch connector is redeployed from GogoShell"
+	@priority = "3"
+	test SearchAfterRedeployingElasticsearchConnector {
+		property remote.elasticsearch.enabled = "true";
+		property test.assert.warning.exceptions = "true";
+		property test.name.skip.portal.instance = "Elasticsearch7#SearchAfterRedeployingElasticsearchConnector";
+
+		GogoShell.openGogoShellAdmin();
+
+		var moduleId = GogoShell.getModuleID(moduleName = "com.liferay.portal.search.elasticsearch7.impl");
+
+		GogoShell.stopModule(moduleId = "${moduleId}");
+
+		GogoShell.viewModuleStatus(
+			moduleName = "com.liferay.portal.search.elasticsearch7.impl",
+			moduleStatus = "Resolved");
+
+		GogoShell.startModule(moduleId = "${moduleId}");
+
+		GogoShell.viewModuleStatus(
+			moduleName = "com.liferay.portal.search.elasticsearch7.impl",
+			moduleStatus = "Active");
+
+		SearchAdministration.executeReindex();
+
+		Navigator.gotoPage(pageName = "Home");
+
+		SearchPortlets.searchEmbedded(searchTerm = "test");
+
+		AssertElementPresent(
+			key_searchAssetTitle = "Test Test",
+			locator1 = "SearchResults#ASSET_ENTRY_TABLE_TITLE");
 	}
 
 	@priority = "5"
@@ -733,7 +796,7 @@ definition {
 
 		Navigator.openSpecificURL(url = "http://${portalHostname}:9201");
 
-		Elasticsearch.viewClusterStatus(clusterStatus = "&quot;cluster_name&quot; : &quot;LiferayElasticsearchCluster1&quot;");
+		Elasticsearch.viewClusterStatus(clusterStatus = "\"cluster_name\" : \"LiferayElasticsearchCluster1\"");
 
 		Navigator.openURL();
 

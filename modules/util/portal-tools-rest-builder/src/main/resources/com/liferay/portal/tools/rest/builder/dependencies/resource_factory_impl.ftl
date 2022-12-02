@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.lang.reflect.Constructor;
@@ -40,9 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -50,7 +49,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author ${configYAML.author}
  * @generated
  */
-@Component(<#if configYAML.liferayEnterpriseApp>enabled = false,</#if> immediate = true, property="resource.locator.key=${configYAML.application.baseURI}/${openAPIYAML.info.version}/${schemaName}", service = ${schemaName}Resource.Factory.class)
+@Component(<#if configYAML.liferayEnterpriseApp>enabled = false,</#if> property="resource.locator.key=${configYAML.application.baseURI}/${openAPIYAML.info.version}/${schemaName}", service = ${schemaName}Resource.Factory.class)
 @Generated("")
 public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.Factory {
 
@@ -111,16 +110,6 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 		};
 	}
 
-	@Activate
-	protected void activate() {
-		${schemaName}Resource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		${schemaName}Resource.FactoryHolder.factory = null;
-	}
-
 	private static Function<InvocationHandler, ${schemaName}Resource> _getProxyProviderFunction() {
 		Class<?> proxyClass = ProxyUtil.getProxyClass(${schemaName}Resource.class.getClassLoader(), ${schemaName}Resource.class);
 
@@ -172,6 +161,7 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 		${schemaVarName}Resource.setResourceActionLocalService(_resourceActionLocalService);
 		${schemaVarName}Resource.setResourcePermissionLocalService(_resourcePermissionLocalService);
 		${schemaVarName}Resource.setRoleLocalService(_roleLocalService);
+		${schemaVarName}Resource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(${schemaVarName}Resource, arguments);
@@ -218,6 +208,9 @@ public class ${schemaName}ResourceFactoryImpl implements ${schemaName}Resource.F
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

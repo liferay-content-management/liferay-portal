@@ -17,6 +17,7 @@ package com.liferay.portal.upgrade.internal.executor;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.db.index.IndexUpdaterUtil;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.db.DBContext;
 import com.liferay.portal.kernel.dao.db.DBProcessContext;
@@ -28,8 +29,8 @@ import com.liferay.portal.kernel.service.ReleaseLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.version.Version;
+import com.liferay.portal.module.util.BundleUtil;
 import com.liferay.portal.upgrade.internal.graph.ReleaseGraphManager;
-import com.liferay.portal.upgrade.internal.index.updater.IndexUpdaterUtil;
 import com.liferay.portal.upgrade.internal.registry.UpgradeInfo;
 import com.liferay.portal.upgrade.internal.registry.UpgradeStepRegistratorTracker;
 import com.liferay.portal.upgrade.internal.release.ReleasePublisher;
@@ -241,7 +242,7 @@ public class UpgradeExecutor {
 			}
 		}
 
-		Bundle bundle = IndexUpdaterUtil.getBundle(
+		Bundle bundle = BundleUtil.getBundle(
 			_bundleContext, bundleSymbolicName);
 
 		if (_requiresUpdateIndexes(bundle, upgradeInfos)) {
@@ -275,7 +276,7 @@ public class UpgradeExecutor {
 	private boolean _requiresUpdateIndexes(
 		Bundle bundle, List<UpgradeInfo> upgradeInfos) {
 
-		if (!IndexUpdaterUtil.isLiferayServiceBundle(bundle)) {
+		if (!BundleUtil.isLiferayServiceBundle(bundle)) {
 			return false;
 		}
 

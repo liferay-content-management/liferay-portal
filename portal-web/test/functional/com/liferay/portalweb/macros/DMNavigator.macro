@@ -182,9 +182,7 @@ definition {
 		}
 
 		if ("${item}" == "dropdownMenu") {
-			Click(locator1 = "Icon#TOOLBAR_ELLIPSIS");
-
-			MenuItem.click(menuItem = "${menuItem}");
+			DMNavigator.gotoVerticalEllipsisMenuItem(menuItem = "${menuItem}");
 		}
 	}
 
@@ -248,11 +246,7 @@ definition {
 
 		WaitForLiferayEvent.initializeLiferayEventLog();
 
-		var key_text = "Share";
-
-		AssertClick(
-			locator1 = "Button#SHARE_SIDENAV",
-			value1 = "Share");
+		DMNavigator.gotoVerticalEllipsisMenuItem(menuItem = "Share");
 	}
 
 	macro gotoShareInfoPanel {
@@ -285,6 +279,12 @@ definition {
 		DMDocument.expandInfo();
 
 		Click(locator1 = "DocumentsAndMediaDocument#DETAILS_URL");
+	}
+
+	macro gotoVerticalEllipsisMenuItem {
+		Click(locator1 = "Icon#TOOLBAR_ELLIPSIS");
+
+		MenuItem.click(menuItem = "${menuItem}");
 	}
 
 	macro openDocumentsAndMediaAdmin {
@@ -524,7 +524,18 @@ definition {
 			groupName = "${groupName}",
 			name = "${dmFolderName}");
 
-		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_document_library_web_portlet_DLAdminPortlet&_com_liferay_document_library_web_portlet_DLAdminPortlet_mvcRenderCommandName=%2Fdocument_library%2Fview_folder&_com_liferay_document_library_web_portlet_DLAdminPortlet_folderId=${folderId}");
+		if ("${displayStyle}" == "card") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_document_library_web_portlet_DLAdminPortlet&_com_liferay_document_library_web_portlet_DLAdminPortlet_mvcRenderCommandName=%2Fdocument_library%2Fview_folder&_com_liferay_document_library_web_portlet_DLAdminPortlet_folderId=${folderId}&_com_liferay_document_library_web_portlet_DLPortlet_INSTANCE_Rag8ovutcFBP_displayStyle=icon");
+		}
+		else if ("${displayStyle}" == "list") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_document_library_web_portlet_DLAdminPortlet&_com_liferay_document_library_web_portlet_DLAdminPortlet_mvcRenderCommandName=%2Fdocument_library%2Fview_folder&_com_liferay_document_library_web_portlet_DLAdminPortlet_folderId=${folderId}&_com_liferay_document_library_web_portlet_DLPortlet_INSTANCE_Rag8ovutcFBP_displayStyle=descriptive");
+		}
+		else if ("${displayStyle}" == "table") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_document_library_web_portlet_DLAdminPortlet&_com_liferay_document_library_web_portlet_DLAdminPortlet_mvcRenderCommandName=%2Fdocument_library%2Fview_folder&_com_liferay_document_library_web_portlet_DLAdminPortlet_folderId=${folderId}&_com_liferay_document_library_web_portlet_DLPortlet_INSTANCE_Rag8ovutcFBP_displayStyle=list");
+		}
+		else {
+			Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_document_library_web_portlet_DLAdminPortlet&_com_liferay_document_library_web_portlet_DLAdminPortlet_mvcRenderCommandName=%2Fdocument_library%2Fview_folder&_com_liferay_document_library_web_portlet_DLAdminPortlet_folderId=${folderId}");
+		}
 
 		WaitForPageLoad();
 	}

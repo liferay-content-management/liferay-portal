@@ -16,9 +16,9 @@ package com.liferay.dynamic.data.mapping.validator.internal;
 
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFunction;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFunctionFactory;
-import com.liferay.dynamic.data.mapping.expression.DDMExpressionFunctionTracker;
+import com.liferay.dynamic.data.mapping.expression.DDMExpressionFunctionRegistry;
 import com.liferay.dynamic.data.mapping.expression.internal.DDMExpressionFactoryImpl;
-import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesRegistry;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
@@ -908,8 +908,8 @@ public class DDMFormValuesValidatorTest {
 			new DDMExpressionFactoryImpl();
 
 		ReflectionTestUtil.setFieldValue(
-			ddmExpressionFactoryImpl, "ddmExpressionFunctionTracker",
-			new DDMExpressionFunctionTracker() {
+			ddmExpressionFactoryImpl, "ddmExpressionFunctionRegistry",
+			new DDMExpressionFunctionRegistry() {
 
 				@Override
 				public Map<String, DDMExpressionFunction>
@@ -950,15 +950,14 @@ public class DDMFormValuesValidatorTest {
 			ddmExpressionFactoryImpl);
 
 		ReflectionTestUtil.setFieldValue(
-			_ddmFormValuesValidatorImpl, "_ddmFormFieldTypeServicesTracker",
+			_ddmFormValuesValidatorImpl, "_ddmFormFieldTypeServicesRegistry",
 			ProxyFactory.newDummyInstance(
-				DDMFormFieldTypeServicesTracker.class));
+				DDMFormFieldTypeServicesRegistry.class));
 		ReflectionTestUtil.setFieldValue(
 			_ddmFormValuesValidatorImpl,
 			"_ddmFormFieldValueExpressionParameterAccessor",
-			new DDMFormFieldValueExpressionParameterAccessor(null, null));
-		ReflectionTestUtil.setFieldValue(
-			_ddmFormValuesValidatorImpl, "_jsonFactory", new JSONFactoryImpl());
+			new DDMFormFieldValueExpressionParameterAccessor(
+				new JSONFactoryImpl(), null, null));
 		ReflectionTestUtil.setFieldValue(
 			_ddmFormValuesValidatorImpl, "_serviceTrackerMap",
 			ProxyFactory.newDummyInstance(ServiceTrackerMap.class));

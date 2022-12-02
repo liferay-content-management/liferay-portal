@@ -14,7 +14,7 @@
 
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.MappingContentUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -39,7 +39,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + ContentPageEditorPortletKeys.CONTENT_PAGE_EDITOR_PORTLET,
 		"mvc.command.name=/layout_content_page_editor/get_form_fields"
@@ -65,7 +64,7 @@ public class GetFormFieldsMVCResourceCommand extends BaseMVCResourceCommand {
 				resourceRequest, resourceResponse,
 				MappingContentUtil.getEditableMappingFieldsJSONArray(
 					classTypeId, themeDisplay.getScopeGroupId(),
-					_infoItemServiceTracker, _portal.getClassName(classNameId),
+					_infoItemServiceRegistry, _portal.getClassName(classNameId),
 					themeDisplay.getLocale()));
 		}
 		catch (Exception exception) {
@@ -85,7 +84,7 @@ public class GetFormFieldsMVCResourceCommand extends BaseMVCResourceCommand {
 		GetFormFieldsMVCResourceCommand.class);
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	@Reference
 	private Language _language;

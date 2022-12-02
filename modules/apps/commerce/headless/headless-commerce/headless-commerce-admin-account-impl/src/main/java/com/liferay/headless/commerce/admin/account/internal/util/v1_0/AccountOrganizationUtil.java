@@ -37,9 +37,11 @@ public class AccountOrganizationUtil {
 				accountOrganization.getOrganizationExternalReferenceCode())) {
 
 			organization =
-				organizationLocalService.fetchOrganizationByReferenceCode(
-					companyId,
-					accountOrganization.getOrganizationExternalReferenceCode());
+				organizationLocalService.
+					fetchOrganizationByExternalReferenceCode(
+						accountOrganization.
+							getOrganizationExternalReferenceCode(),
+						companyId);
 
 			if (organization == null) {
 				String organizationExternalReferenceCode =

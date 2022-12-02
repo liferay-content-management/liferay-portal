@@ -31,10 +31,7 @@ import org.osgi.service.component.annotations.Deactivate;
 /**
  * @author Alessio Antonio Rendina
  */
-@Component(
-	enabled = false, immediate = true,
-	service = COREntryTypeJSPContributorRegistry.class
-)
+@Component(service = COREntryTypeJSPContributorRegistry.class)
 public class COREntryTypeJSPContributorRegistryImpl
 	implements COREntryTypeJSPContributorRegistry {
 

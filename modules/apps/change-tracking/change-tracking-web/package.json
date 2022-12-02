@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"moment": "^2.22.2",
+		"moment": "2.29.4",
 		"react-transition-group": "4.4.1"
 	},
 	"name": "change-tracking-web",
@@ -9,5 +9,5 @@
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "2.0.72"
+	"version": "2.0.80"
 }

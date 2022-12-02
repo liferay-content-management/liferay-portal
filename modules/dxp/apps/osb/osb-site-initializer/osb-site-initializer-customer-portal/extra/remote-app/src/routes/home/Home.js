@@ -13,9 +13,9 @@ import ClayLayout from '@clayui/layout';
 import ProjectList from './components/ProjectsList';
 import SearchHeader from './components/SearchHeader';
 import useHasManyProjects from './hooks/useHasManyProjects';
-import useKoroneikiAccounts from './hooks/useKoroneikiAccounts';
 
 import './app.scss';
+import useKoroneikiAccounts from '../../common/hooks/useKoroneikiAccounts';
 
 const THRESHOLD_COUNT = 4;
 
@@ -37,6 +37,7 @@ const Home = () => {
 
 	return (
 		<ClayLayout.ContainerFluid
+			className="cp-home-wrapper"
 			size={hasManyProjects && !loading ? 'md' : 'xl'}
 		>
 			<ClayLayout.Row>

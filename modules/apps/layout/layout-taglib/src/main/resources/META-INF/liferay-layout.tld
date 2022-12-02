@@ -41,6 +41,11 @@
 		</attribute>
 	</tag>
 	<tag>
+		<name>layout-common</name>
+		<tag-class>com.liferay.layout.taglib.servlet.taglib.LayoutCommonTag</tag-class>
+		<body-content>JSP</body-content>
+	</tag>
+	<tag>
 		<description>Creates a component that displays a tree of pages.</description>
 		<name>layouts-tree</name>
 		<tag-class>com.liferay.layout.taglib.servlet.taglib.LayoutsTreeTag</tag-class>
@@ -220,6 +225,16 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>boolean</type>
+		</attribute>
+	</tag>
+	<tag>
+		<name>render-layout-utility-page-entry</name>
+		<tag-class>com.liferay.layout.taglib.servlet.taglib.RenderLayoutUtilityPageEntryTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>type</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 	</tag>
 	<tag>

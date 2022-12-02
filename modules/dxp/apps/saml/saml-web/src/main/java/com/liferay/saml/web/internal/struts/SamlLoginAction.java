@@ -15,7 +15,7 @@
 package com.liferay.saml.web.internal.struts;
 
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
@@ -48,10 +48,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 /**
  * @author Stian Sigvartsen
  */
-@Component(
-	immediate = true, property = "path=/portal/saml/login",
-	service = StrutsAction.class
-)
+@Component(property = "path=/portal/saml/login", service = StrutsAction.class)
 public class SamlLoginAction extends BaseSamlStrutsAction {
 
 	@Override
@@ -113,13 +110,6 @@ public class SamlLoginAction extends BaseSamlStrutsAction {
 				return null;
 			}
 		}
-		else if (samlSpIdpConnections.size() == 1) {
-			httpServletRequest.setAttribute(
-				SamlWebKeys.SAML_SP_IDP_CONNECTION,
-				samlSpIdpConnections.get(0));
-
-			return null;
-		}
 
 		httpServletRequest.setAttribute(
 			SamlWebKeys.SAML_SSO_LOGIN_CONTEXT,
@@ -148,7 +138,7 @@ public class SamlLoginAction extends BaseSamlStrutsAction {
 	private JSONObject _toJSONObject(
 		List<SamlSpIdpConnection> samlSpIdpConnections) {
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
 		for (SamlSpIdpConnection samlSpIdpConnection : samlSpIdpConnections) {
 			jsonArray.put(
@@ -163,6 +153,9 @@ public class SamlLoginAction extends BaseSamlStrutsAction {
 
 		return JSONUtil.put("relevantIdpConnections", jsonArray);
 	}
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Portal _portal;

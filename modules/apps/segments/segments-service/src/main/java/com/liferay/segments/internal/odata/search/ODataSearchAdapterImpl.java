@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.search.ParseException;
 import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.search.SearchResultPermissionFilterFactory;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.TermRangeQuery;
 import com.liferay.portal.kernel.search.filter.BooleanFilter;
@@ -58,7 +57,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Eduardo García
  */
-@Component(immediate = true, service = ODataSearchAdapter.class)
+@Component(service = ODataSearchAdapter.class)
 public class ODataSearchAdapterImpl implements ODataSearchAdapter {
 
 	@Override
@@ -274,9 +273,5 @@ public class ODataSearchAdapterImpl implements ODataSearchAdapter {
 
 	@Reference
 	private Props _props;
-
-	@Reference
-	private SearchResultPermissionFilterFactory
-		_searchResultPermissionFilterFactory;
 
 }

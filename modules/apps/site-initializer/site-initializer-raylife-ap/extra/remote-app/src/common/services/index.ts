@@ -32,5 +32,6 @@ export function parametersFormater(
 }
 
 export * from './Application';
+export * from './Claim';
 export * from './Policy';
 export * from './SalesGoal';

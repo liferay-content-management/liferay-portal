@@ -29,7 +29,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.search.web.internal.facet.display.context.AssetCategoriesSearchFacetDisplayContext;
-import com.liferay.portal.search.web.internal.facet.display.context.AssetCategoriesSearchFacetTermDisplayContext;
+import com.liferay.portal.search.web.internal.facet.display.context.BucketDisplayContext;
 
 import java.io.Serializable;
 
@@ -166,35 +166,28 @@ public class AssetCategoriesSearchFacetDisplayContextBuilder
 		_portal = portal;
 	}
 
-	protected AssetCategoriesSearchFacetTermDisplayContext
-		buildTermDisplayContext(
-			AssetCategory assetCategory, int frequency, boolean selected,
-			int popularity) {
+	protected BucketDisplayContext buildBucketDisplayContext(
+		AssetCategory assetCategory, int frequency, boolean selected,
+		int popularity) {
 
-		AssetCategoriesSearchFacetTermDisplayContext
-			assetCategoriesSearchFacetTermDisplayContext =
-				new AssetCategoriesSearchFacetTermDisplayContext();
+		BucketDisplayContext bucketDisplayContext = new BucketDisplayContext();
 
-		assetCategoriesSearchFacetTermDisplayContext.setAssetCategoryId(
-			assetCategory.getCategoryId());
-		assetCategoriesSearchFacetTermDisplayContext.setFrequency(frequency);
-		assetCategoriesSearchFacetTermDisplayContext.setFrequencyVisible(
-			_frequenciesVisible);
-		assetCategoriesSearchFacetTermDisplayContext.setPopularity(popularity);
-		assetCategoriesSearchFacetTermDisplayContext.setSelected(selected);
-		assetCategoriesSearchFacetTermDisplayContext.setDisplayName(
-			assetCategory.getTitle(_locale));
+		bucketDisplayContext.setBucketText(assetCategory.getTitle(_locale));
+		bucketDisplayContext.setFilterValue(
+			String.valueOf(assetCategory.getCategoryId()));
+		bucketDisplayContext.setFrequency(frequency);
+		bucketDisplayContext.setFrequencyVisible(_frequenciesVisible);
+		bucketDisplayContext.setPopularity(popularity);
+		bucketDisplayContext.setSelected(selected);
 
-		return assetCategoriesSearchFacetTermDisplayContext;
+		return bucketDisplayContext;
 	}
 
-	protected List<AssetCategoriesSearchFacetTermDisplayContext>
-		getEmptyTermDisplayContexts() {
-
+	protected List<BucketDisplayContext> getEmptyBucketDisplayContexts() {
 		Stream<Long> categoryIdsStream = _selectedCategoryIds.stream();
 
 		return categoryIdsStream.map(
-			this::_getEmptyTermDisplayContext
+			this::_getEmptyBucketDisplayContext
 		).filter(
 			Optional::isPresent
 		).map(
@@ -259,17 +252,16 @@ public class AssetCategoriesSearchFacetDisplayContextBuilder
 			assetCategoriesSearchFacetDisplayContext) {
 
 		if (_buckets.isEmpty()) {
-			assetCategoriesSearchFacetDisplayContext.setTermDisplayContexts(
-				getEmptyTermDisplayContexts());
+			assetCategoriesSearchFacetDisplayContext.setBucketDisplayContexts(
+				getEmptyBucketDisplayContexts());
 
 			return;
 		}
 
 		_removeExcludedGroup();
 
-		List<AssetCategoriesSearchFacetTermDisplayContext>
-			assetCategoriesSearchFacetTermDisplayContexts = new ArrayList<>(
-				_buckets.size());
+		List<BucketDisplayContext> bucketDisplayContexts = new ArrayList<>(
+			_buckets.size());
 
 		int maxCount = 1;
 		int minCount = 1;
@@ -306,8 +298,8 @@ public class AssetCategoriesSearchFacetDisplayContextBuilder
 			multiplier = (double)5 / (maxCount - minCount);
 		}
 
-		Map<String, List<AssetCategoriesSearchFacetTermDisplayContext>>
-			assetCategoriesSearchFacetTermDisplayContextMap = new HashMap<>();
+		Map<String, List<BucketDisplayContext>> bucketDisplayContextsMap =
+			new HashMap<>();
 		Set<String> vocabularyNames = new HashSet<>();
 
 		for (int i = 0, j = 0; i < _buckets.size(); i++, j++) {
@@ -338,33 +330,30 @@ public class AssetCategoriesSearchFacetDisplayContextBuilder
 
 			vocabularyNames.add(vocabularyName);
 
-			AssetCategoriesSearchFacetTermDisplayContext termDisplayContext =
-				buildTermDisplayContext(
+			BucketDisplayContext bucketDisplayContext =
+				buildBucketDisplayContext(
 					assetCategory, frequency,
 					isSelected(assetCategory.getCategoryId()), popularity);
 
-			assetCategoriesSearchFacetTermDisplayContexts.add(
-				termDisplayContext);
+			bucketDisplayContexts.add(bucketDisplayContext);
 
-			List<AssetCategoriesSearchFacetTermDisplayContext>
-				vocabularyTermDisplayContexts =
-					assetCategoriesSearchFacetTermDisplayContextMap.get(
-						vocabularyName);
+			List<BucketDisplayContext> vocabularyBucketDisplayContexts =
+				bucketDisplayContextsMap.get(vocabularyName);
 
-			if (vocabularyTermDisplayContexts == null) {
-				vocabularyTermDisplayContexts = new ArrayList<>();
+			if (vocabularyBucketDisplayContexts == null) {
+				vocabularyBucketDisplayContexts = new ArrayList<>();
 			}
 
-			vocabularyTermDisplayContexts.add(termDisplayContext);
+			vocabularyBucketDisplayContexts.add(bucketDisplayContext);
 
-			assetCategoriesSearchFacetTermDisplayContextMap.put(
-				vocabularyName, vocabularyTermDisplayContexts);
+			bucketDisplayContextsMap.put(
+				vocabularyName, vocabularyBucketDisplayContexts);
 		}
 
-		assetCategoriesSearchFacetDisplayContext.setTermDisplayContexts(
-			assetCategoriesSearchFacetTermDisplayContexts);
-		assetCategoriesSearchFacetDisplayContext.setTermDisplayContextsMap(
-			assetCategoriesSearchFacetTermDisplayContextMap);
+		assetCategoriesSearchFacetDisplayContext.setBucketDisplayContexts(
+			bucketDisplayContexts);
+		assetCategoriesSearchFacetDisplayContext.setBucketDisplayContextsMap(
+			bucketDisplayContextsMap);
 		assetCategoriesSearchFacetDisplayContext.setVocabularyNames(
 			_sortVocabularyNames(vocabularyNames));
 	}
@@ -432,13 +421,14 @@ public class AssetCategoriesSearchFacetDisplayContextBuilder
 		return null;
 	}
 
-	private Optional<AssetCategoriesSearchFacetTermDisplayContext>
-		_getEmptyTermDisplayContext(long assetCategoryId) {
+	private Optional<BucketDisplayContext> _getEmptyBucketDisplayContext(
+		long assetCategoryId) {
 
 		return Optional.ofNullable(
 			_fetchAssetCategory(assetCategoryId)
 		).map(
-			assetCategory -> buildTermDisplayContext(assetCategory, 0, true, 1)
+			assetCategory -> buildBucketDisplayContext(
+				assetCategory, 0, true, 1)
 		);
 	}
 

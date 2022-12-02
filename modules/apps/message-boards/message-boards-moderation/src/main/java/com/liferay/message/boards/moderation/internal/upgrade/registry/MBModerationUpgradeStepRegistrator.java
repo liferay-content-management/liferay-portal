@@ -26,7 +26,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Eduardo García
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(service = UpgradeStepRegistrator.class)
 public class MBModerationUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -43,7 +43,7 @@ public class MBModerationUpgradeStepRegistrator
 	@Reference
 	private CompanyLocalService _companyLocalService;
 
-	@Reference(target = "(proxy.bean=false)")
+	@Reference
 	private WorkflowDefinitionManager _workflowDefinitionManager;
 
 	@Reference

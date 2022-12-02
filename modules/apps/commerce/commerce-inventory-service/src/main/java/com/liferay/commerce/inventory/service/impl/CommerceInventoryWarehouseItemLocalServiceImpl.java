@@ -48,7 +48,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.inventory.model.CommerceInventoryWarehouseItem",
 	service = AopService.class
 )
@@ -140,8 +139,8 @@ public class CommerceInventoryWarehouseItemLocalServiceImpl
 		}
 		else {
 			CommerceInventoryWarehouseItem commerceInventoryWarehouseItem =
-				commerceInventoryWarehouseItemPersistence.fetchByC_ERC(
-					companyId, externalReferenceCode);
+				commerceInventoryWarehouseItemPersistence.fetchByERC_C(
+					externalReferenceCode, companyId);
 
 			if (commerceInventoryWarehouseItem != null) {
 				return commerceInventoryWarehouseItemLocalService.
@@ -216,8 +215,8 @@ public class CommerceInventoryWarehouseItemLocalServiceImpl
 			throw new NoSuchInventoryWarehouseItemException();
 		}
 
-		return commerceInventoryWarehouseItemPersistence.findByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceInventoryWarehouseItemPersistence.findByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	@Override

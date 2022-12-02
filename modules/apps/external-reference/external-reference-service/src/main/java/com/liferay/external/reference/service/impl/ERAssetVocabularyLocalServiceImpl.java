@@ -50,8 +50,9 @@ public class ERAssetVocabularyLocalServiceImpl
 		User user = _userLocalService.getUser(userId);
 
 		AssetVocabulary assetVocabulary =
-			_assetVocabularyLocalService.fetchAssetVocabularyByReferenceCode(
-				user.getCompanyId(), externalReferenceCode);
+			_assetVocabularyLocalService.
+				fetchAssetVocabularyByExternalReferenceCode(
+					externalReferenceCode, user.getCompanyId());
 
 		if (assetVocabulary == null) {
 			assetVocabulary = _assetVocabularyLocalService.addVocabulary(

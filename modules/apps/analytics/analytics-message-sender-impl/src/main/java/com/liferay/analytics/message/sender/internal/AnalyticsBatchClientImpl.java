@@ -16,12 +16,11 @@ package com.liferay.analytics.message.sender.internal;
 
 import com.liferay.analytics.message.sender.client.AnalyticsBatchClient;
 import com.liferay.analytics.settings.configuration.AnalyticsConfiguration;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
-import com.liferay.portal.kernel.util.FileUtil;
 
 import java.io.File;
 import java.io.InputStream;
@@ -46,11 +45,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Riccardo Ferrari
  */
-@Component(immediate = true, service = AnalyticsBatchClient.class)
+@Component(service = AnalyticsBatchClient.class)
 public class AnalyticsBatchClientImpl
 	extends BaseAnalyticsClientImpl implements AnalyticsBatchClient {
 
@@ -64,7 +64,7 @@ public class AnalyticsBatchClientImpl
 		}
 
 		AnalyticsConfiguration analyticsConfiguration =
-			analyticsConfigurationTracker.getAnalyticsConfiguration(companyId);
+			analyticsConfigurationRegistry.getAnalyticsConfiguration(companyId);
 
 		try (CloseableHttpClient closeableHttpClient =
 				getCloseableHttpClient()) {
@@ -90,11 +90,10 @@ public class AnalyticsBatchClientImpl
 			StatusLine statusLine = closeableHttpResponse.getStatusLine();
 
 			if (statusLine.getStatusCode() == HttpStatus.SC_FORBIDDEN) {
-				JSONObject responseJSONObject =
-					JSONFactoryUtil.createJSONObject(
-						EntityUtils.toString(
-							closeableHttpResponse.getEntity(),
-							Charset.defaultCharset()));
+				JSONObject responseJSONObject = _jsonFactory.createJSONObject(
+					EntityUtils.toString(
+						closeableHttpResponse.getEntity(),
+						Charset.defaultCharset()));
 
 				processInvalidTokenMessage(
 					companyId, false, responseJSONObject.getString("message"));
@@ -103,7 +102,7 @@ public class AnalyticsBatchClientImpl
 			HttpEntity httpEntity = closeableHttpResponse.getEntity();
 
 			if (httpEntity != null) {
-				return FileUtil.createTempFile(httpEntity.getContent());
+				return _file.createTempFile(httpEntity.getContent());
 			}
 		}
 		catch (Exception exception) {
@@ -123,7 +122,7 @@ public class AnalyticsBatchClientImpl
 		}
 
 		AnalyticsConfiguration analyticsConfiguration =
-			analyticsConfigurationTracker.getAnalyticsConfiguration(companyId);
+			analyticsConfigurationRegistry.getAnalyticsConfiguration(companyId);
 
 		try (CloseableHttpClient closeableHttpClient =
 				getCloseableHttpClient()) {
@@ -151,11 +150,10 @@ public class AnalyticsBatchClientImpl
 			int statusCode = statusLine.getStatusCode();
 
 			if (statusCode == HttpStatus.SC_FORBIDDEN) {
-				JSONObject responseJSONObject =
-					JSONFactoryUtil.createJSONObject(
-						EntityUtils.toString(
-							closeableHttpResponse.getEntity(),
-							Charset.defaultCharset()));
+				JSONObject responseJSONObject = _jsonFactory.createJSONObject(
+					EntityUtils.toString(
+						closeableHttpResponse.getEntity(),
+						Charset.defaultCharset()));
 
 				processInvalidTokenMessage(
 					companyId, false, responseJSONObject.getString("message"));
@@ -181,7 +179,7 @@ public class AnalyticsBatchClientImpl
 		long companyId, HttpUriRequest httpUriRequest) {
 
 		AnalyticsConfiguration analyticsConfiguration =
-			analyticsConfigurationTracker.getAnalyticsConfiguration(companyId);
+			analyticsConfigurationRegistry.getAnalyticsConfiguration(companyId);
 
 		httpUriRequest.setHeader(
 			"OSB-Asah-Data-Source-ID",
@@ -201,5 +199,11 @@ public class AnalyticsBatchClientImpl
 	private static final Format _modifiedSinceHeaderDateFormatter =
 		FastDateFormatFactoryUtil.getSimpleDateFormat(
 			"EEE, dd MMM yyyy HH:mm:ss zzz");
+
+	@Reference
+	private com.liferay.portal.kernel.util.File _file;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 }

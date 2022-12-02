@@ -103,9 +103,10 @@ public abstract class BaseDocumentMappingTestCase extends BaseDocumentTestCase {
 					searchEngineAdapter.execute(
 						new SearchSearchRequest() {
 							{
-								setIndexNames(String.valueOf(getCompanyId()));
+								setIndexNames(getIndexName());
 								setQuery(
 									BaseDocumentTestCase.getQuery(keywords));
+								setSelectedFieldNames(StringPool.STAR);
 							}
 						});
 
@@ -115,7 +116,7 @@ public abstract class BaseDocumentMappingTestCase extends BaseDocumentTestCase {
 
 				Assert.assertNotEquals(0, documents.length);
 
-				for (Document document : hits.getDocs()) {
+				for (Document document : documents) {
 					assertMappings(document);
 				}
 			});
@@ -140,6 +141,8 @@ public abstract class BaseDocumentMappingTestCase extends BaseDocumentTestCase {
 
 		return list.toArray(new Float[0]);
 	}
+
+	protected abstract String getIndexName();
 
 	protected Integer[] getIntegerArray(Document document) {
 		List<Integer> list = new ArrayList<>();

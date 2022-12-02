@@ -19,9 +19,11 @@ import './ActionBuilder.scss';
 import {ActionError} from '../index';
 export default function ActionBuilder({
 	errors,
+	isApproved,
 	objectActionCodeEditorElements,
 	objectActionExecutors,
 	objectActionTriggers,
+	objectDefinitionId,
 	objectDefinitionsRelationshipsURL,
 	setValues,
 	validateExpressionURL,
@@ -29,9 +31,11 @@ export default function ActionBuilder({
 }: IProps): JSX.Element;
 interface IProps {
 	errors: ActionError;
+	isApproved: boolean;
 	objectActionCodeEditorElements: SidebarCategory[];
 	objectActionExecutors: CustomItem[];
 	objectActionTriggers: CustomItem[];
+	objectDefinitionId: number;
 	objectDefinitionsRelationshipsURL: string;
 	setValues: (values: Partial<ObjectAction>) => void;
 	validateExpressionURL: string;

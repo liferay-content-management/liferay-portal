@@ -34,78 +34,80 @@ if (assetVocabulary != null) {
 
 	<div class="portlet-configuration-body-content">
 		<div class="container-fluid container-fluid-max-xl">
-			<aui:fieldset-group markupView="lexicon">
-				<aui:fieldset>
-					<div class="display-template">
-						<liferay-template:template-selector
-							className="<%= CPAssetCategoriesNavigationPortlet.class.getName() %>"
-							displayStyle="<%= cpAssetCategoriesNavigationDisplayContext.getDisplayStyle() %>"
-							displayStyleGroupId="<%= cpAssetCategoriesNavigationDisplayContext.getDisplayStyleGroupId() %>"
-							refreshURL="<%= PortalUtil.getCurrentURL(request) %>"
-							showEmptyOption="<%= true %>"
-						/>
-					</div>
-
-					<%
-					boolean useRootCategory = cpAssetCategoriesNavigationDisplayContext.useRootCategory();
-					%>
-
-					<aui:input id="preferencesUseRootCategory" label="use-root-category" name="preferences--useRootCategory--" type="toggle-switch" value="<%= useRootCategory %>" />
-
-					<%
-					String assetVocabularyContainerCssClass = StringPool.BLANK;
-					String rootAssetCategoryContainerCssClass = "hide";
-
-					if (useRootCategory) {
-						assetVocabularyContainerCssClass += "hide";
-						rootAssetCategoryContainerCssClass = StringPool.BLANK;
-					}
-					%>
-
-					<div class="<%= assetVocabularyContainerCssClass %>" id="<portlet:namespace />assetVocabularyContainer">
-						<aui:select label="vocabulary" name="preferences--assetVocabularyId--" showEmptyOption="<%= true %>">
-
-							<%
-							for (AssetVocabulary curAssetVocabulary : cpAssetCategoriesNavigationDisplayContext.getAssetVocabularies()) {
-							%>
-
-								<aui:option label="<%= HtmlUtil.escape(curAssetVocabulary.getTitle(locale)) %>" selected="<%= curAssetVocabulary.getVocabularyId() == assetVocabularyId %>" value="<%= curAssetVocabulary.getVocabularyId() %>" />
-
-							<%
-							}
-							%>
-
-						</aui:select>
-					</div>
-
-					<div class="<%= rootAssetCategoryContainerCssClass %>" id="<portlet:namespace />rootAssetCategoryContainer">
+			<div class="sheet">
+				<div class="panel-group panel-group-flush">
+					<aui:fieldset>
+						<div class="display-template">
+							<liferay-template:template-selector
+								className="<%= CPAssetCategoriesNavigationPortlet.class.getName() %>"
+								displayStyle="<%= cpAssetCategoriesNavigationDisplayContext.getDisplayStyle() %>"
+								displayStyleGroupId="<%= cpAssetCategoriesNavigationDisplayContext.getDisplayStyleGroupId() %>"
+								refreshURL="<%= PortalUtil.getCurrentURL(request) %>"
+								showEmptyOption="<%= true %>"
+							/>
+						</div>
 
 						<%
-						boolean useCategoryFromRequest = cpAssetCategoriesNavigationDisplayContext.useCategoryFromRequest();
+						boolean useRootCategory = cpAssetCategoriesNavigationDisplayContext.useRootCategory();
 						%>
 
-						<aui:input id="preferencesUseCategoryFromRequest" label="use-category-from-request" name="preferences--useCategoryFromRequest--" type="toggle-switch" value="<%= useCategoryFromRequest %>" />
+						<aui:input id="preferencesUseRootCategory" label="use-root-category" name="preferences--useRootCategory--" type="toggle-switch" value="<%= useRootCategory %>" />
 
 						<%
-						String rootAssetCategoryIdInputContainerCssClass = StringPool.BLANK;
+						String assetVocabularyContainerCssClass = StringPool.BLANK;
+						String rootAssetCategoryContainerCssClass = "hide";
 
-						if (useCategoryFromRequest) {
-							rootAssetCategoryIdInputContainerCssClass += "hide";
+						if (useRootCategory) {
+							assetVocabularyContainerCssClass += "hide";
+							rootAssetCategoryContainerCssClass = StringPool.BLANK;
 						}
 						%>
 
-						<div class="<%= rootAssetCategoryIdInputContainerCssClass %>" id="<portlet:namespace />rootAssetCategoryIdInputContainer">
-							<aui:input id="preferencesRootAssetCategoryId" name="preferences--rootAssetCategoryId--" type="hidden" />
+						<div class="<%= assetVocabularyContainerCssClass %>" id="<portlet:namespace />assetVocabularyContainer">
+							<aui:select label="vocabulary" name="preferences--assetVocabularyId--" showEmptyOption="<%= true %>">
 
-							<liferay-asset:asset-categories-selector
-								categoryIds="<%= cpAssetCategoriesNavigationDisplayContext.getRootAssetCategoryId() %>"
-								hiddenInput="assetCategoriesSelectorCategoryId"
-								singleSelect="<%= true %>"
-							/>
+								<%
+								for (AssetVocabulary curAssetVocabulary : cpAssetCategoriesNavigationDisplayContext.getAssetVocabularies()) {
+								%>
+
+									<aui:option label="<%= HtmlUtil.escape(curAssetVocabulary.getTitle(locale)) %>" selected="<%= curAssetVocabulary.getVocabularyId() == assetVocabularyId %>" value="<%= curAssetVocabulary.getVocabularyId() %>" />
+
+								<%
+								}
+								%>
+
+							</aui:select>
 						</div>
-					</div>
-				</aui:fieldset>
-			</aui:fieldset-group>
+
+						<div class="<%= rootAssetCategoryContainerCssClass %>" id="<portlet:namespace />rootAssetCategoryContainer">
+
+							<%
+							boolean useCategoryFromRequest = cpAssetCategoriesNavigationDisplayContext.useCategoryFromRequest();
+							%>
+
+							<aui:input id="preferencesUseCategoryFromRequest" label="use-category-from-request" name="preferences--useCategoryFromRequest--" type="toggle-switch" value="<%= useCategoryFromRequest %>" />
+
+							<%
+							String rootAssetCategoryIdInputContainerCssClass = StringPool.BLANK;
+
+							if (useCategoryFromRequest) {
+								rootAssetCategoryIdInputContainerCssClass += "hide";
+							}
+							%>
+
+							<div class="<%= rootAssetCategoryIdInputContainerCssClass %>" id="<portlet:namespace />rootAssetCategoryIdInputContainer">
+								<aui:input id="preferencesRootAssetCategoryId" name="preferences--rootAssetCategoryId--" type="hidden" />
+
+								<liferay-asset:asset-categories-selector
+									categoryIds="<%= cpAssetCategoriesNavigationDisplayContext.getRootAssetCategoryId() %>"
+									hiddenInput="assetCategoriesSelectorCategoryId"
+									singleSelect="<%= true %>"
+								/>
+							</div>
+						</div>
+					</aui:fieldset>
+				</div>
+			</div>
 		</div>
 	</div>
 

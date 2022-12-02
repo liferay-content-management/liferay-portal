@@ -14,7 +14,7 @@
 
 package com.liferay.commerce.inventory.internal.messaging;
 
-import com.liferay.commerce.inventory.internal.configuration.CommerceInventorySystemConfiguration;
+import com.liferay.commerce.inventory.configuration.CommerceInventorySystemConfiguration;
 import com.liferay.commerce.inventory.service.CommerceInventoryBookedQuantityLocalService;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
@@ -40,7 +40,6 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.commerce.inventory.configuration.CommerceInventorySystemConfiguration",
-	enabled = false, immediate = true,
 	service = CheckCommerceInventoryBookedQuantityMessageListener.class
 )
 public class CheckCommerceInventoryBookedQuantityMessageListener

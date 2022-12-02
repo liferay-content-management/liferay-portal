@@ -60,7 +60,8 @@ public class IndexerQueryBuilderImpl<T extends BaseModel<?>>
 		ExpandoQueryContributorHelper expandoQueryContributorHelper,
 		IndexerRegistry indexerRegistry,
 		ModelSearchSettings modelSearchSettings,
-		ModelKeywordQueryContributorsHolder modelKeywordQueryContributorsHolder,
+		ModelKeywordQueryContributorsRegistry
+			modelKeywordQueryContributorsRegistry,
 		Iterable<SearchContextContributor> modelSearchContextContributors,
 		PreFilterContributorHelper preFilterContributorHelper,
 		Iterable<SearchContextContributor> searchContextContributors,
@@ -72,8 +73,8 @@ public class IndexerQueryBuilderImpl<T extends BaseModel<?>>
 		_expandoQueryContributorHelper = expandoQueryContributorHelper;
 		_indexerRegistry = indexerRegistry;
 		_modelSearchSettings = modelSearchSettings;
-		_modelKeywordQueryContributorsHolder =
-			modelKeywordQueryContributorsHolder;
+		_modelKeywordQueryContributorsRegistry =
+			modelKeywordQueryContributorsRegistry;
 		_modelSearchContextContributors = modelSearchContextContributors;
 		_preFilterContributorHelper = preFilterContributorHelper;
 		_searchContextContributors = searchContextContributors;
@@ -83,9 +84,6 @@ public class IndexerQueryBuilderImpl<T extends BaseModel<?>>
 
 	@Override
 	public BooleanQuery getQuery(SearchContext searchContext) {
-		searchContext.setSearchEngineId(
-			_modelSearchSettings.getSearchEngineId());
-
 		_resetFullQuery(searchContext);
 
 		String[] fullQueryEntryClassNames =
@@ -106,8 +104,7 @@ public class IndexerQueryBuilderImpl<T extends BaseModel<?>>
 		_contributeSearchContext(searchContext);
 
 		Map<String, Indexer<?>> entryClassNameIndexerMap =
-			_getEntryClassNameIndexerMap(
-				entryClassNames, searchContext.getSearchEngineId());
+			_getEntryClassNameIndexerMap(entryClassNames);
 
 		BooleanFilter booleanFilter = new BooleanFilter();
 
@@ -136,7 +133,7 @@ public class IndexerQueryBuilderImpl<T extends BaseModel<?>>
 		}
 
 		contribute(
-			_modelKeywordQueryContributorsHolder.stream(
+			_modelKeywordQueryContributorsRegistry.stream(
 				_getStrings(
 					"search.full.query.clause.contributors.excludes",
 					searchContext),
@@ -298,7 +295,7 @@ public class IndexerQueryBuilderImpl<T extends BaseModel<?>>
 	}
 
 	private Map<String, Indexer<?>> _getEntryClassNameIndexerMap(
-		String[] entryClassNames, String searchEngineId) {
+		String[] entryClassNames) {
 
 		Map<String, Indexer<?>> entryClassNameIndexerMap =
 			new LinkedHashMap<>();
@@ -306,9 +303,7 @@ public class IndexerQueryBuilderImpl<T extends BaseModel<?>>
 		for (String entryClassName : entryClassNames) {
 			Indexer<?> indexer = _indexerRegistry.getIndexer(entryClassName);
 
-			if ((indexer == null) ||
-				!searchEngineId.equals(indexer.getSearchEngineId())) {
-
+			if (indexer == null) {
 				continue;
 			}
 
@@ -360,8 +355,8 @@ public class IndexerQueryBuilderImpl<T extends BaseModel<?>>
 	private final ExpandoQueryContributorHelper _expandoQueryContributorHelper;
 	private final IndexerPostProcessorsHolder _indexerPostProcessorsHolder;
 	private final IndexerRegistry _indexerRegistry;
-	private final ModelKeywordQueryContributorsHolder
-		_modelKeywordQueryContributorsHolder;
+	private final ModelKeywordQueryContributorsRegistry
+		_modelKeywordQueryContributorsRegistry;
 	private final Iterable<SearchContextContributor>
 		_modelSearchContextContributors;
 	private final ModelSearchSettings _modelSearchSettings;

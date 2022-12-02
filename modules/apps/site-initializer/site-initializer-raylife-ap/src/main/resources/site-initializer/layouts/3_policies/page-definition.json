@@ -4,7 +4,9 @@
 			{
 				"definition": {
 					"fragmentStyle": {
+						"borderRadius": "",
 						"borderWidth": "0",
+						"shadow": "",
 						"textAlign": ""
 					},
 					"indexed": true,
@@ -14,6 +16,7 @@
 						"marginLeft": 0,
 						"marginRight": 0,
 						"marginTop": 0,
+						"opacity": 100,
 						"paddingBottom": 0,
 						"paddingLeft": 0,
 						"paddingRight": 0,
@@ -74,9 +77,11 @@
 									{
 										"definition": {
 											"fragmentStyle": {
+												"borderRadius": "",
 												"borderWidth": "0",
 												"paddingBottom": "4",
 												"paddingTop": "4",
+												"shadow": "",
 												"textAlign": ""
 											},
 											"indexed": true,
@@ -88,6 +93,7 @@
 												"marginLeft": 0,
 												"marginRight": 0,
 												"marginTop": 0,
+												"opacity": 100,
 												"paddingBottom": 2,
 												"paddingLeft": 0,
 												"paddingRight": 0,
@@ -99,7 +105,9 @@
 											{
 												"definition": {
 													"fragmentStyle": {
+														"borderRadius": "",
 														"maxWidth": "1500px",
+														"shadow": "",
 														"textAlign": "",
 														"width": "100%"
 													},
@@ -300,11 +308,10 @@
 																							{
 																								"definition": {
 																									"fragment": {
-																										"key": "fake-content"
+																										"key": "policies-expiring"
 																									},
 																									"fragmentConfig": {
-																										"fakeContentId": "fake content",
-																										"height": "257px"
+																										"textColor": ""
 																									},
 																									"fragmentFields": [
 																									],
@@ -369,11 +376,10 @@
 																			{
 																				"definition": {
 																					"fragment": {
-																						"key": "fake-content"
+																						"key": "policies-total-premium-due"
 																					},
 																					"fragmentConfig": {
-																						"fakeContentId": "fake content",
-																						"height": "257px"
+																						"textColor": ""
 																					},
 																					"fragmentFields": [
 																					],
@@ -396,9 +402,11 @@
 											{
 												"definition": {
 													"fragmentStyle": {
+														"borderRadius": "",
 														"borderWidth": "0",
 														"marginTop": "4",
 														"maxWidth": "1500px",
+														"shadow": "",
 														"textAlign": "",
 														"width": "100%"
 													},
@@ -409,6 +417,7 @@
 														"marginLeft": 0,
 														"marginRight": 0,
 														"marginTop": 2,
+														"opacity": 100,
 														"paddingBottom": 0,
 														"paddingLeft": 0,
 														"paddingRight": 0,
@@ -456,6 +465,9 @@
 										"type": "Section"
 									}
 								],
+								"type": "FragmentDropZone"
+							},
+							{
 								"type": "FragmentDropZone"
 							}
 						],

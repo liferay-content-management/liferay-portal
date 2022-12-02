@@ -2874,56 +2874,56 @@ public interface AssetCategoryPersistence
 		long parentCategoryId, String name, long vocabularyId);
 
 	/**
-	 * Returns the asset category where groupId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchCategoryException</code> if it could not be found.
+	 * Returns the asset category where externalReferenceCode = &#63; and groupId = &#63; or throws a <code>NoSuchCategoryException</code> if it could not be found.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @return the matching asset category
 	 * @throws NoSuchCategoryException if a matching asset category could not be found
 	 */
-	public AssetCategory findByG_ERC(long groupId, String externalReferenceCode)
+	public AssetCategory findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchCategoryException;
 
 	/**
-	 * Returns the asset category where groupId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the asset category where externalReferenceCode = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @return the matching asset category, or <code>null</code> if a matching asset category could not be found
 	 */
-	public AssetCategory fetchByG_ERC(
-		long groupId, String externalReferenceCode);
+	public AssetCategory fetchByERC_G(
+		String externalReferenceCode, long groupId);
 
 	/**
-	 * Returns the asset category where groupId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the asset category where externalReferenceCode = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching asset category, or <code>null</code> if a matching asset category could not be found
 	 */
-	public AssetCategory fetchByG_ERC(
-		long groupId, String externalReferenceCode, boolean useFinderCache);
+	public AssetCategory fetchByERC_G(
+		String externalReferenceCode, long groupId, boolean useFinderCache);
 
 	/**
-	 * Removes the asset category where groupId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the asset category where externalReferenceCode = &#63; and groupId = &#63; from the database.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @return the asset category that was removed
 	 */
-	public AssetCategory removeByG_ERC(
-			long groupId, String externalReferenceCode)
+	public AssetCategory removeByERC_G(
+			String externalReferenceCode, long groupId)
 		throws NoSuchCategoryException;
 
 	/**
-	 * Returns the number of asset categories where groupId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of asset categories where externalReferenceCode = &#63; and groupId = &#63;.
 	 *
-	 * @param groupId the group ID
 	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
 	 * @return the number of matching asset categories
 	 */
-	public int countByG_ERC(long groupId, String externalReferenceCode);
+	public int countByERC_G(String externalReferenceCode, long groupId);
 
 	/**
 	 * Caches the asset category in the entity cache if it is enabled.

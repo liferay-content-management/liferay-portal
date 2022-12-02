@@ -14,6 +14,7 @@
 
 package com.liferay.account.service.persistence.test;
 
+import com.liferay.account.exception.DuplicateAccountEntryExternalReferenceCodeException;
 import com.liferay.account.exception.NoSuchEntryException;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalServiceUtil;
@@ -169,6 +170,12 @@ public class AccountEntryPersistenceTest {
 
 		newAccountEntry.setStatus(RandomTestUtil.nextInt());
 
+		newAccountEntry.setStatusByUserId(RandomTestUtil.nextLong());
+
+		newAccountEntry.setStatusByUserName(RandomTestUtil.randomString());
+
+		newAccountEntry.setStatusDate(RandomTestUtil.nextDate());
+
 		_accountEntries.add(_persistence.update(newAccountEntry));
 
 		AccountEntry existingAccountEntry = _persistence.findByPrimaryKey(
@@ -235,6 +242,35 @@ public class AccountEntryPersistenceTest {
 			existingAccountEntry.getType(), newAccountEntry.getType());
 		Assert.assertEquals(
 			existingAccountEntry.getStatus(), newAccountEntry.getStatus());
+		Assert.assertEquals(
+			existingAccountEntry.getStatusByUserId(),
+			newAccountEntry.getStatusByUserId());
+		Assert.assertEquals(
+			existingAccountEntry.getStatusByUserName(),
+			newAccountEntry.getStatusByUserName());
+		Assert.assertEquals(
+			Time.getShortTimestamp(existingAccountEntry.getStatusDate()),
+			Time.getShortTimestamp(newAccountEntry.getStatusDate()));
+	}
+
+	@Test(expected = DuplicateAccountEntryExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		AccountEntry accountEntry = addAccountEntry();
+
+		AccountEntry newAccountEntry = addAccountEntry();
+
+		newAccountEntry.setCompanyId(accountEntry.getCompanyId());
+
+		newAccountEntry = _persistence.update(newAccountEntry);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newAccountEntry);
+
+		newAccountEntry.setExternalReferenceCode(
+			accountEntry.getExternalReferenceCode());
+
+		_persistence.update(newAccountEntry);
 	}
 
 	@Test
@@ -280,12 +316,12 @@ public class AccountEntryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -321,7 +357,8 @@ public class AccountEntryPersistenceTest {
 			"parentAccountEntryId", true, "description", true, "domains", true,
 			"emailAddress", true, "logoId", true, "name", true,
 			"restrictMembership", true, "taxExemptionCode", true, "taxIdNumber",
-			true, "type", true, "status", true);
+			true, "type", true, "status", true, "statusByUserId", true,
+			"statusByUserName", true, "statusDate", true);
 	}
 
 	@Test
@@ -589,15 +626,15 @@ public class AccountEntryPersistenceTest {
 
 	private void _assertOriginalValues(AccountEntry accountEntry) {
 		Assert.assertEquals(
-			Long.valueOf(accountEntry.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				accountEntry, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			accountEntry.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				accountEntry, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(accountEntry.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				accountEntry, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected AccountEntry addAccountEntry() throws Exception {
@@ -648,6 +685,12 @@ public class AccountEntryPersistenceTest {
 		accountEntry.setType(RandomTestUtil.randomString());
 
 		accountEntry.setStatus(RandomTestUtil.nextInt());
+
+		accountEntry.setStatusByUserId(RandomTestUtil.nextLong());
+
+		accountEntry.setStatusByUserName(RandomTestUtil.randomString());
+
+		accountEntry.setStatusDate(RandomTestUtil.nextDate());
 
 		_accountEntries.add(_persistence.update(accountEntry));
 

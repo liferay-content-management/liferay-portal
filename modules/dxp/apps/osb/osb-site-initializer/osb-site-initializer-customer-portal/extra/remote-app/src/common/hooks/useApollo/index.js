@@ -11,19 +11,86 @@
 
 import {ApolloClient, InMemoryCache} from '@apollo/client';
 import {BatchHttpLink} from '@apollo/client/link/batch-http';
+import {setContext} from '@apollo/client/link/context';
+import {onError} from '@apollo/client/link/error';
 import {RestLink} from 'apollo-link-rest';
 import {SessionStorageWrapper, persistCache} from 'apollo3-cache-persist';
 import {useEffect, useState} from 'react';
 import {createNetworkStatusNotifier} from 'react-apollo-network-status';
 import {Liferay} from '../../services/liferay';
 import {liferayTypePolicies} from '../../services/liferay/graphql/typePolicies';
+import {getCurrentSession} from '../../services/okta/rest/getCurrentSession';
+import {refreshCurrentSession} from '../../services/okta/rest/refreshCurrentSession';
 import {networkIndicator} from './networkIndicator';
 
 const LiferayURI = `${Liferay.ThemeDisplay.getPortalURL()}/o`;
 const {link, useApolloNetworkStatusReducer} = createNetworkStatusNotifier();
 const {initialState, reducer} = networkIndicator;
 
-export default function useApollo() {
+const liferaBatchLink = new BatchHttpLink({
+	uri: `${LiferayURI}/graphql`,
+});
+
+const liferayRestLink = new RestLink({
+	uri: LiferayURI,
+});
+
+const liferayAuthLink = setContext((_, {headers, ...context}) => ({
+	headers: {
+		...headers,
+		'x-csrf-token': Liferay.authToken,
+	},
+	...context,
+}));
+
+const raySourceErrorLink = onError(({forward, networkError, operation}) => {
+	if (
+		networkError.statusCode === 401 ||
+		networkError.statusCode === 403 ||
+		networkError.statusCode === 405
+	) {
+		operation.setContext({
+			sessionOperation: 'refresh',
+		});
+
+		return forward(operation);
+	}
+});
+
+const getRaysourceAuthLink = (oktaSessionAPI) =>
+	setContext(async (_, {headers, sessionOperation, ...context}) => {
+		let sessionId = sessionStorage.getItem('okta-session-id');
+
+		if (sessionOperation === 'refresh') {
+			const session = await refreshCurrentSession(oktaSessionAPI);
+
+			sessionId = session.id;
+			sessionStorage.setItem('okta-session-id', session.id);
+		}
+
+		if (!sessionId) {
+			const session = await getCurrentSession(oktaSessionAPI);
+
+			sessionId = session.id;
+			sessionStorage.setItem('okta-session-id', sessionId);
+		}
+
+		return {
+			headers: {
+				...headers,
+				'Okta-Session-ID': sessionId,
+			},
+			sessionOperation: 'get',
+			...context,
+		};
+	});
+
+const getRaysourceRestLink = (uri) =>
+	new RestLink({
+		uri,
+	});
+
+export default function useApollo(provisioningServerAPI, oktaSessionAPI) {
 	const [client, setClient] = useState();
 	const networkStatus = useApolloNetworkStatusReducer(reducer, initialState);
 
@@ -40,20 +107,6 @@ export default function useApollo() {
 				storage: new SessionStorageWrapper(window.sessionStorage),
 			});
 
-			const liferaBatchLink = new BatchHttpLink({
-				headers: {
-					'x-csrf-token': Liferay.authToken,
-				},
-				uri: `${LiferayURI}/graphql`,
-			});
-
-			const liferayRestLink = new RestLink({
-				headers: {
-					'x-csrf-token': Liferay.authToken,
-				},
-				uri: LiferayURI,
-			});
-
 			const apolloClient = new ApolloClient({
 				cache,
 				defaultOptions: {
@@ -63,9 +116,18 @@ export default function useApollo() {
 				},
 				link: link.split(
 					(operation) =>
-						operation.getContext().type === 'liferay-rest',
-					liferayRestLink,
-					liferaBatchLink
+						operation.getContext().type === 'raysource-rest',
+					raySourceErrorLink.concat(
+						getRaysourceAuthLink(oktaSessionAPI).concat(
+							getRaysourceRestLink(provisioningServerAPI)
+						)
+					),
+					liferayAuthLink.split(
+						(operation) =>
+							operation.getContext().type === 'liferay-rest',
+						liferayRestLink,
+						liferaBatchLink
+					)
 				),
 			});
 
@@ -73,7 +135,7 @@ export default function useApollo() {
 		};
 
 		init();
-	}, []);
+	}, [provisioningServerAPI, oktaSessionAPI]);
 
 	return {client, networkStatus};
 }

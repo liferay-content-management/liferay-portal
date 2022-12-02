@@ -31,7 +31,6 @@ import com.liferay.portal.vulcan.fields.NestedFieldId;
 import com.liferay.portal.vulcan.fields.NestedFieldSupport;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +46,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Andrea Sbarra
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/placed-order-item.properties",
 	scope = ServiceScope.PROTOTYPE,
 	service = {NestedFieldSupport.class, PlacedOrderItemResource.class}
@@ -88,7 +86,7 @@ public class PlacedOrderItemResourceImpl
 
 		return Page.of(
 			_filterPlacedOrderItems(
-				TransformUtil.transform(
+				transform(
 					_commerceOrderItemService.getCommerceOrderItems(
 						placedOrderId, QueryUtil.ALL_POS, QueryUtil.ALL_POS),
 					commerceOrderItem -> {

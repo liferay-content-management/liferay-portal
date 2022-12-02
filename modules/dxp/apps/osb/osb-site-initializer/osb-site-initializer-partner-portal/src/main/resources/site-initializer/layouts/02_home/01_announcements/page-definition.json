@@ -4,19 +4,18 @@
 			{
 				"definition": {
 					"fragmentStyle": {
-						"marginLeft": "6",
+						"borderWidth": "0",
 						"marginTop": "4",
 						"maxWidth": "720px",
-						"paddingLeft": "2",
 						"paddingTop": "3"
 					},
 					"fragmentViewports": [
 						{
 							"fragmentViewportStyle": {
-								"marginLeft": "4",
-								"marginRight": "4",
-								"paddingLeft": "3",
-								"paddingRight": "3"
+								"marginLeft": "0",
+								"marginRight": "0",
+								"paddingLeft": "0",
+								"paddingRight": "0"
 							},
 							"id": "tablet"
 						}
@@ -25,7 +24,7 @@
 					"layout": {
 						"borderWidth": 0,
 						"marginBottom": 0,
-						"marginLeft": 6,
+						"marginLeft": 0,
 						"marginRight": 0,
 						"marginTop": 2,
 						"paddingBottom": 0,
@@ -77,7 +76,7 @@
 													"fieldKey": "FileEntry_previewImage",
 													"itemReference": {
 														"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-														"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/announcements-icon.svg$]"
+														"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/announcements-icon.svg#]"
 													}
 												}
 											}

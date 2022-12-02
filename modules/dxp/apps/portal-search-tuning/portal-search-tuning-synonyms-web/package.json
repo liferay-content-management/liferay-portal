@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"frontend-js-web": "*"
 	},
 	"main": "js/index-synonym-sets.es.js",
 	"name": "portal-search-synonyms-web",
@@ -11,5 +12,5 @@
 		"storybook": "liferay-npm-scripts storybook",
 		"test": "liferay-npm-scripts test"
 	},
-	"version": "3.0.38"
+	"version": "3.0.43"
 }

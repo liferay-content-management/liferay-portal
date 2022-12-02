@@ -37,7 +37,7 @@ import com.liferay.portal.kernel.template.TemplateVariableGroup;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.template.TemplateContextHelper;
+import com.liferay.portal.template.engine.TemplateContextHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -58,7 +58,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Juan Fernández
  * @author Jorge Ferrer
  */
-@Component(immediate = true, service = DDMTemplateHelper.class)
+@Component(service = DDMTemplateHelper.class)
 public class DDMTemplateHelperImpl implements DDMTemplateHelper {
 
 	@Override

@@ -104,7 +104,7 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 			long[] groupIds, long folderId, int restrictionType)
 		throws PortalException {
 
-		return filterStructures(
+		return _filterStructures(
 			journalFolderLocalService.getDDMStructures(
 				groupIds, folderId, restrictionType));
 	}
@@ -115,7 +115,7 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 			OrderByComparator<DDMStructure> orderByComparator)
 		throws PortalException {
 
-		return filterStructures(
+		return _filterStructures(
 			journalFolderLocalService.getDDMStructures(
 				groupIds, folderId, restrictionType, orderByComparator));
 	}
@@ -137,7 +137,7 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 
 		JournalFolder folder =
 			journalFolderLocalService.getJournalFolderByExternalReferenceCode(
-				groupId, externalReferenceCode);
+				externalReferenceCode, groupId);
 
 		_journalFolderModelResourcePermission.check(
 			getPermissionChecker(), folder, ActionKeys.VIEW);
@@ -393,7 +393,7 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 			OrderByComparator<DDMStructure> orderByComparator)
 		throws PortalException {
 
-		return filterStructures(
+		return _filterStructures(
 			journalFolderLocalService.searchDDMStructures(
 				companyId, groupIds, folderId, restrictionType, keywords, start,
 				end, orderByComparator));
@@ -452,7 +452,7 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 			serviceContext);
 	}
 
-	protected List<DDMStructure> filterStructures(
+	private List<DDMStructure> _filterStructures(
 			List<DDMStructure> ddmStructures)
 		throws PortalException {
 

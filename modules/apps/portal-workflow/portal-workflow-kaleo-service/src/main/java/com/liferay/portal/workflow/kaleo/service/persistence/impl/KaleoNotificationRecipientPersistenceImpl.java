@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -80,11 +79,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(
-	service = {
-		KaleoNotificationRecipientPersistence.class, BasePersistence.class
-	}
-)
+@Component(service = KaleoNotificationRecipientPersistence.class)
 public class KaleoNotificationRecipientPersistenceImpl
 	extends BasePersistenceImpl<KaleoNotificationRecipient>
 	implements KaleoNotificationRecipientPersistence {
@@ -207,7 +202,7 @@ public class KaleoNotificationRecipientPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoNotificationRecipient>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (KaleoNotificationRecipient kaleoNotificationRecipient :
@@ -589,7 +584,7 @@ public class KaleoNotificationRecipientPersistenceImpl
 
 			finderArgs = new Object[] {companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -741,7 +736,7 @@ public class KaleoNotificationRecipientPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoNotificationRecipient>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (KaleoNotificationRecipient kaleoNotificationRecipient :
@@ -1135,7 +1130,7 @@ public class KaleoNotificationRecipientPersistenceImpl
 
 			finderArgs = new Object[] {kaleoDefinitionVersionId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1285,7 +1280,7 @@ public class KaleoNotificationRecipientPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoNotificationRecipient>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (KaleoNotificationRecipient kaleoNotificationRecipient :
@@ -1671,7 +1666,7 @@ public class KaleoNotificationRecipientPersistenceImpl
 
 			finderArgs = new Object[] {kaleoNotificationId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2329,7 +2324,7 @@ public class KaleoNotificationRecipientPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<KaleoNotificationRecipient>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2408,7 +2403,7 @@ public class KaleoNotificationRecipientPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

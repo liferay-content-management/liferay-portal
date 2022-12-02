@@ -24,8 +24,6 @@ definition {
 	@description = "LPS-143065 - Verify that the user can delete the attachment by clicking on the clear button"
 	@priority = "4"
 	test CanDeleteAttachment {
-		property portal.acceptance = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 151577",
 			objectName = "CustomObject151577",
@@ -214,8 +212,6 @@ definition {
 	@description = "LPS-143065 - Verify that when the user uploads another item when there's already a attachment, the new file replaces the current one"
 	@priority = "4"
 	test CanReplaceFile {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 151578",
 			objectName = "CustomObject151578",

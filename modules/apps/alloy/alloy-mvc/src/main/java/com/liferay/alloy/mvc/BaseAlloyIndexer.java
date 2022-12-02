@@ -74,8 +74,7 @@ public abstract class BaseAlloyIndexer extends BaseIndexer<BaseModel<?>> {
 		AuditedModel auditedModel = (AuditedModel)baseModel;
 
 		IndexWriterHelperUtil.updateDocument(
-			getSearchEngineId(), auditedModel.getCompanyId(), document,
-			isCommitImmediately());
+			auditedModel.getCompanyId(), document);
 	}
 
 	@Override
@@ -138,7 +137,7 @@ public abstract class BaseAlloyIndexer extends BaseIndexer<BaseModel<?>> {
 		}
 
 		IndexWriterHelperUtil.updateDocuments(
-			getSearchEngineId(), companyId, documents, isCommitImmediately());
+			companyId, documents, isCommitImmediately());
 	}
 
 	protected void setAlloyServiceInvoker(

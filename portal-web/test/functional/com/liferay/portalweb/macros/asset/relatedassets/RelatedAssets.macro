@@ -27,9 +27,7 @@ definition {
 
 		var key_assetType = "${assetType}";
 
-		AssertClick(
-			locator1 = "APConfiguration#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_ASSET",
-			value1 = "${assetType}");
+		MenuItem.click(menuItem = "${assetType}");
 	}
 
 	macro removeAsset {
@@ -65,8 +63,6 @@ definition {
 			PortletEntry.selectAll();
 		}
 		else {
-			var key_assetTitle = "${assetTitle}";
-
 			if (isSet(depotName)) {
 				AssertClick(
 					key_breadcrumbName = "Sites and Libraries",
@@ -79,6 +75,13 @@ definition {
 					value1 = "Asset Library");
 
 				LexiconCard.clickCard(card = "${depotName}");
+			}
+			else if (isSet(otherSite)) {
+				Click(
+					key_breadcrumbName = "Sites and Libraries",
+					locator1 = "Breadcrumb#BREADCRUMB_ENTRY");
+
+				LexiconCard.clickCard(card = "${otherSite}");
 			}
 
 			Click(

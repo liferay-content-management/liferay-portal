@@ -593,23 +593,44 @@ public class PoshiContext {
 	}
 
 	public static void readFiles() throws Exception {
-		readFiles(null);
+		readFiles(true, null);
 	}
 
-	public static void readFiles(String[] includes, String... baseDirNames)
+	public static void readFiles(boolean readAll) throws Exception {
+		readFiles(readAll, null);
+	}
+
+	public static void readFiles(
+			boolean readAll, String[] includes, String... baseDirNames)
 		throws Exception {
 
 		System.out.println("Start reading Poshi files.");
 
 		long start = System.currentTimeMillis();
 
-		if (includes == null) {
-			includes = POSHI_TEST_FILE_INCLUDES;
-		}
-
 		Set<String> poshiFileIncludes = new HashSet<>();
 
-		Collections.addAll(poshiFileIncludes, includes);
+		if (readAll) {
+			if (includes == null) {
+				includes = POSHI_TEST_FILE_INCLUDES;
+			}
+
+			Collections.addAll(poshiFileIncludes, includes);
+		}
+		else {
+			List<String> testNames = Arrays.asList(
+				PropsValues.TEST_NAME.split("\\s*,\\s*"));
+
+			for (String testName : testNames) {
+				String className =
+					PoshiGetterUtil.getClassNameFromNamespacedClassCommandName(
+						testName);
+
+				Collections.addAll(
+					poshiFileIncludes, "**/" + className + ".{prose,testcase}");
+			}
+		}
+
 		Collections.addAll(poshiFileIncludes, POSHI_SUPPORT_FILE_INCLUDES);
 
 		_readPoshiFilesFromClassPath(
@@ -639,10 +660,6 @@ public class PoshiContext {
 			Collections.addAll(testDirNames, PropsValues.TEST_DIRS);
 		}
 
-		if (Validator.isNotNull(PropsValues.TEST_SUBREPO_DIRS)) {
-			Collections.addAll(testDirNames, PropsValues.TEST_SUBREPO_DIRS);
-		}
-
 		for (String testDirName : testDirNames) {
 			poshiURLs.addAll(
 				_getPoshiURLs(
@@ -650,11 +667,6 @@ public class PoshiContext {
 		}
 
 		Set<String> testSupportDirNames = new HashSet<>();
-
-		if (Validator.isNotNull(PropsValues.TEST_INCLUDE_DIR_NAMES)) {
-			Collections.addAll(
-				testSupportDirNames, PropsValues.TEST_INCLUDE_DIR_NAMES);
-		}
 
 		if (Validator.isNotNull(PropsValues.TEST_SUPPORT_DIRS)) {
 			Collections.addAll(

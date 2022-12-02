@@ -3,7 +3,7 @@ definition {
 
 	property database.types = "db2,hypersonic,mariadb,mysql,oracle,postgresql,sqlserver";
 	property osgi.module.configuration.file.names = "com.liferay.change.tracking.configuration.CTSettingsConfiguration.config";
-	property osgi.module.configurations = "enabled=B&quot;true&quot;";
+	property osgi.module.configurations = "enabled=B\"true\"";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Publications";
@@ -691,7 +691,7 @@ definition {
 
 	@description = "This is use case for LPS-157264.Changing permissions on a publication shouldn't go into the publication"
 	@priority = "3"
-	test ChangePermissionsOnApublicationShouldGoIntoProduction {
+	test ChangePermissionsOnAPublicationShouldGoIntoProduction {
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
 		JSONPublications.selectPublication(publicationName = "Publication Name");
@@ -704,7 +704,7 @@ definition {
 
 		IFrame.selectPermissionsFrame();
 
-		Check(
+		Check.checkNotVisible(
 			key_roleTitle = "publications-user",
 			locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 
@@ -720,7 +720,7 @@ definition {
 
 		IFrame.selectPermissionsFrame();
 
-		AssertChecked(
+		AssertChecked.assertCheckedNotVisible(
 			key_roleTitle = "publications-user",
 			locator1 = "Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX");
 	}
@@ -1116,7 +1116,7 @@ definition {
 			publicationName = "Publication Name",
 			publishNow = "true");
 
-		JSONPublications.publishPublication(publicationName = "Revert &quot;Publication Name&quot;");
+		JSONPublications.publishPublication(publicationName = "Revert \"Publication Name\"");
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 

@@ -62,6 +62,7 @@ function SXPElement({
 	id,
 	index,
 	indexFields = [],
+	isIndexCompany,
 	isSubmitting,
 	onBlur = () => {},
 	onChange = () => {},
@@ -106,6 +107,17 @@ function SXPElement({
 		return isDefined(enabled) ? enabled : true;
 	};
 
+	/**
+	 * All system elements that are not 'Custom JSON Element' or 'Paste Any
+	 * Elasticsearch Query Element' are inactive when search index is not the
+	 * company index.
+	 * @returns {boolean}
+	 */
+	const _isInactiveFromNonCompanyIndex = () =>
+		!isIndexCompany &&
+		sxpElement.readOnly &&
+		sxpElement.elementDefinition?.category !== 'custom';
+
 	const _handleDelete = () => {
 		onDeleteSXPElement(id);
 	};
@@ -123,7 +135,8 @@ function SXPElement({
 		!!error.uiConfigurationValues?.[config.name];
 
 	const _renderInput = (config) => {
-		const disabled = !_isEnabled() || isSubmitting;
+		const disabled =
+			!_isEnabled() || _isInactiveFromNonCompanyIndex() || isSubmitting;
 		const inputId = _getInputId(id, config.name);
 		const inputName = _getInputName(config.name);
 		const typeOptions = config.typeOptions || {};
@@ -323,7 +336,7 @@ function SXPElement({
 	return (
 		<div
 			className={getCN('sxp-element', 'sheet', {
-				disabled: !_isEnabled(),
+				disabled: !_isEnabled() || _isInactiveFromNonCompanyIndex(),
 			})}
 			id={prefixedId}
 		>
@@ -352,15 +365,31 @@ function SXPElement({
 						)}
 					</ClayList.ItemField>
 
-					<ClayToggle
-						aria-label={
-							_isEnabled()
-								? Liferay.Language.get('enabled')
-								: Liferay.Language.get('disabled')
-						}
-						onToggle={_handleToggle}
-						toggled={_isEnabled()}
-					/>
+					{_isInactiveFromNonCompanyIndex() ? (
+						<ClayTooltipProvider>
+							<div
+								data-tooltip-align="top"
+								title={Liferay.Language.get(
+									'query-element-inactive-from-index-help'
+								)}
+							>
+								<ClayToggle
+									aria-disabled="true"
+									toggled={false}
+								/>
+							</div>
+						</ClayTooltipProvider>
+					) : (
+						<ClayToggle
+							aria-label={
+								_isEnabled()
+									? Liferay.Language.get('enabled')
+									: Liferay.Language.get('disabled')
+							}
+							onToggle={_handleToggle}
+							toggled={_isEnabled()}
+						/>
+					)}
 
 					<ClayDropDown
 						active={active}
@@ -524,6 +553,7 @@ SXPElement.propTypes = {
 	id: PropTypes.number,
 	index: PropTypes.number,
 	indexFields: PropTypes.arrayOf(PropTypes.object),
+	isIndexCompany: PropTypes.bool,
 	isSubmitting: PropTypes.bool,
 	onBlur: PropTypes.func,
 	onChange: PropTypes.func,

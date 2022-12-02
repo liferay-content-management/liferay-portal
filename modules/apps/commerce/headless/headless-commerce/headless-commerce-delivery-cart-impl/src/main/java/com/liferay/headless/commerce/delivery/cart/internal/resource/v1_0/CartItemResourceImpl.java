@@ -33,7 +33,6 @@ import com.liferay.portal.vulcan.fields.NestedFieldId;
 import com.liferay.portal.vulcan.fields.NestedFieldSupport;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +52,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/cart-item.properties",
 	scope = ServiceScope.PROTOTYPE,
 	service = {CartItemResource.class, NestedFieldSupport.class}
@@ -104,7 +102,7 @@ public class CartItemResourceImpl
 
 		return Page.of(
 			_filterCartItems(
-				TransformUtil.transform(
+				transform(
 					_commerceOrderItemService.getCommerceOrderItems(
 						cartId, QueryUtil.ALL_POS, QueryUtil.ALL_POS),
 					commerceOrderItem -> {

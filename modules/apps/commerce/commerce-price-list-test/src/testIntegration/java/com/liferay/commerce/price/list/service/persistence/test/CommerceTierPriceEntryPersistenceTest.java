@@ -15,6 +15,7 @@
 package com.liferay.commerce.price.list.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.commerce.price.list.exception.DuplicateCommerceTierPriceEntryExternalReferenceCodeException;
 import com.liferay.commerce.price.list.exception.NoSuchTierPriceEntryException;
 import com.liferay.commerce.price.list.model.CommerceTierPriceEntry;
 import com.liferay.commerce.price.list.service.CommerceTierPriceEntryLocalServiceUtil;
@@ -287,6 +288,32 @@ public class CommerceTierPriceEntryPersistenceTest {
 			Time.getShortTimestamp(newCommerceTierPriceEntry.getStatusDate()));
 	}
 
+	@Test(
+		expected = DuplicateCommerceTierPriceEntryExternalReferenceCodeException.class
+	)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		CommerceTierPriceEntry commerceTierPriceEntry =
+			addCommerceTierPriceEntry();
+
+		CommerceTierPriceEntry newCommerceTierPriceEntry =
+			addCommerceTierPriceEntry();
+
+		newCommerceTierPriceEntry.setCompanyId(
+			commerceTierPriceEntry.getCompanyId());
+
+		newCommerceTierPriceEntry = _persistence.update(
+			newCommerceTierPriceEntry);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newCommerceTierPriceEntry);
+
+		newCommerceTierPriceEntry.setExternalReferenceCode(
+			commerceTierPriceEntry.getExternalReferenceCode());
+
+		_persistence.update(newCommerceTierPriceEntry);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -361,12 +388,12 @@ public class CommerceTierPriceEntryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -714,15 +741,15 @@ public class CommerceTierPriceEntryPersistenceTest {
 				new Class<?>[] {String.class}, "minQuantity"));
 
 		Assert.assertEquals(
-			Long.valueOf(commerceTierPriceEntry.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				commerceTierPriceEntry, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			commerceTierPriceEntry.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				commerceTierPriceEntry, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(commerceTierPriceEntry.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				commerceTierPriceEntry, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected CommerceTierPriceEntry addCommerceTierPriceEntry()

@@ -173,7 +173,13 @@ public class SearchEngineAdapterTest {
 
 			String message = runtimeException.getMessage();
 
-			if (isSearchEngine("Elasticsearch7")) {
+			if (isSearchEngine("Solr")) {
+				Assert.assertTrue(
+					message,
+					message.contains(
+						"<p>Problem accessing /solr/" + index + "/update"));
+			}
+			else if (isSearchEngine("Elasticsearch7")) {
 				Assert.assertTrue(
 					message,
 					message.contains("reason=no such index [" + index + "]"));
@@ -200,7 +206,9 @@ public class SearchEngineAdapterTest {
 
 		String name = clazz.getName();
 
-		if (name.startsWith("org.elasticsearch")) {
+		if (name.startsWith("org.elasticsearch") ||
+			name.startsWith("org.apache.solr")) {
+
 			throw _getTestFrameworkSafeToLoadException(
 				name, throwable.getMessage(), throwable.getStackTrace());
 		}
@@ -209,12 +217,15 @@ public class SearchEngineAdapterTest {
 	}
 
 	protected String getIndexName() throws Exception {
+		if (isSearchEngine("Solr")) {
+			return "liferay";
+		}
+
 		return "liferay-" + TestPropsValues.getCompanyId();
 	}
 
 	protected boolean isSearchEngine(String engine) {
-		SearchEngine searchEngine = _searchEngineHelper.getSearchEngine(
-			SearchEngineHelper.SYSTEM_ENGINE_ID);
+		SearchEngine searchEngine = _searchEngineHelper.getSearchEngine();
 
 		String vendor = searchEngine.getVendor();
 

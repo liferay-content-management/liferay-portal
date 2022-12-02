@@ -42,7 +42,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Adolfo Pérez
  */
 @Component(
-	immediate = true,
 	property = "javax.portlet.name=" + LayoutAdminPortletKeys.GROUP_PAGES,
 	service = PortletConfigurationIcon.class
 )
@@ -51,9 +50,7 @@ public class ImportTranslationPortletConfigurationIcon
 
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)),
-			"import-translations");
+		return _language.get(getLocale(portletRequest), "import-translations");
 	}
 
 	@Override

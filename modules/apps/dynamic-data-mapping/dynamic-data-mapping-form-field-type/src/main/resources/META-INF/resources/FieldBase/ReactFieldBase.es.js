@@ -175,6 +175,7 @@ export function FieldBase({
 	hideField,
 	hideEditedFlag,
 	id,
+	itemPath,
 	label,
 	localizedValue = {},
 	name,
@@ -245,7 +246,8 @@ export function FieldBase({
 		type === 'text' ||
 		type === 'numeric' ||
 		type === 'image' ||
-		type === 'search_location';
+		type === 'search_location' ||
+		type === 'select';
 
 	const accessibleProps = {
 		...(accessible && fieldDetails && {'aria-labelledby': fieldDetailsId}),
@@ -349,6 +351,7 @@ export function FieldBase({
 								className={classNames({
 									'ddm-empty': !showLabel && !required,
 									'ddm-label': showLabel || required,
+									'ddm-repeatable': repeatable,
 								})}
 							>
 								{showLabel && label && (
@@ -412,7 +415,7 @@ export function FieldBase({
 				/>
 			)}
 
-			{defaultRows && <Layout rows={defaultRows} />}
+			{defaultRows && <Layout itemPath={itemPath} rows={defaultRows} />}
 		</ClayForm.Group>
 	);
 }

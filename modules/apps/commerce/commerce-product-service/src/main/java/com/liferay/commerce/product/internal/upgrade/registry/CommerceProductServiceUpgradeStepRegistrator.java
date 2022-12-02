@@ -65,9 +65,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  * @author Igor Beslic
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceProductServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -239,7 +237,7 @@ public class CommerceProductServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"CPAttachmentFileEntry", "CPDSpecificationOptionValue",
 						"CPDefinition", "CPDefinitionLink",
@@ -327,6 +325,11 @@ public class CommerceProductServiceUpgradeStepRegistrator
 
 		registry.register(
 			"3.9.2", "4.0.0", CommerceChannelAccountEntryRelTable.create());
+
+		registry.register(
+			"4.0.0", "4.0.1",
+			new com.liferay.commerce.product.internal.upgrade.v4_0_1.
+				CommerceChannelUpgradeProcess(_groupLocalService));
 
 		if (_log.isInfoEnabled()) {
 			_log.info("Commerce product upgrade step registrator finished");

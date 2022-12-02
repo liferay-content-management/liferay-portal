@@ -38,6 +38,7 @@ import java.util.List;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -54,6 +55,11 @@ public class SearchResultUtilTest extends BaseSearchResultUtilTestCase {
 	@Rule
 	public static final LiferayUnitTestRule liferayUnitTestRule =
 		LiferayUnitTestRule.INSTANCE;
+
+	@After
+	public void tearDown() {
+		_searchResultManagerImpl.deactivate();
+	}
 
 	@Test
 	public void testBlankDocument() {
@@ -185,13 +191,18 @@ public class SearchResultUtilTest extends BaseSearchResultUtilTestCase {
 	}
 
 	private SearchResultManagerImpl _createSearchResultManagerImpl() {
-		SearchResultManagerImpl searchResultManagerImpl =
-			new SearchResultManagerImpl();
+		_searchResultManagerImpl = new SearchResultManagerImpl();
 
-		searchResultManagerImpl.setClassNameLocalService(classNameLocalService);
-		searchResultManagerImpl.setSummaryFactory(_createSummaryFactory());
+		ReflectionTestUtil.setFieldValue(
+			_searchResultManagerImpl, "_classNameLocalService",
+			classNameLocalService);
+		ReflectionTestUtil.setFieldValue(
+			_searchResultManagerImpl, "_summaryFactory",
+			_createSummaryFactory());
 
-		return searchResultManagerImpl;
+		_searchResultManagerImpl.activate(bundleContext);
+
+		return _searchResultManagerImpl;
 	}
 
 	private SummaryFactory _createSummaryFactory() {
@@ -211,6 +222,7 @@ public class SearchResultUtilTest extends BaseSearchResultUtilTestCase {
 	private final Indexer<Object> _indexer = Mockito.mock(Indexer.class);
 	private final IndexerRegistry _indexerRegistry = Mockito.mock(
 		IndexerRegistry.class);
+	private SearchResultManagerImpl _searchResultManagerImpl;
 	private final ServiceTrackerMap<String, AssetRendererFactory<?>>
 		_serviceTrackerMap = Mockito.mock(ServiceTrackerMap.class);
 

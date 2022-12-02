@@ -1,10 +1,9 @@
 Bundle-Name: Liferay Info API
 Bundle-SymbolicName: com.liferay.info.api
-Bundle-Version: 20.0.0
+Bundle-Version: 24.0.1
 Export-Package:\
 	com.liferay.info.collection.provider,\
 	com.liferay.info.constants,\
-	com.liferay.info.display.contributor,\
 	com.liferay.info.display.contributor.field,\
 	com.liferay.info.display.request.attributes.contributor,\
 	com.liferay.info.display.url.provider,\
@@ -32,5 +31,4 @@ Export-Package:\
 	com.liferay.info.permission.provider,\
 	com.liferay.info.search,\
 	com.liferay.info.sort,\
-	com.liferay.info.type,\
-	com.liferay.info.type.categorization
+	com.liferay.info.type

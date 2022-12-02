@@ -45,7 +45,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + LayoutAdminPortletKeys.GROUP_PAGES,
 		"path=/layout_admin/edit_layout"
@@ -122,11 +121,6 @@ public class PermissionsPortletConfigurationIcon
 			}
 		}
 
-		return false;
-	}
-
-	@Override
-	public boolean isToolTip() {
 		return false;
 	}
 

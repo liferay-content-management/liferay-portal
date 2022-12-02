@@ -18,7 +18,6 @@ import com.liferay.announcements.kernel.model.AnnouncementsDelivery;
 import com.liferay.asset.kernel.exception.AssetCategoryException;
 import com.liferay.asset.kernel.exception.AssetTagException;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
@@ -36,7 +35,6 @@ import com.liferay.portal.kernel.exception.UserIdException;
 import com.liferay.portal.kernel.exception.UserReminderQueryException;
 import com.liferay.portal.kernel.exception.UserScreenNameException;
 import com.liferay.portal.kernel.language.Language;
-import com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal;
 import com.liferay.portal.kernel.model.Address;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Contact;
@@ -103,7 +101,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Wesley Gong
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + UsersAdminPortletKeys.MY_ACCOUNT,
 		"javax.portlet.name=" + UsersAdminPortletKeys.MY_ORGANIZATIONS,
@@ -130,29 +127,24 @@ public class EditUserMVCActionCommand
 		long[] deleteUserIds = StringUtil.split(
 			ParamUtil.getString(actionRequest, "deleteUserIds"), 0L);
 
-		try (SafeCloseable safeCloseable =
-				ProxyModeThreadLocal.setWithSafeCloseable(true)) {
+		for (long deleteUserId : deleteUserIds) {
+			if (cmd.equals(Constants.DEACTIVATE) ||
+				cmd.equals(Constants.RESTORE)) {
 
-			for (long deleteUserId : deleteUserIds) {
-				if (cmd.equals(Constants.DEACTIVATE) ||
-					cmd.equals(Constants.RESTORE)) {
+				int status = WorkflowConstants.STATUS_APPROVED;
 
-					int status = WorkflowConstants.STATUS_APPROVED;
-
-					if (cmd.equals(Constants.DEACTIVATE)) {
-						status = WorkflowConstants.STATUS_INACTIVE;
-					}
-
-					ServiceContext serviceContext =
-						ServiceContextFactory.getInstance(
-							User.class.getName(), actionRequest);
-
-					_userService.updateStatus(
-						deleteUserId, status, serviceContext);
+				if (cmd.equals(Constants.DEACTIVATE)) {
+					status = WorkflowConstants.STATUS_INACTIVE;
 				}
-				else {
-					_userService.deleteUser(deleteUserId);
-				}
+
+				ServiceContext serviceContext =
+					ServiceContextFactory.getInstance(
+						User.class.getName(), actionRequest);
+
+				_userService.updateStatus(deleteUserId, status, serviceContext);
+			}
+			else {
+				_userService.deleteUser(deleteUserId);
 			}
 		}
 	}
@@ -379,10 +371,10 @@ public class EditUserMVCActionCommand
 			user, actionRequest, "middleName");
 		String lastName = BeanParamUtil.getString(
 			user, actionRequest, "lastName");
-		long prefixId = BeanParamUtil.getInteger(
-			contact, actionRequest, "prefixId");
-		long suffixId = BeanParamUtil.getInteger(
-			contact, actionRequest, "suffixId");
+		long prefixListTypeId = BeanParamUtil.getInteger(
+			contact, actionRequest, "prefixListTypeId");
+		long suffixListTypeId = BeanParamUtil.getInteger(
+			contact, actionRequest, "suffixListTypeId");
 		boolean male = BeanParamUtil.getBoolean(
 			user, actionRequest, "male", true);
 
@@ -409,8 +401,8 @@ public class EditUserMVCActionCommand
 			user.getUserId(), oldPassword, null, null, user.isPasswordReset(),
 			null, null, screenName, emailAddress, !deleteLogo, portraitBytes,
 			languageId, user.getTimeZoneId(), user.getGreeting(), comments,
-			firstName, middleName, lastName, prefixId, suffixId, male,
-			birthdayMonth, birthdayDay, birthdayYear, contact.getSmsSn(),
+			firstName, middleName, lastName, prefixListTypeId, suffixListTypeId,
+			male, birthdayMonth, birthdayDay, birthdayYear, contact.getSmsSn(),
 			contact.getFacebookSn(), contact.getJabberSn(),
 			contact.getSkypeSn(), contact.getTwitterSn(), jobTitle, null, null,
 			null, null, null, null, null, null, null, null, serviceContext);
@@ -480,8 +472,10 @@ public class EditUserMVCActionCommand
 		String firstName = ParamUtil.getString(actionRequest, "firstName");
 		String middleName = ParamUtil.getString(actionRequest, "middleName");
 		String lastName = ParamUtil.getString(actionRequest, "lastName");
-		long prefixId = ParamUtil.getInteger(actionRequest, "prefixId");
-		long suffixId = ParamUtil.getInteger(actionRequest, "suffixId");
+		long prefixListTypeId = ParamUtil.getInteger(
+			actionRequest, "prefixListTypeId");
+		long suffixListTypeId = ParamUtil.getInteger(
+			actionRequest, "suffixListTypeId");
 		boolean male = ParamUtil.getBoolean(actionRequest, "male", true);
 		int birthdayMonth = ParamUtil.getInteger(
 			actionRequest, "birthdayMonth");
@@ -498,8 +492,8 @@ public class EditUserMVCActionCommand
 		User user = _userService.addUser(
 			themeDisplay.getCompanyId(), true, null, null, autoScreenName,
 			screenName, emailAddress, LocaleUtil.fromLanguageId(languageId),
-			firstName, middleName, lastName, prefixId, suffixId, male,
-			birthdayMonth, birthdayDay, birthdayYear, jobTitle, null,
+			firstName, middleName, lastName, prefixListTypeId, suffixListTypeId,
+			male, birthdayMonth, birthdayDay, birthdayYear, jobTitle, null,
 			organizationIds, null, null, new ArrayList<Address>(),
 			new ArrayList<EmailAddress>(), new ArrayList<Phone>(),
 			new ArrayList<Website>(), new ArrayList<AnnouncementsDelivery>(),
@@ -560,15 +554,19 @@ public class EditUserMVCActionCommand
 		DynamicActionRequest dynamicActionRequest = new DynamicActionRequest(
 			actionRequest);
 
-		long prefixId = _getListTypeId(
-			actionRequest, "prefixValue", ListTypeConstants.CONTACT_PREFIX);
+		long prefixListTypeId = _getListTypeId(
+			actionRequest, "prefixListTypeValue",
+			ListTypeConstants.CONTACT_PREFIX);
 
-		dynamicActionRequest.setParameter("prefixId", String.valueOf(prefixId));
+		dynamicActionRequest.setParameter(
+			"prefixListTypeId", String.valueOf(prefixListTypeId));
 
-		long suffixId = _getListTypeId(
-			actionRequest, "suffixValue", ListTypeConstants.CONTACT_SUFFIX);
+		long suffixListTypeId = _getListTypeId(
+			actionRequest, "suffixListTypeValue",
+			ListTypeConstants.CONTACT_SUFFIX);
 
-		dynamicActionRequest.setParameter("suffixId", String.valueOf(suffixId));
+		dynamicActionRequest.setParameter(
+			"suffixListTypeId", String.valueOf(suffixListTypeId));
 
 		return dynamicActionRequest;
 	}

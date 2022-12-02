@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerPostProcessor;
 import com.liferay.portal.kernel.search.IndexerRegistry;
 import com.liferay.portal.kernel.search.dummy.DummyIndexer;
+import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.search.configuration.IndexerRegistryConfiguration;
@@ -60,7 +61,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  */
 @Component(
 	configurationPid = "com.liferay.portal.search.configuration.IndexerRegistryConfiguration",
-	immediate = true, service = IndexerRegistry.class
+	service = IndexerRegistry.class
 )
 public class IndexerRegistryImpl implements IndexerRegistry {
 
@@ -338,8 +339,8 @@ public class IndexerRegistryImpl implements IndexerRegistry {
 
 			BufferedIndexerInvocationHandler bufferedIndexerInvocationHandler =
 				new BufferedIndexerInvocationHandler(
-					indexer, _indexStatusManager,
-					_indexerRegistryConfiguration);
+					indexer, _indexStatusManager, _indexerRegistryConfiguration,
+					_persistedModelLocalServiceRegistry);
 
 			if (_indexerRequestBufferOverflowHandler == null) {
 				bufferedIndexerInvocationHandler.
@@ -386,6 +387,10 @@ public class IndexerRegistryImpl implements IndexerRegistry {
 
 	@Reference
 	private IndexStatusManager _indexStatusManager;
+
+	@Reference
+	private PersistedModelLocalServiceRegistry
+		_persistedModelLocalServiceRegistry;
 
 	private final Map<String, Indexer<? extends Object>> _proxiedIndexers =
 		new ConcurrentHashMap<>();

@@ -15,17 +15,50 @@
 import {
 	getCheckedCheckboxes,
 	openConfirmModal,
+	openModal,
 	openSelectionModal,
 	postForm,
 	sub,
 } from 'frontend-js-web';
 
+function openSelectAccountUsersModal(
+	accountEntryName,
+	assignAccountUsersURL,
+	selectAccountUsersURL,
+	portletNamespace
+) {
+	openSelectionModal({
+		buttonAddLabel: Liferay.Language.get('assign'),
+		containerProps: {
+			className: '',
+		},
+		iframeBodyCssClass: '',
+		multiple: true,
+		onSelect: (selectedItems) => {
+			if (!selectedItems?.length) {
+				return;
+			}
+
+			const form = document.getElementById(`${portletNamespace}fm`);
+
+			if (form) {
+				const values = selectedItems.map((item) => item.value);
+
+				postForm(form, {
+					data: {
+						accountUserIds: values.join(','),
+					},
+					url: assignAccountUsersURL,
+				});
+			}
+		},
+		title: sub(Liferay.Language.get('assign-users-to-x'), accountEntryName),
+		url: selectAccountUsersURL,
+	});
+}
+
 export default function propsTransformer({
-	additionalProps: {
-		accountEntryName,
-		assignAccountUsersURL,
-		selectAccountUsersURL,
-	},
+	additionalProps: {accountEntryName},
 	portletNamespace,
 	...otherProps
 }) {
@@ -63,40 +96,46 @@ export default function propsTransformer({
 				});
 			}
 		},
-		onCreateButtonClick: () => {
-			openSelectionModal({
-				buttonAddLabel: Liferay.Language.get('assign'),
-				containerProps: {
-					className: '',
-				},
-				iframeBodyCssClass: '',
-				multiple: true,
-				onSelect: (selectedItems) => {
-					if (!selectedItems?.length) {
-						return;
-					}
+		onCreateButtonClick: (event, {item}) => {
+			const data = item.data;
 
-					const form = document.getElementById(
-						`${portletNamespace}fm`
-					);
+			if (data?.action === 'selectAccountUsers') {
+				openSelectAccountUsersModal(
+					accountEntryName,
+					data?.assignAccountUsersURL,
+					data?.selectAccountUsersURL,
+					portletNamespace
+				);
+			}
+		},
+		onCreationMenuItemClick: (event, {item}) => {
+			const data = item?.data;
 
-					if (form) {
-						const values = selectedItems.map((item) => item.value);
+			const action = data?.action;
 
-						postForm(form, {
-							data: {
-								accountUserIds: values.join(','),
-							},
-							url: assignAccountUsersURL,
-						});
-					}
-				},
-				title: sub(
-					Liferay.Language.get('assign-users-to-x'),
-					accountEntryName
-				),
-				url: selectAccountUsersURL,
-			});
+			if (action === 'inviteAccountUsers') {
+				openModal({
+					containerProps: {
+						className: 'modal-height-xl',
+					},
+					id: `${portletNamespace}inviteUsersDialog`,
+					iframeBodyCssClass: '',
+					size: 'lg',
+					title: sub(
+						Liferay.Language.get('invite-users-to-x'),
+						accountEntryName
+					),
+					url: data?.requestInvitationsURL,
+				});
+			}
+			else if (action === 'selectAccountUsers') {
+				openSelectAccountUsersModal(
+					accountEntryName,
+					data?.assignAccountUsersURL,
+					data?.selectAccountUsersURL,
+					portletNamespace
+				);
+			}
 		},
 	};
 }

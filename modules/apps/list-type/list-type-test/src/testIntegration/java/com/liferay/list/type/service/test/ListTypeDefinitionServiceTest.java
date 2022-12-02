@@ -153,7 +153,7 @@ public class ListTypeDefinitionServiceTest {
 		throws Exception {
 
 		return _listTypeDefinitionLocalService.addListTypeDefinition(
-			user.getUserId(),
+			null, user.getUserId(),
 			Collections.singletonMap(
 				LocaleUtil.getDefault(), RandomTestUtil.randomString()));
 	}
@@ -173,6 +173,7 @@ public class ListTypeDefinitionServiceTest {
 
 			listTypeDefinition =
 				_listTypeDefinitionService.addListTypeDefinition(
+					null,
 					Collections.singletonMap(
 						LocaleUtil.getDefault(),
 						RandomTestUtil.randomString()));
@@ -241,6 +242,7 @@ public class ListTypeDefinitionServiceTest {
 
 			listTypeDefinition =
 				_listTypeDefinitionService.updateListTypeDefinition(
+					listTypeDefinition.getExternalReferenceCode(),
 					listTypeDefinition.getListTypeDefinitionId(),
 					Collections.singletonMap(
 						LocaleUtil.getDefault(),

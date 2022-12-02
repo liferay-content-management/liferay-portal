@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.lang.reflect.Constructor;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	immediate = true,
 	property = "resource.locator.key=/headless-admin-content/v1.0/PageDefinition",
 	service = PageDefinitionResource.Factory.class
 )
@@ -140,16 +138,6 @@ public class PageDefinitionResourceFactoryImpl
 		};
 	}
 
-	@Activate
-	protected void activate() {
-		PageDefinitionResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		PageDefinitionResource.FactoryHolder.factory = null;
-	}
-
 	private static Function<InvocationHandler, PageDefinitionResource>
 		_getProxyProviderFunction() {
 
@@ -223,6 +211,7 @@ public class PageDefinitionResourceFactoryImpl
 		pageDefinitionResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		pageDefinitionResource.setRoleLocalService(_roleLocalService);
+		pageDefinitionResource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(pageDefinitionResource, arguments);
@@ -272,6 +261,9 @@ public class PageDefinitionResourceFactoryImpl
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

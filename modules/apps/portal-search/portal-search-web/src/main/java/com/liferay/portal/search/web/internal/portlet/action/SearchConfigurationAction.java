@@ -15,7 +15,7 @@
 package com.liferay.portal.search.web.internal.portlet.action;
 
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
@@ -23,7 +23,7 @@ import com.liferay.portal.kernel.portlet.DefaultConfigurationAction;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.search.web.constants.SearchPortletKeys;
 import com.liferay.portal.search.web.facet.SearchFacet;
-import com.liferay.portal.search.web.internal.facet.SearchFacetTracker;
+import com.liferay.portal.search.web.internal.facet.SearchFacetRegistry;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -39,7 +39,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alexander Chow
  */
 @Component(
-	immediate = true,
 	property = "javax.portlet.name=" + SearchPortletKeys.SEARCH,
 	service = ConfigurationAction.class
 )
@@ -56,9 +55,9 @@ public class SearchConfigurationAction extends DefaultConfigurationAction {
 			ActionResponse actionResponse)
 		throws Exception {
 
-		JSONArray facetsJSONArray = JSONFactoryUtil.createJSONArray();
+		JSONArray facetsJSONArray = _jsonFactory.createJSONArray();
 
-		for (SearchFacet searchFacet : searchFacetTracker.getSearchFacets()) {
+		for (SearchFacet searchFacet : searchFacetRegistry.getSearchFacets()) {
 			JSONObject facetJSONObject = JSONUtil.put(
 				"className", searchFacet.getFacetClassName()
 			).put(
@@ -104,6 +103,9 @@ public class SearchConfigurationAction extends DefaultConfigurationAction {
 	}
 
 	@Reference
-	protected SearchFacetTracker searchFacetTracker;
+	protected SearchFacetRegistry searchFacetRegistry;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 }

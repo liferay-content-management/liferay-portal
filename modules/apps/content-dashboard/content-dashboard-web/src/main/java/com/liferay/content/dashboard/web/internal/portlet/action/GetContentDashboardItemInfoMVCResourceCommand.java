@@ -25,13 +25,13 @@ import com.liferay.content.dashboard.item.ContentDashboardItemVersion;
 import com.liferay.content.dashboard.item.VersionableContentDashboardItem;
 import com.liferay.content.dashboard.item.action.ContentDashboardItemAction;
 import com.liferay.content.dashboard.web.internal.constants.ContentDashboardPortletKeys;
-import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactoryTracker;
+import com.liferay.content.dashboard.web.internal.item.ContentDashboardItemFactoryRegistry;
 import com.liferay.content.dashboard.web.internal.util.ContentDashboardGroupUtil;
 import com.liferay.info.item.InfoItemReference;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -83,7 +83,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Cristina González
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + ContentDashboardPortletKeys.CONTENT_DASHBOARD_ADMIN,
 		"mvc.command.name=/content_dashboard/get_content_dashboard_item_info"
@@ -110,13 +109,13 @@ public class GetContentDashboardItemInfoMVCResourceCommand
 				resourceRequest, "className");
 
 			ContentDashboardItemFactory<?> contentDashboardItemFactory =
-				_contentDashboardItemFactoryTracker.
+				_contentDashboardItemFactoryRegistry.
 					getContentDashboardItemFactory(className);
 
 			if (contentDashboardItemFactory == null) {
 				JSONPortletResponseUtil.writeJSON(
 					resourceRequest, resourceResponse,
-					JSONFactoryUtil.createJSONArray());
+					_jsonFactory.createJSONArray());
 
 				return;
 			}
@@ -158,6 +157,18 @@ public class GetContentDashboardItemInfoMVCResourceCommand
 							return null;
 						}
 
+						VersionableContentDashboardItem
+							versionableContentDashboardItem =
+								(VersionableContentDashboardItem)
+									contentDashboardItem;
+
+						if (!versionableContentDashboardItem.
+								isShowContentDashboardItemVersions(
+									httpServletRequest)) {
+
+							return null;
+						}
+
 						return ResourceURLBuilder.createResourceURL(
 							resourceResponse
 						).setParameter(
@@ -182,6 +193,24 @@ public class GetContentDashboardItemInfoMVCResourceCommand
 					"preview",
 					_getPreviewJSONObject(
 						contentDashboardItem, httpServletRequest)
+				).put(
+					"showItemVersions",
+					() -> {
+						if (!(contentDashboardItem instanceof
+								VersionableContentDashboardItem)) {
+
+							return false;
+						}
+
+						VersionableContentDashboardItem
+							versionableContentDashboardItem =
+								(VersionableContentDashboardItem)
+									contentDashboardItem;
+
+						return versionableContentDashboardItem.
+							isShowContentDashboardItemVersions(
+								httpServletRequest);
+					}
 				).put(
 					"specificFields",
 					_getSpecificFieldsJSONObject(contentDashboardItem, locale)
@@ -236,7 +265,7 @@ public class GetContentDashboardItemInfoMVCResourceCommand
 	private JSONArray _getAssetTagsJSONArray(
 		ContentDashboardItem contentDashboardItem) {
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
 		List<AssetTag> assetTags = contentDashboardItem.getAssetTags();
 
@@ -272,7 +301,7 @@ public class GetContentDashboardItemInfoMVCResourceCommand
 			assetCategoryTitles.add(assetCategory.getTitle(locale));
 		}
 
-		return JSONFactoryUtil.createJSONObject(assetVocabularyMaps);
+		return _jsonFactory.createJSONObject(assetVocabularyMaps);
 	}
 
 	private Map<String, Object> _getAssetVocabularyMap(
@@ -371,7 +400,7 @@ public class GetContentDashboardItemInfoMVCResourceCommand
 	private JSONArray _getLatestContentDashboardItemVersionsJSONArray(
 		ContentDashboardItem contentDashboardItem, Locale locale) {
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
 		List<ContentDashboardItemVersion> latestContentDashboardItemVersions =
 			contentDashboardItem.getLatestContentDashboardItemVersions(locale);
@@ -437,7 +466,7 @@ public class GetContentDashboardItemInfoMVCResourceCommand
 	private JSONObject _getSpecificFieldsJSONObject(
 		ContentDashboardItem contentDashboardItem, Locale locale) {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
 		Map<String, Object> specificInformation =
 			contentDashboardItem.getSpecificInformation(locale);
@@ -575,7 +604,7 @@ public class GetContentDashboardItemInfoMVCResourceCommand
 		ContentDashboardItem contentDashboardItem,
 		HttpServletRequest httpServletRequest) {
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
 		List<ContentDashboardItemAction> contentDashboardItemActions =
 			contentDashboardItem.getContentDashboardItemActions(
@@ -646,11 +675,14 @@ public class GetContentDashboardItemInfoMVCResourceCommand
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
 
 	@Reference
-	private ContentDashboardItemFactoryTracker
-		_contentDashboardItemFactoryTracker;
+	private ContentDashboardItemFactoryRegistry
+		_contentDashboardItemFactoryRegistry;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

@@ -19,6 +19,9 @@ import com.liferay.layout.utility.page.model.LayoutUtilityPageEntry;
 import com.liferay.layout.utility.page.service.base.LayoutUtilityPageEntryServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.permission.GroupPermission;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
@@ -42,8 +45,8 @@ public class LayoutUtilityPageEntryServiceImpl
 
 	@Override
 	public LayoutUtilityPageEntry addLayoutUtilityPageEntry(
-			String externalReferenceCode, long groupId, String name, int type,
-			long masterLayoutPlid)
+			String externalReferenceCode, long groupId, String name,
+			String type, long masterLayoutPlid)
 		throws PortalException {
 
 		_groupPermission.check(
@@ -53,6 +56,16 @@ public class LayoutUtilityPageEntryServiceImpl
 		return layoutUtilityPageEntryLocalService.addLayoutUtilityPageEntry(
 			externalReferenceCode, getUserId(), groupId, name, type,
 			masterLayoutPlid);
+	}
+
+	@Override
+	public LayoutUtilityPageEntry copyLayoutUtilityPageEntry(
+			long groupId, long layoutUtilityPageEntryId,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		return layoutUtilityPageEntryLocalService.copyLayoutUtilityPageEntry(
+			getUserId(), groupId, layoutUtilityPageEntryId, serviceContext);
 	}
 
 	@Override
@@ -74,7 +87,7 @@ public class LayoutUtilityPageEntryServiceImpl
 
 	@Override
 	public LayoutUtilityPageEntry getDefaultLayoutUtilityPageEntry(
-			long groupId, int type)
+			long groupId, String type)
 		throws PortalException {
 
 		return layoutUtilityPageEntryLocalService.
@@ -91,20 +104,20 @@ public class LayoutUtilityPageEntryServiceImpl
 
 	@Override
 	public List<LayoutUtilityPageEntry> getLayoutUtilityPageEntries(
-		long groupId, int type, int start, int end,
-		OrderByComparator<LayoutUtilityPageEntry> orderByComparator) {
-
-		return layoutUtilityPageEntryLocalService.getLayoutUtilityPageEntries(
-			groupId, type, start, end, orderByComparator);
-	}
-
-	@Override
-	public List<LayoutUtilityPageEntry> getLayoutUtilityPageEntries(
 		long groupId, int start, int end,
 		OrderByComparator<LayoutUtilityPageEntry> orderByComparator) {
 
 		return layoutUtilityPageEntryLocalService.getLayoutUtilityPageEntries(
 			groupId, start, end, orderByComparator);
+	}
+
+	@Override
+	public List<LayoutUtilityPageEntry> getLayoutUtilityPageEntries(
+		long groupId, String type, int start, int end,
+		OrderByComparator<LayoutUtilityPageEntry> orderByComparator) {
+
+		return layoutUtilityPageEntryLocalService.getLayoutUtilityPageEntries(
+			groupId, type, start, end, orderByComparator);
 	}
 
 	@Override
@@ -124,6 +137,19 @@ public class LayoutUtilityPageEntryServiceImpl
 
 	@Override
 	public LayoutUtilityPageEntry updateLayoutUtilityPageEntry(
+			long layoutUtilityPageEntryId, long previewFileEntryId)
+		throws PortalException {
+
+		_layoutUtilityPageEntryModelResourcePermission.check(
+			getPermissionChecker(), layoutUtilityPageEntryId,
+			ActionKeys.UPDATE);
+
+		return layoutUtilityPageEntryLocalService.updateLayoutUtilityPageEntry(
+			layoutUtilityPageEntryId, previewFileEntryId);
+	}
+
+	@Override
+	public LayoutUtilityPageEntry updateLayoutUtilityPageEntry(
 			long layoutUtilityPageEntryId, String name)
 		throws PortalException {
 
@@ -133,5 +159,11 @@ public class LayoutUtilityPageEntryServiceImpl
 
 	@Reference
 	private GroupPermission _groupPermission;
+
+	@Reference(
+		target = "(model.class.name=com.liferay.layout.utility.page.model.LayoutUtilityPageEntry)"
+	)
+	private ModelResourcePermission<LayoutUtilityPageEntry>
+		_layoutUtilityPageEntryModelResourcePermission;
 
 }

@@ -80,16 +80,6 @@ definition {
 		selenium.typeAceEditor();
 	}
 
-	function typeCKEditor {
-		selenium.waitForVisible();
-
-		selenium.waitForEditable();
-
-		selenium.mouseOver();
-
-		selenium.typeCKEditor();
-	}
-
 	function typeClickAt {
 		selenium.waitForVisible();
 
@@ -111,7 +101,7 @@ definition {
 	}
 
 	function typeEditor {
-		selenium.waitForElementPresent();
+		selenium.waitForVisible();
 
 		selenium.waitForEditable();
 

@@ -14,7 +14,8 @@
 
 package com.liferay.portal.security.auto.login.remember.me;
 
-import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
+import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -23,13 +24,11 @@ import com.liferay.portal.kernel.security.auto.login.AutoLogin;
 import com.liferay.portal.kernel.security.auto.login.AutoLoginException;
 import com.liferay.portal.kernel.security.auto.login.BaseAutoLogin;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,7 +38,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Brian Wing Shun Chan
  */
-@Component(immediate = true, service = AutoLogin.class)
+@Component(service = AutoLogin.class)
 public class RememberMeAutoLogin extends BaseAutoLogin {
 
 	@Override
@@ -63,12 +62,12 @@ public class RememberMeAutoLogin extends BaseAutoLogin {
 			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		String autoUserId = CookieKeys.getCookie(
-			httpServletRequest, CookieKeys.ID, false);
-		String autoPassword = CookieKeys.getCookie(
-			httpServletRequest, CookieKeys.PASSWORD, false);
-		String rememberMe = CookieKeys.getCookie(
-			httpServletRequest, CookieKeys.REMEMBER_ME, false);
+		String autoUserId = CookiesManagerUtil.getCookieValue(
+			CookiesConstants.NAME_ID, httpServletRequest, false);
+		String autoPassword = CookiesManagerUtil.getCookieValue(
+			CookiesConstants.NAME_PASSWORD, httpServletRequest, false);
+		String rememberMe = CookiesManagerUtil.getCookieValue(
+			CookiesConstants.NAME_REMEMBER_ME, httpServletRequest, false);
 
 		// LEP-5188
 
@@ -130,19 +129,14 @@ public class RememberMeAutoLogin extends BaseAutoLogin {
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse) {
 
-		Cookie cookie = new Cookie(CookieKeys.ID, StringPool.BLANK);
+		String domain = CookiesManagerUtil.getDomain(httpServletRequest);
 
-		cookie.setMaxAge(0);
-		cookie.setPath(StringPool.SLASH);
-
-		CookieKeys.addCookie(httpServletRequest, httpServletResponse, cookie);
-
-		cookie = new Cookie(CookieKeys.PASSWORD, StringPool.BLANK);
-
-		cookie.setMaxAge(0);
-		cookie.setPath(StringPool.SLASH);
-
-		CookieKeys.addCookie(httpServletRequest, httpServletResponse, cookie);
+		CookiesManagerUtil.deleteCookies(
+			domain, httpServletRequest, httpServletResponse,
+			CookiesConstants.NAME_ID);
+		CookiesManagerUtil.deleteCookies(
+			domain, httpServletRequest, httpServletResponse,
+			CookiesConstants.NAME_PASSWORD);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

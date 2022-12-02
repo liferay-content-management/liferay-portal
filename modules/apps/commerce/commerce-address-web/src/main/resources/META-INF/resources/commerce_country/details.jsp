@@ -39,40 +39,42 @@ CommerceRegionsStarter commerceRegionsStarter = commerceCountriesDisplayContext.
 
 	<aui:model-context bean="<%= country %>" model="<%= Country.class %>" />
 
-	<aui:fieldset-group markupView="lexicon">
-		<aui:fieldset>
+	<div class="sheet">
+		<div class="panel-group panel-group-flush">
 			<aui:fieldset>
-				<liferay-ui:input-localized
-					autoFocus="<%= true %>"
-					cssClass="form-group"
-					name="name"
-					xml="<%= (country == null) ? StringPool.BLANK : country.getTitleMapAsXML() %>"
-				/>
+				<aui:fieldset>
+					<liferay-ui:input-localized
+						autoFocus="<%= true %>"
+						cssClass="form-group"
+						name="name"
+						xml="<%= (country == null) ? StringPool.BLANK : country.getTitleMapAsXML() %>"
+					/>
 
-				<aui:input checked="<%= (country == null) ? false : country.getBillingAllowed() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="billingAllowed" type="toggle-switch" />
+					<aui:input checked="<%= (country == null) ? false : country.getBillingAllowed() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="billingAllowed" type="toggle-switch" />
 
-				<aui:input checked="<%= (country == null) ? false : country.getShippingAllowed() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="shippingAllowed" type="toggle-switch" />
+					<aui:input checked="<%= (country == null) ? false : country.getShippingAllowed() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="shippingAllowed" type="toggle-switch" />
 
-				<aui:input id="twoLettersISOCode" label="two-letter-iso-code" name="a2" />
+					<aui:input id="twoLettersISOCode" label="two-letter-iso-code" name="a2" />
 
-				<aui:input id="threeLettersISOCode" label="three-letter-iso-code" name="a3" />
+					<aui:input id="threeLettersISOCode" label="three-letter-iso-code" name="a3" />
 
-				<aui:input id="numericISOCode" name="number" />
+					<aui:input id="numericISOCode" name="number" />
 
-				<aui:input checked="<%= (country == null) ? false : country.getSubjectToVAT() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="subjectToVAT" type="toggle-switch" />
+					<aui:input checked="<%= (country == null) ? false : country.getSubjectToVAT() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="subjectToVAT" type="toggle-switch" />
 
-				<aui:input id="priority" name="position" />
+					<aui:input id="priority" name="position" />
 
-				<aui:input checked="<%= (country == null) ? false : country.isActive() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="active" type="toggle-switch" />
+					<aui:input checked="<%= (country == null) ? false : country.isActive() %>" inlineLabel="right" labelCssClass="simple-toggle-switch" name="active" type="toggle-switch" />
 
-				<c:if test="<%= commerceRegionsStarter != null %>">
-					<aui:input name="key" type="hidden" value="<%= commerceRegionsStarter.getKey() %>" />
+					<c:if test="<%= commerceRegionsStarter != null %>">
+						<aui:input name="key" type="hidden" value="<%= commerceRegionsStarter.getKey() %>" />
 
-					<aui:button cssClass="btn-lg" disabled="<%= commerceCountriesDisplayContext.hasRegions(country) %>" name="importCommerceRegionsButton" value='<%= LanguageUtil.get(request, "import-regions") %>' />
-				</c:if>
+						<aui:button cssClass="btn-lg" disabled="<%= commerceCountriesDisplayContext.hasRegions(country) %>" name="importCommerceRegionsButton" value='<%= LanguageUtil.get(request, "import-regions") %>' />
+					</c:if>
+				</aui:fieldset>
 			</aui:fieldset>
-		</aui:fieldset>
-	</aui:fieldset-group>
+		</div>
+	</div>
 
 	<aui:button-row>
 		<aui:button cssClass="btn-lg" type="submit" />

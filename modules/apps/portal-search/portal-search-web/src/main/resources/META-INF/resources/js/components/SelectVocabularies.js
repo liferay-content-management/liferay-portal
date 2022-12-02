@@ -347,6 +347,13 @@ function SelectVocabularies({
 				{Liferay.Language.get(
 					'select-vocabularies-configuration-description'
 				)}
+
+				{!disabled && (
+					<LearnMessage
+						learnMessages={learnMessages}
+						resourceKey="tag-and-category-facet"
+					/>
+				)}
 			</div>
 
 			<ClayRadioGroup onChange={_handleSelectionChange} value={selection}>

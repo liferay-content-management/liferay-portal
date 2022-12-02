@@ -2081,57 +2081,57 @@ public interface OrganizationPersistence
 		long companyId, long parentOrganizationId, String name);
 
 	/**
-	 * Returns the organization where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchOrganizationException</code> if it could not be found.
+	 * Returns the organization where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchOrganizationException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching organization
 	 * @throws NoSuchOrganizationException if a matching organization could not be found
 	 */
-	public Organization findByC_ERC(
-			long companyId, String externalReferenceCode)
+	public Organization findByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchOrganizationException;
 
 	/**
-	 * Returns the organization where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the organization where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching organization, or <code>null</code> if a matching organization could not be found
 	 */
-	public Organization fetchByC_ERC(
-		long companyId, String externalReferenceCode);
+	public Organization fetchByERC_C(
+		String externalReferenceCode, long companyId);
 
 	/**
-	 * Returns the organization where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the organization where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching organization, or <code>null</code> if a matching organization could not be found
 	 */
-	public Organization fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache);
+	public Organization fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache);
 
 	/**
-	 * Removes the organization where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the organization where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the organization that was removed
 	 */
-	public Organization removeByC_ERC(
-			long companyId, String externalReferenceCode)
+	public Organization removeByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchOrganizationException;
 
 	/**
-	 * Returns the number of organizations where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of organizations where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching organizations
 	 */
-	public int countByC_ERC(long companyId, String externalReferenceCode);
+	public int countByERC_C(String externalReferenceCode, long companyId);
 
 	/**
 	 * Caches the organization in the entity cache if it is enabled.

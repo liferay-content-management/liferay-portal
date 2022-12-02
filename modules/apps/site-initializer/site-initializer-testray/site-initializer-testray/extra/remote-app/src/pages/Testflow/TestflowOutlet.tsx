@@ -12,27 +12,53 @@
  * details.
  */
 
-import {Outlet, useLocation} from 'react-router-dom';
+import {useEffect} from 'react';
+import {Outlet, useLocation, useParams} from 'react-router-dom';
 
+import {useFetch} from '../../hooks/useFetch';
 import useHeader from '../../hooks/useHeader';
 import i18n from '../../i18n';
+import {TestrayTask, testrayTaskImpl} from '../../services/rest';
 
 const TestflowOutlet = () => {
 	const {pathname} = useLocation();
+	const {taskId} = useParams();
 
 	const currentPathIsActive = pathname === '/testflow';
 	const archivedPathIsActive = pathname === '/testflow/archived';
 
+	const {data: testrayTask, mutate: mutateTask} = useFetch<TestrayTask>(
+		taskId ? testrayTaskImpl.getResource(taskId) : null,
+		(response) => testrayTaskImpl.transformData(response)
+	);
+
 	const {setDropdownIcon, setHeading, setTabs} = useHeader({
 		shouldUpdate: currentPathIsActive || archivedPathIsActive,
 		useDropdown: [],
+		useHeaderActions: {
+			actions: [],
+		},
 		useHeading: [
 			{
 				category: i18n.translate('task').toUpperCase(),
 				title: i18n.translate('testflow'),
 			},
 		],
-		useTabs: [
+	});
+
+	useEffect(() => {
+		if (testrayTask) {
+			setHeading([
+				{
+					category: i18n.translate('tasks'),
+					title: testrayTask.name,
+				},
+			]);
+		}
+	}, [setHeading, testrayTask]);
+
+	useEffect(() => {
+		setTabs([
 			{
 				active: currentPathIsActive,
 				path: '/testflow',
@@ -43,10 +69,20 @@ const TestflowOutlet = () => {
 				path: '/testflow/archived',
 				title: i18n.translate('archived'),
 			},
-		],
-	});
+		]);
+	}, [archivedPathIsActive, currentPathIsActive, setTabs]);
 
-	return <Outlet context={{setDropdownIcon, setHeading, setTabs}} />;
+	return (
+		<Outlet
+			context={{
+				mutateTask,
+				setDropdownIcon,
+				setHeading,
+				setTabs,
+				testrayTask,
+			}}
+		/>
+	);
 };
 
 export default TestflowOutlet;

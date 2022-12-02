@@ -45,7 +45,6 @@ import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -96,7 +95,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(service = {MBThreadPersistence.class, BasePersistence.class})
+@Component(service = MBThreadPersistence.class)
 public class MBThreadPersistenceImpl
 	extends BasePersistenceImpl<MBThread> implements MBThreadPersistence {
 
@@ -214,7 +213,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -603,7 +602,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {uuid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -739,7 +738,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByUUID_G, finderArgs);
+				_finderPathFetchByUUID_G, finderArgs, this);
 		}
 
 		if (result instanceof MBThread) {
@@ -859,7 +858,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {uuid, groupId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1030,7 +1029,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -1451,7 +1450,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {uuid, companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1611,7 +1610,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -2299,7 +2298,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {groupId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2461,7 +2460,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByRootMessageId, finderArgs);
+				_finderPathFetchByRootMessageId, finderArgs, this);
 		}
 
 		if (result instanceof MBThread) {
@@ -2575,7 +2574,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {rootMessageId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2724,7 +2723,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -3684,7 +3683,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				_finderPathWithPaginationFindByG_C, finderArgs);
+				_finderPathWithPaginationFindByG_C, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -3803,7 +3802,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {groupId, categoryId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -3874,7 +3873,7 @@ public class MBThreadPersistenceImpl
 			finderArgs = new Object[] {groupId, StringUtil.merge(categoryIds)};
 
 			count = (Long)finderCache.getResult(
-				_finderPathWithPaginationCountByG_C, finderArgs);
+				_finderPathWithPaginationCountByG_C, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -4157,7 +4156,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -4893,7 +4892,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {groupId, categoryId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -5100,7 +5099,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -5830,7 +5829,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {groupId, status};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -6038,7 +6037,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -6435,7 +6434,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {categoryId, priority};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -6590,7 +6589,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -7010,7 +7009,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {_getTime(lastPostDate), priority};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -7190,7 +7189,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -8017,7 +8016,7 @@ public class MBThreadPersistenceImpl
 				groupId, categoryId, _getTime(lastPostDate)
 			};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -8272,7 +8271,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -9289,7 +9288,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				_finderPathWithPaginationFindByG_C_S, finderArgs);
+				_finderPathWithPaginationFindByG_C_S, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -9417,7 +9416,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {groupId, categoryId, status};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -9495,7 +9494,7 @@ public class MBThreadPersistenceImpl
 			};
 
 			count = (Long)finderCache.getResult(
-				_finderPathWithPaginationCountByG_C_S, finderArgs);
+				_finderPathWithPaginationCountByG_C_S, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -9809,7 +9808,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -10827,7 +10826,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				_finderPathWithPaginationFindByG_C_NotS, finderArgs);
+				_finderPathWithPaginationFindByG_C_NotS, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -10956,7 +10955,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {groupId, categoryId, status};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -11034,7 +11033,7 @@ public class MBThreadPersistenceImpl
 			};
 
 			count = (Long)finderCache.getResult(
-				_finderPathWithPaginationCountByG_C_NotS, finderArgs);
+				_finderPathWithPaginationCountByG_C_NotS, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -11350,7 +11349,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -12126,7 +12125,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {groupId, categoryId, status};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -12344,7 +12343,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBThread mbThread : list) {
@@ -13120,7 +13119,7 @@ public class MBThreadPersistenceImpl
 
 			finderArgs = new Object[] {groupId, categoryId, status};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -13855,7 +13854,7 @@ public class MBThreadPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<MBThread>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -13931,7 +13930,7 @@ public class MBThreadPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

@@ -66,7 +66,7 @@ const Activities = ({
 			})}
 			description="Choose the activities that best match your Campaign MDF request"
 			name="Activities"
-			title={values.campaignName}
+			title={values.overallCampaignName}
 		>
 			{isForm ? (
 				<Form
@@ -78,14 +78,13 @@ const Activities = ({
 				<Listing
 					{...arrayHelpers}
 					activities={values.activities}
-					campaignName={values.campaignName}
-					isValid={isValid}
 					onAdd={onAdd}
+					overallCampaignName={values.overallCampaignName}
 				/>
 			)}
 
 			<PRMForm.Footer>
-				<div className="d-flex mr-auto">
+				<div className="d-flex justify-content-between mr-auto">
 					<Button
 						displayType={null}
 						onClick={() =>
@@ -106,7 +105,7 @@ const Activities = ({
 					</Button>
 				</div>
 
-				<div>
+				<div className="d-flex justify-content-between px-2 px-md-0">
 					<Button
 						className="mr-4"
 						displayType="secondary"

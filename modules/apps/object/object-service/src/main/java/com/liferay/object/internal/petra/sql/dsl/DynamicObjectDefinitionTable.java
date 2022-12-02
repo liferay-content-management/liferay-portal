@@ -33,7 +33,6 @@ import java.sql.Types;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author Marco Leo
@@ -52,23 +51,6 @@ public class DynamicObjectDefinitionTable
 		String sql = StringBundler.concat(
 			"alter table ", tableName, " add ", columnName, StringPool.SPACE,
 			_getDataType(type), _getSQLColumnNull(type));
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("SQL: " + sql);
-		}
-
-		return sql;
-	}
-
-	/**
-	 * @see com.liferay.portal.dao.db.BaseDB#alterTableDropColumn(
-	 *      java.sql.Connection, String, String)
-	 */
-	public static String getAlterTableDropColumnSQL(
-		String tableName, String columnName) {
-
-		String sql = StringBundler.concat(
-			"alter table ", tableName, " drop column ", columnName);
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("SQL: " + sql);
@@ -114,9 +96,10 @@ public class DynamicObjectDefinitionTable
 			Column.FLAG_PRIMARY);
 
 		for (ObjectField objectField : objectFields) {
-			if (Objects.equals(
-					objectField.getBusinessType(),
-					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION)) {
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) ||
+				objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_FORMULA)) {
 
 				continue;
 			}
@@ -142,9 +125,10 @@ public class DynamicObjectDefinitionTable
 		sb.append(" LONG not null primary key");
 
 		for (ObjectField objectField : _objectFields) {
-			if (Objects.equals(
-					objectField.getBusinessType(),
-					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION)) {
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) ||
+				objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_FORMULA)) {
 
 				continue;
 			}

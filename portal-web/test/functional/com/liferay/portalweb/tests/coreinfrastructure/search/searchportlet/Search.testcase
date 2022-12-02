@@ -312,6 +312,53 @@ definition {
 		Portlet.viewCannotAddPG(portletName = "Search Insights");
 	}
 
+	@description = "This is a use case for LPS-117767."
+	@priority = "3"
+	test AssertPaginationResetsAfterSelectingNewFacet {
+		var categoryId1 = JSONCategory.addCategory(
+			groupName = "Global",
+			title = "Category Name 1",
+			vocabularyName = "Topic");
+		var categoryId2 = JSONCategory.addCategory(
+			groupName = "Global",
+			title = "Category Name 2",
+			vocabularyName = "Topic");
+
+		for (var count : list "1,2") {
+			JSONDocument.addFileWithUploadedFile(
+				assetCategoryIds = "${categoryId1}",
+				dmDocumentDescription = "DM Document Description",
+				dmDocumentTitle = "DM Document Title 1_${count}",
+				groupName = "Guest",
+				mimeType = "image/jpg",
+				sourceFileName = "Document_${count}.jpg");
+		}
+
+		for (var count : list "1,2,3") {
+			JSONDocument.addFileWithUploadedFile(
+				assetCategoryIds = "${categoryId2}",
+				dmDocumentDescription = "DM Document Description",
+				dmDocumentTitle = "DM Document Title 2_${count}",
+				groupName = "Guest",
+				mimeType = "text/plain",
+				sourceFileName = "Document_${count}.txt");
+		}
+
+		SearchPortlets.searchEmbedded(searchTerm = "Category Name");
+
+		SearchResultPortlet.configureSearchResults(paginationDelta = "2");
+
+		Refresh();
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 2");
+
+		Click(locator1 = "Pagination#NEXT_LINK");
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 1");
+
+		Pagination.viewResults(results = "Showing 1 to 2 of 5 entries.");
+	}
+
 	@description = "This is a use case for LPS-130227."
 	@priority = "4"
 	test AssertPaginationURLforHTTPS {
@@ -550,6 +597,77 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LPS-165397."
+	@priority = "3"
+	test CanDisableDisplaySelectedResultWithContentPages {
+		task ("Add a New Page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Guest",
+				layoutName = "Example Page",
+				type = "content");
+
+			JSONLayout.publishLayout(
+				groupName = "Guest",
+				layoutName = "Example Page");
+		}
+
+		SearchPortlets.searchEmbedded(searchTerm = "Example Page");
+
+		SearchResultPortlet.configureSearchResults(disableDisplaySelectedResultInContext = "true");
+
+		SearchPortlets.searchEmbedded(searchTerm = "Example Page");
+
+		Search.gotoResultAssetViaTitle(searchAssetTitle = "Example Page");
+
+		AssertElementNotPresent(locator1 = "Portlet#ERROR");
+
+		AssertElementPresent(locator1 = "Search#EMBEDDED_SEARCH_BAR");
+	}
+
+	@description = "This is a use case for LPS-131302."
+	@priority = "3"
+	test CanDownloadDocumentsThroughSearchResultsPreview {
+		task ("Upload a PDF and a DOCX file") {
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentTitle = "DOCX File",
+				groupName = "Guest",
+				mimeType = "application/docx",
+				sourceFileName = "Document_1.docx");
+
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentTitle = "PDF File",
+				groupName = "Guest",
+				mimeType = "application/pdf",
+				sourceFileName = "Document_1.pdf");
+		}
+
+		task ("Search for the DOCX and PDF files and Assert 'Download' Button is Present") {
+			SearchPortlets.searchEmbedded(searchTerm = "DOCX File");
+
+			Search.gotoResultAssetViaTitle(searchAssetTitle = "DOCX File");
+
+			Button.click(button = "Info");
+
+			Button.viewPresent(button = "Download");
+
+			Button.click(button = "Download");
+
+			DMDocument.assertFileNameFromTempFolder(fileName = "Document_1.docx");
+
+			SearchPortlets.searchEmbedded(searchTerm = "PDF File");
+
+			Search.gotoResultAssetViaTitle(searchAssetTitle = "PDF File");
+
+			Button.click(button = "Info");
+
+			Button.viewPresent(button = "Download");
+
+			Button.click(button = "Download");
+
+			DMDocument.assertFileNameFromTempFolder(fileName = "Document_1.pdf");
+		}
+	}
+
 	@description = "This is a use case for LPS-151026."
 	@priority = "3"
 	test CanHighlightResultsAndDisableHighlighting {
@@ -611,6 +729,73 @@ definition {
 			userLoginFullName = "Test Test");
 
 		AssertElementNotPresent(locator1 = "Modal#MODAL");
+	}
+
+	@priority = "3"
+	test CanOrderFolderFacetTerms {
+		for (var folder : list "Product,Engineering,2021,2022") {
+			JSONFolder.addFolder(
+				dmFolderName = "${folder}",
+				groupName = "Guest");
+		}
+
+		task ("Populate the folders with files") {
+			JSONDocument.addFile(
+				dmDocumentTitle = "DM Document Title 1",
+				folderName = "Product",
+				groupName = "Guest");
+
+			for (var count : list "1,2") {
+				JSONDocument.addFile(
+					dmDocumentTitle = "DM Document Title ${count}",
+					folderName = "Engineering",
+					groupName = "Guest");
+			}
+
+			for (var count : list "1,2,3") {
+				JSONDocument.addFile(
+					dmDocumentTitle = "DM Document Title ${count}",
+					folderName = "2021",
+					groupName = "Guest");
+			}
+
+			for (var count : list "1,2,3,4") {
+				JSONDocument.addFile(
+					dmDocumentTitle = "DM Document Title ${count}",
+					folderName = "2022",
+					groupName = "Guest");
+			}
+		}
+
+		SearchPortlets.searchEmbedded(searchTerm = "test");
+
+		task ("Assert that the Folder facet sorts by term frequency descending by default") {
+			SearchFacetPortlet.viewFacetItemsSpecificOrder(facetList = "2022,2021,Engineering,Product");
+		}
+
+		task ("Assert that the Folder facet values are correct when sorted by term frequency ascending") {
+			SearchFacetPortlet.configureFolderFacet(sortOption = "Term Frequency Ascending");
+
+			Refresh();
+
+			SearchFacetPortlet.viewFacetItemsSpecificOrder(facetList = "Product,Engineering,2021,2022");
+		}
+
+		task ("Assert that the Folder facet values are correct when sorted by term value ascending") {
+			SearchFacetPortlet.configureFolderFacet(sortOption = "Term Value Ascending");
+
+			Refresh();
+
+			SearchFacetPortlet.viewFacetItemsSpecificOrder(facetList = "2021,2022,Engineering,Product");
+		}
+
+		task ("Assert that the Folder facet values are correct when sorted by term value descending") {
+			SearchFacetPortlet.configureFolderFacet(sortOption = "Term Value Descending");
+
+			Refresh();
+
+			SearchFacetPortlet.viewFacetItemsSpecificOrder(facetList = "Product,Engineering,2022,2021");
+		}
 	}
 
 	@priority = "4"
@@ -751,6 +936,97 @@ definition {
 		AssertElementNotPresent(
 			facetValueName = "Custom Facet",
 			locator1 = "Search#FACET_DISPLAY_FREQUENCIES");
+	}
+
+	@description = "This is a use case for LPS-167195. Facet selection and search results should match after using browser back button"
+	@priority = "3"
+	test FacetSelectionAndSearchResultsMatchWhenUsingBrowserBackButton {
+		task ("Create two Categories and two Tags") {
+			var categoryId1 = JSONCategory.addCategory(
+				groupName = "Global",
+				title = "cat1",
+				vocabularyName = "Topic");
+			var categoryId2 = JSONCategory.addCategory(
+				groupName = "Global",
+				title = "cat2",
+				vocabularyName = "Topic");
+
+			for (var tagList : list "tag1,tag2") {
+				JSONAssettag.addTag(
+					groupName = "Guest",
+					tagName = "${tagList}");
+			}
+		}
+
+		task ("Create six Web Contents") {
+			JSONWebcontent.addWebContent(
+				content = "WC Content",
+				groupName = "Guest",
+				title = "wc1");
+
+			JSONWebcontent.addWebContent(
+				assetTagNames = "tag1",
+				content = "WC Content",
+				groupName = "Guest",
+				title = "wc2");
+
+			JSONWebcontent.addWebContent(
+				assetTagNames = "tag2",
+				content = "WC Content",
+				groupName = "Guest",
+				title = "wc3");
+
+			JSONWebcontent.addWebContent(
+				assetCategoryIds = "${categoryId1}",
+				assetTagNames = "tag1",
+				content = "WC Content",
+				groupName = "Guest",
+				title = "wc4");
+
+			JSONWebcontent.addWebContent(
+				assetCategoryIds = "${categoryId2}",
+				assetTagNames = "tag2",
+				content = "WC Content",
+				groupName = "Guest",
+				title = "wc5");
+
+			JSONWebcontent.addWebContent(
+				assetCategoryIds = "${categoryId1},${categoryId2}",
+				assetTagNames = "tag1",
+				content = "WC Content",
+				groupName = "Guest",
+				title = "wc6");
+		}
+
+		SearchPortlets.searchEmbedded(searchTerm = "wc");
+
+		task ("Assert the search results after 'wc' search and after applying any search filter") {
+			SearchResultPortlet.viewMultipleSearchResults(
+				resultsList = "wc1/Web Content Article,wc2/Web Content Article,wc3/Web Content Article,wc4/Web Content Article,wc5/Web Content Article,wc6/Web Content Article",
+				searchTerm = "wc");
+
+			SearchFacetPortlet.checkFacet(facetValueName = "tag1");
+
+			SearchResultPortlet.viewMultipleSearchResults(
+				resultsList = "wc2/Web Content Article,wc4/Web Content Article,wc6/Web Content Article",
+				searchTerm = "wc");
+
+			SearchFacetPortlet.checkFacet(facetValueName = "cat1");
+
+			SearchResultPortlet.viewMultipleSearchResults(
+				resultsList = "wc4/Web Content Article,wc6/Web Content Article",
+				searchTerm = "wc");
+
+			GoBack();
+
+			FormFields.viewCheckboxChecked(fieldName = "tag1");
+
+			FormFields.viewCheckboxNotChecked(fieldName = "cat1");
+
+			SearchResultPortlet.viewMultipleSearchResults(
+				resultsList = "wc2/Web Content Article,wc4/Web Content Article,wc6/Web Content Article",
+				searchTerm = "wc");
+		}
 	}
 
 	@description = "This is a use case for LPS-140643."
@@ -1239,38 +1515,38 @@ definition {
 
 		Navigator.openURL();
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Category Name&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Category Name\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Category&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Category\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Name&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Name\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Category Name1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Category Name1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Category Name1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Category Name1\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Category1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Category1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Category1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Category1\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Name1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Name1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Name1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Name1\"");
 	}
 
 	@priority = "4"
@@ -1287,96 +1563,96 @@ definition {
 
 		Navigator.openURL();
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Blogs Entry Title&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Blogs Entry Title\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Entry Title&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Entry Title\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Title&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Title\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Blogs Entry Content&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Blogs Entry Content\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Blogs Entry&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Blogs Entry\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Blogs&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Blogs\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Entry Content&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Entry Content\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Entry&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Entry\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Content&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Content\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Blogs Content&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Blogs Content\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Blogs Content&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Blogs Content\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Blogs1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Blogs1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Blogs1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Blogs1\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Entry1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Entry1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Entry1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Entry1\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Title1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Title1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Title1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Title1\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Content1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Content1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Content1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Content1\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Blogs Entry Title1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Blogs Entry Title1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Blogs Entry Title1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Blogs Entry Title1\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;Blogs Entry Content1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"Blogs Entry Content1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;Blogs Entry Content1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"Blogs Entry Content1\"");
 	}
 
 	@priority = "4"
@@ -1451,38 +1727,38 @@ definition {
 
 		Navigator.openURL();
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;tag name&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"tag name\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;tag&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"tag\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;name&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"name\"");
 
 		SearchResultPortlet.viewSearchResults(
 			searchAssetSummary = "Blogs Entry Content",
 			searchAssetTitle = "Blogs Entry Title",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;tag name1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"tag name1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;tag name1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"tag name1\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;tag1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"tag1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;tag1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"tag1\"");
 
-		SearchPortlets.searchEmbedded(searchTerm = "&quot;name1&quot;");
+		SearchPortlets.searchEmbedded(searchTerm = "\"name1\"");
 
-		SearchResultPortlet.viewNoSearchResults(searchTerm = "&quot;name1&quot;");
+		SearchResultPortlet.viewNoSearchResults(searchTerm = "\"name1\"");
 	}
 
 	@priority = "4"
@@ -1818,7 +2094,7 @@ definition {
 			searchAssetTitle = "Potato Blog",
 			searchAssetType = "Blogs Entry");
 
-		SearchPortlets.gotoWidgetOptions(portletOption = "Configuration");
+		SearchPortlets.gotoSearchBarWidgetOptions(portletOption = "Configuration");
 
 		SelectFrame(locator1 = "IFrame#CONFIGURATION");
 
@@ -2424,6 +2700,194 @@ definition {
 			searchAssetSummary = "Wiki Page Content",
 			searchAssetTitle = "Wiki Page Title",
 			searchAssetType = "Wiki Page");
+	}
+
+	@description = "This is a use case for LPS-156862."
+	@priority = "4"
+	test SearchWithCategoryFacetAndAllVocabularies {
+		property osgi.module.configuration.file.names = "com.liferay.portal.search.configuration.CategoryFacetFieldConfiguration.config";
+		property osgi.module.configurations = "categoryFacetField=\"assetVocabularyCategoryIds\"";
+
+		for (var count : list "1,2") {
+			JSONCategory.addVocabulary(
+				groupName = "Guest",
+				title = "Vocabulary Name ${count}");
+		}
+
+		var categoryId1 = JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name 1",
+			vocabularyName = "Vocabulary Name 1");
+		var categoryId2 = JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name 2",
+			vocabularyName = "Vocabulary Name 2");
+		var categoryId3 = JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name 3",
+			vocabularyName = "Vocabulary Name 1");
+		var categoryId4 = JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name 4",
+			vocabularyName = "Vocabulary Name 2");
+
+		JSONWebcontent.addWebContent(
+			assetCategoryIds = "${categoryId1},${categoryId2}",
+			content = "WC Content",
+			groupName = "Guest",
+			title = "WC Title 1");
+
+		JSONWebcontent.addWebContent(
+			assetCategoryIds = "${categoryId2},${categoryId3}",
+			content = "WC Content",
+			groupName = "Guest",
+			title = "WC Title 2");
+
+		JSONWebcontent.addWebContent(
+			assetCategoryIds = "${categoryId3},${categoryId4}",
+			content = "WC Content",
+			groupName = "Guest",
+			title = "WC Title 3");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Search Page");
+
+		Navigator.gotoPage(pageName = "Search Page");
+
+		SearchPortlets.addWidgets(searchPortletList = "Search Bar,Search Results,Category Facet");
+
+		SearchPortlets.configureCategoryFacet(
+			groupName = "Guest",
+			vocabularyScope = "All Vocabularies");
+
+		SearchPortlets.searchWidget(searchTerm = "WC Title");
+
+		SearchResultPortlet.viewMultipleSearchResults(
+			resultsList = "WC Title 1/Web Content Article,WC Title 2/Web Content Article,WC Title 3/Web Content Article",
+			searchTerm = "WC Title");
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 2");
+
+		SearchResultPortlet.viewMultipleSearchResults(
+			resultsList = "WC Title 1/Web Content Article,WC Title 2/Web Content Article",
+			searchTerm = "WC Title");
+
+		SearchFacetPortlet.clearFacet();
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 3");
+
+		SearchResultPortlet.viewMultipleSearchResults(
+			resultsList = "WC Title 2/Web Content Article,WC Title 3/Web Content Article",
+			searchTerm = "WC Title");
+
+		SearchFacetPortlet.clearFacet();
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 2");
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 3");
+
+		SearchResultPortlet.viewMultipleSearchResults(
+			resultsList = "WC Title 1/Web Content Article,WC Title 2/Web Content Article,WC Title 3/Web Content Article",
+			searchTerm = "WC Title");
+	}
+
+	@description = "This is a use case for LPS-156862."
+	@priority = "4"
+	test SearchWithCategoryFacetAndSelectVocabularies {
+		property osgi.module.configuration.file.names = "com.liferay.portal.search.configuration.CategoryFacetFieldConfiguration.config";
+		property osgi.module.configurations = "categoryFacetField=\"assetVocabularyCategoryIds\"";
+
+		for (var count : list "1,2") {
+			JSONCategory.addVocabulary(
+				groupName = "Guest",
+				title = "Vocabulary Name ${count}");
+		}
+
+		var categoryId1 = JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name 1",
+			vocabularyName = "Vocabulary Name 1");
+		var categoryId2 = JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name 2",
+			vocabularyName = "Vocabulary Name 2");
+		var categoryId3 = JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name 3",
+			vocabularyName = "Vocabulary Name 1");
+		var categoryId4 = JSONCategory.addCategory(
+			groupName = "Guest",
+			title = "Category Name 4",
+			vocabularyName = "Vocabulary Name 2");
+
+		JSONWebcontent.addWebContent(
+			assetCategoryIds = "${categoryId1},${categoryId2}",
+			content = "WC Content",
+			groupName = "Guest",
+			title = "WC Title 1");
+
+		JSONWebcontent.addWebContent(
+			assetCategoryIds = "${categoryId2},${categoryId3}",
+			content = "WC Content",
+			groupName = "Guest",
+			title = "WC Title 2");
+
+		JSONWebcontent.addWebContent(
+			assetCategoryIds = "${categoryId3},${categoryId4}",
+			content = "WC Content",
+			groupName = "Guest",
+			title = "WC Title 3");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Search Page");
+
+		Navigator.gotoPage(pageName = "Search Page");
+
+		SearchPortlets.addWidgets(searchPortletList = "Search Bar,Search Results,Category Facet,Category Facet");
+
+		SearchPortlets.configureCategoryFacet(
+			groupName = "Guest",
+			index = "1",
+			vocabularyName = "Vocabulary Name 1",
+			vocabularyScope = "Select Vocabularies");
+
+		SearchPortlets.configureCategoryFacet(
+			groupName = "Guest",
+			index = "2",
+			vocabularyName = "Vocabulary Name 2",
+			vocabularyScope = "Select Vocabularies");
+
+		SearchPortlets.searchWidget(searchTerm = "WC Title");
+
+		SearchResultPortlet.viewMultipleSearchResults(
+			resultsList = "WC Title 1/Web Content Article,WC Title 2/Web Content Article,WC Title 3/Web Content Article",
+			searchTerm = "WC Title");
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 2");
+
+		SearchResultPortlet.viewMultipleSearchResults(
+			resultsList = "WC Title 1/Web Content Article,WC Title 2/Web Content Article",
+			searchTerm = "WC Title");
+
+		SearchFacetPortlet.clearFacet();
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 3");
+
+		SearchResultPortlet.viewMultipleSearchResults(
+			resultsList = "WC Title 2/Web Content Article,WC Title 3/Web Content Article",
+			searchTerm = "WC Title");
+
+		SearchFacetPortlet.clearFacet();
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 2");
+
+		SearchFacetPortlet.checkFacet(facetValueName = "Category Name 3");
+
+		SearchResultPortlet.viewSearchResults(
+			searchAssetTitle = "WC Title 2",
+			searchAssetType = "Web Content Article");
 	}
 
 	@priority = "4"

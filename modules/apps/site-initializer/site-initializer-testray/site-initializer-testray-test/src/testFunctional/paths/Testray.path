@@ -11,6 +11,11 @@
 
 <tbody>
 <tr>
+	<td>AUDIT_GRAPH_CONFIGURATION_RIGHT_ARROW_BUTTON</td>
+	<td>//button[contains(@class, 'transfer-button-ltr')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ITEMS_PER_PAGE_BUTTON</td>
 	<td>//h5[contains(., '')]//ancestor::div//div[contains(@class, 'pagination')]//button[contains(@class, 'dropdown') and contains(.,'${key_numberItems}')]</td>
 	<td></td>
@@ -53,6 +58,26 @@
 <tr>
 	<td>ITEM_NAME</td>
 	<td>//td[contains(@class,'text') and contains(.,'${key_projectName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DETAILS_LAST_NAME_FIELD</td>
+	<td>//input[@id='familyName']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DETAILS_EMAIL_ADDRESS_FIELD</td>
+	<td>//input[@id='emailAddress']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DETAILS_SCREEN_NAME_FIELD</td>
+	<td>//input[@id='alternateName']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DETAILS_FIRST_NAME_FIELD</td>
+	<td>//input[@id='givenName']</td>
 	<td></td>
 </tr>
 <tr>

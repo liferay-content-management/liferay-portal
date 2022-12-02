@@ -35,7 +35,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = {
 		"json.web.service.context.name=commerce",
 		"json.web.service.context.path=CommerceInventoryReplenishmentItem"
@@ -111,7 +110,7 @@ public class CommerceInventoryReplenishmentItemServiceImpl
 		CommerceInventoryReplenishmentItem commerceInventoryReplenishmentItem =
 			commerceInventoryReplenishmentItemLocalService.
 				fetchCommerceInventoryReplenishmentItemByExternalReferenceCode(
-					companyId, externalReferenceCode);
+					externalReferenceCode, companyId);
 
 		if (commerceInventoryReplenishmentItem != null) {
 			_commerceInventoryWarehouseModelResourcePermission.check(

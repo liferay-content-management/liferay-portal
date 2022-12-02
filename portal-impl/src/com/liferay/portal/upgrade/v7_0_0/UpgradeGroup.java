@@ -15,27 +15,39 @@
 package com.liferay.portal.upgrade.v7_0_0;
 
 import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.language.LanguageResources;
+import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portlet.PortalPreferencesImpl;
+import com.liferay.portlet.PortalPreferencesWrapper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Eudaldo Alonso
@@ -100,10 +112,17 @@ public class UpgradeGroup extends UpgradeProcess {
 	}
 
 	protected void updateGroupsNames() throws Exception {
+		Map<Long, String[]> companyLanguageIds = _getCompanyLanguageIds();
+
 		try (PreparedStatement preparedStatement1 = connection.prepareStatement(
 				SQLTransformer.transform(
-					"select groupId, name, typeSettings from Group_ where " +
-						"site = [$TRUE$] and friendlyURL != '/global'"));
+					StringBundler.concat(
+						"select Group_.companyId as companyId, ",
+						"User_.languageid as companyDefaultLanguageId, ",
+						"groupId, name, typeSettings from Group_ left join ",
+						"User_ on Group_.companyId = User_.companyId where ",
+						"User_.defaultuser = [$TRUE$] and site = [$TRUE$] and ",
+						"friendlyURL != '/global'")));
 			ResultSet resultSet = preparedStatement1.executeQuery();
 			PreparedStatement preparedStatement2 =
 				AutoBatchPreparedStatementUtil.autoBatch(
@@ -111,6 +130,9 @@ public class UpgradeGroup extends UpgradeProcess {
 					"update Group_ set name = ? where groupId = ?")) {
 
 			while (resultSet.next()) {
+				long companyId = resultSet.getLong("companyId");
+				String companyDefaultLanguageId = resultSet.getString(
+					"companyDefaultLanguageId");
 				long groupId = resultSet.getLong("groupId");
 				String name = resultSet.getString("name");
 
@@ -123,10 +145,28 @@ public class UpgradeGroup extends UpgradeProcess {
 						typeSettings
 					).build();
 
-				String defaultLanguageId =
+				String defaultLanguageId = companyDefaultLanguageId;
+
+				String[] languageIds = companyLanguageIds.getOrDefault(
+					companyId, PropsValues.LOCALES_ENABLED);
+
+				boolean inheritLocales = GetterUtil.getBoolean(
 					typeSettingsUnicodeProperties.getProperty(
-						"languageId",
-						LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault()));
+						GroupConstants.TYPE_SETTINGS_KEY_INHERIT_LOCALES),
+					true);
+
+				if (!inheritLocales) {
+					defaultLanguageId =
+						typeSettingsUnicodeProperties.getProperty(
+							"languageId", defaultLanguageId);
+
+					String typeSettingsLocales =
+						typeSettingsUnicodeProperties.getProperty("locales");
+
+					if (Validator.isNotNull(typeSettingsLocales)) {
+						languageIds = StringUtil.split(typeSettingsLocales);
+					}
+				}
 
 				Locale currentDefaultLocale =
 					LocaleThreadLocal.getSiteDefaultLocale();
@@ -138,14 +178,9 @@ public class UpgradeGroup extends UpgradeProcess {
 					LocalizedValuesMap localizedValuesMap =
 						new LocalizedValuesMap();
 
-					for (String languageId :
-							StringUtil.split(
-								typeSettingsUnicodeProperties.getProperty(
-									"locales"))) {
-
-						Locale locale = LocaleUtil.fromLanguageId(languageId);
-
-						localizedValuesMap.put(locale, name);
+					for (String languageId : languageIds) {
+						localizedValuesMap.put(
+							LocaleUtil.fromLanguageId(languageId), name);
 					}
 
 					String nameXML = LocalizationUtil.updateLocalization(
@@ -166,6 +201,34 @@ public class UpgradeGroup extends UpgradeProcess {
 
 			preparedStatement2.executeBatch();
 		}
+	}
+
+	private Map<Long, String[]> _getCompanyLanguageIds() throws Exception {
+		PreparedStatement preparedStatement = connection.prepareStatement(
+			"select ownerId, preferences from PortalPreferences where " +
+				"ownerType = " + PortletKeys.PREFS_OWNER_TYPE_COMPANY);
+
+		ResultSet resultSet = preparedStatement.executeQuery();
+
+		Map<Long, String[]> companyLanguageIds = new HashMap<>();
+
+		while (resultSet.next()) {
+			long ownerId = resultSet.getLong("ownerId");
+			String preferences = resultSet.getString("preferences");
+
+			PortalPreferencesImpl portalPreferencesImpl =
+				(PortalPreferencesImpl)PortletPreferencesFactoryUtil.fromXML(
+					ownerId, PortletKeys.PREFS_OWNER_TYPE_COMPANY, preferences);
+
+			companyLanguageIds.put(
+				ownerId,
+				PrefsPropsUtil.getStringArray(
+					new PortalPreferencesWrapper(portalPreferencesImpl),
+					PropsKeys.LOCALES, StringPool.COMMA,
+					PropsValues.LOCALES_ENABLED));
+		}
+
+		return companyLanguageIds;
 	}
 
 }

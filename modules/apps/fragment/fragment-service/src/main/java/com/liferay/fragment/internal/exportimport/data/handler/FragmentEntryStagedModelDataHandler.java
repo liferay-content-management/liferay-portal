@@ -97,12 +97,23 @@ public class FragmentEntryStagedModelDataHandler
 			PortletDataContext.REFERENCE_TYPE_PARENT);
 
 		if (fragmentEntry.getPreviewFileEntryId() > 0) {
-			FileEntry fileEntry = PortletFileRepositoryUtil.getPortletFileEntry(
-				fragmentEntry.getPreviewFileEntryId());
+			try {
+				FileEntry fileEntry =
+					PortletFileRepositoryUtil.getPortletFileEntry(
+						fragmentEntry.getPreviewFileEntryId());
 
-			StagedModelDataHandlerUtil.exportReferenceStagedModel(
-				portletDataContext, fragmentEntry, fileEntry,
-				PortletDataContext.REFERENCE_TYPE_WEAK);
+				StagedModelDataHandlerUtil.exportReferenceStagedModel(
+					portletDataContext, fragmentEntry, fileEntry,
+					PortletDataContext.REFERENCE_TYPE_WEAK);
+			}
+			catch (PortalException portalException) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Unable to export file entry " +
+							fragmentEntry.getPreviewFileEntryId(),
+						portalException);
+				}
+			}
 		}
 
 		String html =

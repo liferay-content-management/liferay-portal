@@ -17,7 +17,6 @@ package com.liferay.blogs.service.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.blogs.attachments.test.BlogsEntryAttachmentFileEntryHelperTest;
 import com.liferay.blogs.constants.BlogsConstants;
-import com.liferay.blogs.exception.DuplicateEntryExternalReferenceCodeException;
 import com.liferay.blogs.exception.EntryContentException;
 import com.liferay.blogs.exception.EntrySmallImageNameException;
 import com.liferay.blogs.exception.EntryTitleException;
@@ -142,65 +141,6 @@ public class BlogsEntryLocalServiceTest {
 		_user = TestPropsValues.getUser();
 
 		UserTestUtil.setUser(TestPropsValues.getUser());
-	}
-
-	@Test(expected = DuplicateEntryExternalReferenceCodeException.class)
-	public void testAddBlogsEntryWithExistingExternalReferenceCode()
-		throws Exception {
-
-		BlogsEntry blogsEntry = BlogsEntryLocalServiceUtil.addEntry(
-			TestPropsValues.getUserId(), StringUtil.randomString(),
-			StringUtil.randomString(), new Date(),
-			ServiceContextTestUtil.getServiceContext());
-
-		BlogsEntryLocalServiceUtil.addEntry(
-			blogsEntry.getExternalReferenceCode(), blogsEntry.getUserId(),
-			blogsEntry.getTitle(), blogsEntry.getSubtitle(),
-			blogsEntry.getUrlTitle(), blogsEntry.getDescription(),
-			blogsEntry.getContent(), blogsEntry.getDisplayDate(),
-			blogsEntry.isAllowPingbacks(), blogsEntry.isAllowTrackbacks(),
-			new String[] {blogsEntry.getTrackbacks()},
-			blogsEntry.getCoverImageCaption(), null, null,
-			ServiceContextTestUtil.getServiceContext());
-	}
-
-	@Test
-	public void testAddBlogsEntryWithExternalReferenceCode() throws Exception {
-		String externalReferenceCode = RandomTestUtil.randomString();
-
-		BlogsEntry blogsEntry = BlogsEntryLocalServiceUtil.addEntry(
-			externalReferenceCode, TestPropsValues.getUserId(),
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), RandomTestUtil.nextDate(), false,
-			false, new String[0], RandomTestUtil.randomString(), null, null,
-			ServiceContextTestUtil.getServiceContext());
-
-		Assert.assertEquals(
-			externalReferenceCode, blogsEntry.getExternalReferenceCode());
-	}
-
-	@Test
-	public void testAddBlogsEntryWithoutExternalReferenceCode()
-		throws Exception {
-
-		BlogsEntry blogsEntry1 = BlogsEntryLocalServiceUtil.addEntry(
-			null, TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			RandomTestUtil.nextDate(), false, false, new String[0],
-			RandomTestUtil.randomString(), null, null,
-			ServiceContextTestUtil.getServiceContext());
-
-		String externalReferenceCode = blogsEntry1.getExternalReferenceCode();
-
-		Assert.assertEquals(externalReferenceCode, blogsEntry1.getUuid());
-
-		BlogsEntry blogsEntry2 =
-			BlogsEntryLocalServiceUtil.getBlogsEntryByExternalReferenceCode(
-				TestPropsValues.getGroupId(), externalReferenceCode);
-
-		Assert.assertEquals(blogsEntry1, blogsEntry2);
 	}
 
 	@Test

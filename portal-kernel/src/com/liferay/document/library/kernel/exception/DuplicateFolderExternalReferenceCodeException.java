@@ -14,13 +14,13 @@
 
 package com.liferay.document.library.kernel.exception;
 
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 
 /**
  * @author Brian Wing Shun Chan
  */
 public class DuplicateFolderExternalReferenceCodeException
-	extends PortalException {
+	extends SystemException {
 
 	public DuplicateFolderExternalReferenceCodeException() {
 	}

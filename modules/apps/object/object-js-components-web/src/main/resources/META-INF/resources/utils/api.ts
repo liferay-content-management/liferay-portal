@@ -27,17 +27,32 @@ interface NotificationTemplate {
 	body: LocalizedValue<string>;
 	cc: string;
 	description: string;
+	editorType: 'freemarker' | 'richText';
 	from: string;
 	fromName: LocalizedValue<string>;
 	id: number;
 	name: string;
 	objectDefinitionId: number | null;
+	recipientType: RecipientType;
+	recipients: Recipients[];
 	subject: LocalizedValue<string>;
 	to: LocalizedValue<string>;
-	type: string;
+	type: NotificationTemplateType;
 }
 
+type Recipients = {
+	bcc: string;
+	cc: string;
+	from: string;
+	fromName: LocalizedValue<string>;
+	to: LocalizedValue<string>;
+};
+
 type ObjectRelationshipType = 'manyToMany' | 'oneToMany' | 'oneToOne';
+
+type RecipientType = 'role' | 'term' | 'user';
+
+type NotificationTemplateType = 'email' | 'userNotification';
 
 interface ObjectRelationship {
 	deletionType: string;
@@ -49,7 +64,7 @@ interface ObjectRelationship {
 	readonly objectDefinitionName2: string;
 	objectRelationshipId: number;
 	parameterObjectFieldId?: number;
-	reverse?: boolean;
+	reverse: boolean;
 	type: ObjectRelationshipType;
 }
 interface PickListItem {
@@ -61,6 +76,7 @@ interface PickListItem {
 
 interface PickList {
 	actions: Actions;
+	externalReferenceCode?: string;
 	id: number;
 	listTypeEntries: PickListItem[];
 	name: string;
@@ -130,9 +146,11 @@ export async function getNotificationTemplates() {
 	);
 }
 
-export async function getObjectDefinition(objectDefinitionId: number) {
+export async function getObjectDefinition(
+	objectDefinitionExternalReferenceCode: string
+) {
 	return await fetchJSON<ObjectDefinition>(
-		`/o/object-admin/v1.0/object-definitions/${objectDefinitionId}`
+		`/o/object-admin/v1.0/object-definitions/by-external-reference-code/${objectDefinitionExternalReferenceCode}`
 	);
 }
 
@@ -156,9 +174,15 @@ export async function getObjectDefinitions(parameters?: string) {
 	);
 }
 
+export async function getObjectField(objectFieldId: number) {
+	return await fetchJSON<ObjectField>(
+		`/o/object-admin/v1.0/object-fields/${objectFieldId}`
+	);
+}
+
 export async function getObjectFields(objectDefinitionId: number) {
 	return await getList<ObjectField>(
-		`/o/object-admin/v1.0/object-definitions/${objectDefinitionId}/object-fields`
+		`/o/object-admin/v1.0/object-definitions/${objectDefinitionId}/object-fields?pageSize=-1`
 	);
 }
 
@@ -245,10 +269,14 @@ export async function getRelationship<T>(objectRelationshipId: number) {
 	);
 }
 
-export async function updatePickList({id, name_i18n}: Partial<PickListItem>) {
+export async function updatePickList({
+	externalReferenceCode,
+	id,
+	name_i18n,
+}: Partial<PickList>) {
 	return await save(
 		`/o/headless-admin-list-type/v1.0/list-type-definitions/${id}`,
-		{name_i18n},
+		{externalReferenceCode, name_i18n},
 		'PUT'
 	);
 }

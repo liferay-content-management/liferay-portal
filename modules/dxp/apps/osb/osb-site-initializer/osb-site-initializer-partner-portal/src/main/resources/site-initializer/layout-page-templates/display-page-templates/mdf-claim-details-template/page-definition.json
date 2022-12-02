@@ -399,6 +399,12 @@
 												"key": "mdf-claim-manager-status"
 											},
 											"fragmentConfig": {
+												"channelAccountManager": true,
+												"channelFinanceManager": true,
+												"channelGeneralManager": true,
+												"channelGlobalMarketingManager": true,
+												"channelRegionalMarketingManager": true,
+												"user": false
 											},
 											"fragmentFields": [
 											],
@@ -689,6 +695,19 @@
 															"indexed": true
 														},
 														"type": "Fragment"
+													},
+													{
+														"definition": {
+															"fragment": {
+																"key": "claim-detail-panel-list"
+															},
+															"fragmentConfig": {
+															},
+															"fragmentFields": [
+															],
+															"indexed": true
+														},
+														"type": "Fragment"
 													}
 												],
 												"type": "Section"
@@ -807,13 +826,33 @@
 													},
 													{
 														"definition": {
-															"widgetInstance": {
-																"widgetConfig": {
-																},
-																"widgetName": "com_liferay_comment_page_comments_web_portlet_PageCommentsPortlet"
-															}
+															"fragment": {
+																"key": "comments-container"
+															},
+															"fragmentConfig": {
+															},
+															"fragmentFields": [
+															],
+															"indexed": true
 														},
-														"type": "Widget"
+														"pageElements": [
+															{
+																"pageElements": [
+																	{
+																		"definition": {
+																			"widgetInstance": {
+																				"widgetConfig": {
+																				},
+																				"widgetName": "com_liferay_comment_page_comments_web_portlet_PageCommentsPortlet"
+																			}
+																		},
+																		"type": "Widget"
+																	}
+																],
+																"type": "FragmentDropZone"
+															}
+														],
+														"type": "Fragment"
 													}
 												],
 												"type": "Section"

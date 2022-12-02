@@ -32,6 +32,10 @@ definition {
 	tearDown {
 		var testPortalInstance = PropsUtil.get("test.portal.instance");
 
+		CP2Utils.deleteSpecificObjectEntry(
+			email = "test01@liferay.com",
+			portlet = "Team Members Invitation");
+
 		CustomerPortal.customerPortalTearDown();
 
 		if ("${testPortalInstance}" == "true") {
@@ -46,11 +50,11 @@ definition {
 	@priority = "5"
 	test IfInvitedIsSeenOnAccountRoles {
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -73,18 +77,13 @@ definition {
 			CP2TeamMembers.clickTeamMembersSendInvitation();
 		}
 
-		task ("Go to admin accounts") {
-			Accounts.openAccountsAdmin();
-
-			CustomerPortal.accountTableProject(title = "${testAccount}");
-
-			Navigator.gotoNavTab(navTab = "Users");
-		}
-
 		task ("Assert that the guest user is being shown") {
-			AssertElementPresent(
-				email = "test01@liferay.com",
-				locator1 = "CP2TeamMembers#ACCOUNT_USER_NAME");
+			ApplicationsMenu.gotoPortlet(
+				category = "Object",
+				panel = "Control Panel",
+				portlet = "Team Members Invitation");
+
+			CP2TeamMembers.assertThatUserGuestIsVisible(email = "test01@liferay.com");
 		}
 	}
 

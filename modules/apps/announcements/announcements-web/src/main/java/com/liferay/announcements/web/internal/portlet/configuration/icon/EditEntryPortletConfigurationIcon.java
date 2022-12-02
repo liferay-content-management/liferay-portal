@@ -53,8 +53,7 @@ public class EditEntryPortletConfigurationIcon
 
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)), "edit");
+		return _language.get(getLocale(portletRequest), "edit");
 	}
 
 	@Override
@@ -113,11 +112,6 @@ public class EditEntryPortletConfigurationIcon
 		catch (PortalException portalException) {
 			throw new RuntimeException(portalException);
 		}
-	}
-
-	@Override
-	public boolean isToolTip() {
-		return false;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

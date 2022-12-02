@@ -15,9 +15,8 @@
 package com.liferay.info.collection.provider.item.selector.web.internal.frontend.taglib.clay.servlet.taglib;
 
 import com.liferay.frontend.taglib.clay.servlet.taglib.BaseVerticalCard;
+import com.liferay.info.collection.provider.FilteredInfoCollectionProvider;
 import com.liferay.info.collection.provider.RelatedInfoItemCollectionProvider;
-import com.liferay.info.collection.provider.item.selector.web.internal.constants.InfoCollectionProviderItemSelectorWebKeys;
-import com.liferay.info.collection.provider.item.selector.web.internal.display.context.RelatedInfoItemCollectionProviderItemSelectorDisplayContext;
 import com.liferay.portal.kernel.dao.search.RowChecker;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 
@@ -57,15 +56,8 @@ public class RelatedInfoItemCollectionProviderVerticalCard
 
 	@Override
 	public String getStickerIcon() {
-		RelatedInfoItemCollectionProviderItemSelectorDisplayContext
-			relatedInfoItemCollectionProviderItemSelectorDisplayContext =
-				(RelatedInfoItemCollectionProviderItemSelectorDisplayContext)
-					renderRequest.getAttribute(
-						InfoCollectionProviderItemSelectorWebKeys.
-							RELATED_INFO_ITEM_COLLECTION_PROVIDER_ITEM_SELECTOR_DISPLAY_CONTEXT);
-
-		if (relatedInfoItemCollectionProviderItemSelectorDisplayContext.
-				supportsFilters(_relatedInfoItemCollectionProvider)) {
+		if (_relatedInfoItemCollectionProvider instanceof
+				FilteredInfoCollectionProvider) {
 
 			return "filter";
 		}

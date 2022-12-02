@@ -406,11 +406,9 @@ definition {
 	}
 
 	macro gotoEllipsisMenuItemInItemSelector {
-		Click(locator1 = "AssetLists#ASSET_LIST_ELLIPSIS");
+		Click(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS");
 
-		Click(
-			key_menuItem = "View Items",
-			locator1 = "AssetLists#PERSONALIZATION_DROPDOWN_ITEM");
+		MenuItem.click(menuItem = "View Items");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 	}
@@ -438,6 +436,22 @@ definition {
 		else {
 			Button.click(button = "Add Personalized Variation");
 		}
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+	}
+
+	macro openViewItems {
+		if (isSet(assetListTitle)) {
+			LexiconEntry.gotoEntry(rowEntry = "${assetListTitle}");
+		}
+
+		if (isSet(personalizedVariation)) {
+			Navigator.gotoNavItem(navItem = "${personalizedVariation}");
+		}
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		LexiconEntry.gotoVerticalEllipsisMenuItemNoError(menuItem = "View Items");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 	}
@@ -508,8 +522,6 @@ definition {
 	}
 
 	macro selectAsset {
-		var key_assetType = "${assetType}";
-
 		if (isSet(assetListName)) {
 			Click(
 				key_title = "${assetListName}",
@@ -524,9 +536,9 @@ definition {
 				itemType = "${itemType}");
 		}
 
-		Click(locator1 = "AssetLists#ASSET_LIST_SELECT_BUTTON");
+		Button.clickSelect();
 
-		Click(locator1 = "AssetLists#ASSET_TYPE_DROPDOWN_ITEM");
+		MenuItem.click(menuItem = "${assetType}");
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
@@ -571,7 +583,8 @@ definition {
 			value1 = "${assetListTitle}");
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "AssetLists#ASSET_LIST_ENTRY_TYPE",
+			key_assetTitle = "${assetListTitle}",
+			locator1 = "AssetLists#ASSET_TYPE_ROW",
 			value1 = "${type}");
 	}
 
@@ -599,12 +612,10 @@ definition {
 				PortletEntry.save();
 			}
 
-			Click(locator1 = "AssetLists#ASSET_LIST_SELECT_BUTTON");
+			Button.clickSelect();
 
-			for (var assetType : list "${assetType}") {
-				var key_assetType = "${assetType}";
-
-				AssertElementPresent(locator1 = "AssetLists#ASSET_TYPE_DROPDOWN_ITEM");
+			for (var assetType : list "${assetTypeList}") {
+				MenuItem.viewPresent(menuItem = "${assetType}");
 			}
 		}
 
@@ -613,7 +624,7 @@ definition {
 
 			Click(locator1 = "APConfiguration#SOURCE_SCOPE_ASSET_TYPE_SELECT");
 
-			for (var assetType : list "${assetType}") {
+			for (var assetType : list "${assetTypeList}") {
 				AssertElementPresent(
 					key_assetType = "${assetType}",
 					locator1 = "APConfiguration#SOURCE_SCOPE_ASSET_TYPE_OPTION");
@@ -621,63 +632,30 @@ definition {
 		}
 	}
 
-	macro viewCollectionItems {
-		if (isSet(assetListTitle)) {
-			AssetListsAdmin.gotoEntry(assetListName = "${assetListTitle}");
+	macro viewContent {
+		AssetListsAdmin.openViewItems(
+			assetListTitle = "${assetListTitle}",
+			personalizedVariation = "${personalizedVariation}");
+
+		if (isSet(assetTitleList)) {
+			for (var assetTitle : list "${assetTitleList}") {
+				AssertTextEquals(
+					key_assetTitle = "${assetTitle}",
+					locator1 = "AssetLists#ASSET_TITLE_ROW",
+					value1 = "${assetTitle}");
+			}
 		}
-
-		if (isSet(personalizedVariation)) {
-			Navigator.gotoNavItem(navItem = "${personalizedVariation}");
-		}
-
-		WaitForLiferayEvent.initializeLiferayEventLog();
-
-		Click(locator1 = "AssetLists#ASSET_LIST_ELLIPSIS");
-
-		Click(
-			key_menuItem = "View Items",
-			locator1 = "AssetLists#PERSONALIZATION_DROPDOWN_ITEM");
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
-
-		for (var assetTitle : list "${assetTitleList}") {
+		else {
 			AssertTextEquals(
 				key_assetTitle = "${assetTitle}",
 				locator1 = "AssetLists#ASSET_TITLE_ROW",
 				value1 = "${assetTitle}");
+
+			AssertTextEquals(
+				key_assetTitle = "${assetTitle}",
+				locator1 = "AssetLists#ASSET_TYPE_ROW",
+				value1 = "${assetType}");
 		}
-
-		IFrame.closeFrame();
-	}
-
-	macro viewContent {
-		Click(
-			key_title = "${assetListTitle}",
-			locator1 = "AssetLists#ASSET_LIST_ENTRY_TITLE");
-
-		if (isSet(personalizedVariation)) {
-			Navigator.gotoNavItem(navItem = "${personalizedVariation}");
-		}
-
-		WaitForLiferayEvent.initializeLiferayEventLog();
-
-		Click(locator1 = "AssetLists#ASSET_LIST_ELLIPSIS");
-
-		Click(
-			key_menuItem = "View Items",
-			locator1 = "AssetLists#PERSONALIZATION_DROPDOWN_ITEM");
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
-
-		AssertTextEquals(
-			key_assetTitle = "${assetTitle}",
-			locator1 = "AssetLists#ASSET_TITLE_ROW",
-			value1 = "${assetTitle}");
-
-		AssertTextEquals(
-			key_assetTitle = "${assetTitle}",
-			locator1 = "AssetLists#ASSET_TYPE_ROW",
-			value1 = "${assetType}");
 
 		IFrame.closeFrame();
 	}
@@ -689,10 +667,12 @@ definition {
 
 		if (isSet(manualSelection)) {
 			if (isSet(allAssetsDisabled)) {
-				AssertElementNotPresent(locator1 = "AssetLists#ASSET_LIST_SELECT_BUTTON");
+				AssertElementNotPresent(
+					key_text = "Select",
+					locator1 = "Button#ANY");
 			}
 			else {
-				Click(locator1 = "AssetLists#ASSET_LIST_SELECT_BUTTON");
+				Button.clickSelect();
 
 				for (var assetType : list "${assetType}") {
 					AssertElementNotPresent(
@@ -716,23 +696,9 @@ definition {
 	}
 
 	macro viewNoContent {
-		Click(
-			key_title = "${assetListTitle}",
-			locator1 = "AssetLists#ASSET_LIST_ENTRY_TITLE");
-
-		if (isSet(personalizedVariation)) {
-			Navigator.gotoNavItem(navItem = "${personalizedVariation}");
-		}
-
-		WaitForLiferayEvent.initializeLiferayEventLog();
-
-		Click(locator1 = "AssetLists#ASSET_LIST_ELLIPSIS");
-
-		Click(
-			key_menuItem = "View Items",
-			locator1 = "AssetLists#PERSONALIZATION_DROPDOWN_ITEM");
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+		AssetListsAdmin.openViewItems(
+			assetListTitle = "${assetListTitle}",
+			personalizedVariation = "${personalizedVariation}");
 
 		var key_assetTitle = "${assetTitle}";
 

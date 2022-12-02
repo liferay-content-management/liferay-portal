@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.security.pwd.PasswordEncryptor;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.ListTypeService;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.exportimport.UserOperation;
 import com.liferay.portal.security.ldap.ContactConverterKeys;
@@ -77,7 +76,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * @author Marcellus Tavares
  * @author Wesley Gong
  */
-@Component(immediate = true, service = PortalToLDAPConverter.class)
+@Component(service = PortalToLDAPConverter.class)
 public class DefaultPortalToLDAPConverter implements PortalToLDAPConverter {
 
 	public DefaultPortalToLDAPConverter() {
@@ -525,11 +524,11 @@ public class DefaultPortalToLDAPConverter implements PortalToLDAPConverter {
 		boolean listTypeFieldName = false;
 
 		if (fieldName.equals(ContactConverterKeys.PREFIX)) {
-			fieldName = "prefixId";
+			fieldName = "prefixListTypeId";
 			listTypeFieldName = true;
 		}
 		else if (fieldName.equals(ContactConverterKeys.SUFFIX)) {
-			fieldName = "suffixId";
+			fieldName = "suffixListTypeId";
 			listTypeFieldName = true;
 		}
 
@@ -732,9 +731,6 @@ public class DefaultPortalToLDAPConverter implements PortalToLDAPConverter {
 
 	@Reference
 	private PasswordEncryptor _passwordEncryptor;
-
-	@Reference
-	private Props _props;
 
 	private final Map<String, String> _reservedContactFieldNames =
 		new HashMap<>();

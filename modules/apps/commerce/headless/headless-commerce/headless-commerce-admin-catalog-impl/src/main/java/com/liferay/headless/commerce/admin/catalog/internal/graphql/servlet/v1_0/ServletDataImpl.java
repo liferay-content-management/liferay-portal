@@ -16,6 +16,30 @@ package com.liferay.headless.commerce.admin.catalog.internal.graphql.servlet.v1_
 
 import com.liferay.headless.commerce.admin.catalog.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.headless.commerce.admin.catalog.internal.graphql.query.v1_0.Query;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.AttachmentResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.CatalogResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.CategoryResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.DiagramResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.MappedProductResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.OptionCategoryResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.OptionResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.OptionValueResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.PinResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductAccountGroupResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductChannelResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductConfigurationResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductGroupProductResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductGroupResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductOptionResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductOptionValueResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductShippingConfigurationResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductSpecificationResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductSubscriptionConfigurationResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductTaxConfigurationResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.RelatedProductResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.SkuResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.SpecificationResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.AttachmentResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.CatalogResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.CategoryResource;
@@ -40,7 +64,11 @@ import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductTaxConfi
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.RelatedProductResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.SkuResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.SpecificationResource;
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -55,7 +83,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Zoltán Takács
  * @generated
  */
-@Component(enabled = false, immediate = true, service = ServletData.class)
+@Component(service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
@@ -162,6 +190,10 @@ public class ServletDataImpl implements ServletData {
 			_specificationResourceComponentServiceObjects);
 	}
 
+	public String getApplicationName() {
+		return "Liferay.Headless.Commerce.Admin.Catalog";
+	}
+
 	@Override
 	public Mutation getMutation() {
 		return new Mutation();
@@ -176,6 +208,901 @@ public class ServletDataImpl implements ServletData {
 	public Query getQuery() {
 		return new Query();
 	}
+
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(
+		String methodName, boolean mutation) {
+
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get(
+				"mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>>
+		_resourceMethodObjectValuePairs =
+			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+				{
+					put(
+						"mutation#createProductByExternalReferenceCodeAttachment",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductByExternalReferenceCodeAttachment"));
+					put(
+						"mutation#createProductByExternalReferenceCodeAttachmentByBase64",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductByExternalReferenceCodeAttachmentByBase64"));
+					put(
+						"mutation#createProductByExternalReferenceCodeAttachmentByUrl",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductByExternalReferenceCodeAttachmentByUrl"));
+					put(
+						"mutation#createProductByExternalReferenceCodeImage",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductByExternalReferenceCodeImage"));
+					put(
+						"mutation#createProductByExternalReferenceCodeImageByBase64",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductByExternalReferenceCodeImageByBase64"));
+					put(
+						"mutation#createProductByExternalReferenceCodeImageByUrl",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductByExternalReferenceCodeImageByUrl"));
+					put(
+						"mutation#createProductIdAttachment",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductIdAttachment"));
+					put(
+						"mutation#createProductIdAttachmentBatch",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductIdAttachmentBatch"));
+					put(
+						"mutation#createProductIdAttachmentByBase64",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductIdAttachmentByBase64"));
+					put(
+						"mutation#createProductIdAttachmentByUrl",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductIdAttachmentByUrl"));
+					put(
+						"mutation#createProductIdImage",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductIdImage"));
+					put(
+						"mutation#createProductIdImageByBase64",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductIdImageByBase64"));
+					put(
+						"mutation#createProductIdImageByUrl",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"postProductIdImageByUrl"));
+					put(
+						"mutation#deleteCatalogByExternalReferenceCode",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class,
+							"deleteCatalogByExternalReferenceCode"));
+					put(
+						"mutation#patchCatalogByExternalReferenceCode",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class,
+							"patchCatalogByExternalReferenceCode"));
+					put(
+						"mutation#deleteCatalog",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class, "deleteCatalog"));
+					put(
+						"mutation#deleteCatalogBatch",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class, "deleteCatalogBatch"));
+					put(
+						"mutation#patchCatalog",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class, "patchCatalog"));
+					put(
+						"mutation#createCatalog",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class, "postCatalog"));
+					put(
+						"mutation#createCatalogBatch",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class, "postCatalogBatch"));
+					put(
+						"mutation#patchProductByExternalReferenceCodeCategory",
+						new ObjectValuePair<>(
+							CategoryResourceImpl.class,
+							"patchProductByExternalReferenceCodeCategory"));
+					put(
+						"mutation#patchProductIdCategory",
+						new ObjectValuePair<>(
+							CategoryResourceImpl.class,
+							"patchProductIdCategory"));
+					put(
+						"mutation#patchDiagram",
+						new ObjectValuePair<>(
+							DiagramResourceImpl.class, "patchDiagram"));
+					put(
+						"mutation#createProductByExternalReferenceCodeDiagram",
+						new ObjectValuePair<>(
+							DiagramResourceImpl.class,
+							"postProductByExternalReferenceCodeDiagram"));
+					put(
+						"mutation#createProductIdDiagram",
+						new ObjectValuePair<>(
+							DiagramResourceImpl.class, "postProductIdDiagram"));
+					put(
+						"mutation#deleteMappedProduct",
+						new ObjectValuePair<>(
+							MappedProductResourceImpl.class,
+							"deleteMappedProduct"));
+					put(
+						"mutation#deleteMappedProductBatch",
+						new ObjectValuePair<>(
+							MappedProductResourceImpl.class,
+							"deleteMappedProductBatch"));
+					put(
+						"mutation#patchMappedProduct",
+						new ObjectValuePair<>(
+							MappedProductResourceImpl.class,
+							"patchMappedProduct"));
+					put(
+						"mutation#createProductByExternalReferenceCodeMappedProduct",
+						new ObjectValuePair<>(
+							MappedProductResourceImpl.class,
+							"postProductByExternalReferenceCodeMappedProduct"));
+					put(
+						"mutation#createProductIdMappedProduct",
+						new ObjectValuePair<>(
+							MappedProductResourceImpl.class,
+							"postProductIdMappedProduct"));
+					put(
+						"mutation#createOption",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class, "postOption"));
+					put(
+						"mutation#createOptionBatch",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class, "postOptionBatch"));
+					put(
+						"mutation#deleteOptionByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class,
+							"deleteOptionByExternalReferenceCode"));
+					put(
+						"mutation#patchOptionByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class,
+							"patchOptionByExternalReferenceCode"));
+					put(
+						"mutation#deleteOption",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class, "deleteOption"));
+					put(
+						"mutation#deleteOptionBatch",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class, "deleteOptionBatch"));
+					put(
+						"mutation#patchOption",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class, "patchOption"));
+					put(
+						"mutation#createOptionCategory",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"postOptionCategory"));
+					put(
+						"mutation#createOptionCategoryBatch",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"postOptionCategoryBatch"));
+					put(
+						"mutation#deleteOptionCategory",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"deleteOptionCategory"));
+					put(
+						"mutation#deleteOptionCategoryBatch",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"deleteOptionCategoryBatch"));
+					put(
+						"mutation#patchOptionCategory",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"patchOptionCategory"));
+					put(
+						"mutation#deleteOptionValueByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"deleteOptionValueByExternalReferenceCode"));
+					put(
+						"mutation#patchOptionValueByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"patchOptionValueByExternalReferenceCode"));
+					put(
+						"mutation#deleteOptionValue",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"deleteOptionValue"));
+					put(
+						"mutation#deleteOptionValueBatch",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"deleteOptionValueBatch"));
+					put(
+						"mutation#patchOptionValue",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class, "patchOptionValue"));
+					put(
+						"mutation#createOptionByExternalReferenceCodeOptionValue",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"postOptionByExternalReferenceCodeOptionValue"));
+					put(
+						"mutation#createOptionIdOptionValue",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"postOptionIdOptionValue"));
+					put(
+						"mutation#createOptionIdOptionValueBatch",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"postOptionIdOptionValueBatch"));
+					put(
+						"mutation#deletePin",
+						new ObjectValuePair<>(
+							PinResourceImpl.class, "deletePin"));
+					put(
+						"mutation#deletePinBatch",
+						new ObjectValuePair<>(
+							PinResourceImpl.class, "deletePinBatch"));
+					put(
+						"mutation#patchPin",
+						new ObjectValuePair<>(
+							PinResourceImpl.class, "patchPin"));
+					put(
+						"mutation#createProductByExternalReferenceCodePin",
+						new ObjectValuePair<>(
+							PinResourceImpl.class,
+							"postProductByExternalReferenceCodePin"));
+					put(
+						"mutation#createProductIdPin",
+						new ObjectValuePair<>(
+							PinResourceImpl.class, "postProductIdPin"));
+					put(
+						"mutation#createProduct",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class, "postProduct"));
+					put(
+						"mutation#createProductBatch",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class, "postProductBatch"));
+					put(
+						"mutation#deleteProductByExternalReferenceCode",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"deleteProductByExternalReferenceCode"));
+					put(
+						"mutation#patchProductByExternalReferenceCode",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"patchProductByExternalReferenceCode"));
+					put(
+						"mutation#deleteProductByExternalReferenceCodeByVersion",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"deleteProductByExternalReferenceCodeByVersion"));
+					put(
+						"mutation#createProductByExternalReferenceCodeClone",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"postProductByExternalReferenceCodeClone"));
+					put(
+						"mutation#deleteProduct",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class, "deleteProduct"));
+					put(
+						"mutation#deleteProductBatch",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class, "deleteProductBatch"));
+					put(
+						"mutation#patchProduct",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class, "patchProduct"));
+					put(
+						"mutation#deleteProductByVersion",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"deleteProductByVersion"));
+					put(
+						"mutation#createProductClone",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class, "postProductClone"));
+					put(
+						"mutation#deleteProductAccountGroup",
+						new ObjectValuePair<>(
+							ProductAccountGroupResourceImpl.class,
+							"deleteProductAccountGroup"));
+					put(
+						"mutation#deleteProductAccountGroupBatch",
+						new ObjectValuePair<>(
+							ProductAccountGroupResourceImpl.class,
+							"deleteProductAccountGroupBatch"));
+					put(
+						"mutation#deleteProductChannel",
+						new ObjectValuePair<>(
+							ProductChannelResourceImpl.class,
+							"deleteProductChannel"));
+					put(
+						"mutation#deleteProductChannelBatch",
+						new ObjectValuePair<>(
+							ProductChannelResourceImpl.class,
+							"deleteProductChannelBatch"));
+					put(
+						"mutation#patchProductByExternalReferenceCodeConfiguration",
+						new ObjectValuePair<>(
+							ProductConfigurationResourceImpl.class,
+							"patchProductByExternalReferenceCodeConfiguration"));
+					put(
+						"mutation#patchProductIdConfiguration",
+						new ObjectValuePair<>(
+							ProductConfigurationResourceImpl.class,
+							"patchProductIdConfiguration"));
+					put(
+						"mutation#createProductGroup",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"postProductGroup"));
+					put(
+						"mutation#createProductGroupBatch",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"postProductGroupBatch"));
+					put(
+						"mutation#deleteProductGroupByExternalReferenceCode",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"deleteProductGroupByExternalReferenceCode"));
+					put(
+						"mutation#patchProductGroupByExternalReferenceCode",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"patchProductGroupByExternalReferenceCode"));
+					put(
+						"mutation#deleteProductGroup",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"deleteProductGroup"));
+					put(
+						"mutation#deleteProductGroupBatch",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"deleteProductGroupBatch"));
+					put(
+						"mutation#patchProductGroup",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"patchProductGroup"));
+					put(
+						"mutation#deleteProductGroupProduct",
+						new ObjectValuePair<>(
+							ProductGroupProductResourceImpl.class,
+							"deleteProductGroupProduct"));
+					put(
+						"mutation#deleteProductGroupProductBatch",
+						new ObjectValuePair<>(
+							ProductGroupProductResourceImpl.class,
+							"deleteProductGroupProductBatch"));
+					put(
+						"mutation#createProductGroupByExternalReferenceCodeProductGroupProduct",
+						new ObjectValuePair<>(
+							ProductGroupProductResourceImpl.class,
+							"postProductGroupByExternalReferenceCodeProductGroupProduct"));
+					put(
+						"mutation#createProductGroupIdProductGroupProduct",
+						new ObjectValuePair<>(
+							ProductGroupProductResourceImpl.class,
+							"postProductGroupIdProductGroupProduct"));
+					put(
+						"mutation#createProductGroupIdProductGroupProductBatch",
+						new ObjectValuePair<>(
+							ProductGroupProductResourceImpl.class,
+							"postProductGroupIdProductGroupProductBatch"));
+					put(
+						"mutation#deleteProductOption",
+						new ObjectValuePair<>(
+							ProductOptionResourceImpl.class,
+							"deleteProductOption"));
+					put(
+						"mutation#deleteProductOptionBatch",
+						new ObjectValuePair<>(
+							ProductOptionResourceImpl.class,
+							"deleteProductOptionBatch"));
+					put(
+						"mutation#patchProductOption",
+						new ObjectValuePair<>(
+							ProductOptionResourceImpl.class,
+							"patchProductOption"));
+					put(
+						"mutation#createProductByExternalReferenceCodeProductOptionsPage",
+						new ObjectValuePair<>(
+							ProductOptionResourceImpl.class,
+							"postProductByExternalReferenceCodeProductOptionsPage"));
+					put(
+						"mutation#createProductIdProductOptionsPage",
+						new ObjectValuePair<>(
+							ProductOptionResourceImpl.class,
+							"postProductIdProductOptionsPage"));
+					put(
+						"mutation#createProductOptionIdProductOptionValue",
+						new ObjectValuePair<>(
+							ProductOptionValueResourceImpl.class,
+							"postProductOptionIdProductOptionValue"));
+					put(
+						"mutation#createProductOptionIdProductOptionValueBatch",
+						new ObjectValuePair<>(
+							ProductOptionValueResourceImpl.class,
+							"postProductOptionIdProductOptionValueBatch"));
+					put(
+						"mutation#patchProductByExternalReferenceCodeShippingConfiguration",
+						new ObjectValuePair<>(
+							ProductShippingConfigurationResourceImpl.class,
+							"patchProductByExternalReferenceCodeShippingConfiguration"));
+					put(
+						"mutation#patchProductIdShippingConfiguration",
+						new ObjectValuePair<>(
+							ProductShippingConfigurationResourceImpl.class,
+							"patchProductIdShippingConfiguration"));
+					put(
+						"mutation#createProductIdProductSpecification",
+						new ObjectValuePair<>(
+							ProductSpecificationResourceImpl.class,
+							"postProductIdProductSpecification"));
+					put(
+						"mutation#createProductIdProductSpecificationBatch",
+						new ObjectValuePair<>(
+							ProductSpecificationResourceImpl.class,
+							"postProductIdProductSpecificationBatch"));
+					put(
+						"mutation#patchProductByExternalReferenceCodeSubscriptionConfiguration",
+						new ObjectValuePair<>(
+							ProductSubscriptionConfigurationResourceImpl.class,
+							"patchProductByExternalReferenceCodeSubscriptionConfiguration"));
+					put(
+						"mutation#patchProductIdSubscriptionConfiguration",
+						new ObjectValuePair<>(
+							ProductSubscriptionConfigurationResourceImpl.class,
+							"patchProductIdSubscriptionConfiguration"));
+					put(
+						"mutation#patchProductByExternalReferenceCodeTaxConfiguration",
+						new ObjectValuePair<>(
+							ProductTaxConfigurationResourceImpl.class,
+							"patchProductByExternalReferenceCodeTaxConfiguration"));
+					put(
+						"mutation#patchProductIdTaxConfiguration",
+						new ObjectValuePair<>(
+							ProductTaxConfigurationResourceImpl.class,
+							"patchProductIdTaxConfiguration"));
+					put(
+						"mutation#createProductByExternalReferenceCodeRelatedProduct",
+						new ObjectValuePair<>(
+							RelatedProductResourceImpl.class,
+							"postProductByExternalReferenceCodeRelatedProduct"));
+					put(
+						"mutation#createProductIdRelatedProduct",
+						new ObjectValuePair<>(
+							RelatedProductResourceImpl.class,
+							"postProductIdRelatedProduct"));
+					put(
+						"mutation#createProductIdRelatedProductBatch",
+						new ObjectValuePair<>(
+							RelatedProductResourceImpl.class,
+							"postProductIdRelatedProductBatch"));
+					put(
+						"mutation#deleteRelatedProduct",
+						new ObjectValuePair<>(
+							RelatedProductResourceImpl.class,
+							"deleteRelatedProduct"));
+					put(
+						"mutation#deleteRelatedProductBatch",
+						new ObjectValuePair<>(
+							RelatedProductResourceImpl.class,
+							"deleteRelatedProductBatch"));
+					put(
+						"mutation#createProductByExternalReferenceCodeSku",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class,
+							"postProductByExternalReferenceCodeSku"));
+					put(
+						"mutation#createProductIdSku",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class, "postProductIdSku"));
+					put(
+						"mutation#createProductIdSkuBatch",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class, "postProductIdSkuBatch"));
+					put(
+						"mutation#deleteSkuByExternalReferenceCode",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class,
+							"deleteSkuByExternalReferenceCode"));
+					put(
+						"mutation#patchSkuByExternalReferenceCode",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class,
+							"patchSkuByExternalReferenceCode"));
+					put(
+						"mutation#deleteSku",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class, "deleteSku"));
+					put(
+						"mutation#deleteSkuBatch",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class, "deleteSkuBatch"));
+					put(
+						"mutation#patchSku",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class, "patchSku"));
+					put(
+						"mutation#createSpecification",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"postSpecification"));
+					put(
+						"mutation#createSpecificationBatch",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"postSpecificationBatch"));
+					put(
+						"mutation#deleteSpecification",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"deleteSpecification"));
+					put(
+						"mutation#deleteSpecificationBatch",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"deleteSpecificationBatch"));
+					put(
+						"mutation#patchSpecification",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"patchSpecification"));
+
+					put(
+						"query#productByExternalReferenceCodeAttachments",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"getProductByExternalReferenceCodeAttachmentsPage"));
+					put(
+						"query#productByExternalReferenceCodeImages",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"getProductByExternalReferenceCodeImagesPage"));
+					put(
+						"query#productIdAttachments",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"getProductIdAttachmentsPage"));
+					put(
+						"query#productIdImages",
+						new ObjectValuePair<>(
+							AttachmentResourceImpl.class,
+							"getProductIdImagesPage"));
+					put(
+						"query#catalogByExternalReferenceCode",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class,
+							"getCatalogByExternalReferenceCode"));
+					put(
+						"query#catalog",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class, "getCatalog"));
+					put(
+						"query#catalogs",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class, "getCatalogsPage"));
+					put(
+						"query#productByExternalReferenceCodeCatalog",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class,
+							"getProductByExternalReferenceCodeCatalog"));
+					put(
+						"query#productIdCatalog",
+						new ObjectValuePair<>(
+							CatalogResourceImpl.class, "getProductIdCatalog"));
+					put(
+						"query#productByExternalReferenceCodeCategories",
+						new ObjectValuePair<>(
+							CategoryResourceImpl.class,
+							"getProductByExternalReferenceCodeCategoriesPage"));
+					put(
+						"query#productIdCategories",
+						new ObjectValuePair<>(
+							CategoryResourceImpl.class,
+							"getProductIdCategoriesPage"));
+					put(
+						"query#productByExternalReferenceCodeDiagram",
+						new ObjectValuePair<>(
+							DiagramResourceImpl.class,
+							"getProductByExternalReferenceCodeDiagram"));
+					put(
+						"query#productIdDiagram",
+						new ObjectValuePair<>(
+							DiagramResourceImpl.class, "getProductIdDiagram"));
+					put(
+						"query#productByExternalReferenceCodeMappedProducts",
+						new ObjectValuePair<>(
+							MappedProductResourceImpl.class,
+							"getProductByExternalReferenceCodeMappedProductsPage"));
+					put(
+						"query#productByExternalReferenceCodeMappedProductBySequence",
+						new ObjectValuePair<>(
+							MappedProductResourceImpl.class,
+							"getProductByExternalReferenceCodeMappedProductBySequence"));
+					put(
+						"query#productIdMappedProducts",
+						new ObjectValuePair<>(
+							MappedProductResourceImpl.class,
+							"getProductIdMappedProductsPage"));
+					put(
+						"query#productMappedProductBySequence",
+						new ObjectValuePair<>(
+							MappedProductResourceImpl.class,
+							"getProductMappedProductBySequence"));
+					put(
+						"query#options",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class, "getOptionsPage"));
+					put(
+						"query#optionByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class,
+							"getOptionByExternalReferenceCode"));
+					put(
+						"query#option",
+						new ObjectValuePair<>(
+							OptionResourceImpl.class, "getOption"));
+					put(
+						"query#optionCategories",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"getOptionCategoriesPage"));
+					put(
+						"query#optionCategory",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"getOptionCategory"));
+					put(
+						"query#optionValueByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"getOptionValueByExternalReferenceCode"));
+					put(
+						"query#optionValue",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class, "getOptionValue"));
+					put(
+						"query#optionByExternalReferenceCodeOptionValues",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"getOptionByExternalReferenceCodeOptionValuesPage"));
+					put(
+						"query#optionIdOptionValues",
+						new ObjectValuePair<>(
+							OptionValueResourceImpl.class,
+							"getOptionIdOptionValuesPage"));
+					put(
+						"query#productByExternalReferenceCodePins",
+						new ObjectValuePair<>(
+							PinResourceImpl.class,
+							"getProductByExternalReferenceCodePinsPage"));
+					put(
+						"query#productIdPins",
+						new ObjectValuePair<>(
+							PinResourceImpl.class, "getProductIdPinsPage"));
+					put(
+						"query#products",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class, "getProductsPage"));
+					put(
+						"query#productByExternalReferenceCode",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"getProductByExternalReferenceCode"));
+					put(
+						"query#productByExternalReferenceCodeByVersion",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class,
+							"getProductByExternalReferenceCodeByVersion"));
+					put(
+						"query#product",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class, "getProduct"));
+					put(
+						"query#productByVersion",
+						new ObjectValuePair<>(
+							ProductResourceImpl.class, "getProductByVersion"));
+					put(
+						"query#productAccountGroup",
+						new ObjectValuePair<>(
+							ProductAccountGroupResourceImpl.class,
+							"getProductAccountGroup"));
+					put(
+						"query#productByExternalReferenceCodeProductAccountGroups",
+						new ObjectValuePair<>(
+							ProductAccountGroupResourceImpl.class,
+							"getProductByExternalReferenceCodeProductAccountGroupsPage"));
+					put(
+						"query#productIdProductAccountGroups",
+						new ObjectValuePair<>(
+							ProductAccountGroupResourceImpl.class,
+							"getProductIdProductAccountGroupsPage"));
+					put(
+						"query#productChannel",
+						new ObjectValuePair<>(
+							ProductChannelResourceImpl.class,
+							"getProductChannel"));
+					put(
+						"query#productByExternalReferenceCodeProductChannels",
+						new ObjectValuePair<>(
+							ProductChannelResourceImpl.class,
+							"getProductByExternalReferenceCodeProductChannelsPage"));
+					put(
+						"query#productIdProductChannels",
+						new ObjectValuePair<>(
+							ProductChannelResourceImpl.class,
+							"getProductIdProductChannelsPage"));
+					put(
+						"query#productByExternalReferenceCodeConfiguration",
+						new ObjectValuePair<>(
+							ProductConfigurationResourceImpl.class,
+							"getProductByExternalReferenceCodeConfiguration"));
+					put(
+						"query#productIdConfiguration",
+						new ObjectValuePair<>(
+							ProductConfigurationResourceImpl.class,
+							"getProductIdConfiguration"));
+					put(
+						"query#productGroups",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"getProductGroupsPage"));
+					put(
+						"query#productGroupByExternalReferenceCode",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class,
+							"getProductGroupByExternalReferenceCode"));
+					put(
+						"query#productGroup",
+						new ObjectValuePair<>(
+							ProductGroupResourceImpl.class, "getProductGroup"));
+					put(
+						"query#productGroupByExternalReferenceCodeProductGroupProducts",
+						new ObjectValuePair<>(
+							ProductGroupProductResourceImpl.class,
+							"getProductGroupByExternalReferenceCodeProductGroupProductsPage"));
+					put(
+						"query#productGroupIdProductGroupProducts",
+						new ObjectValuePair<>(
+							ProductGroupProductResourceImpl.class,
+							"getProductGroupIdProductGroupProductsPage"));
+					put(
+						"query#productOption",
+						new ObjectValuePair<>(
+							ProductOptionResourceImpl.class,
+							"getProductOption"));
+					put(
+						"query#productByExternalReferenceCodeProductOptions",
+						new ObjectValuePair<>(
+							ProductOptionResourceImpl.class,
+							"getProductByExternalReferenceCodeProductOptionsPage"));
+					put(
+						"query#productIdProductOptions",
+						new ObjectValuePair<>(
+							ProductOptionResourceImpl.class,
+							"getProductIdProductOptionsPage"));
+					put(
+						"query#productOptionIdProductOptionValues",
+						new ObjectValuePair<>(
+							ProductOptionValueResourceImpl.class,
+							"getProductOptionIdProductOptionValuesPage"));
+					put(
+						"query#productByExternalReferenceCodeShippingConfiguration",
+						new ObjectValuePair<>(
+							ProductShippingConfigurationResourceImpl.class,
+							"getProductByExternalReferenceCodeShippingConfiguration"));
+					put(
+						"query#productIdShippingConfiguration",
+						new ObjectValuePair<>(
+							ProductShippingConfigurationResourceImpl.class,
+							"getProductIdShippingConfiguration"));
+					put(
+						"query#productIdProductSpecifications",
+						new ObjectValuePair<>(
+							ProductSpecificationResourceImpl.class,
+							"getProductIdProductSpecificationsPage"));
+					put(
+						"query#productByExternalReferenceCodeSubscriptionConfiguration",
+						new ObjectValuePair<>(
+							ProductSubscriptionConfigurationResourceImpl.class,
+							"getProductByExternalReferenceCodeSubscriptionConfiguration"));
+					put(
+						"query#productIdSubscriptionConfiguration",
+						new ObjectValuePair<>(
+							ProductSubscriptionConfigurationResourceImpl.class,
+							"getProductIdSubscriptionConfiguration"));
+					put(
+						"query#productByExternalReferenceCodeTaxConfiguration",
+						new ObjectValuePair<>(
+							ProductTaxConfigurationResourceImpl.class,
+							"getProductByExternalReferenceCodeTaxConfiguration"));
+					put(
+						"query#productIdTaxConfiguration",
+						new ObjectValuePair<>(
+							ProductTaxConfigurationResourceImpl.class,
+							"getProductIdTaxConfiguration"));
+					put(
+						"query#productByExternalReferenceCodeRelatedProducts",
+						new ObjectValuePair<>(
+							RelatedProductResourceImpl.class,
+							"getProductByExternalReferenceCodeRelatedProductsPage"));
+					put(
+						"query#productIdRelatedProducts",
+						new ObjectValuePair<>(
+							RelatedProductResourceImpl.class,
+							"getProductIdRelatedProductsPage"));
+					put(
+						"query#relatedProduct",
+						new ObjectValuePair<>(
+							RelatedProductResourceImpl.class,
+							"getRelatedProduct"));
+					put(
+						"query#productByExternalReferenceCodeSkus",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class,
+							"getProductByExternalReferenceCodeSkusPage"));
+					put(
+						"query#productIdSkus",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class, "getProductIdSkusPage"));
+					put(
+						"query#skus",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class, "getSkusPage"));
+					put(
+						"query#skuByExternalReferenceCode",
+						new ObjectValuePair<>(
+							SkuResourceImpl.class,
+							"getSkuByExternalReferenceCode"));
+					put(
+						"query#sku",
+						new ObjectValuePair<>(SkuResourceImpl.class, "getSku"));
+					put(
+						"query#specifications",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"getSpecificationsPage"));
+					put(
+						"query#specification",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"getSpecification"));
+				}
+			};
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<AttachmentResource>

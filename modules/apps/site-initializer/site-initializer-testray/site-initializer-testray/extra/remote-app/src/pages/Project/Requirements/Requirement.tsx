@@ -28,8 +28,8 @@ import {filters} from '../../../schema/filter';
 import {
 	TestrayRequirement,
 	TestrayRequirementCase,
-	getCasesRequerimentsTransformData,
 	requirementsCasesResource,
+	testrayCaseRequirementsImpl,
 } from '../../../services/rest';
 import {DescriptionType} from '../../../types';
 import {searchUtil} from '../../../util/search';
@@ -173,9 +173,13 @@ const Requirement = () => {
 							},
 						],
 						navigateTo: ({case: Case}: TestrayRequirementCase) =>
-							`/project/${projectId}/cases/${Case.id}`,
+							`/project/${projectId}/cases/${Case?.id}`,
 					}}
-					transformData={getCasesRequerimentsTransformData}
+					transformData={(response) =>
+						testrayCaseRequirementsImpl.transformDataFromList(
+							response
+						)
+					}
 					variables={{
 						filter: searchUtil.eq(
 							'requirementId',

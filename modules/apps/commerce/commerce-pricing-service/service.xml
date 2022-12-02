@@ -4,7 +4,7 @@
 <service-builder auto-import-default-references="false" auto-namespace-tables="false" change-tracking-enabled="true" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.commerce.pricing">
 	<author>Riccardo Alberti</author>
 	<namespace>Commerce</namespace>
-	<entity external-reference-code="true" local-service="true" name="CommercePriceModifier" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommercePriceModifier" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -123,7 +123,7 @@
 			<finder-column name="classPK" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommercePricingClass" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommercePricingClass" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 

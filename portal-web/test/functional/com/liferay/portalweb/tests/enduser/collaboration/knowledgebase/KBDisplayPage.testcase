@@ -1,7 +1,6 @@
 @component-name = "portal-knowledge-base"
 definition {
 
-	property custom.properties = "feature.flag.LPS-125653=true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Knowledge Base";
@@ -25,6 +24,148 @@ definition {
 		}
 	}
 
+	@description = "This test ensures that the Max Nesting settings can be configured in the KB navigation fragment for a display page."
+	@priority = "5"
+	test CanUpdateMaxNestingForArticleNavigation {
+		var portalURL = PropsUtil.get("portal.url");
+
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "Content",
+			kbArticleTitle = "KB parent article");
+
+		JSONKnowledgeBase.addkBChildArticle(
+			groupName = "Guest",
+			kbArticleTitle = "KB parent article",
+			kbChildArticleContent = "Content",
+			kbChildArticleTitle = "2nd tier article");
+
+		JSONKnowledgeBase.addkBGrandchildArticle(
+			groupName = "Guest",
+			kbArticleTitle = "KB parent article",
+			kbChildArticleTitle = "2nd tier article",
+			kbGrandchildArticleContent = "Grandchild Content",
+			kbGrandchildArticleTitle = "3rd tier article");
+
+		JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+			contentType = "Knowledge Base Article",
+			displayPageTemplateEntryName = "Display Page Name",
+			groupName = "Guest");
+
+		DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "guest");
+
+		DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+
+		PageEditor.addFragment(
+			collectionName = "Menu Display",
+			fragmentName = "Knowledge Base Navigation");
+
+		PageEditor.editKBArticleNavigationMaxNestingLevel(maxNestingLevel = "2");
+
+		PageEditor.publish();
+
+		DisplayPageTemplatesAdmin.markDisplayPageAsDefault(displayPageName = "Display Page Name");
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/guest/k/3rd-tier-article");
+
+		AssertElementPresent(
+			key_kbArticleTitle = "KB parent article",
+			locator1 = "Fragment#KNOWLEDGE_BASE_FRAGMENT_NAVIGATION_TOP_LEVEL_HIERARCHY");
+
+		AssertElementPresent(
+			key_kbArticleTitle = "2nd tier article",
+			locator1 = "Fragment#KNOWLEDGE_BASE_FRAGMENT_NAVIGATION_SECOND_LEVEL_HIERARCHY");
+
+		AssertElementPresent(
+			key_kbArticleTitle = "3rd tier article",
+			locator1 = "Fragment#KNOWLEDGE_BASE_FRAGMENT_NAVIGATION_SELECTED_SECOND_LEVEL_HIERARCHY");
+	}
+
+	@description = "This test ensures that when viewing a KB article in the navigation fragment, the corresponding KB article content is displayed in another fragment that selects to display KB content."
+	@priority = "5"
+	test CanViewArticlesViaKBNavigation {
+		var portalURL = PropsUtil.get("portal.url");
+
+		JSONKnowledgeBase.addkBArticle(
+			groupName = "Guest",
+			kbArticleContent = "KB Parent Article Content",
+			kbArticleTitle = "KB Parent Article");
+
+		JSONKnowledgeBase.addkBChildArticle(
+			groupName = "Guest",
+			kbArticleTitle = "KB Parent Article",
+			kbChildArticleContent = "KB Child Article1 Content",
+			kbChildArticleTitle = "KB Child Article1");
+
+		JSONKnowledgeBase.addkBChildArticle(
+			groupName = "Guest",
+			kbArticleTitle = "KB Parent Article",
+			kbChildArticleContent = "KB Child Article2 Content",
+			kbChildArticleTitle = "KB Child Article2");
+
+		JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+			contentType = "Knowledge Base Article",
+			displayPageTemplateEntryName = "Display Page Template Name",
+			groupName = "Guest");
+
+		DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "guest");
+
+		DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Template Name");
+
+		PageEditor.addFragment(
+			collectionName = "Menu Display",
+			fragmentName = "Knowledge Base Navigation");
+
+		PageEditor.addFragment(
+			collectionName = "Basic Components",
+			fragmentName = "HTML",
+			targetFragmentName = "Knowledge Base Navigation");
+
+		PageEditorMapping.mapEditableTextToField(
+			field = "Content",
+			fragmentName = "HTML",
+			id = "element-html");
+
+		PageEditor.publish();
+
+		DisplayPageTemplate.selectDisplayPageTemplateForAsset(
+			assetType = "Knowledge Base",
+			entryTitle = "KB Parent Article",
+			groupName = "Guest",
+			pageName = "Display Page Template Name",
+			siteURLKey = "guest");
+
+		for (var kbChildArticleTitle : list "KB Child Article1,KB Child Article2") {
+			DisplayPageTemplate.selectDisplayPageTemplateForAsset(
+				assetType = "Knowledge Base",
+				entryTitle = "KB Parent Article",
+				groupName = "Guest",
+				kbChildArticleTitle = "${kbChildArticleTitle}",
+				pageName = "Display Page Template Name",
+				siteURLKey = "guest");
+		}
+
+		Navigator.openSpecificURL(url = "${portalURL}/web/guest/k/kb-parent-article");
+
+		AssertElementPresent(
+			key_kbArticleTitle = "KB Parent Article",
+			locator1 = "Fragment#KNOWLEDGE_BASE_FRAGMENT_TEXT");
+
+		ContentPages.viewFragmentText(
+			fragmentName = "html",
+			id = "element-html",
+			text = "KB Parent Article Content");
+
+		Click(
+			key_kbArticleTitle = "KB Child Article2",
+			locator1 = "Fragment#KNOWLEDGE_BASE_FRAGMENT_NAVIGATION_SECOND_LEVEL_HIERARCHY");
+
+		ContentPages.viewFragmentText(
+			fragmentName = "html",
+			id = "element-html",
+			text = "KB Child Article2 Content");
+	}
+
 	@description = "This test ensures that a KB article is displayed with the default template when accessing the KB display page URL."
 	@priority = "4"
 	test CanViewArticleWithDefaultTemplate {
@@ -45,8 +186,8 @@ definition {
 		DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
 
 		PageEditor.addFragment(
-			collectionName = "Content Display",
-			fragmentName = "Knowledge Base Article Navigation");
+			collectionName = "Menu Display",
+			fragmentName = "Knowledge Base Navigation");
 
 		PageEditor.publish();
 

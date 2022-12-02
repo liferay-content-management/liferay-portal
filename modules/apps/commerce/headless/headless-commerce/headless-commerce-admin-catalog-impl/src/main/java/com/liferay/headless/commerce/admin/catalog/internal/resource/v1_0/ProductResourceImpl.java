@@ -44,7 +44,7 @@ import com.liferay.commerce.product.service.CommerceCatalogLocalService;
 import com.liferay.commerce.product.service.CommerceChannelRelService;
 import com.liferay.commerce.product.service.CommerceChannelService;
 import com.liferay.commerce.product.type.CPType;
-import com.liferay.commerce.product.type.CPTypeServicesTracker;
+import com.liferay.commerce.product.type.CPTypeRegistry;
 import com.liferay.commerce.service.CPDefinitionInventoryService;
 import com.liferay.commerce.shop.by.diagram.constants.CSDiagramCPTypeConstants;
 import com.liferay.commerce.shop.by.diagram.service.CSDiagramEntryService;
@@ -147,7 +147,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Igor Beslic
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/product.properties",
 	scope = ServiceScope.PROTOTYPE, service = ProductResource.class
 )
@@ -205,7 +204,7 @@ public class ProductResourceImpl extends BaseProductResourceImpl {
 
 		CProduct cProduct =
 			_cProductLocalService.fetchCProductByExternalReferenceCode(
-				contextCompany.getCompanyId(), externalReferenceCode);
+				externalReferenceCode, contextCompany.getCompanyId());
 
 		if (cProduct == null) {
 			throw new NoSuchCPDefinitionException(
@@ -282,7 +281,7 @@ public class ProductResourceImpl extends BaseProductResourceImpl {
 
 		CProduct cProduct =
 			_cProductLocalService.fetchCProductByExternalReferenceCode(
-				contextCompany.getCompanyId(), externalReferenceCode);
+				externalReferenceCode, contextCompany.getCompanyId());
 
 		if (cProduct == null) {
 			throw new NoSuchCPDefinitionException(
@@ -402,8 +401,8 @@ public class ProductResourceImpl extends BaseProductResourceImpl {
 			commerceCatalog =
 				_commerceCatalogLocalService.
 					fetchCommerceCatalogByExternalReferenceCode(
-						contextCompany.getCompanyId(),
-						catalogExternalReferenceCode);
+						catalogExternalReferenceCode,
+						contextCompany.getCompanyId());
 		}
 
 		if (commerceCatalog == null) {
@@ -1081,7 +1080,7 @@ public class ProductResourceImpl extends BaseProductResourceImpl {
 
 		// Diagram
 
-		CPType cpType = _cpTypeServicesTracker.getCPType(
+		CPType cpType = _cpTypeRegistry.getCPType(
 			cpDefinition.getProductTypeName());
 
 		if ((cpType != null) &&
@@ -1356,7 +1355,7 @@ public class ProductResourceImpl extends BaseProductResourceImpl {
 	private CPSpecificationOptionService _cpSpecificationOptionService;
 
 	@Reference
-	private CPTypeServicesTracker _cpTypeServicesTracker;
+	private CPTypeRegistry _cpTypeRegistry;
 
 	@Reference
 	private CSDiagramEntryService _csDiagramEntryService;

@@ -44,13 +44,13 @@ public class SearchEngineRegistrationTest {
 
 		Assert.assertTrue(
 			"The registered search engine vendor is " + vendor,
-			vendor.equals("Elasticsearch"));
+			vendor.equals("Elasticsearch") || vendor.equals("Solr"));
 	}
 
 	@Rule
 	public SearchTestRule searchTestRule = new SearchTestRule();
 
-	@Inject(filter = "search.engine.id=SYSTEM_ENGINE")
+	@Inject
 	private SearchEngine _searchEngine;
 
 }

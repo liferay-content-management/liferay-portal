@@ -32,13 +32,11 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
-import com.liferay.object.system.SystemObjectDefinitionMetadataTracker;
+import com.liferay.object.system.SystemObjectDefinitionMetadataRegistry;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.PropsUtil;
 
 import java.util.Locale;
 import java.util.Map;
@@ -107,6 +105,9 @@ public class ListObjectFieldFilterContributor
 			objectDefinitionId, objectViewFilterColumn.getObjectFieldName());
 
 		if (Objects.equals(
+				ObjectFieldConstants.BUSINESS_TYPE_MULTISELECT_PICKLIST,
+				objectField.getBusinessType()) ||
+			Objects.equals(
 				ObjectFieldConstants.BUSINESS_TYPE_PICKLIST,
 				objectField.getBusinessType())) {
 
@@ -116,24 +117,20 @@ public class ListObjectFieldFilterContributor
 				objectField, objectViewFilterColumn);
 		}
 
-		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-152650"))) {
-			ObjectRelationship objectRelationship =
-				_objectRelationshipLocalService.
-					fetchObjectRelationshipByObjectFieldId2(
-						objectField.getObjectFieldId());
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.
+				fetchObjectRelationshipByObjectFieldId2(
+					objectField.getObjectFieldId());
 
-			return new OneToManyObjectFieldFilterStrategy(
-				locale,
-				_objectDefinitionLocalService.getObjectDefinition(
-					objectRelationship.getObjectDefinitionId1()),
-				_objectDefinitionLocalService, _objectEntryLocalService,
-				objectField, _objectFieldLocalService,
-				_objectRelationshipLocalService, objectViewFilterColumn,
-				_persistedModelLocalServiceRegistry,
-				_systemObjectDefinitionMetadataTracker);
-		}
-
-		throw new UnsupportedOperationException();
+		return new OneToManyObjectFieldFilterStrategy(
+			locale,
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectRelationship.getObjectDefinitionId1()),
+			_objectDefinitionLocalService, _objectEntryLocalService,
+			objectField, _objectFieldLocalService,
+			_objectRelationshipLocalService, objectViewFilterColumn,
+			_persistedModelLocalServiceRegistry,
+			_systemObjectDefinitionMetadataRegistry);
 	}
 
 	@Reference
@@ -164,7 +161,7 @@ public class ListObjectFieldFilterContributor
 		_persistedModelLocalServiceRegistry;
 
 	@Reference
-	private SystemObjectDefinitionMetadataTracker
-		_systemObjectDefinitionMetadataTracker;
+	private SystemObjectDefinitionMetadataRegistry
+		_systemObjectDefinitionMetadataRegistry;
 
 }

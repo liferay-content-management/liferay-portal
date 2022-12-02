@@ -15,7 +15,7 @@
 package com.liferay.translation.web.internal.portlet.action;
 
 import com.liferay.info.field.InfoFieldValue;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.info.item.provider.InfoItemObjectProvider;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -26,7 +26,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.translation.constants.TranslationPortletKeys;
-import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterTracker;
+import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 import com.liferay.translation.web.internal.display.context.ExportTranslationDisplayContext;
 import com.liferay.translation.web.internal.helper.TranslationRequestHelper;
 
@@ -64,7 +64,7 @@ public class ExportTranslationMVCRenderCommand implements MVCRenderCommand {
 
 			TranslationRequestHelper translationRequestHelper =
 				new TranslationRequestHelper(
-					_infoItemServiceTracker, renderRequest,
+					_infoItemServiceRegistry, renderRequest,
 					_segmentsExperienceLocalService);
 
 			List<Object> models = _getModels(
@@ -78,13 +78,13 @@ public class ExportTranslationMVCRenderCommand implements MVCRenderCommand {
 					translationRequestHelper.getModelClassPKs(),
 					translationRequestHelper.getGroupId(),
 					_portal.getHttpServletRequest(renderRequest),
-					_infoItemServiceTracker,
+					_infoItemServiceRegistry,
 					_portal.getLiferayPortletRequest(renderRequest),
 					_portal.getLiferayPortletResponse(renderResponse), models,
 					_getTitle(
 						translationRequestHelper.getModelClassName(),
 						models.get(0), themeDisplay.getLocale(), models.size()),
-					_translationInfoItemFieldValuesExporterTracker));
+					_translationInfoItemFieldValuesExporterRegistry));
 
 			return "/export_translation.jsp";
 		}
@@ -97,7 +97,7 @@ public class ExportTranslationMVCRenderCommand implements MVCRenderCommand {
 		throws PortalException {
 
 		InfoItemObjectProvider<Object> infoItemObjectProvider =
-			_infoItemServiceTracker.getFirstInfoItemService(
+			_infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemObjectProvider.class, className);
 
 		List<Object> models = new ArrayList<>(classPKs.length);
@@ -117,7 +117,7 @@ public class ExportTranslationMVCRenderCommand implements MVCRenderCommand {
 		}
 
 		InfoItemFieldValuesProvider<Object> infoItemFieldValuesProvider =
-			_infoItemServiceTracker.getFirstInfoItemService(
+			_infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemFieldValuesProvider.class, className);
 
 		InfoFieldValue<Object> infoFieldValue =
@@ -131,7 +131,7 @@ public class ExportTranslationMVCRenderCommand implements MVCRenderCommand {
 	}
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	@Reference
 	private Language _language;
@@ -143,7 +143,7 @@ public class ExportTranslationMVCRenderCommand implements MVCRenderCommand {
 	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	@Reference
-	private TranslationInfoItemFieldValuesExporterTracker
-		_translationInfoItemFieldValuesExporterTracker;
+	private TranslationInfoItemFieldValuesExporterRegistry
+		_translationInfoItemFieldValuesExporterRegistry;
 
 }

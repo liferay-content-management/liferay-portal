@@ -29,7 +29,7 @@ import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.sql.dsl.query.FromStep;
 import com.liferay.petra.sql.dsl.query.GroupByStep;
 import com.liferay.petra.sql.dsl.query.JoinStep;
-import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -49,11 +49,10 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalService;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
 
@@ -63,9 +62,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Alessio Antonio Rendina
  */
+@Component(
+	property = "model.class.name=com.liferay.commerce.model.CommerceOrderType",
+	service = AopService.class
+)
 public class CommerceOrderTypeLocalServiceImpl
 	extends CommerceOrderTypeLocalServiceBaseImpl {
 
@@ -107,7 +113,7 @@ public class CommerceOrderTypeLocalServiceImpl
 
 		Date date = new Date();
 
-		Date displayDate = PortalUtil.getDate(
+		Date displayDate = _portal.getDate(
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, user.getTimeZone(),
 			CommerceOrderTypeDisplayDateException.class);
@@ -115,7 +121,7 @@ public class CommerceOrderTypeLocalServiceImpl
 		Date expirationDate = null;
 
 		if (!neverExpire) {
-			expirationDate = PortalUtil.getDate(
+			expirationDate = _portal.getDate(
 				expirationDateMonth, expirationDateDay, expirationDateYear,
 				expirationDateHour, expirationDateMinute, user.getTimeZone(),
 				CommerceOrderTypeExpirationDateException.class);
@@ -199,8 +205,8 @@ public class CommerceOrderTypeLocalServiceImpl
 			return null;
 		}
 
-		return commerceOrderTypePersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceOrderTypePersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	@Override
@@ -266,7 +272,7 @@ public class CommerceOrderTypeLocalServiceImpl
 		User user = _userLocalService.getUser(userId);
 
 		commerceOrderType.setDisplayDate(
-			PortalUtil.getDate(
+			_portal.getDate(
 				displayDateMonth, displayDateDay, displayDateYear,
 				displayDateHour, displayDateMinute, user.getTimeZone(),
 				CommerceOrderTypeDisplayDateException.class));
@@ -276,7 +282,7 @@ public class CommerceOrderTypeLocalServiceImpl
 		Date expirationDate = null;
 
 		if (!neverExpire) {
-			expirationDate = PortalUtil.getDate(
+			expirationDate = _portal.getDate(
 				expirationDateMonth, expirationDateDay, expirationDateYear,
 				expirationDateHour, expirationDateMinute, user.getTimeZone(),
 				CommerceOrderTypeExpirationDateException.class);
@@ -378,7 +384,7 @@ public class CommerceOrderTypeLocalServiceImpl
 				new Date(), WorkflowConstants.STATUS_SCHEDULED);
 
 		for (CommerceOrderType commerceOrderType : commerceOrderTypes) {
-			long userId = PortalUtil.getValidUserId(
+			long userId = _portal.getValidUserId(
 				commerceOrderType.getCompanyId(),
 				commerceOrderType.getUserId());
 
@@ -407,7 +413,7 @@ public class CommerceOrderTypeLocalServiceImpl
 		}
 
 		for (CommerceOrderType commerceOrderType : commerceOrderTypes) {
-			long userId = PortalUtil.getValidUserId(
+			long userId = _portal.getValidUserId(
 				commerceOrderType.getCompanyId(),
 				commerceOrderType.getUserId());
 
@@ -499,25 +505,28 @@ public class CommerceOrderTypeLocalServiceImpl
 	private static final Log _log = LogFactoryUtil.getLog(
 		CommerceOrderTypeLocalServiceImpl.class);
 
-	@ServiceReference(type = ClassNameLocalService.class)
+	@Reference
 	private ClassNameLocalService _classNameLocalService;
 
-	@BeanReference(type = CommerceOrderTypeRelLocalService.class)
+	@Reference
 	private CommerceOrderTypeRelLocalService _commerceOrderTypeRelLocalService;
 
-	@ServiceReference(type = ExpandoRowLocalService.class)
+	@Reference
 	private ExpandoRowLocalService _expandoRowLocalService;
 
-	@ServiceReference(type = InlineSQLHelper.class)
+	@Reference
 	private InlineSQLHelper _inlineSQLHelper;
 
-	@ServiceReference(type = ResourceLocalService.class)
+	@Reference
+	private Portal _portal;
+
+	@Reference
 	private ResourceLocalService _resourceLocalService;
 
-	@ServiceReference(type = UserLocalService.class)
+	@Reference
 	private UserLocalService _userLocalService;
 
-	@ServiceReference(type = WorkflowInstanceLinkLocalService.class)
+	@Reference
 	private WorkflowInstanceLinkLocalService _workflowInstanceLinkLocalService;
 
 }

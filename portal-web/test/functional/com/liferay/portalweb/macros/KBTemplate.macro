@@ -4,6 +4,9 @@ definition {
 		if (isSet(addByCenterButton)) {
 			Button.click(button = "New");
 		}
+		else if (isSet(siteURLKey)) {
+			KBTemplate.openToAddTemplate(siteURLKey = "${siteURLKey}");
+		}
 		else {
 			Navigator.gotoNavItem(navItem = "Templates");
 
@@ -13,6 +16,49 @@ definition {
 		PortletEntry.inputTitle(title = "${kbTemplateTitle}");
 
 		CKEditor.addContent(content = "${kbTemplateContent}");
+
+		if (isSet(embedImage)) {
+			ItemSelector.gotoItemSelectorViaCKEditor();
+
+			if (isSet(uploadFileName)) {
+				ItemSelector.uploadFile(
+					navTab = "${navTab}",
+					uploadFileName = "${uploadFileName}");
+
+				SelectFrameTop();
+			}
+			else if (isSet(imageSourceURL)) {
+				ItemSelector.addImageFromURL(
+					imageSourceURL = "${imageSourceURL}",
+					navTab = "URL");
+			}
+			else {
+				SelectFrame(locator1 = "ItemSelector#ITEM_SELECTOR_IFRAME");
+
+				AssertClick(
+					key_breadcrumbName = "Sites and Libraries",
+					locator1 = "Breadcrumb#BREADCRUMB_ENTRY",
+					value1 = "Sites and Libraries");
+
+				if (isSet(depotName)) {
+					AssertClick(
+						key_groupTab = "Asset Library",
+						locator1 = "ItemSelector#NAVIGATION_GROUP_TAB",
+						value1 = "Asset Library");
+
+					LexiconCard.clickCard(card = "${depotName}");
+				}
+				else {
+					LexiconCard.clickCard(card = "${siteName}");
+				}
+
+				Click(
+					key_imageFileName = "${imageFileName}",
+					locator1 = "ItemSelector#SELECT_FILE_IMAGE_CARD");
+			}
+
+			SelectFrameTop();
+		}
 
 		PortletEntry.publish();
 	}
@@ -28,7 +74,7 @@ definition {
 				key_rowEntry = "${kbTemplateTitle}",
 				locator1 = "Icon#ROW_VERTICAL_ELLIPSIS");
 
-			MenuItem.click(menuItem = "Delete");
+			MenuItem.clickNoError(menuItem = "Delete");
 		}
 
 		AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
@@ -59,14 +105,6 @@ definition {
 		PortletEntry.publish();
 	}
 
-	macro gotoCP {
-		Navigator.gotoNavItem(navItem = "Templates");
-
-		LexiconEntry.gotoEntryMenuItem(
-			menuItem = "View",
-			rowEntry = "${kbTemplateTitle}");
-	}
-
 	macro gotoTemplateMenuItemThroughPageTreePanel {
 		MouseOver(
 			key_itemLinkName = "${kbTemplateTitle}",
@@ -83,6 +121,49 @@ definition {
 		}
 		else {
 			MenuItem.click(menuItem = "${menuItem}");
+		}
+	}
+
+	macro openToAddTemplate {
+		var baseURL = "${baseURL}";
+
+		if (!(isSet(baseURL))) {
+			var baseURL = PropsUtil.get("portal.url");
+		}
+
+		Open(locator1 = "${baseURL}/group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_knowledge_base_web_portlet_AdminPortlet&_com_liferay_knowledge_base_web_portlet_AdminPortlet_mvcPath=%2Fadmin%2Fcommon%2Fedit_kb_template.jsp");
+	}
+
+	macro previewTemplate {
+		if (isSet(pageTreePanel)) {
+			KBTemplate.gotoTemplateMenuItemThroughPageTreePanel(
+				kbTemplateTitle = "${kbTemplateTitle}",
+				menuItem = "View");
+		}
+		else {
+			Click(
+				key_rowEntry = "${kbTemplateTitle}",
+				locator1 = "Icon#ROW_VERTICAL_ELLIPSIS");
+
+			MenuItem.click(menuItem = "View");
+		}
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "KnowledgeBaseTemplate#TEMPLATE_TITLE",
+			value1 = "${kbTemplateTitle}");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "KnowledgeBaseTemplate#TEMPLATE_CONTENT",
+			value1 = "${kbTemplateContent}");
+
+		if (isSet(embedImage)) {
+			KBArticle.viewImageViaContentCmd();
+		}
+
+		if (isSet(viewNoCommentsPanel)) {
+			AssertElementNotPresent(
+				key_panel = "Comments",
+				locator1 = "Panel#PANEL");
 		}
 	}
 
@@ -108,18 +189,6 @@ definition {
 		}
 	}
 
-	macro viewCP {
-		KBTemplate.gotoCP(kbTemplateTitle = "${kbTemplateTitle}");
-
-		AssertTextEquals(
-			locator1 = "KnowledgeBaseTemplate#TEMPLATE_TITLE",
-			value1 = "${kbTemplateTitle}");
-
-		AssertTextEquals.assertPartialText(
-			locator1 = "KnowledgeBaseTemplate#TEMPLATE_CONTENT",
-			value1 = "${kbTemplateContent}");
-	}
-
 	macro viewCPViaAddTemplate {
 		LexiconEntry.gotoAddMenuItem(menuItem = "${kbTemplateTitle}");
 
@@ -139,10 +208,6 @@ definition {
 	macro viewNoTemplates {
 		AssertTextEquals.assertPartialText(
 			locator1 = "Message#EMPTY_INFO_TAGLIB_TITLE",
-			value1 = "There are no article templates.");
-
-		AssertTextEquals.assertPartialText(
-			locator1 = "Message#EMPTY_STATE_INFO",
 			value1 = "There are no article templates.");
 	}
 

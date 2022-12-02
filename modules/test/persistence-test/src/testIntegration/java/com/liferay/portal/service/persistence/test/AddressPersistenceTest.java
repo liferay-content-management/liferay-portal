@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.DuplicateAddressExternalReferenceCodeException;
 import com.liferay.portal.kernel.exception.NoSuchAddressException;
 import com.liferay.portal.kernel.model.Address;
 import com.liferay.portal.kernel.service.AddressLocalServiceUtil;
@@ -238,6 +239,25 @@ public class AddressPersistenceTest {
 		Assert.assertEquals(existingAddress.getZip(), newAddress.getZip());
 	}
 
+	@Test(expected = DuplicateAddressExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		Address address = addAddress();
+
+		Address newAddress = addAddress();
+
+		newAddress.setCompanyId(address.getCompanyId());
+
+		newAddress = _persistence.update(newAddress);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newAddress);
+
+		newAddress.setExternalReferenceCode(address.getExternalReferenceCode());
+
+		_persistence.update(newAddress);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -337,12 +357,12 @@ public class AddressPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -634,15 +654,15 @@ public class AddressPersistenceTest {
 
 	private void _assertOriginalValues(Address address) {
 		Assert.assertEquals(
-			Long.valueOf(address.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				address, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			address.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				address, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(address.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				address, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected Address addAddress() throws Exception {

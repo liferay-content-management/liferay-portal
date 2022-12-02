@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.service.persistence.impl.TableMapper;
 import com.liferay.portal.kernel.service.persistence.impl.TableMapperFactory;
@@ -81,9 +80,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(
-	service = {OAuth2AuthorizationPersistence.class, BasePersistence.class}
-)
+@Component(service = OAuth2AuthorizationPersistence.class)
 public class OAuth2AuthorizationPersistenceImpl
 	extends BasePersistenceImpl<OAuth2Authorization>
 	implements OAuth2AuthorizationPersistence {
@@ -200,7 +197,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuth2Authorization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (OAuth2Authorization oAuth2Authorization : list) {
@@ -563,7 +560,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		Object[] finderArgs = new Object[] {userId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -705,7 +702,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuth2Authorization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (OAuth2Authorization oAuth2Authorization : list) {
@@ -1078,7 +1075,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		Object[] finderArgs = new Object[] {oAuth2ApplicationId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1227,7 +1224,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuth2Authorization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (OAuth2Authorization oAuth2Authorization : list) {
@@ -1622,7 +1619,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, accessTokenContentHash};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1778,7 +1775,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuth2Authorization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (OAuth2Authorization oAuth2Authorization : list) {
@@ -2173,7 +2170,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, refreshTokenContentHash};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -2342,7 +2339,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuth2Authorization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (OAuth2Authorization oAuth2Authorization : list) {
@@ -2796,7 +2793,7 @@ public class OAuth2AuthorizationPersistenceImpl
 			userId, oAuth2ApplicationId, rememberDeviceContent
 		};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -3283,7 +3280,7 @@ public class OAuth2AuthorizationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<OAuth2Authorization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -3353,7 +3350,7 @@ public class OAuth2AuthorizationPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

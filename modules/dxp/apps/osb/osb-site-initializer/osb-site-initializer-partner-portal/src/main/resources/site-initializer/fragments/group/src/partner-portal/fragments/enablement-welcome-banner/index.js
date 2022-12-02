@@ -10,18 +10,16 @@
  * distribution rights of the Software.
  */
 
-import {openModal} from 'frontend-js-web';
-
 const predissmissBanner = fragmentElement.querySelector('.pre-dismiss');
 const posDissmissBanner = fragmentElement.querySelector('.pos-dismiss');
 const dissmissButtonBanner = fragmentElement.querySelector('.on-click-button');
 
 fragmentElement.querySelector('.dismiss-button').onclick = () => {
-	predissmissBanner.classList.toggle('d-flex');
+	predissmissBanner.classList.toggle('d-lg-flex');
 	predissmissBanner.classList.toggle('d-none');
 
 	posDissmissBanner.classList.toggle('d-none');
-	posDissmissBanner.classList.toggle('d-flex');
+	posDissmissBanner.classList.toggle('d-lg-flex');
 
 	dissmissButtonBanner.classList.toggle('d-none');
 	dissmissButtonBanner.classList.toggle('d-flex');
@@ -32,7 +30,7 @@ const videoButtons = fragmentElement.querySelectorAll('.video-tour-button');
 if (layoutMode !== 'edit') {
 	for (const videoButton of videoButtons) {
 		videoButton.onclick = () =>
-			openModal({
+			Liferay.Util.openModal({
 				bodyHTML:
 					'<iframe width="100%" height="500" src="https://www.youtube.com/embed/bZeAh7dpskw" title="Liferay: One Platform for Endless Solutions" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
 				size: 'lg',

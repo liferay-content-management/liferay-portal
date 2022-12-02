@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.service.RegionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -44,6 +45,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectServiceException;
 import com.liferay.portal.security.sso.openid.connect.internal.exception.StrangersNotAllowedException;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -55,7 +57,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Arthur Chan
  */
-@Component(immediate = true, service = OIDCUserInfoProcessor.class)
+@Component(service = OIDCUserInfoProcessor.class)
 public class OIDCUserInfoProcessor {
 
 	public long processUserInfo(
@@ -114,6 +116,10 @@ public class OIDCUserInfoProcessor {
 
 		String streetClaimString = _getClaimString(
 			"street", addressMapperJSONObject, userInfoJSONObject);
+
+		if (Validator.isNull(streetClaimString)) {
+			return;
+		}
 
 		String[] streetClaimStringParts = streetClaimString.split("\n");
 
@@ -202,6 +208,13 @@ public class OIDCUserInfoProcessor {
 		JSONObject userInfoJSONObject = _jsonFactory.createJSONObject(
 			userInfoJSON);
 
+		String phoneClaimString = _getClaimString(
+			"phone", phoneMapperJSONObject, userInfoJSONObject);
+
+		if (Validator.isNull(phoneClaimString)) {
+			return;
+		}
+
 		ListType listType = _listTypeLocalService.getListType(
 			_getClaimString(
 				"phoneType", phoneMapperJSONObject, userInfoJSONObject),
@@ -216,8 +229,8 @@ public class OIDCUserInfoProcessor {
 
 		_phoneLocalService.addPhone(
 			user.getUserId(), Contact.class.getName(), user.getContactId(),
-			_getClaimString("phone", phoneMapperJSONObject, userInfoJSONObject),
-			null, listType.getListTypeId(), false, serviceContext);
+			phoneClaimString, null, listType.getListTypeId(), false,
+			serviceContext);
 	}
 
 	private User _addUser(
@@ -266,8 +279,8 @@ public class OIDCUserInfoProcessor {
 		String password2 = null;
 		String screenName = _getClaimString(
 			"screenName", userMapperJSONObject, userInfoJSONObject);
-		long prefixId = 0;
-		long suffixId = 0;
+		long prefixListTypeId = 0;
+		long suffixListTypeId = 0;
 
 		JSONObject contactMapperJSONObject =
 			userInfoMapperJSONObject.getJSONObject("contact");
@@ -296,7 +309,7 @@ public class OIDCUserInfoProcessor {
 			firstName,
 			_getClaimString(
 				"middleName", userMapperJSONObject, userInfoJSONObject),
-			lastName, prefixId, suffixId,
+			lastName, prefixListTypeId, suffixListTypeId,
 			_isMale(contactMapperJSONObject, userInfoJSONObject), birthday[1],
 			birthday[2], birthday[0],
 			_getClaimString(
@@ -375,6 +388,10 @@ public class OIDCUserInfoProcessor {
 
 		String value = mapperJSONObject.getString(key);
 
+		if (Validator.isNull(value)) {
+			return null;
+		}
+
 		String[] valueParts = value.split("->");
 
 		Object claimObject = userInfoJSONObject.get(valueParts[0]);
@@ -382,7 +399,9 @@ public class OIDCUserInfoProcessor {
 		for (int i = 1; i < valueParts.length; ++i) {
 			JSONObject claimJSONObject = (JSONObject)claimObject;
 
-			claimObject = claimJSONObject.get(valueParts[i]);
+			if (claimJSONObject != null) {
+				claimObject = claimJSONObject.get(valueParts[i]);
+			}
 		}
 
 		return claimObject;
@@ -432,16 +451,32 @@ public class OIDCUserInfoProcessor {
 		JSONArray rolesJSONArray = _getClaimJSONArray(
 			"roles", usersRolesMapperJSONObject, userInfoJSONObject);
 
-		long[] roleIds = new long[rolesJSONArray.length()];
+		if (rolesJSONArray == null) {
+			return null;
+		}
+
+		List<Long> roleIds = new ArrayList<>();
 
 		for (int i = 0; i < rolesJSONArray.length(); ++i) {
 			Role role = _roleLocalService.fetchRole(
-				companyId, (String)rolesJSONArray.get(i));
+				companyId, rolesJSONArray.getString(i));
 
-			roleIds[i] = role.getRoleId();
+			if (role == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn("No role name " + rolesJSONArray.getString(i));
+				}
+
+				continue;
+			}
+
+			roleIds.add(role.getRoleId());
 		}
 
-		return roleIds;
+		if (roleIds.isEmpty()) {
+			return null;
+		}
+
+		return ArrayUtil.toLongArray(roleIds);
 	}
 
 	private long[] _getRoleIds(long companyId, String issuer) {

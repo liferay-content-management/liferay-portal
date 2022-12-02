@@ -15,11 +15,11 @@
 package com.liferay.saml.addon.keep.alive.web.internal.struts;
 
 import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -54,8 +54,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Mika Koivisto
  */
 @Component(
-	immediate = true, property = "path=/portal/saml/keep_alive",
-	service = StrutsAction.class
+	property = "path=/portal/saml/keep_alive", service = StrutsAction.class
 )
 public class KeepAliveStrutsAction implements StrutsAction {
 
@@ -128,8 +127,8 @@ public class KeepAliveStrutsAction implements StrutsAction {
 			HttpServletRequest httpServletRequest)
 		throws Exception {
 
-		String samlSsoSessionId = CookieKeys.getCookie(
-			httpServletRequest, SamlWebKeys.SAML_SSO_SESSION_ID);
+		String samlSsoSessionId = CookiesManagerUtil.getCookieValue(
+			SamlWebKeys.SAML_SSO_SESSION_ID, httpServletRequest);
 
 		SamlIdpSsoSession samlIdpSsoSession =
 			_samlIdpSsoSessionLocalService.fetchSamlIdpSso(samlSsoSessionId);

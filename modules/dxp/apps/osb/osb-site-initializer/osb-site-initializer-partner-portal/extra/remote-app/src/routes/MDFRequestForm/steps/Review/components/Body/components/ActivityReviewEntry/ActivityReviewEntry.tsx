@@ -9,11 +9,10 @@
  * distribution rights of the Software.
  */
 
-import {TypeActivityExternalReferenceCode} from '../../../../../../../../common/enums/typeActivityExternalReferenceCode';
+import Table from '../../../../../../../../common/components/Table';
+import {TypeActivityKey} from '../../../../../../../../common/enums/TypeActivityKey';
 import MDFRequestActivity from '../../../../../../../../common/interfaces/mdfRequestActivity';
 import {Liferay} from '../../../../../../../../common/services/liferay';
-import TableItem from '../../../../interfaces/tableItem';
-import Table from '../../../Table';
 import ActivityContent from './components/ActivityContent';
 import getContentMarketFields from './utils/getContentMarketFields';
 import getDigitalMarketFields from './utils/getDigitalMarketFields';
@@ -24,30 +23,44 @@ interface IProps {
 	mdfRequestActivity: MDFRequestActivity;
 }
 
+interface Item {
+	[key: string]: string | undefined;
+}
+
 type TypeOfActivityComponent = {
-	[key in TypeActivityExternalReferenceCode]: TableItem[];
+	[key in TypeActivityKey]: Item[];
 };
 
 const ActivityReviewEntry = ({mdfRequestActivity}: IProps) => {
 	const fieldsByTypeActivity: TypeOfActivityComponent = {
-		[TypeActivityExternalReferenceCode.DIGITAL_MARKETING]: getDigitalMarketFields(
+		[TypeActivityKey.DIGITAL_MARKETING]: getDigitalMarketFields(
 			mdfRequestActivity
 		),
-		[TypeActivityExternalReferenceCode.CONTENT_MARKETING]: getContentMarketFields(
+		[TypeActivityKey.CONTENT_MARKETING]: getContentMarketFields(
 			mdfRequestActivity
 		),
-		[TypeActivityExternalReferenceCode.EVENT]: getEventFields(
-			mdfRequestActivity
-		),
-		[TypeActivityExternalReferenceCode.MISCELLANEOUS_MARKETING]: getMiscellaneousMarketing(
+		[TypeActivityKey.EVENT]: getEventFields(mdfRequestActivity),
+		[TypeActivityKey.MISCELLANEOUS_MARKETING]: getMiscellaneousMarketing(
 			mdfRequestActivity
 		),
 	};
 
 	return (
 		<>
-			<Table
-				items={[
+			<Table<Item>
+				borderless
+				className="bg-brand-primary-lighten-6 border-top table-striped"
+				columns={[
+					{
+						columnKey: 'title',
+						label: 'Campaign Activity',
+					},
+					{
+						columnKey: 'value',
+						label: '',
+					},
+				]}
+				rows={[
 					{
 						title: 'Activity name',
 						value: mdfRequestActivity.name,
@@ -61,8 +74,7 @@ const ActivityReviewEntry = ({mdfRequestActivity}: IProps) => {
 						value: mdfRequestActivity.tactic.name,
 					},
 					...fieldsByTypeActivity[
-						mdfRequestActivity.typeActivity
-							.externalReferenceCode as TypeActivityExternalReferenceCode
+						mdfRequestActivity.typeActivity.key as TypeActivityKey
 					],
 					{
 						title: 'Start Date',
@@ -85,7 +97,6 @@ const ActivityReviewEntry = ({mdfRequestActivity}: IProps) => {
 							),
 					},
 				]}
-				title="Campaign Activity"
 			/>
 
 			<ActivityContent mdfRequestActivity={mdfRequestActivity} />

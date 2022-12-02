@@ -14,13 +14,18 @@
 
 package com.liferay.object.service.impl;
 
+import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.object.configuration.ObjectConfiguration;
 import com.liferay.object.constants.ObjectActionKeys;
+import com.liferay.object.entry.permission.util.ObjectEntryPermissionUtil;
 import com.liferay.object.exception.ObjectEntryCountException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
-import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.base.ObjectEntryServiceBaseImpl;
+import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
@@ -33,16 +38,15 @@ import com.liferay.portal.kernel.service.ServiceContext;
 
 import java.io.Serializable;
 
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Marco Leo
@@ -79,8 +83,9 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 			Map<String, Serializable> values, ServiceContext serviceContext)
 		throws PortalException {
 
-		ObjectEntry objectEntry = objectEntryPersistence.fetchByG_C_ERC(
-			groupId, serviceContext.getCompanyId(), externalReferenceCode);
+		ObjectEntry objectEntry = objectEntryPersistence.fetchByERC_C_ODI(
+			externalReferenceCode, serviceContext.getCompanyId(),
+			objectDefinitionId);
 
 		if (objectEntry == null) {
 			_checkPortletResourcePermission(
@@ -101,11 +106,8 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 	public ObjectEntry deleteObjectEntry(long objectEntryId)
 		throws PortalException {
 
-		ObjectEntry objectEntry = objectEntryLocalService.getObjectEntry(
-			objectEntryId);
-
-		_checkModelResourcePermission(
-			objectEntry.getObjectDefinitionId(), objectEntry.getObjectEntryId(),
+		_checkPermissions(
+			objectEntryLocalService.getObjectEntry(objectEntryId),
 			ActionKeys.DELETE);
 
 		return objectEntryLocalService.deleteObjectEntry(objectEntryId);
@@ -119,9 +121,7 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 		ObjectEntry objectEntry = objectEntryLocalService.getObjectEntry(
 			externalReferenceCode, companyId, groupId);
 
-		_checkModelResourcePermission(
-			objectEntry.getObjectDefinitionId(), objectEntry.getObjectEntryId(),
-			ActionKeys.DELETE);
+		_checkPermissions(objectEntry, ActionKeys.DELETE);
 
 		return objectEntryLocalService.deleteObjectEntry(objectEntry);
 	}
@@ -134,12 +134,40 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 			objectEntryId);
 
 		if (objectEntry != null) {
+			_checkPermissions(objectEntry, ActionKeys.VIEW);
+		}
+
+		return objectEntry;
+	}
+
+	@Override
+	public List<ObjectEntry> getManyToManyObjectEntries(
+			long groupId, long objectRelationshipId, long primaryKey,
+			boolean related, boolean reverse, int start, int end)
+		throws PortalException {
+
+		List<ObjectEntry> objectEntries =
+			objectEntryLocalService.getManyToManyObjectEntries(
+				groupId, objectRelationshipId, primaryKey, related, reverse,
+				start, end);
+
+		for (ObjectEntry objectEntry : objectEntries) {
 			_checkModelResourcePermission(
 				objectEntry.getObjectDefinitionId(),
 				objectEntry.getObjectEntryId(), ActionKeys.VIEW);
 		}
 
-		return objectEntry;
+		return objectEntries;
+	}
+
+	@Override
+	public int getManyToManyObjectEntriesCount(
+			long groupId, long objectRelationshipId, long primaryKey,
+			boolean related, boolean reverse)
+		throws PortalException {
+
+		return objectEntryLocalService.getManyToManyObjectEntriesCount(
+			groupId, objectRelationshipId, primaryKey, related, reverse);
 	}
 
 	@Override
@@ -149,9 +177,7 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 		ObjectEntry objectEntry = objectEntryLocalService.getObjectEntry(
 			objectEntryId);
 
-		_checkModelResourcePermission(
-			objectEntry.getObjectDefinitionId(), objectEntry.getObjectEntryId(),
-			ActionKeys.VIEW);
+		_checkPermissions(objectEntry, ActionKeys.VIEW);
 
 		return objectEntry;
 	}
@@ -164,11 +190,38 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 		ObjectEntry objectEntry = objectEntryLocalService.getObjectEntry(
 			externalReferenceCode, companyId, groupId);
 
-		_checkModelResourcePermission(
-			objectEntry.getObjectDefinitionId(), objectEntry.getObjectEntryId(),
-			ActionKeys.VIEW);
+		_checkPermissions(objectEntry, ActionKeys.VIEW);
 
 		return objectEntry;
+	}
+
+	@Override
+	public List<ObjectEntry> getOneToManyObjectEntries(
+			long groupId, long objectRelationshipId, long primaryKey,
+			boolean related, int start, int end)
+		throws PortalException {
+
+		List<ObjectEntry> objectEntries =
+			objectEntryLocalService.getOneToManyObjectEntries(
+				groupId, objectRelationshipId, primaryKey, related, start, end);
+
+		for (ObjectEntry objectEntry : objectEntries) {
+			_checkModelResourcePermission(
+				objectEntry.getObjectDefinitionId(),
+				objectEntry.getObjectEntryId(), ActionKeys.VIEW);
+		}
+
+		return objectEntries;
+	}
+
+	@Override
+	public int getOneToManyObjectEntriesCount(
+			long groupId, long objectRelationshipId, long primaryKey,
+			boolean related)
+		throws PortalException {
+
+		return objectEntryLocalService.getOneToManyObjectEntriesCount(
+			groupId, objectRelationshipId, primaryKey, related);
 	}
 
 	@Override
@@ -177,11 +230,11 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 		throws PortalException {
 
 		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.getObjectDefinition(
-				objectDefinitionId);
+			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
 		ModelResourcePermission<ObjectEntry> modelResourcePermission =
-			_modelResourcePermissions.get(objectDefinition.getClassName());
+			_modelResourcePermissionsServiceTrackerMap.getService(
+				objectDefinition.getClassName());
 
 		return modelResourcePermission.contains(
 			getPermissionChecker(), objectEntryId, actionId);
@@ -193,11 +246,12 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 		throws PortalException {
 
 		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.getObjectDefinition(
+			_objectDefinitionPersistence.findByPrimaryKey(
 				objectEntry.getObjectDefinitionId());
 
 		ModelResourcePermission<ObjectEntry> modelResourcePermission =
-			_modelResourcePermissions.get(objectDefinition.getClassName());
+			_modelResourcePermissionsServiceTrackerMap.getService(
+				objectDefinition.getClassName());
 
 		return modelResourcePermission.contains(
 			getPermissionChecker(), objectEntry, actionId);
@@ -222,58 +276,31 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 
 	@Activate
 	@Modified
-	protected void activate(Map<String, Object> properties) {
+	protected void activate(
+		BundleContext bundleContext, Map<String, Object> properties) {
+
+		_modelResourcePermissionsServiceTrackerMap =
+			ServiceTrackerMapFactory.openSingleValueMap(
+				bundleContext,
+				(Class<ModelResourcePermission<ObjectEntry>>)
+					(Class<?>)ModelResourcePermission.class,
+				"(&(com.liferay.object=true)(model.class.name=*))",
+				(serviceReference, emitter) -> emitter.emit(
+					(String)serviceReference.getProperty("model.class.name")));
 		_objectConfiguration = ConfigurableUtil.createConfigurable(
 			ObjectConfiguration.class, properties);
+		_portletResourcePermissionsServiceTrackerMap =
+			ServiceTrackerMapFactory.openSingleValueMap(
+				bundleContext, PortletResourcePermission.class,
+				"(&(com.liferay.object=true)(resource.name=*))",
+				(serviceReference, emitter) -> emitter.emit(
+					(String)serviceReference.getProperty("resource.name")));
 	}
 
-	@Reference(
-		cardinality = ReferenceCardinality.MULTIPLE,
-		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY,
-		target = "(&(com.liferay.object=true)(model.class.name=*))"
-	)
-	protected void setModelResourcePermission(
-		ModelResourcePermission<ObjectEntry> modelResourcePermission,
-		Map<String, Object> properties) {
-
-		String className = (String)properties.get("model.class.name");
-
-		_modelResourcePermissions.put(className, modelResourcePermission);
-	}
-
-	@Reference(
-		cardinality = ReferenceCardinality.MULTIPLE,
-		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY,
-		target = "(&(com.liferay.object=true)(resource.name=*))"
-	)
-	protected void setPortletResourcePermission(
-		PortletResourcePermission portletResourcePermission,
-		Map<String, Object> properties) {
-
-		String resourceName = (String)properties.get("resource.name");
-
-		_portletResourcePermissions.put(
-			resourceName, portletResourcePermission);
-	}
-
-	protected void unsetModelResourcePermission(
-		ModelResourcePermission<ObjectEntry> modelResourcePermission,
-		Map<String, Object> properties) {
-
-		String className = (String)properties.get("model.class.name");
-
-		_modelResourcePermissions.remove(className);
-	}
-
-	protected void unsetPortletResourcePermission(
-		PortletResourcePermission portletResourcePermission,
-		Map<String, Object> properties) {
-
-		String resourceName = (String)properties.get("resource.name");
-
-		_portletResourcePermissions.remove(resourceName);
+	@Deactivate
+	protected void deactivate() {
+		_modelResourcePermissionsServiceTrackerMap.close();
+		_portletResourcePermissionsServiceTrackerMap.close();
 	}
 
 	private void _checkModelResourcePermission(
@@ -281,14 +308,28 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 		throws PortalException {
 
 		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.getObjectDefinition(
-				objectDefinitionId);
+			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
 		ModelResourcePermission<ObjectEntry> modelResourcePermission =
-			_modelResourcePermissions.get(objectDefinition.getClassName());
+			_modelResourcePermissionsServiceTrackerMap.getService(
+				objectDefinition.getClassName());
 
 		modelResourcePermission.check(
 			getPermissionChecker(), objectEntryId, actionId);
+	}
+
+	private void _checkPermissions(ObjectEntry objectEntry, String actionId)
+		throws PortalException {
+
+		_checkModelResourcePermission(
+			objectEntry.getObjectDefinitionId(), objectEntry.getObjectEntryId(),
+			actionId);
+
+		ObjectEntryPermissionUtil.checkAccountEntryPermission(
+			_accountEntryLocalService, actionId,
+			_objectDefinitionPersistence.findByPrimaryKey(
+				objectEntry.getObjectDefinitionId()),
+			objectEntry, _objectFieldLocalService, getUserId());
 	}
 
 	private void _checkPortletResourcePermission(
@@ -296,11 +337,11 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 		throws PortalException {
 
 		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.getObjectDefinition(
-				objectDefinitionId);
+			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
 		PortletResourcePermission portletResourcePermission =
-			_portletResourcePermissions.get(objectDefinition.getResourceName());
+			_portletResourcePermissionsServiceTrackerMap.getService(
+				objectDefinition.getResourceName());
 
 		portletResourcePermission.check(
 			getPermissionChecker(), groupId, actionId);
@@ -329,14 +370,21 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 		}
 	}
 
-	private final Map<String, ModelResourcePermission<ObjectEntry>>
-		_modelResourcePermissions = new ConcurrentHashMap<>();
+	@Reference
+	private AccountEntryLocalService _accountEntryLocalService;
+
+	private volatile ServiceTrackerMap
+		<String, ModelResourcePermission<ObjectEntry>>
+			_modelResourcePermissionsServiceTrackerMap;
 	private volatile ObjectConfiguration _objectConfiguration;
 
 	@Reference
-	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+	private ObjectDefinitionPersistence _objectDefinitionPersistence;
 
-	private final Map<String, PortletResourcePermission>
-		_portletResourcePermissions = new ConcurrentHashMap<>();
+	@Reference
+	private ObjectFieldLocalService _objectFieldLocalService;
+
+	private volatile ServiceTrackerMap<String, PortletResourcePermission>
+		_portletResourcePermissionsServiceTrackerMap;
 
 }

@@ -330,34 +330,14 @@ public class CPAttachmentFileEntryLocalServiceWrapper
 			CPAttachmentFileEntryId);
 	}
 
-	/**
-	 * Returns the cp attachment file entry with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the cp attachment file entry's external reference code
-	 * @return the matching cp attachment file entry, or <code>null</code> if a matching cp attachment file entry could not be found
-	 */
 	@Override
 	public CPAttachmentFileEntry
 		fetchCPAttachmentFileEntryByExternalReferenceCode(
-			long companyId, String externalReferenceCode) {
+			String externalReferenceCode, long companyId) {
 
 		return _cpAttachmentFileEntryLocalService.
 			fetchCPAttachmentFileEntryByExternalReferenceCode(
-				companyId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchCPAttachmentFileEntryByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public CPAttachmentFileEntry fetchCPAttachmentFileEntryByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return _cpAttachmentFileEntryLocalService.
-			fetchCPAttachmentFileEntryByReferenceCode(
-				companyId, externalReferenceCode);
+				externalReferenceCode, companyId);
 	}
 
 	/**
@@ -537,23 +517,15 @@ public class CPAttachmentFileEntryLocalServiceWrapper
 			CPAttachmentFileEntryId);
 	}
 
-	/**
-	 * Returns the cp attachment file entry with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the cp attachment file entry's external reference code
-	 * @return the matching cp attachment file entry
-	 * @throws PortalException if a matching cp attachment file entry could not be found
-	 */
 	@Override
 	public CPAttachmentFileEntry
 			getCPAttachmentFileEntryByExternalReferenceCode(
-				long companyId, String externalReferenceCode)
+				String externalReferenceCode, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpAttachmentFileEntryLocalService.
 			getCPAttachmentFileEntryByExternalReferenceCode(
-				companyId, externalReferenceCode);
+				externalReferenceCode, companyId);
 	}
 
 	/**

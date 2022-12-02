@@ -46,9 +46,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Rachael Koestartyo
  */
-@Component(
-	immediate = true, service = {EntityModelListener.class, ModelListener.class}
-)
+@Component(service = {EntityModelListener.class, ModelListener.class})
 public class ExpandoColumnModelListener
 	extends BaseEntityModelListener<ExpandoColumn> {
 
@@ -62,7 +60,7 @@ public class ExpandoColumnModelListener
 			ExpandoColumn originalExpandoColumn, ExpandoColumn expandoColumn)
 		throws ModelListenerException {
 
-		if (!analyticsConfigurationTracker.isActive()) {
+		if (!analyticsConfigurationRegistry.isActive()) {
 			return;
 		}
 
@@ -124,7 +122,7 @@ public class ExpandoColumnModelListener
 
 		if (isCustomField(User.class.getName(), expandoColumn.getTableId())) {
 			AnalyticsConfiguration analyticsConfiguration =
-				analyticsConfigurationTracker.getAnalyticsConfiguration(
+				analyticsConfigurationRegistry.getAnalyticsConfiguration(
 					expandoColumn.getCompanyId());
 
 			if (ArrayUtil.isEmpty(

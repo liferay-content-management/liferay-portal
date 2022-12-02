@@ -81,7 +81,12 @@ function EditSXPBlueprintForm({
 	initialTitle = {},
 	sxpBlueprintId,
 }) {
-	const {locale, redirectURL} = useContext(ThemeContext);
+	const {
+		featureFlagLps153813,
+		isCompanyAdmin,
+		locale,
+		redirectURL,
+	} = useContext(ThemeContext);
 
 	const formRef = useRef();
 	const sxpElementIdCounterRef = useRef(
@@ -100,6 +105,7 @@ function EditSXPBlueprintForm({
 	const [tab, setTab] = useState('query-builder');
 
 	const [indexFields, setIndexFields] = useState(null);
+	const [searchIndexes, setSearchIndexes] = useState(null);
 
 	const {
 		data: searchableTypes,
@@ -391,6 +397,9 @@ function EditSXPBlueprintForm({
 				null,
 				'\t'
 			),
+			indexConfig: initialConfiguration.indexConfiguration || {
+				indexName: '',
+			},
 			parameterConfig: JSON.stringify(
 				initialConfiguration.parameterConfiguration,
 				null,
@@ -410,9 +419,54 @@ function EditSXPBlueprintForm({
 	useShouldConfirmBeforeNavigate(formik.dirty && !formik.isSubmitting);
 
 	useEffect(() => {
+
+		// Example response:
+		// {
+		// 	actions: {},
+		// 	facets: [],
+		// 	items: [
+		// 		{
+		// 			languageIdPosition: -1,
+		// 			name: 'ddmTemplateKey',
+		// 			type: 'keyword',
+		// 		}
+		// 	],
+		// 	lastPage: 1,
+		// 	page: 1,
+		// 	pageSize: 218,
+		// 	totalCount: 218,
+		// }
+
 		fetchData(`/o/search-experiences-rest/v1.0/field-mapping-infos`)
 			.then((responseContent) => setIndexFields(responseContent.items))
 			.catch(() => setIndexFields([]));
+
+		if (featureFlagLps153813 && isCompanyAdmin) {
+
+			// Example response:
+			// {
+			// 	actions: {},
+			// 	facets: [],
+			// 	items: [
+			// 		{
+			// 			name: 'search-tuning-rankings',
+			// 		}
+			// 	],
+			// 	lastPage: 1,
+			// 	page: 1,
+			// 	pageSize: 14,
+			// 	totalCount: 14,
+			// }
+
+			fetchData(`/o/search-experiences-rest/v1.0/search-indexes`)
+				.then((responseContent) =>
+					setSearchIndexes(responseContent?.items || [])
+				)
+				.catch(() => setSearchIndexes([]));
+		}
+		else {
+			setSearchIndexes([]);
+		}
 
 		setStorageAddSXPElementSidebar('open');
 	}, []); //eslint-disable-line
@@ -429,25 +483,36 @@ function EditSXPBlueprintForm({
 		applyIndexerClauses,
 		frameworkConfig,
 		highlightConfig,
+		indexConfig,
 		parameterConfig,
 		sortConfig,
-	}) => ({
-		advancedConfiguration: advancedConfig ? JSON.parse(advancedConfig) : {},
-		aggregationConfiguration: aggregationConfig
-			? JSON.parse(aggregationConfig)
-			: {},
-		generalConfiguration: frameworkConfig,
-		highlightConfiguration: highlightConfig
-			? JSON.parse(highlightConfig)
-			: {},
-		parameterConfiguration: parameterConfig
-			? JSON.parse(parameterConfig)
-			: {},
-		queryConfiguration: {
-			applyIndexerClauses,
-		},
-		sortConfiguration: sortConfig ? JSON.parse(sortConfig) : {},
-	});
+	}) => {
+		const configuration = {
+			advancedConfiguration: advancedConfig
+				? JSON.parse(advancedConfig)
+				: {},
+			aggregationConfiguration: aggregationConfig
+				? JSON.parse(aggregationConfig)
+				: {},
+			generalConfiguration: frameworkConfig,
+			highlightConfiguration: highlightConfig
+				? JSON.parse(highlightConfig)
+				: {},
+			parameterConfiguration: parameterConfig
+				? JSON.parse(parameterConfig)
+				: {},
+			queryConfiguration: {
+				applyIndexerClauses,
+			},
+			sortConfiguration: sortConfig ? JSON.parse(sortConfig) : {},
+		};
+
+		if (featureFlagLps153813) {
+			configuration.indexConfiguration = indexConfig || {};
+		}
+
+		return configuration;
+	};
 
 	const _getElementInstances = (values) =>
 		values.elementInstances.map(
@@ -775,6 +840,10 @@ function EditSXPBlueprintForm({
 		setOpenSidebar(openSidebar === type ? '' : type);
 	};
 
+	const _isIndexCompany = () => {
+		return formik.values.indexConfig.indexName === '';
+	};
+
 	const _renderTabContent = () => {
 		switch (tab) {
 			case 'configuration':
@@ -784,7 +853,9 @@ function EditSXPBlueprintForm({
 						aggregationConfig={formik.values.aggregationConfig}
 						errors={formik.errors}
 						highlightConfig={formik.values.highlightConfig}
+						indexConfig={formik.values.indexConfig}
 						parameterConfig={formik.values.parameterConfig}
+						searchIndexes={searchIndexes}
 						setFieldTouched={formik.setFieldTouched}
 						setFieldValue={formik.setFieldValue}
 						sortConfig={formik.values.sortConfig}
@@ -795,6 +866,7 @@ function EditSXPBlueprintForm({
 				return (
 					<>
 						<AddSXPElementSidebar
+							isIndexCompany={_isIndexCompany()}
 							onAddSXPElement={_handleAddSXPElement}
 							onClose={_handleCloseSidebar}
 							visible={openSidebar === SIDEBARS.ADD_SXP_ELEMENT}
@@ -876,6 +948,7 @@ function EditSXPBlueprintForm({
 								errors={formik.errors.elementInstances}
 								frameworkConfig={formik.values.frameworkConfig}
 								indexFields={indexFields}
+								isIndexCompany={_isIndexCompany()}
 								isSubmitting={
 									formik.isSubmitting || previewInfo.loading
 								}
@@ -902,7 +975,7 @@ function EditSXPBlueprintForm({
 		}
 	};
 
-	if (!indexFields) {
+	if (!indexFields || !searchIndexes) {
 		return null;
 	}
 
@@ -954,6 +1027,7 @@ function EditSXPBlueprintForm({
 				onFetchCancel={_handleFetchPreviewCancel}
 				onFetchResults={_handleFetchPreviewSearch}
 				onFocusSXPElement={_handleFocusSXPElement}
+				requestString={previewInfo.results.requestString}
 				responseString={previewInfo.results.responseString}
 				totalHits={previewInfo.results.searchHits?.totalHits}
 				visible={openSidebar === SIDEBARS.PREVIEW}

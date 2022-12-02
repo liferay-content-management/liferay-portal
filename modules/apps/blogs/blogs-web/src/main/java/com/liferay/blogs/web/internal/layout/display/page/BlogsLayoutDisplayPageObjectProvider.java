@@ -14,9 +14,6 @@
 
 package com.liferay.blogs.web.internal.layout.display.page;
 
-import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
-import com.liferay.asset.kernel.model.AssetEntry;
-import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
 import com.liferay.blogs.model.BlogsEntry;
@@ -38,13 +35,16 @@ public class BlogsLayoutDisplayPageObjectProvider
 		throws PortalException {
 
 		_blogsEntry = blogsEntry;
+	}
 
-		_assetEntry = _getAssetEntry(blogsEntry);
+	@Override
+	public String getClassName() {
+		return BlogsEntry.class.getName();
 	}
 
 	@Override
 	public long getClassNameId() {
-		return _assetEntry.getClassNameId();
+		return PortalUtil.getClassNameId(BlogsEntry.class.getName());
 	}
 
 	@Override
@@ -54,12 +54,12 @@ public class BlogsLayoutDisplayPageObjectProvider
 
 	@Override
 	public long getClassTypeId() {
-		return _assetEntry.getClassTypeId();
+		return 0;
 	}
 
 	@Override
 	public String getDescription(Locale locale) {
-		return _assetEntry.getDescription(locale);
+		return _blogsEntry.getDescription();
 	}
 
 	@Override
@@ -75,10 +75,10 @@ public class BlogsLayoutDisplayPageObjectProvider
 	@Override
 	public String getKeywords(Locale locale) {
 		String[] assetTagNames = AssetTagLocalServiceUtil.getTagNames(
-			_assetEntry.getClassName(), _assetEntry.getClassPK());
+			BlogsEntry.class.getName(), _blogsEntry.getEntryId());
 		String[] assetCategoryNames =
 			AssetCategoryLocalServiceUtil.getCategoryNames(
-				_assetEntry.getClassName(), _assetEntry.getClassPK());
+				BlogsEntry.class.getName(), _blogsEntry.getEntryId());
 
 		String[] keywords =
 			new String[assetTagNames.length + assetCategoryNames.length];
@@ -90,7 +90,7 @@ public class BlogsLayoutDisplayPageObjectProvider
 
 	@Override
 	public String getTitle(Locale locale) {
-		return _assetEntry.getTitle(locale);
+		return _blogsEntry.getTitle();
 	}
 
 	@Override
@@ -98,19 +98,6 @@ public class BlogsLayoutDisplayPageObjectProvider
 		return _blogsEntry.getUrlTitle();
 	}
 
-	private AssetEntry _getAssetEntry(BlogsEntry blogsEntry)
-		throws PortalException {
-
-		AssetRendererFactory<?> assetRendererFactory =
-			AssetRendererFactoryRegistryUtil.
-				getAssetRendererFactoryByClassNameId(
-					PortalUtil.getClassNameId(BlogsEntry.class));
-
-		return assetRendererFactory.getAssetEntry(
-			BlogsEntry.class.getName(), blogsEntry.getEntryId());
-	}
-
-	private final AssetEntry _assetEntry;
 	private final BlogsEntry _blogsEntry;
 
 }

@@ -109,7 +109,7 @@ public class OrganizationLocalServiceUtil {
 	 * @param type the organization's type
 	 * @param regionId the primary key of the organization's region
 	 * @param countryId the primary key of the organization's country
-	 * @param statusId the organization's workflow status
+	 * @param statusListTypeId the organization's workflow status
 	 * @param comments the comments about the organization
 	 * @param site whether the organization is to be associated with a main
 	 site
@@ -120,13 +120,13 @@ public class OrganizationLocalServiceUtil {
 	 */
 	public static Organization addOrganization(
 			long userId, long parentOrganizationId, String name, String type,
-			long regionId, long countryId, long statusId, String comments,
-			boolean site, ServiceContext serviceContext)
+			long regionId, long countryId, long statusListTypeId,
+			String comments, boolean site, ServiceContext serviceContext)
 		throws PortalException {
 
 		return getService().addOrganization(
 			userId, parentOrganizationId, name, type, regionId, countryId,
-			statusId, comments, site, serviceContext);
+			statusListTypeId, comments, site, serviceContext);
 	}
 
 	/**
@@ -170,14 +170,15 @@ public class OrganizationLocalServiceUtil {
 	public static Organization addOrUpdateOrganization(
 			String externalReferenceCode, long userId,
 			long parentOrganizationId, String name, String type, long regionId,
-			long countryId, long statusId, String comments, boolean hasLogo,
-			byte[] logoBytes, boolean site, ServiceContext serviceContext)
+			long countryId, long statusListTypeId, String comments,
+			boolean hasLogo, byte[] logoBytes, boolean site,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		return getService().addOrUpdateOrganization(
 			externalReferenceCode, userId, parentOrganizationId, name, type,
-			regionId, countryId, statusId, comments, hasLogo, logoBytes, site,
-			serviceContext);
+			regionId, countryId, statusListTypeId, comments, hasLogo, logoBytes,
+			site, serviceContext);
 	}
 
 	/**
@@ -462,29 +463,11 @@ public class OrganizationLocalServiceUtil {
 		return getService().fetchOrganization(companyId, name);
 	}
 
-	/**
-	 * Returns the organization with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the organization's external reference code
-	 * @return the matching organization, or <code>null</code> if a matching organization could not be found
-	 */
 	public static Organization fetchOrganizationByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
 		return getService().fetchOrganizationByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchOrganizationByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	public static Organization fetchOrganizationByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return getService().fetchOrganizationByReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -595,20 +578,12 @@ public class OrganizationLocalServiceUtil {
 		return getService().getOrganization(companyId, name);
 	}
 
-	/**
-	 * Returns the organization with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the organization's external reference code
-	 * @return the matching organization
-	 * @throws PortalException if a matching organization could not be found
-	 */
 	public static Organization getOrganizationByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws PortalException {
 
 		return getService().getOrganizationByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -1616,7 +1591,7 @@ public class OrganizationLocalServiceUtil {
 	 * @param type the organization's type
 	 * @param regionId the primary key of the organization's region
 	 * @param countryId the primary key of the organization's country
-	 * @param statusId the organization's workflow status
+	 * @param statusListTypeId the organization's workflow status
 	 * @param comments the comments about the organization
 	 * @param hasLogo if the organization has a custom logo
 	 * @param logoBytes the new logo image data
@@ -1631,14 +1606,14 @@ public class OrganizationLocalServiceUtil {
 	public static Organization updateOrganization(
 			long companyId, long organizationId, long parentOrganizationId,
 			String name, String type, long regionId, long countryId,
-			long statusId, String comments, boolean hasLogo, byte[] logoBytes,
-			boolean site, ServiceContext serviceContext)
+			long statusListTypeId, String comments, boolean hasLogo,
+			byte[] logoBytes, boolean site, ServiceContext serviceContext)
 		throws PortalException {
 
 		return getService().updateOrganization(
 			companyId, organizationId, parentOrganizationId, name, type,
-			regionId, countryId, statusId, comments, hasLogo, logoBytes, site,
-			serviceContext);
+			regionId, countryId, statusListTypeId, comments, hasLogo, logoBytes,
+			site, serviceContext);
 	}
 
 	/**

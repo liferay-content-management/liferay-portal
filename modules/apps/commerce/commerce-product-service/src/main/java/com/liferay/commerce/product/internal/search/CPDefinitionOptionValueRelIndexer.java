@@ -48,7 +48,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Marco Leo
  */
-@Component(enabled = false, immediate = true, service = Indexer.class)
+@Component(service = Indexer.class)
 public class CPDefinitionOptionValueRelIndexer
 	extends BaseIndexer<CPDefinitionOptionValueRel> {
 
@@ -178,8 +178,8 @@ public class CPDefinitionOptionValueRelIndexer
 		throws Exception {
 
 		_indexWriterHelper.updateDocument(
-			getSearchEngineId(), cpDefinitionOptionValueRel.getCompanyId(),
-			getDocument(cpDefinitionOptionValueRel), isCommitImmediately());
+			cpDefinitionOptionValueRel.getCompanyId(),
+			getDocument(cpDefinitionOptionValueRel));
 	}
 
 	@Override
@@ -223,7 +223,6 @@ public class CPDefinitionOptionValueRelIndexer
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}

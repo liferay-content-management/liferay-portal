@@ -92,8 +92,7 @@ public class ConfigurationModelIndexerTest {
 	public void tearDown() throws SearchException {
 		for (Document document : _documents) {
 			_indexWriterHelper.deleteDocument(
-				_indexer.getSearchEngineId(), CompanyConstants.SYSTEM,
-				document.getUID(), true);
+				CompanyConstants.SYSTEM, document.getUID(), true);
 		}
 
 		_documents.clear();
@@ -173,9 +172,7 @@ public class ConfigurationModelIndexerTest {
 
 		_documents.add(document);
 
-		_indexWriterHelper.addDocument(
-			_indexer.getSearchEngineId(), CompanyConstants.SYSTEM, document,
-			true);
+		_indexWriterHelper.addDocument(CompanyConstants.SYSTEM, document, true);
 
 		return configuration;
 	}

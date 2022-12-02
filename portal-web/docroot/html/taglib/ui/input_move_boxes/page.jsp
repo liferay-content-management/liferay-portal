@@ -43,8 +43,8 @@ Map<String, Object> data = new HashMap<String, Object>();
 %>
 
 <div class="taglib-move-boxes <%= cssClass %> <%= leftReorder ? "left-reorder" : StringPool.BLANK %> <%= rightReorder ? "right-reorder" : StringPool.BLANK %>" id="<%= randomNamespace %>input-move-boxes">
-	<aui:row cssClass="selector-container">
-		<aui:col cssClass="left-selector-column" width="<%= 30 %>">
+	<div class="row selector-container">
+		<div class="col-md-4 left-selector-column">
 			<aui:select cssClass="choice-selector left-selector" label="<%= leftTitle %>" multiple="<%= true %>" name="<%= leftBoxName %>" onChange="<%= Validator.isNotNull(leftOnChange) ? leftOnChange : StringPool.BLANK %>" size="10">
 
 				<%
@@ -61,11 +61,11 @@ Map<String, Object> data = new HashMap<String, Object>();
 				%>
 
 			</aui:select>
-		</aui:col>
+		</div>
 
-		<aui:col cssClass="move-arrow-buttons" span="<%= 1 %>"></aui:col>
+		<div class="col-md-1 move-arrow-buttons"></div>
 
-		<aui:col cssClass="right-selector-column" width="<%= 30 %>">
+		<div class="col-md-4 right-selector-column">
 			<aui:select cssClass="choice-selector right-selector" label="<%= rightTitle %>" multiple="<%= true %>" name="<%= rightBoxName %>" onChange="<%= Validator.isNotNull(rightOnChange) ? rightOnChange : StringPool.BLANK %>" size="10">
 
 				<%
@@ -82,14 +82,14 @@ Map<String, Object> data = new HashMap<String, Object>();
 				%>
 
 			</aui:select>
-		</aui:col>
-	</aui:row>
+		</div>
+	</div>
 </div>
 
 <aui:script use="liferay-input-move-boxes">
 	new Liferay.InputMoveBoxes(
 		{
-			contentBox: '#<%= randomNamespace + "input-move-boxes" %>',
+			contentBox: '#<%= randomNamespace %>input-move-boxes',
 
 			<c:if test="<%= leftBoxMaxItems != null %>">
 				leftBoxMaxItems: <%= leftBoxMaxItems %>,

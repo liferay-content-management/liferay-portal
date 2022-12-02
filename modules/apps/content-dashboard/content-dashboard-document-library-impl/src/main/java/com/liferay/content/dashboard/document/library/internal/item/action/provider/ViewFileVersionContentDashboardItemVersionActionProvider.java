@@ -20,6 +20,7 @@ import com.liferay.content.dashboard.item.action.provider.ContentDashboardItemVe
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileVersion;
+import com.liferay.portal.kernel.util.Portal;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,7 +30,10 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Jürgen Kappler
  */
-@Component(service = ContentDashboardItemVersionActionProvider.class)
+@Component(
+	property = "service.ranking:Integer=200",
+	service = ContentDashboardItemVersionActionProvider.class
+)
 public class ViewFileVersionContentDashboardItemVersionActionProvider
 	implements ContentDashboardItemVersionActionProvider<FileVersion> {
 
@@ -43,7 +47,7 @@ public class ViewFileVersionContentDashboardItemVersionActionProvider
 		}
 
 		return new ViewFileVersionContentDashboardItemVersionAction(
-			fileVersion, httpServletRequest, _language,
+			fileVersion, httpServletRequest, _language, _portal,
 			RequestBackedPortletURLFactoryUtil.create(httpServletRequest));
 	}
 
@@ -56,5 +60,8 @@ public class ViewFileVersionContentDashboardItemVersionActionProvider
 
 	@Reference
 	private Language _language;
+
+	@Reference
+	private Portal _portal;
 
 }

@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -84,11 +83,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  * @generated
  */
-@Component(
-	service = {
-		CommercePriceListAccountRelPersistence.class, BasePersistence.class
-	}
-)
+@Component(service = CommercePriceListAccountRelPersistence.class)
 public class CommercePriceListAccountRelPersistenceImpl
 	extends BasePersistenceImpl<CommercePriceListAccountRel>
 	implements CommercePriceListAccountRelPersistence {
@@ -210,7 +205,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CommercePriceListAccountRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommercePriceListAccountRel commercePriceListAccountRel :
@@ -615,7 +610,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 			finderArgs = new Object[] {uuid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -782,7 +777,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CommercePriceListAccountRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommercePriceListAccountRel commercePriceListAccountRel :
@@ -1214,7 +1209,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 			finderArgs = new Object[] {uuid, companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1383,7 +1378,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CommercePriceListAccountRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommercePriceListAccountRel commercePriceListAccountRel :
@@ -1770,7 +1765,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 			finderArgs = new Object[] {commercePriceListId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1896,7 +1891,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByCAI_CPI, finderArgs);
+				_finderPathFetchByCAI_CPI, finderArgs, this);
 		}
 
 		if (result instanceof CommercePriceListAccountRel) {
@@ -2011,7 +2006,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 			finderArgs = new Object[] {commerceAccountId, commercePriceListId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2722,7 +2717,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<CommercePriceListAccountRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2801,7 +2796,7 @@ public class CommercePriceListAccountRelPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

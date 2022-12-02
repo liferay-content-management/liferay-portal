@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -79,7 +78,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Preston Crary
  * @generated
  */
-@Component(service = {JSONStorageEntryPersistence.class, BasePersistence.class})
+@Component(service = JSONStorageEntryPersistence.class)
 public class JSONStorageEntryPersistenceImpl
 	extends BasePersistenceImpl<JSONStorageEntry>
 	implements JSONStorageEntryPersistence {
@@ -207,7 +206,7 @@ public class JSONStorageEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<JSONStorageEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (JSONStorageEntry jsonStorageEntry : list) {
@@ -607,7 +606,7 @@ public class JSONStorageEntryPersistenceImpl
 
 			finderArgs = new Object[] {classNameId, classPK};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -786,7 +785,7 @@ public class JSONStorageEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<JSONStorageEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (JSONStorageEntry jsonStorageEntry : list) {
@@ -1265,7 +1264,7 @@ public class JSONStorageEntryPersistenceImpl
 				companyId, classNameId, index, type, valueLong
 			};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1468,7 +1467,7 @@ public class JSONStorageEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<JSONStorageEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (JSONStorageEntry jsonStorageEntry : list) {
@@ -1975,7 +1974,7 @@ public class JSONStorageEntryPersistenceImpl
 				companyId, classNameId, key, type, valueLong
 			};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2167,7 +2166,7 @@ public class JSONStorageEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByCN_CPK_P_I_K, finderArgs);
+				_finderPathFetchByCN_CPK_P_I_K, finderArgs, this);
 		}
 
 		if (result instanceof JSONStorageEntry) {
@@ -2317,7 +2316,7 @@ public class JSONStorageEntryPersistenceImpl
 				classNameId, classPK, parentJSONStorageEntryId, index, key
 			};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2986,7 +2985,7 @@ public class JSONStorageEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<JSONStorageEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -3062,7 +3061,7 @@ public class JSONStorageEntryPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 7.4.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_7_4_0.dtd">
 
-<service-builder auto-import-default-references="false" auto-namespace-tables="false" mvcc-enabled="true" package-path="com.liferay.commerce">
+<service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.commerce">
 	<author>Alessio Antonio Rendina</author>
 	<namespace>Commerce</namespace>
-	<entity external-reference-code="true" local-service="true" name="CommerceAddress" persistence="false" remote-service="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceAddress" persistence="false" remote-service="true">
 
 		<!-- PK fields -->
 
@@ -166,7 +166,7 @@
 			<finder-column name="companyId" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceOrder" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceOrder" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -305,7 +305,7 @@
 			<finder-column name="orderStatus" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceOrderItem" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceOrderItem" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -411,7 +411,7 @@
 			<finder-column name="subscription" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceOrderNote" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceOrderNote" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -488,7 +488,7 @@
 			<finder-column name="commerceOrderId" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceOrderType" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceOrderType" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -540,7 +540,7 @@
 			<finder-column name="status" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceOrderTypeRel" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceOrderTypeRel" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -581,7 +581,7 @@
 			<finder-column name="commerceOrderTypeId" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceShipment" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceShipment" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -632,7 +632,7 @@
 			<finder-column name="status" />
 		</finder>
 	</entity>
-	<entity external-reference-code="true" local-service="true" name="CommerceShipmentItem" remote-service="true" uuid="true">
+	<entity external-reference-code="company" local-service="true" name="CommerceShipmentItem" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 

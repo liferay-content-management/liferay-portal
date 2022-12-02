@@ -95,8 +95,9 @@ public interface KBArticleLocalService
 			String externalReferenceCode, long userId,
 			long parentResourceClassNameId, long parentResourcePrimKey,
 			String title, String urlTitle, String content, String description,
-			String sourceURL, String[] sections, String[] selectedFileNames,
-			Date expirationDate, Date reviewDate, ServiceContext serviceContext)
+			String[] sections, String sourceURL, Date expirationDate,
+			Date reviewDate, String[] selectedFileNames,
+			ServiceContext serviceContext)
 		throws PortalException;
 
 	public void addKBArticleResources(
@@ -123,6 +124,8 @@ public interface KBArticleLocalService
 			long groupId, long userId, String fileName, String tempFolderName,
 			InputStream inputStream, String mimeType)
 		throws PortalException;
+
+	public void checkKBArticles() throws PortalException;
 
 	/**
 	 * Creates a new kb article with the primary key. Does not add the kb article to the database.
@@ -557,9 +560,9 @@ public interface KBArticleLocalService
 
 	public KBArticle updateKBArticle(
 			long userId, long resourcePrimKey, String title, String content,
-			String description, String sourceURL, String[] sections,
-			String[] selectedFileNames, long[] removeFileEntryIds,
-			Date expirationDate, Date reviewDate, ServiceContext serviceContext)
+			String description, String[] sections, String sourceURL,
+			Date expirationDate, Date reviewDate, String[] selectedFileNames,
+			long[] removeFileEntryIds, ServiceContext serviceContext)
 		throws PortalException;
 
 	public void updateKBArticleAsset(

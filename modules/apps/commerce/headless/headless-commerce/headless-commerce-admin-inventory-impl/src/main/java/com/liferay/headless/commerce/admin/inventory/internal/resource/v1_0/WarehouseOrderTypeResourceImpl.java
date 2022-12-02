@@ -35,7 +35,6 @@ import com.liferay.portal.vulcan.fields.NestedField;
 import com.liferay.portal.vulcan.fields.NestedFieldSupport;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Map;
 
@@ -47,7 +46,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Crescenzo Rega
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/warehouse-order-type.properties",
 	scope = ServiceScope.PROTOTYPE,
 	service = {NestedFieldSupport.class, WarehouseOrderTypeResource.class}
@@ -78,7 +76,7 @@ public class WarehouseOrderTypeResourceImpl
 		}
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceInventoryWarehouseRelService.
 					getCommerceOrderTypeCommerceInventoryWarehouseRels(
 						commerceInventoryWarehouse.
@@ -112,7 +110,7 @@ public class WarehouseOrderTypeResourceImpl
 		}
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceInventoryWarehouseRelService.
 					getCommerceOrderTypeCommerceInventoryWarehouseRels(
 						id, search, pagination.getStartPosition(),

@@ -274,6 +274,10 @@ function reducer(state: TreeviewState, action: TreeviewAction) {
 
 	switch (action.type) {
 		case 'ACTIVATE': {
+			if (state.active) {
+				return state;
+			}
+
 			const focusedNodeId = action.mouseNavigation
 				? state.focusedNodeId
 				: state.focusedNodeId || (nodes[0] && nodes[0].id);
@@ -286,10 +290,17 @@ function reducer(state: TreeviewState, action: TreeviewAction) {
 		}
 
 		case 'DEACTIVATE':
+		case 'EXIT': {
+			if (!state.active) {
+				return state;
+			}
+
 			return {
 				...state,
 				active: false,
+				focusedNodeId: null,
 			};
+		}
 
 		case 'COLLAPSE':
 
@@ -663,12 +674,6 @@ function reducer(state: TreeviewState, action: TreeviewAction) {
 			break;
 		}
 
-		case 'EXIT':
-
-			// Navigate away from tree.
-
-			break;
-
 		case 'UPDATE_NODES': {
 			const nodes = addLinks(action.newNodes).map((node) => {
 				return visit(
@@ -781,8 +786,6 @@ function Treeview({
 
 	const focusTimerRef = useRef<(() => void) | null>();
 
-	const [, setHasFocus] = useState(false);
-
 	const [state, dispatch] = useReducer<
 		React.Reducer<TreeviewState, TreeviewAction>,
 		{
@@ -805,6 +808,8 @@ function Treeview({
 	);
 
 	const {filteredNodes, nodes, selectedNodeIds} = state;
+
+	const [shouldBeFocusable, setShouldBeFocusable] = useState(true);
 
 	useEffect(() => {
 		const filterFn = getFilterFn(filter);
@@ -832,32 +837,23 @@ function Treeview({
 	const handleMouseDown = () => {
 		cancelTimer();
 
-		setHasFocus((hadFocus) => {
-			if (!hadFocus) {
-				dispatch({
-					mouseNavigation: true,
-					type: 'ACTIVATE',
-				});
-			}
-
-			return true;
+		dispatch({
+			mouseNavigation: true,
+			type: 'ACTIVATE',
 		});
 	};
 
 	const handleFocus = () => {
 		cancelTimer();
+		setShouldBeFocusable(false);
 
-		setHasFocus((hadFocus) => {
-			if (!hadFocus) {
-				dispatch({type: 'ACTIVATE'});
-			}
-
-			return true;
-		});
+		dispatch({type: 'ACTIVATE'});
 	};
 
 	const handleBlur = () => {
 		cancelTimer();
+
+		setShouldBeFocusable(true);
 
 		// Due to React's event bubbling, we may get a "focus" event
 		// immediately after this "blur" (eg. when moving around inside
@@ -865,13 +861,7 @@ function Treeview({
 		// tick, giving us a chance to cancel it if needed.
 
 		focusTimerRef.current = delay(() => {
-			setHasFocus((hadFocus) => {
-				if (hadFocus) {
-					dispatch({type: 'DEACTIVATE'});
-				}
-
-				return false;
-			});
+			dispatch({type: 'DEACTIVATE'});
 		}, 0);
 	};
 
@@ -884,7 +874,7 @@ function Treeview({
 				onFocus={handleFocus}
 				onMouseDown={handleMouseDown}
 				role="tree"
-				tabIndex={0}
+				tabIndex={shouldBeFocusable ? 0 : undefined}
 			/>
 		</TreeviewContext.Provider>
 	);

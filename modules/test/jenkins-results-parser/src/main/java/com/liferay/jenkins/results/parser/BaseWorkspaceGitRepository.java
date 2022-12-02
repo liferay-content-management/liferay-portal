@@ -383,6 +383,8 @@ public abstract class BaseWorkspaceGitRepository
 	public void tearDown() {
 		GitWorkingDirectory gitWorkingDirectory = getGitWorkingDirectory();
 
+		gitWorkingDirectory.deleteLockFiles();
+
 		LocalGitBranch upstreamLocalGitBranch =
 			gitWorkingDirectory.getUpstreamLocalGitBranch();
 

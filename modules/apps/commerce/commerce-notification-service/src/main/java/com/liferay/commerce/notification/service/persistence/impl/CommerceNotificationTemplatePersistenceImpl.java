@@ -39,7 +39,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -79,11 +78,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  * @generated
  */
-@Component(
-	service = {
-		CommerceNotificationTemplatePersistence.class, BasePersistence.class
-	}
-)
+@Component(service = CommerceNotificationTemplatePersistence.class)
 public class CommerceNotificationTemplatePersistenceImpl
 	extends BasePersistenceImpl<CommerceNotificationTemplate>
 	implements CommerceNotificationTemplatePersistence {
@@ -202,7 +197,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceNotificationTemplate>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceNotificationTemplate commerceNotificationTemplate :
@@ -598,7 +593,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -731,7 +726,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			result = finderCache.getResult(
-				_finderPathFetchByUUID_G, finderArgs);
+				_finderPathFetchByUUID_G, finderArgs, this);
 		}
 
 		if (result instanceof CommerceNotificationTemplate) {
@@ -846,7 +841,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, groupId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1014,7 +1009,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceNotificationTemplate>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceNotificationTemplate commerceNotificationTemplate :
@@ -1437,7 +1432,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1594,7 +1589,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceNotificationTemplate>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceNotificationTemplate commerceNotificationTemplate :
@@ -2308,7 +2303,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		Object[] finderArgs = new Object[] {groupId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -2500,7 +2495,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceNotificationTemplate>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceNotificationTemplate commerceNotificationTemplate :
@@ -3254,7 +3249,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		Object[] finderArgs = new Object[] {groupId, enabled};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -3465,7 +3460,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceNotificationTemplate>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommerceNotificationTemplate commerceNotificationTemplate :
@@ -4308,7 +4303,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		Object[] finderArgs = new Object[] {groupId, type, enabled};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -4950,7 +4945,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommerceNotificationTemplate>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -5023,7 +5018,7 @@ public class CommerceNotificationTemplatePersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

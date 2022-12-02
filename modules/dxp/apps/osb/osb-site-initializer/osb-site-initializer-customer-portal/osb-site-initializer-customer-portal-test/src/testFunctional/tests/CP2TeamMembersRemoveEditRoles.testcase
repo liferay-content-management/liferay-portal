@@ -50,11 +50,11 @@ definition {
 		// "Reason: Not able to reproduce scenario without OKTA workaround."
 
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -84,10 +84,6 @@ definition {
 		task ("Assert that the user remained on the Team Members page") {
 			CP2TeamMembers.viewTeamMembersPage();
 		}
-
-		task ("Delete the entries and objects created") {
-			CustomerPortal.deleteEntryAccountFlag(entry = "ERC-002");
-		}
 	}
 
 	@description = "Automation ID: LPS-150013 | Test Summary: Verify that after the user clicks Edit a Cancel button is available"
@@ -109,21 +105,21 @@ definition {
 				requireReset = "false",
 				userEmailAddress = "test.user@liferay.com");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "${testAccount}");
 
-			Accounts.assignUsers(
+			Account.assignUsers(
 				accountName = "${testAccount}",
 				assigneeName = "Test User");
 		}
 
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -156,10 +152,6 @@ definition {
 			CP2Utils.assertNotChangeRole(role = "Administrator");
 		}
 
-		task ("Delete the entries and objects created") {
-			CustomerPortal.deleteEntryAccountFlag(entry = "ERC-002");
-		}
-
 		task ("Delete user created") {
 			JSONUser.deleteUserByEmailAddress(userEmailAddress = "test.user@liferay.com");
 		}
@@ -184,21 +176,21 @@ definition {
 				requireReset = "false",
 				userEmailAddress = "test.user@liferay.com");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "${testAccount}");
 
-			Accounts.assignUsers(
+			Account.assignUsers(
 				accountName = "${testAccount}",
 				assigneeName = "Test User");
 		}
 
 		task ("Change the role of the current user in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -233,10 +225,6 @@ definition {
 			Alert.viewSuccessMessage();
 		}
 
-		task ("Delete the entries and objects created") {
-			CustomerPortal.deleteEntryAccountFlag(entry = "ERC-002");
-		}
-
 		task ("Delete user created") {
 			JSONUser.deleteUserByEmailAddress(userEmailAddress = "test.user@liferay.com");
 		}
@@ -261,21 +249,21 @@ definition {
 				requireReset = "false",
 				userEmailAddress = "test.user@liferay.com");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "${testAccount}");
 
-			Accounts.assignUsers(
+			Account.assignUsers(
 				accountName = "${testAccount}",
 				assigneeName = "Test User");
 		}
 
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -308,10 +296,6 @@ definition {
 
 		task ("Assert that the role really has changed") {
 			CP2Utils.assertChangeRole(role = "User");
-		}
-
-		task ("Delete the entries and objects created") {
-			CustomerPortal.deleteEntryAccountFlag(entry = "ERC-002");
 		}
 
 		task ("Delete user created") {

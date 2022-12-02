@@ -15,6 +15,7 @@
 package com.liferay.commerce.inventory.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.commerce.inventory.exception.DuplicateCommerceInventoryReplenishmentItemExternalReferenceCodeException;
 import com.liferay.commerce.inventory.exception.NoSuchInventoryReplenishmentItemException;
 import com.liferay.commerce.inventory.model.CommerceInventoryReplenishmentItem;
 import com.liferay.commerce.inventory.service.CommerceInventoryReplenishmentItemLocalServiceUtil;
@@ -230,6 +231,33 @@ public class CommerceInventoryReplenishmentItemPersistenceTest {
 			newCommerceInventoryReplenishmentItem.getQuantity());
 	}
 
+	@Test(
+		expected = DuplicateCommerceInventoryReplenishmentItemExternalReferenceCodeException.class
+	)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		CommerceInventoryReplenishmentItem commerceInventoryReplenishmentItem =
+			addCommerceInventoryReplenishmentItem();
+
+		CommerceInventoryReplenishmentItem
+			newCommerceInventoryReplenishmentItem =
+				addCommerceInventoryReplenishmentItem();
+
+		newCommerceInventoryReplenishmentItem.setCompanyId(
+			commerceInventoryReplenishmentItem.getCompanyId());
+
+		newCommerceInventoryReplenishmentItem = _persistence.update(
+			newCommerceInventoryReplenishmentItem);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newCommerceInventoryReplenishmentItem);
+
+		newCommerceInventoryReplenishmentItem.setExternalReferenceCode(
+			commerceInventoryReplenishmentItem.getExternalReferenceCode());
+
+		_persistence.update(newCommerceInventoryReplenishmentItem);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -291,12 +319,12 @@ public class CommerceInventoryReplenishmentItemPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -662,15 +690,15 @@ public class CommerceInventoryReplenishmentItemPersistenceTest {
 		CommerceInventoryReplenishmentItem commerceInventoryReplenishmentItem) {
 
 		Assert.assertEquals(
-			Long.valueOf(commerceInventoryReplenishmentItem.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				commerceInventoryReplenishmentItem, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			commerceInventoryReplenishmentItem.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				commerceInventoryReplenishmentItem, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(commerceInventoryReplenishmentItem.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				commerceInventoryReplenishmentItem, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected CommerceInventoryReplenishmentItem

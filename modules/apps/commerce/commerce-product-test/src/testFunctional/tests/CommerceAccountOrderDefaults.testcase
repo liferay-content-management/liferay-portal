@@ -35,6 +35,8 @@ definition {
 	@description = "COMMERCE-9723. The default Delivery Terms and Conditions should persist at checkout."
 	@priority = "4"
 	test CanAddDefaultDeliveryTermWithCheckout {
+		property portal.acceptance = "true";
+
 		task ("Given two delivery terms with different priorities") {
 			CommerceJSONTermsAndConditionsAPI._addCommerceTermsAndConditions(
 				termsCount = "2",
@@ -56,13 +58,13 @@ definition {
 		}
 
 		task ("and the delivery term is set as the default for the Account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Delivery Term 2",
 				termType = "Delivery");
@@ -111,6 +113,8 @@ definition {
 	@description = "COMMERCE-9854. The default discount for the account should persist when viewing an item."
 	@priority = "5"
 	test CanAddDefaultDiscount {
+		property portal.acceptance = "true";
+
 		task ("Given 2 different discounts for the same product") {
 			CommerceJSONDiscountsAPI._addDiscount(
 				active = "true",
@@ -138,13 +142,13 @@ definition {
 		}
 
 		task ("and the second discount is set as the Account Default") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultDiscount(
+			Account.setDefaultDiscount(
 				channelEntry = "Minium Portal",
 				discountTitle = "Discount 2 20% off");
 		}
@@ -166,6 +170,8 @@ definition {
 	@description = "COMMERCE-9724. The default Payment Terms and Conditions should persist at checkout."
 	@priority = "4"
 	test CanAddDefaultPaymentTermWithCheckout {
+		property portal.acceptance = "true";
+
 		task ("Given two payment terms with different priorities") {
 			CommerceJSONTermsAndConditionsAPI._addCommerceTermsAndConditions(
 				termsCount = "2",
@@ -188,13 +194,13 @@ definition {
 		}
 
 		task ("and the payment term is set to the Account Order Default") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Payment Term 2",
 				termType = "Payment");
@@ -240,6 +246,155 @@ definition {
 		}
 	}
 
+	@description = "COMMERCE-9931 and COMMERCE-9937. A default currency can be deleted and should not be visible in the Minium site."
+	@priority = "4"
+	test CanDeleteDefaultCurrency {
+		task ("Given an account with a default Currency") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			Account.setDefaultCurrency(currencyName = "Euro");
+		}
+
+		task ("When the admin deletes the default currency") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			Account.deleteDefaultSetting(
+				currentDefault = "Euro",
+				settingHeader = "Currencies");
+
+			AssertElementNotPresent(
+				key_entryDetail = "Euro",
+				key_settingHeader = "Currencies",
+				locator1 = "Account#DEFAULT_SETTINGS_TABLE_ITEM");
+		}
+
+		task ("and when the buyer views the Minium site") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+		}
+
+		task ("then the currency should show US Dollar instead of Euro") {
+			AssertTextEquals.assertPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "$");
+
+			AssertTextNotEquals.assertNotPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "€");
+		}
+	}
+
+	@description = "This is a test for COMMERCE-9704. We can edit and delete a default price list entry"
+	@priority = "3"
+	test CanEditAndDeleteDefaultPriceList {
+		property portal.acceptance = "true";
+
+		task ("Given 2 new Price Lists") {
+			for (var priceLists : list "Test Price List 1,Test Price List 2") {
+				CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+					catalogName = "Minium",
+					currencyCode = "USD",
+					priceListName = "${priceLists}");
+			}
+		}
+
+		task ("And Test Price 1 is set as default for Minium Portal Channel") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Minium Portal",
+				priceListTitle = "Test Price List 1");
+
+			CommerceAccountChannelDefaults.viewDefaultPriceListEntries(
+				priceListEntries = "Minium Portal,Test Price List 1,Yes,No",
+				priceListLabel = "PriceList");
+		}
+
+		task ("When default price list is edited") {
+			CommerceAccountChannelDefaults.editDefaultPriceList(
+				currentChannelName = "Minium Portal",
+				currentPriceListName = "Test Price List 1",
+				newChannelName = "All Other Channels",
+				newPriceListName = "Test Price List 2");
+		}
+
+		task ("Then new default price list is saved correctly and listed") {
+			CommerceAccountChannelDefaults.viewDefaultPriceListEntries(
+				priceListEntries = "All Channels,Test Price List 2,Yes,No",
+				priceListLabel = "PriceList");
+		}
+
+		task ("When default price list is deleted") {
+			CommerceAccountChannelDefaults.deleteAccountChannelDefaultsEntry(
+				channelName = "All Channels",
+				defaultEntryLabel = "PriceList",
+				defaultEntryName = "Test Price List 2");
+		}
+
+		task ("Then there is no default price list listed on the table") {
+			CommerceAccountChannelDefaults.viewDefaultPriceListEntries(priceListLabel = "PriceList");
+		}
+	}
+
+	@description = "COMMERCE-9934. Default currency can be edited."
+	@priority = "5"
+	test CanEditDefaultCurrency {
+		task ("Given an account with a default Currency") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			Account.setDefaultCurrency(currencyName = "Euro");
+		}
+
+		task ("When the admin edits the default currency") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			Account.editCommerceDefaultSetting(
+				currentDefault = "Euro",
+				newDefault = "Brazilian Real",
+				settingHeader = "Currencies",
+				settingLabel = "Currency");
+		}
+
+		task ("Then the new default currency should persist") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			AssertElementPresent(
+				key_entryDetail = "Brazilian Real",
+				key_settingHeader = "Currencies",
+				locator1 = "Account#DEFAULT_SETTINGS_TABLE_ITEM");
+		}
+	}
+
 	@description = "COMMERCE-9729. As a sales manager, I want to set default account delivery terms per channel"
 	@priority = "3"
 	test CanHaveAllChannelsLinkedToADeliveryTerm {
@@ -250,11 +405,11 @@ definition {
 		}
 
 		task ("When the admin goes into the "Channel Defaults" for the account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 		}
 
 		task ("And goes into the section "Delivery Terms And Conditions"") {
@@ -282,20 +437,20 @@ definition {
 		}
 
 		task ("When the admin links the channel "Minium Portal" to a delivery") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Delivery Term 1",
 				termType = "Delivery");
 		}
 
 		task ("Then the option "All Channels" will become "All Other Channels"") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
 			Click(
 				key_termType = "Delivery",
@@ -315,44 +470,44 @@ definition {
 				row = "1",
 				value1 = "All Channels");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.removeDefaultCommerceTerms(
+			Account.removeDefaultCommerceTerms(
 				entryDetails = "Delivery Term 1",
 				termType = "Delivery");
 		}
 
 		task ("When the admin links "All Channels" to a delivery") {
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				termEntry = "Delivery Term 1",
 				termType = "Delivery");
 		}
 
 		task ("And the entries table contains "All Channels" linked to the delivery") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.viewDefaultDeliveryCommerceTermsEntry(
+			Account.viewDefaultDeliveryCommerceTermsEntry(
 				termEntry = "All Channels,Delivery Term 1,Yes,No",
 				termType = "Delivery");
 		}
 
 		task ("And admin links the channel "Minium Portal" to a delivery") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Delivery Term 2",
 				termType = "Delivery");
 		}
 
 		task ("Then entries tables should show "All Other Channels" instead of "All Channels" ") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.viewDefaultDeliveryCommerceTermsEntry(
+			Account.viewDefaultDeliveryCommerceTermsEntry(
 				termEntry = "All Other Channels,Delivery Term 1,Yes,No",
 				termType = "Delivery");
 		}
@@ -368,11 +523,11 @@ definition {
 		}
 
 		task ("When the admin goes into the "Channel Defaults" for the account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 		}
 
 		task ("And goes into the section "Payment Terms And Conditions"") {
@@ -400,20 +555,20 @@ definition {
 		}
 
 		task ("And when the admin links the channel "Minium Portal" to a payment") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Payment Term 1",
 				termType = "Payment");
 		}
 
 		task ("Then the option "All Channels" will become "All Other Channels"") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
 			Click(
 				key_termType = "Payment",
@@ -433,46 +588,92 @@ definition {
 				row = "1",
 				value1 = "All Channels");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.removeDefaultCommerceTerms(
+			Account.removeDefaultCommerceTerms(
 				entryDetails = "Payment Term 1",
 				termType = "Payment");
 		}
 
 		task ("And when the admin links "All Channels" to a payment") {
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				termEntry = "Payment Term 1",
 				termType = "Payment");
 		}
 
 		task ("And the entries table contains "All Channels" linked to the payment") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.viewDefaultDeliveryCommerceTermsEntry(
+			Account.viewDefaultDeliveryCommerceTermsEntry(
 				termEntry = "All Channels,Payment Term 1,Yes,No",
 				termType = "Payment");
 		}
 
 		task ("And admin links the channel "Minium Portal" to a payment") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Payment Term 2",
 				termType = "Payment");
 		}
 
 		task ("Then entries tables should show "All Other Channels" instead of "All Channels" ") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.viewDefaultDeliveryCommerceTermsEntry(
+			Account.viewDefaultDeliveryCommerceTermsEntry(
 				termEntry = "All Other Channels,Payment Term 1,Yes,No",
 				termType = "Payment");
+		}
+	}
+
+	@description = "COMMERCE-9923. All channels can be linked to a currency."
+	@priority = "4"
+	test CanLinkAllChannelsToACurrency {
+		task ("Given a second channel (the Minium site is the first channel)") {
+			CommerceJSONChannelsAPI._addChannel(
+				channelName = "Channel2",
+				channelType = "site",
+				currencyCode = "USD");
+		}
+
+		task ("and given that the account has a default currency set to both channels") {
+			for (var channelNames : list "Minium Portal,Channel2") {
+				Account.openAccountsAdmin();
+
+				LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+				Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+				Account.setDefaultCurrency(
+					channelEntry = "${channelNames}",
+					currencyName = "Euro");
+			}
+		}
+
+		task ("When the admin adds another default currency") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			Account.setDefaultCurrency(
+				allOtherChannels = "true",
+				currencyName = "British Pound");
+		}
+
+		task ("Then the new default channel will be set for All Other Channels") {
+			SelectFrame.selectFrameTop();
+
+			AssertElementPresent(
+				key_entryDetail = "All Other Channels",
+				key_settingHeader = "Currencies",
+				locator1 = "Account#DEFAULT_SETTINGS_TABLE_ITEM");
 		}
 	}
 
@@ -480,9 +681,9 @@ definition {
 	@priority = "3"
 	test CanNotAssignDefaultAddressesToTheSameChannel {
 		task ("Given 3 addresses: one billing, one shipping and one shipping and billing for the account") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Addresses");
+			Account.gotoAssigneeTab(assigneeTab = "Addresses");
 
-			Accounts.addAddress(
+			Account.addAddress(
 				addressCity = "Chicago",
 				addressCountry = "United States",
 				addressName = "Test Billing Address",
@@ -493,7 +694,7 @@ definition {
 				addressType = "Billing",
 				phoneNumber = "+1-877-LIFERAY (1-877-543-3729)");
 
-			Accounts.addAddress(
+			Account.addAddress(
 				addressCity = "Shibuya-ku",
 				addressCountry = "Japan",
 				addressName = "Test Shipping Address",
@@ -504,7 +705,7 @@ definition {
 				addressType = "Shipping",
 				phoneNumber = "+81 3-5456-5796");
 
-			Accounts.addAddress(
+			Account.addAddress(
 				addressCity = "Diamond Bar",
 				addressCountry = "United States",
 				addressName = "Test Billing and Shipping Address",
@@ -525,27 +726,27 @@ definition {
 		}
 
 		task ("Given there is a default billing address set for Minium Portal Channel") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.addDefaultCommerceAddressEntry(
+			Account.addDefaultCommerceAddressEntry(
 				addressEntry = "Test Billing Address",
 				addressType = "Billing",
 				channelEntry = "Minium Portal");
 		}
 
 		task ("And there is a default billing address set for All Other Channels") {
-			Accounts.addDefaultCommerceAddressEntry(
+			Account.addDefaultCommerceAddressEntry(
 				addressEntry = "Test Billing and Shipping Address",
 				addressType = "Billing",
 				channelEntry = "All Other Channels");
 		}
 
 		task ("When the admin clicks + button to set another default, and tries to set a default for All Other Channels again") {
-			Accounts.addDefaultCommerceAddressEntry(
+			Account.addDefaultCommerceAddressEntry(
 				addressEntry = "Test Billing Address",
 				addressType = "Billing",
 				channelEntry = "All Other Channels");
@@ -582,11 +783,11 @@ definition {
 					userScreenName = "buyeruser${num}",
 					userSiteMembership = "Minium ${num}");
 
-				Accounts.gotoAssigneeTab(assigneeTab = "Addresses");
+				Account.gotoAssigneeTab(assigneeTab = "Addresses");
 
 				task ("And each account having 3 addresses: one billing, one shipping and one shipping and billing for the account") {
 					for (var typeList : list "Billing,Shipping,Billing and Shipping") {
-						Accounts.addAddressViaSetDefaultAddress(
+						Account.addAddressViaSetDefaultAddress(
 							addressCity = "Diamond Bar",
 							addressCountry = "United States",
 							addressName = "${typeList} Address Entry 1",
@@ -601,14 +802,14 @@ definition {
 		}
 
 		task ("And a default billing and default shipping address is selected for Minium 1 Portal Channel for Test Account 1") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Test Account 1");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
 			for (var typeList : list "Billing,Shipping") {
-				Accounts.addDefaultCommerceAddressEntry(
+				Account.addDefaultCommerceAddressEntry(
 					addressEntry = "${typeList} Address Entry 1",
 					addressType = "${typeList}",
 					channelEntry = "Minium 1 Portal");
@@ -663,6 +864,65 @@ definition {
 		}
 	}
 
+	@description = "COMMERCE-9936. A disabled default currency should not be usable."
+	@priority = "4"
+	test CannotUseDisabledCurrency {
+		task ("Given an account with a default Currency") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			Account.setDefaultCurrency(currencyName = "Euro");
+		}
+
+		task ("and the currency is disabled") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "group/control_panel/manage?p_p_id=com_liferay_commerce_currency_web_internal_portlet_CommerceCurrencyPortlet");
+
+			CommerceEntry.selectEntryEllipsis(entryName = "Euro");
+
+			DropdownMenuItem.click(menuItem = "Deactivate");
+
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			ScrollWebElementIntoView(
+				key_settingHeader = "Currencies",
+				locator1 = "Account#DEFAULT_SETTINGS_HEADER");
+
+			AssertElementPresent(
+				key_activeStatus = "No",
+				key_currentDefault = "Euro",
+				key_settingHeader = "Currencies",
+				locator1 = "Account#DEFAULT_SETTING_ACTIVE_STATUS");
+		}
+
+		task ("When the buyer view products on the Minium site") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+		}
+
+		task ("Then the currency should be set to Dollars and not Euros") {
+			AssertTextEquals.assertPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "$");
+
+			AssertTextNotEquals.assertNotPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "€");
+		}
+	}
+
 	@description = "COMMERCE-9725. A default delivery term that has been disabled should not be displayed at checkout."
 	@priority = "4"
 	test CannotUseDisabledDefaultDeliveryTerm {
@@ -701,13 +961,13 @@ definition {
 		}
 
 		task ("and the delivery term is set as the default for the Account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Delivery Term 2",
 				termType = "Delivery");
@@ -801,13 +1061,13 @@ definition {
 		}
 
 		task ("and a payment term is set to the Account Order Default") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Payment Term 2",
 				termType = "Payment");
@@ -867,10 +1127,10 @@ definition {
 	@priority = "3"
 	test CanRemoveDefaultAddresses {
 		task ("Given 3 addresses: one billing, one shipping and one shipping and billing for the account") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Addresses");
+			Account.gotoAssigneeTab(assigneeTab = "Addresses");
 
 			for (var typeList : list "Billing,Shipping,Billing and Shipping") {
-				Accounts.addAddressViaSetDefaultAddress(
+				Account.addAddressViaSetDefaultAddress(
 					addressCity = "Diamond Bar",
 					addressCountry = "United States",
 					addressName = "${typeList} Address Entry 1",
@@ -892,18 +1152,18 @@ definition {
 		}
 
 		task ("Given there is a default billing and a default shipping address set for the Account and Channel") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.addDefaultCommerceAddressEntry(
+			Account.addDefaultCommerceAddressEntry(
 				addressEntry = "Billing Address Entry 1",
 				addressType = "Billing",
 				channelEntry = "Test Channel 1");
 
-			Accounts.addDefaultCommerceAddressEntry(
+			Account.addDefaultCommerceAddressEntry(
 				addressEntry = "Shipping Address Entry 1",
 				addressType = "Shipping",
 				channelEntry = "Test Channel 2");
@@ -911,7 +1171,7 @@ definition {
 
 		task ("When admin removes both default addresses from the account") {
 			for (var typeList : list "Billing,Shipping") {
-				Accounts.removeDefaultCommerceTerms(
+				Account.removeDefaultCommerceTerms(
 					entryDetails = "${typeList} Address Entry 1",
 					termType = "${typeList}");
 			}
@@ -959,14 +1219,231 @@ definition {
 		}
 	}
 
+	@description = "This is a test for COMMERCE-9704. We can see the price list price that has the highest priority in hierarchy mode(default mode)."
+	@priority = "3"
+	test CanSeeHighestPriorityPriceListPriceInHierarchyMode {
+		property portal.acceptance = "false";
+
+		task ("Given Test Price List 1 with priority 1 and Test Price List 2 with priority 2") {
+			for (var priority : list "1,2") {
+				CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+					catalogName = "Minium",
+					currencyCode = "USD",
+					priceListName = "Test Price List ${priority}",
+					priority = "${priority}");
+			}
+		}
+
+		task ("And Test Price List 1 entry for U-Joint with price set as 20.00 ") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "20",
+				priceListName = "Test Price List 1",
+				productSKU = "MIN55861");
+		}
+
+		task ("And Test Price List 2 entry for U-Joint with price set as 18.00 ") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "18",
+				priceListName = "Test Price List 2",
+				productSKU = "MIN55861");
+		}
+
+		task ("When Test Price 1 is set as default for Minium Portal Channel for Commerce Account") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Minium Portal",
+				priceListTitle = "Test Price List 1");
+		}
+
+		task ("And buyer user logs in") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+		}
+
+		task ("Then verifies that the Catalog price of U-Joint is 20.00 as of the default price list price") {
+			CommerceNavigator.gotoProductDetails(productName = "U-Joint");
+
+			AssertTextEquals(
+				locator1 = "CommerceAccelerators#PRODUCT_DETAILS_LIST_PRICE",
+				value1 = "$ 20.00");
+		}
+
+		task ("When there is no default price list for Account per Channel") {
+			User.logoutPG();
+
+			User.loginPG(
+				password = "test",
+				userEmailAddress = "test@liferay.com");
+
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			CommerceAccountChannelDefaults.deleteAccountChannelDefaultsEntry(
+				channelName = "Minium Portal",
+				defaultEntryLabel = "PriceList",
+				defaultEntryName = "Test Price List 1");
+		}
+
+		task ("Then buyer verifies that the Catalog price of U-Joint is 18.00 according to the priority") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+
+			CommerceNavigator.gotoProductDetails(productName = "U-Joint");
+
+			AssertTextEquals(
+				locator1 = "CommerceAccelerators#PRODUCT_DETAILS_LIST_PRICE",
+				value1 = "$ 18.00");
+		}
+	}
+
+	@description = "This is a test for COMMERCE-9704. We can see the lowest price list price in the Catalog when the lowest mode is set."
+	@priority = "3"
+	test CanSeeLowestPriceListPriceInLowestMode {
+		property osgi.module.configuration.file.names = "com.liferay.commerce.pricing.configuration.CommercePricingConfiguration.config";
+		property osgi.module.configurations = "commercePriceListDiscovery=\"lowest\"";
+		property portal.acceptance = "false";
+
+		task ("Given Test Price List 1 with priority 1") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+				catalogName = "Minium",
+				currencyCode = "USD",
+				priceListName = "Test Price List 1",
+				priority = "1");
+		}
+
+		task ("And Test Price List 2 with priority 0") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+				catalogName = "Minium",
+				currencyCode = "USD",
+				priceListName = "Test Price List 2");
+		}
+
+		task ("And a Test Price List 1 entry for U-Joint with price set as 20.00 ") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "20",
+				priceListName = "Test Price List 1",
+				productSKU = "MIN55861");
+		}
+
+		task ("And a Test Price List 2 entry for U-Joint with price set as 18.00 ") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "18",
+				priceListName = "Test Price List 2",
+				productSKU = "MIN55861");
+		}
+
+		task ("And Test Price List 1 is set as default for Minium Portal Channel") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Minium Portal",
+				priceListTitle = "Test Price List 1");
+
+			CommerceAccountChannelDefaults.viewDefaultPriceListEntries(
+				priceListEntries = "Minium Portal,Test Price List 1,Yes,No",
+				priceListLabel = "PriceList");
+		}
+
+		task ("When buyer user logs in and goes to the Catalog page") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+		}
+
+		task ("Then verifies that the Catalog price of U-Joint is 18.00") {
+			CommerceNavigator.gotoProductDetails(productName = "U-Joint");
+
+			AssertTextEquals(
+				locator1 = "CommerceAccelerators#PRODUCT_DETAILS_LIST_PRICE",
+				value1 = "$ 18.00");
+		}
+	}
+
+	@description = "COMMERCE-9857. All sites should display the product discount when the discount is set to All Channels."
+	@priority = "4"
+	test CanSelectAllOtherChannelsForDefaultDiscount {
+		task ("Given a second Minium site") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(
+				siteName = "Minium 2",
+				siteTemplateName = "Minium");
+		}
+
+		task ("and a discount that is applied to the U-joint product") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "10",
+				target = "products",
+				title = "Discount 1 10% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 1 10% off",
+				productName = "U-Joint");
+		}
+
+		task ("When the discount is set as the account default") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceNavigator.gotoMiniumAccountOrderDefaults(accountName = "Commerce Account");
+
+			Account.setDefaultDiscount(
+				discountTitle = "Discount 1 10% off",
+				override = "true");
+		}
+
+		task ("Then both Minium sites should show U-joint with a 10% discount applied.") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "web/minium/catalog");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+
+			CommerceAcceleratorsInitializer.viewDiscountedProductDetailsPage(
+				discountPercentage = "10",
+				productDiscountedPrice = "21.60",
+				productListPrice = "24.00");
+
+			Navigator.openWithAppendToBaseURL(urlAppend = "web/minium-2/catalog");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+
+			CommerceAcceleratorsInitializer.viewDiscountedProductDetailsPage(
+				discountPercentage = "10",
+				productDiscountedPrice = "21.60",
+				productListPrice = "24.00");
+		}
+	}
+
 	@description = "COMMERCE-9829. As a sales manager, I want to check channel options after setting a default account billing address for each channel"
 	@priority = "3"
 	test CanSelectOnlyAllOtherChannelsForDefaultBillingAddress {
 		task ("Given 3 addresses: one billing, one shipping and one shipping and billing for the account") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Addresses");
+			Account.gotoAssigneeTab(assigneeTab = "Addresses");
 
 			for (var typeList : list "Billing,Shipping,Billing and Shipping") {
-				Accounts.addAddressViaSetDefaultAddress(
+				Account.addAddressViaSetDefaultAddress(
 					addressCity = "Diamond Bar",
 					addressCountry = "United States",
 					addressName = "${typeList} Address Entry 1",
@@ -988,14 +1465,14 @@ definition {
 		}
 
 		task ("Given a default billing address is selected for each Channel (Minium Portal, Test Channel 1 and Test Channel 2)") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
 			for (var channelEntries : list "Minium Portal,Test Channel 1,Test Channel 2") {
-				Accounts.addDefaultCommerceAddressEntry(
+				Account.addDefaultCommerceAddressEntry(
 					addressEntry = "Billing Address Entry 1",
 					addressType = "Billing",
 					channelEntry = "${channelEntries}");
@@ -1027,14 +1504,94 @@ definition {
 		}
 	}
 
+	@description = "This is a test for COMMERCE-9704. We can select only All Other Channels option after selecting default for each channel."
+	@priority = "3"
+	test CanSelectOnlyAllOtherChannelsForDefaultPriceList {
+		property portal.acceptance = "false";
+
+		task ("Given two more channels Test Channel 1 and Test Channel 2") {
+			for (var channelNames : list "Test Channel 1,Test Channel 2") {
+				CommerceJSONChannelsAPI._addChannel(
+					channelName = "${channelNames}",
+					channelType = "site",
+					currencyCode = "USD");
+			}
+		}
+
+		task ("And 2 new Price Lists") {
+			for (var priceLists : list "Test Price List 1,Test Price List 2") {
+				CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+					catalogName = "Minium",
+					currencyCode = "USD",
+					priceListName = "${priceLists}");
+			}
+		}
+
+		task ("When a default price list for Minium Portal Channel, Test Channel 1, Test Channel 2 is set") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Minium Portal",
+				priceListTitle = "Test Price List 1");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Test Channel 1",
+				priceListTitle = "Test Price List 2");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Test Channel 2",
+				priceListTitle = "Test Price List 1");
+		}
+
+		task ("Then only All Other Channels option is listed") {
+			Click.javaScriptClick(
+				key_title = "Add Default Price List",
+				locator1 = "Button#ANY_TITLE");
+
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+			AssertElementPresent(
+				key_fieldLabel = "Channel",
+				locator1 = "CommerceEntry#LABEL_GENERIC_SELECT",
+				value1 = "All Other Channels");
+
+			for (var channelEntry : list "Minium Portal, Test Channel 1,Test Channel 2") {
+				AssertElementNotPresent(
+					key_value = "${channelEntry}",
+					locator1 = "CommerceEntry#CHANNEL_ACCOUNT_DEFAULTS_MODAL_DROPDOWN");
+			}
+
+			Click(locator1 = "Icon#CLOSE");
+
+			SelectFrame.selectFrameTop();
+		}
+
+		task ("When a default is also set for All Other Channels option") {
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "All Other Channels",
+				priceListTitle = "Test Price List 2");
+		}
+
+		task ("Then setting another default for All Other Channels option is not possible and an error message is shown") {
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				assertError = "true",
+				channelEntry = "All Other Channels",
+				priceListTitle = "Test Price List 1");
+		}
+	}
+
 	@description = "COMMERCE-9829. As a sales manager, I want to check channel options after setting a default account shipping address for each channel"
 	@priority = "3"
 	test CanSelectOnlyAllOtherChannelsForDefaultShippingAddress {
 		task ("Given 3 addresses: one billing, one shipping and one shipping and billing for the account") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Addresses");
+			Account.gotoAssigneeTab(assigneeTab = "Addresses");
 
 			for (var typeList : list "Billing,Shipping,Billing and Shipping") {
-				Accounts.addAddressViaSetDefaultAddress(
+				Account.addAddressViaSetDefaultAddress(
 					addressCity = "Diamond Bar",
 					addressCountry = "United States",
 					addressName = "${typeList} Address Entry 1",
@@ -1056,14 +1613,14 @@ definition {
 		}
 
 		task ("Given a default shipping address is selected for each Channel (Minium Portal, Test Channel 1 and Test Channel 2)") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
 			for (var channelEntries : list "Minium Portal,Test Channel 1,Test Channel 2") {
-				Accounts.addDefaultCommerceAddressEntry(
+				Account.addDefaultCommerceAddressEntry(
 					addressEntry = "Shipping Address Entry 1",
 					addressType = "Shipping",
 					channelEntry = "${channelEntries}");
@@ -1095,14 +1652,215 @@ definition {
 		}
 	}
 
+	@description = "COMMERCE-9873. As a sales manager, I want to set default billing and shipping addresses per channel from details tab"
+	@priority = "3"
+	test CanSetDefaultAddressFromDetailsTab {
+		task ("Given 2 Minium sites and a buyer user is associated with both sites, and 3 addresses: one billing, one shipping and one shipping and billing for the account") {
+			Account.gotoAssigneeTab(assigneeTab = "Addresses");
+
+			for (var typeList : list "Billing,Shipping,Billing and Shipping") {
+				Account.addAddressViaSetDefaultAddress(
+					addressCity = "Diamond Bar",
+					addressCountry = "United States",
+					addressName = "${typeList} Address Entry 1",
+					addressPostalCode = "91765",
+					addressRegion = "California",
+					addressStreet1 = "1400 Montefino Ave",
+					addressType = "${typeList}",
+					phoneNumber = "+1-877-543-3729");
+			}
+
+			for (var num : list "1,2") {
+				CommerceAccelerators.initializeNewSiteViaAccelerator(
+					siteName = "Minium ${num}",
+					siteTemplateName = "Minium");
+
+				JSONUser.addUserToSite(
+					groupName = "Minium ${num}",
+					userEmailAddress = "buyer@liferay.com");
+			}
+		}
+
+		task ("When setting the default billing address and default shipping address per channel in Details tab") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Details");
+
+			Account.setDefaultBillingAddress(addressName = "Billing Address Entry 1");
+
+			Account.setDefaultShippingAddress(addressName = "Shipping Address Entry 1");
+		}
+
+		task ("Then the default addresses set in Details tab will be visible in the table as configured for All Channels after going to the Channel Defaults tab") {
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			for (var typeList : list "Billing,Shipping") {
+				Account.viewDefaultDeliveryCommerceTermsEntry(
+					termEntry = "All Channels,${typeList} Address Entry 1",
+					termType = "${typeList}");
+			}
+
+			for (var typeList : list "Billing,Shipping") {
+				Account.removeDefaultCommerceTerms(
+					entryDetails = "${typeList} Address Entry 1",
+					termType = "${typeList}");
+			}
+		}
+
+		task ("When setting the default billing address and default shipping address for Minium 1 Portal Channel per channel in Channel Defaults tab") {
+			for (var typeList : list "Billing,Shipping") {
+				Account.addDefaultCommerceAddressEntry(
+					addressEntry = "${typeList} Address Entry 1",
+					addressType = "${typeList}",
+					channelEntry = "Minium 1 Portal");
+			}
+		}
+
+		task ("And when buyer makes an order from Minium 1 Channel and starts the checkout process, the default addresses are pre-selected in the address sections as set in Channel Defaults") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium-2",
+				userEmailAddress = "buyer@liferay.com");
+
+			FrontStore.addInitializerProductToCart(
+				productName = "U-Joint",
+				productQuantity = "1");
+
+			CommerceCheckout.gotoCheckout();
+
+			AssertElementPresent(
+				key_fieldLabel = "Choose Shipping Address",
+				key_value = "Shipping Address Entry 1",
+				locator1 = "CommerceEntry#SELECT_ASSERT_SELECTED_VALUE");
+
+			for (var fieldNames : list "Name,Address,Zip,City") {
+				AssertElementPresent(
+					key_fieldName = "${fieldNames}",
+					locator1 = "CommerceAccelerators#CHECKOUT_GENERIC_TEXT_INPUT_DISABLED");
+			}
+
+			Click(locator1 = "Button#CONTINUE");
+
+			Click(locator1 = "Button#CONTINUE");
+
+			AssertElementPresent(
+				key_fieldLabel = "Choose Billing Address",
+				key_value = "Billing Address Entry 1",
+				locator1 = "CommerceEntry#SELECT_ASSERT_SELECTED_VALUE");
+
+			for (var fieldNames : list "Name,Address,Zip,City") {
+				AssertElementPresent(
+					key_fieldName = "${fieldNames}",
+					locator1 = "CommerceAccelerators#CHECKOUT_GENERIC_TEXT_INPUT_DISABLED");
+			}
+
+			Click(locator1 = "Button#CONTINUE");
+		}
+
+		task ("Then after completing the checkout, the default addresses is visible in the Order Summary") {
+			CommerceCheckout.viewCheckoutOrderSummary(
+				addressAddress = "1400 Montefino Ave",
+				addressCity = "Diamond Bar",
+				addressCountry = "United States",
+				addressName = "Shipping Address Entry 1",
+				billingAddressAddress = "1400 Montefino Ave",
+				billingAddressCity = "Diamond Bar",
+				billingAddressCountry = "United States",
+				billingAddressName = "Billing Address Entry 1",
+				productName = "U-Joint",
+				productQuantity = "1",
+				productUnitPrice = "24",
+				shippingMethod = "Standard");
+		}
+
+		task ("When setting the default billing and shipping addresses in Details tab") {
+			User.logoutAndLoginPG();
+
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Details");
+
+			Account.setDefaultBillingAddress(addressName = "Billing and Shipping Address Entry 1");
+
+			Account.setDefaultShippingAddress(addressName = "Billing and Shipping Address Entry 1");
+		}
+
+		task ("Then the default addresses set in Details tab will be visible in the table as configured for All Other Channels after going to the Channel Defaults tab") {
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			for (var typeList : list "Billing,Shipping") {
+				Account.viewDefaultDeliveryCommerceTermsEntry(
+					row = "2",
+					termEntry = "All Other Channels,${typeList} Address Entry 1",
+					termType = "${typeList}");
+			}
+		}
+
+		task ("When buyer makes an order from Minium 2 Channel and starts the checkout process, the default addresses are pre-selected in the address sections as set in Details tab and applied to All Other Channels") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium-3",
+				userEmailAddress = "buyer@liferay.com");
+
+			FrontStore.addInitializerProductToCart(
+				productName = "U-Joint",
+				productQuantity = "1");
+
+			CommerceCheckout.gotoCheckout();
+
+			AssertElementPresent(
+				key_fieldLabel = "Choose Shipping Address",
+				key_value = "Billing and Shipping Address Entry 1",
+				locator1 = "CommerceEntry#SELECT_ASSERT_SELECTED_VALUE");
+
+			for (var fieldNames : list "Name,Address,Zip,City") {
+				AssertElementPresent(
+					key_fieldName = "${fieldNames}",
+					locator1 = "CommerceAccelerators#CHECKOUT_GENERIC_TEXT_INPUT_DISABLED");
+			}
+
+			Check.checkToggleSwitch(
+				checkboxName = "Use shipping address as billing address",
+				locator1 = "Checkbox#ANY_CHECKBOX");
+
+			Click(locator1 = "Button#CONTINUE");
+
+			Click(locator1 = "Button#CONTINUE");
+		}
+
+		task ("Then after completing the checkout, the default addresses is visible in the Order Summary") {
+			CommerceCheckout.viewCheckoutOrderSummary(
+				addressAddress = "1400 Montefino Ave",
+				addressCity = "Diamond Bar",
+				addressCountry = "United States",
+				addressName = "Billing and Shipping Address Entry 1",
+				billingAddressAddress = "1400 Montefino Ave",
+				billingAddressCity = "Diamond Bar",
+				billingAddressCountry = "United States",
+				billingAddressName = "Billing and Shipping Address Entry 1",
+				productName = "U-Joint",
+				productQuantity = "1",
+				productUnitPrice = "24",
+				shippingMethod = "Standard");
+		}
+	}
+
 	@description = "COMMERCE-9733. As a sales manager, I want to set a default account billing address per channel when the buyer users are placing orders"
 	@priority = "3"
 	test CanSetDefaultBillingAddressPerChannel {
 		task ("Given 3 addresses: one billing, one shipping and one shipping and billing for the account") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Addresses");
+			Account.gotoAssigneeTab(assigneeTab = "Addresses");
 
 			for (var typeList : list "Billing,Shipping,Billing and Shipping") {
-				Accounts.addAddressViaSetDefaultAddress(
+				Account.addAddressViaSetDefaultAddress(
 					addressCity = "Diamond Bar",
 					addressCountry = "United States",
 					addressName = "${typeList} Address Entry 1",
@@ -1124,11 +1882,11 @@ definition {
 		}
 
 		task ("When admin wants to set a default billing address for the account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
 			Click(
 				key_termType = "Billing",
@@ -1164,24 +1922,24 @@ definition {
 		}
 
 		task ("When a default billing address is selected for Minium Portal Channel and the account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.addDefaultCommerceAddressEntry(
+			Account.addDefaultCommerceAddressEntry(
 				addressEntry = "Billing Address Entry 1",
 				addressType = "Billing",
 				channelEntry = "Minium Portal");
 		}
 
 		task ("And admin clicks back to the default address") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
 			Click(
 				key_termType = "Billing",
@@ -1268,14 +2026,158 @@ definition {
 		}
 	}
 
+	@description = "COMMERCE-9922. The default currency can be set for a channel."
+	@priority = "5"
+	test CanSetDefaultCurrencyPerChannel {
+		task ("Given an account with a default Currency") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			Account.setDefaultCurrency(currencyName = "Euro");
+		}
+
+		task ("When the admin views the account") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+		}
+
+		task ("Then the default currency should persist") {
+			AssertElementPresent(
+				key_entryDetail = "Euro",
+				key_settingHeader = "Currencies",
+				locator1 = "Account#DEFAULT_SETTINGS_TABLE_ITEM");
+		}
+	}
+
+	@description = "This is a test for COMMERCE-9704. We can set a default price list per channel and account."
+	@priority = "3"
+	test CanSetDefaultPriceListPerChannel {
+		property portal.acceptance = "false";
+
+		task ("Given a second Minium site and a second account with a user") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(
+				siteName = "Minium 2",
+				siteTemplateName = "Minium");
+
+			CommerceEntry.addAccountEntryUser(
+				accountName = "Commerce Account 2",
+				accountType = "Business",
+				agreeToTermsAndAnswerReminderQuery = "true",
+				createNewAccount = "true",
+				requireReset = "false",
+				userEmailAddress = "buyer2@liferay.com",
+				userFirstName = "Buyer2",
+				userLastName = "User",
+				userRole = "Buyer",
+				userScreenName = "buyeruser2",
+				userSiteMembership = "Minium 2");
+		}
+
+		task ("And two more channels(Test Channel 1 and Test Channel 2)") {
+			for (var channelNames : list "Test Channel 1,Test Channel 2") {
+				CommerceJSONChannelsAPI._addChannel(
+					channelName = "${channelNames}",
+					channelType = "site",
+					currencyCode = "USD");
+			}
+		}
+
+		task ("And 2 new Price Lists") {
+			for (var priceLists : list "Test Price List 1,Test Price List 2") {
+				CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+					catalogName = "Minium",
+					currencyCode = "USD",
+					priceListName = "${priceLists}");
+			}
+		}
+
+		task ("And a Test Price List 1 entry for U-Joint with price set as 20.00 ") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "20",
+				priceListName = "Test Price List 1",
+				productSKU = "MIN55861");
+		}
+
+		task ("And a Test Price List 2 entry for U-Joint with price set as 18.00 ") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "18",
+				priceListName = "Test Price List 2",
+				productSKU = "MIN55861");
+		}
+
+		task ("When Test Price 1 is set default for Minium Portal Channel for Commerce Account") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Minium Portal",
+				priceListTitle = "Test Price List 1");
+		}
+
+		task ("And Test Price 2 is set default for Minium 2 Portal Channel for Commerce Account 2") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account 2");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Minium 2 Portal",
+				priceListTitle = "Test Price List 2");
+		}
+
+		task ("When buyer user 1 logs in") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+		}
+
+		task ("Then verifies that the price of U-Joint is 20.00") {
+			CommerceNavigator.gotoProductDetails(productName = "U-Joint");
+
+			AssertTextEquals(
+				locator1 = "CommerceAccelerators#PRODUCT_DETAILS_LIST_PRICE",
+				value1 = "$ 20.00");
+		}
+
+		task ("When buyer user 2 logs in") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium-2",
+				userEmailAddress = "buyer2@liferay.com");
+		}
+
+		task ("Then verifies that the price of U-Joint is 18.00") {
+			CommerceNavigator.gotoProductDetails(productName = "U-Joint");
+
+			AssertTextEquals(
+				locator1 = "CommerceAccelerators#PRODUCT_DETAILS_LIST_PRICE",
+				value1 = "$ 18.00");
+		}
+	}
+
 	@description = "COMMERCE-9732. As a sales manager, I want to set a default account shipping address per channel when the buyer users are placing orders"
 	@priority = "3"
 	test CanSetDefaultShippingAddressPerChannel {
 		task ("Given 3 addresses: one billing, one shipping and one shipping and billing for the account") {
-			Accounts.gotoAssigneeTab(assigneeTab = "Addresses");
+			Account.gotoAssigneeTab(assigneeTab = "Addresses");
 
 			for (var typeList : list "Billing,Shipping,Billing and Shipping") {
-				Accounts.addAddressViaSetDefaultAddress(
+				Account.addAddressViaSetDefaultAddress(
 					addressCity = "Diamond Bar",
 					addressCountry = "United States",
 					addressName = "${typeList} Address Entry 1",
@@ -1297,11 +2199,11 @@ definition {
 		}
 
 		task ("When admin wants to set a default shipping address for the account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
 			Click(
 				key_termType = "Shipping",
@@ -1337,24 +2239,24 @@ definition {
 		}
 
 		task ("When a default shipping address is selected for Minium Portal Channel and the account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.addDefaultCommerceAddressEntry(
+			Account.addDefaultCommerceAddressEntry(
 				addressEntry = "Shipping Address Entry 1",
 				addressType = "Shipping",
 				channelEntry = "Minium Portal");
 		}
 
 		task ("And admin clicks back to the default address") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
 			Click(
 				key_termType = "Shipping",
@@ -1428,6 +2330,200 @@ definition {
 		}
 	}
 
+	@description = "COMMERCE-9858. The default discount can be updated."
+	@priority = "4"
+	test CanUpdateDefaultDiscountsEntry {
+		task ("Given two active discounts applied to the U-joint product") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "10",
+				target = "products",
+				title = "Discount 1 10% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 1 10% off",
+				productName = "U-Joint");
+
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "20",
+				target = "products",
+				title = "Discount 2 20% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 2 20% off",
+				productName = "U-Joint");
+		}
+
+		task ("and a default discount is set to the Commerce Account") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceNavigator.gotoMiniumAccountOrderDefaults(accountName = "Commerce Account");
+
+			Account.setDefaultDiscount(
+				channelEntry = "Minium Portal",
+				discountTitle = "Discount 2 20% off");
+		}
+
+		task ("and the U-Joint product displaying the 20% off discount") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "web/minium/catalog");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+
+			CommerceAcceleratorsInitializer.viewDiscountedProductDetailsPage(
+				discountPercentage = "20",
+				productDiscountedPrice = "19.20",
+				productListPrice = "24.00");
+		}
+
+		task ("When the default discount is changed to 10%") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			Account.editCommerceDefaultSetting(
+				channelEntry = "Minium Portal",
+				currentDefault = "Discount 2 20% off",
+				newDefault = "Discount 1 10% off",
+				settingHeader = "Discounts",
+				settingLabel = "Discount");
+		}
+
+		task ("Then the U-Joint product should display the new 10% discount.") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "web/minium/catalog");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+
+			CommerceAcceleratorsInitializer.viewDiscountedProductDetailsPage(
+				discountPercentage = "10",
+				productDiscountedPrice = "21.60",
+				productListPrice = "24.00");
+		}
+	}
+
+	@description = "COMMERCE-9938. Only active currencies can be viewed and disabled currency should not be available to be selected."
+	@priority = "4"
+	test CanViewOnlyActiveCurrencies {
+		task ("Given a disabled currency") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "group/control_panel/manage?p_p_id=com_liferay_commerce_currency_web_internal_portlet_CommerceCurrencyPortlet");
+
+			CommerceEntry.selectEntryEllipsis(entryName = "Euro");
+
+			DropdownMenuItem.click(menuItem = "Deactivate");
+		}
+
+		task ("When the admin sets a default currency for the account") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+		}
+
+		task ("Then the disabled currency should not be available") {
+			Account.assertDisabledCurrencyIsNotAvailable(disabledCurrency = "Euro");
+		}
+	}
+
+	@description = "COMMERCE-9925. Default currency rules works on the storefront"
+	@priority = "4"
+	test DefaultCurrencyRulesCanWorkOnStoreFront {
+		task ("Given a second account (first one is created at setup)") {
+			CommerceEntry.addAccountEntryUser(
+				accountName = "Commerce Account 2",
+				accountType = "Business",
+				agreeToTermsAndAnswerReminderQuery = "true",
+				createNewAccount = "true",
+				requireReset = "false",
+				userEmailAddress = "buyer2@liferay.com",
+				userFirstName = "Buyer2",
+				userLastName = "User2",
+				userRole = "Buyer",
+				userScreenName = "buyeruser2",
+				userSiteMembership = "Minium");
+		}
+
+		task ("and the first account's default currency is set to Euro") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			ScrollWebElementIntoView(
+				key_settingHeader = "Currencies",
+				locator1 = "Account#DEFAULT_SETTINGS_HEADER");
+
+			Account.setDefaultCurrency(
+				channelEntry = "Minium Portal",
+				currencyName = "Euro");
+		}
+
+		task ("When the admin views the Minium site") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "web/minium/catalog");
+		}
+
+		task ("Then the currency should be displayed in Euros") {
+			AssertTextEquals.assertPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "€");
+
+			AssertTextNotEquals.assertNotPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "$");
+		}
+
+		task ("And when the buyer user views the Minium site") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+		}
+
+		task ("Then the currency should be displayed in Euros") {
+			AssertTextEquals.assertPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "€");
+
+			AssertTextNotEquals.assertNotPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "$");
+		}
+
+		task ("And when the second buyer user views the Minium site") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer2@liferay.com");
+		}
+
+		task ("then the currency should show US Dollar instead of Euro") {
+			AssertTextEquals.assertPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "$");
+
+			AssertTextNotEquals.assertNotPartialText(
+				key_productName = "U-Joint",
+				locator1 = "CommerceEntry#PRODUCT_CARD_LIST_PRICE",
+				value1 = "€");
+		}
+	}
+
 	@description = "COMMERCE-9782. Default delivery set to override should be default regardless of other eligibility criteria."
 	@priority = "4"
 	test DefaultDeliveryTermCanOverrideOtherEligibilities {
@@ -1494,13 +2590,13 @@ definition {
 		}
 
 		task ("and the delivery term is set as the default for the Account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				assertInactive = "Delivery Term 4",
 				channelEntry = "Minium Portal",
 				override = "true",
@@ -1546,6 +2642,367 @@ definition {
 				productQuantity = "1",
 				productSku = "MIN55861",
 				productTotalPrice = "24.00");
+		}
+	}
+
+	@description = "COMMERCE-9856. The default discount can override Account eligibility."
+	@priority = "4"
+	test DefaultDiscountCanOverrideAccountEligibility {
+		task ("Given a second Minium site and a second account") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(
+				siteName = "Minium 2",
+				siteTemplateName = "Minium");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Commerce Account 2",
+				accountEntryType = "Business");
+		}
+
+		task ("and two active order types") {
+			for (var orderTypeNumber : list "1,2") {
+				CommerceJSONOrdersAPI._addOrderType(
+					active = "true",
+					orderTypeDescription = "Test Order Type ${orderTypeNumber} Description",
+					orderTypeName = "Order Type ${orderTypeNumber}");
+			}
+		}
+
+		task ("and an active 10% discount applied to the U-joint product for the first account") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "10",
+				target = "products",
+				title = "Discount 1 10% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 1 10% off",
+				productName = "U-Joint");
+
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				portlet = "Discounts");
+
+			CommerceNavigator.gotoEntry(entryName = "Discount 1 10% off");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(accountsEligibility = "Commerce Account");
+		}
+
+		task ("and an active 20% discount applied to the U-joint product for the Minium channel") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "20",
+				target = "products",
+				title = "Discount 2 20% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 2 20% off",
+				productName = "U-Joint");
+
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				portlet = "Discounts");
+
+			CommerceNavigator.gotoEntry(entryName = "Discount 2 20% off");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(channelsEligibility = "Minium Portal");
+		}
+
+		task ("and an active 30% discount applied to the U-joint product for Order Type 1") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "30",
+				target = "products",
+				title = "Discount 3 30% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 3 30% off",
+				productName = "U-Joint");
+
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				portlet = "Discounts");
+
+			CommerceNavigator.gotoEntry(entryName = "Discount 3 30% off");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(orderTypesEligibility = "Order Type 1");
+		}
+
+		task ("When Discount 1 is set as the account default") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceNavigator.gotoMiniumAccountOrderDefaults(accountName = "Commerce Account 2");
+
+			Account.setDefaultDiscount(
+				discountTitle = "Discount 1 10% off",
+				override = "true");
+		}
+
+		task ("Then viewing the U-joint product for Account 2 shows the 10% discount") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "web/minium/catalog");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+
+			CommerceAcceleratorsInitializer.selectAccountFromAccountSelector(accountName = "Commerce Account 2");
+
+			CommerceAcceleratorsInitializer.viewDiscountedProductDetailsPage(
+				discountPercentage = "10",
+				productDiscountedPrice = "21.60",
+				productListPrice = "24.00");
+		}
+	}
+
+	@description = "COMMERCE-9856. The default discount can override Channel eligibility."
+	@priority = "4"
+	test DefaultDiscountCanOverrideChannelEligibility {
+		task ("Given a second Minium site and a second account") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(
+				siteName = "Minium 2",
+				siteTemplateName = "Minium");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Commerce Account 2",
+				accountEntryType = "Business");
+		}
+
+		task ("and two active order types") {
+			for (var orderTypeNumber : list "1,2") {
+				CommerceJSONOrdersAPI._addOrderType(
+					active = "true",
+					orderTypeDescription = "Test Order Type ${orderTypeNumber} Description",
+					orderTypeName = "Order Type ${orderTypeNumber}");
+			}
+		}
+
+		task ("and an active 10% discount applied to the U-joint product for the first account") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "10",
+				target = "products",
+				title = "Discount 1 10% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 1 10% off",
+				productName = "U-Joint");
+
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				portlet = "Discounts");
+
+			CommerceNavigator.gotoEntry(entryName = "Discount 1 10% off");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(accountsEligibility = "Commerce Account");
+		}
+
+		task ("and an active 20% discount applied to the U-joint product for the Minium channel") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "20",
+				target = "products",
+				title = "Discount 2 20% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 2 20% off",
+				productName = "U-Joint");
+
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				portlet = "Discounts");
+
+			CommerceNavigator.gotoEntry(entryName = "Discount 2 20% off");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(channelsEligibility = "Minium Portal");
+		}
+
+		task ("and an active 30% discount applied to the U-joint product for Order Type 1") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "30",
+				target = "products",
+				title = "Discount 3 30% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 3 30% off",
+				productName = "U-Joint");
+
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				portlet = "Discounts");
+
+			CommerceNavigator.gotoEntry(entryName = "Discount 3 30% off");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(orderTypesEligibility = "Order Type 1");
+		}
+
+		task ("When Discount 2 is set as the account default") {
+			ApplicationsMenu.gotoSite(site = "Minium 2");
+
+			CommerceNavigator.gotoMiniumAccountOrderDefaults(accountName = "Commerce Account 2");
+
+			Account.setDefaultDiscount(
+				channelEntry = "Minium 2 Portal",
+				discountTitle = "Discount 2 20% off",
+				override = "true");
+		}
+
+		task ("Then viewing the U-joint product on the Minium 2 site for Account 2 shows the 20% discount") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "web/minium-2/catalog");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+
+			CommerceAcceleratorsInitializer.selectAccountFromAccountSelector(accountName = "Commerce Account 2");
+
+			CommerceAcceleratorsInitializer.viewDiscountedProductDetailsPage(
+				discountPercentage = "20",
+				productDiscountedPrice = "19.20",
+				productListPrice = "24.00");
+		}
+	}
+
+	@description = "COMMERCE-9856. The default discount can override Order Type eligibility."
+	@ignore = "true"
+	@priority = "4"
+	test DefaultDiscountCanOverrideOrderTypeEligibility {
+
+		// Ignore until steps are verified. COMMERCE-9856.
+
+		task ("Given a second Minium site and a second account") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(
+				siteName = "Minium 2",
+				siteTemplateName = "Minium");
+
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Commerce Account 2",
+				accountEntryType = "Business");
+		}
+
+		task ("and two active order types") {
+			for (var orderTypeNumber : list "1,2") {
+				CommerceJSONOrdersAPI._addOrderType(
+					active = "true",
+					orderTypeDescription = "Test Order Type ${orderTypeNumber} Description",
+					orderTypeName = "Order Type ${orderTypeNumber}");
+			}
+		}
+
+		task ("and an active 10% discount applied to the U-joint product for the first account") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "10",
+				target = "products",
+				title = "Discount 1 10% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 1 10% off",
+				productName = "U-Joint");
+
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				portlet = "Discounts");
+
+			CommerceNavigator.gotoEntry(entryName = "Discount 1 10% off");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(accountsEligibility = "Commerce Account");
+		}
+
+		task ("and an active 20% discount applied to the U-joint product for the Minium channel") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "20",
+				target = "products",
+				title = "Discount 2 20% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 2 20% off",
+				productName = "U-Joint");
+
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				portlet = "Discounts");
+
+			CommerceNavigator.gotoEntry(entryName = "Discount 2 20% off");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(channelsEligibility = "Minium Portal");
+		}
+
+		task ("and an active 30% discount applied to the U-joint product for Order Type 1") {
+			CommerceJSONDiscountsAPI._addDiscount(
+				active = "true",
+				level = "L1",
+				percentageLevel1 = "30",
+				target = "products",
+				title = "Discount 3 30% off",
+				usePercentage = "true");
+
+			CommerceJSONDiscountsAPI._addDiscountProduct(
+				discountTitle = "Discount 3 30% off",
+				productName = "U-Joint");
+
+			CommerceNavigator.gotoPortlet(
+				category = "Pricing",
+				portlet = "Discounts");
+
+			CommerceNavigator.gotoEntry(entryName = "Discount 3 30% off");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(orderTypesEligibility = "Order Type 1");
+		}
+
+		task ("When Discount 3 is set as the account default") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceNavigator.gotoMiniumAccountOrderDefaults(accountName = "Commerce Account 2");
+
+			CommerceNavigator.gotoMiniumAccountOrderDefaults(accountName = "Commerce Account 2");
+
+			Account.setDefaultDiscount(
+				discountTitle = "Discount 3 30% off",
+				override = "true");
+		}
+
+		task ("Then viewing the U-joint product on the Minium 2 site for Account 2 shows the 20% discount") {
+			Navigator.openWithAppendToBaseURL(urlAppend = "web/minium-2/catalog");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "U-Joint");
+
+			CommerceAcceleratorsInitializer.selectAccountFromAccountSelector(accountName = "Commerce Account 2");
+
+			CommerceAcceleratorsInitializer.viewDiscountedProductDetailsPage(
+				discountPercentage = "30",
+				productDiscountedPrice = "16.80",
+				productListPrice = "24.00");
 		}
 	}
 
@@ -1616,13 +3073,13 @@ definition {
 		}
 
 		task ("and the payment term is set as the default for the Account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				assertInactive = "Payment Term 4",
 				channelEntry = "Minium Portal",
 				override = "true",
@@ -1668,6 +3125,194 @@ definition {
 				productQuantity = "1",
 				productSku = "MIN55861",
 				productTotalPrice = "24.00");
+		}
+	}
+
+	@description = "This is a test for COMMERCE-9704. We can use Override Eligibility option while selecting a default price list to override other eligibilities."
+	@priority = "3"
+	test DefaultPriceListCanOverrideOtherEligibilities {
+		property portal.acceptance = "false";
+
+		task ("Given a second site and account with a user") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(
+				siteName = "Minium 2",
+				siteTemplateName = "Minium");
+
+			CommerceEntry.addAccountEntryUser(
+				accountName = "Commerce Account 2",
+				accountType = "Business",
+				agreeToTermsAndAnswerReminderQuery = "true",
+				createNewAccount = "true",
+				requireReset = "false",
+				userEmailAddress = "buyer2@liferay.com",
+				userFirstName = "Buyer2",
+				userLastName = "User",
+				userRole = "Buyer",
+				userScreenName = "buyeruser2",
+				userSiteMembership = "Minium 2");
+		}
+
+		task ("And two more channels(Test Channel 1 and Test Channel 2)") {
+			for (var channelNames : list "Test Channel 1,Test Channel 2") {
+				CommerceJSONChannelsAPI._addChannel(
+					channelName = "${channelNames}",
+					channelType = "site",
+					currencyCode = "USD");
+			}
+		}
+
+		task ("Given Test Price List 1 with priority 1 and Test Price List 2 with priority 2") {
+			for (var priority : list "1,2") {
+				CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+					catalogName = "Minium",
+					currencyCode = "USD",
+					priceListName = "Test Price List ${priority}",
+					priority = "${priority}");
+			}
+		}
+
+		task ("And Test Price List 3 with priority 0") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceList(
+				catalogName = "Minium",
+				currencyCode = "USD",
+				priceListName = "Test Price List 3",
+				priority = "0");
+		}
+
+		task ("And Test Price List 1 entry for U-Joint with price set as 20.00 and eligible for Minium Portal") {
+			CommercePriceLists.openPriceListsAdmin();
+
+			CommerceNavigator.gotoEntry(entryName = "Test Price List 1");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(
+				accountsEligibility = "Commerce Account",
+				channelsEligibility = "Minium Portal");
+
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "20",
+				priceListName = "Test Price List 1",
+				productSKU = "MIN55861");
+
+			Click(locator1 = "Icon#BACK");
+		}
+
+		task ("And Test Price List 2 entry for U-Joint with price set as 30.00 and eligible for Test Channel 2") {
+			CommerceNavigator.gotoEntry(entryName = "Test Price List 2");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(
+				accountsEligibility = "Commerce Account 2",
+				channelsEligibility = "Test Channel 2");
+
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "30",
+				priceListName = "Test Price List 2",
+				productSKU = "MIN55861");
+		}
+
+		task ("And Test Price List 3 entry for U-Joint with price set as 50.00") {
+			CommerceJSONPriceListsAndPromotionsAPI._addPriceListEntry(
+				entryPrice = "50",
+				priceListName = "Test Price List 3",
+				productSKU = "MIN55861");
+		}
+
+		task ("When Test Price 3 is set default for Minium Portal Channel for Commerce Account with override eligibility set to true") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Minium Portal",
+				override = "true",
+				priceListTitle = "Test Price List 3");
+		}
+
+		task ("And buyer user logs in") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium",
+				userEmailAddress = "buyer@liferay.com");
+		}
+
+		task ("Then verifies that the Catalog price of U-Joint is 50.00") {
+			CommerceNavigator.gotoProductDetails(productName = "U-Joint");
+
+			AssertTextEquals(
+				locator1 = "CommerceAccelerators#PRODUCT_DETAILS_LIST_PRICE",
+				value1 = "$ 50.00");
+		}
+
+		task ("Given the settings are changed for price lists eligibility") {
+			User.logoutPG();
+
+			User.loginPG(
+				password = "test",
+				userEmailAddress = "test@liferay.com");
+
+			CommercePriceLists.openPriceListsAdmin();
+
+			CommerceNavigator.gotoEntry(entryName = "Test Price List 1");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(
+				accountsEligibility = "Commerce Account",
+				channelsEligibility = "Test Channel 1");
+
+			Click(locator1 = "Icon#BACK");
+
+			CommerceNavigator.gotoEntry(entryName = "Test Price List 2");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(
+				accountsEligibility = "Commerce Account 2",
+				channelsEligibility = "Minium 2 Portal");
+
+			Click(locator1 = "Icon#BACK");
+
+			CommerceNavigator.gotoEntry(entryName = "Test Price List 3");
+
+			CommerceEntry.gotoMenuTab(menuTab = "Eligibility");
+
+			CommerceEntry.setEntryEligibility(
+				accountsEligibility = "Commerce Account",
+				channelsEligibility = "Minium Portal");
+		}
+
+		task ("When Test Price 3 is set default for Minium Portal Channel for Commerce Account 2") {
+			Account.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Commerce Account 2");
+
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+
+			CommerceAccountChannelDefaults.setDefaultPriceList(
+				channelEntry = "Minium 2 Portal",
+				priceListTitle = "Test Price List 3");
+		}
+
+		task ("Then buyer2 verifies that the Catalog price of U-Joint is 30.00") {
+			User.logoutPG();
+
+			CommerceLogin.miniumLogin(
+				password = "test",
+				urlAppend = "web/minium-2",
+				userEmailAddress = "buyer2@liferay.com");
+
+			CommerceNavigator.gotoProductDetails(productName = "U-Joint");
+
+			AssertTextEquals(
+				locator1 = "CommerceAccelerators#PRODUCT_DETAILS_LIST_PRICE",
+				value1 = "$ 30.00");
 		}
 	}
 
@@ -1737,13 +3382,13 @@ definition {
 		}
 
 		task ("and the delivery term is set as the default for the Account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Delivery Term 1",
 				termType = "Delivery");
@@ -1856,13 +3501,13 @@ definition {
 		}
 
 		task ("and the payment term is set as the default for the Account") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Commerce Account");
 
-			Accounts.gotoAssigneeTab(assigneeTab = "Channel Defaults");
+			Account.gotoAssigneeTab(assigneeTab = "Channel Defaults");
 
-			Accounts.setDefaultCommerceTermsEntry(
+			Account.setDefaultCommerceTermsEntry(
 				channelEntry = "Minium Portal",
 				termEntry = "Payment Term 2",
 				termType = "Payment");

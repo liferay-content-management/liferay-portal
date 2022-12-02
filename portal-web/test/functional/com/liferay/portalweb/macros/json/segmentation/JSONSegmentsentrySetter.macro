@@ -64,6 +64,9 @@ definition {
 		else if ("${fieldName}" == "Cookies") {
 			var field = "cookies";
 		}
+		else if ("${fieldName}" == "Country") {
+			var field = "country";
+		}
 		else if ("${fieldName}" == "Date Modified") {
 			var field = "dateModified";
 		}
@@ -91,6 +94,9 @@ definition {
 		else if ("${fieldName}" == "IP Geocoder Country") {
 			var field = "customContext\/ipGeocoderCountry";
 		}
+		else if ("${fieldName}" == "Hierarchy Path") {
+			var field = "nameTreePath";
+		}
 		else if ("${fieldName}" == "Hostname") {
 			var field = "hostname";
 		}
@@ -110,10 +116,19 @@ definition {
 			var field = "localDate";
 		}
 		else if ("${fieldName}" == "Name") {
-			var field = "userName";
+			var field = "name";
+		}
+		else if ("${fieldName}" == "Organization") {
+			var field = "organizationId";
+		}
+		else if ("${fieldName}" == "Parent Organization") {
+			var field = "parentOrganizationId";
 		}
 		else if ("${fieldName}" == "Referrer URL") {
 			var field = "referrerURL";
+		}
+		else if ("${fieldName}" == "Region") {
+			var field = "region";
 		}
 		else if ("${fieldName}" == "Regular Role") {
 			var field = "roleIds";
@@ -138,6 +153,9 @@ definition {
 		}
 		else if ("${fieldName}" == "Team") {
 			var field = "teamIds";
+		}
+		else if ("${fieldName}" == "Type") {
+			var field = "type";
 		}
 		else if ("${fieldName}" == "URL") {
 			var field = "url";
@@ -166,6 +184,43 @@ definition {
 		return "${nameMap}";
 	}
 
+	@summary = "Sets the criteria when the criteria type is Session"
+	macro setOrganizationCriteria {
+		Variables.assertDefined(parameterList = "${field},${operator}");
+
+		if ("${operator}" == "equals") {
+			if (isSet(text)) {
+				var criteria = '''{"criteria":{"user-organization":{"conjunction":"and","filterString":"(${field} eq %27${text}%27)","typeValue":"model"}},"filterStrings":{"model":"(userId eq %270%27)"}}''';
+			}
+			else if (isSet(date)) {
+				var criteria = '''{"criteria":{"user-organization":{"conjunction":"and","filterString":"(${field} eq ${date})","typeValue":"model"}},"filterStrings":{"model":"(userId eq %270%27)"}}''';
+			}
+		}
+		else if ("${operator}" == "not equals") {
+			if (isSet(text)) {
+				var criteria = '''{"criteria":{"user-organization":{"conjunction":"and","filterString":"((not (${field} eq %27${text}%27)))","typeValue":"model"}},"filterStrings":{"model":"(userId eq %270%27)"}}''';
+			}
+			else if (isSet(date)) {
+				var criteria = '''{"criteria":{"user-organization":{"conjunction":"and","filterString":"((not (${field} eq ${date})))","typeValue":"model"}},"filterStrings":{"model":"(userId eq %270%27)"}}''';
+			}
+		}
+		else if ("${operator}" == "contains") {
+			var criteria = '''{"criteria":{"user-organization":{"conjunction":"and","filterString":"(contains(${field}, %27${text}%27))","typeValue":"model"}},"filterStrings":{"model":"(userId eq %270%27)"}}''';
+		}
+
+		return "${criteria}";
+	}
+
+	macro setSegmentCriteria {
+		Variables.assertDefined(parameterList = "${conjunctionOperator},${firstSegmentId},${secondSegmentId}");
+
+		var conjunctionOperator = StringUtil.toLowerCase("${conjunctionOperator}");
+
+		var criteria = '''{"criteria":{"segments":{"conjunction":"and","filterString":"(segmentsEntryIds eq %27${firstSegmentId}%27 ${conjunctionOperator} segmentsEntryIds eq %27${secondSegmentId}%27)","typeValue":"referred"}},"filterStrings":{"model":"(segmentsEntryIds eq %27${firstSegmentId}%27 ${conjunctionOperator} segmentsEntryIds eq %27${secondSegmentId}%27)","referred":"(segmentsEntryIds eq %27${firstSegmentId}%27 ${conjunctionOperator} segmentsEntryIds eq %27${secondSegmentId}%27)"}}''';
+
+		return "${criteria}";
+	}
+
 	macro setSelectedOptionId {
 		Variables.assertDefined(parameterList = "${fieldName},${selectedOption}");
 
@@ -186,6 +241,23 @@ definition {
 		}
 		else if ("${fieldName}" == "customContext\/ipGeocoderCountry") {
 			var text = JSONCountry.getCountryAbbreviation(countryName = "${selectedOption}");
+		}
+		else if ("${fieldName}" == "assetTagIds") {
+			var text = JSONAssettag.getTagId(
+				groupName = "Global",
+				tagName = "${selectedOption}");
+		}
+		else if ("${fieldName}" == "teamIds") {
+			var text = JSONTeam.getTeamId(
+				site = "False",
+				siteName = "${groupName}",
+				teamName = "${selectedOption}");
+		}
+		else if (("${fieldName}" == "organizationId") || ("${fieldName}" == "parentOrganizationId")) {
+			var text = JSONOrganization.getOrganizationIdByName(organizationName = "${selectedOption}");
+		}
+		else if (("${fieldName}" == "country") || ("${fieldName}" == "region")) {
+			var text = StringUtil.lowerCase("${selectedOption}");
 		}
 
 		return "${text}";

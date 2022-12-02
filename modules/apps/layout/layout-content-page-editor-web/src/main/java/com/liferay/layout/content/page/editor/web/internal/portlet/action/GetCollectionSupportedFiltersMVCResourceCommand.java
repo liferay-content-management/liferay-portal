@@ -17,12 +17,12 @@ package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 import com.liferay.info.filter.InfoFilter;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.list.retriever.LayoutListRetriever;
-import com.liferay.layout.list.retriever.LayoutListRetrieverTracker;
+import com.liferay.layout.list.retriever.LayoutListRetrieverRegistry;
 import com.liferay.layout.list.retriever.ListObjectReference;
 import com.liferay.layout.list.retriever.ListObjectReferenceFactory;
-import com.liferay.layout.list.retriever.ListObjectReferenceFactoryTracker;
+import com.liferay.layout.list.retriever.ListObjectReferenceFactoryRegistry;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
@@ -40,7 +40,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + ContentPageEditorPortletKeys.CONTENT_PAGE_EDITOR_PORTLET,
 		"mvc.command.name=/layout_content_page_editor/get_collection_supported_filters"
@@ -61,14 +60,14 @@ public class GetCollectionSupportedFiltersMVCResourceCommand
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse,
 			_getSupportedFiltersJSONObject(
-				JSONFactoryUtil.createJSONArray(collections)));
+				_jsonFactory.createJSONArray(collections)));
 	}
 
 	private JSONObject _getSupportedFiltersJSONObject(
 			JSONArray collectionsJSONArray)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
 		for (int i = 0; i < collectionsJSONArray.length(); i++) {
 			JSONObject collectionJSONObject =
@@ -81,14 +80,15 @@ public class GetCollectionSupportedFiltersMVCResourceCommand
 
 			LayoutListRetriever<?, ListObjectReference> layoutListRetriever =
 				(LayoutListRetriever<?, ListObjectReference>)
-					_layoutListRetrieverTracker.getLayoutListRetriever(type);
+					_layoutListRetrieverRegistry.getLayoutListRetriever(type);
 
 			if (layoutListRetriever == null) {
 				continue;
 			}
 
 			ListObjectReferenceFactory<?> listObjectReferenceFactory =
-				_listObjectReferenceFactoryTracker.getListObjectReference(type);
+				_listObjectReferenceFactoryRegistry.getListObjectReference(
+					type);
 
 			if (listObjectReferenceFactory == null) {
 				continue;
@@ -107,10 +107,13 @@ public class GetCollectionSupportedFiltersMVCResourceCommand
 	}
 
 	@Reference
-	private LayoutListRetrieverTracker _layoutListRetrieverTracker;
+	private JSONFactory _jsonFactory;
 
 	@Reference
-	private ListObjectReferenceFactoryTracker
-		_listObjectReferenceFactoryTracker;
+	private LayoutListRetrieverRegistry _layoutListRetrieverRegistry;
+
+	@Reference
+	private ListObjectReferenceFactoryRegistry
+		_listObjectReferenceFactoryRegistry;
 
 }

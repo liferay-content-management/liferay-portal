@@ -16,10 +16,13 @@ package com.liferay.commerce.internal.object.system;
 
 import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.product.model.CPDefinitionTable;
+import com.liferay.commerce.product.model.CProduct;
 import com.liferay.commerce.product.service.CPDefinitionLocalService;
+import com.liferay.commerce.product.service.CProductLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.system.BaseSystemObjectDefinitionMetadata;
+import com.liferay.object.system.JaxRsApplicationDescriptor;
 import com.liferay.object.system.SystemObjectDefinitionMetadata;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
@@ -50,8 +53,28 @@ public class CPDefinitionSystemObjectDefinitionMetadata
 	}
 
 	@Override
-	public String getJaxRsApplicationName() {
-		return "Liferay.Headless.Commerce.Admin.Catalog";
+	public BaseModel<?> getBaseModelByExternalReferenceCode(
+			String externalReferenceCode, long companyId)
+		throws PortalException {
+
+		return _cProductLocalService.getCProductByExternalReferenceCode(
+			externalReferenceCode, companyId);
+	}
+
+	@Override
+	public String getExternalReferenceCode(long primaryKey)
+		throws PortalException {
+
+		CProduct cProduct = _cProductLocalService.getCProduct(primaryKey);
+
+		return cProduct.getExternalReferenceCode();
+	}
+
+	@Override
+	public JaxRsApplicationDescriptor getJaxRsApplicationDescriptor() {
+		return new JaxRsApplicationDescriptor(
+			"Liferay.Headless.Commerce.Admin.Catalog",
+			"headless-commerce-admin-catalog", "products", "v1.0");
 	}
 
 	@Override
@@ -69,9 +92,6 @@ public class CPDefinitionSystemObjectDefinitionMetadata
 		return Arrays.asList(
 			createObjectField(
 				"Text", "String", "description", "description", false, true),
-			createObjectField(
-				"Text", "String", "external-reference-code",
-				"externalReferenceCode", false, true),
 			createObjectField("Text", "String", "name", "name", false, true),
 			createObjectField(
 				"Text", "CPDefinitionId", "String", "product-id", "productId",
@@ -97,11 +117,6 @@ public class CPDefinitionSystemObjectDefinitionMetadata
 	}
 
 	@Override
-	public String getRESTContextPath() {
-		return "headless-commerce-admin-catalog/v1.0/products";
-	}
-
-	@Override
 	public String getRESTDTOIdPropertyName() {
 		return "productId";
 	}
@@ -123,5 +138,8 @@ public class CPDefinitionSystemObjectDefinitionMetadata
 
 	@Reference
 	private CPDefinitionLocalService _cpDefinitionLocalService;
+
+	@Reference
+	private CProductLocalService _cProductLocalService;
 
 }

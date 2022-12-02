@@ -21,7 +21,7 @@ import com.liferay.commerce.search.facet.SerializableFacet;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.json.JSONObjectImpl;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -41,12 +41,12 @@ import java.util.Optional;
 import javax.portlet.RenderRequest;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Shuyang Zhou
  */
 @Component(
-	enabled = false,
 	property = "javax.portlet.name=" + CPPortletKeys.CP_PRICE_RANGE_FACETS,
 	service = PortletSharedSearchContributor.class
 )
@@ -116,7 +116,7 @@ public class CPPriceRangeFacetsPortletSharedSearchContributor
 			new String[] {StringPool.COMMA, String.valueOf(Double.MAX_VALUE)});
 
 		jsonObject.put(
-			"ranges", JSONFactoryUtil.createJSONArray(rangesJSONArrayString));
+			"ranges", _jsonFactory.createJSONArray(rangesJSONArrayString));
 
 		facetConfiguration.setDataJSONObject(jsonObject);
 
@@ -129,5 +129,8 @@ public class CPPriceRangeFacetsPortletSharedSearchContributor
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CPPriceRangeFacetsPortletSharedSearchContributor.class);
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 }

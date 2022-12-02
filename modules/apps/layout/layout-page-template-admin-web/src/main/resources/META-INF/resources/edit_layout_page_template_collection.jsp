@@ -47,18 +47,16 @@ renderResponse.setTitle((layoutPageTemplateCollection != null) ? layoutPageTempl
 
 		<aui:model-context bean="<%= layoutPageTemplateCollection %>" model="<%= LayoutPageTemplateCollection.class %>" />
 
-		<liferay-frontend:fieldset-group>
-			<liferay-frontend:fieldset>
-				<aui:input autoFocus="<%= true %>" label="name" name="name" placeholder="name" />
+		<liferay-frontend:fieldset>
+			<aui:input autoFocus="<%= true %>" label="name" name="name" placeholder="name" />
 
-				<aui:input name="description" placeholder="description" />
-			</liferay-frontend:fieldset>
-		</liferay-frontend:fieldset-group>
+			<aui:input name="description" placeholder="description" />
+		</liferay-frontend:fieldset>
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
-		<aui:button type="submit" />
-
-		<aui:button href="<%= redirect %>" type="cancel" />
+		<liferay-frontend:edit-form-buttons
+			redirect="<%= redirect %>"
+		/>
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>

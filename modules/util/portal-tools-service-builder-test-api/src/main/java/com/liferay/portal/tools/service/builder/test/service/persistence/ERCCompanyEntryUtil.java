@@ -476,75 +476,75 @@ public class ERCCompanyEntryUtil {
 	}
 
 	/**
-	 * Returns the erc company entry where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchERCCompanyEntryException</code> if it could not be found.
+	 * Returns the erc company entry where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchERCCompanyEntryException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching erc company entry
 	 * @throws NoSuchERCCompanyEntryException if a matching erc company entry could not be found
 	 */
-	public static ERCCompanyEntry findByC_ERC(
-			long companyId, String externalReferenceCode)
+	public static ERCCompanyEntry findByERC_C(
+			String externalReferenceCode, long companyId)
 		throws com.liferay.portal.tools.service.builder.test.exception.
 			NoSuchERCCompanyEntryException {
 
-		return getPersistence().findByC_ERC(companyId, externalReferenceCode);
+		return getPersistence().findByERC_C(externalReferenceCode, companyId);
 	}
 
 	/**
-	 * Returns the erc company entry where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the erc company entry where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching erc company entry, or <code>null</code> if a matching erc company entry could not be found
 	 */
-	public static ERCCompanyEntry fetchByC_ERC(
-		long companyId, String externalReferenceCode) {
+	public static ERCCompanyEntry fetchByERC_C(
+		String externalReferenceCode, long companyId) {
 
-		return getPersistence().fetchByC_ERC(companyId, externalReferenceCode);
+		return getPersistence().fetchByERC_C(externalReferenceCode, companyId);
 	}
 
 	/**
-	 * Returns the erc company entry where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the erc company entry where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching erc company entry, or <code>null</code> if a matching erc company entry could not be found
 	 */
-	public static ERCCompanyEntry fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache) {
+	public static ERCCompanyEntry fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache) {
 
-		return getPersistence().fetchByC_ERC(
-			companyId, externalReferenceCode, useFinderCache);
+		return getPersistence().fetchByERC_C(
+			externalReferenceCode, companyId, useFinderCache);
 	}
 
 	/**
-	 * Removes the erc company entry where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the erc company entry where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the erc company entry that was removed
 	 */
-	public static ERCCompanyEntry removeByC_ERC(
-			long companyId, String externalReferenceCode)
+	public static ERCCompanyEntry removeByERC_C(
+			String externalReferenceCode, long companyId)
 		throws com.liferay.portal.tools.service.builder.test.exception.
 			NoSuchERCCompanyEntryException {
 
-		return getPersistence().removeByC_ERC(companyId, externalReferenceCode);
+		return getPersistence().removeByERC_C(externalReferenceCode, companyId);
 	}
 
 	/**
-	 * Returns the number of erc company entries where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of erc company entries where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching erc company entries
 	 */
-	public static int countByC_ERC(
-		long companyId, String externalReferenceCode) {
+	public static int countByERC_C(
+		String externalReferenceCode, long companyId) {
 
-		return getPersistence().countByC_ERC(companyId, externalReferenceCode);
+		return getPersistence().countByERC_C(externalReferenceCode, companyId);
 	}
 
 	/**

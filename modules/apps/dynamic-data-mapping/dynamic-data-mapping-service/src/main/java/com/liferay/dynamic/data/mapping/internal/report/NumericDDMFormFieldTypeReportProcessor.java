@@ -24,7 +24,6 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -49,7 +48,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Marcos Martins
  */
 @Component(
-	immediate = true, property = "ddm.form.field.type.name=numeric",
+	property = "ddm.form.field.type.name=numeric",
 	service = DDMFormFieldTypeReportProcessor.class
 )
 public class NumericDDMFormFieldTypeReportProcessor
@@ -74,7 +73,7 @@ public class NumericDDMFormFieldTypeReportProcessor
 		JSONObject summaryJSONObject = jsonObject.getJSONObject("summary");
 
 		if (summaryJSONObject == null) {
-			summaryJSONObject = JSONFactoryUtil.createJSONObject();
+			summaryJSONObject = jsonFactory.createJSONObject();
 		}
 
 		BigDecimal sumBigDecimal = new BigDecimal(

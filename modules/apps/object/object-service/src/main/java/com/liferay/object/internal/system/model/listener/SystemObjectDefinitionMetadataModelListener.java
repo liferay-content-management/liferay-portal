@@ -20,6 +20,8 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectValidationRuleLocalService;
+import com.liferay.object.system.JaxRsApplicationDescriptor;
+import com.liferay.object.system.SystemObjectDefinitionMetadata;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -55,6 +57,7 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 		ObjectDefinitionLocalService objectDefinitionLocalService,
 		ObjectEntryLocalService objectEntryLocalService,
 		ObjectValidationRuleLocalService objectValidationRuleLocalService,
+		SystemObjectDefinitionMetadata systemObjectDefinitionMetadata,
 		UserLocalService userLocalService) {
 
 		_dtoConverterRegistry = dtoConverterRegistry;
@@ -64,6 +67,7 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 		_objectDefinitionLocalService = objectDefinitionLocalService;
 		_objectEntryLocalService = objectEntryLocalService;
 		_objectValidationRuleLocalService = objectValidationRuleLocalService;
+		_systemObjectDefinitionMetadata = systemObjectDefinitionMetadata;
 		_userLocalService = userLocalService;
 	}
 
@@ -96,7 +100,7 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 
 	@Override
 	public void onBeforeCreate(T model) throws ModelListenerException {
-		_validateSystemObject(model);
+		_validateSystemObject(null, model);
 	}
 
 	@Override
@@ -124,7 +128,7 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 	public void onBeforeUpdate(T originalModel, T model)
 		throws ModelListenerException {
 
-		_validateSystemObject(model);
+		_validateSystemObject(originalModel, model);
 	}
 
 	private void _executeObjectActions(
@@ -175,8 +179,12 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 	}
 
 	private DTOConverter<T, ?> _getDTOConverter() {
+		JaxRsApplicationDescriptor jaxRsApplicationDescriptor =
+			_systemObjectDefinitionMetadata.getJaxRsApplicationDescriptor();
+
 		return (DTOConverter<T, ?>)_dtoConverterRegistry.getDTOConverter(
-			_modelClass.getName());
+			jaxRsApplicationDescriptor.getApplicationName(),
+			_modelClass.getName(), jaxRsApplicationDescriptor.getVersion());
 	}
 
 	private String _getDTOConverterType() {
@@ -311,7 +319,9 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 		return baseModel.getModelAttributes();
 	}
 
-	private void _validateSystemObject(T model) throws ModelListenerException {
+	private void _validateSystemObject(T originalModel, T model)
+		throws ModelListenerException {
+
 		try {
 			ObjectDefinition objectDefinition =
 				_objectDefinitionLocalService.fetchObjectDefinitionByClassName(
@@ -321,8 +331,17 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 				return;
 			}
 
+			long userId = PrincipalThreadLocal.getUserId();
+
+			if (userId == 0) {
+				userId = _getUserId(model);
+			}
+
 			_objectValidationRuleLocalService.validate(
-				model, objectDefinition.getObjectDefinitionId());
+				model, objectDefinition.getObjectDefinitionId(),
+				_getPayloadJSONObject(
+					null, objectDefinition, originalModel, model, userId),
+				userId);
 		}
 		catch (PortalException portalException) {
 			throw new ModelListenerException(portalException);
@@ -340,6 +359,8 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 	private final ObjectEntryLocalService _objectEntryLocalService;
 	private final ObjectValidationRuleLocalService
 		_objectValidationRuleLocalService;
+	private final SystemObjectDefinitionMetadata
+		_systemObjectDefinitionMetadata;
 	private final UserLocalService _userLocalService;
 
 }

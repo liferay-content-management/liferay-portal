@@ -16,16 +16,6 @@
 
 <%@ include file="/init.jsp" %>
 
-<liferay-ui:icon
-	icon="download"
-	iconCssClass="dropdown-item-indicator-start"
-	id="importDataDefinitionIcon"
-	markupView="lexicon"
-	message="import-structure"
-	onClick='<%= liferayPortletResponse.getNamespace() + "openImportDataDefinitionModal();" %>'
-	url="javascript:void(0);"
-/>
-
 <div>
 	<react:component
 		module="js/modals/ImportDataDefinitionModal"
@@ -47,11 +37,14 @@
 </div>
 
 <aui:script>
-	function <portlet:namespace />openImportDataDefinitionModal() {
-		Liferay.componentReady(
-			'<portlet:namespace />importDataDefinitionModal'
-		).then((importDataDefinitionModal) => {
-			importDataDefinitionModal.open();
-		});
-	}
+	Liferay.Util.setPortletConfigurationIconAction(
+		'<portlet:namespace />importDataDefinition',
+		() => {
+			Liferay.componentReady(
+				'<portlet:namespace />importDataDefinitionModal'
+			).then((importDataDefinitionModal) => {
+				importDataDefinitionModal.open();
+			});
+		}
+	);
 </aui:script>

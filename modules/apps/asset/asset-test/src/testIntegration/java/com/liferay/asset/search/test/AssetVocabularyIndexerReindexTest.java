@@ -116,8 +116,7 @@ public class AssetVocabularyIndexerReindexTest {
 	}
 
 	protected void deleteDocument(long companyId, String uid) throws Exception {
-		indexWriterHelper.deleteDocument(
-			indexer.getSearchEngineId(), companyId, uid, true);
+		indexWriterHelper.deleteDocument(companyId, uid, true);
 	}
 
 	protected void reindexAllIndexerModels() throws Exception {

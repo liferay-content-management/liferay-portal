@@ -14,18 +14,21 @@
 
 package com.liferay.user.groups.admin.internal.search.spi.model.index.contributor;
 
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Luan Maoski
  */
 @Component(
-	immediate = true,
 	property = "indexer.class.name=com.liferay.portal.kernel.model.UserGroup",
 	service = ModelDocumentContributor.class
 )
@@ -38,6 +41,14 @@ public class UserGroupModelDocumentContributor
 		document.addText(Field.DESCRIPTION, userGroup.getDescription());
 		document.addText(Field.NAME, userGroup.getName());
 		document.addKeyword(Field.USER_GROUP_ID, userGroup.getUserGroupId());
+		document.addKeyword(
+			"userIds",
+			ListUtil.toLongArray(
+				_userLocalService.getUserGroupUsers(userGroup.getUserGroupId()),
+				User::getUserId));
 	}
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

@@ -113,7 +113,7 @@ public class AssetCategoryLocalServiceTest {
 		assetCategory =
 			AssetCategoryLocalServiceUtil.
 				getAssetCategoryByExternalReferenceCode(
-					_group.getGroupId(), externalReferenceCode);
+					externalReferenceCode, _group.getGroupId());
 
 		Assert.assertEquals(
 			externalReferenceCode, assetCategory.getExternalReferenceCode());
@@ -135,7 +135,7 @@ public class AssetCategoryLocalServiceTest {
 		AssetCategory assetCategory2 =
 			AssetCategoryLocalServiceUtil.
 				getAssetCategoryByExternalReferenceCode(
-					_group.getGroupId(), externalReferenceCode);
+					externalReferenceCode, _group.getGroupId());
 
 		Assert.assertEquals(assetCategory1, assetCategory2);
 	}

@@ -32,7 +32,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eduardo García
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + AssetListPortletKeys.ASSET_LIST,
 		"mvc.command.name=/asset_list/delete_asset_list_entry_variation"
@@ -58,16 +57,19 @@ public class DeleteAssetListEntryVariationMVCActionCommand
 
 		sendRedirect(
 			actionRequest, actionResponse,
-			getRedirectURL(actionResponse, assetListEntryId));
+			getRedirectURL(actionRequest, actionResponse, assetListEntryId));
 	}
 
 	protected String getRedirectURL(
-		ActionResponse actionResponse, long assetListEntryId) {
+		ActionRequest actionRequest, ActionResponse actionResponse,
+		long assetListEntryId) {
 
 		return PortletURLBuilder.createRenderURL(
 			_portal.getLiferayPortletResponse(actionResponse)
 		).setMVCPath(
 			"/edit_asset_list_entry.jsp"
+		).setBackURL(
+			ParamUtil.getString(actionRequest, "backURL")
 		).setParameter(
 			"assetListEntryId", assetListEntryId
 		).buildString();

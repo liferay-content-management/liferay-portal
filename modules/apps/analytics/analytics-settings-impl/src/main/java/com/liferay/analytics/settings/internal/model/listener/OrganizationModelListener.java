@@ -26,7 +26,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Marcos Martins
  */
-@Component(immediate = true, service = ModelListener.class)
+@Component(service = ModelListener.class)
 public class OrganizationModelListener
 	extends BaseAnalyticsDXPEntityModelListener<Organization> {
 
@@ -41,7 +41,7 @@ public class OrganizationModelListener
 
 		super.onAfterRemove(organization);
 
-		if (!analyticsConfigurationTracker.isActive() ||
+		if (!analyticsConfigurationRegistry.isActive() ||
 			!isTracked(organization)) {
 
 			return;

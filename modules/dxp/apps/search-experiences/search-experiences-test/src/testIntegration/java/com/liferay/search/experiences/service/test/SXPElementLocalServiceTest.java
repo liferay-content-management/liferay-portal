@@ -110,12 +110,12 @@ public class SXPElementLocalServiceTest {
 		Assert.assertEquals(
 			sxpElement,
 			_sxpElementLocalService.getSXPElementByExternalReferenceCode(
-				TestPropsValues.getCompanyId(),
-				sxpElement.getExternalReferenceCode()));
+				sxpElement.getExternalReferenceCode(),
+				TestPropsValues.getCompanyId()));
 
 		try {
 			_sxpElementLocalService.getSXPElementByExternalReferenceCode(
-				TestPropsValues.getCompanyId(), RandomTestUtil.randomString());
+				RandomTestUtil.randomString(), TestPropsValues.getCompanyId());
 
 			Assert.fail();
 		}

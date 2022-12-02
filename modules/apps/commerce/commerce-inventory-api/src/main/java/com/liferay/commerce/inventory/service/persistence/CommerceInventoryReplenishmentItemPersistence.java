@@ -1103,57 +1103,57 @@ public interface CommerceInventoryReplenishmentItemPersistence
 	public int countByS_AD(String sku, Date availabilityDate);
 
 	/**
-	 * Returns the commerce inventory replenishment item where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchInventoryReplenishmentItemException</code> if it could not be found.
+	 * Returns the commerce inventory replenishment item where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchInventoryReplenishmentItemException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching commerce inventory replenishment item
 	 * @throws NoSuchInventoryReplenishmentItemException if a matching commerce inventory replenishment item could not be found
 	 */
-	public CommerceInventoryReplenishmentItem findByC_ERC(
-			long companyId, String externalReferenceCode)
+	public CommerceInventoryReplenishmentItem findByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchInventoryReplenishmentItemException;
 
 	/**
-	 * Returns the commerce inventory replenishment item where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the commerce inventory replenishment item where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching commerce inventory replenishment item, or <code>null</code> if a matching commerce inventory replenishment item could not be found
 	 */
-	public CommerceInventoryReplenishmentItem fetchByC_ERC(
-		long companyId, String externalReferenceCode);
+	public CommerceInventoryReplenishmentItem fetchByERC_C(
+		String externalReferenceCode, long companyId);
 
 	/**
-	 * Returns the commerce inventory replenishment item where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the commerce inventory replenishment item where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching commerce inventory replenishment item, or <code>null</code> if a matching commerce inventory replenishment item could not be found
 	 */
-	public CommerceInventoryReplenishmentItem fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache);
+	public CommerceInventoryReplenishmentItem fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache);
 
 	/**
-	 * Removes the commerce inventory replenishment item where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the commerce inventory replenishment item where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the commerce inventory replenishment item that was removed
 	 */
-	public CommerceInventoryReplenishmentItem removeByC_ERC(
-			long companyId, String externalReferenceCode)
+	public CommerceInventoryReplenishmentItem removeByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchInventoryReplenishmentItemException;
 
 	/**
-	 * Returns the number of commerce inventory replenishment items where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of commerce inventory replenishment items where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching commerce inventory replenishment items
 	 */
-	public int countByC_ERC(long companyId, String externalReferenceCode);
+	public int countByERC_C(String externalReferenceCode, long companyId);
 
 	/**
 	 * Caches the commerce inventory replenishment item in the entity cache if it is enabled.

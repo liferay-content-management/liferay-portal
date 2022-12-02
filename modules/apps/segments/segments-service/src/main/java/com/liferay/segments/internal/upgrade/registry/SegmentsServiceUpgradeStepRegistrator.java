@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author David Arques
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(service = UpgradeStepRegistrator.class)
 public class SegmentsServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -46,7 +46,7 @@ public class SegmentsServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"SegmentsEntry", "SegmentsEntryRel",
 						"SegmentsExperience", "SegmentsExperiment",

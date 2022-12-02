@@ -11,6 +11,31 @@
 
 <tbody>
 <tr>
+	<td>PERMISSION_ITEM_HEADER</td>
+	<td>//form//h3[contains(.,'${permissionNavItem}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PERMISSION_CHECKBOX</td>
+	<td>xpath=(//*[contains(@class,'sheet-subtitle') or contains(@class,'sheet-tertiary-title')])[normalize-space(text())='${key_permissionSheetSubtitle}']//following-sibling::div[2]//tr[contains(.,'${key_permissionValue}')]//input[@type='checkbox']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PERMISSION_CHANGE_SCOPE</td>
+	<td>xpath=(//*[contains(@class,'sheet-subtitle') or contains(@class,'sheet-tertiary-title')])[normalize-space(text())='${key_permissionSheetSubtitle}']//following-sibling::div[2]//tr[contains(.,'${key_permissionValue}')]//button[contains(.,'Change')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PERMISSION_SITE_SCOPE</td>
+	<td>xpath=(//*[contains(@class,'sheet-subtitle') or contains(@class,'sheet-tertiary-title')])[normalize-space(text())='${key_permissionSheetSubtitle}']//following-sibling::div[2]//tr[contains(.,'${key_permissionValue}')]//span[normalize-space(text())='${key_siteNameScope}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PERMISSION_SITE_SCOPE_REMOVE</td>
+	<td>xpath=(//*[contains(@class,'sheet-subtitle') or contains(@class,'sheet-tertiary-title')])[normalize-space(text())='${key_permissionSheetSubtitle}']//following-sibling::div[2]//tr[contains(.,'${key_permissionValue}')]//span[normalize-space(text())='${key_siteNameScope}']/..//button[*[name()='svg'][contains(@class,'times-small')]]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PERMISSION_HEADER</td>
 	<td>//form//h3[contains(.,'${permissionNavigationValue}')]</td>
 	<td></td>
@@ -79,6 +104,11 @@
 <tr>
 	<td>CONTROL_PANEL_CUSTOM_OBJECTS_PERMISSIONS_APPLICATION_PERMISSION_ACTION_CHECKBOX</td>
 	<td>xpath=(//input[contains(@name,'RolesAdminPortlet_allRowIds') and contains(@title,'Select All')])[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTROL_PANEL_CUSTOM_OBJECTS_PERMISSIONS_APPLICATION_PERMISSION_VIEW_CHECKBOX</td>
+	<td>xpath=(//input[contains(@name,'_com_liferay_roles_admin_web_portlet_RolesAdminPortlet_rowIds') and contains(@value,'VIEW')])[1]</td>
 	<td></td>
 </tr>
 <tr>

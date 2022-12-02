@@ -61,7 +61,7 @@ public class SourceLocalServiceImpl extends SourceLocalServiceBaseImpl {
 		User user = _userLocalService.getUser(userId);
 		Date date = new Date();
 
-		validate(driverClassName, driverUrl, driverUserName, driverPassword);
+		_validate(driverClassName, driverUrl, driverUserName, driverPassword);
 
 		long sourceId = counterLocalService.increment();
 
@@ -158,7 +158,7 @@ public class SourceLocalServiceImpl extends SourceLocalServiceBaseImpl {
 			driverPassword = source.getDriverPassword();
 		}
 
-		validate(driverClassName, driverUrl, driverUserName, driverPassword);
+		_validate(driverClassName, driverUrl, driverUserName, driverPassword);
 
 		source.setModifiedDate(serviceContext.getModifiedDate(null));
 		source.setNameMap(nameMap);
@@ -170,7 +170,7 @@ public class SourceLocalServiceImpl extends SourceLocalServiceBaseImpl {
 		return sourcePersistence.update(source);
 	}
 
-	protected void validate(
+	private void _validate(
 			String driverClassName, String driverUrl, String driverUserName,
 			String driverPassword)
 		throws PortalException {

@@ -18,7 +18,7 @@ import com.liferay.analytics.message.sender.model.listener.BaseEntityModelListen
 import com.liferay.analytics.message.sender.model.listener.EntityModelListener;
 import com.liferay.expando.kernel.model.ExpandoRow;
 import com.liferay.expando.kernel.service.ExpandoRowLocalService;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.ModelListener;
@@ -35,9 +35,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Rachael Koestartyo
  */
-@Component(
-	immediate = true, service = {EntityModelListener.class, ModelListener.class}
-)
+@Component(service = {EntityModelListener.class, ModelListener.class})
 public class ExpandoRowModelListener
 	extends BaseEntityModelListener<ExpandoRow> {
 
@@ -108,11 +106,14 @@ public class ExpandoRowModelListener
 			}
 		}
 
-		return JSONFactoryUtil.createJSONObject();
+		return _jsonFactory.createJSONObject();
 	}
 
 	@Reference
 	private ExpandoRowLocalService _expandoRowLocalService;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private OrganizationLocalService _organizationLocalService;

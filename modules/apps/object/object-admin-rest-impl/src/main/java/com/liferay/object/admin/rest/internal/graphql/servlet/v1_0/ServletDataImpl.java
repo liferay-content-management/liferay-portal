@@ -16,6 +16,13 @@ package com.liferay.object.admin.rest.internal.graphql.servlet.v1_0;
 
 import com.liferay.object.admin.rest.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.object.admin.rest.internal.graphql.query.v1_0.Query;
+import com.liferay.object.admin.rest.internal.resource.v1_0.ObjectActionResourceImpl;
+import com.liferay.object.admin.rest.internal.resource.v1_0.ObjectDefinitionResourceImpl;
+import com.liferay.object.admin.rest.internal.resource.v1_0.ObjectFieldResourceImpl;
+import com.liferay.object.admin.rest.internal.resource.v1_0.ObjectLayoutResourceImpl;
+import com.liferay.object.admin.rest.internal.resource.v1_0.ObjectRelationshipResourceImpl;
+import com.liferay.object.admin.rest.internal.resource.v1_0.ObjectValidationRuleResourceImpl;
+import com.liferay.object.admin.rest.internal.resource.v1_0.ObjectViewResourceImpl;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectActionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectFieldResource;
@@ -23,7 +30,11 @@ import com.liferay.object.admin.rest.resource.v1_0.ObjectLayoutResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectRelationshipResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectValidationRuleResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectViewResource;
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -38,7 +49,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Javier Gamarra
  * @generated
  */
-@Component(immediate = true, service = ServletData.class)
+@Component(service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
@@ -75,6 +86,10 @@ public class ServletDataImpl implements ServletData {
 			_objectViewResourceComponentServiceObjects);
 	}
 
+	public String getApplicationName() {
+		return "Liferay.Object.Admin.REST";
+	}
+
 	@Override
 	public Mutation getMutation() {
 		return new Mutation();
@@ -89,6 +104,335 @@ public class ServletDataImpl implements ServletData {
 	public Query getQuery() {
 		return new Query();
 	}
+
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(
+		String methodName, boolean mutation) {
+
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get(
+				"mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>>
+		_resourceMethodObjectValuePairs =
+			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+				{
+					put(
+						"mutation#deleteObjectAction",
+						new ObjectValuePair<>(
+							ObjectActionResourceImpl.class,
+							"deleteObjectAction"));
+					put(
+						"mutation#deleteObjectActionBatch",
+						new ObjectValuePair<>(
+							ObjectActionResourceImpl.class,
+							"deleteObjectActionBatch"));
+					put(
+						"mutation#patchObjectAction",
+						new ObjectValuePair<>(
+							ObjectActionResourceImpl.class,
+							"patchObjectAction"));
+					put(
+						"mutation#updateObjectAction",
+						new ObjectValuePair<>(
+							ObjectActionResourceImpl.class, "putObjectAction"));
+					put(
+						"mutation#updateObjectActionBatch",
+						new ObjectValuePair<>(
+							ObjectActionResourceImpl.class,
+							"putObjectActionBatch"));
+					put(
+						"mutation#createObjectDefinitionObjectAction",
+						new ObjectValuePair<>(
+							ObjectActionResourceImpl.class,
+							"postObjectDefinitionObjectAction"));
+					put(
+						"mutation#createObjectDefinitionObjectActionBatch",
+						new ObjectValuePair<>(
+							ObjectActionResourceImpl.class,
+							"postObjectDefinitionObjectActionBatch"));
+					put(
+						"mutation#createObjectDefinition",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"postObjectDefinition"));
+					put(
+						"mutation#createObjectDefinitionBatch",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"postObjectDefinitionBatch"));
+					put(
+						"mutation#updateObjectDefinitionByExternalReferenceCode",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"putObjectDefinitionByExternalReferenceCode"));
+					put(
+						"mutation#deleteObjectDefinition",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"deleteObjectDefinition"));
+					put(
+						"mutation#deleteObjectDefinitionBatch",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"deleteObjectDefinitionBatch"));
+					put(
+						"mutation#patchObjectDefinition",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"patchObjectDefinition"));
+					put(
+						"mutation#updateObjectDefinition",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"putObjectDefinition"));
+					put(
+						"mutation#updateObjectDefinitionBatch",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"putObjectDefinitionBatch"));
+					put(
+						"mutation#createObjectDefinitionPublish",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"postObjectDefinitionPublish"));
+					put(
+						"mutation#createObjectDefinitionObjectField",
+						new ObjectValuePair<>(
+							ObjectFieldResourceImpl.class,
+							"postObjectDefinitionObjectField"));
+					put(
+						"mutation#createObjectDefinitionObjectFieldBatch",
+						new ObjectValuePair<>(
+							ObjectFieldResourceImpl.class,
+							"postObjectDefinitionObjectFieldBatch"));
+					put(
+						"mutation#deleteObjectField",
+						new ObjectValuePair<>(
+							ObjectFieldResourceImpl.class,
+							"deleteObjectField"));
+					put(
+						"mutation#deleteObjectFieldBatch",
+						new ObjectValuePair<>(
+							ObjectFieldResourceImpl.class,
+							"deleteObjectFieldBatch"));
+					put(
+						"mutation#patchObjectField",
+						new ObjectValuePair<>(
+							ObjectFieldResourceImpl.class, "patchObjectField"));
+					put(
+						"mutation#updateObjectField",
+						new ObjectValuePair<>(
+							ObjectFieldResourceImpl.class, "putObjectField"));
+					put(
+						"mutation#updateObjectFieldBatch",
+						new ObjectValuePair<>(
+							ObjectFieldResourceImpl.class,
+							"putObjectFieldBatch"));
+					put(
+						"mutation#createObjectDefinitionObjectLayout",
+						new ObjectValuePair<>(
+							ObjectLayoutResourceImpl.class,
+							"postObjectDefinitionObjectLayout"));
+					put(
+						"mutation#createObjectDefinitionObjectLayoutBatch",
+						new ObjectValuePair<>(
+							ObjectLayoutResourceImpl.class,
+							"postObjectDefinitionObjectLayoutBatch"));
+					put(
+						"mutation#deleteObjectLayout",
+						new ObjectValuePair<>(
+							ObjectLayoutResourceImpl.class,
+							"deleteObjectLayout"));
+					put(
+						"mutation#deleteObjectLayoutBatch",
+						new ObjectValuePair<>(
+							ObjectLayoutResourceImpl.class,
+							"deleteObjectLayoutBatch"));
+					put(
+						"mutation#updateObjectLayout",
+						new ObjectValuePair<>(
+							ObjectLayoutResourceImpl.class, "putObjectLayout"));
+					put(
+						"mutation#updateObjectLayoutBatch",
+						new ObjectValuePair<>(
+							ObjectLayoutResourceImpl.class,
+							"putObjectLayoutBatch"));
+					put(
+						"mutation#createObjectDefinitionObjectRelationship",
+						new ObjectValuePair<>(
+							ObjectRelationshipResourceImpl.class,
+							"postObjectDefinitionObjectRelationship"));
+					put(
+						"mutation#createObjectDefinitionObjectRelationshipBatch",
+						new ObjectValuePair<>(
+							ObjectRelationshipResourceImpl.class,
+							"postObjectDefinitionObjectRelationshipBatch"));
+					put(
+						"mutation#deleteObjectRelationship",
+						new ObjectValuePair<>(
+							ObjectRelationshipResourceImpl.class,
+							"deleteObjectRelationship"));
+					put(
+						"mutation#deleteObjectRelationshipBatch",
+						new ObjectValuePair<>(
+							ObjectRelationshipResourceImpl.class,
+							"deleteObjectRelationshipBatch"));
+					put(
+						"mutation#updateObjectRelationship",
+						new ObjectValuePair<>(
+							ObjectRelationshipResourceImpl.class,
+							"putObjectRelationship"));
+					put(
+						"mutation#updateObjectRelationshipBatch",
+						new ObjectValuePair<>(
+							ObjectRelationshipResourceImpl.class,
+							"putObjectRelationshipBatch"));
+					put(
+						"mutation#createObjectDefinitionObjectValidationRule",
+						new ObjectValuePair<>(
+							ObjectValidationRuleResourceImpl.class,
+							"postObjectDefinitionObjectValidationRule"));
+					put(
+						"mutation#createObjectDefinitionObjectValidationRuleBatch",
+						new ObjectValuePair<>(
+							ObjectValidationRuleResourceImpl.class,
+							"postObjectDefinitionObjectValidationRuleBatch"));
+					put(
+						"mutation#deleteObjectValidationRule",
+						new ObjectValuePair<>(
+							ObjectValidationRuleResourceImpl.class,
+							"deleteObjectValidationRule"));
+					put(
+						"mutation#deleteObjectValidationRuleBatch",
+						new ObjectValuePair<>(
+							ObjectValidationRuleResourceImpl.class,
+							"deleteObjectValidationRuleBatch"));
+					put(
+						"mutation#patchObjectValidationRule",
+						new ObjectValuePair<>(
+							ObjectValidationRuleResourceImpl.class,
+							"patchObjectValidationRule"));
+					put(
+						"mutation#updateObjectValidationRule",
+						new ObjectValuePair<>(
+							ObjectValidationRuleResourceImpl.class,
+							"putObjectValidationRule"));
+					put(
+						"mutation#updateObjectValidationRuleBatch",
+						new ObjectValuePair<>(
+							ObjectValidationRuleResourceImpl.class,
+							"putObjectValidationRuleBatch"));
+					put(
+						"mutation#createObjectDefinitionObjectView",
+						new ObjectValuePair<>(
+							ObjectViewResourceImpl.class,
+							"postObjectDefinitionObjectView"));
+					put(
+						"mutation#createObjectDefinitionObjectViewBatch",
+						new ObjectValuePair<>(
+							ObjectViewResourceImpl.class,
+							"postObjectDefinitionObjectViewBatch"));
+					put(
+						"mutation#deleteObjectView",
+						new ObjectValuePair<>(
+							ObjectViewResourceImpl.class, "deleteObjectView"));
+					put(
+						"mutation#deleteObjectViewBatch",
+						new ObjectValuePair<>(
+							ObjectViewResourceImpl.class,
+							"deleteObjectViewBatch"));
+					put(
+						"mutation#updateObjectView",
+						new ObjectValuePair<>(
+							ObjectViewResourceImpl.class, "putObjectView"));
+					put(
+						"mutation#updateObjectViewBatch",
+						new ObjectValuePair<>(
+							ObjectViewResourceImpl.class,
+							"putObjectViewBatch"));
+					put(
+						"mutation#createObjectViewCopy",
+						new ObjectValuePair<>(
+							ObjectViewResourceImpl.class,
+							"postObjectViewCopy"));
+
+					put(
+						"query#objectAction",
+						new ObjectValuePair<>(
+							ObjectActionResourceImpl.class, "getObjectAction"));
+					put(
+						"query#objectDefinitionObjectActions",
+						new ObjectValuePair<>(
+							ObjectActionResourceImpl.class,
+							"getObjectDefinitionObjectActionsPage"));
+					put(
+						"query#objectDefinitions",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"getObjectDefinitionsPage"));
+					put(
+						"query#objectDefinitionByExternalReferenceCode",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"getObjectDefinitionByExternalReferenceCode"));
+					put(
+						"query#objectDefinition",
+						new ObjectValuePair<>(
+							ObjectDefinitionResourceImpl.class,
+							"getObjectDefinition"));
+					put(
+						"query#objectDefinitionObjectFields",
+						new ObjectValuePair<>(
+							ObjectFieldResourceImpl.class,
+							"getObjectDefinitionObjectFieldsPage"));
+					put(
+						"query#objectField",
+						new ObjectValuePair<>(
+							ObjectFieldResourceImpl.class, "getObjectField"));
+					put(
+						"query#objectDefinitionObjectLayouts",
+						new ObjectValuePair<>(
+							ObjectLayoutResourceImpl.class,
+							"getObjectDefinitionObjectLayoutsPage"));
+					put(
+						"query#objectLayout",
+						new ObjectValuePair<>(
+							ObjectLayoutResourceImpl.class, "getObjectLayout"));
+					put(
+						"query#objectDefinitionObjectRelationships",
+						new ObjectValuePair<>(
+							ObjectRelationshipResourceImpl.class,
+							"getObjectDefinitionObjectRelationshipsPage"));
+					put(
+						"query#objectRelationship",
+						new ObjectValuePair<>(
+							ObjectRelationshipResourceImpl.class,
+							"getObjectRelationship"));
+					put(
+						"query#objectDefinitionObjectValidationRules",
+						new ObjectValuePair<>(
+							ObjectValidationRuleResourceImpl.class,
+							"getObjectDefinitionObjectValidationRulesPage"));
+					put(
+						"query#objectValidationRule",
+						new ObjectValuePair<>(
+							ObjectValidationRuleResourceImpl.class,
+							"getObjectValidationRule"));
+					put(
+						"query#objectDefinitionObjectViews",
+						new ObjectValuePair<>(
+							ObjectViewResourceImpl.class,
+							"getObjectDefinitionObjectViewsPage"));
+					put(
+						"query#objectView",
+						new ObjectValuePair<>(
+							ObjectViewResourceImpl.class, "getObjectView"));
+				}
+			};
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<ObjectActionResource>

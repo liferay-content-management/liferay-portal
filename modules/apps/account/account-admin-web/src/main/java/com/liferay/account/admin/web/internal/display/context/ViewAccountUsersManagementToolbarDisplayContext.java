@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -103,9 +104,52 @@ public class ViewAccountUsersManagementToolbarDisplayContext
 
 	@Override
 	public CreationMenu getCreationMenu() {
-		return CreationMenuBuilder.addPrimaryDropdownItem(
+		return CreationMenuBuilder.addDropdownItem(
+			dropdownItem -> {
+				dropdownItem.putData("action", "inviteAccountUsers");
+				dropdownItem.putData(
+					"requestInvitationsURL",
+					PortletURLBuilder.createRenderURL(
+						liferayPortletResponse
+					).setMVCPath(
+						"/account_entries_admin/invite_account_users.jsp"
+					).setRedirect(
+						currentURLObj
+					).setParameter(
+						"accountEntryId", _getAccountEntryId()
+					).setWindowState(
+						LiferayWindowState.POP_UP
+					).buildString());
+				dropdownItem.setLabel(
+					LanguageUtil.get(httpServletRequest, "invite-users"));
+			}
+		).addDropdownItem(
 			dropdownItem -> {
 				dropdownItem.putData("action", "selectAccountUsers");
+				dropdownItem.putData(
+					"assignAccountUsersURL",
+					PortletURLBuilder.createActionURL(
+						liferayPortletResponse
+					).setActionName(
+						"/account_admin/assign_account_users"
+					).buildString());
+				dropdownItem.putData(
+					"selectAccountUsersURL",
+					PortletURLBuilder.createRenderURL(
+						liferayPortletResponse
+					).setMVCPath(
+						"/account_entries_admin/select_account_users.jsp"
+					).setRedirect(
+						currentURLObj
+					).setParameter(
+						"accountEntryId", _getAccountEntryId()
+					).setParameter(
+						"openModalOnRedirect", Boolean.TRUE
+					).setParameter(
+						"showCreateButton", Boolean.TRUE
+					).setWindowState(
+						LiferayWindowState.MAXIMIZED
+					).buildString());
 				dropdownItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "assign-users"));
 			}

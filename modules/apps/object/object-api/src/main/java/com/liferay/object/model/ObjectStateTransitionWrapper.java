@@ -225,6 +225,11 @@ public class ObjectStateTransitionWrapper
 		return model.getTargetObjectStateId();
 	}
 
+	@Override
+	public long getTargetObjectStateListTypeEntryId() {
+		return model.getTargetObjectStateListTypeEntryId();
+	}
+
 	/**
 	 * Returns the user ID of this object state transition.
 	 *
@@ -360,6 +365,14 @@ public class ObjectStateTransitionWrapper
 		model.setTargetObjectStateId(targetObjectStateId);
 	}
 
+	@Override
+	public void setTargetObjectStateListTypeEntryId(
+		long targetObjectStateListTypeEntryId) {
+
+		model.setTargetObjectStateListTypeEntryId(
+			targetObjectStateListTypeEntryId);
+	}
+
 	/**
 	 * Sets the user ID of this object state transition.
 	 *
@@ -398,6 +411,11 @@ public class ObjectStateTransitionWrapper
 	@Override
 	public void setUuid(String uuid) {
 		model.setUuid(uuid);
+	}
+
+	@Override
+	public String toXmlString() {
+		return model.toXmlString();
 	}
 
 	@Override

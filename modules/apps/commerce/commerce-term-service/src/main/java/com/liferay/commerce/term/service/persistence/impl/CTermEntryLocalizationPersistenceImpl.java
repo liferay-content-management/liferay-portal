@@ -40,7 +40,6 @@ import com.liferay.portal.kernel.sanitizer.SanitizerException;
 import com.liferay.portal.kernel.sanitizer.SanitizerUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -76,9 +75,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luca Pellizzon
  * @generated
  */
-@Component(
-	service = {CTermEntryLocalizationPersistence.class, BasePersistence.class}
-)
+@Component(service = CTermEntryLocalizationPersistence.class)
 public class CTermEntryLocalizationPersistenceImpl
 	extends BasePersistenceImpl<CTermEntryLocalization>
 	implements CTermEntryLocalizationPersistence {
@@ -202,7 +199,7 @@ public class CTermEntryLocalizationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CTermEntryLocalization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CTermEntryLocalization cTermEntryLocalization : list) {
@@ -575,7 +572,7 @@ public class CTermEntryLocalizationPersistenceImpl
 
 		Object[] finderArgs = new Object[] {commerceTermEntryId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -698,7 +695,8 @@ public class CTermEntryLocalizationPersistenceImpl
 
 		if (useFinderCache) {
 			result = finderCache.getResult(
-				_finderPathFetchByCommerceTermEntryId_LanguageId, finderArgs);
+				_finderPathFetchByCommerceTermEntryId_LanguageId, finderArgs,
+				this);
 		}
 
 		if (result instanceof CTermEntryLocalization) {
@@ -822,7 +820,7 @@ public class CTermEntryLocalizationPersistenceImpl
 
 		Object[] finderArgs = new Object[] {commerceTermEntryId, languageId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1352,7 +1350,7 @@ public class CTermEntryLocalizationPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CTermEntryLocalization>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -1422,7 +1420,7 @@ public class CTermEntryLocalizationPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

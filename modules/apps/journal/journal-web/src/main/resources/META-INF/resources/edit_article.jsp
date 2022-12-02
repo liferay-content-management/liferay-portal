@@ -109,25 +109,37 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 							<aui:button cssClass="btn-sm mr-3" data-actionname="<%= Constants.PUBLISH %>" disabled="<%= journalEditArticleDisplayContext.isPending() %>" name="publishButton" type="submit" value="<%= journalEditArticleDisplayContext.getPublishButtonLabel() %>" />
 						</c:if>
 
-						<clay:button
-							borderless="<%= true %>"
-							icon="cog"
-							id='<%= liferayPortletResponse.getNamespace() + "contextualSidebarButton" %>'
-							small="<%= true %>"
-							title='<%= LanguageUtil.get(request, "configuration") %>'
-							type="button"
-						/>
+						<div role="tablist">
+							<clay:button
+								aria-controls='<%= liferayPortletResponse.getNamespace() + "contextualSidebarContainer" %>'
+								aria-label='<%= LanguageUtil.get(request, "close-configuration-panel") %>'
+								aria-selected="true"
+								borderless="<%= true %>"
+								cssClass="lfr-portal-tooltip"
+								displayType="secondary"
+								icon="cog"
+								id='<%= liferayPortletResponse.getNamespace() + "contextualSidebarButton" %>'
+								role="tab"
+								small="<%= true %>"
+								title='<%= LanguageUtil.get(request, "close-configuration-panel") %>'
+								type="button"
+							/>
+						</div>
 					</div>
 				</li>
 			</ul>
 		</clay:container-fluid>
 	</nav>
 
-	<div class="contextual-sidebar edit-article-sidebar sidebar-light sidebar-sm" id="<portlet:namespace />contextualSidebarContainer">
+	<div aria-label="<%= LanguageUtil.get(request, "configuration-panel") %>" class="contextual-sidebar edit-article-sidebar sidebar-light sidebar-sm" id="<portlet:namespace />contextualSidebarContainer" role="tabpanel" tabindex="-1">
 		<div class="sidebar-body">
 
 			<%
 			String tabs1Names = "properties,usages";
+
+			if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-161038"))) {
+				tabs1Names += ",timeline";
+			}
 
 			if ((article == null) || (journalEditArticleDisplayContext.getClassNameId() != JournalArticleConstants.CLASS_NAME_ID_DEFAULT)) {
 				tabs1Names = "properties";
@@ -155,6 +167,15 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 							classPK="<%= article.getResourcePrimKey() %>"
 						/>
 					</liferay-ui:section>
+
+					<c:if test='<%= GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-161038")) %>'>
+						<liferay-ui:section>
+							<liferay-change-tracking:timeline
+								className="<%= JournalArticle.class.getName() %>"
+								classPK="<%= article.getPrimaryKey() %>"
+							/>
+						</liferay-ui:section>
+					</c:if>
 				</c:if>
 			</liferay-ui:tabs>
 		</div>

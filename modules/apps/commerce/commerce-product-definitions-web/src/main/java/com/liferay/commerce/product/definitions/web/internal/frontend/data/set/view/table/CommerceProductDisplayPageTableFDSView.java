@@ -21,7 +21,6 @@ import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.product.model.CPDisplayLayout;
 import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.service.CPDisplayLayoutService;
-import com.liferay.commerce.product.service.CommerceCatalogService;
 import com.liferay.commerce.product.service.CommerceChannelService;
 import com.liferay.frontend.data.set.provider.FDSActionProvider;
 import com.liferay.frontend.data.set.provider.FDSDataProvider;
@@ -66,7 +65,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"fds.data.provider.key=" + CommerceProductFDSNames.PRODUCT_DISPLAY_PAGES,
 		"frontend.data.set.name=" + CommerceProductFDSNames.PRODUCT_DISPLAY_PAGES
@@ -251,9 +249,6 @@ public class CommerceProductDisplayPageTableFDSView
 
 		return cpDefinition.getName(languageId);
 	}
-
-	@Reference
-	private CommerceCatalogService _commerceCatalogService;
 
 	@Reference
 	private CommerceChannelService _commerceChannelService;

@@ -27,7 +27,6 @@ import org.osgi.service.component.annotations.Component;
  * @author Andrea Sbarra
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "indexer.class.name=com.liferay.commerce.shop.by.diagram.model.CSDiagramEntry",
 	service = ModelPreFilterContributor.class
 )

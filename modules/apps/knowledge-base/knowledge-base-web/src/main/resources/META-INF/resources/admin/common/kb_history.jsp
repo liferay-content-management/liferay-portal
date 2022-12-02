@@ -82,6 +82,7 @@ if (portletTitleBasedNavigation) {
 		>
 			<liferay-portlet:renderURL var="rowURL">
 				<portlet:param name="mvcPath" value="/admin/common/kb_history.jsp" />
+				<portlet:param name="redirect" value="<%= redirect %>" />
 				<portlet:param name="resourcePrimKey" value="<%= String.valueOf(curKBArticle.getResourcePrimKey()) %>" />
 				<portlet:param name="status" value="<%= String.valueOf(status) %>" />
 				<portlet:param name="sourceVersion" value="<%= String.valueOf(curKBArticle.getVersion()) %>" />
@@ -183,7 +184,9 @@ if (portletTitleBasedNavigation) {
 	</liferay-ui:search-container>
 </aui:fieldset>
 
-<aui:script require="frontend-js-web/liferay/delegate/delegate.es as delegateModule">
+<aui:script require="frontend-js-web/index as frontendJsWeb">
+	var {delegate} = frontendJsWeb;
+
 	var compareVersionsButton = document.getElementById(
 		'<portlet:namespace />compare'
 	);
@@ -248,8 +251,6 @@ if (portletTitleBasedNavigation) {
 	}
 
 	<portlet:namespace />initRowsChecked();
-
-	var delegate = delegateModule.default;
 
 	delegate(
 		document.body,

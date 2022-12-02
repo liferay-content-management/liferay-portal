@@ -15,6 +15,7 @@
 package com.liferay.layout.utility.page.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.layout.utility.page.exception.DuplicateLayoutUtilityPageEntryExternalReferenceCodeException;
 import com.liferay.layout.utility.page.exception.NoSuchLayoutUtilityPageEntryException;
 import com.liferay.layout.utility.page.model.LayoutUtilityPageEntry;
 import com.liferay.layout.utility.page.service.LayoutUtilityPageEntryLocalServiceUtil;
@@ -152,12 +153,15 @@ public class LayoutUtilityPageEntryPersistenceTest {
 
 		newLayoutUtilityPageEntry.setPlid(RandomTestUtil.nextLong());
 
+		newLayoutUtilityPageEntry.setPreviewFileEntryId(
+			RandomTestUtil.nextLong());
+
 		newLayoutUtilityPageEntry.setDefaultLayoutUtilityPageEntry(
 			RandomTestUtil.randomBoolean());
 
 		newLayoutUtilityPageEntry.setName(RandomTestUtil.randomString());
 
-		newLayoutUtilityPageEntry.setType(RandomTestUtil.nextInt());
+		newLayoutUtilityPageEntry.setType(RandomTestUtil.randomString());
 
 		newLayoutUtilityPageEntry.setLastPublishDate(RandomTestUtil.nextDate());
 
@@ -208,6 +212,9 @@ public class LayoutUtilityPageEntryPersistenceTest {
 			existingLayoutUtilityPageEntry.getPlid(),
 			newLayoutUtilityPageEntry.getPlid());
 		Assert.assertEquals(
+			existingLayoutUtilityPageEntry.getPreviewFileEntryId(),
+			newLayoutUtilityPageEntry.getPreviewFileEntryId());
+		Assert.assertEquals(
 			existingLayoutUtilityPageEntry.isDefaultLayoutUtilityPageEntry(),
 			newLayoutUtilityPageEntry.isDefaultLayoutUtilityPageEntry());
 		Assert.assertEquals(
@@ -221,6 +228,32 @@ public class LayoutUtilityPageEntryPersistenceTest {
 				existingLayoutUtilityPageEntry.getLastPublishDate()),
 			Time.getShortTimestamp(
 				newLayoutUtilityPageEntry.getLastPublishDate()));
+	}
+
+	@Test(
+		expected = DuplicateLayoutUtilityPageEntryExternalReferenceCodeException.class
+	)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		LayoutUtilityPageEntry layoutUtilityPageEntry =
+			addLayoutUtilityPageEntry();
+
+		LayoutUtilityPageEntry newLayoutUtilityPageEntry =
+			addLayoutUtilityPageEntry();
+
+		newLayoutUtilityPageEntry.setGroupId(
+			layoutUtilityPageEntry.getGroupId());
+
+		newLayoutUtilityPageEntry = _persistence.update(
+			newLayoutUtilityPageEntry);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newLayoutUtilityPageEntry);
+
+		newLayoutUtilityPageEntry.setExternalReferenceCode(
+			layoutUtilityPageEntry.getExternalReferenceCode());
+
+		_persistence.update(newLayoutUtilityPageEntry);
 	}
 
 	@Test
@@ -259,28 +292,40 @@ public class LayoutUtilityPageEntryPersistenceTest {
 
 	@Test
 	public void testCountByG_T() throws Exception {
-		_persistence.countByG_T(
-			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+		_persistence.countByG_T(RandomTestUtil.nextLong(), "");
 
-		_persistence.countByG_T(0L, 0);
+		_persistence.countByG_T(0L, "null");
+
+		_persistence.countByG_T(0L, (String)null);
 	}
 
 	@Test
 	public void testCountByG_D_T() throws Exception {
 		_persistence.countByG_D_T(
-			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean(),
-			RandomTestUtil.nextInt());
+			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean(), "");
 
-		_persistence.countByG_D_T(0L, RandomTestUtil.randomBoolean(), 0);
+		_persistence.countByG_D_T(0L, RandomTestUtil.randomBoolean(), "null");
+
+		_persistence.countByG_D_T(
+			0L, RandomTestUtil.randomBoolean(), (String)null);
 	}
 
 	@Test
-	public void testCountByG_ERC() throws Exception {
-		_persistence.countByG_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByG_N_T() throws Exception {
+		_persistence.countByG_N_T(RandomTestUtil.nextLong(), "", "");
 
-		_persistence.countByG_ERC(0L, "null");
+		_persistence.countByG_N_T(0L, "null", "null");
 
-		_persistence.countByG_ERC(0L, (String)null);
+		_persistence.countByG_N_T(0L, (String)null, (String)null);
+	}
+
+	@Test
+	public void testCountByERC_G() throws Exception {
+		_persistence.countByERC_G("", RandomTestUtil.nextLong());
+
+		_persistence.countByERC_G("null", 0L);
+
+		_persistence.countByERC_G((String)null, 0L);
 	}
 
 	@Test
@@ -321,8 +366,9 @@ public class LayoutUtilityPageEntryPersistenceTest {
 			true, "uuid", true, "externalReferenceCode", true,
 			"LayoutUtilityPageEntryId", true, "groupId", true, "companyId",
 			true, "userId", true, "userName", true, "createDate", true,
-			"modifiedDate", true, "plid", true, "defaultLayoutUtilityPageEntry",
-			true, "name", true, "type", true, "lastPublishDate", true);
+			"modifiedDate", true, "plid", true, "previewFileEntryId", true,
+			"defaultLayoutUtilityPageEntry", true, "name", true, "type", true,
+			"lastPublishDate", true);
 	}
 
 	@Test
@@ -635,10 +681,26 @@ public class LayoutUtilityPageEntryPersistenceTest {
 				layoutUtilityPageEntry, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "groupId"));
 		Assert.assertEquals(
+			layoutUtilityPageEntry.getName(),
+			ReflectionTestUtil.invoke(
+				layoutUtilityPageEntry, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "name"));
+		Assert.assertEquals(
+			layoutUtilityPageEntry.getType(),
+			ReflectionTestUtil.invoke(
+				layoutUtilityPageEntry, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "type_"));
+
+		Assert.assertEquals(
 			layoutUtilityPageEntry.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				layoutUtilityPageEntry, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(layoutUtilityPageEntry.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(
+				layoutUtilityPageEntry, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
 	}
 
 	protected LayoutUtilityPageEntry addLayoutUtilityPageEntry()
@@ -671,12 +733,14 @@ public class LayoutUtilityPageEntryPersistenceTest {
 
 		layoutUtilityPageEntry.setPlid(RandomTestUtil.nextLong());
 
+		layoutUtilityPageEntry.setPreviewFileEntryId(RandomTestUtil.nextLong());
+
 		layoutUtilityPageEntry.setDefaultLayoutUtilityPageEntry(
 			RandomTestUtil.randomBoolean());
 
 		layoutUtilityPageEntry.setName(RandomTestUtil.randomString());
 
-		layoutUtilityPageEntry.setType(RandomTestUtil.nextInt());
+		layoutUtilityPageEntry.setType(RandomTestUtil.randomString());
 
 		layoutUtilityPageEntry.setLastPublishDate(RandomTestUtil.nextDate());
 

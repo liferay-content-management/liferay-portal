@@ -9,20 +9,20 @@
  * distribution rights of the Software.
  */
 
-import Button from '@clayui/button';
 import ClayIcon from '@clayui/icon';
-import {useModal} from '@clayui/modal';
+import Link from '@clayui/link';
 import ClayPanel from '@clayui/panel';
 import {FormikContextType} from 'formik';
 import {useCallback, useState} from 'react';
 
 import PRMForm from '../../../../../../common/components/PRMForm';
+import InputMultipleFilesListing from '../../../../../../common/components/PRMForm/components/fields/InputMultipleFilesListing';
 import PRMFormik from '../../../../../../common/components/PRMFormik';
+import {useWebDAV} from '../../../../../../common/context/WebDAV';
 import MDFClaim from '../../../../../../common/interfaces/mdfClaim';
 import MDFClaimActivity from '../../../../../../common/interfaces/mdfClaimActivity';
 import getIntlNumberFormat from '../../../../../../common/utils/getIntlNumberFormat';
-import BudgetCard from './components/BudgetCard/BudgetCard';
-import BudgetModal from './components/BudgetModal';
+import BudgetClaimPanel from './components/BudgetClaimPanel';
 import PanelBody from './components/PanelBody';
 import PanelHeader from './components/PanelHeader';
 import useBudgetsAmount from './hooks/useBudgetsAmount';
@@ -39,8 +39,8 @@ const ActivityClaimPanel = ({
 	overallCampaignDescription,
 	setFieldValue,
 }: IProps & Pick<FormikContextType<MDFClaim>, 'setFieldValue'>) => {
-	const [currentBudgetIndex, setCurrentBudgetIndex] = useState<number>();
-	const {observer, onOpenChange, open} = useModal();
+	const [expanded, setExpanded] = useState<boolean>(!activity.selected);
+	const webDAV = useWebDAV();
 
 	useBudgetsAmount(
 		activity.budgets,
@@ -54,43 +54,23 @@ const ActivityClaimPanel = ({
 		)
 	);
 
-	const currentBudgetFieldName = `activities[${activityIndex}].budgets[${currentBudgetIndex}]`;
-
-	const getCurrentBudget = () => {
-		if (currentBudgetIndex !== undefined && activity.budgets) {
-			return activity.budgets[currentBudgetIndex];
-		}
-	};
-
 	return (
 		<>
-			{open && (
-				<BudgetModal
-					{...getCurrentBudget()}
-					name={currentBudgetFieldName}
-					observer={observer}
-					onCancel={() => onOpenChange(false)}
-					onConfirm={(claimAmount, invoice) => {
-						setFieldValue(
-							`${currentBudgetFieldName}.claimAmount`,
-							claimAmount
-						);
-						setFieldValue(
-							`${currentBudgetFieldName}.invoice`,
-							invoice
-						);
-
-						onOpenChange(false);
-					}}
-				/>
-			)}
-
 			<ClayPanel
-				className="bg-brand-primary-lighten-6 border-brand-primary-lighten-5 mb-4 text-neutral-7"
+				className="border-brand-primary-lighten-2 mb-4 text-neutral-7"
 				displayType="secondary"
-				expanded={activity.selected}
+				expanded={activity.selected && expanded}
 			>
-				<PanelHeader expanded={activity.selected}>
+				<PanelHeader
+					expanded={activity.selected && expanded}
+					onClick={() => {
+						if (activity.selected) {
+							setExpanded(
+								(previousExpanded) => !previousExpanded
+							);
+						}
+					}}
+				>
 					<PRMFormik.Field
 						component={PRMForm.Checkbox}
 						name={`activities[${activityIndex}].selected`}
@@ -115,52 +95,74 @@ const ActivityClaimPanel = ({
 					</div>
 				</PanelHeader>
 
-				<PanelBody expanded={activity.selected}>
-					{activity.budgets?.map((budget, index) => (
-						<BudgetCard
-							budget={budget}
-							key={`${budget.id}-${index}`}
-							onClick={() => {
-								setCurrentBudgetIndex(index);
-								onOpenChange(true);
-							}}
-						/>
-					))}
+				<PanelBody expanded={activity.selected && expanded}>
+					<ClayPanel.Body className="mx-2 pt-4 px-5">
+						{activity.budgets?.map((budget, index) => (
+							<BudgetClaimPanel
+								activityIndex={activityIndex}
+								budget={budget}
+								budgetIndex={index}
+								key={`${budget.id}-${index}`}
+								setFieldValue={setFieldValue}
+							/>
+						))}
 
-					<PRMFormik.Field
-						component={PRMForm.InputText}
-						label="Metrics"
-						name={`activities[${activityIndex}].metrics`}
-						textArea
-					/>
-
-					<div className="align-items-center d-flex justify-content-between">
 						<PRMFormik.Field
-							component={PRMForm.InputFile}
-							description="You can downloaded the Excel Template, fill it out, and upload it back here"
-							displayType="secondary"
-							label="List of Qualified Leads"
-							name={`activities[${activityIndex}].listQualifiedLeads`}
-							onAccept={(value: File) =>
+							component={PRMForm.InputText}
+							label="Metrics"
+							name={`activities[${activityIndex}].metrics`}
+							textArea
+						/>
+
+						<div className="align-items-center d-flex justify-content-between">
+							<PRMFormik.Field
+								component={PRMForm.InputFile}
+								description="You can downloaded the Excel Template, fill it out, and upload it back here"
+								displayType="secondary"
+								label="List of Qualified Leads"
+								name={`activities[${activityIndex}].listQualifiedLeads`}
+								onAccept={(value: File) =>
+									setFieldValue(
+										`activities[${activityIndex}].listQualifiedLeads`,
+										value
+									)
+								}
+								outline
+								small
+							/>
+
+							<div className="mb-3">
+								<Link
+									button
+									displayType="secondary"
+									download
+									href={`${webDAV}/claim/qualified_leads_template.xlsx`}
+									small
+									target="_blank"
+								>
+									<span className="inline-item inline-item-before">
+										<ClayIcon symbol="download" />
+									</span>
+									Download template
+								</Link>
+							</div>
+						</div>
+
+						<InputMultipleFilesListing
+							description="Drag and drop your files here to upload."
+							label="All Contents"
+							name={`activities[${activityIndex}].documents`}
+							onAccept={(value: File[]) =>
 								setFieldValue(
-									`activities[${activityIndex}].listQualifiedLeads`,
-									value
+									`activities[${activityIndex}].documents`,
+									activity.documents
+										? activity.documents.concat(value)
+										: value
 								)
 							}
-							outline
-							required={activity.selected}
-							small
+							value={activity.documents}
 						/>
-
-						<div className="mb-3">
-							<Button displayType="secondary" outline small>
-								<span className="inline-item inline-item-before">
-									<ClayIcon symbol="download" />
-								</span>
-								Download template
-							</Button>
-						</div>
-					</div>
+					</ClayPanel.Body>
 				</PanelBody>
 			</ClayPanel>
 		</>

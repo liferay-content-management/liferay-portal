@@ -21,10 +21,10 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryService;
 import com.liferay.info.field.InfoFieldValue;
 import com.liferay.info.item.ClassPKInfoItemIdentifier;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.info.item.provider.InfoItemObjectProvider;
-import com.liferay.info.search.InfoSearchClassMapperTracker;
+import com.liferay.info.search.InfoSearchClassMapperRegistry;
 import com.liferay.layout.page.template.admin.constants.LayoutPageTemplateAdminPortletKeys;
 import com.liferay.layout.page.template.admin.web.internal.util.comparator.AssetDisplayPageEntryModifiedDateComparator;
 import com.liferay.petra.string.StringPool;
@@ -56,15 +56,15 @@ public class AssetDisplayPageUsagesDisplayContext {
 		AssetDisplayPageEntryService assetDisplayPageEntryService,
 		AssetEntryService assetEntryService,
 		HttpServletRequest httpServletRequest,
-		InfoSearchClassMapperTracker infoSearchClassMapperTracker,
-		InfoItemServiceTracker infoItemServiceTracker, Portal portal,
+		InfoSearchClassMapperRegistry infoSearchClassMapperRegistry,
+		InfoItemServiceRegistry infoItemServiceRegistry, Portal portal,
 		RenderRequest renderRequest, RenderResponse renderResponse) {
 
 		_assetDisplayPageEntryService = assetDisplayPageEntryService;
 		_assetEntryService = assetEntryService;
 		_httpServletRequest = httpServletRequest;
-		_infoSearchClassMapperTracker = infoSearchClassMapperTracker;
-		_infoItemServiceTracker = infoItemServiceTracker;
+		_infoSearchClassMapperRegistry = infoSearchClassMapperRegistry;
+		_infoItemServiceRegistry = infoItemServiceRegistry;
 		_portal = portal;
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
@@ -191,7 +191,7 @@ public class AssetDisplayPageUsagesDisplayContext {
 			AssetDisplayPageEntry assetDisplayPageEntry, Locale locale)
 		throws PortalException {
 
-		String className = _infoSearchClassMapperTracker.getSearchClassName(
+		String className = _infoSearchClassMapperRegistry.getSearchClassName(
 			assetDisplayPageEntry.getClassName());
 
 		try {
@@ -207,7 +207,7 @@ public class AssetDisplayPageUsagesDisplayContext {
 		}
 
 		InfoItemObjectProvider<?> infoItemObjectProvider =
-			_infoItemServiceTracker.getFirstInfoItemService(
+			_infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemObjectProvider.class,
 				_portal.getClassName(getClassNameId()));
 
@@ -216,7 +216,7 @@ public class AssetDisplayPageUsagesDisplayContext {
 		}
 
 		InfoItemFieldValuesProvider<Object> infoItemFieldValuesProvider =
-			_infoItemServiceTracker.getFirstInfoItemService(
+			_infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemFieldValuesProvider.class,
 				_portal.getClassName(getClassNameId()));
 
@@ -265,8 +265,8 @@ public class AssetDisplayPageUsagesDisplayContext {
 	private Long _classTypeId;
 	private Boolean _defaultTemplate;
 	private final HttpServletRequest _httpServletRequest;
-	private final InfoItemServiceTracker _infoItemServiceTracker;
-	private final InfoSearchClassMapperTracker _infoSearchClassMapperTracker;
+	private final InfoItemServiceRegistry _infoItemServiceRegistry;
+	private final InfoSearchClassMapperRegistry _infoSearchClassMapperRegistry;
 	private Long _layoutPageTemplateEntryId;
 	private String _orderByCol;
 	private String _orderByType;

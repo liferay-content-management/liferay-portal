@@ -200,6 +200,13 @@ definition {
 	test AddWebContentWithPortletURL {
 		property portal.acceptance = "true";
 
+		task ("Add a Language Selector to page") {
+			JSONLayout.addWidgetToPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Page Name",
+				widgetName = "Language Selector");
+		}
+
 		task ("Add a web content with a portlet URL") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -209,7 +216,7 @@ definition {
 
 			var portalURL = PropsUtil.get("portal.url");
 
-			CKEditor.addSourceContent(content = '''<p><span><a href="${portalURL}/web/test-site-name/test-page-name/-/testportlet">text</a></span></p>''');
+			CKEditor.addSourceContent(content = '''<p><span><a href="${portalURL}/web/test-site-name/test-page-name/-/com_liferay_site_navigation_language_web_portlet_SiteNavigationLanguagePortlet">text</a></span></p>''');
 
 			PortletEntry.publish();
 		}
@@ -231,10 +238,10 @@ definition {
 		task ("View test portlet is shown after click in the link") {
 			WebContentDisplayPortlet.viewContent(
 				displayText = "text",
-				url = "/web/test-site-name/test-page-name/-/testportlet",
+				url = "/web/test-site-name/test-page-name/-/com_liferay_site_navigation_language_web_portlet_SiteNavigationLanguagePortlet",
 				webContentTitle = "Web Content Title");
 
-			Portlet.viewTitle(portletName = "testportlet");
+			Portlet.viewTitle(portletName = "Language Selector");
 		}
 	}
 
@@ -291,11 +298,11 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 
 		task ("View the displayed content in Web Content Display") {
 			AssertTextEquals(
-				locator1 = "//div[contains(@class,journal-content-article)]//h1[contains(@class,'text')]",
+				locator1 = "//div[contains(@class,'journal-content-article')]//h1[contains(@class,'text')]",
 				value1 = "WC WebContent Text");
 
 			AssertTextEquals(
-				locator1 = "//div[contains(@class,journal-content-article)]//h2[contains(@class,'text-box')]",
+				locator1 = "//div[contains(@class,'journal-content-article')]//h2[contains(@class,'text-box')]",
 				value1 = "Hello World Welcome to Liferay Community Edition Portal 7.4.0 CE GA1");
 		}
 
@@ -947,7 +954,7 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 
 			Click(locator1 = "Portlet#PORTLET_CONTENT");
 
-			Portlet.deletePG(portletName = "com_liferay_journal_content_web_portlet_JournalContentPortlet");
+			Portlet.deletePG(portletName = "Web Content Display");
 		}
 
 		task ("Enable Web Content Display module via GogoShell") {
@@ -1059,9 +1066,8 @@ ${company.getKeyObj()}
 			NavItem.gotoTemplates();
 
 			var templateScript = '''
-${objectUtil("com.liferay.portal.service.UserLocalServiceUtil").getService()}<br />
-${utilLocator.findUtil("com.liferay.portal.service.UserLocalService")}<br />
-${staticUtil["com.liferay.portal.service.UserLocalServiceUtil"].getService()}<br />
+${objectUtil("com.liferay.portal.kernel.service.UserLocalServiceUtil").getService()}<br />
+${staticUtil["com.liferay.portal.kernel.service.UserLocalServiceUtil"].getService()}<br />
 
 ${staticUtil["java.lang.Runtime"].getRuntime()}
 
@@ -1648,8 +1654,6 @@ ${httpUtil.URLtoString(request.getAttribute("CTX").getResource(".").toURI().crea
 		}
 
 		task ("View content page break in Web Content Display") {
-			WebContent.viewPageBreak();
-
 			WebContentDisplayPortlet.viewContentPageBreak(webContentContent = "Home");
 		}
 	}

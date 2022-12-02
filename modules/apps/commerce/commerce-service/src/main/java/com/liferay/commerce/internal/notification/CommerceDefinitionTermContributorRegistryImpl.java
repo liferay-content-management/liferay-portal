@@ -32,10 +32,7 @@ import org.osgi.service.component.annotations.Deactivate;
 /**
  * @author Luca Pellizzon
  */
-@Component(
-	enabled = false, immediate = true,
-	service = CommerceDefinitionTermContributorRegistry.class
-)
+@Component(service = CommerceDefinitionTermContributorRegistry.class)
 public class CommerceDefinitionTermContributorRegistryImpl
 	implements CommerceDefinitionTermContributorRegistry {
 

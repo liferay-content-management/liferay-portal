@@ -21,9 +21,12 @@ public class ObjectFieldSettingConstants {
 
 	public static final String NAME_FILTERS = "filters";
 
-	public static final String NAME_STATE_FLOW = "stateFlow";
-
-	public static final String OBJECT_DEFINITION_1_SHORT_NAME =
+	public static final String NAME_OBJECT_DEFINITION_1_SHORT_NAME =
 		"objectDefinition1ShortName";
+
+	public static final String NAME_OBJECT_RELATIONSHIP_ERC_FIELD_NAME =
+		"objectRelationshipERCFieldName";
+
+	public static final String NAME_STATE_FLOW = "stateFlow";
 
 }

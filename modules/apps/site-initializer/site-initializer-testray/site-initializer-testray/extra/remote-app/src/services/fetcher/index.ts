@@ -21,16 +21,23 @@ const liferayHost = window.location.origin;
 function changeResource(resource: RequestInfo) {
 	const headlessAdminUserAPIs = ['account', 'roles', 'user-groups'];
 
-	const isHeadlessAdminUserAPI = headlessAdminUserAPIs.some(
-		(headlessAdminUserAPI) =>
-			resource.toString().includes(headlessAdminUserAPI)
-	);
+	const headlessDeliveryAPIs = [
+		'message-board-messages',
+		'message-board-threads',
+	];
+
+	const getIsResourceFromAPI = (apis: string[]) =>
+		apis.some((api) => resource.toString().includes(api));
 
 	if (resource.toString().startsWith('http')) {
 		return resource;
 	}
 
-	if (isHeadlessAdminUserAPI) {
+	if (getIsResourceFromAPI(headlessDeliveryAPIs)) {
+		return `${liferayHost}/o/headless-delivery/v1.0${resource}`;
+	}
+
+	if (getIsResourceFromAPI(headlessAdminUserAPIs)) {
 		return `${liferayHost}/o/headless-admin-user/v1.0${resource}`;
 	}
 
@@ -60,7 +67,7 @@ const fetcher = async <T = any>(
 		throw error;
 	}
 
-	if (options?.method !== 'DELETE') {
+	if (options?.method !== 'DELETE' && response.status !== 204) {
 		return response.json();
 	}
 };
@@ -70,21 +77,21 @@ fetcher.delete = (resource: RequestInfo) =>
 		method: 'DELETE',
 	});
 
-fetcher.patch = (resource: RequestInfo, data: any, options?: RequestInit) =>
+fetcher.patch = (resource: RequestInfo, data: unknown, options?: RequestInit) =>
 	fetcher(resource, {
 		...options,
 		body: JSON.stringify(data),
 		method: 'PATCH',
 	});
 
-fetcher.post = (resource: RequestInfo, data: any, options?: RequestInit) =>
+fetcher.post = (resource: RequestInfo, data?: unknown, options?: RequestInit) =>
 	fetcher(resource, {
 		...options,
-		body: JSON.stringify(data),
+		body: data ? JSON.stringify(data) : null,
 		method: 'POST',
 	});
 
-fetcher.put = (resource: RequestInfo, data: any, options?: RequestInit) =>
+fetcher.put = (resource: RequestInfo, data: unknown, options?: RequestInit) =>
 	fetcher(resource, {
 		...options,
 		body: JSON.stringify(data),

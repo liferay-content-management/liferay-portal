@@ -30,160 +30,23 @@ definition {
 		}
 	}
 
-	@description = "This ensures that an organization can be added and removed in the membership of an asset library."
-	@priority = "5"
-	@refactorneeded
-	test AddAndRemoveOrganization {
-		JSONOrganization.addOrganization(
-			organizationName = "Organization Name",
-			organizationSite = "true");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		Depot.assignOrganizationAsMember(orgName = "Organization Name");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		Depot.viewMemberOrganization(orgName = "Organization Name");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		Navigator.gotoNavItem(navItem = "Organizations");
-
-		Depot.removeOrganization(orgName = "Organization Name");
-
-		AssertTextEquals(
-			locator1 = "Message#EMPTY_INFO",
-			value1 = "No organization was found that is a member of this asset library.");
-	}
-
-	@description = "This ensures that a user can be added and removed in the membership of an asset library."
-	@priority = "5"
-	@refactorneeded
-	test AddAndRemoveUser {
-		property portal.acceptance = "true";
-
-		JSONUser.addUser(
-			userEmailAddress = "userea@liferay.com",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		Depot.assignUserAsMember(
-			depotName = "Test Depot Name",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		Depot.removeMember(
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		AssertElementNotPresent(
-			key_card = "userfn userln",
-			locator1 = "Card#CARD_TITLE",
-			value1 = "userfn userln");
-	}
-
-	@description = "This ensures that a user group can be added and removed in the membership of an asset library."
-	@priority = "5"
-	@refactorneeded
-	test AddAndRemoveUserGroup {
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "User Groups");
-
-		UserGroup.addCP(userGroupName = "User Group Name");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		Depot.assignUserGroupAsMember(userGroupName = "User Group Name");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		Depot.viewMemberUserGroup(userGroupName = "User Group Name");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		Navigator.gotoNavItem(navItem = "User Groups");
-
-		Depot.removeUserGroup(
-			bulkEditing = "true",
-			userGroupNameList = "User Group Name");
-
-		AssertTextEquals(
-			locator1 = "Message#EMPTY_INFO",
-			value1 = "No user group was found that is a member of this asset library.");
-	}
-
 	@description = "This ensures that an asset library can be assigned to a user from the user profile."
 	@priority = "5"
-	@refactorneeded
-	test AssignALFromUserProfile {
+	@refactordone
+	test CanAssignALFromUserProfile {
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
+		User.openUsersAdmin();
 
 		User.editUserAssetLibraryCP(
 			depotName = "Test Depot Name",
 			userScreenName = "usersn");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
 
 		LexiconEntry.changeDisplayStyle(displayStyle = "table");
 
@@ -192,8 +55,8 @@ definition {
 
 	@description = "This ensures that an asset library with translation can be assigned to a user from the user profile."
 	@priority = "3"
-	@refactorneeded
-	test AssignALWithTranslationForUser {
+	@refactordone
+	test CanAssignALWithTranslationForUser {
 		property test.name.skip.portal.instance = "DepotMemberships#AssignALWithTranslationForUser";
 
 		JSONUser.addUser(
@@ -233,52 +96,10 @@ definition {
 			value1 = "título");
 	}
 
-	@description = "This ensures that an assigned asset library can be removed from the user profile."
-	@priority = "5"
-	@refactorneeded
-	test RemoveALFromUserProfile {
-		JSONUser.addUser(
-			userEmailAddress = "userea@liferay.com",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		Depot.assignUserAsMember(
-			depotName = "Test Depot Name",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
-			portlet = "Users and Organizations");
-
-		User.removeUserAssetLibraryCP(
-			depotName = "Test Depot Name",
-			userScreenName = "usersn");
-
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Memberships");
-
-		LexiconEntry.changeDisplayStyle(displayStyle = "table");
-
-		LexiconEntry.viewNoEntry(rowEntry = "userfn userln");
-	}
-
 	@description = "This ensures that the asset library can be displayed correctly in the memberships after selecting the same depot for the user."
 	@priority = "3"
-	@refactorneeded
-	test SelectSameDepotForUser {
+	@refactordone
+	test CannotSelectSameDepotForUser {
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
 			userFirstName = "userfn",
@@ -316,10 +137,125 @@ definition {
 			value1 = "Test Depot Name");
 	}
 
+	@description = "This ensures that an assigned asset library can be removed from the user profile."
+	@priority = "5"
+	@refactordone
+	test CanRemoveALFromUserProfile {
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		Depot.assignUserAsMember(
+			depotName = "Test Depot Name",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		User.openUsersAdmin();
+
+		User.removeUserAssetLibraryCP(
+			depotName = "Test Depot Name",
+			userScreenName = "usersn");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "table");
+
+		LexiconEntry.viewNoEntry(rowEntry = "userfn userln");
+	}
+
+	@description = "This ensures that an organization can be added and removed in the membership of an asset library."
+	@priority = "5"
+	@refactordone
+	test CanRemoveOrganizationFromMemberships {
+		JSONOrganization.addOrganization(
+			organizationName = "Organization Name",
+			organizationSite = "true");
+
+		DepotNavigator.openDepotAdmin();
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		Depot.assignOrganizationAsMember(orgName = "Organization Name");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		Depot.viewMemberOrganization(orgName = "Organization Name");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		Navigator.gotoNavItem(navItem = "Organizations");
+
+		Depot.removeOrganization(orgName = "Organization Name");
+
+		Portlet.viewEmptyMessage(message = "No organization was found that is a member of this asset library.");
+	}
+
+	@description = "This ensures that a user can be added and removed in the membership of an asset library."
+	@priority = "5"
+	@refactordone
+	test CanRemoveUserFromMemberships {
+		property portal.acceptance = "true";
+
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		Depot.assignUserAsMember(
+			depotName = "Test Depot Name",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		Depot.removeMember(
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		LexiconCard.viewCardNotPresent(card = "userfn userln");
+	}
+
+	@description = "This ensures that a user group can be added and removed in the membership of an asset library."
+	@priority = "5"
+	@refactordone
+	test CanRemoveUserGroupFromMemberships {
+		JSONUserGroup.addUserGroup(userGroupName = "User Group Name");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		Depot.assignUserGroupAsMember(userGroupName = "User Group Name");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		Depot.viewMemberUserGroup(userGroupName = "User Group Name");
+
+		DepotNavigator.openDepotMembershipsAdmin(depotName = "Test Depot Name");
+
+		Navigator.gotoNavItem(navItem = "User Groups");
+
+		Depot.removeUserGroup(
+			bulkEditing = "true",
+			userGroupNameList = "User Group Name");
+
+		Portlet.viewEmptyMessage(message = "No user group was found that is a member of this asset library.");
+	}
+
 	@description = "This ensures that the organizations page pagination can be displayed correctly in the depot memberships."
 	@priority = "3"
-	@refactorneeded
-	test ViewOrganizationPagination {
+	@refactordone
+	test CanViewOrganizationPagination {
 		for (var num : list "1,2,3,4,5") {
 			JSONOrganization.addOrganization(organizationName = "Organization Name ${num}");
 		}
@@ -345,8 +281,8 @@ definition {
 
 	@description = "This ensures that the users page pagination can be displayed correctly in the depot memberships."
 	@priority = "3"
-	@refactorneeded
-	test ViewUsersPagination {
+	@refactordone
+	test CanViewUsersPagination {
 		for (var num : list "1,2,3,4,5") {
 			JSONUser.addUser(
 				userEmailAddress = "userea${num}@liferay.com",

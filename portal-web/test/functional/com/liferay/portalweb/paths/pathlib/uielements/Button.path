@@ -21,6 +21,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ADD_REPEATABLE</td>
+	<td>//button[${key_index}][contains(@class, 'repeatable-add-button')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>DISABLED_BUTTON</td>
 	<td>//button[@disabled]</td>
 	<td></td>
@@ -127,7 +132,12 @@
 </tr>
 <tr>
 	<td>ANY_DISABLED</td>
-	<td>//button[@disabled][contains(@class,'btn')][normalize-space()='${key_text}'] | //button[@disabled][contains(@class,'btn')][@*='${key_text}']</td>
+	<td>//button[@disabled][contains(@class,'btn')][normalize-space()='${key_text}'] | //button[@disabled][contains(@class,'btn')][@*='${key_text}'] | //button[@disabled][contains(@class,'btn') and contains(@aria-label,'${key_text}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANY_DISABLED_CLASS</td>
+	<td>//button[contains(@class,'disabled')][normalize-space()='${key_text}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -267,7 +277,7 @@
 </tr>
 <tr>
 	<td>COLOR_SWATCH_ITEM</td>
-	<td>//div[contains(@class,'dropdown-menu') and contains(@class,'show')]//button[contains(@class,'color')][@*='${key_colorSwatchItem}']</td>
+	<td>//div[contains(@class,'dropdown-menu') and contains(@class,'show')]//button[contains(@class,'color')][@*='${key_colorSwatchItem}'] | //div[contains(@class,'dropdown-menu')]//button[@title='#${key_colorSwatchItem}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -581,6 +591,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>OPEN</td>
+	<td>//a[*[name()='svg'][contains(@class,'circle-open')]]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PALETTE_ITEM</td>
 	<td>//li[contains(@class,'palette-item')]//button[contains(@class,'bg-${key_paletteItem}')]</td>
 	<td></td>
@@ -648,6 +663,11 @@
 <tr>
 	<td>REMOVE_REDIRECT</td>
 	<td>//button[contains(.,'Remove Redirect')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REMOVE_REPEATABLE</td>
+	<td>//*[contains(@id,"RedirectPortlet")]//div[2]/div/div[${key_index}]/div[2]/button[1]</td>
 	<td></td>
 </tr>
 <tr>

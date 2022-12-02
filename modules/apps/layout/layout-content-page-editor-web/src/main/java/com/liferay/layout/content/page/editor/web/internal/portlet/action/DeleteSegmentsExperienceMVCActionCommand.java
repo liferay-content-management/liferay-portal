@@ -18,7 +18,7 @@ import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.processor.PortletRegistry;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
@@ -41,7 +41,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author David Arques
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + ContentPageEditorPortletKeys.CONTENT_PAGE_EDITOR_PORTLET,
 		"mvc.command.name=/layout_content_page_editor/delete_segments_experience"
@@ -58,7 +57,7 @@ public class DeleteSegmentsExperienceMVCActionCommand
 
 		_deleteSegmentsExperience(actionRequest);
 
-		return JSONFactoryUtil.createJSONObject();
+		return _jsonFactory.createJSONObject();
 	}
 
 	private void _deleteSegmentsExperience(ActionRequest actionRequest)
@@ -107,6 +106,9 @@ public class DeleteSegmentsExperienceMVCActionCommand
 
 	@Reference
 	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private PortletPreferencesLocalService _portletPreferencesLocalService;

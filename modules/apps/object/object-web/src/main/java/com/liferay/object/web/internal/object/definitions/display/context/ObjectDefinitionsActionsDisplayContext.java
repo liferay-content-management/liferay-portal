@@ -97,7 +97,8 @@ public class ObjectDefinitionsActionsDisplayContext
 
 	public List<Map<String, Object>> getObjectActionCodeEditorElements() {
 		return ObjectCodeEditorUtil.getCodeEditorElements(
-			true, objectRequestHelper.getLocale(), getObjectDefinitionId());
+			false, true, true, objectRequestHelper.getLocale(),
+			getObjectDefinitionId());
 	}
 
 	public ObjectActionExecutor getObjectActionExecutor() {
@@ -153,13 +154,19 @@ public class ObjectDefinitionsActionsDisplayContext
 		).put(
 			"description", objectAction.getDescription()
 		).put(
+			"errorMessage", objectAction.getErrorMessageMap()
+		).put(
 			"id", objectAction.getObjectActionId()
+		).put(
+			"label", objectAction.getLabelMap()
 		).put(
 			"name", objectAction.getName()
 		).put(
 			"objectActionExecutorKey", objectAction.getObjectActionExecutorKey()
 		).put(
 			"objectActionTriggerKey", objectAction.getObjectActionTriggerKey()
+		).put(
+			"objectDefinitionId", objectAction.getObjectDefinitionId()
 		).put(
 			"parameters",
 			ObjectActionUtil.toParameters(

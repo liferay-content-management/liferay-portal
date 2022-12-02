@@ -14,31 +14,45 @@
 
 package com.liferay.knowledge.base.web.internal.portlet.action;
 
+import com.liferay.asset.display.page.portlet.AssetDisplayPageEntryFormProcessor;
 import com.liferay.knowledge.base.constants.KBArticleConstants;
 import com.liferay.knowledge.base.constants.KBFolderConstants;
 import com.liferay.knowledge.base.constants.KBPortletKeys;
+import com.liferay.knowledge.base.exception.KBArticleExpirationDateException;
+import com.liferay.knowledge.base.exception.KBArticleReviewDateException;
 import com.liferay.knowledge.base.model.KBArticle;
 import com.liferay.knowledge.base.service.KBArticleService;
+import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.util.PropsUtil;
+import com.liferay.portal.util.PropsValues;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 
 import org.osgi.service.component.annotations.Component;
@@ -48,7 +62,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Adolfo Pérez
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + KBPortletKeys.KNOWLEDGE_BASE_ADMIN,
 		"javax.portlet.name=" + KBPortletKeys.KNOWLEDGE_BASE_ARTICLE,
@@ -57,9 +70,19 @@ import org.osgi.service.component.annotations.Reference;
 		"javax.portlet.name=" + KBPortletKeys.KNOWLEDGE_BASE_SECTION,
 		"mvc.command.name=/knowledge_base/update_kb_article"
 	},
-	service = MVCActionCommand.class
+	service = AopService.class
 )
-public class UpdateKBArticleMVCActionCommand extends BaseMVCActionCommand {
+public class UpdateKBArticleMVCActionCommand
+	extends BaseMVCActionCommand implements AopService, MVCActionCommand {
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public boolean processAction(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws PortletException {
+
+		return super.processAction(actionRequest, actionResponse);
+	}
 
 	@Override
 	protected void doProcessAction(
@@ -71,18 +94,46 @@ public class UpdateKBArticleMVCActionCommand extends BaseMVCActionCommand {
 		long resourcePrimKey = ParamUtil.getLong(
 			actionRequest, "resourcePrimKey");
 
-		String title = ParamUtil.getString(actionRequest, "title");
-		String content = ParamUtil.getString(actionRequest, "content");
-		String description = ParamUtil.getString(actionRequest, "description");
-		String sourceURL = ParamUtil.getString(actionRequest, "sourceURL");
-		String[] sections = actionRequest.getParameterValues("sections");
-		String[] selectedFileNames = ParamUtil.getParameterValues(
-			actionRequest, "selectedFileName");
-
 		KBArticle kbArticle = null;
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			KBArticle.class.getName(), actionRequest);
+
+		if (cmd.equals(Constants.REVERT)) {
+			int version = ParamUtil.getInteger(
+				actionRequest, "version", KBArticleConstants.DEFAULT_VERSION);
+
+			kbArticle = _kbArticleService.revertKBArticle(
+				resourcePrimKey, version, serviceContext);
+		}
+
+		if (!cmd.equals(Constants.ADD) && !cmd.equals(Constants.UPDATE)) {
+			return;
+		}
+
+		String title = ParamUtil.getString(actionRequest, "title");
+		String content = ParamUtil.getString(actionRequest, "content");
+		String description = ParamUtil.getString(actionRequest, "description");
+		String sourceURL = ParamUtil.getString(actionRequest, "sourceURL");
+
+		Date expirationDate = null;
+		Date reviewDate = null;
+
+		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-165476"))) {
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)actionRequest.getAttribute(WebKeys.THEME_DISPLAY);
+
+			User user = _userLocalService.getUser(themeDisplay.getUserId());
+
+			expirationDate = _getExpirationDate(
+				actionRequest, true, user.getTimeZone());
+			reviewDate = _getReviewDate(
+				actionRequest, true, user.getTimeZone());
+		}
+
+		String[] sections = actionRequest.getParameterValues("sections");
+		String[] selectedFileNames = ParamUtil.getParameterValues(
+			actionRequest, "selectedFileName");
 
 		if (cmd.equals(Constants.ADD)) {
 			long parentResourceClassNameId = ParamUtil.getLong(
@@ -96,29 +147,22 @@ public class UpdateKBArticleMVCActionCommand extends BaseMVCActionCommand {
 			kbArticle = _kbArticleService.addKBArticle(
 				null, _portal.getPortletId(actionRequest),
 				parentResourceClassNameId, parentResourcePrimKey, title,
-				urlTitle, content, description, sourceURL, sections,
-				selectedFileNames, serviceContext);
-		}
-		else if (cmd.equals(Constants.REVERT)) {
-			int version = ParamUtil.getInteger(
-				actionRequest, "version", KBArticleConstants.DEFAULT_VERSION);
-
-			kbArticle = _kbArticleService.revertKBArticle(
-				resourcePrimKey, version, serviceContext);
+				urlTitle, content, description, sections, sourceURL,
+				expirationDate, reviewDate, selectedFileNames, serviceContext);
 		}
 		else if (cmd.equals(Constants.UPDATE)) {
 			long[] removeFileEntryIds = ParamUtil.getLongValues(
 				actionRequest, "removeFileEntryIds");
 
 			kbArticle = _kbArticleService.updateKBArticle(
-				resourcePrimKey, title, content, description, sourceURL,
-				sections, selectedFileNames, removeFileEntryIds,
-				serviceContext);
+				resourcePrimKey, title, content, description, sections,
+				sourceURL, expirationDate, reviewDate, selectedFileNames,
+				removeFileEntryIds, serviceContext);
 		}
 
-		if (!cmd.equals(Constants.ADD) && !cmd.equals(Constants.UPDATE)) {
-			return;
-		}
+		_assetDisplayPageEntryFormProcessor.process(
+			KBArticle.class.getName(), kbArticle.getKbArticleId(),
+			actionRequest);
 
 		int workflowAction = ParamUtil.getInteger(
 			actionRequest, "workflowAction");
@@ -210,6 +254,48 @@ public class UpdateKBArticleMVCActionCommand extends BaseMVCActionCommand {
 		return redirect;
 	}
 
+	private Date _getExpirationDate(
+			ActionRequest actionRequest, boolean neverExpireDefaultValue,
+			TimeZone timeZone)
+		throws Exception {
+
+		boolean neverExpire = ParamUtil.getBoolean(
+			actionRequest, "neverExpire", neverExpireDefaultValue);
+
+		if (!PropsValues.SCHEDULER_ENABLED || neverExpire) {
+			return null;
+		}
+
+		int expirationDateMonth = ParamUtil.getInteger(
+			actionRequest, "expirationDateMonth");
+		int expirationDateDay = ParamUtil.getInteger(
+			actionRequest, "expirationDateDay");
+		int expirationDateYear = ParamUtil.getInteger(
+			actionRequest, "expirationDateYear");
+		int expirationDateHour = ParamUtil.getInteger(
+			actionRequest, "expirationDateHour");
+		int expirationDateMinute = ParamUtil.getInteger(
+			actionRequest, "expirationDateMinute");
+		int expirationDateAmPm = ParamUtil.getInteger(
+			actionRequest, "expirationDateAmPm");
+
+		if (expirationDateAmPm == Calendar.PM) {
+			expirationDateHour += 12;
+		}
+
+		Date expirationDate = _portal.getDate(
+			expirationDateMonth, expirationDateDay, expirationDateYear,
+			expirationDateHour, expirationDateMinute, timeZone,
+			KBArticleExpirationDateException.class);
+
+		if ((expirationDate != null) && expirationDate.before(new Date())) {
+			throw new KBArticleExpirationDateException(
+				"Expiration date " + expirationDate + " is in the past");
+		}
+
+		return expirationDate;
+	}
+
 	private String _getRedirect(ActionRequest actionRequest) {
 		String redirect = (String)actionRequest.getAttribute(WebKeys.REDIRECT);
 
@@ -224,10 +310,51 @@ public class UpdateKBArticleMVCActionCommand extends BaseMVCActionCommand {
 		return redirect;
 	}
 
+	private Date _getReviewDate(
+			ActionRequest actionRequest, boolean neverReviewDefaultValue,
+			TimeZone timeZone)
+		throws Exception {
+
+		boolean neverReview = ParamUtil.getBoolean(
+			actionRequest, "neverReview", neverReviewDefaultValue);
+
+		if (!PropsValues.SCHEDULER_ENABLED || neverReview) {
+			return null;
+		}
+
+		int reviewDateMonth = ParamUtil.getInteger(
+			actionRequest, "reviewDateMonth");
+		int reviewDateDay = ParamUtil.getInteger(
+			actionRequest, "reviewDateDay");
+		int reviewDateYear = ParamUtil.getInteger(
+			actionRequest, "reviewDateYear");
+		int reviewDateHour = ParamUtil.getInteger(
+			actionRequest, "reviewDateHour");
+		int reviewDateMinute = ParamUtil.getInteger(
+			actionRequest, "reviewDateMinute");
+		int reviewDateAmPm = ParamUtil.getInteger(
+			actionRequest, "reviewDateAmPm");
+
+		if (reviewDateAmPm == Calendar.PM) {
+			reviewDateHour += 12;
+		}
+
+		return _portal.getDate(
+			reviewDateMonth, reviewDateDay, reviewDateYear, reviewDateHour,
+			reviewDateMinute, timeZone, KBArticleReviewDateException.class);
+	}
+
+	@Reference
+	private AssetDisplayPageEntryFormProcessor
+		_assetDisplayPageEntryFormProcessor;
+
 	@Reference
 	private KBArticleService _kbArticleService;
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

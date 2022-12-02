@@ -15,8 +15,8 @@
 package com.liferay.dynamic.data.mapping.data.provider.web.internal.portlet;
 
 import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
-import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderTracker;
-import com.liferay.dynamic.data.mapping.data.provider.web.internal.display.DDMDataProviderDisplayTracker;
+import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderRegistry;
+import com.liferay.dynamic.data.mapping.data.provider.web.internal.display.DDMDataProviderDisplayRegistry;
 import com.liferay.dynamic.data.mapping.data.provider.web.internal.display.context.DDMDataProviderDisplayContext;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesDeserializer;
@@ -39,7 +39,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Leonardo Barros
  */
 @Component(
-	immediate = true,
 	property = {
 		"com.liferay.portlet.add-default-resource=true",
 		"com.liferay.portlet.autopropagated-parameters=backURL",
@@ -73,8 +72,8 @@ public class DDMDataProviderPortlet extends MVCPortlet {
 
 		DDMDataProviderDisplayContext ddmDataProviderDisplayContext =
 			new DDMDataProviderDisplayContext(
-				renderRequest, renderResponse, _ddmDataProviderDisplayTracker,
-				_ddmDataProviderInstanceService, _ddmDataProviderTracker,
+				renderRequest, renderResponse, _ddmDataProviderDisplayRegistry,
+				_ddmDataProviderInstanceService, _ddmDataProviderRegistry,
 				_ddmFormRenderer, _jsonDDMFormValuesDeserializer,
 				_userLocalService);
 
@@ -85,13 +84,13 @@ public class DDMDataProviderPortlet extends MVCPortlet {
 	}
 
 	@Reference
-	private DDMDataProviderDisplayTracker _ddmDataProviderDisplayTracker;
+	private DDMDataProviderDisplayRegistry _ddmDataProviderDisplayRegistry;
 
 	@Reference
 	private DDMDataProviderInstanceService _ddmDataProviderInstanceService;
 
 	@Reference
-	private DDMDataProviderTracker _ddmDataProviderTracker;
+	private DDMDataProviderRegistry _ddmDataProviderRegistry;
 
 	@Reference
 	private DDMFormRenderer _ddmFormRenderer;

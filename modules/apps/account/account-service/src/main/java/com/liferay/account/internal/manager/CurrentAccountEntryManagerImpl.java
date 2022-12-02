@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -48,7 +47,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * @author Pei-Jung Lan
  * @author Drew Brokke
  */
-@Component(immediate = true, service = CurrentAccountEntryManager.class)
+@Component(service = CurrentAccountEntryManager.class)
 public class CurrentAccountEntryManagerImpl
 	implements CurrentAccountEntryManager {
 
@@ -171,10 +170,7 @@ public class CurrentAccountEntryManagerImpl
 		PermissionChecker permissionChecker) {
 
 		try {
-			if ((accountEntry != null) &&
-				Objects.equals(
-					WorkflowConstants.STATUS_APPROVED,
-					accountEntry.getStatus()) &&
+			if ((accountEntry != null) && accountEntry.isApproved() &&
 				((accountEntry.getAccountEntryId() ==
 					AccountConstants.ACCOUNT_ENTRY_ID_GUEST) ||
 				 ArrayUtil.contains(allowedTypes, accountEntry.getType())) &&

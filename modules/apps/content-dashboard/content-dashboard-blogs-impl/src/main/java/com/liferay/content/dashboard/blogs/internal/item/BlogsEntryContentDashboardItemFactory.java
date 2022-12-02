@@ -20,14 +20,13 @@ import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryLocalService;
 import com.liferay.content.dashboard.item.ContentDashboardItem;
 import com.liferay.content.dashboard.item.ContentDashboardItemFactory;
-import com.liferay.content.dashboard.item.action.ContentDashboardItemActionProviderTracker;
+import com.liferay.content.dashboard.item.action.ContentDashboardItemActionProviderRegistry;
 import com.liferay.content.dashboard.item.type.ContentDashboardItemSubtypeFactory;
-import com.liferay.content.dashboard.item.type.ContentDashboardItemSubtypeFactoryTracker;
+import com.liferay.content.dashboard.item.type.ContentDashboardItemSubtypeFactoryRegistry;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Portal;
 
 import java.util.Optional;
@@ -59,7 +58,7 @@ public class BlogsEntryContentDashboardItemFactory
 
 		return new BlogsEntryContentDashboardItem(
 			assetEntry.getCategories(), assetEntry.getTags(), blogsEntry,
-			_contentDashboardItemActionProviderTracker,
+			_contentDashboardItemActionProviderRegistry,
 			_groupLocalService.fetchGroup(blogsEntry.getGroupId()), _language,
 			_portal);
 	}
@@ -68,7 +67,7 @@ public class BlogsEntryContentDashboardItemFactory
 	public Optional<ContentDashboardItemSubtypeFactory>
 		getContentDashboardItemSubtypeFactoryOptional() {
 
-		return _contentDashboardItemSubtypeFactoryTracker.
+		return _contentDashboardItemSubtypeFactoryRegistry.
 			getContentDashboardItemSubtypeFactoryOptional(
 				BlogsEntry.class.getName());
 	}
@@ -80,12 +79,12 @@ public class BlogsEntryContentDashboardItemFactory
 	private BlogsEntryLocalService _blogsEntryLocalService;
 
 	@Reference
-	private ContentDashboardItemActionProviderTracker
-		_contentDashboardItemActionProviderTracker;
+	private ContentDashboardItemActionProviderRegistry
+		_contentDashboardItemActionProviderRegistry;
 
 	@Reference
-	private ContentDashboardItemSubtypeFactoryTracker
-		_contentDashboardItemSubtypeFactoryTracker;
+	private ContentDashboardItemSubtypeFactoryRegistry
+		_contentDashboardItemSubtypeFactoryRegistry;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
@@ -95,8 +94,5 @@ public class BlogsEntryContentDashboardItemFactory
 
 	@Reference
 	private Portal _portal;
-
-	@Reference
-	private UserLocalService _userLocalService;
 
 }

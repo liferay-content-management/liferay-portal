@@ -47,9 +47,10 @@ public class DiscountProductUtil {
 				discountProduct.getProductId());
 		}
 		else {
-			cProduct = cProductLocalService.fetchCProductByReferenceCode(
-				serviceContext.getCompanyId(),
-				discountProduct.getProductExternalReferenceCode());
+			cProduct =
+				cProductLocalService.fetchCProductByExternalReferenceCode(
+					discountProduct.getProductExternalReferenceCode(),
+					serviceContext.getCompanyId());
 
 			if (cProduct == null) {
 				throw new NoSuchCProductException(

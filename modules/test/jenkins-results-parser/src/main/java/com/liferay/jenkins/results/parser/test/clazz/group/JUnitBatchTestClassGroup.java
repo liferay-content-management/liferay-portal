@@ -23,6 +23,7 @@ import com.liferay.jenkins.results.parser.PortalTestClassJob;
 import com.liferay.jenkins.results.parser.job.property.JobProperty;
 import com.liferay.jenkins.results.parser.test.clazz.JUnitTestClass;
 import com.liferay.jenkins.results.parser.test.clazz.TestClass;
+import com.liferay.jenkins.results.parser.test.clazz.TestClassBalancedListSplitter;
 import com.liferay.jenkins.results.parser.test.clazz.TestClassFactory;
 import com.liferay.jenkins.results.parser.test.clazz.TestClassMethod;
 
@@ -288,6 +289,36 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 		return includesJobProperties;
 	}
 
+	protected List<PathMatcher> getIncludesPathMatchers() {
+		if (!isRootCauseAnalysis()) {
+			return getPathMatchers(getIncludesJobProperties());
+		}
+
+		List<String> includeGlobs = new ArrayList<>();
+
+		String portalBatchTestSelector = System.getenv(
+			"PORTAL_BATCH_TEST_SELECTOR");
+
+		if (JenkinsResultsParserUtil.isNullOrEmpty(portalBatchTestSelector)) {
+			portalBatchTestSelector = getBuildStartProperty(
+				"PORTAL_BATCH_TEST_SELECTOR");
+		}
+
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(portalBatchTestSelector)) {
+			Collections.addAll(
+				includeGlobs,
+				JenkinsResultsParserUtil.getGlobsFromProperty(
+					portalBatchTestSelector));
+		}
+
+		return JenkinsResultsParserUtil.toPathMatchers(
+			JenkinsResultsParserUtil.combine(
+				JenkinsResultsParserUtil.getCanonicalPath(
+					portalGitWorkingDirectory.getWorkingDirectory()),
+				File.separator),
+			includeGlobs.toArray(new String[0]));
+	}
+
 	protected List<JobProperty> getReleaseExcludesJobProperties() {
 		List<JobProperty> excludesJobProperties = new ArrayList<>();
 
@@ -473,33 +504,19 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 					0, TestClassGroupFactory.newAxisTestClassGroup(this));
 			}
 			else {
-				AxisTestClassGroup axisTestClassGroup =
-					TestClassGroupFactory.newAxisTestClassGroup(this);
+				List<TestClass> batchTestClasses = new ArrayList<>(testClasses);
 
-				axisTestClassGroups.add(axisTestClassGroup);
+				TestClassBalancedListSplitter testClassBalancedListSplitter =
+					new TestClassBalancedListSplitter(targetAxisDuration);
 
-				for (TestClass testClass : testClasses) {
-					if (!axisTestClassGroup.hasTestClasses()) {
-						axisTestClassGroup.addTestClass(testClass);
+				List<List<TestClass>> testClassLists =
+					testClassBalancedListSplitter.split(batchTestClasses);
 
-						continue;
-					}
-
-					long estimatedAxisDuration =
-						axisTestClassGroup.getAverageDuration() +
-							testClass.getAverageDuration() +
-								testClass.getAverageOverheadDuration();
-
-					if (estimatedAxisDuration < targetAxisDuration) {
-						axisTestClassGroup.addTestClass(testClass);
-
-						continue;
-					}
-
-					axisTestClassGroup =
+				for (List<TestClass> testClassList : testClassLists) {
+					AxisTestClassGroup axisTestClassGroup =
 						TestClassGroupFactory.newAxisTestClassGroup(this);
 
-					axisTestClassGroup.addTestClass(testClass);
+					axisTestClassGroup.addTestClasses(testClassList);
 
 					axisTestClassGroups.add(axisTestClassGroup);
 				}
@@ -564,8 +581,8 @@ public class JUnitBatchTestClassGroup extends BatchTestClassGroup {
 	}
 
 	protected void setTestClasses() {
-		final List<PathMatcher> includesPathMatchers = getPathMatchers(
-			getIncludesJobProperties());
+		final List<PathMatcher> includesPathMatchers =
+			getIncludesPathMatchers();
 
 		if (includesPathMatchers.isEmpty()) {
 			return;

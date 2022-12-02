@@ -14,7 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.form.web.internal.display.context;
 
-import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesRegistry;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
@@ -31,7 +31,7 @@ import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceVersionLocalService;
-import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterTracker;
+import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterRegistry;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesMerger;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.json.JSONFactoryImpl;
@@ -54,6 +54,7 @@ import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.service.permission.PortletPermission;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
@@ -72,6 +73,7 @@ import com.liferay.portletmvc4spring.test.mock.web.portlet.MockRenderResponse;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -339,6 +341,50 @@ public class DDMFormDisplayContextTest {
 	}
 
 	@Test
+	public void testGetLimitToOneSubmissionPerUserMap() throws Exception {
+		DDMFormInstanceSettings ddmFormInstanceSettings = Mockito.mock(
+			DDMFormInstanceSettings.class);
+
+		_mockDDMFormInstance(ddmFormInstanceSettings);
+
+		String limitToOneSubmissionPerUserBody = RandomTestUtil.randomString();
+
+		Mockito.when(
+			ddmFormInstanceSettings.limitToOneSubmissionPerUserBody()
+		).thenReturn(
+			JSONUtil.put(
+				_DEFAULT_LANGUAGE_ID, limitToOneSubmissionPerUserBody
+			).toString()
+		);
+
+		String limitToOneSubmissionPerUserHeader =
+			RandomTestUtil.randomString();
+
+		Mockito.when(
+			ddmFormInstanceSettings.limitToOneSubmissionPerUserHeader()
+		).thenReturn(
+			JSONUtil.put(
+				_DEFAULT_LANGUAGE_ID, limitToOneSubmissionPerUserHeader
+			).toString()
+		);
+
+		DDMFormDisplayContext ddmFormDisplayContext =
+			_createDDMFormDisplayContext(_mockRenderRequest());
+
+		Map<String, String> limitToOneSubmissionPerUserMap =
+			ddmFormDisplayContext.getLimitToOneSubmissionPerUserMap();
+
+		Assert.assertEquals(
+			limitToOneSubmissionPerUserBody,
+			limitToOneSubmissionPerUserMap.get(
+				"limitToOneSubmissionPerUserBody"));
+		Assert.assertEquals(
+			limitToOneSubmissionPerUserHeader,
+			limitToOneSubmissionPerUserMap.get(
+				"limitToOneSubmissionPerUserHeader"));
+	}
+
+	@Test
 	public void testGetLocale() throws PortalException {
 		DDMFormDisplayContext ddmFormDisplayContext =
 			_createDDMFormDisplayContext();
@@ -601,6 +647,69 @@ public class DDMFormDisplayContextTest {
 		Assert.assertFalse(ddmFormDisplayContext.isShowSuccessPage());
 	}
 
+	@Test
+	public void testSubmissionLimitReachedDefaultMessage() throws Exception {
+		String limitToOneSubmissionPerUserBody =
+			"You can fill out this form only once. Contact the owner of the " +
+				"form if you think this is a mistake.";
+		String limitToOneSubmissionPerUserHeader =
+			"You have already responded.";
+
+		Mockito.when(
+			_language.get(
+				Mockito.any(HttpServletRequest.class),
+				Mockito.eq(
+					"you-can-fill-out-this-form-only-once.-contact-the-owner-" +
+						"of-the-form-if-you-think-this-is-a-mistake"))
+		).thenReturn(
+			limitToOneSubmissionPerUserBody
+		);
+
+		Mockito.when(
+			_language.get(
+				Mockito.any(HttpServletRequest.class),
+				Mockito.eq("you-have-already-responded"))
+		).thenReturn(
+			limitToOneSubmissionPerUserHeader
+		);
+
+		DDMFormInstanceSettings ddmFormInstanceSettings = Mockito.mock(
+			DDMFormInstanceSettings.class);
+
+		_mockDDMFormInstance(ddmFormInstanceSettings);
+
+		Mockito.when(
+			ddmFormInstanceSettings.limitToOneSubmissionPerUserBody()
+		).thenReturn(
+			JSONUtil.put(
+				_DEFAULT_LANGUAGE_ID, StringPool.BLANK
+			).toString()
+		);
+
+		Mockito.when(
+			ddmFormInstanceSettings.limitToOneSubmissionPerUserHeader()
+		).thenReturn(
+			JSONUtil.put(
+				_DEFAULT_LANGUAGE_ID, StringPool.BLANK
+			).toString()
+		);
+
+		DDMFormDisplayContext ddmFormDisplayContext =
+			_createDDMFormDisplayContext(_mockRenderRequest());
+
+		Map<String, String> limitToOneSubmissionPerUserMap =
+			ddmFormDisplayContext.getLimitToOneSubmissionPerUserMap();
+
+		Assert.assertEquals(
+			limitToOneSubmissionPerUserBody,
+			limitToOneSubmissionPerUserMap.get(
+				"limitToOneSubmissionPerUserBody"));
+		Assert.assertEquals(
+			limitToOneSubmissionPerUserHeader,
+			limitToOneSubmissionPerUserMap.get(
+				"limitToOneSubmissionPerUserHeader"));
+	}
+
 	private DDMForm _createDDMForm(
 		Set<Locale> availableLocales, Locale locale) {
 
@@ -631,7 +740,7 @@ public class DDMFormDisplayContextTest {
 		throws PortalException {
 
 		return new DDMFormDisplayContext(
-			Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+			Mockito.mock(DDMFormFieldTypeServicesRegistry.class),
 			_ddmFormInstanceLocalService,
 			Mockito.mock(DDMFormInstanceRecordService.class),
 			Mockito.mock(DDMFormInstanceRecordVersionLocalService.class),
@@ -639,9 +748,9 @@ public class DDMFormDisplayContextTest {
 			Mockito.mock(DDMFormRenderer.class),
 			Mockito.mock(DDMFormValuesFactory.class),
 			Mockito.mock(DDMFormValuesMerger.class), _ddmFormWebConfiguration,
-			Mockito.mock(DDMStorageAdapterTracker.class),
+			Mockito.mock(DDMStorageAdapterRegistry.class),
 			Mockito.mock(GroupLocalService.class), new JSONFactoryImpl(), null,
-			null, null, Mockito.mock(Portal.class), renderRequest,
+			null, null, null, Mockito.mock(Portal.class), renderRequest,
 			new MockRenderResponse(), Mockito.mock(RoleLocalService.class),
 			Mockito.mock(UserLocalService.class),
 			_workflowDefinitionLinkLocalService);

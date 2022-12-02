@@ -34,7 +34,6 @@ import java.util.Map;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -42,7 +41,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.portal.instances.on.demand.admin.internal.configuration.OnDemandAdminConfiguration",
-	immediate = true, service = MessageListener.class
+	service = MessageListener.class
 )
 public class OnDemandAdminCleanerMessageListener extends BaseMessageListener {
 
@@ -79,13 +78,6 @@ public class OnDemandAdminCleanerMessageListener extends BaseMessageListener {
 		_onDemandAdminManager.cleanUpOnDemandAdminUsers(
 			new Date(
 				System.currentTimeMillis() - (Time.HOUR * cleanUpInterval)));
-	}
-
-	@Modified
-	protected void modified(Map<String, Object> properties) {
-		deactivate();
-
-		activate(properties);
 	}
 
 	private volatile OnDemandAdminConfiguration _onDemandAdminConfiguration;

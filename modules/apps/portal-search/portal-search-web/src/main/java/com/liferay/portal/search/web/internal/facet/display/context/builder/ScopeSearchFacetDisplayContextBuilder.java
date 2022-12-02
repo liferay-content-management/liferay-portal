@@ -28,9 +28,10 @@ import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.search.web.internal.facet.display.context.BucketDisplayContext;
 import com.liferay.portal.search.web.internal.facet.display.context.ScopeSearchFacetDisplayContext;
-import com.liferay.portal.search.web.internal.facet.display.context.ScopeSearchFacetTermDisplayContext;
 import com.liferay.portal.search.web.internal.site.facet.configuration.SiteFacetPortletInstanceConfiguration;
+import com.liferay.portal.search.web.internal.util.comparator.BucketDisplayContextComparatorFactoryUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,6 +67,8 @@ public class ScopeSearchFacetDisplayContextBuilder {
 		ScopeSearchFacetDisplayContext scopeSearchFacetDisplayContext =
 			new ScopeSearchFacetDisplayContext();
 
+		scopeSearchFacetDisplayContext.setBucketDisplayContexts(
+			buildBucketDisplayContexts(getTermCollectors()));
 		scopeSearchFacetDisplayContext.setDisplayStyleGroupId(
 			getDisplayStyleGroupId());
 		scopeSearchFacetDisplayContext.setNothingSelected(isNothingSelected());
@@ -79,8 +82,6 @@ public class ScopeSearchFacetDisplayContextBuilder {
 		scopeSearchFacetDisplayContext.setRenderNothing(isRenderNothing());
 		scopeSearchFacetDisplayContext.setSiteFacetPortletInstanceConfiguration(
 			_siteFacetPortletInstanceConfiguration);
-		scopeSearchFacetDisplayContext.setTermDisplayContexts(
-			buildTermDisplayContexts(getTermCollectors()));
 
 		return scopeSearchFacetDisplayContext;
 	}
@@ -117,6 +118,10 @@ public class ScopeSearchFacetDisplayContextBuilder {
 		_maxTerms = maxTerms;
 	}
 
+	public void setOrder(String order) {
+		_order = order;
+	}
+
 	public void setPaginationStartParameterName(
 		String paginationStartParameterName) {
 
@@ -149,23 +154,21 @@ public class ScopeSearchFacetDisplayContextBuilder {
 		_httpServletRequest = httpServletRequest;
 	}
 
-	protected ScopeSearchFacetTermDisplayContext buildTermDisplayContext(
+	protected BucketDisplayContext buildBucketDisplayContext(
 		long groupId, int count, boolean selected) {
 
-		ScopeSearchFacetTermDisplayContext scopeSearchFacetTermDisplayContext =
-			new ScopeSearchFacetTermDisplayContext();
+		BucketDisplayContext bucketDisplayContext = new BucketDisplayContext();
 
-		scopeSearchFacetTermDisplayContext.setCount(count);
-		scopeSearchFacetTermDisplayContext.setDescriptiveName(
-			_getDescriptiveName(groupId));
-		scopeSearchFacetTermDisplayContext.setGroupId(groupId);
-		scopeSearchFacetTermDisplayContext.setSelected(selected);
-		scopeSearchFacetTermDisplayContext.setShowCount(_showCounts);
+		bucketDisplayContext.setBucketText(_getDescriptiveName(groupId));
+		bucketDisplayContext.setFilterValue(String.valueOf(groupId));
+		bucketDisplayContext.setFrequency(count);
+		bucketDisplayContext.setFrequencyVisible(_showCounts);
+		bucketDisplayContext.setSelected(selected);
 
-		return scopeSearchFacetTermDisplayContext;
+		return bucketDisplayContext;
 	}
 
-	protected ScopeSearchFacetTermDisplayContext buildTermDisplayContext(
+	protected BucketDisplayContext buildBucketDisplayContext(
 		TermCollector termCollector) {
 
 		int count = termCollector.getFrequency();
@@ -174,27 +177,26 @@ public class ScopeSearchFacetDisplayContextBuilder {
 			return null;
 		}
 
-		return buildTermDisplayContext(termCollector, count);
+		return buildBucketDisplayContext(termCollector, count);
 	}
 
-	protected ScopeSearchFacetTermDisplayContext buildTermDisplayContext(
+	protected BucketDisplayContext buildBucketDisplayContext(
 		TermCollector termCollector, int count) {
 
 		long groupId = GetterUtil.getLong(termCollector.getTerm());
 
-		return buildTermDisplayContext(groupId, count, isSelected(groupId));
+		return buildBucketDisplayContext(groupId, count, isSelected(groupId));
 	}
 
-	protected List<ScopeSearchFacetTermDisplayContext> buildTermDisplayContexts(
+	protected List<BucketDisplayContext> buildBucketDisplayContexts(
 		List<TermCollector> termCollectors) {
 
 		if (termCollectors.isEmpty()) {
-			return getEmptySearchResultTermDisplayContexts();
+			return getEmptySearchResultBucketDisplayContexts();
 		}
 
-		List<ScopeSearchFacetTermDisplayContext>
-			scopeSearchFacetTermDisplayContexts = new ArrayList<>(
-				termCollectors.size());
+		List<BucketDisplayContext> bucketDisplayContexts = new ArrayList<>(
+			termCollectors.size());
 
 		int limit = termCollectors.size();
 
@@ -208,12 +210,18 @@ public class ScopeSearchFacetDisplayContextBuilder {
 			int count = termCollector.getFrequency();
 
 			if (_countThreshold <= count) {
-				scopeSearchFacetTermDisplayContexts.add(
-					buildTermDisplayContext(termCollector, count));
+				bucketDisplayContexts.add(
+					buildBucketDisplayContext(termCollector, count));
 			}
 		}
 
-		return scopeSearchFacetTermDisplayContexts;
+		if (_order != null) {
+			bucketDisplayContexts.sort(
+				BucketDisplayContextComparatorFactoryUtil.
+					getBucketDisplayContextComparator(_order));
+		}
+
+		return bucketDisplayContexts;
 	}
 
 	protected long getDisplayStyleGroupId() {
@@ -227,17 +235,16 @@ public class ScopeSearchFacetDisplayContextBuilder {
 		return displayStyleGroupId;
 	}
 
-	protected List<ScopeSearchFacetTermDisplayContext>
-		getEmptySearchResultTermDisplayContexts() {
+	protected List<BucketDisplayContext>
+		getEmptySearchResultBucketDisplayContexts() {
 
 		Stream<Long> groupIdsStream = _selectedGroupIds.stream();
 
-		Stream<ScopeSearchFacetTermDisplayContext>
-			scopeSearchFacetTermDisplayContextsStream = groupIdsStream.map(
-				groupId -> buildTermDisplayContext(groupId, 0, true));
+		Stream<BucketDisplayContext> bucketDisplayContextsStream =
+			groupIdsStream.map(
+				groupId -> buildBucketDisplayContext(groupId, 0, true));
 
-		return scopeSearchFacetTermDisplayContextsStream.collect(
-			Collectors.toList());
+		return bucketDisplayContextsStream.collect(Collectors.toList());
 	}
 
 	protected String getFirstParameterValueString() {
@@ -345,6 +352,7 @@ public class ScopeSearchFacetDisplayContextBuilder {
 	private Language _language;
 	private Locale _locale;
 	private int _maxTerms;
+	private String _order;
 	private String _paginationStartParameterName;
 	private String _parameterName;
 	private List<Long> _selectedGroupIds = Collections.emptyList();

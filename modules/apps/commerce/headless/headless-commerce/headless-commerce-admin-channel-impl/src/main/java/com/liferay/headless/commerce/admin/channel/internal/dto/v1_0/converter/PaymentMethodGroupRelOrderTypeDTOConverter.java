@@ -17,7 +17,6 @@ package com.liferay.headless.commerce.admin.channel.internal.dto.v1_0.converter;
 import com.liferay.commerce.model.CommerceOrderType;
 import com.liferay.commerce.payment.model.CommercePaymentMethodGroupRelQualifier;
 import com.liferay.commerce.payment.service.CommercePaymentMethodGroupRelQualifierService;
-import com.liferay.commerce.payment.service.CommercePaymentMethodGroupRelService;
 import com.liferay.commerce.service.CommerceOrderTypeService;
 import com.liferay.headless.commerce.admin.channel.dto.v1_0.PaymentMethodGroupRelOrderType;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
@@ -30,7 +29,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Riccardo Alberti
  */
 @Component(
-	enabled = false,
 	property = "dto.class.name=com.liferay.commerce.payment.model.CommercePaymentMethodGroupRelQualifier-OrderType",
 	service = {
 		DTOConverter.class, PaymentMethodGroupRelOrderTypeDTOConverter.class
@@ -83,9 +81,5 @@ public class PaymentMethodGroupRelOrderTypeDTOConverter
 	@Reference
 	private CommercePaymentMethodGroupRelQualifierService
 		_commercePaymentMethodGroupRelQualifierService;
-
-	@Reference
-	private CommercePaymentMethodGroupRelService
-		_commercePaymentMethodGroupRelService;
 
 }

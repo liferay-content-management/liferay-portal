@@ -21,6 +21,7 @@ import {
 	useStateSafe,
 } from '@liferay/frontend-js-react-web';
 import classNames from 'classnames';
+import {sub} from 'frontend-js-web';
 import React, {useRef} from 'react';
 
 import {useId} from '../../core/hooks/useId';
@@ -94,6 +95,9 @@ export default function Sidebar() {
 
 	const sidebarWidthRef = useRef(sidebarWidth);
 	sidebarWidthRef.current = sidebarWidth;
+
+	const sidebarContentRef = useRef();
+	const tabListRef = useRef();
 
 	const panels = useSelector(selectAvailablePanels(config.panels));
 	const sidebarHidden = store.sidebar.hidden;
@@ -287,6 +291,31 @@ export default function Sidebar() {
 				sidebarPanelId: panel.sidebarPanelId,
 			})
 		);
+
+		if (open) {
+			sidebarContentRef.current?.focus();
+		}
+	};
+
+	const handleTabKeyDown = (event) => {
+		if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+			const tabs = Array.from(
+				tabListRef.current.querySelectorAll('button')
+			);
+
+			const positionActiveTab = tabs.indexOf(document.activeElement);
+
+			const activeTab =
+				tabs[
+					event.key === 'ArrowUp'
+						? positionActiveTab - 1
+						: positionActiveTab + 1
+				];
+
+			if (activeTab) {
+				activeTab.focus();
+			}
+		}
 	};
 
 	const handleSeparatorKeyDown = (event) => {
@@ -353,11 +382,15 @@ export default function Sidebar() {
 				style={{'--sidebar-content-width': `${sidebarWidth}px`}}
 			>
 				<div
+					aria-orientation="vertical"
 					className={classNames('page-editor__sidebar__buttons', {
 						'light': true,
 						'page-editor__sidebar__buttons--hidden': sidebarHidden,
 					})}
 					onClick={deselectItem}
+					onKeyDown={handleTabKeyDown}
+					ref={tabListRef}
+					role="tablist"
 				>
 					{panels.reduce((elements, group, groupIndex) => {
 						const buttons = group.map((panelId) => {
@@ -395,8 +428,13 @@ export default function Sidebar() {
 
 							return (
 								<ClayButtonWithIcon
-									aria-pressed={active}
+									aria-controls={sidebarContentId}
+									aria-label={Liferay.Language.get(
+										panel.label
+									)}
+									aria-selected={active}
 									className={classNames({active})}
+									data-panel-id={panel.sidebarPanelId}
 									data-tooltip-align="left"
 									displayType="unstyled"
 									id={`${sidebarId}${panel.sidebarPanelId}`}
@@ -404,8 +442,12 @@ export default function Sidebar() {
 									onClick={() => handleClick(panel)}
 									onFocus={prefetch}
 									onMouseEnter={prefetch}
+									role="tab"
 									small={true}
 									symbol={icon}
+									tabIndex={
+										sidebarPanelId !== panelId ? '-1' : null
+									}
 									title={label}
 								/>
 							);
@@ -426,6 +468,10 @@ export default function Sidebar() {
 				</div>
 
 				<div
+					aria-label={sub(
+						Liferay.Language.get('x-panel'),
+						panel.label
+					)}
 					className={classNames({
 						'page-editor__sidebar__content': true,
 						'page-editor__sidebar__content--open': sidebarOpen,
@@ -436,6 +482,9 @@ export default function Sidebar() {
 					})}
 					id={sidebarContentId}
 					onClick={deselectItem}
+					ref={sidebarContentRef}
+					role="tabpanel"
+					tabIndex="-1"
 				>
 					{hasError ? (
 						<div>

@@ -28,7 +28,9 @@ const SUGGESTION_KEY = 'suggestion';
 
 const VerticalNavigationBar = ({
 	items,
+	moveKBObjectURL,
 	parentContainerId,
+	portletNamespace,
 	productMenuOpen: initialProductMenuOpen,
 }) => {
 	const parentContainer = document.getElementById(parentContainerId);
@@ -51,24 +53,17 @@ const VerticalNavigationBar = ({
 
 	useEffect(() => {
 		if (productMenu && activePanel !== SUGGESTION_KEY) {
-			const productMenuOpenListener = productMenu.on(
-				'openStart.lexicon.sidenav',
-				() => {
-					setProductMenuOpen(true);
-					setVerticalBarOpen(false);
-				}
-			);
+			productMenu.on('openStart.lexicon.sidenav', () => {
+				setProductMenuOpen(true);
+				setVerticalBarOpen(false);
+			});
 
-			const productMenuCloseListener = productMenu.on(
-				'closedStart.lexicon.sidenav',
-				() => {
-					setProductMenuOpen(false);
-				}
-			);
+			productMenu.on('closedStart.lexicon.sidenav', () => {
+				setProductMenuOpen(false);
+			});
 
 			return () => {
-				productMenuOpenListener.removeListener();
-				productMenuCloseListener.removeListener();
+				productMenu.destroy();
 			};
 		}
 	}, [activePanel, productMenu]);
@@ -173,6 +168,8 @@ const VerticalNavigationBar = ({
 							<div className="sidebar-body">
 								<PanelComponent
 									items={item.navigationItems}
+									moveKBObjectURL={moveKBObjectURL}
+									portletNamespace={portletNamespace}
 									selectedItemId={item.selectedItemId}
 								/>
 							</div>
@@ -194,7 +191,9 @@ const itemShape = {
 
 VerticalNavigationBar.propTypes = {
 	items: PropTypes.arrayOf(PropTypes.shape(itemShape)),
+	moveKBObjectURL: PropTypes.string,
 	parentContainerId: PropTypes.string.isRequired,
+	portletNamespace: PropTypes.string.isRequired,
 	productMenuOpen: PropTypes.bool,
 };
 

@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.exception.DuplicateUserGroupExternalReferenceCodeException;
 import com.liferay.portal.kernel.exception.NoSuchUserGroupException;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.service.UserGroupLocalServiceUtil;
@@ -190,6 +191,26 @@ public class UserGroupPersistenceTest {
 			newUserGroup.isAddedByLDAPImport());
 	}
 
+	@Test(expected = DuplicateUserGroupExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		UserGroup userGroup = addUserGroup();
+
+		UserGroup newUserGroup = addUserGroup();
+
+		newUserGroup.setCompanyId(userGroup.getCompanyId());
+
+		newUserGroup = _persistence.update(newUserGroup);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newUserGroup);
+
+		newUserGroup.setExternalReferenceCode(
+			userGroup.getExternalReferenceCode());
+
+		_persistence.update(newUserGroup);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -251,12 +272,12 @@ public class UserGroupPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -563,15 +584,15 @@ public class UserGroupPersistenceTest {
 				new Class<?>[] {String.class}, "name"));
 
 		Assert.assertEquals(
-			Long.valueOf(userGroup.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				userGroup, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			userGroup.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				userGroup, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(userGroup.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				userGroup, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected UserGroup addUserGroup() throws Exception {

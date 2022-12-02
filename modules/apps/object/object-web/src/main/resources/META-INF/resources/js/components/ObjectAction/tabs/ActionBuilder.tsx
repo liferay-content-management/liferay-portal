@@ -15,6 +15,7 @@
 import ClayAlert from '@clayui/alert';
 import ClayForm, {ClayCheckbox, ClaySelect, ClayToggle} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
+import ClayLabel from '@clayui/label';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import {
 	API,
@@ -23,6 +24,7 @@ import {
 	CustomItem,
 	ExpressionBuilder,
 	Input,
+	InputLocalized,
 	SelectWithOption,
 	SidebarCategory,
 	SingleSelect,
@@ -34,6 +36,8 @@ import PredefinedValuesTable from '../PredefinedValuesTable';
 
 import './ActionBuilder.scss';
 import {ActionError} from '../index';
+
+const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
 
 type ObjectsOptionsList = Array<
 	(
@@ -47,14 +51,20 @@ type ObjectsOptionsList = Array<
 
 export default function ActionBuilder({
 	errors,
+	isApproved,
 	objectActionCodeEditorElements,
 	objectActionExecutors,
 	objectActionTriggers,
+	objectDefinitionId,
 	objectDefinitionsRelationshipsURL,
 	setValues,
 	validateExpressionURL,
 	values,
 }: IProps) {
+	const [newObjectActionExecutors, setNewObjectActionExecutors] = useState<
+		CustomItem[]
+	>(objectActionExecutors);
+
 	const [notificationTemplates, setNotificationTemplates] = useState<
 		CustomItem<number>[]
 	>([]);
@@ -82,6 +92,8 @@ export default function ActionBuilder({
 		mandatoryRelationships: false,
 		requiredFields: false,
 	});
+
+	const [errorAlert, setErrorAlert] = useState(false);
 
 	const fetchObjectDefinitions = async () => {
 		const relationships = await API.fetchJSON<
@@ -126,12 +138,12 @@ export default function ActionBuilder({
 	const actionExecutors = useMemo(() => {
 		const executors = new Map<string, string>();
 
-		objectActionExecutors.forEach(({label, value}) => {
+		newObjectActionExecutors.forEach(({label, value}) => {
 			value && executors.set(value, label);
 		});
 
 		return executors;
-	}, [objectActionExecutors]);
+	}, [newObjectActionExecutors]);
 
 	const actionTriggers = useMemo(() => {
 		const triggers = new Map<string, string>();
@@ -154,10 +166,56 @@ export default function ActionBuilder({
 	}, [currentObjectDefinitionFields]);
 
 	useEffect(() => {
+		if (values.objectActionTriggerKey === 'onAfterDelete') {
+			newObjectActionExecutors.map((action) => {
+				if (action.value === 'update-object-entry') {
+					action.disabled = true;
+					action.popover = {
+						body:
+							Liferay.Language.get(
+								'it-is-not-possible-to-create-an-update-action-with-an-on-after-delete-trigger'
+							) +
+							' ' +
+							Liferay.Language.get(
+								'please-change-the-action-trigger'
+							),
+						header: Liferay.Language.get('action-not-allowed'),
+					};
+				}
+			});
+
+			if (values.objectActionExecutorKey === 'update-object-entry') {
+				setErrorAlert(true);
+			}
+
+			setNewObjectActionExecutors(newObjectActionExecutors);
+		}
+		else if (
+			values.objectActionTriggerKey === 'onAfterAdd' ||
+			values.objectActionTriggerKey === 'onAfterUpdate'
+		) {
+			newObjectActionExecutors.map((action) => {
+				if (action.value === 'update-object-entry') {
+					delete action.disabled;
+					delete action.popover;
+				}
+			});
+
+			if (values.objectActionExecutorKey === 'update-object-entry') {
+				setErrorAlert(false);
+			}
+
+			setNewObjectActionExecutors(newObjectActionExecutors);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [values.objectActionTriggerKey]);
+
+	useEffect(() => {
 		if (values.objectActionExecutorKey === 'notification') {
 			API.getNotificationTemplates().then((items) => {
-				const notificationsArray = items.map(({id, name}) => ({
+				const notificationsArray = items.map(({id, name, type}) => ({
 					label: name,
+					type,
 					value: id,
 				}));
 
@@ -170,18 +228,38 @@ export default function ActionBuilder({
 		setValues({conditionExpression});
 	};
 
-	const isValidField = ({businessType, system}: ObjectField) =>
-		businessType !== 'Aggregation' &&
-		businessType !== 'Relationship' &&
-		!system;
+	const isValidField = ({
+		businessType,
+		objectFieldSettings,
+		system,
+	}: ObjectField) => {
+		const userRelationship = !!objectFieldSettings?.find(
+			({name, value}) =>
+				name === 'objectDefinition1ShortName' && value === 'User'
+		);
+
+		if (businessType === 'Relationship' && userRelationship) {
+			return true;
+		}
+
+		return (
+			businessType !== 'Aggregation' &&
+			businessType !== 'Formula' &&
+			businessType !== 'Relationship' &&
+			!system
+		);
+	};
 
 	const fetchObjectDefinitionFields = async () => {
 		let validFields: ObjectField[] = [];
+		let definitionId = objectDefinitionId;
 
-		if (values.parameters?.objectDefinitionId) {
-			const items = await API.getObjectFields(
-				values.parameters.objectDefinitionId
-			);
+		if (values.objectActionExecutorKey === 'add-object-entry') {
+			definitionId = values?.parameters?.objectDefinitionId as number;
+		}
+
+		if (definitionId) {
+			const items = await API.getObjectFields(definitionId);
 
 			validFields = items.filter(isValidField);
 		}
@@ -200,15 +278,19 @@ export default function ActionBuilder({
 
 		const newPredefinedValues: PredefinedValue[] = [];
 
-		validFields.forEach(({name, required}) => {
+		validFields.forEach(({label, name, required}) => {
 			if (predefinedValuesMap.has(name)) {
 				const field = predefinedValuesMap.get(name);
 
 				newPredefinedValues.push(field as PredefinedValue);
 			}
-			else if (required) {
+			else if (
+				required &&
+				values.objectActionExecutorKey === 'add-object-entry'
+			) {
 				newPredefinedValues.push({
 					inputAsValue: false,
+					label,
 					name,
 					value: '',
 				});
@@ -217,16 +299,13 @@ export default function ActionBuilder({
 		setValues({
 			parameters: {
 				...values.parameters,
+				objectDefinitionId: definitionId,
 				predefinedValues: newPredefinedValues,
 			},
 		});
 	};
 
-	const handleSelectObject = async ({
-		target: {value},
-	}: React.ChangeEvent<HTMLSelectElement>) => {
-		const objectDefinitionId = parseInt(value, 10);
-
+	const updateParameters = async (objectDefinitionId: number) => {
 		const object = relationships.find(({id}) => id === objectDefinitionId);
 
 		const parameters: ObjectActionParameters = {
@@ -237,7 +316,6 @@ export default function ActionBuilder({
 		if (object?.related) {
 			parameters.relatedObjectEntries = false;
 		}
-
 		const items = await API.getObjectFields(objectDefinitionId);
 
 		const validFields: ObjectField[] = [];
@@ -246,9 +324,13 @@ export default function ActionBuilder({
 			if (isValidField(field)) {
 				validFields.push(field);
 
-				if (field.required) {
+				if (
+					field.required &&
+					values.objectActionExecutorKey === 'add-object-entry'
+				) {
 					(parameters.predefinedValues as PredefinedValue[]).push({
 						inputAsValue: false,
+						label: field.label,
 						name: field.name,
 						value: '',
 					});
@@ -265,7 +347,9 @@ export default function ActionBuilder({
 		setValues({
 			parameters: {
 				...normalizedParameters,
-				...parameters,
+				...(values.objectActionExecutorKey === 'add-object-entry' && {
+					...parameters,
+				}),
 			},
 		});
 
@@ -279,13 +363,25 @@ export default function ActionBuilder({
 		}));
 	};
 
+	const handleSelectObject = async ({
+		target: {value},
+	}: React.ChangeEvent<HTMLSelectElement>) => {
+		const objectDefinitionId = parseInt(value, 10);
+
+		updateParameters(objectDefinitionId);
+	};
+
 	useEffect(() => {
 		if (values.objectActionExecutorKey === 'add-object-entry') {
 			fetchObjectDefinitions();
 			fetchObjectDefinitionFields();
 		}
+		else if (values.objectActionExecutorKey === 'update-object-entry') {
+			updateParameters(objectDefinitionId);
+			fetchObjectDefinitionFields();
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [values.objectActionExecutorKey]);
 
 	useEffect(() => {
 		const predefinedValues = values.parameters?.predefinedValues;
@@ -340,12 +436,26 @@ export default function ActionBuilder({
 				</ClayAlert>
 			)}
 
+			{errorAlert && (
+				<ClayAlert
+					className="lfr-objects__side-panel-content-container"
+					displayType="danger"
+					onClose={() => setErrorAlert(false)}
+					title={`${Liferay.Language.get('error')}:`}
+				>
+					{Liferay.Language.get(
+						'it-is-not-possible-to-create-an-update-action-with-an-on-after-delete-trigger'
+					)}
+				</ClayAlert>
+			)}
+
 			<Card title={Liferay.Language.get('trigger')}>
 				<Card
 					title={Liferay.Language.get('when[object]')}
 					viewMode="inline"
 				>
 					<SingleSelect
+						disabled={isApproved}
 						error={errors.objectActionTriggerKey}
 						onChange={({value}) =>
 							setValues({
@@ -362,9 +472,15 @@ export default function ActionBuilder({
 				</Card>
 			</Card>
 
-			<Card title={Liferay.Language.get('condition')}>
+			<Card
+				disabled={values.objectActionTriggerKey === 'standalone'}
+				title={Liferay.Language.get('condition')}
+			>
 				<ClayForm.Group>
 					<ClayToggle
+						disabled={
+							values.objectActionTriggerKey === 'standalone'
+						}
 						label={Liferay.Language.get('enable-condition')}
 						name="condition"
 						onToggle={(enable) =>
@@ -451,7 +567,11 @@ export default function ActionBuilder({
 									parameters: {},
 								});
 							}}
-							options={objectActionExecutors}
+							options={
+								Liferay.FeatureFlags['LPS-153714']
+									? newObjectActionExecutors
+									: objectActionExecutors
+							}
 							placeholder={Liferay.Language.get(
 								'choose-an-action'
 							)}
@@ -519,7 +639,6 @@ export default function ActionBuilder({
 							<SingleSelect<CustomItem<number>>
 								className="lfr-object__action-builder-notification-then"
 								error={errors.objectActionExecutorKey}
-								label={Liferay.Language.get('notification')}
 								onChange={({value}) => {
 									setValues({
 										parameters: {
@@ -531,16 +650,43 @@ export default function ActionBuilder({
 								options={notificationTemplates}
 								required
 								value={notificationTemplateLabel}
-							/>
+							>
+								{notificationTemplates.map(
+									(option) =>
+										Liferay.FeatureFlags['LPS-162133'] &&
+										option.type && (
+											<ClayLabel
+												displayType={
+													option.type === 'email'
+														? 'success'
+														: 'info'
+												}
+											>
+												{option.type === 'email'
+													? Liferay.Language.get(
+															'email'
+													  )
+													: Liferay.Language.get(
+															'user-notification'
+													  )}
+											</ClayLabel>
+										)
+								)}
+							</SingleSelect>
 						)}
 					</div>
 				</Card>
 
-				{values.objectActionExecutorKey === 'add-object-entry' &&
+				{(values.objectActionExecutorKey === 'add-object-entry' ||
+					values.objectActionExecutorKey === 'update-object-entry') &&
 					values.parameters?.objectDefinitionId && (
 						<PredefinedValuesTable
 							currentObjectDefinitionFields={
 								currentObjectDefinitionFields
+							}
+							disableRequiredChecked={
+								values.objectActionExecutorKey ===
+								'update-object-entry'
 							}
 							errors={
 								errors.predefinedValues as {
@@ -549,6 +695,12 @@ export default function ActionBuilder({
 							}
 							objectFieldsMap={objectFieldsMap}
 							setValues={setValues}
+							title={
+								values.objectActionExecutorKey ===
+								'update-object-entry'
+									? Liferay.Language.get('values')
+									: ''
+							}
 							validateExpressionURL={validateExpressionURL}
 							values={values}
 						/>
@@ -608,15 +760,37 @@ export default function ActionBuilder({
 					/>
 				)}
 			</Card>
+
+			{Liferay.FeatureFlags['LPS-148804'] &&
+				values.objectActionTriggerKey === 'standalone' && (
+					<Card title={Liferay.Language.get('error-message')}>
+						<InputLocalized
+							error={errors.errorMessage}
+							label={Liferay.Language.get('message')}
+							name="label"
+							onChange={(value) =>
+								setValues({
+									errorMessage: value,
+								})
+							}
+							required
+							translations={
+								values.errorMessage ?? {[defaultLanguageId]: ''}
+							}
+						/>
+					</Card>
+				)}
 		</>
 	);
 }
 
 interface IProps {
 	errors: ActionError;
+	isApproved: boolean;
 	objectActionCodeEditorElements: SidebarCategory[];
 	objectActionExecutors: CustomItem[];
 	objectActionTriggers: CustomItem[];
+	objectDefinitionId: number;
 	objectDefinitionsRelationshipsURL: string;
 	setValues: (values: Partial<ObjectAction>) => void;
 	validateExpressionURL: string;

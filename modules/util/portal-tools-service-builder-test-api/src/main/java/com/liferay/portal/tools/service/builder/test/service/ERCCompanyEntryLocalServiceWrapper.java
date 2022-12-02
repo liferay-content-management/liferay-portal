@@ -244,34 +244,14 @@ public class ERCCompanyEntryLocalServiceWrapper
 			ercCompanyEntryId);
 	}
 
-	/**
-	 * Returns the erc company entry with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the erc company entry's external reference code
-	 * @return the matching erc company entry, or <code>null</code> if a matching erc company entry could not be found
-	 */
 	@Override
 	public com.liferay.portal.tools.service.builder.test.model.ERCCompanyEntry
 		fetchERCCompanyEntryByExternalReferenceCode(
-			long companyId, String externalReferenceCode) {
+			String externalReferenceCode, long companyId) {
 
 		return _ercCompanyEntryLocalService.
 			fetchERCCompanyEntryByExternalReferenceCode(
-				companyId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchERCCompanyEntryByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public com.liferay.portal.tools.service.builder.test.model.ERCCompanyEntry
-		fetchERCCompanyEntryByReferenceCode(
-			long companyId, String externalReferenceCode) {
-
-		return _ercCompanyEntryLocalService.fetchERCCompanyEntryByReferenceCode(
-			companyId, externalReferenceCode);
+				externalReferenceCode, companyId);
 	}
 
 	/**
@@ -341,23 +321,15 @@ public class ERCCompanyEntryLocalServiceWrapper
 			ercCompanyEntryId);
 	}
 
-	/**
-	 * Returns the erc company entry with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the erc company entry's external reference code
-	 * @return the matching erc company entry
-	 * @throws PortalException if a matching erc company entry could not be found
-	 */
 	@Override
 	public com.liferay.portal.tools.service.builder.test.model.ERCCompanyEntry
 			getERCCompanyEntryByExternalReferenceCode(
-				long companyId, String externalReferenceCode)
+				String externalReferenceCode, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ercCompanyEntryLocalService.
 			getERCCompanyEntryByExternalReferenceCode(
-				companyId, externalReferenceCode);
+				externalReferenceCode, companyId);
 	}
 
 	/**

@@ -15,8 +15,6 @@
 package com.liferay.portal.kernel.scheduler;
 
 import com.liferay.portal.kernel.messaging.Message;
-import com.liferay.portal.kernel.messaging.proxy.MessagingProxy;
-import com.liferay.portal.kernel.messaging.proxy.ProxyMode;
 import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
 
 import java.util.List;
@@ -36,11 +34,7 @@ public interface SchedulerEngine {
 
 	public static final String DESTINATION_NAME = "DESTINATION_NAME";
 
-	public static final String DISABLE = "DISABLE";
-
 	public static final String END_TIME = "END_TIME";
-
-	public static final String EXCEPTIONS_MAX_SIZE = "EXCEPTIONS_MAX_SIZE";
 
 	public static final String FINAL_FIRE_TIME = "FINAL_FIRE_TIME";
 
@@ -76,19 +70,15 @@ public interface SchedulerEngine {
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException;
 
-	@MessagingProxy(mode = ProxyMode.SYNC)
 	public SchedulerResponse getScheduledJob(
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException;
 
-	@MessagingProxy(mode = ProxyMode.SYNC)
 	public List<SchedulerResponse> getScheduledJobs() throws SchedulerException;
 
-	@MessagingProxy(mode = ProxyMode.SYNC)
 	public List<SchedulerResponse> getScheduledJobs(StorageType storageType)
 		throws SchedulerException;
 
-	@MessagingProxy(mode = ProxyMode.SYNC)
 	public List<SchedulerResponse> getScheduledJobs(
 			String groupName, StorageType storageType)
 		throws SchedulerException;
@@ -111,21 +101,13 @@ public interface SchedulerEngine {
 			Message message, StorageType storageType)
 		throws SchedulerException;
 
-	@MessagingProxy(local = true, mode = ProxyMode.SYNC)
 	public void shutdown() throws SchedulerException;
 
-	@MessagingProxy(local = true, mode = ProxyMode.SYNC)
 	public void start() throws SchedulerException;
 
-	public void suppressError(
-			String jobName, String groupName, StorageType storageType)
-		throws SchedulerException;
-
-	@MessagingProxy(mode = ProxyMode.SYNC)
 	public void unschedule(String groupName, StorageType storageType)
 		throws SchedulerException;
 
-	@MessagingProxy(mode = ProxyMode.SYNC)
 	public void unschedule(
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException;
@@ -133,7 +115,6 @@ public interface SchedulerEngine {
 	public void update(Trigger trigger, StorageType storageType)
 		throws SchedulerException;
 
-	@MessagingProxy(mode = ProxyMode.SYNC)
 	public void validateTrigger(Trigger trigger, StorageType storageType)
 		throws SchedulerException;
 

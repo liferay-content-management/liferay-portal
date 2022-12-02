@@ -14,6 +14,8 @@
 
 package com.liferay.object.admin.rest.internal.resource.v1_0;
 
+import com.liferay.list.type.service.ListTypeDefinitionLocalService;
+import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
 import com.liferay.object.admin.rest.internal.dto.v1_0.converter.ObjectFieldDTOConverter;
@@ -146,18 +148,21 @@ public class ObjectFieldResourceImpl
 			Long objectDefinitionId, ObjectField objectField)
 		throws Exception {
 
-		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-149625")) &&
+		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-164948")) &&
 			Objects.equals(
 				objectField.getBusinessTypeAsString(),
-				ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION)) {
+				ObjectFieldConstants.BUSINESS_TYPE_FORMULA)) {
 
 			throw new UnsupportedOperationException();
 		}
 
 		return _toObjectField(
 			_objectFieldService.addCustomObjectField(
-				objectField.getListTypeDefinitionId(), objectDefinitionId,
-				objectField.getBusinessTypeAsString(),
+				objectField.getExternalReferenceCode(),
+				ObjectFieldUtil.getListTypeDefinitionId(
+					contextUser.getCompanyId(), _listTypeDefinitionLocalService,
+					objectField),
+				objectDefinitionId, objectField.getBusinessTypeAsString(),
 				ObjectFieldUtil.getDBType(
 					objectField.getDBTypeAsString(),
 					objectField.getTypeAsString()),
@@ -172,6 +177,11 @@ public class ObjectFieldResourceImpl
 					objectFieldSetting ->
 						ObjectFieldSettingUtil.toObjectFieldSetting(
 							objectField.getBusinessTypeAsString(),
+							ObjectFieldUtil.addListTypeDefinition(
+								contextUser.getCompanyId(),
+								_listTypeDefinitionLocalService,
+								_listTypeEntryLocalService, objectField,
+								contextUser.getUserId()),
 							objectFieldSetting, _objectFieldSettingLocalService,
 							_objectFilterLocalService))));
 	}
@@ -181,18 +191,41 @@ public class ObjectFieldResourceImpl
 			Long objectFieldId, ObjectField objectField)
 		throws Exception {
 
-		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-149625")) &&
+		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-164948")) &&
 			Objects.equals(
 				objectField.getBusinessTypeAsString(),
-				ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION)) {
+				ObjectFieldConstants.BUSINESS_TYPE_FORMULA)) {
 
 			throw new UnsupportedOperationException();
 		}
 
+		com.liferay.object.model.ObjectField serviceBuilderObjectField =
+			_objectFieldService.getObjectField(objectFieldId);
+
+		com.liferay.object.model.ObjectDefinition
+			serviceBuilderObjectDefinition =
+				_objectDefinitionLocalService.getObjectDefinition(
+					serviceBuilderObjectField.getObjectDefinitionId());
+
+		if (!serviceBuilderObjectDefinition.isApproved()) {
+			objectField.setListTypeDefinitionId(
+				ObjectFieldUtil.addListTypeDefinition(
+					contextUser.getCompanyId(), _listTypeDefinitionLocalService,
+					_listTypeEntryLocalService, objectField,
+					contextUser.getUserId()));
+		}
+
+		if (Validator.isNull(objectField.getListTypeDefinitionId())) {
+			objectField.setListTypeDefinitionId(
+				serviceBuilderObjectField.getListTypeDefinitionId());
+		}
+
 		return _toObjectField(
 			_objectFieldService.updateObjectField(
-				objectFieldId, objectField.getExternalReferenceCode(),
-				objectField.getListTypeDefinitionId(),
+				objectField.getExternalReferenceCode(), objectFieldId,
+				ObjectFieldUtil.getListTypeDefinitionId(
+					contextUser.getCompanyId(), _listTypeDefinitionLocalService,
+					objectField),
 				objectField.getBusinessTypeAsString(),
 				ObjectFieldUtil.getDBType(
 					objectField.getDBTypeAsString(),
@@ -208,6 +241,7 @@ public class ObjectFieldResourceImpl
 					objectFieldSetting ->
 						ObjectFieldSettingUtil.toObjectFieldSetting(
 							objectField.getBusinessTypeAsString(),
+							objectField.getListTypeDefinitionId(),
 							objectFieldSetting, _objectFieldSettingLocalService,
 							_objectFilterLocalService))));
 	}
@@ -281,6 +315,12 @@ public class ObjectFieldResourceImpl
 
 	private static final EntityModel _entityModel =
 		new ObjectFieldEntityModel();
+
+	@Reference
+	private ListTypeDefinitionLocalService _listTypeDefinitionLocalService;
+
+	@Reference
+	private ListTypeEntryLocalService _listTypeEntryLocalService;
 
 	@Reference
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;

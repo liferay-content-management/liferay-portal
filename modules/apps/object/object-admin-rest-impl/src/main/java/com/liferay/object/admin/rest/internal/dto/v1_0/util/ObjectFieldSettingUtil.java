@@ -19,13 +19,14 @@ import com.liferay.object.admin.rest.dto.v1_0.ObjectStateFlow;
 import com.liferay.object.admin.rest.dto.v1_0.util.ObjectStateFlowUtil;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
+import com.liferay.object.filter.util.ObjectFilterUtil;
 import com.liferay.object.model.ObjectFilter;
 import com.liferay.object.service.ObjectFieldSettingLocalService;
 import com.liferay.object.service.ObjectFilterLocalService;
 import com.liferay.object.service.ObjectStateFlowLocalServiceUtil;
-import com.liferay.object.util.ObjectFilterUtil;
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
@@ -42,10 +43,11 @@ public class ObjectFieldSettingUtil {
 
 	public static com.liferay.object.model.ObjectFieldSetting
 			toObjectFieldSetting(
-				String businessType, ObjectFieldSetting objectFieldSetting,
+				String businessType, long listTypeDefinitionId,
+				ObjectFieldSetting objectFieldSetting,
 				ObjectFieldSettingLocalService objectFieldSettingLocalService,
 				ObjectFilterLocalService objectFilterLocalService)
-		throws PortalException {
+		throws Exception {
 
 		com.liferay.object.model.ObjectFieldSetting
 			serviceBuilderObjectFieldSetting =
@@ -60,7 +62,7 @@ public class ObjectFieldSettingUtil {
 			serviceBuilderObjectFieldSetting.setObjectStateFlow(
 				com.liferay.object.admin.rest.internal.dto.v1_0.util.
 					ObjectStateFlowUtil.toObjectStateFlow(
-						objectFieldSetting.getObjectFieldId(),
+						listTypeDefinitionId,
 						ObjectMapperUtil.readValue(
 							ObjectStateFlow.class,
 							objectFieldSetting.getValue())));
@@ -79,7 +81,12 @@ public class ObjectFieldSettingUtil {
 
 			List<Object> values = null;
 
-			if (objectFieldSetting.getValue() instanceof Object[]) {
+			if (objectFieldSetting.getValue() instanceof JSONArray) {
+				values = JSONUtil.toList(
+					(JSONArray)objectFieldSetting.getValue(),
+					jsonObject -> jsonObject.toMap());
+			}
+			else if (objectFieldSetting.getValue() instanceof Object[]) {
 				values = ListUtil.fromArray(
 					(Object[])objectFieldSetting.getValue());
 			}

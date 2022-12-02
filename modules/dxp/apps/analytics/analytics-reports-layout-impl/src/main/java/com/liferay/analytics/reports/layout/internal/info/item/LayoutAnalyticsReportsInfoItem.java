@@ -29,17 +29,13 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Collections;
@@ -131,7 +127,13 @@ public class LayoutAnalyticsReportsInfoItem
 
 	@Override
 	public Date getPublishDate(Layout layout) {
-		return layout.getPublishDate();
+		Date date = layout.getPublishDate();
+
+		if (date == null) {
+			date = layout.getModifiedDate();
+		}
+
+		return date;
 	}
 
 	@Override
@@ -147,8 +149,8 @@ public class LayoutAnalyticsReportsInfoItem
 
 	@Override
 	public boolean isShow(Layout layout) {
-		if ((!layout.isTypeContent() && !layout.isTypePortlet()) ||
-			_isEmbeddedPersonalApplicationLayout(layout)) {
+		if (layout.isEmbeddedPersonalApplication() ||
+			(!layout.isTypeContent() && !layout.isTypePortlet())) {
 
 			return false;
 		}
@@ -201,23 +203,6 @@ public class LayoutAnalyticsReportsInfoItem
 		return true;
 	}
 
-	private boolean _isEmbeddedPersonalApplicationLayout(Layout layout) {
-		if (layout.isTypeControlPanel()) {
-			return false;
-		}
-
-		String layoutFriendlyURL = layout.getFriendlyURL();
-
-		if (layout.isSystem() &&
-			layoutFriendlyURL.equals(
-				PropsUtil.get(PropsKeys.CONTROL_PANEL_LAYOUT_FRIENDLY_URL))) {
-
-			return true;
-		}
-
-		return false;
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutAnalyticsReportsInfoItem.class);
 
@@ -228,15 +213,9 @@ public class LayoutAnalyticsReportsInfoItem
 	private Language _language;
 
 	@Reference
-	private LayoutLocalService _layoutLocalService;
-
-	@Reference
 	private LayoutSEOLinkManager _layoutSEOLinkManager;
 
 	@Reference
 	private Portal _portal;
-
-	@Reference
-	private UserLocalService _userLocalService;
 
 }

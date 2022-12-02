@@ -38,6 +38,12 @@ definition {
 			locator1 = "CP2TeamMembers#TEAM_MEMBERS_TABLE");
 	}
 
+	macro assertThatUserGuestIsVisible {
+		var key_email = "${email}";
+
+		AssertElementPresent(locator1 = "CP2TeamMembers#ACCOUNT_USER_NAME");
+	}
+
 	macro assertTheInvitedUser {
 		AssertVisible(
 			key_name = "${name}",
@@ -54,19 +60,25 @@ definition {
 	}
 
 	macro deleteMemberInvitedViaAccounts {
-		Accounts.openAccountsAdmin();
+		Account.openAccountsAdmin();
 
 		CustomerPortal.accountTableProject(title = "Test Account 01");
 
 		Navigator.gotoNavTab(navTab = "Users");
 
-		Accounts.goToEntryMenuItem(
+		Account.goToEntryMenuItem(
 			menuItem = "Remove",
 			rowEntry = "test01@liferay.com");
 
 		AssertConfirm(value1 = "Are you sure you want to remove this user?");
 
 		Alert.viewSuccessMessage();
+	}
+
+	macro searchCP {
+		Type(
+			locator1 = "CP2TeamMembers#SEARCH_TM",
+			value1 = "${search}");
 	}
 
 	macro teamMembersFlow {

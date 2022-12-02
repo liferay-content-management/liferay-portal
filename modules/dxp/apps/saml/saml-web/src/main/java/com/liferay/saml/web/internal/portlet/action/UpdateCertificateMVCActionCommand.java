@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -68,7 +69,6 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.saml.runtime.configuration.SamlKeyStoreManagerConfiguration",
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + SamlPortletKeys.SAML_ADMIN,
 		"mvc.command.name=/admin/update_certificate"
@@ -104,7 +104,7 @@ public class UpdateCertificateMVCActionCommand extends BaseMVCActionCommand {
 			_importCertificate(actionRequest, themeDisplay.getUser());
 		}
 		else if (cmd.equals("replace")) {
-			_replaceCertificate(actionRequest);
+			_replaceCertificate(actionRequest, actionResponse);
 		}
 	}
 
@@ -283,8 +283,11 @@ public class UpdateCertificateMVCActionCommand extends BaseMVCActionCommand {
 			SamlWebKeys.SAML_X509_CERTIFICATE, x509Certificate);
 	}
 
-	private void _replaceCertificate(ActionRequest actionRequest)
+	private void _replaceCertificate(
+			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
+
+		hideDefaultSuccessMessage(actionRequest);
 
 		UnicodeProperties unicodeProperties = PropertiesParamUtil.getProperties(
 			actionRequest, "settings--");
@@ -351,6 +354,7 @@ public class UpdateCertificateMVCActionCommand extends BaseMVCActionCommand {
 
 		actionRequest.setAttribute(
 			SamlWebKeys.SAML_X509_CERTIFICATE, x509Certificate);
+		actionResponse.setWindowState(LiferayWindowState.EXCLUSIVE);
 	}
 
 	private static final String _SHA256_PREFIX = "SHA256with";

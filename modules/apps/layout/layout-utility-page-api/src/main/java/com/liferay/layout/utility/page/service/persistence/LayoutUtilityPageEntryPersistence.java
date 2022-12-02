@@ -607,7 +607,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the matching layout utility page entries
 	 */
 	public java.util.List<LayoutUtilityPageEntry> findByG_T(
-		long groupId, int type);
+		long groupId, String type);
 
 	/**
 	 * Returns a range of all the layout utility page entries where groupId = &#63; and type = &#63;.
@@ -623,7 +623,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the range of matching layout utility page entries
 	 */
 	public java.util.List<LayoutUtilityPageEntry> findByG_T(
-		long groupId, int type, int start, int end);
+		long groupId, String type, int start, int end);
 
 	/**
 	 * Returns an ordered range of all the layout utility page entries where groupId = &#63; and type = &#63;.
@@ -640,7 +640,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the ordered range of matching layout utility page entries
 	 */
 	public java.util.List<LayoutUtilityPageEntry> findByG_T(
-		long groupId, int type, int start, int end,
+		long groupId, String type, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator);
 
@@ -660,7 +660,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the ordered range of matching layout utility page entries
 	 */
 	public java.util.List<LayoutUtilityPageEntry> findByG_T(
-		long groupId, int type, int start, int end,
+		long groupId, String type, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator,
 		boolean useFinderCache);
@@ -675,7 +675,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @throws NoSuchLayoutUtilityPageEntryException if a matching layout utility page entry could not be found
 	 */
 	public LayoutUtilityPageEntry findByG_T_First(
-			long groupId, int type,
+			long groupId, String type,
 			com.liferay.portal.kernel.util.OrderByComparator
 				<LayoutUtilityPageEntry> orderByComparator)
 		throws NoSuchLayoutUtilityPageEntryException;
@@ -689,7 +689,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the first matching layout utility page entry, or <code>null</code> if a matching layout utility page entry could not be found
 	 */
 	public LayoutUtilityPageEntry fetchByG_T_First(
-		long groupId, int type,
+		long groupId, String type,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator);
 
@@ -703,7 +703,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @throws NoSuchLayoutUtilityPageEntryException if a matching layout utility page entry could not be found
 	 */
 	public LayoutUtilityPageEntry findByG_T_Last(
-			long groupId, int type,
+			long groupId, String type,
 			com.liferay.portal.kernel.util.OrderByComparator
 				<LayoutUtilityPageEntry> orderByComparator)
 		throws NoSuchLayoutUtilityPageEntryException;
@@ -717,7 +717,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the last matching layout utility page entry, or <code>null</code> if a matching layout utility page entry could not be found
 	 */
 	public LayoutUtilityPageEntry fetchByG_T_Last(
-		long groupId, int type,
+		long groupId, String type,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator);
 
@@ -732,7 +732,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @throws NoSuchLayoutUtilityPageEntryException if a layout utility page entry with the primary key could not be found
 	 */
 	public LayoutUtilityPageEntry[] findByG_T_PrevAndNext(
-			long LayoutUtilityPageEntryId, long groupId, int type,
+			long LayoutUtilityPageEntryId, long groupId, String type,
 			com.liferay.portal.kernel.util.OrderByComparator
 				<LayoutUtilityPageEntry> orderByComparator)
 		throws NoSuchLayoutUtilityPageEntryException;
@@ -745,7 +745,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the matching layout utility page entries that the user has permission to view
 	 */
 	public java.util.List<LayoutUtilityPageEntry> filterFindByG_T(
-		long groupId, int type);
+		long groupId, String type);
 
 	/**
 	 * Returns a range of all the layout utility page entries that the user has permission to view where groupId = &#63; and type = &#63;.
@@ -761,7 +761,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the range of matching layout utility page entries that the user has permission to view
 	 */
 	public java.util.List<LayoutUtilityPageEntry> filterFindByG_T(
-		long groupId, int type, int start, int end);
+		long groupId, String type, int start, int end);
 
 	/**
 	 * Returns an ordered range of all the layout utility page entries that the user has permissions to view where groupId = &#63; and type = &#63;.
@@ -778,7 +778,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the ordered range of matching layout utility page entries that the user has permission to view
 	 */
 	public java.util.List<LayoutUtilityPageEntry> filterFindByG_T(
-		long groupId, int type, int start, int end,
+		long groupId, String type, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator);
 
@@ -793,7 +793,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @throws NoSuchLayoutUtilityPageEntryException if a layout utility page entry with the primary key could not be found
 	 */
 	public LayoutUtilityPageEntry[] filterFindByG_T_PrevAndNext(
-			long LayoutUtilityPageEntryId, long groupId, int type,
+			long LayoutUtilityPageEntryId, long groupId, String type,
 			com.liferay.portal.kernel.util.OrderByComparator
 				<LayoutUtilityPageEntry> orderByComparator)
 		throws NoSuchLayoutUtilityPageEntryException;
@@ -804,7 +804,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @param groupId the group ID
 	 * @param type the type
 	 */
-	public void removeByG_T(long groupId, int type);
+	public void removeByG_T(long groupId, String type);
 
 	/**
 	 * Returns the number of layout utility page entries where groupId = &#63; and type = &#63;.
@@ -813,7 +813,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @param type the type
 	 * @return the number of matching layout utility page entries
 	 */
-	public int countByG_T(long groupId, int type);
+	public int countByG_T(long groupId, String type);
 
 	/**
 	 * Returns the number of layout utility page entries that the user has permission to view where groupId = &#63; and type = &#63;.
@@ -822,7 +822,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @param type the type
 	 * @return the number of matching layout utility page entries that the user has permission to view
 	 */
-	public int filterCountByG_T(long groupId, int type);
+	public int filterCountByG_T(long groupId, String type);
 
 	/**
 	 * Returns all the layout utility page entries where groupId = &#63; and defaultLayoutUtilityPageEntry = &#63; and type = &#63;.
@@ -833,7 +833,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the matching layout utility page entries
 	 */
 	public java.util.List<LayoutUtilityPageEntry> findByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type);
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type);
 
 	/**
 	 * Returns a range of all the layout utility page entries where groupId = &#63; and defaultLayoutUtilityPageEntry = &#63; and type = &#63;.
@@ -850,7 +850,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the range of matching layout utility page entries
 	 */
 	public java.util.List<LayoutUtilityPageEntry> findByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type,
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type,
 		int start, int end);
 
 	/**
@@ -869,7 +869,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the ordered range of matching layout utility page entries
 	 */
 	public java.util.List<LayoutUtilityPageEntry> findByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type,
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type,
 		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator);
@@ -891,7 +891,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the ordered range of matching layout utility page entries
 	 */
 	public java.util.List<LayoutUtilityPageEntry> findByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type,
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type,
 		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator,
@@ -908,7 +908,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @throws NoSuchLayoutUtilityPageEntryException if a matching layout utility page entry could not be found
 	 */
 	public LayoutUtilityPageEntry findByG_D_T_First(
-			long groupId, boolean defaultLayoutUtilityPageEntry, int type,
+			long groupId, boolean defaultLayoutUtilityPageEntry, String type,
 			com.liferay.portal.kernel.util.OrderByComparator
 				<LayoutUtilityPageEntry> orderByComparator)
 		throws NoSuchLayoutUtilityPageEntryException;
@@ -923,7 +923,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the first matching layout utility page entry, or <code>null</code> if a matching layout utility page entry could not be found
 	 */
 	public LayoutUtilityPageEntry fetchByG_D_T_First(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type,
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator);
 
@@ -938,7 +938,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @throws NoSuchLayoutUtilityPageEntryException if a matching layout utility page entry could not be found
 	 */
 	public LayoutUtilityPageEntry findByG_D_T_Last(
-			long groupId, boolean defaultLayoutUtilityPageEntry, int type,
+			long groupId, boolean defaultLayoutUtilityPageEntry, String type,
 			com.liferay.portal.kernel.util.OrderByComparator
 				<LayoutUtilityPageEntry> orderByComparator)
 		throws NoSuchLayoutUtilityPageEntryException;
@@ -953,7 +953,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the last matching layout utility page entry, or <code>null</code> if a matching layout utility page entry could not be found
 	 */
 	public LayoutUtilityPageEntry fetchByG_D_T_Last(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type,
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator);
 
@@ -970,7 +970,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 */
 	public LayoutUtilityPageEntry[] findByG_D_T_PrevAndNext(
 			long LayoutUtilityPageEntryId, long groupId,
-			boolean defaultLayoutUtilityPageEntry, int type,
+			boolean defaultLayoutUtilityPageEntry, String type,
 			com.liferay.portal.kernel.util.OrderByComparator
 				<LayoutUtilityPageEntry> orderByComparator)
 		throws NoSuchLayoutUtilityPageEntryException;
@@ -984,7 +984,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the matching layout utility page entries that the user has permission to view
 	 */
 	public java.util.List<LayoutUtilityPageEntry> filterFindByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type);
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type);
 
 	/**
 	 * Returns a range of all the layout utility page entries that the user has permission to view where groupId = &#63; and defaultLayoutUtilityPageEntry = &#63; and type = &#63;.
@@ -1001,7 +1001,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the range of matching layout utility page entries that the user has permission to view
 	 */
 	public java.util.List<LayoutUtilityPageEntry> filterFindByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type,
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type,
 		int start, int end);
 
 	/**
@@ -1020,7 +1020,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the ordered range of matching layout utility page entries that the user has permission to view
 	 */
 	public java.util.List<LayoutUtilityPageEntry> filterFindByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type,
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type,
 		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<LayoutUtilityPageEntry>
 			orderByComparator);
@@ -1038,7 +1038,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 */
 	public LayoutUtilityPageEntry[] filterFindByG_D_T_PrevAndNext(
 			long LayoutUtilityPageEntryId, long groupId,
-			boolean defaultLayoutUtilityPageEntry, int type,
+			boolean defaultLayoutUtilityPageEntry, String type,
 			com.liferay.portal.kernel.util.OrderByComparator
 				<LayoutUtilityPageEntry> orderByComparator)
 		throws NoSuchLayoutUtilityPageEntryException;
@@ -1051,7 +1051,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @param type the type
 	 */
 	public void removeByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type);
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type);
 
 	/**
 	 * Returns the number of layout utility page entries where groupId = &#63; and defaultLayoutUtilityPageEntry = &#63; and type = &#63;.
@@ -1062,7 +1062,7 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the number of matching layout utility page entries
 	 */
 	public int countByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type);
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type);
 
 	/**
 	 * Returns the number of layout utility page entries that the user has permission to view where groupId = &#63; and defaultLayoutUtilityPageEntry = &#63; and type = &#63;.
@@ -1073,60 +1073,118 @@ public interface LayoutUtilityPageEntryPersistence
 	 * @return the number of matching layout utility page entries that the user has permission to view
 	 */
 	public int filterCountByG_D_T(
-		long groupId, boolean defaultLayoutUtilityPageEntry, int type);
+		long groupId, boolean defaultLayoutUtilityPageEntry, String type);
 
 	/**
-	 * Returns the layout utility page entry where groupId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchLayoutUtilityPageEntryException</code> if it could not be found.
+	 * Returns the layout utility page entry where groupId = &#63; and name = &#63; and type = &#63; or throws a <code>NoSuchLayoutUtilityPageEntryException</code> if it could not be found.
 	 *
 	 * @param groupId the group ID
-	 * @param externalReferenceCode the external reference code
+	 * @param name the name
+	 * @param type the type
 	 * @return the matching layout utility page entry
 	 * @throws NoSuchLayoutUtilityPageEntryException if a matching layout utility page entry could not be found
 	 */
-	public LayoutUtilityPageEntry findByG_ERC(
-			long groupId, String externalReferenceCode)
+	public LayoutUtilityPageEntry findByG_N_T(
+			long groupId, String name, String type)
 		throws NoSuchLayoutUtilityPageEntryException;
 
 	/**
-	 * Returns the layout utility page entry where groupId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the layout utility page entry where groupId = &#63; and name = &#63; and type = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param groupId the group ID
-	 * @param externalReferenceCode the external reference code
+	 * @param name the name
+	 * @param type the type
 	 * @return the matching layout utility page entry, or <code>null</code> if a matching layout utility page entry could not be found
 	 */
-	public LayoutUtilityPageEntry fetchByG_ERC(
-		long groupId, String externalReferenceCode);
+	public LayoutUtilityPageEntry fetchByG_N_T(
+		long groupId, String name, String type);
 
 	/**
-	 * Returns the layout utility page entry where groupId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the layout utility page entry where groupId = &#63; and name = &#63; and type = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param groupId the group ID
-	 * @param externalReferenceCode the external reference code
+	 * @param name the name
+	 * @param type the type
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching layout utility page entry, or <code>null</code> if a matching layout utility page entry could not be found
 	 */
-	public LayoutUtilityPageEntry fetchByG_ERC(
-		long groupId, String externalReferenceCode, boolean useFinderCache);
+	public LayoutUtilityPageEntry fetchByG_N_T(
+		long groupId, String name, String type, boolean useFinderCache);
 
 	/**
-	 * Removes the layout utility page entry where groupId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the layout utility page entry where groupId = &#63; and name = &#63; and type = &#63; from the database.
 	 *
 	 * @param groupId the group ID
-	 * @param externalReferenceCode the external reference code
+	 * @param name the name
+	 * @param type the type
 	 * @return the layout utility page entry that was removed
 	 */
-	public LayoutUtilityPageEntry removeByG_ERC(
-			long groupId, String externalReferenceCode)
+	public LayoutUtilityPageEntry removeByG_N_T(
+			long groupId, String name, String type)
 		throws NoSuchLayoutUtilityPageEntryException;
 
 	/**
-	 * Returns the number of layout utility page entries where groupId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of layout utility page entries where groupId = &#63; and name = &#63; and type = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @param externalReferenceCode the external reference code
+	 * @param name the name
+	 * @param type the type
 	 * @return the number of matching layout utility page entries
 	 */
-	public int countByG_ERC(long groupId, String externalReferenceCode);
+	public int countByG_N_T(long groupId, String name, String type);
+
+	/**
+	 * Returns the layout utility page entry where externalReferenceCode = &#63; and groupId = &#63; or throws a <code>NoSuchLayoutUtilityPageEntryException</code> if it could not be found.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
+	 * @return the matching layout utility page entry
+	 * @throws NoSuchLayoutUtilityPageEntryException if a matching layout utility page entry could not be found
+	 */
+	public LayoutUtilityPageEntry findByERC_G(
+			String externalReferenceCode, long groupId)
+		throws NoSuchLayoutUtilityPageEntryException;
+
+	/**
+	 * Returns the layout utility page entry where externalReferenceCode = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
+	 * @return the matching layout utility page entry, or <code>null</code> if a matching layout utility page entry could not be found
+	 */
+	public LayoutUtilityPageEntry fetchByERC_G(
+		String externalReferenceCode, long groupId);
+
+	/**
+	 * Returns the layout utility page entry where externalReferenceCode = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching layout utility page entry, or <code>null</code> if a matching layout utility page entry could not be found
+	 */
+	public LayoutUtilityPageEntry fetchByERC_G(
+		String externalReferenceCode, long groupId, boolean useFinderCache);
+
+	/**
+	 * Removes the layout utility page entry where externalReferenceCode = &#63; and groupId = &#63; from the database.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
+	 * @return the layout utility page entry that was removed
+	 */
+	public LayoutUtilityPageEntry removeByERC_G(
+			String externalReferenceCode, long groupId)
+		throws NoSuchLayoutUtilityPageEntryException;
+
+	/**
+	 * Returns the number of layout utility page entries where externalReferenceCode = &#63; and groupId = &#63;.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param groupId the group ID
+	 * @return the number of matching layout utility page entries
+	 */
+	public int countByERC_G(String externalReferenceCode, long groupId);
 
 	/**
 	 * Caches the layout utility page entry in the entity cache if it is enabled.

@@ -21,6 +21,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ANY_ARIA_LABEL</td>
+	<td>//select[contains(@aria-label,'${ariaLabel}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ANY_DISABLED</td>
 	<td>//div[not(contains(@class,'hide'))]/div[contains(@class,'input-select-wrapper')][label[contains(.,'${key_selectFieldLabel}')]]/select[contains(@class,'disabled')]</td>
 	<td></td>
@@ -132,7 +137,7 @@
 </tr>
 <tr>
 	<td>GENERIC_SELECT_FIELD_WITH_ICON_TEXT</td>
-	<td>//div[label[*[name()='svg'][contains(@class,'lexicon-icon-${key_text}')]]]//following-sibling::div[contains(@class,'text-truncate')]</td>
+	<td>//div[label[*[name()='svg'][contains(@class,'lexicon-icon-${key_text}')]]]//following-sibling::div/span[contains(@class,'text-truncate')]</td>
 	<td></td>
 </tr>
 <tr>

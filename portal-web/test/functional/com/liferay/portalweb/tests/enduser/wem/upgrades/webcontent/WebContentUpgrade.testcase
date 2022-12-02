@@ -153,7 +153,7 @@ definition {
 
 			while ("${i}" != "31") {
 				AssertTextEquals.assertPartialText(
-					locator1 = "//div[@class='portlet-body']/div[contains(@class,'mt-2')]",
+					locator1 = "//div[@class='portlet-body']/div[contains(@class,'container-fluid-max')]",
 					value1 = "text${i}");
 
 				var i = ${i} + 1;
@@ -161,7 +161,7 @@ definition {
 
 			for (var fieldValue : list "Link Pagina Origem,Link Pagina Atual") {
 				AssertTextEquals.assertPartialText(
-					locator1 = "//div[@class='portlet-body']/div[contains(@class,'mt-2')]",
+					locator1 = "//div[@class='portlet-body']/div[contains(@class,'container-fluid-max')]",
 					value1 = "${fieldValue}");
 			}
 
@@ -237,7 +237,9 @@ definition {
 
 				MouseOver(locator1 = "//div[contains(@data-field-name,'CompanhiaOperadoraFieldSet')]//div[contains(@class,'placeholder')]");
 
-				LexiconEntry.gotoVerticalEllipsisMenuItemNoError(menuItem = "Duplicate");
+				Click.clickNoWaitForVisible(locator1 = "//div[contains(@data-field-name,'CompanhiaOperadoraFieldSet')]//div[contains(@class,'dropdown-action')]//button[contains(@class,'dropdown-toggle')]");
+
+				MenuItem.clickNoError(menuItem = "Duplicate");
 			}
 
 			WebContentStructures.saveCP();
@@ -552,7 +554,7 @@ definition {
 
 			while ("${i}" != "121") {
 				AssertTextEquals.assertPartialText(
-					locator1 = "//div[@class='portlet-body']/div[contains(@class,'mt-2')]",
+					locator1 = "//div[@class='portlet-body']/div[contains(@class,'container-fluid-max')]",
 					value1 = "text${i}");
 
 				var i = ${i} + 1;
@@ -621,7 +623,9 @@ definition {
 
 				MouseOver(locator1 = "//div[contains(@data-field-name,'ListaDePaisesFieldSet')]//div[contains(@class,'placeholder')]");
 
-				LexiconEntry.gotoVerticalEllipsisMenuItemNoError(menuItem = "Duplicate");
+				Click.clickNoWaitForVisible(locator1 = "//div[contains(@data-field-name,'ListaDePaisesFieldSet')]//div[contains(@class,'dropdown-action')]//button[contains(@class,'dropdown-toggle')]");
+
+				MenuItem.clickNoError(menuItem = "Duplicate");
 			}
 
 			WebContentStructures.saveCP();

@@ -52,7 +52,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Marcellus Tavares
  */
 @Component(
-	immediate = true,
 	property = "ddm.form.field.type.name=" + DDMFormFieldTypeConstants.SELECT,
 	service = {
 		DDMFormFieldTemplateContextContributor.class,
@@ -72,6 +71,9 @@ public class SelectDDMFormFieldTemplateContextContributor
 			GetterUtil.getBoolean(ddmFormField.getProperty("alphabeticalOrder"))
 		).put(
 			"dataSourceType", ddmFormField.getDataSourceType()
+		).put(
+			"defaultSearch",
+			GetterUtil.getBoolean(ddmFormField.getProperty("defaultSearch"))
 		).put(
 			"multiple", getMultiple(ddmFormField, ddmFormFieldRenderingContext)
 		).put(

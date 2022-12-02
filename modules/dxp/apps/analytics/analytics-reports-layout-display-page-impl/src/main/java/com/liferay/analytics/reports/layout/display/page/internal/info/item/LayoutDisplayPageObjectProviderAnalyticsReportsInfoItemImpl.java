@@ -22,12 +22,11 @@ import com.liferay.asset.display.page.util.AssetDisplayPageUtil;
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
-import com.liferay.info.display.contributor.field.InfoDisplayContributorFieldTracker;
 import com.liferay.info.field.InfoField;
 import com.liferay.info.field.InfoFieldValue;
 import com.liferay.info.field.type.DateInfoFieldType;
 import com.liferay.info.field.type.TextInfoFieldType;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.info.type.WebImage;
 import com.liferay.layout.display.page.LayoutDisplayPageObjectProvider;
@@ -39,25 +38,20 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
-import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
 
 import java.util.Collections;
 import java.util.Date;
@@ -208,51 +202,41 @@ public class LayoutDisplayPageObjectProviderAnalyticsReportsInfoItemImpl
 	public Date getPublishDate(
 		LayoutDisplayPageObjectProvider layoutDisplayPageObjectProvider) {
 
-		try {
-			ClassName className = _classNameLocalService.getClassName(
-				layoutDisplayPageObjectProvider.getClassNameId());
+		Date date = (Date)Optional.ofNullable(
+			_infoItemServiceRegistry.getFirstInfoItemService(
+				InfoItemFieldValuesProvider.class,
+				layoutDisplayPageObjectProvider.getClassName())
+		).map(
+			infoItemFieldValuesProvider ->
+				infoItemFieldValuesProvider.getInfoFieldValue(
+					layoutDisplayPageObjectProvider.getDisplayObject(),
+					"createDate")
+		).filter(
+			infoFieldValue -> {
+				InfoField infoField = infoFieldValue.getInfoField();
 
-			Date date = (Date)Optional.ofNullable(
-				_infoItemServiceTracker.getFirstInfoItemService(
-					InfoItemFieldValuesProvider.class, className.getClassName())
-			).map(
-				infoItemFieldValuesProvider ->
-					infoItemFieldValuesProvider.getInfoFieldValue(
-						layoutDisplayPageObjectProvider.getDisplayObject(),
-						"createDate")
-			).filter(
-				infoFieldValue -> {
-					InfoField infoField = infoFieldValue.getInfoField();
+				return Objects.equals(
+					infoField.getInfoFieldType(), DateInfoFieldType.INSTANCE);
+			}
+		).map(
+			InfoFieldValue::getValue
+		).orElseGet(
+			Date::new
+		);
 
-					return Objects.equals(
-						infoField.getInfoFieldType(),
-						DateInfoFieldType.INSTANCE);
-				}
-			).map(
-				InfoFieldValue::getValue
-			).orElseGet(
-				Date::new
-			);
-
-			return Optional.ofNullable(
-				_assetDisplayPageEntryLocalService.fetchAssetDisplayPageEntry(
-					layoutDisplayPageObjectProvider.getGroupId(),
-					layoutDisplayPageObjectProvider.getClassNameId(),
-					layoutDisplayPageObjectProvider.getClassPK())
-			).filter(
-				assetDisplayPageEntry -> date.before(
-					assetDisplayPageEntry.getCreateDate())
-			).map(
-				AssetDisplayPageEntry::getCreateDate
-			).orElse(
-				date
-			);
-		}
-		catch (PortalException portalException) {
-			_log.error(portalException);
-		}
-
-		return new Date();
+		return Optional.ofNullable(
+			_assetDisplayPageEntryLocalService.fetchAssetDisplayPageEntry(
+				layoutDisplayPageObjectProvider.getGroupId(),
+				layoutDisplayPageObjectProvider.getClassNameId(),
+				layoutDisplayPageObjectProvider.getClassPK())
+		).filter(
+			assetDisplayPageEntry -> date.before(
+				assetDisplayPageEntry.getCreateDate())
+		).map(
+			AssetDisplayPageEntry::getCreateDate
+		).orElse(
+			date
+		);
 	}
 
 	@Override
@@ -260,37 +244,26 @@ public class LayoutDisplayPageObjectProviderAnalyticsReportsInfoItemImpl
 		LayoutDisplayPageObjectProvider layoutDisplayPageObjectProvider,
 		Locale locale) {
 
-		try {
-			ClassName className = _classNameLocalService.getClassName(
-				layoutDisplayPageObjectProvider.getClassNameId());
+		InfoItemFieldValuesProvider infoItemFieldValuesProvider =
+			_infoItemServiceRegistry.getFirstInfoItemService(
+				InfoItemFieldValuesProvider.class,
+				layoutDisplayPageObjectProvider.getClassName());
 
-			InfoItemFieldValuesProvider infoItemFieldValuesProvider =
-				_infoItemServiceTracker.getFirstInfoItemService(
-					InfoItemFieldValuesProvider.class,
-					className.getClassName());
+		return (String)Optional.ofNullable(
+			infoItemFieldValuesProvider.getInfoFieldValue(
+				layoutDisplayPageObjectProvider.getDisplayObject(), "title")
+		).filter(
+			infoFieldValue -> {
+				InfoField infoField = infoFieldValue.getInfoField();
 
-			return (String)Optional.ofNullable(
-				infoItemFieldValuesProvider.getInfoFieldValue(
-					layoutDisplayPageObjectProvider.getDisplayObject(), "title")
-			).filter(
-				infoFieldValue -> {
-					InfoField infoField = infoFieldValue.getInfoField();
-
-					return Objects.equals(
-						infoField.getInfoFieldType(),
-						TextInfoFieldType.INSTANCE);
-				}
-			).map(
-				infoItemFieldValue -> infoItemFieldValue.getValue(locale)
-			).orElse(
-				StringPool.BLANK
-			);
-		}
-		catch (PortalException portalException) {
-			_log.error(portalException);
-		}
-
-		return StringPool.BLANK;
+				return Objects.equals(
+					infoField.getInfoFieldType(), TextInfoFieldType.INSTANCE);
+			}
+		).map(
+			infoItemFieldValue -> infoItemFieldValue.getValue(locale)
+		).orElse(
+			StringPool.BLANK
+		);
 	}
 
 	@Override
@@ -303,7 +276,7 @@ public class LayoutDisplayPageObjectProviderAnalyticsReportsInfoItemImpl
 		return layoutOptional.filter(
 			Layout::isTypeAssetDisplay
 		).filter(
-			layout -> !_isEmbeddedPersonalApplicationLayout(layout)
+			layout -> !layout.isEmbeddedPersonalApplication()
 		).filter(
 			layout -> {
 				try {
@@ -356,9 +329,8 @@ public class LayoutDisplayPageObjectProviderAnalyticsReportsInfoItemImpl
 		throws PortalException {
 
 		AssetRendererFactory<?> assetRendererFactory =
-			AssetRendererFactoryRegistryUtil.
-				getAssetRendererFactoryByClassNameId(
-					layoutDisplayPageObjectProvider.getClassNameId());
+			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
+				layoutDisplayPageObjectProvider.getClassName());
 
 		AssetRenderer<?> assetRenderer = null;
 
@@ -378,23 +350,6 @@ public class LayoutDisplayPageObjectProviderAnalyticsReportsInfoItemImpl
 		return true;
 	}
 
-	private boolean _isEmbeddedPersonalApplicationLayout(Layout layout) {
-		if (layout.isTypeControlPanel()) {
-			return false;
-		}
-
-		String layoutFriendlyURL = layout.getFriendlyURL();
-
-		if (layout.isSystem() &&
-			layoutFriendlyURL.equals(
-				PropsUtil.get(PropsKeys.CONTROL_PANEL_LAYOUT_FRIENDLY_URL))) {
-
-			return true;
-		}
-
-		return false;
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutDisplayPageObjectProviderAnalyticsReportsInfoItemImpl.class);
 
@@ -403,17 +358,10 @@ public class LayoutDisplayPageObjectProviderAnalyticsReportsInfoItemImpl
 		_assetDisplayPageEntryLocalService;
 
 	@Reference
-	private ClassNameLocalService _classNameLocalService;
-
-	@Reference
 	private GroupLocalService _groupLocalService;
 
 	@Reference
-	private InfoDisplayContributorFieldTracker
-		_infoDisplayContributorFieldTracker;
-
-	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	@Reference
 	private Language _language;
@@ -426,8 +374,5 @@ public class LayoutDisplayPageObjectProviderAnalyticsReportsInfoItemImpl
 
 	@Reference
 	private Portal _portal;
-
-	@Reference
-	private UserLocalService _userLocalService;
 
 }

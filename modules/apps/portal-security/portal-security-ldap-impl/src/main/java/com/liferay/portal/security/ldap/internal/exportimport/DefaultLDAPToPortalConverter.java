@@ -68,7 +68,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Edward Han
  * @author Brian Wing Shun Chan
  */
-@Component(immediate = true, service = LDAPToPortalConverter.class)
+@Component(service = LDAPToPortalConverter.class)
 public class DefaultLDAPToPortalConverter implements LDAPToPortalConverter {
 
 	@Override
@@ -185,11 +185,11 @@ public class DefaultLDAPToPortalConverter implements LDAPToPortalConverter {
 			contactMappings.put(ContactConverterKeys.SUFFIX, suffix);
 		}
 
-		contact.setPrefixId(
+		contact.setPrefixListTypeId(
 			_getListTypeId(
 				attributes, contactMappings, ContactConverterKeys.PREFIX,
 				ListTypeConstants.CONTACT_PREFIX));
-		contact.setSuffixId(
+		contact.setSuffixListTypeId(
 			_getListTypeId(
 				attributes, contactMappings, ContactConverterKeys.SUFFIX,
 				ListTypeConstants.CONTACT_SUFFIX));

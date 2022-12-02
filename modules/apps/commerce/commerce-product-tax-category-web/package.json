@@ -1,9 +1,12 @@
 {
+	"dependencies": {
+		"frontend-js-web": "*"
+	},
 	"name": "@liferay/commerce-product-tax-category-web",
 	"scripts": {
 		"build": "liferay-npm-scripts build",
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "4.0.26"
+	"version": "4.0.33"
 }

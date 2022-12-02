@@ -1,0 +1,17 @@
+@import 'cadmin-variables';
+
+$product-menu-pages-administration-link-height: 72px;
+
+html#{$cadmin-selector} {
+	.cadmin {
+		.pages-tree {
+			margin-bottom: calc(
+				#{$product-menu-pages-administration-link-height} + #{$cadmin-spacer}
+			);
+
+			.treeview-dropping-middle {
+				background-color: rgba($white, 0.06);
+			}
+		}
+	}
+}

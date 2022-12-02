@@ -21,10 +21,12 @@ import {
 	SidebarCategory,
 } from '@liferay/object-js-components-web';
 export default function Action({
+	isApproved,
 	objectAction: initialValues,
 	objectActionCodeEditorElements,
 	objectActionExecutors,
 	objectActionTriggers,
+	objectDefinitionId,
 	objectDefinitionsRelationshipsURL,
 	readOnly,
 	requestParams: {method, url},
@@ -32,10 +34,12 @@ export default function Action({
 	validateExpressionURL,
 }: IProps): JSX.Element;
 interface IProps {
+	isApproved?: boolean;
 	objectAction: Partial<ObjectAction>;
 	objectActionCodeEditorElements: SidebarCategory[];
 	objectActionExecutors: CustomItem[];
 	objectActionTriggers: CustomItem[];
+	objectDefinitionId: number;
 	objectDefinitionsRelationshipsURL: string;
 	readOnly?: boolean;
 	requestParams: {

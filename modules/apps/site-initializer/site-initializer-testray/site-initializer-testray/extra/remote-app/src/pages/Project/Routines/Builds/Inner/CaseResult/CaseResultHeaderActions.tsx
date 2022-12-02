@@ -16,16 +16,16 @@ import ClayButton from '@clayui/button';
 import {useNavigate} from 'react-router-dom';
 import {KeyedMutator} from 'swr';
 
+import AssignModal from '../../../../../../components/AssignModal';
 import useFormModal from '../../../../../../hooks/useFormModal';
 import i18n from '../../../../../../i18n';
 import {Liferay} from '../../../../../../services/liferay';
 import {
 	TestrayCaseResult,
 	UserAccount,
-	testrayCaseResultRest,
+	testrayCaseResultImpl,
 } from '../../../../../../services/rest';
-import {TEST_STATUS} from '../../../../../../util/constants';
-import CaseResultAssignModal from './CaseResultAssignModal';
+import {CaseResultStatuses} from '../../../../../../util/statuses';
 
 const userId = Number(Liferay.ThemeDisplay.getUserId());
 
@@ -35,7 +35,7 @@ const CaseResultHeaderActions: React.FC<{
 }> = ({caseResult, mutateCaseResult}) => {
 	const {modal} = useFormModal({
 		onSave: (user: UserAccount) =>
-			testrayCaseResultRest
+			testrayCaseResultImpl
 				.assignTo(caseResult, user.id)
 				.then(mutateCaseResult),
 	});
@@ -44,28 +44,30 @@ const CaseResultHeaderActions: React.FC<{
 
 	const assignedUserId = caseResult.user?.id || 0;
 	const isCaseResultAssignedToMe = caseResult.user?.id === userId;
+
 	const isReopened = ![
-		TEST_STATUS.Blocked,
-		TEST_STATUS.Failed,
-		TEST_STATUS.Passed,
-		TEST_STATUS['Test Fix'],
-	].includes(caseResult.dueStatus);
+		CaseResultStatuses.BLOCKED,
+		CaseResultStatuses.FAILED,
+		CaseResultStatuses.PASSED,
+		CaseResultStatuses.TEST_FIX,
+	].includes(caseResult.dueStatus.key as CaseResultStatuses);
 
 	const workflowDisabled = assignedUserId <= 0 || assignedUserId !== userId;
 
 	const buttonValidations = {
 		completeTest:
 			workflowDisabled ||
-			caseResult.dueStatus !== TEST_STATUS['In Progress'],
+			caseResult.dueStatus.key !== CaseResultStatuses.IN_PROGRESS,
 		editValidation: assignedUserId > 0 && assignedUserId !== userId,
 		reopenTest: workflowDisabled || isReopened,
 		startTest:
-			workflowDisabled || caseResult.dueStatus !== TEST_STATUS.Untested,
+			workflowDisabled ||
+			caseResult.dueStatus.key !== CaseResultStatuses.UNTESTED,
 	};
 
 	return (
 		<>
-			<CaseResultAssignModal modal={modal} />
+			<AssignModal modal={modal} />
 
 			<ClayButton.Group className="mb-3 ml-3" spaced>
 				<ClayButton
@@ -82,8 +84,8 @@ const CaseResultHeaderActions: React.FC<{
 					displayType="secondary"
 					onClick={() =>
 						(isCaseResultAssignedToMe
-							? testrayCaseResultRest.removeAssign(caseResult)
-							: testrayCaseResultRest.assignToMe(caseResult)
+							? testrayCaseResultImpl.removeAssign(caseResult)
+							: testrayCaseResultImpl.assignToMe(caseResult)
 						).then(mutateCaseResult)
 					}
 				>
@@ -108,7 +110,7 @@ const CaseResultHeaderActions: React.FC<{
 					displayType={
 						buttonValidations.completeTest ? 'unstyled' : undefined
 					}
-					onClick={() => navigate(`edit/${caseResult.dueStatus}`)}
+					onClick={() => navigate(`edit/${caseResult.dueStatus.key}`)}
 				>
 					{i18n.translate('complete-test')}
 				</ClayButton>
@@ -119,7 +121,7 @@ const CaseResultHeaderActions: React.FC<{
 						buttonValidations.reopenTest ? 'unstyled' : 'primary'
 					}
 					onClick={() =>
-						testrayCaseResultRest
+						testrayCaseResultImpl
 							.assignToMe(caseResult)
 							.then(mutateCaseResult)
 					}
@@ -134,16 +136,17 @@ const CaseResultHeaderActions: React.FC<{
 							? 'unstyled'
 							: 'secondary'
 					}
-					onClick={() => navigate(`edit/${caseResult.dueStatus}`)}
+					onClick={() => navigate(`edit/${caseResult.dueStatus.key}`)}
 				>
 					{i18n.translate('edit')}
 				</ClayButton>
 
-				{caseResult.dueStatus === TEST_STATUS['In Progress'] && (
+				{caseResult.dueStatus.key ===
+					CaseResultStatuses.IN_PROGRESS && (
 					<ClayButton
 						displayType="secondary"
 						onClick={() =>
-							testrayCaseResultRest
+							testrayCaseResultImpl
 								.removeAssign(caseResult)
 								.then(mutateCaseResult)
 						}

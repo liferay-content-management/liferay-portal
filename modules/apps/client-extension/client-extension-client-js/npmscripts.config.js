@@ -14,6 +14,8 @@
 
 module.exports = {
 	build: {
+		babel: false,
 		bundler: false,
+		tsc: false,
 	},
 };

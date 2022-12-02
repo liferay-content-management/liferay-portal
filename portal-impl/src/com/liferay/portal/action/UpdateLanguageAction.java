@@ -34,12 +34,13 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PrefsPropsUtil;
+import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.struts.Action;
 import com.liferay.portal.struts.model.ActionForward;
 import com.liferay.portal.struts.model.ActionMapping;
-import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.admin.util.AdminUtil;
 
 import java.util.Locale;
@@ -211,6 +212,10 @@ public class UpdateLanguageAction implements Action {
 			}
 		}
 
+		int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
+			PortalUtil.getCompanyId(httpServletRequest),
+			PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
+
 		if (!Validator.isBlank(themeDisplay.getPathMain()) &&
 			layoutURL.startsWith(themeDisplay.getPathMain())) {
 
@@ -225,7 +230,7 @@ public class UpdateLanguageAction implements Action {
 				 isGroupFriendlyURL(
 					 layout.getGroup(), layout, layoutURL, currentLocale)) {
 
-			if (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 0) {
+			if (localePrependFriendlyURLStyle == 0) {
 				redirect = layoutURL;
 			}
 			else {
@@ -244,7 +249,7 @@ public class UpdateLanguageAction implements Action {
 			}
 		}
 		else {
-			if (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 0) {
+			if (localePrependFriendlyURLStyle == 0) {
 				redirect = PortalUtil.getLayoutURL(
 					layout, themeDisplay, locale);
 			}

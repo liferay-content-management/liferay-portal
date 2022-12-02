@@ -25,7 +25,7 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
-import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
@@ -46,14 +46,13 @@ import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiServic
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
-import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.change.tracking.CTService;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.CTPersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
 
@@ -62,6 +61,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Provides the base implementation for the commerce channel local service.
@@ -76,7 +78,7 @@ import javax.sql.DataSource;
  */
 public abstract class CommerceChannelLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
-	implements CommerceChannelLocalService, CTService<CommerceChannel>,
+	implements AopService, CommerceChannelLocalService,
 			   IdentifiableOSGiService {
 
 	/*
@@ -273,48 +275,21 @@ public abstract class CommerceChannelLocalServiceBaseImpl
 			uuid, companyId, null);
 	}
 
-	/**
-	 * Returns the commerce channel with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the commerce channel's external reference code
-	 * @return the matching commerce channel, or <code>null</code> if a matching commerce channel could not be found
-	 */
 	@Override
 	public CommerceChannel fetchCommerceChannelByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
-		return commerceChannelPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceChannelPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchCommerceChannelByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public CommerceChannel fetchCommerceChannelByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return fetchCommerceChannelByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * Returns the commerce channel with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the commerce channel's external reference code
-	 * @return the matching commerce channel
-	 * @throws PortalException if a matching commerce channel could not be found
-	 */
 	@Override
 	public CommerceChannel getCommerceChannelByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		return commerceChannelPersistence.findByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceChannelPersistence.findByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -542,82 +517,24 @@ public abstract class CommerceChannelLocalServiceBaseImpl
 		return commerceChannelPersistence.update(commerceChannel);
 	}
 
-	/**
-	 * Returns the commerce channel local service.
-	 *
-	 * @return the commerce channel local service
-	 */
-	public CommerceChannelLocalService getCommerceChannelLocalService() {
-		return commerceChannelLocalService;
+	@Deactivate
+	protected void deactivate() {
+		_setLocalServiceUtilService(null);
 	}
 
-	/**
-	 * Sets the commerce channel local service.
-	 *
-	 * @param commerceChannelLocalService the commerce channel local service
-	 */
-	public void setCommerceChannelLocalService(
-		CommerceChannelLocalService commerceChannelLocalService) {
-
-		this.commerceChannelLocalService = commerceChannelLocalService;
+	@Override
+	public Class<?>[] getAopInterfaces() {
+		return new Class<?>[] {
+			CommerceChannelLocalService.class, IdentifiableOSGiService.class,
+			CTService.class, PersistedModelLocalService.class
+		};
 	}
 
-	/**
-	 * Returns the commerce channel persistence.
-	 *
-	 * @return the commerce channel persistence
-	 */
-	public CommerceChannelPersistence getCommerceChannelPersistence() {
-		return commerceChannelPersistence;
-	}
-
-	/**
-	 * Sets the commerce channel persistence.
-	 *
-	 * @param commerceChannelPersistence the commerce channel persistence
-	 */
-	public void setCommerceChannelPersistence(
-		CommerceChannelPersistence commerceChannelPersistence) {
-
-		this.commerceChannelPersistence = commerceChannelPersistence;
-	}
-
-	/**
-	 * Returns the counter local service.
-	 *
-	 * @return the counter local service
-	 */
-	public com.liferay.counter.kernel.service.CounterLocalService
-		getCounterLocalService() {
-
-		return counterLocalService;
-	}
-
-	/**
-	 * Sets the counter local service.
-	 *
-	 * @param counterLocalService the counter local service
-	 */
-	public void setCounterLocalService(
-		com.liferay.counter.kernel.service.CounterLocalService
-			counterLocalService) {
-
-		this.counterLocalService = counterLocalService;
-	}
-
-	public void afterPropertiesSet() {
-		persistedModelLocalServiceRegistry.register(
-			"com.liferay.commerce.product.model.CommerceChannel",
-			commerceChannelLocalService);
+	@Override
+	public void setAopProxy(Object aopProxy) {
+		commerceChannelLocalService = (CommerceChannelLocalService)aopProxy;
 
 		_setLocalServiceUtilService(commerceChannelLocalService);
-	}
-
-	public void destroy() {
-		persistedModelLocalServiceRegistry.unregister(
-			"com.liferay.commerce.product.model.CommerceChannel");
-
-		_setLocalServiceUtilService(null);
 	}
 
 	/**
@@ -694,23 +611,16 @@ public abstract class CommerceChannelLocalServiceBaseImpl
 		}
 	}
 
-	@BeanReference(type = CommerceChannelLocalService.class)
 	protected CommerceChannelLocalService commerceChannelLocalService;
 
-	@BeanReference(type = CommerceChannelPersistence.class)
+	@Reference
 	protected CommerceChannelPersistence commerceChannelPersistence;
 
-	@ServiceReference(
-		type = com.liferay.counter.kernel.service.CounterLocalService.class
-	)
+	@Reference
 	protected com.liferay.counter.kernel.service.CounterLocalService
 		counterLocalService;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CommerceChannelLocalServiceBaseImpl.class);
-
-	@ServiceReference(type = PersistedModelLocalServiceRegistry.class)
-	protected PersistedModelLocalServiceRegistry
-		persistedModelLocalServiceRegistry;
 
 }

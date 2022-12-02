@@ -30,7 +30,7 @@ export default function CardShortcut({fields}) {
 		);
 
 		if (card !== null) {
-			card.scrollIntoView();
+			card.scrollIntoView({behavior: 'smooth'});
 		}
 	};
 
@@ -56,8 +56,6 @@ export default function CardShortcut({fields}) {
 							scrollToCard(portletNamespace, index);
 						}}
 					>
-						<div className="indicator"></div>
-
 						<div className="field-label">
 							{showFieldLabel(field.label)}
 						</div>

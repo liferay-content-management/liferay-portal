@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import java.io.Serializable;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides the local service utility for AccountEntry. This utility wraps
@@ -50,7 +51,9 @@ public class AccountEntryLocalServiceUtil {
 		getService().activateAccountEntries(accountEntryIds);
 	}
 
-	public static AccountEntry activateAccountEntry(AccountEntry accountEntry) {
+	public static AccountEntry activateAccountEntry(AccountEntry accountEntry)
+		throws PortalException {
+
 		return getService().activateAccountEntry(accountEntry);
 	}
 
@@ -126,8 +129,8 @@ public class AccountEntryLocalServiceUtil {
 		getService().deactivateAccountEntries(accountEntryIds);
 	}
 
-	public static AccountEntry deactivateAccountEntry(
-		AccountEntry accountEntry) {
+	public static AccountEntry deactivateAccountEntry(AccountEntry accountEntry)
+		throws PortalException {
 
 		return getService().deactivateAccountEntry(accountEntry);
 	}
@@ -281,29 +284,11 @@ public class AccountEntryLocalServiceUtil {
 		return getService().fetchAccountEntry(accountEntryId);
 	}
 
-	/**
-	 * Returns the account entry with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the account entry's external reference code
-	 * @return the matching account entry, or <code>null</code> if a matching account entry could not be found
-	 */
 	public static AccountEntry fetchAccountEntryByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
 		return getService().fetchAccountEntryByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchAccountEntryByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	public static AccountEntry fetchAccountEntryByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return getService().fetchAccountEntryByReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -379,20 +364,12 @@ public class AccountEntryLocalServiceUtil {
 		return getService().getAccountEntry(accountEntryId);
 	}
 
-	/**
-	 * Returns the account entry with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the account entry's external reference code
-	 * @return the matching account entry
-	 * @throws PortalException if a matching account entry could not be found
-	 */
 	public static AccountEntry getAccountEntryByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws PortalException {
 
 		return getService().getAccountEntryByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -588,7 +565,8 @@ public class AccountEntryLocalServiceUtil {
 	}
 
 	public static AccountEntry updateStatus(
-		AccountEntry accountEntry, int status) {
+			AccountEntry accountEntry, int status)
+		throws PortalException {
 
 		return getService().updateStatus(accountEntry, status);
 	}
@@ -597,6 +575,16 @@ public class AccountEntryLocalServiceUtil {
 		throws PortalException {
 
 		return getService().updateStatus(accountEntryId, status);
+	}
+
+	public static AccountEntry updateStatus(
+			long userId, long accountEntryId, int status,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext,
+			Map<String, Serializable> workflowContext)
+		throws PortalException {
+
+		return getService().updateStatus(
+			userId, accountEntryId, status, serviceContext, workflowContext);
 	}
 
 	public static AccountEntryLocalService getService() {

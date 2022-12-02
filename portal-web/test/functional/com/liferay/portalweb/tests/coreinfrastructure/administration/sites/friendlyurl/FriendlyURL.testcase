@@ -3,7 +3,7 @@ definition {
 
 	property portal.release = "true";
 	property portal.upstream = "true";
-	property testray.main.component.name = "Friendly URL";
+	property testray.main.component.name = "Friendly URL Service";
 
 	setUp {
 		TestCase.setUpPortalInstance();
@@ -42,6 +42,14 @@ definition {
 		AssertConsoleTextPresent(value1 = "NoSuchVirtualHostException");
 	}
 
+	@description = "Verify navigating to the URL of an uncreated portlet does not throw errors."
+	@priority = "3"
+	test NavigatingToURLOfUncreatedPortletDoesNotThrowError {
+		property test.assert.warning.exceptions = "true";
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/guest/home/-/testportlet");
+	}
+
 	@description = "If virtual.hosts.strict.access=true is not set, redirect to a default instance even if there is no associated company"
 	@priority = "3"
 	test RedirectToDefaultInstanceWithNoCompany {
@@ -54,6 +62,30 @@ definition {
 		AssertLocation(value1 = "http://www.able.com:8080/web/guest");
 
 		Smoke.viewWelcomeContentPage();
+	}
+
+	@description = "This is a use case for LPS-161024. Verify uppercase virtual host names added to a site's url are converted to lowercase."
+	@priority = "3"
+	test UppercaseVirtualHostNamesConvertedToLowercase {
+		property test.name.skip.portal.instance = "FriendlyURL#UppercaseVirtualHostNamesConvertedToLowercase";
+
+		task ("When an uppercase virtual host is added to a site url") {
+			Site.openSiteSettingsAdmin(siteURLKey = "test-site-name");
+
+			Site.addVirtualHostsURLCP(
+				pageVirtualHosts = "true",
+				pageVirtualHostURL = "LIFERAY-UPPER");
+		}
+
+		task ("Then the virtual host gets converted to lowercase in the database") {
+			var virtualHostQueryResult = SQL.executeMySQLStatement(mysqlStatement = "SELECT * FROM lportal.VirtualHost;");
+
+			if (contains("${virtualHostQueryResult}", "LIFERAY-UPPER") || !(contains("${virtualHostQueryResult}", "liferay-upper"))) {
+				echo("${virtualHostQueryResult}");
+
+				fail("The virtual host was not converted to lowercase");
+			}
+		}
 	}
 
 	@priority = "4"

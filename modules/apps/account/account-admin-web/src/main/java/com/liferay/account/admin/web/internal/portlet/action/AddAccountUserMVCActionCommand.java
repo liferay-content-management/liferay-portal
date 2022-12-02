@@ -35,7 +35,7 @@ import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.File;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -58,7 +58,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Pei-Jung Lan
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + AccountPortletKeys.ACCOUNT_ENTRIES_ADMIN,
 		"javax.portlet.name=" + AccountPortletKeys.ACCOUNT_ENTRIES_MANAGEMENT,
@@ -96,8 +95,10 @@ public class AddAccountUserMVCActionCommand
 		String firstName = ParamUtil.getString(actionRequest, "firstName");
 		String middleName = ParamUtil.getString(actionRequest, "middleName");
 		String lastName = ParamUtil.getString(actionRequest, "lastName");
-		long prefixId = ParamUtil.getLong(actionRequest, "prefixId");
-		long suffixId = ParamUtil.getLong(actionRequest, "suffixId");
+		long prefixListTypeId = ParamUtil.getLong(
+			actionRequest, "prefixListTypeId");
+		long suffixListTypeId = ParamUtil.getLong(
+			actionRequest, "suffixListTypeId");
 		String jobTitle = ParamUtil.getString(actionRequest, "jobTitle");
 
 		try {
@@ -117,7 +118,8 @@ public class AddAccountUserMVCActionCommand
 							accountEntryId, themeDisplay.getUserId(),
 							screenName, emailAddress,
 							LocaleUtil.fromLanguageId(languageId), firstName,
-							middleName, lastName, prefixId, suffixId, jobTitle,
+							middleName, lastName, prefixListTypeId,
+							suffixListTypeId, jobTitle,
 							ServiceContextFactory.getInstance(
 								AccountEntryUserRel.class.getName(),
 								actionRequest));
@@ -127,8 +129,8 @@ public class AddAccountUserMVCActionCommand
 					_accountEntryUserRelService.addAccountEntryUserRel(
 						accountEntryId, themeDisplay.getUserId(), screenName,
 						emailAddress, LocaleUtil.fromLanguageId(languageId),
-						firstName, middleName, lastName, prefixId, suffixId,
-						jobTitle,
+						firstName, middleName, lastName, prefixListTypeId,
+						suffixListTypeId, jobTitle,
 						ServiceContextFactory.getInstance(
 							AccountEntryUserRel.class.getName(),
 							actionRequest));
@@ -142,7 +144,7 @@ public class AddAccountUserMVCActionCommand
 				FileEntry fileEntry = _dlAppLocalService.getFileEntry(
 					fileEntryId);
 
-				portraitBytes = FileUtil.getBytes(fileEntry.getContentStream());
+				portraitBytes = _file.getBytes(fileEntry.getContentStream());
 			}
 
 			if (portraitBytes != null) {
@@ -205,6 +207,9 @@ public class AddAccountUserMVCActionCommand
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;
+
+	@Reference
+	private File _file;
 
 	@Reference
 	private Portal _portal;

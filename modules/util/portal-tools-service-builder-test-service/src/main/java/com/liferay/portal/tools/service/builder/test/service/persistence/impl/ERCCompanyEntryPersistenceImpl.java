@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUID;
 import com.liferay.portal.spring.extender.service.ServiceReference;
+import com.liferay.portal.tools.service.builder.test.exception.DuplicateERCCompanyEntryExternalReferenceCodeException;
 import com.liferay.portal.tools.service.builder.test.exception.NoSuchERCCompanyEntryException;
 import com.liferay.portal.tools.service.builder.test.model.ERCCompanyEntry;
 import com.liferay.portal.tools.service.builder.test.model.ERCCompanyEntryTable;
@@ -180,7 +181,7 @@ public class ERCCompanyEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<ERCCompanyEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (ERCCompanyEntry ercCompanyEntry : list) {
@@ -564,7 +565,7 @@ public class ERCCompanyEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -723,7 +724,7 @@ public class ERCCompanyEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<ERCCompanyEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (ERCCompanyEntry ercCompanyEntry : list) {
@@ -1139,7 +1140,7 @@ public class ERCCompanyEntryPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1200,35 +1201,35 @@ public class ERCCompanyEntryPersistenceImpl
 	private static final String _FINDER_COLUMN_UUID_C_COMPANYID_2 =
 		"ercCompanyEntry.companyId = ?";
 
-	private FinderPath _finderPathFetchByC_ERC;
-	private FinderPath _finderPathCountByC_ERC;
+	private FinderPath _finderPathFetchByERC_C;
+	private FinderPath _finderPathCountByERC_C;
 
 	/**
-	 * Returns the erc company entry where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchERCCompanyEntryException</code> if it could not be found.
+	 * Returns the erc company entry where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchERCCompanyEntryException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching erc company entry
 	 * @throws NoSuchERCCompanyEntryException if a matching erc company entry could not be found
 	 */
 	@Override
-	public ERCCompanyEntry findByC_ERC(
-			long companyId, String externalReferenceCode)
+	public ERCCompanyEntry findByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchERCCompanyEntryException {
 
-		ERCCompanyEntry ercCompanyEntry = fetchByC_ERC(
-			companyId, externalReferenceCode);
+		ERCCompanyEntry ercCompanyEntry = fetchByERC_C(
+			externalReferenceCode, companyId);
 
 		if (ercCompanyEntry == null) {
 			StringBundler sb = new StringBundler(6);
 
 			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
 
-			sb.append("companyId=");
-			sb.append(companyId);
-
-			sb.append(", externalReferenceCode=");
+			sb.append("externalReferenceCode=");
 			sb.append(externalReferenceCode);
+
+			sb.append(", companyId=");
+			sb.append(companyId);
 
 			sb.append("}");
 
@@ -1243,52 +1244,53 @@ public class ERCCompanyEntryPersistenceImpl
 	}
 
 	/**
-	 * Returns the erc company entry where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the erc company entry where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching erc company entry, or <code>null</code> if a matching erc company entry could not be found
 	 */
 	@Override
-	public ERCCompanyEntry fetchByC_ERC(
-		long companyId, String externalReferenceCode) {
+	public ERCCompanyEntry fetchByERC_C(
+		String externalReferenceCode, long companyId) {
 
-		return fetchByC_ERC(companyId, externalReferenceCode, true);
+		return fetchByERC_C(externalReferenceCode, companyId, true);
 	}
 
 	/**
-	 * Returns the erc company entry where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the erc company entry where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching erc company entry, or <code>null</code> if a matching erc company entry could not be found
 	 */
 	@Override
-	public ERCCompanyEntry fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache) {
+	public ERCCompanyEntry fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache) {
 
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
 		Object[] finderArgs = null;
 
 		if (useFinderCache) {
-			finderArgs = new Object[] {companyId, externalReferenceCode};
+			finderArgs = new Object[] {externalReferenceCode, companyId};
 		}
 
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByC_ERC, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByERC_C, finderArgs, this);
 		}
 
 		if (result instanceof ERCCompanyEntry) {
 			ERCCompanyEntry ercCompanyEntry = (ERCCompanyEntry)result;
 
-			if ((companyId != ercCompanyEntry.getCompanyId()) ||
-				!Objects.equals(
+			if (!Objects.equals(
 					externalReferenceCode,
-					ercCompanyEntry.getExternalReferenceCode())) {
+					ercCompanyEntry.getExternalReferenceCode()) ||
+				(companyId != ercCompanyEntry.getCompanyId())) {
 
 				result = null;
 			}
@@ -1299,18 +1301,18 @@ public class ERCCompanyEntryPersistenceImpl
 
 			sb.append(_SQL_SELECT_ERCCOMPANYENTRY_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_ERC_COMPANYID_2);
-
 			boolean bindExternalReferenceCode = false;
 
 			if (externalReferenceCode.isEmpty()) {
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
 			}
 			else {
 				bindExternalReferenceCode = true;
 
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
 			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
 
 			String sql = sb.toString();
 
@@ -1323,18 +1325,18 @@ public class ERCCompanyEntryPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(companyId);
-
 				if (bindExternalReferenceCode) {
 					queryPos.add(externalReferenceCode);
 				}
+
+				queryPos.add(companyId);
 
 				List<ERCCompanyEntry> list = query.list();
 
 				if (list.isEmpty()) {
 					if (useFinderCache) {
 						finderCache.putResult(
-							_finderPathFetchByC_ERC, finderArgs, list);
+							_finderPathFetchByERC_C, finderArgs, list);
 					}
 				}
 				else {
@@ -1362,57 +1364,57 @@ public class ERCCompanyEntryPersistenceImpl
 	}
 
 	/**
-	 * Removes the erc company entry where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the erc company entry where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the erc company entry that was removed
 	 */
 	@Override
-	public ERCCompanyEntry removeByC_ERC(
-			long companyId, String externalReferenceCode)
+	public ERCCompanyEntry removeByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchERCCompanyEntryException {
 
-		ERCCompanyEntry ercCompanyEntry = findByC_ERC(
-			companyId, externalReferenceCode);
+		ERCCompanyEntry ercCompanyEntry = findByERC_C(
+			externalReferenceCode, companyId);
 
 		return remove(ercCompanyEntry);
 	}
 
 	/**
-	 * Returns the number of erc company entries where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of erc company entries where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching erc company entries
 	 */
 	@Override
-	public int countByC_ERC(long companyId, String externalReferenceCode) {
+	public int countByERC_C(String externalReferenceCode, long companyId) {
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
-		FinderPath finderPath = _finderPathCountByC_ERC;
+		FinderPath finderPath = _finderPathCountByERC_C;
 
-		Object[] finderArgs = new Object[] {companyId, externalReferenceCode};
+		Object[] finderArgs = new Object[] {externalReferenceCode, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
 
 			sb.append(_SQL_COUNT_ERCCOMPANYENTRY_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_ERC_COMPANYID_2);
-
 			boolean bindExternalReferenceCode = false;
 
 			if (externalReferenceCode.isEmpty()) {
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
 			}
 			else {
 				bindExternalReferenceCode = true;
 
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
 			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
 
 			String sql = sb.toString();
 
@@ -1425,11 +1427,11 @@ public class ERCCompanyEntryPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(companyId);
-
 				if (bindExternalReferenceCode) {
 					queryPos.add(externalReferenceCode);
 				}
+
+				queryPos.add(companyId);
 
 				count = (Long)query.uniqueResult();
 
@@ -1446,14 +1448,14 @@ public class ERCCompanyEntryPersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_C_ERC_COMPANYID_2 =
-		"ercCompanyEntry.companyId = ? AND ";
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2 =
+		"ercCompanyEntry.externalReferenceCode = ? AND ";
 
-	private static final String _FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2 =
-		"ercCompanyEntry.externalReferenceCode = ?";
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3 =
+		"(ercCompanyEntry.externalReferenceCode IS NULL OR ercCompanyEntry.externalReferenceCode = '') AND ";
 
-	private static final String _FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3 =
-		"(ercCompanyEntry.externalReferenceCode IS NULL OR ercCompanyEntry.externalReferenceCode = '')";
+	private static final String _FINDER_COLUMN_ERC_C_COMPANYID_2 =
+		"ercCompanyEntry.companyId = ?";
 
 	public ERCCompanyEntryPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -1482,10 +1484,10 @@ public class ERCCompanyEntryPersistenceImpl
 			ercCompanyEntry);
 
 		finderCache.putResult(
-			_finderPathFetchByC_ERC,
+			_finderPathFetchByERC_C,
 			new Object[] {
-				ercCompanyEntry.getCompanyId(),
-				ercCompanyEntry.getExternalReferenceCode()
+				ercCompanyEntry.getExternalReferenceCode(),
+				ercCompanyEntry.getCompanyId()
 			},
 			ercCompanyEntry);
 	}
@@ -1564,13 +1566,13 @@ public class ERCCompanyEntryPersistenceImpl
 		ERCCompanyEntryModelImpl ercCompanyEntryModelImpl) {
 
 		Object[] args = new Object[] {
-			ercCompanyEntryModelImpl.getCompanyId(),
-			ercCompanyEntryModelImpl.getExternalReferenceCode()
+			ercCompanyEntryModelImpl.getExternalReferenceCode(),
+			ercCompanyEntryModelImpl.getCompanyId()
 		};
 
-		finderCache.putResult(_finderPathCountByC_ERC, args, Long.valueOf(1));
+		finderCache.putResult(_finderPathCountByERC_C, args, Long.valueOf(1));
 		finderCache.putResult(
-			_finderPathFetchByC_ERC, args, ercCompanyEntryModelImpl);
+			_finderPathFetchByERC_C, args, ercCompanyEntryModelImpl);
 	}
 
 	/**
@@ -1713,6 +1715,29 @@ public class ERCCompanyEntryPersistenceImpl
 
 		if (Validator.isNull(ercCompanyEntry.getExternalReferenceCode())) {
 			ercCompanyEntry.setExternalReferenceCode(ercCompanyEntry.getUuid());
+		}
+		else {
+			ERCCompanyEntry ercERCCompanyEntry = fetchByERC_C(
+				ercCompanyEntry.getExternalReferenceCode(),
+				ercCompanyEntry.getCompanyId());
+
+			if (isNew) {
+				if (ercERCCompanyEntry != null) {
+					throw new DuplicateERCCompanyEntryExternalReferenceCodeException(
+						"Duplicate erc company entry with external reference code " +
+							ercCompanyEntry.getExternalReferenceCode());
+				}
+			}
+			else {
+				if ((ercERCCompanyEntry != null) &&
+					(ercCompanyEntry.getErcCompanyEntryId() !=
+						ercERCCompanyEntry.getErcCompanyEntryId())) {
+
+					throw new DuplicateERCCompanyEntryExternalReferenceCodeException(
+						"Duplicate erc company entry with external reference code " +
+							ercCompanyEntry.getExternalReferenceCode());
+				}
+			}
 		}
 
 		Session session = null;
@@ -1884,7 +1909,7 @@ public class ERCCompanyEntryPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<ERCCompanyEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -1954,7 +1979,7 @@ public class ERCCompanyEntryPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;
@@ -2061,15 +2086,15 @@ public class ERCCompanyEntryPersistenceImpl
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "companyId"}, false);
 
-		_finderPathFetchByC_ERC = new FinderPath(
-			FINDER_CLASS_NAME_ENTITY, "fetchByC_ERC",
-			new String[] {Long.class.getName(), String.class.getName()},
-			new String[] {"companyId", "externalReferenceCode"}, true);
+		_finderPathFetchByERC_C = new FinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByERC_C",
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"externalReferenceCode", "companyId"}, true);
 
-		_finderPathCountByC_ERC = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_ERC",
-			new String[] {Long.class.getName(), String.class.getName()},
-			new String[] {"companyId", "externalReferenceCode"}, false);
+		_finderPathCountByERC_C = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByERC_C",
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"externalReferenceCode", "companyId"}, false);
 
 		_setERCCompanyEntryUtilPersistence(this);
 	}

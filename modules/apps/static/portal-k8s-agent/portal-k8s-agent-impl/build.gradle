@@ -1,7 +1,4 @@
 dependencies {
-	compileInclude group: "com.fasterxml.jackson.core", name: "jackson-annotations", version: "2.13.2"
-	compileInclude group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.13.2"
-	compileInclude group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.13.2.2"
 	compileInclude group: "com.fasterxml.jackson.dataformat", name: "jackson-dataformat-yaml", version: "2.13.2"
 	compileInclude group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: "2.13.2"
 	compileInclude group: "com.github.mifmif", name: "generex", version: "1.0.2"
@@ -33,6 +30,9 @@ dependencies {
 	compileInclude group: "io.fabric8", name: "zjsonpatch", version: "0.3.0"
 	compileInclude group: "org.yaml", name: "snakeyaml", version: "1.32"
 
+	compileOnly group: "com.fasterxml.jackson.core", name: "jackson-annotations", version: "2.13.4"
+	compileOnly group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.13.4"
+	compileOnly group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.13.4.2"
 	compileOnly group: "com.liferay", name: "org.apache.felix.configurator", version: "1.0.14.LIFERAY-PATCHED-3"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "default"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
@@ -41,6 +41,7 @@ dependencies {
 	compileOnly group: "org.osgi", name: "org.osgi.service.component.annotations", version: "1.4.0"
 	compileOnly group: "org.osgi", name: "osgi.core", version: "6.0.0"
 	compileOnly project(":apps:static:portal-configuration:portal-configuration-metatype-api")
+	compileOnly project(":apps:static:portal-configuration:portal-configuration-persistence-api")
 	compileOnly project(":apps:static:portal-file-install:portal-file-install-api")
 	compileOnly project(":apps:static:portal-k8s-agent:portal-k8s-agent-api")
 	compileOnly project(":core:petra:petra-function")

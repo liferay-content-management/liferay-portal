@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.capabilities.RelatedModelCapability;
@@ -48,16 +47,13 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.Localization;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.model.uid.UIDFactory;
-import com.liferay.trash.TrashHelper;
-import com.liferay.wiki.engine.WikiEngineRenderer;
-import com.liferay.wiki.exception.WikiFormatException;
+import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.service.WikiNodeLocalService;
@@ -66,12 +62,16 @@ import com.liferay.wiki.service.WikiPageLocalService;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Brian Wing Shun Chan
@@ -80,7 +80,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Raymond Augé
  */
 @Component(
-	immediate = true,
 	property = "related.entry.indexer.class.name=com.liferay.wiki.model.WikiPage",
 	service = {Indexer.class, RelatedEntryIndexer.class}
 )
@@ -235,6 +234,19 @@ public class WikiPageIndexer
 	public void updateFullQuery(SearchContext searchContext) {
 	}
 
+	@Reference(
+		cardinality = ReferenceCardinality.MULTIPLE,
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY,
+		service = ModelDocumentContributor.class,
+		target = "(indexer.class.name=com.liferay.wiki.model.WikiPage)"
+	)
+	protected void addModelDocumentContributor(
+		ModelDocumentContributor<WikiPage> modelDocumentContributor) {
+
+		_modelDocumentContributors.add(modelDocumentContributor);
+	}
+
 	@Override
 	protected void doDelete(WikiPage wikiPage) throws Exception {
 		deleteDocument(
@@ -245,49 +257,9 @@ public class WikiPageIndexer
 	protected Document doGetDocument(WikiPage wikiPage) throws Exception {
 		Document document = getBaseModelDocument(CLASS_NAME, wikiPage);
 
-		uidFactory.setUID(wikiPage, document);
-
-		String content = null;
-
-		try {
-			content = _htmlParser.extractText(
-				_wikiEngineRenderer.convert(wikiPage, null, null, null));
-
-			document.addText(Field.CONTENT, content);
-		}
-		catch (WikiFormatException wikiFormatException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"Unable to get wiki engine for " + wikiPage.getFormat(),
-					wikiFormatException);
-			}
-		}
-
-		document.addKeyword(Field.NODE_ID, wikiPage.getNodeId());
-
-		String title = wikiPage.getTitle();
-
-		if (wikiPage.isInTrash()) {
-			title = _trashHelper.getOriginalTitle(title);
-		}
-
-		document.addText(Field.TITLE, title);
-
-		for (Locale locale :
-				_language.getAvailableLocales(wikiPage.getGroupId())) {
-
-			String languageId = LocaleUtil.toLanguageId(locale);
-
-			document.addText(
-				LocalizationUtil.getLocalizedName(Field.CONTENT, languageId),
-				content);
-			document.addText(
-				LocalizationUtil.getLocalizedName(Field.TITLE, languageId),
-				title);
-		}
-
-		document.addNumber(
-			"versionCount", GetterUtil.getDouble(wikiPage.getVersion()));
+		_modelDocumentContributors.forEach(
+			modelDocumentContributor -> modelDocumentContributor.contribute(
+				document, wikiPage));
 
 		return document;
 	}
@@ -299,10 +271,9 @@ public class WikiPageIndexer
 
 		String languageId = LocaleUtil.toLanguageId(locale);
 
-		String content = LocalizationUtil.getLocalizedName(
+		String content = _localization.getLocalizedName(
 			Field.CONTENT, languageId);
-		String title = LocalizationUtil.getLocalizedName(
-			Field.TITLE, languageId);
+		String title = _localization.getLocalizedName(Field.TITLE, languageId);
 
 		Summary summary = createSummary(document, title, content);
 
@@ -347,10 +318,15 @@ public class WikiPageIndexer
 		}
 
 		_indexWriterHelper.updateDocument(
-			getSearchEngineId(), wikiPage.getCompanyId(), getDocument(wikiPage),
-			isCommitImmediately());
+			wikiPage.getCompanyId(), getDocument(wikiPage));
 
 		_reindexAttachments(wikiPage);
+	}
+
+	protected void removeModelDocumentContributor(
+		ModelDocumentContributor<WikiPage> modelDocumentContributor) {
+
+		_modelDocumentContributors.remove(modelDocumentContributor);
 	}
 
 	@Reference
@@ -359,8 +335,8 @@ public class WikiPageIndexer
 	private void _deleteDocument(WikiPage wikiPage) {
 		try {
 			_indexWriterHelper.deleteDocument(
-				getSearchEngineId(), wikiPage.getCompanyId(),
-				uidFactory.getUID(wikiPage), isCommitImmediately());
+				wikiPage.getCompanyId(), uidFactory.getUID(wikiPage),
+				isCommitImmediately());
 		}
 		catch (SearchException searchException) {
 			throw new RuntimeException(searchException);
@@ -446,7 +422,6 @@ public class WikiPageIndexer
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}
@@ -455,22 +430,15 @@ public class WikiPageIndexer
 		WikiPageIndexer.class);
 
 	@Reference
-	private HtmlParser _htmlParser;
-
-	@Reference
 	private IndexWriterHelper _indexWriterHelper;
 
 	@Reference
-	private Language _language;
+	private Localization _localization;
 
+	private final List<ModelDocumentContributor<WikiPage>>
+		_modelDocumentContributors = new CopyOnWriteArrayList<>();
 	private final RelatedEntryIndexer _relatedEntryIndexer =
 		new BaseRelatedEntryIndexer();
-
-	@Reference
-	private TrashHelper _trashHelper;
-
-	@Reference
-	private WikiEngineRenderer _wikiEngineRenderer;
 
 	@Reference
 	private WikiNodeLocalService _wikiNodeLocalService;

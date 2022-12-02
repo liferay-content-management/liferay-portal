@@ -82,8 +82,7 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 
 		try {
 			_indexWriterHelper.deleteDocument(
-				_modelSearchSettings.getSearchEngineId(), companyId, uid,
-				_modelSearchSettings.isCommitImmediately());
+				companyId, uid, _modelSearchSettings.isCommitImmediately());
 		}
 		catch (SearchException searchException) {
 			throw new RuntimeException(searchException);
@@ -111,8 +110,6 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 		batchIndexingActionable.setInterval(
 			_batchIndexingHelper.getBulkSize(
 				_modelSearchSettings.getClassName()));
-		batchIndexingActionable.setSearchEngineId(
-			_modelSearchSettings.getSearchEngineId());
 
 		return batchIndexingActionable;
 	}
@@ -223,9 +220,8 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 			Document document = _indexerDocumentBuilder.getDocument(baseModel);
 
 			_updateDocumentIndexWriter.updateDocument(
-				_modelSearchSettings.getSearchEngineId(),
 				_modelIndexerWriterContributor.getCompanyId(baseModel),
-				document, _modelSearchSettings.isCommitImmediately());
+				document);
 		}
 		else if (indexerWriterMode == IndexerWriterMode.DELETE) {
 			delete(baseModel);
@@ -248,7 +244,6 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 	public void updatePermissionFields(T baseModel) {
 		_searchPermissionIndexWriter.updatePermissionFields(
 			baseModel, _modelIndexerWriterContributor.getCompanyId(baseModel),
-			_modelSearchSettings.getSearchEngineId(),
 			_modelSearchSettings.isCommitImmediately());
 	}
 

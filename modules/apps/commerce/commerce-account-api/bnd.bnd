@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Commerce Account API
 Bundle-SymbolicName: com.liferay.commerce.account.api
-Bundle-Version: 18.2.1
+Bundle-Version: 18.5.0
 Export-Package:\
 	com.liferay.commerce.account.configuration,\
 	com.liferay.commerce.account.constants,\
@@ -10,4 +10,3 @@ Export-Package:\
 	com.liferay.commerce.account.service,\
 	com.liferay.commerce.account.service.persistence,\
 	com.liferay.commerce.account.util
-Liferay-Enterprise-App: product.id=9a473157-06a6-44b6-b017-a360ffaf5f38

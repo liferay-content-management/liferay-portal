@@ -19,7 +19,6 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.servlet.taglib.BaseDynamicInclude;
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.url.builder.AbsolutePortalURLBuilder;
 import com.liferay.portal.url.builder.AbsolutePortalURLBuilderFactory;
 
@@ -43,7 +42,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.frontend.theme.font.awesome.web.internal.configuration.CSSFontAwesomeConfiguration",
-	immediate = true, service = DynamicInclude.class
+	service = DynamicInclude.class
 )
 public class FontAwesomeTopHeadDynamicInclude extends BaseDynamicInclude {
 
@@ -98,8 +97,5 @@ public class FontAwesomeTopHeadDynamicInclude extends BaseDynamicInclude {
 	private volatile BundleContext _bundleContext;
 	private volatile CSSFontAwesomeConfiguration _cssFontAwesomeConfiguration;
 	private volatile long _lastModified;
-
-	@Reference
-	private Portal _portal;
 
 }

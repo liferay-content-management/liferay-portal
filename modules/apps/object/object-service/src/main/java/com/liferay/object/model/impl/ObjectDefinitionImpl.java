@@ -67,6 +67,16 @@ public class ObjectDefinitionImpl extends ObjectDefinitionBaseImpl {
 	}
 
 	@Override
+	public String getOSGiJaxRsName() {
+		return getOSGiJaxRsName(StringPool.BLANK);
+	}
+
+	@Override
+	public String getOSGiJaxRsName(String className) {
+		return getName() + className;
+	}
+
+	@Override
 	public String getPortletId() {
 		if (isSystem()) {
 			throw new UnsupportedOperationException();

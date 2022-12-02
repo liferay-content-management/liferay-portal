@@ -23,6 +23,8 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.util.JournalConverter;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.upgrade.UpgradeProcessFactory;
+import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.kernel.util.Portal;
 
 /**
@@ -80,8 +82,13 @@ public class JournalArticleDDMFieldsUpgradeProcess extends UpgradeProcess {
 					ddmStructure.getStructureId(), id, ddmFormValues);
 			},
 			null);
+	}
 
-		alterTableDropColumn("JournalArticle", "content");
+	@Override
+	protected UpgradeStep[] getPostUpgradeSteps() {
+		return new UpgradeStep[] {
+			UpgradeProcessFactory.dropColumns("JournalArticle", "content")
+		};
 	}
 
 	private final ClassNameLocalService _classNameLocalService;

@@ -14,9 +14,9 @@
 
 package com.liferay.layout.page.template.admin.web.internal.portlet.action;
 
+import com.liferay.layout.importer.LayoutsImporter;
+import com.liferay.layout.importer.LayoutsImporterResultEntry;
 import com.liferay.layout.page.template.admin.constants.LayoutPageTemplateAdminPortletKeys;
-import com.liferay.layout.page.template.importer.LayoutPageTemplatesImporter;
-import com.liferay.layout.page.template.importer.LayoutPageTemplatesImporterResultEntry;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -45,7 +45,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Jürgen Kappler
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + LayoutPageTemplateAdminPortletKeys.LAYOUT_PAGE_TEMPLATES,
 		"mvc.command.name=/layout_page_template_admin/import"
@@ -85,20 +84,18 @@ public class ImportMVCActionCommand extends BaseMVCActionCommand {
 			actionRequest, "overwrite", true);
 
 		try {
-			List<LayoutPageTemplatesImporterResultEntry>
-				layoutPageTemplatesImporterResultEntries =
-					_layoutPageTemplatesImporter.importFile(
-						themeDisplay.getUserId(),
-						themeDisplay.getScopeGroupId(),
-						layoutPageTemplateCollectionId, file, overwrite);
+			List<LayoutsImporterResultEntry> layoutsImporterResultEntries =
+				_layoutsImporter.importFile(
+					themeDisplay.getUserId(), themeDisplay.getScopeGroupId(),
+					layoutPageTemplateCollectionId, file, overwrite);
 
-			if (ListUtil.isEmpty(layoutPageTemplatesImporterResultEntries)) {
+			if (ListUtil.isEmpty(layoutsImporterResultEntries)) {
 				return;
 			}
 
 			SessionMessages.add(
-				actionRequest, "layoutPageTemplatesImporterResultEntries",
-				layoutPageTemplatesImporterResultEntries);
+				actionRequest, "layoutsImporterResultEntries",
+				layoutsImporterResultEntries);
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
@@ -118,7 +115,7 @@ public class ImportMVCActionCommand extends BaseMVCActionCommand {
 	private Language _language;
 
 	@Reference
-	private LayoutPageTemplatesImporter _layoutPageTemplatesImporter;
+	private LayoutsImporter _layoutsImporter;
 
 	@Reference
 	private Portal _portal;

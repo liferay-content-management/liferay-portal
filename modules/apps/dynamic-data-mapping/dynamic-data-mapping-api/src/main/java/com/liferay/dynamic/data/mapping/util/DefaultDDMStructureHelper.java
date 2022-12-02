@@ -29,6 +29,12 @@ public interface DefaultDDMStructureHelper {
 			ServiceContext serviceContext)
 		throws Exception;
 
+	public void addOrUpdateDDMStructures(
+			long userId, long groupId, long classNameId,
+			ClassLoader classLoader, String fileName,
+			ServiceContext serviceContext)
+		throws Exception;
+
 	public String getDynamicDDMStructureDefinition(
 			ClassLoader classLoader, String fileName,
 			String dynamicDDMStructureName, Locale locale)

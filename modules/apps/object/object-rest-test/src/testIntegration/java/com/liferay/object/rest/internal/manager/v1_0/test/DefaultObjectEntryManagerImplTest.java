@@ -14,6 +14,9 @@
 
 package com.liferay.object.rest.internal.manager.v1_0.test;
 
+import com.liferay.account.constants.AccountConstants;
+import com.liferay.account.model.AccountEntry;
+import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
@@ -26,9 +29,12 @@ import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.ListTypeDefinitionLocalService;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.constants.ObjectFieldSettingConstants;
+import com.liferay.object.constants.ObjectFilterConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.field.builder.AggregationObjectFieldBuilder;
 import com.liferay.object.field.builder.AttachmentObjectFieldBuilder;
+import com.liferay.object.field.builder.DateObjectFieldBuilder;
 import com.liferay.object.field.builder.DecimalObjectFieldBuilder;
 import com.liferay.object.field.builder.IntegerObjectFieldBuilder;
 import com.liferay.object.field.builder.LongIntegerObjectFieldBuilder;
@@ -36,6 +42,7 @@ import com.liferay.object.field.builder.PicklistObjectFieldBuilder;
 import com.liferay.object.field.builder.PrecisionDecimalObjectFieldBuilder;
 import com.liferay.object.field.builder.RichTextObjectFieldBuilder;
 import com.liferay.object.field.builder.TextObjectFieldBuilder;
+import com.liferay.object.field.setting.util.ObjectFieldSettingUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFieldSetting;
@@ -47,15 +54,24 @@ import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.rest.petra.sql.dsl.expression.FilterPredicateFactory;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectFieldService;
 import com.liferay.object.service.ObjectFieldSettingLocalService;
+import com.liferay.object.service.ObjectFilterLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.util.LocalizedMapUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.SortFactoryUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -63,6 +79,7 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -95,6 +112,7 @@ import java.text.DateFormat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -132,23 +150,34 @@ public class DefaultObjectEntryManagerImplTest {
 	public static void setUpClass() throws Exception {
 		_companyId = TestPropsValues.getCompanyId();
 		_group = GroupTestUtil.addGroup();
+		_originalName = PrincipalThreadLocal.getName();
+		_originalPermissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+		_simpleDateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+		_adminUser = TestPropsValues.getUser();
+
 		_simpleDTOConverterContext = new DefaultDTOConverterContext(
 			false, Collections.emptyMap(), _dtoConverterRegistry, null,
-			LocaleUtil.getDefault(), null, _user);
-		_user = TestPropsValues.getUser();
+			LocaleUtil.getDefault(), null, _adminUser);
+
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(_adminUser));
+
+		PrincipalThreadLocal.setName(_adminUser.getUserId());
 
 		PropsUtil.addProperties(
 			UnicodePropertiesBuilder.setProperty(
-				"feature.flag.LPS-152650", "true"
+				"feature.flag.LPS-164801", "true"
 			).build());
 	}
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
-		PropsUtil.addProperties(
-			UnicodePropertiesBuilder.setProperty(
-				"feature.flag.LPS-152650", "false"
-			).build());
+		PermissionThreadLocal.setPermissionChecker(_originalPermissionChecker);
+
+		PrincipalThreadLocal.setName(_originalName);
 	}
 
 	@Before
@@ -169,7 +198,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		_listTypeDefinition =
 			_listTypeDefinitionLocalService.addListTypeDefinition(
-				_user.getUserId(),
+				null, _adminUser.getUserId(),
 				Collections.singletonMap(
 					LocaleUtil.US, RandomTestUtil.randomString()));
 
@@ -188,6 +217,15 @@ public class DefaultObjectEntryManagerImplTest {
 						_createObjectFieldSetting(
 							"fileSource", "documentsAndMedia"),
 						_createObjectFieldSetting("maximumFileSize", "100"))
+				).build(),
+				new DateObjectFieldBuilder(
+				).labelMap(
+					LocalizedMapUtil.getLocalizedMap(
+						RandomTestUtil.randomString())
+				).name(
+					"dateObjectFieldName"
+				).objectFieldSettings(
+					Collections.emptyList()
 				).build(),
 				new DecimalObjectFieldBuilder(
 				).labelMap(
@@ -261,7 +299,8 @@ public class DefaultObjectEntryManagerImplTest {
 
 		ObjectRelationship objectRelationship =
 			_objectRelationshipLocalService.addObjectRelationship(
-				_user.getUserId(), _objectDefinition1.getObjectDefinitionId(),
+				_adminUser.getUserId(),
+				_objectDefinition1.getObjectDefinitionId(),
 				_objectDefinition2.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
@@ -278,27 +317,42 @@ public class DefaultObjectEntryManagerImplTest {
 			"MIN", "longIntegerObjectFieldName", objectRelationship.getName());
 		_addAggregationObjectField(
 			"SUM", "decimalObjectFieldName", objectRelationship.getName());
+
+		ObjectField objectField = _objectFieldLocalService.getObjectField(
+			objectRelationship.getObjectFieldId2());
+
+		_objectRelationshipERCFieldName = ObjectFieldSettingUtil.getValue(
+			ObjectFieldSettingConstants.NAME_OBJECT_RELATIONSHIP_ERC_FIELD_NAME,
+			objectField);
+		_objectRelationshipFieldName = objectField.getName();
 	}
 
 	@Test
 	public void testAddObjectEntry() throws Exception {
-		ObjectEntry objectDefinition1ObjectEntry1 =
-			_objectEntryManager.addObjectEntry(
-				_simpleDTOConverterContext, _objectDefinition1,
-				new ObjectEntry() {
-					{
-						properties = HashMapBuilder.<String, Object>put(
-							"textObjectFieldName", RandomTestUtil.randomString()
-						).build();
-					}
-				},
-				ObjectDefinitionConstants.SCOPE_COMPANY);
+		ObjectEntry parentObjectEntry1 = _objectEntryManager.addObjectEntry(
+			_simpleDTOConverterContext, _objectDefinition1,
+			new ObjectEntry() {
+				{
+					properties = HashMapBuilder.<String, Object>put(
+						"externalReferenceCode", "newExternalReferenceCode"
+					).put(
+						"textObjectFieldName", RandomTestUtil.randomString()
+					).build();
+				}
+			},
+			ObjectDefinitionConstants.SCOPE_COMPANY);
 
-		ObjectEntry objectDefinition2ObjectEntry1 = new ObjectEntry() {
+		String listTypeEntryKey = _addListTypeEntry();
+
+		ObjectEntry childObjectEntry1 = new ObjectEntry() {
 			{
 				properties = HashMapBuilder.<String, Object>put(
+					_objectRelationshipERCFieldName, "newExternalReferenceCode"
+				).put(
 					"attachmentObjectFieldName",
 					_getAttachmentObjectFieldValue()
+				).put(
+					"dateObjectFieldName", "2022-01-01"
 				).put(
 					"decimalObjectFieldName", 15.5
 				).put(
@@ -306,14 +360,10 @@ public class DefaultObjectEntryManagerImplTest {
 				).put(
 					"longIntegerObjectFieldName", 50000L
 				).put(
-					"picklistObjectFieldName", _addListTypeEntry()
+					"picklistObjectFieldName", listTypeEntryKey
 				).put(
 					"precisionDecimalObjectFieldName",
 					new BigDecimal(0.1234567891234567, MathContext.DECIMAL64)
-				).put(
-					"r_oneToManyRelationshipName_" +
-						_objectDefinition1.getPKObjectFieldName(),
-					objectDefinition1ObjectEntry1.getId()
 				).put(
 					"richTextObjectFieldName",
 					StringBundler.concat(
@@ -325,10 +375,9 @@ public class DefaultObjectEntryManagerImplTest {
 		};
 
 		_assertEquals(
-			objectDefinition2ObjectEntry1,
+			childObjectEntry1,
 			_objectEntryManager.addObjectEntry(
-				_dtoConverterContext, _objectDefinition2,
-				objectDefinition2ObjectEntry1,
+				_dtoConverterContext, _objectDefinition2, childObjectEntry1,
 				ObjectDefinitionConstants.SCOPE_COMPANY));
 
 		_assertEquals(
@@ -348,29 +397,32 @@ public class DefaultObjectEntryManagerImplTest {
 					).put(
 						"textObjectFieldName",
 						MapUtil.getString(
-							objectDefinition1ObjectEntry1.getProperties(),
+							parentObjectEntry1.getProperties(),
 							"textObjectFieldName")
 					).build();
 				}
 			},
 			_objectEntryManager.getObjectEntry(
 				_simpleDTOConverterContext, _objectDefinition1,
-				objectDefinition1ObjectEntry1.getId()));
+				parentObjectEntry1.getId()));
 
 		_objectEntryManager.addObjectEntry(
 			_dtoConverterContext, _objectDefinition2,
 			new ObjectEntry() {
 				{
 					properties = HashMapBuilder.<String, Object>put(
-						"decimalObjectFieldName", 15.7
+						_objectRelationshipERCFieldName,
+						"newExternalReferenceCode"
 					).put(
-						"r_oneToManyRelationshipName_" +
-							_objectDefinition1.getPKObjectFieldName(),
-						objectDefinition1ObjectEntry1.getId()
+						"dateObjectFieldName", "2020-01-02"
+					).put(
+						"decimalObjectFieldName", 15.7
 					).put(
 						"integerObjectFieldName", 15
 					).put(
 						"longIntegerObjectFieldName", 100L
+					).put(
+						"picklistObjectFieldName", _addListTypeEntry()
 					).put(
 						"precisionDecimalObjectFieldName",
 						new BigDecimal(
@@ -397,161 +449,160 @@ public class DefaultObjectEntryManagerImplTest {
 					).put(
 						"textObjectFieldName",
 						MapUtil.getString(
-							objectDefinition1ObjectEntry1.getProperties(),
+							parentObjectEntry1.getProperties(),
 							"textObjectFieldName")
 					).build();
 				}
 			},
 			_objectEntryManager.getObjectEntry(
 				_simpleDTOConverterContext, _objectDefinition1,
-				objectDefinition1ObjectEntry1.getId()));
+				parentObjectEntry1.getId()));
+
+		ObjectField objectField = _objectFieldLocalService.getObjectField(
+			_objectDefinition1.getObjectDefinitionId(),
+			"countAggregationObjectFieldName");
+
+		_objectFilterLocalService.addObjectFilter(
+			_adminUser.getUserId(), objectField.getObjectFieldId(),
+			"integerObjectFieldName", ObjectFilterConstants.TYPE_EQUALS,
+			"{\"eq\": \"15\"}");
+
+		_assertCountAggregationObjectFieldValue(1, parentObjectEntry1);
+
+		_objectFilterLocalService.addObjectFilter(
+			_adminUser.getUserId(), objectField.getObjectFieldId(),
+			"integerObjectFieldName", ObjectFilterConstants.TYPE_NOT_EQUALS,
+			"{\"ne\":\"15\"}");
+
+		_assertCountAggregationObjectFieldValue(0, parentObjectEntry1);
+
+		_objectFilterLocalService.deleteObjectFieldObjectFilter(
+			objectField.getObjectFieldId());
+
+		_objectFilterLocalService.addObjectFilter(
+			_adminUser.getUserId(), objectField.getObjectFieldId(),
+			"picklistObjectFieldName", ObjectFilterConstants.TYPE_EXCLUDES,
+			"{\"not\":{\"in\":[\"" + listTypeEntryKey + "\"]}}");
+
+		_assertCountAggregationObjectFieldValue(1, parentObjectEntry1);
+
+		_objectFilterLocalService.addObjectFilter(
+			_adminUser.getUserId(), objectField.getObjectFieldId(),
+			"picklistObjectFieldName", ObjectFilterConstants.TYPE_INCLUDES,
+			"{\"in\":[\"" + listTypeEntryKey + "\"]}");
+
+		_assertCountAggregationObjectFieldValue(0, parentObjectEntry1);
+
+		_objectFilterLocalService.deleteObjectFieldObjectFilter(
+			objectField.getObjectFieldId());
+
+		_objectFilterLocalService.addObjectFilter(
+			_adminUser.getUserId(), objectField.getObjectFieldId(), "status",
+			ObjectFilterConstants.TYPE_INCLUDES,
+			"{\"in\": [" + WorkflowConstants.STATUS_APPROVED + "]}");
+
+		_assertCountAggregationObjectFieldValue(2, parentObjectEntry1);
+
+		_objectFilterLocalService.addObjectFilter(
+			_adminUser.getUserId(), objectField.getObjectFieldId(), "status",
+			ObjectFilterConstants.TYPE_EXCLUDES,
+			"{\"not\":{\"in\": [" + WorkflowConstants.STATUS_APPROVED + "]}}");
+
+		_assertCountAggregationObjectFieldValue(0, parentObjectEntry1);
+
+		_objectFilterLocalService.deleteObjectFieldObjectFilter(
+			objectField.getObjectFieldId());
+
+		DateFormat dateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
+			"yyyy-MM-dd");
+
+		String currentDateString = dateFormat.format(new Date());
+
+		_objectFilterLocalService.addObjectFilter(
+			_adminUser.getUserId(), objectField.getObjectFieldId(),
+			"createDate", ObjectFilterConstants.TYPE_DATE_RANGE,
+			StringBundler.concat(
+				"{\"le\": \"", currentDateString, "\", \"ge\": \"",
+				currentDateString, "\"}"));
+		_objectFilterLocalService.addObjectFilter(
+			_adminUser.getUserId(), objectField.getObjectFieldId(),
+			"modifiedDate", ObjectFilterConstants.TYPE_DATE_RANGE,
+			StringBundler.concat(
+				"{\"le\": \"", currentDateString, "\", \"ge\": \"",
+				currentDateString, "\"}"));
+
+		_assertCountAggregationObjectFieldValue(2, parentObjectEntry1);
+
+		_objectFilterLocalService.addObjectFilter(
+			_adminUser.getUserId(), objectField.getObjectFieldId(),
+			"dateObjectFieldName", ObjectFilterConstants.TYPE_DATE_RANGE,
+			"{\"le\": \"2020-01-02\", \"ge\": \"2020-01-02\"}");
+
+		_assertCountAggregationObjectFieldValue(1, parentObjectEntry1);
 	}
 
 	@Test
 	public void testGetObjectEntries() throws Exception {
 		_testGetObjectEntries(Collections.emptyMap());
 
-		String oneToManyRelationshipFieldName =
-			"r_oneToManyRelationshipName_" +
-				_objectDefinition1.getPKObjectFieldName();
 		String picklistObjectFieldValue1 = _addListTypeEntry();
 
-		ObjectEntry objectDefinition1ObjectEntry1 =
-			_objectEntryManager.addObjectEntry(
-				_simpleDTOConverterContext, _objectDefinition1,
-				new ObjectEntry() {
-					{
-						properties = HashMapBuilder.<String, Object>put(
-							"textObjectFieldName", RandomTestUtil.randomString()
-						).build();
-					}
-				},
-				ObjectDefinitionConstants.SCOPE_COMPANY);
+		ObjectEntry parentObjectEntry1 = _objectEntryManager.addObjectEntry(
+			_simpleDTOConverterContext, _objectDefinition1,
+			new ObjectEntry() {
+				{
+					properties = HashMapBuilder.<String, Object>put(
+						"textObjectFieldName", RandomTestUtil.randomString()
+					).build();
+				}
+			},
+			ObjectDefinitionConstants.SCOPE_COMPANY);
 
-		ObjectEntry objectDefinition2ObjectEntry1 =
-			_objectEntryManager.addObjectEntry(
-				_dtoConverterContext, _objectDefinition2,
-				new ObjectEntry() {
-					{
-						properties = HashMapBuilder.<String, Object>put(
-							oneToManyRelationshipFieldName,
-							objectDefinition1ObjectEntry1.getId()
-						).put(
-							"picklistObjectFieldName", picklistObjectFieldValue1
-						).put(
-							"textObjectFieldName", "aaa"
-						).build();
-					}
-				},
-				ObjectDefinitionConstants.SCOPE_COMPANY);
+		ObjectEntry childObjectEntry1 = _objectEntryManager.addObjectEntry(
+			_dtoConverterContext, _objectDefinition2,
+			new ObjectEntry() {
+				{
+					properties = HashMapBuilder.<String, Object>put(
+						_objectRelationshipFieldName, parentObjectEntry1.getId()
+					).put(
+						"picklistObjectFieldName", picklistObjectFieldValue1
+					).put(
+						"textObjectFieldName", "aaa"
+					).build();
+				}
+			},
+			ObjectDefinitionConstants.SCOPE_COMPANY);
 
-		ObjectEntry objectDefinition1ObjectEntry2 =
-			_objectEntryManager.addObjectEntry(
-				_simpleDTOConverterContext, _objectDefinition1,
-				new ObjectEntry() {
-					{
-						properties = HashMapBuilder.<String, Object>put(
-							"textObjectFieldName", RandomTestUtil.randomString()
-						).build();
-					}
-				},
-				ObjectDefinitionConstants.SCOPE_COMPANY);
+		ObjectEntry parentObjectEntry2 = _objectEntryManager.addObjectEntry(
+			_simpleDTOConverterContext, _objectDefinition1,
+			new ObjectEntry() {
+				{
+					properties = HashMapBuilder.<String, Object>put(
+						"textObjectFieldName", RandomTestUtil.randomString()
+					).build();
+				}
+			},
+			ObjectDefinitionConstants.SCOPE_COMPANY);
 
 		String picklistObjectFieldValue2 = _addListTypeEntry();
 
-		ObjectEntry objectDefinition2ObjectEntry2 =
-			_objectEntryManager.addObjectEntry(
-				_dtoConverterContext, _objectDefinition2,
-				new ObjectEntry() {
-					{
-						properties = HashMapBuilder.<String, Object>put(
-							oneToManyRelationshipFieldName,
-							objectDefinition1ObjectEntry2.getId()
-						).put(
-							"picklistObjectFieldName", picklistObjectFieldValue2
-						).put(
-							"textObjectFieldName", "aab"
-						).build();
-					}
-				},
-				ObjectDefinitionConstants.SCOPE_COMPANY);
+		ObjectEntry childObjectEntry2 = _objectEntryManager.addObjectEntry(
+			_dtoConverterContext, _objectDefinition2,
+			new ObjectEntry() {
+				{
+					properties = HashMapBuilder.<String, Object>put(
+						_objectRelationshipFieldName, parentObjectEntry2.getId()
+					).put(
+						"picklistObjectFieldName", picklistObjectFieldValue2
+					).put(
+						"textObjectFieldName", "aab"
+					).build();
+				}
+			},
+			ObjectDefinitionConstants.SCOPE_COMPANY);
 
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildRangeExpression(
-					objectDefinition2ObjectEntry1.getDateCreated(), new Date(),
-					"dateCreated")
-			).build(),
-			objectDefinition2ObjectEntry1, objectDefinition2ObjectEntry2);
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildRangeExpression(
-					objectDefinition2ObjectEntry1.getDateModified(), new Date(),
-					"dateModified")
-			).build(),
-			objectDefinition2ObjectEntry1, objectDefinition2ObjectEntry2);
+		// Equals expression
 
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildInExpressionFilterString(
-					"id", true, objectDefinition2ObjectEntry1.getId())
-			).build(),
-			objectDefinition2ObjectEntry1);
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildInExpressionFilterString(
-					"id", false, objectDefinition2ObjectEntry1.getId())
-			).build(),
-			objectDefinition2ObjectEntry2);
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildInExpressionFilterString(
-					"picklistObjectFieldName", true, picklistObjectFieldValue1)
-			).build(),
-			objectDefinition2ObjectEntry1);
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildInExpressionFilterString(
-					"picklistObjectFieldName", false, picklistObjectFieldValue1)
-			).build(),
-			objectDefinition2ObjectEntry2);
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildLambdaExpressionFilterString(
-					"status", true, WorkflowConstants.STATUS_APPROVED)
-			).build(),
-			objectDefinition2ObjectEntry1, objectDefinition2ObjectEntry2);
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildLambdaExpressionFilterString(
-					"status", false, WorkflowConstants.STATUS_APPROVED)
-			).build());
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildInExpressionFilterString(
-					oneToManyRelationshipFieldName.substring(
-						oneToManyRelationshipFieldName.lastIndexOf("_") + 1),
-					true, objectDefinition1ObjectEntry1.getId())
-			).build(),
-			objectDefinition2ObjectEntry1);
-		_testGetObjectEntries(
-			HashMapBuilder.put(
-				"filter",
-				_buildInExpressionFilterString(
-					oneToManyRelationshipFieldName.substring(
-						oneToManyRelationshipFieldName.lastIndexOf("_") + 1),
-					false, objectDefinition1ObjectEntry1.getId())
-			).build(),
-			objectDefinition2ObjectEntry2);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"filter",
@@ -560,7 +611,7 @@ public class DefaultObjectEntryManagerImplTest {
 			).put(
 				"search", "aa"
 			).build(),
-			objectDefinition2ObjectEntry1);
+			childObjectEntry1);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"filter",
@@ -569,62 +620,261 @@ public class DefaultObjectEntryManagerImplTest {
 			).put(
 				"search", "aa"
 			).build(),
-			objectDefinition2ObjectEntry2);
+			childObjectEntry2);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
-				"search", String.valueOf(objectDefinition2ObjectEntry1.getId())
+				"filter",
+				_buildEqualsExpressionFilterString(
+					_objectRelationshipERCFieldName,
+					parentObjectEntry1.getExternalReferenceCode())
 			).build(),
-			objectDefinition2ObjectEntry1);
+			childObjectEntry1);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
-				"search", String.valueOf(objectDefinition2ObjectEntry2.getId())
+				"filter",
+				_buildEqualsExpressionFilterString(
+					_objectRelationshipERCFieldName,
+					parentObjectEntry2.getExternalReferenceCode())
 			).build(),
-			objectDefinition2ObjectEntry2);
+			childObjectEntry2);
+
+		// In expression
+
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildInExpressionFilterString(
+					"id", true, childObjectEntry1.getId())
+			).build(),
+			childObjectEntry1);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildInExpressionFilterString(
+					"id", false, childObjectEntry1.getId())
+			).build(),
+			childObjectEntry2);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildInExpressionFilterString(
+					"picklistObjectFieldName", true, picklistObjectFieldValue1)
+			).build(),
+			childObjectEntry1);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildInExpressionFilterString(
+					"picklistObjectFieldName", false, picklistObjectFieldValue1)
+			).build(),
+			childObjectEntry2);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildInExpressionFilterString(
+					_objectRelationshipERCFieldName, true,
+					parentObjectEntry1.getExternalReferenceCode())
+			).build(),
+			childObjectEntry1);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildInExpressionFilterString(
+					_objectRelationshipERCFieldName, false,
+					parentObjectEntry1.getExternalReferenceCode())
+			).build(),
+			childObjectEntry2);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildInExpressionFilterString(
+					_objectRelationshipFieldName.substring(
+						_objectRelationshipFieldName.lastIndexOf("_") + 1),
+					true, parentObjectEntry1.getId())
+			).build(),
+			childObjectEntry1);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildInExpressionFilterString(
+					_objectRelationshipFieldName.substring(
+						_objectRelationshipFieldName.lastIndexOf("_") + 1),
+					false, parentObjectEntry1.getId())
+			).build(),
+			childObjectEntry2);
+
+		// Lambda expression
+
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildLambdaExpressionFilterString(
+					"status", true, WorkflowConstants.STATUS_APPROVED)
+			).build(),
+			childObjectEntry1, childObjectEntry2);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildLambdaExpressionFilterString(
+					"status", false, WorkflowConstants.STATUS_APPROVED)
+			).build());
+
+		// Range expression
+
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildRangeExpression(
+					childObjectEntry1.getDateCreated(), new Date(),
+					"dateCreated")
+			).build(),
+			childObjectEntry1, childObjectEntry2);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"filter",
+				_buildRangeExpression(
+					childObjectEntry1.getDateModified(), new Date(),
+					"dateModified")
+			).build(),
+			childObjectEntry1, childObjectEntry2);
+
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"search", String.valueOf(childObjectEntry1.getId())
+			).build(),
+			childObjectEntry1);
+		_testGetObjectEntries(
+			HashMapBuilder.put(
+				"search", String.valueOf(childObjectEntry2.getId())
+			).build(),
+			childObjectEntry2);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"search", picklistObjectFieldValue1
 			).build(),
-			objectDefinition2ObjectEntry1);
+			childObjectEntry1);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"search", picklistObjectFieldValue2
 			).build(),
-			objectDefinition2ObjectEntry2);
+			childObjectEntry2);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"search", "aa"
 			).build(),
-			objectDefinition2ObjectEntry1, objectDefinition2ObjectEntry2);
+			childObjectEntry1, childObjectEntry2);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"sort", "createDate:asc"
 			).build(),
-			objectDefinition2ObjectEntry1, objectDefinition2ObjectEntry2);
+			childObjectEntry1, childObjectEntry2);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"sort", "createDate:desc"
 			).build(),
-			objectDefinition2ObjectEntry2, objectDefinition2ObjectEntry1);
+			childObjectEntry2, childObjectEntry1);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"sort", "id:asc"
 			).build(),
-			objectDefinition2ObjectEntry1, objectDefinition2ObjectEntry2);
+			childObjectEntry1, childObjectEntry2);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"sort", "id:desc"
 			).build(),
-			objectDefinition2ObjectEntry2, objectDefinition2ObjectEntry1);
+			childObjectEntry2, childObjectEntry1);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"sort", "textObjectFieldName:asc"
 			).build(),
-			objectDefinition2ObjectEntry1, objectDefinition2ObjectEntry2);
+			childObjectEntry1, childObjectEntry2);
 		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"sort", "textObjectFieldName:desc"
 			).build(),
-			objectDefinition2ObjectEntry2, objectDefinition2ObjectEntry1);
+			childObjectEntry2, childObjectEntry1);
+	}
+
+	@Test
+	public void testGetObjectEntriesAccountRestrictions() throws Exception {
+		AccountEntry accountEntry = _accountEntryLocalService.addAccountEntry(
+			TestPropsValues.getUserId(), 0L, RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), null, null, null,
+			RandomTestUtil.randomString(),
+			AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
+			WorkflowConstants.STATUS_APPROVED,
+			ServiceContextTestUtil.getServiceContext());
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.fetchObjectDefinition(
+				_companyId, "AccountEntry");
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.addObjectRelationship(
+				_adminUser.getUserId(),
+				objectDefinition.getObjectDefinitionId(),
+				_objectDefinition1.getObjectDefinitionId(), 0,
+				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				"oneToManyRelationshipName",
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+
+		_objectDefinition1.setAccountEntryRestrictedObjectFieldId(
+			objectRelationship.getObjectFieldId2());
+
+		_objectDefinition1.setAccountEntryRestricted(true);
+
+		_objectDefinition1 =
+			_objectDefinitionLocalService.updateObjectDefinition(
+				_objectDefinition1);
+
+		_user = UserTestUtil.addUser();
+
+		_objectEntryManager.addObjectEntry(
+			_simpleDTOConverterContext, _objectDefinition1,
+			new ObjectEntry() {
+				{
+					properties = HashMapBuilder.<String, Object>put(
+						"r_oneToManyRelationshipName_accountEntryId",
+						accountEntry.getAccountEntryId()
+					).put(
+						"textObjectFieldName", RandomTestUtil.randomString()
+					).build();
+				}
+			},
+			ObjectDefinitionConstants.SCOPE_COMPANY);
+
+		Page<ObjectEntry> page = _objectEntryManager.getObjectEntries(
+			_companyId, _objectDefinition1, null, null,
+			new DefaultDTOConverterContext(
+				false, Collections.emptyMap(), _dtoConverterRegistry, null,
+				LocaleUtil.getDefault(), null, _user),
+			null,
+			_filterPredicateFactory.create(
+				null, _objectDefinition2.getObjectDefinitionId()),
+			null, null);
+
+		Collection<ObjectEntry> objectEntries = page.getItems();
+
+		Assert.assertEquals(objectEntries.toString(), 0, objectEntries.size());
+
+		Role role = _roleLocalService.getRole(_companyId, "Administrator");
+
+		_userLocalService.addRoleUser(role.getRoleId(), _user);
+
+		page = _objectEntryManager.getObjectEntries(
+			_companyId, _objectDefinition1, null, null,
+			new DefaultDTOConverterContext(
+				false, Collections.emptyMap(), _dtoConverterRegistry, null,
+				LocaleUtil.getDefault(), null, _user),
+			null,
+			_filterPredicateFactory.create(
+				null, _objectDefinition2.getObjectDefinitionId()),
+			null, null);
+
+		objectEntries = page.getItems();
+
+		Assert.assertEquals(objectEntries.toString(), 1, objectEntries.size());
 	}
 
 	private void _addAggregationObjectField(
@@ -664,6 +914,7 @@ public class DefaultObjectEntryManagerImplTest {
 		throws Exception {
 
 		_objectFieldService.addCustomObjectField(
+			objectField.getExternalReferenceCode(),
 			objectField.getListTypeDefinitionId(),
 			objectField.getObjectDefinitionId(), objectField.getBusinessType(),
 			objectField.getDBType(), objectField.getDefaultValue(),
@@ -676,13 +927,31 @@ public class DefaultObjectEntryManagerImplTest {
 	private String _addListTypeEntry() throws Exception {
 		ListTypeEntry listTypeEntry =
 			_listTypeEntryLocalService.addListTypeEntry(
-				_user.getUserId(),
+				_adminUser.getUserId(),
 				_listTypeDefinition.getListTypeDefinitionId(),
 				RandomTestUtil.randomString(),
 				Collections.singletonMap(
 					LocaleUtil.US, RandomTestUtil.randomString()));
 
 		return listTypeEntry.getKey();
+	}
+
+	private void _assertCountAggregationObjectFieldValue(
+			int expectedValue, ObjectEntry objectEntry)
+		throws Exception {
+
+		_assertEquals(
+			new ObjectEntry() {
+				{
+					properties = HashMapBuilder.<String, Object>put(
+						"countAggregationObjectFieldName",
+						String.valueOf(expectedValue)
+					).build();
+				}
+			},
+			_objectEntryManager.getObjectEntry(
+				_simpleDTOConverterContext, _objectDefinition1,
+				objectEntry.getId()));
 	}
 
 	private void _assertEquals(
@@ -706,6 +975,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		Map<String, Object> actualObjectEntryProperties =
 			actualObjectEntry.getProperties();
+
 		Map<String, Object> expectedObjectEntryProperties =
 			expectedObjectEntry.getProperties();
 
@@ -744,6 +1014,23 @@ public class DefaultObjectEntryManagerImplTest {
 					link.getHref());
 			}
 			else if (Objects.equals(
+						expectedEntry.getKey(), "dateObjectFieldName")) {
+
+				if ((expectedEntry.getValue() == null) &&
+					(actualObjectEntryProperties.get(expectedEntry.getKey()) ==
+						null)) {
+
+					continue;
+				}
+
+				Assert.assertEquals(
+					expectedEntry.getKey(),
+					expectedEntry.getValue() + " 00:00:00.0",
+					String.valueOf(
+						actualObjectEntryProperties.get(
+							expectedEntry.getKey())));
+			}
+			else if (Objects.equals(
 						expectedEntry.getKey(), "picklistObjectFieldName")) {
 
 				ListEntry listEntry =
@@ -778,8 +1065,7 @@ public class DefaultObjectEntryManagerImplTest {
 			}
 			else if (Objects.equals(
 						expectedEntry.getKey(),
-						"r_oneToManyRelationshipName_" +
-							_objectDefinition1.getPKObjectFieldName())) {
+						_objectRelationshipERCFieldName)) {
 
 				Assert.assertEquals(
 					expectedEntry.getValue(),
@@ -787,11 +1073,13 @@ public class DefaultObjectEntryManagerImplTest {
 
 				_assertEquals(
 					_objectEntryManager.getObjectEntry(
-						_simpleDTOConverterContext, _objectDefinition1,
-						GetterUtil.getLong(expectedEntry.getValue())),
+						_simpleDTOConverterContext,
+						GetterUtil.getString(expectedEntry.getValue()),
+						_objectDefinition1.getCompanyId(), _objectDefinition1,
+						null),
 					(ObjectEntry)actualObjectEntryProperties.get(
 						StringUtil.replaceLast(
-							String.valueOf(expectedEntry.getKey()), "Id",
+							_objectRelationshipFieldName, "Id",
 							StringPool.BLANK)));
 			}
 			else {
@@ -848,12 +1136,9 @@ public class DefaultObjectEntryManagerImplTest {
 	private String _buildRangeExpression(
 		Date date1, Date date2, String fieldName) {
 
-		DateFormat simpleDateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-
 		return StringBundler.concat(
-			"( ", fieldName, " ge (", simpleDateFormat.format(date1),
-			") and ( ", fieldName, " le ", simpleDateFormat.format(date2),
+			"( ", fieldName, " ge (", _simpleDateFormat.format(date1),
+			") and ( ", fieldName, " le ", _simpleDateFormat.format(date2),
 			"))");
 	}
 
@@ -863,7 +1148,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
-				_user.getUserId(),
+				_adminUser.getUserId(),
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				"A" + RandomTestUtil.randomString(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
@@ -871,7 +1156,7 @@ public class DefaultObjectEntryManagerImplTest {
 				ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT, objectFields);
 
 		return _objectDefinitionLocalService.publishCustomObjectDefinition(
-			_user.getUserId(), objectDefinition.getObjectDefinitionId());
+			_adminUser.getUserId(), objectDefinition.getObjectDefinitionId());
 	}
 
 	private ObjectFieldSetting _createObjectFieldSetting(
@@ -940,7 +1225,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		_dtoConverterContext = new DefaultDTOConverterContext(
 			false, Collections.emptyMap(), _dtoConverterRegistry, null,
-			LocaleUtil.getDefault(), uriInfo, _user);
+			LocaleUtil.getDefault(), uriInfo, _adminUser);
 	}
 
 	private void _testGetObjectEntries(
@@ -957,20 +1242,20 @@ public class DefaultObjectEntryManagerImplTest {
 			};
 		}
 
-		Page<ObjectEntry> objectEntryPage =
-			_objectEntryManager.getObjectEntries(
-				_companyId, _objectDefinition2, null, null,
-				_dtoConverterContext, null,
-				_filterPredicateFactory.create(
-					context.get("filter"),
-					_objectDefinition2.getObjectDefinitionId()),
-				context.get("search"), sorts);
+		Page<ObjectEntry> page = _objectEntryManager.getObjectEntries(
+			_companyId, _objectDefinition2, null, null, _dtoConverterContext,
+			null,
+			_filterPredicateFactory.create(
+				context.get("filter"),
+				_objectDefinition2.getObjectDefinitionId()),
+			context.get("search"), sorts);
 
 		_assertEquals(
 			ListUtil.fromArray(expectedObjectEntries),
-			(List<ObjectEntry>)objectEntryPage.getItems());
+			(List<ObjectEntry>)page.getItems());
 	}
 
+	private static User _adminUser;
 	private static long _companyId;
 	private static DTOConverterContext _dtoConverterContext;
 
@@ -980,8 +1265,13 @@ public class DefaultObjectEntryManagerImplTest {
 	@DeleteAfterTestRun
 	private static Group _group;
 
+	private static String _originalName;
+	private static PermissionChecker _originalPermissionChecker;
+	private static DateFormat _simpleDateFormat;
 	private static DTOConverterContext _simpleDTOConverterContext;
-	private static User _user;
+
+	@Inject
+	private AccountEntryLocalService _accountEntryLocalService;
 
 	@Inject
 	private DLAppService _dlAppService;
@@ -1018,12 +1308,30 @@ public class DefaultObjectEntryManagerImplTest {
 	private ObjectEntryManager _objectEntryManager;
 
 	@Inject
+	private ObjectFieldLocalService _objectFieldLocalService;
+
+	@Inject
 	private ObjectFieldService _objectFieldService;
 
 	@Inject
 	private ObjectFieldSettingLocalService _objectFieldSettingLocalService;
 
 	@Inject
+	private ObjectFilterLocalService _objectFilterLocalService;
+
+	private String _objectRelationshipERCFieldName;
+	private String _objectRelationshipFieldName;
+
+	@Inject
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;
+
+	@Inject
+	private RoleLocalService _roleLocalService;
+
+	@DeleteAfterTestRun
+	private User _user;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 }

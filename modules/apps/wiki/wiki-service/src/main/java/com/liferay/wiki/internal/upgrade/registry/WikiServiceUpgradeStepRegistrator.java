@@ -43,7 +43,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Iván Zaera
  * @author Manuel de la Peña
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(service = UpgradeStepRegistrator.class)
 public class WikiServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -78,7 +78,7 @@ public class WikiServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"WikiNode", "WikiPage", "WikiPageResource"
 					};

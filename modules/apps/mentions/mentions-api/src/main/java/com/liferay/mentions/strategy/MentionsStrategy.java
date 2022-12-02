@@ -20,13 +20,21 @@ import com.liferay.portal.kernel.model.User;
 
 import java.util.List;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Cristina González
  */
+@ProviderType
 public interface MentionsStrategy {
 
 	public List<User> getUsers(
-			long companyId, long user, String query, JSONObject jsonObject)
+			long companyId, long groupId, long userId, String query,
+			JSONObject jsonObject)
+		throws PortalException;
+
+	public List<User> getUsers(
+			long companyId, long userId, String query, JSONObject jsonObject)
 		throws PortalException;
 
 }

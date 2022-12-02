@@ -16,6 +16,7 @@ package com.liferay.source.formatter.checkstyle.check;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import com.puppycrawl.tools.checkstyle.utils.AnnotationUtil;
 
 import java.util.List;
 
@@ -47,11 +48,74 @@ public class UnusedVariableCheck extends BaseCheck {
 		DetailAST modifiersDetailAST = detailAST.findFirstToken(
 			TokenTypes.MODIFIERS);
 
-		if (modifiersDetailAST.branchContains(TokenTypes.ANNOTATION) ||
-			modifiersDetailAST.branchContains(TokenTypes.LITERAL_PROTECTED) ||
+		if (modifiersDetailAST.branchContains(TokenTypes.LITERAL_PROTECTED) ||
 			modifiersDetailAST.branchContains(TokenTypes.LITERAL_PUBLIC)) {
 
 			return;
+		}
+
+		if (modifiersDetailAST.branchContains(TokenTypes.ANNOTATION)) {
+			if (!isAttributeValue(_CHECK_UNUSED_REFERENCE_VARIABLE_KEY)) {
+				return;
+			}
+
+			String absolutePath = getAbsolutePath();
+
+			int x = absolutePath.indexOf("/modules/");
+
+			if (x == -1) {
+				return;
+			}
+
+			String modulePath = absolutePath.substring(x + 1);
+
+			if ((!modulePath.startsWith("modules/apps") &&
+				 !modulePath.startsWith("modules/dxp")) ||
+				!AnnotationUtil.containsAnnotation(detailAST, "Reference")) {
+
+				return;
+			}
+
+			List<String> checkUnusedReferenceVariableDirNames =
+				getAttributeValues(
+					_CHECK_UNUSED_REFERENCE_VARIABLE_DIR_NAMES_KEY);
+
+			if (!checkUnusedReferenceVariableDirNames.isEmpty()) {
+				int i = 0;
+
+				while (i < checkUnusedReferenceVariableDirNames.size()) {
+					if (modulePath.startsWith(
+							checkUnusedReferenceVariableDirNames.get(i))) {
+
+						break;
+					}
+
+					i++;
+				}
+
+				if (i == checkUnusedReferenceVariableDirNames.size()) {
+					return;
+				}
+			}
+
+			DetailAST typeDetailAST = detailAST.findFirstToken(TokenTypes.TYPE);
+
+			DetailAST firstChildDetailAST = typeDetailAST.getFirstChild();
+
+			if (firstChildDetailAST == null) {
+				return;
+			}
+
+			if (firstChildDetailAST.getType() != TokenTypes.DOT) {
+				String variableTypeName = getTypeName(typeDetailAST, false);
+
+				List<String> allowedUnusedVariableTypeNames =
+					getAttributeValues(_ALLOWED_UNUSED_VARIABLE_TYPE_NAMES_KEY);
+
+				if (allowedUnusedVariableTypeNames.contains(variableTypeName)) {
+					return;
+				}
+			}
 		}
 
 		String variableName = getName(detailAST);
@@ -133,6 +197,15 @@ public class UnusedVariableCheck extends BaseCheck {
 
 		return false;
 	}
+
+	private static final String _ALLOWED_UNUSED_VARIABLE_TYPE_NAMES_KEY =
+		"allowedUnusedVariableTypeNames";
+
+	private static final String _CHECK_UNUSED_REFERENCE_VARIABLE_DIR_NAMES_KEY =
+		"checkUnusedReferenceVariableDirNames";
+
+	private static final String _CHECK_UNUSED_REFERENCE_VARIABLE_KEY =
+		"checkUnusedReferenceVariable";
 
 	private static final String _MSG_UNUSED_VARIABLE = "variable.unused";
 

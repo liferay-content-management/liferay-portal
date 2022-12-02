@@ -1394,54 +1394,54 @@ public interface UserGroupPersistence
 		long userGroupId, long companyId, long parentUserGroupId);
 
 	/**
-	 * Returns the user group where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchUserGroupException</code> if it could not be found.
+	 * Returns the user group where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchUserGroupException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching user group
 	 * @throws NoSuchUserGroupException if a matching user group could not be found
 	 */
-	public UserGroup findByC_ERC(long companyId, String externalReferenceCode)
+	public UserGroup findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchUserGroupException;
 
 	/**
-	 * Returns the user group where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the user group where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching user group, or <code>null</code> if a matching user group could not be found
 	 */
-	public UserGroup fetchByC_ERC(long companyId, String externalReferenceCode);
+	public UserGroup fetchByERC_C(String externalReferenceCode, long companyId);
 
 	/**
-	 * Returns the user group where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the user group where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching user group, or <code>null</code> if a matching user group could not be found
 	 */
-	public UserGroup fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache);
+	public UserGroup fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache);
 
 	/**
-	 * Removes the user group where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the user group where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the user group that was removed
 	 */
-	public UserGroup removeByC_ERC(long companyId, String externalReferenceCode)
+	public UserGroup removeByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchUserGroupException;
 
 	/**
-	 * Returns the number of user groups where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of user groups where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching user groups
 	 */
-	public int countByC_ERC(long companyId, String externalReferenceCode);
+	public int countByERC_C(String externalReferenceCode, long companyId);
 
 	/**
 	 * Caches the user group in the entity cache if it is enabled.

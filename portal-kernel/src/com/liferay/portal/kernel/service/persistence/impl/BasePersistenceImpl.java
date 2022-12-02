@@ -227,7 +227,7 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 
 		Object[] arguments = _getArguments(defaultASTNodeListener);
 
-		Object cacheResult = finderCache.getResult(finderPath, arguments);
+		Object cacheResult = finderCache.getResult(finderPath, arguments, this);
 
 		boolean productionMode = CTCollectionThreadLocal.isProductionMode();
 
@@ -1373,11 +1373,6 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 
 		@Override
 		public NullModel toUnescapedModel() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public String toXmlString() {
 			throw new UnsupportedOperationException();
 		}
 

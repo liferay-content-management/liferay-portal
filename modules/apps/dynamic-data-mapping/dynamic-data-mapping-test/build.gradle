@@ -9,10 +9,13 @@ dependencies {
 	testCompile project(":apps:dynamic-data-mapping:dynamic-data-mapping-api")
 	testCompile project(":apps:dynamic-data-mapping:dynamic-data-mapping-expression")
 	testCompile project(":apps:dynamic-data-mapping:dynamic-data-mapping-form-field-type")
+	testCompile project(":apps:dynamic-data-mapping:dynamic-data-mapping-form-field-type-api")
 	testCompile project(":apps:dynamic-data-mapping:dynamic-data-mapping-service")
 	testCompile project(":apps:dynamic-data-mapping:dynamic-data-mapping-test-util")
 	testCompile project(":apps:export-import:export-import-api")
+	testCompile project(":apps:info:info-api")
 	testCompile project(":apps:journal:journal-api")
+	testCompile project(":apps:layout:layout-test-util")
 	testCompile project(":apps:portal-search:portal-search-api")
 	testCompile project(":apps:portal-search:portal-search-test-util")
 	testCompile project(":apps:portal:portal-aop-api")
@@ -26,8 +29,8 @@ dependencies {
 	testCompile project(":core:petra:petra-sql-dsl-api")
 	testCompile project(":core:petra:petra-string")
 
-	testIntegrationCompile group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.13.2"
-	testIntegrationCompile group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.13.2.2"
+	testIntegrationCompile group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.13.4"
+	testIntegrationCompile group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.13.4.2"
 	testIntegrationCompile group: "org.osgi", name: "org.osgi.service.cm", version: "1.6.0"
 	testIntegrationCompile group: "org.springframework", name: "spring-web", version: "5.2.22.RELEASE"
 	testIntegrationCompile project(":apps:dynamic-data-mapping:dynamic-data-mapping-form-builder")

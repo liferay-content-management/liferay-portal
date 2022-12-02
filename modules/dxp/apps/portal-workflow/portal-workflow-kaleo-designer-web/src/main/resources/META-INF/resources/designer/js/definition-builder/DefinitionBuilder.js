@@ -61,6 +61,7 @@ export default function DefinitionBuilder(props) {
 		definitionTitleTranslations,
 		deserialize,
 		elements,
+		functionActionExecutors: props.functionActionExecutors,
 		selectedLanguageId,
 		setAccountEntryId,
 		setActive,

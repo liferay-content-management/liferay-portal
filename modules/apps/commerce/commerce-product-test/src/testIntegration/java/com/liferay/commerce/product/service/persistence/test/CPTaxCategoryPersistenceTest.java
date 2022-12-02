@@ -15,6 +15,7 @@
 package com.liferay.commerce.product.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.commerce.product.exception.DuplicateCPTaxCategoryExternalReferenceCodeException;
 import com.liferay.commerce.product.exception.NoSuchCPTaxCategoryException;
 import com.liferay.commerce.product.model.CPTaxCategory;
 import com.liferay.commerce.product.service.CPTaxCategoryLocalServiceUtil;
@@ -187,6 +188,26 @@ public class CPTaxCategoryPersistenceTest {
 			newCPTaxCategory.getDescription());
 	}
 
+	@Test(expected = DuplicateCPTaxCategoryExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		CPTaxCategory cpTaxCategory = addCPTaxCategory();
+
+		CPTaxCategory newCPTaxCategory = addCPTaxCategory();
+
+		newCPTaxCategory.setCompanyId(cpTaxCategory.getCompanyId());
+
+		newCPTaxCategory = _persistence.update(newCPTaxCategory);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newCPTaxCategory);
+
+		newCPTaxCategory.setExternalReferenceCode(
+			cpTaxCategory.getExternalReferenceCode());
+
+		_persistence.update(newCPTaxCategory);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -213,12 +234,12 @@ public class CPTaxCategoryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -518,15 +539,15 @@ public class CPTaxCategoryPersistenceTest {
 
 	private void _assertOriginalValues(CPTaxCategory cpTaxCategory) {
 		Assert.assertEquals(
-			Long.valueOf(cpTaxCategory.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				cpTaxCategory, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			cpTaxCategory.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				cpTaxCategory, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(cpTaxCategory.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				cpTaxCategory, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected CPTaxCategory addCPTaxCategory() throws Exception {

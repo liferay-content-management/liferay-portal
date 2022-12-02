@@ -15,11 +15,13 @@
 /// <reference types="react" />
 
 declare const VersionsContent: ({
+	active,
 	getItemVersionsURL,
 	languageTag,
 	onError,
 }: IProps) => JSX.Element;
 interface IProps {
+	active: boolean;
 	getItemVersionsURL: string;
 	languageTag?: string;
 	onError: () => void;

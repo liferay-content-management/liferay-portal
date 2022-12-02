@@ -46,13 +46,12 @@ import org.osgi.service.component.annotations.Reference;
  * @generated
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/openapi.properties",
 	service = OpenAPIResourceImpl.class
 )
 @Generated("")
 @OpenAPIDefinition(
-	info = @Info(description = "Liferay Commerce Admin Account API. A Java client JAR is available for use with the group ID 'com.liferay', artifact ID 'com.liferay.headless.commerce.admin.account.client', and version '4.0.15'.", license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"), title = "Liferay Commerce Admin Account API", version = "v1.0")
+	info = @Info(description = "Liferay Commerce Admin Account API. A Java client JAR is available for use with the group ID 'com.liferay', artifact ID 'com.liferay.headless.commerce.admin.account.client', and version '4.0.19'.", license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"), title = "Liferay Commerce Admin Account API", version = "v1.0")
 )
 @Path("/v1.0")
 public class OpenAPIResourceImpl {
@@ -102,6 +101,8 @@ public class OpenAPIResourceImpl {
 			add(AccountResourceImpl.class);
 
 			add(AccountAddressResourceImpl.class);
+
+			add(AccountChannelEntryResourceImpl.class);
 
 			add(AccountGroupResourceImpl.class);
 

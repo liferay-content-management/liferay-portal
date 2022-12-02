@@ -39,15 +39,21 @@
 		<div id="content">
 			<div id="main-content">
 				<div class="container-fluid">
-					<aui:row>
-						<aui:col cssClass="lfr-api-navigation p-3" width="<%= 25 %>">
+					<clay:row>
+						<clay:col
+							cssClass="lfr-api-navigation p-3"
+							size="3"
+						>
 							<liferay-util:include page="/actions.jsp" servletContext="<%= application %>" />
-						</aui:col>
+						</clay:col>
 
-						<aui:col cssClass="lfr-api-details p-3" width="<%= 75 %>">
+						<clay:col
+							cssClass="lfr-api-details p-3"
+							size="9"
+						>
 							<liferay-util:include page="/action.jsp" servletContext="<%= application %>" />
-						</aui:col>
-					</aui:row>
+						</clay:col>
+					</clay:row>
 				</div>
 			</div>
 		</div>

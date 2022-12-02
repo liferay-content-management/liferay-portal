@@ -15,23 +15,22 @@
 package com.liferay.analytics.reports.web.internal.portlet.action;
 
 import com.liferay.analytics.reports.info.item.AnalyticsReportsInfoItem;
-import com.liferay.analytics.reports.info.item.AnalyticsReportsInfoItemTracker;
+import com.liferay.analytics.reports.info.item.AnalyticsReportsInfoItemRegistry;
 import com.liferay.analytics.reports.info.item.ClassNameClassPKInfoItemIdentifier;
 import com.liferay.analytics.reports.info.item.provider.AnalyticsReportsInfoItemObjectProvider;
 import com.liferay.analytics.reports.web.internal.constants.AnalyticsReportsPortletKeys;
 import com.liferay.analytics.reports.web.internal.data.provider.AnalyticsReportsDataProvider;
-import com.liferay.analytics.reports.web.internal.info.item.provider.AnalyticsReportsInfoItemObjectProviderTracker;
+import com.liferay.analytics.reports.web.internal.info.item.provider.AnalyticsReportsInfoItemObjectProviderRegistry;
 import com.liferay.analytics.reports.web.internal.model.TimeRange;
 import com.liferay.analytics.reports.web.internal.model.TimeSpan;
 import com.liferay.analytics.reports.web.internal.util.AnalyticsReportsUtil;
 import com.liferay.info.item.ClassPKInfoItemIdentifier;
 import com.liferay.info.item.InfoItemReference;
-import com.liferay.info.item.InfoItemServiceTracker;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -91,7 +90,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Cristina González
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + AnalyticsReportsPortletKeys.ANALYTICS_REPORTS,
 		"mvc.command.name=/analytics_reports/get_data"
@@ -113,7 +111,7 @@ public class GetDataMVCResourceCommand extends BaseMVCResourceCommand {
 				httpServletRequest);
 
 			Object analyticsReportsInfoItemObject = Optional.ofNullable(
-				_analyticsReportsInfoItemObjectProviderTracker.
+				_analyticsReportsInfoItemObjectProviderRegistry.
 					getAnalyticsReportsInfoItemObjectProvider(
 						infoItemReference.getClassName())
 			).map(
@@ -128,7 +126,7 @@ public class GetDataMVCResourceCommand extends BaseMVCResourceCommand {
 
 			AnalyticsReportsInfoItem<Object> analyticsReportsInfoItem =
 				(AnalyticsReportsInfoItem<Object>)
-					_analyticsReportsInfoItemTracker.
+					_analyticsReportsInfoItemRegistry.
 						getAnalyticsReportsInfoItem(
 							infoItemReference.getClassName());
 
@@ -255,7 +253,7 @@ public class GetDataMVCResourceCommand extends BaseMVCResourceCommand {
 		String canonicalURL, Locale locale, ResourceRequest resourceRequest,
 		ResourceResponse resourceResponse) {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
 		Optional.ofNullable(
 			analyticsReportsInfoItem.getActions()
@@ -348,16 +346,14 @@ public class GetDataMVCResourceCommand extends BaseMVCResourceCommand {
 			"pathToAssets", _portal.getPathContext(resourceRequest)
 		).put(
 			"publishDate",
-			DateTimeFormatter.ISO_DATE.format(
+			_toISODateFormat(
 				_toLocaleDate(analyticsReportsInfoItem.getPublishDate(object)))
 		).put(
 			"timeRange",
 			JSONUtil.put(
-				"endDate",
-				DateTimeFormatter.ISO_DATE.format(timeRange.getEndLocalDate())
+				"endDate", _toISODateFormat(timeRange.getEndLocalDate())
 			).put(
-				"startDate",
-				DateTimeFormatter.ISO_DATE.format(timeRange.getStartLocalDate())
+				"startDate", _toISODateFormat(timeRange.getStartLocalDate())
 			)
 		).put(
 			"timeSpanKey", _getTimeSpanKey(timeRange)
@@ -565,7 +561,19 @@ public class GetDataMVCResourceCommand extends BaseMVCResourceCommand {
 			).toArray());
 	}
 
+	private String _toISODateFormat(LocalDate localDate) {
+		if (localDate == null) {
+			return null;
+		}
+
+		return DateTimeFormatter.ISO_DATE.format(localDate);
+	}
+
 	private LocalDate _toLocaleDate(Date date) {
+		if (date == null) {
+			return null;
+		}
+
 		Instant instant = date.toInstant();
 
 		ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
@@ -613,17 +621,17 @@ public class GetDataMVCResourceCommand extends BaseMVCResourceCommand {
 		_analyticsReportsInfoItemObjectProvider;
 
 	@Reference
-	private AnalyticsReportsInfoItemObjectProviderTracker
-		_analyticsReportsInfoItemObjectProviderTracker;
+	private AnalyticsReportsInfoItemObjectProviderRegistry
+		_analyticsReportsInfoItemObjectProviderRegistry;
 
 	@Reference
-	private AnalyticsReportsInfoItemTracker _analyticsReportsInfoItemTracker;
+	private AnalyticsReportsInfoItemRegistry _analyticsReportsInfoItemRegistry;
 
 	@Reference
 	private Http _http;
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

@@ -40,7 +40,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Adolfo Pérez
  */
 @Component(
-	immediate = true,
 	property = "model.class.name=com.liferay.friendly.url.model.FriendlyURLEntry",
 	service = StagedModelRepository.class
 )
@@ -151,7 +150,7 @@ public class FriendlyURLEntryStagedModelRepository
 					friendlyURLEntry.getGroupId(),
 					friendlyURLEntry.getClassNameId(),
 					friendlyURLEntry.getClassPK(),
-					friendlyURLEntryLocalization.getUrlTitle()));
+					friendlyURLEntryLocalization.getUrlTitle(), null));
 
 			_friendlyURLEntryLocalService.updateFriendlyURLLocalization(
 				friendlyURLEntryLocalization);
@@ -201,7 +200,7 @@ public class FriendlyURLEntryStagedModelRepository
 				urlTitle = _friendlyURLEntryLocalService.getUniqueUrlTitle(
 					friendlyURLEntry.getGroupId(),
 					friendlyURLEntry.getClassNameId(),
-					friendlyURLEntry.getClassPK(), urlTitle);
+					friendlyURLEntry.getClassPK(), urlTitle, null);
 			}
 
 			languageIdLocalizationMap.put(

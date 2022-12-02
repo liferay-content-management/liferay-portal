@@ -15,15 +15,25 @@
 package com.liferay.saml.runtime.metadata;
 
 import com.liferay.saml.runtime.SamlException;
+import com.liferay.saml.runtime.exception.CredentialAuthException;
+import com.liferay.saml.runtime.exception.CredentialException;
 
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  * @author Michael C. Han
  */
+@ProviderType
 public interface LocalEntityManager {
+
+	public void authenticateLocalEntityCertificate(
+			String certificateKeyPassword, CertificateUsage certificateUsage,
+			String entityId)
+		throws CredentialAuthException, CredentialException;
 
 	public void deleteLocalEntityCertificate(CertificateUsage certificateUsage)
 		throws KeyStoreException;

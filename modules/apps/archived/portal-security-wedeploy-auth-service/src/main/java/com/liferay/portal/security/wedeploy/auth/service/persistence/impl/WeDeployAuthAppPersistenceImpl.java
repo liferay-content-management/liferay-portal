@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -75,7 +74,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Supritha Sundaram
  * @generated
  */
-@Component(service = {WeDeployAuthAppPersistence.class, BasePersistence.class})
+@Component(service = WeDeployAuthAppPersistence.class)
 public class WeDeployAuthAppPersistenceImpl
 	extends BasePersistenceImpl<WeDeployAuthApp>
 	implements WeDeployAuthAppPersistence {
@@ -173,7 +172,8 @@ public class WeDeployAuthAppPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByRU_CI, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByRU_CI, finderArgs, this);
 		}
 
 		if (result instanceof WeDeployAuthApp) {
@@ -314,7 +314,7 @@ public class WeDeployAuthAppPersistenceImpl
 
 		Object[] finderArgs = new Object[] {redirectURI, clientId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -465,7 +465,8 @@ public class WeDeployAuthAppPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByCI_CS, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByCI_CS, finderArgs, this);
 		}
 
 		if (result instanceof WeDeployAuthApp) {
@@ -606,7 +607,7 @@ public class WeDeployAuthAppPersistenceImpl
 
 		Object[] finderArgs = new Object[] {clientId, clientSecret};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1130,7 +1131,7 @@ public class WeDeployAuthAppPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<WeDeployAuthApp>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -1200,7 +1201,7 @@ public class WeDeployAuthAppPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

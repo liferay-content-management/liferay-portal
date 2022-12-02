@@ -51,6 +51,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ACCOUNT_MANAGEMENT_REVERSE_SORT_DIRECTION_BUTTON</td>
+	<td>//div//a[@class='nav-link nav-link-monospaced link-unstyled']/..//..//*[contains(@class, 'lexicon-icon lexicon-icon-order')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ACCOUNT_MANAGEMENT_REVERSE_SORT_DIRECTION_BUTTON_ICON</td>
+	<td>//nav[contains(@class,'management-bar')]//*[*[name()='svg'][contains(@class,'${key_icon}')] and contains(@title,'Reverse Sort Direction')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ACCOUNT_SELECTOR_ACCOUNT_LIST_ITEM</td>
 	<td>//ul[contains(@class,'accounts-list')]//button[@class='dropdown-item']/span[contains(.,'${key_accountName}')]</td>
 	<td></td>
@@ -106,6 +116,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ADD_TO_CART_BUTTON_PRODUCT_DETAILS_PAGE_INVALID</td>
+	<td>//h2[@class='product-header-title']//../..//button[contains(@class,'add-to-cart not-allowed')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ADD_TO_CART_BUTTON_BY_PRODUCT</td>
 	<td>//h2[contains(text(),"${key_productName}")]//..//..//button[contains(@class,'add-to-cart')]</td>
 	<td></td>
@@ -143,6 +158,11 @@
 <tr>
 	<td>ASSERT_PRODUCT_CARD</td>
 	<td>//*[@class='product-card-tiles']/div[${key_value}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PRODUCT_CARD_DESCRIPTION</td>
+	<td>//p[@title='${key_productName}']/..//following-sibling::p[@class='card-body']//span[contains(normalize-space(text()),'${key_productDescription}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -187,7 +207,7 @@
 </tr>
 <tr>
 	<td>SEARCH_RESULT_OPTIONS</td>
-	<td>//section[contains(@id,'CPSearchResultsPortlet')]//div[@class='dropdown lfr-icon-menu portlet-options']</td>
+	<td>//section[contains(@id,'CPSearchResultsPortlet')]//header//menu//div[@class='dropdown']</td>
 	<td></td>
 </tr>
 <tr>
@@ -424,6 +444,16 @@
 <tr>
 	<td>CHECKOUT_SUMMARY_SHIPPING_ADDRESS</td>
 	<td>//address[@class='shipping-address' and contains(.,'${key_addressInfo}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHECKOUT_SUMMARY_SHIPPING_COST</td>
+	<td>//div[contains(@class,'shipping-method')]//div[contains(@class,'shipping-cost') and contains(.,'${key_shippingCost}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHECKOUT_SUMMARY_SHIPPING_OPTION</td>
+	<td>//div[contains(@class,'shipping-method')]//div[contains(@class,'shipping-description') and contains(.,'${key_shippingOption}')]</td>
 	<td></td>
 </tr>
 <tr>

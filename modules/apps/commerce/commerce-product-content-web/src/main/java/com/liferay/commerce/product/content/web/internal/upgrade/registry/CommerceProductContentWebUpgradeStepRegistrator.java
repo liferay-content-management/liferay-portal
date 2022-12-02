@@ -24,9 +24,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Danny Situ
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceProductContentWebUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 

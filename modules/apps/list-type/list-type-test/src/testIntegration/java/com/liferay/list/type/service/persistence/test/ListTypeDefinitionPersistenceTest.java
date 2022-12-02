@@ -15,6 +15,7 @@
 package com.liferay.list.type.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.list.type.exception.DuplicateListTypeDefinitionExternalReferenceCodeException;
 import com.liferay.list.type.exception.NoSuchListTypeDefinitionException;
 import com.liferay.list.type.model.ListTypeDefinition;
 import com.liferay.list.type.service.ListTypeDefinitionLocalServiceUtil;
@@ -26,6 +27,8 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
@@ -127,6 +130,9 @@ public class ListTypeDefinitionPersistenceTest {
 
 		newListTypeDefinition.setUuid(RandomTestUtil.randomString());
 
+		newListTypeDefinition.setExternalReferenceCode(
+			RandomTestUtil.randomString());
+
 		newListTypeDefinition.setCompanyId(RandomTestUtil.nextLong());
 
 		newListTypeDefinition.setUserId(RandomTestUtil.nextLong());
@@ -152,6 +158,9 @@ public class ListTypeDefinitionPersistenceTest {
 			existingListTypeDefinition.getUuid(),
 			newListTypeDefinition.getUuid());
 		Assert.assertEquals(
+			existingListTypeDefinition.getExternalReferenceCode(),
+			newListTypeDefinition.getExternalReferenceCode());
+		Assert.assertEquals(
 			existingListTypeDefinition.getListTypeDefinitionId(),
 			newListTypeDefinition.getListTypeDefinitionId());
 		Assert.assertEquals(
@@ -175,6 +184,28 @@ public class ListTypeDefinitionPersistenceTest {
 			newListTypeDefinition.getName());
 	}
 
+	@Test(
+		expected = DuplicateListTypeDefinitionExternalReferenceCodeException.class
+	)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		ListTypeDefinition listTypeDefinition = addListTypeDefinition();
+
+		ListTypeDefinition newListTypeDefinition = addListTypeDefinition();
+
+		newListTypeDefinition.setCompanyId(listTypeDefinition.getCompanyId());
+
+		newListTypeDefinition = _persistence.update(newListTypeDefinition);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newListTypeDefinition);
+
+		newListTypeDefinition.setExternalReferenceCode(
+			listTypeDefinition.getExternalReferenceCode());
+
+		_persistence.update(newListTypeDefinition);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -191,6 +222,15 @@ public class ListTypeDefinitionPersistenceTest {
 		_persistence.countByUuid_C("null", 0L);
 
 		_persistence.countByUuid_C((String)null, 0L);
+	}
+
+	@Test
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
+
+		_persistence.countByERC_C("null", 0L);
+
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -220,9 +260,9 @@ public class ListTypeDefinitionPersistenceTest {
 	protected OrderByComparator<ListTypeDefinition> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
 			"ListTypeDefinition", "mvccVersion", true, "uuid", true,
-			"listTypeDefinitionId", true, "companyId", true, "userId", true,
-			"userName", true, "createDate", true, "modifiedDate", true, "name",
-			true);
+			"externalReferenceCode", true, "listTypeDefinitionId", true,
+			"companyId", true, "userId", true, "userName", true, "createDate",
+			true, "modifiedDate", true, "name", true);
 	}
 
 	@Test
@@ -448,6 +488,71 @@ public class ListTypeDefinitionPersistenceTest {
 		Assert.assertEquals(0, result.size());
 	}
 
+	@Test
+	public void testResetOriginalValues() throws Exception {
+		ListTypeDefinition newListTypeDefinition = addListTypeDefinition();
+
+		_persistence.clearCache();
+
+		_assertOriginalValues(
+			_persistence.findByPrimaryKey(
+				newListTypeDefinition.getPrimaryKey()));
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		ListTypeDefinition newListTypeDefinition = addListTypeDefinition();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			ListTypeDefinition.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq(
+				"listTypeDefinitionId",
+				newListTypeDefinition.getListTypeDefinitionId()));
+
+		List<ListTypeDefinition> result = _persistence.findWithDynamicQuery(
+			dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(ListTypeDefinition listTypeDefinition) {
+		Assert.assertEquals(
+			listTypeDefinition.getExternalReferenceCode(),
+			ReflectionTestUtil.invoke(
+				listTypeDefinition, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(listTypeDefinition.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				listTypeDefinition, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
+	}
+
 	protected ListTypeDefinition addListTypeDefinition() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
@@ -456,6 +561,9 @@ public class ListTypeDefinitionPersistenceTest {
 		listTypeDefinition.setMvccVersion(RandomTestUtil.nextLong());
 
 		listTypeDefinition.setUuid(RandomTestUtil.randomString());
+
+		listTypeDefinition.setExternalReferenceCode(
+			RandomTestUtil.randomString());
 
 		listTypeDefinition.setCompanyId(RandomTestUtil.nextLong());
 

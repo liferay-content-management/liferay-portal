@@ -15,6 +15,7 @@
 package com.liferay.commerce.product.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.commerce.product.exception.DuplicateCPOptionValueExternalReferenceCodeException;
 import com.liferay.commerce.product.exception.NoSuchCPOptionValueException;
 import com.liferay.commerce.product.model.CPOptionValue;
 import com.liferay.commerce.product.service.CPOptionValueLocalServiceUtil;
@@ -202,6 +203,26 @@ public class CPOptionValuePersistenceTest {
 			Time.getShortTimestamp(newCPOptionValue.getLastPublishDate()));
 	}
 
+	@Test(expected = DuplicateCPOptionValueExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		CPOptionValue cpOptionValue = addCPOptionValue();
+
+		CPOptionValue newCPOptionValue = addCPOptionValue();
+
+		newCPOptionValue.setCompanyId(cpOptionValue.getCompanyId());
+
+		newCPOptionValue = _persistence.update(newCPOptionValue);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newCPOptionValue);
+
+		newCPOptionValue.setExternalReferenceCode(
+			cpOptionValue.getExternalReferenceCode());
+
+		_persistence.update(newCPOptionValue);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -244,12 +265,12 @@ public class CPOptionValuePersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -561,15 +582,15 @@ public class CPOptionValuePersistenceTest {
 				new Class<?>[] {String.class}, "key_"));
 
 		Assert.assertEquals(
-			Long.valueOf(cpOptionValue.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				cpOptionValue, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			cpOptionValue.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				cpOptionValue, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(cpOptionValue.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				cpOptionValue, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected CPOptionValue addCPOptionValue() throws Exception {

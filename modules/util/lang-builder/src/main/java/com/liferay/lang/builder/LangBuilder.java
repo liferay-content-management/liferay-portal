@@ -120,7 +120,17 @@ public class LangBuilder {
 		_langDirName = langDirName;
 		_langFileName = langFileName;
 		_titleCapitalization = titleCapitalization;
-		_translate = translate;
+
+		if (Validator.isNull(translateSubscriptionKey)) {
+			System.out.println(
+				"Translation is disabled because credentials are not " +
+					"specified");
+
+			_translate = false;
+		}
+		else {
+			_translate = translate;
+		}
 
 		Translate.setSubscriptionKey(translateSubscriptionKey);
 

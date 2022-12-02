@@ -26,7 +26,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Marcos Martins
  */
-@Component(immediate = true, service = ModelListener.class)
+@Component(service = ModelListener.class)
 public class GroupModelListener
 	extends BaseAnalyticsDXPEntityModelListener<Group> {
 
@@ -39,7 +39,7 @@ public class GroupModelListener
 	public void onAfterRemove(Group group) throws ModelListenerException {
 		super.onAfterRemove(group);
 
-		if (!analyticsConfigurationTracker.isActive() || !isTracked(group)) {
+		if (!analyticsConfigurationRegistry.isActive() || !isTracked(group)) {
 			return;
 		}
 

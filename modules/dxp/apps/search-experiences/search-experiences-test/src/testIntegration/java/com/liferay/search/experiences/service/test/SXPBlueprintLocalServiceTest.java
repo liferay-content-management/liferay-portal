@@ -111,12 +111,12 @@ public class SXPBlueprintLocalServiceTest {
 		Assert.assertEquals(
 			sxpBlueprint,
 			_sxpBlueprintLocalService.getSXPBlueprintByExternalReferenceCode(
-				TestPropsValues.getCompanyId(),
-				sxpBlueprint.getExternalReferenceCode()));
+				sxpBlueprint.getExternalReferenceCode(),
+				TestPropsValues.getCompanyId()));
 
 		try {
 			_sxpBlueprintLocalService.getSXPBlueprintByExternalReferenceCode(
-				TestPropsValues.getCompanyId(), RandomTestUtil.randomString());
+				RandomTestUtil.randomString(), TestPropsValues.getCompanyId());
 
 			Assert.fail();
 		}

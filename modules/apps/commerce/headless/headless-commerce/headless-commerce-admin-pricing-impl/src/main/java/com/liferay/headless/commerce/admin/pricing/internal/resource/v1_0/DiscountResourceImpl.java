@@ -72,7 +72,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/discount.properties",
 	scope = ServiceScope.PROTOTYPE, service = DiscountResource.class
 )
@@ -407,9 +406,9 @@ public class DiscountResourceImpl extends BaseDiscountResourceImpl {
 					cProduct =
 						_cProductLocalService.
 							fetchCProductByExternalReferenceCode(
-								contextCompany.getCompanyId(),
 								discountProduct.
-									getProductExternalReferenceCode());
+									getProductExternalReferenceCode(),
+								contextCompany.getCompanyId());
 				}
 
 				if (cProduct == null) {

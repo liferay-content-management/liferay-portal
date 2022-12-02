@@ -154,6 +154,14 @@ definition {
 		Refresh();
 	}
 
+	macro assertMiniumCardDescription {
+		AssertTextEquals(
+			key_productDescription = "${productDescription}",
+			key_productName = "${productName}",
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_DESCRIPTION",
+			value1 = "${productDescription}");
+	}
+
 	macro changeProductsSorting {
 		Click(locator1 = "CommerceAccelerators#SORT_BY_DROPDOWN");
 
@@ -165,7 +173,7 @@ definition {
 	}
 
 	macro createNewAccountViaFront {
-		Accounts.addBusinessAccount(accountName = "${accountName}");
+		Account.addBusinessAccount(accountName = "${accountName}");
 	}
 
 	macro createNewOrderFromAccountSelectorDropdown {
@@ -199,7 +207,7 @@ definition {
 	}
 
 	macro deactivateCommerceAccountViaFront {
-		Accounts.deactivateAccount(accountName = "${accountName}");
+		Account.deactivateAccount(accountName = "${accountName}");
 	}
 
 	macro gotoAccountSelectorAccountsList {
@@ -219,14 +227,14 @@ definition {
 	}
 
 	macro inviteNewMemberWithRoleToAccount {
-		Accounts.addNewUserToBusinessAccount(
+		Account.addNewUserToBusinessAccount(
 			accountName = "${accountName}",
 			userEmailAddress = "${emailAddress}",
 			userFirstName = "${userFirstName}",
 			userLastName = "${userLastName}",
 			userScreenName = "${userScreenName}");
 
-		Accounts.addAssigneeToRoleViaUsersTab(
+		Account.addAssigneeToRoleViaUsersTab(
 			accountRoleTitle = "${role}",
 			accountUserName = "${emailAddress}");
 	}

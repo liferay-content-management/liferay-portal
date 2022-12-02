@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.lang.reflect.Constructor;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "resource.locator.key=/headless-commerce-admin-pricing/v2.0/DiscountChannel",
 	service = DiscountChannelResource.Factory.class
 )
@@ -140,16 +138,6 @@ public class DiscountChannelResourceFactoryImpl
 		};
 	}
 
-	@Activate
-	protected void activate() {
-		DiscountChannelResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		DiscountChannelResource.FactoryHolder.factory = null;
-	}
-
 	private static Function<InvocationHandler, DiscountChannelResource>
 		_getProxyProviderFunction() {
 
@@ -224,6 +212,7 @@ public class DiscountChannelResourceFactoryImpl
 		discountChannelResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		discountChannelResource.setRoleLocalService(_roleLocalService);
+		discountChannelResource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(discountChannelResource, arguments);
@@ -273,6 +262,9 @@ public class DiscountChannelResourceFactoryImpl
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Map;
 
@@ -45,7 +44,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Andrea Sbarra
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/shipping-method.properties",
 	scope = ServiceScope.PROTOTYPE, service = ShippingMethodResource.class
 )
@@ -60,7 +58,7 @@ public class ShippingMethodResourceImpl extends BaseShippingMethodResourceImpl {
 			_commerceChannelService.getCommerceChannel(channelId);
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceShippingMethodService.getCommerceShippingMethods(
 					commerceChannel.getGroupId(), pagination.getStartPosition(),
 					pagination.getEndPosition(),
@@ -74,7 +72,7 @@ public class ShippingMethodResourceImpl extends BaseShippingMethodResourceImpl {
 	private ShippingOption[] _getShippingOptions(long shippingMethodId)
 		throws PortalException {
 
-		return TransformUtil.transformToArray(
+		return transformToArray(
 			_commerceShippingFixedOptionService.getCommerceShippingFixedOptions(
 				shippingMethodId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 				new CommerceShippingFixedOptionPriorityComparator()),

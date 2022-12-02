@@ -134,12 +134,14 @@
 			Liferay.Util.openSelectionModal({
 				buttonAddLabel: '<liferay-ui:message key="done" />',
 				multiple: true,
-				onSelect: function (assetEntryIds) {
-					if (assetEntryIds) {
+				onSelect: function (selectedItems) {
+					if (selectedItems) {
 						Array.prototype.forEach.call(
-							assetEntryIds,
-							(assetEntry) => {
-								var entityId = assetEntry.entityid;
+							selectedItems,
+							(selectedItem) => {
+								const assetEntry = JSON.parse(selectedItem.value);
+
+								var entityId = assetEntry.assetEntryId;
 
 								if (searchContainerData.indexOf(entityId) == -1) {
 									var entryLink =
@@ -149,16 +151,14 @@
 
 									var entryHtml =
 										'<h4 class="list-group-title">' +
-										Liferay.Util.escapeHTML(
-											assetEntry.assettitle
-										) +
+										Liferay.Util.escapeHTML(assetEntry.title) +
 										'</h4><p class="list-group-subtitle">' +
 										Liferay.Util.escapeHTML(
-											assetEntry.assettype
+											assetEntry.assetType
 										) +
 										'</p><p class="list-group-subtitle"><liferay-ui:message key="scope" />: ' +
 										Liferay.Util.escapeHTML(
-											assetEntry.groupdescriptivename
+											assetEntry.groupDescriptiveName
 										) +
 										'</p>';
 

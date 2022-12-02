@@ -35,7 +35,6 @@ import com.liferay.portal.vulcan.fields.NestedField;
 import com.liferay.portal.vulcan.fields.NestedFieldSupport;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Map;
 
@@ -47,7 +46,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Marco Leo
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/order-rule-channel.properties",
 	scope = ServiceScope.PROTOTYPE,
 	service = {NestedFieldSupport.class, OrderRuleChannelResource.class}
@@ -76,7 +74,7 @@ public class OrderRuleChannelResourceImpl
 		}
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_corEntryRelService.getCommerceChannelCOREntryRels(
 					corEntry.getCOREntryId(), null,
 					pagination.getStartPosition(), pagination.getEndPosition()),
@@ -101,7 +99,7 @@ public class OrderRuleChannelResourceImpl
 		}
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_corEntryRelService.getCommerceChannelCOREntryRels(
 					id, search, pagination.getStartPosition(),
 					pagination.getEndPosition()),

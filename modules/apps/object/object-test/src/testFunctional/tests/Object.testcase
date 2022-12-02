@@ -142,6 +142,51 @@ definition {
 		}
 	}
 
+	@description = "LPS-158615 - Verify that it's possible to filter object entries by API"
+	@priority = "4"
+	test CanFilterObjectEntriesViaAPI {
+		task ("Given a custom object with a text field") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 158615",
+				objectName = "CustomObject158615",
+				pluralLabelName = "Custom Objects 158615");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Food",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObject158615");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject158615");
+		}
+
+		task ("When entries are added to the object") {
+			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+				fieldName = "customObjectField",
+				objectName = "CustomObject158615",
+				value = "Apple");
+
+			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+				fieldName = "customObjectField",
+				objectName = "CustomObject158615",
+				value = "Apple Sauce");
+
+			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+				fieldName = "customObjectField",
+				objectName = "CustomObject158615",
+				value = "Banana");
+		}
+
+		task ("Then the object's entries can be filtered") {
+			ObjectAdmin.filterObjectEntryViaAPI(
+				fieldName = "customObjectField",
+				objectName = "CustomObject158615",
+				value = "Apple");
+		}
+	}
+
 	@description = "LPS-150886 - Verify that it's not possible to delete an object that has a relationship"
 	@priority = "5"
 	test CannotDeleteCustomObjectWithRelationship {
@@ -323,12 +368,53 @@ definition {
 			locator1 = "CreateObject#SELECT_OBJECT_FIELD_IN_TABLE");
 	}
 
+	@description = "LPS-162024 - Verify that an error message is shown when the user enters the wrong value in the confirmation field"
+	@priority = "4"
+	test CanViewErrorMessageWithIncorrectValue {
+		task ("Given an object with a field is created") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 162024",
+				objectName = "CustomObject162024",
+				pluralLabelName = "Custom Objects 162024");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObject162024");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject162024");
+		}
+
+		task ("When the user enters an incorrect value in the confirmation field while deleting the object") {
+			ObjectAdmin.openObjectAdmin();
+
+			Click(
+				key_objectLabel = "Custom Object 162024",
+				locator1 = "ObjectAdmin#OBJECT_KEBAB_MENU");
+
+			MenuItem.clickNoError(menuItem = "Delete");
+
+			SelectFrame(locator1 = "ObjectCustomViews#VIEW_MODAL_CONTENT");
+
+			Type(
+				locator1 = "ObjectAdmin#PLACEHOLDER_DELETE_OBJECT",
+				value1 = "anyone");
+		}
+
+		task ("Then an error message is shown") {
+			AssertElementPresent(locator1 = "Message#WARNING_FEEDBACK");
+		}
+	}
+
 	@description = "Verify that it's possible to view the custom object after restarting portal"
 	@priority = "5"
 	test CanViewObjectAfterRestart {
 		property portal.acceptance = "true";
 
-		task ("Create Custom Object and Custom Field (via API)") {
+		task ("Create Custom Object, Custom Field and publish (via API)") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object 163066",
 				objectName = "CustomObject163066",
@@ -341,16 +427,18 @@ definition {
 				fieldType = "String",
 				isRequired = "false",
 				objectName = "CustomObject163066");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject163066");
 		}
 
-		task ("Go to Custom Object, change the panel category key and publish") {
+		task ("Go to Custom Object and change the panel category key") {
 			ObjectAdmin.openObjectAdmin();
 
 			ObjectPortlet.selectCustomObject(label = "Custom Object 163066");
 
 			CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Users");
 
-			ObjectAdmin.publishObjectViaUI();
+			ObjectAdmin.saveCustomObject();
 		}
 
 		task ("Create an Entry (via API)") {
@@ -364,6 +452,10 @@ definition {
 			Portlet.shutdownServer();
 
 			Portlet.startServer(deleteLiferayHome = "false");
+		}
+
+		task ("Login portal") {
+			User.firstLoginPG();
 		}
 
 		task ("Assert the Custom Object is present in Object Admin") {

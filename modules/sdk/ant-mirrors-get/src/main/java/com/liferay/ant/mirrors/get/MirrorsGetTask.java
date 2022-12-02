@@ -360,6 +360,18 @@ public class MirrorsGetTask extends Task {
 		return "http://";
 	}
 
+	protected String getUserAgent() {
+		if (_userAgent != null) {
+			return _userAgent;
+		}
+
+		Project project = getProject();
+
+		_userAgent = project.getProperty("mirrors.user.agent");
+
+		return _userAgent;
+	}
+
 	protected String getUsername() {
 		if (_username != null) {
 			return _username;
@@ -486,6 +498,11 @@ public class MirrorsGetTask extends Task {
 				httpURLConnection.setRequestProperty(
 					"Authorization",
 					"Basic " + encoder.encodeToString(auth.getBytes()));
+			}
+
+			if (getUserAgent() != null) {
+				httpURLConnection.setRequestProperty(
+					"User-Agent", getUserAgent());
 			}
 
 			int responseCode = httpURLConnection.getResponseCode();
@@ -664,6 +681,7 @@ public class MirrorsGetTask extends Task {
 	private String _src;
 	private boolean _ssl;
 	private boolean _tryLocalNetwork = true;
+	private String _userAgent;
 	private String _username;
 	private boolean _verbose;
 

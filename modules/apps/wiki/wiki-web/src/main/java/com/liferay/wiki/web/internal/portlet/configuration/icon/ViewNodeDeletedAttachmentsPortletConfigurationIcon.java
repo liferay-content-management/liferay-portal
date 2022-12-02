@@ -40,7 +40,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Roberto Díaz
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + WikiPortletKeys.WIKI_ADMIN,
 		"path=/wiki/view_pages"
@@ -53,8 +52,7 @@ public class ViewNodeDeletedAttachmentsPortletConfigurationIcon
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
 		return _language.get(
-			getResourceBundle(getLocale(portletRequest)),
-			"view-removed-attachments");
+			getLocale(portletRequest), "view-removed-attachments");
 	}
 
 	@Override

@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Localization;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -56,7 +55,7 @@ public class LanguageResourceImpl extends BaseLanguageResourceImpl {
 		Locale defaultLocale = _getDefaultLocale(siteId);
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				availableLocales,
 				availableLocale -> _toLanguage(
 					contextAcceptLanguage.isAcceptAllLanguages(),

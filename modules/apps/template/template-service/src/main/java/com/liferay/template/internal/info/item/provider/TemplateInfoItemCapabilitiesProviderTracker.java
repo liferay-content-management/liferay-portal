@@ -15,7 +15,7 @@
 package com.liferay.template.internal.info.item.provider;
 
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.capability.InfoItemCapability;
 import com.liferay.info.item.provider.InfoItemCapabilitiesProvider;
 import com.liferay.info.item.renderer.InfoItemRenderer;
@@ -27,8 +27,8 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.staging.StagingGroupHelper;
 import com.liferay.template.info.item.capability.TemplateInfoItemCapability;
 import com.liferay.template.internal.info.item.renderer.TemplateInfoItemTemplatedRenderer;
-import com.liferay.template.internal.transformer.TemplateNodeFactory;
 import com.liferay.template.service.TemplateEntryLocalService;
+import com.liferay.template.transformer.TemplateNodeFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -77,7 +77,7 @@ public class TemplateInfoItemCapabilitiesProviderTracker {
 	private DDMTemplateLocalService _ddmTemplateLocalService;
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	private final Map<String, ServiceRegistration<?>> _serviceRegistrations =
 		new ConcurrentHashMap<>();
@@ -146,7 +146,7 @@ public class TemplateInfoItemCapabilitiesProviderTracker {
 							(Class<?>)InfoItemRenderer.class,
 						new TemplateInfoItemTemplatedRenderer<>(
 							className, _ddmTemplateLocalService,
-							_infoItemServiceTracker, _stagingGroupHelper,
+							_infoItemServiceRegistry, _stagingGroupHelper,
 							_templateEntryLocalService, _templateNodeFactory),
 						HashMapDictionaryBuilder.<String, Object>put(
 							"item.class.name", className

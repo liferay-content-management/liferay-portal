@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -47,6 +46,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUID;
+import com.liferay.search.experiences.exception.DuplicateSXPElementExternalReferenceCodeException;
 import com.liferay.search.experiences.exception.NoSuchSXPElementException;
 import com.liferay.search.experiences.model.SXPElement;
 import com.liferay.search.experiences.model.SXPElementTable;
@@ -85,7 +85,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(service = {SXPElementPersistence.class, BasePersistence.class})
+@Component(service = SXPElementPersistence.class)
 public class SXPElementPersistenceImpl
 	extends BasePersistenceImpl<SXPElement> implements SXPElementPersistence {
 
@@ -201,7 +201,7 @@ public class SXPElementPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SXPElement>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SXPElement sxpElement : list) {
@@ -929,7 +929,7 @@ public class SXPElementPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1155,7 +1155,7 @@ public class SXPElementPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SXPElement>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SXPElement sxpElement : list) {
@@ -1929,7 +1929,7 @@ public class SXPElementPersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -2160,7 +2160,7 @@ public class SXPElementPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SXPElement>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SXPElement sxpElement : list) {
@@ -2842,7 +2842,7 @@ public class SXPElementPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -3033,7 +3033,7 @@ public class SXPElementPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SXPElement>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SXPElement sxpElement : list) {
@@ -3762,7 +3762,7 @@ public class SXPElementPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, readOnly};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -3964,7 +3964,7 @@ public class SXPElementPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SXPElement>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SXPElement sxpElement : list) {
@@ -4686,7 +4686,7 @@ public class SXPElementPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, type};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -4897,7 +4897,7 @@ public class SXPElementPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SXPElement>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (SXPElement sxpElement : list) {
@@ -5663,7 +5663,7 @@ public class SXPElementPersistenceImpl
 
 		Object[] finderArgs = new Object[] {companyId, type, status};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(4);
@@ -5778,33 +5778,33 @@ public class SXPElementPersistenceImpl
 	private static final String _FINDER_COLUMN_C_T_S_STATUS_2 =
 		"sxpElement.status = ?";
 
-	private FinderPath _finderPathFetchByC_ERC;
-	private FinderPath _finderPathCountByC_ERC;
+	private FinderPath _finderPathFetchByERC_C;
+	private FinderPath _finderPathCountByERC_C;
 
 	/**
-	 * Returns the sxp element where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchSXPElementException</code> if it could not be found.
+	 * Returns the sxp element where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchSXPElementException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching sxp element
 	 * @throws NoSuchSXPElementException if a matching sxp element could not be found
 	 */
 	@Override
-	public SXPElement findByC_ERC(long companyId, String externalReferenceCode)
+	public SXPElement findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchSXPElementException {
 
-		SXPElement sxpElement = fetchByC_ERC(companyId, externalReferenceCode);
+		SXPElement sxpElement = fetchByERC_C(externalReferenceCode, companyId);
 
 		if (sxpElement == null) {
 			StringBundler sb = new StringBundler(6);
 
 			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
 
-			sb.append("companyId=");
-			sb.append(companyId);
-
-			sb.append(", externalReferenceCode=");
+			sb.append("externalReferenceCode=");
 			sb.append(externalReferenceCode);
+
+			sb.append(", companyId=");
+			sb.append(companyId);
 
 			sb.append("}");
 
@@ -5819,52 +5819,53 @@ public class SXPElementPersistenceImpl
 	}
 
 	/**
-	 * Returns the sxp element where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the sxp element where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching sxp element, or <code>null</code> if a matching sxp element could not be found
 	 */
 	@Override
-	public SXPElement fetchByC_ERC(
-		long companyId, String externalReferenceCode) {
+	public SXPElement fetchByERC_C(
+		String externalReferenceCode, long companyId) {
 
-		return fetchByC_ERC(companyId, externalReferenceCode, true);
+		return fetchByERC_C(externalReferenceCode, companyId, true);
 	}
 
 	/**
-	 * Returns the sxp element where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the sxp element where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching sxp element, or <code>null</code> if a matching sxp element could not be found
 	 */
 	@Override
-	public SXPElement fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache) {
+	public SXPElement fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache) {
 
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
 		Object[] finderArgs = null;
 
 		if (useFinderCache) {
-			finderArgs = new Object[] {companyId, externalReferenceCode};
+			finderArgs = new Object[] {externalReferenceCode, companyId};
 		}
 
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByC_ERC, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByERC_C, finderArgs, this);
 		}
 
 		if (result instanceof SXPElement) {
 			SXPElement sxpElement = (SXPElement)result;
 
-			if ((companyId != sxpElement.getCompanyId()) ||
-				!Objects.equals(
+			if (!Objects.equals(
 					externalReferenceCode,
-					sxpElement.getExternalReferenceCode())) {
+					sxpElement.getExternalReferenceCode()) ||
+				(companyId != sxpElement.getCompanyId())) {
 
 				result = null;
 			}
@@ -5875,18 +5876,18 @@ public class SXPElementPersistenceImpl
 
 			sb.append(_SQL_SELECT_SXPELEMENT_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_ERC_COMPANYID_2);
-
 			boolean bindExternalReferenceCode = false;
 
 			if (externalReferenceCode.isEmpty()) {
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
 			}
 			else {
 				bindExternalReferenceCode = true;
 
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
 			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
 
 			String sql = sb.toString();
 
@@ -5899,18 +5900,18 @@ public class SXPElementPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(companyId);
-
 				if (bindExternalReferenceCode) {
 					queryPos.add(externalReferenceCode);
 				}
+
+				queryPos.add(companyId);
 
 				List<SXPElement> list = query.list();
 
 				if (list.isEmpty()) {
 					if (useFinderCache) {
 						finderCache.putResult(
-							_finderPathFetchByC_ERC, finderArgs, list);
+							_finderPathFetchByERC_C, finderArgs, list);
 					}
 				}
 				else {
@@ -5938,56 +5939,56 @@ public class SXPElementPersistenceImpl
 	}
 
 	/**
-	 * Removes the sxp element where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the sxp element where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the sxp element that was removed
 	 */
 	@Override
-	public SXPElement removeByC_ERC(
-			long companyId, String externalReferenceCode)
+	public SXPElement removeByERC_C(
+			String externalReferenceCode, long companyId)
 		throws NoSuchSXPElementException {
 
-		SXPElement sxpElement = findByC_ERC(companyId, externalReferenceCode);
+		SXPElement sxpElement = findByERC_C(externalReferenceCode, companyId);
 
 		return remove(sxpElement);
 	}
 
 	/**
-	 * Returns the number of sxp elements where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of sxp elements where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching sxp elements
 	 */
 	@Override
-	public int countByC_ERC(long companyId, String externalReferenceCode) {
+	public int countByERC_C(String externalReferenceCode, long companyId) {
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
-		FinderPath finderPath = _finderPathCountByC_ERC;
+		FinderPath finderPath = _finderPathCountByERC_C;
 
-		Object[] finderArgs = new Object[] {companyId, externalReferenceCode};
+		Object[] finderArgs = new Object[] {externalReferenceCode, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
 
 			sb.append(_SQL_COUNT_SXPELEMENT_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_ERC_COMPANYID_2);
-
 			boolean bindExternalReferenceCode = false;
 
 			if (externalReferenceCode.isEmpty()) {
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
 			}
 			else {
 				bindExternalReferenceCode = true;
 
-				sb.append(_FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2);
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
 			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
 
 			String sql = sb.toString();
 
@@ -6000,11 +6001,11 @@ public class SXPElementPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(companyId);
-
 				if (bindExternalReferenceCode) {
 					queryPos.add(externalReferenceCode);
 				}
+
+				queryPos.add(companyId);
 
 				count = (Long)query.uniqueResult();
 
@@ -6021,14 +6022,14 @@ public class SXPElementPersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_C_ERC_COMPANYID_2 =
-		"sxpElement.companyId = ? AND ";
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2 =
+		"sxpElement.externalReferenceCode = ? AND ";
 
-	private static final String _FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_2 =
-		"sxpElement.externalReferenceCode = ?";
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3 =
+		"(sxpElement.externalReferenceCode IS NULL OR sxpElement.externalReferenceCode = '') AND ";
 
-	private static final String _FINDER_COLUMN_C_ERC_EXTERNALREFERENCECODE_3 =
-		"(sxpElement.externalReferenceCode IS NULL OR sxpElement.externalReferenceCode = '')";
+	private static final String _FINDER_COLUMN_ERC_C_COMPANYID_2 =
+		"sxpElement.companyId = ?";
 
 	public SXPElementPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -6058,9 +6059,9 @@ public class SXPElementPersistenceImpl
 			SXPElementImpl.class, sxpElement.getPrimaryKey(), sxpElement);
 
 		finderCache.putResult(
-			_finderPathFetchByC_ERC,
+			_finderPathFetchByERC_C,
 			new Object[] {
-				sxpElement.getCompanyId(), sxpElement.getExternalReferenceCode()
+				sxpElement.getExternalReferenceCode(), sxpElement.getCompanyId()
 			},
 			sxpElement);
 	}
@@ -6136,13 +6137,13 @@ public class SXPElementPersistenceImpl
 		SXPElementModelImpl sxpElementModelImpl) {
 
 		Object[] args = new Object[] {
-			sxpElementModelImpl.getCompanyId(),
-			sxpElementModelImpl.getExternalReferenceCode()
+			sxpElementModelImpl.getExternalReferenceCode(),
+			sxpElementModelImpl.getCompanyId()
 		};
 
-		finderCache.putResult(_finderPathCountByC_ERC, args, Long.valueOf(1));
+		finderCache.putResult(_finderPathCountByERC_C, args, Long.valueOf(1));
 		finderCache.putResult(
-			_finderPathFetchByC_ERC, args, sxpElementModelImpl);
+			_finderPathFetchByERC_C, args, sxpElementModelImpl);
 	}
 
 	/**
@@ -6283,6 +6284,29 @@ public class SXPElementPersistenceImpl
 
 		if (Validator.isNull(sxpElement.getExternalReferenceCode())) {
 			sxpElement.setExternalReferenceCode(sxpElement.getUuid());
+		}
+		else {
+			SXPElement ercSXPElement = fetchByERC_C(
+				sxpElement.getExternalReferenceCode(),
+				sxpElement.getCompanyId());
+
+			if (isNew) {
+				if (ercSXPElement != null) {
+					throw new DuplicateSXPElementExternalReferenceCodeException(
+						"Duplicate sxp element with external reference code " +
+							sxpElement.getExternalReferenceCode());
+				}
+			}
+			else {
+				if ((ercSXPElement != null) &&
+					(sxpElement.getSXPElementId() !=
+						ercSXPElement.getSXPElementId())) {
+
+					throw new DuplicateSXPElementExternalReferenceCodeException(
+						"Duplicate sxp element with external reference code " +
+							sxpElement.getExternalReferenceCode());
+				}
+			}
 		}
 
 		ServiceContext serviceContext =
@@ -6500,7 +6524,7 @@ public class SXPElementPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<SXPElement>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -6570,7 +6594,7 @@ public class SXPElementPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;
@@ -6759,15 +6783,15 @@ public class SXPElementPersistenceImpl
 			},
 			new String[] {"companyId", "type_", "status"}, false);
 
-		_finderPathFetchByC_ERC = new FinderPath(
-			FINDER_CLASS_NAME_ENTITY, "fetchByC_ERC",
-			new String[] {Long.class.getName(), String.class.getName()},
-			new String[] {"companyId", "externalReferenceCode"}, true);
+		_finderPathFetchByERC_C = new FinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByERC_C",
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"externalReferenceCode", "companyId"}, true);
 
-		_finderPathCountByC_ERC = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_ERC",
-			new String[] {Long.class.getName(), String.class.getName()},
-			new String[] {"companyId", "externalReferenceCode"}, false);
+		_finderPathCountByERC_C = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByERC_C",
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"externalReferenceCode", "companyId"}, false);
 
 		_setSXPElementUtilPersistence(this);
 	}

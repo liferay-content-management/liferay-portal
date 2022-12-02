@@ -927,6 +927,22 @@ mariadb.executable=${mariadb.executable}]]></echo>
 					<ant antfile="build-test-elasticsearch7.xml" target="start-elasticsearch" />
 				</then>
 			</if>
+
+			<if>
+				<equals arg1="${suite.search.engine}" arg2="solr" />
+				<then>
+					<ant antfile="build-test-solr.xml" target="start-solr" />
+
+					<property name="test.batch.name" unless:set="test.batch.name" value="${env.TEST_BATCH_NAME}" />
+
+					<if>
+						<contains string="${test.batch.name}" substring="unit" />
+						<then>
+							<property name="run.solr.unit.tests" value="true" />
+						</then>
+					</if>
+				</then>
+			</if>
 		</sequential>
 	</macrodef>
 
@@ -1553,55 +1569,10 @@ app.server.type=@{app.server.type}]]></echo>
 		</sequential>
 	</macrodef>
 
-	<macrodef name="run-empty-temp-dir-test">
-		<sequential>
-			<run-batch-test tomcat.gc.log="true">
-				<test-action>
-					<database-test-run-test database.type="mysql" stop.app.server="true">
-						<test-action>
-							<trycatch>
-								<try>
-									<antcall inheritAll="false" target="prepare-log4j-ext-xml">
-										<param name="database.type" value="@{database.type}" />
-									</antcall>
-
-									<antcall if:set="env.JENKINS_HOME" inheritAll="false" target="prepare-portal-ext-properties">
-										<param name="database.type" value="@{database.type}" />
-									</antcall>
-
-									<antcall inheritAll="false" target="prepare-system-ext-properties" />
-
-									<antcall inheritall="false" target="start-app-server" />
-								</try>
-
-								<finally>
-									<ant dir="portal-kernel" inheritAll="false" target="test-class">
-										<property name="test.class" value="PortalLogAssertorTest" />
-									</ant>
-								</finally>
-							</trycatch>
-
-							<antcall inheritall="false" target="stop-app-server" />
-
-							<delete dir="${liferay.home}/logs" />
-
-							<ant dir="portal-kernel" inheritAll="false" target="test-class">
-								<property name="test.class" value="EmptyTempDirTest" />
-							</ant>
-						</test-action>
-					</database-test-run-test>
-				</test-action>
-
-				<test-set-up>
-					<setup-test-environment />
-				</test-set-up>
-			</run-batch-test>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="run-functional-test">
 		<attribute name="app.server.type" />
 		<attribute default="${app.server.@{app.server.type}.version}" name="app.server.version" />
+		<attribute default="${browser.type}" name="browser.type" />
 		<attribute name="database.type" />
 		<attribute default="${database.@{database.type}.version}" name="database.version" />
 		<attribute default="poshi" name="functional.test.type" />
@@ -1631,6 +1602,7 @@ app.server.type=@{app.server.type}]]></echo>
 		<sequential>
 			<var name="app.server.type" value="@{app.server.type}" />
 			<var name="app.server.version" value="@{app.server.version}" />
+			<var name="browser.type" value="@{browser.type}" />
 			<var name="database.type" value="@{database.type}" />
 
 			<condition else="${run.test.case.method.group}_${axis.variable}" property="test.class" value="${axis.variable}">
@@ -1668,6 +1640,7 @@ app.server.type=@{app.server.type}]]></echo>
 											<property name="liferay.portal.bundle" value="@{test.portal.bundle.version}" />
 											<property name="test.build.plugins.war.zip.url" value="@{test.plugins.war.zip.url}" />
 											<property name="test.class" value="${test.class}" />
+											<property name="test.portal.log.assert" value="@{test.portal.log.assert}" />
 										</ant>
 
 										<if>
@@ -1713,6 +1686,8 @@ app.server.type=@{app.server.type}]]></echo>
 					</test-action>
 
 					<test-set-up>
+						<delete failonerror="false" file="${project.dir}/test.generated.properties" />
+
 						<antcall target="record-test-generated-properties" />
 
 						<if>
@@ -3057,6 +3032,13 @@ log.sanitizer.enabled=false</echo>
 					<ant antfile="build-test-elasticsearch7.xml" target="stop-elasticsearch" />
 				</then>
 			</if>
+
+			<if>
+				<equals arg1="${suite.search.engine}" arg2="solr" />
+				<then>
+					<ant antfile="build-test-solr.xml" target="stop-solr-core" />
+				</then>
+			</if>
 		</sequential>
 	</macrodef>
 
@@ -3300,10 +3282,6 @@ log.sanitizer.enabled=false</echo>
 		<run-empty-osgi-core-dir-test />
 	</target>
 
-	<target name="empty-temp-dir-jdk8">
-		<run-empty-temp-dir-test />
-	</target>
-
 	<target name="functional-alpine38-tomcat90-mysql57-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
 	</target>
@@ -3313,6 +3291,10 @@ log.sanitizer.enabled=false</echo>
 	</target>
 
 	<target name="functional-amazonlinux2-tomcat90-mysql57-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
+	</target>
+
+	<target name="functional-amazonlinux2022-tomcat90-mysql57-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
 	</target>
 
@@ -3358,7 +3340,49 @@ log.sanitizer.enabled=false</echo>
 		/>
 	</target>
 
+	<target name="functional-bundle-amazonlinux2022-tomcat90-mysql57-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="mysql"
+			database.version="5.7"
+			setup.proxy="false"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.portal.log.assert="true"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
 	<target name="functional-bundle-centos8-tomcat90-mysql57-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="mysql"
+			database.version="5.7"
+			setup.proxy="false"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.portal.log.assert="true"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="functional-bundle-fedora35-tomcat90-mysql57-jdk8">
 		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
 
 		<run-functional-test
@@ -4394,6 +4418,10 @@ log.sanitizer.enabled=false</echo>
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
 	</target>
 
+	<target name="functional-fedora35-tomcat90-mysql57-jdk8">
+		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
+	</target>
+
 	<target name="functional-jboss73-mysql57-jdk8">
 		<run-functional-test app.server.type="jboss" database.type="mysql" database.version="5.7" />
 	</target>
@@ -4684,6 +4712,10 @@ log.sanitizer.enabled=false</echo>
 		<run-functional-test app.server.type="tomcat" database.type="mariadb" test.portal.log.assert="true" />
 	</target>
 
+	<target name="functional-smoke-tomcat90-mysql57-chrome100-jdk8">
+		<run-functional-test app.server.type="tomcat" browser.type="chrome" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
+	</target>
+
 	<target name="functional-smoke-tomcat90-mysql57-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="mysql" database.version="5.7" test.portal.log.assert="true" />
 	</target>
@@ -4882,6 +4914,10 @@ log.sanitizer.enabled=false</echo>
 
 	<target name="functional-tomcat90-mariadb106-jdk11_open">
 		<run-functional-test app.server.type="tomcat" database.type="mariadb" />
+	</target>
+
+	<target name="functional-tomcat90-mysql57-chrome100-jdk8">
+		<run-functional-test app.server.type="tomcat" browser.type="chrome" database.type="mysql" database.version="5.7" />
 	</target>
 
 	<target name="functional-tomcat90-mysql57-jdk8">
@@ -6324,6 +6360,7 @@ log.sanitizer.enabled=false</echo>
 				<gradle-execute dir="modules" task="test">
 					<arg value="--continue" />
 					<arg value="-Dbuild.exclude.ant.plugin=true" />
+					<arg if:true="${run.solr.unit.tests}" value="-Dcom.liferay.portal.search.solr8.test.unit.started=true" />
 					<arg value="-Djunit.code.coverage=${test.batch.code.coverage}" />
 					<arg if:set="project.templates.test.builds" value="-Dproject.templates.test.builds=${project.templates.test.builds}" />
 					<arg value="-Dtest.class.group.index=${axis.variable}" />
@@ -6334,6 +6371,8 @@ log.sanitizer.enabled=false</echo>
 
 			<test-set-up>
 				<setup-test-environment />
+
+				<prepare-suite-search-engine />
 
 				<if>
 					<isset property="TEST_CLASS_GROUP_${axis.variable}" />

@@ -60,7 +60,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sergio González
  */
 @Component(
-	immediate = true,
 	property = {
 		"com.liferay.portlet.css-class-wrapper=knowledge-base-portlet knowledge-base-portlet-display",
 		"com.liferay.portlet.display-category=category.cms",
@@ -146,7 +145,8 @@ public class DisplayPortlet extends BaseKBPortlet {
 				renderRequest, "mvcRenderCommandName");
 
 			if ((mvcPath.equals("") ||
-				 mvcRenderCommandName.equals("/knowledge_base/view_article")) &&
+				 mvcRenderCommandName.equals(
+					 "/knowledge_base/view_kb_article")) &&
 				!kbArticleSelection.isExactMatch()) {
 
 				HttpServletResponse httpServletResponse =

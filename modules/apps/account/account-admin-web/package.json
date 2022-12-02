@@ -1,9 +1,13 @@
 {
+	"dependencies": {
+		"@liferay/address-web": "*",
+		"frontend-js-web": "*"
+	},
 	"name": "account-admin-web",
 	"scripts": {
 		"build": "liferay-npm-scripts build",
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "2.0.59"
+	"version": "2.0.69"
 }

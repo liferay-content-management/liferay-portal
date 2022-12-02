@@ -234,13 +234,6 @@ public class CPMeasurementUnitLocalServiceUtil {
 		return getService().fetchCPMeasurementUnit(CPMeasurementUnitId);
 	}
 
-	/**
-	 * Returns the cp measurement unit with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the cp measurement unit's external reference code
-	 * @return the matching cp measurement unit, or <code>null</code> if a matching cp measurement unit could not be found
-	 */
 	public static CPMeasurementUnit
 		fetchCPMeasurementUnitByExternalReferenceCode(
 			long companyId, String externalReferenceCode) {
@@ -249,22 +242,19 @@ public class CPMeasurementUnitLocalServiceUtil {
 			companyId, externalReferenceCode);
 	}
 
+	public static CPMeasurementUnit
+		fetchCPMeasurementUnitByExternalReferenceCode(
+			String externalReferenceCode, long companyId) {
+
+		return getService().fetchCPMeasurementUnitByExternalReferenceCode(
+			externalReferenceCode, companyId);
+	}
+
 	public static CPMeasurementUnit fetchCPMeasurementUnitByKey(
 			long companyId, String key)
 		throws PortalException {
 
 		return getService().fetchCPMeasurementUnitByKey(companyId, key);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchCPMeasurementUnitByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	public static CPMeasurementUnit fetchCPMeasurementUnitByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return getService().fetchCPMeasurementUnitByReferenceCode(
-			companyId, externalReferenceCode);
 	}
 
 	/**
@@ -314,20 +304,12 @@ public class CPMeasurementUnitLocalServiceUtil {
 		return getService().getCPMeasurementUnit(CPMeasurementUnitId);
 	}
 
-	/**
-	 * Returns the cp measurement unit with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the cp measurement unit's external reference code
-	 * @return the matching cp measurement unit
-	 * @throws PortalException if a matching cp measurement unit could not be found
-	 */
 	public static CPMeasurementUnit getCPMeasurementUnitByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws PortalException {
 
 		return getService().getCPMeasurementUnitByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	public static CPMeasurementUnit getCPMeasurementUnitByKey(

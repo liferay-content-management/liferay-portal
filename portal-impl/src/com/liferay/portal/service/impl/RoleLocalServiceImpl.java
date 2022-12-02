@@ -117,6 +117,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1239,7 +1240,9 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 	 */
 	@Override
 	public List<Role> getUserRelatedRoles(long userId, long[] groupIds) {
-		return rolePersistence.dslQuery(
+		Set<Role> roles = new LinkedHashSet<>();
+
+		List<Role> userRoles = rolePersistence.dslQuery(
 			DSLQueryFactoryUtil.select(
 				RoleTable.INSTANCE
 			).from(
@@ -1249,41 +1252,52 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 				Users_RolesTable.INSTANCE.roleId.eq(RoleTable.INSTANCE.roleId)
 			).where(
 				Users_RolesTable.INSTANCE.userId.eq(userId)
-			).union(
-				DSLQueryFactoryUtil.select(
-					RoleTable.INSTANCE
-				).from(
-					RoleTable.INSTANCE
-				).innerJoinON(
-					Groups_RolesTable.INSTANCE,
-					Groups_RolesTable.INSTANCE.roleId.eq(
-						RoleTable.INSTANCE.roleId)
-				).where(
-					() -> {
-						if (groupIds.length == 0) {
-							return null;
-						}
-
-						Predicate predicate =
-							Groups_RolesTable.INSTANCE.groupId.eq(groupIds[0]);
-
-						for (int i = 1; i < groupIds.length; i++) {
-							predicate = predicate.or(
-								Groups_RolesTable.INSTANCE.groupId.eq(
-									groupIds[i]));
-						}
-
-						return predicate.withParentheses();
-					}
-				)
 			));
+
+		if (!userRoles.isEmpty()) {
+			roles.addAll(userRoles);
+		}
+
+		List<Role> groupRoles = rolePersistence.dslQuery(
+			DSLQueryFactoryUtil.select(
+				RoleTable.INSTANCE
+			).from(
+				RoleTable.INSTANCE
+			).innerJoinON(
+				Groups_RolesTable.INSTANCE,
+				Groups_RolesTable.INSTANCE.roleId.eq(RoleTable.INSTANCE.roleId)
+			).where(
+				() -> {
+					if (groupIds.length == 0) {
+						return null;
+					}
+
+					Predicate predicate = Groups_RolesTable.INSTANCE.groupId.eq(
+						groupIds[0]);
+
+					for (int i = 1; i < groupIds.length; i++) {
+						predicate = predicate.or(
+							Groups_RolesTable.INSTANCE.groupId.eq(groupIds[i]));
+					}
+
+					return predicate.withParentheses();
+				}
+			));
+
+		if (!groupRoles.isEmpty()) {
+			roles.addAll(groupRoles);
+		}
+
+		return new ArrayList<>(roles);
 	}
 
 	@Override
 	public List<Role> getUserTeamRoles(long userId, long groupId) {
+		Set<Role> roles = new LinkedHashSet<>();
+
 		long classNameId = _classNameLocalService.getClassNameId(Team.class);
 
-		return rolePersistence.dslQuery(
+		List<Role> teamRoles = rolePersistence.dslQuery(
 			DSLQueryFactoryUtil.select(
 				RoleTable.INSTANCE
 			).from(
@@ -1306,36 +1320,43 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 				).and(
 					Users_TeamsTable.INSTANCE.userId.eq(userId)
 				)
-			).union(
-				DSLQueryFactoryUtil.select(
-					RoleTable.INSTANCE
-				).from(
-					RoleTable.INSTANCE
-				).innerJoinON(
-					TeamTable.INSTANCE,
-					TeamTable.INSTANCE.companyId.eq(
-						RoleTable.INSTANCE.companyId
-					).and(
-						TeamTable.INSTANCE.teamId.eq(RoleTable.INSTANCE.classPK)
-					)
-				).innerJoinON(
-					UserGroups_TeamsTable.INSTANCE,
-					UserGroups_TeamsTable.INSTANCE.teamId.eq(
-						TeamTable.INSTANCE.teamId)
-				).innerJoinON(
-					Users_UserGroupsTable.INSTANCE,
-					Users_UserGroupsTable.INSTANCE.userGroupId.eq(
-						UserGroups_TeamsTable.INSTANCE.userGroupId)
-				).where(
-					RoleTable.INSTANCE.classNameId.eq(
-						classNameId
-					).and(
-						TeamTable.INSTANCE.groupId.eq(groupId)
-					).and(
-						Users_UserGroupsTable.INSTANCE.userId.eq(userId)
-					)
+			));
+
+		roles.addAll(teamRoles);
+
+		List<Role> userGroupRoles = rolePersistence.dslQuery(
+			DSLQueryFactoryUtil.select(
+				RoleTable.INSTANCE
+			).from(
+				RoleTable.INSTANCE
+			).innerJoinON(
+				TeamTable.INSTANCE,
+				TeamTable.INSTANCE.companyId.eq(
+					RoleTable.INSTANCE.companyId
+				).and(
+					TeamTable.INSTANCE.teamId.eq(RoleTable.INSTANCE.classPK)
+				)
+			).innerJoinON(
+				UserGroups_TeamsTable.INSTANCE,
+				UserGroups_TeamsTable.INSTANCE.teamId.eq(
+					TeamTable.INSTANCE.teamId)
+			).innerJoinON(
+				Users_UserGroupsTable.INSTANCE,
+				Users_UserGroupsTable.INSTANCE.userGroupId.eq(
+					UserGroups_TeamsTable.INSTANCE.userGroupId)
+			).where(
+				RoleTable.INSTANCE.classNameId.eq(
+					classNameId
+				).and(
+					TeamTable.INSTANCE.groupId.eq(groupId)
+				).and(
+					Users_UserGroupsTable.INSTANCE.userId.eq(userId)
 				)
 			));
+
+		roles.addAll(userGroupRoles);
+
+		return new ArrayList<>(roles);
 	}
 
 	/**

@@ -40,20 +40,31 @@ class CriteriaSidebarSearchBar extends Component {
 			<div className="input-group">
 				<div className="input-group-item">
 					<input
+						aria-label={Liferay.Language.get('search-properties')}
 						className="form-control input-group-inset input-group-inset-after"
 						data-testid="search-input"
 						onChange={this._handleChange}
-						placeholder={Liferay.Language.get('search')}
+						placeholder={Liferay.Language.get('search-properties')}
 						type="text"
 						value={searchValue}
 					/>
 
 					<div className="input-group-inset-item input-group-inset-item-after">
 						<ClayButton
+							aria-label={
+								searchValue
+									? Liferay.Language.get('clear-search')
+									: Liferay.Language.get('search-properties')
+							}
 							data-testid="search-button"
 							displayType="unstyled"
 							onClick={
 								searchValue ? this._handleClear : undefined
+							}
+							title={
+								searchValue
+									? Liferay.Language.get('clear-search')
+									: Liferay.Language.get('search-properties')
 							}
 						>
 							<ClayIcon

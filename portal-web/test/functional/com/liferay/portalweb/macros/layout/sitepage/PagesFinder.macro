@@ -20,9 +20,9 @@ definition {
 				vocabularyName = "${vocabularyName}");
 		}
 
-		Button.clickAdd();
+		Button.click(button = "Add");
 
-		SelectFrame.selectFrameTop();
+		SelectFrameTop();
 
 		if ("${sitePageType}" == "Embedded") {
 			Type(
@@ -58,7 +58,11 @@ definition {
 	macro addChildPage {
 		PagesFinder.selectPageType(optionValue = "Pages Hierarchy");
 
-		Click(
+		MouseOver(
+			key_pageName = "${parentPageName}",
+			locator1 = "PagesFinder#PAGE_NAME");
+
+		Click.clickNoMouseOver(
 			key_pageName = "${parentPageName}",
 			locator1 = "PagesFinder#PAGE_ELLIPSIS_ICON");
 
@@ -199,7 +203,11 @@ definition {
 	macro addPublicChildPage {
 		PagesFinder.selectPageType(optionValue = "Public Pages");
 
-		Click(
+		MouseOver(
+			key_pageName = "${parentPageName}",
+			locator1 = "PagesFinder#PAGE_NAME");
+
+		Click.clickNoMouseOver(
 			key_pageName = "${parentPageName}",
 			locator1 = "PagesFinder#PAGE_ELLIPSIS_ICON");
 
@@ -315,7 +323,11 @@ definition {
 	}
 
 	macro gotoPageEllipsisItem {
-		Click.mouseOverClick(
+		MouseOver(
+			key_pageName = "${pageName}",
+			locator1 = "PagesFinder#PAGE_NAME");
+
+		Click.clickNoMouseOver(
 			key_pageName = "${pageName}",
 			locator1 = "PagesFinder#PAGE_ELLIPSIS_ICON");
 
@@ -373,6 +385,13 @@ definition {
 
 	macro viewInPagesAdministration {
 		Click(locator1 = "PagesFinder#VIEW_IN_PAGE_ADMINISTRATION");
+	}
+
+	macro viewPageIconInPagesFinder {
+		AssertElementPresent(
+			key_pageName = "${pageName}",
+			key_text = "${icon}",
+			locator1 = "PagesFinder#PAGE_ICON");
 	}
 
 	macro viewPageNameInPagesFinder {

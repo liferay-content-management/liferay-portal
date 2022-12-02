@@ -17,7 +17,13 @@ import './index.scss';
 export interface CustomItem<T = string> {
 	checked?: boolean;
 	description?: string;
+	disabled?: boolean;
 	label: string;
+	popover?: {
+		body: string;
+		header: string;
+	};
+	type?: string;
 	value?: T;
 }
 export interface SelectProps {

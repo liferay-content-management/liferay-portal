@@ -59,7 +59,6 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.ContentLanguageUtil;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
-import com.liferay.portal.vulcan.util.TransformUtil;
 import com.liferay.portlet.asset.model.impl.AssetCategoryImpl;
 import com.liferay.portlet.asset.service.permission.AssetCategoriesPermission;
 import com.liferay.portlet.asset.service.permission.AssetCategoryPermission;
@@ -116,7 +115,7 @@ public class TaxonomyCategoryResourceImpl
 
 		AssetCategory assetCategory =
 			_assetCategoryLocalService.getAssetCategoryByExternalReferenceCode(
-				assetVocabulary.getGroupId(), externalReferenceCode);
+				externalReferenceCode, assetVocabulary.getGroupId());
 
 		_assetCategoryService.deleteCategory(assetCategory.getCategoryId());
 	}
@@ -392,7 +391,7 @@ public class TaxonomyCategoryResourceImpl
 		AssetCategory assetCategory =
 			_assetCategoryLocalService.
 				fetchAssetCategoryByExternalReferenceCode(
-					assetVocabulary.getGroupId(), externalReferenceCode);
+					externalReferenceCode, assetVocabulary.getGroupId());
 
 		if (assetCategory != null) {
 			return _toTaxonomyCategory(
@@ -583,7 +582,7 @@ public class TaxonomyCategoryResourceImpl
 	private String[] _toStringArray(
 		TaxonomyCategoryProperty[] taxonomyCategoryProperties) {
 
-		return TransformUtil.transform(
+		return transform(
 			taxonomyCategoryProperties,
 			taxonomyCategoryProperty -> StringBundler.concat(
 				taxonomyCategoryProperty.getKey(), StringPool.COLON,

@@ -23,6 +23,7 @@ import com.liferay.commerce.currency.model.CommerceCurrency;
 import com.liferay.commerce.currency.service.CommerceCurrencyService;
 import com.liferay.commerce.exception.NoSuchOrderException;
 import com.liferay.commerce.model.CommerceOrder;
+import com.liferay.commerce.model.CommerceOrderItem;
 import com.liferay.commerce.model.CommerceOrderType;
 import com.liferay.commerce.model.CommerceShippingMethod;
 import com.liferay.commerce.order.engine.CommerceOrderEngine;
@@ -38,6 +39,7 @@ import com.liferay.headless.commerce.admin.order.dto.v1_0.BillingAddress;
 import com.liferay.headless.commerce.admin.order.dto.v1_0.Order;
 import com.liferay.headless.commerce.admin.order.dto.v1_0.OrderItem;
 import com.liferay.headless.commerce.admin.order.dto.v1_0.ShippingAddress;
+import com.liferay.headless.commerce.admin.order.internal.dto.v1_0.util.CustomFieldsUtil;
 import com.liferay.headless.commerce.admin.order.internal.helper.v1_0.OrderHelper;
 import com.liferay.headless.commerce.admin.order.internal.odata.entity.v1_0.OrderEntityModel;
 import com.liferay.headless.commerce.admin.order.internal.util.v1_0.BillingAddressUtil;
@@ -59,10 +61,13 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+
+import java.io.Serializable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -91,7 +96,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, properties = "OSGI-INF/liferay/rest/v1_0/order.properties",
+	properties = "OSGI-INF/liferay/rest/v1_0/order.properties",
 	scope = ServiceScope.PROTOTYPE, service = OrderResource.class
 )
 public class OrderResourceImpl extends BaseOrderResourceImpl {
@@ -441,6 +446,15 @@ public class OrderResourceImpl extends BaseOrderResourceImpl {
 		return 0;
 	}
 
+	private Map<String, Serializable> _getExpandoBridgeAttributes(
+		OrderItem orderItem) {
+
+		return CustomFieldsUtil.toMap(
+			CommerceOrderItem.class.getName(), contextCompany.getCompanyId(),
+			orderItem.getCustomFields(),
+			contextAcceptLanguage.getPreferredLocale());
+	}
+
 	private String _getHttpMethodName(Class<?> clazz, Method method)
 		throws NoSuchMethodException {
 
@@ -546,16 +560,27 @@ public class OrderResourceImpl extends BaseOrderResourceImpl {
 				_getOrderItemExternalReferenceCodes(orderItems));
 
 			for (OrderItem orderItem : orderItems) {
-				OrderItemUtil.addOrUpdateCommerceOrderItem(
-					_cpInstanceService, _commerceOrderItemService,
-					_commerceOrderModelResourcePermission, orderItem,
-					commerceOrder,
-					_commerceContextFactory.create(
-						contextCompany.getCompanyId(),
-						commerceOrder.getGroupId(), contextUser.getUserId(),
-						commerceOrder.getCommerceOrderId(),
-						commerceOrder.getCommerceAccountId()),
-					serviceContext);
+				CommerceOrderItem commerceOrderItem =
+					OrderItemUtil.addOrUpdateCommerceOrderItem(
+						_cpInstanceService, _commerceOrderItemService,
+						_commerceOrderModelResourcePermission, orderItem,
+						commerceOrder,
+						_commerceContextFactory.create(
+							contextCompany.getCompanyId(),
+							commerceOrder.getGroupId(), contextUser.getUserId(),
+							commerceOrder.getCommerceOrderId(),
+							commerceOrder.getCommerceAccountId()),
+						_serviceContextHelper.getServiceContext(
+							commerceOrder.getGroupId()));
+
+				Map<String, ?> expandoAttributes = _getExpandoBridgeAttributes(
+					orderItem);
+
+				if (MapUtil.isNotEmpty(expandoAttributes)) {
+					ExpandoUtil.updateExpando(
+						contextCompany.getCompanyId(), CommerceOrderItem.class,
+						commerceOrderItem.getPrimaryKey(), expandoAttributes);
+				}
 			}
 		}
 

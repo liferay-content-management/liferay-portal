@@ -32,6 +32,13 @@ definition {
 		Click(locator1 = "TestrayManage#SAVE_BUTTON");
 	}
 
+	macro linkCasesRequirement {
+		TestrayRequirements.addRequirementCase(
+			buttonText = "${buttonText}",
+			caseName = "${requirementName}",
+			linkText = "${linkText}");
+	}
+
 	macro typeCasesField {
 		LexiconEntry.gotoAdd();
 
@@ -74,30 +81,12 @@ definition {
 			locator1 = "TestrayCases#CASE_DETAIL");
 	}
 
-	macro viewCaseDetails {
+	macro verifyLinkCaseRequirement {
 		AssertElementPresent(
-			locator1 = "TestrayCases#CASE_DETAILS_CASE_NAME",
-			value1 = "${caseName}");
-
-		AssertElementPresent(
-			locator1 = "TestrayCases#CASE_DETAILS_PRIORITY",
-			value1 = "${priority}");
-
-		AssertElementPresent(
-			locator1 = "TestrayCases#CASE_DETAILS_COMPONENT",
-			value1 = "${mainComponent}");
-
-		AssertElementPresent(
-			locator1 = "TestrayCases#CASE_DETAILS_DURATION",
-			value1 = "${duration}");
-
-		AssertElementPresent(
-			locator1 = "TestrayCases#CASE_DETAILS_DESCRIPTION",
-			value1 = "${description}");
-
-		AssertElementPresent(
-			locator1 = "TestrayCases#CASE_DETAILS_STEPS",
-			value1 = "${steps}");
+			key_component = "${component}",
+			key_summary = "${summary}",
+			key_teamName = "${teamName}",
+			locator1 = "TestrayCases#CASE_REQUIREMENT_DETAIL");
 	}
 
 }

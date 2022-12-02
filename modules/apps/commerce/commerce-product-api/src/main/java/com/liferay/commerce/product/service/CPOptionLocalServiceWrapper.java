@@ -282,31 +282,12 @@ public class CPOptionLocalServiceWrapper
 		return _cpOptionLocalService.fetchCPOption(companyId, key);
 	}
 
-	/**
-	 * Returns the cp option with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the cp option's external reference code
-	 * @return the matching cp option, or <code>null</code> if a matching cp option could not be found
-	 */
 	@Override
 	public CPOption fetchCPOptionByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
 		return _cpOptionLocalService.fetchCPOptionByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchCPOptionByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public CPOption fetchCPOptionByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return _cpOptionLocalService.fetchCPOptionByReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -362,21 +343,13 @@ public class CPOptionLocalServiceWrapper
 		return _cpOptionLocalService.getCPOption(companyId, key);
 	}
 
-	/**
-	 * Returns the cp option with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the cp option's external reference code
-	 * @return the matching cp option
-	 * @throws PortalException if a matching cp option could not be found
-	 */
 	@Override
 	public CPOption getCPOptionByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpOptionLocalService.getCPOptionByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 	}
 
 	/**

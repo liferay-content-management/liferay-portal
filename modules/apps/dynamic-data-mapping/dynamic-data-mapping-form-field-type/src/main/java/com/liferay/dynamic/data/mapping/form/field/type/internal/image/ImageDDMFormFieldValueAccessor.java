@@ -40,7 +40,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Leonardo Barros
  */
 @Component(
-	immediate = true,
 	property = "ddm.form.field.type.name=" + DDMFormFieldTypeConstants.IMAGE,
 	service = {
 		DDMFormFieldValueAccessor.class, ImageDDMFormFieldValueAccessor.class
@@ -121,7 +120,7 @@ public class ImageDDMFormFieldValueAccessor
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug("Unable to retrieve file entry ", portalException);
+				_log.debug("Unable to get file entry", portalException);
 			}
 
 			return null;

@@ -35,7 +35,7 @@ import org.osgi.service.component.annotations.Deactivate;
 /**
  * @author Pavel Savinov
  */
-@Component(immediate = true, service = SiteNavigationMenuItemTypeRegistry.class)
+@Component(service = SiteNavigationMenuItemTypeRegistry.class)
 public class SiteNavigationMenuItemTypeRegistryImpl
 	implements SiteNavigationMenuItemTypeRegistry {
 
@@ -55,16 +55,7 @@ public class SiteNavigationMenuItemTypeRegistryImpl
 
 	@Override
 	public List<SiteNavigationMenuItemType> getSiteNavigationMenuItemTypes() {
-		List<SiteNavigationMenuItemType> siteNavigationMenuItemTypes =
-			new ArrayList<>();
-
-		for (SiteNavigationMenuItemType siteNavigationMenuItemType :
-				_serviceTrackerList) {
-
-			siteNavigationMenuItemTypes.add(siteNavigationMenuItemType);
-		}
-
-		return siteNavigationMenuItemTypes;
+		return _serviceTrackerList.toList();
 	}
 
 	@Override

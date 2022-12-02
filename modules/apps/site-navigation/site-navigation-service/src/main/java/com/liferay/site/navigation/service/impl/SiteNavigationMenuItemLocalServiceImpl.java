@@ -76,7 +76,7 @@ public class SiteNavigationMenuItemLocalServiceImpl
 
 		String name = siteNavigationMenuItemType.getName(typeSettings);
 
-		validateName(name);
+		_validateName(name);
 
 		User user = _userLocalService.getUser(userId);
 
@@ -97,6 +97,7 @@ public class SiteNavigationMenuItemLocalServiceImpl
 		siteNavigationMenuItem.setType(type);
 		siteNavigationMenuItem.setTypeSettings(typeSettings);
 		siteNavigationMenuItem.setOrder(order);
+		siteNavigationMenuItem.setExpandoBridgeAttributes(serviceContext);
 
 		return siteNavigationMenuItemPersistence.update(siteNavigationMenuItem);
 	}
@@ -275,7 +276,7 @@ public class SiteNavigationMenuItemLocalServiceImpl
 			siteNavigationMenuItemPersistence.fetchByPrimaryKey(
 				siteNavigationMenuItemId);
 
-		validate(
+		_validate(
 			siteNavigationMenuItem.getSiteNavigationMenuId(),
 			siteNavigationMenuItemId, parentSiteNavigationMenuItemId);
 
@@ -382,9 +383,9 @@ public class SiteNavigationMenuItemLocalServiceImpl
 
 		String name = siteNavigationMenuItemType.getName(typeSettings);
 
-		validateName(name);
+		_validateName(name);
 
-		validateLayout(typeSettings);
+		_validateLayout(typeSettings);
 
 		siteNavigationMenuItem.setUserId(userId);
 		siteNavigationMenuItem.setUserName(user.getFullName());
@@ -397,7 +398,7 @@ public class SiteNavigationMenuItemLocalServiceImpl
 		return siteNavigationMenuItemPersistence.update(siteNavigationMenuItem);
 	}
 
-	protected void validate(
+	private void _validate(
 			long siteNavigationMenuId, long siteNavigationMenuItemId,
 			long parentSiteNavigationMenuItemId)
 		throws PortalException {
@@ -416,13 +417,13 @@ public class SiteNavigationMenuItemLocalServiceImpl
 				throw new InvalidSiteNavigationMenuItemOrderException();
 			}
 
-			validate(
+			_validate(
 				siteNavigationMenuId, siteNavigationMenuItemId,
 				parentSiteNavigationMenuItemId);
 		}
 	}
 
-	protected void validateLayout(String typeSettings) throws PortalException {
+	private void _validateLayout(String typeSettings) throws PortalException {
 		UnicodeProperties typeSettingsUnicodeProperties =
 			UnicodePropertiesBuilder.create(
 				true
@@ -446,7 +447,7 @@ public class SiteNavigationMenuItemLocalServiceImpl
 			layoutUuid, groupId, privateLayout);
 	}
 
-	protected void validateName(String name) throws PortalException {
+	private void _validateName(String name) throws PortalException {
 		if (name == null) {
 			return;
 		}

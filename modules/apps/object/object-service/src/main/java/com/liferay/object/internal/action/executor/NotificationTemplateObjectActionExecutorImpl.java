@@ -14,17 +14,24 @@
 
 package com.liferay.object.internal.action.executor;
 
+import com.liferay.notification.context.NotificationContextBuilder;
+import com.liferay.notification.model.NotificationTemplate;
 import com.liferay.notification.service.NotificationTemplateLocalService;
+import com.liferay.notification.type.NotificationType;
+import com.liferay.notification.type.NotificationTypeServiceTracker;
 import com.liferay.object.action.executor.ObjectActionExecutor;
 import com.liferay.object.constants.ObjectActionExecutorConstants;
-import com.liferay.object.internal.action.util.ObjectActionVariablesUtil;
+import com.liferay.object.internal.action.util.ObjectEntryVariablesUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalService;
-import com.liferay.object.system.SystemObjectDefinitionMetadataTracker;
+import com.liferay.object.system.SystemObjectDefinitionMetadataRegistry;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
+
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -42,18 +49,42 @@ public class NotificationTemplateObjectActionExecutorImpl
 			JSONObject payloadJSONObject, long userId)
 		throws Exception {
 
+		NotificationTemplate notificationTemplate =
+			_notificationTemplateLocalService.getNotificationTemplate(
+				GetterUtil.getLong(
+					parametersUnicodeProperties.get("notificationTemplateId")));
+
+		NotificationType notificationType =
+			_notificationTypeServiceTracker.getNotificationType(
+				notificationTemplate.getType());
+
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.fetchObjectDefinition(
 				payloadJSONObject.getLong("objectDefinitionId"));
 
-		_notificationTemplateLocalService.sendNotificationTemplate(
-			userId,
-			GetterUtil.getLong(
-				parametersUnicodeProperties.get("notificationTemplateId")),
-			objectDefinition.getClassName(),
-			ObjectActionVariablesUtil.toVariables(
+		Map<String, Object> termValues =
+			ObjectEntryVariablesUtil.getActionVariables(
 				_dtoConverterRegistry, objectDefinition, payloadJSONObject,
-				_systemObjectDefinitionMetadataTracker));
+				_systemObjectDefinitionMetadataRegistry);
+
+		notificationType.sendNotification(
+			new NotificationContextBuilder(
+			).className(
+				objectDefinition.getClassName()
+			).classPK(
+				GetterUtil.getLong(termValues.get("id"))
+			).externalReferenceCode(
+				GetterUtil.getString(termValues.get("externalReferenceCode"))
+			).notificationTemplate(
+				notificationTemplate
+			).termValues(
+				termValues
+			).userId(
+				userId
+			).portletId(
+				objectDefinition.isSystem() ? StringPool.BLANK :
+					objectDefinition.getPortletId()
+			).build());
 	}
 
 	@Override
@@ -68,10 +99,13 @@ public class NotificationTemplateObjectActionExecutorImpl
 	private NotificationTemplateLocalService _notificationTemplateLocalService;
 
 	@Reference
+	private NotificationTypeServiceTracker _notificationTypeServiceTracker;
+
+	@Reference
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	@Reference
-	private SystemObjectDefinitionMetadataTracker
-		_systemObjectDefinitionMetadataTracker;
+	private SystemObjectDefinitionMetadataRegistry
+		_systemObjectDefinitionMetadataRegistry;
 
 }

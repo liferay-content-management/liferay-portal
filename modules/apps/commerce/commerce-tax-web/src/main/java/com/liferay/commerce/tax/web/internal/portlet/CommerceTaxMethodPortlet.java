@@ -22,7 +22,6 @@ import com.liferay.commerce.tax.web.internal.display.context.CommerceTaxMethodsD
 import com.liferay.commerce.util.CommerceTaxEngineRegistry;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.IOException;
@@ -39,7 +38,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {
 		"com.liferay.portlet.add-default-resource=true",
 		"com.liferay.portlet.display-category=category.hidden",
@@ -94,8 +92,5 @@ public class CommerceTaxMethodPortlet extends MVCPortlet {
 
 	@Reference
 	private CommerceTaxMethodService _commerceTaxMethodService;
-
-	@Reference
-	private Portal _portal;
 
 }

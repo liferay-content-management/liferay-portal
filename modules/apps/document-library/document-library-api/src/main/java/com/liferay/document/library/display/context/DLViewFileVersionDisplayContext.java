@@ -18,7 +18,6 @@ import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.servlet.taglib.ui.ToolbarItem;
 
 import java.io.IOException;
 
@@ -57,8 +56,6 @@ public interface DLViewFileVersionDisplayContext extends DLDisplayContext {
 	public default String getIconFileMimeType() {
 		return "document-default";
 	}
-
-	public List<ToolbarItem> getToolbarItems() throws PortalException;
 
 	public default boolean hasCustomThumbnail() {
 		return false;

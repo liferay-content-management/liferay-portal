@@ -45,7 +45,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Drew Brokke
  */
 @Component(
-	immediate = true,
 	property = {
 		"javax.portlet.name=" + AccountPortletKeys.ACCOUNT_ENTRIES_MANAGEMENT,
 		"mvc.command.name=/account_admin/edit_account_user"
@@ -103,13 +102,13 @@ public class EditAccountUserMVCActionCommand
 
 		Contact accountUserContact = accountUser.getContact();
 
-		accountUserContact.setPrefixId(
+		accountUserContact.setPrefixListTypeId(
 			_getListTypeId(
-				actionRequest, "prefixValue",
+				actionRequest, "prefixListTypeValue",
 				ListTypeConstants.CONTACT_PREFIX));
-		accountUserContact.setSuffixId(
+		accountUserContact.setSuffixListTypeId(
 			_getListTypeId(
-				actionRequest, "suffixValue",
+				actionRequest, "suffixListTypeValue",
 				ListTypeConstants.CONTACT_SUFFIX));
 
 		_contactLocalService.updateContact(accountUserContact);

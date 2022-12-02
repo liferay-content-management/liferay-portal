@@ -14,31 +14,17 @@
 
 package com.liferay.portal.kernel.search;
 
-import java.util.Collection;
-import java.util.Set;
-
 /**
  * @author Michael C. Han
  */
 public interface SearchEngineHelper {
 
-	public static final String SYSTEM_ENGINE_ID = "SYSTEM_ENGINE";
-
 	public String[] getEntryClassNames();
 
-	public SearchEngine getSearchEngine(String searchEngineId);
-
-	public Set<String> getSearchEngineIds();
-
-	public Collection<SearchEngine> getSearchEngines();
+	public SearchEngine getSearchEngine();
 
 	public void initialize(long companyId);
 
 	public void removeCompany(long companyId);
-
-	public SearchEngine removeSearchEngine(String searchEngineId);
-
-	public void setSearchEngine(
-		String searchEngineId, SearchEngine searchEngine);
 
 }

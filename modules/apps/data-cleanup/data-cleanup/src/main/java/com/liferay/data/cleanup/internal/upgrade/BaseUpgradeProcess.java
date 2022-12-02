@@ -15,6 +15,7 @@
 package com.liferay.data.cleanup.internal.upgrade;
 
 import com.liferay.data.cleanup.internal.upgrade.util.LayoutTypeSettingsUtil;
+import com.liferay.expando.kernel.service.ExpandoTableLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -22,15 +23,15 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import java.util.ArrayList;
-
 /**
  * @author Alberto Chaparro
  */
 public abstract class BaseUpgradeProcess extends UpgradeProcess {
 
-	protected void removeExpandoData(String expandoTableName) throws Exception {
-		String[] expandoTableIds = null;
+	protected void removeExpandoData(
+			ExpandoTableLocalService expandoTableLocalService,
+			String expandoTableName)
+		throws Exception {
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
 				"select tableId from ExpandoTable where name = ?")) {
@@ -38,23 +39,12 @@ public abstract class BaseUpgradeProcess extends UpgradeProcess {
 			preparedStatement.setString(1, expandoTableName);
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				ArrayList<String> ids = new ArrayList<>();
-
 				while (resultSet.next()) {
-					ids.add(resultSet.getString("tableId"));
+					expandoTableLocalService.deleteTable(
+						resultSet.getLong("tableId"));
 				}
-
-				expandoTableIds = ids.toArray(new String[0]);
 			}
 		}
-
-		_deleteFrom("ExpandoColumn", "tableId", expandoTableIds);
-
-		_deleteFrom("ExpandoRow", "tableId", expandoTableIds);
-
-		_deleteFrom("ExpandoTable", "tableId", expandoTableIds);
-
-		_deleteFrom("ExpandoValue", "tableId", expandoTableIds);
 	}
 
 	protected void removePortletData(

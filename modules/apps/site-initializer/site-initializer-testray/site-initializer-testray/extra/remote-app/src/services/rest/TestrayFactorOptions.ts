@@ -12,9 +12,12 @@
  * details.
  */
 
+import TestrayError from '../../TestrayError';
+import i18n from '../../i18n';
 import yupSchema from '../../schema/yup';
+import {SearchBuilder} from '../../util/search';
 import Rest from './Rest';
-import {TestrayFactorOption} from './types';
+import {APIResponse, TestrayFactorOption} from './types';
 
 type FactorOption = typeof yupSchema.factorOption.__outputType;
 
@@ -39,6 +42,37 @@ class TestrayFactorOptionsImpl extends Rest<FactorOption, TestrayFactorOption> {
 			}),
 			uri: 'factoroptions',
 		});
+	}
+
+	protected async validate(factorOption: FactorOption, id?: number) {
+		const searchBuilder = new SearchBuilder();
+
+		if (id) {
+			searchBuilder.ne('id', id).and();
+		}
+
+		const filter = searchBuilder.eq('name', factorOption.name).build();
+
+		const response = await this.fetcher<APIResponse<TestrayFactorOption>>(
+			`/factoroptions?filter=${filter}`
+		);
+
+		if (response?.totalCount) {
+			throw new TestrayError(
+				i18n.sub('the-x-name-already-exists', 'option')
+			);
+		}
+	}
+
+	protected async beforeCreate(factorOption: FactorOption): Promise<void> {
+		await this.validate(factorOption);
+	}
+
+	protected async beforeUpdate(
+		id: number,
+		factorOption: FactorOption
+	): Promise<void> {
+		await this.validate(factorOption, id);
 	}
 }
 

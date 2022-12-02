@@ -1,5 +1,5 @@
 {
-	"@generated": "984c0b4e3e9210428e26946e5e442cd135e496c3",
+	"@generated": "58d9d31c39207e5d3171af37d86e33e8b14dcca0",
 	"@overrides": {
 	},
 	"@readonly": "** AUTO-GENERATED: DO NOT EDIT OUTSIDE @overrides **",
@@ -13,6 +13,15 @@
 		"moduleResolution": "node",
 		"outDir": "./types",
 		"paths": {
+			"data-engine-js-components-web": [
+				"../../data-engine/data-engine-js-components-web/src/main/resources/META-INF/resources/js/index.d.ts"
+			],
+			"dynamic-data-mapping-form-field-type": [
+				"../../dynamic-data-mapping/dynamic-data-mapping-form-field-type/src/main/resources/META-INF/resources/index.ts"
+			],
+			"frontend-js-web": [
+				"../../frontend-js/frontend-js-web/src/main/resources/META-INF/resources/index.d.ts"
+			]
 		},
 		"sourceMap": false,
 		"strict": true,
@@ -23,11 +32,23 @@
 			"./node_modules/@types"
 		]
 	},
+	"exclude": [
+		"test/**/*",
+		"**/__tests__/**"
+	],
 	"include": [
 		"src/**/*",
-		"test/**/*",
 		"../../../global.d.ts"
 	],
 	"references": [
+		{
+			"path": "../../data-engine/data-engine-js-components-web"
+		},
+		{
+			"path": "../../dynamic-data-mapping/dynamic-data-mapping-form-field-type"
+		},
+		{
+			"path": "../../frontend-js/frontend-js-web"
+		}
 	]
 }

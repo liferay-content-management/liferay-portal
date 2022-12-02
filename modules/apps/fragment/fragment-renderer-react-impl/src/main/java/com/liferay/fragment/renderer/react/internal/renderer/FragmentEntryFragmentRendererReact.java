@@ -14,7 +14,8 @@
 
 package com.liferay.fragment.renderer.react.internal.renderer;
 
-import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
+import com.liferay.fragment.constants.FragmentEntryLinkConstants;
+import com.liferay.fragment.contributor.FragmentCollectionContributorRegistry;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.renderer.FragmentRenderer;
@@ -28,7 +29,7 @@ import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.servlet.taglib.util.OutputData;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -46,7 +47,6 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -103,17 +103,13 @@ public class FragmentEntryFragmentRendererReact implements FragmentRenderer {
 				fragmentRendererContext);
 
 			JSONObject configurationJSONObject =
-				JSONFactoryUtil.createJSONObject();
+				_jsonFactory.createJSONObject();
 
 			if (Validator.isNotNull(fragmentEntryLink.getConfiguration())) {
-				Optional<Object> displayObjectOptional =
-					fragmentRendererContext.getDisplayObjectOptional();
-
 				configurationJSONObject =
 					_fragmentEntryConfigurationParser.
 						getConfigurationJSONObject(
 							fragmentEntryLink.getConfiguration(),
-							displayObjectOptional.orElse(null),
 							fragmentEntryLink.getEditableValues(),
 							LocaleUtil.getMostRelevantLocale());
 			}
@@ -122,6 +118,7 @@ public class FragmentEntryFragmentRendererReact implements FragmentRenderer {
 				_renderFragmentEntry(
 					fragmentEntryLink,
 					fragmentRendererContext.getFragmentElementId(),
+					fragmentRendererContext,
 					HashMapBuilder.<String, Object>put(
 						"configuration", configurationJSONObject
 					).build(),
@@ -141,7 +138,7 @@ public class FragmentEntryFragmentRendererReact implements FragmentRenderer {
 		FragmentEntryLink fragmentEntryLink) {
 
 		Map<String, FragmentEntry> fragmentCollectionContributorEntries =
-			_fragmentCollectionContributorTracker.getFragmentEntries();
+			_fragmentCollectionContributorRegistry.getFragmentEntries();
 
 		return fragmentCollectionContributorEntries.get(
 			fragmentEntryLink.getRendererKey());
@@ -168,6 +165,7 @@ public class FragmentEntryFragmentRendererReact implements FragmentRenderer {
 
 	private String _renderFragmentEntry(
 			FragmentEntryLink fragmentEntryLink, String fragmentElementId,
+			FragmentRendererContext fragmentRendererContext,
 			Map<String, Object> data, HttpServletRequest httpServletRequest)
 		throws IOException {
 
@@ -195,43 +193,58 @@ public class FragmentEntryFragmentRendererReact implements FragmentRenderer {
 		sb.append("</div>");
 
 		if (Validator.isNotNull(fragmentEntryLink.getCss())) {
-			String outputKey = fragmentEntryLink.getFragmentEntryId() + "_CSS";
+			if (Objects.equals(
+					fragmentRendererContext.getMode(),
+					FragmentEntryLinkConstants.EDIT) ||
+				Objects.equals(
+					fragmentRendererContext.getMode(),
+					FragmentEntryLinkConstants.INDEX)) {
 
-			OutputData outputData = (OutputData)httpServletRequest.getAttribute(
-				WebKeys.OUTPUT_DATA);
-
-			boolean cssLoaded = false;
-
-			if (outputData != null) {
-				Set<String> outputKeys = outputData.getOutputKeys();
-
-				cssLoaded = outputKeys.contains(outputKey);
-
-				StringBundler cssSB = outputData.getDataSB(
-					outputKey, StringPool.BLANK);
-
-				if (cssSB != null) {
-					cssLoaded = Objects.equals(
-						cssSB.toString(), fragmentEntryLink.getCss());
-				}
-			}
-			else {
-				outputData = new OutputData();
-			}
-
-			if (!cssLoaded) {
 				sb.append("<style>");
 				sb.append(fragmentEntryLink.getCss());
 				sb.append("</style>");
+			}
+			else {
+				String outputKey =
+					fragmentEntryLink.getFragmentEntryId() + "_CSS";
 
-				outputData.addOutputKey(outputKey);
+				OutputData outputData =
+					(OutputData)httpServletRequest.getAttribute(
+						WebKeys.OUTPUT_DATA);
 
-				outputData.setDataSB(
-					outputKey, StringPool.BLANK,
-					new StringBundler(fragmentEntryLink.getCss()));
+				boolean cssLoaded = false;
 
-				httpServletRequest.setAttribute(
-					WebKeys.OUTPUT_DATA, outputData);
+				if (outputData != null) {
+					Set<String> outputKeys = outputData.getOutputKeys();
+
+					cssLoaded = outputKeys.contains(outputKey);
+
+					StringBundler cssSB = outputData.getDataSB(
+						outputKey, StringPool.BLANK);
+
+					if (cssSB != null) {
+						cssLoaded = Objects.equals(
+							cssSB.toString(), fragmentEntryLink.getCss());
+					}
+				}
+				else {
+					outputData = new OutputData();
+				}
+
+				if (!cssLoaded) {
+					sb.append("<style>");
+					sb.append(fragmentEntryLink.getCss());
+					sb.append("</style>");
+
+					outputData.addOutputKey(outputKey);
+
+					outputData.setDataSB(
+						outputKey, StringPool.BLANK,
+						new StringBundler(fragmentEntryLink.getCss()));
+
+					httpServletRequest.setAttribute(
+						WebKeys.OUTPUT_DATA, outputData);
+				}
 			}
 		}
 
@@ -239,11 +252,14 @@ public class FragmentEntryFragmentRendererReact implements FragmentRenderer {
 	}
 
 	@Reference
-	private FragmentCollectionContributorTracker
-		_fragmentCollectionContributorTracker;
+	private FragmentCollectionContributorRegistry
+		_fragmentCollectionContributorRegistry;
 
 	@Reference
 	private FragmentEntryConfigurationParser _fragmentEntryConfigurationParser;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	private JSPackage _jsPackage;
 

@@ -23,18 +23,18 @@ import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
 import com.liferay.info.collection.provider.item.selector.criterion.RelatedInfoItemCollectionProviderItemSelectorCriterion;
 import com.liferay.info.item.InfoItemClassDetails;
 import com.liferay.info.item.InfoItemFormVariation;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemDetailsProvider;
 import com.liferay.info.item.provider.InfoItemFormProvider;
 import com.liferay.info.item.provider.InfoItemFormVariationsProvider;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
+import com.liferay.info.search.InfoSearchClassMapperRegistry;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.ItemSelectorCriterion;
 import com.liferay.item.selector.criteria.InfoItemItemSelectorReturnType;
 import com.liferay.item.selector.criteria.info.item.criterion.InfoItemItemSelectorCriterion;
 import com.liferay.layout.content.page.editor.sidebar.panel.ContentPageEditorSidebarPanel;
 import com.liferay.layout.content.page.editor.web.internal.configuration.PageEditorConfiguration;
-import com.liferay.layout.content.page.editor.web.internal.info.search.InfoSearchClassMapperTrackerUtil;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentCollectionManager;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkManager;
 import com.liferay.layout.content.page.editor.web.internal.util.MappingContentUtil;
@@ -75,7 +75,8 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 		FragmentEntryLinkManager fragmentEntryLinkManager,
 		FrontendTokenDefinitionRegistry frontendTokenDefinitionRegistry,
 		HttpServletRequest httpServletRequest,
-		InfoItemServiceTracker infoItemServiceTracker,
+		InfoItemServiceRegistry infoItemServiceRegistry,
+		InfoSearchClassMapperRegistry infoSearchClassMapperRegistry,
 		ItemSelector itemSelector,
 		PageEditorConfiguration pageEditorConfiguration,
 		boolean pageIsDisplayPage, PortletRequest portletRequest,
@@ -87,7 +88,8 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 		super(
 			contentPageEditorSidebarPanels, fragmentCollectionManager,
 			fragmentEntryLinkManager, frontendTokenDefinitionRegistry,
-			httpServletRequest, infoItemServiceTracker, itemSelector,
+			httpServletRequest, infoItemServiceRegistry,
+			infoSearchClassMapperRegistry, itemSelector,
 			pageEditorConfiguration, portletRequest, renderResponse,
 			segmentsConfigurationProvider, segmentsExperienceManager,
 			stagingGroupHelper);
@@ -168,7 +170,7 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 
 		AssetRendererFactory<?> assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
-				InfoSearchClassMapperTrackerUtil.getSearchClassName(className));
+				infoSearchClassMapperRegistry.getSearchClassName(className));
 
 		if (assetRendererFactory != null) {
 			sourceItemTypes.add(AssetEntry.class.getName());
@@ -199,7 +201,7 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 				key,
 				MappingContentUtil.getMappingFieldsJSONArray(
 					String.valueOf(layoutPageTemplateEntry.getClassTypeId()),
-					themeDisplay.getScopeGroupId(), infoItemServiceTracker,
+					themeDisplay.getScopeGroupId(), infoItemServiceRegistry,
 					layoutPageTemplateEntry.getClassName(),
 					themeDisplay.getLocale()));
 		}
@@ -273,7 +275,7 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 			_getLayoutPageTemplateEntry();
 
 		InfoItemFormVariationsProvider<?> infoItemFormVariationsProvider =
-			infoItemServiceTracker.getFirstInfoItemService(
+			infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemFormVariationsProvider.class,
 				layoutPageTemplateEntry.getClassName());
 
@@ -298,7 +300,7 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 			_getLayoutPageTemplateEntry();
 
 		InfoItemFormProvider<?> infoItemFormProvider =
-			infoItemServiceTracker.getFirstInfoItemService(
+			infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemFormProvider.class,
 				layoutPageTemplateEntry.getClassName());
 
@@ -307,7 +309,7 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 		}
 
 		InfoItemDetailsProvider<?> infoItemDetailsProvider =
-			infoItemServiceTracker.getFirstInfoItemService(
+			infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemDetailsProvider.class,
 				layoutPageTemplateEntry.getClassName());
 
@@ -337,16 +339,6 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 				httpServletRequest,
 				"content-source-selected-for-this-display-page-template")
 		).put(
-			"type",
-			HashMapBuilder.<String, Object>put(
-				"groupTypeTitle",
-				LanguageUtil.get(httpServletRequest, "content-type")
-			).put(
-				"id", layoutPageTemplateEntry.getClassNameId()
-			).put(
-				"label", _getMappingTypeLabel()
-			).build()
-		).put(
 			"subtype",
 			() -> {
 				String subtypeLabel = _getMappingSubtypeLabel();
@@ -364,6 +356,16 @@ public class ContentPageEditorLayoutPageTemplateDisplayContext
 					"label", subtypeLabel
 				).build();
 			}
+		).put(
+			"type",
+			HashMapBuilder.<String, Object>put(
+				"groupTypeTitle",
+				LanguageUtil.get(httpServletRequest, "content-type")
+			).put(
+				"id", layoutPageTemplateEntry.getClassNameId()
+			).put(
+				"label", _getMappingTypeLabel()
+			).build()
 		).build();
 	}
 

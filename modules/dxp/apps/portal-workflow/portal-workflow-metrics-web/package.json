@@ -1,11 +1,14 @@
 {
 	"dependencies": {
+		"@liferay/frontend-js-react-web": "*",
 		"custom-event-polyfill": "1.0.6",
 		"dom4": "^2.1.5",
-		"moment": "2.24.0",
+		"frontend-js-web": "*",
+		"moment": "2.29.4",
 		"numeral": "2.0.6",
 		"path-to-regexp": "3.0.0",
 		"qs": "6.7.0",
+		"react": "16.12.0",
 		"react-router-dom": "5.0.1",
 		"react-text-mask": "5.4.3",
 		"text-mask-addons": "3.8.0"
@@ -15,7 +18,6 @@
 			"src/main/resources/META-INF/resources/js/**/*.es.js"
 		],
 		"moduleNameMapper": {
-			"frontend-js-web/liferay/toast/commands/OpenToast.es": "<rootDir>/test/mock/openToast.es.js",
 			"react-text-mask": "<rootDir>/test/mock/reactTextMask.es.js"
 		},
 		"setupFiles": [
@@ -35,5 +37,5 @@
 		"format": "liferay-npm-scripts fix",
 		"test": "RTL_SKIP_AUTO_CLEANUP=true liferay-npm-scripts test"
 	},
-	"version": "3.0.46"
+	"version": "3.0.52"
 }

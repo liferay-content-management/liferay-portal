@@ -39,12 +39,13 @@ public interface MLModelResource {
 		return new Builder();
 	}
 
-	public Page<MLModel> getMLModelsPage(
+	public Page<MLModel> getSentenceTransformerMLModelsPage(
 			Integer limit, String pipelineTag, String query, String tag)
 		throws Exception;
 
-	public HttpInvoker.HttpResponse getMLModelsPageHttpResponse(
-			Integer limit, String pipelineTag, String query, String tag)
+	public HttpInvoker.HttpResponse
+			getSentenceTransformerMLModelsPageHttpResponse(
+				Integer limit, String pipelineTag, String query, String tag)
 		throws Exception;
 
 	public static class Builder {
@@ -125,12 +126,13 @@ public interface MLModelResource {
 
 	public static class MLModelResourceImpl implements MLModelResource {
 
-		public Page<MLModel> getMLModelsPage(
+		public Page<MLModel> getSentenceTransformerMLModelsPage(
 				Integer limit, String pipelineTag, String query, String tag)
 			throws Exception {
 
-			HttpInvoker.HttpResponse httpResponse = getMLModelsPageHttpResponse(
-				limit, pipelineTag, query, tag);
+			HttpInvoker.HttpResponse httpResponse =
+				getSentenceTransformerMLModelsPageHttpResponse(
+					limit, pipelineTag, query, tag);
 
 			String content = httpResponse.getContent();
 
@@ -169,8 +171,9 @@ public interface MLModelResource {
 			}
 		}
 
-		public HttpInvoker.HttpResponse getMLModelsPageHttpResponse(
-				Integer limit, String pipelineTag, String query, String tag)
+		public HttpInvoker.HttpResponse
+				getSentenceTransformerMLModelsPageHttpResponse(
+					Integer limit, String pipelineTag, String query, String tag)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -214,7 +217,7 @@ public interface MLModelResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
-						"/o/search-experiences-rest/v1.0/ml-models");
+						"/o/search-experiences-rest/v1.0/sentence-transformer/ml-models");
 
 			httpInvoker.userNameAndPassword(
 				_builder._login + ":" + _builder._password);

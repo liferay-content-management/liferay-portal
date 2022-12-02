@@ -16,6 +16,7 @@ import {ClayModalProvider} from '@clayui/modal';
 import {
 	ConfigProvider,
 	FormProvider,
+	KeyboardDNDContextProvider,
 	parseProps,
 } from 'data-engine-js-components-web';
 import {
@@ -32,6 +33,7 @@ import {HTML5Backend} from 'react-dnd-html5-backend';
 
 import {DataEngineTaglibCompatibilityLayer} from './DataEngineTaglibCompatibilityLayer';
 import {FormBuilder} from './FormBuilder';
+import KeyboardDNDText from './KeyboardDNDText';
 import INITIAL_CONFIG from './config/initialConfig';
 import INITIAL_STATE from './config/initialState';
 import {useData} from './hooks/useData';
@@ -74,9 +76,13 @@ const App = (props) => {
 						]}
 						value={{...state, ...dataDefinition, dataLayout}}
 					>
-						<DataEngineTaglibCompatibilityLayer />
+						<KeyboardDNDContextProvider>
+							<DataEngineTaglibCompatibilityLayer />
 
-						<FormBuilder />
+							<FormBuilder />
+
+							<KeyboardDNDText />
+						</KeyboardDNDContextProvider>
 					</FormProvider>
 				</ConfigProvider>
 			</ClayModalProvider>

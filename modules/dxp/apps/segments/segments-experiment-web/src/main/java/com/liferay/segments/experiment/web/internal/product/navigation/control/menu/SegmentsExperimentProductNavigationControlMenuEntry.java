@@ -24,7 +24,7 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
-import com.liferay.portal.kernel.portlet.PortletURLFactory;
+import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -32,7 +32,9 @@ import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Html;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
@@ -45,11 +47,12 @@ import com.liferay.portal.template.react.renderer.ReactRenderer;
 import com.liferay.product.navigation.control.menu.BaseProductNavigationControlMenuEntry;
 import com.liferay.product.navigation.control.menu.ProductNavigationControlMenuEntry;
 import com.liferay.product.navigation.control.menu.constants.ProductNavigationControlMenuCategoryKeys;
+import com.liferay.segments.constants.SegmentsExperimentConstants;
 import com.liferay.segments.constants.SegmentsPortletKeys;
 import com.liferay.segments.experiment.web.internal.configuration.SegmentsExperimentConfiguration;
-import com.liferay.segments.experiment.web.internal.display.context.SegmentsExperimentDisplayContext;
 import com.liferay.segments.experiment.web.internal.util.SegmentsExperimentUtil;
 import com.liferay.segments.manager.SegmentsExperienceManager;
+import com.liferay.segments.model.SegmentsExperiment;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.segments.service.SegmentsExperienceService;
 import com.liferay.segments.service.SegmentsExperimentRelService;
@@ -66,6 +69,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
+
+import javax.portlet.PortletRequest;
+import javax.portlet.ResourceURL;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -84,7 +90,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.segments.experiment.web.internal.configuration.SegmentsExperimentConfiguration",
-	configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true,
+	configurationPolicy = ConfigurationPolicy.OPTIONAL,
 	property = {
 		"product.navigation.control.menu.category.key=" + ProductNavigationControlMenuCategoryKeys.USER,
 		"product.navigation.control.menu.entry.order:Integer=500"
@@ -220,9 +226,8 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 
 		Layout layout = themeDisplay.getLayout();
 
-		if (layout.isTypeControlPanel() ||
-			isEmbeddedPersonalApplicationLayout(layout) ||
-			!layout.isTypeContent() ||
+		if (layout.isEmbeddedPersonalApplication() || !layout.isTypeContent() ||
+			layout.isTypeControlPanel() ||
 			!LayoutPermissionUtil.contains(
 				themeDisplay.getPermissionChecker(), layout,
 				ActionKeys.UPDATE)) {
@@ -279,6 +284,141 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 			SegmentsExperimentConfiguration.class, properties);
 	}
 
+	private Map<String, Object> _getData(
+			HttpServletRequest httpServletRequest, boolean panelStateOpen)
+		throws Exception {
+
+		return HashMapBuilder.<String, Object>put(
+			"context",
+			HashMapBuilder.<String, Object>put(
+				"isPanelStateOpen", panelStateOpen
+			).put(
+				"namespace",
+				_portal.getPortletNamespace(
+					SegmentsPortletKeys.SEGMENTS_EXPERIMENT)
+			).put(
+				"segmentExperimentDataURL",
+				_getSegmentExperimentDataURL(httpServletRequest)
+			).build()
+		).build();
+	}
+
+	private String _getRedirect(
+			HttpServletRequest httpServletRequest, ThemeDisplay themeDisplay)
+		throws Exception {
+
+		Layout draftLayout = _layoutLocalService.fetchDraftLayout(
+			themeDisplay.getPlid());
+
+		if (draftLayout == null) {
+			return StringPool.BLANK;
+		}
+
+		String layoutFullURL = _portal.getLayoutFullURL(
+			draftLayout, themeDisplay);
+
+		String layoutURL = _portal.getLayoutURL(themeDisplay);
+
+		long segmentsExperienceId = _getSegmentsExperienceId(
+			httpServletRequest, themeDisplay);
+
+		if (segmentsExperienceId != -1) {
+			layoutURL = HttpComponentsUtil.setParameter(
+				layoutURL, "segmentsExperienceId", segmentsExperienceId);
+		}
+
+		layoutFullURL = HttpComponentsUtil.setParameter(
+			layoutFullURL, "p_l_back_url", layoutURL);
+
+		layoutFullURL = HttpComponentsUtil.setParameter(
+			layoutFullURL, "p_l_mode", Constants.EDIT);
+		layoutFullURL = HttpComponentsUtil.setParameter(
+			layoutFullURL, "redirect", layoutFullURL);
+
+		return layoutFullURL;
+	}
+
+	private String _getSegmentExperimentDataURL(
+			HttpServletRequest httpServletRequest)
+		throws Exception {
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		String layoutURL = _portal.getLayoutURL(themeDisplay);
+
+		long segmentsExperienceId = _getSegmentsExperienceId(
+			httpServletRequest, themeDisplay);
+
+		if (segmentsExperienceId != -1) {
+			layoutURL = HttpComponentsUtil.setParameter(
+				layoutURL, "segmentsExperienceId", segmentsExperienceId);
+		}
+
+		ResourceURL resourceURL = (ResourceURL)PortletURLBuilder.create(
+			_portal.getControlPanelPortletURL(
+				httpServletRequest, themeDisplay.getScopeGroup(),
+				SegmentsPortletKeys.SEGMENTS_EXPERIMENT, 0, 0,
+				PortletRequest.RESOURCE_PHASE)
+		).setRedirect(
+			_getRedirect(httpServletRequest, themeDisplay)
+		).setBackURL(
+			layoutURL
+		).setParameter(
+			"plid", themeDisplay.getPlid()
+		).setParameter(
+			"segmentsExperienceId",
+			_getSelectedSegmentsExperienceId(httpServletRequest)
+		).buildPortletURL();
+
+		resourceURL.setResourceID("/segments_experiment/get_data");
+
+		return resourceURL.toString();
+	}
+
+	private long _getSegmentsExperienceId(
+			HttpServletRequest httpServletRequest, ThemeDisplay themeDisplay)
+		throws Exception {
+
+		long segmentsExperienceId = _getSelectedSegmentsExperienceId(
+			httpServletRequest);
+
+		Layout layout = themeDisplay.getLayout();
+
+		SegmentsExperiment segmentsExperiment =
+			_segmentsExperimentService.fetchSegmentsExperiment(
+				segmentsExperienceId, _portal.getClassNameId(Layout.class),
+				layout.getPlid(),
+				SegmentsExperimentConstants.Status.getExclusiveStatusValues());
+
+		if (segmentsExperiment != null) {
+			return segmentsExperiment.getSegmentsExperienceId();
+		}
+
+		return segmentsExperienceId;
+	}
+
+	private long _getSelectedSegmentsExperienceId(
+		HttpServletRequest httpServletRequest) {
+
+		HttpServletRequest originalHttpServletRequest =
+			_portal.getOriginalServletRequest(httpServletRequest);
+
+		long segmentsExperienceId = ParamUtil.getLong(
+			originalHttpServletRequest, "segmentsExperienceId", -1);
+
+		if (segmentsExperienceId != -1) {
+			return segmentsExperienceId;
+		}
+
+		SegmentsExperienceManager segmentsExperienceManager =
+			new SegmentsExperienceManager(_segmentsExperienceLocalService);
+
+		return segmentsExperienceManager.getSegmentsExperienceId(
+			httpServletRequest);
+	}
+
 	private void _processBodyBottomTagBody(PageContext pageContext)
 		throws IOException, JspException {
 
@@ -297,7 +437,9 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 
 			sb.append("<div class=\"");
 
-			if (isPanelStateOpen(httpServletRequest)) {
+			boolean panelStateOpen = isPanelStateOpen(httpServletRequest);
+
+			if (panelStateOpen) {
 				sb.append(
 					"lfr-has-segments-experiment-panel open-admin-panel ");
 			}
@@ -342,26 +484,12 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 
 			jspWriter.write(sb.toString());
 
-			SegmentsExperimentDisplayContext segmentsExperimentDisplayContext =
-				new SegmentsExperimentDisplayContext(
-					_groupLocalService,
-					(HttpServletRequest)pageContext.getRequest(),
-					(HttpServletResponse)pageContext.getResponse(),
-					_layoutLocalService, _servletContext.getContextPath(),
-					_portal,
-					new SegmentsExperienceManager(
-						_segmentsExperienceLocalService),
-					_segmentsExperienceService,
-					_segmentsExperimentConfiguration,
-					_segmentsExperimentRelService, _segmentsExperimentService,
-					_stagingGroupHelper);
-
 			_reactRenderer.renderReact(
 				new ComponentDescriptor(
 					_npmResolver.resolveModuleName("segments-experiment-web") +
 						"/js/SegmentsExperimentApp.es"),
-				segmentsExperimentDisplayContext.getData(), httpServletRequest,
-				jspWriter);
+				_getData(httpServletRequest, panelStateOpen),
+				httpServletRequest, jspWriter);
 
 			jspWriter.write("</div></div></div></div>");
 		}
@@ -395,9 +523,6 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 	private Portal _portal;
 
 	private String _portletNamespace;
-
-	@Reference
-	private PortletURLFactory _portletURLFactory;
 
 	@Reference
 	private ReactRenderer _reactRenderer;

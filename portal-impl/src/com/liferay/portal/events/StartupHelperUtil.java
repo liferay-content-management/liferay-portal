@@ -16,8 +16,6 @@ package com.liferay.portal.events;
 
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.exception.ResourceActionsException;
 import com.liferay.portal.kernel.log.Log;
@@ -39,7 +37,6 @@ import com.liferay.portal.upgrade.PortalUpgradeProcess;
 import com.liferay.portal.util.PropsValues;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,54 +93,12 @@ public class StartupHelperUtil {
 		_dbNew = dbNew;
 	}
 
-	public static void setDropIndexes(boolean dropIndexes) {
-		_dropIndexes = dropIndexes;
-	}
-
 	public static void setStartupFinished(boolean startupFinished) {
 		_startupFinished = startupFinished;
 	}
 
 	public static void setUpgrading(boolean upgrading) {
 		_upgrading = upgrading;
-	}
-
-	public static void updateIndexes() {
-		updateIndexes(_dropIndexes);
-	}
-
-	public static void updateIndexes(boolean dropIndexes) {
-		DB db = DBManagerUtil.getDB();
-
-		try {
-			db.process(
-				companyId -> {
-					String message = new String(
-						"Updating portal database indexes");
-
-					if (Validator.isNotNull(companyId) &&
-						_log.isInfoEnabled()) {
-
-						message += " for company " + companyId;
-					}
-
-					try (Connection connection = DataAccess.getConnection();
-						LoggingTimer loggingTimer = new LoggingTimer(message)) {
-
-						_updateIndexes(db, connection, dropIndexes);
-					}
-					catch (SQLException sqlException) {
-						if (_log.isWarnEnabled()) {
-							_log.warn(sqlException);
-						}
-					}
-				});
-		}
-		catch (Exception exception) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(exception);
-			}
-		}
 	}
 
 	public static void upgradeProcess(int buildNumber) throws UpgradeException {
@@ -210,30 +165,10 @@ public class StartupHelperUtil {
 		}
 	}
 
-	private static void _updateIndexes(
-			DB db, Connection connection, boolean dropIndexes)
-		throws Exception {
-
-		Thread currentThread = Thread.currentThread();
-
-		ClassLoader classLoader = currentThread.getContextClassLoader();
-
-		String tablesSQL = StringUtil.read(
-			classLoader,
-			"com/liferay/portal/tools/sql/dependencies/portal-tables.sql");
-
-		String indexesSQL = StringUtil.read(
-			classLoader,
-			"com/liferay/portal/tools/sql/dependencies/indexes.sql");
-
-		db.updateIndexes(connection, tablesSQL, indexesSQL, dropIndexes);
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		StartupHelperUtil.class);
 
 	private static boolean _dbNew;
-	private static boolean _dropIndexes;
 	private static boolean _startupFinished;
 	private static boolean _upgraded;
 	private static boolean _upgrading;

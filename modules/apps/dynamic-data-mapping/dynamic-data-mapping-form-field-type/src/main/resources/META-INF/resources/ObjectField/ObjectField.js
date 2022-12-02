@@ -59,9 +59,15 @@ const ObjectField = ({
 
 	const options = useMemo(() => {
 		const filteredObjectFields = objectFields.filter(
-			({listTypeDefinitionId, relationshipType, system, type}) => {
+			({
+				businessType,
+				listTypeDefinitionExternalReferenceCode,
+				relationshipType,
+				system,
+				type,
+			}) => {
 				if (
-					!listTypeDefinitionId &&
+					!listTypeDefinitionExternalReferenceCode &&
 					(focusedFieldType === 'radio' ||
 						focusedFieldType === 'select') &&
 					normalizedDataType.includes(type.toLowerCase())
@@ -69,7 +75,7 @@ const ObjectField = ({
 					return false;
 				}
 				else if (
-					listTypeDefinitionId &&
+					listTypeDefinitionExternalReferenceCode &&
 					(focusedFieldType === 'checkbox_multiple' ||
 						focusedFieldType === 'color' ||
 						focusedFieldType === 'grid' ||
@@ -88,6 +94,12 @@ const ObjectField = ({
 				}
 				else if (relationshipType || system) {
 					return false;
+				}
+				else if (
+					businessType === 'Attachment' &&
+					focusedFieldType === 'document_library'
+				) {
+					return true;
 				}
 
 				return normalizedDataType.includes(type.toLowerCase());

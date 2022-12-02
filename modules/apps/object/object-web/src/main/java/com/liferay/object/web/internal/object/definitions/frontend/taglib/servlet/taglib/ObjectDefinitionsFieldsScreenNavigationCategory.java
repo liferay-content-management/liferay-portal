@@ -16,7 +16,8 @@ package com.liferay.object.web.internal.object.definitions.frontend.taglib.servl
 
 import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationCategory;
 import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationEntry;
-import com.liferay.object.field.business.type.ObjectFieldBusinessTypeTracker;
+import com.liferay.list.type.service.ListTypeDefinitionService;
+import com.liferay.object.field.business.type.ObjectFieldBusinessTypeRegistry;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.web.internal.object.definitions.constants.ObjectDefinitionsScreenNavigationEntryConstants;
@@ -80,8 +81,9 @@ public class ObjectDefinitionsFieldsScreenNavigationCategory
 		httpServletRequest.setAttribute(
 			WebKeys.PORTLET_DISPLAY_CONTEXT,
 			new ObjectDefinitionsFieldsDisplayContext(
-				httpServletRequest, _objectDefinitionModelResourcePermission,
-				_objectFieldBusinessTypeTracker,
+				httpServletRequest, _listTypeDefinitionService,
+				_objectDefinitionModelResourcePermission,
+				_objectFieldBusinessTypeRegistry,
 				_objectRelationshipLocalService));
 
 		super.render(httpServletRequest, httpServletResponse);
@@ -90,6 +92,9 @@ public class ObjectDefinitionsFieldsScreenNavigationCategory
 	@Reference
 	private Language _language;
 
+	@Reference
+	private ListTypeDefinitionService _listTypeDefinitionService;
+
 	@Reference(
 		target = "(model.class.name=com.liferay.object.model.ObjectDefinition)"
 	)
@@ -97,7 +102,7 @@ public class ObjectDefinitionsFieldsScreenNavigationCategory
 		_objectDefinitionModelResourcePermission;
 
 	@Reference
-	private ObjectFieldBusinessTypeTracker _objectFieldBusinessTypeTracker;
+	private ObjectFieldBusinessTypeRegistry _objectFieldBusinessTypeRegistry;
 
 	@Reference
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;

@@ -17,7 +17,7 @@ package com.liferay.data.engine.rest.resource.v2_0.factory.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
-import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesRegistry;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -62,9 +62,11 @@ public class DataDefinitionResourceFactoryImplTest {
 
 	@Test
 	public void testHttpServletRequestLocale() throws Exception {
+		DataDefinitionResource.Builder dataDefinitionResourceBuilder =
+			_dataDefinitionResourceFactory.create();
+
 		DataDefinitionResource dataDefinitionResource =
-			DataDefinitionResource.builder(
-			).httpServletRequest(
+			dataDefinitionResourceBuilder.httpServletRequest(
 				new MockHttpServletRequest() {
 
 					@Override
@@ -90,9 +92,11 @@ public class DataDefinitionResourceFactoryImplTest {
 
 	@Test
 	public void testPreferredLocale() throws Exception {
+		DataDefinitionResource.Builder dataDefinitionResourceBuilder =
+			_dataDefinitionResourceFactory.create();
+
 		DataDefinitionResource dataDefinitionResource =
-			DataDefinitionResource.builder(
-			).preferredLocale(
+			dataDefinitionResourceBuilder.preferredLocale(
 				LocaleUtil.BRAZIL
 			).user(
 				UserTestUtil.addUser()
@@ -107,9 +111,11 @@ public class DataDefinitionResourceFactoryImplTest {
 
 	@Test
 	public void testUserLocale() throws Exception {
+		DataDefinitionResource.Builder dataDefinitionResourceBuilder =
+			_dataDefinitionResourceFactory.create();
+
 		DataDefinitionResource dataDefinitionResource =
-			DataDefinitionResource.builder(
-			).user(
+			dataDefinitionResourceBuilder.user(
 				UserTestUtil.addUser()
 			).build();
 
@@ -125,7 +131,7 @@ public class DataDefinitionResourceFactoryImplTest {
 			JSONObject jsonObject = jsonArray.getJSONObject(i);
 
 			Map<String, Object> properties =
-				_ddmFormFieldTypeServicesTracker.getDDMFormFieldTypeProperties(
+				_ddmFormFieldTypeServicesRegistry.getDDMFormFieldTypeProperties(
 					jsonObject.getString("name"));
 
 			Assert.assertEquals(
@@ -141,7 +147,7 @@ public class DataDefinitionResourceFactoryImplTest {
 		String ddmFormFieldTypeName, Locale locale) {
 
 		DDMFormFieldType ddmFormFieldType =
-			_ddmFormFieldTypeServicesTracker.getDDMFormFieldType(
+			_ddmFormFieldTypeServicesRegistry.getDDMFormFieldType(
 				ddmFormFieldTypeName);
 
 		return new AggregateResourceBundle(
@@ -162,7 +168,10 @@ public class DataDefinitionResourceFactoryImplTest {
 	}
 
 	@Inject
-	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
+	private DataDefinitionResource.Factory _dataDefinitionResourceFactory;
+
+	@Inject
+	private DDMFormFieldTypeServicesRegistry _ddmFormFieldTypeServicesRegistry;
 
 	@Inject
 	private JSONFactory _jsonFactory;

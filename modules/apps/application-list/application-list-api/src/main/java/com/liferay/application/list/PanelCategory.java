@@ -99,6 +99,10 @@ public interface PanelCategory extends PanelEntry {
 		HttpServletRequest httpServletRequest,
 		PanelCategoryHelper panelCategoryHelper, Group group);
 
+	public default boolean isAllowScopeLayouts() {
+		return false;
+	}
+
 	/**
 	 * Returns <code>true</code> if the state of the category is persisted.
 	 *

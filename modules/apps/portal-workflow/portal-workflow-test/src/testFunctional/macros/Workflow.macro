@@ -375,7 +375,11 @@ definition {
 	macro configureDMWorkflowViaFolderInfo {
 		Click(locator1 = "Icon#INFO");
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "Edit");
+		Click.waitForMenuToggleJSClick(locator1 = "DocumentsAndMedia#DROPDOWN_INFO_PANEL");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		MenuItem.click(menuItem = "Edit");
 
 		Select(
 			locator1 = "AssetWorkflow#ALL_STRUCTURES_WORKFLOW_SELECT",
@@ -1144,19 +1148,19 @@ definition {
 		var key_workflowAssetTitle = "${workflowAssetTitle}";
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_LAST_ACTIVITY_DATE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_DEFINITION",
 			value1 = "${workflowDefinition}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#TABLE_GENERIC_ASSET_TITLE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TITLE",
 			value1 = "${workflowAssetTitle}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_ASSET_TYPE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TYPE",
 			value1 = "${workflowAssetType}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_TASK",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TASK",
 			value1 = "${workflowTask}");
 
 		AssertElementPresent(locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_DUE_DATE");
@@ -1174,19 +1178,19 @@ definition {
 		var key_workflowAssetTitle = "${workflowAssetTitle}";
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "MyWorkflowTasks#TABLE_GENERIC_ASSET_TITLE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TITLE",
 			value1 = "${workflowAssetTitle}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_ASSET_TYPE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TYPE",
 			value1 = "${workflowAssetType}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_TASK",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TASK",
 			value1 = "${workflowStatus}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_LAST_ACTIVITY_DATE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_DEFINITION",
 			value1 = "${workflowDefinition}");
 
 		AssertElementPresent(locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_DUE_DATE");
@@ -1342,15 +1346,15 @@ definition {
 		var key_workflowAssetTitle = "${workflowAssetTitle}";
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#TABLE_GENERIC_ASSET_TITLE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TITLE",
 			value1 = "${workflowAssetTitle}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_ASSET_TYPE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TYPE",
 			value1 = "${workflowAssetType}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_TASK",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TASK",
 			value1 = "${workflowTask}");
 
 		AssertElementPresent(locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_DUE_DATE");
@@ -1703,19 +1707,19 @@ definition {
 		var key_workflowAssetTitle = "${workflowAssetTitle}";
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_LAST_ACTIVITY_DATE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_DEFINITION",
 			value1 = "${workflowDefinition}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#TABLE_GENERIC_ASSET_TITLE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TITLE",
 			value1 = "${workflowAssetTitle}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_ASSET_TYPE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TYPE",
 			value1 = "${workflowAssetType}");
 
 		AssertTextEquals(
-			locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_TASK",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TASK",
 			value1 = "${workflowTask}");
 
 		AssertElementPresent(locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_DUE_DATE");
@@ -1723,7 +1727,7 @@ definition {
 		AssertElementPresent(locator1 = "MyWorkflowTasks#ASSIGNED_TO_ME_TABLE_END_DATE");
 
 		AssertClick(
-			locator1 = "MyWorkflowTasks#TABLE_GENERIC_ASSET_TITLE",
+			locator1 = "WorkflowSubmissions#MY_SUBMISSIONS_TABLE_TITLE",
 			value1 = "${workflowAssetTitle}");
 
 		Workflow.viewMySubmissionsTaskPreview(

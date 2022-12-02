@@ -1,14 +1,15 @@
-.forms-select-from-list .form-control {
-	position: relative;
-}
-
-.forms-select-from-list .form-control .lexicon-icon {
+.select-from-list__dropdown-menu {
+	left: 0;
 	position: absolute;
-	right: 1ch;
-	top: 50%;
-	transform: translateY(-45%);
+	top: 0;
 }
 
-.forms-select-from-list .dropdown-item {
-	cursor: pointer;
+.select-from-list__dropdown-menu .dropdown-item.active {
+	background-color: transparent;
+}
+
+.select-from-list__dropdown-menu .dropdown-item.active[aria-selected="true"],
+.select-from-list__dropdown-menu .dropdown-item[aria-selected="true"] {
+	background-color: #f0f5ff;
+	color: #272833;
 }

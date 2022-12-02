@@ -16,7 +16,7 @@ package com.liferay.analytics.settings.rest.internal.resource.v1_0;
 
 import com.liferay.analytics.settings.rest.dto.v1_0.DataSourceToken;
 import com.liferay.analytics.settings.rest.internal.client.AnalyticsCloudClient;
-import com.liferay.analytics.settings.rest.internal.manager.AnalyticsSettingsManager;
+import com.liferay.analytics.settings.rest.manager.AnalyticsSettingsManager;
 import com.liferay.analytics.settings.rest.resource.v1_0.DataSourceResource;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -39,7 +39,7 @@ public class DataSourceResourceImpl extends BaseDataSourceResourceImpl {
 	@Override
 	public void deleteDataSource() throws Exception {
 		try {
-			_analyticsCloudClient.disconnectDataSource(
+			_analyticsCloudClient.disconnectAnalyticsDataSource(
 				contextCompany.getCompanyId());
 		}
 		catch (Exception exception) {
@@ -57,7 +57,7 @@ public class DataSourceResourceImpl extends BaseDataSourceResourceImpl {
 		throws Exception {
 
 		Map<String, Object> properties =
-			_analyticsCloudClient.connectDataSource(
+			_analyticsCloudClient.connectAnalyticsDataSource(
 				contextUser.getCompanyId(), dataSourceToken.getToken());
 
 		properties.put("token", dataSourceToken.getToken());

@@ -231,7 +231,7 @@ public class SXPBlueprintLocalServiceImpl
 		throws PortalException {
 
 		SXPBlueprint sxpBlueprint = fetchSXPBlueprintByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 
 		if (sxpBlueprint != null) {
 			throw new DuplicateSXPBlueprintExternalReferenceCodeException();

@@ -1993,54 +1993,54 @@ public interface UserPersistence
 	public int countByC_DU_S(long companyId, boolean defaultUser, int status);
 
 	/**
-	 * Returns the user where companyId = &#63; and externalReferenceCode = &#63; or throws a <code>NoSuchUserException</code> if it could not be found.
+	 * Returns the user where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchUserException</code> if it could not be found.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching user
 	 * @throws NoSuchUserException if a matching user could not be found
 	 */
-	public User findByC_ERC(long companyId, String externalReferenceCode)
+	public User findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchUserException;
 
 	/**
-	 * Returns the user where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the user where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
-	public User fetchByC_ERC(long companyId, String externalReferenceCode);
+	public User fetchByERC_C(String externalReferenceCode, long companyId);
 
 	/**
-	 * Returns the user where companyId = &#63; and externalReferenceCode = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the user where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
-	public User fetchByC_ERC(
-		long companyId, String externalReferenceCode, boolean useFinderCache);
+	public User fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache);
 
 	/**
-	 * Removes the user where companyId = &#63; and externalReferenceCode = &#63; from the database.
+	 * Removes the user where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the user that was removed
 	 */
-	public User removeByC_ERC(long companyId, String externalReferenceCode)
+	public User removeByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchUserException;
 
 	/**
-	 * Returns the number of users where companyId = &#63; and externalReferenceCode = &#63;.
+	 * Returns the number of users where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
-	 * @param companyId the company ID
 	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
 	 * @return the number of matching users
 	 */
-	public int countByC_ERC(long companyId, String externalReferenceCode);
+	public int countByERC_C(String externalReferenceCode, long companyId);
 
 	/**
 	 * Caches the user in the entity cache if it is enabled.

@@ -17,6 +17,7 @@ package com.liferay.commerce.initializer.util;
 import com.liferay.commerce.inventory.model.CommerceInventoryWarehouse;
 import com.liferay.commerce.inventory.service.CommerceInventoryWarehouseLocalService;
 import com.liferay.commerce.product.model.CommerceChannel;
+import com.liferay.commerce.product.model.CommerceChannelRel;
 import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.commerce.product.service.CommerceChannelRelLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -45,7 +46,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Andrea Di Giorgi
  * @author Alessio Antonio Rendina
  */
-@Component(enabled = false, service = CommerceInventoryWarehousesImporter.class)
+@Component(service = CommerceInventoryWarehousesImporter.class)
 public class CommerceInventoryWarehousesImporter {
 
 	public List<CommerceInventoryWarehouse> importCommerceInventoryWarehouses(
@@ -143,6 +144,17 @@ public class CommerceInventoryWarehousesImporter {
 				serviceContext.getScopeGroupId());
 
 		if (commerceChannel != null) {
+			CommerceChannelRel commerceChannelRel =
+				_commerceChannelRelLocalService.fetchCommerceChannelRel(
+					CommerceInventoryWarehouse.class.getName(),
+					commerceInventoryWarehouse.
+						getCommerceInventoryWarehouseId(),
+					commerceChannel.getCommerceChannelId());
+
+			if (commerceChannelRel != null) {
+				return commerceInventoryWarehouse;
+			}
+
 			_commerceChannelRelLocalService.addCommerceChannelRel(
 				CommerceInventoryWarehouse.class.getName(),
 				commerceInventoryWarehouse.getCommerceInventoryWarehouseId(),

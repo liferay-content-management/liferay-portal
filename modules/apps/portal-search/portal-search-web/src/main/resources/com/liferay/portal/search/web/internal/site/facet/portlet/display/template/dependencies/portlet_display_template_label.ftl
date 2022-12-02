@@ -17,15 +17,15 @@
 				<#list entries as entry>
 					<button
 						class="btn label label-lg facet-term term-name ${(entry.isSelected())?then('label-primary facet-term-selected', 'label-secondary facet-term-unselected')}"
-						data-term-id="${entry.getGroupId()}"
+						data-term-id="${entry.getFilterValue()}"
 						disabled
 						onClick="Liferay.Search.FacetUtil.changeSelection(event);"
 						type="button"
 					>
-						${htmlUtil.escape(entry.getDescriptiveName())}
+						${htmlUtil.escape(entry.getBucketText())}
 
-						<#if entry.isShowCount()>
-							(${entry.getCount()})
+						<#if entry.isFrequencyVisible()>
+							(${entry.getFrequency()})
 						</#if>
 					</button>
 				</#list>

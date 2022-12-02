@@ -14,12 +14,19 @@
 
 package com.liferay.segments.asah.rest.internal.graphql.servlet.v1_0;
 
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
 import com.liferay.segments.asah.rest.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.segments.asah.rest.internal.graphql.query.v1_0.Query;
+import com.liferay.segments.asah.rest.internal.resource.v1_0.ExperimentResourceImpl;
+import com.liferay.segments.asah.rest.internal.resource.v1_0.ExperimentRunResourceImpl;
+import com.liferay.segments.asah.rest.internal.resource.v1_0.StatusResourceImpl;
 import com.liferay.segments.asah.rest.resource.v1_0.ExperimentResource;
 import com.liferay.segments.asah.rest.resource.v1_0.ExperimentRunResource;
 import com.liferay.segments.asah.rest.resource.v1_0.StatusResource;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -34,7 +41,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Javier Gamarra
  * @generated
  */
-@Component(immediate = true, service = ServletData.class)
+@Component(service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
@@ -51,6 +58,10 @@ public class ServletDataImpl implements ServletData {
 			_experimentResourceComponentServiceObjects);
 	}
 
+	public String getApplicationName() {
+		return "Liferay.Segments.Asah.REST";
+	}
+
 	@Override
 	public Mutation getMutation() {
 		return new Mutation();
@@ -65,6 +76,52 @@ public class ServletDataImpl implements ServletData {
 	public Query getQuery() {
 		return new Query();
 	}
+
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(
+		String methodName, boolean mutation) {
+
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get(
+				"mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>>
+		_resourceMethodObjectValuePairs =
+			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+				{
+					put(
+						"mutation#deleteExperiment",
+						new ObjectValuePair<>(
+							ExperimentResourceImpl.class, "deleteExperiment"));
+					put(
+						"mutation#deleteExperimentBatch",
+						new ObjectValuePair<>(
+							ExperimentResourceImpl.class,
+							"deleteExperimentBatch"));
+					put(
+						"mutation#createExperimentRun",
+						new ObjectValuePair<>(
+							ExperimentRunResourceImpl.class,
+							"postExperimentRun"));
+					put(
+						"mutation#createExperimentStatus",
+						new ObjectValuePair<>(
+							StatusResourceImpl.class, "postExperimentStatus"));
+					put(
+						"mutation#createExperimentStatusBatch",
+						new ObjectValuePair<>(
+							StatusResourceImpl.class,
+							"postExperimentStatusBatch"));
+
+					put(
+						"query#experiment",
+						new ObjectValuePair<>(
+							ExperimentResourceImpl.class, "getExperiment"));
+				}
+			};
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<ExperimentResource>

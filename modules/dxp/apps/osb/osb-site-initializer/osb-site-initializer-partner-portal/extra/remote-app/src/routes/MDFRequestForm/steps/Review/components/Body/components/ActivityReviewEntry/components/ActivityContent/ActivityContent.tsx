@@ -9,10 +9,10 @@
  * distribution rights of the Software.
  */
 
+import Table from '../../../../../../../../../../common/components/Table';
 import MDFRequestActivity from '../../../../../../../../../../common/interfaces/mdfRequestActivity';
 import getBooleanValue from '../../../../../../../../../../common/utils/getBooleanValue';
 import getIntlNumberFormat from '../../../../../../../../../../common/utils/getIntlNumberFormat';
-import Table from '../../../../../Table';
 
 interface IProps {
 	mdfRequestActivity: MDFRequestActivity;
@@ -21,15 +21,38 @@ interface IProps {
 const ActivityContent = ({mdfRequestActivity}: IProps) => (
 	<>
 		<Table
-			items={mdfRequestActivity.budgets.map((budget) => ({
+			borderless
+			className="bg-brand-primary-lighten-6 border-top table-striped"
+			columns={[
+				{
+					columnKey: 'title',
+					label: 'Budget Breakdown',
+				},
+				{
+					columnKey: 'value',
+					label: '',
+				},
+			]}
+			rows={mdfRequestActivity.budgets.map((budget) => ({
 				title: budget.expense.name,
 				value: getIntlNumberFormat().format(budget.cost),
 			}))}
-			title="Budget Breakdown"
 		/>
 
 		<Table
-			items={[
+			borderless
+			className="bg-brand-primary-lighten-6 border-top table-striped"
+			columns={[
+				{
+					columnKey: 'title',
+					label: 'Lead List',
+				},
+				{
+					columnKey: 'value',
+					label: '',
+				},
+			]}
+			rows={[
 				{
 					title: 'Is a lead list an outcome of this activity?',
 					value: getBooleanValue(mdfRequestActivity.leadGenerated),
@@ -40,14 +63,13 @@ const ActivityContent = ({mdfRequestActivity}: IProps) => (
 				},
 				{
 					title: 'Lead Follow Up strategy',
-					value: mdfRequestActivity.leadFollowUpStrategies.join(', '),
+					value: mdfRequestActivity.leadFollowUpStrategies.join('; '),
 				},
 				{
 					title: 'Details on Lead Follow Up',
 					value: mdfRequestActivity.detailsLeadFollowUp,
 				},
 			]}
-			title="Lead List"
 		/>
 	</>
 );

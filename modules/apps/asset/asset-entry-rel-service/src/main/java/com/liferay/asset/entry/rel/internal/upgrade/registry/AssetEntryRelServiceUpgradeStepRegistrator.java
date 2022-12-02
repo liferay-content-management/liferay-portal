@@ -26,7 +26,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Eudaldo Alonso
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(service = UpgradeStepRegistrator.class)
 public class AssetEntryRelServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -40,7 +40,7 @@ public class AssetEntryRelServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {"AssetEntryAssetCategoryRel"};
 				}
 

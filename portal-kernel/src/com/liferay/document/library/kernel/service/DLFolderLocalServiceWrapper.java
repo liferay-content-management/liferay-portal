@@ -363,31 +363,12 @@ public class DLFolderLocalServiceWrapper
 		return _dlFolderLocalService.fetchDLFolder(folderId);
 	}
 
-	/**
-	 * Returns the document library folder with the matching external reference code and group.
-	 *
-	 * @param groupId the primary key of the group
-	 * @param externalReferenceCode the document library folder's external reference code
-	 * @return the matching document library folder, or <code>null</code> if a matching document library folder could not be found
-	 */
 	@Override
 	public DLFolder fetchDLFolderByExternalReferenceCode(
-		long groupId, String externalReferenceCode) {
+		String externalReferenceCode, long groupId) {
 
 		return _dlFolderLocalService.fetchDLFolderByExternalReferenceCode(
-			groupId, externalReferenceCode);
-	}
-
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchDLFolderByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public DLFolder fetchDLFolderByReferenceCode(
-		long groupId, String externalReferenceCode) {
-
-		return _dlFolderLocalService.fetchDLFolderByReferenceCode(
-			groupId, externalReferenceCode);
+			externalReferenceCode, groupId);
 	}
 
 	/**
@@ -496,21 +477,13 @@ public class DLFolderLocalServiceWrapper
 		return _dlFolderLocalService.getDLFolder(folderId);
 	}
 
-	/**
-	 * Returns the document library folder with the matching external reference code and group.
-	 *
-	 * @param groupId the primary key of the group
-	 * @param externalReferenceCode the document library folder's external reference code
-	 * @return the matching document library folder
-	 * @throws PortalException if a matching document library folder could not be found
-	 */
 	@Override
 	public DLFolder getDLFolderByExternalReferenceCode(
-			long groupId, String externalReferenceCode)
+			String externalReferenceCode, long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _dlFolderLocalService.getDLFolderByExternalReferenceCode(
-			groupId, externalReferenceCode);
+			externalReferenceCode, groupId);
 	}
 
 	/**

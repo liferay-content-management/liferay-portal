@@ -668,7 +668,7 @@ const ManageCollaborators = ({
 				}
 			}
 
-			if (role.value > 0) {
+			if (role.value >= 0) {
 				json[user.userId.toString()] = role;
 			}
 

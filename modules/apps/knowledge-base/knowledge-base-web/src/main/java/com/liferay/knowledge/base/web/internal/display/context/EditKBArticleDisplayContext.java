@@ -55,6 +55,8 @@ import java.util.Map;
 
 import javax.portlet.PortletConfig;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author Adolfo Pérez
  */
@@ -71,14 +73,15 @@ public class EditKBArticleDisplayContext {
 		_liferayPortletResponse = liferayPortletResponse;
 		_portletConfig = portletConfig;
 
+		_httpServletRequest = PortalUtil.getHttpServletRequest(
+			liferayPortletRequest);
 		_redirect = PortalUtil.escapeRedirect(
 			ParamUtil.getString(
-				_liferayPortletRequest.getHttpServletRequest(), "redirect",
+				liferayPortletRequest.getHttpServletRequest(), "redirect",
 				String.valueOf(
 					PortletURLUtil.getCurrent(
-						_liferayPortletRequest, _liferayPortletResponse))));
-
-		_themeDisplay = (ThemeDisplay)_liferayPortletRequest.getAttribute(
+						liferayPortletRequest, liferayPortletResponse))));
+		_themeDisplay = (ThemeDisplay)liferayPortletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
@@ -151,6 +154,16 @@ public class EditKBArticleDisplayContext {
 		return kbArticle.getClassPK();
 	}
 
+	public String getKBArticleDescription() {
+		KBArticle kbArticle = getKBArticle();
+
+		if (kbArticle == null) {
+			return StringPool.BLANK;
+		}
+
+		return kbArticle.getDescription();
+	}
+
 	public long getKBArticleId() {
 		KBArticle kbArticle = getKBArticle();
 
@@ -159,6 +172,16 @@ public class EditKBArticleDisplayContext {
 		}
 
 		return kbArticle.getKbArticleId();
+	}
+
+	public String getKBArticleSourceURL() {
+		KBArticle kbArticle = getKBArticle();
+
+		if (kbArticle == null) {
+			return StringPool.BLANK;
+		}
+
+		return kbArticle.getSourceURL();
 	}
 
 	public int getKBArticleStatus() {
@@ -361,6 +384,40 @@ public class EditKBArticleDisplayContext {
 		return false;
 	}
 
+	public boolean isNeverExpire() {
+		if (_neverExpire != null) {
+			return _neverExpire;
+		}
+
+		_neverExpire = ParamUtil.getBoolean(
+			_httpServletRequest, "neverExpire", true);
+
+		KBArticle kbArticle = getKBArticle();
+
+		if ((kbArticle != null) && (kbArticle.getExpirationDate() != null)) {
+			_neverExpire = false;
+		}
+
+		return _neverExpire;
+	}
+
+	public boolean isNeverReview() {
+		if (_neverReview != null) {
+			return _neverReview;
+		}
+
+		_neverReview = ParamUtil.getBoolean(
+			_httpServletRequest, "neverReview", true);
+
+		KBArticle kbArticle = getKBArticle();
+
+		if ((kbArticle != null) && (kbArticle.getReviewDate() != null)) {
+			_neverReview = false;
+		}
+
+		return _neverReview;
+	}
+
 	public boolean isPending() {
 		KBArticle kbArticle = getKBArticle();
 
@@ -445,6 +502,7 @@ public class EditKBArticleDisplayContext {
 		return _kbTemplate;
 	}
 
+	private final HttpServletRequest _httpServletRequest;
 	private KBArticle _kbArticle;
 	private final KBGroupServiceConfiguration _kbGroupServiceConfiguration;
 	private KBSectionPortletInstanceConfiguration
@@ -452,6 +510,8 @@ public class EditKBArticleDisplayContext {
 	private KBTemplate _kbTemplate;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
+	private Boolean _neverExpire;
+	private Boolean _neverReview;
 	private Long _parentResourceClassNameId;
 	private Long _parentResourcePrimKey;
 	private final PortletConfig _portletConfig;

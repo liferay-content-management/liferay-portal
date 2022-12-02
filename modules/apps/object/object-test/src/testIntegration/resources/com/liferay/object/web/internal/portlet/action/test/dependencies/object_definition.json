@@ -1,6 +1,6 @@
 {
 	"accountEntryRestricted": false,
-	"accountEntryRestrictedObjectFieldId": 0,
+	"accountEntryRestrictedObjectFieldName": "",
 	"actions": {
 		"delete": {
 		},
@@ -183,6 +183,7 @@
 			"DBType": "String",
 			"businessType": "Text",
 			"defaultValue": "",
+			"externalReferenceCode": "ERC-001",
 			"indexed": true,
 			"indexedAsKeyword": false,
 			"indexedLanguageId": "",
@@ -201,6 +202,7 @@
 			"DBType": "String",
 			"businessType": "Text",
 			"defaultValue": "",
+			"externalReferenceCode": "ERC-002",
 			"indexed": true,
 			"indexedAsKeyword": false,
 			"indexedLanguageId": "",
@@ -290,10 +292,10 @@
 			],
 			"objectViewFilterColumns": [
 				{
-					"objectFieldName": "dateCreated"
+					"objectFieldName": "createDate"
 				},
 				{
-					"objectFieldName": "dateModified"
+					"objectFieldName": "modifiedDate"
 				},
 				{
 					"filterType": "excludes",

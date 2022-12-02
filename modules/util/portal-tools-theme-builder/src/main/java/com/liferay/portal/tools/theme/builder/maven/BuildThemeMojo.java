@@ -187,6 +187,20 @@ public class BuildThemeMojo extends AbstractMojo {
 	/**
 	 * @parameter
 	 */
+	public void setThumbnailHeight(int thumbnailHeight) {
+		_themeBuilderArgs.setThumbnailHeight(thumbnailHeight);
+	}
+
+	/**
+	 * @parameter
+	 */
+	public void setThumbnailWidth(int thumbnailWidth) {
+		_themeBuilderArgs.setThumbnailWidth(thumbnailWidth);
+	}
+
+	/**
+	 * @parameter
+	 */
 	public void setUnstyledDir(File unstyledDir) {
 		_themeBuilderArgs.setUnstyledDir(unstyledDir);
 	}

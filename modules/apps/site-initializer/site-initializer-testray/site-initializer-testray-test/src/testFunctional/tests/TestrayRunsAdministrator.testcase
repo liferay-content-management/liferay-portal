@@ -14,7 +14,7 @@ definition {
 
 			User.firstLoginPG();
 
-			Testray.createTestraySite(siteName = "Testray 2");
+			Testray.addTestraySite();
 
 			Refresh();
 		}
@@ -28,11 +28,11 @@ definition {
 
 			TestrayManage.addNewCategory(category = "Environments_1 Category A");
 
-			CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
+			Testray.checkSuccessAlertAppearsAndDisappears();
 
 			TestrayManage.addNewCategory(category = "Environments_1 Category B");
 
-			CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
+			Testray.checkSuccessAlertAppearsAndDisappears();
 		}
 
 		task ("Go to Options on Manage Sidebar and Add New Option") {
@@ -55,7 +55,7 @@ definition {
 			TestrayManage.closeModalInOptions();
 		}
 
-		task ("Create project, create Product Version and create Routine") {
+		task ("Create a project") {
 			Testray.changePagination(
 				numberItems = "20",
 				valuePagination = "150");
@@ -67,24 +67,52 @@ definition {
 			Testray.changePagination(
 				numberItems = "20",
 				valuePagination = "150");
+		}
 
-			TestrayManage.createProductVersion(
-				manageOption = "Manage Product Versions",
-				nameOptions = "Projects_1 Project",
-				version = "1.x");
+		task ("Go to created project and add a new team") {
+			TestrayContextMenu.clickContextMenuProjects(name = "Projects_1 Project");
 
-			Refresh();
+			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Manage Teams");
 
-			Testray.changePagination(
-				numberItems = "20",
-				valuePagination = "150");
+			TestrayManage.createTeam(teamName = "Components_1 Team");
 
+			TestrayManage.closeModalInOptions();
+		}
+
+		task ("Go to created project and add a component") {
+			TestrayContextMenu.clickContextMenuProjects(name = "Projects_1 Project");
+
+			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Manage Components");
+
+			Testray.addNewComponent(
+				componentName = "Components_1 Project 1",
+				teamName = "Components_1 Team");
+
+			TestrayManage.closeModalInOptions();
+		}
+
+		task ("Create a new Routine") {
 			Testray.goToProjectPage(projectName = "Projects_1 Project");
 
 			TestrayRoutines.createRoutine(key_name = "Routines_1 Routine");
 		}
 
-		task ("Add Environmental Factors and create build") {
+		task ("Go to tab cases and Add a new Case") {
+			Testray.projectTabNavigator(navTabName = "Cases");
+
+			TestrayCases.typeCasesField(
+				caseName = "Cases_1 Case",
+				caseTypeId = "Automated Functional Test",
+				componentId = "Components_1 Project 1",
+				description = "Cases_1 Case Description",
+				duration = "40",
+				priority = "5",
+				steps = "Auto Test Steps");
+		}
+
+		task ("Go to tab routine and add Environmental Factors and create a build") {
+			Testray.projectTabNavigator(navTabName = "Routine");
+
 			TestrayContextMenu.clickContextMenuProjects(name = "Routines_1 Routine");
 
 			TestrayContextMenu.selectItemFromProjectsContextMenu(item = "Select Default Environment Factors");
@@ -99,10 +127,13 @@ definition {
 			TestrayRoutines.goToRoutine(routineName = "Routines_1 Routine");
 
 			TestrayBuild.createBuild(
+				addVersion = "1.2",
+				caseName = "Cases_1 Case",
 				description = "Builds_1 Project Description",
+				dropdownItem = "New Build",
 				fieldName = "Builds_1 Project",
 				gitHash = "12345",
-				productVersion = "1.x",
+				productVersion = "1.2",
 				routine = "Routines_1 Routine");
 		}
 
@@ -153,7 +184,7 @@ definition {
 
 			Testray.assertItemName(key_name = "01");
 
-			CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
+			Testray.checkSuccessAlertAppearsAndDisappears();
 		}
 
 		task ("Then run should not appear on the list") {
@@ -161,15 +192,6 @@ definition {
 
 			Testray.assertItemNotPresent(key_name = "01");
 		}
-	}
-
-	@description = "This is a test for LPS-160593 - Verify if as an Administrator I should be able to delete a run that contains Case Results"
-	@ignore = "Test Stub"
-	@priority = "5"
-	test AdminCanDeleteRunsWithCaseResults {
-
-		// TODO LPS-160593 AdminCanDeleteRunsWithCaseResults pending implementation
-
 	}
 
 	@description = "This is a test for LPS-163959 - Verify if as an Administrator I should be able to edit a Run"
@@ -196,7 +218,7 @@ definition {
 
 			TestrayRun.assertValueRun(valueRun = "Option 1");
 
-			CommerceUtilities.checkSuccessAlertAppearsAndDisappears();
+			Testray.checkSuccessAlertAppearsAndDisappears();
 		}
 
 		task ("Then run should appear on the list edited") {

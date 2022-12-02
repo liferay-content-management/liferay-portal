@@ -27,7 +27,11 @@ import {ITEM_TYPES} from '../../../../../app/config/constants/itemTypes';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../../../../app/config/constants/layoutDataItemTypes';
 import {LAYOUT_TYPES} from '../../../../../app/config/constants/layoutTypes';
 import {config} from '../../../../../app/config/index';
-import {useActiveItemId} from '../../../../../app/contexts/ControlsContext';
+import {
+	useActiveItemId,
+	useHoverItem,
+} from '../../../../../app/contexts/ControlsContext';
+import {useMovementTarget} from '../../../../../app/contexts/KeyboardMovementContext';
 import {useSelector} from '../../../../../app/contexts/StoreContext';
 import selectCanUpdateEditables from '../../../../../app/selectors/selectCanUpdateEditables';
 import selectCanUpdateItemConfiguration from '../../../../../app/selectors/selectCanUpdateItemConfiguration';
@@ -82,6 +86,7 @@ export default function PageStructureSidebar() {
 	const fragmentEntryLinks = useSelector((state) => state.fragmentEntryLinks);
 	const layoutData = useSelector((state) => state.layoutData);
 	const pageContents = useSelector(selectPageContents);
+	const hoverItem = useHoverItem();
 
 	const mappingFields = useSelector((state) => state.mappingFields);
 	const masterLayoutData = useSelector(
@@ -104,6 +109,8 @@ export default function PageStructureSidebar() {
 		setDragAndDropHoveredItemId(itemId);
 	}, []);
 
+	const {itemId: keyboardMovementTargetId} = useMovementTarget();
+
 	const nodes = useMemo(
 		() =>
 			visit(data.items[data.rootItems.main], data.items, {
@@ -113,6 +120,7 @@ export default function PageStructureSidebar() {
 				dragAndDropHoveredItemId,
 				fragmentEntryLinks,
 				isMasterPage,
+				keyboardMovementTargetId,
 				layoutData,
 				mappingFields,
 				masterLayoutData,
@@ -129,6 +137,7 @@ export default function PageStructureSidebar() {
 			dragAndDropHoveredItemId,
 			fragmentEntryLinks,
 			isMasterPage,
+			keyboardMovementTargetId,
 			layoutData,
 			mappingFields,
 			masterLayoutData,
@@ -138,10 +147,24 @@ export default function PageStructureSidebar() {
 		]
 	);
 
+	const handleNodeFocus = () => {
+		const focusedItem = document.activeElement?.querySelector(
+			'[data-item-id]'
+		);
+
+		if (focusedItem) {
+			hoverItem(focusedItem.dataset.itemId);
+		}
+	};
+
 	return (
-		<div className="overflow-auto page-editor__page-structure__structure-tree pt-4">
+		<div
+			className="overflow-auto page-editor__page-structure__structure-tree pt-4"
+			onFocus={handleNodeFocus}
+		>
 			{!nodes.length && (
 				<ClayAlert
+					aria-live="polite"
 					displayType="info"
 					title={Liferay.Language.get('info')}
 				>
@@ -344,6 +367,7 @@ function visit(
 		fragmentEntryLinks,
 		hasHiddenAncestor,
 		isMasterPage,
+		keyboardMovementTargetId,
 		layoutData,
 		mappingFields,
 		masterLayoutData,
@@ -491,6 +515,7 @@ function visit(
 						fragmentEntryLinks,
 						hasHiddenAncestor: hasHiddenAncestor || hidden,
 						isMasterPage,
+						keyboardMovementTargetId,
 						layoutData,
 						mappingFields,
 						masterLayoutData,
@@ -511,6 +536,7 @@ function visit(
 					fragmentEntryLinks,
 					hasHiddenAncestor: hasHiddenAncestor || hidden,
 					isMasterPage,
+					keyboardMovementTargetId,
 					layoutData,
 					mappingFields,
 					masterLayoutData,
@@ -534,7 +560,8 @@ function visit(
 		draggable: true,
 		expanded:
 			item.itemId === activeItemId ||
-			dragAndDropHoveredItemId === item.itemId,
+			item.itemId === dragAndDropHoveredItemId ||
+			item.itemId === keyboardMovementTargetId,
 		hidable:
 			!itemInMasterLayout &&
 			isHidable(item, fragmentEntryLinks, layoutData),

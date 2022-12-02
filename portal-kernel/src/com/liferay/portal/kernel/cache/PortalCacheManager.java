@@ -31,9 +31,6 @@ public interface PortalCacheManager<K extends Serializable, V> {
 	public static final String PORTAL_CACHE_MANAGER_NAME =
 		"portal.cache.manager.name";
 
-	public static final String PORTAL_CACHE_MANAGER_TYPE =
-		"portal.cache.manager.type";
-
 	public void clearAll() throws PortalCacheException;
 
 	public void destroy();
@@ -54,8 +51,6 @@ public interface PortalCacheManager<K extends Serializable, V> {
 	public Set<PortalCacheManagerListener> getPortalCacheManagerListeners();
 
 	public String getPortalCacheManagerName();
-
-	public boolean isClusterAware();
 
 	public void reconfigurePortalCaches(
 		URL configurationURL, ClassLoader classLoader);

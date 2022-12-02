@@ -12,12 +12,32 @@
  * details.
  */
 
+import ClayButton from '@clayui/button';
 import React from 'react';
 
 import BasePage from '../../components/BasePage';
+import People from '../../components/people/People';
+import {ESteps, IGenericStepProps} from './WizardPage';
 
-const Step = () => {
-	return <BasePage title={Liferay.Language.get('people')}></BasePage>;
-};
+const Step: React.FC<IGenericStepProps> = ({onCancel, onChangeStep}) => (
+	<BasePage
+		description={Liferay.Language.get('sync-people-description')}
+		title={Liferay.Language.get('sync-people')}
+	>
+		<People />
+
+		<BasePage.Footer>
+			<ClayButton.Group spaced>
+				<ClayButton onClick={() => onChangeStep(ESteps.Attributes)}>
+					{Liferay.Language.get('next')}
+				</ClayButton>
+
+				<ClayButton displayType="secondary" onClick={onCancel}>
+					{Liferay.Language.get('cancel')}
+				</ClayButton>
+			</ClayButton.Group>
+		</BasePage.Footer>
+	</BasePage>
+);
 
 export default Step;

@@ -16,12 +16,13 @@ package com.liferay.asset.list.item.selector.web.internal;
 
 import com.liferay.asset.list.constants.AssetListPortletKeys;
 import com.liferay.asset.list.item.selector.web.internal.display.context.AssetListEntryItemSelectorDisplayContext;
+import com.liferay.info.collection.provider.item.selector.criterion.InfoCollectionProviderItemSelectorCriterion;
+import com.liferay.info.item.InfoItemServiceRegistry;
+import com.liferay.info.search.InfoSearchClassMapperRegistry;
 import com.liferay.item.selector.ItemSelectorReturnType;
 import com.liferay.item.selector.ItemSelectorView;
-import com.liferay.item.selector.ItemSelectorViewDescriptorRenderer;
 import com.liferay.item.selector.PortletItemSelectorView;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
-import com.liferay.item.selector.criteria.info.item.criterion.InfoListItemSelectorCriterion;
 import com.liferay.portal.kernel.language.Language;
 
 import java.io.IOException;
@@ -45,15 +46,19 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Adolfo Pérez
  */
-@Component(service = ItemSelectorView.class)
+@Component(
+	property = "item.selector.view.order:Integer=100",
+	service = ItemSelectorView.class
+)
 public class AssetListPortletItemSelectorView
-	implements PortletItemSelectorView<InfoListItemSelectorCriterion> {
+	implements PortletItemSelectorView
+		<InfoCollectionProviderItemSelectorCriterion> {
 
 	@Override
-	public Class<? extends InfoListItemSelectorCriterion>
+	public Class<? extends InfoCollectionProviderItemSelectorCriterion>
 		getItemSelectorCriterionClass() {
 
-		return InfoListItemSelectorCriterion.class;
+		return InfoCollectionProviderItemSelectorCriterion.class;
 	}
 
 	@Override
@@ -74,7 +79,8 @@ public class AssetListPortletItemSelectorView
 	@Override
 	public void renderHTML(
 			ServletRequest servletRequest, ServletResponse servletResponse,
-			InfoListItemSelectorCriterion infoListItemSelectorCriterion,
+			InfoCollectionProviderItemSelectorCriterion
+				infoCollectionProviderItemSelectorCriterion,
 			PortletURL portletURL, String itemSelectedEventName, boolean search)
 		throws IOException, ServletException {
 
@@ -84,8 +90,10 @@ public class AssetListPortletItemSelectorView
 		servletRequest.setAttribute(
 			AssetListEntryItemSelectorDisplayContext.class.getName(),
 			new AssetListEntryItemSelectorDisplayContext(
-				(HttpServletRequest)servletRequest, itemSelectedEventName,
-				_language, portletURL, infoListItemSelectorCriterion));
+				(HttpServletRequest)servletRequest, _infoItemServiceRegistry,
+				_infoSearchClassMapperRegistry, itemSelectedEventName,
+				_language, portletURL,
+				infoCollectionProviderItemSelectorCriterion));
 
 		requestDispatcher.include(servletRequest, servletResponse);
 	}
@@ -95,8 +103,10 @@ public class AssetListPortletItemSelectorView
 			new InfoListItemSelectorReturnType());
 
 	@Reference
-	private ItemSelectorViewDescriptorRenderer<InfoListItemSelectorCriterion>
-		_itemSelectorViewDescriptorRenderer;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
+
+	@Reference
+	private InfoSearchClassMapperRegistry _infoSearchClassMapperRegistry;
 
 	@Reference
 	private Language _language;

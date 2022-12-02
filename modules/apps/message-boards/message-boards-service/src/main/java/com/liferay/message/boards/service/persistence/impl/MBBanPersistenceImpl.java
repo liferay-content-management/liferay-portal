@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -84,7 +83,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(service = {MBBanPersistence.class, BasePersistence.class})
+@Component(service = MBBanPersistence.class)
 public class MBBanPersistenceImpl
 	extends BasePersistenceImpl<MBBan> implements MBBanPersistence {
 
@@ -201,7 +200,8 @@ public class MBBanPersistenceImpl
 		List<MBBan> list = null;
 
 		if (useFinderCache && productionMode) {
-			list = (List<MBBan>)finderCache.getResult(finderPath, finderArgs);
+			list = (List<MBBan>)finderCache.getResult(
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBBan mbBan : list) {
@@ -589,7 +589,7 @@ public class MBBanPersistenceImpl
 
 			finderArgs = new Object[] {uuid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -724,7 +724,7 @@ public class MBBanPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByUUID_G, finderArgs);
+				_finderPathFetchByUUID_G, finderArgs, this);
 		}
 
 		if (result instanceof MBBan) {
@@ -844,7 +844,7 @@ public class MBBanPersistenceImpl
 
 			finderArgs = new Object[] {uuid, groupId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1014,7 +1014,8 @@ public class MBBanPersistenceImpl
 		List<MBBan> list = null;
 
 		if (useFinderCache && productionMode) {
-			list = (List<MBBan>)finderCache.getResult(finderPath, finderArgs);
+			list = (List<MBBan>)finderCache.getResult(
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBBan mbBan : list) {
@@ -1433,7 +1434,7 @@ public class MBBanPersistenceImpl
 
 			finderArgs = new Object[] {uuid, companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1592,7 +1593,8 @@ public class MBBanPersistenceImpl
 		List<MBBan> list = null;
 
 		if (useFinderCache && productionMode) {
-			list = (List<MBBan>)finderCache.getResult(finderPath, finderArgs);
+			list = (List<MBBan>)finderCache.getResult(
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBBan mbBan : list) {
@@ -1956,7 +1958,7 @@ public class MBBanPersistenceImpl
 
 			finderArgs = new Object[] {groupId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2093,7 +2095,8 @@ public class MBBanPersistenceImpl
 		List<MBBan> list = null;
 
 		if (useFinderCache && productionMode) {
-			list = (List<MBBan>)finderCache.getResult(finderPath, finderArgs);
+			list = (List<MBBan>)finderCache.getResult(
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBBan mbBan : list) {
@@ -2456,7 +2459,7 @@ public class MBBanPersistenceImpl
 
 			finderArgs = new Object[] {userId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2596,7 +2599,8 @@ public class MBBanPersistenceImpl
 		List<MBBan> list = null;
 
 		if (useFinderCache && productionMode) {
-			list = (List<MBBan>)finderCache.getResult(finderPath, finderArgs);
+			list = (List<MBBan>)finderCache.getResult(
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (MBBan mbBan : list) {
@@ -2960,7 +2964,7 @@ public class MBBanPersistenceImpl
 
 			finderArgs = new Object[] {banUserId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -3079,7 +3083,8 @@ public class MBBanPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache && productionMode) {
-			result = finderCache.getResult(_finderPathFetchByG_B, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByG_B, finderArgs, this);
 		}
 
 		if (result instanceof MBBan) {
@@ -3186,7 +3191,7 @@ public class MBBanPersistenceImpl
 
 			finderArgs = new Object[] {groupId, banUserId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -3817,7 +3822,8 @@ public class MBBanPersistenceImpl
 		List<MBBan> list = null;
 
 		if (useFinderCache && productionMode) {
-			list = (List<MBBan>)finderCache.getResult(finderPath, finderArgs);
+			list = (List<MBBan>)finderCache.getResult(
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -3893,7 +3899,7 @@ public class MBBanPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

@@ -41,11 +41,9 @@ import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portlet.asset.util.comparator.AssetVocabularyGroupLocalizedTitleComparator;
 import com.liferay.taglib.security.PermissionsURLTag;
@@ -153,6 +151,10 @@ public class DLViewDisplayContext {
 		).buildString();
 	}
 
+	public String[] getEntryColumnNames() {
+		return _dlPortletInstanceSettingsHelper.getEntryColumns();
+	}
+
 	public Folder getFolder() {
 		return _dlAdminDisplayContext.getFolder();
 	}
@@ -161,11 +163,7 @@ public class DLViewDisplayContext {
 		return _dlAdminDisplayContext.getFolderId();
 	}
 
-	public String getPermissionURL() throws Exception {
-		if (!GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-87806"))) {
-			return StringPool.BLANK;
-		}
-
+	public String getPermissionURL(String className) throws Exception {
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)_httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
@@ -175,8 +173,7 @@ public class DLViewDisplayContext {
 		}
 
 		return PermissionsURLTag.doTag(
-			null, DLFileEntryConstants.getClassName(),
-			themeDisplay.getScopeGroupId(),
+			null, className, themeDisplay.getScopeGroupId(),
 			LiferayWindowState.POP_UP.toString(), _httpServletRequest);
 	}
 

@@ -30,7 +30,6 @@ import com.liferay.portal.security.ldap.configuration.LDAPServerConfiguration;
 import com.liferay.portal.security.ldap.configuration.SystemLDAPConfiguration;
 import com.liferay.portal.security.ldap.exportimport.configuration.LDAPExportConfiguration;
 import com.liferay.portal.security.ldap.exportimport.configuration.LDAPImportConfiguration;
-import com.liferay.portal.security.ldap.validator.LDAPFilterValidator;
 
 import java.util.Properties;
 
@@ -42,7 +41,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Michael C. Han
  * @author Brian Wing Shun Chan
  */
-@Component(immediate = true, service = LDAPSettings.class)
+@Component(service = LDAPSettings.class)
 public class DefaultLDAPSettings implements LDAPSettings {
 
 	@Override
@@ -239,9 +238,6 @@ public class DefaultLDAPSettings implements LDAPSettings {
 	)
 	private ConfigurationProvider<LDAPExportConfiguration>
 		_ldapExportConfigurationProvider;
-
-	@Reference
-	private LDAPFilterValidator _ldapFilterValidator;
 
 	@Reference(
 		target = "(factoryPid=com.liferay.portal.security.ldap.exportimport.configuration.LDAPImportConfiguration)"

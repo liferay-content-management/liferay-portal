@@ -196,7 +196,7 @@ public class SXPElementLocalServiceImpl extends SXPElementLocalServiceBaseImpl {
 		throws PortalException {
 
 		SXPElement sxpElement = fetchSXPElementByExternalReferenceCode(
-			companyId, externalReferenceCode);
+			externalReferenceCode, companyId);
 
 		if (sxpElement != null) {
 			throw new DuplicateSXPElementExternalReferenceCodeException();

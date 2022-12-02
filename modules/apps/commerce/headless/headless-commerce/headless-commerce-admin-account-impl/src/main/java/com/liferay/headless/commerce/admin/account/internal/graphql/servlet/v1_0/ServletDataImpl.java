@@ -16,13 +16,25 @@ package com.liferay.headless.commerce.admin.account.internal.graphql.servlet.v1_
 
 import com.liferay.headless.commerce.admin.account.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.headless.commerce.admin.account.internal.graphql.query.v1_0.Query;
+import com.liferay.headless.commerce.admin.account.internal.resource.v1_0.AccountAddressResourceImpl;
+import com.liferay.headless.commerce.admin.account.internal.resource.v1_0.AccountChannelEntryResourceImpl;
+import com.liferay.headless.commerce.admin.account.internal.resource.v1_0.AccountGroupResourceImpl;
+import com.liferay.headless.commerce.admin.account.internal.resource.v1_0.AccountMemberResourceImpl;
+import com.liferay.headless.commerce.admin.account.internal.resource.v1_0.AccountOrganizationResourceImpl;
+import com.liferay.headless.commerce.admin.account.internal.resource.v1_0.AccountResourceImpl;
+import com.liferay.headless.commerce.admin.account.internal.resource.v1_0.UserResourceImpl;
 import com.liferay.headless.commerce.admin.account.resource.v1_0.AccountAddressResource;
+import com.liferay.headless.commerce.admin.account.resource.v1_0.AccountChannelEntryResource;
 import com.liferay.headless.commerce.admin.account.resource.v1_0.AccountGroupResource;
 import com.liferay.headless.commerce.admin.account.resource.v1_0.AccountMemberResource;
 import com.liferay.headless.commerce.admin.account.resource.v1_0.AccountOrganizationResource;
 import com.liferay.headless.commerce.admin.account.resource.v1_0.AccountResource;
 import com.liferay.headless.commerce.admin.account.resource.v1_0.UserResource;
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -37,7 +49,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Alessio Antonio Rendina
  * @generated
  */
-@Component(enabled = false, immediate = true, service = ServletData.class)
+@Component(service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
@@ -47,6 +59,8 @@ public class ServletDataImpl implements ServletData {
 			_accountResourceComponentServiceObjects);
 		Mutation.setAccountAddressResourceComponentServiceObjects(
 			_accountAddressResourceComponentServiceObjects);
+		Mutation.setAccountChannelEntryResourceComponentServiceObjects(
+			_accountChannelEntryResourceComponentServiceObjects);
 		Mutation.setAccountGroupResourceComponentServiceObjects(
 			_accountGroupResourceComponentServiceObjects);
 		Mutation.setAccountMemberResourceComponentServiceObjects(
@@ -60,12 +74,18 @@ public class ServletDataImpl implements ServletData {
 			_accountResourceComponentServiceObjects);
 		Query.setAccountAddressResourceComponentServiceObjects(
 			_accountAddressResourceComponentServiceObjects);
+		Query.setAccountChannelEntryResourceComponentServiceObjects(
+			_accountChannelEntryResourceComponentServiceObjects);
 		Query.setAccountGroupResourceComponentServiceObjects(
 			_accountGroupResourceComponentServiceObjects);
 		Query.setAccountMemberResourceComponentServiceObjects(
 			_accountMemberResourceComponentServiceObjects);
 		Query.setAccountOrganizationResourceComponentServiceObjects(
 			_accountOrganizationResourceComponentServiceObjects);
+	}
+
+	public String getApplicationName() {
+		return "Liferay.Headless.Commerce.Admin.Account";
 	}
 
 	@Override
@@ -83,6 +103,601 @@ public class ServletDataImpl implements ServletData {
 		return new Query();
 	}
 
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(
+		String methodName, boolean mutation) {
+
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get(
+				"mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>>
+		_resourceMethodObjectValuePairs =
+			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+				{
+					put(
+						"mutation#createAccountGroupByExternalReferenceCodeAccount",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class,
+							"postAccountGroupByExternalReferenceCodeAccount"));
+					put(
+						"mutation#deleteAccountGroupByExternalReferenceCodeAccount",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class,
+							"deleteAccountGroupByExternalReferenceCodeAccount"));
+					put(
+						"mutation#createAccount",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class, "postAccount"));
+					put(
+						"mutation#createAccountBatch",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class, "postAccountBatch"));
+					put(
+						"mutation#deleteAccountByExternalReferenceCode",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class,
+							"deleteAccountByExternalReferenceCode"));
+					put(
+						"mutation#patchAccountByExternalReferenceCode",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class,
+							"patchAccountByExternalReferenceCode"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeLogo",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class,
+							"postAccountByExternalReferenceCodeLogo"));
+					put(
+						"mutation#deleteAccount",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class, "deleteAccount"));
+					put(
+						"mutation#deleteAccountBatch",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class, "deleteAccountBatch"));
+					put(
+						"mutation#patchAccount",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class, "patchAccount"));
+					put(
+						"mutation#createAccountLogo",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class, "postAccountLogo"));
+					put(
+						"mutation#deleteAccountAddressByExternalReferenceCode",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"deleteAccountAddressByExternalReferenceCode"));
+					put(
+						"mutation#patchAccountAddressByExternalReferenceCode",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"patchAccountAddressByExternalReferenceCode"));
+					put(
+						"mutation#deleteAccountAddress",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"deleteAccountAddress"));
+					put(
+						"mutation#deleteAccountAddressBatch",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"deleteAccountAddressBatch"));
+					put(
+						"mutation#patchAccountAddress",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"patchAccountAddress"));
+					put(
+						"mutation#updateAccountAddress",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"putAccountAddress"));
+					put(
+						"mutation#updateAccountAddressBatch",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"putAccountAddressBatch"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountAddress",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountAddress"));
+					put(
+						"mutation#createAccountIdAccountAddress",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"postAccountIdAccountAddress"));
+					put(
+						"mutation#createAccountIdAccountAddressBatch",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"postAccountIdAccountAddressBatch"));
+					put(
+						"mutation#deleteAccountChannelBillingAddressId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"deleteAccountChannelBillingAddressId"));
+					put(
+						"mutation#patchAccountChannelBillingAddressId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"patchAccountChannelBillingAddressId"));
+					put(
+						"mutation#deleteAccountChannelCurrencyId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"deleteAccountChannelCurrencyId"));
+					put(
+						"mutation#patchAccountChannelCurrencyId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"patchAccountChannelCurrencyId"));
+					put(
+						"mutation#deleteAccountChannelDeliveryTermId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"deleteAccountChannelDeliveryTermId"));
+					put(
+						"mutation#patchAccountChannelDeliveryTermId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"patchAccountChannelDeliveryTermId"));
+					put(
+						"mutation#deleteAccountChannelDiscountId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"deleteAccountChannelDiscountId"));
+					put(
+						"mutation#patchAccountChannelDiscountId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"patchAccountChannelDiscountId"));
+					put(
+						"mutation#deleteAccountChannelPaymentTermId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"deleteAccountChannelPaymentTermId"));
+					put(
+						"mutation#patchAccountChannelPaymentTermId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"patchAccountChannelPaymentTermId"));
+					put(
+						"mutation#deleteAccountChannelPriceListId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"deleteAccountChannelPriceListId"));
+					put(
+						"mutation#patchAccountChannelPriceListId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"patchAccountChannelPriceListId"));
+					put(
+						"mutation#deleteAccountChannelShippingAddressId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"deleteAccountChannelShippingAddressId"));
+					put(
+						"mutation#patchAccountChannelShippingAddressId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"patchAccountChannelShippingAddressId"));
+					put(
+						"mutation#deleteAccountChannelUserId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"deleteAccountChannelUserId"));
+					put(
+						"mutation#patchAccountChannelUserId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"patchAccountChannelUserId"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountChannelBillingAddress",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountChannelBillingAddress"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountChannelCurrency",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountChannelCurrency"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountChannelDeliveryTerm",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountChannelDeliveryTerm"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountChannelDiscount",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountChannelDiscount"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountChannelPaymentTerm",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountChannelPaymentTerm"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountChannelPriceList",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountChannelPriceList"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountChannelShippingAddress",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountChannelShippingAddress"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountChannelUser",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountChannelUser"));
+					put(
+						"mutation#createAccountIdAccountChannelBillingAddress",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountIdAccountChannelBillingAddress"));
+					put(
+						"mutation#createAccountIdAccountChannelCurrency",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountIdAccountChannelCurrency"));
+					put(
+						"mutation#createAccountIdAccountChannelDeliveryTerm",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountIdAccountChannelDeliveryTerm"));
+					put(
+						"mutation#createAccountIdAccountChannelDiscount",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountIdAccountChannelDiscount"));
+					put(
+						"mutation#createAccountIdAccountChannelPaymentTerm",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountIdAccountChannelPaymentTerm"));
+					put(
+						"mutation#createAccountIdAccountChannelPriceList",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountIdAccountChannelPriceList"));
+					put(
+						"mutation#createAccountIdAccountChannelShippingAddress",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountIdAccountChannelShippingAddress"));
+					put(
+						"mutation#createAccountIdAccountChannelUser",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"postAccountIdAccountChannelUser"));
+					put(
+						"mutation#createAccountGroup",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"postAccountGroup"));
+					put(
+						"mutation#createAccountGroupBatch",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"postAccountGroupBatch"));
+					put(
+						"mutation#deleteAccountGroupByExternalReferenceCode",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"deleteAccountGroupByExternalReferenceCode"));
+					put(
+						"mutation#patchAccountGroupByExternalReferenceCode",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"patchAccountGroupByExternalReferenceCode"));
+					put(
+						"mutation#deleteAccountGroup",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"deleteAccountGroup"));
+					put(
+						"mutation#deleteAccountGroupBatch",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"deleteAccountGroupBatch"));
+					put(
+						"mutation#patchAccountGroup",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"patchAccountGroup"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountMember",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountMember"));
+					put(
+						"mutation#deleteAccountByExternalReferenceCodeAccountMember",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"deleteAccountByExternalReferenceCodeAccountMember"));
+					put(
+						"mutation#patchAccountByExternalReferenceCodeAccountMember",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"patchAccountByExternalReferenceCodeAccountMember"));
+					put(
+						"mutation#createAccountIdAccountMember",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"postAccountIdAccountMember"));
+					put(
+						"mutation#createAccountIdAccountMemberBatch",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"postAccountIdAccountMemberBatch"));
+					put(
+						"mutation#deleteAccountIdAccountMember",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"deleteAccountIdAccountMember"));
+					put(
+						"mutation#patchAccountIdAccountMember",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"patchAccountIdAccountMember"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountOrganization",
+						new ObjectValuePair<>(
+							AccountOrganizationResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountOrganization"));
+					put(
+						"mutation#deleteAccountByExternalReferenceCodeAccountOrganization",
+						new ObjectValuePair<>(
+							AccountOrganizationResourceImpl.class,
+							"deleteAccountByExternalReferenceCodeAccountOrganization"));
+					put(
+						"mutation#createAccountIdAccountOrganization",
+						new ObjectValuePair<>(
+							AccountOrganizationResourceImpl.class,
+							"postAccountIdAccountOrganization"));
+					put(
+						"mutation#createAccountIdAccountOrganizationBatch",
+						new ObjectValuePair<>(
+							AccountOrganizationResourceImpl.class,
+							"postAccountIdAccountOrganizationBatch"));
+					put(
+						"mutation#deleteAccountIdAccountOrganization",
+						new ObjectValuePair<>(
+							AccountOrganizationResourceImpl.class,
+							"deleteAccountIdAccountOrganization"));
+					put(
+						"mutation#createAccountByExternalReferenceCodeAccountMemberCreateUser",
+						new ObjectValuePair<>(
+							UserResourceImpl.class,
+							"postAccountByExternalReferenceCodeAccountMemberCreateUser"));
+
+					put(
+						"query#accounts",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class, "getAccountsPage"));
+					put(
+						"query#accountByExternalReferenceCode",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class,
+							"getAccountByExternalReferenceCode"));
+					put(
+						"query#account",
+						new ObjectValuePair<>(
+							AccountResourceImpl.class, "getAccount"));
+					put(
+						"query#accountAddressByExternalReferenceCode",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"getAccountAddressByExternalReferenceCode"));
+					put(
+						"query#accountAddress",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"getAccountAddress"));
+					put(
+						"query#accountByExternalReferenceCodeAccountAddresses",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountAddressesPage"));
+					put(
+						"query#accountIdAccountAddresses",
+						new ObjectValuePair<>(
+							AccountAddressResourceImpl.class,
+							"getAccountIdAccountAddressesPage"));
+					put(
+						"query#accountChannelBillingAddressId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountChannelBillingAddressId"));
+					put(
+						"query#accountChannelCurrencyId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountChannelCurrencyId"));
+					put(
+						"query#accountChannelDeliveryTermId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountChannelDeliveryTermId"));
+					put(
+						"query#accountChannelDiscountId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountChannelDiscountId"));
+					put(
+						"query#accountChannelPaymentTermId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountChannelPaymentTermId"));
+					put(
+						"query#accountChannelPriceListId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountChannelPriceListId"));
+					put(
+						"query#accountChannelShippingAddressId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountChannelShippingAddressId"));
+					put(
+						"query#accountChannelUserId",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountChannelUserId"));
+					put(
+						"query#accountByExternalReferenceCodeAccountChannelBillingAddresses",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountChannelBillingAddressesPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountChannelCurrencies",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountChannelCurrenciesPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountChannelDeliveryTerms",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountChannelDeliveryTermsPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountChannelDiscounts",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountChannelDiscountsPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountChannelPaymentTerms",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountChannelPaymentTermsPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountChannelPriceLists",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountChannelPriceListsPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountChannelShippingAddresses",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountChannelShippingAddressesPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountChannelUsers",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountChannelUsersPage"));
+					put(
+						"query#accountIdAccountChannelBillingAddresses",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountIdAccountChannelBillingAddressesPage"));
+					put(
+						"query#accountIdAccountChannelCurrencies",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountIdAccountChannelCurrenciesPage"));
+					put(
+						"query#accountIdAccountChannelDeliveryTerms",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountIdAccountChannelDeliveryTermsPage"));
+					put(
+						"query#accountIdAccountChannelDiscounts",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountIdAccountChannelDiscountsPage"));
+					put(
+						"query#accountIdAccountChannelPaymentTerms",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountIdAccountChannelPaymentTermsPage"));
+					put(
+						"query#accountIdAccountChannelPriceLists",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountIdAccountChannelPriceListsPage"));
+					put(
+						"query#accountIdAccountChannelShippingAddresses",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountIdAccountChannelShippingAddressesPage"));
+					put(
+						"query#accountIdAccountChannelUsers",
+						new ObjectValuePair<>(
+							AccountChannelEntryResourceImpl.class,
+							"getAccountIdAccountChannelUsersPage"));
+					put(
+						"query#accountGroups",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"getAccountGroupsPage"));
+					put(
+						"query#accountGroupByExternalReferenceCode",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"getAccountGroupByExternalReferenceCode"));
+					put(
+						"query#accountGroup",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class, "getAccountGroup"));
+					put(
+						"query#accountByExternalReferenceCodeAccountGroups",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountGroupsPage"));
+					put(
+						"query#accountIdAccountGroups",
+						new ObjectValuePair<>(
+							AccountGroupResourceImpl.class,
+							"getAccountIdAccountGroupsPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountMembers",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountMembersPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountMember",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountMember"));
+					put(
+						"query#accountIdAccountMembers",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"getAccountIdAccountMembersPage"));
+					put(
+						"query#accountIdAccountMember",
+						new ObjectValuePair<>(
+							AccountMemberResourceImpl.class,
+							"getAccountIdAccountMember"));
+					put(
+						"query#accountByExternalReferenceCodeAccountOrganizations",
+						new ObjectValuePair<>(
+							AccountOrganizationResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountOrganizationsPage"));
+					put(
+						"query#accountByExternalReferenceCodeAccountOrganization",
+						new ObjectValuePair<>(
+							AccountOrganizationResourceImpl.class,
+							"getAccountByExternalReferenceCodeAccountOrganization"));
+					put(
+						"query#accountIdAccountOrganizations",
+						new ObjectValuePair<>(
+							AccountOrganizationResourceImpl.class,
+							"getAccountIdAccountOrganizationsPage"));
+					put(
+						"query#accountIdAccountOrganization",
+						new ObjectValuePair<>(
+							AccountOrganizationResourceImpl.class,
+							"getAccountIdAccountOrganization"));
+				}
+			};
+
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<AccountResource>
 		_accountResourceComponentServiceObjects;
@@ -90,6 +705,10 @@ public class ServletDataImpl implements ServletData {
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<AccountAddressResource>
 		_accountAddressResourceComponentServiceObjects;
+
+	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	private ComponentServiceObjects<AccountChannelEntryResource>
+		_accountChannelEntryResourceComponentServiceObjects;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<AccountGroupResource>

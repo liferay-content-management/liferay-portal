@@ -738,10 +738,10 @@ public class UsersAdminImpl implements UsersAdmin {
 			ParamUtil.getString(actionRequest, "orgLaborsIndexes"), 0);
 
 		for (int orgLaborsIndex : orgLaborsIndexes) {
-			long typeId = ParamUtil.getLong(
-				actionRequest, "orgLaborTypeId" + orgLaborsIndex, -1);
+			long listTypeId = ParamUtil.getLong(
+				actionRequest, "orgLaborListTypeId" + orgLaborsIndex, -1);
 
-			if (typeId == -1) {
+			if (listTypeId == -1) {
 				continue;
 			}
 
@@ -780,7 +780,7 @@ public class UsersAdminImpl implements UsersAdmin {
 			OrgLabor orgLabor = OrgLaborLocalServiceUtil.createOrgLabor(
 				orgLaborId);
 
-			orgLabor.setTypeId(typeId);
+			orgLabor.setListTypeId(listTypeId);
 			orgLabor.setSunOpen(sunOpen);
 			orgLabor.setSunClose(sunClose);
 			orgLabor.setMonOpen(monOpen);
@@ -1116,8 +1116,8 @@ public class UsersAdminImpl implements UsersAdmin {
 				continue;
 			}
 
-			long typeId = ParamUtil.getLong(
-				actionRequest, "websiteTypeId" + websitesIndex);
+			long listTypeId = ParamUtil.getLong(
+				actionRequest, "websiteListTypeId" + websitesIndex);
 
 			boolean primary = false;
 
@@ -1131,7 +1131,7 @@ public class UsersAdminImpl implements UsersAdmin {
 			Website website = WebsiteLocalServiceUtil.createWebsite(websiteId);
 
 			website.setUrl(url);
-			website.setTypeId(typeId);
+			website.setListTypeId(listTypeId);
 			website.setPrimary(primary);
 
 			websites.add(website);
@@ -1327,7 +1327,7 @@ public class UsersAdminImpl implements UsersAdmin {
 		for (OrgLabor orgLabor : orgLabors) {
 			long orgLaborId = orgLabor.getOrgLaborId();
 
-			long typeId = orgLabor.getTypeId();
+			long listTypeId = orgLabor.getListTypeId();
 			int sunOpen = orgLabor.getSunOpen();
 			int sunClose = orgLabor.getSunClose();
 			int monOpen = orgLabor.getMonOpen();
@@ -1345,7 +1345,7 @@ public class UsersAdminImpl implements UsersAdmin {
 
 			if (orgLaborId <= 0) {
 				orgLabor = OrgLaborServiceUtil.addOrgLabor(
-					classPK, typeId, sunOpen, sunClose, monOpen, monClose,
+					classPK, listTypeId, sunOpen, sunClose, monOpen, monClose,
 					tueOpen, tueClose, wedOpen, wedClose, thuOpen, thuClose,
 					friOpen, friClose, satOpen, satClose);
 
@@ -1353,9 +1353,9 @@ public class UsersAdminImpl implements UsersAdmin {
 			}
 			else {
 				OrgLaborServiceUtil.updateOrgLabor(
-					orgLaborId, typeId, sunOpen, sunClose, monOpen, monClose,
-					tueOpen, tueClose, wedOpen, wedClose, thuOpen, thuClose,
-					friOpen, friClose, satOpen, satClose);
+					orgLaborId, listTypeId, sunOpen, sunClose, monOpen,
+					monClose, tueOpen, tueClose, wedOpen, wedClose, thuOpen,
+					thuClose, friOpen, friClose, satOpen, satClose);
 			}
 
 			orgLaborsIds.add(orgLaborId);
@@ -1419,19 +1419,19 @@ public class UsersAdminImpl implements UsersAdmin {
 			long websiteId = website.getWebsiteId();
 
 			String url = website.getUrl();
-			long typeId = website.getTypeId();
+			long listTypeId = website.getListTypeId();
 			boolean primary = website.isPrimary();
 
 			if (websiteId <= 0) {
 				website = WebsiteServiceUtil.addWebsite(
-					className, classPK, url, typeId, primary,
+					className, classPK, url, listTypeId, primary,
 					new ServiceContext());
 
 				websiteId = website.getWebsiteId();
 			}
 			else {
 				WebsiteServiceUtil.updateWebsite(
-					websiteId, url, typeId, primary);
+					websiteId, url, listTypeId, primary);
 			}
 
 			websiteIds.add(websiteId);

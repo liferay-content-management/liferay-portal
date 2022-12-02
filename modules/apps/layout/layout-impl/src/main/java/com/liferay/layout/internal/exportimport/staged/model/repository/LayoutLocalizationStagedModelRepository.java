@@ -31,7 +31,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	immediate = true,
 	property = "model.class.name=com.liferay.layout.model.LayoutLocalization",
 	service = StagedModelRepository.class
 )
@@ -52,7 +51,7 @@ public class LayoutLocalizationStagedModelRepository
 		}
 
 		return _layoutLocalizationLocalService.addLayoutLocalization(
-			layoutLocalization.getGroupId(), layoutLocalization.getContent(),
+			serviceContext.getScopeGroupId(), layoutLocalization.getContent(),
 			layoutLocalization.getLanguageId(), layoutLocalization.getPlid(),
 			serviceContext);
 	}

@@ -15,6 +15,8 @@
 package com.liferay.portal.servlet.filters.i18n;
 
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
+import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -24,10 +26,11 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.HttpMethods;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PrefsPropsUtil;
+import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -115,7 +118,11 @@ public class I18nFilter extends BasePortalFilter {
 	protected String getRedirect(HttpServletRequest httpServletRequest)
 		throws Exception {
 
-		if (PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE == 0) {
+		int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
+			PortalUtil.getCompanyId(httpServletRequest),
+			PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
+
+		if (localePrependFriendlyURLStyle == 0) {
 			return null;
 		}
 
@@ -136,7 +143,7 @@ public class I18nFilter extends BasePortalFilter {
 		}
 
 		String i18nLanguageId = prependI18nLanguageId(
-			httpServletRequest, PropsValues.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
+			httpServletRequest, localePrependFriendlyURLStyle);
 
 		if (i18nLanguageId == null) {
 			return null;
@@ -195,9 +202,14 @@ public class I18nFilter extends BasePortalFilter {
 			Group group = layoutSet.getGroup();
 
 			if (groupFriendlyURL.equals(group.getFriendlyURL())) {
-				redirect =
-					contextPath + i18nPath +
-						requestURI.substring(friendlyURLEnd);
+				String layoutURL = requestURI.substring(friendlyURLEnd);
+
+				if (Validator.isNull(layoutURL)) {
+					redirect = contextPath + i18nPath + StringPool.SLASH;
+				}
+				else {
+					redirect = contextPath + i18nPath + layoutURL;
+				}
 			}
 		}
 
@@ -233,8 +245,9 @@ public class I18nFilter extends BasePortalFilter {
 		}
 
 		if (Validator.isNull(requestedLanguageId)) {
-			requestedLanguageId = CookieKeys.getCookie(
-				httpServletRequest, CookieKeys.GUEST_LANGUAGE_ID, false);
+			requestedLanguageId = CookiesManagerUtil.getCookieValue(
+				CookiesConstants.NAME_GUEST_LANGUAGE_ID, httpServletRequest,
+				false);
 		}
 
 		return requestedLanguageId;

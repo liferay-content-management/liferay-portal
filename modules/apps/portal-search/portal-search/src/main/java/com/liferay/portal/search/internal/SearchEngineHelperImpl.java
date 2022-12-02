@@ -15,33 +15,31 @@
 package com.liferay.portal.search.internal;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.search.configuration.SearchEngineHelperConfiguration;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Michael C. Han
  */
 @Component(
 	configurationPid = "com.liferay.portal.search.configuration.SearchEngineHelperConfiguration",
-	immediate = true, service = SearchEngineHelper.class
+	service = SearchEngineHelper.class
 )
 public class SearchEngineHelperImpl implements SearchEngineHelper {
 
@@ -61,55 +59,23 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 	}
 
 	@Override
-	public SearchEngine getSearchEngine(String searchEngineId) {
-		return _searchEngines.get(searchEngineId);
+	public SearchEngine getSearchEngine() {
+		return _searchEngine;
 	}
 
 	@Override
-	public Set<String> getSearchEngineIds() {
-		return _searchEngines.keySet();
+	public void initialize(long companyId) {
+		_searchEngine.initialize(companyId);
 	}
 
 	@Override
-	public Collection<SearchEngine> getSearchEngines() {
-		return Collections.unmodifiableCollection(_searchEngines.values());
-	}
-
-	@Override
-	public synchronized void initialize(long companyId) {
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			searchEngine.initialize(companyId);
-		}
-	}
-
-	@Override
-	public synchronized void removeCompany(long companyId) {
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			searchEngine.removeCompany(companyId);
-		}
-	}
-
-	@Override
-	public SearchEngine removeSearchEngine(String searchEngineId) {
-		return _searchEngines.remove(searchEngineId);
-	}
-
-	@Override
-	public void setSearchEngine(
-		String searchEngineId, SearchEngine searchEngine) {
-
-		_searchEngines.put(searchEngineId, searchEngine);
-
-		for (Company company : _companyLocalService.getCompanies()) {
-			searchEngine.initialize(company.getCompanyId());
-		}
+	public void removeCompany(long companyId) {
+		_searchEngine.removeCompany(companyId);
 	}
 
 	@Activate
 	@Modified
-	protected synchronized void activate(
-		BundleContext bundleContext, Map<String, Object> properties) {
-
+	protected void activate(Map<String, Object> properties) {
 		SearchEngineHelperConfiguration searchEngineHelperConfiguration =
 			ConfigurableUtil.createConfigurable(
 				SearchEngineHelperConfiguration.class, properties);
@@ -121,11 +87,13 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 			searchEngineHelperConfiguration.excludedEntryClassNames());
 	}
 
-	@Reference
-	private CompanyLocalService _companyLocalService;
+	private final Set<String> _excludedEntryClassNames =
+		Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-	private final Set<String> _excludedEntryClassNames = new HashSet<>();
-	private final Map<String, SearchEngine> _searchEngines =
-		new ConcurrentHashMap<>();
+	@Reference(
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY
+	)
+	private volatile SearchEngine _searchEngine;
 
 }

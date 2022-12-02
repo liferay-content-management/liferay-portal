@@ -36,9 +36,13 @@ public class RedirectEntrySourceURLUpgradeProcess extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
+		Map<Long, Map<String, Long>> redirectEntryIdsMap =
+			new LinkedHashMap<>();
+		Map<Long, Set<String>> sourceURLsMap = new LinkedHashMap<>();
+
 		try (PreparedStatement preparedStatement1 = connection.prepareStatement(
 				"select redirectEntryId, groupId, sourceURL from " +
-					"RedirectEntry order by redirectEntryId ASC");
+					"RedirectEntry order by redirectEntryId asc");
 			PreparedStatement preparedStatement2 =
 				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
 					connection,
@@ -52,25 +56,15 @@ public class RedirectEntrySourceURLUpgradeProcess extends UpgradeProcess {
 				long groupId = resultSet.getLong(2);
 				String sourceURL = resultSet.getString(3);
 
-				Map<String, Long> redirectEntryIds = _redirectEntryIds.get(
-					groupId);
-				Set<String> sourceURLs = _sourceURLs.get(groupId);
-
-				if (redirectEntryIds == null) {
-					redirectEntryIds = new LinkedHashMap<>();
-
-					_redirectEntryIds.put(groupId, redirectEntryIds);
-
-					sourceURLs = new HashSet<>();
-
-					_sourceURLs.put(groupId, sourceURLs);
-				}
+				Map<String, Long> redirectEntryIds =
+					redirectEntryIdsMap.computeIfAbsent(
+						groupId, key -> new LinkedHashMap<>());
+				Set<String> sourceURLs = sourceURLsMap.computeIfAbsent(
+					groupId, key -> new HashSet<>());
 
 				String lowerCaseSourceURL = StringUtil.toLowerCase(sourceURL);
 
-				if (!sourceURLs.contains(lowerCaseSourceURL)) {
-					sourceURLs.add(lowerCaseSourceURL);
-
+				if (sourceURLs.add(lowerCaseSourceURL)) {
 					if (!sourceURL.equals(lowerCaseSourceURL)) {
 						redirectEntryIds.put(
 							lowerCaseSourceURL, redirectEntryId);
@@ -93,7 +87,7 @@ public class RedirectEntrySourceURLUpgradeProcess extends UpgradeProcess {
 			}
 
 			for (Map<String, Long> redirectEntryIds :
-					_redirectEntryIds.values()) {
+					redirectEntryIdsMap.values()) {
 
 				for (Map.Entry<String, Long> entry :
 						redirectEntryIds.entrySet()) {
@@ -111,9 +105,5 @@ public class RedirectEntrySourceURLUpgradeProcess extends UpgradeProcess {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		RedirectEntrySourceURLUpgradeProcess.class);
-
-	private final Map<Long, Map<String, Long>> _redirectEntryIds =
-		new LinkedHashMap<>();
-	private final Map<Long, Set<String>> _sourceURLs = new LinkedHashMap<>();
 
 }

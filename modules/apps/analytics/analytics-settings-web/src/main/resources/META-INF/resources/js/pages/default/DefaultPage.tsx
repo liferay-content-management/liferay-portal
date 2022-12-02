@@ -16,35 +16,43 @@ import ClayLayout from '@clayui/layout';
 import {ClayVerticalNav} from '@clayui/nav';
 import React, {useState} from 'react';
 
-import WorkspaceConnection from './WorkspaceConnection';
+import {IPages} from '../../utils/types';
+import AttributesPage from './AttributesPage';
+import ConnectPage from './ConnectPage';
+import PeoplePage from './PeoplePage';
+import PropertiesPage from './PropertiesPage';
 
-enum EPages {
-	Attributes = 'attributes',
-	People = 'people',
-	Properties = 'properties',
-	WorkspaceConnection = 'workspace-connection',
+export interface IGenericPageProps {
+	title: string;
 }
 
-const PAGES = [
+enum EPages {
+	Attributes = 'ATTRIBUTES',
+	People = 'PEOPLE',
+	Properties = 'PROPERTIES',
+	WorkspaceConnection = 'WORKSPACE_CONNECTION',
+}
+
+const PAGES: IPages<IGenericPageProps, EPages>[] = [
 	{
-		Component: () => <WorkspaceConnection />,
+		Component: ConnectPage,
 		key: EPages.WorkspaceConnection,
-		label: Liferay.Language.get('workspace-connection'),
+		title: Liferay.Language.get('workspace-connection'),
 	},
 	{
-		Component: () => <div>properties</div>,
+		Component: PropertiesPage,
 		key: EPages.Properties,
-		label: Liferay.Language.get('properties'),
+		title: Liferay.Language.get('properties'),
 	},
 	{
-		Component: () => <div>people</div>,
+		Component: PeoplePage,
 		key: EPages.People,
-		label: Liferay.Language.get('people'),
+		title: Liferay.Language.get('people'),
 	},
 	{
-		Component: () => <div>attributes</div>,
+		Component: AttributesPage,
 		key: EPages.Attributes,
-		label: Liferay.Language.get('attributes'),
+		title: Liferay.Language.get('attributes'),
 	},
 ];
 
@@ -56,7 +64,7 @@ const DefaultPage: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
 			<ClayLayout.Row>
 				<ClayLayout.Col size={3}>
 					<ClayVerticalNav
-						items={PAGES.map(({key, label}) => {
+						items={PAGES.map(({key, title: label}) => {
 							return {
 								active: activePage === key,
 								label,
@@ -68,9 +76,9 @@ const DefaultPage: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
 				</ClayLayout.Col>
 
 				<ClayLayout.Col size={9}>
-					{PAGES.map(({Component, key}) => (
+					{PAGES.map(({Component, key, title}) => (
 						<div key={key}>
-							{activePage === key && <Component />}
+							{activePage === key && <Component title={title} />}
 						</div>
 					))}
 				</ClayLayout.Col>

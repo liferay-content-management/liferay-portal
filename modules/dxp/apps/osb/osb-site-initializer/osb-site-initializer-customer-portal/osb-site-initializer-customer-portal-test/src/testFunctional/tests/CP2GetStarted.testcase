@@ -51,11 +51,11 @@ definition {
 		}
 
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testProduct}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -83,12 +83,6 @@ definition {
 		task ("Assert the Overview page") {
 			CustomerPortal.viewSubcriptionsPage();
 		}
-
-		task ("Delete the entries and objects created") {
-			CustomerPortal.deleteEntryAccountFlag(entry = "ERC-001");
-
-			CustomerPortal.deleteCPObject(title = "Account Flag");
-		}
 	}
 
 	@description = "Automation ID: LPS-145256 | Test Summary: Verify if the non-admin user with just one project is redirected to the Project Overview page."
@@ -113,11 +107,11 @@ definition {
 		}
 
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -131,12 +125,6 @@ definition {
 		task ("Assert that the Get Start button appears") {
 			CustomerPortal.viewStartProjectSetupButton();
 		}
-
-		task ("Delete the entries and objects created") {
-			CustomerPortal.deleteEntryAccountFlag(entry = "ERC-001");
-
-			CustomerPortal.deleteCPObject(title = "Account Flag");
-		}
 	}
 
 	@description = "Automation ID: LPS-145255 | Test Summary: Verify if the get started page is shown for user when admin profile logs in for the first time"
@@ -147,11 +135,11 @@ definition {
 		}
 
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -165,12 +153,6 @@ definition {
 		task ("Assert the Get Start modal") {
 			CustomerPortal.viewGetStartedModal();
 		}
-
-		task ("Delete the entries and objects created") {
-			CustomerPortal.deleteEntryAccountFlag(entry = "ERC-001");
-
-			CustomerPortal.deleteCPObject(title = "Account Flag");
-		}
 	}
 
 	@description = "Automation ID: LPS-145259 | Test Summary: Verify that the Get Started button takes the user to the Invite Your Team Members page"
@@ -181,11 +163,11 @@ definition {
 		}
 
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -202,12 +184,6 @@ definition {
 
 		task ("Assert the Invite Team Members modal") {
 			CustomerPortal.viewInviteTeamMembersModalPage();
-		}
-
-		task ("Delete the entries and objects created") {
-			CustomerPortal.deleteEntryAccountFlag(entry = "ERC-001");
-
-			CustomerPortal.deleteCPObject(title = "Account Flag");
 		}
 	}
 

@@ -84,6 +84,10 @@ import normalizeFriendlyURL from './util/normalize_friendly_url';
 import ns from './util/ns.es';
 import objectToURLSearchParams from './util/object_to_url_search_params.es';
 import openWindow from './util/open_window';
+import {
+	getPortletConfigurationIconAction,
+	setPortletConfigurationIconAction,
+} from './util/portlet_configuration_icon_action';
 import createActionURL from './util/portlet_url/create_action_url.es';
 import createPortletURL from './util/portlet_url/create_portlet_url.es';
 import createRenderURL from './util/portlet_url/create_render_url.es';
@@ -160,21 +164,15 @@ Liferay.Portlet = Liferay.Portlet || {};
 Liferay.Portlet.minimize = minimizePortlet;
 
 Liferay.Portlet.openModal = (...args) => {
-	Liferay.Loader.require(
-		'frontend-js-web/liferay/modal/Modal',
-		(commands) => {
-			commands.openPortletModal(...args);
-		}
-	);
+	Liferay.Loader.require('frontend-js-web/index', ({openPortletModal}) => {
+		openPortletModal(...args);
+	});
 };
 
 Liferay.Portlet.openWindow = (...args) => {
-	Liferay.Loader.require(
-		'frontend-js-web/liferay/modal/Modal',
-		(commands) => {
-			commands.openPortletWindow(...args);
-		}
-	);
+	Liferay.Loader.require('frontend-js-web/index', ({openPortletWindow}) => {
+		openPortletWindow(...args);
+	});
 };
 
 Liferay.SideNavigation = SideNavigation;
@@ -189,12 +187,9 @@ Liferay.Util.MAP_HTML_CHARS_ESCAPED = MAP_HTML_CHARS_ESCAPED;
 Liferay.Util.addParams = addParams;
 
 Liferay.Util.openAlertModal = (...args) => {
-	Liferay.Loader.require(
-		'frontend-js-web/liferay/modal/Modal',
-		(commands) => {
-			commands.openAlertModal(...args);
-		}
-	);
+	Liferay.Loader.require('frontend-js-web/index', ({openAlertModal}) => {
+		openAlertModal(...args);
+	});
 };
 
 /**
@@ -236,6 +231,7 @@ Liferay.Util.getFormElement = getFormElement;
 Liferay.Util.getLexiconIcon = getLexiconIcon;
 Liferay.Util.getLexiconIconTpl = getLexiconIconTpl;
 Liferay.Util.getOpener = getOpener;
+Liferay.Util.getPortletConfigurationIconAction = getPortletConfigurationIconAction;
 
 /**
  * @deprecated As of Athanasius (7.3.x), replaced by `import {getPortletId} from 'frontend-js-web'`
@@ -294,44 +290,33 @@ Liferay.Util.toCharCode = toCharCode;
 Liferay.Util.toggleDisabled = toggleDisabled;
 
 Liferay.Util.openConfirmModal = (...args) => {
-	Liferay.Loader.require(
-		'frontend-js-web/liferay/modal/Modal',
-		(commands) => {
-			commands.openConfirmModal(...args);
-		}
-	);
+	Liferay.Loader.require('frontend-js-web/index', ({openConfirmModal}) => {
+		openConfirmModal(...args);
+	});
 };
 
 Liferay.Util.openModal = (...args) => {
-	Liferay.Loader.require(
-		'frontend-js-web/liferay/modal/Modal',
-		(commands) => {
-			commands.openModal(...args);
-		}
-	);
+	Liferay.Loader.require('frontend-js-web/index', ({openModal}) => {
+		openModal(...args);
+	});
 };
 
 Liferay.Util.openSelectionModal = (...args) => {
-	Liferay.Loader.require(
-		'frontend-js-web/liferay/modal/Modal',
-		(commands) => {
-			commands.openSelectionModal(...args);
-		}
-	);
+	Liferay.Loader.require('frontend-js-web/index', ({openSelectionModal}) => {
+		openSelectionModal(...args);
+	});
 };
 
 Liferay.Util.openToast = (...args) => {
-	Liferay.Loader.require(
-		'frontend-js-web/liferay/toast/commands/OpenToast.es',
-		(commands) => {
-			commands.openToast(...args);
-		}
-	);
+	Liferay.Loader.require('frontend-js-web/index', ({openToast}) => {
+		openToast(...args);
+	});
 };
 
 Liferay.Util.openWindow = openWindow;
 Liferay.Util.removeEntitySelection = removeEntitySelection;
 Liferay.Util.selectFolder = selectFolder;
+Liferay.Util.setPortletConfigurationIconAction = setPortletConfigurationIconAction;
 Liferay.Util.showCapsLock = showCapsLock;
 Liferay.Util.sub = sub;
 

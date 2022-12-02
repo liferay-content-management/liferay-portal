@@ -24,9 +24,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Cheryl Tang
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(service = UpgradeStepRegistrator.class)
 public class CommerceOrderRuleServiceUpgradeStepRegistrator
 	implements UpgradeStepRegistrator {
 
@@ -37,7 +35,7 @@ public class CommerceOrderRuleServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {"COREntry", "COREntryRel"};
 				}
 

@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.filter.ExpressionConvert;
 import com.liferay.portal.odata.filter.FilterParserProvider;
+import com.liferay.portal.odata.sort.SortParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.lang.reflect.Constructor;
@@ -52,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.ComponentServiceObjects;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 
@@ -63,7 +62,6 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "resource.locator.key=/headless-commerce-admin-pricing/v2.0/PriceModifierProduct",
 	service = PriceModifierProductResource.Factory.class
 )
@@ -138,16 +136,6 @@ public class PriceModifierProductResourceFactoryImpl
 			private User _user;
 
 		};
-	}
-
-	@Activate
-	protected void activate() {
-		PriceModifierProductResource.FactoryHolder.factory = this;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		PriceModifierProductResource.FactoryHolder.factory = null;
 	}
 
 	private static Function<InvocationHandler, PriceModifierProductResource>
@@ -225,6 +213,7 @@ public class PriceModifierProductResourceFactoryImpl
 		priceModifierProductResource.setResourcePermissionLocalService(
 			_resourcePermissionLocalService);
 		priceModifierProductResource.setRoleLocalService(_roleLocalService);
+		priceModifierProductResource.setSortParserProvider(_sortParserProvider);
 
 		try {
 			return method.invoke(priceModifierProductResource, arguments);
@@ -275,6 +264,9 @@ public class PriceModifierProductResourceFactoryImpl
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SortParserProvider _sortParserProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;

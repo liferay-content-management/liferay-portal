@@ -19,7 +19,6 @@ import com.liferay.client.extension.type.CET;
 import com.liferay.client.extension.type.CustomElementCET;
 import com.liferay.client.extension.type.IFrameCET;
 import com.liferay.client.extension.type.deployer.CETDeployer;
-import com.liferay.client.extension.type.factory.CETFactory;
 import com.liferay.client.extension.web.internal.portlet.ClientExtensionEntryFriendlyURLMapper;
 import com.liferay.client.extension.web.internal.portlet.ClientExtensionEntryPortlet;
 import com.liferay.client.extension.web.internal.portlet.action.ClientExtensionEntryConfigurationAction;
@@ -50,7 +49,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Brian Wing Shun Chan
  */
-@Component(immediate = true, service = CETDeployer.class)
+@Component(service = CETDeployer.class)
 public class CETDeployerImpl implements CETDeployer {
 
 	@Override
@@ -170,6 +169,8 @@ public class CETDeployerImpl implements CETDeployer {
 				"javax.portlet.name", portletName
 			).put(
 				"javax.portlet.security-role-ref", "power-user,user"
+			).put(
+				"javax.portlet.version", "3.0"
 			).build();
 
 		if (customElementCET != null) {
@@ -212,9 +213,6 @@ public class CETDeployerImpl implements CETDeployer {
 	}
 
 	private BundleContext _bundleContext;
-
-	@Reference
-	private CETFactory _cetFactory;
 
 	@Reference
 	private NPMResolver _npmResolver;

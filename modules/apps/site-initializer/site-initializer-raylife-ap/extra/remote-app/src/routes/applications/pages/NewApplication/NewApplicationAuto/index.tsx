@@ -22,8 +22,11 @@ import MultiSteps from '../../../../../common/components/multi-steps';
 import ClayIconProvider from '../../../../../common/context/ClayIconProvider';
 import {
 	createOrUpdateRaylifeApplication,
+	createRaylifeAutoPolicy,
 	exitRaylifeApplication,
+	getApplicationsById,
 } from '../../../../../common/services';
+import {createRaylifeAutoQuote} from '../../../../../common/services/Quote';
 import {CONSTANTS} from '../../../../../common/utils/constants';
 import {redirectTo} from '../../../../../common/utils/liferay';
 import {
@@ -78,7 +81,7 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 		},
 	];
 
-	const handleNextClick = (event: any) => {
+	const handleNextClick = async (event: any) => {
 		setSaveChanges(true);
 
 		event?.preventDefault();
@@ -102,10 +105,6 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 				payload: state.currentStep + 1,
 				type: ACTIONS.SET_CURRENT_STEP,
 			});
-		}
-
-		if (state.currentStep === 4) {
-			redirectTo('Applications');
 		}
 
 		if (
@@ -137,6 +136,23 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 				dispatch({payload: {id}, type: ACTIONS.SET_APPLICATION_ID});
 			}
 		);
+
+		if (state.currentStep === 4) {
+			const quote = await createRaylifeAutoQuote(state);
+
+			const quoteId = quote?.data?.id;
+
+			const application = await getApplicationsById(
+				Number(state.applicationId)
+			);
+
+			const applicationData = application?.data?.items[0];
+
+			createRaylifeAutoPolicy(applicationData, quoteId);
+
+			redirectTo('Applications');
+			createRaylifeAutoQuote(state);
+		}
 	};
 
 	const handlePreviousClick = () => {
@@ -203,26 +219,34 @@ const NewApplicationAuto = ({children}: DriverInfoProps) => {
 		</div>
 	);
 
+	const getChangeStatusMessage = () => {
+		let statusMessage = '';
+
+		if (state.hasFormChanges) {
+			statusMessage = 'Unsaved Changes';
+		}
+		else if (!state.hasFormChanges && !saveChanges) {
+			statusMessage = 'No Changes Made';
+		}
+		else if (saveChanges && !state.hasFormChanges) {
+			statusMessage = 'All Changes Saved';
+		}
+
+		return <ChangeStatusMessage text={statusMessage} />;
+	};
+
 	return (
 		<ClayIconProvider>
 			<div className="container">
 				<div className="border mt-4 sheet sheet-dataset-content">
-					<div className="d-flex justify-content-between">
-						<h5>New Application</h5>
+					<div className="align-items-center d-flex flex-column flex-md-row justify-content-md-between">
+						<h5 className="my-2 my-md-0">New Application</h5>
 
-						{state.hasFormChanges && (
-							<ChangeStatusMessage text="Unsaved Changes" />
-						)}
+						<div className="my-2 my-md-0">
+							{getChangeStatusMessage()}
+						</div>
 
-						{!state.hasFormChanges && !saveChanges && (
-							<ChangeStatusMessage text="No Changes Made" />
-						)}
-
-						{saveChanges && !state.hasFormChanges && (
-							<ChangeStatusMessage text="All Changes Saved" />
-						)}
-
-						<div>
+						<div className="my-2 my-md-0">
 							<ClayButton
 								className="text-uppercase"
 								displayType={null}

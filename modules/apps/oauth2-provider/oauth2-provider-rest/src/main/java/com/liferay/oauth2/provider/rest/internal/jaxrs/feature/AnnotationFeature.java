@@ -14,19 +14,16 @@
 
 package com.liferay.oauth2.provider.rest.internal.jaxrs.feature;
 
+import com.liferay.oauth2.provider.rest.internal.scope.logic.ScopeLogic;
 import com.liferay.oauth2.provider.rest.spi.scope.checker.container.request.filter.BaseScopeCheckerContainerRequestFilter;
-import com.liferay.oauth2.provider.scope.RequiresNoScope;
-import com.liferay.oauth2.provider.scope.RequiresScope;
 import com.liferay.oauth2.provider.scope.ScopeChecker;
 import com.liferay.oauth2.provider.scope.spi.scope.finder.ScopeFinder;
-import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
-
-import java.lang.reflect.Method;
 
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -62,24 +59,25 @@ import org.osgi.service.component.annotations.ServiceScope;
 public class AnnotationFeature implements Feature {
 
 	@Override
-	public boolean configure(FeatureContext context) {
-		Configuration configuration = context.getConfiguration();
+	public boolean configure(FeatureContext featureContext1) {
+		Set<String> scopes = new HashSet<>();
 
-		HashSet<String> scopes = new HashSet<>();
-
-		context.register(
-			(DynamicFeature)(resourceInfo, a) -> scopes.addAll(
+		featureContext1.register(
+			(DynamicFeature)(resourceInfo, featureContext2) -> scopes.addAll(
 				RequiresScopeAnnotationFinder.find(
 					resourceInfo.getResourceClass())));
 
-		context.register(
+		featureContext1.register(
 			new AnnotationContainerScopeCheckerContainerRequestFilter(),
 			Priorities.AUTHORIZATION - 8);
+
+		Configuration configuration = featureContext1.getConfiguration();
 
 		Map<String, Object> applicationProperties =
 			(Map<String, Object>)configuration.getProperty(
 				"osgi.jaxrs.application.serviceProperties");
 
+		_propertyAccessorFunction = applicationProperties::get;
 		_serviceRegistration = _bundleContext.registerService(
 			ScopeFinder.class, new CollectionScopeFinder(scopes),
 			new Hashtable<>(applicationProperties));
@@ -100,9 +98,13 @@ public class AnnotationFeature implements Feature {
 	}
 
 	private BundleContext _bundleContext;
+	private Function<String, Object> _propertyAccessorFunction;
 
 	@Reference
 	private ScopeChecker _scopeChecker;
+
+	@Reference(target = "(oauth2.scope.checker.type=annotations)")
+	private ScopeLogic _scopeLogic;
 
 	private ServiceRegistration<ScopeFinder> _serviceRegistration;
 
@@ -112,72 +114,9 @@ public class AnnotationFeature implements Feature {
 		public boolean isContainerRequestContextAllowed(
 			ContainerRequestContext containerRequestContext) {
 
-			Method resourceMethod = _resourceInfo.getResourceMethod();
-
-			RequiresNoScope requiresNoScope =
-				RequiresScopeAnnotationFinder.getScopeAnnotation(
-					resourceMethod, RequiresNoScope.class);
-
-			RequiresScope requiresScope =
-				RequiresScopeAnnotationFinder.getScopeAnnotation(
-					resourceMethod, RequiresScope.class);
-
-			if ((requiresNoScope != null) && (requiresScope != null)) {
-				StringBundler sb = new StringBundler(6);
-
-				Class<?> declaringClass = resourceMethod.getDeclaringClass();
-
-				sb.append("Method ");
-				sb.append(declaringClass.getName());
-				sb.append(StringPool.POUND);
-				sb.append(resourceMethod.getName());
-				sb.append("has both @RequiresNoScope and @RequiresScope ");
-				sb.append("annotations defined");
-
-				throw new RuntimeException(sb.toString());
-			}
-
-			if ((requiresNoScope != null) ||
-				checkRequiresScope(requiresScope)) {
-
-				return true;
-			}
-
-			Class<?> resourceClass = _resourceInfo.getResourceClass();
-
-			requiresNoScope = RequiresScopeAnnotationFinder.getScopeAnnotation(
-				resourceClass, RequiresNoScope.class);
-
-			requiresScope = RequiresScopeAnnotationFinder.getScopeAnnotation(
-				resourceClass, RequiresScope.class);
-
-			if ((requiresNoScope != null) && (requiresScope != null)) {
-				throw new RuntimeException(
-					StringBundler.concat(
-						"Class ", resourceClass.getName(),
-						"has both @RequiresNoScope and @RequiresScope ",
-						"annotations defined"));
-			}
-
-			if ((requiresNoScope != null) ||
-				checkRequiresScope(requiresScope)) {
-
-				return true;
-			}
-
-			return false;
-		}
-
-		protected boolean checkRequiresScope(RequiresScope requiresScope) {
-			if (requiresScope != null) {
-				if (requiresScope.allNeeded()) {
-					return _scopeChecker.checkAllScopes(requiresScope.value());
-				}
-
-				return _scopeChecker.checkAnyScope(requiresScope.value());
-			}
-
-			return false;
+			return _scopeLogic.check(
+				_propertyAccessorFunction, _resourceInfo.getResourceClass(),
+				_resourceInfo.getResourceMethod(), _scopeChecker);
 		}
 
 		@Context

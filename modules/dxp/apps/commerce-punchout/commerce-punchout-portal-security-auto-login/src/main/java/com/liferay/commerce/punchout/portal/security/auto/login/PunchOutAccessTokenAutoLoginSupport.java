@@ -36,7 +36,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Jaclyn Ong
  */
 @Component(
-	enabled = false, immediate = true,
 	property = {"private.auto.login=true", "type=punchout.access.token"},
 	service = AutoLogin.class
 )

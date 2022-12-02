@@ -97,7 +97,7 @@
 </tr>
 <tr>
 	<td>SITE_NAME</td>
-	<td>//a[contains(@class,'logo')]//h2</td>
+	<td>//a[contains(@class,'logo')]//h1</td>
 	<td></td>
 </tr>
 <tr>
@@ -383,19 +383,6 @@
 <tr>
 	<td>PAGE_COLUMN_LAYOUT</td>
 	<td>//div[contains(@id,'main-content')]//div[contains(@class,'col-md-${key_span}') and contains(@id,'column-${key_pageColumnId}')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr>
-
-<!--PAGE_COLUMN_PORTLET-->
-
-<tr>
-	<td>PAGE_COLUMN_PORTLET_HEADER_ELLIPSIS</td>
-	<td>//div[@id='column-${key_columnNumber}']//header[contains(@class,'portlet-topper') and contains(.,'${key_portletName}')]//div[contains(@class,'portlet-options')]/a</td>
 	<td></td>
 </tr>
 <tr>

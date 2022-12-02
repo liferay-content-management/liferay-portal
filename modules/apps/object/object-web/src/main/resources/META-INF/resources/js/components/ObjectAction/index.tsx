@@ -30,6 +30,8 @@ import React, {useEffect, useMemo, useState} from 'react';
 import ActionBuilder from './tabs/ActionBuilder';
 import BasicInfo from './tabs/BasicInfo';
 
+const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
+
 const REQUIRED_MSG = Liferay.Language.get('required');
 
 const TABS = [
@@ -38,10 +40,12 @@ const TABS = [
 ];
 
 export default function Action({
+	isApproved,
 	objectAction: initialValues,
 	objectActionCodeEditorElements,
 	objectActionExecutors,
 	objectActionTriggers,
+	objectDefinitionId,
 	objectDefinitionsRelationshipsURL,
 	readOnly,
 	requestParams: {method, url},
@@ -54,6 +58,8 @@ export default function Action({
 		if (objectAction.parameters) {
 			delete objectAction?.parameters['lineCount'];
 		}
+
+		delete objectAction.objectDefinitionId;
 
 		try {
 			await API.save(url, objectAction, method);
@@ -141,8 +147,11 @@ export default function Action({
 			<ClayTabs.Content activeIndex={activeIndex} fade>
 				<ClayTabs.TabPane>
 					<BasicInfo
-						errors={errors}
+						errors={
+							Object.keys(errors).length ? errors : backEndErrors
+						}
 						handleChange={handleChange}
+						isApproved={isApproved!}
 						readOnly={readOnly}
 						setValues={setValues}
 						values={values}
@@ -154,11 +163,16 @@ export default function Action({
 						errors={
 							Object.keys(errors).length ? errors : backEndErrors
 						}
+						isApproved={isApproved!}
 						objectActionCodeEditorElements={
 							objectActionCodeEditorElements
 						}
 						objectActionExecutors={objectActionExecutors}
 						objectActionTriggers={objectActionTriggers}
+						objectDefinitionId={
+							objectDefinitionId ??
+							initialValues.objectDefinitionId
+						}
 						objectDefinitionsRelationshipsURL={
 							objectDefinitionsRelationshipsURL
 						}
@@ -187,6 +201,14 @@ function useObjectActionForm({initialValues, onSubmit}: IUseObjectActionForm) {
 
 	const validate = (values: Partial<ObjectAction>) => {
 		const errors: ActionError = {};
+
+		if (
+			Liferay.FeatureFlags['LPS-148804'] &&
+			invalidateRequired(values.label?.[defaultLanguageId])
+		) {
+			errors.label = REQUIRED_MSG;
+		}
+
 		if (invalidateRequired(values.name)) {
 			errors.name = REQUIRED_MSG;
 		}
@@ -217,7 +239,13 @@ function useObjectActionForm({initialValues, onSubmit}: IUseObjectActionForm) {
 			if (!values.parameters?.objectDefinitionId) {
 				errors.objectDefinitionId = REQUIRED_MSG;
 			}
-			else if (values.parameters?.predefinedValues) {
+		}
+
+		if (
+			values.objectActionExecutorKey === 'add-object-entry' ||
+			values.objectActionExecutorKey === 'update-object-entry'
+		) {
+			if (values.parameters?.predefinedValues) {
 				const predefinedValues = values.parameters?.predefinedValues;
 
 				predefinedValues.forEach(({name, value}) => {
@@ -232,6 +260,12 @@ function useObjectActionForm({initialValues, onSubmit}: IUseObjectActionForm) {
 					}
 				});
 			}
+		}
+		else if (
+			values.objectActionTriggerKey === 'standalone' &&
+			invalidateRequired(values.errorMessage?.[defaultLanguageId])
+		) {
+			errors.errorMessage = REQUIRED_MSG;
 		}
 
 		if (
@@ -284,10 +318,12 @@ function useObjectActionForm({initialValues, onSubmit}: IUseObjectActionForm) {
 }
 
 interface IProps {
+	isApproved?: boolean;
 	objectAction: Partial<ObjectAction>;
 	objectActionCodeEditorElements: SidebarCategory[];
 	objectActionExecutors: CustomItem[];
 	objectActionTriggers: CustomItem[];
+	objectDefinitionId: number;
 	objectDefinitionsRelationshipsURL: string;
 	readOnly?: boolean;
 	requestParams: {

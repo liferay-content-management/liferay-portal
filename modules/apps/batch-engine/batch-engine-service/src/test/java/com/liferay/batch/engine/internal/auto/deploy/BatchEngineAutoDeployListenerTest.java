@@ -20,18 +20,26 @@ import com.liferay.batch.engine.model.impl.BatchEngineImportTaskImpl;
 import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
 import com.liferay.petra.concurrent.NoticeableExecutorService;
 import com.liferay.petra.executor.PortalExecutorManager;
+import com.liferay.petra.io.StreamUtil;
 import com.liferay.portal.kernel.deploy.auto.AutoDeployException;
 import com.liferay.portal.kernel.deploy.auto.AutoDeployer;
 import com.liferay.portal.kernel.deploy.auto.context.AutoDeploymentContext;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
+import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
+import com.liferay.portal.util.FastDateFormatFactoryImpl;
 import com.liferay.portal.util.FileImpl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.Serializable;
 
 import java.net.URL;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -39,6 +47,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,6 +76,16 @@ public class BatchEngineAutoDeployListenerTest {
 
 	@Before
 	public void setUp() throws Exception {
+		FastDateFormatFactoryUtil fastDateFormatFactoryUtil =
+			new FastDateFormatFactoryUtil();
+
+		fastDateFormatFactoryUtil.setFastDateFormatFactory(
+			new FastDateFormatFactoryImpl());
+
+		FileUtil fileUtil = new FileUtil();
+
+		fileUtil.setFile(new FileImpl());
+
 		MockitoAnnotations.openMocks(this);
 
 		ReflectionTestUtil.setFieldValue(
@@ -170,21 +191,82 @@ public class BatchEngineAutoDeployListenerTest {
 	}
 
 	@Test
+	public void testAdvancedWithMultiData() throws Exception {
+		AutoDeploymentContext autoDeploymentContext =
+			new AutoDeploymentContext();
+
+		autoDeploymentContext.setFile(_toZipFile("batch6"));
+
+		boolean deployable = _batchEngineAutoDeployListener.isDeployable(
+			autoDeploymentContext);
+
+		Assert.assertTrue(deployable);
+
+		int result = _batchEngineAutoDeployListener.deploy(
+			autoDeploymentContext);
+
+		Assert.assertEquals(AutoDeployer.CODE_DEFAULT, result);
+
+		Mockito.verify(
+			_noticeableExecutorService, Mockito.times(2)
+		).submit(
+			Mockito.any(Runnable.class)
+		);
+
+		Assert.assertEquals(
+			_batchEngineImportTasks.toString(), 2,
+			_batchEngineImportTasks.size());
+	}
+
+	@Test
+	public void testAdvancedWithSingleData() throws Exception {
+		AutoDeploymentContext autoDeploymentContext =
+			new AutoDeploymentContext();
+
+		autoDeploymentContext.setFile(_toZipFile("batch5"));
+
+		boolean deployable = _batchEngineAutoDeployListener.isDeployable(
+			autoDeploymentContext);
+
+		Assert.assertTrue(deployable);
+
+		int result = _batchEngineAutoDeployListener.deploy(
+			autoDeploymentContext);
+
+		Assert.assertEquals(AutoDeployer.CODE_DEFAULT, result);
+
+		Mockito.verify(
+			_noticeableExecutorService, Mockito.times(1)
+		).submit(
+			Mockito.any(Runnable.class)
+		);
+
+		Assert.assertEquals(
+			_batchEngineImportTasks.toString(), 1,
+			_batchEngineImportTasks.size());
+	}
+
+	@Test
 	public void testWithEmptyZip() throws Exception {
 		AutoDeploymentContext autoDeploymentContext =
 			new AutoDeploymentContext();
 
-		autoDeploymentContext.setFile(_getFile("batch0.zip"));
+		autoDeploymentContext.setFile(_toZipFile("batch0"));
 
 		boolean deployable = _batchEngineAutoDeployListener.isDeployable(
 			autoDeploymentContext);
 
 		Assert.assertFalse(deployable);
 
-		int result = _batchEngineAutoDeployListener.deploy(
-			autoDeploymentContext);
+		try {
+			_batchEngineAutoDeployListener.deploy(autoDeploymentContext);
 
-		Assert.assertEquals(AutoDeployer.CODE_DEFAULT, result);
+			Assert.fail();
+		}
+		catch (Exception exception) {
+			Assert.assertEquals(
+				AutoDeployException.class, exception.getClass());
+		}
 
 		Mockito.verify(
 			_noticeableExecutorService, Mockito.times(0)
@@ -200,7 +282,7 @@ public class BatchEngineAutoDeployListenerTest {
 		AutoDeploymentContext autoDeploymentContext =
 			new AutoDeploymentContext();
 
-		autoDeploymentContext.setFile(_getFile("batch4.zip"));
+		autoDeploymentContext.setFile(_toZipFile("batch4"));
 
 		boolean deployable = _batchEngineAutoDeployListener.isDeployable(
 			autoDeploymentContext);
@@ -228,7 +310,7 @@ public class BatchEngineAutoDeployListenerTest {
 		AutoDeploymentContext autoDeploymentContext =
 			new AutoDeploymentContext();
 
-		autoDeploymentContext.setFile(_getFile("batch2.zip"));
+		autoDeploymentContext.setFile(_toZipFile("batch2"));
 
 		boolean deployable = _batchEngineAutoDeployListener.isDeployable(
 			autoDeploymentContext);
@@ -265,7 +347,7 @@ public class BatchEngineAutoDeployListenerTest {
 		AutoDeploymentContext autoDeploymentContext =
 			new AutoDeploymentContext();
 
-		autoDeploymentContext.setFile(_getFile("batch3.zip"));
+		autoDeploymentContext.setFile(_toZipFile("batch3"));
 
 		boolean deployable = _batchEngineAutoDeployListener.isDeployable(
 			autoDeploymentContext);
@@ -293,7 +375,7 @@ public class BatchEngineAutoDeployListenerTest {
 		AutoDeploymentContext autoDeploymentContext =
 			new AutoDeploymentContext();
 
-		autoDeploymentContext.setFile(_getFile("batch1.zip"));
+		autoDeploymentContext.setFile(_toZipFile("batch1"));
 
 		boolean deployable = _batchEngineAutoDeployListener.isDeployable(
 			autoDeploymentContext);
@@ -316,14 +398,69 @@ public class BatchEngineAutoDeployListenerTest {
 			_batchEngineImportTasks.size());
 	}
 
-	private File _getFile(String fileName) throws Exception {
+	private File _toZipFile(String fileName) throws Exception {
 		URL url = BatchEngineAutoDeployListenerTest.class.getResource(fileName);
 
-		Assert.assertEquals("file", url.getProtocol());
+		if (url == null) {
+			File file = new File(RandomTestUtil.randomString(20) + ".zip");
 
-		Path path = Paths.get(url.toURI());
+			try (ZipOutputStream zipOutputStream = new ZipOutputStream(
+					new FileOutputStream(file))) {
 
-		return path.toFile();
+				zipOutputStream.putNextEntry(new ZipEntry(file.getName()));
+
+				zipOutputStream.closeEntry();
+			}
+
+			return file;
+		}
+
+		Path zipFileDirectoryPath = Paths.get(url.toURI());
+
+		Path zipFilePath = zipFileDirectoryPath.resolveSibling(
+			RandomTestUtil.randomString(20) + ".zip");
+
+		File zipFile = zipFilePath.toFile();
+
+		try (ZipOutputStream zipOutputStream = new ZipOutputStream(
+				new FileOutputStream(zipFile))) {
+
+			Stream<Path> stream = Files.walk(zipFileDirectoryPath);
+
+			stream.forEach(
+				zipEntryPath -> {
+					File zipEntryFile = zipEntryPath.toFile();
+
+					if (zipEntryFile.isDirectory()) {
+						return;
+					}
+
+					Path relativePath = zipFileDirectoryPath.relativize(
+						zipEntryPath);
+
+					try (FileInputStream fileInputStream = new FileInputStream(
+							zipEntryPath.toFile())) {
+
+						zipOutputStream.putNextEntry(
+							new ZipEntry(relativePath.toString()));
+
+						zipOutputStream.write(
+							StreamUtil.toByteArray(fileInputStream));
+
+						zipOutputStream.closeEntry();
+					}
+					catch (Exception exception) {
+						throw new IllegalStateException(
+							"Unable to add new zip entry", exception);
+					}
+				});
+		}
+		catch (Exception exception) {
+			throw new IllegalStateException(
+				"Unable to write zip file", exception);
+		}
+
+		return zipFile;
 	}
 
 	private final BatchEngineAutoDeployListener _batchEngineAutoDeployListener =

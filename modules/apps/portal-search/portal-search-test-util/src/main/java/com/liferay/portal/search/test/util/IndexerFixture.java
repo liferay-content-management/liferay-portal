@@ -54,8 +54,7 @@ public class IndexerFixture<T> {
 	public void deleteDocument(Document document) {
 		try {
 			IndexWriterHelperUtil.deleteDocument(
-				_indexer.getSearchEngineId(), TestPropsValues.getCompanyId(),
-				document.getUID(), true);
+				TestPropsValues.getCompanyId(), document.getUID(), true);
 		}
 		catch (PortalException portalException) {
 			throw new RuntimeException(portalException);
@@ -67,7 +66,7 @@ public class IndexerFixture<T> {
 			Stream<Document> stream = Arrays.stream(docs);
 
 			IndexWriterHelperUtil.deleteDocuments(
-				_indexer.getSearchEngineId(), TestPropsValues.getCompanyId(),
+				TestPropsValues.getCompanyId(),
 				stream.map(
 					document -> document.getUID()
 				).collect(

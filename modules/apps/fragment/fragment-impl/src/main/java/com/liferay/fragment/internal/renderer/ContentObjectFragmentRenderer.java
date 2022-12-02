@@ -19,13 +19,16 @@ import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.fragment.renderer.FragmentRendererContext;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
 import com.liferay.info.constants.InfoDisplayWebKeys;
+import com.liferay.info.exception.NoSuchInfoItemException;
 import com.liferay.info.item.ClassPKInfoItemIdentifier;
 import com.liferay.info.item.InfoItemDetails;
-import com.liferay.info.item.InfoItemServiceTracker;
+import com.liferay.info.item.InfoItemIdentifier;
+import com.liferay.info.item.InfoItemReference;
+import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemObjectProvider;
 import com.liferay.info.item.provider.InfoItemPermissionProvider;
 import com.liferay.info.item.renderer.InfoItemRenderer;
-import com.liferay.info.item.renderer.InfoItemRendererTracker;
+import com.liferay.info.item.renderer.InfoItemRendererRegistry;
 import com.liferay.info.item.renderer.InfoItemTemplatedRenderer;
 import com.liferay.layout.display.page.LayoutDisplayPageProvider;
 import com.liferay.layout.display.page.constants.LayoutDisplayPageWebKeys;
@@ -109,10 +112,10 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 		JSONObject jsonObject = _getFieldValueJSONObject(
 			fragmentRendererContext);
 
-		Optional<Object> displayObjectOptional =
-			fragmentRendererContext.getDisplayObjectOptional();
+		Optional<InfoItemReference> contextInfoItemReferenceOptional =
+			fragmentRendererContext.getContextInfoItemReferenceOptional();
 
-		if (!displayObjectOptional.isPresent() &&
+		if (!contextInfoItemReferenceOptional.isPresent() &&
 			((jsonObject == null) || (jsonObject.length() == 0))) {
 
 			if (FragmentRendererUtil.isEditMode(httpServletRequest)) {
@@ -132,10 +135,13 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 
 			displayObject = _getDisplayObject(
 				className, jsonObject.getLong("classPK"),
-				displayObjectOptional);
+				contextInfoItemReferenceOptional);
 		}
 		else {
-			displayObject = displayObjectOptional.orElse(null);
+			InfoItemReference infoItemReference =
+				contextInfoItemReferenceOptional.orElse(null);
+
+			displayObject = _getInfoItem(infoItemReference);
 		}
 
 		if (displayObject == null) {
@@ -196,14 +202,17 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 
 	private Object _getDisplayObject(
 		String className, long classPK,
-		Optional<Object> displayObjectOptional) {
+		Optional<InfoItemReference> infoItemReferenceOptional) {
 
 		InfoItemObjectProvider<?> infoItemObjectProvider =
-			_infoItemServiceTracker.getFirstInfoItemService(
+			_infoItemServiceRegistry.getFirstInfoItemService(
 				InfoItemObjectProvider.class, className);
 
+		InfoItemReference infoItemReference = infoItemReferenceOptional.orElse(
+			null);
+
 		if (infoItemObjectProvider == null) {
-			return displayObjectOptional.orElse(null);
+			return _getInfoItem(infoItemReference);
 		}
 
 		try {
@@ -211,7 +220,7 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 				new ClassPKInfoItemIdentifier(classPK));
 
 			if (infoItem == null) {
-				return displayObjectOptional.orElse(null);
+				return _getInfoItem(infoItemReference);
 			}
 
 			return infoItem;
@@ -222,7 +231,7 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 			}
 		}
 
-		return displayObjectOptional.orElse(null);
+		return _getInfoItem(infoItemReference);
 	}
 
 	private JSONObject _getFieldValueJSONObject(
@@ -237,13 +246,38 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 			fragmentRendererContext.getLocale(), "itemSelector");
 	}
 
+	private Object _getInfoItem(InfoItemReference infoItemReference) {
+		if (infoItemReference == null) {
+			return null;
+		}
+
+		InfoItemIdentifier infoItemIdentifier =
+			infoItemReference.getInfoItemIdentifier();
+
+		InfoItemObjectProvider<Object> infoItemObjectProvider =
+			_infoItemServiceRegistry.getFirstInfoItemService(
+				InfoItemObjectProvider.class, infoItemReference.getClassName(),
+				infoItemIdentifier.getInfoItemServiceFilter());
+
+		try {
+			return infoItemObjectProvider.getInfoItem(infoItemIdentifier);
+		}
+		catch (NoSuchInfoItemException noSuchInfoItemException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(noSuchInfoItemException);
+			}
+		}
+
+		return null;
+	}
+
 	private Tuple _getTuple(
 		String className, Class<?> displayObjectClass,
 		FragmentRendererContext fragmentRendererContext) {
 
 		List<InfoItemRenderer<?>> infoItemRenderers =
 			FragmentRendererUtil.getInfoItemRenderers(
-				className, displayObjectClass, _infoItemRendererTracker);
+				className, displayObjectClass, _infoItemRendererRegistry);
 
 		if (infoItemRenderers == null) {
 			return null;
@@ -270,7 +304,7 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 
 		InfoItemRenderer<Object> infoItemRenderer =
 			(InfoItemRenderer<Object>)
-				_infoItemRendererTracker.getInfoItemRenderer(
+				_infoItemRendererRegistry.getInfoItemRenderer(
 					infoItemRendererKey);
 
 		if (infoItemRenderer != null) {
@@ -289,11 +323,14 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		String itemType = (String)httpServletRequest.getAttribute(
-			InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT_ITEM_TYPE);
+		InfoItemReference infoItemReference =
+			(InfoItemReference)httpServletRequest.getAttribute(
+				InfoDisplayWebKeys.INFO_ITEM_REFERENCE);
 
-		if (Validator.isNull(className) && Validator.isNotNull(itemType)) {
-			className = itemType;
+		if (Validator.isNull(className) &&
+			Validator.isNotNull(infoItemReference.getClassName())) {
+
+			className = infoItemReference.getClassName();
 		}
 
 		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
@@ -316,7 +353,7 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 
 		try {
 			InfoItemPermissionProvider infoItemPermissionProvider =
-				_infoItemServiceTracker.getFirstInfoItemService(
+				_infoItemServiceRegistry.getFirstInfoItemService(
 					InfoItemPermissionProvider.class, className);
 
 			if ((infoItemPermissionProvider != null) &&
@@ -343,10 +380,10 @@ public class ContentObjectFragmentRenderer implements FragmentRenderer {
 	private FragmentEntryConfigurationParser _fragmentEntryConfigurationParser;
 
 	@Reference
-	private InfoItemRendererTracker _infoItemRendererTracker;
+	private InfoItemRendererRegistry _infoItemRendererRegistry;
 
 	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	@Reference
 	private Language _language;

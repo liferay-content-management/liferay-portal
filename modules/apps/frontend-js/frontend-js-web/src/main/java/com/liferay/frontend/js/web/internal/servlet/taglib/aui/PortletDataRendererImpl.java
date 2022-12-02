@@ -15,6 +15,7 @@
 package com.liferay.frontend.js.web.internal.servlet.taglib.aui;
 
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.frontend.esm.FrontendESMUtil;
 import com.liferay.portal.kernel.servlet.taglib.aui.AMDRequire;
 import com.liferay.portal.kernel.servlet.taglib.aui.ESImport;
 import com.liferay.portal.kernel.servlet.taglib.aui.JSFragment;
@@ -39,7 +40,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Iván Zaera Avellón
  */
-@Component(immediate = true, service = PortletDataRenderer.class)
+@Component(service = PortletDataRenderer.class)
 public class PortletDataRendererImpl implements PortletDataRenderer {
 
 	@Override
@@ -63,7 +64,9 @@ public class PortletDataRendererImpl implements PortletDataRenderer {
 			writer.write("<script>\n");
 		}
 		else {
-			writer.write("<script type=\"module\">\n");
+			writer.write("<script type=\"");
+			writer.write(FrontendESMUtil.getScriptType());
+			writer.write("\">\n");
 		}
 
 		// Write ES prologue

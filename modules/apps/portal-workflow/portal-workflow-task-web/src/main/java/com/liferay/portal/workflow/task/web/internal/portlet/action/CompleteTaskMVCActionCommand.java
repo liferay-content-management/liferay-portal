@@ -17,6 +17,7 @@ package com.liferay.portal.workflow.task.web.internal.portlet.action;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
@@ -33,6 +34,9 @@ import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletResponse;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -71,7 +75,8 @@ public class CompleteTaskMVCActionCommand
 		ServiceContext serviceContext = (ServiceContext)workflowContext.get(
 			"serviceContext");
 
-		serviceContext.setRequest(_portal.getHttpServletRequest(actionRequest));
+		serviceContext.setRequest(
+			_getHttpServletRequest(actionRequest, actionResponse));
 
 		workflowContext.put(
 			WorkflowConstants.CONTEXT_USER_ID,
@@ -84,6 +89,25 @@ public class CompleteTaskMVCActionCommand
 
 	@Reference
 	protected WorkflowTaskManager workflowTaskManager;
+
+	private HttpServletRequest _getHttpServletRequest(
+		ActionRequest actionRequest, ActionResponse actionResponse) {
+
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
+			actionRequest);
+
+		PortletResponse portletResponse =
+			(PortletResponse)httpServletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_RESPONSE);
+
+		if (portletResponse == null) {
+			httpServletRequest.setAttribute(
+				JavaConstants.JAVAX_PORTLET_RESPONSE,
+				_portal.getLiferayPortletResponse(actionResponse));
+		}
+
+		return httpServletRequest;
+	}
 
 	private Map<String, Serializable> _getWorkflowContext(
 			long companyId, long workflowTaskId)

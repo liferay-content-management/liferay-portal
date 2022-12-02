@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 import com.liferay.portal.test.rule.TransactionalTestRule;
+import com.liferay.search.experiences.exception.DuplicateSXPElementExternalReferenceCodeException;
 import com.liferay.search.experiences.exception.NoSuchSXPElementException;
 import com.liferay.search.experiences.model.SXPElement;
 import com.liferay.search.experiences.service.SXPElementLocalServiceUtil;
@@ -210,6 +211,26 @@ public class SXPElementPersistenceTest {
 			existingSXPElement.getStatus(), newSXPElement.getStatus());
 	}
 
+	@Test(expected = DuplicateSXPElementExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		SXPElement sxpElement = addSXPElement();
+
+		SXPElement newSXPElement = addSXPElement();
+
+		newSXPElement.setCompanyId(sxpElement.getCompanyId());
+
+		newSXPElement = _persistence.update(newSXPElement);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newSXPElement);
+
+		newSXPElement.setExternalReferenceCode(
+			sxpElement.getExternalReferenceCode());
+
+		_persistence.update(newSXPElement);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -261,12 +282,12 @@ public class SXPElementPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -563,15 +584,15 @@ public class SXPElementPersistenceTest {
 
 	private void _assertOriginalValues(SXPElement sxpElement) {
 		Assert.assertEquals(
-			Long.valueOf(sxpElement.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				sxpElement, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			sxpElement.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				sxpElement, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(sxpElement.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				sxpElement, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected SXPElement addSXPElement() throws Exception {

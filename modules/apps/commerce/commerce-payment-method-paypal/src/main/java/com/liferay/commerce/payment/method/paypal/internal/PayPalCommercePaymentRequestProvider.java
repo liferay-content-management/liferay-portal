@@ -32,7 +32,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luca Pellizzon
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "commerce.payment.engine.method.key=" + PayPalCommercePaymentMethod.KEY,
 	service = CommercePaymentRequestProvider.class
 )

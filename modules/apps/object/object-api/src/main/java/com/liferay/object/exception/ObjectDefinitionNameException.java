@@ -34,7 +34,7 @@ public class ObjectDefinitionNameException extends PortalException {
 		extends ObjectDefinitionNameException {
 
 		public MustBeLessThan41Characters() {
-			super("Names must be less than 41 characters");
+			super("Name must be less than 41 characters");
 		}
 
 	}

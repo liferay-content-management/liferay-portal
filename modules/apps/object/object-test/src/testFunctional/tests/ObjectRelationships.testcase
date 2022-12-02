@@ -136,6 +136,77 @@ definition {
 		CreateObject.assertEntrySelectedOnRelationshipField(entry = "userfn");
 	}
 
+	@description = "LPS-163656 - Verify that it's possible to add two relationship tabs with the Many-to-Many self-relationship"
+	@priority = "4"
+	test CanAddTabsForSelfMMRelationship {
+		task ("Given an object related to itself, in a Many-to-Many relationship") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object",
+				objectName = "CustomObject",
+				pluralLabelName = "Custom Objects");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObject");
+
+			ObjectAdmin.addObjectRelationshipViaAPI(
+				objectName_1 = "CustomObject",
+				objectName_2 = "User",
+				relationshipLabel = "Relationship",
+				relationshipName = "relationship",
+				relationshipType = "manyToMany");
+
+			ObjectAdmin.addObjectRelationshipViaAPI(
+				objectName_1 = "CustomObject",
+				objectName_2 = "User",
+				relationshipLabel = "Relationship 2",
+				relationshipName = "relationship2",
+				relationshipType = "manyToMany");
+		}
+
+		task ("When the user creates a layout") {
+			ObjectAdmin.addObjectLayoutViaAPI(
+				layoutName = "Layout Name",
+				objectName = "CustomObject");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object");
+
+			ObjectAdmin.goToLayoutsTab();
+
+			ObjectAdmin.selectKebabMenuOption(kebabOption = "View");
+
+			ObjectAdmin.goToLayoutTabOnLayouts();
+
+			ObjectAdmin.addTabFieldsOnLayout(tabName = "Field Tab");
+		}
+
+		task ("And when creates two tabs, one for each relationship") {
+			for (var fieldEntry : list "A,B") {
+				ObjectAdmin.addTabRelationshipsOnLayout(
+					relationshipsLabelName = "Relationship",
+					tabName = "Relationship Tab ${fieldEntry}");
+
+				Button.clickSave();
+			}
+		}
+
+		task ("Then two tabs can be created, one for each relationship") {
+			AssertElementPresent(
+				key_layout = "Relationship Tab A",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_LAYOUT_TAB");
+
+			AssertElementPresent(
+				key_layout = "Relationship Tab B",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_LAYOUT_TAB");
+		}
+	}
+
 	@description = "LPS-146754 - Verify that it's possible to create a Many-to-Many relationship between a Custom Object and Native Object"
 	@priority = "5"
 	test CanCreateManyToManyRelationshipWithNativeObject {
@@ -551,21 +622,11 @@ definition {
 				userLastName = "userln_1",
 				userScreenName = "usersn1");
 
-			JSONUser.setFirstPassword(
-				agreeToTermsAndAnswerReminderQuery = "true",
-				requireReset = "false",
-				userEmailAddress = "user1@liferay.com");
-
 			JSONUser.addUser(
 				userEmailAddress = "user2@liferay.com",
 				userFirstName = "userfn_2",
 				userLastName = "userln_2",
 				userScreenName = "usersn2");
-
-			JSONUser.setFirstPassword(
-				agreeToTermsAndAnswerReminderQuery = "true",
-				requireReset = "false",
-				userEmailAddress = "user2@liferay.com");
 		}
 
 		task ("Add a custom object, a field, and create a one-to-many relationship with the User object") {
@@ -811,6 +872,58 @@ definition {
 		}
 	}
 
+	@description = "LPS-163654 - Verify that it's possible to identify the Parent and Child relationship through specific labels"
+	@priority = "4"
+	test CanIdentifyParentChildRelationship {
+		task ("Given an object related to itself, in a Many-to-Many relationship") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object LPS163654",
+				objectName = "CustomObjectLPS163654",
+				pluralLabelName = "Custom Objects LPS163654");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObjectLPS163654");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object LPS163654");
+
+			ObjectAdmin.gotoRelationshipsTab();
+
+			ObjectAdmin.addObjectRelationshipViaUI(
+				label = "Relationship",
+				object = "Custom Object LPS163654",
+				type = "Many to Many");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject163654");
+		}
+
+		task ("When the user views the relationships on the Relationship tab") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object LPS163654");
+
+			ObjectAdmin.gotoRelationshipsTab();
+		}
+
+		task ("Then the relationship should have a label indicating whether it's the Parent or the Child") {
+			AssertElementPresent(
+				key_relationHierarchy = "Parent",
+				key_relationType = "manyToMany",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_TYPE_AND_HIERARCHY");
+
+			AssertElementPresent(
+				key_relationHierarchy = "Child",
+				key_relationType = "manyToMany",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_TYPE_AND_HIERARCHY");
+		}
+	}
+
 	@description = "LPS-146754 - Verify that it's not possible for a Custom Object to create a Many-to-Many relationship with itself"
 	@priority = "4"
 	test CannotCreateManytoManyRelationshipWithItself {
@@ -885,8 +998,6 @@ definition {
 	@description = "LPS-152508 - Verify that it's not possible to delete a relationship with an incorrect input"
 	@priority = "4"
 	test CannotDeleteRelationshipWithIncorrectInput {
-		property portal.upstream = "quarantine";
-
 		task ("Create a custom object and a relationship to itself") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object",
@@ -956,8 +1067,6 @@ definition {
 	@description = "LPS-135397 - Verify that it is not possible to leave a layout with a Relationship tab on first place by removing the fields tab"
 	@priority = "4"
 	test CannotLeaveRelationshipTabOnFirstPlaceByRemovingFieldsTab {
-		property portal.upstream = "quarantine";
-
 		task ("Create a custom object and a relationship to itself") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object",
@@ -1028,8 +1137,6 @@ definition {
 	@description = "LPS-155537 - Verify that it's not possible to see the parameter when adding relationships that don't require it"
 	@priority = "3"
 	test CannotSeeParameterWhenNotRequiredByRelationship {
-		property portal.upstream = "quarantine";
-
 		task ("Create a custom object, and a relationship non-require by API") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Custom Object",
@@ -1086,8 +1193,6 @@ definition {
 	@description = "LPS-139803 - It is not possible to select a Relationship field for the Object Entry Title"
 	@priority = "4"
 	test CannotSelectRelationshipFieldForObjectEntryTitle {
-		property portal.upstream = "quarantine";
-
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 147735",
 			objectName = "CustomObject147735",
@@ -1107,11 +1212,73 @@ definition {
 		ObjectAdmin.viewOptionTitleField(optionNameNotPresent = "Relationship");
 	}
 
+	@description = "LPS-163655 - Verify that the user is not allowed to update the Name, Type or Object from the parent Relationship"
+	@priority = "4"
+	test CannotUpdateNameTypeObjectFromParentRelationship {
+		task ("Given an object related to itself, in a Many-to-Many relationship") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object LPS163655",
+				objectName = "CustomObjectLPS163655",
+				pluralLabelName = "Custom Objects LPS163655");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObjectLPS163655");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object LPS163655");
+
+			ObjectAdmin.gotoRelationshipsTab();
+
+			ObjectAdmin.addObjectRelationshipViaUI(
+				label = "Relationship",
+				object = "Custom Object LPS163655",
+				type = "Many to Many");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject163655");
+		}
+
+		task ("When the user edits the Parent relationships on the Relationship tab") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object LPS163655");
+
+			ObjectAdmin.gotoRelationshipsTab();
+
+			Click(
+				key_index = "1",
+				key_labelName = "Relationship",
+				locator1 = "CreateObject#OBJECT_NAME_INDEX");
+
+			SelectFrame(
+				key_title = "",
+				locator1 = "IFrame#MODAL_ANY");
+		}
+
+		task ("Then the fields Name, Type and Object can not be updated") {
+			AssertElementPresent(
+				key_relation = "relationship",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_DISABLED_NAME_OR_TYPE");
+
+			AssertElementPresent(
+				key_relation = "Many to Many",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_DISABLED_NAME_OR_TYPE");
+
+			AssertElementPresent(
+				key_relationObject = "CustomObjectLPS163655",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_DISABLED_OBJECT");
+		}
+	}
+
 	@description = "LPS-146754 - Verify that it's possible to relate a Custom Object entry with many Native Object entries (Many-to-Many)"
 	@priority = "5"
 	test CanRelateManyToManyCustomObjectEntryWithNativeObjectEntries {
 		property portal.acceptance = "true";
-		property portal.upstream = "quarantine";
 
 		task ("Add 2 users entries to relate to custom object entries") {
 			JSONUser.addUser(
@@ -1386,6 +1553,86 @@ definition {
 		Button.clickSave();
 
 		CreateObject.assertEntrySelectedOnRelationshipField(entry = "userfn");
+	}
+
+	@description = "LPS-163660 - Verify that a label is displayed on the creation of a Relationship Tab, to differentiate parent (left side) information from child (right side) information"
+	@priority = "4"
+	test CanSeeLabelWhenCreatingRelationshipTab {
+		task ("Create an Object and add an attachment field") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object LPS163660",
+				objectName = "CustomObjectLPS163660",
+				pluralLabelName = "Custom Objects LPS163660");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObjectLPS163660");
+		}
+
+		task ("Go to the Objects Admin page and select the created definition") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object LPS163660");
+		}
+
+		task ("Add a many to many relationship withself") {
+			ObjectAdmin.gotoRelationshipsTab();
+
+			ObjectAdmin.addObjectRelationshipViaUI(
+				label = "Relationship",
+				object = "Custom Object LPS163660",
+				type = "Many to Many");
+		}
+
+		task ("Add a layout and set it as Default") {
+			ObjectAdmin.addObjectLayoutViaAPI(
+				layoutName = "Layout Name",
+				objectName = "CustomObjectLPS163660");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object LPS163660");
+
+			ObjectAdmin.goToLayoutsTab();
+
+			ObjectAdmin.selectKebabMenuOption(kebabOption = "View");
+
+			ObjectAdmin.markLayoutAsDefault();
+
+			ObjectAdmin.goToLayoutTabOnLayouts();
+		}
+
+		task ("Create a tab field") {
+			ObjectAdmin.addTabFieldsOnLayout(
+				blockName = "Block 1",
+				columnsNumber = "1",
+				fieldList = "Custom Field",
+				tabName = "Field Tab");
+		}
+
+		task ("Create a relationship tab on Layout") {
+			LexiconEntry.gotoAddNoSelectFrame();
+
+			Click(
+				key_type = "Relationships",
+				locator1 = "ObjectAdmin#TAB_TYPE");
+
+			Click(locator1 = "ObjectAdmin#LAYOUT_ENTRY_CHOOSE_OPTION");
+		}
+
+		task ("Assert that a label indicating the Parent and Child relationships are displayed") {
+			AssertElementPresent(
+				key_relationType = "Parent",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS");
+
+			AssertElementPresent(
+				key_relationType = "Child",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS");
+		}
 	}
 
 	@description = "LPS-145393 - Verify it is possible to set a Title Field for a Native Object"

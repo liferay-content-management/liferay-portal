@@ -82,6 +82,8 @@ definition {
 	}
 
 	macro viewLocalizationMessage {
+		WaitForElementPresent(locator1 = "Home#PORTAL_LOCALIZATION_TRANSLATION_LANGUAGE_MESSAGE");
+
 		AssertTextEquals.assertPartialText(
 			locator1 = "Home#PORTAL_LOCALIZATION_TRANSLATION_LANGUAGE_MESSAGE",
 			value1 = "${translationLanguageLocalizationMessage}");
@@ -121,10 +123,9 @@ definition {
 	}
 
 	macro viewSpecificRequiredField {
-		AssertTextEquals.assertPartialText(
+		AssertElementPresent(
 			key_fieldFieldLabel = "${fieldFieldLabel}",
-			locator1 = "Message#ERROR_FIELD_REQUIRED",
-			value1 = "This field is required.");
+			locator1 = "Message#ERROR_FIELD_REQUIRED");
 	}
 
 	macro viewSuccessMessage {

@@ -15,6 +15,41 @@
 			"name": "metrics",
 			"required": false,
 			"type": "Clob"
+		},
+		{
+			"DBType": "String",
+			"businessType": "Text",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Name"
+			},
+			"name": "name",
+			"required": false,
+			"type": "String"
+		},
+		{
+			"DBType": "String",
+			"businessType": "Text",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Total Cost"
+			},
+			"name": "totalCost",
+			"required": false,
+			"type": "String"
+		},
+		{
+			"DBType": "Boolean",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Selected"
+			},
+			"name": "selected",
+			"required": false,
+			"type": "Boolean"
 		}
 	],
 	"pluralLabel": {

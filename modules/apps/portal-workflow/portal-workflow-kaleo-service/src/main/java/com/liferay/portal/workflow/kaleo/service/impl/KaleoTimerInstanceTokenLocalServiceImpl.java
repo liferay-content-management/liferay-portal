@@ -26,7 +26,6 @@ import com.liferay.portal.kernel.scheduler.StorageType;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerFactory;
-import com.liferay.portal.kernel.scheduler.TriggerFactoryUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -118,7 +117,7 @@ public class KaleoTimerInstanceTokenLocalServiceImpl
 		kaleoTimerInstanceToken = kaleoTimerInstanceTokenPersistence.update(
 			kaleoTimerInstanceToken);
 
-		scheduleTimer(kaleoTimerInstanceToken, kaleoTimer);
+		_scheduleTimer(kaleoTimerInstanceToken, kaleoTimer);
 
 		return kaleoTimerInstanceToken;
 	}
@@ -175,7 +174,7 @@ public class KaleoTimerInstanceTokenLocalServiceImpl
 		kaleoTimerInstanceToken = kaleoTimerInstanceTokenPersistence.update(
 			kaleoTimerInstanceToken);
 
-		deleteScheduledTimer(kaleoTimerInstanceToken);
+		_deleteScheduledTimer(kaleoTimerInstanceToken);
 
 		return kaleoTimerInstanceToken;
 	}
@@ -216,7 +215,7 @@ public class KaleoTimerInstanceTokenLocalServiceImpl
 		KaleoTimerInstanceToken kaleoTimerInstanceToken =
 			getKaleoTimerInstanceToken(kaleoInstanceTokenId, kaleoTimerId);
 
-		deleteScheduledTimer(kaleoTimerInstanceToken);
+		_deleteScheduledTimer(kaleoTimerInstanceToken);
 
 		kaleoTimerInstanceTokenPersistence.remove(kaleoTimerInstanceToken);
 	}
@@ -235,7 +234,7 @@ public class KaleoTimerInstanceTokenLocalServiceImpl
 			}
 
 			try {
-				deleteScheduledTimer(kaleoTimerInstanceToken);
+				_deleteScheduledTimer(kaleoTimerInstanceToken);
 			}
 			catch (PortalException portalException) {
 				if (_log.isWarnEnabled()) {
@@ -276,30 +275,30 @@ public class KaleoTimerInstanceTokenLocalServiceImpl
 			kaleoInstanceTokenId, blocking, completed);
 	}
 
-	protected void deleteScheduledTimer(
+	private void _deleteScheduledTimer(
 			KaleoTimerInstanceToken kaleoTimerInstanceToken)
 		throws PortalException {
 
-		String groupName = getSchedulerGroupName(kaleoTimerInstanceToken);
+		String groupName = _getSchedulerGroupName(kaleoTimerInstanceToken);
 
 		_schedulerEngineHelper.delete(groupName, StorageType.PERSISTED);
 	}
 
-	protected String getSchedulerGroupName(
+	private String _getSchedulerGroupName(
 		KaleoTimerInstanceToken kaleoTimerInstanceToken) {
 
 		return SchedulerUtil.getGroupName(
 			kaleoTimerInstanceToken.getKaleoTimerInstanceTokenId());
 	}
 
-	protected void scheduleTimer(
+	private void _scheduleTimer(
 			KaleoTimerInstanceToken kaleoTimerInstanceToken,
 			KaleoTimer kaleoTimer)
 		throws PortalException {
 
-		deleteScheduledTimer(kaleoTimerInstanceToken);
+		_deleteScheduledTimer(kaleoTimerInstanceToken);
 
-		String groupName = getSchedulerGroupName(kaleoTimerInstanceToken);
+		String groupName = _getSchedulerGroupName(kaleoTimerInstanceToken);
 
 		DelayDuration delayDuration = new DelayDuration(
 			kaleoTimer.getDuration(),
@@ -324,8 +323,8 @@ public class KaleoTimerInstanceTokenLocalServiceImpl
 				StringUtil.toUpperCase(durationScale.getValue()));
 		}
 
-		Trigger trigger = TriggerFactoryUtil.createTrigger(
-			groupName, groupName, dueDate, interval, timeUnit);
+		Trigger trigger = _triggerFactory.createTrigger(
+			groupName, groupName, dueDate, null, interval, timeUnit);
 
 		Message message = new Message();
 
@@ -336,7 +335,7 @@ public class KaleoTimerInstanceTokenLocalServiceImpl
 
 		_schedulerEngineHelper.schedule(
 			trigger, StorageType.PERSISTED, null,
-			KaleoRuntimeDestinationNames.WORKFLOW_TIMER, message, 0);
+			KaleoRuntimeDestinationNames.WORKFLOW_TIMER, message);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

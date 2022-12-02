@@ -149,7 +149,7 @@ public class KnowledgeBaseServiceUpgradeStepRegistrator
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"KBArticle", "KBComment", "KBFolder", "KBTemplate"
 					};
@@ -180,8 +180,8 @@ public class KnowledgeBaseServiceUpgradeStepRegistrator
 		registry.register(
 			"4.2.0", "4.3.0",
 			UpgradeProcessFactory.addColumns(
-				"KBArticle", "expirationDate Date null",
-				"reviewDate Date null"));
+				"KBArticle", "expirationDate DATE null",
+				"reviewDate DATE null"));
 	}
 
 	@Reference

@@ -21,7 +21,6 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -34,7 +33,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sarai Díaz
  */
 @Component(
-	immediate = true,
 	property = "javax.portlet.name=" + AssetListPortletKeys.ASSET_LIST,
 	service = AssetListAssetEntryQueryProcessor.class
 )
@@ -81,8 +79,5 @@ public class AsahInterestTermAssetListAssetEntryQueryProcessor
 
 	@Reference
 	private AsahInterestTermProvider _asahInterestTermProvider;
-
-	@Reference
-	private Portal _portal;
 
 }

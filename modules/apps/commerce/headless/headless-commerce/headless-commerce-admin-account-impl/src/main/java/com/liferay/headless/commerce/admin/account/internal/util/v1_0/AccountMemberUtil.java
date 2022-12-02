@@ -71,8 +71,8 @@ public class AccountMemberUtil {
 		else if (Validator.isNotNull(
 					accountMember.getUserExternalReferenceCode())) {
 
-			user = userLocalService.fetchUserByReferenceCode(
-				companyId, accountMember.getUserExternalReferenceCode());
+			user = userLocalService.fetchUserByExternalReferenceCode(
+				accountMember.getUserExternalReferenceCode(), companyId);
 
 			if (user == null) {
 				throw new NoSuchUserException(

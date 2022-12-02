@@ -26,10 +26,10 @@ const FiltersDropdown = () => {
 	const [active, setActive] = useState(false);
 	const [activeFilter, setActiveFilter] = useState(null);
 	const [filters, setFilters] = useState(initialFilters);
+	const [query, setQuery] = useState('');
 
-	const onSearch = (event) => {
-		const query = event.target.value;
-
+	const onSearch = (query) => {
+		setQuery(query);
 		setFilters(
 			query
 				? initialFilters.filter(({label}) =>
@@ -81,7 +81,7 @@ const FiltersDropdown = () => {
 				</>
 			) : (
 				<ClayDropDown.Group header={Liferay.Language.get('filters')}>
-					<ClayDropDown.Search onChange={onSearch} />
+					<ClayDropDown.Search onChange={onSearch} value={query} />
 
 					<ClayDropDown.Divider className="m-0" />
 

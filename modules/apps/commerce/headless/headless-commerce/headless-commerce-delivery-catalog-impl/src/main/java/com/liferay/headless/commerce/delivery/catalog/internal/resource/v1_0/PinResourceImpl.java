@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.List;
 
@@ -48,7 +47,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Ivica Cardic
  */
 @Component(
-	enabled = false, properties = "OSGI-INF/liferay/rest/v1_0/pin.properties",
+	properties = "OSGI-INF/liferay/rest/v1_0/pin.properties",
 	scope = ServiceScope.PROTOTYPE, service = PinResource.class
 )
 public class PinResourceImpl extends BasePinResourceImpl {
@@ -137,7 +136,7 @@ public class PinResourceImpl extends BasePinResourceImpl {
 	private List<Pin> _toPins(
 		CommerceContext commerceContext, List<CSDiagramPin> csDiagramPins) {
 
-		return TransformUtil.transform(
+		return transform(
 			csDiagramPins,
 			csDiagramPin -> _toPin(
 				commerceContext, csDiagramPin.getCSDiagramPinId()));

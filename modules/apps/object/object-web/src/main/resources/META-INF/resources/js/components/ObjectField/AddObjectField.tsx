@@ -52,28 +52,31 @@ function ModalAddObjectField({
 		indexed: true,
 		indexedAsKeyword: false,
 		indexedLanguageId: null,
+		listTypeDefinitionExternalReferenceCode: '',
 		listTypeDefinitionId: 0,
 		required: false,
 	};
 
-	const onSubmit = async (field: ObjectField) => {
-		try {
-			await API.save(
-				apiURL,
-				{
-					...field,
-					name:
-						field.name ||
-						toCamelCase(field.label[defaultLanguageId] as string),
-				},
-				'POST'
-			);
+	const onSubmit = async (field: Partial<ObjectField>) => {
+		if (field.label) {
+			field = {
+				...field,
+				name:
+					field.name ||
+					toCamelCase(field.label[defaultLanguageId] as string),
+			};
 
-			onClose();
-			window.location.reload();
-		}
-		catch (error) {
-			setError((error as Error).message);
+			delete field.listTypeDefinitionId;
+
+			try {
+				await API.save(apiURL, field, 'POST');
+
+				onClose();
+				window.location.reload();
+			}
+			catch (error) {
+				setError((error as Error).message);
+			}
 		}
 	};
 
@@ -158,6 +161,28 @@ export default function AddObjectField({
 		return () => Liferay.detach('addObjectField');
 	}, []);
 
+	const applyFeatureFlag = () => {
+		return objectFieldTypes.filter((objectFieldType) => {
+			if (
+				!Liferay.FeatureFlags['LPS-164948'] &&
+				!Liferay.FeatureFlags['LPS-158776']
+			) {
+				return (
+					objectFieldType.businessType !== 'Formula' &&
+					objectFieldType.businessType !== 'MultiselectPicklist'
+				);
+			}
+
+			if (!Liferay.FeatureFlags['LPS-164948']) {
+				return objectFieldType.businessType !== 'Formula';
+			}
+
+			if (!Liferay.FeatureFlags['LPS-158776']) {
+				return objectFieldType.businessType !== 'MultiselectPicklist';
+			}
+		});
+	};
+
 	return (
 		<ClayModalProvider>
 			{isVisible && (
@@ -165,12 +190,9 @@ export default function AddObjectField({
 					apiURL={apiURL}
 					objectDefinitionId={objectDefinitionId}
 					objectFieldTypes={
-						!Liferay.FeatureFlags['LPS-149625']
-							? objectFieldTypes.filter(
-									(filterType) =>
-										filterType.businessType !==
-										'Aggregation'
-							  )
+						!Liferay.FeatureFlags['LPS-164948'] ||
+						!Liferay.FeatureFlags['LPS-158776']
+							? applyFeatureFlag()
 							: objectFieldTypes
 					}
 					objectName={objectName}

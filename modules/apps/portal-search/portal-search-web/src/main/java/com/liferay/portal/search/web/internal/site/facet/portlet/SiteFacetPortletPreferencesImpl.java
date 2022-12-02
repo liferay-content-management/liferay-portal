@@ -46,6 +46,12 @@ public class SiteFacetPortletPreferencesImpl
 	}
 
 	@Override
+	public String getOrder() {
+		return _portletPreferencesHelper.getString(
+			SiteFacetPortletPreferences.PREFERENCE_KEY_ORDER, "count:desc");
+	}
+
+	@Override
 	public String getParameterName() {
 		return _portletPreferencesHelper.getString(
 			SiteFacetPortletPreferences.PREFERENCE_KEY_PARAMETER_NAME, "site");

@@ -115,7 +115,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	property = "model.class.name=com.liferay.commerce.discount.model.CommerceDiscount",
 	service = AopService.class
 )
@@ -295,9 +294,6 @@ public class CommerceDiscountLocalServiceImpl
 			externalReferenceCode = null;
 		}
 
-		_validateExternalReferenceCode(
-			externalReferenceCode, serviceContext.getCompanyId());
-
 		// Commerce discount
 
 		User user = _userLocalService.getUser(userId);
@@ -464,8 +460,8 @@ public class CommerceDiscountLocalServiceImpl
 
 		if (!Validator.isBlank(externalReferenceCode)) {
 			CommerceDiscount commerceDiscount =
-				commerceDiscountPersistence.fetchByC_ERC(
-					serviceContext.getCompanyId(), externalReferenceCode);
+				commerceDiscountPersistence.fetchByERC_C(
+					externalReferenceCode, serviceContext.getCompanyId());
 
 			if (commerceDiscount != null) {
 				return commerceDiscountLocalService.updateCommerceDiscount(
@@ -538,8 +534,8 @@ public class CommerceDiscountLocalServiceImpl
 
 		if (!Validator.isBlank(externalReferenceCode)) {
 			CommerceDiscount commerceDiscount =
-				commerceDiscountPersistence.fetchByC_ERC(
-					serviceContext.getCompanyId(), externalReferenceCode);
+				commerceDiscountPersistence.fetchByERC_C(
+					externalReferenceCode, serviceContext.getCompanyId());
 
 			if (commerceDiscount != null) {
 				return commerceDiscountLocalService.updateCommerceDiscount(
@@ -657,8 +653,8 @@ public class CommerceDiscountLocalServiceImpl
 			return null;
 		}
 
-		return commerceDiscountPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceDiscountPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	@Override
@@ -669,8 +665,8 @@ public class CommerceDiscountLocalServiceImpl
 			return null;
 		}
 
-		return commerceDiscountPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceDiscountPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	@Override
@@ -1985,25 +1981,6 @@ public class CommerceDiscountLocalServiceImpl
 			((level4 != null) && (level4.compareTo(maxValue) > 0))) {
 
 			throw new CommerceDiscountMaxPriceValueException();
-		}
-	}
-
-	private void _validateExternalReferenceCode(
-			String externalReferenceCode, long companyId)
-		throws PortalException {
-
-		if (Validator.isNull(externalReferenceCode)) {
-			return;
-		}
-
-		CommerceDiscount commerceDiscount =
-			commerceDiscountPersistence.fetchByC_ERC(
-				companyId, externalReferenceCode);
-
-		if (commerceDiscount != null) {
-			throw new DuplicateCommerceDiscountException(
-				"There is another commerce discount with external reference " +
-					"code " + externalReferenceCode);
 		}
 	}
 

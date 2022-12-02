@@ -40,6 +40,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.IOException;
@@ -284,13 +285,21 @@ public class SystemObjectEntryItemSelectorView
 					_portletRequest, _portletURL, null,
 					"no-entries-were-found");
 
+			searchContainer.setResultsAndTotal(ArrayList::new, 0);
+
+			String objectRelationshipType = ParamUtil.getString(
+				_portletRequest, "objectRelationshipType");
+
+			if (Validator.isNull(objectRelationshipType)) {
+				return searchContainer;
+			}
+
 			try {
 				ObjectRelatedModelsProvider objectRelatedModelsProvider =
 					_objectRelatedModelsProviderRegistry.
 						getObjectRelatedModelsProvider(
 							_objectDefinition.getClassName(),
-							ParamUtil.getString(
-								_portletRequest, "objectRelationshipType"));
+							objectRelationshipType);
 
 				List<BaseModel<?>> baseModels =
 					objectRelatedModelsProvider.getUnrelatedModels(
@@ -305,8 +314,6 @@ public class SystemObjectEntryItemSelectorView
 			}
 			catch (Exception exception) {
 				_log.error(exception);
-
-				searchContainer.setResultsAndTotal(ArrayList::new, 0);
 			}
 
 			return searchContainer;

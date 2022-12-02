@@ -5,35 +5,26 @@
 				"definition": {
 					"fragmentStyle": {
 						"borderWidth": "0",
-						"marginBottom": "4",
-						"paddingLeft": "6",
-						"paddingRight": "6",
 						"textAlign": ""
 					},
 					"fragmentViewports": [
 						{
 							"fragmentViewportStyle": {
-								"paddingLeft": "4",
-								"paddingRight": "4"
+								"paddingLeft": "0",
+								"paddingRight": "0"
 							},
 							"id": "landscapeMobile"
 						},
 						{
 							"fragmentViewportStyle": {
-								"hidden": false,
-								"marginLeft": "0",
-								"marginRight": "0",
-								"paddingLeft": "4",
-								"paddingRight": "4"
+								"hidden": false
 							},
 							"id": "portraitMobile"
 						},
 						{
 							"fragmentViewportStyle": {
-								"marginLeft": "0",
-								"marginRight": "0",
-								"paddingLeft": "5",
-								"paddingRight": "5"
+								"paddingLeft": "0",
+								"paddingRight": "0"
 							},
 							"id": "tablet"
 						}
@@ -41,13 +32,13 @@
 					"indexed": true,
 					"layout": {
 						"borderWidth": 0,
-						"marginBottom": 2,
+						"marginBottom": 0,
 						"marginLeft": 0,
 						"marginRight": 0,
 						"marginTop": 0,
 						"paddingBottom": 0,
-						"paddingLeft": 6,
-						"paddingRight": 6,
+						"paddingLeft": 0,
+						"paddingRight": 0,
 						"paddingTop": 0,
 						"widthType": "Fluid"
 					}
@@ -398,7 +389,7 @@
 																"fieldKey": "FileEntry_downloadURL",
 																"itemReference": {
 																	"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																	"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/sales-resources-pdf/referral-program-guide.pdf$]"
+																	"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/sales-resources-pdf/referral-program-guide.pdf#]"
 																}
 															}
 														},
@@ -610,7 +601,7 @@
 																"fieldKey": "FileEntry_downloadURL",
 																"itemReference": {
 																	"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																	"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/sales-resources-pdf/reseller-program-guide.pdf$]"
+																	"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/sales-resources-pdf/reseller-program-guide.pdf#]"
 																}
 															}
 														},
@@ -821,7 +812,7 @@
 																"fieldKey": "FileEntry_downloadURL",
 																"itemReference": {
 																	"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																	"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/sales-resources-pdf/program-rules-of-engagement.pdf$]"
+																	"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/sales-resources-pdf/program-rules-of-engagement.pdf#]"
 																}
 															}
 														},
@@ -1239,7 +1230,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/dollar-sign-blue.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/dollar-sign-blue.png#]"
 																					}
 																				}
 																			}
@@ -1625,7 +1616,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/book-green.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/book-green.png#]"
 																					}
 																				}
 																			}
@@ -1788,14 +1779,30 @@
 																"definition": {
 																	"fragmentLink": {
 																		"href": {
-																			"value_i18n": {
-																				"en_US": ""
+																			"mapping": {
+																				"itemReference": {
+																					"className": "com.liferay.portal.kernel.model.Layout",
+																					"fields": [
+																						{
+																							"fieldName": "friendlyURL",
+																							"fieldValue": "/sales/deal-registrations"
+																						},
+																						{
+																							"fieldName": "privatePage",
+																							"fieldValue": "false"
+																						},
+																						{
+																							"fieldName": "siteKey",
+																							"fieldValue": "[$GROUP_KEY$]"
+																						}
+																					]
+																				}
 																			}
 																		}
 																	},
 																	"fragmentStyle": {
 																		"borderWidth": "0",
-																		"textAlign": ""
+																		"width": "fit-content"
 																	},
 																	"indexed": true,
 																	"layout": {
@@ -1805,6 +1812,7 @@
 																		"marginLeft": 0,
 																		"marginRight": 0,
 																		"marginTop": 0,
+																		"opacity": 100,
 																		"paddingBottom": 0,
 																		"paddingLeft": 0,
 																		"paddingRight": 0,
@@ -1829,38 +1837,25 @@
 																							"value": {
 																								"href": {
 																									"value_i18n": {
-																										"ar_SA": "https://www.liferay.com/",
-																										"ca_ES": "https://www.liferay.com/",
-																										"de_DE": "https://www.liferay.com/",
-																										"en_US": "https://www.liferay.com/",
-																										"es_ES": "https://www.liferay.com/",
-																										"fi_FI": "https://www.liferay.com/",
-																										"fr_FR": "https://www.liferay.com/",
-																										"hu_HU": "https://www.liferay.com/",
-																										"ja_JP": "https://www.liferay.com/",
-																										"nl_NL": "https://www.liferay.com/",
-																										"pt_BR": "https://www.liferay.com/",
-																										"sv_SE": "https://www.liferay.com/",
-																										"zh_CN": "https://www.liferay.com/"
 																									}
 																								}
 																							}
 																						},
 																						"text": {
 																							"value_i18n": {
-																								"ar_SA": "View Dashboard",
-																								"ca_ES": "View Dashboard",
-																								"de_DE": "View Dashboard",
+																								"ar_SA": "Opportunity Registration",
+																								"ca_ES": "Opportunity Registration",
+																								"de_DE": "Opportunity Registration",
 																								"en_US": "Opportunity Registration",
-																								"es_ES": "View Dashboard",
-																								"fi_FI": "View Dashboard",
-																								"fr_FR": "View Dashboard",
-																								"hu_HU": "View Dashboard",
-																								"ja_JP": "View Dashboard",
-																								"nl_NL": "View Dashboard",
-																								"pt_BR": "View Dashboard",
-																								"sv_SE": "View Dashboard",
-																								"zh_CN": "View Dashboard"
+																								"es_ES": "Opportunity Registration",
+																								"fi_FI": "Opportunity Registration",
+																								"fr_FR": "Opportunity Registration",
+																								"hu_HU": "Opportunity Registration",
+																								"ja_JP": "Opportunity Registration",
+																								"nl_NL": "Opportunity Registration",
+																								"pt_BR": "Opportunity Registration",
+																								"sv_SE": "Opportunity Registration",
+																								"zh_CN": "Opportunity Registration"
 																							}
 																						}
 																					}
@@ -1891,7 +1886,6 @@
 																				"key": "clay-icon-link"
 																			},
 																			"fragmentConfig": {
-																				"iconLink": "https://www.liferay.com/pt/home",
 																				"iconName": "order-arrow-right"
 																			},
 																			"fragmentFields": [
@@ -2019,7 +2013,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/video-green.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/video-green.png#]"
 																					}
 																				}
 																			}
@@ -2403,7 +2397,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/calendar-blue.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/calendar-blue.png#]"
 																					}
 																				}
 																			}
@@ -2776,7 +2770,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/video-blue.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/video-blue.png#]"
 																					}
 																				}
 																			}
@@ -3172,7 +3166,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/calendar-green.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/calendar-green.png#]"
 																					}
 																				}
 																			}
@@ -3714,7 +3708,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/dollar-sign-blue.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/dollar-sign-blue.png#]"
 																					}
 																				}
 																			}
@@ -4112,7 +4106,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/book-green.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/book-green.png#]"
 																					}
 																				}
 																			}
@@ -4284,6 +4278,29 @@
 															},
 															{
 																"definition": {
+																	"fragmentLink": {
+																		"href": {
+																			"mapping": {
+																				"itemReference": {
+																					"className": "com.liferay.portal.kernel.model.Layout",
+																					"fields": [
+																						{
+																							"fieldName": "friendlyURL",
+																							"fieldValue": "/sales/deal-registrations"
+																						},
+																						{
+																							"fieldName": "privatePage",
+																							"fieldValue": "false"
+																						},
+																						{
+																							"fieldName": "siteKey",
+																							"fieldValue": "[$GROUP_KEY$]"
+																						}
+																					]
+																				}
+																			}
+																		}
+																	},
 																	"fragmentStyle": {
 																		"borderWidth": "0",
 																		"textAlign": "",
@@ -4320,20 +4337,24 @@
 																						"fragmentLink": {
 																							"value": {
 																								"href": {
-																									"value_i18n": {
-																										"ar_SA": "https://www.liferay.com/",
-																										"ca_ES": "https://www.liferay.com/",
-																										"de_DE": "https://www.liferay.com/",
-																										"en_US": "https://www.liferay.com/",
-																										"es_ES": "https://www.liferay.com/",
-																										"fi_FI": "https://www.liferay.com/",
-																										"fr_FR": "https://www.liferay.com/",
-																										"hu_HU": "https://www.liferay.com/",
-																										"ja_JP": "https://www.liferay.com/",
-																										"nl_NL": "https://www.liferay.com/",
-																										"pt_BR": "https://www.liferay.com/",
-																										"sv_SE": "https://www.liferay.com/",
-																										"zh_CN": "https://www.liferay.com/"
+																									"mapping": {
+																										"itemReference": {
+																											"className": "com.liferay.portal.kernel.model.Layout",
+																											"fields": [
+																												{
+																													"fieldName": "friendlyURL",
+																													"fieldValue": "/sales/deal-registrations"
+																												},
+																												{
+																													"fieldName": "privatePage",
+																													"fieldValue": "false"
+																												},
+																												{
+																													"fieldName": "siteKey",
+																													"fieldValue": "[$GROUP_KEY$]"
+																												}
+																											]
+																										}
 																									}
 																								}
 																							}
@@ -4382,7 +4403,6 @@
 																				"key": "clay-icon-link"
 																			},
 																			"fragmentConfig": {
-																				"iconLink": "https://www.liferay.com/pt/home",
 																				"iconName": "order-arrow-right"
 																			},
 																			"fragmentFields": [
@@ -4513,7 +4533,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/video-green.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/video-green.png#]"
 																					}
 																				}
 																			}
@@ -4901,7 +4921,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/calendar-blue.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/calendar-blue.png#]"
 																					}
 																				}
 																			}
@@ -5294,7 +5314,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/video-blue.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/video-blue.png#]"
 																					}
 																				}
 																			}
@@ -5681,7 +5701,7 @@
 																					"fieldKey": "FileEntry_previewImage",
 																					"itemReference": {
 																						"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																						"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/calendar-green.png$]"
+																						"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/quick-links-resources/calendar-green.png#]"
 																					}
 																				}
 																			}

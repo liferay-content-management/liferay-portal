@@ -20,7 +20,7 @@ import {
 	TObjectRelationship,
 } from './types';
 declare type TState = {
-	enabledCategorization: boolean;
+	enableCategorization: boolean;
 	isViewOnly: boolean;
 	objectFieldTypes: ObjectFieldType[];
 	objectFields: TObjectField[];
@@ -31,7 +31,7 @@ declare type TState = {
 declare type TAction =
 	| {
 			payload: {
-				enabledCategorization: boolean;
+				enableCategorization: boolean;
 				objectLayout: TObjectLayout;
 				objectRelationships: TObjectRelationship[];
 			};
@@ -100,6 +100,13 @@ declare type TAction =
 	| {
 			payload: {
 				boxIndex: number;
+				tabIndex: number;
+			};
+			type: TYPES.DELETE_OBJECT_LAYOUT_BOX_CATEGORIZATION;
+	  }
+	| {
+			payload: {
+				boxIndex: number;
 				columnIndex: number;
 				objectFieldName: string;
 				rowIndex: number;
@@ -126,6 +133,7 @@ export declare enum TYPES {
 	CHANGE_OBJECT_LAYOUT_BOX_ATTRIBUTE = 'CHANGE_OBJECT_LAYOUT_BOX_ATTRIBUTE',
 	CHANGE_OBJECT_LAYOUT_NAME = 'CHANGE_OBJECT_LAYOUT_NAME',
 	DELETE_OBJECT_LAYOUT_BOX = 'DELETE_OBJECT_LAYOUT_BOX',
+	DELETE_OBJECT_LAYOUT_BOX_CATEGORIZATION = 'DELETE_OBJECT_LAYOUT_BOX_CATEGORIZATION',
 	DELETE_OBJECT_LAYOUT_FIELD = 'DELETE_OBJECT_LAYOUT_FIELD',
 	DELETE_OBJECT_LAYOUT_TAB = 'DELETE_OBJECT_LAYOUT_TAB',
 	SET_OBJECT_LAYOUT_AS_DEFAULT = 'SET_OBJECT_LAYOUT_AS_DEFAULT',

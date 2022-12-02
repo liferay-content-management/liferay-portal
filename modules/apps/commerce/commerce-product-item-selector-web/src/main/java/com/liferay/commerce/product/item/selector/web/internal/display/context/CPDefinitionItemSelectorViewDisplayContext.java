@@ -22,7 +22,7 @@ import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.product.model.CPInstance;
 import com.liferay.commerce.product.service.CPDefinitionService;
 import com.liferay.commerce.product.type.CPType;
-import com.liferay.commerce.product.type.CPTypeServicesTracker;
+import com.liferay.commerce.product.type.CPTypeRegistry;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -48,14 +48,14 @@ public class CPDefinitionItemSelectorViewDisplayContext
 	public CPDefinitionItemSelectorViewDisplayContext(
 		HttpServletRequest httpServletRequest, PortletURL portletURL,
 		String itemSelectedEventName, CPDefinitionService cpDefinitionService,
-		CPTypeServicesTracker cpTypeServicesTracker) {
+		CPTypeRegistry cpTypeRegistry) {
 
 		super(
 			httpServletRequest, portletURL, itemSelectedEventName,
 			CPDefinitionItemSelectorView.class.getSimpleName());
 
 		_cpDefinitionService = cpDefinitionService;
-		_cpTypeServicesTracker = cpTypeServicesTracker;
+		_cpTypeRegistry = cpTypeRegistry;
 
 		setDefaultOrderByCol("name");
 	}
@@ -65,7 +65,7 @@ public class CPDefinitionItemSelectorViewDisplayContext
 	}
 
 	public CPType getCPType(String name) {
-		return _cpTypeServicesTracker.getCPType(name);
+		return _cpTypeRegistry.getCPType(name);
 	}
 
 	@Override
@@ -83,6 +83,18 @@ public class CPDefinitionItemSelectorViewDisplayContext
 					httpServletRequest, "checkedCPDefinitionIds"));
 		}
 
+		long commerceChannelGroupId = ParamUtil.getLong(
+			httpServletRequest, CPField.COMMERCE_CHANNEL_GROUP_ID);
+
+		portletURL.setParameter(
+			CPField.COMMERCE_CHANNEL_GROUP_ID,
+			String.valueOf(commerceChannelGroupId));
+
+		portletURL.setParameter(
+			"ignoreCommerceAccountGroup",
+			Boolean.toString(
+				ParamUtil.getBoolean(
+					httpServletRequest, "ignoreCommerceAccountGroup")));
 		portletURL.setParameter(
 			"singleSelection", Boolean.toString(isSingleSelection()));
 
@@ -115,19 +127,24 @@ public class CPDefinitionItemSelectorViewDisplayContext
 		long commerceChannelGroupId = ParamUtil.getLong(
 			httpServletRequest, CPField.COMMERCE_CHANNEL_GROUP_ID);
 
+		boolean ignoreCommerceAccountGroup = ParamUtil.getBoolean(
+			httpServletRequest, "ignoreCommerceAccountGroup");
+
 		if (commerceChannelGroupId != 0) {
 			cpDefinitionBaseModelSearchResult =
 				_cpDefinitionService.searchCPDefinitionsByChannelGroupId(
 					cpRequestHelper.getCompanyId(), commerceChannelGroupId,
 					getKeywords(), WorkflowConstants.STATUS_APPROVED,
-					searchContainer.getStart(), searchContainer.getEnd(), sort);
+					ignoreCommerceAccountGroup, searchContainer.getStart(),
+					searchContainer.getEnd(), sort);
 		}
 		else {
 			cpDefinitionBaseModelSearchResult =
 				_cpDefinitionService.searchCPDefinitions(
 					cpRequestHelper.getCompanyId(), getKeywords(),
 					WorkflowConstants.STATUS_APPROVED,
-					searchContainer.getStart(), searchContainer.getEnd(), sort);
+					ignoreCommerceAccountGroup, searchContainer.getStart(),
+					searchContainer.getEnd(), sort);
 		}
 
 		searchContainer.setResultsAndTotal(cpDefinitionBaseModelSearchResult);
@@ -168,6 +185,6 @@ public class CPDefinitionItemSelectorViewDisplayContext
 	}
 
 	private final CPDefinitionService _cpDefinitionService;
-	private final CPTypeServicesTracker _cpTypeServicesTracker;
+	private final CPTypeRegistry _cpTypeRegistry;
 
 }

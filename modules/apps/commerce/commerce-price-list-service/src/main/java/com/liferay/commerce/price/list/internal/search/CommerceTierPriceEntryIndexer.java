@@ -44,7 +44,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alessio Antonio Rendina
  */
-@Component(enabled = false, immediate = true, service = Indexer.class)
+@Component(service = Indexer.class)
 public class CommerceTierPriceEntryIndexer
 	extends BaseIndexer<CommerceTierPriceEntry> {
 
@@ -161,8 +161,8 @@ public class CommerceTierPriceEntryIndexer
 		throws Exception {
 
 		_indexWriterHelper.updateDocument(
-			getSearchEngineId(), commerceTierPriceEntry.getCompanyId(),
-			getDocument(commerceTierPriceEntry), isCommitImmediately());
+			commerceTierPriceEntry.getCompanyId(),
+			getDocument(commerceTierPriceEntry));
 	}
 
 	@Override
@@ -206,7 +206,6 @@ public class CommerceTierPriceEntryIndexer
 					}
 				}
 			});
-		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		indexableActionableDynamicQuery.performActions();
 	}

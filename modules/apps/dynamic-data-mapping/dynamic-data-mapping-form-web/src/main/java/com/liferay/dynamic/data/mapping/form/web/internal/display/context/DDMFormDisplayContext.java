@@ -15,7 +15,7 @@
 package com.liferay.dynamic.data.mapping.form.web.internal.display.context;
 
 import com.liferay.dynamic.data.mapping.constants.DDMActionKeys;
-import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesRegistry;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
@@ -46,14 +46,18 @@ import com.liferay.dynamic.data.mapping.service.DDMFormInstanceService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceVersionLocalService;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapter;
-import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterTracker;
+import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterRegistry;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesMerger;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectFieldSetting;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.object.service.ObjectFieldSettingLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
+import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -78,8 +82,8 @@ import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -114,7 +118,7 @@ import javax.servlet.http.HttpServletRequest;
 public class DDMFormDisplayContext {
 
 	public DDMFormDisplayContext(
-		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
+		DDMFormFieldTypeServicesRegistry ddmFormFieldTypeServicesRegistry,
 		DDMFormInstanceLocalService ddmFormInstanceLocalService,
 		DDMFormInstanceRecordService ddmFormInstanceRecordService,
 		DDMFormInstanceRecordVersionLocalService
@@ -125,17 +129,18 @@ public class DDMFormDisplayContext {
 		DDMFormValuesFactory ddmFormValuesFactory,
 		DDMFormValuesMerger ddmFormValuesMerger,
 		DDMFormWebConfiguration ddmFormWebConfiguration,
-		DDMStorageAdapterTracker ddmStorageAdapterTracker,
+		DDMStorageAdapterRegistry ddmStorageAdapterRegistry,
 		GroupLocalService groupLocalService, JSONFactory jsonFactory,
 		NPMResolver npmResolver,
 		ObjectFieldLocalService objectFieldLocalService,
+		ObjectFieldSettingLocalService objectFieldSettingLocalService,
 		ObjectRelationshipLocalService objectRelationshipLocalService,
 		Portal portal, RenderRequest renderRequest,
 		RenderResponse renderResponse, RoleLocalService roleLocalService,
 		UserLocalService userLocalService,
 		WorkflowDefinitionLinkLocalService workflowDefinitionLinkLocalService) {
 
-		_ddmFormFieldTypeServicesTracker = ddmFormFieldTypeServicesTracker;
+		_ddmFormFieldTypeServicesRegistry = ddmFormFieldTypeServicesRegistry;
 		_ddmFormInstanceLocalService = ddmFormInstanceLocalService;
 		_ddmFormInstanceRecordService = ddmFormInstanceRecordService;
 		_ddmFormInstanceRecordVersionLocalService =
@@ -147,11 +152,12 @@ public class DDMFormDisplayContext {
 		_ddmFormValuesFactory = ddmFormValuesFactory;
 		_ddmFormValuesMerger = ddmFormValuesMerger;
 		_ddmFormWebConfiguration = ddmFormWebConfiguration;
-		_ddmStorageAdapterTracker = ddmStorageAdapterTracker;
+		_ddmStorageAdapterRegistry = ddmStorageAdapterRegistry;
 		_groupLocalService = groupLocalService;
 		_jsonFactory = jsonFactory;
 		_npmResolver = npmResolver;
 		_objectFieldLocalService = objectFieldLocalService;
+		_objectFieldSettingLocalService = objectFieldSettingLocalService;
 		_objectRelationshipLocalService = objectRelationshipLocalService;
 		_portal = portal;
 		_renderRequest = renderRequest;
@@ -240,6 +246,26 @@ public class DDMFormDisplayContext {
 						"maximumRepetitions",
 						_ddmFormWebConfiguration.
 							maximumRepetitionsForUploadFields());
+				}
+
+				if (Objects.equals(
+						ddmFormInstance.getStorageType(), "object")) {
+
+					DDMFormInstanceSettings ddmFormInstanceSettings =
+						ddmFormInstance.getSettingsModel();
+
+					ObjectField objectField =
+						_objectFieldLocalService.getObjectField(
+							GetterUtil.getLong(
+								ddmFormInstanceSettings.objectDefinitionId()),
+							_getObjectFieldName(ddmFormField));
+
+					long objectFieldId = objectField.getObjectFieldId();
+
+					ddmFormField.setProperty(
+						"objectFieldAcceptedFileExtensions",
+						_getObjectFieldAcceptedFileExtensions(objectFieldId));
+					ddmFormField.setProperty("objectFieldId", objectFieldId);
 				}
 			}
 			else if (Objects.equals(
@@ -412,6 +438,63 @@ public class DDMFormDisplayContext {
 			"formInstanceRecordId");
 	}
 
+	public Map<String, String> getLimitToOneSubmissionPerUserMap()
+		throws PortalException {
+
+		DDMFormInstance ddmFormInstance = getFormInstance();
+
+		if (ddmFormInstance == null) {
+			return HashMapBuilder.put(
+				"limitToOneSubmissionPerUserBody", StringPool.BLANK
+			).put(
+				"limitToOneSubmissionPerUserHeader", StringPool.BLANK
+			).build();
+		}
+
+		DDMFormInstanceSettings ddmFormInstanceSettings =
+			ddmFormInstance.getSettingsModel();
+
+		JSONObject limitToOneSubmissionPerUserBodyJSONObject =
+			_jsonFactory.createJSONObject(
+				ddmFormInstanceSettings.limitToOneSubmissionPerUserBody());
+
+		String limitToOneSubmissionPerUserBody =
+			limitToOneSubmissionPerUserBodyJSONObject.getString(
+				getDefaultLanguageId());
+
+		JSONObject limitToOneSubmissionPerUserHeaderJSONObject =
+			_jsonFactory.createJSONObject(
+				ddmFormInstanceSettings.limitToOneSubmissionPerUserHeader());
+
+		String limitToOneSubmissionPerUserHeader =
+			limitToOneSubmissionPerUserHeaderJSONObject.getString(
+				getDefaultLanguageId());
+
+		if (Validator.isNotNull(limitToOneSubmissionPerUserBody) &&
+			Validator.isNotNull(limitToOneSubmissionPerUserHeader)) {
+
+			return HashMapBuilder.put(
+				"limitToOneSubmissionPerUserBody",
+				limitToOneSubmissionPerUserBody
+			).put(
+				"limitToOneSubmissionPerUserHeader",
+				limitToOneSubmissionPerUserHeader
+			).build();
+		}
+
+		return HashMapBuilder.put(
+			"limitToOneSubmissionPerUserBody",
+			LanguageUtil.get(
+				_getHttpServletRequest(),
+				"you-can-fill-out-this-form-only-once.-contact-the-owner-of-" +
+					"the-form-if-you-think-this-is-a-mistake")
+		).put(
+			"limitToOneSubmissionPerUserHeader",
+			LanguageUtil.get(
+				_getHttpServletRequest(), "you-have-already-responded")
+		).build();
+	}
+
 	public String getRedirectURL() throws PortalException {
 		DDMFormInstance ddmFormInstance = getFormInstance();
 
@@ -519,7 +602,7 @@ public class DDMFormDisplayContext {
 	public boolean hasValidStorageType(DDMFormInstance ddmFormInstance) {
 		try {
 			DDMStorageAdapter ddmStorageAdapter =
-				_ddmStorageAdapterTracker.getDDMStorageAdapter(
+				_ddmStorageAdapterRegistry.getDDMStorageAdapter(
 					ddmFormInstance.getStorageType());
 
 			if (ddmStorageAdapter != null) {
@@ -565,17 +648,30 @@ public class DDMFormDisplayContext {
 			_autosaveEnabled = Boolean.FALSE;
 		}
 		else {
-			DDMFormInstance formInstance = getFormInstance();
+			DDMFormInstance ddmFormInstance = getFormInstance();
 
-			DDMFormInstanceSettings formInstanceSettings =
-				formInstance.getSettingsModel();
+			DDMFormInstanceSettings ddmFormInstanceSettings =
+				ddmFormInstance.getSettingsModel();
 
 			_autosaveEnabled =
-				formInstanceSettings.autosaveEnabled() &&
+				ddmFormInstanceSettings.autosaveEnabled() &&
 				(getAutosaveInterval() > 0);
 		}
 
 		return _autosaveEnabled;
+	}
+
+	public boolean isDisplayChartAsTable() throws PortalException {
+		DDMFormInstance ddmFormInstance = getFormInstance();
+
+		if (ddmFormInstance == null) {
+			return false;
+		}
+
+		DDMFormInstanceSettings ddmFormInstanceSettings =
+			ddmFormInstance.getSettingsModel();
+
+		return ddmFormInstanceSettings.displayChartAsTable();
 	}
 
 	public boolean isFormAvailable() throws PortalException {
@@ -654,8 +750,8 @@ public class DDMFormDisplayContext {
 	}
 
 	public boolean isRememberMe() {
-		String rememberMe = CookieKeys.getCookie(
-			_getHttpServletRequest(), CookieKeys.REMEMBER_ME);
+		String rememberMe = CookiesManagerUtil.getCookieValue(
+			CookiesConstants.NAME_REMEMBER_ME, _getHttpServletRequest());
 
 		if ((rememberMe != null) && rememberMe.equals("true")) {
 			return true;
@@ -1051,6 +1147,14 @@ public class DDMFormDisplayContext {
 		return objectRelationship.getObjectDefinitionId1();
 	}
 
+	private String _getObjectFieldAcceptedFileExtensions(long objectFieldId) {
+		ObjectFieldSetting objectFieldSetting =
+			_objectFieldSettingLocalService.fetchObjectFieldSetting(
+				objectFieldId, "acceptedFileExtensions");
+
+		return objectFieldSetting.getValue();
+	}
+
 	private String _getObjectFieldName(DDMFormField ddmFormField) {
 		try {
 			JSONArray jsonArray = _jsonFactory.createJSONArray(
@@ -1110,8 +1214,8 @@ public class DDMFormDisplayContext {
 
 	private Boolean _autosaveEnabled;
 	private final String _containerId;
-	private final DDMFormFieldTypeServicesTracker
-		_ddmFormFieldTypeServicesTracker;
+	private final DDMFormFieldTypeServicesRegistry
+		_ddmFormFieldTypeServicesRegistry;
 	private DDMFormInstance _ddmFormInstance;
 	private long _ddmFormInstanceId;
 	private final DDMFormInstanceLocalService _ddmFormInstanceLocalService;
@@ -1127,7 +1231,7 @@ public class DDMFormDisplayContext {
 	private final DDMFormValuesFactory _ddmFormValuesFactory;
 	private final DDMFormValuesMerger _ddmFormValuesMerger;
 	private final DDMFormWebConfiguration _ddmFormWebConfiguration;
-	private final DDMStorageAdapterTracker _ddmStorageAdapterTracker;
+	private final DDMStorageAdapterRegistry _ddmStorageAdapterRegistry;
 	private final GroupLocalService _groupLocalService;
 	private Boolean _hasAddFormInstanceRecordPermission;
 	private Boolean _hasViewPermission;
@@ -1135,6 +1239,8 @@ public class DDMFormDisplayContext {
 	private DDMFormInstanceVersion _latestDDMFormInstanceVersion;
 	private final NPMResolver _npmResolver;
 	private final ObjectFieldLocalService _objectFieldLocalService;
+	private final ObjectFieldSettingLocalService
+		_objectFieldSettingLocalService;
 	private final ObjectRelationshipLocalService
 		_objectRelationshipLocalService;
 	private final Portal _portal;

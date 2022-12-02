@@ -112,7 +112,7 @@ public class SamlSpIdpConnectionLocalServiceImpl
 		}
 
 		samlSpIdpConnection.setMetadataXml(
-			getMetadataXml(metadataXmlInputStream, samlIdpEntityId));
+			_getMetadataXml(metadataXmlInputStream, samlIdpEntityId));
 		samlSpIdpConnection.setName(name);
 		samlSpIdpConnection.setNameIdFormat(nameIdFormat);
 		samlSpIdpConnection.setSamlIdpEntityId(samlIdpEntityId);
@@ -279,7 +279,7 @@ public class SamlSpIdpConnectionLocalServiceImpl
 		String metadataXml = StringPool.BLANK;
 
 		if (metadataXmlInputStream != null) {
-			metadataXml = getMetadataXml(
+			metadataXml = _getMetadataXml(
 				metadataXmlInputStream, samlIdpEntityId);
 		}
 
@@ -299,7 +299,7 @@ public class SamlSpIdpConnectionLocalServiceImpl
 		return samlSpIdpConnectionPersistence.update(samlSpIdpConnection);
 	}
 
-	protected String getMetadataXml(
+	private String _getMetadataXml(
 			InputStream metadataXmlInputStream, String samlIdpEntityId)
 		throws PortalException {
 

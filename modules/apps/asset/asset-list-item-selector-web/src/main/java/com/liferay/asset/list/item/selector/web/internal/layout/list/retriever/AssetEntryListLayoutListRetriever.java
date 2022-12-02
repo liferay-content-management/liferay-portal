@@ -22,7 +22,6 @@ import com.liferay.asset.list.service.AssetListEntryLocalService;
 import com.liferay.info.filter.CategoriesInfoFilter;
 import com.liferay.info.filter.InfoFilter;
 import com.liferay.info.filter.KeywordsInfoFilter;
-import com.liferay.info.item.InfoItemServiceTracker;
 import com.liferay.info.pagination.Pagination;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
 import com.liferay.layout.list.retriever.ClassedModelListObjectReference;
@@ -44,7 +43,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Eudaldo Alonso
  */
-@Component(immediate = true, service = LayoutListRetriever.class)
+@Component(service = LayoutListRetriever.class)
 public class AssetEntryListLayoutListRetriever
 	implements LayoutListRetriever
 		<InfoListItemSelectorReturnType, ClassedModelListObjectReference> {
@@ -176,8 +175,5 @@ public class AssetEntryListLayoutListRetriever
 
 	@Reference
 	private AssetListEntryLocalService _assetListEntryLocalService;
-
-	@Reference
-	private InfoItemServiceTracker _infoItemServiceTracker;
 
 }

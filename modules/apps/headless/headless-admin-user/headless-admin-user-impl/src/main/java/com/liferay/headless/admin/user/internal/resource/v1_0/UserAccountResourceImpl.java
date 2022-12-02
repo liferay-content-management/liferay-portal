@@ -27,7 +27,6 @@ import com.liferay.headless.admin.user.dto.v1_0.UserAccount;
 import com.liferay.headless.admin.user.dto.v1_0.UserAccountContactInformation;
 import com.liferay.headless.admin.user.internal.dto.v1_0.converter.AccountResourceDTOConverter;
 import com.liferay.headless.admin.user.internal.dto.v1_0.converter.OrganizationResourceDTOConverter;
-import com.liferay.headless.admin.user.internal.dto.v1_0.converter.UserAccountResourceDTOConverter;
 import com.liferay.headless.admin.user.internal.dto.v1_0.converter.UserResourceDTOConverter;
 import com.liferay.headless.admin.user.internal.dto.v1_0.util.CustomFieldsUtil;
 import com.liferay.headless.admin.user.internal.dto.v1_0.util.ServiceBuilderAddressUtil;
@@ -43,6 +42,7 @@ import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.captcha.CaptchaSettings;
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.exception.UserLockoutException;
 import com.liferay.portal.kernel.exception.UserPasswordException;
@@ -80,7 +80,6 @@ import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
-import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -141,7 +140,7 @@ public class UserAccountResourceImpl
 		throws Exception {
 
 		User user = _userLocalService.getUserByExternalReferenceCode(
-			contextCompany.getCompanyId(), userAccountExternalReferenceCode);
+			userAccountExternalReferenceCode, contextCompany.getCompanyId());
 
 		_accountEntryUserRelService.deleteAccountEntryUserRelByEmailAddress(
 			_accountResourceDTOConverter.getAccountEntryId(
@@ -201,7 +200,7 @@ public class UserAccountResourceImpl
 		throws Exception {
 
 		User user = _userLocalService.getUserByExternalReferenceCode(
-			contextCompany.getCompanyId(), externalReferenceCode);
+			externalReferenceCode, contextCompany.getCompanyId());
 
 		deleteUserAccount(user.getUserId());
 	}
@@ -397,7 +396,7 @@ public class UserAccountResourceImpl
 		throws Exception {
 
 		User user = _userLocalService.getUserByExternalReferenceCode(
-			contextCompany.getCompanyId(), userAccountExternalReferenceCode);
+			userAccountExternalReferenceCode, contextCompany.getCompanyId());
 
 		_accountEntryUserRelService.addAccountEntryUserRelByEmailAddress(
 			_accountResourceDTOConverter.getAccountEntryId(
@@ -469,8 +468,8 @@ public class UserAccountResourceImpl
 				user.getScreenName(), user.getEmailAddress(), false, null,
 				user.getLanguageId(), user.getTimeZoneId(), user.getGreeting(),
 				user.getComments(), user.getFirstName(), user.getMiddleName(),
-				user.getLastName(), contact.getPrefixId(),
-				contact.getSuffixId(), user.isMale(),
+				user.getLastName(), contact.getPrefixListTypeId(),
+				contact.getSuffixListTypeId(), user.isMale(),
 				_getBirthdayMonth(userAccount), _getBirthdayDay(userAccount),
 				_getBirthdayYear(userAccount), sms, facebook, jabber, skype,
 				twitter, user.getJobTitle(), user.getGroupIds(),
@@ -578,6 +577,8 @@ public class UserAccountResourceImpl
 	public UserAccount postUserAccount(UserAccount userAccount)
 		throws Exception {
 
+		User user = null;
+
 		boolean autoPassword = false;
 		String password = userAccount.getPassword();
 
@@ -585,7 +586,14 @@ public class UserAccountResourceImpl
 			autoPassword = true;
 		}
 
-		User user = null;
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			contextHttpServletRequest);
+
+		serviceContext.setExpandoBridgeAttributes(
+			CustomFieldsUtil.toMap(
+				User.class.getName(), contextCompany.getCompanyId(),
+				userAccount.getCustomFields(),
+				contextAcceptLanguage.getPreferredLocale()));
 
 		if (contextUser.isDefaultUser()) {
 			if (_captchaSettings.isCreateAccountCaptchaEnabled()) {
@@ -602,14 +610,7 @@ public class UserAccountResourceImpl
 				_getSuffixId(userAccount), true, _getBirthdayMonth(userAccount),
 				_getBirthdayDay(userAccount), _getBirthdayYear(userAccount),
 				userAccount.getJobTitle(), new long[0], new long[0],
-				new long[0], new long[0], false,
-				ServiceContextRequestUtil.createServiceContext(
-					CustomFieldsUtil.toMap(
-						User.class.getName(), contextCompany.getCompanyId(),
-						userAccount.getCustomFields(),
-						contextAcceptLanguage.getPreferredLocale()),
-					contextCompany.getGroupId(), contextHttpServletRequest,
-					null));
+				new long[0], new long[0], true, serviceContext);
 
 			PermissionThreadLocal.setPermissionChecker(
 				_permissionCheckerFactory.create(user));
@@ -641,14 +642,8 @@ public class UserAccountResourceImpl
 				new long[0], new long[0], _getAddresses(userAccount),
 				_getServiceBuilderEmailAddresses(userAccount),
 				_getServiceBuilderPhones(userAccount),
-				_getWebsites(userAccount), Collections.emptyList(), false,
-				ServiceContextRequestUtil.createServiceContext(
-					CustomFieldsUtil.toMap(
-						User.class.getName(), contextCompany.getCompanyId(),
-						userAccount.getCustomFields(),
-						contextAcceptLanguage.getPreferredLocale()),
-					contextCompany.getGroupId(), contextHttpServletRequest,
-					null));
+				_getWebsites(userAccount), Collections.emptyList(), true,
+				serviceContext);
 		}
 
 		UserAccountContactInformation userAccountContactInformation =
@@ -766,7 +761,7 @@ public class UserAccountResourceImpl
 
 			_checkCurrentPassword(
 				_userLocalService.fetchUserByExternalReferenceCode(
-					contextCompany.getCompanyId(), externalReferenceCode),
+					externalReferenceCode, contextCompany.getCompanyId()),
 				userAccount.getCurrentPassword());
 		}
 
@@ -1190,8 +1185,8 @@ public class UserAccountResourceImpl
 			user.getUserId(), password, password,
 			_isPasswordResetRequired(user));
 
-		String cookie = CookieKeys.getCookie(
-			contextHttpServletRequest, CookiesConstants.NAME_JSESSIONID, false);
+		String cookie = CookiesManagerUtil.getCookieValue(
+			CookiesConstants.NAME_JSESSIONID, contextHttpServletRequest, false);
 
 		if ((contextUser.getUserId() == user.getUserId()) && (cookie != null)) {
 			String login = null;
@@ -1267,9 +1262,6 @@ public class UserAccountResourceImpl
 
 	@Reference
 	private Portal _portal;
-
-	@Reference
-	private UserAccountResourceDTOConverter _userAccountResourceDTOConverter;
 
 	@Reference
 	private UserGroupRoleLocalService _userGroupRoleLocalService;

@@ -16,10 +16,17 @@ package com.liferay.headless.commerce.machine.learning.internal.graphql.servlet.
 
 import com.liferay.headless.commerce.machine.learning.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.headless.commerce.machine.learning.internal.graphql.query.v1_0.Query;
+import com.liferay.headless.commerce.machine.learning.internal.resource.v1_0.AccountCategoryForecastResourceImpl;
+import com.liferay.headless.commerce.machine.learning.internal.resource.v1_0.AccountForecastResourceImpl;
+import com.liferay.headless.commerce.machine.learning.internal.resource.v1_0.SkuForecastResourceImpl;
 import com.liferay.headless.commerce.machine.learning.resource.v1_0.AccountCategoryForecastResource;
 import com.liferay.headless.commerce.machine.learning.resource.v1_0.AccountForecastResource;
 import com.liferay.headless.commerce.machine.learning.resource.v1_0.SkuForecastResource;
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -34,7 +41,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Riccardo Ferrari
  * @generated
  */
-@Component(enabled = false, immediate = true, service = ServletData.class)
+@Component(service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
@@ -46,6 +53,10 @@ public class ServletDataImpl implements ServletData {
 			_accountForecastResourceComponentServiceObjects);
 		Query.setSkuForecastResourceComponentServiceObjects(
 			_skuForecastResourceComponentServiceObjects);
+	}
+
+	public String getApplicationName() {
+		return "Liferay.Headless.Commerce.Machine.Learning";
 	}
 
 	@Override
@@ -62,6 +73,39 @@ public class ServletDataImpl implements ServletData {
 	public Query getQuery() {
 		return new Query();
 	}
+
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(
+		String methodName, boolean mutation) {
+
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get(
+				"mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>>
+		_resourceMethodObjectValuePairs =
+			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+				{
+					put(
+						"query#accountCategoryForecastsByMonthlyRevenue",
+						new ObjectValuePair<>(
+							AccountCategoryForecastResourceImpl.class,
+							"getAccountCategoryForecastsByMonthlyRevenuePage"));
+					put(
+						"query#accountForecastsByMonthlyRevenue",
+						new ObjectValuePair<>(
+							AccountForecastResourceImpl.class,
+							"getAccountForecastsByMonthlyRevenuePage"));
+					put(
+						"query#skuForecastsByMonthlyRevenue",
+						new ObjectValuePair<>(
+							SkuForecastResourceImpl.class,
+							"getSkuForecastsByMonthlyRevenuePage"));
+				}
+			};
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<AccountCategoryForecastResource>

@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -84,7 +83,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(service = {TranslationEntryPersistence.class, BasePersistence.class})
+@Component(service = TranslationEntryPersistence.class)
 public class TranslationEntryPersistenceImpl
 	extends BasePersistenceImpl<TranslationEntry>
 	implements TranslationEntryPersistence {
@@ -204,7 +203,7 @@ public class TranslationEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<TranslationEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (TranslationEntry translationEntry : list) {
@@ -598,7 +597,7 @@ public class TranslationEntryPersistenceImpl
 
 			finderArgs = new Object[] {uuid};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -734,7 +733,7 @@ public class TranslationEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			result = finderCache.getResult(
-				_finderPathFetchByUUID_G, finderArgs);
+				_finderPathFetchByUUID_G, finderArgs, this);
 		}
 
 		if (result instanceof TranslationEntry) {
@@ -854,7 +853,7 @@ public class TranslationEntryPersistenceImpl
 
 			finderArgs = new Object[] {uuid, groupId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1026,7 +1025,7 @@ public class TranslationEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<TranslationEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (TranslationEntry translationEntry : list) {
@@ -1452,7 +1451,7 @@ public class TranslationEntryPersistenceImpl
 
 			finderArgs = new Object[] {uuid, companyId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -1622,7 +1621,7 @@ public class TranslationEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<TranslationEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (TranslationEntry translationEntry : list) {
@@ -2022,7 +2021,7 @@ public class TranslationEntryPersistenceImpl
 
 			finderArgs = new Object[] {classNameId, classPK};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2161,7 +2160,8 @@ public class TranslationEntryPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache && productionMode) {
-			result = finderCache.getResult(_finderPathFetchByC_C_L, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByC_C_L, finderArgs, this);
 		}
 
 		if (result instanceof TranslationEntry) {
@@ -2290,7 +2290,7 @@ public class TranslationEntryPersistenceImpl
 
 			finderArgs = new Object[] {classNameId, classPK, languageId};
 
-			count = (Long)finderCache.getResult(finderPath, finderArgs);
+			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
@@ -2988,7 +2988,7 @@ public class TranslationEntryPersistenceImpl
 
 		if (useFinderCache && productionMode) {
 			list = (List<TranslationEntry>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -3064,7 +3064,7 @@ public class TranslationEntryPersistenceImpl
 
 		if (productionMode) {
 			count = (Long)finderCache.getResult(
-				_finderPathCountAll, FINDER_ARGS_EMPTY);
+				_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 		}
 
 		if (count == null) {

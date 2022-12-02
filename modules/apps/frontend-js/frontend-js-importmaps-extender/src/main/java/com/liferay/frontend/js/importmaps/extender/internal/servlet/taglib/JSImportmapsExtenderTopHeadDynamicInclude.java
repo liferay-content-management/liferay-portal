@@ -16,10 +16,12 @@ package com.liferay.frontend.js.importmaps.extender.internal.servlet.taglib;
 
 import com.liferay.frontend.js.importmaps.extender.internal.configuration.JSImportmapsConfiguration;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.kernel.frontend.esm.FrontendESMUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.servlet.taglib.BaseDynamicInclude;
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.url.builder.AbsolutePortalURLBuilder;
 import com.liferay.portal.url.builder.AbsolutePortalURLBuilderFactory;
 
@@ -46,7 +48,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.frontend.js.importmaps.extender.internal.configuration.JSImportmapsConfiguration",
-	immediate = true, property = "service.ranking:Integer=" + Integer.MAX_VALUE,
+	property = "service.ranking:Integer=" + Integer.MAX_VALUE,
 	service = {
 		DynamicInclude.class, JSImportmapsExtenderTopHeadDynamicInclude.class
 	}
@@ -65,13 +67,23 @@ public class JSImportmapsExtenderTopHeadDynamicInclude
 		if (_jsImportmapsConfiguration.enableImportmaps() &&
 			(!_globalImportmaps.isEmpty() || !_scopedImportmaps.isEmpty())) {
 
-			printWriter.println("<script type=\"importmap\">");
-			printWriter.println(_importmaps.get());
-			printWriter.println("</script>");
+			printWriter.print("<script type=\"");
+
+			if (_jsImportmapsConfiguration.enableESModuleShims()) {
+				printWriter.print("importmap-shim");
+			}
+			else {
+				printWriter.print("importmap");
+			}
+
+			printWriter.print("\">");
+			printWriter.print(_importmaps.get());
+			printWriter.print("</script>");
 		}
 
 		if (_jsImportmapsConfiguration.enableESModuleShims()) {
-			printWriter.print("<script src=\"");
+			printWriter.print("<script type=\"esms-options\">{\"shimMode\": ");
+			printWriter.print("true}</script><script src=\"");
 
 			AbsolutePortalURLBuilder absolutePortalURLBuilder =
 				_absolutePortalURLBuilderFactory.getAbsolutePortalURLBuilder(
@@ -83,7 +95,7 @@ public class JSImportmapsExtenderTopHeadDynamicInclude
 					"/es-module-shims/es-module-shims.js"
 				).build());
 
-			printWriter.println("\"></script>\n");
+			printWriter.print("\"></script>\n");
 		}
 	}
 
@@ -139,8 +151,20 @@ public class JSImportmapsExtenderTopHeadDynamicInclude
 
 	@Modified
 	protected void modified(Map<String, Object> properties) {
+
+		// See LPS-165021
+
 		_jsImportmapsConfiguration = ConfigurableUtil.createConfigurable(
-			JSImportmapsConfiguration.class, properties);
+			JSImportmapsConfiguration.class,
+			HashMapBuilder.put(
+				"enable-es-module-shims", false
+			).put(
+				"enable-importmaps", true
+			).build());
+
+		FrontendESMUtil.setScriptType(
+			_jsImportmapsConfiguration.enableESModuleShims() ? "module-shim" :
+				"module");
 	}
 
 	private JSONObject _getGlobalJSONObject() {

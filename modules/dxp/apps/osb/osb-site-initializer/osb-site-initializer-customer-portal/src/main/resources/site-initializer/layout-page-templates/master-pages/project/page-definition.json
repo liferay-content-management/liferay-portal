@@ -4,7 +4,10 @@
 			{
 				"definition": {
 					"fragmentStyle": {
-						"borderWidth": "0"
+						"borderRadius": "",
+						"borderWidth": "0",
+						"shadow": "",
+						"textAlign": ""
 					},
 					"indexed": true,
 					"layout": {
@@ -13,6 +16,7 @@
 						"marginLeft": 0,
 						"marginRight": 0,
 						"marginTop": 0,
+						"opacity": 100,
 						"paddingBottom": 0,
 						"paddingLeft": 0,
 						"paddingRight": 0,
@@ -24,7 +28,9 @@
 					{
 						"definition": {
 							"fragmentStyle": {
+								"borderRadius": "",
 								"borderWidth": "0",
+								"shadow": "",
 								"textAlign": ""
 							},
 							"indexed": true,
@@ -35,6 +41,7 @@
 								"marginLeft": 0,
 								"marginRight": 0,
 								"marginTop": 0,
+								"opacity": 100,
 								"paddingBottom": 0,
 								"paddingLeft": 0,
 								"paddingRight": 0,
@@ -59,7 +66,9 @@
 							{
 								"definition": {
 									"fragmentStyle": {
+										"borderRadius": "",
 										"borderWidth": "0",
+										"shadow": "",
 										"textAlign": "",
 										"width": "100%"
 									},
@@ -71,6 +80,7 @@
 										"marginLeft": 0,
 										"marginRight": 0,
 										"marginTop": 0,
+										"opacity": 100,
 										"paddingBottom": 0,
 										"paddingLeft": 0,
 										"paddingRight": 0,
@@ -82,16 +92,16 @@
 									{
 										"definition": {
 											"fragmentStyle": {
-												"borderWidth": "0",
-												"textAlign": ""
+												"marginBottom": "7"
 											},
 											"indexed": true,
 											"layout": {
 												"borderWidth": 0,
-												"marginBottom": 0,
+												"marginBottom": 8,
 												"marginLeft": 0,
 												"marginRight": 0,
 												"marginTop": 0,
+												"opacity": 100,
 												"paddingBottom": 0,
 												"paddingLeft": 0,
 												"paddingRight": 0,
@@ -102,89 +112,30 @@
 										"pageElements": [
 											{
 												"definition": {
-													"fragmentStyle": {
-														"borderWidth": "0",
-														"height": "64px",
-														"marginLeft": "4",
-														"textAlign": ""
-													},
-													"indexed": true,
-													"layout": {
-														"align": "Center",
-														"borderWidth": 0,
-														"contentDisplay": "FlexRow",
-														"justify": "SpaceBetween",
-														"marginBottom": 0,
-														"marginLeft": 2,
-														"marginRight": 0,
-														"marginTop": 0,
-														"paddingBottom": 0,
-														"paddingLeft": 0,
-														"paddingRight": 0,
-														"paddingTop": 0,
-														"widthType": "Fluid"
+													"fragmentSettings": {
+														"unallowedFragments": [
+														]
 													}
 												},
-												"pageElements": [
-													{
-														"definition": {
-															"fragment": {
-																"key": "project-breadcrumbs"
-															},
-															"fragmentConfig": {
-															},
-															"fragmentFields": [
-															],
-															"indexed": true
-														},
-														"type": "Fragment"
-													}
-												],
-												"type": "Section"
-											},
-											{
-												"definition": {
-													"fragmentStyle": {
-														"borderWidth": "0",
-														"marginRight": "4",
-														"textAlign": ""
-													},
-													"indexed": true,
-													"layout": {
-														"borderWidth": 0,
-														"marginBottom": 0,
-														"marginLeft": 0,
-														"marginRight": 2,
-														"marginTop": 0,
-														"paddingBottom": 0,
-														"paddingLeft": 0,
-														"paddingRight": 0,
-														"paddingTop": 0,
-														"widthType": "Fluid"
-													}
-												},
-												"pageElements": [
-													{
-														"definition": {
-															"fragmentSettings": {
-																"unallowedFragments": [
-																]
-															}
-														},
-														"type": "DropZone"
-													}
-												],
-												"type": "Section"
+												"type": "DropZone"
 											}
 										],
 										"type": "Section"
 									},
 									{
 										"definition": {
+											"cssClasses": [
+												"w-100",
+												"bg-white",
+												"position-fixed"
+											],
+											"customCSS": ".[$FRAGMENT_CLASS$] {\nbottom: 0;\n}",
 											"fragmentStyle": {
 												"borderColor": "colorNeutral2",
+												"borderRadius": "",
 												"borderWidth": "1",
-												"shadow": "boxShadow"
+												"shadow": "boxShadow",
+												"textAlign": ""
 											},
 											"indexed": true,
 											"layout": {
@@ -197,6 +148,7 @@
 												"marginLeft": 0,
 												"marginRight": 0,
 												"marginTop": 0,
+												"opacity": 100,
 												"paddingBottom": 0,
 												"paddingLeft": 0,
 												"paddingRight": 0,
@@ -208,8 +160,10 @@
 											{
 												"definition": {
 													"fragmentStyle": {
+														"borderRadius": "",
 														"borderWidth": "0",
 														"height": "82px",
+														"shadow": "",
 														"textAlign": ""
 													},
 													"indexed": true,
@@ -221,6 +175,7 @@
 														"marginLeft": 0,
 														"marginRight": 0,
 														"marginTop": 0,
+														"opacity": 100,
 														"paddingBottom": 0,
 														"paddingLeft": 0,
 														"paddingRight": 0,
@@ -232,9 +187,11 @@
 													{
 														"definition": {
 															"fragmentStyle": {
+																"borderRadius": "",
 																"borderWidth": "0",
 																"marginBottom": "4",
 																"marginLeft": "5",
+																"shadow": "",
 																"textAlign": "center"
 															},
 															"indexed": true,
@@ -244,6 +201,7 @@
 																"marginLeft": 4,
 																"marginRight": 0,
 																"marginTop": 0,
+																"opacity": 100,
 																"paddingBottom": 0,
 																"paddingLeft": 0,
 																"paddingRight": 0,
@@ -270,17 +228,13 @@
 																							"en_US": ""
 																						}
 																					},
-																					"fragmentImageClassPKReference": {
-																						"classPKReferences": {
-																							"en_US": {
+																					"url": {
+																						"mapping": {
+																							"fieldKey": "FileEntry_previewImage",
+																							"itemReference": {
 																								"className": "com.liferay.portal.kernel.repository.model.FileEntry",
-																								"classPK": "[$DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/assets/liferay_brand.svg$]"
+																								"classPK": "[#DOCUMENT_FILE_ENTRY_ID:/site-initializer/documents/group/assets/liferay_brand.svg#]"
 																							}
-																						},
-																						"fragmentImageConfiguration": {
-																							"landscapeMobile": "auto",
-																							"portraitMobile": "auto",
-																							"tablet": "auto"
 																						}
 																					}
 																				},
@@ -290,8 +244,10 @@
 																		}
 																	],
 																	"fragmentStyle": {
+																		"borderRadius": "",
 																		"marginRight": "7",
 																		"marginTop": "4",
+																		"shadow": "",
 																		"textAlign": ""
 																	},
 																	"indexed": true
@@ -304,12 +260,14 @@
 													{
 														"definition": {
 															"fragmentStyle": {
+																"borderRadius": "",
 																"borderWidth": "0",
 																"marginBottom": "4",
 																"marginLeft": "2",
 																"marginTop": "4",
 																"paddingBottom": "2",
 																"paddingTop": "2",
+																"shadow": "",
 																"textAlign": "center"
 															},
 															"indexed": true,
@@ -320,6 +278,7 @@
 																"marginLeft": 0,
 																"marginRight": 0,
 																"marginTop": 2,
+																"opacity": 100,
 																"paddingBottom": 0,
 																"paddingLeft": 0,
 																"paddingRight": 0,
@@ -334,7 +293,8 @@
 																		"key": "DIALECT-dialect-text"
 																	},
 																	"fragmentConfig": {
-																		"textType": "h6"
+																		"textType": "h6",
+																		"truncateText": false
 																	},
 																	"fragmentFields": [
 																		{
@@ -351,9 +311,11 @@
 																		}
 																	],
 																	"fragmentStyle": {
+																		"borderRadius": "",
 																		"fontFamily": "fontFamilySansSerif",
 																		"fontSize": "0.875rem",
 																		"marginLeft": "2",
+																		"shadow": "",
 																		"textAlign": "center"
 																	},
 																	"indexed": true
@@ -366,8 +328,10 @@
 													{
 														"definition": {
 															"fragmentStyle": {
+																"borderRadius": "",
 																"borderWidth": "0",
 																"marginLeft": "3",
+																"shadow": "",
 																"textAlign": ""
 															},
 															"indexed": true,
@@ -377,6 +341,7 @@
 																"marginLeft": 1,
 																"marginRight": 0,
 																"marginTop": 0,
+																"opacity": 100,
 																"paddingBottom": 0,
 																"paddingLeft": 0,
 																"paddingRight": 0,
@@ -391,7 +356,8 @@
 																		"key": "DIALECT-dialect-text"
 																	},
 																	"fragmentConfig": {
-																		"textType": "h6"
+																		"textType": "h6",
+																		"truncateText": false
 																	},
 																	"fragmentFields": [
 																		{
@@ -410,7 +376,7 @@
 																										},
 																										{
 																											"fieldName": "privatePage",
-																											"fieldValue": "true"
+																											"fieldValue": "false"
 																										},
 																										{
 																											"fieldName": "siteKey",
@@ -443,9 +409,11 @@
 											{
 												"definition": {
 													"fragmentStyle": {
+														"borderRadius": "",
 														"borderWidth": "0",
 														"height": "50px",
 														"marginRight": "6",
+														"shadow": "",
 														"textAlign": ""
 													},
 													"indexed": true,
@@ -458,6 +426,7 @@
 														"marginLeft": 0,
 														"marginRight": 6,
 														"marginTop": 0,
+														"opacity": 100,
 														"paddingBottom": 0,
 														"paddingLeft": 0,
 														"paddingRight": 0,

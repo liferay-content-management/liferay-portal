@@ -1560,6 +1560,12 @@ components:
                     description:
                         The fragment's name.
                     type: string
+                siteKey:
+                    # @review
+                    description:
+                        The key of the site to which this fragment is scoped.
+                    readOnly: true
+                    type: string
             type: object
         FragmentField:
             # @review
@@ -2915,6 +2921,10 @@ components:
                     items:
                         type: string
                     type: array
+                lastPostDate:
+                    format: date-time
+                    readOnly: true
+                    type: string
                 locked:
                     # @review
                     description:
@@ -5009,6 +5019,32 @@ components:
                     description:
                         The localized submission of URL type.
             type: object
+        UtilityPageTemplate:
+            description:
+                Represents a Utility Page Template.
+            properties:
+                defaultTemplate:
+                    # @review
+                    description:
+                        Specifies if the utility page template should be the default for the given type.
+                    type: boolean
+                externalReferenceCode:
+                    # @review
+                    description:
+                        The utility page template external reference code.
+                    type: string
+                name:
+                    # @review
+                    description:
+                        The utility page template name.
+                    type: string
+                type:
+                    # @review
+                    description:
+                        The utility page template type.
+                    enum: [Error, ErrorCode404, TermsOfUse]
+                    type: string
+            type: object
         WidgetInstance:
             # @review
             description:
@@ -5319,7 +5355,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.delivery.client', and version '4.0.41'."
+        'com.liferay.headless.delivery.client', and version '4.0.44'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

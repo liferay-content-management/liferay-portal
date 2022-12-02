@@ -45,7 +45,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Allen Ziegenfus
  */
 @Component(
-	enabled = false, immediate = true,
 	property = Constants.SERVICE_RANKING + ":Integer=10",
 	service = InfoItemFormProvider.class
 )

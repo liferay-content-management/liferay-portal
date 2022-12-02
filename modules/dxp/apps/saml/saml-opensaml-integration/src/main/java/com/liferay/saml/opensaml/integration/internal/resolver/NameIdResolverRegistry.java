@@ -32,13 +32,13 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 /**
  * @author Mika Koivisto
  */
-@Component(immediate = true, service = NameIdResolverRegistry.class)
+@Component(service = NameIdResolverRegistry.class)
 public class NameIdResolverRegistry {
 
 	public NameIdResolver getNameIdResolver(String entityId) {
 		long companyId = CompanyThreadLocal.getCompanyId();
 
-		NameIdResolver nameIdResolver = _nameIdResolvers.getService(
+		NameIdResolver nameIdResolver = _serviceTrackerMap.getService(
 			companyId + "," + entityId);
 
 		if (nameIdResolver == null) {
@@ -57,14 +57,14 @@ public class NameIdResolverRegistry {
 
 	@Activate
 	protected void activate(BundleContext bundleContext) {
-		_nameIdResolvers = ServiceTrackerMapFactory.openSingleValueMap(
+		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
 			bundleContext, NameIdResolver.class, "(companyId=*)",
 			new DefaultServiceReferenceMapper(_log));
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		_nameIdResolvers.close();
+		_serviceTrackerMap.close();
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -75,6 +75,6 @@ public class NameIdResolverRegistry {
 	)
 	private NameIdResolver _defaultNameIdResolver;
 
-	private ServiceTrackerMap<String, NameIdResolver> _nameIdResolvers;
+	private ServiceTrackerMap<String, NameIdResolver> _serviceTrackerMap;
 
 }

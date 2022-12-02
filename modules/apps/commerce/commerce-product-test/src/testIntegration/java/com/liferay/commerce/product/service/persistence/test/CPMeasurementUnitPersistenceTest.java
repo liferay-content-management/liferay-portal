@@ -15,6 +15,7 @@
 package com.liferay.commerce.product.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.commerce.product.exception.DuplicateCPMeasurementUnitExternalReferenceCodeException;
 import com.liferay.commerce.product.exception.NoSuchCPMeasurementUnitException;
 import com.liferay.commerce.product.model.CPMeasurementUnit;
 import com.liferay.commerce.product.service.CPMeasurementUnitLocalServiceUtil;
@@ -222,6 +223,28 @@ public class CPMeasurementUnitPersistenceTest {
 			Time.getShortTimestamp(newCPMeasurementUnit.getLastPublishDate()));
 	}
 
+	@Test(
+		expected = DuplicateCPMeasurementUnitExternalReferenceCodeException.class
+	)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		CPMeasurementUnit cpMeasurementUnit = addCPMeasurementUnit();
+
+		CPMeasurementUnit newCPMeasurementUnit = addCPMeasurementUnit();
+
+		newCPMeasurementUnit.setCompanyId(cpMeasurementUnit.getCompanyId());
+
+		newCPMeasurementUnit = _persistence.update(newCPMeasurementUnit);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newCPMeasurementUnit);
+
+		newCPMeasurementUnit.setExternalReferenceCode(
+			cpMeasurementUnit.getExternalReferenceCode());
+
+		_persistence.update(newCPMeasurementUnit);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -283,12 +306,12 @@ public class CPMeasurementUnitPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -620,15 +643,15 @@ public class CPMeasurementUnitPersistenceTest {
 				new Class<?>[] {String.class}, "key_"));
 
 		Assert.assertEquals(
-			Long.valueOf(cpMeasurementUnit.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				cpMeasurementUnit, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			cpMeasurementUnit.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				cpMeasurementUnit, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(cpMeasurementUnit.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				cpMeasurementUnit, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected CPMeasurementUnit addCPMeasurementUnit() throws Exception {

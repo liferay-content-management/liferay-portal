@@ -50,7 +50,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alec Sloan
  */
 @Component(
-	enabled = false,
 	service = {AvailabilityLabelInfoItemRenderer.class, InfoItemRenderer.class}
 )
 public class AvailabilityLabelInfoItemRenderer
@@ -110,7 +109,7 @@ public class AvailabilityLabelInfoItemRenderer
 			if ((cpSku != null) && !hasChildCPDefinitions) {
 				ProductSettingsModel productSettingsModel =
 					_productHelper.getProductSettingsModel(
-						cpSku.getCPInstanceId());
+						cpDefinition.getCPDefinitionId());
 
 				if (productSettingsModel.isShowAvailabilityDot()) {
 					JSONObject availabilityContentContributorValueJSONObject =

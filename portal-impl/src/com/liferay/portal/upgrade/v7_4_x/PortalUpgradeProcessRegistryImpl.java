@@ -218,6 +218,39 @@ public class PortalUpgradeProcessRegistryImpl
 			new Version(20, 0, 0),
 			UpgradeProcessFactory.alterColumnName(
 				"EmailAddress", "typeId", "listTypeId LONG"));
+
+		upgradeVersionTreeMap.put(
+			new Version(21, 0, 0),
+			UpgradeProcessFactory.alterColumnName(
+				"Website", "typeId", "listTypeId LONG"));
+
+		upgradeVersionTreeMap.put(
+			new Version(22, 0, 0),
+			UpgradeProcessFactory.alterColumnName(
+				"Organization_", "statusId", "statusListTypeId LONG"));
+
+		upgradeVersionTreeMap.put(
+			new Version(23, 0, 0),
+			UpgradeProcessFactory.alterColumnName(
+				"Contact_", "prefixId", "prefixListTypeId LONG"));
+
+		upgradeVersionTreeMap.put(
+			new Version(24, 0, 0),
+			UpgradeProcessFactory.alterColumnName(
+				"Contact_", "suffixId", "suffixListTypeId LONG"));
+
+		upgradeVersionTreeMap.put(
+			new Version(25, 0, 0),
+			UpgradeProcessFactory.alterColumnName(
+				"OrgLabor", "typeId", "listTypeId LONG"));
+
+		upgradeVersionTreeMap.put(
+			new Version(25, 0, 1),
+			UpgradeProcessFactory.alterColumnType(
+				"Role_", "description", "TEXT null"));
+
+		upgradeVersionTreeMap.put(
+			new Version(25, 1, 0), new CTModelUpgradeProcess("EmailAddress"));
 	}
 
 }

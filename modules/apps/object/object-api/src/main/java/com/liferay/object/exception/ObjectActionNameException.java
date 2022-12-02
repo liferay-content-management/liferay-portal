@@ -21,19 +21,56 @@ import com.liferay.portal.kernel.exception.PortalException;
  */
 public class ObjectActionNameException extends PortalException {
 
-	public ObjectActionNameException() {
+	public String getMessageKey() {
+		return _messageKey;
 	}
 
-	public ObjectActionNameException(String msg) {
-		super(msg);
+	public static class MustBeLessThan41Characters
+		extends ObjectActionNameException {
+
+		public MustBeLessThan41Characters() {
+			super(
+				"Name must be less than 41 characters",
+				"only-41-characters-are-allowed");
+		}
+
 	}
 
-	public ObjectActionNameException(String msg, Throwable throwable) {
-		super(msg, throwable);
+	public static class MustNotBeDuplicate extends ObjectActionNameException {
+
+		public MustNotBeDuplicate(String name) {
+			super(
+				"Duplicate name " + name,
+				"this-name-is-already-in-use-try-another-one");
+		}
+
 	}
 
-	public ObjectActionNameException(Throwable throwable) {
-		super(throwable);
+	public static class MustNotBeNull extends ObjectActionNameException {
+
+		public MustNotBeNull() {
+			super("Name is null", "name-is-required");
+		}
+
 	}
+
+	public static class MustOnlyContainLettersAndDigits
+		extends ObjectActionNameException {
+
+		public MustOnlyContainLettersAndDigits() {
+			super(
+				"Name must only contain letters and digits",
+				"name-must-only-contain-letters-and-digits");
+		}
+
+	}
+
+	private ObjectActionNameException(String message, String messageKey) {
+		super(message);
+
+		_messageKey = messageKey;
+	}
+
+	private final String _messageKey;
 
 }

@@ -16,8 +16,6 @@ package com.liferay.product.navigation.product.menu.web.internal.display.context
 
 import com.liferay.application.list.GroupProvider;
 import com.liferay.application.list.constants.ApplicationListWebKeys;
-import com.liferay.asset.list.constants.AssetListPortletKeys;
-import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.petra.string.StringBundler;
@@ -28,6 +26,7 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -39,25 +38,29 @@ import com.liferay.portal.kernel.portlet.ControlPanelEntry;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
-import com.liferay.portal.kernel.portlet.PortletProvider;
-import com.liferay.portal.kernel.portlet.PortletProviderUtil;
-import com.liferay.portal.kernel.portlet.PortletQName;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.portlet.url.builder.ResourceURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.LayoutService;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.SessionClicks;
+import com.liferay.portal.kernel.util.SessionTreeJSClicks;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.util.PropsValues;
+import com.liferay.portlet.layoutsadmin.util.LayoutsTreeUtil;
 import com.liferay.product.navigation.product.menu.constants.ProductNavigationProductMenuPortletKeys;
-import com.liferay.product.navigation.product.menu.web.internal.constants.ProductNavigationProductMenuWebKeys;
+import com.liferay.product.navigation.product.menu.constants.ProductNavigationProductMenuWebKeys;
 import com.liferay.site.navigation.model.SiteNavigationMenu;
 import com.liferay.site.navigation.model.SiteNavigationMenuItem;
 import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
@@ -65,6 +68,7 @@ import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemType;
 import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +77,9 @@ import java.util.Objects;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
-import javax.portlet.WindowStateException;
+import javax.portlet.RenderResponse;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Pavel Savinov
@@ -81,7 +87,9 @@ import javax.portlet.WindowStateException;
 public class LayoutsTreeDisplayContext {
 
 	public LayoutsTreeDisplayContext(
-		GroupProvider groupProvider, RenderRequest renderRequest,
+		HttpServletRequest httpServletRequest, Language language,
+		LayoutService layoutService, RenderRequest renderRequest,
+		RenderResponse renderResponse,
 		SiteNavigationMenuItemLocalService siteNavigationMenuItemLocalService,
 		SiteNavigationMenuItemTypeRegistry siteNavigationMenuItemTypeRegistry,
 		SiteNavigationMenuLocalService siteNavigationMenuLocalService) {
@@ -89,7 +97,11 @@ public class LayoutsTreeDisplayContext {
 		_liferayPortletRequest = PortalUtil.getLiferayPortletRequest(
 			renderRequest);
 
+		_httpServletRequest = httpServletRequest;
+		_language = language;
+		_layoutService = layoutService;
 		_renderRequest = renderRequest;
+		_renderResponse = renderResponse;
 		_siteNavigationMenuItemLocalService =
 			siteNavigationMenuItemLocalService;
 		_siteNavigationMenuItemTypeRegistry =
@@ -105,31 +117,7 @@ public class LayoutsTreeDisplayContext {
 			WebKeys.THEME_DISPLAY);
 	}
 
-	public String getAddChildCollectionURLTemplate() throws Exception {
-		PortletURL addChildCollectionURL = getAddCollectionLayoutURL();
-
-		if (addChildCollectionURL == null) {
-			return StringPool.BLANK;
-		}
-
-		return StringBundler.concat(
-			addChildCollectionURL, StringPool.AMPERSAND,
-			PortletQName.PUBLIC_RENDER_PARAMETER_NAMESPACE, "selPlid={plid}");
-	}
-
-	public String getAddChildURLTemplate() throws Exception {
-		PortletURL addLayoutURL = getAddLayoutURL();
-
-		if (addLayoutURL == null) {
-			return StringPool.BLANK;
-		}
-
-		return StringBundler.concat(
-			addLayoutURL, StringPool.AMPERSAND,
-			PortletQName.PUBLIC_RENDER_PARAMETER_NAMESPACE, "selPlid={plid}");
-	}
-
-	public PortletURL getAddCollectionLayoutURL() throws Exception {
+	public PortletURL getAddCollectionLayoutURL() {
 		Group scopeGroup = _themeDisplay.getScopeGroup();
 
 		if (scopeGroup.isStaged() && !scopeGroup.isStagingGroup()) {
@@ -153,7 +141,7 @@ public class LayoutsTreeDisplayContext {
 		).buildPortletURL();
 	}
 
-	public PortletURL getAddLayoutURL() throws Exception {
+	public PortletURL getAddLayoutURL() {
 		Group scopeGroup = _themeDisplay.getScopeGroup();
 
 		if (scopeGroup.isStaged() && !scopeGroup.isStagingGroup()) {
@@ -187,7 +175,7 @@ public class LayoutsTreeDisplayContext {
 		).buildString();
 	}
 
-	public PortletURL getConfigureLayoutSetURL() throws PortalException {
+	public PortletURL getConfigureLayoutSetURL() {
 		return PortletURLBuilder.create(
 			PortalUtil.getControlPanelPortletURL(
 				_liferayPortletRequest, LayoutAdminPortletKeys.GROUP_PAGES,
@@ -203,46 +191,6 @@ public class LayoutsTreeDisplayContext {
 		).setParameter(
 			"privateLayout", isPrivateLayout()
 		).buildPortletURL();
-	}
-
-	public String getConfigureLayoutURL() throws PortalException {
-		PortletURL configureLayoutURL = PortletURLBuilder.create(
-			PortalUtil.getControlPanelPortletURL(
-				_liferayPortletRequest, LayoutAdminPortletKeys.GROUP_PAGES,
-				PortletRequest.RENDER_PHASE)
-		).setMVCRenderCommandName(
-			"/layout_admin/edit_layout"
-		).buildPortletURL();
-
-		Layout layout = _themeDisplay.getLayout();
-
-		if (layout.isTypeAssetDisplay() || layout.isTypeControlPanel()) {
-			String redirect = ParamUtil.getString(
-				_liferayPortletRequest, "redirect",
-				_themeDisplay.getURLCurrent());
-
-			configureLayoutURL.setParameter("redirect", redirect);
-			configureLayoutURL.setParameter("backURL", redirect);
-		}
-		else {
-			configureLayoutURL.setParameter(
-				"redirect", PortalUtil.getLayoutFullURL(layout, _themeDisplay));
-			configureLayoutURL.setParameter(
-				"backURL", PortalUtil.getLayoutFullURL(layout, _themeDisplay));
-		}
-
-		configureLayoutURL.setParameter(
-			"groupId", String.valueOf(_themeDisplay.getScopeGroupId()));
-		configureLayoutURL.setParameter(
-			"privateLayout", String.valueOf(isPrivateLayout()));
-
-		return configureLayoutURL.toString();
-	}
-
-	public String getConfigureLayoutURLTemplate() throws Exception {
-		return StringBundler.concat(
-			getConfigureLayoutURL(), StringPool.AMPERSAND,
-			PortletQName.PUBLIC_RENDER_PARAMETER_NAMESPACE, "selPlid={plid}");
 	}
 
 	public long getGroupId() {
@@ -263,9 +211,7 @@ public class LayoutsTreeDisplayContext {
 		return _groupId;
 	}
 
-	public Map<String, Object> getLayoutFinderData()
-		throws WindowStateException {
-
+	public Map<String, Object> getLayoutFinderData() {
 		return HashMapBuilder.<String, Object>put(
 			"administrationPortletNamespace",
 			PortalUtil.getPortletNamespace(LayoutAdminPortletKeys.GROUP_PAGES)
@@ -298,7 +244,64 @@ public class LayoutsTreeDisplayContext {
 		return _namespace;
 	}
 
-	public String getPagesTreeURL() throws WindowStateException {
+	public Map<String, Object> getPagesTreeData() throws Exception {
+		return HashMapBuilder.<String, Object>put(
+			"config",
+			HashMapBuilder.<String, Object>put(
+				"loadMoreItemsURL",
+				() -> {
+					LiferayPortletURL liferayPortletURL =
+						(LiferayPortletURL)ResourceURLBuilder.createResourceURL(
+							_renderResponse
+						).setResourceID(
+							"/product_navigation_product_menu/get_layouts"
+						).buildResourceURL();
+
+					liferayPortletURL.setCopyCurrentRenderParameters(false);
+
+					return liferayPortletURL.toString();
+				}
+			).put(
+				"maxPageSize",
+				GetterUtil.getInteger(
+					PropsValues.LAYOUT_MANAGE_PAGES_INITIAL_CHILDREN)
+			).put(
+				"moveItemURL",
+				() -> {
+					StringBundler sb = new StringBundler(3);
+
+					sb.append(PortalUtil.getPortalURL(_httpServletRequest));
+					sb.append(_themeDisplay.getPathMain());
+					sb.append("/portal/edit_layout?cmd=parent_layout_id");
+
+					return sb.toString();
+				}
+			).put(
+				"namespace", getNamespace()
+			).put(
+				"stagingEnabled",
+				() -> {
+					Group scopeGroup = _themeDisplay.getScopeGroup();
+
+					if (scopeGroup.hasLocalOrRemoteStagingGroup()) {
+						return true;
+					}
+
+					return false;
+				}
+			).build()
+		).put(
+			"isPrivateLayoutsTree", isPrivateLayout()
+		).put(
+			"items", _getLayoutsJSONArray()
+		).put(
+			"selectedLayoutId", getSelPlid()
+		).put(
+			"selectedLayoutPath", _getSelectedLayoutPath()
+		).build();
+	}
+
+	public String getPagesTreeURL() {
 		return PortletURLBuilder.create(
 			PortletURLFactoryUtil.create(
 				_liferayPortletRequest,
@@ -318,7 +321,7 @@ public class LayoutsTreeDisplayContext {
 		).buildString();
 	}
 
-	public Map<String, Object> getPageTypeSelectorData() throws Exception {
+	public Map<String, Object> getPageTypeSelectorData() {
 		return HashMapBuilder.<String, Object>put(
 			"addCollectionLayoutURL", _setSelPlid(getAddCollectionLayoutURL())
 		).put(
@@ -347,13 +350,7 @@ public class LayoutsTreeDisplayContext {
 		).build();
 	}
 
-	public String getPreviewDraftURL()
-		throws PortalException, WindowStateException {
-
-		return StringPool.BLANK;
-	}
-
-	public String getProductMenuPortletURL() throws WindowStateException {
+	public String getProductMenuPortletURL() {
 		return PortletURLBuilder.create(
 			PortletURLFactoryUtil.create(
 				_liferayPortletRequest,
@@ -377,8 +374,8 @@ public class LayoutsTreeDisplayContext {
 		}
 
 		_selectedSiteNavigationMenuItemId = ParamUtil.getLong(
-			_liferayPortletRequest.getHttpServletRequest(),
-			_SITE_NAVIGATION_MENU_ITEM_ID_PARAMETER_NAME);
+			_httpServletRequest,
+			_namespace + _SITE_NAVIGATION_MENU_ITEM_ID_PARAMETER_NAME);
 
 		return _selectedSiteNavigationMenuItemId;
 	}
@@ -399,49 +396,13 @@ public class LayoutsTreeDisplayContext {
 		return layout.getPlid();
 	}
 
-	public Map<String, Object> getSiteNavigationMenuData() throws Exception {
+	public Map<String, Object> getSiteNavigationMenuData() {
 		return HashMapBuilder.<String, Object>put(
 			"selectedSiteNavigationMenuItemId",
 			String.valueOf(getSelectedSiteNavigationMenuItemId())
 		).put(
-			"siteNavigationMenuId", _getSiteNavigationMenuId()
-		).put(
 			"siteNavigationMenuItems", _getSiteNavigationMenuItemsJSONArray()
 		).build();
-	}
-
-	public String getViewCollectionItemsURL()
-		throws PortalException, WindowStateException {
-
-		PortletURL portletURL = PortletProviderUtil.getPortletURL(
-			_liferayPortletRequest, AssetListEntry.class.getName(),
-			PortletProvider.Action.BROWSE);
-
-		if (portletURL == null) {
-			return StringPool.BLANK;
-		}
-
-		Layout layout = _themeDisplay.getLayout();
-
-		String redirect = PortalUtil.getLayoutRelativeURL(
-			_themeDisplay.getLayout(), _themeDisplay);
-
-		if (layout.isTypeAssetDisplay() || layout.isTypeControlPanel()) {
-			redirect = ParamUtil.getString(
-				_liferayPortletRequest, "redirect", redirect);
-		}
-
-		portletURL.setParameter("redirect", redirect);
-		portletURL.setParameter("showActions", String.valueOf(Boolean.TRUE));
-
-		portletURL.setWindowState(LiferayWindowState.POP_UP);
-
-		return StringBundler.concat(
-			portletURL, StringPool.AMPERSAND,
-			PortalUtil.getPortletNamespace(AssetListPortletKeys.ASSET_LIST),
-			"collectionPK={collectionPK}&",
-			PortalUtil.getPortletNamespace(AssetListPortletKeys.ASSET_LIST),
-			"collectionType={collectionType}");
 	}
 
 	public boolean hasAddLayoutPermission() throws PortalException {
@@ -568,6 +529,57 @@ public class LayoutsTreeDisplayContext {
 		return childSiteNavigationMenuItemsJSONArray;
 	}
 
+	private JSONArray _getLayoutsJSONArray() throws Exception {
+		JSONArray layoutsJSONArray = null;
+
+		long[] openNodes = StringUtil.split(
+			SessionTreeJSClicks.getOpenNodes(
+				_httpServletRequest, "productMenuPagesTree"),
+			0L);
+
+		_httpServletRequest.setAttribute(
+			ProductNavigationProductMenuWebKeys.RETURN_LAYOUTS_AS_ARRAY,
+			Boolean.TRUE);
+
+		String layoutsJSON = LayoutsTreeUtil.getLayoutsJSON(
+			_httpServletRequest, _groupId, isPrivateLayout(),
+			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, openNodes, true,
+			"productMenuPagesTree", null);
+
+		if (layoutsJSON.startsWith(StringPool.OPEN_BRACKET)) {
+			layoutsJSONArray = JSONFactoryUtil.createJSONArray(layoutsJSON);
+		}
+		else {
+			layoutsJSONArray = JSONFactoryUtil.createJSONArray();
+		}
+
+		return JSONUtil.putAll(
+			JSONUtil.put(
+				"children", layoutsJSONArray
+			).put(
+				"hasChildren", true
+			).put(
+				"id", LayoutConstants.DEFAULT_PARENT_LAYOUT_ID
+			).put(
+				"name", _language.get(_themeDisplay.getLocale(), "pages")
+			).put(
+				"paginated",
+				() -> {
+					int layoutsCount = _layoutService.getLayoutsCount(
+						_groupId, isPrivateLayout(),
+						LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+
+					if (layoutsCount >
+							PropsValues.LAYOUT_MANAGE_PAGES_INITIAL_CHILDREN) {
+
+						return true;
+					}
+
+					return false;
+				}
+			));
+	}
+
 	private JSONObject _getOptionGroupJSONObject(
 		String nameKey, JSONArray itemsJSONArray) {
 
@@ -685,6 +697,25 @@ public class LayoutsTreeDisplayContext {
 		return _redirect;
 	}
 
+	private List<Long> _getSelectedLayoutPath() throws Exception {
+		long selPlid = getSelPlid();
+
+		List<Long> selectedLayoutPath = new ArrayList<>();
+
+		selectedLayoutPath.add(LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+
+		if (selPlid <= 0) {
+			return selectedLayoutPath;
+		}
+
+		selectedLayoutPath.addAll(
+			ListUtil.toList(
+				_layoutService.getAncestorLayouts(selPlid),
+				layout -> layout.getPlid()));
+
+		return selectedLayoutPath;
+	}
+
 	private long _getSiteNavigationMenuId() {
 		if (_siteNavigationMenuId != null) {
 			return _siteNavigationMenuId;
@@ -719,6 +750,9 @@ public class LayoutsTreeDisplayContext {
 			"name",
 			siteNavigationMenuItemType.getTitle(
 				siteNavigationMenuItem, _themeDisplay.getSiteDefaultLocale())
+		).put(
+			"target",
+			siteNavigationMenuItemType.getTarget(siteNavigationMenuItem)
 		).put(
 			"url",
 			_getSiteNavigationMenuItemURL(
@@ -918,6 +952,9 @@ public class LayoutsTreeDisplayContext {
 	private String _backURL;
 	private Long _groupId;
 	private final GroupProvider _groupProvider;
+	private final HttpServletRequest _httpServletRequest;
+	private final Language _language;
+	private final LayoutService _layoutService;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final String _namespace;
 	private Boolean _pageHierarchySelectedOption;
@@ -925,6 +962,7 @@ public class LayoutsTreeDisplayContext {
 	private Boolean _privateLayoutsEnabled;
 	private String _redirect;
 	private final RenderRequest _renderRequest;
+	private final RenderResponse _renderResponse;
 	private Long _selectedSiteNavigationMenuItemId;
 	private Long _siteNavigationMenuId;
 	private final SiteNavigationMenuItemLocalService

@@ -25,7 +25,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
-import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
@@ -46,12 +46,11 @@ import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiServic
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
-import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
+import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
 
@@ -60,6 +59,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Provides the base implementation for the commerce order item local service.
@@ -74,7 +76,8 @@ import javax.sql.DataSource;
  */
 public abstract class CommerceOrderItemLocalServiceBaseImpl
 	extends BaseLocalServiceImpl
-	implements CommerceOrderItemLocalService, IdentifiableOSGiService {
+	implements AopService, CommerceOrderItemLocalService,
+			   IdentifiableOSGiService {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -272,48 +275,21 @@ public abstract class CommerceOrderItemLocalServiceBaseImpl
 		return commerceOrderItemPersistence.fetchByUUID_G(uuid, groupId);
 	}
 
-	/**
-	 * Returns the commerce order item with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the commerce order item's external reference code
-	 * @return the matching commerce order item, or <code>null</code> if a matching commerce order item could not be found
-	 */
 	@Override
 	public CommerceOrderItem fetchCommerceOrderItemByExternalReferenceCode(
-		long companyId, String externalReferenceCode) {
+		String externalReferenceCode, long companyId) {
 
-		return commerceOrderItemPersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceOrderItemPersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
-	/**
-	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #fetchCommerceOrderItemByExternalReferenceCode(long, String)}
-	 */
-	@Deprecated
-	@Override
-	public CommerceOrderItem fetchCommerceOrderItemByReferenceCode(
-		long companyId, String externalReferenceCode) {
-
-		return fetchCommerceOrderItemByExternalReferenceCode(
-			companyId, externalReferenceCode);
-	}
-
-	/**
-	 * Returns the commerce order item with the matching external reference code and company.
-	 *
-	 * @param companyId the primary key of the company
-	 * @param externalReferenceCode the commerce order item's external reference code
-	 * @return the matching commerce order item
-	 * @throws PortalException if a matching commerce order item could not be found
-	 */
 	@Override
 	public CommerceOrderItem getCommerceOrderItemByExternalReferenceCode(
-			long companyId, String externalReferenceCode)
+			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		return commerceOrderItemPersistence.findByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceOrderItemPersistence.findByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	/**
@@ -577,102 +553,24 @@ public abstract class CommerceOrderItemLocalServiceBaseImpl
 		return commerceOrderItemPersistence.update(commerceOrderItem);
 	}
 
-	/**
-	 * Returns the commerce order item local service.
-	 *
-	 * @return the commerce order item local service
-	 */
-	public CommerceOrderItemLocalService getCommerceOrderItemLocalService() {
-		return commerceOrderItemLocalService;
+	@Deactivate
+	protected void deactivate() {
+		_setLocalServiceUtilService(null);
 	}
 
-	/**
-	 * Sets the commerce order item local service.
-	 *
-	 * @param commerceOrderItemLocalService the commerce order item local service
-	 */
-	public void setCommerceOrderItemLocalService(
-		CommerceOrderItemLocalService commerceOrderItemLocalService) {
-
-		this.commerceOrderItemLocalService = commerceOrderItemLocalService;
+	@Override
+	public Class<?>[] getAopInterfaces() {
+		return new Class<?>[] {
+			CommerceOrderItemLocalService.class, IdentifiableOSGiService.class,
+			PersistedModelLocalService.class
+		};
 	}
 
-	/**
-	 * Returns the commerce order item persistence.
-	 *
-	 * @return the commerce order item persistence
-	 */
-	public CommerceOrderItemPersistence getCommerceOrderItemPersistence() {
-		return commerceOrderItemPersistence;
-	}
-
-	/**
-	 * Sets the commerce order item persistence.
-	 *
-	 * @param commerceOrderItemPersistence the commerce order item persistence
-	 */
-	public void setCommerceOrderItemPersistence(
-		CommerceOrderItemPersistence commerceOrderItemPersistence) {
-
-		this.commerceOrderItemPersistence = commerceOrderItemPersistence;
-	}
-
-	/**
-	 * Returns the commerce order item finder.
-	 *
-	 * @return the commerce order item finder
-	 */
-	public CommerceOrderItemFinder getCommerceOrderItemFinder() {
-		return commerceOrderItemFinder;
-	}
-
-	/**
-	 * Sets the commerce order item finder.
-	 *
-	 * @param commerceOrderItemFinder the commerce order item finder
-	 */
-	public void setCommerceOrderItemFinder(
-		CommerceOrderItemFinder commerceOrderItemFinder) {
-
-		this.commerceOrderItemFinder = commerceOrderItemFinder;
-	}
-
-	/**
-	 * Returns the counter local service.
-	 *
-	 * @return the counter local service
-	 */
-	public com.liferay.counter.kernel.service.CounterLocalService
-		getCounterLocalService() {
-
-		return counterLocalService;
-	}
-
-	/**
-	 * Sets the counter local service.
-	 *
-	 * @param counterLocalService the counter local service
-	 */
-	public void setCounterLocalService(
-		com.liferay.counter.kernel.service.CounterLocalService
-			counterLocalService) {
-
-		this.counterLocalService = counterLocalService;
-	}
-
-	public void afterPropertiesSet() {
-		persistedModelLocalServiceRegistry.register(
-			"com.liferay.commerce.model.CommerceOrderItem",
-			commerceOrderItemLocalService);
+	@Override
+	public void setAopProxy(Object aopProxy) {
+		commerceOrderItemLocalService = (CommerceOrderItemLocalService)aopProxy;
 
 		_setLocalServiceUtilService(commerceOrderItemLocalService);
-	}
-
-	public void destroy() {
-		persistedModelLocalServiceRegistry.unregister(
-			"com.liferay.commerce.model.CommerceOrderItem");
-
-		_setLocalServiceUtilService(null);
 	}
 
 	/**
@@ -735,26 +633,19 @@ public abstract class CommerceOrderItemLocalServiceBaseImpl
 		}
 	}
 
-	@BeanReference(type = CommerceOrderItemLocalService.class)
 	protected CommerceOrderItemLocalService commerceOrderItemLocalService;
 
-	@BeanReference(type = CommerceOrderItemPersistence.class)
+	@Reference
 	protected CommerceOrderItemPersistence commerceOrderItemPersistence;
 
-	@BeanReference(type = CommerceOrderItemFinder.class)
+	@Reference
 	protected CommerceOrderItemFinder commerceOrderItemFinder;
 
-	@ServiceReference(
-		type = com.liferay.counter.kernel.service.CounterLocalService.class
-	)
+	@Reference
 	protected com.liferay.counter.kernel.service.CounterLocalService
 		counterLocalService;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CommerceOrderItemLocalServiceBaseImpl.class);
-
-	@ServiceReference(type = PersistedModelLocalServiceRegistry.class)
-	protected PersistedModelLocalServiceRegistry
-		persistedModelLocalServiceRegistry;
 
 }

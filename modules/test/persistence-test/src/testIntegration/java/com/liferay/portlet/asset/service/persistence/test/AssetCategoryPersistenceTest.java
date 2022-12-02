@@ -15,6 +15,7 @@
 package com.liferay.portlet.asset.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.asset.kernel.exception.DuplicateAssetCategoryExternalReferenceCodeException;
 import com.liferay.asset.kernel.exception.NoSuchCategoryException;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
@@ -214,6 +215,26 @@ public class AssetCategoryPersistenceTest {
 			Time.getShortTimestamp(newAssetCategory.getLastPublishDate()));
 	}
 
+	@Test(expected = DuplicateAssetCategoryExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		AssetCategory assetCategory = addAssetCategory();
+
+		AssetCategory newAssetCategory = addAssetCategory();
+
+		newAssetCategory.setGroupId(assetCategory.getGroupId());
+
+		newAssetCategory = _persistence.update(newAssetCategory);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newAssetCategory);
+
+		newAssetCategory.setExternalReferenceCode(
+			assetCategory.getExternalReferenceCode());
+
+		_persistence.update(newAssetCategory);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -359,12 +380,12 @@ public class AssetCategoryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByG_ERC() throws Exception {
-		_persistence.countByG_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_G() throws Exception {
+		_persistence.countByERC_G("", RandomTestUtil.nextLong());
 
-		_persistence.countByG_ERC(0L, "null");
+		_persistence.countByERC_G("null", 0L);
 
-		_persistence.countByG_ERC(0L, (String)null);
+		_persistence.countByERC_G((String)null, 0L);
 	}
 
 	@Test
@@ -698,15 +719,15 @@ public class AssetCategoryPersistenceTest {
 				new Class<?>[] {String.class}, "vocabularyId"));
 
 		Assert.assertEquals(
-			Long.valueOf(assetCategory.getGroupId()),
-			ReflectionTestUtil.<Long>invoke(
-				assetCategory, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "groupId"));
-		Assert.assertEquals(
 			assetCategory.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				assetCategory, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(assetCategory.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(
+				assetCategory, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "groupId"));
 	}
 
 	protected AssetCategory addAssetCategory() throws Exception {

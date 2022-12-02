@@ -48,7 +48,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.RepositoryUtil;
 
@@ -140,8 +139,7 @@ public class DLViewEntriesDisplayContext {
 			availableActions.add("download");
 		}
 
-		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-87806")) &&
-			DLFileEntryPermission.contains(
+		if (DLFileEntryPermission.contains(
 				permissionChecker, fileEntry, ActionKeys.PERMISSIONS)) {
 
 			availableActions.add("permissions");
@@ -180,6 +178,12 @@ public class DLViewEntriesDisplayContext {
 			!RepositoryUtil.isExternalRepository(folder.getRepositoryId())) {
 
 			availableActions.add("download");
+		}
+
+		if (DLFolderPermission.contains(
+				permissionChecker, folder, ActionKeys.PERMISSIONS)) {
+
+			availableActions.add("permissions");
 		}
 
 		return availableActions;
@@ -237,7 +241,7 @@ public class DLViewEntriesDisplayContext {
 			_dlAdminDisplayContext.getSearchContainer();
 
 		EntriesChecker entriesChecker = new EntriesChecker(
-			_liferayPortletRequest, _liferayPortletResponse);
+			_liferayPortletResponse);
 
 		entriesChecker.setCssClass("entry-selector");
 		entriesChecker.setRememberCheckBoxStateURLRegex(

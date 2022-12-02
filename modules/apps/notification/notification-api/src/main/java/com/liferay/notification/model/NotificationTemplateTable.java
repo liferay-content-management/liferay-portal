@@ -40,6 +40,10 @@ public class NotificationTemplateTable
 			"mvccVersion", Long.class, Types.BIGINT, Column.FLAG_NULLITY);
 	public final Column<NotificationTemplateTable, String> uuid = createColumn(
 		"uuid_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
+	public final Column<NotificationTemplateTable, String>
+		externalReferenceCode = createColumn(
+			"externalReferenceCode", String.class, Types.VARCHAR,
+			Column.FLAG_DEFAULT);
 	public final Column<NotificationTemplateTable, Long>
 		notificationTemplateId = createColumn(
 			"notificationTemplateId", Long.class, Types.BIGINT,
@@ -62,20 +66,14 @@ public class NotificationTemplateTable
 		createColumn(
 			"objectDefinitionId", Long.class, Types.BIGINT,
 			Column.FLAG_DEFAULT);
-	public final Column<NotificationTemplateTable, String> bcc = createColumn(
-		"bcc", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<NotificationTemplateTable, Clob> body = createColumn(
 		"body", Clob.class, Types.CLOB, Column.FLAG_DEFAULT);
-	public final Column<NotificationTemplateTable, String> cc = createColumn(
-		"cc", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<NotificationTemplateTable, String> description =
 		createColumn(
 			"description", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
-	public final Column<NotificationTemplateTable, String> from = createColumn(
-		"from_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
-	public final Column<NotificationTemplateTable, String> fromName =
+	public final Column<NotificationTemplateTable, String> editorType =
 		createColumn(
-			"fromName", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
+			"editorType", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<NotificationTemplateTable, String> name = createColumn(
 		"name", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<NotificationTemplateTable, String> recipientType =
@@ -84,8 +82,6 @@ public class NotificationTemplateTable
 	public final Column<NotificationTemplateTable, String> subject =
 		createColumn(
 			"subject", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
-	public final Column<NotificationTemplateTable, String> to = createColumn(
-		"to_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<NotificationTemplateTable, String> type = createColumn(
 		"type_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 

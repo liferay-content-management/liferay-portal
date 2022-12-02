@@ -18,20 +18,24 @@ import React from 'react';
 import ObjectAction from './index';
 
 export default function EditObjectAction({
+	isApproved,
 	objectAction: {id, ...values},
 	objectActionCodeEditorElements,
 	objectActionExecutors,
 	objectActionTriggers,
+	objectDefinitionId,
 	objectDefinitionsRelationshipsURL,
 	readOnly,
 	validateExpressionURL,
 }: IProps) {
 	return (
 		<ObjectAction
+			isApproved={isApproved}
 			objectAction={values}
 			objectActionCodeEditorElements={objectActionCodeEditorElements}
 			objectActionExecutors={objectActionExecutors}
 			objectActionTriggers={objectActionTriggers}
+			objectDefinitionId={objectDefinitionId}
 			objectDefinitionsRelationshipsURL={
 				objectDefinitionsRelationshipsURL
 			}
@@ -50,10 +54,12 @@ export default function EditObjectAction({
 }
 
 interface IProps {
+	isApproved: boolean;
 	objectAction: ObjectAction;
 	objectActionCodeEditorElements: SidebarCategory[];
 	objectActionExecutors: CustomItem[];
 	objectActionTriggers: CustomItem[];
+	objectDefinitionId: number;
 	objectDefinitionsRelationshipsURL: string;
 	readOnly?: boolean;
 	validateExpressionURL: string;

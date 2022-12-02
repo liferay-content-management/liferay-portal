@@ -15,18 +15,16 @@
 package com.liferay.oauth2.provider.service.impl;
 
 import com.liferay.osgi.util.ComponentUtil;
-import com.liferay.portal.change.tracking.store.CTStoreFactory;
 import com.liferay.portlet.documentlibrary.store.StoreFactory;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Shuyang Zhou
  */
-@Component(immediate = true, service = {})
+@Component(service = {})
 public class OAuth2ApplicationLocalServiceImplEnabler {
 
 	@Activate
@@ -35,8 +33,5 @@ public class OAuth2ApplicationLocalServiceImplEnabler {
 			StoreFactory.class, "(dl.store.impl.enabled=true)",
 			componentContext, OAuth2ApplicationLocalServiceImpl.class);
 	}
-
-	@Reference
-	private CTStoreFactory _ctStoreFactory;
 
 }

@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchContextFactory;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -52,11 +53,29 @@ import javax.servlet.http.HttpServletRequest;
 public class BlogImagesDisplayContext {
 
 	public BlogImagesDisplayContext(
-		LiferayPortletRequest liferayPortletRequest) {
+		LiferayPortletRequest liferayPortletRequest,
+		ModelResourcePermission<FileEntry> modelResourcePermission) {
 
 		_liferayPortletRequest = liferayPortletRequest;
+		_modelResourcePermission = modelResourcePermission;
 
 		_httpServletRequest = _liferayPortletRequest.getHttpServletRequest();
+	}
+
+	public ModelResourcePermission<FileEntry>
+		getCustomFileEntryModelResourcePermission() {
+
+		return _modelResourcePermission;
+	}
+
+	public long getFolderId() throws PortalException {
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		Folder folder = _getAttachmentsFolder(themeDisplay);
+
+		return folder.getFolderId();
 	}
 
 	public String getOrderByCol() {
@@ -83,6 +102,16 @@ public class BlogImagesDisplayContext {
 		return _orderByType;
 	}
 
+	public long getRepositoryId() throws PortalException {
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		Folder folder = _getAttachmentsFolder(themeDisplay);
+
+		return folder.getRepositoryId();
+	}
+
 	public void populateResults(SearchContainer<FileEntry> searchContainer)
 		throws PortalException {
 
@@ -90,9 +119,7 @@ public class BlogImagesDisplayContext {
 			(ThemeDisplay)_httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		Folder attachmentsFolder =
-			BlogsEntryLocalServiceUtil.addAttachmentsFolder(
-				themeDisplay.getUserId(), themeDisplay.getScopeGroupId());
+		Folder attachmentsFolder = _getAttachmentsFolder(themeDisplay);
 
 		String keywords = ParamUtil.getString(_httpServletRequest, "keywords");
 
@@ -154,11 +181,26 @@ public class BlogImagesDisplayContext {
 		}
 	}
 
+	private Folder _getAttachmentsFolder(ThemeDisplay themeDisplay)
+		throws PortalException {
+
+		if (_folder != null) {
+			return _folder;
+		}
+
+		_folder = BlogsEntryLocalServiceUtil.addAttachmentsFolder(
+			themeDisplay.getUserId(), themeDisplay.getScopeGroupId());
+
+		return _folder;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		BlogImagesDisplayContext.class);
 
+	private Folder _folder;
 	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletRequest _liferayPortletRequest;
+	private final ModelResourcePermission<FileEntry> _modelResourcePermission;
 	private String _orderByCol;
 	private String _orderByType;
 

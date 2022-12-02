@@ -29,6 +29,7 @@ import com.liferay.commerce.model.CommerceShipmentItem;
 import com.liferay.commerce.model.CommerceShippingEngine;
 import com.liferay.commerce.model.CommerceShippingMethod;
 import com.liferay.commerce.model.CommerceShippingOption;
+import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.service.CommerceAddressService;
 import com.liferay.commerce.service.CommerceOrderItemService;
 import com.liferay.commerce.service.CommerceShipmentItemService;
@@ -43,7 +44,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.ArrayList;
@@ -58,7 +58,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alec Sloan
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "fds.data.provider.key=" + CommerceShipmentFDSNames.SHIPPABLE_ORDER_ITEMS,
 	service = FDSDataProvider.class
 )
@@ -107,11 +106,20 @@ public class CommerceShippableOrderItemsFDSDataProvider
 					commerceShipmentId,
 					commerceOrderItem.getCommerceOrderItemId(), 0);
 
+			long commerceCatalogGroupId = 0;
+
+			CPDefinition cpDefinition = commerceOrderItem.getCPDefinition();
+
+			if (cpDefinition != null) {
+				commerceCatalogGroupId = cpDefinition.getGroupId();
+			}
+
 			if (commerceShipmentItem == null) {
 				orderItems.add(
 					new OrderItem(
 						_commerceInventoryEngine.getStockQuantity(
 							commerceOrderItem.getCompanyId(),
+							commerceCatalogGroupId,
 							commerceOrderItem.getGroupId(),
 							commerceOrderItem.getSku()),
 						icon, commerceOrderItem.getCommerceOrderId(),
@@ -235,8 +243,5 @@ public class CommerceShippableOrderItemsFDSDataProvider
 
 	@Reference
 	private CommerceShippingEngineRegistry _commerceShippingEngineRegistry;
-
-	@Reference
-	private Portal _portal;
 
 }

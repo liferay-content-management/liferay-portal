@@ -54,7 +54,6 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
-import com.liferay.exportimport.kernel.service.StagingLocalService;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
 import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.exportimport.kernel.staging.StagingURLHelper;
@@ -76,11 +75,10 @@ import com.liferay.portal.kernel.exception.PortletIdException;
 import com.liferay.portal.kernel.exception.RemoteOptionsException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
-import com.liferay.portal.kernel.lock.LockManager;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.DestinationNames;
@@ -195,7 +193,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Wesley Gong
  * @author Zsolt Balogh
  */
-@Component(immediate = true, service = Staging.class)
+@Component(service = Staging.class)
 public class StagingImpl implements Staging {
 
 	@Override
@@ -511,7 +509,7 @@ public class StagingImpl implements Staging {
 	public JSONArray getErrorMessagesJSONArray(
 		Locale locale, Map<String, MissingReference> missingReferences) {
 
-		JSONArray errorMessagesJSONArray = JSONFactoryUtil.createJSONArray();
+		JSONArray errorMessagesJSONArray = _jsonFactory.createJSONArray();
 
 		for (Map.Entry<String, MissingReference> missingReferenceEntry :
 				missingReferences.entrySet()) {
@@ -519,8 +517,7 @@ public class StagingImpl implements Staging {
 			MissingReference missingReference =
 				missingReferenceEntry.getValue();
 
-			JSONObject errorMessageJSONObject =
-				JSONFactoryUtil.createJSONObject();
+			JSONObject errorMessageJSONObject = _jsonFactory.createJSONObject();
 
 			String className = missingReference.getClassName();
 			Map<String, String> referrers = missingReference.getReferrers();
@@ -1254,7 +1251,7 @@ public class StagingImpl implements Staging {
 					"page-templates-or-site-templates-that-could-not-be-",
 					"found.-please-import-the-following-templates-manually"));
 
-			errorMessagesJSONArray = JSONFactoryUtil.createJSONArray();
+			errorMessagesJSONArray = _jsonFactory.createJSONArray();
 
 			List<Tuple> missingLayoutPrototypes =
 				layoutPrototypeException.getMissingLayoutPrototypes();
@@ -1987,7 +1984,7 @@ public class StagingImpl implements Staging {
 	public JSONArray getWarningMessagesJSONArray(
 		Locale locale, Map<String, MissingReference> missingReferences) {
 
-		JSONArray warningMessagesJSONArray = JSONFactoryUtil.createJSONArray();
+		JSONArray warningMessagesJSONArray = _jsonFactory.createJSONArray();
 
 		for (Map.Entry<String, MissingReference> entry :
 				missingReferences.entrySet()) {
@@ -4062,6 +4059,9 @@ public class StagingImpl implements Staging {
 	private GroupPermission _groupPermission;
 
 	@Reference
+	private JSONFactory _jsonFactory;
+
+	@Reference
 	private Language _language;
 
 	@Reference
@@ -4078,9 +4078,6 @@ public class StagingImpl implements Staging {
 
 	@Reference
 	private LayoutSetBranchLocalService _layoutSetBranchLocalService;
-
-	@Reference
-	private LockManager _lockManager;
 
 	@Reference
 	private Portal _portal;
@@ -4103,9 +4100,6 @@ public class StagingImpl implements Staging {
 
 	@Reference
 	private StagingGroupHelper _stagingGroupHelper;
-
-	@Reference
-	private StagingLocalService _stagingLocalService;
 
 	@Reference
 	private StagingURLHelper _stagingURLHelper;

@@ -17,14 +17,35 @@ package com.liferay.portal.workflow.kaleo.definition;
 import com.liferay.portal.workflow.kaleo.definition.exception.KaleoDefinitionValidationException;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Michael C. Han
+ * @author Raymond Augé
  */
-public enum ScriptLanguage {
+public interface ScriptLanguage {
 
-	BEANSHELL("beanshell"), DRL("drl"), GROOVY("groovy"), JAVA("java"),
-	JAVASCRIPT("javascript"), PYTHON("python"), RUBY("ruby");
+	public static final ScriptLanguage BEANSHELL = new ScriptingLanguageImpl(
+		"beanshell");
+
+	public static final ScriptLanguage DRL = new ScriptingLanguageImpl("drl");
+
+	public static final ScriptLanguage GROOVY = new ScriptingLanguageImpl(
+		"groovy");
+
+	public static final ScriptLanguage JAVA = new ScriptingLanguageImpl("java");
+
+	public static final ScriptLanguage JAVASCRIPT = new ScriptingLanguageImpl(
+		"javascript");
+
+	public static final ScriptLanguage PYTHON = new ScriptingLanguageImpl(
+		"python");
+
+	public static final ScriptLanguage RUBY = new ScriptingLanguageImpl("ruby");
+
+	public static final Pattern functionPattern = Pattern.compile(
+		"^function#[a-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$");
 
 	public static ScriptLanguage parse(String value)
 		throws KaleoDefinitionValidationException {
@@ -51,23 +72,36 @@ public enum ScriptLanguage {
 			return RUBY;
 		}
 
+		Matcher matcher = functionPattern.matcher(value);
+
+		if (matcher.matches()) {
+			return new ScriptingLanguageImpl(value);
+		}
+
 		throw new KaleoDefinitionValidationException.InvalidScriptLanguage(
 			value);
 	}
 
-	public String getValue() {
-		return _value;
-	}
+	public String getValue();
 
-	@Override
-	public String toString() {
-		return _value;
-	}
+	public static final class ScriptingLanguageImpl implements ScriptLanguage {
 
-	private ScriptLanguage(String value) {
-		_value = value;
-	}
+		public ScriptingLanguageImpl(String value) {
+			_value = value;
+		}
 
-	private final String _value;
+		@Override
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private final String _value;
+
+	}
 
 }

@@ -27,10 +27,12 @@ import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermi
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import java.util.Map;
+
 import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
 
 import javax.servlet.ServletContext;
 
@@ -51,22 +53,22 @@ public class AccessFromDesktopPortletConfigurationIcon
 	extends BaseJSPPortletConfigurationIcon {
 
 	@Override
+	public Map<String, Object> getContext(PortletRequest portletRequest) {
+		return HashMapBuilder.<String, Object>put(
+			"action", getNamespace(portletRequest) + "accessFromDesktop"
+		).put(
+			"globalAction", true
+		).build();
+	}
+
+	@Override
 	public String getJspPath() {
 		return "/document_library/access_from_desktop.jsp";
 	}
 
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
-		return _language.get(
-			getResourceBundle(getLocale(portletRequest)),
-			"access-from-desktop");
-	}
-
-	@Override
-	public String getURL(
-		PortletRequest portletRequest, PortletResponse portletResponse) {
-
-		return "javascript:void(0);";
+		return _language.get(getLocale(portletRequest), "access-from-desktop");
 	}
 
 	@Override
@@ -109,11 +111,6 @@ public class AccessFromDesktopPortletConfigurationIcon
 
 				return false;
 			});
-	}
-
-	@Override
-	public boolean isToolTip() {
-		return false;
 	}
 
 	@Override

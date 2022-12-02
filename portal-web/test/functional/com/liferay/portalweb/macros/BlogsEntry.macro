@@ -187,9 +187,7 @@ definition {
 
 		var key_assetType = "${assetType}";
 
-		AssertClick(
-			locator1 = "APConfiguration#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_ASSET",
-			value1 = "${assetType}");
+		MenuItem.click(menuItem = "${assetType}");
 
 		var key_assetTitle = "${assetTitle}";
 
@@ -673,7 +671,9 @@ definition {
 			locator1 = "Button#PUBLISH",
 			value1 = "Publish");
 
-		Alert.viewRequiredField();
+		AssertTextEquals.assertPartialText(
+			locator1 = "TextInput#REQUIRED_ALERT",
+			value1 = "The Content field is required.");
 
 		AssertElementNotPresent(locator1 = "Message#SUCCESS");
 	}
@@ -684,8 +684,8 @@ definition {
 			value1 = "Publish");
 
 		AssertTextEquals.assertPartialText(
-			locator1 = "BlogsEntry#TITLE_FIELD_HELPER",
-			value1 = "This field is required.");
+			locator1 = "TextInput#REQUIRED_ALERT",
+			value1 = "field is required.");
 
 		AssertElementNotPresent(locator1 = "Message#SUCCESS");
 	}

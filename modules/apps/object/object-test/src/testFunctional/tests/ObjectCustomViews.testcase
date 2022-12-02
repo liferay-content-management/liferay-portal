@@ -2,7 +2,7 @@
 definition {
 
 	property osgi.module.configuration.file.names = "com.liferay.object.web.internal.configuration.FFObjectViewConfiguration.config";
-	property osgi.module.configurations = "enabled=&quot;true&quot;";
+	property osgi.module.configurations = "enabled=\"true\"";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -840,6 +840,8 @@ definition {
 				locator1 = "ObjectCustomViews#SIDEBAR_ELLIPSIS_ON_CUSTOM_VIEW");
 
 			DropdownMenuItem.click(menuItem = "Edit");
+
+			Click(locator1 = "ObjectCustomViews#CLEAR_FILTER");
 
 			Click(
 				key_filterLabel = "Value",

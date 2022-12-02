@@ -20,7 +20,6 @@ import com.liferay.commerce.discount.rule.type.CommerceDiscountRuleTypeJSPContri
 import com.liferay.commerce.discount.service.CommerceDiscountRuleService;
 import com.liferay.commerce.pricing.web.internal.display.context.CartTotalCommerceDiscountRuleDisplayContext;
 import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
-import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +32,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, immediate = true,
 	property = "commerce.discount.rule.type.jsp.contributor.key=" + CommerceDiscountRuleConstants.TYPE_CART_TOTAL,
 	service = CommerceDiscountRuleTypeJSPContributor.class
 )
@@ -67,9 +65,6 @@ public class CartTotalCommerceDiscountRuleTypeJSPContributor
 
 	@Reference
 	private CommerceDiscountRuleService _commerceDiscountRuleService;
-
-	@Reference
-	private ConfigurationProvider _configurationProvider;
 
 	@Reference
 	private JSPRenderer _jspRenderer;

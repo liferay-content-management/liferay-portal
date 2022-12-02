@@ -21,15 +21,17 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.PasswordPolicy;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.PasswordPolicyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.security.pwd.PwdToolkitUtil;
 import com.liferay.user.associated.data.anonymizer.UADAnonymousUserProvider;
 import com.liferay.user.associated.data.web.internal.configuration.AnonymousUserConfiguration;
 import com.liferay.user.associated.data.web.internal.configuration.AnonymousUserConfigurationRetriever;
@@ -47,7 +49,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Drew Brokke
  * @author Erick Monteiro
  */
-@Component(immediate = true, service = UADAnonymousUserProvider.class)
+@Component(service = UADAnonymousUserProvider.class)
 public class UADAnonymousUserProviderImpl implements UADAnonymousUserProvider {
 
 	@Override
@@ -78,7 +80,10 @@ public class UADAnonymousUserProviderImpl implements UADAnonymousUserProvider {
 	private User _createAnonymousUser(long companyId) throws Exception {
 		long creatorUserId = 0;
 
-		String randomString = StringUtil.randomString();
+		PasswordPolicy passwordPolicy =
+			_passwordPolicyLocalService.getDefaultPasswordPolicy(companyId);
+
+		String randomString = PwdToolkitUtil.generate(passwordPolicy);
 
 		long counter = _counterLocalService.increment(
 			UADAnonymousUserProvider.class.getName());
@@ -95,8 +100,8 @@ public class UADAnonymousUserProviderImpl implements UADAnonymousUserProvider {
 		String firstName = "Anonymous";
 		String middleName = StringPool.BLANK;
 		String lastName = "Anonymous";
-		long prefixId = 0;
-		long suffixId = 0;
+		long prefixListTypeId = 0;
+		long suffixListTypeId = 0;
 		int birthdayMonth = Calendar.JANUARY;
 		int birthdayDay = 1;
 		int birthdayYear = 1970;
@@ -105,8 +110,9 @@ public class UADAnonymousUserProviderImpl implements UADAnonymousUserProvider {
 		User anonymousUser = _userLocalService.addUser(
 			creatorUserId, companyId, false, randomString, randomString, false,
 			screenName, emailAddress, locale, firstName, middleName, lastName,
-			prefixId, suffixId, true, birthdayMonth, birthdayDay, birthdayYear,
-			jobTitle, null, null, null, null, false, null);
+			prefixListTypeId, suffixListTypeId, true, birthdayMonth,
+			birthdayDay, birthdayYear, jobTitle, null, null, null, null, false,
+			null);
 
 		anonymousUser.setComments(
 			StringBundler.concat(
@@ -180,6 +186,9 @@ public class UADAnonymousUserProviderImpl implements UADAnonymousUserProvider {
 
 	@Reference
 	private CounterLocalService _counterLocalService;
+
+	@Reference
+	private PasswordPolicyLocalService _passwordPolicyLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;

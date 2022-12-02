@@ -34,7 +34,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
-import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.util.PropsUtil;
 
@@ -80,11 +79,6 @@ public class ObjectDefinitionResourceTest
 	public void testGetObjectDefinition() throws Exception {
 		super.testGetObjectDefinition();
 
-		PropsUtil.addProperties(
-			UnicodePropertiesBuilder.setProperty(
-				"feature.flag.LPS-152650", "true"
-			).build());
-
 		ObjectDefinition objectDefinition =
 			testGetObjectDefinitionsPage_addObjectDefinition(
 				randomObjectDefinition());
@@ -95,11 +89,6 @@ public class ObjectDefinitionResourceTest
 		Assert.assertEquals(
 			"/o/c/" + objectDefinitionPluralName,
 			objectDefinition.getRestContextPath());
-
-		PropsUtil.addProperties(
-			UnicodePropertiesBuilder.setProperty(
-				"feature.flag.LPS-152650", "false"
-			).build());
 	}
 
 	@Override
@@ -250,8 +239,7 @@ public class ObjectDefinitionResourceTest
 		ObjectDefinition objectDefinition = super.randomObjectDefinition();
 
 		objectDefinition.setAccountEntryRestricted(false);
-		objectDefinition.setAccountEntryRestrictedObjectFieldId(
-			Long.valueOf(0));
+		objectDefinition.setAccountEntryRestrictedObjectFieldName("");
 		objectDefinition.setActive(false);
 		objectDefinition.setLabel(
 			Collections.singletonMap(
@@ -269,7 +257,7 @@ public class ObjectDefinitionResourceTest
 						indexed = false;
 						indexedAsKeyword = false;
 						label = Collections.singletonMap("en_US", "Column");
-						name = "column";
+						name = StringUtil.randomId();
 						required = false;
 						system = false;
 					}

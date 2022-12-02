@@ -55,7 +55,8 @@ public class AccountEntryUserRelServiceHttp {
 				HttpPrincipal httpPrincipal, long accountEntryId,
 				long creatorUserId, String screenName, String emailAddress,
 				java.util.Locale locale, String firstName, String middleName,
-				String lastName, long prefixId, long suffixId, String jobTitle,
+				String lastName, long prefixListTypeId, long suffixListTypeId,
+				String jobTitle,
 				com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -66,8 +67,8 @@ public class AccountEntryUserRelServiceHttp {
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, accountEntryId, creatorUserId, screenName,
-				emailAddress, locale, firstName, middleName, lastName, prefixId,
-				suffixId, jobTitle, serviceContext);
+				emailAddress, locale, firstName, middleName, lastName,
+				prefixListTypeId, suffixListTypeId, jobTitle, serviceContext);
 
 			Object returnObj = null;
 
@@ -185,7 +186,8 @@ public class AccountEntryUserRelServiceHttp {
 				HttpPrincipal httpPrincipal, long accountEntryId,
 				long creatorUserId, String screenName, String emailAddress,
 				java.util.Locale locale, String firstName, String middleName,
-				String lastName, long prefixId, long suffixId, String jobTitle,
+				String lastName, long prefixListTypeId, long suffixListTypeId,
+				String jobTitle,
 				com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -197,8 +199,8 @@ public class AccountEntryUserRelServiceHttp {
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, accountEntryId, creatorUserId, screenName,
-				emailAddress, locale, firstName, middleName, lastName, prefixId,
-				suffixId, jobTitle, serviceContext);
+				emailAddress, locale, firstName, middleName, lastName,
+				prefixListTypeId, suffixListTypeId, jobTitle, serviceContext);
 
 			Object returnObj = null;
 
@@ -304,6 +306,46 @@ public class AccountEntryUserRelServiceHttp {
 		}
 	}
 
+	public static void inviteUser(
+			HttpPrincipal httpPrincipal, long accountEntryId,
+			long[] accountRoleIds, String emailAddress,
+			com.liferay.portal.kernel.model.User inviter,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				AccountEntryUserRelServiceUtil.class, "inviteUser",
+				_inviteUserParameterTypes6);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, accountEntryId, accountRoleIds, emailAddress,
+				inviter, serviceContext);
+
+			try {
+				TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
 	public static void setPersonTypeAccountEntryUser(
 			HttpPrincipal httpPrincipal, long accountEntryId, long userId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -312,7 +354,7 @@ public class AccountEntryUserRelServiceHttp {
 			MethodKey methodKey = new MethodKey(
 				AccountEntryUserRelServiceUtil.class,
 				"setPersonTypeAccountEntryUser",
-				_setPersonTypeAccountEntryUserParameterTypes6);
+				_setPersonTypeAccountEntryUserParameterTypes7);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, accountEntryId, userId);
@@ -371,8 +413,13 @@ public class AccountEntryUserRelServiceHttp {
 		};
 	private static final Class<?>[] _deleteAccountEntryUserRelsParameterTypes5 =
 		new Class[] {long.class, long[].class};
+	private static final Class<?>[] _inviteUserParameterTypes6 = new Class[] {
+		long.class, long[].class, String.class,
+		com.liferay.portal.kernel.model.User.class,
+		com.liferay.portal.kernel.service.ServiceContext.class
+	};
 	private static final Class<?>[]
-		_setPersonTypeAccountEntryUserParameterTypes6 = new Class[] {
+		_setPersonTypeAccountEntryUserParameterTypes7 = new Class[] {
 			long.class, long.class
 		};
 

@@ -15,24 +15,29 @@
 package com.liferay.commerce.service.impl;
 
 import com.liferay.commerce.exception.CommerceOrderNoteContentException;
-import com.liferay.commerce.exception.DuplicateCommerceOrderNoteException;
 import com.liferay.commerce.model.CommerceOrder;
 import com.liferay.commerce.model.CommerceOrderNote;
-import com.liferay.commerce.service.CommerceOrderLocalService;
 import com.liferay.commerce.service.base.CommerceOrderNoteLocalServiceBaseImpl;
-import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.commerce.service.persistence.CommerceOrderPersistence;
+import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.util.List;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Andrea Di Giorgi
  */
+@Component(
+	property = "model.class.name=com.liferay.commerce.model.CommerceOrderNote",
+	service = AopService.class
+)
 public class CommerceOrderNoteLocalServiceImpl
 	extends CommerceOrderNoteLocalServiceBaseImpl {
 
@@ -53,7 +58,7 @@ public class CommerceOrderNoteLocalServiceImpl
 		throws PortalException {
 
 		CommerceOrder commerceOrder =
-			_commerceOrderLocalService.getCommerceOrder(commerceOrderId);
+			_commerceOrderPersistence.findByPrimaryKey(commerceOrderId);
 		User user = _userLocalService.getUser(serviceContext.getUserId());
 
 		_validate(content);
@@ -61,9 +66,6 @@ public class CommerceOrderNoteLocalServiceImpl
 		if (Validator.isBlank(externalReferenceCode)) {
 			externalReferenceCode = null;
 		}
-
-		_validateExternalReferenceCode(
-			externalReferenceCode, serviceContext.getCompanyId());
 
 		long commerceOrderNoteId = counterLocalService.increment();
 
@@ -100,8 +102,8 @@ public class CommerceOrderNoteLocalServiceImpl
 			commerceOrderNote = getCommerceOrderNote(commerceOrderNoteId);
 		}
 		else {
-			commerceOrderNote = commerceOrderNotePersistence.fetchByC_ERC(
-				serviceContext.getCompanyId(), externalReferenceCode);
+			commerceOrderNote = commerceOrderNotePersistence.fetchByERC_C(
+				externalReferenceCode, serviceContext.getCompanyId());
 		}
 
 		if (commerceOrderNote != null) {
@@ -129,8 +131,8 @@ public class CommerceOrderNoteLocalServiceImpl
 			return null;
 		}
 
-		return commerceOrderNotePersistence.fetchByC_ERC(
-			companyId, externalReferenceCode);
+		return commerceOrderNotePersistence.fetchByERC_C(
+			externalReferenceCode, companyId);
 	}
 
 	@Override
@@ -211,29 +213,10 @@ public class CommerceOrderNoteLocalServiceImpl
 		}
 	}
 
-	private void _validateExternalReferenceCode(
-			String externalReferenceCode, long companyId)
-		throws PortalException {
+	@Reference
+	private CommerceOrderPersistence _commerceOrderPersistence;
 
-		if (Validator.isNull(externalReferenceCode)) {
-			return;
-		}
-
-		CommerceOrderNote commerceOrderNote =
-			commerceOrderNotePersistence.fetchByC_ERC(
-				companyId, externalReferenceCode);
-
-		if (commerceOrderNote != null) {
-			throw new DuplicateCommerceOrderNoteException(
-				"There is another commerce order note with external " +
-					"reference code " + externalReferenceCode);
-		}
-	}
-
-	@BeanReference(type = CommerceOrderLocalService.class)
-	private CommerceOrderLocalService _commerceOrderLocalService;
-
-	@ServiceReference(type = UserLocalService.class)
+	@Reference
 	private UserLocalService _userLocalService;
 
 }

@@ -15,8 +15,14 @@
 package com.liferay.notification.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.notification.constants.NotificationConstants;
+import com.liferay.notification.context.NotificationContext;
+import com.liferay.notification.model.NotificationRecipient;
+import com.liferay.notification.model.NotificationRecipientSetting;
 import com.liferay.notification.model.NotificationTemplate;
+import com.liferay.notification.service.NotificationRecipientLocalService;
+import com.liferay.notification.service.NotificationRecipientSettingLocalService;
 import com.liferay.notification.service.NotificationTemplateLocalService;
 import com.liferay.notification.service.NotificationTemplateService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -30,11 +36,10 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -150,23 +155,47 @@ public class NotificationTemplateServiceTest {
 		_testUpdateNotificationTemplate(_user, _user);
 	}
 
-	private NotificationTemplate _addNotificationTemplate(User user)
+	private NotificationContext _createNotificationContext(User user)
 		throws PortalException {
 
-		return _notificationTemplateLocalService.addNotificationTemplate(
-			user.getUserId(), 0, RandomTestUtil.randomString(),
-			Collections.singletonMap(
-				LocaleUtil.US, RandomTestUtil.randomString()),
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(),
-			Collections.singletonMap(
-				LocaleUtil.US, RandomTestUtil.randomString()),
-			RandomTestUtil.randomString(), null,
-			Collections.singletonMap(
-				LocaleUtil.US, RandomTestUtil.randomString()),
-			Collections.singletonMap(
-				LocaleUtil.US, RandomTestUtil.randomString()),
-			NotificationConstants.TYPE_EMAIL, Collections.emptyList());
+		NotificationContext notificationContext = new NotificationContext();
+
+		NotificationTemplate notificationTemplate =
+			_notificationTemplateLocalService.createNotificationTemplate(
+				RandomTestUtil.randomInt());
+
+		notificationTemplate.setUserId(user.getUserId());
+		notificationTemplate.setName(RandomTestUtil.randomString());
+		notificationTemplate.setType(NotificationConstants.TYPE_EMAIL);
+
+		notificationContext.setNotificationTemplate(notificationTemplate);
+
+		NotificationRecipient notificationRecipient =
+			_notificationRecipientLocalService.createNotificationRecipient(
+				_counterLocalService.increment());
+
+		notificationRecipient.setClassName(
+			NotificationTemplate.class.getName());
+		notificationRecipient.setClassPK(
+			notificationTemplate.getNotificationTemplateId());
+
+		notificationContext.setNotificationRecipient(notificationRecipient);
+
+		NotificationRecipientSetting notificationRecipientSetting =
+			_notificationRecipientSettingLocalService.
+				createNotificationRecipientSetting(
+					_counterLocalService.increment());
+
+		notificationRecipientSetting.setNotificationRecipientId(
+			notificationRecipient.getNotificationRecipientId());
+
+		notificationContext.setNotificationRecipientSettings(
+			Arrays.asList(notificationRecipientSetting));
+
+		notificationContext.setType(
+			NotificationConstants.TYPE_USER_NOTIFICATION);
+
+		return notificationContext;
 	}
 
 	private void _setUser(User user) {
@@ -184,23 +213,12 @@ public class NotificationTemplateServiceTest {
 
 			notificationTemplate =
 				_notificationTemplateService.addNotificationTemplate(
-					user.getUserId(), 0, RandomTestUtil.randomString(),
-					Collections.singletonMap(
-						LocaleUtil.US, RandomTestUtil.randomString()),
-					RandomTestUtil.randomString(),
-					RandomTestUtil.randomString(),
-					RandomTestUtil.randomString(),
-					Collections.singletonMap(
-						LocaleUtil.US, RandomTestUtil.randomString()),
-					RandomTestUtil.randomString(), null,
-					Collections.singletonMap(
-						LocaleUtil.US, RandomTestUtil.randomString()),
-					Collections.singletonMap(
-						LocaleUtil.US, RandomTestUtil.randomString()),
-					NotificationConstants.TYPE_EMAIL, Collections.emptyList());
+					_createNotificationContext(user));
 		}
 		finally {
-			if (notificationTemplate != null) {
+			if ((notificationTemplate != null) &&
+				!notificationTemplate.isNew()) {
+
 				_notificationTemplateLocalService.deleteNotificationTemplate(
 					notificationTemplate);
 			}
@@ -216,7 +234,9 @@ public class NotificationTemplateServiceTest {
 		try {
 			_setUser(user);
 
-			notificationTemplate = _addNotificationTemplate(ownerUser);
+			notificationTemplate =
+				_notificationTemplateLocalService.addNotificationTemplate(
+					_createNotificationContext(ownerUser));
 
 			deleteNotificationTemplate =
 				_notificationTemplateService.deleteNotificationTemplate(
@@ -238,7 +258,9 @@ public class NotificationTemplateServiceTest {
 		try {
 			_setUser(user);
 
-			notificationTemplate = _addNotificationTemplate(ownerUser);
+			notificationTemplate =
+				_notificationTemplateLocalService.addNotificationTemplate(
+					_createNotificationContext(ownerUser));
 
 			_notificationTemplateService.getNotificationTemplate(
 				notificationTemplate.getNotificationTemplateId());
@@ -259,25 +281,18 @@ public class NotificationTemplateServiceTest {
 		try {
 			_setUser(user);
 
-			notificationTemplate = _addNotificationTemplate(ownerUser);
+			NotificationContext notificationContext =
+				_createNotificationContext(ownerUser);
+
+			notificationTemplate =
+				_notificationTemplateLocalService.addNotificationTemplate(
+					notificationContext);
+
+			notificationContext.setNotificationTemplate(notificationTemplate);
 
 			notificationTemplate =
 				_notificationTemplateService.updateNotificationTemplate(
-					notificationTemplate.getNotificationTemplateId(), 0,
-					RandomTestUtil.randomString(),
-					Collections.singletonMap(
-						LocaleUtil.US, RandomTestUtil.randomString()),
-					RandomTestUtil.randomString(),
-					RandomTestUtil.randomString(),
-					RandomTestUtil.randomString(),
-					Collections.singletonMap(
-						LocaleUtil.US, RandomTestUtil.randomString()),
-					RandomTestUtil.randomString(), null,
-					Collections.singletonMap(
-						LocaleUtil.US, RandomTestUtil.randomString()),
-					Collections.singletonMap(
-						LocaleUtil.US, RandomTestUtil.randomString()),
-					NotificationConstants.TYPE_EMAIL, Collections.emptyList());
+					notificationContext);
 		}
 		finally {
 			if (notificationTemplate != null) {
@@ -288,6 +303,17 @@ public class NotificationTemplateServiceTest {
 	}
 
 	private User _adminUser;
+
+	@Inject
+	private CounterLocalService _counterLocalService;
+
+	@Inject
+	private NotificationRecipientLocalService
+		_notificationRecipientLocalService;
+
+	@Inject
+	private NotificationRecipientSettingLocalService
+		_notificationRecipientSettingLocalService;
 
 	@Inject
 	private NotificationTemplateLocalService _notificationTemplateLocalService;

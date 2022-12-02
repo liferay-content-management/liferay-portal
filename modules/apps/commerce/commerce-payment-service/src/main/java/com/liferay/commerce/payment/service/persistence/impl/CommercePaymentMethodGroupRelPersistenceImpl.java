@@ -39,7 +39,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -77,11 +76,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luca Pellizzon
  * @generated
  */
-@Component(
-	service = {
-		CommercePaymentMethodGroupRelPersistence.class, BasePersistence.class
-	}
-)
+@Component(service = CommercePaymentMethodGroupRelPersistence.class)
 public class CommercePaymentMethodGroupRelPersistenceImpl
 	extends BasePersistenceImpl<CommercePaymentMethodGroupRel>
 	implements CommercePaymentMethodGroupRelPersistence {
@@ -199,7 +194,7 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommercePaymentMethodGroupRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommercePaymentMethodGroupRel
@@ -915,7 +910,7 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 
 		Object[] finderArgs = new Object[] {groupId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1082,7 +1077,8 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 		Object result = null;
 
 		if (useFinderCache) {
-			result = finderCache.getResult(_finderPathFetchByG_E, finderArgs);
+			result = finderCache.getResult(
+				_finderPathFetchByG_E, finderArgs, this);
 		}
 
 		if (result instanceof CommercePaymentMethodGroupRel) {
@@ -1198,7 +1194,7 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 
 		Object[] finderArgs = new Object[] {groupId, engineKey};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -1363,7 +1359,7 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommercePaymentMethodGroupRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (CommercePaymentMethodGroupRel
@@ -2117,7 +2113,7 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 
 		Object[] finderArgs = new Object[] {groupId, active};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -2706,7 +2702,7 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<CommercePaymentMethodGroupRel>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2779,7 +2775,7 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;

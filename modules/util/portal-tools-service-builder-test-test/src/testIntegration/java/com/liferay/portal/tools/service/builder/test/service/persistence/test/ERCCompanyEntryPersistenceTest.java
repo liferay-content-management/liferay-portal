@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 import com.liferay.portal.test.rule.TransactionalTestRule;
+import com.liferay.portal.tools.service.builder.test.exception.DuplicateERCCompanyEntryExternalReferenceCodeException;
 import com.liferay.portal.tools.service.builder.test.exception.NoSuchERCCompanyEntryException;
 import com.liferay.portal.tools.service.builder.test.model.ERCCompanyEntry;
 import com.liferay.portal.tools.service.builder.test.service.ERCCompanyEntryLocalServiceUtil;
@@ -149,6 +150,28 @@ public class ERCCompanyEntryPersistenceTest {
 			newERCCompanyEntry.getCompanyId());
 	}
 
+	@Test(
+		expected = DuplicateERCCompanyEntryExternalReferenceCodeException.class
+	)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		ERCCompanyEntry ercCompanyEntry = addERCCompanyEntry();
+
+		ERCCompanyEntry newERCCompanyEntry = addERCCompanyEntry();
+
+		newERCCompanyEntry.setCompanyId(ercCompanyEntry.getCompanyId());
+
+		newERCCompanyEntry = _persistence.update(newERCCompanyEntry);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newERCCompanyEntry);
+
+		newERCCompanyEntry.setExternalReferenceCode(
+			ercCompanyEntry.getExternalReferenceCode());
+
+		_persistence.update(newERCCompanyEntry);
+	}
+
 	@Test
 	public void testCountByUuid() throws Exception {
 		_persistence.countByUuid("");
@@ -168,12 +191,12 @@ public class ERCCompanyEntryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_ERC() throws Exception {
-		_persistence.countByC_ERC(RandomTestUtil.nextLong(), "");
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
 
-		_persistence.countByC_ERC(0L, "null");
+		_persistence.countByERC_C("null", 0L);
 
-		_persistence.countByC_ERC(0L, (String)null);
+		_persistence.countByERC_C((String)null, 0L);
 	}
 
 	@Test
@@ -473,15 +496,15 @@ public class ERCCompanyEntryPersistenceTest {
 
 	private void _assertOriginalValues(ERCCompanyEntry ercCompanyEntry) {
 		Assert.assertEquals(
-			Long.valueOf(ercCompanyEntry.getCompanyId()),
-			ReflectionTestUtil.<Long>invoke(
-				ercCompanyEntry, "getColumnOriginalValue",
-				new Class<?>[] {String.class}, "companyId"));
-		Assert.assertEquals(
 			ercCompanyEntry.getExternalReferenceCode(),
 			ReflectionTestUtil.invoke(
 				ercCompanyEntry, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(ercCompanyEntry.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				ercCompanyEntry, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 	}
 
 	protected ERCCompanyEntry addERCCompanyEntry() throws Exception {

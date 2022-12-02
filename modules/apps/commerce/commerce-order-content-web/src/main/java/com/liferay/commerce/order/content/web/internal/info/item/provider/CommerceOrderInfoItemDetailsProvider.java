@@ -27,7 +27,6 @@ import org.osgi.service.component.annotations.Component;
  * @author Danny Situ
  */
 @Component(
-	enabled = false, immediate = true,
 	property = Constants.SERVICE_RANKING + ":Integer=10",
 	service = InfoItemDetailsProvider.class
 )

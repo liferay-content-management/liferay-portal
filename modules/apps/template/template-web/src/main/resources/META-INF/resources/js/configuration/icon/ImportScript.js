@@ -15,15 +15,14 @@
 import {openToast} from 'frontend-js-web';
 
 export default function ({namespace}) {
-	const button = document.getElementById(`${namespace}importScript`);
-
 	const fileInput = document.getElementById(`${namespace}importScriptInput`);
 
-	const onButtonClick = () => {
-		fileInput.click();
-	};
-
-	button.addEventListener('click', onButtonClick);
+	Liferay.Util.setPortletConfigurationIconAction(
+		`${namespace}templateImportScript`,
+		() => {
+			fileInput.click();
+		}
+	);
 
 	const onChange = (event) => {
 		const target = event.target;
@@ -60,7 +59,6 @@ export default function ({namespace}) {
 
 	return {
 		dispose() {
-			button.removeEventListener('click', onButtonClick);
 			fileInput.removeEventListener('change', onChange);
 		},
 	};

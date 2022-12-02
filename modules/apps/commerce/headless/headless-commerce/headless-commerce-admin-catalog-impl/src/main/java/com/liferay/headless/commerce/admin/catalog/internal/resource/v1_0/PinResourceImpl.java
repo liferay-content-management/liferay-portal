@@ -40,7 +40,6 @@ import com.liferay.portal.vulcan.fields.NestedField;
 import com.liferay.portal.vulcan.fields.NestedFieldSupport;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.io.Serializable;
 
@@ -57,7 +56,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false, properties = "OSGI-INF/liferay/rest/v1_0/pin.properties",
+	properties = "OSGI-INF/liferay/rest/v1_0/pin.properties",
 	scope = ServiceScope.PROTOTYPE,
 	service = {NestedFieldSupport.class, PinResource.class}
 )
@@ -284,7 +283,7 @@ public class PinResourceImpl
 	}
 
 	private List<Pin> _toPins(List<CSDiagramPin> csDiagramPins) {
-		return TransformUtil.transform(
+		return transform(
 			csDiagramPins,
 			csDiagramPin -> _toPin(csDiagramPin.getCSDiagramPinId()));
 	}

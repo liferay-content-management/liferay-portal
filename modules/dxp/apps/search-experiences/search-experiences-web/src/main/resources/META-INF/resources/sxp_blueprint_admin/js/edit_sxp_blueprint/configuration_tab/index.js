@@ -9,10 +9,10 @@
  * distribution rights of the Software.
  */
 
-import ClayForm from '@clayui/form';
+import ClayForm, {ClayRadio, ClayRadioGroup, ClaySelect} from '@clayui/form';
 import ClayLayout from '@clayui/layout';
 import getCN from 'classnames';
-import React from 'react';
+import React, {useContext} from 'react';
 
 import advancedConfigurationSchema from '../../../schemas/advanced-configuration.schema.json';
 import aggregationConfigurationSchema from '../../../schemas/aggregation-configuration.schema.json';
@@ -21,6 +21,7 @@ import parameterConfigurationSchema from '../../../schemas/parameter-configurati
 import sortConfigurationSchema from '../../../schemas/sort-configuration.schema.json';
 import CodeMirrorEditor from '../../shared/CodeMirrorEditor';
 import LearnMessage from '../../shared/LearnMessage';
+import ThemeContext from '../../shared/ThemeContext';
 
 const CONFIGURATION_SCHEMAS = {
 	advancedConfig: advancedConfigurationSchema,
@@ -35,12 +36,42 @@ function ConfigurationTab({
 	aggregationConfig,
 	errors,
 	highlightConfig,
+	indexConfig,
 	parameterConfig,
+	searchIndexes,
 	setFieldTouched,
 	setFieldValue,
 	sortConfig,
 	touched,
 }) {
+	const {featureFlagLps153813, isCompanyAdmin} = useContext(ThemeContext);
+
+	/**
+	 * Called when the Index Configuration radio selection is changed.
+	 * @param {boolean} value
+	 * 	true = 'Default Company Index',
+	 * 	false = 'Configure a Different Index'
+	 */
+	const _handleIndexConfigurationRadioChange = (value) => {
+		setFieldValue(
+			'indexConfig',
+			value ? {indexName: ''} : {indexName: searchIndexes[0].name}
+		);
+	};
+
+	/**
+	 * Called when the Index Configuration "Configure a Different Index"
+	 * selector is changed.
+	 * @param {string} event.target.value
+	 */
+	const _handleIndexConfigurationSelectChange = (event) => {
+		setFieldValue('indexConfig', {indexName: event.target.value});
+	};
+
+	const _isCompanyIndex = () => {
+		return indexConfig.indexName === '';
+	};
+
 	const _renderEditor = (configName, configValue) => (
 		<div
 			className={getCN({
@@ -173,6 +204,64 @@ function ConfigurationTab({
 
 						{_renderEditor('advancedConfig', advancedConfig)}
 					</ClayForm.Group>
+
+					{featureFlagLps153813 && isCompanyAdmin && (
+						<ClayForm.Group>
+							<label>
+								{Liferay.Language.get('index-configuration')}
+							</label>
+
+							<div className="mb-4 sheet-text">
+								<span className="help-text">
+									{Liferay.Language.get(
+										'index-configuration-description'
+									)}
+								</span>
+
+								<LearnMessage resourceKey="index-configuration" />
+							</div>
+
+							<ClayRadioGroup
+								onChange={_handleIndexConfigurationRadioChange}
+								value={_isCompanyIndex()}
+							>
+								<ClayRadio
+									label={Liferay.Language.get(
+										'company-index'
+									)}
+									value={true}
+								/>
+
+								<ClayRadio
+									disabled={!searchIndexes.length}
+									label={Liferay.Language.get(
+										'configure-a-different-index'
+									)}
+									value={false}
+								/>
+							</ClayRadioGroup>
+
+							{!_isCompanyIndex() && (
+								<ClaySelect
+									aria-label={Liferay.Language.get(
+										'index-configuration'
+									)}
+									onChange={
+										_handleIndexConfigurationSelectChange
+									}
+									value={indexConfig.indexName}
+								>
+									{searchIndexes.map((searchIndex) => (
+										<ClaySelect.Option
+											key={searchIndex.name}
+											label={searchIndex.name}
+											value={searchIndex.name}
+										/>
+									))}
+								</ClaySelect>
+							)}
+						</ClayForm.Group>
+					)}
 				</div>
 			</div>
 		</ClayLayout.ContainerFluid>

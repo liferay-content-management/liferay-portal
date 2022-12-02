@@ -14,9 +14,11 @@ import {gql} from '@apollo/client';
 export const CORE_KORONEIKI_ACCOUNT_FIELDS = gql`
 	fragment CoreKoroneikiAccountFields on C_KoroneikiAccount {
 		accountKey
+		acWorkspaceGroupId
 		code
 		dxpVersion
 		externalReferenceCode
+		hasSLAGoldPlatinum @client
 		liferayContactEmailAddress
 		liferayContactName
 		liferayContactRole

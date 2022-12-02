@@ -83,8 +83,16 @@ public class TestrayProject {
 				_testrayServer.getHTTPAuthorization());
 
 			if (jsonObject.has("data")) {
-				return new TestrayProductVersion(
-					this, jsonObject.getJSONObject("data"));
+				TestrayProductVersion newTestrayProductVersion =
+					new TestrayProductVersion(
+						this, jsonObject.getJSONObject("data"));
+
+				_testrayProductVersionsByID.put(
+					getID(), newTestrayProductVersion);
+				_testrayProductVersionsByName.put(
+					testrayProductVersionName, newTestrayProductVersion);
+
+				return newTestrayProductVersion;
 			}
 
 			throw new RuntimeException("Failed to create a product version");

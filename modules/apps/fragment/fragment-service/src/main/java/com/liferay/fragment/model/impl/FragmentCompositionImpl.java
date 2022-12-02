@@ -62,7 +62,7 @@ public class FragmentCompositionImpl extends FragmentCompositionBaseImpl {
 			return DLURLHelperUtil.getImagePreviewURL(fileEntry, themeDisplay);
 		}
 		catch (Exception exception) {
-			_log.error("Unable to get preview entry image URL", exception);
+			_log.error("Unable to get image preview URL", exception);
 		}
 
 		return StringPool.BLANK;

@@ -37,7 +37,6 @@ import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.SearchUtil;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Collections;
 import java.util.Map;
@@ -53,7 +52,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Alessio Antonio Rendina
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/account-group.properties",
 	scope = ServiceScope.PROTOTYPE, service = AccountGroupResource.class
 )
@@ -213,7 +211,8 @@ public class AccountGroupResourceImpl extends BaseAccountGroupResourceImpl {
 
 		if ((customFields != null) && !customFields.isEmpty()) {
 			ExpandoUtil.updateExpando(
-				contextCompany.getCompanyId(), CommerceAccountGroup.class,
+				contextCompany.getCompanyId(),
+				com.liferay.account.model.AccountGroup.class,
 				commerceAccountGroup.getPrimaryKey(), customFields);
 		}
 
@@ -256,7 +255,8 @@ public class AccountGroupResourceImpl extends BaseAccountGroupResourceImpl {
 
 		if ((customFields != null) && !customFields.isEmpty()) {
 			ExpandoUtil.updateExpando(
-				contextCompany.getCompanyId(), CommerceAccountGroup.class,
+				contextCompany.getCompanyId(),
+				com.liferay.account.model.AccountGroup.class,
 				commerceAccountGroup.getPrimaryKey(), customFields);
 		}
 
@@ -271,7 +271,7 @@ public class AccountGroupResourceImpl extends BaseAccountGroupResourceImpl {
 		throws Exception {
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commerceAccountGroupService.
 					getCommerceAccountGroupsByCommerceAccountId(
 						commerceAccountId, pagination.getStartPosition(),

@@ -32,7 +32,6 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Map;
 
@@ -44,7 +43,6 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author Riccardo Alberti
  */
 @Component(
-	enabled = false,
 	properties = "OSGI-INF/liferay/rest/v1_0/payment-method-group-rel-term.properties",
 	scope = ServiceScope.PROTOTYPE,
 	service = PaymentMethodGroupRelTermResource.class
@@ -75,7 +73,7 @@ public class PaymentMethodGroupRelTermResourceImpl
 		}
 
 		return Page.of(
-			TransformUtil.transform(
+			transform(
 				_commercePaymentMethodGroupRelQualifierService.
 					getCommerceTermEntryCommercePaymentMethodGroupRelQualifiers(
 						id, search, pagination.getStartPosition(),

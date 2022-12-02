@@ -275,37 +275,39 @@ for (AssetEntry assetEntry : assetEntryResult.getAssetEntries()) {
 						>
 
 							<%
-							PortletURL printAssetURL = PortletURLBuilder.createRenderURL(
-								renderResponse
-							).setMVCPath(
-								"/view_content.jsp"
-							).setParameter(
-								"assetEntryId", assetEntry.getEntryId()
-							).setParameter(
-								"languageId", LanguageUtil.getLanguageId(request)
-							).setParameter(
-								"type", assetRendererFactory.getType()
-							).setParameter(
-								"viewMode", Constants.PRINT
-							).setWindowState(
-								LiferayWindowState.POP_UP
-							).buildPortletURL();
-
 							String id = assetEntry.getEntryId() + StringUtil.randomId();
+							String label = LanguageUtil.format(request, "print-x", HtmlUtil.escape(title));
 							%>
 
-							<liferay-ui:icon
+							<clay:button
+								aria-label="<%= label %>"
+								cssClass="btn btn-outline-borderless btn-outline-secondary btn-sm lfr-portal-tooltip"
+								displayType="secondary"
 								icon="print"
-								linkCssClass="btn btn-monospaced btn-outline-borderless btn-outline-secondary btn-sm"
-								markupView="lexicon"
-								message='<%= LanguageUtil.format(request, "print-x-x", new Object[] {"hide-accessible", HtmlUtil.escape(title)}, false) %>'
-								url='<%= "javascript:" + liferayPortletResponse.getNamespace() + "printPage_" + id + "();" %>'
+								onClick='<%= "javascript:" + liferayPortletResponse.getNamespace() + "printPage_" + id + "();" %>'
+								title="<%= label %>"
+								type="button"
 							/>
 
 							<aui:script>
 								function <portlet:namespace />printPage_<%= id %>() {
 									window.open(
-										'<%= printAssetURL %>',
+										'<%=
+										PortletURLBuilder.createRenderURL(
+											renderResponse
+										).setMVCPath(
+											"/view_content.jsp"
+										).setParameter(
+											"assetEntryId", assetEntry.getEntryId()
+										).setParameter(
+											"languageId", LanguageUtil.getLanguageId(request)
+										).setParameter(
+											"type", assetRendererFactory.getType()
+										).setParameter(
+											"viewMode", Constants.PRINT
+										).setWindowState(
+											LiferayWindowState.POP_UP
+										).buildPortletURL() %>',
 										'',
 										'directories=0,height=480,left=80,location=1,menubar=1,resizable=1,scrollbars=yes,status=0,toolbar=0,top=180,width=640'
 									);

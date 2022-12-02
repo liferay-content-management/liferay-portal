@@ -31,7 +31,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.vulcan.batch.engine.Field;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.Iterator;
 import java.util.List;
@@ -209,13 +208,13 @@ public class PlanResourceImpl extends BasePlanResourceImpl {
 				externalURL = batchPlannerPlan.getExternalURL();
 				id = batchPlannerPlan.getBatchPlannerPlanId();
 				internalClassName = batchPlannerPlan.getInternalClassName();
-				mappings = TransformUtil.transformToArray(
+				mappings = transformToArray(
 					_batchPlannerMappingService.getBatchPlannerMappings(
 						batchPlannerPlan.getBatchPlannerPlanId()),
 					batchPlannerMapping -> _toMapping(batchPlannerMapping),
 					Mapping.class);
 				name = batchPlannerPlan.getName();
-				policies = TransformUtil.transformToArray(
+				policies = transformToArray(
 					_batchPlannerPolicyService.getBatchPlannerPolicies(
 						batchPlannerPlan.getBatchPlannerPlanId()),
 					batchPlannerPolicy -> _toPolicy(batchPlannerPolicy),

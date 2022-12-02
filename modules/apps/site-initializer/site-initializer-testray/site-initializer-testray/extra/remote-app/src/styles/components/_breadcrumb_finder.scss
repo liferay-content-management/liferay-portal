@@ -106,13 +106,33 @@
 	width: 98%;
 }
 
+.breadcrumb-finder-container .overlay {
+	inset: 0;
+	overflow-y: scroll;
+	position: fixed;
+}
+
 .breadcrumb-finder-container {
+	[aria-hidden='false'] {
+		display: block;
+	}
+
+	[aria-hidden='true'] {
+		display: none;
+	}
+
 	.breadcrumb-finder-content,
 	.breadcrumb-input-edit {
 		display: inline-block;
 		font-size: 1em;
 		font-weight: $font-header-weight;
 		line-height: 1.5;
+
+		&:focus-visible {
+			border: none !important;
+			outline: none !important;
+			width: 100%;
+		}
 	}
 
 	.breadcrumb-input-edit-wrapper {
@@ -153,7 +173,11 @@
 		.breadcrumb-selected-item,
 		.divider {
 			color: $color-gray;
+			max-width: 300px;
+			overflow: hidden;
+			text-overflow: ellipsis;
 			vertical-align: bottom;
+			white-space: nowrap;
 		}
 
 		&.active {
@@ -203,6 +227,9 @@
 
 			.result-text {
 				flex: 1;
+				&:hover {
+					text-decoration: underline;
+				}
 			}
 		}
 

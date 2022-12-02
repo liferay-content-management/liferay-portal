@@ -35,7 +35,6 @@ import com.liferay.headless.admin.user.internal.dto.v1_0.util.ServiceBuilderWebs
 import com.liferay.headless.admin.user.internal.odata.entity.v1_0.OrganizationEntityModel;
 import com.liferay.headless.admin.user.resource.v1_0.OrganizationResource;
 import com.liferay.headless.admin.user.resource.v1_0.RoleResource;
-import com.liferay.headless.common.spi.service.context.ServiceContextRequestUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -60,6 +59,7 @@ import com.liferay.portal.kernel.service.OrgLaborLocalService;
 import com.liferay.portal.kernel.service.OrganizationLocalService;
 import com.liferay.portal.kernel.service.OrganizationService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
@@ -421,7 +421,7 @@ public class OrganizationResourceImpl
 				_getDefaultParentOrganizationId(organization),
 				organization.getName(), serviceBuilderOrganization.getType(),
 				_getRegionId(organization, countryId), countryId,
-				serviceBuilderOrganization.getStatusId(),
+				serviceBuilderOrganization.getStatusListTypeId(),
 				organization.getComment(), false, null, group.isSite(),
 				_getAddresses(organization), _getEmailAddresses(organization),
 				_getOrgLabors(organization), _getPhones(organization),
@@ -436,8 +436,9 @@ public class OrganizationResourceImpl
 
 		com.liferay.portal.kernel.model.Organization
 			serviceBuilderOrganization =
-				_organizationLocalService.fetchOrganizationByReferenceCode(
-					contextCompany.getCompanyId(), externalReferenceCode);
+				_organizationLocalService.
+					fetchOrganizationByExternalReferenceCode(
+						externalReferenceCode, contextCompany.getCompanyId());
 
 		String type = OrganizationConstants.TYPE_ORGANIZATION;
 
@@ -447,11 +448,11 @@ public class OrganizationResourceImpl
 
 		long countryId = _getCountryId(organization);
 
-		long statusId = ListTypeConstants.ORGANIZATION_STATUS_DEFAULT;
+		long statusListTypeId = ListTypeConstants.ORGANIZATION_STATUS_DEFAULT;
 		boolean site = false;
 
 		if (serviceBuilderOrganization != null) {
-			statusId = serviceBuilderOrganization.getStatusId();
+			statusListTypeId = serviceBuilderOrganization.getStatusListTypeId();
 
 			Group group = serviceBuilderOrganization.getGroup();
 
@@ -463,8 +464,8 @@ public class OrganizationResourceImpl
 				externalReferenceCode,
 				_getDefaultParentOrganizationId(organization),
 				organization.getName(), type,
-				_getRegionId(organization, countryId), countryId, statusId,
-				organization.getComment(), false, null, site,
+				_getRegionId(organization, countryId), countryId,
+				statusListTypeId, organization.getComment(), false, null, site,
 				_getAddresses(organization), _getEmailAddresses(organization),
 				_getOrgLabors(organization), _getPhones(organization),
 				_getWebsites(organization),
@@ -531,12 +532,16 @@ public class OrganizationResourceImpl
 	private ServiceContext _createServiceContext(Organization organization)
 		throws Exception {
 
-		return ServiceContextRequestUtil.createServiceContext(
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			contextHttpServletRequest);
+
+		serviceContext.setExpandoBridgeAttributes(
 			CustomFieldsUtil.toMap(
 				com.liferay.portal.kernel.model.Organization.class.getName(),
 				contextCompany.getCompanyId(), organization.getCustomFields(),
-				contextAcceptLanguage.getPreferredLocale()),
-			contextCompany.getGroupId(), contextHttpServletRequest, null);
+				contextAcceptLanguage.getPreferredLocale()));
+
+		return serviceContext;
 	}
 
 	private List<Address> _getAddresses(Organization organization) {
@@ -783,17 +788,17 @@ public class OrganizationResourceImpl
 	}
 
 	private OrgLabor _toOrgLabor(Service service) {
-		long typeId = ServiceBuilderListTypeUtil.toServiceBuilderListTypeId(
+		long listTypeId = ServiceBuilderListTypeUtil.toServiceBuilderListTypeId(
 			"administrative", service.getServiceType(),
 			ListTypeConstants.ORGANIZATION_SERVICE);
 
-		if (typeId == -1) {
+		if (listTypeId == -1) {
 			return null;
 		}
 
 		OrgLabor orgLabor = _orgLaborLocalService.createOrgLabor(0);
 
-		orgLabor.setTypeId(typeId);
+		orgLabor.setListTypeId(listTypeId);
 
 		HoursAvailable[] hoursAvailableArray = service.getHoursAvailable();
 

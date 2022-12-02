@@ -141,11 +141,6 @@ public class DefaultIndexer<T extends BaseModel<?>> implements Indexer<T> {
 	}
 
 	@Override
-	public String getSearchEngineId() {
-		return _modelSearchSettings.getSearchEngineId();
-	}
-
-	@Override
 	public String getSortField(String orderByCol) {
 		return StringPool.BLANK;
 	}

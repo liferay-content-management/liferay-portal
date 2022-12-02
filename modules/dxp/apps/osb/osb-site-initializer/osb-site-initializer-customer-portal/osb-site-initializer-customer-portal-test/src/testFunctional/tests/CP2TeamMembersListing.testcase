@@ -50,11 +50,11 @@ definition {
 		// "Reason: Not able to reproduce scenario without OKTA workaround."
 
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}
@@ -88,10 +88,6 @@ definition {
 
 			Tooltip.viewHelpInfo(info = "The limit of support seats available counts the total of Administrators & Requesters roles assigned due to both have role permissions to open support tickets.");
 		}
-
-		task ("Delete the entries and objects created") {
-			CustomerPortal.deleteEntryAccountFlag(entry = "ERC-002");
-		}
 	}
 
 	@description = "Automation ID: LPS-149752 | Test Summary: Verify that in the table the guest user is below the current user and its status is displayed as invited"
@@ -113,21 +109,21 @@ definition {
 				requireReset = "false",
 				userEmailAddress = "test.user@liferay.com");
 
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "${testAccount}");
 
-			Accounts.assignUsers(
+			Account.assignUsers(
 				accountName = "${testAccount}",
 				assigneeName = "Test User");
 		}
 
 		task ("Change the user role in the project") {
-			Accounts.openAccountsAdmin();
+			Account.openAccountsAdmin();
 
 			CustomerPortal.accountTableProject(title = "${testAccount}");
 
-			Accounts.addAssigneeToRoleViaUsersTab(
+			Account.addAssigneeToRoleViaUsersTab(
 				accountRoleTitle = "Account Administrator",
 				accountUserName = "Test Test");
 		}

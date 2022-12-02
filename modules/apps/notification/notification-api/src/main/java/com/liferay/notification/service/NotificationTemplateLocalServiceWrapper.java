@@ -40,20 +40,12 @@ public class NotificationTemplateLocalServiceWrapper
 	@Override
 	public com.liferay.notification.model.NotificationTemplate
 			addNotificationTemplate(
-				long userId, long objectDefinitionId, String bcc,
-				java.util.Map<java.util.Locale, String> bodyMap, String cc,
-				String description, String from,
-				java.util.Map<java.util.Locale, String> fromNameMap,
-				String name, String recipientType,
-				java.util.Map<java.util.Locale, String> subjectMap,
-				java.util.Map<java.util.Locale, String> toMap, String type,
-				java.util.List<Long> attachmentObjectFieldIds)
+				com.liferay.notification.context.NotificationContext
+					notificationContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _notificationTemplateLocalService.addNotificationTemplate(
-			userId, objectDefinitionId, bcc, bodyMap, cc, description, from,
-			fromNameMap, name, recipientType, subjectMap, toMap, type,
-			attachmentObjectFieldIds);
+			notificationContext);
 	}
 
 	/**
@@ -268,6 +260,16 @@ public class NotificationTemplateLocalServiceWrapper
 			notificationTemplateId);
 	}
 
+	@Override
+	public com.liferay.notification.model.NotificationTemplate
+		fetchNotificationTemplateByExternalReferenceCode(
+			String externalReferenceCode, long companyId) {
+
+		return _notificationTemplateLocalService.
+			fetchNotificationTemplateByExternalReferenceCode(
+				externalReferenceCode, companyId);
+	}
+
 	/**
 	 * Returns the notification template with the matching UUID and company.
 	 *
@@ -323,6 +325,17 @@ public class NotificationTemplateLocalServiceWrapper
 
 		return _notificationTemplateLocalService.getNotificationTemplate(
 			notificationTemplateId);
+	}
+
+	@Override
+	public com.liferay.notification.model.NotificationTemplate
+			getNotificationTemplateByExternalReferenceCode(
+				String externalReferenceCode, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _notificationTemplateLocalService.
+			getNotificationTemplateByExternalReferenceCode(
+				externalReferenceCode, companyId);
 	}
 
 	/**
@@ -396,32 +409,14 @@ public class NotificationTemplateLocalServiceWrapper
 	}
 
 	@Override
-	public void sendNotificationTemplate(
-			long userId, long notificationTemplateId,
-			String notificationTypeKey, Object object)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		_notificationTemplateLocalService.sendNotificationTemplate(
-			userId, notificationTemplateId, notificationTypeKey, object);
-	}
-
-	@Override
 	public com.liferay.notification.model.NotificationTemplate
 			updateNotificationTemplate(
-				long notificationTemplateId, long objectDefinitionId,
-				String bcc, java.util.Map<java.util.Locale, String> bodyMap,
-				String cc, String description, String from,
-				java.util.Map<java.util.Locale, String> fromNameMap,
-				String name, String recipientType,
-				java.util.Map<java.util.Locale, String> subjectMap,
-				java.util.Map<java.util.Locale, String> toMap, String type,
-				java.util.List<Long> attachmentObjectFieldIds)
+				com.liferay.notification.context.NotificationContext
+					notificationContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _notificationTemplateLocalService.updateNotificationTemplate(
-			notificationTemplateId, objectDefinitionId, bcc, bodyMap, cc,
-			description, from, fromNameMap, name, recipientType, subjectMap,
-			toMap, type, attachmentObjectFieldIds);
+			notificationContext);
 	}
 
 	/**

@@ -3,7 +3,10 @@ definition {
 	macro setClassNameId {
 		Variables.assertDefined(parameterList = "${contentType}");
 
-		if ("${contentType}" == "Commerce Product") {
+		if ("${contentType}" == "Commerce Order") {
+			var value = "com.liferay.commerce.model.CommerceOrder";
+		}
+		else if ("${contentType}" == "Commerce Product") {
 			var value = "com.liferay.commerce.product.model.CPDefinition";
 		}
 		else if ("${contentType}" == "Web Content Article") {

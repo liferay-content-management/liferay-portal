@@ -57,7 +57,6 @@ import org.osgi.service.component.annotations.Reference;
  * @author Julio Camarero
  */
 @Component(
-	immediate = true,
 	property = {
 		"product.navigation.control.menu.category.key=" + ProductNavigationControlMenuCategoryKeys.SITES,
 		"product.navigation.control.menu.entry.order:Integer=100"
@@ -87,15 +86,18 @@ public class ProductMenuProductNavigationControlMenuEntry
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
+		String productMenuState = SessionClicks.get(
+			httpServletRequest,
+			"com.liferay.product.navigation.product.menu.web_productMenuState",
+			"closed");
+
 		Map<String, String> values = HashMapBuilder.put(
+			"closeProductMenuTitle",
+			HtmlUtil.escape(
+				_language.get(httpServletRequest, "close-product-menu"))
+		).put(
 			"cssClass",
 			() -> {
-				String productMenuState = SessionClicks.get(
-					httpServletRequest,
-					"com.liferay.product.navigation.product.menu." +
-						"web_productMenuState",
-					"closed");
-
 				if (Objects.equals(productMenuState, "open")) {
 					return "active";
 				}
@@ -130,6 +132,19 @@ public class ProductMenuProductNavigationControlMenuEntry
 				return "data-url='" + portletURL + "'";
 			}
 		).put(
+			"isOpen",
+			() -> {
+				if (Objects.equals(productMenuState, "open")) {
+					return StringPool.TRUE;
+				}
+
+				return StringPool.FALSE;
+			}
+		).put(
+			"openProductMenuTitle",
+			HtmlUtil.escape(
+				_language.get(httpServletRequest, "open-product-menu"))
+		).put(
 			"portletNamespace",
 			_portal.getPortletNamespace(
 				ProductNavigationProductMenuPortletKeys.
@@ -139,7 +154,17 @@ public class ProductMenuProductNavigationControlMenuEntry
 			HtmlUtil.escape(
 				_language.get(httpServletRequest, "skip-to-product-menu"))
 		).put(
-			"title", HtmlUtil.escape(_language.get(httpServletRequest, "menu"))
+			"title",
+			() -> {
+				if (Objects.equals(productMenuState, "open")) {
+					return HtmlUtil.escape(
+						_language.get(
+							httpServletRequest, "close-product-menu"));
+				}
+
+				return HtmlUtil.escape(
+					_language.get(httpServletRequest, "open-product-menu"));
+			}
 		).build();
 
 		try {

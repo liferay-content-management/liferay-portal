@@ -14,9 +14,27 @@
 
 package com.liferay.portal.workflow.metrics.rest.internal.graphql.servlet.v1_0;
 
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.vulcan.graphql.servlet.ServletData;
 import com.liferay.portal.workflow.metrics.rest.internal.graphql.mutation.v1_0.Mutation;
 import com.liferay.portal.workflow.metrics.rest.internal.graphql.query.v1_0.Query;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.AssigneeMetricResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.AssigneeResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.CalendarResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.HistogramMetricResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.IndexResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.InstanceResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.NodeMetricResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.NodeResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.ProcessMetricResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.ProcessResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.ProcessVersionResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.ReindexStatusResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.RoleResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.SLAResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.SLAResultResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.TaskResourceImpl;
+import com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0.TimeRangeResourceImpl;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.AssigneeMetricResource;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.AssigneeResource;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.CalendarResource;
@@ -35,6 +53,9 @@ import com.liferay.portal.workflow.metrics.rest.resource.v1_0.SLAResultResource;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.TaskResource;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.TimeRangeResource;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Generated;
 
 import org.osgi.framework.BundleContext;
@@ -48,7 +69,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Rafael Praxedes
  * @generated
  */
-@Component(immediate = true, service = ServletData.class)
+@Component(service = ServletData.class)
 @Generated("")
 public class ServletDataImpl implements ServletData {
 
@@ -103,6 +124,10 @@ public class ServletDataImpl implements ServletData {
 			_timeRangeResourceComponentServiceObjects);
 	}
 
+	public String getApplicationName() {
+		return "Liferay.Portal.Workflow.Metrics.REST";
+	}
+
 	@Override
 	public Mutation getMutation() {
 		return new Mutation();
@@ -117,6 +142,238 @@ public class ServletDataImpl implements ServletData {
 	public Query getQuery() {
 		return new Query();
 	}
+
+	public ObjectValuePair<Class<?>, String> getResourceMethodObjectValuePair(
+		String methodName, boolean mutation) {
+
+		if (mutation) {
+			return _resourceMethodObjectValuePairs.get(
+				"mutation#" + methodName);
+		}
+
+		return _resourceMethodObjectValuePairs.get("query#" + methodName);
+	}
+
+	private static final Map<String, ObjectValuePair<Class<?>, String>>
+		_resourceMethodObjectValuePairs =
+			new HashMap<String, ObjectValuePair<Class<?>, String>>() {
+				{
+					put(
+						"mutation#createProcessAssigneesPage",
+						new ObjectValuePair<>(
+							AssigneeResourceImpl.class,
+							"postProcessAssigneesPage"));
+					put(
+						"mutation#createProcessAssigneeMetricsPage",
+						new ObjectValuePair<>(
+							AssigneeMetricResourceImpl.class,
+							"postProcessAssigneeMetricsPage"));
+					put(
+						"mutation#patchIndexRefresh",
+						new ObjectValuePair<>(
+							IndexResourceImpl.class, "patchIndexRefresh"));
+					put(
+						"mutation#patchIndexReindex",
+						new ObjectValuePair<>(
+							IndexResourceImpl.class, "patchIndexReindex"));
+					put(
+						"mutation#createProcessInstance",
+						new ObjectValuePair<>(
+							InstanceResourceImpl.class, "postProcessInstance"));
+					put(
+						"mutation#createProcessInstanceBatch",
+						new ObjectValuePair<>(
+							InstanceResourceImpl.class,
+							"postProcessInstanceBatch"));
+					put(
+						"mutation#deleteProcessInstance",
+						new ObjectValuePair<>(
+							InstanceResourceImpl.class,
+							"deleteProcessInstance"));
+					put(
+						"mutation#patchProcessInstance",
+						new ObjectValuePair<>(
+							InstanceResourceImpl.class,
+							"patchProcessInstance"));
+					put(
+						"mutation#patchProcessInstanceComplete",
+						new ObjectValuePair<>(
+							InstanceResourceImpl.class,
+							"patchProcessInstanceComplete"));
+					put(
+						"mutation#createProcessNode",
+						new ObjectValuePair<>(
+							NodeResourceImpl.class, "postProcessNode"));
+					put(
+						"mutation#createProcessNodeBatch",
+						new ObjectValuePair<>(
+							NodeResourceImpl.class, "postProcessNodeBatch"));
+					put(
+						"mutation#deleteProcessNode",
+						new ObjectValuePair<>(
+							NodeResourceImpl.class, "deleteProcessNode"));
+					put(
+						"mutation#createProcess",
+						new ObjectValuePair<>(
+							ProcessResourceImpl.class, "postProcess"));
+					put(
+						"mutation#createProcessBatch",
+						new ObjectValuePair<>(
+							ProcessResourceImpl.class, "postProcessBatch"));
+					put(
+						"mutation#deleteProcess",
+						new ObjectValuePair<>(
+							ProcessResourceImpl.class, "deleteProcess"));
+					put(
+						"mutation#deleteProcessBatch",
+						new ObjectValuePair<>(
+							ProcessResourceImpl.class, "deleteProcessBatch"));
+					put(
+						"mutation#updateProcess",
+						new ObjectValuePair<>(
+							ProcessResourceImpl.class, "putProcess"));
+					put(
+						"mutation#updateProcessBatch",
+						new ObjectValuePair<>(
+							ProcessResourceImpl.class, "putProcessBatch"));
+					put(
+						"mutation#createProcessSLA",
+						new ObjectValuePair<>(
+							SLAResourceImpl.class, "postProcessSLA"));
+					put(
+						"mutation#createProcessSLABatch",
+						new ObjectValuePair<>(
+							SLAResourceImpl.class, "postProcessSLABatch"));
+					put(
+						"mutation#deleteSLA",
+						new ObjectValuePair<>(
+							SLAResourceImpl.class, "deleteSLA"));
+					put(
+						"mutation#deleteSLABatch",
+						new ObjectValuePair<>(
+							SLAResourceImpl.class, "deleteSLABatch"));
+					put(
+						"mutation#updateSLA",
+						new ObjectValuePair<>(SLAResourceImpl.class, "putSLA"));
+					put(
+						"mutation#updateSLABatch",
+						new ObjectValuePair<>(
+							SLAResourceImpl.class, "putSLABatch"));
+					put(
+						"mutation#createProcessTask",
+						new ObjectValuePair<>(
+							TaskResourceImpl.class, "postProcessTask"));
+					put(
+						"mutation#createProcessTaskBatch",
+						new ObjectValuePair<>(
+							TaskResourceImpl.class, "postProcessTaskBatch"));
+					put(
+						"mutation#deleteProcessTask",
+						new ObjectValuePair<>(
+							TaskResourceImpl.class, "deleteProcessTask"));
+					put(
+						"mutation#patchProcessTask",
+						new ObjectValuePair<>(
+							TaskResourceImpl.class, "patchProcessTask"));
+					put(
+						"mutation#patchProcessTaskComplete",
+						new ObjectValuePair<>(
+							TaskResourceImpl.class,
+							"patchProcessTaskComplete"));
+					put(
+						"mutation#createTasksPage",
+						new ObjectValuePair<>(
+							TaskResourceImpl.class, "postTasksPage"));
+
+					put(
+						"query#calendars",
+						new ObjectValuePair<>(
+							CalendarResourceImpl.class, "getCalendarsPage"));
+					put(
+						"query#processHistogramMetric",
+						new ObjectValuePair<>(
+							HistogramMetricResourceImpl.class,
+							"getProcessHistogramMetric"));
+					put(
+						"query#indexes",
+						new ObjectValuePair<>(
+							IndexResourceImpl.class, "getIndexesPage"));
+					put(
+						"query#processInstances",
+						new ObjectValuePair<>(
+							InstanceResourceImpl.class,
+							"getProcessInstancesPage"));
+					put(
+						"query#processInstance",
+						new ObjectValuePair<>(
+							InstanceResourceImpl.class, "getProcessInstance"));
+					put(
+						"query#processNodes",
+						new ObjectValuePair<>(
+							NodeResourceImpl.class, "getProcessNodesPage"));
+					put(
+						"query#processNodeMetrics",
+						new ObjectValuePair<>(
+							NodeMetricResourceImpl.class,
+							"getProcessNodeMetricsPage"));
+					put(
+						"query#process",
+						new ObjectValuePair<>(
+							ProcessResourceImpl.class, "getProcess"));
+					put(
+						"query#processTitle",
+						new ObjectValuePair<>(
+							ProcessResourceImpl.class, "getProcessTitle"));
+					put(
+						"query#processMetrics",
+						new ObjectValuePair<>(
+							ProcessMetricResourceImpl.class,
+							"getProcessMetricsPage"));
+					put(
+						"query#processMetric",
+						new ObjectValuePair<>(
+							ProcessMetricResourceImpl.class,
+							"getProcessMetric"));
+					put(
+						"query#processProcessVersions",
+						new ObjectValuePair<>(
+							ProcessVersionResourceImpl.class,
+							"getProcessProcessVersionsPage"));
+					put(
+						"query#reindexStatuses",
+						new ObjectValuePair<>(
+							ReindexStatusResourceImpl.class,
+							"getReindexStatusesPage"));
+					put(
+						"query#processRoles",
+						new ObjectValuePair<>(
+							RoleResourceImpl.class, "getProcessRolesPage"));
+					put(
+						"query#processSLAs",
+						new ObjectValuePair<>(
+							SLAResourceImpl.class, "getProcessSLAsPage"));
+					put(
+						"query#sLA",
+						new ObjectValuePair<>(SLAResourceImpl.class, "getSLA"));
+					put(
+						"query#processLastSLAResult",
+						new ObjectValuePair<>(
+							SLAResultResourceImpl.class,
+							"getProcessLastSLAResult"));
+					put(
+						"query#processTasks",
+						new ObjectValuePair<>(
+							TaskResourceImpl.class, "getProcessTasksPage"));
+					put(
+						"query#processTask",
+						new ObjectValuePair<>(
+							TaskResourceImpl.class, "getProcessTask"));
+					put(
+						"query#timeRanges",
+						new ObjectValuePair<>(
+							TimeRangeResourceImpl.class, "getTimeRangesPage"));
+				}
+			};
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<AssigneeResource>
