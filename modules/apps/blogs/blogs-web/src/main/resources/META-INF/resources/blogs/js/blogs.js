@@ -418,7 +418,7 @@ export default class Blogs {
 						referringPortletResource: this._getElementById(
 							'referringPortletResource'
 						).value,
-						isCreationScreen: this._getElementById('isCreationScreen').value,
+						showPermissions: this._getElementById('showPermissions').value,
 						subtitle,
 						title,
 						urlTitle,

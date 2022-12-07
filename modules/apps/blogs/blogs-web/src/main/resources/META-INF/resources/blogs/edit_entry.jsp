@@ -336,7 +336,7 @@ renderResponse.setTitle(blogsEditEntryDisplayContext.getPageTitle(resourceBundle
 							modelName="<%= BlogsEntry.class.getName() %>"
 						/>
 					</aui:fieldset>
-					<aui:input name="isCreationScreen" value="<%= true %>" type="hidden"/>
+					<aui:input name="showPermissions" value="<%= true %>" type="hidden"/>
 				</c:if>
 
 					<%
