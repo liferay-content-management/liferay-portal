@@ -18,7 +18,6 @@ import com.liferay.depot.group.provider.SiteConnectedGroupGroupProvider;
 import com.liferay.document.library.constants.DLPortletKeys;
 import com.liferay.document.library.display.context.DLUIItemKeys;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
@@ -67,8 +66,9 @@ import org.osgi.service.component.annotations.Reference;
 public class MenuItemProvider {
 
 	public List<MenuItem> getAddDocumentTypesMenuItems(
-		Folder folder, ThemeDisplay themeDisplay,
-		PortletRequest portletRequest) {
+			Folder folder, ThemeDisplay themeDisplay,
+			PortletRequest portletRequest)
+		throws PortalException {
 
 		if (!_hasPermission(
 				themeDisplay.getPermissionChecker(),
@@ -92,8 +92,9 @@ public class MenuItemProvider {
 	}
 
 	public MenuItem getAddFileMenuItem(
-		Folder folder, ThemeDisplay themeDisplay,
-		PortletRequest portletRequest) {
+			Folder folder, ThemeDisplay themeDisplay,
+			PortletRequest portletRequest)
+		throws PortalException {
 
 		long folderId = _getFolderId(folder);
 
@@ -329,7 +330,9 @@ public class MenuItemProvider {
 		_serviceTrackerMap = null;
 	}
 
-	private long _getDefaultFileEntryTypeId(long folderId) {
+	private long _getDefaultFileEntryTypeId(long folderId)
+		throws PortalException {
+
 		try {
 			return _dlFileEntryTypeLocalService.getDefaultFileEntryTypeId(
 				folderId);
@@ -342,7 +345,10 @@ public class MenuItemProvider {
 					portalException);
 			}
 
-			return DLFileEntryTypeConstants.COMPANY_ID_BASIC_DOCUMENT;
+			DLFileEntryType basicDocumentDLFileEntryType =
+				_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+
+			return basicDocumentDLFileEntryType.getFileEntryTypeId();
 		}
 	}
 
@@ -440,10 +446,14 @@ public class MenuItemProvider {
 	}
 
 	private List<MenuItem> _getPortletTitleAddDocumentTypeMenuItems(
-		Folder folder, ThemeDisplay themeDisplay,
-		PortletRequest portletRequest) {
+			Folder folder, ThemeDisplay themeDisplay,
+			PortletRequest portletRequest)
+		throws PortalException {
 
 		List<MenuItem> menuItems = new ArrayList<>();
+
+		DLFileEntryType basicDocumentDLFileEntryType =
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
 
 		List<DLFileEntryType> fileEntryTypes = _getFileEntryTypes(
 			themeDisplay.getScopeGroupId(), folder);
@@ -451,7 +461,7 @@ public class MenuItemProvider {
 		for (DLFileEntryType fileEntryType : fileEntryTypes) {
 			try {
 				if ((fileEntryType.getFileEntryTypeId() !=
-						DLFileEntryTypeConstants.COMPANY_ID_BASIC_DOCUMENT) &&
+						basicDocumentDLFileEntryType.getFileEntryTypeId()) &&
 					_isFileEntryTypeVisible(
 						themeDisplay.getUserId(), fileEntryType)) {
 

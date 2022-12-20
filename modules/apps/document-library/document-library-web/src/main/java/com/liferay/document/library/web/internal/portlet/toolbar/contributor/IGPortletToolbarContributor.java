@@ -17,6 +17,10 @@ package com.liferay.document.library.web.internal.portlet.toolbar.contributor;
 import com.liferay.document.library.constants.DLPortletKeys;
 import com.liferay.document.library.web.internal.portlet.toolbar.contributor.helper.DLPortletToolbarContributorHelper;
 import com.liferay.document.library.web.internal.portlet.toolbar.contributor.helper.MenuItemProvider;
+import com.liferay.petra.function.UnsafeSupplier;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.toolbar.contributor.BasePortletToolbarContributor;
 import com.liferay.portal.kernel.portlet.toolbar.contributor.PortletToolbarContributor;
 import com.liferay.portal.kernel.repository.model.Folder;
@@ -66,7 +70,7 @@ public class IGPortletToolbarContributor extends BasePortletToolbarContributor {
 
 		_add(
 			menuItems,
-			_menuItemProvider.getAddFileMenuItem(
+			() -> _menuItemProvider.getAddFileMenuItem(
 				folder, themeDisplay, portletRequest));
 
 		_add(
@@ -92,6 +96,21 @@ public class IGPortletToolbarContributor extends BasePortletToolbarContributor {
 			menuItems.add(menuItem);
 		}
 	}
+
+	private void _add(
+		List<MenuItem> menuItems,
+		UnsafeSupplier<MenuItem, PortalException> unsafeSupplier) {
+
+		try {
+			_add(menuItems, unsafeSupplier.get());
+		}
+		catch (PortalException portalException) {
+			_log.error(portalException);
+		}
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		IGPortletToolbarContributor.class);
 
 	@Reference
 	private DLPortletToolbarContributorHelper

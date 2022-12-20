@@ -21,6 +21,10 @@ import com.liferay.document.library.web.internal.portlet.toolbar.contributor.hel
 import com.liferay.document.library.web.internal.portlet.toolbar.contributor.helper.MenuItemProvider;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
+import com.liferay.petra.function.UnsafeSupplier;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.toolbar.contributor.BasePortletToolbarContributor;
 import com.liferay.portal.kernel.portlet.toolbar.contributor.PortletToolbarContributor;
 import com.liferay.portal.kernel.repository.model.Folder;
@@ -94,7 +98,7 @@ public class DefaultDLPortletToolbarContributor
 
 		_add(
 			menuItems,
-			_menuItemProvider.getAddFileMenuItem(
+			() -> _menuItemProvider.getAddFileMenuItem(
 				folder, themeDisplay, portletRequest));
 
 		_add(
@@ -138,8 +142,9 @@ public class DefaultDLPortletToolbarContributor
 			lastExtensionMenuItem = menuItems.get(menuItems.size() - 1);
 		}
 
-		menuItems.addAll(
-			_menuItemProvider.getAddDocumentTypesMenuItems(
+		_addAll(
+			menuItems,
+			() -> _menuItemProvider.getAddDocumentTypesMenuItems(
 				folder, themeDisplay, portletRequest));
 
 		if ((lastStaticMenuItem != null) &&
@@ -163,6 +168,30 @@ public class DefaultDLPortletToolbarContributor
 		}
 	}
 
+	private void _add(
+		List<MenuItem> menuItems,
+		UnsafeSupplier<MenuItem, PortalException> unsafeSupplier) {
+
+		try {
+			_add(menuItems, unsafeSupplier.get());
+		}
+		catch (PortalException portalException) {
+			_log.error(portalException);
+		}
+	}
+
+	private void _addAll(
+		List<MenuItem> menuItems,
+		UnsafeSupplier<List<MenuItem>, PortalException> unsafeSupplier) {
+
+		try {
+			menuItems.addAll(unsafeSupplier.get());
+		}
+		catch (PortalException portalException) {
+			_log.error(portalException);
+		}
+	}
+
 	private boolean _isDLPortlet(ThemeDisplay themeDisplay) {
 		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
@@ -178,6 +207,9 @@ public class DefaultDLPortletToolbarContributor
 
 		return false;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DefaultDLPortletToolbarContributor.class);
 
 	private ServiceTrackerList<DLPortletToolbarContributorContext>
 		_dlPortletToolbarContributorContexts;
