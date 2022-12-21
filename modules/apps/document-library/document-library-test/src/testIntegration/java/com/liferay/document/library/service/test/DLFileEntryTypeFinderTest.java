@@ -276,14 +276,11 @@ public class DLFileEntryTypeFinderTest {
 			fileEntryTypes.toString(), 2, fileEntryTypes.size());
 		Assert.assertTrue(
 			fileEntryTypes.toString(), fileEntryTypes.contains(fileEntryType));
-
-		DLFileEntryType basicFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getFileEntryType(
-				0, "BASIC-DOCUMENT");
-
 		Assert.assertTrue(
 			fileEntryTypes.toString(),
-			fileEntryTypes.contains(basicFileEntryType));
+			fileEntryTypes.contains(
+				DLFileEntryTypeLocalServiceUtil.
+					getBasicDocumentDLFileEntryType()));
 	}
 
 	@Test
@@ -298,14 +295,11 @@ public class DLFileEntryTypeFinderTest {
 
 		Assert.assertEquals(
 			fileEntryTypes.toString(), 1, fileEntryTypes.size());
-
-		DLFileEntryType basicFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getFileEntryType(
-				0, "BASIC-DOCUMENT");
-
 		Assert.assertTrue(
 			fileEntryTypes.toString(),
-			fileEntryTypes.contains(basicFileEntryType));
+			fileEntryTypes.contains(
+				DLFileEntryTypeLocalServiceUtil.
+					getBasicDocumentDLFileEntryType()));
 	}
 
 	@Test

@@ -138,7 +138,7 @@ else {
 						<liferay-ui:icon-menu
 							direction="down"
 							id="groupSelector"
-							message='<%= (fileEntryTypeId > 0) ? HtmlUtil.escape(fileEntryType.getName(locale)) : "basic-document" %>'
+							message="<%= HtmlUtil.escape(fileEntryType.getName(locale)) %>"
 							showWhenSingleIcon="<%= true %>"
 						>
 

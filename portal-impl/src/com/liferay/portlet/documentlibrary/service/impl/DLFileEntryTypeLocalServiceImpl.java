@@ -322,8 +322,7 @@ public class DLFileEntryTypeLocalServiceImpl
 
 		dlFileEntryType.setCompanyId(CompanyConstants.SYSTEM);
 		dlFileEntryType.setFileEntryTypeKey(
-			StringUtil.toUpperCase(
-				DLFileEntryTypeConstants.NAME_BASIC_DOCUMENT));
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT);
 		dlFileEntryType.setName(
 			DLFileEntryTypeConstants.NAME_BASIC_DOCUMENT,
 			LocaleUtil.getDefault());

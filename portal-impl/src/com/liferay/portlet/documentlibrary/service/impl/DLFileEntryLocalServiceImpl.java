@@ -30,6 +30,7 @@ import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
 import com.liferay.document.library.kernel.model.DLFileEntryTable;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFileVersion;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
@@ -1762,7 +1763,8 @@ public class DLFileEntryLocalServiceImpl
 
 		if ((fileEntryTypeId != dlFileEntryType.getFileEntryTypeId()) &&
 			!Objects.equals(
-				dlFileEntryType.getFileEntryTypeKey(), "BASIC-DOCUMENT")) {
+				dlFileEntryType.getFileEntryTypeKey(),
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT)) {
 
 			DLFileEntryMetadata dlFileEntryMetadata =
 				_dlFileEntryMetadataPersistence.fetchByFileEntryId_Last(
@@ -3062,7 +3064,8 @@ public class DLFileEntryLocalServiceImpl
 		}
 
 		if (Objects.equals(
-				dlFileEntryType.getFileEntryTypeKey(), "BASIC-DOCUMENT")) {
+				dlFileEntryType.getFileEntryTypeKey(),
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT)) {
 
 			subscriptionSender.addPersistedSubscribers(
 				DLFileEntryType.class.getName(), fileVersion.getGroupId());

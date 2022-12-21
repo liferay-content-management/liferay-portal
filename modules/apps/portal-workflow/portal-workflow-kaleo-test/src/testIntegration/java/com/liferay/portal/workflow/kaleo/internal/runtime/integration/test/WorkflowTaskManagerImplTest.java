@@ -293,7 +293,9 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 			"Single Approver@1"
 		).put(
 			() -> {
-				DLFileEntryType basicFileEntryType = _getBasicFileEntryType();
+				DLFileEntryType basicFileEntryType =
+					_dlFileEntryTypeLocalService.
+						getBasicDocumentDLFileEntryType();
 
 				return String.valueOf(basicFileEntryType.getFileEntryTypeId());
 			},
@@ -1649,11 +1651,6 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 
 	private String _getBasePath() {
 		return "com/liferay/portal/workflow/kaleo/dependencies/";
-	}
-
-	private DLFileEntryType _getBasicFileEntryType() throws Exception {
-		return _dlFileEntryTypeLocalService.getFileEntryType(
-			0, "BASIC-DOCUMENT");
 	}
 
 	private WorkflowInstance _getWorkflowInstance(
