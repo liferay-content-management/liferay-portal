@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -318,7 +319,7 @@ public class DLFileEntryTypeLocalServiceImpl
 	@Override
 	public DLFileEntryType createBasicDocumentDLFileEntryType() {
 		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.create(
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
+			counterLocalService.increment());
 
 		dlFileEntryType.setCompanyId(CompanyConstants.SYSTEM);
 		dlFileEntryType.setFileEntryTypeKey(
@@ -430,9 +431,9 @@ public class DLFileEntryTypeLocalServiceImpl
 	public DLFileEntryType getBasicDocumentDLFileEntryType()
 		throws NoSuchFileEntryTypeException {
 
-		DLFileEntryType dlFileEntryType =
-			dlFileEntryTypePersistence.fetchByPrimaryKey(
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
+		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.fetchByG_F(
+			GroupConstants.DEFAULT_LIVE_GROUP_ID,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT);
 
 		if (dlFileEntryType != null) {
 			return dlFileEntryType;
