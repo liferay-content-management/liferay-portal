@@ -73,7 +73,7 @@ DLFileEntryType basicDocumentDLFileEntryType = DLFileEntryTypeLocalServiceUtil.g
 
 DLFileEntryType dlFileEntryType = null;
 
-if (fileEntryTypeId != -1) {
+if (fileEntryTypeId != DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL) {
 	dlFileEntryType = DLFileEntryTypeLocalServiceUtil.getFileEntryType(fileEntryTypeId);
 }
 

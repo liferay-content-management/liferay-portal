@@ -15,6 +15,7 @@
 package com.liferay.portlet.documentlibrary.service.impl;
 
 import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFileEntryTypeTable;
 import com.liferay.petra.sql.dsl.DSLFunctionFactoryUtil;
 import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
@@ -41,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Provides the remote service for accessing, adding, deleting, and updating
@@ -298,7 +300,12 @@ public class DLFileEntryTypeServiceImpl extends DLFileEntryTypeServiceBaseImpl {
 		while (iterator.hasNext()) {
 			DLFileEntryType fileEntryType = iterator.next();
 
-			if ((fileEntryType.getFileEntryTypeId() > 0) &&
+			if ((fileEntryType.getFileEntryTypeId() !=
+					DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL) &&
+				!Objects.equals(
+					fileEntryType.getFileEntryTypeKey(),
+					DLFileEntryTypeConstants.
+						FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT) &&
 				!_dlFileEntryTypeModelResourcePermission.contains(
 					permissionChecker, fileEntryType, ActionKeys.VIEW)) {
 

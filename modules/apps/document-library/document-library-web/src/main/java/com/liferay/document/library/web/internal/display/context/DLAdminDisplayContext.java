@@ -23,6 +23,7 @@ import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFileShortcutConstants;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
@@ -564,23 +565,25 @@ public class DLAdminDisplayContext {
 		portletURL.setParameter("deltaFolder", deltaFolder);
 		portletURL.setParameter("folderId", String.valueOf(folderId));
 
-		if (fileEntryTypeId >= 0) {
+		if (fileEntryTypeId !=
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL) {
+
 			portletURL.setParameter(
 				"fileEntryTypeId", String.valueOf(fileEntryTypeId));
 
-			if (fileEntryTypeId > 0) {
-				DLFileEntryType dlFileEntryType =
-					DLFileEntryTypeLocalServiceUtil.getFileEntryType(
-						fileEntryTypeId);
+			DLFileEntryType dlFileEntryType =
+				DLFileEntryTypeLocalServiceUtil.getFileEntryType(
+					fileEntryTypeId);
 
-				dlFileEntryTypeName = dlFileEntryType.getName(
-					_httpServletRequest.getLocale());
-			}
+			dlFileEntryTypeName = dlFileEntryType.getName(
+				_httpServletRequest.getLocale());
 		}
 
 		String emptyResultsMessage = null;
 
-		if (fileEntryTypeId >= 0) {
+		if (fileEntryTypeId !=
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL) {
+
 			emptyResultsMessage = LanguageUtil.format(
 				_httpServletRequest,
 				"there-are-no-documents-or-media-files-of-type-x",

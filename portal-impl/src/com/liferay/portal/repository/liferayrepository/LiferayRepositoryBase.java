@@ -15,6 +15,7 @@
 package com.liferay.portal.repository.liferayrepository;
 
 import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppHelperLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
@@ -110,7 +111,14 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 
 		HashMap<String, DDMFormValues> ddmFormValuesMap = new HashMap<>();
 
-		if (fileEntryTypeId <= 0) {
+		DLFileEntryType basicDocumentDLFileEntryType =
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+
+		if ((fileEntryTypeId ==
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL) ||
+			(fileEntryTypeId ==
+				basicDocumentDLFileEntryType.getFileEntryTypeId())) {
+
 			return ddmFormValuesMap;
 		}
 
