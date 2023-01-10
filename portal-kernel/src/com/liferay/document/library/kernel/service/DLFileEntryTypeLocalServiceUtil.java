@@ -170,8 +170,10 @@ public class DLFileEntryTypeLocalServiceUtil {
 		getService().clearDLFolderDLFileEntryTypes(folderId);
 	}
 
-	public static DLFileEntryType createBasicDocumentDLFileEntryType() {
-		return getService().createBasicDocumentDLFileEntryType();
+	public static DLFileEntryType createBasicDocumentDLFileEntryType(
+		long companyId) {
+
+		return getService().createBasicDocumentDLFileEntryType(companyId);
 	}
 
 	/**
@@ -365,10 +367,10 @@ public class DLFileEntryTypeLocalServiceUtil {
 	}
 
 	public static DLFileEntryType fetchDataDefinitionFileEntryType(
-		long groupId, long dataDefinitionId) {
+		long groupId, long companyId, long dataDefinitionId) {
 
 		return getService().fetchDataDefinitionFileEntryType(
-			groupId, dataDefinitionId);
+			groupId, companyId, dataDefinitionId);
 	}
 
 	public static DLFileEntryType fetchDLFileEntryType(long fileEntryTypeId) {
@@ -393,9 +395,10 @@ public class DLFileEntryTypeLocalServiceUtil {
 	}
 
 	public static DLFileEntryType fetchFileEntryType(
-		long groupId, String fileEntryTypeKey) {
+		long groupId, long companyId, String fileEntryTypeKey) {
 
-		return getService().fetchFileEntryType(groupId, fileEntryTypeKey);
+		return getService().fetchFileEntryType(
+			groupId, companyId, fileEntryTypeKey);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
@@ -404,17 +407,16 @@ public class DLFileEntryTypeLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	public static DLFileEntryType getBasicDocumentDLFileEntryType()
-		throws com.liferay.document.library.kernel.exception.
-			NoSuchFileEntryTypeException {
+	public static DLFileEntryType getBasicDocumentDLFileEntryType(
+		long companyId) {
 
-		return getService().getBasicDocumentDLFileEntryType();
+		return getService().getBasicDocumentDLFileEntryType(companyId);
 	}
 
-	public static long getDefaultFileEntryTypeId(long folderId)
+	public static long getDefaultFileEntryTypeId(long companyId, long folderId)
 		throws PortalException {
 
-		return getService().getDefaultFileEntryTypeId(folderId);
+		return getService().getDefaultFileEntryTypeId(companyId, folderId);
 	}
 
 	/**
@@ -552,10 +554,11 @@ public class DLFileEntryTypeLocalServiceUtil {
 	}
 
 	public static DLFileEntryType getFileEntryType(
-			long groupId, String fileEntryTypeKey)
+			long groupId, long companyId, String fileEntryTypeKey)
 		throws PortalException {
 
-		return getService().getFileEntryType(groupId, fileEntryTypeKey);
+		return getService().getFileEntryType(
+			groupId, companyId, fileEntryTypeKey);
 	}
 
 	public static List<DLFileEntryType> getFileEntryTypes(long[] groupIds) {

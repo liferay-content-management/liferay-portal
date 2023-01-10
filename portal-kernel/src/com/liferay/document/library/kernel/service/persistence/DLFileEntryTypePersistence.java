@@ -720,104 +720,124 @@ public interface DLFileEntryTypePersistence
 	public int filterCountByGroupId(long[] groupIds);
 
 	/**
-	 * Returns the document library file entry type where groupId = &#63; and dataDefinitionId = &#63; or throws a <code>NoSuchFileEntryTypeException</code> if it could not be found.
+	 * Returns the document library file entry type where groupId = &#63; and companyId = &#63; and dataDefinitionId = &#63; or throws a <code>NoSuchFileEntryTypeException</code> if it could not be found.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param dataDefinitionId the data definition ID
 	 * @return the matching document library file entry type
 	 * @throws NoSuchFileEntryTypeException if a matching document library file entry type could not be found
 	 */
-	public DLFileEntryType findByG_DDI(long groupId, long dataDefinitionId)
+	public DLFileEntryType findByG_C_DDI(
+			long groupId, long companyId, long dataDefinitionId)
 		throws NoSuchFileEntryTypeException;
 
 	/**
-	 * Returns the document library file entry type where groupId = &#63; and dataDefinitionId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the document library file entry type where groupId = &#63; and companyId = &#63; and dataDefinitionId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param dataDefinitionId the data definition ID
 	 * @return the matching document library file entry type, or <code>null</code> if a matching document library file entry type could not be found
 	 */
-	public DLFileEntryType fetchByG_DDI(long groupId, long dataDefinitionId);
+	public DLFileEntryType fetchByG_C_DDI(
+		long groupId, long companyId, long dataDefinitionId);
 
 	/**
-	 * Returns the document library file entry type where groupId = &#63; and dataDefinitionId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the document library file entry type where groupId = &#63; and companyId = &#63; and dataDefinitionId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param dataDefinitionId the data definition ID
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching document library file entry type, or <code>null</code> if a matching document library file entry type could not be found
 	 */
-	public DLFileEntryType fetchByG_DDI(
-		long groupId, long dataDefinitionId, boolean useFinderCache);
+	public DLFileEntryType fetchByG_C_DDI(
+		long groupId, long companyId, long dataDefinitionId,
+		boolean useFinderCache);
 
 	/**
-	 * Removes the document library file entry type where groupId = &#63; and dataDefinitionId = &#63; from the database.
+	 * Removes the document library file entry type where groupId = &#63; and companyId = &#63; and dataDefinitionId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param dataDefinitionId the data definition ID
 	 * @return the document library file entry type that was removed
 	 */
-	public DLFileEntryType removeByG_DDI(long groupId, long dataDefinitionId)
+	public DLFileEntryType removeByG_C_DDI(
+			long groupId, long companyId, long dataDefinitionId)
 		throws NoSuchFileEntryTypeException;
 
 	/**
-	 * Returns the number of document library file entry types where groupId = &#63; and dataDefinitionId = &#63;.
+	 * Returns the number of document library file entry types where groupId = &#63; and companyId = &#63; and dataDefinitionId = &#63;.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param dataDefinitionId the data definition ID
 	 * @return the number of matching document library file entry types
 	 */
-	public int countByG_DDI(long groupId, long dataDefinitionId);
+	public int countByG_C_DDI(
+		long groupId, long companyId, long dataDefinitionId);
 
 	/**
-	 * Returns the document library file entry type where groupId = &#63; and fileEntryTypeKey = &#63; or throws a <code>NoSuchFileEntryTypeException</code> if it could not be found.
+	 * Returns the document library file entry type where groupId = &#63; and companyId = &#63; and fileEntryTypeKey = &#63; or throws a <code>NoSuchFileEntryTypeException</code> if it could not be found.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param fileEntryTypeKey the file entry type key
 	 * @return the matching document library file entry type
 	 * @throws NoSuchFileEntryTypeException if a matching document library file entry type could not be found
 	 */
-	public DLFileEntryType findByG_F(long groupId, String fileEntryTypeKey)
+	public DLFileEntryType findByG_C_F(
+			long groupId, long companyId, String fileEntryTypeKey)
 		throws NoSuchFileEntryTypeException;
 
 	/**
-	 * Returns the document library file entry type where groupId = &#63; and fileEntryTypeKey = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the document library file entry type where groupId = &#63; and companyId = &#63; and fileEntryTypeKey = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param fileEntryTypeKey the file entry type key
 	 * @return the matching document library file entry type, or <code>null</code> if a matching document library file entry type could not be found
 	 */
-	public DLFileEntryType fetchByG_F(long groupId, String fileEntryTypeKey);
+	public DLFileEntryType fetchByG_C_F(
+		long groupId, long companyId, String fileEntryTypeKey);
 
 	/**
-	 * Returns the document library file entry type where groupId = &#63; and fileEntryTypeKey = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the document library file entry type where groupId = &#63; and companyId = &#63; and fileEntryTypeKey = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param fileEntryTypeKey the file entry type key
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching document library file entry type, or <code>null</code> if a matching document library file entry type could not be found
 	 */
-	public DLFileEntryType fetchByG_F(
-		long groupId, String fileEntryTypeKey, boolean useFinderCache);
+	public DLFileEntryType fetchByG_C_F(
+		long groupId, long companyId, String fileEntryTypeKey,
+		boolean useFinderCache);
 
 	/**
-	 * Removes the document library file entry type where groupId = &#63; and fileEntryTypeKey = &#63; from the database.
+	 * Removes the document library file entry type where groupId = &#63; and companyId = &#63; and fileEntryTypeKey = &#63; from the database.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param fileEntryTypeKey the file entry type key
 	 * @return the document library file entry type that was removed
 	 */
-	public DLFileEntryType removeByG_F(long groupId, String fileEntryTypeKey)
+	public DLFileEntryType removeByG_C_F(
+			long groupId, long companyId, String fileEntryTypeKey)
 		throws NoSuchFileEntryTypeException;
 
 	/**
-	 * Returns the number of document library file entry types where groupId = &#63; and fileEntryTypeKey = &#63;.
+	 * Returns the number of document library file entry types where groupId = &#63; and companyId = &#63; and fileEntryTypeKey = &#63;.
 	 *
 	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param fileEntryTypeKey the file entry type key
 	 * @return the number of matching document library file entry types
 	 */
-	public int countByG_F(long groupId, String fileEntryTypeKey);
+	public int countByG_C_F(
+		long groupId, long companyId, String fileEntryTypeKey);
 
 	/**
 	 * Caches the document library file entry type in the entity cache if it is enabled.

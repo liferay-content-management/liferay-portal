@@ -246,20 +246,22 @@ public class DLFileEntryTypePersistenceTest {
 	}
 
 	@Test
-	public void testCountByG_DDI() throws Exception {
-		_persistence.countByG_DDI(
-			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+	public void testCountByG_C_DDI() throws Exception {
+		_persistence.countByG_C_DDI(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-		_persistence.countByG_DDI(0L, 0L);
+		_persistence.countByG_C_DDI(0L, 0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_F() throws Exception {
-		_persistence.countByG_F(RandomTestUtil.nextLong(), "");
+	public void testCountByG_C_F() throws Exception {
+		_persistence.countByG_C_F(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(), "");
 
-		_persistence.countByG_F(0L, "null");
+		_persistence.countByG_C_F(0L, 0L, "null");
 
-		_persistence.countByG_F(0L, (String)null);
+		_persistence.countByG_C_F(0L, 0L, (String)null);
 	}
 
 	@Test
@@ -583,6 +585,11 @@ public class DLFileEntryTypePersistenceTest {
 				dlFileEntryType, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "groupId"));
 		Assert.assertEquals(
+			Long.valueOf(dlFileEntryType.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				dlFileEntryType, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
+		Assert.assertEquals(
 			Long.valueOf(dlFileEntryType.getDataDefinitionId()),
 			ReflectionTestUtil.<Long>invoke(
 				dlFileEntryType, "getColumnOriginalValue",
@@ -593,6 +600,11 @@ public class DLFileEntryTypePersistenceTest {
 			ReflectionTestUtil.<Long>invoke(
 				dlFileEntryType, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "groupId"));
+		Assert.assertEquals(
+			Long.valueOf(dlFileEntryType.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				dlFileEntryType, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
 		Assert.assertEquals(
 			dlFileEntryType.getFileEntryTypeKey(),
 			ReflectionTestUtil.invoke(

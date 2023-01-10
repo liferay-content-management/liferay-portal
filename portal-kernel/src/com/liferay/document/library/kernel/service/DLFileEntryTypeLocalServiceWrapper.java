@@ -182,9 +182,9 @@ public class DLFileEntryTypeLocalServiceWrapper
 	}
 
 	@Override
-	public DLFileEntryType createBasicDocumentDLFileEntryType() {
-		return _dlFileEntryTypeLocalService.
-			createBasicDocumentDLFileEntryType();
+	public DLFileEntryType createBasicDocumentDLFileEntryType(long companyId) {
+		return _dlFileEntryTypeLocalService.createBasicDocumentDLFileEntryType(
+			companyId);
 	}
 
 	/**
@@ -417,10 +417,10 @@ public class DLFileEntryTypeLocalServiceWrapper
 
 	@Override
 	public DLFileEntryType fetchDataDefinitionFileEntryType(
-		long groupId, long dataDefinitionId) {
+		long groupId, long companyId, long dataDefinitionId) {
 
 		return _dlFileEntryTypeLocalService.fetchDataDefinitionFileEntryType(
-			groupId, dataDefinitionId);
+			groupId, companyId, dataDefinitionId);
 	}
 
 	@Override
@@ -451,10 +451,10 @@ public class DLFileEntryTypeLocalServiceWrapper
 
 	@Override
 	public DLFileEntryType fetchFileEntryType(
-		long groupId, String fileEntryTypeKey) {
+		long groupId, long companyId, String fileEntryTypeKey) {
 
 		return _dlFileEntryTypeLocalService.fetchFileEntryType(
-			groupId, fileEntryTypeKey);
+			groupId, companyId, fileEntryTypeKey);
 	}
 
 	@Override
@@ -465,18 +465,17 @@ public class DLFileEntryTypeLocalServiceWrapper
 	}
 
 	@Override
-	public DLFileEntryType getBasicDocumentDLFileEntryType()
-		throws com.liferay.document.library.kernel.exception.
-			NoSuchFileEntryTypeException {
-
-		return _dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+	public DLFileEntryType getBasicDocumentDLFileEntryType(long companyId) {
+		return _dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+			companyId);
 	}
 
 	@Override
-	public long getDefaultFileEntryTypeId(long folderId)
+	public long getDefaultFileEntryTypeId(long companyId, long folderId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return _dlFileEntryTypeLocalService.getDefaultFileEntryTypeId(folderId);
+		return _dlFileEntryTypeLocalService.getDefaultFileEntryTypeId(
+			companyId, folderId);
 	}
 
 	/**
@@ -638,11 +637,11 @@ public class DLFileEntryTypeLocalServiceWrapper
 
 	@Override
 	public DLFileEntryType getFileEntryType(
-			long groupId, String fileEntryTypeKey)
+			long groupId, long companyId, String fileEntryTypeKey)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _dlFileEntryTypeLocalService.getFileEntryType(
-			groupId, fileEntryTypeKey);
+			groupId, companyId, fileEntryTypeKey);
 	}
 
 	@Override

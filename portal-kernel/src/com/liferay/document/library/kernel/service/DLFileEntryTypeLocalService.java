@@ -14,7 +14,6 @@
 
 package com.liferay.document.library.kernel.service;
 
-import com.liferay.document.library.kernel.exception.NoSuchFileEntryTypeException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFolder;
@@ -152,7 +151,7 @@ public interface DLFileEntryTypeLocalService
 
 	public void clearDLFolderDLFileEntryTypes(long folderId);
 
-	public DLFileEntryType createBasicDocumentDLFileEntryType();
+	public DLFileEntryType createBasicDocumentDLFileEntryType(long companyId);
 
 	/**
 	 * Creates a new document library file entry type with the primary key. Does not add the document library file entry type to the database.
@@ -303,7 +302,7 @@ public interface DLFileEntryTypeLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DLFileEntryType fetchDataDefinitionFileEntryType(
-		long groupId, long dataDefinitionId);
+		long groupId, long companyId, long dataDefinitionId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DLFileEntryType fetchDLFileEntryType(long fileEntryTypeId);
@@ -324,17 +323,17 @@ public interface DLFileEntryTypeLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DLFileEntryType fetchFileEntryType(
-		long groupId, String fileEntryTypeKey);
+		long groupId, long companyId, String fileEntryTypeKey);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public DLFileEntryType getBasicDocumentDLFileEntryType()
-		throws NoSuchFileEntryTypeException;
+	public DLFileEntryType getBasicDocumentDLFileEntryType(long companyId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public long getDefaultFileEntryTypeId(long folderId) throws PortalException;
+	public long getDefaultFileEntryTypeId(long companyId, long folderId)
+		throws PortalException;
 
 	/**
 	 * Returns the document library file entry type with the primary key.
@@ -442,7 +441,7 @@ public interface DLFileEntryTypeLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DLFileEntryType getFileEntryType(
-			long groupId, String fileEntryTypeKey)
+			long groupId, long companyId, String fileEntryTypeKey)
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
