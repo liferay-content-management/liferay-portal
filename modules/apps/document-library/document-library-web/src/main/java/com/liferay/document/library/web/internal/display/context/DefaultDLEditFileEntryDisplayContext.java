@@ -18,8 +18,8 @@ import com.liferay.document.library.display.context.DLEditFileEntryDisplayContex
 import com.liferay.document.library.display.context.DLFilePicker;
 import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.service.DLFileEntryMetadataLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.document.library.kernel.util.DLValidator;
 import com.liferay.document.library.web.internal.display.context.helper.DLRequestHelper;
@@ -453,8 +453,12 @@ public class DefaultDLEditFileEntryDisplayContext
 			long folderId = BeanParamUtil.getLong(
 				_fileEntry, _dlRequestHelper.getRequest(), "folderId");
 
+			DLFileEntryType basicDocumentDLFileEntryType =
+				DLFileEntryTypeLocalServiceUtil.
+					getBasicDocumentDLFileEntryType();
+
 			long fileEntryTypeId =
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT;
+				basicDocumentDLFileEntryType.getFileEntryTypeId();
 
 			if (_dlFileEntryType != null) {
 				fileEntryTypeId = _dlFileEntryType.getFileEntryTypeId();

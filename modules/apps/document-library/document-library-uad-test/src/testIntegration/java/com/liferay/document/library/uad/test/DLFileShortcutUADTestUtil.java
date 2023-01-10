@@ -15,10 +15,11 @@
 package com.liferay.document.library.uad.test;
 
 import com.liferay.document.library.kernel.model.DLFileEntry;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFileShortcut;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.document.library.kernel.service.DLFileShortcutLocalService;
 import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.petra.string.StringPool;
@@ -41,6 +42,7 @@ public class DLFileShortcutUADTestUtil {
 
 	public static DLFileShortcut addDLFileShortcut(
 			DLFileEntryLocalService dlFileEntryLocalService,
+			DLFileEntryTypeLocalService dlFileEntryTypeLocalService,
 			DLFileShortcutLocalService dlFileShortcutLocalService,
 			DLFolderLocalService dlFolderLocalService, long userId,
 			long groupId)
@@ -53,6 +55,9 @@ public class DLFileShortcutUADTestUtil {
 			userId, groupId, groupId, false, 0L, RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), false, serviceContext);
 
+		DLFileEntryType basicDocumentDLFileEntryType =
+			dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+
 		byte[] bytes = TestDataConstants.TEST_BYTE_ARRAY;
 
 		InputStream inputStream = new ByteArrayInputStream(bytes);
@@ -62,8 +67,8 @@ public class DLFileShortcutUADTestUtil {
 			dlFolder.getFolderId(), RandomTestUtil.randomString(),
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
-			null, inputStream, bytes.length, null, null, serviceContext);
+			basicDocumentDLFileEntryType.getFileEntryTypeId(), null, null,
+			inputStream, bytes.length, null, null, serviceContext);
 
 		return dlFileShortcutLocalService.addFileShortcut(
 			userId, groupId, groupId, dlFolder.getFolderId(),
@@ -72,14 +77,15 @@ public class DLFileShortcutUADTestUtil {
 
 	public static DLFileShortcut addDLFileShortcutWithStatusByUserId(
 			DLFileEntryLocalService dlFileEntryLocalService,
+			DLFileEntryTypeLocalService dlFileEntryTypeLocalService,
 			DLFileShortcutLocalService dlFileShortcutLocalService,
 			DLFolderLocalService dlFolderLocalService, long userId,
 			long groupId, long statusByUserId)
 		throws Exception {
 
 		DLFileShortcut dlFileShortcut = addDLFileShortcut(
-			dlFileEntryLocalService, dlFileShortcutLocalService,
-			dlFolderLocalService, userId, groupId);
+			dlFileEntryLocalService, dlFileEntryTypeLocalService,
+			dlFileShortcutLocalService, dlFolderLocalService, userId, groupId);
 
 		return dlFileShortcutLocalService.updateStatus(
 			statusByUserId, dlFileShortcut.getFileShortcutId(),

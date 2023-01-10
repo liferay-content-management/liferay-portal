@@ -17,10 +17,11 @@ package com.liferay.document.library.repository.external;
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
 import com.liferay.document.library.kernel.exception.NoSuchFileVersionException;
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLFolderLocalServiceUtil;
 import com.liferay.document.library.repository.external.model.ExtRepositoryFileEntryAdapter;
 import com.liferay.document.library.repository.external.model.ExtRepositoryFileVersionAdapter;
@@ -345,8 +346,11 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 			OrderByComparator<FileEntry> orderByComparator)
 		throws PortalException {
 
+		DLFileEntryType basicDocumentDLFileEntryType =
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+
 		if (fileEntryTypeId ==
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
+				basicDocumentDLFileEntryType.getFileEntryTypeId()) {
 
 			return getFileEntries(folderId, start, end, orderByComparator);
 		}
@@ -396,8 +400,11 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 	public int getFileEntriesCount(long folderId, long fileEntryTypeId)
 		throws PortalException {
 
+		DLFileEntryType basicDocumentDLFileEntryType =
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+
 		if (fileEntryTypeId ==
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
+				basicDocumentDLFileEntryType.getFileEntryTypeId()) {
 
 			String extRepositoryFolderKey = getExtRepositoryObjectKey(folderId);
 

@@ -17,6 +17,7 @@ package com.liferay.document.library.uad.anonymizer.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.document.library.kernel.model.DLFileShortcut;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.document.library.kernel.service.DLFileShortcutLocalService;
 import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.document.library.uad.test.DLFileShortcutUADTestUtil;
@@ -57,8 +58,9 @@ public class DLFileShortcutUADAnonymizerTest
 		throws Exception {
 
 		return DLFileShortcutUADTestUtil.addDLFileShortcutWithStatusByUserId(
-			_dlFileEntryLocalService, _dlFileShortcutLocalService,
-			_dlFolderLocalService, userId, _group.getGroupId(), statusByUserId);
+			_dlFileEntryLocalService, _dlFileEntryTypeLocalService,
+			_dlFileShortcutLocalService, _dlFolderLocalService, userId,
+			_group.getGroupId(), statusByUserId);
 	}
 
 	@Before
@@ -80,8 +82,9 @@ public class DLFileShortcutUADAnonymizerTest
 		throws Exception {
 
 		return DLFileShortcutUADTestUtil.addDLFileShortcut(
-			_dlFileEntryLocalService, _dlFileShortcutLocalService,
-			_dlFolderLocalService, userId, _group.getGroupId());
+			_dlFileEntryLocalService, _dlFileEntryTypeLocalService,
+			_dlFileShortcutLocalService, _dlFolderLocalService, userId,
+			_group.getGroupId());
 	}
 
 	@Override
@@ -134,6 +137,9 @@ public class DLFileShortcutUADAnonymizerTest
 
 	@Inject
 	private DLFileEntryLocalService _dlFileEntryLocalService;
+
+	@Inject
+	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
 
 	@Inject
 	private DLFileShortcutLocalService _dlFileShortcutLocalService;

@@ -15,7 +15,6 @@
 package com.liferay.document.library.internal.exportimport.data.handler;
 
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
@@ -122,11 +121,14 @@ public class DLFileEntryTypeStagedModelDataHandler
 					}
 				}
 
+				DLFileEntryType basicDocumentDLFileEntryType =
+					_dlFileEntryTypeLocalService.
+						getBasicDocumentDLFileEntryType();
+
 				boolean preloaded = false;
 
 				if ((fileEntryType.getFileEntryTypeId() ==
-						DLFileEntryTypeConstants.
-							FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) ||
+						basicDocumentDLFileEntryType.getFileEntryTypeId()) ||
 					(defaultUserId == fileEntryType.getUserId())) {
 
 					preloaded = true;

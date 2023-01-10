@@ -17,6 +17,7 @@ package com.liferay.document.library.search.test;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryMetadataLocalService;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
@@ -88,6 +89,9 @@ public abstract class BaseDLIndexerTestCase {
 
 	@Inject
 	protected DLFileEntryMetadataLocalService dlFileEntryMetadataLocalService;
+
+	@Inject
+	protected DLFileEntryTypeLocalService dlFileEntryTypeLocalService;
 
 	protected DLFixture dlFixture;
 

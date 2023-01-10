@@ -15,8 +15,10 @@
 package com.liferay.document.library.test.util;
 
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppService;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -82,12 +84,17 @@ public abstract class BaseDLAppTestCase {
 			RoleConstants.GUEST, DLConstants.RESOURCE_NAME,
 			ResourceConstants.SCOPE_GROUP, String.valueOf(group.getGroupId()),
 			ActionKeys.VIEW);
+
+		basicDocumentDLFileEntryType =
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		PrincipalThreadLocal.setName(_name);
 	}
+
+	protected DLFileEntryType basicDocumentDLFileEntryType;
 
 	@DeleteAfterTestRun
 	protected Group group;
@@ -102,6 +109,9 @@ public abstract class BaseDLAppTestCase {
 
 	@Inject
 	private DLAppService _dlAppService;
+
+	@Inject
+	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
 
 	private String _name;
 

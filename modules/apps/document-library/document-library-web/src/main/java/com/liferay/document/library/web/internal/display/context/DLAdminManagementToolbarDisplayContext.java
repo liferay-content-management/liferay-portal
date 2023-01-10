@@ -333,26 +333,17 @@ public class DLAdminManagementToolbarDisplayContext
 
 				labelItem.setCloseable(true);
 
-				String fileEntryTypeName = LanguageUtil.get(
-					_httpServletRequest, "basic-document");
-
-				if (fileEntryTypeId !=
-						DLFileEntryTypeConstants.
-							FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
-
-					DLFileEntryType fileEntryType =
-						DLFileEntryTypeLocalServiceUtil.getFileEntryType(
-							fileEntryTypeId);
-
-					fileEntryTypeName = fileEntryType.getName(
-						_httpServletRequest.getLocale());
-				}
+				DLFileEntryType fileEntryType =
+					DLFileEntryTypeLocalServiceUtil.getFileEntryType(
+						fileEntryTypeId);
 
 				labelItem.setLabel(
 					String.format(
 						"%s: %s",
 						LanguageUtil.get(_httpServletRequest, "document-type"),
-						HtmlUtil.escape(fileEntryTypeName)));
+						HtmlUtil.escape(
+							fileEntryType.getName(
+								_httpServletRequest.getLocale()))));
 			}
 		).add(
 			() -> Objects.equals(_getNavigation(), "mine"),
@@ -697,22 +688,13 @@ public class DLAdminManagementToolbarDisplayContext
 					_httpServletRequest, "document-type");
 
 				if (fileEntryTypeId != -1) {
-					String fileEntryTypeName = LanguageUtil.get(
-						_httpServletRequest, "basic-document");
+					DLFileEntryType fileEntryType =
+						DLFileEntryTypeLocalServiceUtil.getFileEntryType(
+							fileEntryTypeId);
 
-					if (fileEntryTypeId !=
-							DLFileEntryTypeConstants.
-								FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
-
-						DLFileEntryType fileEntryType =
-							DLFileEntryTypeLocalServiceUtil.getFileEntryType(
-								fileEntryTypeId);
-
-						fileEntryTypeName = fileEntryType.getName(
-							_httpServletRequest.getLocale());
-					}
-
-					label = String.format("%s: %s", label, fileEntryTypeName);
+					label = String.format(
+						"%s: %s", label,
+						fileEntryType.getName(_httpServletRequest.getLocale()));
 				}
 
 				dropdownItem.setLabel(label);

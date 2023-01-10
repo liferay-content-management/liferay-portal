@@ -17,7 +17,6 @@ package com.liferay.document.library.subscription.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
@@ -112,8 +111,7 @@ public class DLSubscriptionClassTypeTest
 	@Override
 	protected Long getDefaultClassTypeId() throws Exception {
 		DLFileEntryType basicEntryType =
-			DLFileEntryTypeLocalServiceUtil.getDLFileEntryType(
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
 
 		Assert.assertNotNull(basicEntryType);
 

@@ -20,7 +20,6 @@ import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFileVersion;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
@@ -239,9 +238,11 @@ public class DLFileVersionTest {
 
 	@Test
 	public void testUpdateFileEntryType() throws Exception {
+		DLFileEntryType basicDocumentDLFileEntryType =
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+
 		updateServiceContext(
-			StringPool.BLANK,
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT,
+			StringPool.BLANK, basicDocumentDLFileEntryType.getFileEntryTypeId(),
 			StringPool.BLANK);
 
 		FileEntry fileEntry = DLAppServiceUtil.updateFileEntry(

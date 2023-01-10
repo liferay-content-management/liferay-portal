@@ -15,10 +15,12 @@
 package com.liferay.layout.page.template.internal.exportimport.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.exportimport.test.util.lar.BaseExportImportTestCase;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRel;
@@ -135,9 +137,14 @@ public class LayoutPageTemplateStructureRelExportImportTest
 					"classPK", exportedFileEntry.getFileEntryId()
 				).put(
 					"classTypeId",
-					String.valueOf(
-						DLFileEntryTypeConstants.
-							FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT)
+					() -> {
+						DLFileEntryType basicDocumentDLFileEntryType =
+							_dlFileEntryTypeLocalService.
+								getBasicDocumentDLFileEntryType();
+
+						return String.valueOf(
+							basicDocumentDLFileEntryType.getFileEntryTypeId());
+					}
 				).put(
 					"itemSubtype",
 					_language.get(
@@ -216,6 +223,9 @@ public class LayoutPageTemplateStructureRelExportImportTest
 
 	@Inject
 	private DLAppLocalService _dlAppLocalService;
+
+	@Inject
+	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
 
 	@Inject
 	private Language _language;

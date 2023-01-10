@@ -15,10 +15,10 @@
 package com.liferay.document.library.internal.service;
 
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceWrapper;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.ServiceWrapper;
 import com.liferay.subscription.service.SubscriptionLocalService;
@@ -40,8 +40,11 @@ public class SubscriptionDLAppLocalServiceWrapper
 
 		super.subscribeFileEntryType(userId, groupId, fileEntryTypeId);
 
+		DLFileEntryType basicDocumentDLFileEntryType =
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+
 		if (fileEntryTypeId ==
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
+				basicDocumentDLFileEntryType.getFileEntryTypeId()) {
 
 			fileEntryTypeId = groupId;
 		}
@@ -71,8 +74,11 @@ public class SubscriptionDLAppLocalServiceWrapper
 
 		super.unsubscribeFileEntryType(userId, groupId, fileEntryTypeId);
 
+		DLFileEntryType basicDocumentDLFileEntryType =
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+
 		if (fileEntryTypeId ==
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
+				basicDocumentDLFileEntryType.getFileEntryTypeId()) {
 
 			fileEntryTypeId = groupId;
 		}
@@ -94,6 +100,9 @@ public class SubscriptionDLAppLocalServiceWrapper
 		_subscriptionLocalService.deleteSubscription(
 			userId, DLFolder.class.getName(), folderId);
 	}
+
+	@Reference
+	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
 
 	@Reference
 	private SubscriptionLocalService _subscriptionLocalService;

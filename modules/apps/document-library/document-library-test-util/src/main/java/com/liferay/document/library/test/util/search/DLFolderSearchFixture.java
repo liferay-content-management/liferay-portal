@@ -14,11 +14,12 @@
 
 package com.liferay.document.library.test.util.search;
 
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
@@ -40,6 +41,7 @@ public class DLFolderSearchFixture {
 	public DLFolderSearchFixture(
 		DLAppLocalService dlAppLocalService,
 		DLFileEntryLocalService dlFileEntryLocalService,
+		DLFileEntryTypeLocalService dlFileEntryTypeLocalService,
 		DLFolderLocalService dlFolderLocalService) {
 
 		this.dlAppLocalService = dlAppLocalService;
@@ -57,13 +59,16 @@ public class DLFolderSearchFixture {
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, keywords, keywords,
 			false, serviceContext);
 
+		DLFileEntryType basicDocumentDLFileEntryType =
+			dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+
 		dlFileEntryLocalService.addFileEntry(
 			null, user.getUserId(), group.getGroupId(), group.getGroupId(),
 			dlFolder.getFolderId(), RandomTestUtil.randomString(), null,
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 			keywords, StringPool.BLANK,
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
-			null, new ByteArrayInputStream(content.getBytes()), 0, null, null,
+			basicDocumentDLFileEntryType.getFileEntryTypeId(), null, null,
+			new ByteArrayInputStream(content.getBytes()), 0, null, null,
 			serviceContext);
 
 		_dlFolders.add(dlFolder);
@@ -103,6 +108,7 @@ public class DLFolderSearchFixture {
 
 	protected DLAppLocalService dlAppLocalService;
 	protected DLFileEntryLocalService dlFileEntryLocalService;
+	protected DLFileEntryTypeLocalService dlFileEntryTypeLocalService;
 	protected DLFolderLocalService dlFolderLocalService;
 
 	private final List<DLFolder> _dlFolders = new ArrayList<>();

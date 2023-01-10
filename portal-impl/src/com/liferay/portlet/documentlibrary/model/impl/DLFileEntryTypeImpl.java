@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.model.impl;
 
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructureLink;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructureLinkManagerUtil;
@@ -31,6 +30,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * @author Alexander Chow
@@ -68,28 +68,21 @@ public class DLFileEntryTypeImpl extends DLFileEntryTypeBaseImpl {
 
 	@Override
 	public String getName(Locale locale) {
-		String name = super.getName(locale);
-
-		if (getFileEntryTypeId() ==
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
-
-			name = LanguageUtil.get(locale, name);
+		if (Objects.equals(getFileEntryTypeKey(), "BASIC-DOCUMENT")) {
+			return LanguageUtil.get(locale, super.getName(locale));
 		}
 
-		return name;
+		return super.getName(locale);
 	}
 
 	@Override
 	public String getName(String languageId) {
-		String name = super.getName(languageId);
-
-		if (getFileEntryTypeId() ==
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
-
-			name = LanguageUtil.get(LanguageUtil.getLocale(languageId), name);
+		if (Objects.equals(getFileEntryTypeKey(), "BASIC-DOCUMENT")) {
+			return LanguageUtil.get(
+				LanguageUtil.getLocale(languageId), super.getName(languageId));
 		}
 
-		return name;
+		return super.getName(languageId);
 	}
 
 	@Override
@@ -122,9 +115,7 @@ public class DLFileEntryTypeImpl extends DLFileEntryTypeBaseImpl {
 
 	@Override
 	public boolean isExportable() {
-		if (getFileEntryTypeId() ==
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
-
+		if (Objects.equals(getFileEntryTypeKey(), "BASIC-DOCUMENT")) {
 			return false;
 		}
 

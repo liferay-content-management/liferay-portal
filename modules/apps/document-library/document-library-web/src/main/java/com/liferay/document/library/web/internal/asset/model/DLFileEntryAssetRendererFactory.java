@@ -23,7 +23,6 @@ import com.liferay.document.library.constants.DLPortletKeys;
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
@@ -188,8 +187,12 @@ public class DLFileEntryAssetRendererFactory
 		).setParameter(
 			"fileEntryTypeId",
 			() -> {
+				DLFileEntryType basicDocumentDLFileEntryType =
+					_dlFileEntryTypeLocalService.
+						getBasicDocumentDLFileEntryType();
+
 				long fileEntryTypeId =
-					DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT;
+					basicDocumentDLFileEntryType.getFileEntryTypeId();
 
 				if (classTypeId >= 0) {
 					fileEntryTypeId = classTypeId;

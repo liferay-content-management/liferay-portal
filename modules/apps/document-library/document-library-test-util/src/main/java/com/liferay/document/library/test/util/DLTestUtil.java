@@ -16,10 +16,11 @@ package com.liferay.document.library.test.util;
 
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLFolderLocalServiceUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
@@ -39,6 +40,9 @@ import java.io.ByteArrayInputStream;
 public class DLTestUtil {
 
 	public static DLFileEntry addDLFileEntry(long dlFolderId) throws Exception {
+		DLFileEntryType basicDocumentDLFileEntryType =
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+
 		DLFolder dlFolder = DLFolderLocalServiceUtil.fetchDLFolder(dlFolderId);
 
 		byte[] bytes = TestDataConstants.TEST_BYTE_ARRAY;
@@ -48,9 +52,9 @@ public class DLTestUtil {
 			dlFolder.getRepositoryId(), dlFolder.getFolderId(),
 			RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
 			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
-			StringPool.BLANK,
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
-			null, new ByteArrayInputStream(bytes), bytes.length, null, null,
+			StringPool.BLANK, basicDocumentDLFileEntryType.getFileEntryTypeId(),
+			null, null, new ByteArrayInputStream(bytes), bytes.length, null,
+			null,
 			ServiceContextTestUtil.getServiceContext(dlFolder.getGroupId()));
 	}
 

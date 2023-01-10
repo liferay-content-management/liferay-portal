@@ -69,9 +69,11 @@ if (fileEntry != null) {
 	}
 }
 
+DLFileEntryType basicDocumentDLFileEntryType = DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+
 DLFileEntryType dlFileEntryType = null;
 
-if (fileEntryTypeId >= 0) {
+if (fileEntryTypeId != -1) {
 	dlFileEntryType = DLFileEntryTypeLocalServiceUtil.getFileEntryType(fileEntryTypeId);
 }
 
@@ -405,7 +407,7 @@ renderResponse.setTitle(headerTitle);
 											for (DLFileEntryType curDLFileEntryType : dlFileEntryTypes) {
 											%>
 
-												<c:if test="<%= (curDLFileEntryType.getFileEntryTypeId() == DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) || (fileEntryTypeId == curDLFileEntryType.getFileEntryTypeId()) || DLFileEntryTypePermission.contains(permissionChecker, curDLFileEntryType, ActionKeys.VIEW) %>">
+												<c:if test="<%= (curDLFileEntryType.getFileEntryTypeId() == basicDocumentDLFileEntryType.getFileEntryTypeId()) || (fileEntryTypeId == curDLFileEntryType.getFileEntryTypeId()) || DLFileEntryTypePermission.contains(permissionChecker, curDLFileEntryType, ActionKeys.VIEW) %>">
 													<aui:option label="<%= HtmlUtil.escape(curDLFileEntryType.getName(locale)) %>" selected="<%= fileEntryTypeId == curDLFileEntryType.getPrimaryKey() %>" value="<%= curDLFileEntryType.getPrimaryKey() %>" />
 												</c:if>
 
@@ -530,7 +532,7 @@ renderResponse.setTitle(headerTitle);
 							<liferay-asset:select-asset-display-page
 								classNameId="<%= PortalUtil.getClassNameId(FileEntry.class) %>"
 								classPK="<%= (fileEntry != null) ? fileEntry.getFileEntryId() : 0 %>"
-								classTypeId="<%= (fileEntryTypeId < 0) ? DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT : fileEntryTypeId %>"
+								classTypeId="<%= (fileEntryTypeId == -1) ? basicDocumentDLFileEntryType.getFileEntryTypeId() : fileEntryTypeId %>"
 								groupId="<%= scopeGroupId %>"
 								showViewInContextLink="<%= true %>"
 							/>
@@ -557,7 +559,7 @@ renderResponse.setTitle(headerTitle);
 							<liferay-asset:asset-categories-selector
 								className="<%= DLFileEntry.class.getName() %>"
 								classPK="<%= assetClassPK %>"
-								classTypePK="<%= (fileEntryTypeId < 0) ? DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT : fileEntryTypeId %>"
+								classTypePK="<%= (fileEntryTypeId == -1) ? basicDocumentDLFileEntryType.getFileEntryTypeId() : fileEntryTypeId %>"
 								visibilityTypes="<%= AssetVocabularyConstants.VISIBILITY_TYPES %>"
 							/>
 

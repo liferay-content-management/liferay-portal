@@ -15,7 +15,6 @@
 package com.liferay.document.library.internal.exportimport.data.handler;
 
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
@@ -409,12 +408,14 @@ public class FolderStagedModelDataHandler
 			_dlFileEntryTypeLocalService.getDefaultFileEntryTypeId(
 				folder.getFolderId());
 
+		DLFileEntryType basicDocumentDLFileEntryType =
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+
 		String defaultFileEntryTypeUuid = StringPool.BLANK;
 
 		for (DLFileEntryType dlFileEntryType : dlFileEntryTypes) {
 			if (dlFileEntryType.getFileEntryTypeId() ==
-					DLFileEntryTypeConstants.
-						FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
+					basicDocumentDLFileEntryType.getFileEntryTypeId()) {
 
 				folderElement.addAttribute("basic-document", "true");
 
@@ -492,8 +493,11 @@ public class FolderStagedModelDataHandler
 		if (GetterUtil.getBoolean(
 				folderElement.attributeValue("basic-document"))) {
 
+			DLFileEntryType basicDocumentDLFileEntryType =
+				_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+
 			currentFolderFileEntryTypeIds.add(
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
+				basicDocumentDLFileEntryType.getFileEntryTypeId());
 		}
 
 		if (!currentFolderFileEntryTypeIds.isEmpty()) {

@@ -15,7 +15,6 @@
 package com.liferay.document.library.web.internal.model.listener;
 
 import com.liferay.document.library.kernel.model.DLFileEntryType;
-import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.document.library.web.internal.info.collection.provider.DLFileEntryTypeRelatedInfoCollectionProvider;
@@ -23,8 +22,10 @@ import com.liferay.info.collection.provider.RelatedInfoItemCollectionProvider;
 import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.service.CompanyLocalService;
@@ -93,7 +94,9 @@ public class DLFileEntryTypeModelListener
 	}
 
 	@Override
-	public void portalInstanceRegistered(Company company) {
+	public void portalInstanceRegistered(Company company)
+		throws PortalException {
+
 		_registerCompanyDLFileEntryTypes(company);
 		_registerDefaultDLFileEntryType();
 	}
@@ -144,17 +147,16 @@ public class DLFileEntryTypeModelListener
 		}
 	}
 
-	private void _registerDefaultDLFileEntryType() {
-		if (_serviceRegistrations.containsKey(0L)) {
+	private void _registerDefaultDLFileEntryType() throws PortalException {
+		if (_serviceRegistrations.containsKey(CompanyConstants.SYSTEM)) {
 			return;
 		}
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.fetchDLFileEntryType(
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
 
 		_serviceRegistrations.put(
-			0L,
+			CompanyConstants.SYSTEM,
 			HashMapBuilder.<Long, ServiceRegistration<?>>put(
 				basicDocumentDLFileEntryType.getFileEntryTypeId(),
 				_bundleContext.registerService(
