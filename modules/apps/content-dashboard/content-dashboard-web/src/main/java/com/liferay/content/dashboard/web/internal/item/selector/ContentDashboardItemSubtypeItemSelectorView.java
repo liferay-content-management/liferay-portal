@@ -335,7 +335,8 @@ public class ContentDashboardItemSubtypeItemSelectorView
 
 				DLFileEntryType googleDocsDLFileEntryType =
 					_dlFileEntryTypeLocalService.fetchFileEntryType(
-						company.getGroupId(), "GOOGLE_DOCS");
+						company.getGroupId(), company.getCompanyId(),
+						"GOOGLE_DOCS");
 
 				if (googleDocsDLFileEntryType != null) {
 					String fileEntryTypeIdString = String.valueOf(

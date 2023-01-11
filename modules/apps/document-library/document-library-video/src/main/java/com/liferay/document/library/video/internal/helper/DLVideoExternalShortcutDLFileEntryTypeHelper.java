@@ -66,7 +66,8 @@ public class DLVideoExternalShortcutDLFileEntryTypeHelper {
 
 		DLFileEntryType dlFileEntryType =
 			_dlFileEntryTypeLocalService.fetchDataDefinitionFileEntryType(
-				_company.getGroupId(), ddmStructure.getStructureId());
+				_company.getGroupId(), _company.getCompanyId(),
+				ddmStructure.getStructureId());
 
 		if (dlFileEntryType == null) {
 			_addDLVideoExternalShortcutDLFileEntryType(

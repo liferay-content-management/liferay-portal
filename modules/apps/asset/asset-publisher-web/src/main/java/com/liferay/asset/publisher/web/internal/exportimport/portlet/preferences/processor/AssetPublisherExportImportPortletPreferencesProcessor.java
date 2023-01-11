@@ -394,7 +394,9 @@ public class AssetPublisherExportImportPortletPreferencesProcessor
 					if (preloaded) {
 						dlFileEntryType =
 							dlFileEntryTypeLocalService.fetchFileEntryType(
-								companyGroupId, fileEntryTypeKey);
+								companyGroupId,
+								portletDataContext.getCompanyId(),
+								fileEntryTypeKey);
 					}
 				}
 			}

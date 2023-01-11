@@ -325,7 +325,8 @@ public class ContentDashboardSearchContextBuilder {
 
 			DLFileEntryType googleDocsDLFileEntryType =
 				DLFileEntryTypeLocalServiceUtil.fetchFileEntryType(
-					company.getGroupId(), "GOOGLE_DOCS");
+					company.getGroupId(), company.getCompanyId(),
+					"GOOGLE_DOCS");
 
 			if (googleDocsDLFileEntryType == null) {
 				return Optional.empty();

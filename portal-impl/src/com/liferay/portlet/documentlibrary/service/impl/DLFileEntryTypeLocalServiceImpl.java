@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.service.impl;
 
 import com.liferay.document.library.kernel.exception.DuplicateFileEntryTypeException;
-import com.liferay.document.library.kernel.exception.NoSuchFileEntryTypeException;
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.exception.NoSuchMetadataSetException;
 import com.liferay.document.library.kernel.exception.RequiredFileEntryTypeException;
@@ -84,6 +83,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -137,7 +137,8 @@ public class DLFileEntryTypeLocalServiceImpl
 			}
 		}
 
-		_validateFileEntryTypeKey(groupId, fileEntryTypeKey);
+		_validateFileEntryTypeKey(
+			groupId, user.getCompanyId(), fileEntryTypeKey);
 
 		_validateDDMStructures(fileEntryTypeKey, new long[] {dataDefinitionId});
 
@@ -231,7 +232,8 @@ public class DLFileEntryTypeLocalServiceImpl
 			userId, fileEntryTypeUuid, fileEntryTypeId, groupId, nameMap,
 			descriptionMap, ddmStructureIds, serviceContext);
 
-		_validateFileEntryTypeKey(groupId, fileEntryTypeKey);
+		_validateFileEntryTypeKey(
+			groupId, user.getCompanyId(), fileEntryTypeKey);
 
 		_validateDDMStructures(fileEntryTypeKey, ddmStructureIds);
 
@@ -406,10 +408,10 @@ public class DLFileEntryTypeLocalServiceImpl
 
 	@Override
 	public DLFileEntryType fetchDataDefinitionFileEntryType(
-		long groupId, long dataDefinitionId) {
+		long groupId, long companyId, long dataDefinitionId) {
 
-		return dlFileEntryTypePersistence.fetchByG_DDI(
-			groupId, dataDefinitionId);
+		return dlFileEntryTypePersistence.fetchByG_C_DDI(
+			groupId, companyId, dataDefinitionId);
 	}
 
 	@Override
@@ -419,21 +421,29 @@ public class DLFileEntryTypeLocalServiceImpl
 
 	@Override
 	public DLFileEntryType fetchFileEntryType(
-		long groupId, String fileEntryTypeKey) {
+		long groupId, long companyId, String fileEntryTypeKey) {
+
+		if (Objects.equals(
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT,
+				fileEntryTypeKey)) {
+
+			return dlFileEntryTypeLocalService.
+				getBasicDocumentDLFileEntryType();
+		}
 
 		fileEntryTypeKey = StringUtil.toUpperCase(
 			StringUtil.trim(fileEntryTypeKey));
 
-		return dlFileEntryTypePersistence.fetchByG_F(groupId, fileEntryTypeKey);
+		return dlFileEntryTypePersistence.fetchByG_C_F(
+			groupId, companyId, fileEntryTypeKey);
 	}
 
 	@Override
-	public DLFileEntryType getBasicDocumentDLFileEntryType()
-		throws NoSuchFileEntryTypeException {
-
-		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.fetchByG_F(
-			GroupConstants.DEFAULT_LIVE_GROUP_ID,
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT);
+	public DLFileEntryType getBasicDocumentDLFileEntryType() {
+		DLFileEntryType dlFileEntryType =
+			dlFileEntryTypePersistence.fetchByG_C_F(
+				GroupConstants.DEFAULT_LIVE_GROUP_ID, CompanyConstants.SYSTEM,
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT);
 
 		if (dlFileEntryType != null) {
 			return dlFileEntryType;
@@ -469,13 +479,14 @@ public class DLFileEntryTypeLocalServiceImpl
 
 	@Override
 	public DLFileEntryType getFileEntryType(
-			long groupId, String fileEntryTypeKey)
+			long groupId, long companyId, String fileEntryTypeKey)
 		throws PortalException {
 
 		fileEntryTypeKey = StringUtil.toUpperCase(
 			StringUtil.trim(fileEntryTypeKey));
 
-		return dlFileEntryTypePersistence.findByG_F(groupId, fileEntryTypeKey);
+		return dlFileEntryTypePersistence.findByG_C_F(
+			groupId, companyId, fileEntryTypeKey);
 	}
 
 	@Override
@@ -1086,11 +1097,12 @@ public class DLFileEntryTypeLocalServiceImpl
 	}
 
 	private void _validateFileEntryTypeKey(
-			long groupId, String fileEntryTypeKey)
+			long groupId, long companyId, String fileEntryTypeKey)
 		throws DuplicateFileEntryTypeException {
 
-		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.fetchByG_F(
-			groupId, fileEntryTypeKey);
+		DLFileEntryType dlFileEntryType =
+			dlFileEntryTypePersistence.fetchByG_C_F(
+				groupId, companyId, fileEntryTypeKey);
 
 		if (dlFileEntryType != null) {
 			throw new DuplicateFileEntryTypeException(

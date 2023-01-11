@@ -89,7 +89,7 @@ public class DLDataDefinitionContentType implements DataDefinitionContentType {
 
 			DLFileEntryType dlFileEntryType =
 				_dlFileEntryTypeLocalService.fetchDataDefinitionFileEntryType(
-					groupId, primKey);
+					groupId, companyId, primKey);
 
 			if (dlFileEntryType != null) {
 				resourceName = DLFileEntryType.class.getName();

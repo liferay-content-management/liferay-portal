@@ -19,7 +19,6 @@ import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeServiceUtil;
-import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portlet.documentlibrary.asset.DLFileEntryClassType;
@@ -69,19 +68,12 @@ public class DLFileEntryClassTypeReader implements ClassTypeReader {
 	}
 
 	private ClassType _getBasicDocumentClassType(Locale locale) {
-		try {
-			DLFileEntryType dlFileEntryType =
-				DLFileEntryTypeLocalServiceUtil.
-					getBasicDocumentDLFileEntryType();
+		DLFileEntryType dlFileEntryType =
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
 
-			return new DLFileEntryClassType(
-				dlFileEntryType.getFileEntryTypeId(),
-				dlFileEntryType.getName(locale),
-				LocaleUtil.toLanguageId(locale));
-		}
-		catch (PortalException portalException) {
-			return ReflectionUtil.throwException(portalException);
-		}
+		return new DLFileEntryClassType(
+			dlFileEntryType.getFileEntryTypeId(),
+			dlFileEntryType.getName(locale), LocaleUtil.toLanguageId(locale));
 	}
 
 }

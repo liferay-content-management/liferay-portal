@@ -168,7 +168,8 @@ public class DLFileEntryTypeStagedModelDataHandler
 
 		DLFileEntryType existingFileEntryType =
 			_fetchExistingFileEntryTypeWithParentGroups(
-				uuid, groupId, fileEntryTypeKey, preloaded);
+				uuid, groupId, portletDataContext.getCompanyId(),
+				fileEntryTypeKey, preloaded);
 
 		if (existingFileEntryType == null) {
 			return false;
@@ -242,7 +243,8 @@ public class DLFileEntryTypeStagedModelDataHandler
 		}
 		else {
 			existingFileEntryType = _fetchExistingFileEntryTypeWithParentGroups(
-				uuid, groupId, fileEntryTypeKey, preloaded);
+				uuid, groupId, portletDataContext.getCompanyId(),
+				fileEntryTypeKey, preloaded);
 		}
 
 		if (existingFileEntryType == null) {
@@ -307,6 +309,7 @@ public class DLFileEntryTypeStagedModelDataHandler
 				_fetchExistingFileEntryType(
 					fileEntryType.getUuid(),
 					portletDataContext.getScopeGroupId(),
+					portletDataContext.getCompanyId(),
 					fileEntryType.getFileEntryTypeKey(), preloaded);
 
 			if (existingDLFileEntryType == null) {
@@ -376,7 +379,8 @@ public class DLFileEntryTypeStagedModelDataHandler
 	}
 
 	private DLFileEntryType _fetchExistingFileEntryType(
-		String uuid, long groupId, String fileEntryTypeKey, boolean preloaded) {
+		String uuid, long groupId, long companyId, String fileEntryTypeKey,
+		boolean preloaded) {
 
 		DLFileEntryType existingDLFileEntryType = null;
 
@@ -387,28 +391,28 @@ public class DLFileEntryTypeStagedModelDataHandler
 		else {
 			existingDLFileEntryType =
 				_dlFileEntryTypeLocalService.fetchFileEntryType(
-					groupId, fileEntryTypeKey);
+					groupId, companyId, fileEntryTypeKey);
 		}
 
 		return existingDLFileEntryType;
 	}
 
 	private DLFileEntryType _fetchExistingFileEntryTypeWithParentGroups(
-		String uuid, long groupId, String fileEntryTypeKey, boolean preloaded) {
+		String uuid, long groupId, long companyId, String fileEntryTypeKey,
+		boolean preloaded) {
 
 		Group group = _groupLocalService.fetchGroup(groupId);
 
 		if (group == null) {
 			return _fetchExistingFileEntryType(
-				uuid, groupId, fileEntryTypeKey, preloaded);
+				uuid, groupId, companyId, fileEntryTypeKey, preloaded);
 		}
-
-		long companyId = group.getCompanyId();
 
 		while (group != null) {
 			DLFileEntryType existingDLFileEntryType =
 				_fetchExistingFileEntryType(
-					uuid, group.getGroupId(), fileEntryTypeKey, preloaded);
+					uuid, group.getGroupId(), group.getCompanyId(),
+					fileEntryTypeKey, preloaded);
 
 			if (existingDLFileEntryType != null) {
 				return existingDLFileEntryType;
@@ -424,7 +428,8 @@ public class DLFileEntryTypeStagedModelDataHandler
 		}
 
 		return _fetchExistingFileEntryType(
-			uuid, companyGroup.getGroupId(), fileEntryTypeKey, preloaded);
+			uuid, companyGroup.getGroupId(), companyGroup.getCompanyId(),
+			fileEntryTypeKey, preloaded);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
