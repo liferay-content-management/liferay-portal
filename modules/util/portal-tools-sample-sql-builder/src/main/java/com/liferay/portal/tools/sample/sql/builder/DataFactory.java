@@ -218,7 +218,6 @@ import com.liferay.portal.kernel.model.AddressModel;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.ClassNameModel;
 import com.liferay.portal.kernel.model.Company;
-import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.CompanyModel;
 import com.liferay.portal.kernel.model.ContactConstants;
 import com.liferay.portal.kernel.model.ContactModel;
@@ -3738,7 +3737,7 @@ public class DataFactory {
 
 		// Audit fields
 
-		defaultDLFileEntryTypeModel.setCompanyId(CompanyConstants.SYSTEM);
+		defaultDLFileEntryTypeModel.setCompanyId(_companyId);
 		defaultDLFileEntryTypeModel.setCreateDate(nextFutureDate());
 		defaultDLFileEntryTypeModel.setModifiedDate(nextFutureDate());
 
