@@ -1987,7 +1987,8 @@ public class DefaultObjectEntryManagerImplTest {
 
 	private Long _getAttachmentObjectFieldValue() throws Exception {
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				_group.getCompanyId());
 
 		byte[] bytes = TestDataConstants.TEST_BYTE_ARRAY;
 

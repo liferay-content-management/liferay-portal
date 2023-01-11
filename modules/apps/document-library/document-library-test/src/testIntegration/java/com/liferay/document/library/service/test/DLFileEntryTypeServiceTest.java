@@ -95,7 +95,8 @@ public class DLFileEntryTypeServiceTest {
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 
 		_basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				_group.getCompanyId());
 
 		DDMStructure ddmStructure1 = DDMStructureTestUtil.addStructure(
 			_group.getGroupId(), DLFileEntryMetadata.class.getName());

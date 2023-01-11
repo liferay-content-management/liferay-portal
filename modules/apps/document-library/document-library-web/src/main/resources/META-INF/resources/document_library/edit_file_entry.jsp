@@ -69,7 +69,7 @@ if (fileEntry != null) {
 	}
 }
 
-DLFileEntryType basicDocumentDLFileEntryType = DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+DLFileEntryType basicDocumentDLFileEntryType = DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(themeDisplay.getCompanyId());
 
 DLFileEntryType dlFileEntryType = null;
 

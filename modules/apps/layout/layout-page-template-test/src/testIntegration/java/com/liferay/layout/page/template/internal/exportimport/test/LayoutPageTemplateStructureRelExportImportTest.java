@@ -140,7 +140,8 @@ public class LayoutPageTemplateStructureRelExportImportTest
 					() -> {
 						DLFileEntryType basicDocumentDLFileEntryType =
 							_dlFileEntryTypeLocalService.
-								getBasicDocumentDLFileEntryType();
+								getBasicDocumentDLFileEntryType(
+									exportedFileEntry.getCompanyId());
 
 						return String.valueOf(
 							basicDocumentDLFileEntryType.getFileEntryTypeId());

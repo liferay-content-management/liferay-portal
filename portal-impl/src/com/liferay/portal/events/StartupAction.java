@@ -14,7 +14,6 @@
 
 package com.liferay.portal.events;
 
-import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.db.index.IndexUpdaterUtil;
@@ -171,10 +170,9 @@ public class StartupAction extends SimpleAction {
 
 		StartupHelperUtil.initResourceActions();
 
-		if (StartupHelperUtil.isDBNew()) {
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
-		}
-		else if (PropsValues.DATABASE_INDEXES_UPDATE_ON_STARTUP) {
+		if (!StartupHelperUtil.isDBNew() &&
+			PropsValues.DATABASE_INDEXES_UPDATE_ON_STARTUP) {
+
 			IndexUpdaterUtil.updateAllIndexes();
 		}
 	}

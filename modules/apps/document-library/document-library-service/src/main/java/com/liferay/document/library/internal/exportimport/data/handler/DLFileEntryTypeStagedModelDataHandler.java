@@ -123,7 +123,8 @@ public class DLFileEntryTypeStagedModelDataHandler
 
 				DLFileEntryType basicDocumentDLFileEntryType =
 					_dlFileEntryTypeLocalService.
-						getBasicDocumentDLFileEntryType();
+						getBasicDocumentDLFileEntryType(
+							fileEntryType.getCompanyId());
 
 				boolean preloaded = false;
 

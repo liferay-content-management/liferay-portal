@@ -40,8 +40,12 @@ public class SubscriptionDLAppLocalServiceWrapper
 
 		super.subscribeFileEntryType(userId, groupId, fileEntryTypeId);
 
+		DLFileEntryType dlFileEntryType =
+			_dlFileEntryTypeLocalService.getDLFileEntryType(fileEntryTypeId);
+
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				dlFileEntryType.getCompanyId());
 
 		if (fileEntryTypeId ==
 				basicDocumentDLFileEntryType.getFileEntryTypeId()) {
@@ -74,8 +78,12 @@ public class SubscriptionDLAppLocalServiceWrapper
 
 		super.unsubscribeFileEntryType(userId, groupId, fileEntryTypeId);
 
+		DLFileEntryType dlFileEntryType =
+			_dlFileEntryTypeLocalService.getDLFileEntryType(fileEntryTypeId);
+
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				dlFileEntryType.getCompanyId());
 
 		if (fileEntryTypeId ==
 				basicDocumentDLFileEntryType.getFileEntryTypeId()) {

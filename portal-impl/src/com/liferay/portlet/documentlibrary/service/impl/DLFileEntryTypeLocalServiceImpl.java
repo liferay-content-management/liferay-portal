@@ -46,13 +46,14 @@ import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -304,7 +305,7 @@ public class DLFileEntryTypeLocalServiceImpl
 			groupIds, dlFolder.getFolderId(), true);
 
 		long defaultFileEntryTypeId = getDefaultFileEntryTypeId(
-			dlFolder.getFolderId());
+			dlFolder.getCompanyId(), dlFolder.getFolderId());
 
 		ServiceContext serviceContext = new ServiceContext();
 
@@ -319,14 +320,12 @@ public class DLFileEntryTypeLocalServiceImpl
 	}
 
 	@Override
-	public DLFileEntryType createBasicDocumentDLFileEntryType(
-		long companyId) {
-
+	public DLFileEntryType createBasicDocumentDLFileEntryType(long companyId) {
 		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.create(
 			counterLocalService.increment());
 
-		dlFileEntryType.setCompanyId(companyId);
 		dlFileEntryType.setGroupId(GroupConstants.DEFAULT_LIVE_GROUP_ID);
+		dlFileEntryType.setCompanyId(companyId);
 		dlFileEntryType.setFileEntryTypeKey(
 			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT);
 		dlFileEntryType.setName(
@@ -430,8 +429,8 @@ public class DLFileEntryTypeLocalServiceImpl
 				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT,
 				fileEntryTypeKey)) {
 
-			return dlFileEntryTypeLocalService.
-				getBasicDocumentDLFileEntryType();
+			return dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				companyId);
 		}
 
 		fileEntryTypeKey = StringUtil.toUpperCase(
@@ -469,7 +468,8 @@ public class DLFileEntryTypeLocalServiceImpl
 		}
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				companyId);
 
 		return basicDocumentDLFileEntryType.getFileEntryTypeId();
 	}
@@ -518,8 +518,11 @@ public class DLFileEntryTypeLocalServiceImpl
 		List<DLFileEntryType> dlFileEntryTypes = new ArrayList<>(
 			getFileEntryTypes(groupIds));
 
+		Group group = _groupLocalService.getGroup(groupIds[0]);
+
 		DLFileEntryType dlFileEntryType =
-			dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				group.getCompanyId());
 
 		dlFileEntryTypes.add(0, dlFileEntryType);
 
@@ -616,8 +619,8 @@ public class DLFileEntryTypeLocalServiceImpl
 			serviceContext.getUserId(), dlFileEntry.getFileEntryId(), null,
 			null, null, null, null, null,
 			DLVersionNumberIncrease.fromMajorVersion(false),
-			getDefaultFileEntryTypeId(folderId), null, null, null, 0, null,
-			null, serviceContext);
+			getDefaultFileEntryTypeId(serviceContext.getCompanyId(), folderId),
+			null, null, null, 0, null, null, serviceContext);
 	}
 
 	/**
@@ -1139,6 +1142,9 @@ public class DLFileEntryTypeLocalServiceImpl
 
 	@BeanReference(type = DLFolderPersistence.class)
 	private DLFolderPersistence _dlFolderPersistence;
+
+	@BeanReference(type = GroupLocalService.class)
+	private GroupLocalService _groupLocalService;
 
 	@BeanReference(type = ResourceActionLocalService.class)
 	private ResourceActionLocalService _resourceActionLocalService;

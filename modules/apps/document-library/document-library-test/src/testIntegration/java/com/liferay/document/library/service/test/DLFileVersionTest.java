@@ -239,7 +239,8 @@ public class DLFileVersionTest {
 	@Test
 	public void testUpdateFileEntryType() throws Exception {
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				_fileVersion.getCompanyId());
 
 		updateServiceContext(
 			StringPool.BLANK, basicDocumentDLFileEntryType.getFileEntryTypeId(),

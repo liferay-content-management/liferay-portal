@@ -82,7 +82,8 @@ public class DLFileEntryMetadataTableReferenceDefinitionTest
 		super.setUp();
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				group.getCompanyId());
 
 		byte[] bytes = TestDataConstants.TEST_BYTE_ARRAY;
 

@@ -39,10 +39,12 @@ public class DLFileEntryTypeContentDashboardItemSubtypeFactory
 			long classPK, long entryClassPK)
 		throws PortalException {
 
-		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
 		DLFileEntryType dlFileEntryType =
 			_dlFileEntryTypeLocalService.getFileEntryType(classPK);
+
+		DLFileEntryType basicDocumentDLFileEntryType =
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				dlFileEntryType.getCompanyId());
 
 		return new DLFileEntryTypeContentDashboardItemSubtype(
 			basicDocumentDLFileEntryType,

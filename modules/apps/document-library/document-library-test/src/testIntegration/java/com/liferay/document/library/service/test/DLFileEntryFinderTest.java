@@ -1489,7 +1489,8 @@ public class DLFileEntryFinderTest {
 		DLTrashServiceUtil.moveFolderToTrash(folderC.getFolderId());
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				_user.getCompanyId());
 
 		FileEntry fileEntry = addFileEntry(
 			_user.getUserId(), repositoryId, folder.getFolderId(), "FE1.txt",

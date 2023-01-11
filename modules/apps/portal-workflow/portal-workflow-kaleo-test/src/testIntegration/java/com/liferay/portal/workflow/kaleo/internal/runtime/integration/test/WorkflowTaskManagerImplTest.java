@@ -295,7 +295,7 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 			() -> {
 				DLFileEntryType basicFileEntryType =
 					_dlFileEntryTypeLocalService.
-						getBasicDocumentDLFileEntryType();
+						getBasicDocumentDLFileEntryType(_group.getCompanyId());
 
 				return String.valueOf(basicFileEntryType.getFileEntryTypeId());
 			},

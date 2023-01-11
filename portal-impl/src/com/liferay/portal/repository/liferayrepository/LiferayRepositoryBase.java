@@ -112,7 +112,8 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 		HashMap<String, DDMFormValues> ddmFormValuesMap = new HashMap<>();
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				serviceContext.getCompanyId());
 
 		if ((fileEntryTypeId ==
 				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL) ||
@@ -153,7 +154,8 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 		folderId = dlFolderLocalService.getFolderId(
 			serviceContext.getCompanyId(), folderId);
 
-		return dlFileEntryTypeLocalService.getDefaultFileEntryTypeId(folderId);
+		return dlFileEntryTypeLocalService.getDefaultFileEntryTypeId(
+			serviceContext.getCompanyId(), folderId);
 	}
 
 	protected long getGroupId() {

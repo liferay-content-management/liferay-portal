@@ -111,7 +111,8 @@ public class DLSubscriptionClassTypeTest
 	@Override
 	protected Long getDefaultClassTypeId() throws Exception {
 		DLFileEntryType basicEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				user.getCompanyId());
 
 		Assert.assertNotNull(basicEntryType);
 

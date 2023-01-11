@@ -454,8 +454,8 @@ public class DefaultDLEditFileEntryDisplayContext
 				_fileEntry, _dlRequestHelper.getRequest(), "folderId");
 
 			DLFileEntryType basicDocumentDLFileEntryType =
-				DLFileEntryTypeLocalServiceUtil.
-					getBasicDocumentDLFileEntryType();
+				DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+					_dlRequestHelper.getCompanyId());
 
 			long fileEntryTypeId =
 				basicDocumentDLFileEntryType.getFileEntryTypeId();

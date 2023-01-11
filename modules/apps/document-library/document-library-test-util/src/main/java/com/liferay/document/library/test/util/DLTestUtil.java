@@ -41,7 +41,8 @@ public class DLTestUtil {
 
 	public static DLFileEntry addDLFileEntry(long dlFolderId) throws Exception {
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				TestPropsValues.getCompanyId());
 
 		DLFolder dlFolder = DLFolderLocalServiceUtil.fetchDLFolder(dlFolderId);
 

@@ -279,8 +279,8 @@ public class DLFileEntryTypeFinderTest {
 		Assert.assertTrue(
 			fileEntryTypes.toString(),
 			fileEntryTypes.contains(
-				DLFileEntryTypeLocalServiceUtil.
-					getBasicDocumentDLFileEntryType()));
+				DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+					_group.getCompanyId())));
 	}
 
 	@Test
@@ -298,8 +298,8 @@ public class DLFileEntryTypeFinderTest {
 		Assert.assertTrue(
 			fileEntryTypes.toString(),
 			fileEntryTypes.contains(
-				DLFileEntryTypeLocalServiceUtil.
-					getBasicDocumentDLFileEntryType()));
+				DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+					_group.getCompanyId())));
 	}
 
 	@Test

@@ -25,12 +25,10 @@ import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.Company;
-import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 
@@ -98,7 +96,6 @@ public class DLFileEntryTypeModelListener
 		throws PortalException {
 
 		_registerCompanyDLFileEntryTypes(company);
-		_registerDefaultDLFileEntryType();
 	}
 
 	@Override
@@ -141,30 +138,22 @@ public class DLFileEntryTypeModelListener
 					null));
 		}
 
+		DLFileEntryType basicDocumentDLFileEntryType =
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				company.getCompanyId());
+
+		serviceRegistrations.put(
+			basicDocumentDLFileEntryType.getFileEntryTypeId(),
+			_bundleContext.registerService(
+				RelatedInfoItemCollectionProvider.class,
+				new DLFileEntryTypeRelatedInfoCollectionProvider(
+					_dlAppLocalService, basicDocumentDLFileEntryType),
+				null));
+
 		if (MapUtil.isNotEmpty(serviceRegistrations)) {
 			_serviceRegistrations.put(
 				company.getCompanyId(), serviceRegistrations);
 		}
-	}
-
-	private void _registerDefaultDLFileEntryType() throws PortalException {
-		if (_serviceRegistrations.containsKey(CompanyConstants.SYSTEM)) {
-			return;
-		}
-
-		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
-
-		_serviceRegistrations.put(
-			CompanyConstants.SYSTEM,
-			HashMapBuilder.<Long, ServiceRegistration<?>>put(
-				basicDocumentDLFileEntryType.getFileEntryTypeId(),
-				_bundleContext.registerService(
-					RelatedInfoItemCollectionProvider.class,
-					new DLFileEntryTypeRelatedInfoCollectionProvider(
-						_dlAppLocalService, basicDocumentDLFileEntryType),
-					null)
-			).build());
 	}
 
 	private void _unregisterCompanyDLFileEntryTypes(long companyId) {

@@ -238,7 +238,7 @@ public class DLFileEntryLocalServiceImpl
 		if (fileEntryTypeId == -1) {
 			fileEntryTypeId =
 				_dlFileEntryTypeLocalService.getDefaultFileEntryTypeId(
-					folderId);
+					user.getCompanyId(), folderId);
 		}
 
 		_validateFileEntryTypeId(
@@ -625,7 +625,8 @@ public class DLFileEntryLocalServiceImpl
 		List<DDMStructure> ddmStructures;
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				companyId);
 
 		if ((fileEntryTypeId !=
 				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL) &&
@@ -2108,7 +2109,8 @@ public class DLFileEntryLocalServiceImpl
 		dlFileVersion = _dlFileVersionPersistence.update(dlFileVersion);
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				dlFileEntry.getCompanyId());
 
 		if ((fileEntryTypeId !=
 				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL) &&
@@ -2705,7 +2707,7 @@ public class DLFileEntryLocalServiceImpl
 			}
 
 			return _dlFileEntryTypeLocalService.getDefaultFileEntryTypeId(
-				dlFileEntry.getFolderId());
+				dlFileEntry.getCompanyId(), dlFileEntry.getFolderId());
 		}
 	}
 
@@ -3440,7 +3442,8 @@ public class DLFileEntryLocalServiceImpl
 		dlFileVersion = _dlFileVersionPersistence.update(dlFileVersion);
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				dlFileVersion.getCompanyId());
 
 		if ((fileEntryTypeId !=
 				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL) &&

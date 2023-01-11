@@ -123,7 +123,8 @@ public class DLFileEntryLocalServiceTest {
 	@Before
 	public void setUp() throws Exception {
 		_basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				TestPropsValues.getCompanyId());
 
 		_group = GroupTestUtil.addGroup();
 	}
@@ -351,6 +352,7 @@ public class DLFileEntryLocalServiceTest {
 
 		Assert.assertEquals(
 			DLFileEntryTypeLocalServiceUtil.getDefaultFileEntryTypeId(
+				_group.getCompanyId(),
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID),
 			dlFileEntry.getFileEntryTypeId());
 	}

@@ -317,7 +317,8 @@ public class DLFileEntryServiceTest {
 		String fileEntryTitle = RandomTestUtil.randomString();
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				_group.getCompanyId());
 
 		return DLFileEntryLocalServiceUtil.addFileEntry(
 			null, TestPropsValues.getUserId(), _group.getGroupId(),

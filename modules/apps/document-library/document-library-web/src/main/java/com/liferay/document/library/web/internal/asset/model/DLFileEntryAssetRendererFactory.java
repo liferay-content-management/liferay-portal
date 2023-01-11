@@ -189,7 +189,7 @@ public class DLFileEntryAssetRendererFactory
 			() -> {
 				DLFileEntryType basicDocumentDLFileEntryType =
 					_dlFileEntryTypeLocalService.
-						getBasicDocumentDLFileEntryType();
+						getBasicDocumentDLFileEntryType(group.getCompanyId());
 
 				long fileEntryTypeId =
 					basicDocumentDLFileEntryType.getFileEntryTypeId();

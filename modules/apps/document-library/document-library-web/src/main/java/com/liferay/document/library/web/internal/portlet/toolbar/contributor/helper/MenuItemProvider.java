@@ -130,7 +130,9 @@ public class MenuItemProvider {
 					return portletDisplay.getId();
 				}
 			).setParameter(
-				"fileEntryTypeId", _getDefaultFileEntryTypeId(folderId)
+				"fileEntryTypeId",
+				_getDefaultFileEntryTypeId(
+					themeDisplay.getCompanyId(), folderId)
 			).setParameter(
 				"folderId", folderId
 			).setParameter(
@@ -330,12 +332,12 @@ public class MenuItemProvider {
 		_serviceTrackerMap = null;
 	}
 
-	private long _getDefaultFileEntryTypeId(long folderId)
+	private long _getDefaultFileEntryTypeId(long companyId, long folderId)
 		throws PortalException {
 
 		try {
 			return _dlFileEntryTypeLocalService.getDefaultFileEntryTypeId(
-				folderId);
+				companyId, folderId);
 		}
 		catch (PortalException portalException) {
 			if (_log.isWarnEnabled()) {
@@ -346,7 +348,8 @@ public class MenuItemProvider {
 			}
 
 			DLFileEntryType basicDocumentDLFileEntryType =
-				_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+				_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+					companyId);
 
 			return basicDocumentDLFileEntryType.getFileEntryTypeId();
 		}
@@ -453,7 +456,8 @@ public class MenuItemProvider {
 		List<MenuItem> menuItems = new ArrayList<>();
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				themeDisplay.getCompanyId());
 
 		List<DLFileEntryType> fileEntryTypes = _getFileEntryTypes(
 			themeDisplay.getScopeGroupId(), folder);

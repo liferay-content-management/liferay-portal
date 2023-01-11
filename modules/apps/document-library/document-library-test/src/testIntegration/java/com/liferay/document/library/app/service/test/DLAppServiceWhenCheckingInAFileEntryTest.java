@@ -159,7 +159,8 @@ public class DLAppServiceWhenCheckingInAFileEntryTest
 			"ddmFormValues", _SERIALIZED_DDM_FORM_VALUES);
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				group.getCompanyId());
 
 		serviceContext.setAttribute(
 			"fileEntryTypeId",

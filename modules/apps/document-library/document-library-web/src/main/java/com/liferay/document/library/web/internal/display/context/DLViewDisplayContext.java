@@ -405,7 +405,8 @@ public class DLViewDisplayContext {
 			DLFileEntryConstants.getClassName());
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				themeDisplay.getCompanyId());
 
 		for (AssetVocabulary assetVocabulary : assetVocabularies) {
 			if (assetVocabulary.isRequired(

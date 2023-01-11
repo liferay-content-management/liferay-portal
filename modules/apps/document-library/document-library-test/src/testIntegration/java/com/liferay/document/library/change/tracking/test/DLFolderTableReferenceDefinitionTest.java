@@ -72,7 +72,8 @@ public class DLFolderTableReferenceDefinitionTest
 			RandomTestUtil.randomString(), false, serviceContext);
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				group.getCompanyId());
 
 		byte[] bytes = TestDataConstants.TEST_BYTE_ARRAY;
 

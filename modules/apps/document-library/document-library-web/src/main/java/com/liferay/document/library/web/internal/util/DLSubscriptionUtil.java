@@ -37,7 +37,8 @@ public class DLSubscriptionUtil {
 		throws PortalException {
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				companyId);
 
 		if (fileEntryTypeId ==
 				basicDocumentDLFileEntryType.getFileEntryTypeId()) {

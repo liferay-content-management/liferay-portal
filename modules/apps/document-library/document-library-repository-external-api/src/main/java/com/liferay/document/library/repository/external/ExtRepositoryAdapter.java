@@ -346,8 +346,11 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 			OrderByComparator<FileEntry> orderByComparator)
 		throws PortalException {
 
+		Folder folder = getFolder(folderId);
+
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				folder.getCompanyId());
 
 		if (fileEntryTypeId ==
 				basicDocumentDLFileEntryType.getFileEntryTypeId()) {
@@ -400,8 +403,11 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 	public int getFileEntriesCount(long folderId, long fileEntryTypeId)
 		throws PortalException {
 
+		Folder folder = getFolder(folderId);
+
 		DLFileEntryType basicDocumentDLFileEntryType =
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType(
+				folder.getCompanyId());
 
 		if (fileEntryTypeId ==
 				basicDocumentDLFileEntryType.getFileEntryTypeId()) {

@@ -295,7 +295,8 @@ public class SubscriptionDLAppHelperLocalServiceWrapper
 		}
 
 		DLFileEntryType basicDocumentDLFileEntryType =
-			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
+			_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType(
+				dlFileEntryType.getCompanyId());
 
 		if (dlFileEntryType.getFileEntryTypeId() ==
 				basicDocumentDLFileEntryType.getFileEntryTypeId()) {
