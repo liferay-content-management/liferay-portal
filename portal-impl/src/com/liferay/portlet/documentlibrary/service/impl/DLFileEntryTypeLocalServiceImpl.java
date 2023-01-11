@@ -319,11 +319,14 @@ public class DLFileEntryTypeLocalServiceImpl
 	}
 
 	@Override
-	public DLFileEntryType createBasicDocumentDLFileEntryType() {
+	public DLFileEntryType createBasicDocumentDLFileEntryType(
+		long companyId) {
+
 		DLFileEntryType dlFileEntryType = dlFileEntryTypePersistence.create(
 			counterLocalService.increment());
 
-		dlFileEntryType.setCompanyId(CompanyConstants.SYSTEM);
+		dlFileEntryType.setCompanyId(companyId);
+		dlFileEntryType.setGroupId(GroupConstants.DEFAULT_LIVE_GROUP_ID);
 		dlFileEntryType.setFileEntryTypeKey(
 			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT);
 		dlFileEntryType.setName(
@@ -439,21 +442,22 @@ public class DLFileEntryTypeLocalServiceImpl
 	}
 
 	@Override
-	public DLFileEntryType getBasicDocumentDLFileEntryType() {
+	public DLFileEntryType getBasicDocumentDLFileEntryType(long companyId) {
 		DLFileEntryType dlFileEntryType =
 			dlFileEntryTypePersistence.fetchByG_C_F(
-				GroupConstants.DEFAULT_LIVE_GROUP_ID, CompanyConstants.SYSTEM,
+				GroupConstants.DEFAULT_LIVE_GROUP_ID, companyId,
 				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT);
 
 		if (dlFileEntryType != null) {
 			return dlFileEntryType;
 		}
 
-		return dlFileEntryTypeLocalService.createBasicDocumentDLFileEntryType();
+		return dlFileEntryTypeLocalService.createBasicDocumentDLFileEntryType(
+			companyId);
 	}
 
 	@Override
-	public long getDefaultFileEntryTypeId(long folderId)
+	public long getDefaultFileEntryTypeId(long companyId, long folderId)
 		throws PortalException {
 
 		folderId = _getFileEntryTypesPrimaryFolderId(folderId);
