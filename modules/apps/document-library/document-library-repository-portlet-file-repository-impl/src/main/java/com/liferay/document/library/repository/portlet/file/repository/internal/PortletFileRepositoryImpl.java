@@ -138,6 +138,10 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 
 		ServiceContext serviceContext = new ServiceContext();
 
+		Group group = _groupLocalService.getGroup(groupId);
+
+		serviceContext.setCompanyId(group.getCompanyId());
+
 		serviceContext.setAddGroupPermissions(true);
 		serviceContext.setAddGuestPermissions(true);
 
