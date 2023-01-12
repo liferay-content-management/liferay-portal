@@ -3495,12 +3495,22 @@ public class DLFileEntryLocalServiceImpl
 			long[] groupIds, long folderId, long fileEntryTypeId)
 		throws PortalException {
 
-		List<DLFileEntryType> dlFileEntryTypes =
+		DLFileEntryType dlFileEntryType =
+			_dlFileEntryTypeLocalService.getDLFileEntryType(fileEntryTypeId);
+
+		if (Objects.equals(
+				dlFileEntryType.getFileEntryTypeKey(),
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT)) {
+
+			return;
+		}
+
+		List<DLFileEntryType> folderDLFileEntryTypes =
 			_dlFileEntryTypeLocalService.getFolderFileEntryTypes(
 				groupIds, folderId, true);
 
-		for (DLFileEntryType dlFileEntryType : dlFileEntryTypes) {
-			if (dlFileEntryType.getFileEntryTypeId() == fileEntryTypeId) {
+		for (DLFileEntryType folderDLFileEntryType : folderDLFileEntryTypes) {
+			if (folderDLFileEntryType.getFileEntryTypeId() == fileEntryTypeId) {
 				return;
 			}
 		}
