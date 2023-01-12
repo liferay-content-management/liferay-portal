@@ -15,6 +15,7 @@
 package com.liferay.portlet.documentlibrary.service.impl;
 
 import com.liferay.document.library.kernel.exception.DuplicateFileEntryTypeException;
+import com.liferay.document.library.kernel.exception.NoSuchFileEntryTypeException;
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.exception.NoSuchMetadataSetException;
 import com.liferay.document.library.kernel.exception.RequiredFileEntryTypeException;
@@ -42,6 +43,7 @@ import com.liferay.dynamic.data.mapping.kernel.DDMStructureManager;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructureManagerUtil;
 import com.liferay.dynamic.data.mapping.kernel.StorageEngineManager;
 import com.liferay.dynamic.data.mapping.kernel.StructureDefinitionException;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -442,17 +444,17 @@ public class DLFileEntryTypeLocalServiceImpl
 
 	@Override
 	public DLFileEntryType getBasicDocumentDLFileEntryType(long companyId) {
-		DLFileEntryType dlFileEntryType =
-			dlFileEntryTypePersistence.fetchByG_C_F(
+		try {
+			return dlFileEntryTypePersistence.findByG_C_F(
 				GroupConstants.DEFAULT_LIVE_GROUP_ID, companyId,
 				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_BASIC_DOCUMENT);
-
-		if (dlFileEntryType != null) {
-			return dlFileEntryType;
 		}
+		catch (NoSuchFileEntryTypeException noSuchFileEntryTypeException) {
+			_log.error(
+				"Could not find basic document type for company " + companyId);
 
-		return dlFileEntryTypeLocalService.createBasicDocumentDLFileEntryType(
-			companyId);
+			return ReflectionUtil.throwException(noSuchFileEntryTypeException);
+		}
 	}
 
 	@Override
