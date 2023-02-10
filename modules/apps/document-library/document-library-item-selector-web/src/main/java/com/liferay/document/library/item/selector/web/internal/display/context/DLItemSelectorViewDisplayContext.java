@@ -143,7 +143,7 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 
 	public long getFolderId() throws PortalException {
 		if (_folderId == null) {
-			_folderId = _getFolderId(_httpServletRequest);
+			_folderId = _getFolderId();
 		}
 
 		return _folderId;
@@ -377,17 +377,17 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 			infoItemItemSelectorCriterion.getItemSubtype());
 	}
 
-	private long _getFolderId(HttpServletRequest httpServletRequest)
+	private long _getFolderId()
 		throws PortalException {
 
-		if (httpServletRequest.getParameter("folderId") != null) {
+		if (_httpServletRequest.getParameter("folderId") != null) {
 			return ParamUtil.getLong(
-				httpServletRequest, "folderId",
+				_httpServletRequest, "folderId",
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 		}
 
 		long selectedFileEntryId = ParamUtil.getLong(
-			PortalUtil.getOriginalServletRequest(httpServletRequest),
+			PortalUtil.getOriginalServletRequest(_httpServletRequest),
 			"selectedItemIds");
 
 		if (selectedFileEntryId != 0) {
