@@ -68,6 +68,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.ProxyFactory;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -115,6 +116,7 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 
 		_portalPreferences = PortletPreferencesFactoryUtil.getPortalPreferences(
 			_httpServletRequest);
+		_selectedFileEntry = _NULL_FILE_ENTRY;
 		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
@@ -377,24 +379,17 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 			infoItemItemSelectorCriterion.getItemSubtype());
 	}
 
-	private long _getFolderId()
-		throws PortalException {
-
+	private long _getFolderId() throws PortalException {
 		if (_httpServletRequest.getParameter("folderId") != null) {
 			return ParamUtil.getLong(
 				_httpServletRequest, "folderId",
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 		}
 
-		long selectedFileEntryId = ParamUtil.getLong(
-			PortalUtil.getOriginalServletRequest(_httpServletRequest),
-			"selectedItemIds");
+		FileEntry selectedFileEntry = _getSelectedFileEntry();
 
-		if (selectedFileEntryId != 0) {
-			FileEntry fileEntry = DLAppServiceUtil.getFileEntry(
-				selectedFileEntryId);
-
-			return fileEntry.getFolderId();
+		if (selectedFileEntry != null) {
+			return selectedFileEntry.getFolderId();
 		}
 
 		return DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
@@ -460,7 +455,13 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 
 		Repository repository = null;
 
-		if (getFolderId() != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+		FileEntry selectedFileEntry = _getSelectedFileEntry();
+
+		if (selectedFileEntry != null) {
+			repository = RepositoryProviderUtil.getRepository(
+				selectedFileEntry.getRepositoryId());
+		}
+		else if (getFolderId() != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			DLFolder dlFolder = DLFolderLocalServiceUtil.fetchDLFolder(
 				getFolderId());
 
@@ -514,6 +515,25 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 		_searchContext = searchContext;
 
 		return _searchContext;
+	}
+
+	private FileEntry _getSelectedFileEntry() throws PortalException {
+		if (_selectedFileEntry != _NULL_FILE_ENTRY) {
+			return _selectedFileEntry;
+		}
+
+		long selectedFileEntryId = ParamUtil.getLong(
+			PortalUtil.getOriginalServletRequest(_httpServletRequest),
+			"selectedItemIds");
+
+		_selectedFileEntry = null;
+
+		if (selectedFileEntryId != 0) {
+			_selectedFileEntry = DLAppServiceUtil.getFileEntry(
+				selectedFileEntryId);
+		}
+
+		return _selectedFileEntry;
 	}
 
 	private long _getStagingAwareGroupId() {
@@ -600,6 +620,9 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 		return _search;
 	}
 
+	private static final FileEntry _NULL_FILE_ENTRY =
+		ProxyFactory.newDummyInstance(FileEntry.class);
+
 	private final AssetVocabularyService _assetVocabularyService;
 	private final ClassNameLocalService _classNameLocalService;
 	private final DLItemSelectorView<T> _dlItemSelectorView;
@@ -620,6 +643,7 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 	private Repository _repository;
 	private final boolean _search;
 	private SearchContext _searchContext;
+	private FileEntry _selectedFileEntry;
 	private Boolean _showDragAndDropZone;
 	private final StagingGroupHelper _stagingGroupHelper;
 	private int[] _startAndEnd;
