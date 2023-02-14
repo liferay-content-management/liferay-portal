@@ -24,7 +24,10 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
@@ -33,6 +36,7 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.GroupServiceUtil;
+import com.liferay.portal.kernel.service.RepositoryServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
@@ -62,7 +66,7 @@ public class ItemSelectorRepositoryEntryBrowserUtil {
 			HttpServletRequest httpServletRequest,
 			LiferayPortletRequest liferayPortletRequest,
 			LiferayPortletResponse liferayPortletResponse,
-			PortletURL portletURL)
+			PortletURL portletURL, long repositoryId)
 		throws Exception {
 
 		_addGroupSelectorBreadcrumbEntry(
@@ -70,26 +74,15 @@ public class ItemSelectorRepositoryEntryBrowserUtil {
 
 		portletURL.setParameter("displayStyle", displayStyle);
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
+		Folder folder = _getFolder(folderId);
 
-		Folder folder = null;
-
-		if (folderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
-			folder = DLAppServiceUtil.getFolder(folderId);
-		}
-
-		Group group = themeDisplay.getScopeGroup();
-
-		if (folder != null) {
-			group = GroupServiceUtil.getGroup(folder.getGroupId());
-		}
+		Group group = _getGroup(folder, httpServletRequest, repositoryId);
 
 		_addPortletBreadcrumbEntry(
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, httpServletRequest,
-			group.getDescriptiveName(httpServletRequest.getLocale()),
-			EntryURLUtil.getGroupPortletURL(group, liferayPortletRequest));
+			EntryURLUtil.getGroupPortletURL(group, liferayPortletRequest),
+			repositoryId,
+			group.getDescriptiveName(httpServletRequest.getLocale()));
 
 		if (folder != null) {
 			List<Folder> ancestorFolders = folder.getAncestors();
@@ -99,12 +92,12 @@ public class ItemSelectorRepositoryEntryBrowserUtil {
 			for (Folder ancestorFolder : ancestorFolders) {
 				_addPortletBreadcrumbEntry(
 					ancestorFolder.getFolderId(), httpServletRequest,
-					ancestorFolder.getName(), portletURL);
+					portletURL, repositoryId, ancestorFolder.getName());
 			}
 
 			_addPortletBreadcrumbEntry(
-				folder.getFolderId(), httpServletRequest, folder.getName(),
-				portletURL);
+				folder.getFolderId(), httpServletRequest, portletURL,
+				repositoryId, folder.getName());
 		}
 	}
 
@@ -112,7 +105,7 @@ public class ItemSelectorRepositoryEntryBrowserUtil {
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *             #addPortletBreadcrumbEntries(long, String,
 	 *             HttpServletRequest, LiferayPortletRequest,
-	 *             LiferayPortletResponse, PortletURL)}
+	 *             LiferayPortletResponse, PortletURL, long)}
 	 */
 	@Deprecated
 	public static void addPortletBreadcrumbEntries(
@@ -129,7 +122,7 @@ public class ItemSelectorRepositoryEntryBrowserUtil {
 		addPortletBreadcrumbEntries(
 			folderId, displayStyle, httpServletRequest,
 			PortalUtil.getLiferayPortletRequest(portletRequest),
-			liferayPortletResponse, portletURL);
+			liferayPortletResponse, portletURL, 0);
 	}
 
 	public static JSONObject getItemMetadataJSONObject(
@@ -244,10 +237,11 @@ public class ItemSelectorRepositoryEntryBrowserUtil {
 	}
 
 	private static void _addPortletBreadcrumbEntry(
-		long folderId, HttpServletRequest httpServletRequest, String title,
-		PortletURL portletURL) {
+		long folderId, HttpServletRequest httpServletRequest,
+		PortletURL portletURL, long repositoryId, String title) {
 
 		portletURL.setParameter("folderId", String.valueOf(folderId));
+		portletURL.setParameter("repositoryId", String.valueOf(repositoryId));
 
 		PortalUtil.addPortletBreadcrumbEntry(
 			httpServletRequest, title, portletURL.toString());
@@ -260,5 +254,49 @@ public class ItemSelectorRepositoryEntryBrowserUtil {
 			"value", value
 		);
 	}
+
+	private static Folder _getFolder(long folderId) throws Exception {
+		if (folderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			return DLAppServiceUtil.getFolder(folderId);
+		}
+
+		return null;
+	}
+
+	private static Group _getGroup(
+			Folder folder, HttpServletRequest httpServletRequest,
+			long repositoryId)
+		throws Exception {
+
+		if (repositoryId != 0) {
+			try {
+				return GroupServiceUtil.getGroup(repositoryId);
+			}
+			catch (PortalException portalException) {
+				if (_log.isInfoEnabled()) {
+					_log.info(
+						"Could not get a group directly from a repositoryId",
+						portalException);
+				}
+
+				Repository repository = RepositoryServiceUtil.getRepository(
+					repositoryId);
+
+				return GroupServiceUtil.getGroup(repository.getGroupId());
+			}
+		}
+		else if (folder != null) {
+			return GroupServiceUtil.getGroup(folder.getGroupId());
+		}
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		return themeDisplay.getScopeGroup();
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		ItemSelectorRepositoryEntryBrowserUtil.class);
 
 }

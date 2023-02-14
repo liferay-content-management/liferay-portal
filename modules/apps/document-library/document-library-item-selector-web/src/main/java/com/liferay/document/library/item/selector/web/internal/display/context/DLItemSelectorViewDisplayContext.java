@@ -289,6 +289,16 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 			WorkflowConstants.STATUS_APPROVED, _getMimeTypes(), false, false);
 	}
 
+	public long getRepositoryId() throws PortalException {
+		Repository repository = _getRepository();
+
+		if (repository != null) {
+			return repository.getRepositoryId();
+		}
+
+		return 0;
+	}
+
 	public String getTitle() {
 		return _dlItemSelectorView.getTitle(_themeDisplay.getLocale());
 	}

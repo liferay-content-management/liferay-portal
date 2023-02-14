@@ -102,6 +102,10 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		return _repositoryEntriesCount;
 	}
 
+	public long getRepositoryId() {
+		return _repositoryId;
+	}
+
 	public String getTabName() {
 		return _tabName;
 	}
@@ -205,6 +209,10 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		_repositoryEntriesCount = repositoryEntriesCount;
 	}
 
+	public void setRepositoryId(long repositoryId) {
+		_repositoryId = repositoryId;
+	}
+
 	public void setShowBreadcrumb(boolean showBreadcrumb) {
 		_showBreadcrumb = showBreadcrumb;
 	}
@@ -244,6 +252,7 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 		_portletURL = null;
 		_repositoryEntries = new ArrayList<>();
 		_repositoryEntriesCount = 0;
+		_repositoryId = 0;
 		_showBreadcrumb = false;
 		_showDragAndDropZone = true;
 		_showSearch = true;
@@ -359,6 +368,9 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 				"repositoryEntriesCount",
 			_repositoryEntriesCount);
 		httpServletRequest.setAttribute(
+			"liferay-item-selector:repository-entry-browser:repositoryId",
+			_repositoryId);
+		httpServletRequest.setAttribute(
 			"liferay-item-selector:repository-entry-browser:showBreadcrumb",
 			_showBreadcrumb);
 		httpServletRequest.setAttribute(
@@ -410,6 +422,7 @@ public class RepositoryEntryBrowserTag extends IncludeTag {
 	private PortletURL _portletURL;
 	private List<RepositoryEntry> _repositoryEntries = new ArrayList<>();
 	private int _repositoryEntriesCount;
+	private long _repositoryId;
 	private boolean _showBreadcrumb;
 	private boolean _showDragAndDropZone = true;
 	private boolean _showSearch = true;
