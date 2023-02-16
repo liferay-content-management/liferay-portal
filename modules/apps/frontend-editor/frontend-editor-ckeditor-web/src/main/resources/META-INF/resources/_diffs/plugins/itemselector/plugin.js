@@ -191,6 +191,21 @@
 			return commitValueFn;
 		},
 
+		_getItemId(selectedItem) {
+			let itemId;
+
+			try {
+				itemId = JSON.parse(selectedItem.value);
+			}
+			catch (error) {
+				itemId = selectedItem;
+			}
+
+			itemId = itemId?.fileEntryId || itemId?.value?.fileEntryId;
+
+			return itemId;
+		},
+
 		_getItemSrc(editor, selectedItem) {
 			let itemSrc;
 
@@ -258,6 +273,7 @@
 			const instance = this;
 
 			if (selectedItem) {
+				instance._selectedImageId = instance._getItemId(selectedItem);
 				const imageSrc = instance._getItemSrc(editor, selectedItem);
 
 				if (imageSrc) {
@@ -333,6 +349,8 @@
 			instance._audioTPL = new CKEDITOR.template(TPL_AUDIO_SCRIPT);
 			instance._videoTPL = new CKEDITOR.template(TPL_VIDEO_SCRIPT);
 
+			instance._selectedImageId = 0;
+
 			editor.addCommand('audioselector', {
 				canUndo: false,
 				exec(editor, callback) {
@@ -361,9 +379,20 @@
 						callback
 					);
 
+					let url = editor.config.filebrowserImageBrowseUrl;
+
+					if (Liferay.FeatureFlags['LPS-153332']) {
+						const itemSelectorURL = new URL(url);
+						itemSelectorURL.searchParams.append(
+							'selectedItemIds',
+							instance._selectedImageId
+						);
+						url = itemSelectorURL.toString();
+					}
+
 					instance._openSelectionModal(
 						editor,
-						editor.config.filebrowserImageBrowseUrl,
+						url,
 						onSelectedImageChangeFn
 					);
 				},
