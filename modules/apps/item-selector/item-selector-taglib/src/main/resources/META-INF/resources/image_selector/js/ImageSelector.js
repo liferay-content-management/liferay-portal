@@ -17,6 +17,7 @@ import {State} from '@liferay/frontend-js-state-web';
 import classNames from 'classnames';
 import {
 	STATUS_CODE,
+	addParams,
 	formatStorage,
 	openSelectionModal,
 	sub,
@@ -161,6 +162,15 @@ const ImageSelector = ({
 	};
 
 	const handleSelectFileClick = () => {
+		let url = itemSelectorURL;
+
+		if (Liferay.FeatureFlags['LPS-153332']) {
+			url = addParams(
+				`selectedItemIds=${image.fileEntryId}`,
+				itemSelectorURL
+			);
+		}
+
 		openSelectionModal({
 			onSelect: (selectedItem) => {
 				if (selectedItem) {
@@ -176,7 +186,7 @@ const ImageSelector = ({
 			},
 			selectEventName: itemSelectorEventName,
 			title: Liferay.Language.get('select-file'),
-			url: itemSelectorURL,
+			url,
 		});
 	};
 
