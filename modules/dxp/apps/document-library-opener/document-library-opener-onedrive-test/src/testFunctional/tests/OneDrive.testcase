@@ -352,11 +352,11 @@ definition {
 			value1 = "Add Word Doc Title ${num}.docx");
 	}
 
-	@description = "This test covers LPS-102478. It ensures that an Office 365 document automatically checks in after the lock is expired."
+	@description = "This test covers LPS-102478. It ensures that an Office 365 document is deleted automatically after the lock is expired."
 	@priority = 4
-	test AutoCheckinDocumentAfterLockExpiration {
+	test DocumentIsDeletedAfterLockExpiration {
 		property custom.properties = "lock.expiration.time.com.liferay.document.library.kernel.model.DLFileEntry=1000";
-		property test.name.skip.portal.instance = "OneDrive#AutoCheckinDocumentAfterLockExpiration";
+		property test.name.skip.portal.instance = "OneDrive#DocumentIsDeletedAfterLockExpiration";
 
 		var num = MathUtil.randomNumber(10);
 
