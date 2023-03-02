@@ -356,8 +356,6 @@ definition {
 	@description = "This test checks that a user can edit from an article."
 	@priority = 4
 	test CanEditArticleViaToolbar {
-		property custom.properties = "feature.flag.LPS-166643=true";
-
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -1256,8 +1254,6 @@ definition {
 	@description = "This test checks that all the correct actions appear after selecting an article."
 	@priority = 5
 	test CorrectActionsAppearInToolbarAfterSelectingArticle {
-		property custom.properties = "feature.flag.LPS-166643=true";
-
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
