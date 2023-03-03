@@ -330,8 +330,24 @@ export default function propsTransformer({
 						}
 					},
 					selectEventName: `${portletNamespace}selectFileEntryType`,
+					size: 'md',
 					title: Liferay.Language.get('select-document-type'),
 					url: selectFileEntryTypeURL,
+				});
+			}
+			else if (item?.data?.action === 'openExtensionSelector') {
+				console.log(event)
+				openSelectionModal({
+					buttonAddLabel: Liferay.Language.get('select'),
+					height: '70vh',
+					multiple: true,
+					onSelect(selectedItems) {
+						console.log(selectedItems)
+					},
+					selectEventName: `${portletNamespace}FilterByExtensions`,
+					size: 'md',
+					title: Liferay.Language.get('filter-by-extension'),
+					url: item?.data?.extensionsFilterURL,
 				});
 			}
 		},

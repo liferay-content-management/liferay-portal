@@ -237,6 +237,7 @@ export default function propsTransformer({portletNamespace, ...otherProps}) {
 				selectScope(data);
 			}
 			else {
+				console.log(item)
 				openSelectionModal({
 					buttonAddLabel: DEFAULT_VALUES.buttonAddLabel,
 					height: DEFAULT_VALUES.modalHeight,

@@ -609,6 +609,13 @@ public class DLAdminManagementToolbarDisplayContext
 		sortingURL.setParameter(
 			"fileEntryTypeId", String.valueOf(_getFileEntryTypeId()));
 
+		String[] fileExtensions = _getFileExtensions();
+
+		if(Validator.isNotNull(fileExtensions)){
+			sortingURL.setParameter(
+				"fileExtensions", String.valueOf(fileExtensions));
+		}
+
 		return sortingURL;
 	}
 
@@ -625,6 +632,10 @@ public class DLAdminManagementToolbarDisplayContext
 
 	private long _getFileEntryTypeId() {
 		return ParamUtil.getLong(_httpServletRequest, "fileEntryTypeId", -1);
+	}
+
+	private String[] _getFileExtensions() {
+		return ParamUtil.getStringValues(_httpServletRequest, "fileExtensions");
 	}
 
 	private List<DropdownItem> _getFilterNavigationDropdownItems() {
@@ -712,6 +723,22 @@ public class DLAdminManagementToolbarDisplayContext
 				}
 
 				dropdownItem.setLabel(label);
+			}
+		).add(
+			dropdownItem -> {
+				dropdownItem.putData("action", "openExtensionSelector");
+
+				String extensionsFilterURL = PortletURLBuilder.createRenderURL(
+					_liferayPortletResponse
+				).setMVCPath(
+					"/document_library/filter_by_extensions.jsp"
+				).buildString();
+
+				dropdownItem.putData(
+					"extensionsFilterURL", extensionsFilterURL);
+
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "Extensions..."));
 			}
 		).build();
 	}
