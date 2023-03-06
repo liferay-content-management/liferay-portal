@@ -63,6 +63,20 @@ public class KBArticleModelResourcePermissionWrapper
 			},
 			_portletResourcePermission,
 			(modelResourcePermission, consumer) -> {
+				consumer.accept(
+					(permissionChecker, name, kbArticle, actionId) -> {
+						if (kbArticle.isExpired() &&
+							!permissionChecker.hasPermission(
+								kbArticle.getGroupId(), name,
+								kbArticle.getResourcePrimKey(),
+								ActionKeys.UPDATE)) {
+
+							return false;
+						}
+
+						return null;
+					});
+
 				if (PropsValues.PERMISSIONS_VIEW_DYNAMIC_INHERITANCE) {
 					consumer.accept(
 						new KBArticleDynamicInheritanceModelResourcePermissionLogic(
