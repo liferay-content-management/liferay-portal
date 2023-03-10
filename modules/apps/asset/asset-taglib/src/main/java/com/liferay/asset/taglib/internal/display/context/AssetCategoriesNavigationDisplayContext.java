@@ -218,7 +218,7 @@ public class AssetCategoriesNavigationDisplayContext {
 			portletURL.setParameter("categoryId", String.valueOf(categoryId));
 		}
 
-		return HtmlUtil.escape(portletURL.toString());
+		return portletURL.toString();
 	}
 
 	private JSONArray _getVocabulariesJSONArray() throws PortalException {
