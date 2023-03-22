@@ -285,8 +285,8 @@
 			<matches>.*/o/frontend-js-aui-web/build/aui-skin-deprecated/images/loading_indicator.gif.* uri=/o/frontend-js-aui-web/build/aui-skin-deprecated/images/loading_indicator.gif.*</matches>
 		</ignore-error>
 		<ignore-error description="LPS-154189 - temporarily ignore until fixed">
-			<contains>java.sql.SQLIntegrityConstraintViolationException</contains>
-			<matches></matches>
+			<contains></contains>
+			<matches>null.*java.sql.SQLIntegrityConstraintViolationException: Duplicate entry .*</matches>
 		</ignore-error>
 		<ignore-error description="LPS-163680">
 			<contains>The iframe tag contained an attribute that we could not process</contains>
