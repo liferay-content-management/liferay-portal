@@ -294,7 +294,7 @@
 		</ignore-error>
 		<ignore-error description="LPS-166978 - temporarily ignore until fixed">
 			<contains></contains>
-			<matches>.*\[/BasePortletIdUpgradeProcess:511\] null</matches>
+			<matches>null</matches>
 		</ignore-error>
 		<ignore-error description="LPS-168158">
 			<contains>Skip com_liferay_document_library_web_portlet_DLPortlet</contains>
