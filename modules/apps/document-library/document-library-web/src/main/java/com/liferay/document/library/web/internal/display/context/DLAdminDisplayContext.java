@@ -690,7 +690,10 @@ public class DLAdminDisplayContext {
 			AssetEntryQuery assetEntryQuery = new AssetEntryQuery(
 				classNameIds, dlSearchContainer);
 
-			assetEntryQuery.setAllCategoryIds(new long[] {categoryId});
+			if (categoryId > 0) {
+				assetEntryQuery.setAllCategoryIds(new long[] {categoryId});
+			}
+
 			assetEntryQuery.setEnablePermissions(true);
 			assetEntryQuery.setExcludeZeroViewCount(false);
 
