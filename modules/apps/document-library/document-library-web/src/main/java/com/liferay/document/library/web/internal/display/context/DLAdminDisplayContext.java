@@ -95,6 +95,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -107,6 +108,8 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.trash.TrashHelper;
+
+import java.io.UnsupportedEncodingException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -321,8 +324,8 @@ public class DLAdminDisplayContext {
 					_searchContainer = _getDLSearchContainer();
 				}
 			}
-			catch (PortalException portalException) {
-				throw new SystemException(portalException);
+			catch (Exception exception) {
+				throw new SystemException(exception);
 			}
 		}
 
@@ -552,7 +555,7 @@ public class DLAdminDisplayContext {
 	}
 
 	private SearchContainer<RepositoryEntry> _getDLSearchContainer()
-		throws PortalException {
+		throws PortalException, UnsupportedEncodingException {
 
 		String navigation = ParamUtil.getString(
 			_httpServletRequest, "navigation", "home");
@@ -579,7 +582,15 @@ public class DLAdminDisplayContext {
 			status = WorkflowConstants.STATUS_ANY;
 		}
 
-		long categoryId = ParamUtil.getLong(_httpServletRequest, "categoryId");
+		long categoryId = GetterUtil.getLong(
+			HttpComponentsUtil.getParameter(
+				PortalUtil.getCurrentURL(_httpServletRequest),
+				"p_r_p_categoryId", true));
+
+		if (categoryId == 0) {
+			categoryId = ParamUtil.getLong(_httpServletRequest, "categoryId");
+		}
+
 		String tagName = ParamUtil.getString(_httpServletRequest, "tag");
 
 		boolean useAssetEntryQuery = false;
@@ -719,6 +730,7 @@ public class DLAdminDisplayContext {
 					AssetEntryQuery assetEntryQuery = new AssetEntryQuery(
 						classNameIds, dlSearchContainer);
 
+					assetEntryQuery.setAllCategoryIds(new long[] {categoryId});
 					assetEntryQuery.setEnablePermissions(true);
 					assetEntryQuery.setExcludeZeroViewCount(false);
 
