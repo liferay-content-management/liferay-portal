@@ -94,6 +94,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -668,7 +669,15 @@ public class DLAdminDisplayContext {
 
 		long repositoryId = getRepositoryId();
 
-		long categoryId = ParamUtil.getLong(_httpServletRequest, "categoryId");
+		long categoryId = GetterUtil.getLong(
+			HttpComponentsUtil.getParameter(
+				PortalUtil.getCurrentURL(_httpServletRequest),
+				"p_r_p_categoryId", true));
+
+		if (categoryId == 0) {
+			categoryId = ParamUtil.getLong(_httpServletRequest, "categoryId");
+		}
+
 		String tagName = ParamUtil.getString(_httpServletRequest, "tag");
 
 		if ((categoryId > 0) || Validator.isNotNull(tagName)) {
@@ -681,6 +690,7 @@ public class DLAdminDisplayContext {
 			AssetEntryQuery assetEntryQuery = new AssetEntryQuery(
 				classNameIds, dlSearchContainer);
 
+			assetEntryQuery.setAllCategoryIds(new long[] {categoryId});
 			assetEntryQuery.setEnablePermissions(true);
 			assetEntryQuery.setExcludeZeroViewCount(false);
 
