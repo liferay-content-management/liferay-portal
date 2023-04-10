@@ -15,9 +15,10 @@
 package com.liferay.portal.store.file.system;
 
 import com.liferay.document.library.kernel.exception.NoSuchFileException;
-import com.liferay.document.library.kernel.store.Store;
+import com.liferay.document.library.kernel.store.AreaStore;
 import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -37,6 +38,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -46,26 +48,35 @@ import java.util.List;
  * @author Edward Han
  * @author Manuel de la Peña
  */
-public class FileSystemStore implements Store {
+public class FileSystemStore implements AreaStore {
 
 	public FileSystemStore(
 		FileSystemStoreConfiguration fileSystemStoreConfiguration) {
 
 		String path = fileSystemStoreConfiguration.rootDir();
 
-		File rootDir = new File(path);
-
-		if (!rootDir.isAbsolute()) {
-			rootDir = new File(PropsUtil.get(PropsKeys.LIFERAY_HOME), path);
+		if (StringUtil.endsWith(path, CharPool.SLASH)) {
+			path = path.substring(0, path.length() - 1);
 		}
 
-		_rootDir = rootDir;
+		for (AreaType areaType : AreaType.values()) {
+			String areaPath = path + areaType.getDirectorySuffix();
 
-		_rootDir.mkdirs();
+			File rootDir = new File(areaPath);
+
+			if (!rootDir.isAbsolute()) {
+				rootDir = new File(
+					PropsUtil.get(PropsKeys.LIFERAY_HOME), areaPath);
+			}
+
+			_rootDirs.put(areaType, rootDir);
+
+			rootDir.mkdirs();
+		}
 
 		try {
 			FileUtil.write(
-				new File(_rootDir, "README.txt"),
+				new File(_rootDirs.get(AreaType.LIVE), "README.txt"),
 				StringUtil.read(
 					FileSystemStore.class, "dependencies/README.txt"));
 		}
@@ -76,18 +87,18 @@ public class FileSystemStore implements Store {
 
 	@Override
 	public void addFile(
-		long companyId, long repositoryId, String fileName, String versionLabel,
-		InputStream inputStream) {
+		AreaType areaType, long companyId, long repositoryId, String fileName,
+		String versionLabel, InputStream inputStream) {
 
 		if (Validator.isNull(versionLabel)) {
 			versionLabel = getHeadVersionLabel(
-				companyId, repositoryId, fileName);
+				areaType, companyId, repositoryId, fileName);
 		}
 
 		try {
 			FileUtil.write(
 				getFileNameVersionFile(
-					companyId, repositoryId, fileName, versionLabel),
+					areaType, companyId, repositoryId, fileName, versionLabel),
 				inputStream);
 		}
 		catch (IOException ioException) {
@@ -97,9 +108,10 @@ public class FileSystemStore implements Store {
 
 	@Override
 	public void deleteDirectory(
-		long companyId, long repositoryId, String dirName) {
+		AreaType areaType, long companyId, long repositoryId, String dirName) {
 
-		File dirNameDir = getDirNameDir(companyId, repositoryId, dirName);
+		File dirNameDir = getDirNameDir(
+			areaType, companyId, repositoryId, dirName);
 
 		if (!dirNameDir.exists()) {
 			return;
@@ -114,16 +126,16 @@ public class FileSystemStore implements Store {
 
 	@Override
 	public void deleteFile(
-		long companyId, long repositoryId, String fileName,
+		AreaType areaType, long companyId, long repositoryId, String fileName,
 		String versionLabel) {
 
 		if (Validator.isNull(versionLabel)) {
 			versionLabel = getHeadVersionLabel(
-				companyId, repositoryId, fileName);
+				areaType, companyId, repositoryId, fileName);
 		}
 
 		File fileNameVersionFile = getFileNameVersionFile(
-			companyId, repositoryId, fileName, versionLabel);
+			areaType, companyId, repositoryId, fileName, versionLabel);
 
 		if (!fileNameVersionFile.exists()) {
 			return;
@@ -138,33 +150,34 @@ public class FileSystemStore implements Store {
 
 	@Override
 	public InputStream getFileAsStream(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel)
+			AreaType areaType, long companyId, long repositoryId,
+			String fileName, String versionLabel)
 		throws NoSuchFileException {
 
 		if (Validator.isNull(versionLabel)) {
 			versionLabel = getHeadVersionLabel(
-				companyId, repositoryId, fileName);
+				areaType, companyId, repositoryId, fileName);
 		}
 
 		File fileNameVersionFile = getFileNameVersionFile(
-			companyId, repositoryId, fileName, versionLabel);
+			areaType, companyId, repositoryId, fileName, versionLabel);
 
 		try {
 			return new FileInputStream(fileNameVersionFile);
 		}
 		catch (FileNotFoundException fileNotFoundException) {
 			throw new NoSuchFileException(
-				companyId, repositoryId, fileName, versionLabel,
+				areaType, companyId, repositoryId, fileName, versionLabel,
 				fileNotFoundException);
 		}
 	}
 
 	@Override
 	public String[] getFileNames(
-		long companyId, long repositoryId, String dirName) {
+		AreaType areaType, long companyId, long repositoryId, String dirName) {
 
-		File dirNameDir = getDirNameDir(companyId, repositoryId, dirName);
+		File dirNameDir = getDirNameDir(
+			areaType, companyId, repositoryId, dirName);
 
 		if (!dirNameDir.exists()) {
 			return new String[0];
@@ -181,21 +194,21 @@ public class FileSystemStore implements Store {
 
 	@Override
 	public long getFileSize(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel)
+			AreaType areaType, long companyId, long repositoryId,
+			String fileName, String versionLabel)
 		throws NoSuchFileException {
 
 		if (Validator.isNull(versionLabel)) {
 			versionLabel = getHeadVersionLabel(
-				companyId, repositoryId, fileName);
+				areaType, companyId, repositoryId, fileName);
 		}
 
 		File fileNameVersionFile = getFileNameVersionFile(
-			companyId, repositoryId, fileName, versionLabel);
+			areaType, companyId, repositoryId, fileName, versionLabel);
 
 		if (!fileNameVersionFile.exists()) {
 			throw new NoSuchFileException(
-				companyId, repositoryId, fileName, versionLabel);
+				areaType, companyId, repositoryId, fileName, versionLabel);
 		}
 
 		return fileNameVersionFile.length();
@@ -203,9 +216,10 @@ public class FileSystemStore implements Store {
 
 	@Override
 	public String[] getFileVersions(
-		long companyId, long repositoryId, String fileName) {
+		AreaType areaType, long companyId, long repositoryId, String fileName) {
 
-		File fileNameDir = getFileNameDir(companyId, repositoryId, fileName);
+		File fileNameDir = getFileNameDir(
+			areaType, companyId, repositoryId, fileName);
 
 		if (!fileNameDir.exists()) {
 			return StringPool.EMPTY_ARRAY;
@@ -218,36 +232,37 @@ public class FileSystemStore implements Store {
 		return versions;
 	}
 
-	public File getRootDir() {
-		return _rootDir;
+	public File getRootDir(AreaType areaType) {
+		return _rootDirs.get(areaType);
 	}
 
 	@Override
 	public boolean hasFile(
-		long companyId, long repositoryId, String fileName,
+		AreaType areaType, long companyId, long repositoryId, String fileName,
 		String versionLabel) {
 
 		if (Validator.isNull(versionLabel)) {
 			versionLabel = getHeadVersionLabel(
-				companyId, repositoryId, fileName);
+				areaType, companyId, repositoryId, fileName);
 		}
 
 		File fileNameVersionFile = getFileNameVersionFile(
-			companyId, repositoryId, fileName, versionLabel);
+			areaType, companyId, repositoryId, fileName, versionLabel);
 
 		return fileNameVersionFile.exists();
 	}
 
 	protected File getDirNameDir(
-		long companyId, long repositoryId, String dirName) {
+		AreaType areaType, long companyId, long repositoryId, String dirName) {
 
-		return getFileNameDir(companyId, repositoryId, dirName);
+		return getFileNameDir(areaType, companyId, repositoryId, dirName);
 	}
 
 	protected File getFileNameDir(
-		long companyId, long repositoryId, String fileName) {
+		AreaType areaType, long companyId, long repositoryId, String fileName) {
 
-		return new File(getRepositoryDir(companyId, repositoryId), fileName);
+		return new File(
+			getRepositoryDir(areaType, companyId, repositoryId), fileName);
 	}
 
 	protected void getFileNames(
@@ -281,16 +296,19 @@ public class FileSystemStore implements Store {
 	}
 
 	protected File getFileNameVersionFile(
-		long companyId, long repositoryId, String fileName, String version) {
+		AreaType areaType, long companyId, long repositoryId, String fileName,
+		String version) {
 
 		return new File(
-			getFileNameDir(companyId, repositoryId, fileName), version);
+			getFileNameDir(areaType, companyId, repositoryId, fileName),
+			version);
 	}
 
 	protected String getHeadVersionLabel(
-		long companyId, long repositoryId, String fileName) {
+		AreaType areaType, long companyId, long repositoryId, String fileName) {
 
-		File fileNameDir = getFileNameDir(companyId, repositoryId, fileName);
+		File fileNameDir = getFileNameDir(
+			areaType, companyId, repositoryId, fileName);
 
 		if (!fileNameDir.exists()) {
 			return VERSION_DEFAULT;
@@ -309,9 +327,11 @@ public class FileSystemStore implements Store {
 		return headVersionLabel;
 	}
 
-	protected File getRepositoryDir(long companyId, long repositoryId) {
+	protected File getRepositoryDir(
+		AreaType areaType, long companyId, long repositoryId) {
+
 		File repositoryDir = new File(
-			_rootDir, companyId + StringPool.SLASH + repositoryId);
+			getRootDir(areaType), companyId + StringPool.SLASH + repositoryId);
 
 		if (!repositoryDir.exists()) {
 			repositoryDir.mkdirs();
@@ -330,6 +350,7 @@ public class FileSystemStore implements Store {
 		}
 	}
 
-	private final File _rootDir;
+	private final HashMap<AreaType, File> _rootDirs = new HashMap<>(
+		ArrayUtil.getLength(AreaType.values()));
 
 }

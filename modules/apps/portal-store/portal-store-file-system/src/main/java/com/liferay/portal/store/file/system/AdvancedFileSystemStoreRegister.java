@@ -14,6 +14,7 @@
 
 package com.liferay.portal.store.file.system;
 
+import com.liferay.document.library.kernel.store.AreaStore;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.convert.documentlibrary.FileSystemStoreRootDirException;
@@ -64,7 +65,8 @@ public class AdvancedFileSystemStoreRegister {
 		_serviceRegistration = bundleContext.registerService(
 			Store.class, _wrapStore(advancedFileSystemStore),
 			HashMapDictionaryBuilder.<String, Object>put(
-				"rootDir", advancedFileSystemStore.getRootDir()
+				"rootDir",
+				advancedFileSystemStore.getRootDir(AreaStore.AreaType.LIVE)
 			).put(
 				"store.type", AdvancedFileSystemStore.class.getName()
 			).build());

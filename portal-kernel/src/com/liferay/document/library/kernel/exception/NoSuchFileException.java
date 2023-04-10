@@ -14,6 +14,7 @@
 
 package com.liferay.document.library.kernel.exception;
 
+import com.liferay.document.library.kernel.store.AreaStore;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 
 /**
@@ -22,6 +23,30 @@ import com.liferay.portal.kernel.exception.NoSuchModelException;
 public class NoSuchFileException extends NoSuchModelException {
 
 	public NoSuchFileException() {
+	}
+
+	public NoSuchFileException(
+		AreaStore.AreaType areaType, long companyId, long repositoryId,
+		String fileName, String version) {
+
+		super(
+			String.format(
+				"{areaType=%s, companyId=%s, repositoryId=%s, fileName=%s, " +
+					"version=%s}",
+				areaType, companyId, repositoryId, fileName, version));
+	}
+
+	public NoSuchFileException(
+		AreaStore.AreaType areaType, long companyId, long repositoryId,
+		String fileName, String version, Throwable throwable) {
+
+		super(
+			String.format(
+				"{areaType=%s, companyId=%s, repositoryId=%s, fileName=%s, " +
+					"version=%s, cause=%s}",
+				areaType, companyId, repositoryId, fileName, version,
+				throwable),
+			throwable);
 	}
 
 	public NoSuchFileException(

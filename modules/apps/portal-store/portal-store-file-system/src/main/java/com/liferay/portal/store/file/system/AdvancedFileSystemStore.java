@@ -48,10 +48,10 @@ public class AdvancedFileSystemStore extends FileSystemStore {
 
 	@Override
 	public String[] getFileVersions(
-		long companyId, long repositoryId, String fileName) {
+		AreaType areaType, long companyId, long repositoryId, String fileName) {
 
 		String[] versions = super.getFileVersions(
-			companyId, repositoryId, fileName);
+			areaType, companyId, repositoryId, fileName);
 
 		for (int i = 0; i < versions.length; i++) {
 			int x = versions[i].lastIndexOf(CharPool.UNDERLINE);
@@ -91,19 +91,20 @@ public class AdvancedFileSystemStore extends FileSystemStore {
 
 	@Override
 	protected File getDirNameDir(
-		long companyId, long repositoryId, String dirName) {
+		AreaType areaType, long companyId, long repositoryId, String dirName) {
 
-		File repositoryDir = getRepositoryDir(companyId, repositoryId);
+		File repositoryDir = getRepositoryDir(
+			areaType, companyId, repositoryId);
 
 		return new File(repositoryDir + StringPool.SLASH + dirName);
 	}
 
 	@Override
 	protected File getFileNameDir(
-		long companyId, long repositoryId, String fileName) {
+		AreaType areaType, long companyId, long repositoryId, String fileName) {
 
 		if (fileName.indexOf(CharPool.SLASH) != -1) {
-			return getDirNameDir(companyId, repositoryId, fileName);
+			return getDirNameDir(areaType, companyId, repositoryId, fileName);
 		}
 
 		String ext = StringPool.PERIOD + FileUtil.getExtension(fileName);
@@ -124,7 +125,8 @@ public class AdvancedFileSystemStore extends FileSystemStore {
 
 		buildPath(sb, fileNameFragment);
 
-		File repositoryDir = getRepositoryDir(companyId, repositoryId);
+		File repositoryDir = getRepositoryDir(
+			areaType, companyId, repositoryId);
 
 		StringBundler pathSB = new StringBundler(6);
 
@@ -162,7 +164,8 @@ public class AdvancedFileSystemStore extends FileSystemStore {
 
 	@Override
 	protected File getFileNameVersionFile(
-		long companyId, long repositoryId, String fileName, String version) {
+		AreaType areaType, long companyId, long repositoryId, String fileName,
+		String version) {
 
 		String ext = StringPool.PERIOD + FileUtil.getExtension(fileName);
 
@@ -185,7 +188,8 @@ public class AdvancedFileSystemStore extends FileSystemStore {
 
 			buildPath(sb, fileNameFragment);
 
-			File repositoryDir = getRepositoryDir(companyId, repositoryId);
+			File repositoryDir = getRepositoryDir(
+				areaType, companyId, repositoryId);
 
 			return new File(
 				StringBundler.concat(
@@ -194,7 +198,8 @@ public class AdvancedFileSystemStore extends FileSystemStore {
 					fileNameFragment, StringPool.UNDERLINE, version, ext));
 		}
 
-		File fileNameDir = getDirNameDir(companyId, repositoryId, fileName);
+		File fileNameDir = getDirNameDir(
+			areaType, companyId, repositoryId, fileName);
 
 		String fileNameFragment = FileUtil.stripExtension(
 			fileName.substring(pos + 1));
@@ -207,9 +212,10 @@ public class AdvancedFileSystemStore extends FileSystemStore {
 
 	@Override
 	protected String getHeadVersionLabel(
-		long companyId, long repositoryId, String fileName) {
+		AreaType areaType, long companyId, long repositoryId, String fileName) {
 
-		File fileNameDir = getFileNameDir(companyId, repositoryId, fileName);
+		File fileNameDir = getFileNameDir(
+			areaType, companyId, repositoryId, fileName);
 
 		if (!fileNameDir.exists()) {
 			return VERSION_DEFAULT;
