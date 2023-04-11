@@ -17,6 +17,8 @@ package com.liferay.portlet.documentlibrary.store;
 import com.liferay.document.library.kernel.antivirus.AntivirusScannerUtil;
 import com.liferay.document.library.kernel.exception.AccessDeniedException;
 import com.liferay.document.library.kernel.exception.DirectoryNameException;
+import com.liferay.document.library.kernel.store.AreaStore;
+import com.liferay.document.library.kernel.store.AreaStoreManager;
 import com.liferay.document.library.kernel.store.DLStore;
 import com.liferay.document.library.kernel.store.DLStoreRequest;
 import com.liferay.document.library.kernel.store.Store;
@@ -187,7 +189,16 @@ public class DLStoreImpl implements DLStore {
 		for (String versionLabel :
 				_store.getFileVersions(companyId, repositoryId, fileName)) {
 
-			_store.deleteFile(companyId, repositoryId, fileName, versionLabel);
+			if (_store instanceof AreaStore) {
+				AreaStoreManager.move(
+					(AreaStore)_store, AreaStore.AreaType.LIVE,
+					AreaStore.AreaType.EVICTED, companyId, repositoryId,
+					fileName, versionLabel);
+			}
+			else {
+				_store.deleteFile(
+					companyId, repositoryId, fileName, versionLabel);
+			}
 		}
 	}
 
@@ -200,7 +211,16 @@ public class DLStoreImpl implements DLStore {
 		validate(fileName, false, versionLabel);
 
 		try {
-			_store.deleteFile(companyId, repositoryId, fileName, versionLabel);
+			if (_store instanceof AreaStore) {
+				AreaStoreManager.move(
+					(AreaStore)_store, AreaStore.AreaType.LIVE,
+					AreaStore.AreaType.EVICTED, companyId, repositoryId,
+					fileName, versionLabel);
+			}
+			else {
+				_store.deleteFile(
+					companyId, repositoryId, fileName, versionLabel);
+			}
 		}
 		catch (AccessDeniedException accessDeniedException) {
 			throw new PrincipalException(accessDeniedException);
