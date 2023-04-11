@@ -171,6 +171,14 @@ Format format = FastDateFormatFactoryUtil.getSimpleDateFormat(simpleDateFormatPa
 				}
 			};
 
+			Liferay.once(
+				'screenLoad',
+				function() {
+					timePicker.destroy();
+					Liferay.component('<%= nameId %>TimePicker', null);
+				}
+			);
+
 			return timePicker;
 		}
 	);

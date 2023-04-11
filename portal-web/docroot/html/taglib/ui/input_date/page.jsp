@@ -442,6 +442,7 @@ else {
 				'screenLoad',
 				function() {
 					datePicker.destroy();
+					Liferay.component('<%= nameId %>DatePicker', null);
 				}
 			);
 
