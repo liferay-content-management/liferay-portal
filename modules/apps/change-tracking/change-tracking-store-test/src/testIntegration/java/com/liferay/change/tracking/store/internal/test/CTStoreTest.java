@@ -22,6 +22,7 @@ import com.liferay.change.tracking.store.exception.NoSuchContentException;
 import com.liferay.change.tracking.store.model.CTSContent;
 import com.liferay.change.tracking.store.service.CTSContentLocalService;
 import com.liferay.document.library.kernel.exception.NoSuchFileException;
+import com.liferay.document.library.kernel.store.AreaStore;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.petra.function.UnsafeRunnable;
 import com.liferay.petra.io.StreamUtil;
@@ -79,8 +80,9 @@ public class CTStoreTest {
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 		_ctStore = _ctStoreFactory.createCTStore(
-			(Store)ProxyUtil.newProxyInstance(
-				Store.class.getClassLoader(), new Class<?>[] {Store.class},
+			(AreaStore)ProxyUtil.newProxyInstance(
+				AreaStore.class.getClassLoader(),
+				new Class<?>[] {AreaStore.class},
 				new RecorderInvocationHandler(_fileSystemStore)),
 			_STORE_TYPE);
 
@@ -1310,33 +1312,37 @@ public class CTStoreTest {
 
 	static {
 		try {
-			_ADD_FILE_METHOD = Store.class.getMethod(
-				"addFile", long.class, long.class, String.class, String.class,
-				InputStream.class);
+			_ADD_FILE_METHOD = AreaStore.class.getMethod(
+				"addFile", AreaStore.AreaType.class, long.class, long.class,
+				String.class, String.class, InputStream.class);
 
-			_DELETE_DIRECTORY_METHOD = Store.class.getMethod(
-				"deleteDirectory", long.class, long.class, String.class);
+			_DELETE_DIRECTORY_METHOD = AreaStore.class.getMethod(
+				"deleteDirectory", AreaStore.AreaType.class, long.class,
+				long.class, String.class);
 
-			_DELETE_FILE_METHOD = Store.class.getMethod(
-				"deleteFile", long.class, long.class, String.class,
-				String.class);
+			_DELETE_FILE_METHOD = AreaStore.class.getMethod(
+				"deleteFile", AreaStore.AreaType.class, long.class, long.class,
+				String.class, String.class);
 
-			_GET_FILE_AS_STREAM_METHOD = Store.class.getMethod(
-				"getFileAsStream", long.class, long.class, String.class,
-				String.class);
+			_GET_FILE_AS_STREAM_METHOD = AreaStore.class.getMethod(
+				"getFileAsStream", AreaStore.AreaType.class, long.class,
+				long.class, String.class, String.class);
 
-			_GET_FILE_NAMES = Store.class.getMethod(
-				"getFileNames", long.class, long.class, String.class);
+			_GET_FILE_NAMES = AreaStore.class.getMethod(
+				"getFileNames", AreaStore.AreaType.class, long.class,
+				long.class, String.class);
 
-			_GET_FILE_SIZE = Store.class.getMethod(
-				"getFileSize", long.class, long.class, String.class,
-				String.class);
+			_GET_FILE_SIZE = AreaStore.class.getMethod(
+				"getFileSize", AreaStore.AreaType.class, long.class, long.class,
+				String.class, String.class);
 
-			_GET_FILE_VERSIONS = Store.class.getMethod(
-				"getFileVersions", long.class, long.class, String.class);
+			_GET_FILE_VERSIONS = AreaStore.class.getMethod(
+				"getFileVersions", AreaStore.AreaType.class, long.class,
+				long.class, String.class);
 
-			_HAS_FILE_METHOD = Store.class.getMethod(
-				"hasFile", long.class, long.class, String.class, String.class);
+			_HAS_FILE_METHOD = AreaStore.class.getMethod(
+				"hasFile", AreaStore.AreaType.class, long.class, long.class,
+				String.class, String.class);
 		}
 		catch (NoSuchMethodException noSuchMethodException) {
 			throw new ExceptionInInitializerError(noSuchMethodException);

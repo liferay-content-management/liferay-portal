@@ -14,7 +14,7 @@
 
 package com.liferay.portal.store.file.system.lenient;
 
-import com.liferay.document.library.kernel.store.Store;
+import com.liferay.document.library.kernel.store.AreaStore;
 import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.exception.PortalException;
 
@@ -23,86 +23,93 @@ import java.io.InputStream;
 /**
  * @author Adolfo Pérez
  */
-public class LenientStore implements Store {
+public class LenientStore implements AreaStore {
 
-	public LenientStore(Store store) {
+	public LenientStore(AreaStore store) {
 		_store = store;
 	}
 
 	@Override
 	public void addFile(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel, InputStream inputStream)
+			AreaType areaType, long companyId, long repositoryId,
+			String fileName, String versionLabel, InputStream inputStream)
 		throws PortalException {
 
 		_store.addFile(
-			companyId, repositoryId, fileName, versionLabel, inputStream);
+			areaType, companyId, repositoryId, fileName, versionLabel,
+			inputStream);
 	}
 
 	@Override
 	public void deleteDirectory(
-		long companyId, long repositoryId, String dirName) {
+		AreaType areaType, long companyId, long repositoryId, String dirName) {
 
-		_store.deleteDirectory(companyId, repositoryId, dirName);
+		_store.deleteDirectory(areaType, companyId, repositoryId, dirName);
 	}
 
 	@Override
 	public void deleteFile(
-		long companyId, long repositoryId, String fileName,
+		AreaType areaType, long companyId, long repositoryId, String fileName,
 		String versionLabel) {
 
-		_store.deleteFile(companyId, repositoryId, fileName, versionLabel);
+		_store.deleteFile(
+			areaType, companyId, repositoryId, fileName, versionLabel);
 	}
 
 	@Override
 	public InputStream getFileAsStream(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel)
+			AreaType areaType, long companyId, long repositoryId,
+			String fileName, String versionLabel)
 		throws PortalException {
 
-		if (!_store.hasFile(companyId, repositoryId, fileName, versionLabel)) {
+		if (!_store.hasFile(
+				areaType, companyId, repositoryId, fileName, versionLabel)) {
+
 			_store.addFile(
-				companyId, repositoryId, fileName, versionLabel,
+				areaType, companyId, repositoryId, fileName, versionLabel,
 				new UnsyncByteArrayInputStream(_DUMMY_CONTENT));
 		}
 
 		return _store.getFileAsStream(
-			companyId, repositoryId, fileName, versionLabel);
+			areaType, companyId, repositoryId, fileName, versionLabel);
 	}
 
 	@Override
 	public String[] getFileNames(
-		long companyId, long repositoryId, String dirName) {
+		AreaType areaType, long companyId, long repositoryId, String dirName) {
 
-		return _store.getFileNames(companyId, repositoryId, dirName);
+		return _store.getFileNames(areaType, companyId, repositoryId, dirName);
 	}
 
 	@Override
 	public long getFileSize(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel)
+			AreaType areaType, long companyId, long repositoryId,
+			String fileName, String versionLabel)
 		throws PortalException {
 
-		if (!_store.hasFile(companyId, repositoryId, fileName, versionLabel)) {
+		if (!_store.hasFile(
+				areaType, companyId, repositoryId, fileName, versionLabel)) {
+
 			_store.addFile(
-				companyId, repositoryId, fileName, versionLabel,
+				areaType, companyId, repositoryId, fileName, versionLabel,
 				new UnsyncByteArrayInputStream(_DUMMY_CONTENT));
 		}
 
 		return _store.getFileSize(
-			companyId, repositoryId, fileName, versionLabel);
+			areaType, companyId, repositoryId, fileName, versionLabel);
 	}
 
 	@Override
 	public String[] getFileVersions(
-		long companyId, long repositoryId, String fileName) {
+		AreaType areaType, long companyId, long repositoryId, String fileName) {
 
-		return _store.getFileVersions(companyId, repositoryId, fileName);
+		return _store.getFileVersions(
+			areaType, companyId, repositoryId, fileName);
 	}
 
 	@Override
 	public boolean hasFile(
-		long companyId, long repositoryId, String fileName,
+		AreaType areaType, long companyId, long repositoryId, String fileName,
 		String versionLabel) {
 
 		return true;
@@ -111,6 +118,6 @@ public class LenientStore implements Store {
 	private static final byte[] _DUMMY_CONTENT =
 		"This is a test file.".getBytes();
 
-	private final Store _store;
+	private final AreaStore _store;
 
 }

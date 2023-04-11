@@ -19,6 +19,7 @@ import com.liferay.change.tracking.model.CTEntry;
 import com.liferay.change.tracking.service.CTEntryLocalService;
 import com.liferay.change.tracking.store.model.CTSContent;
 import com.liferay.change.tracking.store.service.CTSContentLocalService;
+import com.liferay.document.library.kernel.store.AreaStore;
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.petra.lang.SafeCloseable;
@@ -39,7 +40,7 @@ import java.util.Set;
 /**
  * @author Shuyang Zhou
  */
-public class CTStore implements Store {
+public class CTStore implements AreaStore {
 
 	public CTStore(
 		CTEntryLocalService ctEntryLocalService, long ctsContentClassNameId,
@@ -49,23 +50,24 @@ public class CTStore implements Store {
 		_ctEntryLocalService = ctEntryLocalService;
 		_ctsContentClassNameId = ctsContentClassNameId;
 		_ctsContentLocalService = ctsContentLocalService;
-		_store = store;
+		_store = (AreaStore)store;
 		_storeType = storeType;
 	}
 
 	@Override
 	public void addFile(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel, InputStream inputStream)
+			AreaType areaType, long companyId, long repositoryId,
+			String fileName, String versionLabel, InputStream inputStream)
 		throws PortalException {
 
 		if (CTCollectionThreadLocal.isProductionMode()) {
 			_store.addFile(
-				companyId, repositoryId, fileName, versionLabel, inputStream);
+				areaType, companyId, repositoryId, fileName, versionLabel,
+				inputStream);
 		}
 		else {
 			_ensureCTSContentIsLoaded(
-				companyId, repositoryId, fileName, versionLabel);
+				areaType, companyId, repositoryId, fileName, versionLabel);
 
 			_ctsContentLocalService.addCTSContent(
 				companyId, repositoryId, fileName, versionLabel, _storeType,
@@ -75,24 +77,26 @@ public class CTStore implements Store {
 
 	@Override
 	public void deleteDirectory(
-		long companyId, long repositoryId, String dirName) {
+		AreaType areaType, long companyId, long repositoryId, String dirName) {
 
 		if (CTCollectionThreadLocal.isProductionMode()) {
-			_store.deleteDirectory(companyId, repositoryId, dirName);
+			_store.deleteDirectory(areaType, companyId, repositoryId, dirName);
 		}
 		else {
 			for (String fileName :
-					_store.getFileNames(companyId, repositoryId, dirName)) {
+					_store.getFileNames(
+						areaType, companyId, repositoryId, dirName)) {
 
 				for (String versionLabel :
 						_store.getFileVersions(
-							companyId, repositoryId, fileName)) {
+							areaType, companyId, repositoryId, fileName)) {
 
 					if (!_isCTSContentLoaded(
 							companyId, repositoryId, fileName, versionLabel)) {
 
 						_loadCTSContent(
-							companyId, repositoryId, fileName, versionLabel);
+							areaType, companyId, repositoryId, fileName,
+							versionLabel);
 					}
 				}
 			}
@@ -104,15 +108,16 @@ public class CTStore implements Store {
 
 	@Override
 	public void deleteFile(
-		long companyId, long repositoryId, String fileName,
+		AreaType areaType, long companyId, long repositoryId, String fileName,
 		String versionLabel) {
 
 		if (CTCollectionThreadLocal.isProductionMode()) {
-			_store.deleteFile(companyId, repositoryId, fileName, versionLabel);
+			_store.deleteFile(
+				areaType, companyId, repositoryId, fileName, versionLabel);
 		}
 		else {
 			_ensureCTSContentIsLoaded(
-				companyId, repositoryId, fileName, versionLabel);
+				areaType, companyId, repositoryId, fileName, versionLabel);
 		}
 
 		_ctsContentLocalService.deleteCTSContent(
@@ -121,8 +126,8 @@ public class CTStore implements Store {
 
 	@Override
 	public InputStream getFileAsStream(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel)
+			AreaType areaType, long companyId, long repositoryId,
+			String fileName, String versionLabel)
 		throws PortalException {
 
 		if (!CTCollectionThreadLocal.isProductionMode() &&
@@ -137,15 +142,15 @@ public class CTStore implements Store {
 		}
 
 		return _store.getFileAsStream(
-			companyId, repositoryId, fileName, versionLabel);
+			areaType, companyId, repositoryId, fileName, versionLabel);
 	}
 
 	@Override
 	public String[] getFileNames(
-		long companyId, long repositoryId, String dirName) {
+		AreaType areaType, long companyId, long repositoryId, String dirName) {
 
 		String[] fileNames = _store.getFileNames(
-			companyId, repositoryId, dirName);
+			areaType, companyId, repositoryId, dirName);
 
 		if (CTCollectionThreadLocal.isProductionMode()) {
 			return fileNames;
@@ -176,7 +181,7 @@ public class CTStore implements Store {
 				new HashSet<>(
 					Arrays.asList(
 						_store.getFileVersions(
-							companyId, repositoryId, fileName))));
+							areaType, companyId, repositoryId, fileName))));
 		}
 
 		for (CTSContent ctsContent :
@@ -226,8 +231,8 @@ public class CTStore implements Store {
 
 	@Override
 	public long getFileSize(
-			long companyId, long repositoryId, String fileName,
-			String versionLabel)
+			AreaType areaType, long companyId, long repositoryId,
+			String fileName, String versionLabel)
 		throws PortalException {
 
 		if (!CTCollectionThreadLocal.isProductionMode() &&
@@ -241,15 +246,15 @@ public class CTStore implements Store {
 		}
 
 		return _store.getFileSize(
-			companyId, repositoryId, fileName, versionLabel);
+			areaType, companyId, repositoryId, fileName, versionLabel);
 	}
 
 	@Override
 	public String[] getFileVersions(
-		long companyId, long repositoryId, String fileName) {
+		AreaType areaType, long companyId, long repositoryId, String fileName) {
 
 		String[] versions = _store.getFileVersions(
-			companyId, repositoryId, fileName);
+			areaType, companyId, repositoryId, fileName);
 
 		if (CTCollectionThreadLocal.isProductionMode()) {
 			return versions;
@@ -290,7 +295,7 @@ public class CTStore implements Store {
 
 	@Override
 	public boolean hasFile(
-		long companyId, long repositoryId, String fileName,
+		AreaType areaType, long companyId, long repositoryId, String fileName,
 		String versionLabel) {
 
 		if (!CTCollectionThreadLocal.isProductionMode()) {
@@ -314,21 +319,24 @@ public class CTStore implements Store {
 			}
 		}
 
-		return _store.hasFile(companyId, repositoryId, fileName, versionLabel);
+		return _store.hasFile(
+			areaType, companyId, repositoryId, fileName, versionLabel);
 	}
 
 	private void _ensureCTSContentIsLoaded(
-		long companyId, long repositoryId, String fileName,
+		AreaType areaType, long companyId, long repositoryId, String fileName,
 		String versionLabel) {
 
 		if (_isCTSContentLoaded(
 				companyId, repositoryId, fileName, versionLabel) ||
-			!_store.hasFile(companyId, repositoryId, fileName, versionLabel)) {
+			!_store.hasFile(
+				areaType, companyId, repositoryId, fileName, versionLabel)) {
 
 			return;
 		}
 
-		_loadCTSContent(companyId, repositoryId, fileName, versionLabel);
+		_loadCTSContent(
+			areaType, companyId, repositoryId, fileName, versionLabel);
 	}
 
 	private Set<Long> _getDeletedCTSContentIds(long ctCollectionId) {
@@ -371,11 +379,11 @@ public class CTStore implements Store {
 	}
 
 	private void _loadCTSContent(
-		long companyId, long repositoryId, String fileName,
+		AreaType areaType, long companyId, long repositoryId, String fileName,
 		String versionLabel) {
 
 		try (InputStream inputStream = _store.getFileAsStream(
-				companyId, repositoryId, fileName, versionLabel);
+				areaType, companyId, repositoryId, fileName, versionLabel);
 			SafeCloseable safeCloseable =
 				CTCollectionThreadLocal.setProductionModeWithSafeCloseable()) {
 
@@ -403,7 +411,7 @@ public class CTStore implements Store {
 	private final CTEntryLocalService _ctEntryLocalService;
 	private final long _ctsContentClassNameId;
 	private final CTSContentLocalService _ctsContentLocalService;
-	private final Store _store;
+	private final AreaStore _store;
 	private final String _storeType;
 
 }

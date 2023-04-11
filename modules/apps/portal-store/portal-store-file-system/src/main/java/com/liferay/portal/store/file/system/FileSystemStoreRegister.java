@@ -74,7 +74,7 @@ public class FileSystemStoreRegister {
 		_serviceRegistration.unregister();
 	}
 
-	private Store _wrapStore(Store store) {
+	private AreaStore _wrapStore(AreaStore store) {
 		if (!GetterUtil.getBoolean(
 				PropsUtil.get("dl.store.file.system.lenient"))) {
 
