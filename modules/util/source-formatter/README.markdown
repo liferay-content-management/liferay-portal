@@ -97,9 +97,10 @@ Checks are configured in the following files:
    - [Upgrade](src/main/resources/documentation/upgrade_checks.markdown#upgrade-checks)
 
 - ### By File Extensions:
+   - [](src/main/resources/documentation/library_source_processor_checks.markdown#checks-for-)
    - [.action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .svg, .testcase, .toggle, .tpl, .wsdl, .xml or .xsd](src/main/resources/documentation/xml_source_processor_checks.markdown#checks-for-action-function-jelly-jrxml-macro-pom-project-properties-svg-testcase-toggle-tpl-wsdl-xml-or-xsd)
    - [.bnd](src/main/resources/documentation/bnd_source_processor_checks.markdown#checks-for-bnd)
-   - [.bnd, .gradle or .java](src/main/resources/documentation/upgrade_source_processor_checks.markdown#checks-for-bnd-gradle-or-java)
+   - [.bnd, .gradle, .java or .vm](src/main/resources/documentation/upgrade_source_processor_checks.markdown#checks-for-bnd-gradle-java-or-vm)
    - [.bndrun](src/main/resources/documentation/bnd_run_source_processor_checks.markdown#checks-for-bndrun)
    - [.cfg or .config](src/main/resources/documentation/config_source_processor_checks.markdown#checks-for-cfg-or-config)
    - [.cql](src/main/resources/documentation/cql_source_processor_checks.markdown#checks-for-cql)
@@ -112,7 +113,7 @@ Checks are configured in the following files:
    - [.gradle](src/main/resources/documentation/gradle_source_processor_checks.markdown#checks-for-gradle)
    - [.groovy](src/main/resources/documentation/groovy_source_processor_checks.markdown#checks-for-groovy)
    - [.html or .path](src/main/resources/documentation/html_source_processor_checks.markdown#checks-for-html-or-path)
-   - [.ipynb, .json, .jsont or .npmbridgerc](src/main/resources/documentation/json_source_processor_checks.markdown#checks-for-ipynb-json-jsont-or-npmbridgerc)
+   - [.ipynb, .json or .npmbridgerc](src/main/resources/documentation/json_source_processor_checks.markdown#checks-for-ipynb-json-or-npmbridgerc)
    - [.java](src/main/resources/documentation/java_source_processor_checks.markdown#checks-for-java)
    - [.js or .jsx](src/main/resources/documentation/js_source_processor_checks.markdown#checks-for-js-or-jsx)
    - [.jsp, .jspf, .jspx, .tag, .tpl or .vm](src/main/resources/documentation/jsp_source_processor_checks.markdown#checks-for-jsp-jspf-jspx-tag-tpl-or-vm)

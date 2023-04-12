@@ -40,13 +40,14 @@ const SearchControls = ({
 				<ClayInput.Group>
 					<ClayInput.GroupItem>
 						<ClayInput
+							aria-label={`${Liferay.Language.get('search')}:`}
 							autoFocus={searchInputAutoFocus}
 							className="form-control input-group-inset input-group-inset-after"
 							defaultValue={searchValue}
 							disabled={disabled}
 							name={searchInputName}
 							placeholder={Liferay.Language.get('search-for')}
-							type="text"
+							type="search"
 						/>
 
 						<ClayInput.GroupInsetItem after tag="span">

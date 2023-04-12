@@ -16,10 +16,6 @@ package com.liferay.jethr0.build;
 
 import com.liferay.jethr0.project.Project;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.json.JSONObject;
 
 /**
@@ -28,34 +24,7 @@ import org.json.JSONObject;
 public class BuildFactory {
 
 	public static Build newBuild(Project project, JSONObject jsonObject) {
-		long id = jsonObject.getLong("id");
-
-		Build build = null;
-
-		synchronized (_builds) {
-			if (_builds.containsKey(id)) {
-				return _builds.get(id);
-			}
-
-			build = new DefaultBuild(project, jsonObject);
-
-			_builds.put(build.getId(), build);
-		}
-
-		return build;
+		return new DefaultBuild(project, jsonObject);
 	}
-
-	public static void removeBuild(Build build) {
-		if (build == null) {
-			return;
-		}
-
-		synchronized (_builds) {
-			_builds.remove(build.getId());
-		}
-	}
-
-	private static final Map<Long, Build> _builds = Collections.synchronizedMap(
-		new HashMap<>());
 
 }

@@ -97,7 +97,12 @@ public class SlaveOfflineRule {
 			return false;
 		}
 
-		return true;
+		System.out.println(
+			JenkinsResultsParserUtil.combine(
+				"Slave offline rule ", getName(),
+				" has a null console pattern"));
+
+		return false;
 	}
 
 	public boolean shutdown() {

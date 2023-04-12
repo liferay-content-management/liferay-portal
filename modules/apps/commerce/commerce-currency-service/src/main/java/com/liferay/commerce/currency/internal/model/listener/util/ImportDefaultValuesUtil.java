@@ -19,7 +19,10 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
+import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
+
+import java.util.Locale;
 
 /**
  * @author Shuyang Zhou
@@ -32,20 +35,33 @@ public class ImportDefaultValuesUtil {
 
 		TransactionCommitCallbackUtil.registerCallback(
 			() -> {
-				ServiceContext serviceContext = new ServiceContext();
+				Locale defaultLocale = LocaleThreadLocal.getDefaultLocale();
+				Locale siteDefaultLocale =
+					LocaleThreadLocal.getSiteDefaultLocale();
 
-				serviceContext.setCompanyId(company.getCompanyId());
-				serviceContext.setLanguageId(
-					LocaleUtil.toLanguageId(company.getLocale()));
+				try {
+					LocaleThreadLocal.setDefaultLocale(company.getLocale());
+					LocaleThreadLocal.setSiteDefaultLocale(null);
 
-				User guestUser = company.getGuestUser();
+					ServiceContext serviceContext = new ServiceContext();
 
-				serviceContext.setUserId(guestUser.getUserId());
+					serviceContext.setCompanyId(company.getCompanyId());
+					serviceContext.setLanguageId(
+						LocaleUtil.toLanguageId(company.getLocale()));
 
-				commerceCurrencyLocalService.importDefaultValues(
-					serviceContext);
+					User guestUser = company.getGuestUser();
 
-				return null;
+					serviceContext.setUserId(guestUser.getUserId());
+
+					commerceCurrencyLocalService.importDefaultValues(
+						serviceContext);
+
+					return null;
+				}
+				finally {
+					LocaleThreadLocal.setDefaultLocale(defaultLocale);
+					LocaleThreadLocal.setSiteDefaultLocale(siteDefaultLocale);
+				}
 			});
 	}
 

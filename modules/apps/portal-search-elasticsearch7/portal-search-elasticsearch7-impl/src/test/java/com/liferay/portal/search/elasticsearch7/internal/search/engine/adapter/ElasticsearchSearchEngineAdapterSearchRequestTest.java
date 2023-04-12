@@ -19,21 +19,32 @@ import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Hits;
+import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.generic.MatchAllQuery;
 import com.liferay.portal.kernel.search.suggest.CompletionSuggester;
 import com.liferay.portal.kernel.search.suggest.PhraseSuggester;
 import com.liferay.portal.kernel.search.suggest.Suggester;
 import com.liferay.portal.kernel.search.suggest.TermSuggester;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.search.elasticsearch7.internal.connection.ElasticsearchClientResolver;
 import com.liferay.portal.search.elasticsearch7.internal.connection.ElasticsearchFixture;
 import com.liferay.portal.search.elasticsearch7.internal.document.DefaultElasticsearchDocumentFactory;
 import com.liferay.portal.search.elasticsearch7.internal.document.ElasticsearchDocumentFactory;
 import com.liferay.portal.search.elasticsearch7.internal.search.engine.adapter.search.SearchRequestExecutorFixture;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
+import com.liferay.portal.search.engine.adapter.search.OpenPointInTimeRequest;
+import com.liferay.portal.search.engine.adapter.search.OpenPointInTimeResponse;
 import com.liferay.portal.search.engine.adapter.search.SearchRequestExecutor;
+import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
+import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
 import com.liferay.portal.search.engine.adapter.search.SuggestSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SuggestSearchResponse;
 import com.liferay.portal.search.engine.adapter.search.SuggestSearchResult;
+import com.liferay.portal.search.hits.SearchHit;
+import com.liferay.portal.search.hits.SearchHits;
+import com.liferay.portal.search.pit.PointInTime;
 import com.liferay.portal.search.test.util.indexing.DocumentFixture;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
@@ -147,6 +158,82 @@ public class ElasticsearchSearchEngineAdapterSearchRequestTest {
 		_assertSuggestion(
 			suggestSearchResponse.getSuggestSearchResultMap(),
 			"completion|[search]", "completion2|[message]");
+	}
+
+	@Test
+	public void testDeepPaginationWithScroll() throws Exception {
+		_indexSuggestKeyword(RandomTestUtil.randomString());
+		_indexSuggestKeyword(RandomTestUtil.randomString());
+		_indexSuggestKeyword(RandomTestUtil.randomString());
+
+		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
+
+		searchSearchRequest.setIndexNames(_INDEX_NAME);
+		searchSearchRequest.setQuery(new MatchAllQuery());
+		searchSearchRequest.setScrollKeepAliveMinutes(1);
+		searchSearchRequest.setSize(1);
+
+		for (int i = 0; i < 3; i++) {
+			SearchSearchResponse searchSearchResponse =
+				_searchEngineAdapter.execute(searchSearchRequest);
+
+			Assert.assertEquals(1, _getDocumentsLength(searchSearchResponse));
+
+			searchSearchRequest.setScrollId(searchSearchResponse.getScrollId());
+		}
+
+		SearchSearchResponse searchSearchResponse =
+			_searchEngineAdapter.execute(searchSearchRequest);
+
+		Assert.assertEquals(0, _getDocumentsLength(searchSearchResponse));
+	}
+
+	@Test
+	public void testDeepPaginationWithSearchAfter() throws IOException {
+		_indexSuggestKeyword(RandomTestUtil.randomString());
+		_indexSuggestKeyword(RandomTestUtil.randomString());
+		_indexSuggestKeyword(RandomTestUtil.randomString());
+
+		OpenPointInTimeRequest openPointInTimeRequest =
+			new OpenPointInTimeRequest(1);
+
+		openPointInTimeRequest.setIndices(_INDEX_NAME);
+
+		OpenPointInTimeResponse openPointInTimeResponse =
+			_searchEngineAdapter.execute(openPointInTimeRequest);
+
+		PointInTime pointInTime = new PointInTime(
+			openPointInTimeResponse.pitId());
+
+		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
+
+		searchSearchRequest.setIndexNames(_INDEX_NAME);
+		searchSearchRequest.setPointInTime(pointInTime);
+		searchSearchRequest.setQuery(new MatchAllQuery());
+		searchSearchRequest.setSize(1);
+		searchSearchRequest.setSorts(new Sort[] {new Sort("_count", true)});
+		searchSearchRequest.setStart(0);
+
+		SearchSearchResponse searchSearchResponse =
+			_searchEngineAdapter.execute(searchSearchRequest);
+
+		for (int i = 0; i < 3; i++) {
+			Assert.assertEquals(1, _getDocumentsLength(searchSearchResponse));
+
+			SearchHits searchHits = searchSearchResponse.getSearchHits();
+
+			List<SearchHit> searchHitList = searchHits.getSearchHits();
+
+			SearchHit lastSearchHit = searchHitList.get(
+				searchHitList.size() - 1);
+
+			searchSearchRequest.setSearchAfter(lastSearchHit.getSortValues());
+
+			searchSearchResponse = _searchEngineAdapter.execute(
+				searchSearchRequest);
+		}
+
+		Assert.assertEquals(0, _getDocumentsLength(searchSearchResponse));
 	}
 
 	@Test
@@ -356,6 +443,14 @@ public class ElasticsearchSearchEngineAdapterSearchRequestTest {
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
 		}
+	}
+
+	private int _getDocumentsLength(SearchSearchResponse searchSearchResponse) {
+		Hits hits = searchSearchResponse.getHits();
+
+		Document[] documents = hits.getDocs();
+
+		return documents.length;
 	}
 
 	private String _getUID(String value) {

@@ -280,7 +280,7 @@
 			"objectFieldSettings": [
 				{
 					"name": "objectRelationshipName",
-					"value": "buildToCaseResult"
+					"value": "componentToCaseResult"
 				},
 				{
 					"name": "filters",

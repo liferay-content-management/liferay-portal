@@ -14,10 +14,11 @@
 
 import ClayAlert from '@clayui/alert';
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
-import {Align, ClayDropDownWithItems} from '@clayui/drop-down';
+import ClayDropDown, {Align, ClayDropDownWithItems} from '@clayui/drop-down';
 import ClayEmptyState from '@clayui/empty-state';
 import {ClayInput} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
+import ClayLayout from '@clayui/layout';
 import ClayList from '@clayui/list';
 import ClayModal, {useModal} from '@clayui/modal';
 import {ClayPaginationBarWithBasicItems} from '@clayui/pagination-bar';
@@ -30,6 +31,8 @@ import {
 	openConfirmModal,
 } from 'frontend-js-web';
 import React, {useCallback, useEffect, useState} from 'react';
+
+import PublicationTimeline from './PublicationTimeline';
 
 const PublicationsSearchContainer = ({
 	ascending,
@@ -709,6 +712,9 @@ const PublicationsSearchContainer = ({
 
 export default function ChangeTrackingIndicator({
 	checkoutDropdownItem,
+	conflictIconClass,
+	conflictIconLabel,
+	conflictIconName,
 	createDropdownItem,
 	getSelectPublicationsURL,
 	iconClass,
@@ -719,6 +725,9 @@ export default function ChangeTrackingIndicator({
 	reviewDropdownItem,
 	saveDisplayPreferenceURL,
 	spritemap,
+	timelineIconClass,
+	timelineIconName,
+	timelineItems,
 	title,
 }) {
 	const COLUMN_MODIFIED_DATE = 'modifiedDate';
@@ -1075,25 +1084,99 @@ export default function ChangeTrackingIndicator({
 		);
 	};
 
+	const renderConflictIcon = (conflictIconClass, conflictIconName) => {
+		if (conflictIconClass && conflictIconName) {
+			return (
+				<ClayIcon
+					className={conflictIconClass}
+					style={{fontSize: 'medium'}}
+					symbol={conflictIconName}
+				/>
+			);
+		}
+	};
+
+	const renderTimeline = (timelineItems) => {
+		if (timelineItems) {
+			return (
+				<ClayDropDown
+					alignmentPosition={Align.BottomCenter}
+					trigger={
+						<ClayButton
+							aria-controls="publication-timeline-dropdown"
+							className="change-tracking-timeline-button"
+						>
+							<ClayIcon
+								className={timelineIconClass}
+								symbol={timelineIconName}
+							/>
+						</ClayButton>
+					}
+				>
+					<PublicationTimeline timelineItems={timelineItems} />
+				</ClayDropDown>
+			);
+		}
+	};
+
 	return (
 		<>
 			{renderModal()}
 
-			<ClayDropDownWithItems
-				alignmentPosition={Align.BottomCenter}
-				items={dropdownItems}
-				trigger={
-					<button className="change-tracking-indicator-button">
-						<ClayIcon className={iconClass} symbol={iconName} />
+			<ClayLayout.ContentRow style={{justifyContent: 'center'}}>
+				<ClayLayout.ContentCol>
+					<div
+						className="c-inner"
+						style={{
+							margin: '2px',
+							padding: '1px',
+							width: '16px',
+						}}
+						tabIndex="-1"
+						title={conflictIconLabel}
+					>
+						{renderConflictIcon(
+							conflictIconClass,
+							conflictIconName
+						)}
+					</div>
+				</ClayLayout.ContentCol>
 
-						<span className="change-tracking-indicator-title">
-							{title}
-						</span>
+				<ClayLayout.ContentCol>
+					<ClayDropDownWithItems
+						alignmentPosition={Align.BottomCenter}
+						items={dropdownItems}
+						trigger={
+							<button className="change-tracking-indicator-button">
+								<ClayIcon
+									className={iconClass}
+									symbol={iconName}
+								/>
 
-						<ClayIcon symbol="caret-bottom" />
-					</button>
-				}
-			/>
+								<span className="change-tracking-indicator-title">
+									{title}
+								</span>
+
+								<ClayIcon symbol="caret-bottom" />
+							</button>
+						}
+					/>
+				</ClayLayout.ContentCol>
+
+				<ClayLayout.ContentCol>
+					<div
+						className="c-inner"
+						style={{
+							padding: '1px',
+							width: '21px',
+						}}
+						tabIndex="-1"
+						title="Timeline"
+					>
+						{renderTimeline(timelineItems)}
+					</div>
+				</ClayLayout.ContentCol>
+			</ClayLayout.ContentRow>
 		</>
 	);
 }

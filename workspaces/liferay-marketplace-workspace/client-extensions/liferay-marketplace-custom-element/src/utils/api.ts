@@ -24,19 +24,16 @@ export async function addSkuExpandoValue({
 	skuId: number;
 	versionValue: string;
 }) {
-	await Liferay.Service(
-		'/expandovalue/add-values',
-		{
-			attributeValues: {
-				'version': versionValue,
-				'version description': notesValue,
-			},
-			className: 'com.liferay.commerce.product.model.CPInstance',
-			classPK: skuId,
-			companyId,
-			tableName: 'CUSTOM_FIELDS',
-		}
-	);
+	await Liferay.Service('/expandovalue/add-values', {
+		attributeValues: {
+			'version': versionValue,
+			'version description': notesValue,
+		},
+		className: 'com.liferay.commerce.product.model.CPInstance',
+		classPK: skuId,
+		companyId,
+		tableName: 'CUSTOM_FIELDS',
+	});
 }
 
 export function createApp({
@@ -153,25 +150,6 @@ export async function createProductSpecification({
 			body: JSON.stringify(body),
 			headers,
 			method: 'POST',
-		}
-	);
-
-	return await response.json();
-}
-
-export async function createProductSubscriptionConfiguration({
-	body,
-	externalReferenceCode,
-}: {
-	body: Object;
-	externalReferenceCode: string;
-}) {
-	const response = await fetch(
-		`/o/headless-commerce-admin-catalog/v1.0/products/by-externalReferenceCode/${externalReferenceCode}/subscriptionConfiguration`,
-		{
-			body: JSON.stringify(body),
-			headers,
-			method: 'PATCH',
 		}
 	);
 

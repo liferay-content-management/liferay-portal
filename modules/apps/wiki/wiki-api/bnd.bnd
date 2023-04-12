@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Wiki API
 Bundle-SymbolicName: com.liferay.wiki.api
-Bundle-Version: 15.2.1
+Bundle-Version: 16.0.0
 Export-Package:\
 	com.liferay.wiki.configuration,\
 	com.liferay.wiki.configuration.definition,\
@@ -8,7 +8,6 @@ Export-Package:\
 	com.liferay.wiki.engine,\
 	com.liferay.wiki.escape,\
 	com.liferay.wiki.exception,\
-	com.liferay.wiki.importer,\
 	com.liferay.wiki.item.selector,\
 	com.liferay.wiki.item.selector.constants,\
 	com.liferay.wiki.item.selector.criterion,\

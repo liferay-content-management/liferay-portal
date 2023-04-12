@@ -17,7 +17,7 @@
 </tr>
 <tr>
 	<td>DIGITAL_SIGNATURE_COLLECT_BUTTON</td>
-	<td>//button[contains(@title, 'Collect Digital Signature')]</td>
+	<td>//button[contains(@title, 'Collect Digital Signature')] | //button[contains(@title, 'Collect Digital Signature')]//*[contains(@class, 'lexicon-icon-signature')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -33,6 +33,11 @@
 <tr>
 	<td>DIGITAL_SIGNATURE_SEND_BUTTON</td>
 	<td>//button[contains(@type, 'submit') and contains(., 'Send')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DIGITAL_SIGNATURE_MODAL_ALERT</td>
+	<td>//div[contains(@class, 'alert-warning') and contains(., '${modalAlert}')]</td>
 	<td></td>
 </tr>
 <tr>

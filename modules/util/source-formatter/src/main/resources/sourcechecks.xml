@@ -1237,6 +1237,16 @@
 			<description name="Checks that `.lfrbuild*` files are documented in a marker file." />
 		</check>
 	</source-processor>
+	<source-processor name="LibrarySourceProcessor">
+
+		<!-- Liferay Source Checks -->
+
+		<check name="LibraryVulnerabilitiesCheck">
+			<category name="Bug Prevention" />
+			<description name="Checks the introduction of libraries and third party components with known vulnerabilities" />
+			<property name="enabled" value="false" />
+		</check>
+	</source-processor>
 	<source-processor name="MarkdownSourceProcessor">
 		<check name="MarkdownFileExtensionCheck">
 			<category name="Styling" />

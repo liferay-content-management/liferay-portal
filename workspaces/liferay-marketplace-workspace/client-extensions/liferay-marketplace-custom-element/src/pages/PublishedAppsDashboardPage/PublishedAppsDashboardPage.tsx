@@ -1,3 +1,4 @@
+import {ClayPaginationBarWithBasicItems} from '@clayui/pagination-bar';
 import {useEffect, useState} from 'react';
 
 import accountLogo from '../../assets/icons/mainAppLogo.svg';
@@ -74,12 +75,21 @@ const initialAccountsState: Account[] = [
 	},
 ];
 
+interface PublishedAppTable {
+	items: AppProps[];
+	pageSize: number;
+	totalCount: number;
+}
+
 export function PublishedAppsDashboardPage() {
 	const [accounts, setAccounts] = useState<Account[]>(initialAccountsState);
 	const [apps, setApps] = useState<AppProps[]>(Array<AppProps>());
 	const [dashboardNavigationItems, setDashboardNavigationItems] = useState(
 		initialDashboardNavigationItems
 	);
+	const [page, setPage] = useState(1);
+	const [publishedAppTable, setPublishedAppTable] =
+		useState<PublishedAppTable>({items: [], pageSize: 7, totalCount: 1});
 	const [selectedNavigationItem, setSelectedNavigationItem] =
 		useState('Apps');
 	const [members, setMembers] = useState<MemberProps[]>(Array<MemberProps>());
@@ -270,10 +280,20 @@ export function PublishedAppsDashboardPage() {
 					);
 
 					setApps(newAppList);
+
+					setPublishedAppTable({
+						items: newAppList.slice(
+							publishedAppTable.pageSize * (page - 1),
+							publishedAppTable.pageSize * (page - 1) +
+								publishedAppTable.pageSize
+						),
+						pageSize: publishedAppTable.pageSize,
+						totalCount: newAppList.length,
+					});
 				}
 			}
 		})();
-	}, [selectedAccount]);
+	}, [page, publishedAppTable.pageSize, selectedAccount]);
 
 	useEffect(() => {
 		(() => {
@@ -283,7 +303,7 @@ export function PublishedAppsDashboardPage() {
 
 			const newAppNavigationItem = {
 				...currentAppNavigationItem,
-				items: apps,
+				items: apps.slice(0, 4),
 			};
 
 			setDashboardNavigationItems([
@@ -357,7 +377,7 @@ export function PublishedAppsDashboardPage() {
 				if (selectedNavigationItem === 'Apps') {
 					return (
 						<DashboardPage
-							accountAppsNumber="4"
+							accountAppsNumber={apps.length.toString()}
 							accountLogo={accountLogo}
 							accounts={accounts}
 							buttonMessage="+ New App"
@@ -373,7 +393,7 @@ export function PublishedAppsDashboardPage() {
 								emptyStateMessage={
 									appMessages.emptyStateMessage
 								}
-								items={apps}
+								items={publishedAppTable.items}
 								tableHeaders={appTableHeaders}
 							>
 								{(item) => (
@@ -383,13 +403,31 @@ export function PublishedAppsDashboardPage() {
 									/>
 								)}
 							</DashboardTable>
+
+							{publishedAppTable.items.length ? (
+								<ClayPaginationBarWithBasicItems
+									active={page}
+									activeDelta={publishedAppTable.pageSize}
+									defaultActive={1}
+									ellipsisBuffer={3}
+									ellipsisProps={{
+										'aria-label': 'More',
+										'title': 'More',
+									}}
+									onActiveChange={setPage}
+									showDeltasDropDown={false}
+									totalItems={publishedAppTable.totalCount}
+								/>
+							) : (
+								<></>
+							)}
 						</DashboardPage>
 					);
 				}
 				else if (selectedNavigationItem === 'Members') {
 					return (
 						<DashboardPage
-							accountAppsNumber="4"
+							accountAppsNumber={apps.length.toString()}
 							accountLogo={accountLogo}
 							accounts={accounts}
 							currentAccount={selectedAccount}
