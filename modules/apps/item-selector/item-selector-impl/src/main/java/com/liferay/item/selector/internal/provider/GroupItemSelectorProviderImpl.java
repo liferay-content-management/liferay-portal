@@ -15,6 +15,7 @@
 package com.liferay.item.selector.internal.provider;
 
 import com.liferay.item.selector.provider.GroupItemSelectorProvider;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
@@ -30,6 +31,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.service.permission.GroupPermission;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portlet.usersadmin.search.GroupSearch;
 
 import java.util.ArrayList;
@@ -73,10 +75,22 @@ public class GroupItemSelectorProviderImpl
 			).build();
 
 		try {
-			return _filterGroups(
-				_groupLocalService.search(
-					companyId, _classNameIds, keywords, groupParams, start, end,
-					null));
+			List<Group> groups = _groupLocalService.search(
+				companyId, _classNameIds, keywords, groupParams, start, end,
+				null);
+
+			List<Group> filteredGroups = _filterGroups(groups);
+
+			if (filteredGroups.size() < groups.size()) {
+				filteredGroups = ListUtil.subList(
+					_filterGroups(
+						_groupLocalService.search(
+							companyId, _classNameIds, keywords, groupParams,
+							QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)),
+					start, end);
+			}
+
+			return filteredGroups;
 		}
 		catch (PortalException portalException) {
 			_log.error(portalException);
