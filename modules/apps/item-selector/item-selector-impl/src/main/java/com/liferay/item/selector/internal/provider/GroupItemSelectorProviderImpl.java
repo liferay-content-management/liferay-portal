@@ -15,6 +15,7 @@
 package com.liferay.item.selector.internal.provider;
 
 import com.liferay.item.selector.provider.GroupItemSelectorProvider;
+import com.liferay.item.selector.util.GroupItemSelectorGroupUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
@@ -22,9 +23,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
-import com.liferay.portal.kernel.security.auth.GuestOrUserUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
-import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.GroupService;
@@ -32,7 +31,6 @@ import com.liferay.portal.kernel.service.permission.GroupPermission;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portlet.usersadmin.search.GroupSearch;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,10 +71,8 @@ public class GroupItemSelectorProviderImpl
 			).build();
 
 		try {
-			return _filterGroups(
-				_groupLocalService.search(
-					companyId, _classNameIds, keywords, groupParams, start, end,
-					null));
+			return GroupItemSelectorGroupUtil.getGroups(
+				companyId, _classNameIds, keywords, groupParams, start, end);
 		}
 		catch (PortalException portalException) {
 			_log.error(portalException);
@@ -118,27 +114,6 @@ public class GroupItemSelectorProviderImpl
 			_classNameLocalService.getClassNameId(Group.class),
 			_classNameLocalService.getClassNameId(Organization.class)
 		};
-	}
-
-	private List<Group> _filterGroups(List<Group> groups)
-		throws PortalException {
-
-		List<Group> filteredGroups = new ArrayList<>();
-
-		PermissionChecker permissionChecker =
-			GuestOrUserUtil.getPermissionChecker();
-
-		for (Group group : groups) {
-			if (group.isCompany() ||
-				permissionChecker.isGroupAdmin(group.getGroupId()) ||
-				_groupPermission.contains(
-					permissionChecker, group, ActionKeys.VIEW)) {
-
-				filteredGroups.add(group);
-			}
-		}
-
-		return filteredGroups;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
