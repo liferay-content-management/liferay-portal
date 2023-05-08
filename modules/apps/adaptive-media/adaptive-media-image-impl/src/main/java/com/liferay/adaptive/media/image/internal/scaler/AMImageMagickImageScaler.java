@@ -38,20 +38,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 /**
  * @author Eric Yan
  */
-@Component(
-	property = {
-		"mime.type=image/gif", "mime.type=image/heic", "mime.type=image/tiff",
-		"mime.type=image/webp"
-	},
-	service = AMImageScaler.class
-)
 public class AMImageMagickImageScaler implements AMImageScaler {
+
+	public AMImageMagickImageScaler(
+		com.liferay.portal.kernel.util.File file, ImageMagick imageMagick,
+		ImageTool imageTool) {
+
+		_file = file;
+		_imageMagick = imageMagick;
+		_imageTool = imageTool;
+	}
 
 	@Override
 	public boolean isEnabled() {
@@ -159,13 +158,8 @@ public class AMImageMagickImageScaler implements AMImageScaler {
 		return scaledImageFile;
 	}
 
-	@Reference
-	private com.liferay.portal.kernel.util.File _file;
-
-	@Reference
-	private ImageMagick _imageMagick;
-
-	@Reference
-	private ImageTool _imageTool;
+	private final com.liferay.portal.kernel.util.File _file;
+	private final ImageMagick _imageMagick;
+	private final ImageTool _imageTool;
 
 }
