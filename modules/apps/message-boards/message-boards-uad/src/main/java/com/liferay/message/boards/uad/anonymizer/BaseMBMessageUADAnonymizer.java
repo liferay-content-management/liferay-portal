@@ -16,11 +16,14 @@ package com.liferay.message.boards.uad.anonymizer;
 
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
+import com.liferay.message.boards.exception.RequiredMessageException;
 import com.liferay.message.boards.model.MBMessage;
 import com.liferay.message.boards.service.MBMessageLocalService;
 import com.liferay.message.boards.uad.constants.MBUADConstants;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.user.associated.data.anonymizer.DynamicQueryUADAnonymizer;
 
@@ -67,6 +70,25 @@ public abstract class BaseMBMessageUADAnonymizer
 	}
 
 	@Override
+	public void delete(MBMessage mbMessage, long userId, User anonymousUser)
+		throws PortalException {
+
+		try {
+			delete(mbMessage);
+		}
+		catch (RequiredMessageException requiredMessageException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Message with id" + mbMessage.getMessageId() +
+					"could not be deleted. It will be anonymize",
+					requiredMessageException);
+			}
+		}
+
+		autoAnonymize(mbMessage, mbMessage.getUserId(), anonymousUser);
+	}
+
+	@Override
 	public Class<MBMessage> getTypeClass() {
 		return MBMessage.class;
 	}
@@ -104,5 +126,8 @@ public abstract class BaseMBMessageUADAnonymizer
 
 	@Reference
 	protected MBMessageLocalService mbMessageLocalService;
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		BaseMBMessageUADAnonymizer.class);
 
 }
