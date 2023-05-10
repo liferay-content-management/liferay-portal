@@ -79,8 +79,8 @@ public abstract class BaseMBMessageUADAnonymizer
 		catch (RequiredMessageException requiredMessageException) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
-					"Message with id" + mbMessage.getMessageId() +
-					"could not be deleted. It will be anonymize",
+					"Message with id " + mbMessage.getMessageId() +
+					" could not be deleted. It will be anonymize",
 					requiredMessageException);
 			}
 		}
