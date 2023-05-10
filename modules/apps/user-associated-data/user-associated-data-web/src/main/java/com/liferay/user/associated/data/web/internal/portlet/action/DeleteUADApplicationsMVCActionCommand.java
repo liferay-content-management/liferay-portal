@@ -18,9 +18,11 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.user.associated.data.anonymizer.UADAnonymizer;
+import com.liferay.user.associated.data.anonymizer.UADAnonymousUserProvider;
 import com.liferay.user.associated.data.constants.UserAssociatedDataPortletKeys;
 import com.liferay.user.associated.data.display.UADDisplay;
 
@@ -30,6 +32,7 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Samuel Trong Tran
@@ -49,9 +52,14 @@ public class DeleteUADApplicationsMVCActionCommand
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
+		User selectedUser = getSelectedUser(actionRequest);
+
+		User anonymousUser = _uadAnonymousUserProvider.getAnonymousUser(
+			selectedUser.getCompanyId());
+
 		long[] groupIds = ParamUtil.getLongValues(actionRequest, "groupIds");
 
-		long selectedUserId = getSelectedUserId(actionRequest);
+		long selectedUserId = selectedUser.getUserId();
 
 		for (String applicationKey : getApplicationKeys(actionRequest)) {
 			for (UADDisplay<?> uadDisplay :
@@ -72,7 +80,8 @@ public class DeleteUADApplicationsMVCActionCommand
 
 				for (Object entity : entities) {
 					try {
-						uadAnonymizer.delete(entity);
+						uadAnonymizer.delete(
+							entity, selectedUserId, anonymousUser);
 					}
 					catch (NoSuchModelException noSuchModelException) {
 						if (_log.isDebugEnabled()) {
@@ -88,5 +97,8 @@ public class DeleteUADApplicationsMVCActionCommand
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DeleteUADApplicationsMVCActionCommand.class);
+
+	@Reference
+	private UADAnonymousUserProvider _uadAnonymousUserProvider;
 
 }
