@@ -79,6 +79,20 @@ public interface UADAnonymizer<T> extends UADComponent<T> {
 	public void delete(T t) throws PortalException;
 
 	/**
+	 * Deletes the entity from the database.
+	 *
+	 * @param  t the entity to be deleted
+	 * @param  userId the primary key of the user associated with type {@code T}
+	 * @param  anonymousUser the company's anonymous user
+	 * @throws PortalException if the persistence threw an exception
+	 */
+	public default void delete(T t, long userId, User anonymousUser)
+		throws PortalException {
+
+		delete(t);
+	}
+
+	/**
 	 * Deletes all type {@code T} entities related to the user from the
 	 * database.
 	 *
