@@ -33,7 +33,9 @@ if (addPortletBreadcrumbEntries) {
 
 boolean portletTitleBasedNavigation = GetterUtil.getBoolean(portletConfig.getInitParameter("portlet-title-based-navigation"));
 
-if (portletTitleBasedNavigation) {
+boolean showBackButton = Objects.equals(dlRequestHelper.getResourcePortletName(), DLPortletKeys.DOCUMENT_LIBRARY_ADMIN);
+
+if (portletTitleBasedNavigation && showBackButton) {
 	portletDisplay.setShowBackIcon(true);
 	portletDisplay.setURLBack(dlViewFileEntryDisplayContext.getRedirect());
 
@@ -94,15 +96,17 @@ if (portletTitleBasedNavigation) {
 				<div class="file-entry-actions management-bar management-bar-light navbar navbar-expand-md">
 					<ul class="navbar-nav navbar-nav-expand">
 						<li class="nav-item nav-item-expand">
-							<clay:link
-								aria-label='<%= LanguageUtil.get(request, "back") %>'
-								borderless="<%= true %>"
-								displayType="secondary"
-								href="<%= dlViewFileEntryDisplayContext.getRedirect() %>"
-								icon="angle-left"
-								monospaced="<%= true %>"
-								type="button"
-							/>
+							<c:if test="<%= showBackButton %>">
+								<clay:link
+									aria-label='<%= LanguageUtil.get(request, "back") %>'
+									borderless="<%= true %>"
+									displayType="secondary"
+									href="<%= dlViewFileEntryDisplayContext.getRedirect() %>"
+									icon="angle-left"
+									monospaced="<%= true %>"
+									type="button"
+								/>
+							</c:if>
 
 							<h3 class="mb-1 text-secondary"><%= dlViewFileEntryDisplayContext.getDocumentTitle() %></h3>
 						</li>
