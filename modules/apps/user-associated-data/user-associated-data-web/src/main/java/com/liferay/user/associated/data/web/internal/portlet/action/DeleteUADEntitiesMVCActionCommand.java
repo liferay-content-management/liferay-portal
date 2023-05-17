@@ -130,7 +130,7 @@ public class DeleteUADEntitiesMVCActionCommand extends BaseUADMVCActionCommand {
 		if (uadHierarchyDisplay != null) {
 			if (uadHierarchyDisplay.isUserOwned(entity, selectedUserId)) {
 				try {
-					entityUADAnonymizer.delete(entity);
+					entityUADAnonymizer.delete(entity, selectedUserId);
 				}
 				catch (Exception exception) {
 					ThemeDisplay themeDisplay =
@@ -186,7 +186,7 @@ public class DeleteUADEntitiesMVCActionCommand extends BaseUADMVCActionCommand {
 										containerItemPK);
 
 								containerItemUADAnonymizer.delete(
-									containerItem);
+									containerItem, selectedUserId);
 							}
 							catch (NoSuchModelException noSuchModelException) {
 								if (_log.isDebugEnabled()) {
@@ -198,7 +198,7 @@ public class DeleteUADEntitiesMVCActionCommand extends BaseUADMVCActionCommand {
 			}
 		}
 		else {
-			entityUADAnonymizer.delete(entity);
+			entityUADAnonymizer.delete(entity, selectedUserId);
 		}
 	}
 
