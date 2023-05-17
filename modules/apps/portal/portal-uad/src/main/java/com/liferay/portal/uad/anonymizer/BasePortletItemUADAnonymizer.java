@@ -57,8 +57,12 @@ public abstract class BasePortletItemUADAnonymizer
 	}
 
 	@Override
-	public void delete(PortletItem portletItem) throws PortalException {
-		portletItemLocalService.deletePortletItem(portletItem);
+	public void delete(PortletItem portletItem, long userId)
+		throws PortalException {
+
+		if (portletItem.getUserId() == userId) {
+			portletItemLocalService.deletePortletItem(portletItem);
+		}
 	}
 
 	@Override
