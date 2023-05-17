@@ -70,7 +70,7 @@ public class DeleteUADApplicationsMVCActionCommand
 
 				for (Object entity : entities) {
 					try {
-						uadAnonymizer.delete(entity);
+						uadAnonymizer.delete(entity, selectedUserId);
 					}
 					catch (NoSuchModelException noSuchModelException) {
 						if (_log.isDebugEnabled()) {
