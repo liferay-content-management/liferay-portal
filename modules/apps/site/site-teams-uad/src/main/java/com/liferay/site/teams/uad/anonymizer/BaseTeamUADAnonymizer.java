@@ -56,8 +56,10 @@ public abstract class BaseTeamUADAnonymizer
 	}
 
 	@Override
-	public void delete(Team team) throws PortalException {
-		teamLocalService.deleteTeam(team);
+	public void delete(Team team, long userId) throws PortalException {
+		if (team.getUserId() == userId) {
+			teamLocalService.deleteTeam(team);
+		}
 	}
 
 	@Override

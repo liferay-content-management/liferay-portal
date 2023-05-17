@@ -62,8 +62,12 @@ public abstract class BaseBookmarksEntryUADAnonymizer
 	}
 
 	@Override
-	public void delete(BookmarksEntry bookmarksEntry) throws PortalException {
-		bookmarksEntryLocalService.deleteEntry(bookmarksEntry);
+	public void delete(BookmarksEntry bookmarksEntry, long userId)
+		throws PortalException {
+
+		if (bookmarksEntry.getUserId() == userId) {
+			bookmarksEntryLocalService.deleteEntry(bookmarksEntry);
+		}
 	}
 
 	@Override

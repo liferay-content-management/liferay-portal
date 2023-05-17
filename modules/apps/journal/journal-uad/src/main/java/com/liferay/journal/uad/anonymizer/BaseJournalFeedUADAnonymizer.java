@@ -57,8 +57,12 @@ public abstract class BaseJournalFeedUADAnonymizer
 	}
 
 	@Override
-	public void delete(JournalFeed journalFeed) throws PortalException {
-		journalFeedLocalService.deleteFeed(journalFeed);
+	public void delete(JournalFeed journalFeed, long userId)
+		throws PortalException {
+
+		if (journalFeed.getUserId() == userId) {
+			journalFeedLocalService.deleteFeed(journalFeed);
+		}
 	}
 
 	@Override
