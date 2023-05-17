@@ -59,11 +59,14 @@ public abstract class BaseClientExtensionEntryRelUADAnonymizer
 	}
 
 	@Override
-	public void delete(ClientExtensionEntryRel clientExtensionEntryRel)
+	public void delete(
+			ClientExtensionEntryRel clientExtensionEntryRel, long userId)
 		throws PortalException {
 
-		clientExtensionEntryRelLocalService.deleteClientExtensionEntryRel(
-			clientExtensionEntryRel);
+		if (clientExtensionEntryRel.getUserId() == userId) {
+			clientExtensionEntryRelLocalService.deleteClientExtensionEntryRel(
+				clientExtensionEntryRel);
+		}
 	}
 
 	@Override

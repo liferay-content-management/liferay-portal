@@ -57,8 +57,10 @@ public abstract class BaseKaleoLogUADAnonymizer
 	}
 
 	@Override
-	public void delete(KaleoLog kaleoLog) throws PortalException {
-		kaleoLogLocalService.deleteKaleoLog(kaleoLog);
+	public void delete(KaleoLog kaleoLog, long userId) throws PortalException {
+		if (kaleoLog.getUserId() == userId) {
+			kaleoLogLocalService.deleteKaleoLog(kaleoLog);
+		}
 	}
 
 	@Override

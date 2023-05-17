@@ -59,11 +59,14 @@ public abstract class BaseDLOpenerFileEntryReferenceUADAnonymizer
 	}
 
 	@Override
-	public void delete(DLOpenerFileEntryReference dlOpenerFileEntryReference)
+	public void delete(
+			DLOpenerFileEntryReference dlOpenerFileEntryReference, long userId)
 		throws PortalException {
 
-		dlOpenerFileEntryReferenceLocalService.deleteDLOpenerFileEntryReference(
-			dlOpenerFileEntryReference);
+		if (dlOpenerFileEntryReference.getUserId() == userId) {
+			dlOpenerFileEntryReferenceLocalService.
+				deleteDLOpenerFileEntryReference(dlOpenerFileEntryReference);
+		}
 	}
 
 	@Override
