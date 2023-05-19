@@ -51,7 +51,7 @@ public class CopyFileShortcutMVCRenderCommand
 
 	@Override
 	protected String getPath() {
-		return "/document_library/copy_entry.jsp";
+		return "/document_library/copy_file_entry.jsp";
 	}
 
 	@Reference(
