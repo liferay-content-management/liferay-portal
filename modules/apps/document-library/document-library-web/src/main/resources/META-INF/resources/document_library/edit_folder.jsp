@@ -216,8 +216,8 @@ renderResponse.setTitle(dlEditFolderDisplayContext.getHeaderTitle());
 					<c:if test="<%= dlEditFolderDisplayContext.isSupportsPermissions() %>">
 						<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="permissions">
 							<liferay-ui:input-permissions
-								documentMedia="<%= true %>"
 								modelName="<%= DLFolderConstants.getClassName() %>"
+								permissionPropagationCheckboxLabel="set-permissions-for-documents-and-folders-uploaded-to-this-folder"
 							/>
 						</aui:fieldset>
 					</c:if>
