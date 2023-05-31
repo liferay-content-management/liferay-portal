@@ -66,6 +66,21 @@ public class MimeTypeSizeLimitUtilTest {
 	}
 
 	@Test
+	public void testParseValidMimeTypeNamePattern() {
+		char[] specialCharacters = patternSpecialCharacters.toCharArray();
+
+		for (char specialCharacter : specialCharacters) {
+			String specialCharacterMimeType =
+				"image/png" + specialCharacter + "xml";
+
+			MimeTypeSizeLimitUtil.parseMimeTypeSizeLimit(
+				specialCharacterMimeType + ":12345",
+				(mimeType, sizeLimit) -> Assert.assertEquals(
+					specialCharacterMimeType, mimeType));
+		}
+	}
+
+	@Test
 	public void testParseValidMimeTypeSizeLimitTest() {
 		MimeTypeSizeLimitUtil.parseMimeTypeSizeLimit(
 			"  image/png  :  12345  ",
@@ -81,5 +96,7 @@ public class MimeTypeSizeLimitUtilTest {
 			"type/*:12345",
 			(mimeType, sizeLimit) -> Assert.assertEquals("type/*", mimeType));
 	}
+
+	private static final String patternSpecialCharacters = "$!#&.,;=^_+-";
 
 }
