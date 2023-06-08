@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.url.URLBuilder;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -45,6 +46,7 @@ import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Adolfo Pérez
+ * @author Roberto Díaz
  */
 @Component(
 	configurationPid = "com.liferay.translation.translator.azure.internal.configuration.AzureTranslatorConfiguration",
@@ -54,22 +56,32 @@ public class AzureTranslator implements Translator {
 
 	@Override
 	public boolean isEnabled(long companyId) throws ConfigurationException {
-		return _azureTranslatorConfiguration.enabled();
+		AzureTranslatorConfiguration azureTranslatorConfiguration =
+			_getAzureTranslatorConfiguration(companyId);
+
+		return azureTranslatorConfiguration.enabled();
 	}
 
 	@Override
 	public TranslatorPacket translate(TranslatorPacket translatorPacket)
 		throws PortalException {
 
+		AzureTranslatorConfiguration azureTranslatorConfiguration =
+			_getAzureTranslatorConfiguration(translatorPacket.getCompanyId());
+
+		if (!azureTranslatorConfiguration.enabled()) {
+			return translatorPacket;
+		}
+
 		try {
 			Http.Options options = new Http.Options();
 
 			options.addHeader(
 				"Ocp-Apim-Subscription-Key",
-				_azureTranslatorConfiguration.subscriptionKey());
+				azureTranslatorConfiguration.subscriptionKey());
 			options.addHeader(
 				"Ocp-Apim-Subscription-Region",
-				_azureTranslatorConfiguration.resourceLocation());
+				azureTranslatorConfiguration.resourceLocation());
 			options.addHeader(
 				HttpHeaders.CONTENT_TYPE, ContentTypes.APPLICATION_JSON);
 			options.setBody(
@@ -134,8 +146,24 @@ public class AzureTranslator implements Translator {
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
-		_azureTranslatorConfiguration = ConfigurableUtil.createConfigurable(
-			AzureTranslatorConfiguration.class, properties);
+		_systemAzureTranslatorConfiguration =
+			ConfigurableUtil.createConfigurable(
+				AzureTranslatorConfiguration.class, properties);
+	}
+
+	private AzureTranslatorConfiguration _getAzureTranslatorConfiguration(
+			long companyId)
+		throws ConfigurationException {
+
+		AzureTranslatorConfiguration azureTranslatorConfiguration =
+			_configurationProvider.getCompanyConfiguration(
+				AzureTranslatorConfiguration.class, companyId);
+
+		if (azureTranslatorConfiguration.enabled()) {
+			return azureTranslatorConfiguration;
+		}
+
+		return _systemAzureTranslatorConfiguration;
 	}
 
 	private String _getLanguageCode(String languageId) {
@@ -182,12 +210,16 @@ public class AzureTranslator implements Translator {
 		return jsonArray.toString();
 	}
 
-	private volatile AzureTranslatorConfiguration _azureTranslatorConfiguration;
+	@Reference
+	private ConfigurationProvider _configurationProvider;
 
 	@Reference
 	private Http _http;
 
 	@Reference
 	private JSONFactory _jsonFactory;
+
+	private volatile AzureTranslatorConfiguration
+		_systemAzureTranslatorConfiguration;
 
 }
