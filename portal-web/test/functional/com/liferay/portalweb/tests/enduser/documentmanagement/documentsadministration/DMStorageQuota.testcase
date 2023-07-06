@@ -29,7 +29,7 @@ definition {
 
 	@description = "This ensures that users can not upload files that exceed the storage quota through the multiple upload."
 	@priority = 5
-	@refactorneeded
+	@refactordone
 	test ExceedStorageQuotaMultipleUpload {
 		property custom.properties = "data.limit.dl.storage.max.size=1048576${line.separator}dl.actions.visible=true";
 
@@ -71,7 +71,7 @@ definition {
 
 	@description = "This ensures that users can not upload a file that exceed the storage quota through the single upload."
 	@priority = 5
-	@refactorneeded
+	@refactordone
 	test ExceedStorageQuotaSingleUpload {
 		property custom.properties = "data.limit.dl.storage.max.size=1048576";
 
