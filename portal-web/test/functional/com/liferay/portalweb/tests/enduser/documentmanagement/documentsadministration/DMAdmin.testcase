@@ -234,33 +234,10 @@ definition {
 			dmFolderName = "DM Folder Name",
 			groupName = "Site Name");
 
-		for (var documentName : list "Document_2.doc,Document_1.xls,Document_4.jpg,Document_3.jpg,Document_2.xls,Document_1.txt,Document_4.txt,Document_3.xls,Document_2.jpg,Document_1.doc") {
-			var extension = StringUtil.extractLast(${documentName}, ".");
-
-			if (${extension} == "doc") {
-				var mimeType = "application/msword";
-			}
-			else if (${extension} == "jpg") {
-				var mimeType = "image/jpg";
-			}
-			else if (${extension} == "png") {
-				var mimeType = "image/png";
-			}
-			else if (${extension} == "xls") {
-				var mimeType = "application/vnd.ms-excel";
-			}
-			else if (${extension} == "txt") {
-				var mimeType = "text/plain";
-			}
-
-			JSONDocument.addFileWithUploadedFile(
-				dmDocumentDescription = "DM Document Description",
-				dmDocumentTitle = ${documentName},
-				folderName = "DM Folder Name",
-				groupName = "Site Name",
-				mimeType = ${mimeType},
-				sourceFileName = ${documentName});
-		}
+		JSONDocument.addMultipleFilesWithUploadedFile(
+			documentFileNames = "Document_2.doc,Document_1.xls,Document_4.jpg,Document_3.jpg,Document_2.xls,Document_1.txt,Document_4.txt,Document_3.xls,Document_2.jpg,Document_1.doc",
+			folderName = "DM Folder Name",
+			groupName = "Site Name");
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");
 
@@ -290,7 +267,7 @@ definition {
 
 		Pagination.viewResults(results = "Showing 1 to 4 of 11 entries.");
 
-		DMDocument.checkDocumentCheckboxPG(dmDocumentTitle = "Document_2.jpg");
+		DMDocument.checkDocumentCheckboxPG(dmDocumentTitle = "DM Document Title8");
 
 		AssertTextEquals.assertPartialText(
 			locator1 = "ManagementBar#NAVBAR_TEXT",
