@@ -238,7 +238,7 @@ definition {
 					name = ${sourceParentFolderName});
 			}
 			else {
-				var sourceParentFolderId = 0;
+				var sourceParentFolderId = 10;
 			}
 
 			var sourceFolderId = JSONDocumentAPI._getFolderIdByFolderName(
