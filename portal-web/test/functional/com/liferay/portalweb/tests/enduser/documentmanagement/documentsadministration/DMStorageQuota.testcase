@@ -30,7 +30,7 @@ definition {
 	@description = "This ensures that users can not upload files that exceed the storage quota through the multiple upload."
 	@priority = 5
 	@refactordone
-	test ExceedStorageQuotaMultipleUpload {
+	test CannotExceedStorageQuotaWhenUsingMultipleUpload {
 		property custom.properties = "data.limit.dl.storage.max.size=1048576${line.separator}dl.actions.visible=true";
 
 		JSONLayout.addPublicLayout(
@@ -72,7 +72,7 @@ definition {
 	@description = "This ensures that users can not upload a file that exceed the storage quota through the single upload."
 	@priority = 5
 	@refactordone
-	test ExceedStorageQuotaSingleUpload {
+	test CannotExceedStorageQuotaWhenUsingSingleUpload {
 		property custom.properties = "data.limit.dl.storage.max.size=1048576";
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
