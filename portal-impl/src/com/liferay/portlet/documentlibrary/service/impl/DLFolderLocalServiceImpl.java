@@ -57,6 +57,7 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.PermissionPropagationEntryLocalService;
 import com.liferay.portal.kernel.service.RepositoryLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -138,6 +139,14 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		dlFolder.setExpandoBridgeAttributes(serviceContext);
 
 		dlFolder = dlFolderPersistence.update(dlFolder);
+
+		// Permission Propagation
+
+		_permissionPropagationEntryLocalService.addPermissionPropagationEntry(
+			user.getCompanyId(), groupId, DLFolder.class.getName(),
+			dlFolder.getFolderId(),
+			ParamUtil.getBoolean(
+				serviceContext, "permissionPropagationEnabled"));
 
 		// Resources
 
@@ -1444,6 +1453,10 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 	@BeanReference(type = GroupLocalService.class)
 	private GroupLocalService _groupLocalService;
+
+	@BeanReference(type = PermissionPropagationEntryLocalService.class)
+	private PermissionPropagationEntryLocalService
+		_permissionPropagationEntryLocalService;
 
 	@BeanReference(type = RatingsStatsLocalService.class)
 	private RatingsStatsLocalService _ratingsStatsLocalService;
