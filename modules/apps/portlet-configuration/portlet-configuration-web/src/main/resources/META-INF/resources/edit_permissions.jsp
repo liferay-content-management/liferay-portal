@@ -24,6 +24,8 @@ if (Validator.isNotNull(portletConfigurationPermissionsDisplayContext.getModelRe
 	PortalUtil.addPortletBreadcrumbEntry(request, HtmlUtil.unescape(portletConfigurationPermissionsDisplayContext.getSelResourceDescription()), null);
 	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "permissions"), currentURL);
 }
+
+PortletConfigurationPermissionPropagation portletConfigurationPermissionPropagation = portletConfigurationPermissionsDisplayContext.getPortletConfigurationPermissionPropagation();
 %>
 
 <div class="cadmin edit-permissions portlet-configuration-edit-permissions">
@@ -218,19 +220,33 @@ if (Validator.isNotNull(portletConfigurationPermissionsDisplayContext.getModelRe
 		</aui:form>
 	</div>
 
-	<aui:button-row>
-		<clay:button
-			id='<%= liferayPortletResponse.getNamespace() + "saveButton" %>'
-			label="save"
-			type="submit"
-		/>
+	<div class="bg-white fixed-bottom modal-footer">
+		<c:if test="<%= (portletConfigurationPermissionPropagation != null) && portletConfigurationPermissionPropagation.isShow(renderRequest) %>">
+			<div class="modal-item-first">
+				<aui:input autoSize="<%= true %>" checked="<%= portletConfigurationPermissionPropagation.getPermissionPropagation(renderRequest) %>" cssClass="autofit-col" label="<%= portletConfigurationPermissionPropagation.getMessage() %>" labelCssClass="align-items-center d-flex font-weight-normal" name="permissionPropagationEnabled" type="checkbox" wrapperCssClass="mb-0" />
+			</div>
+		</c:if>
 
-		<clay:button
-			cssClass="btn-cancel"
-			displayType="secondary"
-			label="cancel"
-		/>
-	</aui:button-row>
+		<div class="modal-item-last">
+			<div class="btn-group">
+				<div class="btn-group-item">
+					<clay:button
+						id='<%= liferayPortletResponse.getNamespace() + "saveButton" %>'
+						label="save"
+						type="submit"
+					/>
+				</div>
+
+				<div class="btn-group-item">
+					<clay:button
+						cssClass="btn-cancel"
+						displayType="secondary"
+						label="cancel"
+					/>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <aui:script>
