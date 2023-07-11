@@ -201,6 +201,10 @@ public interface PermissionPropagationEntryLocalService
 		long permissionPropagationEntryId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public PermissionPropagationEntry fetchPermissionPropagationEntry(
+		long companyId, long groupId, String className, long classPK);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)

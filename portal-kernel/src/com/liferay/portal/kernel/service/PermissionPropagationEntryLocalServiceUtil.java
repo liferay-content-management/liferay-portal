@@ -214,6 +214,13 @@ public class PermissionPropagationEntryLocalServiceUtil {
 			permissionPropagationEntryId);
 	}
 
+	public static PermissionPropagationEntry fetchPermissionPropagationEntry(
+		long companyId, long groupId, String className, long classPK) {
+
+		return getService().fetchPermissionPropagationEntry(
+			companyId, groupId, className, classPK);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 

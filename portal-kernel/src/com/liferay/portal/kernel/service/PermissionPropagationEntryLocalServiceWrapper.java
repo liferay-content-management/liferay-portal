@@ -241,6 +241,15 @@ public class PermissionPropagationEntryLocalServiceWrapper
 	}
 
 	@Override
+	public PermissionPropagationEntry fetchPermissionPropagationEntry(
+		long companyId, long groupId, String className, long classPK) {
+
+		return _permissionPropagationEntryLocalService.
+			fetchPermissionPropagationEntry(
+				companyId, groupId, className, classPK);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
