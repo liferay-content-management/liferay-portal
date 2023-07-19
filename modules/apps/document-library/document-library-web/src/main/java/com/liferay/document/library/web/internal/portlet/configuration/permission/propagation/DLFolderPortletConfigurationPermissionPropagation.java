@@ -41,6 +41,12 @@ public class DLFolderPortletConfigurationPermissionPropagation
 	extends BasePortletConfigurationPermissionPropagation {
 
 	@Override
+	public String getAlertMessage() {
+		return "changes-will-be-applied-to-new-documents-and-folder-uploaded-" +
+			"into-it";
+	}
+
+	@Override
 	public String getMessage() {
 		return "set-permissions-for-documents-and-folders-uploaded-to-this-" +
 			"folder";
