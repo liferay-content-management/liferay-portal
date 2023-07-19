@@ -38,6 +38,26 @@ PortletConfigurationPermissionPropagation portletConfigurationPermissionPropagat
 			selectable="<%= false %>"
 		/>
 
+		<c:if test="<%= (portletConfigurationPermissionPropagation != null) && portletConfigurationPermissionPropagation.isAvailable(renderRequest) %>">
+			<clay:alert
+				cssClass="hide"
+				displayType="info"
+				id='<%= liferayPortletResponse.getNamespace() + "alertMessage" %>'
+			>
+				<div class="d-inline-flex">
+					<liferay-ui:message key="<%= portletConfigurationPermissionPropagation.getAlertMessage() %>" />
+				</div>
+
+				<clay:link
+					cssClass="float-right font-weight-semi-bold text-4 text-nowrap text-primary"
+					displayType="unstyled"
+					href="<%= portletConfigurationPermissionsDisplayContext.getClearResultsURL() %>"
+					label="undo"
+					type="button"
+				/>
+			</clay:alert>
+		</c:if>
+
 		<aui:form action="<%= portletConfigurationPermissionsDisplayContext.getUpdateRolePermissionsURL() %>" cssClass="container-fluid container-fluid-max-xl" method="post" name="fm">
 			<liferay-ui:search-container
 				searchContainer="<%= roleSearchContainer %>"
@@ -253,6 +273,36 @@ PortletConfigurationPermissionPropagation portletConfigurationPermissionPropagat
 	var <portlet:namespace />saveButton = document.getElementById(
 		'<portlet:namespace />saveButton'
 	);
+
+	var <portlet:namespace />permissionPropagationEnabledCheckbox = document.getElementById(
+		'<portlet:namespace />permissionPropagationEnabled'
+	);
+
+	if (<portlet:namespace />permissionPropagationEnabledCheckbox) {
+		var alertMessage = document.getElementById(
+			'<portlet:namespace />alertMessage'
+		);
+
+		if (<portlet:namespace />alertMessage) {
+			const initialPermissionPropagationEnabled =
+				<portlet:namespace />permissionPropagationEnabledCheckbox.checked;
+
+			<portlet:namespace />permissionPropagationEnabledCheckbox.addEventListener(
+				'click',
+				(event) => {
+					if (
+						initialPermissionPropagationEnabled ||
+						event.target.checked
+					) {
+						alertMessage.classList.remove('hide');
+					}
+					else {
+						alertMessage.classList.add('hide');
+					}
+				}
+			);
+		}
+	}
 
 	if (<portlet:namespace />saveButton) {
 		<portlet:namespace />saveButton.addEventListener('click', (event) => {

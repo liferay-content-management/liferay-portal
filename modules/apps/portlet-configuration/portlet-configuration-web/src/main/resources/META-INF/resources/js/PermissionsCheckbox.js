@@ -38,6 +38,23 @@ export default function PermissionsCheckbox({
 					setIndeterminate(false);
 					setValue('');
 				}
+
+				const permissionPropagationEnabledCheckbox = document.getElementById(
+					_portletNamespace + 'permissionPropagationEnabled'
+				);
+
+				if (permissionPropagationEnabledCheckbox) {
+					const alertMessage = document.getElementById(
+						_portletNamespace + 'alertMessage'
+					);
+
+					if (
+						alertMessage.classList.contains('hide') &&
+						permissionPropagationEnabledCheckbox.checked
+					) {
+						alertMessage.classList.remove('hide');
+					}
+				}
 			}}
 			value={value}
 			{...otherProps}
