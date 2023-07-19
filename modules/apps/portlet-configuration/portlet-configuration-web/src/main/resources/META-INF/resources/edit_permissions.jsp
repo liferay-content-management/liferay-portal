@@ -237,35 +237,35 @@ PortletConfigurationPermissionPropagation portletConfigurationPermissionPropagat
 					markupView="lexicon"
 				/>
 			</liferay-ui:search-container>
+
+			<div class="bg-white fixed-bottom modal-footer">
+				<c:if test="<%= (portletConfigurationPermissionPropagation != null) && portletConfigurationPermissionPropagation.isShow(renderRequest) %>">
+					<div class="modal-item-first">
+						<aui:input autoSize="<%= true %>" checked="<%= portletConfigurationPermissionPropagation.getPermissionPropagation(renderRequest) %>" cssClass="autofit-col" label="<%= portletConfigurationPermissionPropagation.getMessage() %>" labelCssClass="align-items-center d-flex font-weight-normal" name="permissionPropagationEnabled" type="checkbox" wrapperCssClass="mb-0" />
+					</div>
+				</c:if>
+
+				<div class="modal-item-last">
+					<div class="btn-group">
+						<div class="btn-group-item">
+							<clay:button
+								id='<%= liferayPortletResponse.getNamespace() + "saveButton" %>'
+								label="save"
+								type="submit"
+							/>
+						</div>
+
+						<div class="btn-group-item">
+							<clay:button
+								cssClass="btn-cancel"
+								displayType="secondary"
+								label="cancel"
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
 		</aui:form>
-	</div>
-
-	<div class="bg-white fixed-bottom modal-footer">
-		<c:if test="<%= (portletConfigurationPermissionPropagation != null) && portletConfigurationPermissionPropagation.isShow(renderRequest) %>">
-			<div class="modal-item-first">
-				<aui:input autoSize="<%= true %>" checked="<%= portletConfigurationPermissionPropagation.getPermissionPropagation(renderRequest) %>" cssClass="autofit-col" label="<%= portletConfigurationPermissionPropagation.getMessage() %>" labelCssClass="align-items-center d-flex font-weight-normal" name="permissionPropagationEnabled" type="checkbox" wrapperCssClass="mb-0" />
-			</div>
-		</c:if>
-
-		<div class="modal-item-last">
-			<div class="btn-group">
-				<div class="btn-group-item">
-					<clay:button
-						id='<%= liferayPortletResponse.getNamespace() + "saveButton" %>'
-						label="save"
-						type="submit"
-					/>
-				</div>
-
-				<div class="btn-group-item">
-					<clay:button
-						cssClass="btn-cancel"
-						displayType="secondary"
-						label="cancel"
-					/>
-				</div>
-			</div>
-		</div>
 	</div>
 </div>
 
