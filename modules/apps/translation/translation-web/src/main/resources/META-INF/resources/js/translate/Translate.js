@@ -36,11 +36,14 @@ const getInfoFields = (infoFieldSetEntries = []) => {
 	const targetFields = {};
 
 	infoFieldSetEntries.forEach(({fields}) => {
-		fields.forEach(({id: idSet, sourceContent, targetContent}) => {
+		fields.forEach(({html, id: idSet, sourceContent, targetContent}) => {
 			sourceContent.forEach((content, index) => {
 				const id = `${idSet}${index}`;
 
-				sourceFields[id] = content;
+				sourceFields[id] = {
+					content,
+					html,
+				};
 				targetFields[id] = {
 					content: targetContent[index],
 					message: '',
@@ -163,7 +166,12 @@ const Translate = ({
 	const fetchAutoTranslation = ({fields}) =>
 		fetch(getAutoTranslateURL, {
 			body: JSON.stringify({
-				fields,
+				fields: Object.fromEntries(
+					Object.entries(fields).map((a) => [a[0], a[1].content])
+				),
+				html: Object.fromEntries(
+					Object.entries(fields).map((a) => [a[0], a[1].html])
+				),
 				sourceLanguageId,
 				targetLanguageId,
 			}),
@@ -179,7 +187,7 @@ const Translate = ({
 		});
 
 		fetchAutoTranslation({fields: sourceFields})
-			.then(({error, fields}) => {
+			.then(({error, fields, html}) => {
 				if (error) {
 					throw error;
 				}
@@ -188,8 +196,18 @@ const Translate = ({
 					dispatch({
 						payload: Object.entries(fields).reduce(
 							(acc, [id, content]) => {
+								let contentData;
+								if (
+									html &&
+									sourceFields[id].html === html[id]
+								) {
+									contentData = content;
+								}
+								else {
+									contentData = unescapeHTML(content);
+								}
 								acc[id] = {
-									content: unescapeHTML(content),
+									content: contentData,
 								};
 
 								return acc;
@@ -238,7 +256,15 @@ const Translate = ({
 		fetchAutoTranslation({
 			fields: {[fieldId]: sourceFields[fieldId]},
 		})
-			.then(({error, fields}) => {
+			.then(({error, fields, html}) => {
+				let contentData;
+				if (html && sourceFields[fieldId].html === html[fieldId]) {
+					contentData = fields[fieldId];
+				}
+				else {
+					contentData = unescapeHTML(fields[fieldId]);
+				}
+
 				if (error) {
 					throw error;
 				}
@@ -247,7 +273,7 @@ const Translate = ({
 					dispatch({
 						payload: {
 							field: {
-								content: unescapeHTML(fields[fieldId]),
+								content: contentData,
 								message: Liferay.Language.get(
 									'field-translated'
 								),
