@@ -110,6 +110,8 @@ public interface ImageTool {
 	public Image getImage(InputStream inputStream, boolean cleanUpStream)
 		throws ImageResolutionException, IOException;
 
+	public int getScaledHeight(RenderedImage renderedImage, int width);
+
 	public boolean isNullOrDefaultSpacer(byte[] bytes);
 
 	public ImageBag read(byte[] bytes)

@@ -496,6 +496,17 @@ public class ImageToolImpl implements ImageTool {
 	}
 
 	@Override
+	public int getScaledHeight(RenderedImage renderedImage, int width) {
+		int imageHeight = renderedImage.getHeight();
+
+		int imageWidth = renderedImage.getWidth();
+
+		double factor = width / imageWidth;
+
+		return (int)Math.round(factor * imageHeight);
+	}
+
+	@Override
 	public boolean isNullOrDefaultSpacer(byte[] bytes) {
 		if (ArrayUtil.isEmpty(bytes) ||
 			Arrays.equals(bytes, getDefaultSpacer().getTextObj())) {
@@ -660,17 +671,9 @@ public class ImageToolImpl implements ImageTool {
 			return renderedImage;
 		}
 
-		int imageHeight = renderedImage.getHeight();
+		int scaledHeight = getScaledHeight(renderedImage, width);
 
-		int imageWidth = renderedImage.getWidth();
-
-		double factor = (double)width / imageWidth;
-
-		int scaledHeight = (int)Math.round(factor * imageHeight);
-
-		int scaledWidth = width;
-
-		return doScale(renderedImage, scaledHeight, scaledWidth);
+		return doScale(renderedImage, scaledHeight, width);
 	}
 
 	@Override

@@ -189,6 +189,10 @@ public class ImageToolUtil {
 		return _imageTool;
 	}
 
+	public static int getScaledHeight(RenderedImage renderedImage, int width) {
+		return _imageTool.getScaledHeight(renderedImage, width);
+	}
+
 	public static boolean isNullOrDefaultSpacer(byte[] bytes) {
 		return _imageTool.isNullOrDefaultSpacer(bytes);
 	}
