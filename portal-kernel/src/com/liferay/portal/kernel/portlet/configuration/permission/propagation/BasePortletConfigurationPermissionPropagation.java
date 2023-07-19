@@ -59,6 +59,10 @@ public abstract class BasePortletConfigurationPermissionPropagation
 	public void updatePermissionPropagation(
 		ActionRequest actionRequest, ActionResponse actionResponse) {
 
+		if (!isAvailable(actionRequest)) {
+			return;
+		}
+
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 

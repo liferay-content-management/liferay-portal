@@ -32,6 +32,8 @@ import com.liferay.portal.kernel.portlet.PortletLayoutListener;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletQNameUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.portlet.configuration.permission.propagation.PortletConfigurationPermissionPropagation;
+import com.liferay.portal.kernel.portlet.configuration.permission.propagation.PortletConfigurationPermissionPropagationTracker;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.propagator.PermissionPropagator;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -597,6 +599,17 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 				permissionPropagator.propagateRolePermissions(
 					actionRequest, modelResource, resourcePrimKey, roleIds);
 			}
+		}
+
+		PortletConfigurationPermissionPropagation
+			portletConfigurationPermissionPropagation =
+				PortletConfigurationPermissionPropagationTracker.
+					getPortletConfigurationPermissionPropagation(
+						portletResource);
+
+		if (portletConfigurationPermissionPropagation != null) {
+			portletConfigurationPermissionPropagation.
+				updatePermissionPropagation(actionRequest, actionResponse);
 		}
 
 		if (Validator.isNull(modelResource)) {
