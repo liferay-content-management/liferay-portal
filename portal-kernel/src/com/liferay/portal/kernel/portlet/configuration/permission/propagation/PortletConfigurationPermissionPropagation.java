@@ -14,6 +14,8 @@ import javax.portlet.PortletRequest;
  */
 public interface PortletConfigurationPermissionPropagation {
 
+	public String getAlertMessage();
+
 	public String getMessage();
 
 	public boolean getPermissionPropagation(PortletRequest portletRequest);
