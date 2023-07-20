@@ -35,6 +35,13 @@ public class PermissionPropagationEntryLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.portal.service.impl.PermissionPropagationEntryLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static PermissionPropagationEntry addPermissionPropagationEntry(
+		long companyId, long groupId, String className, long classPK,
+		boolean propagation) {
+
+		return getService().addPermissionPropagationEntry(
+			companyId, groupId, className, classPK, propagation);
+	}
 
 	/**
 	 * Adds the permission propagation entry to the database. Also notifies the appropriate model listeners.
