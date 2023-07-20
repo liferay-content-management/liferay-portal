@@ -263,6 +263,10 @@ public interface PermissionPropagationEntryLocalService
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
+	public PermissionPropagationEntry updatePermissionPropagationEntry(
+		long companyId, long groupId, String className, long classPK,
+		boolean propagation);
+
 	/**
 	 * Updates the permission propagation entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *

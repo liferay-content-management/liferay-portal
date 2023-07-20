@@ -344,6 +344,16 @@ public class PermissionPropagationEntryLocalServiceWrapper
 			primaryKeyObj);
 	}
 
+	@Override
+	public PermissionPropagationEntry updatePermissionPropagationEntry(
+		long companyId, long groupId, String className, long classPK,
+		boolean propagation) {
+
+		return _permissionPropagationEntryLocalService.
+			updatePermissionPropagationEntry(
+				companyId, groupId, className, classPK, propagation);
+	}
+
 	/**
 	 * Updates the permission propagation entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
