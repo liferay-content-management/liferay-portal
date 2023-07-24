@@ -132,6 +132,7 @@ if (editKBArticleDisplayContext.isPortletTitleBasedNavigation()) {
 					<liferay-frontend:fieldset
 						collapsed="<%= true %>"
 						collapsible="<%= true %>"
+						cssClass="panel-unstyled mb-3"
 						label="display-page"
 					>
 						<liferay-asset:select-asset-display-page
@@ -158,6 +159,7 @@ if (editKBArticleDisplayContext.isPortletTitleBasedNavigation()) {
 					<liferay-frontend:fieldset
 						collapsed="<%= true %>"
 						collapsible="<%= true %>"
+						cssClass="panel-unstyled"
 						label="expiration-date"
 					>
 						<aui:model-context bean="<%= editKBArticleDisplayContext.getKBArticle() %>" model="<%= KBArticle.class %>" />
