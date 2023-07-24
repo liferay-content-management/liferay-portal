@@ -239,7 +239,7 @@ PortletConfigurationPermissionPropagation portletConfigurationPermissionPropagat
 			</liferay-ui:search-container>
 
 			<div class="bg-white fixed-bottom modal-footer">
-				<c:if test="<%= (portletConfigurationPermissionPropagation != null) && portletConfigurationPermissionPropagation.isShow(renderRequest) %>">
+				<c:if test="<%= (portletConfigurationPermissionPropagation != null) && portletConfigurationPermissionPropagation.isAvailable(renderRequest) %>">
 					<div class="modal-item-first">
 						<aui:input autoSize="<%= true %>" checked="<%= portletConfigurationPermissionPropagation.getPermissionPropagation(renderRequest) %>" cssClass="autofit-col" label="<%= portletConfigurationPermissionPropagation.getMessage() %>" labelCssClass="align-items-center d-flex font-weight-normal" name="permissionPropagationEnabled" type="checkbox" wrapperCssClass="mb-0" />
 					</div>

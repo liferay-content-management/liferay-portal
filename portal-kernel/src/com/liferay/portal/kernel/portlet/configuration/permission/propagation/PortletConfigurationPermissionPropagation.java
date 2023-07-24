@@ -20,7 +20,7 @@ public interface PortletConfigurationPermissionPropagation {
 
 	public boolean getPermissionPropagation(PortletRequest portletRequest);
 
-	public boolean isShow(PortletRequest portletRequest);
+	public boolean isAvailable(PortletRequest portletRequest);
 
 	public void updatePermissionPropagation(
 		ActionRequest actionRequest, ActionResponse actionResponse);
