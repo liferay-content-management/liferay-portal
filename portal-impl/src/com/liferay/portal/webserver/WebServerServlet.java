@@ -1688,8 +1688,7 @@ public class WebServerServlet extends HttpServlet {
 		HttpServletResponse httpServletResponse, User user) {
 
 		return () -> {
-			String path = HttpComponentsUtil.fixPath(
-				httpServletRequest.getPathInfo());
+			String path = _getRawPathInfo(httpServletRequest);
 
 			String[] pathArray = StringUtil.split(path, CharPool.SLASH);
 
