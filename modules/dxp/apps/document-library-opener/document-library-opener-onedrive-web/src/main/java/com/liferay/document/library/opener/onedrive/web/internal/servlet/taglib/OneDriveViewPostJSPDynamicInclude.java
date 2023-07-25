@@ -39,6 +39,9 @@ public class OneDriveViewPostJSPDynamicInclude extends BaseJSPDynamicInclude {
 	public void register(DynamicIncludeRegistry dynamicIncludeRegistry) {
 		dynamicIncludeRegistry.register(
 			"com.liferay.document.library.web#/document_library/view.jsp#post");
+		dynamicIncludeRegistry.register(
+			"com.liferay.document.library.web#/document_library" +
+				"/view_file_entry.jsp#post");
 	}
 
 	@Override
