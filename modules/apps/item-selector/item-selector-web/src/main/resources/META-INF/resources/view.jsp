@@ -51,11 +51,6 @@ List<NavigationItem> navigationItems = localizedItemSelectorRendering.getNavigat
 						<liferay-util:include page="/view_item_selector.jsp" servletContext="<%= application %>" />
 					</c:when>
 					<c:otherwise>
-
-						<%
-						NavigationItem activeNavigationItem = null;
-						%>
-
 						<clay:container-fluid
 							cssClass="container-view"
 						>
@@ -74,6 +69,11 @@ List<NavigationItem> navigationItems = localizedItemSelectorRendering.getNavigat
 									<clay:sheet
 										size="full"
 									>
+
+										<%
+										NavigationItem activeNavigationItem = localizedItemSelectorRendering.getActiveNavigationItem();
+										%>
+
 										<c:if test="<%= activeNavigationItem != null %>">
 											<h2 class="sheet-title">
 												<clay:content-row
