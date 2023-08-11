@@ -41,6 +41,7 @@ import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.lock.LockManagerUtil;
 import com.liferay.portal.kernel.lock.NoSuchLockException;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.PermissionPropagationEntry;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -55,11 +56,14 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PermissionPropagationEntryLocalService;
 import com.liferay.portal.kernel.service.RepositoryLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.WebDAVPropsLocalService;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
@@ -74,11 +78,13 @@ import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFolder;
 import com.liferay.portal.util.RepositoryUtil;
+import com.liferay.portlet.documentlibrary.constants.DLConstants;
 import com.liferay.portlet.documentlibrary.lar.FileEntryUtil;
 import com.liferay.portlet.documentlibrary.model.impl.DLFolderImpl;
 import com.liferay.portlet.documentlibrary.service.base.DLFolderLocalServiceBaseImpl;
@@ -150,20 +156,26 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 		// Resources
 
-		if (serviceContext.isAddGroupPermissions() ||
-			serviceContext.isAddGuestPermissions()) {
-
-			addFolderResources(
-				dlFolder, serviceContext.isAddGroupPermissions(),
-				serviceContext.isAddGuestPermissions());
+		if (_hasInheritablePermissions(dlFolder)) {
+			_inheritRolesPermissions(dlFolder);
 		}
 		else {
-			if (serviceContext.isDeriveDefaultPermissions()) {
-				serviceContext.deriveDefaultPermissions(
-					repositoryId, DLFolderConstants.getClassName());
-			}
+			if (serviceContext.isAddGroupPermissions() ||
+				serviceContext.isAddGuestPermissions()) {
 
-			addFolderResources(dlFolder, serviceContext.getModelPermissions());
+				addFolderResources(
+					dlFolder, serviceContext.isAddGroupPermissions(),
+					serviceContext.isAddGuestPermissions());
+			}
+			else {
+				if (serviceContext.isDeriveDefaultPermissions()) {
+					serviceContext.deriveDefaultPermissions(
+						repositoryId, DLFolderConstants.getClassName());
+				}
+
+				addFolderResources(
+					dlFolder, serviceContext.getModelPermissions());
+			}
 		}
 
 		// Parent folder
@@ -1425,6 +1437,83 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		}
 	}
 
+	private boolean _hasInheritablePermissions(DLFolder dlFolder) {
+		long parentFolderId = dlFolder.getParentFolderId();
+
+		if (parentFolderId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			int count =
+				_resourcePermissionLocalService.getResourcePermissionsCount(
+					dlFolder.getCompanyId(), DLConstants.SERVICE_NAME,
+					ResourceConstants.SCOPE_INDIVIDUAL,
+					String.valueOf(dlFolder.getGroupId()));
+
+			if (count == 0) {
+				return false;
+			}
+
+			parentFolderId = dlFolder.getGroupId();
+		}
+
+		// TODO Update the check permission in here
+
+		PermissionPropagationEntry permissionPropagationEntry =
+			_permissionPropagationEntryLocalService.
+				fetchPermissionPropagationEntry(
+					dlFolder.getCompanyId(), dlFolder.getGroupId(),
+					DLFolderConstants.getClassName(), parentFolderId);
+
+		if (permissionPropagationEntry == null) {
+			return false;
+		}
+
+		return permissionPropagationEntry.isPropagation();
+	}
+
+	private void _inheritRolesPermissions(DLFolder dlFolder)
+		throws PortalException {
+
+		long companyId = dlFolder.getCompanyId();
+
+		long parentFolderId = dlFolder.getParentFolderId();
+
+		String parentClassName = DLFolderConstants.getClassName();
+		Set<String> dlFolderActionIds = SetUtil.fromCollection(
+			ResourceActionsUtil.getModelResourceActions(
+				DLFolderConstants.getClassName()));
+
+		if (parentFolderId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			parentClassName = DLConstants.RESOURCE_NAME;
+			parentFolderId = dlFolder.getGroupId();
+
+			dlFolderActionIds.add(ActionKeys.ADD_FOLDER);
+		}
+
+		Map<Long, Set<String>> roleIdsToActionIds =
+			_resourcePermissionLocalService.
+				getAvailableResourcePermissionActionIds(
+					companyId, parentClassName,
+					ResourceConstants.SCOPE_INDIVIDUAL,
+					String.valueOf(parentFolderId), dlFolderActionIds);
+
+		for (Map.Entry<Long, Set<String>> roleIdsToActionIdsEntry :
+				roleIdsToActionIds.entrySet()) {
+
+			Set<String> actionIds = roleIdsToActionIdsEntry.getValue();
+
+			if (actionIds.contains(ActionKeys.ADD_FOLDER)) {
+				actionIds.remove(ActionKeys.ADD_FOLDER);
+				actionIds.add(ActionKeys.ADD_SUBFOLDER);
+			}
+
+			_resourcePermissionLocalService.setResourcePermissions(
+				companyId, DLFolderConstants.getClassName(),
+				ResourceConstants.SCOPE_INDIVIDUAL,
+				String.valueOf(dlFolder.getFolderId()),
+				roleIdsToActionIdsEntry.getKey(),
+				actionIds.toArray(new String[0]));
+		}
+	}
+
 	private static volatile TrashHelper _trashHelper =
 		ServiceProxyFactory.newServiceTrackedInstance(
 			TrashHelper.class, DLFolderLocalServiceImpl.class, "_trashHelper",
@@ -1466,6 +1555,9 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 	@BeanReference(type = ResourceLocalService.class)
 	private ResourceLocalService _resourceLocalService;
+
+	@BeanReference(type = ResourcePermissionLocalService.class)
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
 
 	@BeanReference(type = UserPersistence.class)
 	private UserPersistence _userPersistence;
