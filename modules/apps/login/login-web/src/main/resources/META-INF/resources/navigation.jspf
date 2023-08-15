@@ -5,7 +5,7 @@
  */
 --%>
 
-<liferay-ui:icon-list>
+<div class="btn-group-item">
 	<liferay-util:dynamic-include key="com.liferay.login.web#/navigation.jsp#pre" />
 
 	<%
@@ -31,4 +31,4 @@
 	%>
 
 	<liferay-util:dynamic-include key="com.liferay.login.web#/navigation.jsp#post" />
-</liferay-ui:icon-list>
+</div>
