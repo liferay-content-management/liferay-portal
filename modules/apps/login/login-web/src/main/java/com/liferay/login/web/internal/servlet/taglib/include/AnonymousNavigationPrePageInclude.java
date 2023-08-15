@@ -5,11 +5,11 @@
 
 package com.liferay.login.web.internal.servlet.taglib.include;
 
+import com.liferay.frontend.taglib.clay.servlet.taglib.LinkTag;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.taglib.include.PageInclude;
 import com.liferay.taglib.portlet.RenderURLTag;
-import com.liferay.taglib.ui.IconTag;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.WindowState;
@@ -67,15 +67,13 @@ public class AnonymousNavigationPrePageInclude implements PageInclude {
 
 		renderURLTag.doTag(pageContext);
 
-		String anonymousURL = (String)pageContext.getAttribute("anonymousURL");
+		LinkTag linkTag = new LinkTag();
 
-		IconTag iconTag = new IconTag();
+		linkTag.setCssClass("c-mr-3 c-mt-3 text-4");
+		linkTag.setHref((String)pageContext.getAttribute("anonymousURL"));
+		linkTag.setLabel("guest");
 
-		iconTag.setCssClass("text-4");
-		iconTag.setMessage("guest");
-		iconTag.setUrl(anonymousURL);
-
-		iconTag.doTag(pageContext);
+		linkTag.doTag(pageContext);
 	}
 
 }

@@ -5,6 +5,7 @@
 
 package com.liferay.login.web.internal.servlet.taglib.include;
 
+import com.liferay.frontend.taglib.clay.servlet.taglib.LinkTag;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
@@ -14,7 +15,6 @@ import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.include.PageInclude;
-import com.liferay.taglib.ui.IconTag;
 
 import java.util.Objects;
 
@@ -89,13 +89,13 @@ public class SignInNavigationPrePageInclude implements PageInclude {
 			signInURL = fastLoginURL.toString();
 		}
 
-		IconTag iconTag = new IconTag();
+		LinkTag linkTag = new LinkTag();
 
-		iconTag.setCssClass("text-4");
-		iconTag.setMessage("sign-in");
-		iconTag.setUrl(signInURL);
+		linkTag.setCssClass("c-mr-3 c-mt-3 text-4");
+		linkTag.setHref(signInURL);
+		linkTag.setLabel("sign-in");
 
-		iconTag.doTag(pageContext);
+		linkTag.doTag(pageContext);
 	}
 
 }

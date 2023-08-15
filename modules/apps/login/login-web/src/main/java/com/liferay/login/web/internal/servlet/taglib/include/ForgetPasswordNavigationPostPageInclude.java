@@ -5,12 +5,12 @@
 
 package com.liferay.login.web.internal.servlet.taglib.include;
 
+import com.liferay.frontend.taglib.clay.servlet.taglib.LinkTag;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.include.PageInclude;
 import com.liferay.taglib.portlet.RenderURLTag;
-import com.liferay.taglib.ui.IconTag;
 
 import java.util.Objects;
 
@@ -66,16 +66,13 @@ public class ForgetPasswordNavigationPostPageInclude implements PageInclude {
 
 		renderURLTag.doTag(pageContext);
 
-		String forgetPasswordURL = (String)pageContext.getAttribute(
-			"forgotPasswordURL");
+		LinkTag linkTag = new LinkTag();
 
-		IconTag iconTag = new IconTag();
+		linkTag.setCssClass("c-mr-3 c-mt-3 text-4");
+		linkTag.setHref((String)pageContext.getAttribute("forgotPasswordURL"));
+		linkTag.setLabel("forgot-password");
 
-		iconTag.setCssClass("text-4");
-		iconTag.setMessage("forgot-password");
-		iconTag.setUrl(forgetPasswordURL);
-
-		iconTag.doTag(pageContext);
+		linkTag.doTag(pageContext);
 	}
 
 }

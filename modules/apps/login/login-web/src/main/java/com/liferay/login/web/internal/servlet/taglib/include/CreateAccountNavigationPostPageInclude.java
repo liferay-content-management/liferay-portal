@@ -5,6 +5,7 @@
 
 package com.liferay.login.web.internal.servlet.taglib.include;
 
+import com.liferay.frontend.taglib.clay.servlet.taglib.LinkTag;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.JavaConstants;
@@ -12,7 +13,6 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.include.PageInclude;
-import com.liferay.taglib.ui.IconTag;
 
 import java.util.Objects;
 
@@ -68,20 +68,21 @@ public class CreateAccountNavigationPostPageInclude implements PageInclude {
 			return;
 		}
 
-		IconTag iconTag = new IconTag();
+		LinkTag linkTag = new LinkTag();
 
-		iconTag.setCssClass("text-4");
-		iconTag.setMessage("create-account");
+		linkTag.setCssClass("c-mr-3 c-mt-3 text-4");
 
 		try {
-			iconTag.setUrl(
+			linkTag.setHref(
 				_portal.getCreateAccountURL(httpServletRequest, themeDisplay));
 		}
 		catch (Exception exception) {
 			throw new JspException(exception);
 		}
 
-		iconTag.doTag(pageContext);
+		linkTag.setLabel("create-account");
+
+		linkTag.doTag(pageContext);
 	}
 
 	@Reference
