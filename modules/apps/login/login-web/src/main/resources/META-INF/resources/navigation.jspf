@@ -42,7 +42,5 @@ navigation = navigation.trim();
 %>
 
 <c:if test="<%= Validator.isNotNull(navigation) %>">
-	<div class="c-mt-3 navigation">
-		<%= navigation %>
-	</div>
+	<%= navigation %>
 </c:if>
