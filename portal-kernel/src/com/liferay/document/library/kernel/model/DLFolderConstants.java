@@ -24,6 +24,9 @@ import com.liferay.portal.kernel.util.UnicodeFormatter;
  */
 public class DLFolderConstants {
 
+	public static final boolean DEFAULT_FOLDER_PERMISSION_PROPAGATION_ENABLED =
+		true;
+
 	public static final long DEFAULT_PARENT_FOLDER_ID = 0;
 
 	public static final String NAME_GENERAL_RESTRICTIONS = "blank";

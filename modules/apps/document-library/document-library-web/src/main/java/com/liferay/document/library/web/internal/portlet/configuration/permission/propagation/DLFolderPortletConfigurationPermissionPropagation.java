@@ -52,7 +52,8 @@ public class DLFolderPortletConfigurationPermissionPropagation
 		if ((classPK == groupId) ||
 			(classPK == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID)) {
 
-			return true;
+			return DLFolderConstants.
+				DEFAULT_FOLDER_PERMISSION_PROPAGATION_ENABLED;
 		}
 
 		return false;

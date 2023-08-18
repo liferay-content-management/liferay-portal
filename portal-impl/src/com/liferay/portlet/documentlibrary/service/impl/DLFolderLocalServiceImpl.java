@@ -41,7 +41,6 @@ import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.lock.LockManagerUtil;
 import com.liferay.portal.kernel.lock.NoSuchLockException;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.PermissionPropagationEntry;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -88,6 +87,7 @@ import com.liferay.portlet.documentlibrary.constants.DLConstants;
 import com.liferay.portlet.documentlibrary.lar.FileEntryUtil;
 import com.liferay.portlet.documentlibrary.model.impl.DLFolderImpl;
 import com.liferay.portlet.documentlibrary.service.base.DLFolderLocalServiceBaseImpl;
+import com.liferay.portlet.documentlibrary.util.DLPermissionPropagationUtil;
 import com.liferay.ratings.kernel.service.RatingsStatsLocalService;
 
 import java.io.Serializable;
@@ -156,26 +156,26 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 		// Resources
 
-		if (_hasInheritablePermissions(dlFolder)) {
-			_inheritRolesPermissions(dlFolder);
+		long inheritableParentFolderId =
+			DLPermissionPropagationUtil.getInheritableParentFolderId(dlFolder);
+
+		if (inheritableParentFolderId >= 0) {
+			_inheritRolesPermissions(inheritableParentFolderId, dlFolder);
+		}
+		else if (serviceContext.isAddGroupPermissions() ||
+				 serviceContext.isAddGuestPermissions()) {
+
+			addFolderResources(
+				dlFolder, serviceContext.isAddGroupPermissions(),
+				serviceContext.isAddGuestPermissions());
 		}
 		else {
-			if (serviceContext.isAddGroupPermissions() ||
-				serviceContext.isAddGuestPermissions()) {
-
-				addFolderResources(
-					dlFolder, serviceContext.isAddGroupPermissions(),
-					serviceContext.isAddGuestPermissions());
+			if (serviceContext.isDeriveDefaultPermissions()) {
+				serviceContext.deriveDefaultPermissions(
+					repositoryId, DLFolderConstants.getClassName());
 			}
-			else {
-				if (serviceContext.isDeriveDefaultPermissions()) {
-					serviceContext.deriveDefaultPermissions(
-						repositoryId, DLFolderConstants.getClassName());
-				}
 
-				addFolderResources(
-					dlFolder, serviceContext.getModelPermissions());
-			}
+			addFolderResources(dlFolder, serviceContext.getModelPermissions());
 		}
 
 		// Parent folder
@@ -1437,51 +1437,31 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		}
 	}
 
-	private boolean _hasInheritablePermissions(DLFolder dlFolder) {
-		long parentFolderId = dlFolder.getParentFolderId();
-
-		if (parentFolderId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
-			int count =
-				_resourcePermissionLocalService.getResourcePermissionsCount(
-					dlFolder.getCompanyId(), DLConstants.SERVICE_NAME,
-					ResourceConstants.SCOPE_INDIVIDUAL,
-					String.valueOf(dlFolder.getGroupId()));
-
-			if (count == 0) {
-				return false;
-			}
-
-			parentFolderId = dlFolder.getGroupId();
-		}
-
-		// TODO Update the check permission in here
-
-		PermissionPropagationEntry permissionPropagationEntry =
-			_permissionPropagationEntryLocalService.
-				fetchPermissionPropagationEntry(
-					dlFolder.getCompanyId(), dlFolder.getGroupId(),
-					DLFolderConstants.getClassName(), parentFolderId);
-
-		if (permissionPropagationEntry == null) {
-			return false;
-		}
-
-		return permissionPropagationEntry.isPropagation();
-	}
-
-	private void _inheritRolesPermissions(DLFolder dlFolder)
+	private void _inheritRolesPermissions(
+			long parentFolderId, DLFolder dlFolder)
 		throws PortalException {
 
 		long companyId = dlFolder.getCompanyId();
-
-		long parentFolderId = dlFolder.getParentFolderId();
-
 		String parentClassName = DLFolderConstants.getClassName();
+
 		Set<String> dlFolderActionIds = SetUtil.fromCollection(
 			ResourceActionsUtil.getModelResourceActions(
 				DLFolderConstants.getClassName()));
 
 		if (parentFolderId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			int count =
+				_resourcePermissionLocalService.getResourcePermissionsCount(
+					companyId, DLConstants.SERVICE_NAME,
+					ResourceConstants.SCOPE_INDIVIDUAL,
+					String.valueOf(dlFolder.getGroupId()));
+
+			if (count == 0) {
+				_resourceLocalService.addResources(
+					companyId, dlFolder.getGroupId(), 0,
+					DLConstants.RESOURCE_NAME,
+					String.valueOf(dlFolder.getGroupId()), false, true, true);
+			}
+
 			parentClassName = DLConstants.RESOURCE_NAME;
 			parentFolderId = dlFolder.getGroupId();
 
