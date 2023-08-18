@@ -1484,12 +1484,9 @@ public class WebServerServlet extends HttpServlet {
 
 	private static String _getPath(HttpServletRequest httpServletRequest) {
 		String path = httpServletRequest.getRequestURI();
-
-		String location = httpServletRequest.getServletPath();
-
-		if (location.isEmpty()) {
-			location = httpServletRequest.getContextPath();
-		}
+		String location =
+			httpServletRequest.getContextPath() +
+				httpServletRequest.getServletPath();
 
 		return path.substring(location.length() + 1);
 	}
