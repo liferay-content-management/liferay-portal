@@ -34,7 +34,9 @@ import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.util.RepositoryUtil;
 import com.liferay.portal.workflow.util.WorkflowDefinitionManagerUtil;
+import com.liferay.portlet.documentlibrary.util.DLPermissionPropagationUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -148,6 +150,54 @@ public class DLEditFolderDisplayContext {
 		}
 
 		return LanguageUtil.get(_httpServletRequest, "new-folder");
+	}
+
+	public long getInheritableParentFolderId() {
+		List<Long> ancestorIds = new ArrayList<>();
+
+		try {
+			Folder folder = _getParentFolder();
+
+			if (folder != null) {
+				ancestorIds.add(folder.getFolderId());
+				ancestorIds.addAll(folder.getAncestorFolderIds());
+			}
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+		}
+
+		return DLPermissionPropagationUtil.getInheritableParentFolderId(
+			_themeDisplay.getCompanyId(), _themeDisplay.getScopeGroupId(),
+			ancestorIds);
+	}
+
+	public String getInheritableParentFolderName() {
+		long inheritableParentFolderId = getInheritableParentFolderId();
+
+		if (inheritableParentFolderId ==
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+
+			return LanguageUtil.get(_httpServletRequest, "home");
+		}
+
+		try {
+			Folder folder = DLAppServiceUtil.getFolder(
+				inheritableParentFolderId);
+
+			if (folder != null) {
+				return folder.getName();
+			}
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+		}
+
+		return StringPool.BLANK;
 	}
 
 	public String getLanguageId() {

@@ -215,11 +215,22 @@ renderResponse.setTitle(dlEditFolderDisplayContext.getHeaderTitle());
 
 					<c:if test="<%= dlEditFolderDisplayContext.isSupportsPermissions() %>">
 						<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="permissions">
-							<liferay-ui:input-permissions
-								modelName="<%= DLFolderConstants.getClassName() %>"
-								permissionPropagationCheckboxLabel="set-permissions-for-documents-and-folders-uploaded-to-this-folder"
-								permissionPropagationCheckboxValue="<%= true %>"
-							/>
+							<c:choose>
+								<c:when test="<%= dlEditFolderDisplayContext.getInheritableParentFolderId() >= 0 %>">
+									<label class="font-weight-normal mb-3">
+										<liferay-ui:message arguments='<%= "<strong>" + HtmlUtil.escape(dlEditFolderDisplayContext.getInheritableParentFolderName()) + "</strong>" %>' key="these-permissions-are-inherited-from-the-parent-folder" />
+									</label>
+
+									<aui:input label="set-permissions-for-documents-and-folders-uploaded-to-this-folder" labelCssClass="font-weight-normal" name="permissionPropagationEnabled" type="checkbox" value="<%= true %>" />
+								</c:when>
+								<c:otherwise>
+									<liferay-ui:input-permissions
+										modelName="<%= DLFolderConstants.getClassName() %>"
+										permissionPropagationCheckboxLabel="set-permissions-for-documents-and-folders-uploaded-to-this-folder"
+										permissionPropagationCheckboxValue="<%= true %>"
+									/>
+								</c:otherwise>
+							</c:choose>
 						</aui:fieldset>
 					</c:if>
 				</c:if>
