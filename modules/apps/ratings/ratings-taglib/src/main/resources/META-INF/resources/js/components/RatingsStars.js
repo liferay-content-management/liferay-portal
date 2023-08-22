@@ -49,6 +49,9 @@ const RatingsStars = ({
 	);
 
 	const [score, setScore] = useState(getLabelScore(userScore));
+	const [disableDelete, setDisableDelete] = useState(
+		score === 0 && userScore <= 0
+	);
 	const [averageScore, setAverageScore] = useState(
 		formatAverageScore(initialAverageScore)
 	);
@@ -67,7 +70,9 @@ const RatingsStars = ({
 					) {
 						setTotalEntries(totalEntries);
 						setAverageScore(formatAverageScore(averageScore));
-						setScore(getLabelScore(score));
+						const label = getLabelScore(score);
+						setScore(label);
+						setDisableDelete(label === 0);
 					}
 				}
 			);
@@ -90,6 +95,7 @@ const RatingsStars = ({
 		}
 
 		setScore(label);
+		setDisableDelete(label === 0);
 		handleSendVoteRequest(value);
 	};
 
@@ -136,6 +142,7 @@ const RatingsStars = ({
 
 	return RatingsStarsUI({
 		averageScore,
+		disableDelete,
 		disabled,
 		getSrAverageMessage,
 		getTitle,

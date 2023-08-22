@@ -12,6 +12,7 @@ import Lang from '../utils/lang';
 
 export default function RatingsStackedStars({
 	averageScore,
+	disableDelete,
 	disabled,
 	getSrAverageMessage,
 	getTitle,
@@ -126,7 +127,7 @@ export default function RatingsStackedStars({
 					</div>
 				</fieldset>
 
-				{score !== 0 && (
+				{!disableDelete && (
 					<ClayButton
 						className="ratings-stacked-stars-delete"
 						disabled={disabled}

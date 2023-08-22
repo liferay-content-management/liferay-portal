@@ -15,6 +15,7 @@ const ID_PREFIX = 'rsd_';
 
 export default function RatingsSelectStars({
 	averageScore,
+	disableDelete,
 	disabled,
 	getSrAverageMessage,
 	getTitle,
@@ -116,7 +117,7 @@ export default function RatingsSelectStars({
 						})}
 
 						<ClayDropDown.Item
-							disabled={score === 0}
+							disabled={disableDelete}
 							id={`${ID_PREFIX}${Liferay.Language.get('delete')}`}
 							onClick={handleOnClick}
 							onFocus={() => {
