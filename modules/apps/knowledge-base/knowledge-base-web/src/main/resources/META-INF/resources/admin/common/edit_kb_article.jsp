@@ -38,14 +38,6 @@ if (editKBArticleDisplayContext.isPortletTitleBasedNavigation()) {
 				</li>
 				<li class="tbar-item">
 					<div class="tbar-section text-right">
-						<clay:button
-							displayType="secondary"
-							id='<%= liferayPortletResponse.getNamespace() + "scheduleButton" %>'
-							label="schedule"
-							small="<%= true %>"
-							type="button"
-						/>
-
 						<clay:link
 							borderless="<%= true %>"
 							cssClass="mr-3"
