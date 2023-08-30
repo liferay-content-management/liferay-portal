@@ -13,6 +13,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -601,15 +602,17 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 			}
 		}
 
-		PortletConfigurationPermissionPropagation
-			portletConfigurationPermissionPropagation =
-				PortletConfigurationPermissionPropagationTracker.
-					getPortletConfigurationPermissionPropagation(
-						portletResource);
+		if (FeatureFlagManagerUtil.isEnabled("LPS-87806")) {
+			PortletConfigurationPermissionPropagation
+				portletConfigurationPermissionPropagation =
+					PortletConfigurationPermissionPropagationTracker.
+						getPortletConfigurationPermissionPropagation(
+							portletResource);
 
-		if (portletConfigurationPermissionPropagation != null) {
-			portletConfigurationPermissionPropagation.
-				updatePermissionPropagation(actionRequest, actionResponse);
+			if (portletConfigurationPermissionPropagation != null) {
+				portletConfigurationPermissionPropagation.
+					updatePermissionPropagation(actionRequest, actionResponse);
+			}
 		}
 
 		if (Validator.isNull(modelResource)) {

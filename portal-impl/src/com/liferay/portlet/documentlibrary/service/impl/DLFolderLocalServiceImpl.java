@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.increment.BufferedIncrement;
 import com.liferay.portal.kernel.increment.DateOverrideIncrement;
 import com.liferay.portal.kernel.lock.ExpiredLockException;
@@ -148,18 +149,23 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 		// Permission Propagation
 
-		_permissionPropagationEntryLocalService.addPermissionPropagationEntry(
-			user.getCompanyId(), groupId, DLFolder.class.getName(),
-			dlFolder.getFolderId(),
-			ParamUtil.getBoolean(
-				serviceContext, "permissionPropagationEnabled"));
+		if (FeatureFlagManagerUtil.isEnabled("LPS-87806")) {
+			_permissionPropagationEntryLocalService.
+				addPermissionPropagationEntry(
+					user.getCompanyId(), groupId, DLFolder.class.getName(),
+					dlFolder.getFolderId(),
+					ParamUtil.getBoolean(
+						serviceContext, "permissionPropagationEnabled"));
+		}
 
 		// Resources
 
 		long inheritableParentFolderId =
 			DLPermissionPropagationUtil.getInheritableParentFolderId(dlFolder);
 
-		if (inheritableParentFolderId >= 0) {
+		if (FeatureFlagManagerUtil.isEnabled("LPS-87806") &&
+			(inheritableParentFolderId >= 0)) {
+
 			_inheritRolesPermissions(inheritableParentFolderId, dlFolder);
 		}
 		else if (serviceContext.isAddGroupPermissions() ||

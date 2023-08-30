@@ -10,6 +10,7 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.ResourcePrimKeyException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
@@ -310,6 +311,10 @@ public class PortletConfigurationPermissionsDisplayContext {
 
 	public PortletConfigurationPermissionPropagation
 		getPortletConfigurationPermissionPropagation() {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPS-87806")) {
+			return null;
+		}
 
 		return PortletConfigurationPermissionPropagationTracker.
 			getPortletConfigurationPermissionPropagation(_getPortletResource());

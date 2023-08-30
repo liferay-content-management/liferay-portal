@@ -216,7 +216,7 @@ renderResponse.setTitle(dlEditFolderDisplayContext.getHeaderTitle());
 					<c:if test="<%= dlEditFolderDisplayContext.isSupportsPermissions() %>">
 						<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="permissions">
 							<c:choose>
-								<c:when test="<%= dlEditFolderDisplayContext.getInheritableParentFolderId() >= 0 %>">
+								<c:when test='<%= FeatureFlagManagerUtil.isEnabled("LPS-87806") && (dlEditFolderDisplayContext.getInheritableParentFolderId() >= 0) %>'>
 									<label class="font-weight-normal mb-3">
 										<liferay-ui:message arguments='<%= "<strong>" + HtmlUtil.escape(dlEditFolderDisplayContext.getInheritableParentFolderName()) + "</strong>" %>' key="these-permissions-are-inherited-from-the-parent-folder" />
 									</label>
