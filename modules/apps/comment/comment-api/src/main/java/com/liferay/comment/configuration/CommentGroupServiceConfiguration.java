@@ -20,7 +20,8 @@ import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 )
 @Meta.OCD(
 	id = "com.liferay.comment.configuration.CommentGroupServiceConfiguration",
-	localization = "content/Language", name = "discussion-configuration-name"
+	localization = "content/Language",
+	name = "discussion-group-service-configuration-name"
 )
 @ProviderType
 public interface CommentGroupServiceConfiguration {
