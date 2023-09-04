@@ -6,6 +6,7 @@
 package com.liferay.message.boards.internal.comment.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.comment.configuration.CommentCompanyConfiguration;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
@@ -18,6 +19,7 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -25,7 +27,6 @@ import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUti
 import com.liferay.portal.kernel.service.IdentityServiceContextFunction;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
-import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -33,10 +34,10 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import java.util.List;
 
@@ -60,6 +61,11 @@ public class MBDiscussionPermissionImplTest {
 
 	@Before
 	public void setUp() throws Exception {
+		_commentCompanyConfiguration =
+			ConfigurationProviderUtil.getCompanyConfiguration(
+				CommentCompanyConfiguration.class,
+				TestPropsValues.getCompanyId());
+
 		_group = GroupTestUtil.addGroup();
 		_user = TestPropsValues.getUser();
 		_siteUser1 = UserTestUtil.addUser(_group.getGroupId());
@@ -142,22 +148,30 @@ public class MBDiscussionPermissionImplTest {
 		PermissionChecker permissionChecker =
 			PermissionCheckerFactoryUtil.create(_siteUser1);
 
-		Assert.assertFalse(
-			_discussionPermission.hasUpdatePermission(
-				permissionChecker, commentId));
+		boolean alwaysEditableByOwner =
+			_commentCompanyConfiguration.alwaysEditableByOwner();
+
+		try {
+			_setAlwaysEditableByOwnerConfiguration(false);
+
+			Assert.assertFalse(
+				_discussionPermission.hasUpdatePermission(
+					permissionChecker, commentId));
+		}
+		finally {
+			_setAlwaysEditableByOwnerConfiguration(alwaysEditableByOwner);
+		}
 	}
 
 	@Test
 	public void testUserCannotUpdateSomeoneElseCommentIfPropsEnabled()
 		throws Exception {
 
-		boolean discussionCommentsAlwaysEditableByOwner =
-			PropsValues.DISCUSSION_COMMENTS_ALWAYS_EDITABLE_BY_OWNER;
+		boolean alwaysEditableByOwner =
+			_commentCompanyConfiguration.alwaysEditableByOwner();
 
 		try {
-			ReflectionTestUtil.setFieldValue(
-				PropsValues.class,
-				"DISCUSSION_COMMENTS_ALWAYS_EDITABLE_BY_OWNER", true);
+			_setAlwaysEditableByOwnerConfiguration(true);
 
 			long commentId = _addComment(_siteUser1);
 
@@ -169,22 +183,17 @@ public class MBDiscussionPermissionImplTest {
 					permissionChecker, commentId));
 		}
 		finally {
-			ReflectionTestUtil.setFieldValue(
-				PropsValues.class,
-				"DISCUSSION_COMMENTS_ALWAYS_EDITABLE_BY_OWNER",
-				discussionCommentsAlwaysEditableByOwner);
+			_setAlwaysEditableByOwnerConfiguration(alwaysEditableByOwner);
 		}
 	}
 
 	@Test
 	public void testUserCanUpdateHisCommentIfPropsEnabled() throws Exception {
-		boolean discussionCommentsAlwaysEditableByOwner =
-			PropsValues.DISCUSSION_COMMENTS_ALWAYS_EDITABLE_BY_OWNER;
+		boolean alwaysEditableByOwner =
+			_commentCompanyConfiguration.alwaysEditableByOwner();
 
 		try {
-			ReflectionTestUtil.setFieldValue(
-				PropsValues.class,
-				"DISCUSSION_COMMENTS_ALWAYS_EDITABLE_BY_OWNER", true);
+			_setAlwaysEditableByOwnerConfiguration(true);
 
 			long commentId = _addComment(_siteUser1);
 
@@ -196,10 +205,7 @@ public class MBDiscussionPermissionImplTest {
 					permissionChecker, commentId));
 		}
 		finally {
-			ReflectionTestUtil.setFieldValue(
-				PropsValues.class,
-				"DISCUSSION_COMMENTS_ALWAYS_EDITABLE_BY_OWNER",
-				discussionCommentsAlwaysEditableByOwner);
+			_setAlwaysEditableByOwnerConfiguration(alwaysEditableByOwner);
 		}
 	}
 
@@ -214,6 +220,18 @@ public class MBDiscussionPermissionImplTest {
 			DLFileEntryConstants.getClassName(), _fileEntry.getFileEntryId(),
 			StringUtil.randomString(), serviceContextFunction);
 	}
+
+	private void _setAlwaysEditableByOwnerConfiguration(boolean value)
+		throws Exception {
+
+		ConfigurationProviderUtil.saveCompanyConfiguration(
+			CommentCompanyConfiguration.class, _group.getCompanyId(),
+			HashMapDictionaryBuilder.<String, Object>put(
+				"alwaysEditableByOwner", value
+			).build());
+	}
+
+	private CommentCompanyConfiguration _commentCompanyConfiguration;
 
 	@Inject(
 		filter = "component.name=com.liferay.message.boards.comment.internal.MBCommentManagerImpl"
