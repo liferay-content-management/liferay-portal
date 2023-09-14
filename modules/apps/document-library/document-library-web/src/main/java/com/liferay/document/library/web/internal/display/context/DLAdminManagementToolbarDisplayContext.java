@@ -153,6 +153,15 @@ public class DLAdminManagementToolbarDisplayContext
 				dropdownItem.setQuickAction(true);
 			}
 		).add(
+			() -> stagedActions && !user.isGuestUser(),
+			dropdownItem -> {
+				dropdownItem.putData("action", "move");
+				dropdownItem.setIcon("move-folder");
+				dropdownItem.setLabel(
+					LanguageUtil.get(_httpServletRequest, "move"));
+				dropdownItem.setQuickAction(true);
+			}
+		).add(
 			() ->
 				stagedActions && !user.isGuestUser() &&
 				FeatureFlagManagerUtil.isEnabled("LPS-182512"),
@@ -162,15 +171,6 @@ public class DLAdminManagementToolbarDisplayContext
 				dropdownItem.setLabel(
 					LanguageUtil.get(_httpServletRequest, "copy-to"));
 				dropdownItem.setQuickAction(false);
-			}
-		).add(
-			() -> stagedActions && !user.isGuestUser(),
-			dropdownItem -> {
-				dropdownItem.putData("action", "move");
-				dropdownItem.setIcon("move-folder");
-				dropdownItem.setLabel(
-					LanguageUtil.get(_httpServletRequest, "move"));
-				dropdownItem.setQuickAction(true);
 			}
 		).add(
 			() -> stagedActions && !user.isGuestUser(),
