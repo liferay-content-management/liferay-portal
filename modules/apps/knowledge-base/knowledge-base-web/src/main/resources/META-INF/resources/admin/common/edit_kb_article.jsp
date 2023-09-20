@@ -377,7 +377,7 @@ if (editKBArticleDisplayContext.isPortletTitleBasedNavigation()) {
 			HashMapBuilder.<String, Object>put(
 				"displayDate", editKBArticleDisplayContext.getDatePickerFormattedDisplayDate()
 			).put(
-				"isScheduled", editKBArticleDisplayContext.isScheduled()
+				"scheduled", editKBArticleDisplayContext.isScheduled()
 			).build()
 		%>'
 	/>
