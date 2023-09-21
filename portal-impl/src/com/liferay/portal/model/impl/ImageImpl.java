@@ -11,6 +11,7 @@ import com.liferay.document.library.kernel.store.DLStoreUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ImageLocalServiceUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.util.PropsValues;
@@ -21,6 +22,15 @@ import java.io.InputStream;
  * @author Brian Wing Shun Chan
  */
 public class ImageImpl extends ImageBaseImpl {
+
+	@Override
+	public long getCompanyId() {
+		if (_companyId == 0) {
+			return CompanyThreadLocal.getCompanyId();
+		}
+
+		return _companyId;
+	}
 
 	@Override
 	public byte[] getTextObj() {
@@ -72,6 +82,7 @@ public class ImageImpl extends ImageBaseImpl {
 
 	private static final Log _log = LogFactoryUtil.getLog(ImageImpl.class);
 
+	private long _companyId;
 	private byte[] _textObj;
 
 }
