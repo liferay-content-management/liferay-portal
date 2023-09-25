@@ -11,8 +11,8 @@ import com.liferay.document.library.kernel.exception.DuplicateFileEntryException
 import com.liferay.document.library.kernel.exception.DuplicateFileEntryExternalReferenceCodeException;
 import com.liferay.document.library.kernel.exception.DuplicateFolderNameException;
 import com.liferay.document.library.kernel.exception.FileExtensionException;
-import com.liferay.document.library.kernel.exception.FileNameExtensionMismatchException;
 import com.liferay.document.library.kernel.exception.FileNameException;
+import com.liferay.document.library.kernel.exception.FileNameExtensionMismatchException;
 import com.liferay.document.library.kernel.exception.InvalidFileEntryTypeException;
 import com.liferay.document.library.kernel.exception.InvalidFileVersionException;
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
@@ -243,12 +243,15 @@ public class DLFileEntryLocalServiceImpl
 
 		String actualExtension = null;
 
-		if(inputStream instanceof ByteArrayFileInputStream){
-			actualExtension = FileUtil.getExtension(((ByteArrayFileInputStream)inputStream).getFile().getName());
+		if (inputStream instanceof ByteArrayFileInputStream) {
+			actualExtension = FileUtil.getExtension(
+				((ByteArrayFileInputStream)inputStream).getFile(
+				).getName());
 		}
 
 		_validateFile(
-			groupId, folderId, 0, fileEntryTypeId, fileName, extension, title, actualExtension);
+			groupId, folderId, 0, fileEntryTypeId, fileName, extension, title,
+			actualExtension);
 
 		long fileEntryId = counterLocalService.increment();
 
@@ -3407,8 +3410,10 @@ public class DLFileEntryLocalServiceImpl
 
 			String actualExtension = null;
 
-			if(inputStream instanceof ByteArrayFileInputStream){
-				actualExtension = FileUtil.getExtension(((ByteArrayFileInputStream)inputStream).getFile().getName());
+			if (inputStream instanceof ByteArrayFileInputStream) {
+				actualExtension = FileUtil.getExtension(
+					((ByteArrayFileInputStream)inputStream).getFile(
+					).getName());
 			}
 
 			_validateFile(
@@ -3574,7 +3579,8 @@ public class DLFileEntryLocalServiceImpl
 
 	private void _validateFile(
 			long groupId, long folderId, long fileEntryId, long fileEntryTypeId,
-			String fileName, String extension, String title, String actualExtension)
+			String fileName, String extension, String title,
+			String actualExtension)
 		throws PortalException {
 
 		DLValidatorUtil.validateFileName(fileName);
@@ -3612,8 +3618,8 @@ public class DLFileEntryLocalServiceImpl
 				folderId));
 	}
 
-	private void _validateFileExtension(String fileName, String extension,
-										String actualExtension)
+	private void _validateFileExtension(
+			String fileName, String extension, String actualExtension)
 		throws PortalException {
 
 		if (!DLAppHelperThreadLocal.isEnabled()) {
@@ -3626,11 +3632,13 @@ public class DLFileEntryLocalServiceImpl
 			return;
 		}
 
- 		if (!Validator.isNull(actualExtension) && !extension.equals(actualExtension)){
+		if (Validator.isNotNull(actualExtension) &&
+			!extension.equals(actualExtension)) {
+
 			throw new FileNameExtensionMismatchException(
 				StringBundler.concat(
-					extension, " of file ", fileName, " should match original exception ",
-					actualExtension));
+					extension, " of file ", fileName,
+					" should match original exception ", actualExtension));
 		}
 
 		int maxLength = ModelHintsUtil.getMaxLength(

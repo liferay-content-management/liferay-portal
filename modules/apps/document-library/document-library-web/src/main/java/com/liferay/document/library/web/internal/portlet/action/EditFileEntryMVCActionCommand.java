@@ -1411,11 +1411,12 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 				"The file name cannot be empty or without extension");
 		}
 
-		if(Validator.isNotNull(extension) && (!extension.equals(FileUtil.getExtension(sourceFileName)))) {
+		if (Validator.isNotNull(extension) &&
+			!extension.equals(FileUtil.getExtension(sourceFileName))) {
+
 			throw new FileNameExtensionMismatchException(
 				"The file name extension should match file extension");
 		}
-
 	}
 
 	private static final String[] _RESTRICTED_GUEST_PERMISSIONS = {};
