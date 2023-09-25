@@ -111,6 +111,7 @@ page import="com.liferay.document.library.web.internal.display.context.helper.DL
 page import="com.liferay.document.library.web.internal.display.context.helper.IGRequestHelper" %><%@
 page import="com.liferay.document.library.web.internal.exception.FileEntrySizeLimitExceededException" %><%@
 page import="com.liferay.document.library.web.internal.exception.FileNameExtensionException" %><%@
+page import="com.liferay.document.library.kernel.exception.FileNameExtensionMismatchException" %><%@
 page import="com.liferay.document.library.web.internal.exception.FolderSizeLimitExceededException" %><%@
 page import="com.liferay.document.library.web.internal.helper.DLTrashHelper" %><%@
 page import="com.liferay.document.library.web.internal.portlet.action.EditFileEntryMVCActionCommand" %><%@
