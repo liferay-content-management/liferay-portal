@@ -5,6 +5,7 @@
 
 package com.liferay.knowledge.base.editor.configuration.internal;
 
+import com.liferay.document.library.kernel.util.DLValidatorUtil;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.ItemSelectorCriterion;
 import com.liferay.item.selector.ItemSelectorReturnType;
@@ -141,6 +142,9 @@ public class KBAttachmentEditorConfigContributor
 		return UploadItemSelectorCriterion.builder(
 		).desiredItemSelectorReturnTypes(
 			new FileEntryItemSelectorReturnType()
+		).maxFileSize(
+			DLValidatorUtil.getMaxAllowableSize(
+				themeDisplay.getScopeGroupId(), null)
 		).mimeTypeRestriction(
 			ItemSelectorCriterionConstants.MIME_TYPE_RESTRICTION_IMAGE
 		).repositoryName(
