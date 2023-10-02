@@ -25,6 +25,13 @@ public class DLValidatorUtil {
 		return _dlValidator.fixName(name);
 	}
 
+	public static long getMaxAllowableSize(
+		long externalMaxAllowableSize, long groupId, String mimeType) {
+
+		return _dlValidator.getMaxAllowableSize(
+			externalMaxAllowableSize, groupId, mimeType);
+	}
+
 	public static long getMaxAllowableSize(long groupId, String mimeType) {
 		return _dlValidator.getMaxAllowableSize(groupId, mimeType);
 	}

@@ -53,6 +53,13 @@ public final class DLValidatorImpl implements DLValidator {
 		return replaceDLNameBlacklist(name);
 	}
 
+	@Override
+	public long getMaxAllowableSize(
+		long externalMaxSize, long groupId, String mimeType) {
+
+		return 104857600;
+	}
+
 	/**
 	 * @see com.liferay.portal.upload.internal.configuration.UploadServletRequestConfiguration#maxSize
 	 */

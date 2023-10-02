@@ -27,6 +27,9 @@ public interface DLValidator {
 
 	public String fixName(String name);
 
+	public long getMaxAllowableSize(
+		long externalMaxAllowableSize, long groupId, String mimeType);
+
 	public long getMaxAllowableSize(long groupId, String mimeType);
 
 	public Map<String, Long> getMimeTypeSizeLimit(long groupId);

@@ -70,6 +70,13 @@ public final class DLValidatorImpl implements DLValidator {
 	}
 
 	@Override
+	public long getMaxAllowableSize(
+		long externalMaxSize, long groupId, String mimeType) {
+
+		return _min(externalMaxSize, getMaxAllowableSize(groupId, mimeType));
+	}
+
+	@Override
 	public long getMaxAllowableSize(long groupId, String mimeType) {
 		long companyId = _getCompanyId(groupId);
 
