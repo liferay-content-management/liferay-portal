@@ -33,6 +33,7 @@ import com.liferay.info.item.creator.InfoItemCreator;
 import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.info.item.provider.InfoItemObjectProvider;
 import com.liferay.info.item.updater.InfoItemFieldValuesUpdater;
+import com.liferay.info.type.WebURL;
 import com.liferay.layout.constants.LayoutWebKeys;
 import com.liferay.layout.provider.LayoutStructureProvider;
 import com.liferay.layout.util.constants.LayoutDataItemTypeConstants;
@@ -187,6 +188,10 @@ public class EditInfoItemStrutsAction implements StrutsAction {
 			int status = ParamUtil.getInteger(
 				httpServletRequest, "status",
 				WorkflowConstants.STATUS_APPROVED);
+
+			if (!FeatureFlagManagerUtil.isEnabled("LPS-181663")) {
+				status = WorkflowConstants.STATUS_APPROVED;
+			}
 
 			if ((infoItemIdentifier != null) &&
 				FeatureFlagManagerUtil.isEnabled("LPS-183727")) {
@@ -494,8 +499,15 @@ public class EditInfoItemStrutsAction implements StrutsAction {
 				(ThemeDisplay)httpServletRequest.getAttribute(
 					WebKeys.THEME_DISPLAY);
 
-			return GetterUtil.getString(
-				infoFieldValue.getValue(themeDisplay.getLocale()));
+			Object value = infoFieldValue.getValue(themeDisplay.getLocale());
+
+			if (value instanceof WebURL) {
+				WebURL webURL = (WebURL)value;
+
+				return webURL.getURL();
+			}
+
+			return GetterUtil.getString(value);
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {

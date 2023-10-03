@@ -9,10 +9,10 @@ import com.liferay.data.engine.constants.DataActionKeys;
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.rest.dto.v2_0.DataRecordCollection;
-import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeRegistry;
+import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeRegistryUtil;
 import com.liferay.data.engine.rest.internal.dto.v2_0.util.DataRecordCollectionUtil;
-import com.liferay.data.engine.rest.internal.security.permission.resource.DataDefinitionModelResourcePermission;
-import com.liferay.data.engine.rest.internal.security.permission.resource.DataRecordCollectionModelResourcePermission;
+import com.liferay.data.engine.rest.internal.security.permission.resource.util.DataDefinitionPermissionUtil;
+import com.liferay.data.engine.rest.internal.security.permission.resource.util.DataRecordCollectionPermissionUtil;
 import com.liferay.data.engine.rest.resource.v2_0.DataRecordCollectionResource;
 import com.liferay.dynamic.data.lists.constants.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
@@ -68,9 +68,10 @@ public class DataRecordCollectionResourceImpl
 	public void deleteDataRecordCollection(Long dataRecordCollectionId)
 		throws Exception {
 
-		_dataRecordCollectionModelResourcePermission.check(
+		DataRecordCollectionPermissionUtil.check(
 			PermissionThreadLocal.getPermissionChecker(),
-			dataRecordCollectionId, ActionKeys.DELETE);
+			_ddlRecordSetLocalService.getDDLRecordSet(dataRecordCollectionId),
+			ActionKeys.DELETE);
 
 		_deleteDataRecordCollection(dataRecordCollectionId);
 	}
@@ -80,8 +81,9 @@ public class DataRecordCollectionResourceImpl
 			Long dataDefinitionId)
 		throws Exception {
 
-		_dataDefinitionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
+		DataDefinitionPermissionUtil.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			_ddmStructureLocalService.getDDMStructure(dataDefinitionId),
 			ActionKeys.VIEW);
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
@@ -98,8 +100,9 @@ public class DataRecordCollectionResourceImpl
 				Long dataDefinitionId, String keywords, Pagination pagination)
 		throws Exception {
 
-		_dataDefinitionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
+		DataDefinitionPermissionUtil.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			_ddmStructureLocalService.getDDMStructure(dataDefinitionId),
 			ActionKeys.VIEW);
 
 		return _getDataRecordCollections(
@@ -112,9 +115,10 @@ public class DataRecordCollectionResourceImpl
 			Long dataRecordCollectionId)
 		throws Exception {
 
-		_dataRecordCollectionModelResourcePermission.check(
+		DataRecordCollectionPermissionUtil.check(
 			PermissionThreadLocal.getPermissionChecker(),
-			dataRecordCollectionId, ActionKeys.VIEW);
+			_ddlRecordSetLocalService.getDDLRecordSet(dataRecordCollectionId),
+			ActionKeys.VIEW);
 
 		return _getDataRecordCollection(dataRecordCollectionId);
 	}
@@ -157,9 +161,11 @@ public class DataRecordCollectionResourceImpl
 		DataRecordCollection dataRecordCollection = _getDataRecordCollection(
 			dataRecordCollectionId);
 
-		_dataDefinitionModelResourcePermission.check(
+		DataDefinitionPermissionUtil.check(
 			PermissionThreadLocal.getPermissionChecker(),
-			dataRecordCollection.getDataDefinitionId(), ActionKeys.PERMISSIONS);
+			_ddmStructureLocalService.getDDMStructure(
+				dataRecordCollection.getDataDefinitionId()),
+			ActionKeys.PERMISSIONS);
 
 		String resourceName = getPermissionCheckerResourceName(
 			dataRecordCollectionId);
@@ -184,9 +190,11 @@ public class DataRecordCollectionResourceImpl
 		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getRecordSet(
 			siteId, dataRecordCollectionKey);
 
-		_dataRecordCollectionModelResourcePermission.check(
+		DataRecordCollectionPermissionUtil.check(
 			PermissionThreadLocal.getPermissionChecker(),
-			ddlRecordSet.getRecordSetId(), ActionKeys.VIEW);
+			_ddlRecordSetLocalService.getDDLRecordSet(
+				ddlRecordSet.getRecordSetId()),
+			ActionKeys.VIEW);
 
 		return _getSiteDataRecordCollection(dataRecordCollectionKey, siteId);
 	}
@@ -199,7 +207,7 @@ public class DataRecordCollectionResourceImpl
 		DDMStructure ddmStructure = _ddmStructureLocalService.getDDMStructure(
 			dataDefinitionId);
 
-		_dataDefinitionModelResourcePermission.checkPortletPermission(
+		DataDefinitionPermissionUtil.checkPortletPermission(
 			PermissionThreadLocal.getPermissionChecker(), ddmStructure,
 			DataActionKeys.ADD_DATA_RECORD_COLLECTION);
 
@@ -222,9 +230,10 @@ public class DataRecordCollectionResourceImpl
 			DataRecordCollection dataRecordCollection)
 		throws Exception {
 
-		_dataRecordCollectionModelResourcePermission.check(
+		DataRecordCollectionPermissionUtil.check(
 			PermissionThreadLocal.getPermissionChecker(),
-			dataRecordCollectionId, ActionKeys.UPDATE);
+			_ddlRecordSetLocalService.getDDLRecordSet(dataRecordCollectionId),
+			ActionKeys.UPDATE);
 
 		return _updateDataRecordCollection(
 			dataRecordCollectionId, dataRecordCollection.getDescription(),
@@ -367,7 +376,7 @@ public class DataRecordCollectionResourceImpl
 		throws Exception {
 
 		DataDefinitionContentType dataDefinitionContentType =
-			_dataDefinitionContentTypeRegistry.getDataDefinitionContentType(
+			DataDefinitionContentTypeRegistryUtil.getDataDefinitionContentType(
 				ddmStructure.getClassNameId());
 
 		return dataDefinitionContentType.
@@ -393,18 +402,6 @@ public class DataRecordCollectionResourceImpl
 				LocalizedValueUtil.toLocaleStringMap(description), 0,
 				serviceContext));
 	}
-
-	@Reference
-	private DataDefinitionContentTypeRegistry
-		_dataDefinitionContentTypeRegistry;
-
-	@Reference
-	private DataDefinitionModelResourcePermission
-		_dataDefinitionModelResourcePermission;
-
-	@Reference
-	private DataRecordCollectionModelResourcePermission
-		_dataRecordCollectionModelResourcePermission;
 
 	@Reference
 	private DDLRecordSetLocalService _ddlRecordSetLocalService;

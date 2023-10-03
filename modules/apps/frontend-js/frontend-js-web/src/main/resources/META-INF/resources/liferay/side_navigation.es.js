@@ -352,7 +352,10 @@ SideNavigation.prototype = {
 	_focusTrigger() {
 		const toggler = this.toggler;
 
-		if (!toggler) {
+		if (
+			!toggler ||
+			!document.activeElement.classList.contains('sidenav-close')
+		) {
 			return;
 		}
 
@@ -1274,17 +1277,6 @@ SideNavigation.prototype = {
 				instance
 			);
 
-			instance._subscribeSidenavTransitionEnd(content, () => {
-				removeClass(container, 'sidenav-transition');
-				removeClass(toggler, 'sidenav-transition');
-
-				instance._emit('open.lexicon.sidenav');
-
-				dispatchCustomEvent(document, 'open.lexicon.sidenav', instance);
-
-				this._focusNavigation();
-			});
-
 			const isReducedMotion = instance.isReducedMotion();
 
 			setClasses(content, {
@@ -1301,6 +1293,19 @@ SideNavigation.prototype = {
 				'active': true,
 				[openClass]: true,
 				'sidenav-transition': !isReducedMotion,
+			});
+
+			instance._subscribeSidenavTransitionEnd(content, () => {
+				if (!isReducedMotion) {
+					removeClass(container, 'sidenav-transition');
+					removeClass(toggler, 'sidenav-transition');
+				}
+
+				instance._emit('open.lexicon.sidenav');
+
+				dispatchCustomEvent(document, 'open.lexicon.sidenav', instance);
+
+				this._focusNavigation();
 			});
 		}
 	},

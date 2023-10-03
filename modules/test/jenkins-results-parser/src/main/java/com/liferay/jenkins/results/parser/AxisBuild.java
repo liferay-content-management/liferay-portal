@@ -52,7 +52,7 @@ import org.dom4j.Element;
 public class AxisBuild extends BaseBuild {
 
 	@Override
-	public void addTimelineData(BaseBuild.TimelineData timelineData) {
+	public void addTimelineData(TimelineData timelineData) {
 		timelineData.addTimelineData(this);
 	}
 
@@ -489,6 +489,11 @@ public class AxisBuild extends BaseBuild {
 		}
 
 		return warningMessages;
+	}
+
+	@Override
+	public boolean isApplySlaveOfflineRules() {
+		return false;
 	}
 
 	@Override

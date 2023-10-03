@@ -324,6 +324,13 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 		).setBackURL(
 			layoutURL
 		).setParameter(
+			"backURLTitle",
+			() -> {
+				Layout layout = themeDisplay.getLayout();
+
+				return layout.getName(themeDisplay.getLocale());
+			}
+		).setParameter(
 			"plid", themeDisplay.getPlid()
 		).setParameter(
 			"segmentsExperienceId",
@@ -398,7 +405,7 @@ public class SegmentsExperimentProductNavigationControlMenuEntry
 
 			if (panelStateOpen) {
 				sb.append(
-					"lfr-has-segments-experiment-panel open-admin-panel ");
+					"lfr-has-segments-experiment-panel open-admin-panel open ");
 			}
 
 			sb.append("cadmin d-print-none lfr-admin-panel ");

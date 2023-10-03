@@ -9,13 +9,11 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.osgi.util.service.OSGiServiceUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.bundle.blacklist.BundleBlacklistManager;
 import com.liferay.portal.kernel.module.util.BundleUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.lpkg.deployer.test.util.LPKGTestUtil;
-import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.util.PropsValues;
 
@@ -25,8 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import java.util.Collection;
 import java.util.Dictionary;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
@@ -41,10 +39,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.util.tracker.BundleTracker;
 
 /**
@@ -139,48 +137,6 @@ public class BundleBlacklistTest {
 		countDownLatch.await();
 
 		_updateConfiguration(_properties);
-	}
-
-	@Test
-	public void testAddToAndRemoveFromBlacklist() throws Exception {
-		Bundle bundle = _findBundle(_SYMBOLIC_NAME);
-
-		Assert.assertEquals(Bundle.ACTIVE, bundle.getState());
-
-		Collection<String> blacklistBundleSymbolicNames =
-			_bundleBlacklistManager.getBlacklistBundleSymbolicNames();
-
-		Assert.assertFalse(
-			_SYMBOLIC_NAME + " should not be blacklisted",
-			blacklistBundleSymbolicNames.contains(_SYMBOLIC_NAME));
-
-		_bundleBlacklistManager.addToBlacklistAndUninstall(_SYMBOLIC_NAME);
-
-		for (Bundle curBundle : _bundleContext.getBundles()) {
-			Assert.assertFalse(
-				curBundle + " should not be installed",
-				_SYMBOLIC_NAME.equals(curBundle.getSymbolicName()));
-		}
-
-		blacklistBundleSymbolicNames =
-			_bundleBlacklistManager.getBlacklistBundleSymbolicNames();
-
-		Assert.assertTrue(
-			_SYMBOLIC_NAME + " should be blacklisted",
-			blacklistBundleSymbolicNames.contains(_SYMBOLIC_NAME));
-
-		_bundleBlacklistManager.removeFromBlacklistAndInstall(_SYMBOLIC_NAME);
-
-		bundle = _findBundle(_SYMBOLIC_NAME);
-
-		Assert.assertEquals(Bundle.ACTIVE, bundle.getState());
-
-		blacklistBundleSymbolicNames =
-			_bundleBlacklistManager.getBlacklistBundleSymbolicNames();
-
-		Assert.assertFalse(
-			_SYMBOLIC_NAME + " should not be blacklisted",
-			blacklistBundleSymbolicNames.contains(_SYMBOLIC_NAME));
 	}
 
 	@Test
@@ -349,27 +305,17 @@ public class BundleBlacklistTest {
 
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 
-		ServiceListener serviceListener = new ServiceListener() {
+		ServiceRegistration<?> serviceRegistration =
+			_bundleContext.registerService(
+				ConfigurationListener.class,
+				configurationEvent -> {
+					if (Objects.equals(
+							_CONFIG_NAME, configurationEvent.getPid())) {
 
-			@Override
-			public void serviceChanged(ServiceEvent serviceEvent) {
-				if (serviceEvent.getType() != ServiceEvent.MODIFIED) {
-					return;
-				}
-
-				Object service = _bundleContext.getService(
-					serviceEvent.getServiceReference());
-
-				Class<?> clazz = service.getClass();
-
-				if (_CLASS_NAME.equals(clazz.getName())) {
-					countDownLatch.countDown();
-				}
-			}
-
-		};
-
-		_bundleContext.addServiceListener(serviceListener);
+						countDownLatch.countDown();
+					}
+				},
+				null);
 
 		try {
 			if (dictionary == null) {
@@ -382,12 +328,9 @@ public class BundleBlacklistTest {
 			countDownLatch.await();
 		}
 		finally {
-			_bundleContext.removeServiceListener(serviceListener);
+			serviceRegistration.unregister();
 		}
 	}
-
-	private static final String _CLASS_NAME =
-		"com.liferay.portal.bundle.blacklist.internal.BundleBlacklist";
 
 	private static final String _CONFIG_NAME =
 		"com.liferay.portal.bundle.blacklist.internal.configuration." +
@@ -399,9 +342,6 @@ public class BundleBlacklistTest {
 
 	private static final String _SYMBOLIC_NAME =
 		"com.liferay.portal.bundle.blacklist.test.bundle";
-
-	@Inject
-	private static BundleBlacklistManager _bundleBlacklistManager;
 
 	private Configuration _bundleBlacklistConfiguration;
 	private BundleContext _bundleContext;

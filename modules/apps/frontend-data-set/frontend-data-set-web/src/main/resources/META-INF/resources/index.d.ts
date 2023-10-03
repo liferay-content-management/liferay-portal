@@ -42,7 +42,7 @@ export function FrontendDataSet({
 	showPagination,
 	showSearch,
 	sidePanelId,
-	sorting,
+	sorts,
 	style,
 	views,
 }: IFrontendDataSetProps): JSX.Element;
@@ -84,6 +84,7 @@ export interface IItemsActions {
 		method?: 'delete' | 'get';
 		permissionKey?: string;
 		size?: 'sm' | 'lg' | 'full-screen';
+		status?: string;
 		title?: string;
 	};
 	href?: string;
@@ -176,7 +177,7 @@ export interface IFrontendDataSetProps {
 	showPagination?: boolean;
 	showSearch?: boolean;
 	sidePanelId?: string;
-	sorting?: TSorting[];
+	sorts?: TSorting[];
 	style?: 'default' | 'fluid' | 'stacked';
 	views: TViews[];
 	viewsTitle?: string;

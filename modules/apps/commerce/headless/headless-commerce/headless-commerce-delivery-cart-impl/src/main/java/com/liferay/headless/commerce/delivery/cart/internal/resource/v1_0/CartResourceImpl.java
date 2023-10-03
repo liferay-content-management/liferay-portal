@@ -8,7 +8,9 @@ package com.liferay.headless.commerce.delivery.cart.internal.resource.v1_0;
 import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
+import com.liferay.commerce.configuration.CommerceOrderCheckoutConfiguration;
 import com.liferay.commerce.constants.CommerceAddressConstants;
+import com.liferay.commerce.constants.CommerceConstants;
 import com.liferay.commerce.constants.CommercePaymentMethodConstants;
 import com.liferay.commerce.constants.CommercePortletKeys;
 import com.liferay.commerce.context.CommerceContext;
@@ -46,12 +48,14 @@ import com.liferay.headless.commerce.delivery.cart.dto.v1_0.Address;
 import com.liferay.headless.commerce.delivery.cart.dto.v1_0.Cart;
 import com.liferay.headless.commerce.delivery.cart.dto.v1_0.CartItem;
 import com.liferay.headless.commerce.delivery.cart.dto.v1_0.CouponCode;
+import com.liferay.headless.commerce.delivery.cart.dto.v1_0.SkuUnitOfMeasure;
 import com.liferay.headless.commerce.delivery.cart.internal.dto.v1_0.converter.CartItemDTOConverterContext;
 import com.liferay.headless.commerce.delivery.cart.internal.dto.v1_0.converter.constants.DTOConverterConstants;
 import com.liferay.headless.commerce.delivery.cart.resource.v1_0.CartResource;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.events.ServicePreAction;
 import com.liferay.portal.events.ThemeServicePreAction;
 import com.liferay.portal.kernel.encryptor.Encryptor;
@@ -64,7 +68,9 @@ import com.liferay.portal.kernel.service.CountryService;
 import com.liferay.portal.kernel.service.RegionLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.servlet.DummyHttpServletResponse;
+import com.liferay.portal.kernel.settings.GroupServiceSettingsLocator;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.BigDecimalUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.URLCodec;
@@ -384,12 +390,42 @@ public class CartResourceImpl extends BaseCartResourceImpl {
 				cartItem.getSkuId());
 		}
 
-		_commerceOrderItemService.addOrUpdateCommerceOrderItem(
-			commerceOrder.getCommerceOrderId(), cpInstance.getCPInstanceId(),
-			cartItem.getOptions(),
-			BigDecimal.valueOf(GetterUtil.get(cartItem.getQuantity(), 1)),
-			GetterUtil.getLong(cartItem.getReplacedSkuId()), BigDecimal.ZERO,
-			StringPool.BLANK, commerceContext, serviceContext);
+		SkuUnitOfMeasure skuUnitOfMeasure = cartItem.getSkuUnitOfMeasure();
+		String skuUnitOfMeasureKey = StringPool.BLANK;
+
+		if (skuUnitOfMeasure != null) {
+			skuUnitOfMeasureKey = skuUnitOfMeasure.getKey();
+		}
+
+		CommerceChannel commerceChannel =
+			_commerceChannelLocalService.getCommerceChannelByOrderGroupId(
+				commerceOrder.getGroupId());
+
+		CommerceOrderCheckoutConfiguration commerceOrderCheckoutConfiguration =
+			_configurationProvider.getConfiguration(
+				CommerceOrderCheckoutConfiguration.class,
+				new GroupServiceSettingsLocator(
+					commerceChannel.getGroupId(),
+					CommerceConstants.SERVICE_NAME_COMMERCE_ORDER));
+
+		if (commerceOrderCheckoutConfiguration.showSeparateOrderItems()) {
+			_commerceOrderItemService.addCommerceOrderItem(
+				commerceOrder.getCommerceOrderId(),
+				cpInstance.getCPInstanceId(), cartItem.getOptions(),
+				BigDecimalUtil.get(cartItem.getQuantity(), BigDecimal.ONE),
+				GetterUtil.getLong(cartItem.getReplacedSkuId()),
+				BigDecimal.ZERO, skuUnitOfMeasureKey, commerceContext,
+				serviceContext);
+		}
+		else {
+			_commerceOrderItemService.addOrUpdateCommerceOrderItem(
+				commerceOrder.getCommerceOrderId(),
+				cpInstance.getCPInstanceId(), cartItem.getOptions(),
+				BigDecimalUtil.get(cartItem.getQuantity(), BigDecimal.ONE),
+				GetterUtil.getLong(cartItem.getReplacedSkuId()),
+				BigDecimal.ZERO, skuUnitOfMeasureKey, commerceContext,
+				serviceContext);
+		}
 	}
 
 	private void _addOrUpdateNestedResources(
@@ -811,6 +847,9 @@ public class CartResourceImpl extends BaseCartResourceImpl {
 	@Reference
 	private CommerceShippingMethodLocalService
 		_commerceShippingMethodLocalService;
+
+	@Reference
+	private ConfigurationProvider _configurationProvider;
 
 	@Reference
 	private CountryService _countryService;

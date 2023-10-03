@@ -12,16 +12,10 @@ import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
 import {Select} from '../fieldComponents/Select';
 import {getAllItems} from '../utils/fetchUtil';
 
-type DataError = {
-	description: boolean;
-	mainObjectDefinitionERC: boolean;
-	name: boolean;
-};
-
 interface BaseAPIApplicationFieldsProps {
 	data: Partial<APISchemaUIData>;
 	disableObjectSelect?: boolean;
-	displayError: DataError;
+	displayError: SchemaDataError;
 	setData: Dispatch<SetStateAction<APISchemaUIData>>;
 }
 
@@ -188,6 +182,7 @@ export default function BaseAPISchemaFields({
 						'select-an-object-definition'
 					)}
 					required
+					searchable
 					selectedOption={selectedObjectDefinition}
 					triggerAriaLabel={
 						!selectedObjectDefinition

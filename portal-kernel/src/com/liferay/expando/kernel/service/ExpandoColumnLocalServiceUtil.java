@@ -258,6 +258,17 @@ public class ExpandoColumnLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery, projection);
 	}
 
+	public static ExpandoColumn fetchColumn(
+		long companyId, long classNameId, String tableName, String name) {
+
+		return getService().fetchColumn(
+			companyId, classNameId, tableName, name);
+	}
+
+	public static ExpandoColumn fetchColumn(long tableId, String name) {
+		return getService().fetchColumn(tableId, name);
+	}
+
 	public static ExpandoColumn fetchExpandoColumn(long columnId) {
 		return getService().fetchExpandoColumn(columnId);
 	}
@@ -275,12 +286,15 @@ public class ExpandoColumnLocalServiceUtil {
 	}
 
 	public static ExpandoColumn getColumn(
-		long companyId, long classNameId, String tableName, String name) {
+			long companyId, long classNameId, String tableName, String name)
+		throws PortalException {
 
 		return getService().getColumn(companyId, classNameId, tableName, name);
 	}
 
-	public static ExpandoColumn getColumn(long tableId, String name) {
+	public static ExpandoColumn getColumn(long tableId, String name)
+		throws PortalException {
+
 		return getService().getColumn(tableId, name);
 	}
 

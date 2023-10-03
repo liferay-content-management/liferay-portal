@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-type LocalUIData = APISchemaUIData | APIApplicationUIData;
+import {beginStringWithForwardSlash} from './string';
+
+type LocalUIData = APIApplicationUIData | APISchemaUIData;
 
 interface AddObjectFieldsDataToProperties {
 	apiSchema: APISchemaItem;
@@ -62,7 +64,7 @@ export function AddObjectFieldsDataToProperties({
 			if (currentObjectField && parentObjectDefinition) {
 				return {
 					businessType: currentObjectField?.businessType!,
-					...(description && {
+					...((description || description === '') && {
 						description,
 					}),
 					id,
@@ -91,12 +93,59 @@ export function hasDataChanged({
 	localUIData,
 }: {
 	fetchedEntityData: APIApplicationItem | APISchemaItem;
-	localUIData: LocalUIData;
+	localUIData: Partial<LocalUIData>;
 }) {
 	for (const [key, value] of Object.entries(localUIData)) {
 		if (fetchedEntityData?.[key as keyof LocalUIData] !== value) {
 			return true;
 		}
+	}
+
+	return false;
+}
+
+export function hasEndpointDataChanged({
+	fetchedEndpointData,
+	localUIData,
+}: {
+	fetchedEndpointData: APIEndpointItem;
+	localUIData: Partial<APIEndpointUIData>;
+}) {
+	const {
+		description,
+		path,
+		r_responseAPISchemaToAPIEndpoints_c_apiSchemaId,
+		scope,
+	} = fetchedEndpointData;
+
+	const {
+		description: uiDescription,
+		path: uiPath,
+		r_responseAPISchemaToAPIEndpoints_c_apiSchemaId: uiR_responseAPISchemaToAPIEndpoints_c_apiSchemaId,
+		scope: uiScope,
+	} = localUIData;
+
+	const pathChanged = path !== beginStringWithForwardSlash(uiPath);
+	const scopeKeyChanged = scope.key !== uiScope?.key;
+	const descriptionChanged = description !== uiDescription;
+
+	const schemaIdChanged =
+		((r_responseAPISchemaToAPIEndpoints_c_apiSchemaId === 0 &&
+			uiR_responseAPISchemaToAPIEndpoints_c_apiSchemaId) ||
+			r_responseAPISchemaToAPIEndpoints_c_apiSchemaId !==
+				uiR_responseAPISchemaToAPIEndpoints_c_apiSchemaId) &&
+		!(
+			r_responseAPISchemaToAPIEndpoints_c_apiSchemaId === 0 &&
+			!uiR_responseAPISchemaToAPIEndpoints_c_apiSchemaId
+		);
+
+	if (
+		pathChanged ||
+		scopeKeyChanged ||
+		descriptionChanged ||
+		schemaIdChanged
+	) {
+		return true;
 	}
 
 	return false;
@@ -120,6 +169,7 @@ export function hasPropertiesDataChanged({
 						property.objectRelationshipNames &&
 					objectFieldERC === property.objectFieldERC
 			);
+
 			if (
 				!(
 					matchedFetchedProperty &&

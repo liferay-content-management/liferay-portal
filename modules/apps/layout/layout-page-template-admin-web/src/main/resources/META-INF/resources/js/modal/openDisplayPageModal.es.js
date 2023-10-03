@@ -7,7 +7,8 @@ import {ClayIconSpriteContext} from '@clayui/icon';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import DisplayPageModal from './DisplayPageModal.es';
+import {MODAL_TYPES} from '../constants/modalTypes';
+import DisplayPageModal from './DisplayPageModal';
 
 let container;
 
@@ -29,6 +30,8 @@ export default function openDisplayPageModal({
 	namespace,
 	spritemap,
 	title,
+	type = MODAL_TYPES.create,
+	warningMessage,
 }) {
 	if (container) {
 		cleanUp();
@@ -48,6 +51,8 @@ export default function openDisplayPageModal({
 				namespace={namespace}
 				onClose={cleanUp}
 				title={title}
+				type={type}
+				warningMessage={warningMessage}
 			/>
 		</ClayIconSpriteContext.Provider>,
 		container

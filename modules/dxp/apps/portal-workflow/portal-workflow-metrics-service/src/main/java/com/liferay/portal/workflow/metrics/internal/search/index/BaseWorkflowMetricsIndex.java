@@ -5,8 +5,6 @@
 
 package com.liferay.portal.workflow.metrics.internal.search.index;
 
-import com.liferay.portal.kernel.cache.MultiVMPool;
-import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -20,12 +18,7 @@ import com.liferay.portal.search.engine.adapter.index.CreateIndexRequest;
 import com.liferay.portal.search.engine.adapter.index.DeleteIndexRequest;
 import com.liferay.portal.search.engine.adapter.index.IndicesExistsIndexRequest;
 import com.liferay.portal.search.engine.adapter.index.IndicesExistsIndexResponse;
-import com.liferay.portal.workflow.metrics.search.index.WorkflowMetricsIndex;
 
-import java.util.ArrayList;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -36,7 +29,7 @@ public abstract class BaseWorkflowMetricsIndex implements WorkflowMetricsIndex {
 	@Override
 	public boolean createIndex(long companyId) throws PortalException {
 		if (!searchCapabilities.isWorkflowMetricsSupported() ||
-			exists(companyId)) {
+			_hasIndex(getIndexName(companyId))) {
 
 			return false;
 		}
@@ -59,42 +52,9 @@ public abstract class BaseWorkflowMetricsIndex implements WorkflowMetricsIndex {
 	}
 
 	@Override
-	public boolean exists(long companyId) {
-		if (!searchCapabilities.isWorkflowMetricsSupported()) {
-			return false;
-		}
-
-		ArrayList<String> indexNames = portalCache.get(companyId);
-
-		if ((indexNames != null) &&
-			indexNames.contains(getIndexName(companyId))) {
-
-			return true;
-		}
-
-		IndicesExistsIndexRequest indicesExistsIndexRequest =
-			new IndicesExistsIndexRequest(getIndexName(companyId));
-
-		IndicesExistsIndexResponse indicesExistsIndexResponse =
-			searchEngineAdapter.execute(indicesExistsIndexRequest);
-
-		if (indicesExistsIndexResponse.isExists()) {
-			if (indexNames == null) {
-				indexNames = new ArrayList<>();
-			}
-
-			indexNames.add(getIndexName(companyId));
-
-			portalCache.put(companyId, indexNames);
-		}
-
-		return indicesExistsIndexResponse.isExists();
-	}
-
-	@Override
 	public boolean removeIndex(long companyId) throws PortalException {
 		if (!searchCapabilities.isWorkflowMetricsSupported() ||
-			!exists(companyId)) {
+			!_hasIndex(getIndexName(companyId))) {
 
 			return false;
 		}
@@ -102,45 +62,24 @@ public abstract class BaseWorkflowMetricsIndex implements WorkflowMetricsIndex {
 		searchEngineAdapter.execute(
 			new DeleteIndexRequest(getIndexName(companyId)));
 
-		ArrayList<String> indexNames = portalCache.get(companyId);
-
-		if (indexNames == null) {
-			return true;
-		}
-
-		indexNames.remove(getIndexName(companyId));
-
-		portalCache.put(companyId, indexNames);
-
 		return true;
 	}
-
-	@Activate
-	protected void activate() {
-		if (portalCache != null) {
-			return;
-		}
-
-		portalCache =
-			(PortalCache<Long, ArrayList<String>>)multiVMPool.getPortalCache(
-				BaseWorkflowMetricsIndex.class.getName());
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		multiVMPool.removePortalCache(BaseWorkflowMetricsIndex.class.getName());
-	}
-
-	@Reference
-	protected MultiVMPool multiVMPool;
-
-	protected PortalCache<Long, ArrayList<String>> portalCache;
 
 	@Reference
 	protected SearchCapabilities searchCapabilities;
 
 	@Reference
 	protected SearchEngineAdapter searchEngineAdapter;
+
+	private boolean _hasIndex(String indexName) {
+		IndicesExistsIndexRequest indicesExistsIndexRequest =
+			new IndicesExistsIndexRequest(indexName);
+
+		IndicesExistsIndexResponse indicesExistsIndexResponse =
+			searchEngineAdapter.execute(indicesExistsIndexRequest);
+
+		return indicesExistsIndexResponse.isExists();
+	}
 
 	private String _readJSON(String fileName) {
 		try {

@@ -9,6 +9,7 @@ import com.liferay.headless.commerce.delivery.catalog.client.dto.v1_0.DDMOption;
 import com.liferay.headless.commerce.delivery.catalog.client.dto.v1_0.Sku;
 import com.liferay.headless.commerce.delivery.catalog.client.dto.v1_0.SkuOption;
 import com.liferay.headless.commerce.delivery.catalog.client.dto.v1_0.SkuUnitOfMeasure;
+import com.liferay.headless.commerce.delivery.catalog.client.dto.v1_0.TierPrice;
 import com.liferay.headless.commerce.delivery.catalog.client.json.BaseJSONParser;
 
 import java.math.BigDecimal;
@@ -294,6 +295,16 @@ public class SkuSerDes {
 			sb.append(String.valueOf(sku.getPrice()));
 		}
 
+		if (sku.getProductId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"productId\": ");
+
+			sb.append(sku.getProductId());
+		}
+
 		if (sku.getPublished() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -395,6 +406,26 @@ public class SkuSerDes {
 				sb.append(String.valueOf(sku.getSkuUnitOfMeasures()[i]));
 
 				if ((i + 1) < sku.getSkuUnitOfMeasures().length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
+		if (sku.getTierPrices() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"tierPrices\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < sku.getTierPrices().length; i++) {
+				sb.append(String.valueOf(sku.getTierPrices()[i]));
+
+				if ((i + 1) < sku.getTierPrices().length) {
 					sb.append(", ");
 				}
 			}
@@ -593,6 +624,13 @@ public class SkuSerDes {
 			map.put("price", String.valueOf(sku.getPrice()));
 		}
 
+		if (sku.getProductId() == null) {
+			map.put("productId", null);
+		}
+		else {
+			map.put("productId", String.valueOf(sku.getProductId()));
+		}
+
 		if (sku.getPublished() == null) {
 			map.put("published", null);
 		}
@@ -652,6 +690,13 @@ public class SkuSerDes {
 			map.put(
 				"skuUnitOfMeasures",
 				String.valueOf(sku.getSkuUnitOfMeasures()));
+		}
+
+		if (sku.getTierPrices() == null) {
+			map.put("tierPrices", null);
+		}
+		else {
+			map.put("tierPrices", String.valueOf(sku.getTierPrices()));
 		}
 
 		if (sku.getWeight() == null) {
@@ -807,6 +852,12 @@ public class SkuSerDes {
 						PriceSerDes.toDTO((String)jsonParserFieldValue));
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "productId")) {
+				if (jsonParserFieldValue != null) {
+					sku.setProductId(
+						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "published")) {
 				if (jsonParserFieldValue != null) {
 					sku.setPublished((Boolean)jsonParserFieldValue);
@@ -875,6 +926,22 @@ public class SkuSerDes {
 					}
 
 					sku.setSkuUnitOfMeasures(skuUnitOfMeasuresArray);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "tierPrices")) {
+				if (jsonParserFieldValue != null) {
+					Object[] jsonParserFieldValues =
+						(Object[])jsonParserFieldValue;
+
+					TierPrice[] tierPricesArray =
+						new TierPrice[jsonParserFieldValues.length];
+
+					for (int i = 0; i < tierPricesArray.length; i++) {
+						tierPricesArray[i] = TierPriceSerDes.toDTO(
+							(String)jsonParserFieldValues[i]);
+					}
+
+					sku.setTierPrices(tierPricesArray);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "weight")) {

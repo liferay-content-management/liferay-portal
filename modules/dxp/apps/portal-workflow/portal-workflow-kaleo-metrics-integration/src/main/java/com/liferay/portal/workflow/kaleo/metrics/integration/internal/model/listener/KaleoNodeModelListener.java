@@ -12,7 +12,6 @@ import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
 import com.liferay.portal.workflow.kaleo.model.KaleoNode;
 import com.liferay.portal.workflow.metrics.model.DeleteNodeRequest;
 import com.liferay.portal.workflow.metrics.search.index.NodeWorkflowMetricsIndexer;
-import com.liferay.portal.workflow.metrics.search.index.WorkflowMetricsIndex;
 
 import java.util.Objects;
 
@@ -27,13 +26,14 @@ public class KaleoNodeModelListener extends BaseKaleoModelListener<KaleoNode> {
 
 	@Override
 	public void onAfterCreate(KaleoNode kaleoNode) {
+		if (!Objects.equals(kaleoNode.getType(), NodeType.STATE.name())) {
+			return;
+		}
+
 		KaleoDefinitionVersion kaleoDefinitionVersion =
 			getKaleoDefinitionVersion(kaleoNode.getKaleoDefinitionVersionId());
 
-		if (!Objects.equals(kaleoNode.getType(), NodeType.STATE.name()) ||
-			Objects.isNull(kaleoDefinitionVersion) ||
-			!_workflowMetricsIndex.exists(kaleoNode.getCompanyId())) {
-
+		if (Objects.isNull(kaleoDefinitionVersion)) {
 			return;
 		}
 
@@ -44,9 +44,7 @@ public class KaleoNodeModelListener extends BaseKaleoModelListener<KaleoNode> {
 
 	@Override
 	public void onAfterRemove(KaleoNode kaleoNode) {
-		if (!Objects.equals(kaleoNode.getType(), NodeType.STATE.name()) ||
-			!_workflowMetricsIndex.exists(kaleoNode.getCompanyId())) {
-
+		if (!Objects.equals(kaleoNode.getType(), NodeType.STATE.name())) {
 			return;
 		}
 
@@ -65,8 +63,5 @@ public class KaleoNodeModelListener extends BaseKaleoModelListener<KaleoNode> {
 
 	@Reference
 	private NodeWorkflowMetricsIndexer _nodeWorkflowMetricsIndexer;
-
-	@Reference(target = "(workflow.metrics.index.entity.name=node)")
-	private WorkflowMetricsIndex _workflowMetricsIndex;
 
 }

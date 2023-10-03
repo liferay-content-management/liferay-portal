@@ -8,6 +8,7 @@ package com.liferay.exportimport.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
+import com.liferay.exportimport.kernel.lar.DataLevel;
 import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.MissingReference;
@@ -84,9 +85,9 @@ public class ExportImportHelperUtilTest {
 	}
 
 	@Test
-	public void testDataSiteLevelPortletsRank() throws Exception {
+	public void testDataSiteAndInstanceLevelPortletsRank() throws Exception {
 		List<Portlet> portlets =
-			ExportImportHelperUtil.getDataSiteLevelPortlets(
+			ExportImportHelperUtil.getDataSiteAndInstanceLevelPortlets(
 				TestPropsValues.getCompanyId());
 
 		Integer previousRank = null;
@@ -104,6 +105,62 @@ public class ExportImportHelperUtilTest {
 			}
 
 			previousRank = actualRank;
+		}
+	}
+
+	@Test
+	public void testDataSiteLevelPortletsRank() throws Exception {
+		List<Portlet> portlets =
+			ExportImportHelperUtil.getDataSiteLevelPortlets(
+				TestPropsValues.getCompanyId());
+
+		Integer previousRank = null;
+
+		for (Portlet portlet : portlets) {
+			PortletDataHandler portletDataHandler =
+				portlet.getPortletDataHandlerInstance();
+
+			int actualRank = portletDataHandler.getRank();
+
+			if (previousRank != null) {
+				Assert.assertTrue(previousRank <= actualRank);
+			}
+
+			previousRank = actualRank;
+		}
+	}
+
+	@Test
+	public void testGetDataSiteAndInstanceLevelPortlets() throws Exception {
+		List<Portlet> portlets =
+			ExportImportHelperUtil.getDataSiteAndInstanceLevelPortlets(
+				TestPropsValues.getCompanyId());
+
+		for (Portlet portlet : portlets) {
+			PortletDataHandler portletDataHandler =
+				portlet.getPortletDataHandlerInstance();
+
+			DataLevel portletDataLevel = portletDataHandler.getDataLevel();
+
+			Assert.assertTrue(!portletDataLevel.equals(DataLevel.PORTAL));
+		}
+	}
+
+	@Test
+	public void testGetDataSiteLevelPortlets() throws Exception {
+		List<Portlet> portlets =
+			ExportImportHelperUtil.getDataSiteLevelPortlets(
+				TestPropsValues.getCompanyId());
+
+		for (Portlet portlet : portlets) {
+			PortletDataHandler portletDataHandler =
+				portlet.getPortletDataHandlerInstance();
+
+			DataLevel portletDataLevel = portletDataHandler.getDataLevel();
+
+			Assert.assertTrue(
+				!(portletDataLevel.equals(DataLevel.PORTAL) ||
+				  portletDataLevel.equals(DataLevel.PORTLET_INSTANCE)));
 		}
 	}
 

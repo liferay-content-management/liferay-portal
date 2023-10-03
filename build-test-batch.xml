@@ -733,98 +733,6 @@ mariadb.executable=${mariadb.executable}]]></echo>
 		</sequential>
 	</macrodef>
 
-	<macrodef name="get-test-project-information">
-		<attribute default="" name="test.class" />
-
-		<sequential>
-			<var name="test.name" unset="true" />
-			<var name="test.project.name" unset="true" />
-			<var name="test.project.results.dir" unset="true" />
-
-			<local name="test.class.file" />
-			<local name="test.class.file.path" />
-			<local name="test.class.java" />
-
-			<propertyregex
-				casesensitive="true"
-				input="@{test.class}"
-				property="test.class.java"
-				regexp="\.class"
-				replace="\.java"
-			/>
-
-			<first id="test.class.file">
-				<fileset
-					dir="modules"
-					excludes="**/node_modules/**"
-					includes="**/${test.class.java}"
-				/>
-			</first>
-
-			<property name="test.class.file.path" value="${toString:test.class.file}" />
-
-			<beanshell>
-				<![CDATA[
-					import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
-
-					import java.util.Properties;
-					import java.util.regex.Matcher;
-					import java.util.regex.Pattern;
-
-					public static String getTestName(String testClassFilePath) {
-						Pattern pattern = Pattern.compile("/([^/]+)\\.java");
-
-						Matcher matcher = pattern.matcher(testClassFilePath);
-
-						if (matcher.find()) {
-							return matcher.group(1);
-						}
-
-						return null;
-					}
-
-					public static String getTestProjectName(String testClassFilePath) {
-						String projectDir = project.getProperty("project.dir");
-
-						String regex = projectDir + "/modules(\\/+.+)/src/test";
-
-						Pattern pattern = Pattern.compile(regex);
-
-						Matcher matcher = pattern.matcher(testClassFilePath);
-
-						if (matcher.find()) {
-							String testProjectName = matcher.group(1);
-
-							return testProjectName.replaceAll("/", ":");
-						}
-
-						return null;
-					}
-
-					public static String getTestProjectResultsDir(String testClassFilePath) {
-						String testProjectName = getTestProjectName(testClassFilePath);
-
-						File testProjectResultsDir = new File(project.getProperty("project.dir") + "/modules/" + testProjectName.replaceAll(":", "/") + "/test-results/");
-
-						return JenkinsResultsParserUtil.getCanonicalPath(testProjectResultsDir);
-					}
-
-					String testClassFilePath = project.getProperty("test.class.file.path");
-
-					String testProjectName = getTestProjectName(testClassFilePath);
-
-					if (testProjectName == null) {
-						throw new Exception("Unable to find corresponding project name for " + testClassFilePath + ".");
-					}
-
-					project.setProperty("test.name", getTestName(testClassFilePath));
-					project.setProperty("test.project.name", testProjectName);
-					project.setProperty("test.project.results.dir", getTestProjectResultsDir(testClassFilePath));
-				]]>
-			</beanshell>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="merge-test-results">
 		<sequential>
 			<antcall target="merge-test-results" />
@@ -2509,15 +2417,11 @@ log.sanitizer.enabled=false</echo>
 
 							<lstopwatch action="start" name="test.execution.duration" />
 
-							<for list="${test.class.group}" param="test.class">
-								<sequential>
-									<run-modules-junit-test test.class="@{test.class}" test.task="testIntegration">
-										<arg value="--continue" />
-										<arg value="-Dbuild.exclude.ant.plugin=true" />
-										<arg value="-Dtest.class.group.index=${axis.variable}" />
-									</run-modules-junit-test>
-								</sequential>
-							</for>
+							<run-modules-junit-test test.class.group="${test.class.group}" test.task="testIntegration">
+								<arg value="--continue" />
+								<arg value="-Dbuild.exclude.ant.plugin=true" />
+								<arg value="-Dtest.class.group.index=${axis.variable}" />
+							</run-modules-junit-test>
 
 							<lstopwatch action="total" name="test.execution.duration" />
 
@@ -2692,82 +2596,178 @@ log.sanitizer.enabled=false</echo>
 	</macrodef>
 
 	<macrodef name="run-modules-junit-test">
-		<attribute name="test.class" />
+		<attribute name="test.class.group" />
 		<attribute name="test.task" />
 
 		<element implicit="true" name="args" optional="true" />
 
 		<sequential>
-			<var name="test.timeout" unset="true" />
+			<sequential>
+				<beanshell>
+					<![CDATA[
+						import com.liferay.jenkins.results.parser.AntUtil;
+						import com.liferay.jenkins.results.parser.GitWorkingDirectory;
+						import com.liferay.jenkins.results.parser.GitWorkingDirectoryFactory;
+						import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+						import com.liferay.jenkins.results.parser.Job;
+						import com.liferay.jenkins.results.parser.JobFactory;
+						import com.liferay.jenkins.results.parser.PortalGitWorkingDirectory;
 
-			<trycatch property="test.failure.message">
-				<try>
-					<get-test-project-information test.class="@{test.class}" />
+						import java.io.File;
 
-					<limit failonerror="true" maxwait="${test.class.timeout.seconds}" property="test.timeout" value="FAILURE: ${test.project.name}:@{test.task} --tests ${test.name} failed to complete in ${test.class.timeout.minutes} minutes">
-						<gradle-execute dir="modules" task="${test.project.name}:@{test.task}" test.name="${test.name}">
-							<args />
-						</gradle-execute>
-					</limit>
+						import java.nio.file.attribute.BasicFileAttributes;
 
-					<move
-						flatten="true"
-						todir="modules/test-results"
-					>
-						<fileset
-							dir="${test.project.results.dir}"
-							includes="**/TEST-*.xml"
-						/>
-					</move>
-				</try>
-				<catch>
-					<var name="junit.failure.message" value="" />
+						import java.util.HashMap;
+						import java.util.Map;
+						import java.util.Properties;
+						import java.util.concurrent.Callable;
+						import java.util.concurrent.ExecutionException;
+						import java.util.concurrent.ExecutorService;
+						import java.util.concurrent.Executors;
+						import java.util.concurrent.Future;
+						import java.util.concurrent.InterruptedException;
+						import java.util.concurrent.TimeUnit;
+						import java.util.concurrent.TimeoutException;
+						import java.util.regex.Matcher;
+						import java.util.regex.Pattern;
 
-					<if>
-						<isset property="test.timeout" />
-						<then>
-							<var name="junit.failure.message" value="${test.timeout}${line.separator}" />
-						</then>
-					</if>
+						public static File getPortalGitWorkingDirectory() {
+							return JenkinsResultsParserUtil.getGitWorkingDir(new File(project.getProperty("project.dir")));
+						}
 
-					<var name="junit.failure.message" value="${junit.failure.message}${test.failure.message}" />
+						public static void addProjectToMap(String projectName, String testName, Map projectTestMap){
+							if (!projectTestMap.containsKey(projectName)) {
+								List testList = new ArrayList();
 
-					<echo>${junit.failure.message}</echo>
+								testList.add(testName);
 
-					<var name="junit.failure.message.element" unset="true" />
+								projectTestMap.put(projectName, testList);
+							}
+							else {
+								List currentTestList = projectTestMap.get(projectName);
 
-					<property name="junit.failure.message" value="${test.failure.message}${test.timeout}" />
+								if (!currentTestList.contains(testName)) {
+									currentTestList.add(testName);
 
-					<get-junit-failure-message-element />
+									projectTestMap.put(projectName, currentTestList);
+								}
+							}
+						}
 
-					<local name="test.class.name" />
+						public static void generateJunitReport(File baseDir, String testClassName){
+							Map parameters = new HashMap();
 
-					<propertyregex
-						input="@{test.class}"
-						override="true"
-						property="test.class.name"
-						regexp="(.*)\.class"
-						replace="\1"
-					/>
+							parameters.put("test.class.name", testClassName);
 
-					<propertyregex
-						global="true"
-						input="${test.class.name}"
-						override="true"
-						property="test.class.name"
-						regexp="/"
-						replace="."
-					/>
+							AntUtil.callTarget(baseDir, "build-common.xml", "generate-backend-batch-junit-report-modules", parameters);
+						}
 
-					<generate-backend-batch-junit-report
-						junit.failure.count="1"
-						junit.failure.message.element="${junit.failure.message.element}"
-						test.class.name="${test.class.name}"
-						test.command.name="testCompile"
-						test.results.dir="modules/test-results"
-					/>
-				</catch>
-			</trycatch>
+						public static String getTestClassNameForTestResults(String testClass){
+							testClass = testClass.replace(".java", "");
+
+							testClass = testClass.replace("/", ".");
+
+							return testClass;
+						}
+
+						public static String getTestName(String testClassFilePath) {
+							Pattern pattern = Pattern.compile("/([^/]+)\\.java");
+
+							Matcher matcher = pattern.matcher(testClassFilePath);
+
+							if (matcher.find()) {
+								return matcher.group(1);
+							}
+
+							return null;
+						}
+
+						public static String getTestProjectName(String testClassFilePath) {
+							String projectDir = project.getProperty("project.dir");
+
+							String regex = projectDir + "/modules(\\/+.+)/src/test";
+
+							Pattern pattern = Pattern.compile(regex);
+
+							Matcher matcher = pattern.matcher(testClassFilePath);
+
+							if (matcher.find()) {
+								String testProjectName = matcher.group(1);
+
+								return testProjectName.replaceAll("/", ":");
+							}
+
+							return null;
+						}
+
+						public static File getTestProjectResultsDir(String testProjectName) {
+							return new File(project.getProperty("project.dir") + "/modules/" + testProjectName.replaceAll(":", "/") + "/test-results/");
+						}
+
+						File projectDir = new File(project.getProperty("project.dir"));
+
+						String testClassGroup = project.getProperty("test.class.group");
+
+						String[] testClassList = testClassGroup.split(",");
+
+						Map projectTestMap = new HashMap();
+
+						File baseDir = getPortalGitWorkingDirectory();
+
+						for (String testClass : testClassList) {
+							testClass = testClass.replaceAll("\\.class", "\\.java");
+
+							String testClassName = getTestClassNameForTestResults(testClass);
+
+							generateJunitReport(baseDir, testClassName);
+
+							File testClassFile = JenkinsResultsParserUtil.getFileFromPathSnippet(projectDir, testClass);
+
+							String testProjectName = getTestProjectName(testClassFile.toString());
+
+							String testName = getTestName(testClassFile.toString());
+
+							addProjectToMap(testProjectName, testName, projectTestMap);
+						}
+
+						for (Map.Entry projectTestEntry : projectTestMap.entrySet()) {
+							Map parameters = new HashMap();
+
+							List projectTestList = projectTestEntry.getValue();
+
+							String projectName = projectTestEntry.getKey();
+
+							parameters.put("test.task", projectName + ":" + "@{test.task}");
+
+							StringBuilder sb = new StringBuilder();
+
+							int testCount = 1;
+
+							for (String test : projectTestList) {
+								sb.append("--tests ");
+								sb.append(test);
+								sb.append(" ");
+								testCount++;
+							}
+
+							parameters.put("test.name", sb.toString());
+
+							parameters.put("dir", "modules");
+
+							int timeout = Integer.parseInt(project.getProperty("test.class.timeout.minutes"));
+
+							timeout = timeout + testCount;
+
+							try {
+								AntUtil.callTargetWithTimeout(projectDir, "build-common.xml", "gradle-execute-modules", parameters, timeout, true);
+							}
+							catch(Exception exception) {
+								throw new RuntimeException("Unable to run gradle execute modules target.");
+							}
+						}
+					]]>
+				</beanshell>
+			</sequential>
 		</sequential>
 	</macrodef>
 
@@ -5953,6 +5953,11 @@ information. Make sure to commit in all format-javadoc results.
 			<test-tear-down>
 				<tar destfile="${project.dir}/tmp/gradle_plugins.tar">
 					<tarfileset
+						dir="${project.dir}/modules/sdk/gradle-plugins-maven-plugin-builder"
+						includes="build/reports/**"
+						prefix="gradle-plugins-maven-plugin-builder"
+					/>
+					<tarfileset
 						dir="${project.dir}/modules/sdk/gradle-plugins-target-platform"
 						includes="build/reports/**"
 						prefix="gradle-plugins-target-platform"
@@ -7028,18 +7033,14 @@ information. Make sure to commit in all format-javadoc results.
 					</then>
 				</if>
 
-				<for list="${test.class.group}" param="test.class">
-					<sequential>
-						<run-modules-junit-test test.class="@{test.class}" test.task="test">
-							<arg value="--continue" />
-							<arg value="-Dbuild.exclude.ant.plugin=true" />
-							<arg if:true="${run.solr.unit.tests}" value="-Dcom.liferay.portal.search.solr8.test.unit.started=true" />
-							<arg value="-Djunit.code.coverage=${test.batch.code.coverage}" />
-							<arg if:set="project.templates.test.builds" value="-Dproject.templates.test.builds=${project.templates.test.builds}" />
-							<arg value="-Dtest.class.group.index=${axis.variable}" />
-						</run-modules-junit-test>
-					</sequential>
-				</for>
+				<run-modules-junit-test test.class.group="${test.class.group}" test.task="test">
+					<arg value="--continue" />
+					<arg value="-Dbuild.exclude.ant.plugin=true" />
+					<arg if:true="${run.solr.unit.tests}" value="-Dcom.liferay.portal.search.solr8.test.unit.started=true" />
+					<arg value="-Djunit.code.coverage=${test.batch.code.coverage}" />
+					<arg if:set="project.templates.test.builds" value="-Dproject.templates.test.builds=${project.templates.test.builds}" />
+					<arg value="-Dtest.class.group.index=${axis.variable}" />
+				</run-modules-junit-test>
 
 				<lstopwatch action="total" name="test.execution.duration" />
 			</test-action>

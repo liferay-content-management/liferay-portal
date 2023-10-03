@@ -111,7 +111,10 @@ export function parseReassignments(node) {
 			}
 			else {
 				assignments.assignmentType = ['roleId'];
-				assignments.roleId = parseInt(item['roles'][0]['role'], 10);
+				assignments.roleId = parseInt(
+					item['roles'][0]['role']?.['role-id'],
+					10
+				);
 			}
 		}
 		else if (item['scripted-assignment']) {
@@ -333,8 +336,13 @@ export function parseNotifications(node) {
 			}
 		}
 
-		if (item['scripted-recipient']) {
-			const scriptedRecipient = item['scripted-recipient'][0];
+		if (
+			item['scripted-recipient'] ||
+			(item['recipients'] && item['recipients'][0]['scripted-recipient'])
+		) {
+			const scriptedRecipient = item['scripted-recipient']
+				? item['scripted-recipient'][0]
+				: item['recipients'][0]['scripted-recipient'];
 
 			const script = scriptedRecipient.script;
 			const scriptLanguage = scriptedRecipient['script-language'];
@@ -342,11 +350,7 @@ export function parseNotifications(node) {
 			if (item.receptionType) {
 				notifications.recipients[index].push({
 					assignmentType: ['scriptedRecipient'],
-					receptionType: [
-						item.receptionType[
-							notifications.recipients[index].length
-						],
-					],
+					receptionType: [item.receptionType],
 					script: [script],
 					scriptLanguage: scriptLanguage || [DEFAULT_LANGUAGE],
 				});

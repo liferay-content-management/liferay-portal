@@ -5,6 +5,7 @@
 
 package com.liferay.source.formatter.dependencies.upgrade;
 
+import com.liferay.frontend.taglib.clay.data.Pagination;
 import com.liferay.frontend.taglib.clay.data.set.ClayDataSetDisplayView;
 import com.liferay.frontend.taglib.clay.data.set.view.table.BaseTableClayDataSetDisplayView;
 import com.liferay.frontend.taglib.clay.data.set.view.table.ClayTableSchema;
@@ -32,7 +33,6 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.service.permission.CommonPermission;
 import com.liferay.portal.service.permission.GroupPermissionUtil;
 import com.liferay.portal.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;

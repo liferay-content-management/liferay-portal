@@ -93,7 +93,8 @@ export function getThumbnailByProductAttachment(
 		}
 		const customField = attachment.customFields?.find(
 			({customValue, name}) =>
-				name === 'App Icon' && customValue?.data?.[0] === 'Yes'
+				name === 'App Icon' &&
+				customValue?.data?.[0].toLowerCase() === 'yes'
 		);
 
 		return !!customField;
@@ -116,6 +117,20 @@ export function getProductVersionFromSpecifications(
 	});
 
 	return productVersion;
+}
+
+export function getValueFromSpecifications(
+	specifications: ProductSpecification[],
+	valueKey: string
+) {
+	let value = '';
+	specifications.forEach((specification) => {
+		if (specification.specificationKey === valueKey) {
+			value = specification.value.en_US;
+		}
+	});
+
+	return value;
 }
 
 export function showAccountImage(url?: string) {

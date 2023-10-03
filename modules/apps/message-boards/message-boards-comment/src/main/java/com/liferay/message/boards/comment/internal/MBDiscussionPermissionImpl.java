@@ -5,21 +5,23 @@
 
 package com.liferay.message.boards.comment.internal;
 
+import com.liferay.comment.configuration.CommentGroupServiceConfiguration;
 import com.liferay.message.boards.model.MBMessage;
 import com.liferay.message.boards.service.MBBanLocalService;
 import com.liferay.message.boards.service.MBMessageLocalService;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.comment.BaseDiscussionPermission;
 import com.liferay.portal.kernel.comment.Comment;
 import com.liferay.portal.kernel.comment.DiscussionPermission;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.workflow.WorkflowInstance;
-import com.liferay.portal.kernel.workflow.permission.WorkflowPermission;
-import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil;
 
 import java.util.List;
 
@@ -119,8 +121,9 @@ public class MBDiscussionPermissionImpl extends BaseDiscussionPermission {
 	}
 
 	private boolean _hasPermission(
-		PermissionChecker permissionChecker, MBMessage message,
-		String actionId) {
+			PermissionChecker permissionChecker, MBMessage message,
+			String actionId)
+		throws ConfigurationException {
 
 		String className = message.getClassName();
 
@@ -130,14 +133,18 @@ public class MBDiscussionPermissionImpl extends BaseDiscussionPermission {
 				message.getGroupId(), ActionKeys.VIEW);
 		}
 
-		if (PropsValues.DISCUSSION_COMMENTS_ALWAYS_EDITABLE_BY_OWNER &&
+		CommentGroupServiceConfiguration commentGroupServiceConfiguration =
+			_configurationProvider.getGroupConfiguration(
+				CommentGroupServiceConfiguration.class, message.getGroupId());
+
+		if (commentGroupServiceConfiguration.alwaysEditableByOwner() &&
 			(permissionChecker.getUserId() == message.getUserId())) {
 
 			return true;
 		}
 
 		if (message.isPending()) {
-			Boolean hasPermission = _workflowPermission.hasPermission(
+			Boolean hasPermission = WorkflowPermissionUtil.hasPermission(
 				permissionChecker, message.getGroupId(),
 				message.getWorkflowClassName(), message.getMessageId(),
 				actionId);
@@ -153,12 +160,12 @@ public class MBDiscussionPermissionImpl extends BaseDiscussionPermission {
 	}
 
 	@Reference
+	private ConfigurationProvider _configurationProvider;
+
+	@Reference
 	private MBBanLocalService _mbBanLocalService;
 
 	@Reference
 	private MBMessageLocalService _mbMessageLocalService;
-
-	@Reference
-	private WorkflowPermission _workflowPermission;
 
 }

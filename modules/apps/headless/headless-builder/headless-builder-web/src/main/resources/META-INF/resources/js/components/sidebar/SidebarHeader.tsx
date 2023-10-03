@@ -13,18 +13,16 @@ import React, {Dispatch, SetStateAction} from 'react';
 
 interface SidebarHeaderProps {
 	navHistory: ObjectDefinition[][];
-	onBackClick: voidReturn;
+	searchKeyword: string;
 	setNavHistory: Dispatch<SetStateAction<ObjectDefinition[][]>>;
 	setSearchKeyword: Dispatch<SetStateAction<string>>;
-	setViewRelatedObjects: Dispatch<SetStateAction<boolean>>;
-	viewRelatedObjects: boolean;
 }
 
 export default function SidebarHeader({
 	navHistory,
+	searchKeyword,
 	setNavHistory,
 	setSearchKeyword,
-	viewRelatedObjects,
 }: SidebarHeaderProps) {
 	const getParentLabel = (history: ObjectDefinition[][]) => {
 		let label;
@@ -54,7 +52,7 @@ export default function SidebarHeader({
 	return (
 		<div
 			className={classNames({
-				'no-padding-bottom': viewRelatedObjects,
+				'no-padding-bottom': navHistory.length > 1,
 				'sidebar-header': true,
 			})}
 		>
@@ -75,15 +73,31 @@ export default function SidebarHeader({
 							}
 							placeholder={Liferay.Language.get('search')}
 							type="text"
+							value={searchKeyword}
 						/>
 
-						<ClayInput.GroupInsetItem
-							after
-							className="pr-3"
-							tag="span"
-						>
-							<ClayIcon symbol="search" />
-						</ClayInput.GroupInsetItem>
+						{searchKeyword === '' ? (
+							<ClayInput.GroupInsetItem
+								after
+								className="pr-3"
+								tag="span"
+							>
+								<ClayIcon symbol="search" />
+							</ClayInput.GroupInsetItem>
+						) : (
+							<ClayInput.GroupInsetItem
+								after
+								className="pr-1"
+								tag="span"
+							>
+								<ClayButtonWithIcon
+									aria-label={Liferay.Language.get('clear')}
+									displayType="unstyled"
+									onClick={() => setSearchKeyword('')}
+									symbol="times"
+								/>
+							</ClayInput.GroupInsetItem>
+						)}
 					</ClayInput.GroupItem>
 				</ClayInput.Group>
 			</div>
@@ -96,7 +110,7 @@ export default function SidebarHeader({
 						<ClayResultsBar>
 							<ClayResultsBar.Item className="results-angle-left">
 								<ClayButtonWithIcon
-									aria-label="Back"
+									aria-label={Liferay.Language.get('back')}
 									displayType="unstyled"
 									onClick={() =>
 										navHistory.length > 1 &&
@@ -107,15 +121,20 @@ export default function SidebarHeader({
 							</ClayResultsBar.Item>
 
 							<ClayResultsBar.Item className="results-info">
-								<span className="component-text text-truncate">
-									{sub(
-										Liferay.Language.get(
-											'x-related-objects-for-x'
+								<span
+									className="sidebar-results-text"
+									dangerouslySetInnerHTML={{
+										__html: sub(
+											Liferay.Language.get(
+												'x-related-objects-for-x'
+											),
+											navHistory[0].length,
+											`<strong>"${getParentLabel(
+												navHistory
+											)}"</strong>`
 										),
-										navHistory[0].length,
-										`"${getParentLabel(navHistory)}`
-									)}
-								</span>
+									}}
+								/>
 							</ClayResultsBar.Item>
 
 							<ClayResultsBar.Item className="results-close-button">

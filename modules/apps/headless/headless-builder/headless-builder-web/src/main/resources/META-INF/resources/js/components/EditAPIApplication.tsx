@@ -12,7 +12,7 @@ import ClayNavigationBar from '@clayui/navigation-bar';
 import {localStorage, openModal, openToast} from 'frontend-js-web';
 import React, {useCallback, useEffect, useState} from 'react';
 
-import APIEndpointsTable from '../components/FDS/APIEndpointsTable';
+import EndpointsContent from '../components/EndpointsContent';
 import SchemasContent from '../components/SchemasContent';
 import {APIApplicationManagementToolbar} from './APIApplicationManagementToolbar';
 import {EditAPIApplicationContext} from './EditAPIApplicationContext';
@@ -34,11 +34,6 @@ interface EditAPIApplicationProps {
 	portletId: string;
 }
 
-type DataError = {
-	baseURL: boolean;
-	title: boolean;
-};
-
 export default function EditAPIApplication({
 	apiURLPaths,
 	basePath,
@@ -55,7 +50,7 @@ export default function EditAPIApplication({
 		})
 	);
 
-	const [displayError, setDisplayError] = useState<DataError>({
+	const [displayError, setDisplayError] = useState<ApplicationDataError>({
 		baseURL: false,
 		title: false,
 	});
@@ -306,7 +301,7 @@ export default function EditAPIApplication({
 				(errors, field) => ({...errors, [field]: true}),
 				{}
 			);
-			setDisplayError(errors as DataError);
+			setDisplayError(errors as ApplicationDataError);
 
 			isDataValid = false;
 		}
@@ -381,24 +376,29 @@ export default function EditAPIApplication({
 							</ClayModal.Header>
 
 							<ClayCard.Body>
-								<BaseAPIApplicationField
-									basePath={basePath}
-									data={localUIData}
-									disableURLAutoFill
-									displayError={displayError}
-									setData={setLocalUIData}
-								/>
+								<div className="application-fields-card-body">
+									<BaseAPIApplicationField
+										basePath={basePath}
+										data={localUIData}
+										disableURLAutoFill
+										displayError={displayError}
+										setData={setLocalUIData}
+									/>
+								</div>
 							</ClayCard.Body>
 						</ClayCard>
 					</ClayLayout.Container>
 				)}
 				{activeNav === 'endpoints' && (
-					<APIEndpointsTable
-						apiApplicationBaseURL={localUIData.baseURL}
+					<EndpointsContent
+						apiApplicationData={localUIData}
 						apiURLPaths={apiURLPaths}
+						basePath={basePath}
 						currentAPIApplicationId={currentAPIApplicationId}
 						portletId={portletId}
-						readOnly={false}
+						setManagementButtonsProps={setManagementButtonsProps}
+						setStatus={setStatus}
+						setTitle={setTitle}
 					/>
 				)}
 				{activeNav === 'schemas' && (

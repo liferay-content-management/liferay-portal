@@ -19,17 +19,6 @@ definition {
 		}
 	}
 
-	tearDown {
-		var testLiferayVirtualInstance = PropsUtil.get("test.liferay.virtual.instance");
-
-		if (${testLiferayVirtualInstance} == "true") {
-			PortalInstances.tearDownCP();
-		}
-		else {
-			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
-		}
-	}
-
 	@description = "This is a test for LPS-81244. The web content can be assigned to the default display page."
 	@priority = 4
 	test AddWebContentAssignedToDefaultDisplayPage {
@@ -116,6 +105,77 @@ definition {
 				webContentTitle = "Web Content Title");
 
 			WebContent.viewExpirationDateCP(expirationDate = "01/02/3000");
+		}
+	}
+
+	@description = "This is a test for LPS-192836. Assert can select feature image from Document and Media in web content creation."
+	@priority = 5
+	test AddWebContentWithFeaturedImageFromDocumentsAndMedia {
+		property custom.properties = "feature.flag.LPS-180855=true";
+
+		task ("Given a user accesses to the web content editor") {
+			HeadlessSite.addSite(
+				siteName = "Site Name",
+				templateName = "Welcome",
+				templateType = "Site Initializer");
+
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
+
+			WebContentNavigator.gotoAddCP();
+
+			WebContent.addCP(webContentTitle = "Web Content Title");
+		}
+
+		task ("When the user selects the From Documents and Media as Featured Image") {
+			Panel.expandPanel(panel = "Featured Image");
+
+			Select(
+				locator1 = "WCEditWebContent#SELECT_FEATURED_IMAGE_TYPE",
+				value1 = "From Documents and Media");
+		}
+
+		task ("Then the user cannot publish the web content without select an existing small image") {
+			Button.clickPublish();
+
+			Alert.viewErrorMessage(errorMessage = "Please select an existing small image.");
+		}
+
+		task ("When the user selects an image from Documents and Media") {
+			WebContent.addFeaturedImageFromDocumentsAndMedia(
+				dmFolderName = "Provided by Liferay",
+				imageFileName = "earth.png");
+		}
+
+		task ("Then the user could publish the web content") {
+			PortletEntry.publish();
+
+			LexiconEntry.changeDisplayStyle(displayStyle = "cards");
+
+			LexiconCard.viewSpecificCardThumbnail(
+				card = "Web Content Title",
+				imageFileName = "earth.png");
+		}
+
+		task ("When the user edits the web content") {
+			WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
+
+			AssertTextEquals(
+				locator1 = "WCEditWebContent#SELECT_FEATURED_IMAGE_INPUT",
+				value1 = "earth.png");
+		}
+
+		task ("Then the user could change the selected featured image") {
+			WebContent.addFeaturedImageFromDocumentsAndMedia(
+				dmFolderName = "Provided by Liferay",
+				imageFileName = "moon.png");
+
+			PortletEntry.publish();
+
+			LexiconEntry.changeDisplayStyle(displayStyle = "cards");
+
+			LexiconCard.viewSpecificCardThumbnail(
+				card = "Web Content Title",
+				imageFileName = "moon.png");
 		}
 	}
 

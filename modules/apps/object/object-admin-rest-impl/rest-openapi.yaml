@@ -49,6 +49,8 @@ components:
                 status:
                     $ref: "#/components/schemas/Status"
                     readOnly: true
+                system:
+                    type: boolean
             type: object
         ObjectDefinition:
             properties:
@@ -432,6 +434,8 @@ components:
                 reverse:
                     readOnly: true
                     type: boolean
+                system:
+                    type: boolean
                 type:
                     enum: [oneToMany, oneToOne, manyToMany]
                     type: string
@@ -488,6 +492,8 @@ components:
                     additionalProperties:
                         type: string
                     type: object
+                externalReferenceCode:
+                    type: string
                 id:
                     format: int64
                     readOnly: true
@@ -621,7 +627,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.object.admin.rest.client', and version '1.0.59'."
+        'com.liferay.object.admin.rest.client', and version '1.0.60'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

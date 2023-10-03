@@ -60,6 +60,7 @@ import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.model.impl.ObjectDefinitionImpl;
 import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionLocalizationTable;
 import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionTable;
+import com.liferay.object.related.models.ObjectRelatedModelsProviderRegistrarHelper;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectActionLocalService;
 import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
@@ -313,14 +314,18 @@ public class ObjectDefinitionLocalServiceImpl
 
 			if (oldObjectField == null) {
 				_objectFieldLocalService.addSystemObjectField(
-					userId, newObjectField.getListTypeDefinitionId(),
+					newObjectField.getExternalReferenceCode(), userId,
+					newObjectField.getListTypeDefinitionId(),
 					objectDefinition.getObjectDefinitionId(),
 					newObjectField.getBusinessType(),
 					newObjectField.getDBColumnName(),
 					objectDefinition.getDBTableName(),
 					newObjectField.getDBType(), false, false, "",
 					newObjectField.getLabelMap(), newObjectField.getName(),
-					newObjectField.isRequired(), newObjectField.isState());
+					newObjectField.getReadOnly(),
+					newObjectField.getReadOnlyConditionExpression(),
+					newObjectField.isRequired(), newObjectField.isState(),
+					newObjectField.getObjectFieldSettings());
 			}
 			else {
 				if (!Objects.equals(
@@ -401,7 +406,7 @@ public class ObjectDefinitionLocalServiceImpl
 			_objectRelationshipLocalService.updateObjectRelationship(
 				objectRelationship.getObjectRelationshipId(),
 				objectRelationship.getParameterObjectFieldId(),
-				objectRelationship.getDeletionType(), true,
+				ObjectRelationshipConstants.DELETION_TYPE_CASCADE, true,
 				objectRelationship.getLabelMap());
 
 			ObjectDefinition objectDefinition1 =
@@ -421,6 +426,9 @@ public class ObjectDefinitionLocalServiceImpl
 			objectDefinitionLocalService.updateRootObjectDefinitionId(
 				objectDefinition2.getObjectDefinitionId(),
 				rootObjectDefinitionId);
+
+			_objectFieldLocalService.updateRequired(
+				objectRelationship.getObjectFieldId2(), true);
 		}
 	}
 
@@ -767,9 +775,23 @@ public class ObjectDefinitionLocalServiceImpl
 		return objectDefinitionPersistence.findByObjectFolderId(objectFolderId);
 	}
 
+	public int getObjectFolderObjectDefinitionsCount(long objectFolderId)
+		throws PortalException {
+
+		return objectDefinitionPersistence.countByObjectFolderId(
+			objectFolderId);
+	}
+
 	@Override
 	public List<ObjectDefinition> getSystemObjectDefinitions() {
 		return objectDefinitionPersistence.findBySystem(true);
+	}
+
+	@Override
+	public List<ObjectDefinition> getUnmodifiableSystemObjectDefinitions(
+		long companyId) {
+
+		return objectDefinitionPersistence.findByC_M_S(companyId, false, true);
 	}
 
 	@Override
@@ -846,6 +868,7 @@ public class ObjectDefinitionLocalServiceImpl
 		InactiveObjectDefinitionDeployer inactiveObjectDefinitionDeployer =
 			new InactiveObjectDefinitionDeployerImpl(
 				_bundleContext, _objectEntryService, _objectFieldLocalService,
+				_objectRelatedModelsProviderRegistrarHelper,
 				_objectRelationshipLocalService);
 		Map<Long, List<ServiceRegistration<?>>>
 			inactiveServiceRegistrationsMap = new ConcurrentHashMap<>();
@@ -856,9 +879,11 @@ public class ObjectDefinitionLocalServiceImpl
 				_assetEntryLocalService, _bundleContext,
 				_dynamicQueryBatchIndexingActionableFactory, _groupLocalService,
 				_listTypeLocalService, _modelSearchRegistrarHelper,
-				_objectActionLocalService, this, _objectEntryLocalService,
-				_objectEntryService, _objectFieldLocalService,
-				_objectLayoutLocalService, _objectLayoutTabLocalService,
+				_objectActionLocalService, objectDefinitionLocalService,
+				_objectEntryLocalService, _objectEntryService,
+				_objectFieldLocalService, _objectLayoutLocalService,
+				_objectLayoutTabLocalService,
+				_objectRelatedModelsProviderRegistrarHelper,
 				_objectRelationshipLocalService, _objectScopeProviderRegistry,
 				_objectViewLocalService, _organizationLocalService,
 				_persistedModelLocalServiceRegistry, _ploEntryLocalService,
@@ -1162,8 +1187,8 @@ public class ObjectDefinitionLocalServiceImpl
 			objectDefinitionPersistence.findByPrimaryKey(
 				rootObjectDefinitionId);
 
-		if ((objectDefinitionId != rootObjectDefinitionId) &&
-			(rootObjectDefinition.getRootObjectDefinitionId() == 0)) {
+		if (!rootObjectDefinition.isRootNode() &&
+			(objectDefinitionId != rootObjectDefinitionId)) {
 
 			throw new ObjectDefinitionRootObjectDefinitionIdException(
 				"Object definition " + rootObjectDefinitionId +
@@ -1368,7 +1393,8 @@ public class ObjectDefinitionLocalServiceImpl
 					objectField.isSystem()) {
 
 					_objectFieldLocalService.addOrUpdateSystemObjectField(
-						userId, objectField.getListTypeDefinitionId(),
+						objectField.getExternalReferenceCode(), userId,
+						objectField.getListTypeDefinitionId(),
 						objectDefinition.getObjectDefinitionId(),
 						objectField.getBusinessType(),
 						objectField.getDBColumnName(),
@@ -1377,7 +1403,10 @@ public class ObjectDefinitionLocalServiceImpl
 						objectField.isIndexedAsKeyword(),
 						objectField.getIndexedLanguageId(),
 						objectField.getLabelMap(), objectField.getName(),
-						objectField.isRequired(), objectField.isState());
+						objectField.getReadOnly(),
+						objectField.getReadOnlyConditionExpression(),
+						objectField.isRequired(), objectField.isState(),
+						objectField.getObjectFieldSettings());
 				}
 				else {
 					_objectFieldLocalService.addCustomObjectField(
@@ -1427,7 +1456,8 @@ public class ObjectDefinitionLocalServiceImpl
 				objectAction.getName(),
 				objectAction.getObjectActionExecutorKey(),
 				objectAction.getObjectActionTriggerKey(),
-				objectAction.getParametersUnicodeProperties());
+				objectAction.getParametersUnicodeProperties(),
+				objectAction.getSystem());
 		}
 	}
 
@@ -1437,25 +1467,27 @@ public class ObjectDefinitionLocalServiceImpl
 		throws PortalException {
 
 		_objectFieldLocalService.addSystemObjectField(
-			userId, 0, objectDefinition.getObjectDefinitionId(),
+			null, userId, 0, objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectEntryTable.INSTANCE.userName.getName(), dbTableName,
 			ObjectFieldConstants.DB_TYPE_STRING, false, false, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "author")),
-			"creator", false, false);
+			"creator", ObjectFieldConstants.READ_ONLY_FALSE, null, false, false,
+			null);
 
 		_objectFieldLocalService.addSystemObjectField(
-			userId, 0, objectDefinition.getObjectDefinitionId(),
+			null, userId, 0, objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_DATE,
 			ObjectEntryTable.INSTANCE.createDate.getName(), dbTableName,
 			ObjectFieldConstants.DB_TYPE_DATE, false, false, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "create-date")),
-			"createDate", false, false);
+			"createDate", ObjectFieldConstants.READ_ONLY_FALSE, null, false,
+			false, null);
 
 		_objectFieldLocalService.addSystemObjectField(
-			userId, 0, objectDefinition.getObjectDefinitionId(),
+			null, userId, 0, objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectEntryTable.INSTANCE.externalReferenceCode.getName(),
 			dbTableName, ObjectFieldConstants.DB_TYPE_STRING, false, false,
@@ -1463,7 +1495,8 @@ public class ObjectDefinitionLocalServiceImpl
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(
 					LocaleUtil.getDefault(), "external-reference-code")),
-			"externalReferenceCode", false, false);
+			"externalReferenceCode", ObjectFieldConstants.READ_ONLY_FALSE, null,
+			false, false, null);
 
 		String dbColumnName = ObjectEntryTable.INSTANCE.objectEntryId.getName();
 
@@ -1472,30 +1505,33 @@ public class ObjectDefinitionLocalServiceImpl
 		}
 
 		_objectFieldLocalService.addSystemObjectField(
-			userId, 0, objectDefinition.getObjectDefinitionId(),
+			null, userId, 0, objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_LONG_INTEGER, dbColumnName,
 			dbTableName, ObjectFieldConstants.DB_TYPE_LONG, true, true, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "id")),
-			"id", false, false);
+			"id", ObjectFieldConstants.READ_ONLY_FALSE, null, false, false,
+			null);
 
 		_objectFieldLocalService.addSystemObjectField(
-			userId, 0, objectDefinition.getObjectDefinitionId(),
+			null, userId, 0, objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_DATE,
 			ObjectEntryTable.INSTANCE.modifiedDate.getName(), dbTableName,
 			ObjectFieldConstants.DB_TYPE_DATE, false, false, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "modified-date")),
-			"modifiedDate", false, false);
+			"modifiedDate", ObjectFieldConstants.READ_ONLY_FALSE, null, false,
+			false, null);
 
 		_objectFieldLocalService.addSystemObjectField(
-			userId, 0, objectDefinition.getObjectDefinitionId(),
+			null, userId, 0, objectDefinition.getObjectDefinitionId(),
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
 			ObjectEntryTable.INSTANCE.status.getName(), dbTableName,
 			ObjectFieldConstants.DB_TYPE_INTEGER, false, false, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "status")),
-			"status", false, false);
+			"status", ObjectFieldConstants.READ_ONLY_FALSE, null, false, false,
+			null);
 	}
 
 	private void _createLocalizationTable(ObjectDefinition objectDefinition) {
@@ -1618,7 +1654,7 @@ public class ObjectDefinitionLocalServiceImpl
 
 		if (objectFolderId == 0) {
 			ObjectFolder objectFolder =
-				_objectFolderLocalService.addOrGetUncategorizedObjectFolder(
+				_objectFolderLocalService.getUncategorizedObjectFolder(
 					companyId);
 
 			return objectFolder.getObjectFolderId();
@@ -1730,6 +1766,11 @@ public class ObjectDefinitionLocalServiceImpl
 		}
 
 		objectDefinition.setActive(true);
+
+		if (objectDefinition.isRootDescendantNode()) {
+			objectDefinition.setPanelCategoryKey(StringPool.BLANK);
+		}
+
 		objectDefinition.setStatus(WorkflowConstants.STATUS_APPROVED);
 
 		objectDefinition = objectDefinitionPersistence.update(objectDefinition);
@@ -2389,6 +2430,10 @@ public class ObjectDefinitionLocalServiceImpl
 
 	@Reference
 	private ObjectLayoutTabLocalService _objectLayoutTabLocalService;
+
+	@Reference
+	private ObjectRelatedModelsProviderRegistrarHelper
+		_objectRelatedModelsProviderRegistrarHelper;
 
 	@Reference
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;

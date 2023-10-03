@@ -38,17 +38,11 @@ interface EditAPISchemaProps {
 	apiURLPaths: APIURLPaths;
 	currentAPIApplicationId: string;
 	schemaId: number;
-	setMainSchemaNav: Dispatch<SetStateAction<MainSchemaNav>>;
+	setMainSchemaNav: Dispatch<SetStateAction<MainNav>>;
 	setManagementButtonsProps: Dispatch<SetStateAction<ManagementButtonsProps>>;
 	setStatus: Dispatch<SetStateAction<ApplicationStatusKeys>>;
 	setTitle: Dispatch<SetStateAction<string>>;
 }
-
-type DataError = {
-	description: boolean;
-	mainObjectDefinitionERC: boolean;
-	name: boolean;
-};
 
 export default function EditAPISchema({
 	apiURLPaths,
@@ -69,7 +63,7 @@ export default function EditAPISchema({
 
 	const [activeTab, setActiveTab] = useState(0);
 
-	const [displayError, setDisplayError] = useState<DataError>({
+	const [displayError, setDisplayError] = useState<SchemaDataError>({
 		description: false,
 		mainObjectDefinitionERC: false,
 		name: false,
@@ -154,7 +148,7 @@ export default function EditAPISchema({
 				(errors, field) => ({...errors, [field]: true}),
 				{}
 			);
-			setDisplayError(errors as DataError);
+			setDisplayError(errors as SchemaDataError);
 
 			isDataValid = false;
 		}
@@ -255,7 +249,9 @@ export default function EditAPISchema({
 						...(localUIData.schemaProperties.length && {
 							apiSchemaToAPIProperties: localUIData.schemaProperties.map(
 								(property) => ({
-									description: property.description,
+									...(!!property.description && {
+										description: property.description,
+									}),
 									name: property.name,
 									objectFieldERC: property.objectFieldERC,
 									r_apiSchemaToAPIProperties_c_apiSchemaId:
@@ -373,7 +369,7 @@ export default function EditAPISchema({
 			)
 		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [localUIData]);
+	}, [fetchedSchemaData, localUIData]);
 
 	return (
 		<EditSchemaContext.Provider
@@ -389,7 +385,7 @@ export default function EditAPISchema({
 				<div className="edit-schema">
 					<div className="container-fluid container-fluid-max-xl edit-schema-child mt-3">
 						<ClayBreadcrumb
-							className="api-builder-navigation-breadcrum"
+							className="api-builder-navigation-breadcrumb"
 							items={[
 								{
 									label: Liferay.Language.get('schemas'),
@@ -431,47 +427,57 @@ export default function EditAPISchema({
 							</ClayTabs>
 
 							<ClayTabs.Content activeIndex={activeTab} fade>
-								<ClayTabs.TabPane
-									aria-label={Liferay.Language.get(
-										'information-tab'
-									)}
-									className="schema-tabs"
-								>
-									<ClayCard.Body>
-										<BaseAPISchemaFields
-											data={localUIData}
-											disableObjectSelect
-											displayError={displayError}
-											setData={setLocalUIData}
-										/>
-									</ClayCard.Body>
-								</ClayTabs.TabPane>
-
-								<ClayTabs.TabPane
-									aria-label={Liferay.Language.get(
-										'properties-tab'
-									)}
-									className="schema-tabs"
-								>
-									<ClayCard.Body>
-										{fetchedSchemaData.apiSchema &&
-											fetchedSchemaData.objectDefinitions && (
-												<EditAPISchemaProperties
-													fetchedSchemaData={
-														fetchedSchemaData
-													}
-													schemaId={schemaId}
-													schemaUIData={localUIData}
-													setFetchedSchemaData={
-														setFetchedSchemaData
-													}
-													setSchemaUIData={
-														setLocalUIData
-													}
+								{activeTab === 0 && (
+									<ClayTabs.TabPane
+										aria-label={Liferay.Language.get(
+											'information-tab'
+										)}
+										className="schema-tabs"
+									>
+										<ClayCard.Body>
+											<div className="schema-fields-card-body">
+												<BaseAPISchemaFields
+													data={localUIData}
+													disableObjectSelect
+													displayError={displayError}
+													setData={setLocalUIData}
 												/>
-											)}
-									</ClayCard.Body>
-								</ClayTabs.TabPane>
+											</div>
+										</ClayCard.Body>
+									</ClayTabs.TabPane>
+								)}
+
+								{activeTab === 1 && (
+									<ClayTabs.TabPane
+										aria-label={Liferay.Language.get(
+											'properties-tab'
+										)}
+										className="schema-tabs"
+									>
+										<ClayCard.Body>
+											<div className="schema-properties-card-body">
+												{fetchedSchemaData.apiSchema &&
+													fetchedSchemaData.objectDefinitions && (
+														<EditAPISchemaProperties
+															fetchedSchemaData={
+																fetchedSchemaData
+															}
+															schemaId={schemaId}
+															schemaUIData={
+																localUIData
+															}
+															setFetchedSchemaData={
+																setFetchedSchemaData
+															}
+															setSchemaUIData={
+																setLocalUIData
+															}
+														/>
+													)}
+											</div>
+										</ClayCard.Body>
+									</ClayTabs.TabPane>
+								)}
 							</ClayTabs.Content>
 						</ClayCard>
 					</div>

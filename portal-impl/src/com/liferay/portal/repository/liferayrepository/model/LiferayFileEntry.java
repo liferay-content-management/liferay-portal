@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.repository.Repository;
 import com.liferay.portal.kernel.repository.RepositoryProviderUtil;
 import com.liferay.portal.kernel.repository.capabilities.Capability;
@@ -28,9 +29,9 @@ import com.liferay.portal.kernel.repository.model.RepositoryModelOperation;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionRegistryUtil;
 import com.liferay.portal.kernel.trash.helper.TrashHelper;
 import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portlet.documentlibrary.util.RepositoryModelUtil;
 
 import java.io.InputStream;
@@ -65,7 +66,12 @@ public class LiferayFileEntry extends LiferayModel implements FileEntry {
 			PermissionChecker permissionChecker, String actionId)
 		throws PortalException {
 
-		return _dlFileEntryModelResourcePermission.contains(
+		ModelResourcePermission<DLFileEntry>
+			dlFileEntryModelResourcePermission =
+				ModelResourcePermissionRegistryUtil.getModelResourcePermission(
+					DLFileEntry.class.getName());
+
+		return dlFileEntryModelResourcePermission.contains(
 			permissionChecker, _dlFileEntry, actionId);
 	}
 
@@ -439,7 +445,9 @@ public class LiferayFileEntry extends LiferayModel implements FileEntry {
 	@Override
 	public boolean isInTrashContainer() {
 		try {
-			return _trashHelper.isInTrashContainer(_dlFileEntry);
+			TrashHelper trashHelper = _trashHelperSnapshot.get();
+
+			return trashHelper.isInTrashContainer(_dlFileEntry);
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
@@ -574,15 +582,8 @@ public class LiferayFileEntry extends LiferayModel implements FileEntry {
 	private static final Log _log = LogFactoryUtil.getLog(
 		LiferayFileEntry.class);
 
-	private static volatile ModelResourcePermission<DLFileEntry>
-		_dlFileEntryModelResourcePermission =
-			ServiceProxyFactory.newServiceTrackedInstance(
-				ModelResourcePermission.class, LiferayFileEntry.class,
-				"_dlFileEntryModelResourcePermission",
-				"(model.class.name=" + DLFileEntry.class.getName() + ")", true);
-	private static volatile TrashHelper _trashHelper =
-		ServiceProxyFactory.newServiceTrackedInstance(
-			TrashHelper.class, LiferayFileEntry.class, "_trashHelper", false);
+	private static final Snapshot<TrashHelper> _trashHelperSnapshot =
+		new Snapshot<>(LiferayFileEntry.class, TrashHelper.class);
 
 	private final DLFileEntry _dlFileEntry;
 	private DLFileVersion _dlFileVersion;

@@ -6,7 +6,6 @@
 package com.liferay.portal.osgi.web.http.servlet.internal.activator;
 
 import com.liferay.petra.function.transform.TransformUtil;
-import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.SecureRandomUtil;
@@ -15,11 +14,10 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.osgi.web.http.servlet.HttpServletEndpoint;
+import com.liferay.portal.osgi.web.http.servlet.internal.HttpServletEndpointControllerImpl;
 import com.liferay.portal.osgi.web.http.servlet.internal.servlet.HttpServletEndpointServlet;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
@@ -30,19 +28,19 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import org.eclipse.equinox.http.servlet.internal.Activator;
-import org.eclipse.equinox.http.servlet.internal.HttpServiceFactory;
-import org.eclipse.equinox.http.servlet.internal.HttpServiceRuntimeImpl;
+import org.eclipse.equinox.http.servlet.internal.HttpServletEndpointController;
+import org.eclipse.equinox.http.servlet.internal.context.ContextController;
 import org.eclipse.equinox.http.servlet.internal.servlet.HttpSessionTracker;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.http.HttpService;
 import org.osgi.service.http.runtime.HttpServiceRuntime;
 import org.osgi.service.http.runtime.HttpServiceRuntimeConstants;
+import org.osgi.service.http.runtime.dto.RequestInfoDTO;
+import org.osgi.service.http.runtime.dto.RuntimeDTO;
+import org.osgi.service.http.runtime.dto.ServletContextDTO;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
@@ -154,7 +152,7 @@ public class HttpServletImplBundleActivator implements BundleActivator {
 
 			Map<String, Object> attributesMap =
 				HashMapBuilder.<String, Object>put(
-					Activator.UNIQUE_SERVICE_ID, SecureRandomUtil.nextLong()
+					"http.servlet.endpoint.id", SecureRandomUtil.nextLong()
 				).put(
 					ListUtil.fromEnumeration(
 						servletConfig.getInitParameterNames()),
@@ -176,53 +174,53 @@ public class HttpServletImplBundleActivator implements BundleActivator {
 					}
 				).build();
 
-			HttpServiceRuntimeImpl httpServiceRuntimeImpl =
-				new HttpServiceRuntimeImpl(
-					_bundleContext, _bundleContext, servletContext,
-					Collections.unmodifiableMap(attributesMap));
+			HttpServletEndpointController httpServletEndpointController =
+				new HttpServletEndpointControllerImpl(
+					Collections.unmodifiableMap(attributesMap), _bundleContext,
+					servletContext);
 
 			return new ServiceRegistrationsBag(
-				httpServiceRuntimeImpl,
+				httpServletEndpointController,
 				_bundleContext.registerService(
 					HttpServlet.class,
 					new HttpServletEndpointServlet(
-						httpServiceRuntimeImpl, servletConfig),
+						httpServletEndpointController, servletConfig),
 					httpServletEndpoint.getProperties()),
 				_bundleContext.registerService(
-					HttpService.class,
-					new HttpServiceFactory(httpServiceRuntimeImpl),
-					HashMapDictionaryBuilder.putAll(
-						attributesMap
-					).build()),
-				_bundleContext.registerService(
-					HttpServiceRuntime.class, httpServiceRuntimeImpl,
-					HashMapDictionaryBuilder.putAll(
-						attributesMap
-					).put(
-						HttpServiceRuntimeConstants.HTTP_SERVICE_ID,
-						() -> {
-							Collection<ServiceReference<HttpService>>
-								serviceReferences =
-									_bundleContext.getServiceReferences(
-										HttpService.class,
-										StringBundler.concat(
-											"(", Activator.UNIQUE_SERVICE_ID,
-											"=",
-											attributesMap.get(
-												Activator.UNIQUE_SERVICE_ID),
-											")"));
+					HttpServiceRuntime.class,
+					new HttpServiceRuntime() {
 
-							Iterator<ServiceReference<HttpService>> iterator =
-								serviceReferences.iterator();
+						@Override
+						public RequestInfoDTO calculateRequestInfoDTO(
+							String path) {
 
-							ServiceReference<?>
-								httpServiceFactoryServiceReference =
-									iterator.next();
-
-							return Collections.singletonList(
-								httpServiceFactoryServiceReference.getProperty(
-									Constants.SERVICE_ID));
+							throw new UnsupportedOperationException();
 						}
+
+						@Override
+						public RuntimeDTO getRuntimeDTO() {
+							RuntimeDTO runtimeDTO = new RuntimeDTO();
+
+							runtimeDTO.serviceDTO = null;
+							runtimeDTO.failedErrorPageDTOs = null;
+							runtimeDTO.failedFilterDTOs = null;
+							runtimeDTO.failedListenerDTOs = null;
+							runtimeDTO.failedResourceDTOs = null;
+							runtimeDTO.failedServletContextDTOs = null;
+							runtimeDTO.failedServletDTOs = null;
+							runtimeDTO.servletContextDTOs =
+								TransformUtil.transformToArray(
+									httpServletEndpointController.
+										getContextControllers(),
+									ContextController::getServletContextDTO,
+									ServletContextDTO.class);
+
+							return runtimeDTO;
+						}
+
+					},
+					HashMapDictionaryBuilder.putAll(
+						attributesMap
 					).build()));
 		}
 
@@ -243,7 +241,7 @@ public class HttpServletImplBundleActivator implements BundleActivator {
 				serviceRegistration.unregister();
 			}
 
-			serviceRegistrationsBag._httpServiceRuntimeImpl.destroy();
+			serviceRegistrationsBag._httpServletEndpointController.destroy();
 
 			_bundleContext.ungetService(serviceReference);
 		}
@@ -261,14 +259,15 @@ public class HttpServletImplBundleActivator implements BundleActivator {
 	private static class ServiceRegistrationsBag {
 
 		private ServiceRegistrationsBag(
-			HttpServiceRuntimeImpl httpServiceRuntimeImpl,
+			HttpServletEndpointController httpServletEndpointController,
 			ServiceRegistration<?>... serviceRegistrations) {
 
-			_httpServiceRuntimeImpl = httpServiceRuntimeImpl;
+			_httpServletEndpointController = httpServletEndpointController;
 			_serviceRegistrations = serviceRegistrations;
 		}
 
-		private final HttpServiceRuntimeImpl _httpServiceRuntimeImpl;
+		private final HttpServletEndpointController
+			_httpServletEndpointController;
 		private final ServiceRegistration<?>[] _serviceRegistrations;
 
 	}

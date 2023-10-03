@@ -15,6 +15,7 @@ import com.liferay.info.item.InfoItemFormVariation;
 import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemDetailsProvider;
 import com.liferay.info.item.provider.InfoItemFormVariationsProvider;
+import com.liferay.layout.constants.LayoutTypeSettingsConstants;
 import com.liferay.layout.page.template.admin.web.internal.servlet.taglib.util.DisplayPageActionDropdownItemsProvider;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.petra.string.StringPool;
@@ -118,13 +119,20 @@ public class DisplayPageVerticalCard
 	}
 
 	@Override
+	public String getInputName() {
+		return rowChecker.getRowIds() +
+			LayoutPageTemplateEntry.class.getSimpleName();
+	}
+
+	@Override
 	public List<LabelItem> getLabels() {
 		if (_draftLayout == null) {
 			return Collections.emptyList();
 		}
 
 		if (!GetterUtil.getBoolean(
-				_draftLayout.getTypeSettingsProperty("published"))) {
+				_draftLayout.getTypeSettingsProperty(
+					LayoutTypeSettingsConstants.KEY_PUBLISHED))) {
 
 			return LabelItemListBuilder.add(
 				labelItem -> labelItem.setStatus(WorkflowConstants.STATUS_DRAFT)

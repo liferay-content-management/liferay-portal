@@ -21,11 +21,11 @@ import com.liferay.data.engine.rest.dto.v2_0.DataLayoutRow;
 import com.liferay.data.engine.rest.dto.v2_0.DataListView;
 import com.liferay.data.engine.rest.dto.v2_0.DataRecordCollection;
 import com.liferay.data.engine.rest.dto.v2_0.util.DataDefinitionDDMFormUtil;
-import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeRegistry;
+import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeRegistryUtil;
 import com.liferay.data.engine.rest.internal.dto.v2_0.util.DataDefinitionUtil;
 import com.liferay.data.engine.rest.internal.dto.v2_0.util.DataLayoutUtil;
 import com.liferay.data.engine.rest.internal.odata.entity.v2_0.DataDefinitionEntityModel;
-import com.liferay.data.engine.rest.internal.security.permission.resource.DataDefinitionModelResourcePermission;
+import com.liferay.data.engine.rest.internal.security.permission.resource.util.DataDefinitionPermissionUtil;
 import com.liferay.data.engine.rest.resource.exception.DataDefinitionValidationException;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
 import com.liferay.data.engine.rest.resource.v2_0.DataLayoutResource;
@@ -147,8 +147,9 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 
 	@Override
 	public void deleteDataDefinition(Long dataDefinitionId) throws Exception {
-		_dataDefinitionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
+		DataDefinitionPermissionUtil.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			_ddmStructureLocalService.getDDMStructure(dataDefinitionId),
 			ActionKeys.DELETE);
 
 		List<DDMStructureLink> ddmStructureLinks =
@@ -158,7 +159,7 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 			dataDefinitionId);
 
 		DataDefinitionContentType dataDefinitionContentType =
-			_dataDefinitionContentTypeRegistry.getDataDefinitionContentType(
+			DataDefinitionContentTypeRegistryUtil.getDataDefinitionContentType(
 				ddmStructure.getClassNameId());
 
 		List<DEDataDefinitionFieldLink> deDataDefinitionFieldLinks =
@@ -257,12 +258,12 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 	public DataDefinition getDataDefinition(Long dataDefinitionId)
 		throws Exception {
 
-		_dataDefinitionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
+		DataDefinitionPermissionUtil.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			_ddmStructureLocalService.getDDMStructure(dataDefinitionId),
 			ActionKeys.VIEW);
 
 		return DataDefinitionUtil.toDataDefinition(
-			_dataDefinitionContentTypeRegistry,
 			_ddmFormFieldTypeServicesRegistry,
 			_ddmStructureLocalService.getStructure(dataDefinitionId),
 			_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter);
@@ -304,8 +305,9 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 			Long dataDefinitionId, String roleNames)
 		throws Exception {
 
-		_dataDefinitionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
+		DataDefinitionPermissionUtil.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			_ddmStructureLocalService.getDDMStructure(dataDefinitionId),
 			ActionKeys.PERMISSIONS);
 
 		String resourceName = getPermissionCheckerResourceName(
@@ -336,15 +338,14 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
 			siteId,
-			_dataDefinitionContentTypeRegistry.getClassNameId(contentType),
+			DataDefinitionContentTypeRegistryUtil.getClassNameId(contentType),
 			dataDefinitionKey);
 
-		_dataDefinitionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(),
-			ddmStructure.getStructureId(), ActionKeys.VIEW);
+		DataDefinitionPermissionUtil.check(
+			PermissionThreadLocal.getPermissionChecker(), ddmStructure,
+			ActionKeys.VIEW);
 
 		return DataDefinitionUtil.toDataDefinition(
-			_dataDefinitionContentTypeRegistry,
 			_ddmFormFieldTypeServicesRegistry, ddmStructure,
 			_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter);
 	}
@@ -376,7 +377,7 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 				transform(
 					_ddmStructureLocalService.getStructures(
 						siteId,
-						_dataDefinitionContentTypeRegistry.getClassNameId(
+						DataDefinitionContentTypeRegistryUtil.getClassNameId(
 							contentType),
 						pagination.getStartPosition(),
 						pagination.getEndPosition(),
@@ -386,7 +387,7 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 				pagination,
 				_ddmStructureLocalService.getStructuresCount(
 					siteId,
-					_dataDefinitionContentTypeRegistry.getClassNameId(
+					DataDefinitionContentTypeRegistryUtil.getClassNameId(
 						contentType)));
 		}
 
@@ -400,7 +401,7 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 			searchContext -> {
 				searchContext.setAttribute(
 					Field.CLASS_NAME_ID,
-					_dataDefinitionContentTypeRegistry.getClassNameId(
+					DataDefinitionContentTypeRegistryUtil.getClassNameId(
 						contentType));
 				searchContext.setAttribute(Field.DESCRIPTION, keywords);
 				searchContext.setAttribute(Field.NAME, keywords);
@@ -409,7 +410,6 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 			},
 			sorts,
 			document -> DataDefinitionUtil.toDataDefinition(
-				_dataDefinitionContentTypeRegistry,
 				_ddmFormFieldTypeServicesRegistry,
 				_ddmStructureLocalService.getStructure(
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK))),
@@ -431,7 +431,6 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 		throws Exception {
 
 		DataDefinition dataDefinition = DataDefinitionUtil.toDataDefinition(
-			_dataDefinitionContentTypeRegistry,
 			_ddmFormFieldTypeServicesRegistry,
 			_ddmStructureLocalService.getStructure(dataDefinitionId),
 			_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter);
@@ -459,8 +458,9 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 			Long dataDefinitionId, DataDefinition dataDefinition)
 		throws Exception {
 
-		_dataDefinitionModelResourcePermission.check(
-			PermissionThreadLocal.getPermissionChecker(), dataDefinitionId,
+		DataDefinitionPermissionUtil.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			_ddmStructureLocalService.getDDMStructure(dataDefinitionId),
 			ActionKeys.UPDATE);
 
 		DataLayout dataLayout = dataDefinition.getDefaultDataLayout();
@@ -489,7 +489,7 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 			dataDefinition, _ddmFormFieldTypeServicesRegistry);
 
 		DataDefinitionContentType dataDefinitionContentType =
-			_dataDefinitionContentTypeRegistry.getDataDefinitionContentType(
+			DataDefinitionContentTypeRegistryUtil.getDataDefinitionContentType(
 				ddmStructure.getClassNameId());
 
 		ddmForm.setAllowInvalidAvailableLocalesForProperty(
@@ -512,7 +512,6 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 
 			DataDefinition existingDataDefinition =
 				DataDefinitionUtil.toDataDefinition(
-					_dataDefinitionContentTypeRegistry,
 					_ddmFormFieldTypeServicesRegistry,
 					_ddmStructureLocalService.getStructure(
 						deDataDefinitionFieldLink.getClassPK()),
@@ -877,7 +876,6 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 
 		DataDefinition existingDataDefinition =
 			DataDefinitionUtil.toDataDefinition(
-				_dataDefinitionContentTypeRegistry,
 				_ddmFormFieldTypeServicesRegistry,
 				_ddmStructureLocalService.getStructure(dataDefinitionId),
 				_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter);
@@ -951,7 +949,7 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 			boolean copyPermissions)
 		throws Exception {
 
-		_dataDefinitionModelResourcePermission.checkPortletPermission(
+		DataDefinitionPermissionUtil.checkPortletPermission(
 			PermissionThreadLocal.getPermissionChecker(), contentType, siteId,
 			DataActionKeys.ADD_DATA_DEFINITION);
 
@@ -959,7 +957,7 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 			dataDefinition, _ddmFormFieldTypeServicesRegistry);
 
 		DataDefinitionContentType dataDefinitionContentType =
-			_dataDefinitionContentTypeRegistry.getDataDefinitionContentType(
+			DataDefinitionContentTypeRegistryUtil.getDataDefinitionContentType(
 				contentType);
 
 		ddmForm.setAllowInvalidAvailableLocalesForProperty(
@@ -981,7 +979,7 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 		DDMStructure ddmStructure = _ddmStructureLocalService.addStructure(
 			PrincipalThreadLocal.getUserId(), siteId,
 			DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID,
-			_dataDefinitionContentTypeRegistry.getClassNameId(contentType),
+			DataDefinitionContentTypeRegistryUtil.getClassNameId(contentType),
 			dataDefinition.getDataDefinitionKey(),
 			LocalizedValueUtil.toLocaleStringMap(dataDefinition.getName()),
 			LocalizedValueUtil.toLocaleStringMap(
@@ -1023,7 +1021,6 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 		Long oldDataDefinitionId = dataDefinition.getId();
 
 		dataDefinition = DataDefinitionUtil.toDataDefinition(
-			_dataDefinitionContentTypeRegistry,
 			_ddmFormFieldTypeServicesRegistry, ddmStructure,
 			_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter);
 
@@ -1040,7 +1037,7 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 				PrincipalThreadLocal.getUserId(),
 				ResourceActionsUtil.getCompositeModelName(
 					_portal.getClassName(
-						_dataDefinitionContentTypeRegistry.getClassNameId(
+						DataDefinitionContentTypeRegistryUtil.getClassNameId(
 							contentType)),
 					DDMStructure.class.getName()),
 				dataDefinition.getId(), false, false, false);
@@ -1311,7 +1308,6 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 		throws Exception {
 
 		return DataDefinitionUtil.toDataDefinition(
-			_dataDefinitionContentTypeRegistry,
 			_ddmFormFieldTypeServicesRegistry, ddmStructure,
 			_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter);
 	}
@@ -1612,7 +1608,6 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 			_ddmFormSerializer.serialize(builder.build());
 
 		return DataDefinitionUtil.toDataDefinition(
-			_dataDefinitionContentTypeRegistry,
 			_ddmFormFieldTypeServicesRegistry,
 			_ddmStructureLocalService.updateStructure(
 				PrincipalThreadLocal.getUserId(), dataDefinitionId,
@@ -1698,14 +1693,6 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 
 	private static final EntityModel _entityModel =
 		new DataDefinitionEntityModel();
-
-	@Reference
-	private DataDefinitionContentTypeRegistry
-		_dataDefinitionContentTypeRegistry;
-
-	@Reference
-	private DataDefinitionModelResourcePermission
-		_dataDefinitionModelResourcePermission;
 
 	@Reference
 	private DataLayoutResource.Factory _dataLayoutResourceFactory;

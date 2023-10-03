@@ -61,7 +61,6 @@ import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.sql.dsl.query.FromStep;
 import com.liferay.petra.sql.dsl.query.GroupByStep;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -188,22 +187,21 @@ public class CommerceOrderItemLocalServiceImpl
 				commerceOptionValue.getQuantity());
 
 			currentQuantity = currentQuantity.divide(
-				unitOfMeasureIncrementalOrderQuantity,
-				unitOfMeasureIncrementalOrderQuantity.scale(),
-				RoundingMode.HALF_UP);
+				unitOfMeasureIncrementalOrderQuantity, RoundingMode.HALF_UP);
 
 			commerceProductPrice = _getCommerceProductPrice(
 				commerceOptionValueCPInstance.getCPDefinitionId(),
 				commerceOptionValueCPInstance.getCPInstanceId(),
-				commerceOptionValue.toJSON(), currentQuantity, StringPool.BLANK,
-				commerceContext);
+				commerceOptionValue.toJSON(), currentQuantity,
+				commerceOptionValue.getUnitOfMeasureKey(), commerceContext);
 
 			CommerceOrderItem childCommerceOrderItem = _createCommerceOrderItem(
 				commerceOrder.getGroupId(), user, commerceOrder,
 				commerceProductPrice, commerceOptionValueCPInstance,
 				commerceOrderItem.getCommerceOrderItemId(),
 				commerceOptionValue.toJSON(), currentQuantity, BigDecimal.ZERO,
-				BigDecimal.ZERO, StringPool.BLANK, serviceContext);
+				commerceProductPrice.getUnitOfMeasureIncrementalOrderQuantity(),
+				commerceOptionValue.getUnitOfMeasureKey(), serviceContext);
 
 			if (!_isStaticPriceType(commerceOptionValue.getPriceType())) {
 				childCommerceOrderItem = commerceOrderItemPersistence.update(
@@ -212,12 +210,15 @@ public class CommerceOrderItemLocalServiceImpl
 				continue;
 			}
 
+			childCommerceOrderItem.setUnitOfMeasureIncrementalOrderQuantity(
+				BigDecimal.ONE);
+
 			commerceProductPrice = _getStaticCommerceProductPrice(
 				commerceOptionValue.getCPInstanceId(),
 				commerceContext.getCommerceCurrency(),
 				childCommerceOrderItem.getCommerceOrder(), currentQuantity,
 				commerceOptionValue.getPrice(), BigDecimal.ONE,
-				StringPool.BLANK);
+				commerceOptionValue.getUnitOfMeasureKey());
 
 			_setCommerceOrderItemPrice(
 				childCommerceOrderItem, commerceProductPrice);
@@ -253,7 +254,11 @@ public class CommerceOrderItemLocalServiceImpl
 
 		for (CommerceOrderItem commerceOrderItem : commerceOrderItems) {
 			if ((commerceOrderItem.getParentCommerceOrderItemId() == 0) &&
-				_jsonMatches(json, commerceOrderItem.getJson())) {
+				_jsonMatches(json, commerceOrderItem.getJson()) &&
+				Objects.equals(
+					GetterUtil.getString(unitOfMeasureKey),
+					GetterUtil.getString(
+						commerceOrderItem.getUnitOfMeasureKey()))) {
 
 				return commerceOrderItemLocalService.updateCommerceOrderItem(
 					userId, commerceOrderItem.getCommerceOrderItemId(),

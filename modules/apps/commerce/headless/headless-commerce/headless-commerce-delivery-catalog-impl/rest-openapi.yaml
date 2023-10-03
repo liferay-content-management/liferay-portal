@@ -587,6 +587,9 @@ components:
                 totalPrice:
                     readOnly: true
                     type: string
+                unitOfMeasureKey:
+                    readOnly: true
+                    type: string
                 visible:
                     example: true
                     readOnly: true
@@ -674,6 +677,10 @@ components:
                         $ref: "#/components/schemas/SkuOption"
                     readOnly: true
                     type: array
+                skuUnitOfMeasures:
+                    items:
+                        $ref: "#/components/schemas/SkuUnitOfMeasure"
+                    type: array
                 urls:
                     additionalProperties:
                         type: string
@@ -760,6 +767,12 @@ components:
                     type: boolean
                 price:
                     $ref: "#/components/schemas/Price"
+                productId:
+                    example: 30130
+                    format: int64
+                    minimum: 0
+                    readOnly: true
+                    type: integer
                 published:
                     example: true
                     type: boolean
@@ -786,6 +799,10 @@ components:
                 skuUnitOfMeasures:
                     items:
                         $ref: "#/components/schemas/SkuUnitOfMeasure"
+                    type: array
+                tierPrices:
+                    items:
+                        $ref: "#/components/schemas/TierPrice"
                     type: array
                 weight:
                     example: 1.1
@@ -854,6 +871,8 @@ components:
                 precision:
                     example: 3
                     type: integer
+                price:
+                    $ref: "#/components/schemas/Price"
                 primary:
                     example: true
                     type: boolean
@@ -866,6 +885,28 @@ components:
                     example: 202.1
                     format: bigdecimal
                     minimum: 0
+                    type: number
+                tierPrices:
+                    items:
+                        $ref: "#/components/schemas/TierPrice"
+                    type: array
+            type: object
+        TierPrice:
+            properties:
+                currency:
+                    type: string
+                price:
+                    format: double
+                    readOnly: true
+                    type: number
+                priceFormatted:
+                    readOnly: true
+                    type: string
+                quantity:
+                    example: 202.1
+                    format: bigdecimal
+                    minimum: 0
+                    readOnly: true
                     type: number
             type: object
         WishList:
@@ -904,7 +945,7 @@ components:
 info:
     description:
         "Headless Commerce Delivery Catalog API. A Java client JAR is available for use with the group ID 'com.liferay',
-        artifact ID 'com.liferay.headless.commerce.delivery.catalog.client', and version '4.0.39'."
+        artifact ID 'com.liferay.headless.commerce.delivery.catalog.client', and version '4.0.40'."
     license:
         name: Apache 2.0
         url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -2310,7 +2351,9 @@ paths:
                   schema:
                       description:
                           Quantity
-                      type: integer
+                      example: 10.1
+                      format: bigdecimal
+                      type: number
             requestBody:
                 content:
                     application/json:
@@ -2415,7 +2458,16 @@ paths:
                   schema:
                       description:
                           Quantity
-                      type: integer
+                      example: 10.1
+                      format: bigdecimal
+                      type: number
+                - in: query
+                  name: skuUnitOfMeasureKey
+                  required: false
+                  schema:
+                      description:
+                          Sku Unit Of Measure Key
+                      type: string
             requestBody:
                 content:
                     application/json:
@@ -2443,6 +2495,98 @@ paths:
                 400:
                     description:
                         Invalid input
+                401:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        Authentication information is missing or invalid
+                404:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        The specified resource was not found
+                500:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        Unexpected error
+            tags: ["Sku"]
+    "/channels/{channelId}/products/{productId}/skus/{skuId}":
+        get:
+            description:
+                Retrieves a product from selected channel.
+            operationId: getChannelProductSku
+            parameters:
+                - in: path
+                  explode: false
+                  name: channelId
+                  required: true
+                  schema:
+                      description:
+                          Channel Id
+                      example: 30130
+                      format: int64
+                      minimum: 0
+                      type: integer
+                  style: simple
+                - in: path
+                  explode: false
+                  name: productId
+                  required: true
+                  schema:
+                      description:
+                          Product Id
+                      example: 30130
+                      format: int64
+                      minimum: 0
+                      type: integer
+                  style: simple
+                - in: path
+                  explode: false
+                  name: skuId
+                  required: true
+                  schema:
+                      description:
+                          Sku Id
+                      example: 30130
+                      format: int64
+                      minimum: 0
+                      type: integer
+                  style: simple
+                - in: query
+                  name: accountId
+                  required: false
+                  schema:
+                      description:
+                          Account Id
+                      example: 30130
+                      format: int64
+                      minimum: 0
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Sku"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Sku"
                 401:
                     content:
                         application/json:

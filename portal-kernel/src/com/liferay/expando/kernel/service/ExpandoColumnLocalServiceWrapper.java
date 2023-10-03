@@ -297,6 +297,19 @@ public class ExpandoColumnLocalServiceWrapper
 	}
 
 	@Override
+	public ExpandoColumn fetchColumn(
+		long companyId, long classNameId, String tableName, String name) {
+
+		return _expandoColumnLocalService.fetchColumn(
+			companyId, classNameId, tableName, name);
+	}
+
+	@Override
+	public ExpandoColumn fetchColumn(long tableId, String name) {
+		return _expandoColumnLocalService.fetchColumn(tableId, name);
+	}
+
+	@Override
 	public ExpandoColumn fetchExpandoColumn(long columnId) {
 		return _expandoColumnLocalService.fetchExpandoColumn(columnId);
 	}
@@ -317,14 +330,17 @@ public class ExpandoColumnLocalServiceWrapper
 
 	@Override
 	public ExpandoColumn getColumn(
-		long companyId, long classNameId, String tableName, String name) {
+			long companyId, long classNameId, String tableName, String name)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _expandoColumnLocalService.getColumn(
 			companyId, classNameId, tableName, name);
 	}
 
 	@Override
-	public ExpandoColumn getColumn(long tableId, String name) {
+	public ExpandoColumn getColumn(long tableId, String name)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
 		return _expandoColumnLocalService.getColumn(tableId, name);
 	}
 

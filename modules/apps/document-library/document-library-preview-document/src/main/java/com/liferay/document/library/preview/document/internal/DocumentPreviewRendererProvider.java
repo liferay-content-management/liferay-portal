@@ -45,7 +45,11 @@ public class DocumentPreviewRendererProvider
 	public DLPreviewRenderer getPreviewDLPreviewRenderer(
 		FileVersion fileVersion) {
 
-		if (!PDFProcessorUtil.isDocumentSupported(fileVersion)) {
+		if ((fileVersion == null) || (fileVersion.getSize() == 0) ||
+			(!PDFProcessorUtil.hasImages(fileVersion) &&
+			 !PDFProcessorUtil.isDocumentSupported(
+				 fileVersion.getMimeType()))) {
+
 			return null;
 		}
 
@@ -81,7 +85,8 @@ public class DocumentPreviewRendererProvider
 
 		if (!PDFProcessorUtil.hasImages(fileVersion)) {
 			if (!DLProcessorRegistryUtil.isPreviewableSize(fileVersion)) {
-				throw new DLPreviewSizeException();
+				throw new DLPreviewSizeException(
+					DLProcessorRegistryUtil.getPreviewableProcessorMaxSize());
 			}
 
 			throw new DLPreviewGenerationInProcessException();

@@ -1,8 +1,8 @@
 {
 	"dependencies": {
 		"@clayui/button": "3.100.0",
-		"@clayui/card": "3.104.0",
-		"@clayui/drop-down": "3.104.0",
+		"@clayui/card": "3.105.0",
+		"@clayui/drop-down": "3.105.0",
 		"@clayui/empty-state": "3.101.0",
 		"@clayui/form": "3.104.0",
 		"@clayui/icon": "3.56.0",
@@ -27,5 +27,5 @@
 		"format": "liferay-npm-scripts fix",
 		"test": "liferay-npm-scripts test"
 	},
-	"version": "4.0.87"
+	"version": "4.0.88"
 }

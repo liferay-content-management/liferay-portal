@@ -456,6 +456,26 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EDIT_ROW</td>
+	<td>//*[@data-qa-id='row']//*[normalize-space(text())='${key_rowEntry}']//..//..//*[normalize-space(text())='Edit']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>RESOURCE_TABLE_SELECT</td>
+	<td>//*[@data-qa-id='row']//*[normalize-space(text())='${key_rowEntry}']//..//..//select</td>
+	<td></td>
+</tr>
+<tr>
+	<td>RESOURCE_TABLE_SAVE</td>
+	<td>//*[@data-qa-id='row']//*[normalize-space(text())='${key_rowEntry}']//..//..//button[contains(.,'Save')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>RESOURCE_TABLE_RESOURCE_NAME</td>
+	<td>//*[@data-qa-id='row']//*[normalize-space(text())='${key_resourceName}']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SHORT_DESCRIPTION_FIELD</td>
 	<td>//textarea[contains (@id,'shortDescription')]</td>
 	<td></td>
@@ -833,6 +853,11 @@
 <tr>
 	<td>TABLE_ENTRY_EDIT_BUTTON</td>
 	<td>//h4[contains(.,'${key_table}')]//..//div/a[contains(.,'${key_entryName}')]//..//..//../div/*[contains(.,'Edit')] | //div[contains(.,'${key_table}')]//div[@class='dnd-tr'][contains(.,'${key_entryName}')]//*[contains(text(),'Edit')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TABLE_EXPOSE_ENTRY_BY_POSITION</td>
+	<td>//*[contains(@class, 'table-responsive')]//tbody/tr[${key_linePosition}]/td[${key_colunmPosition}]</td>
 	<td></td>
 </tr>
 <tr>
@@ -1432,6 +1457,11 @@
 <tr>
 	<td>WAREHOUSE_INVENTORY_ITEM_QUANTITY</td>
 	<td>//input[contains(@id,'_com_liferay_commerce_product_definitions_web_internal_portlet_CPDefinitionsPortlet_commerceInventoryWarehouseItemQuantity${key_value1}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>WAREHOUSE_INVENTORY_ITEM_UNIT_OF_MEASURE</td>
+	<td>//tr[@data-index="${key_index}"]//td[contains(.,'${key_warehouseName}')]//following-sibling::td[1]</td>
 	<td></td>
 </tr>
 <tr>

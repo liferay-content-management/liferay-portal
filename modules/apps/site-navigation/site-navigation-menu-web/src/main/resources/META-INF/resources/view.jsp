@@ -37,11 +37,24 @@
 		</c:choose>
 	</c:when>
 	<c:when test="<%= (siteNavigationMenuDisplayContext.getSelectSiteNavigationMenuType() == SiteNavigationConstants.TYPE_PRIVATE_PAGES_HIERARCHY) || (siteNavigationMenuDisplayContext.getSelectSiteNavigationMenuType() == SiteNavigationConstants.TYPE_PUBLIC_PAGES_HIERARCHY) %>">
+
+		<%
+		String alertKey = siteNavigationMenuDisplayContext.getAlertKey();
+		%>
+
+		<c:if test="<%= Validator.isNotNull(alertKey) %>">
+			<clay:alert
+				displayType="info"
+				message="<%= LanguageUtil.format(request, alertKey, siteNavigationMenuDisplayContext.getSelectSiteNavigationMenuTypeLabel()) %>"
+			/>
+		</c:if>
+
 		<liferay-site-navigation:navigation-menu
 			ddmTemplateGroupId="<%= siteNavigationMenuDisplayContext.getDisplayStyleGroupId() %>"
 			ddmTemplateKey="<%= siteNavigationMenuDisplayContext.getDDMTemplateKey() %>"
 			displayDepth="<%= siteNavigationMenuDisplayContext.getDisplayDepth() %>"
 			expandedLevels="<%= siteNavigationMenuDisplayContext.getExpandedLevels() %>"
+			navigationMenuMode="<%= siteNavigationMenuDisplayContext.getNavigationMenuMode() %>"
 			preview="<%= siteNavigationMenuDisplayContext.isPreview() %>"
 			rootItemId="<%= siteNavigationMenuDisplayContext.getRootMenuItemId() %>"
 			rootItemLevel="<%= siteNavigationMenuDisplayContext.getRootMenuItemLevel() %>"

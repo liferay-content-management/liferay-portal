@@ -391,7 +391,6 @@ definition {
 	@description = "Verify that the user can add multiple notifications"
 	@priority = 4
 	test CanAddMultipleNotifications {
-		property portal.upstream = "quarantine";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -830,6 +829,51 @@ definition {
 			cancel = "true",
 			nodeType = "task",
 			title = "Delete Task Node");
+	}
+
+	@description = "LPS-178499 - Verify it's possible change the recipient field to Asset Creator"
+	@priority = 4
+	test CanChangeRecipientFieldToAssetCreator {
+		property test.liferay.virtual.instance = "false";
+		property test.run.type = "single";
+
+		task ("Given the single approver workflow") {
+			Workflow.openWorkflowListView();
+
+			Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
+		}
+
+		task ("When creating the recipient for Asset Creator") {
+			KaleoDesigner.selectNode(nodeNodeLabel = "created");
+
+			ProcessBuilderKaleoDesignerReact.viewAndFillNotification(
+				name = "Asset Creator",
+				newNotification = "true",
+				notificationTemplateValue = "Notification Template",
+				notificationTypeOption = "User Notification",
+				recipientTypeOption = "Asset Creator",
+				singleAction = "true");
+
+			Button.clickUpdate();
+
+			Alert.viewSuccessMessageText(successMessage = "Workflow updated successfully.");
+		}
+
+		task ("and When entering and exiting the created node") {
+			Workflow.openWorkflowListView();
+
+			Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
+		}
+
+		task ("and When the created node is selected") {
+			KaleoDesigner.selectNode(nodeNodeLabel = "created");
+		}
+
+		task ("Then the created node is assigned to the Asset Creator") {
+			ProcessBuilderKaleoDesignerReact.gotoNotification(notificationName = "Asset Creator");
+
+			ProcessBuilderKaleoDesignerReact.viewNotificationInfo(notificationRecipientType = "Asset Creator");
+		}
 	}
 
 	@description = "LPS-139387 - Verify that the user can cancel the deletion of a node by clicking on the X button"

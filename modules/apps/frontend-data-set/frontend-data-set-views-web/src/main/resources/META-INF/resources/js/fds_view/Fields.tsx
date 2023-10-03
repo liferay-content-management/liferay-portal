@@ -16,14 +16,13 @@ import {
 	IClientExtensionRenderer,
 	IInternalRenderer,
 	fetch,
-	navigate,
 	openModal,
 } from 'frontend-js-web';
 import fuzzy from 'fuzzy';
 import React, {useEffect, useRef, useState} from 'react';
 
 import {API_URL, FUZZY_OPTIONS, OBJECT_RELATIONSHIP} from '../Constants';
-import {IFDSViewSectionInterface} from '../FDSView';
+import {IFDSViewSectionProps} from '../FDSView';
 import {FDSViewType} from '../FDSViews';
 import {getFields} from '../api';
 import OrderableTable from '../components/OrderableTable';
@@ -85,7 +84,7 @@ const getRendererLabel = ({
 	else {
 		clientExtensionRenderer = cetRenderers.find(
 			(renderer: IClientExtensionRenderer) => {
-				return renderer.erc === rendererName;
+				return renderer.externalReferenceCode === rendererName;
 			}
 		);
 
@@ -140,6 +139,9 @@ const SaveFDSFieldsModalContent = ({
 }: ISaveFDSFieldsModalContentProps) => {
 	const [fields, setFields] = useState<Array<IField> | null>(null);
 	const [query, setQuery] = useState('');
+	const [saveButtonDisabled, setSaveButtonDisabled] = useState<boolean>(
+		false
+	);
 
 	const onSearch = (query: string) => {
 		setQuery(query);
@@ -159,6 +161,8 @@ const SaveFDSFieldsModalContent = ({
 	};
 
 	const saveFDSFields = async () => {
+		setSaveButtonDisabled(true);
+
 		const creationData: Array<{name: string; type: string}> = [];
 		const deletionIds: Array<number> = [];
 
@@ -192,6 +196,8 @@ const SaveFDSFieldsModalContent = ({
 
 		if (!response.ok) {
 			openDefaultFailureToast();
+
+			setSaveButtonDisabled(false);
 
 			return;
 		}
@@ -359,7 +365,10 @@ const SaveFDSFieldsModalContent = ({
 			<ClayModal.Footer
 				last={
 					<ClayButton.Group spaced>
-						<ClayButton onClick={() => saveFDSFields()}>
+						<ClayButton
+							disabled={saveButtonDisabled}
+							onClick={() => saveFDSFields()}
+						>
 							{Liferay.Language.get('save')}
 						</ClayButton>
 
@@ -419,8 +428,6 @@ const EditFDSFieldModalContent = ({
 		fdsFieldTranslations
 	);
 
-	const [errorMessage, setErrorMessage] = useState('');
-
 	const editFDSField = async () => {
 		let body;
 		const bodyTmp = {
@@ -467,20 +474,6 @@ const EditFDSFieldModalContent = ({
 		onSave({editedFDSField});
 	};
 
-	const validateFDSField = function () {
-		const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
-
-		if (!i18nFieldLabels[defaultLanguageId]) {
-			setErrorMessage(Liferay.Language.get('required'));
-
-			return;
-		}
-
-		setErrorMessage('');
-
-		editFDSField();
-	};
-
 	const fdsFieldNameInputId = `${namespace}fdsFieldNameInput`;
 	const fdsFieldLabelInputId = `${namespace}fdsFieldLabelInput`;
 	const fdsFieldRendererSelectId = `${namespace}fdsFieldRendererSelectId`;
@@ -495,7 +488,7 @@ const EditFDSFieldModalContent = ({
 	options.push(
 		...fdsClientExtensionCellRenderers.map((item) => ({
 			label: item.name!,
-			value: item.erc!,
+			value: item.externalReferenceCode!,
 		}))
 	);
 
@@ -512,7 +505,7 @@ const EditFDSFieldModalContent = ({
 		onItemClick: Function;
 	}) => {
 		const fdsClientExtensionCellRenderersERCs = fdsClientExtensionCellRenderers.map(
-			(cellRendererCET) => cellRendererCET.erc
+			(cellRendererCET) => cellRendererCET.externalReferenceCode
 		);
 
 		return (
@@ -583,17 +576,10 @@ const EditFDSFieldModalContent = ({
 				{Liferay.FeatureFlags['LPS-172017'] ? (
 					<ClayForm.Group>
 						<InputLocalized
-							error={errorMessage}
 							id={fdsFieldLabelInputId}
 							label={Liferay.Language.get('label')}
 							name="label"
-							onChange={(newFieldLabel) => {
-								setI18nFieldLabels({
-									...i18nFieldLabels,
-									...newFieldLabel,
-								});
-							}}
-							required
+							onChange={setI18nFieldLabels}
 							translations={i18nFieldLabels}
 						/>
 					</ClayForm.Group>
@@ -640,7 +626,7 @@ const EditFDSFieldModalContent = ({
 			<ClayModal.Footer
 				last={
 					<ClayButton.Group spaced>
-						<ClayButton onClick={() => validateFDSField()}>
+						<ClayButton onClick={() => editFDSField()}>
 							{Liferay.Language.get('save')}
 						</ClayButton>
 
@@ -660,13 +646,10 @@ const EditFDSFieldModalContent = ({
 const Fields = ({
 	fdsClientExtensionCellRenderers,
 	fdsView,
-	fdsViewsURL,
 	namespace,
 	saveFDSFieldsURL,
-}: IFDSViewSectionInterface) => {
+}: IFDSViewSectionProps) => {
 	const [fdsFields, setFDSFields] = useState<Array<IFDSField> | null>(null);
-
-	const fdsFieldsOrderRef = useRef('');
 
 	const getFDSFields = async () => {
 		const response = await fetch(
@@ -694,8 +677,6 @@ const Fields = ({
 				?.fdsFieldsOrder;
 
 		if (fdsFieldsOrder) {
-			fdsFieldsOrderRef.current = fdsFieldsOrder;
-
 			const storedOrderedFDSFieldIds = fdsFieldsOrder.split(',');
 
 			const orderedFDSFields: Array<IFDSField> = [];
@@ -718,15 +699,9 @@ const Fields = ({
 				}
 			});
 
-			fdsFieldsOrderRef.current = orderedFDSFieldIds.join(',');
-
 			setFDSFields(orderedFDSFields);
 		}
 		else {
-			fdsFieldsOrderRef.current = storedFDSFields
-				.map((storedFDSField: IFDSField) => storedFDSField.id)
-				.join(',');
-
 			setFDSFields(storedFDSFields);
 		}
 	};
@@ -778,9 +753,13 @@ const Fields = ({
 		});
 	};
 
-	const updateFDSFieldsOrder = async () => {
+	const updateFDSFieldsOrder = async ({
+		fdsFieldsOrder,
+	}: {
+		fdsFieldsOrder: string;
+	}) => {
 		const body = {
-			fdsFieldsOrder: fdsFieldsOrderRef.current,
+			fdsFieldsOrder,
 		};
 
 		const response = await fetch(
@@ -803,9 +782,9 @@ const Fields = ({
 
 		const responseJSON = await response.json();
 
-		const fdsFieldsOrder = responseJSON?.fdsFieldsOrder;
+		const storedFDSFieldsOrder = responseJSON?.fdsFieldsOrder;
 
-		if (fdsFieldsOrder && fdsFieldsOrder === fdsFieldsOrderRef.current) {
+		if (storedFDSFieldsOrder && storedFDSFieldsOrder === fdsFieldsOrder) {
 			openDefaultSuccessToast();
 		}
 		else {
@@ -951,17 +930,11 @@ const Fields = ({
 						'add-fields-to-show-in-your-view'
 					)}
 					noItemsTitle={Liferay.Language.get('no-fields-added-yet')}
-					onCancelButtonClick={() => navigate(fdsViewsURL)}
-					onOrderChange={({
-						orderedItems,
-					}: {
-						orderedItems: Array<IFDSField>;
-					}) => {
-						fdsFieldsOrderRef.current = orderedItems
-							.map((item) => item.id)
-							.join(',');
+					onOrderChange={({order}: {order: string}) => {
+						updateFDSFieldsOrder({
+							fdsFieldsOrder: order,
+						});
 					}}
-					onSaveButtonClick={() => updateFDSFieldsOrder()}
 					title={Liferay.Language.get('fields')}
 				/>
 			) : (

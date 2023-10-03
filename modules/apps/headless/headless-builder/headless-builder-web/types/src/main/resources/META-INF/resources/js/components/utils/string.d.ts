@@ -6,12 +6,16 @@
 /**
  * If string does not start with a forward slash, add it.
  */
-export declare function beginStringWithForwardSlash(str: string): string;
+export declare function beginStringWithForwardSlash(
+	str?: string
+): string | undefined;
 
 /**
  * If string does not end with a forward slash, add it.
  */
-export declare function endStringWithForwardSlash(str: string): string;
+export declare function endStringWithForwardSlash(
+	str?: string
+): string | undefined;
 
 /**
  * Returns a substring of the received one, capped at maxLengh.
@@ -27,6 +31,18 @@ export declare function limitStringInputLengh(
 export declare function makeURLPathString(str: string): string;
 
 /**
+ * Make valid url path string with forward slashes in between (Only numbers, low case letters, dashes).
+ */
+export declare function makeURLPathStringWithForwardSlashes(
+	str: string
+): string;
+
+/**
+ * If string starts with a forward slash, remove it.
+ */
+export declare function removeLeadingForwardSlash(str: string): string;
+
+/**
  * Replace blank spaces in string with dash.
  */
 export declare function replaceSpacesWithDash(str: string): string;
@@ -34,4 +50,6 @@ export declare function replaceSpacesWithDash(str: string): string;
 /**
  * If string is not wrapped in forward slashes, wrap it.
  */
-export declare function wrapStringInForwardSlashes(str: string): string;
+export declare function wrapStringInForwardSlashes(
+	str: string
+): string | undefined;

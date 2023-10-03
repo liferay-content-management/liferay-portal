@@ -5,7 +5,10 @@
 
 import ClayPanel from '@clayui/panel';
 import {useState} from 'react';
+import {Link} from 'react-router-dom';
 
+import {toLocaleString} from '../../services/DateUtil';
+import {toDurationString} from '../../services/DurationUtil';
 import useSpringBootData from '../../services/useSpringBootData';
 import Jethr0Table from '../Jethr0Table/Jethr0Table';
 
@@ -39,6 +42,7 @@ function JobBuilds({jobId}) {
 							<th>Create Date</th>
 							<th>State</th>
 							<th>Initial Build</th>
+							<th>Jenkins Duration</th>
 							<th>Jenkins Build</th>
 						</tr>
 					</thead>
@@ -47,17 +51,31 @@ function JobBuilds({jobId}) {
 							jobBuilds.map((jobBuild) => {
 								return (
 									<tr key={jobBuild.id}>
-										<th
-											className="font-weight-semi-bold"
-											title={jobBuild.id}
-										>
-											{jobBuild.id}
+										<th className="font-weight-semi-bold">
+											<Link
+												title={jobBuild.id}
+												to={
+													'/jobs/builds/' +
+													jobBuild.id
+												}
+											>
+												{jobBuild.id}
+											</Link>
 										</th>
 										<td>{jobBuild.name}</td>
-										<td>{jobBuild.dateCreated}</td>
+										<td>
+											{toLocaleString(
+												jobBuild.dateCreated
+											)}
+										</td>
 										<td>{jobBuild.state.name}</td>
 										<td>
 											{jobBuild.initialBuild.toString()}
+										</td>
+										<td>
+											{toDurationString(
+												jobBuild.latestDuration
+											)}
 										</td>
 										<td>
 											{jobBuild.latestJenkinsBuildURL ? (

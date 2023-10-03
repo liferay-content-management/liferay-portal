@@ -5,16 +5,18 @@
 
 /// <reference types="react" />
 
+import {IClientExtensionRenderer} from 'frontend-js-web';
 import {FDSViewType} from '../FDSViews';
 import '../../css/Filters.scss';
 interface IProps {
+	fdsFilterClientExtensions: IClientExtensionRenderer[];
 	fdsView: FDSViewType;
 	fdsViewsURL: string;
 	namespace: string;
 }
 declare function Filters({
+	fdsFilterClientExtensions,
 	fdsView,
-	fdsViewsURL,
 	namespace,
 }: IProps): JSX.Element;
 export default Filters;

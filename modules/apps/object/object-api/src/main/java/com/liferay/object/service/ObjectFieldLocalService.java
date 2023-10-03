@@ -100,20 +100,26 @@ public interface ObjectFieldLocalService
 
 	@Indexable(type = IndexableType.REINDEX)
 	public ObjectField addOrUpdateSystemObjectField(
-			long userId, long listTypeDefinitionId, long objectDefinitionId,
+			String externalReferenceCode, long userId,
+			long listTypeDefinitionId, long objectDefinitionId,
 			String businessType, String dbColumnName, String dbTableName,
 			String dbType, boolean indexed, boolean indexedAsKeyword,
 			String indexedLanguageId, Map<Locale, String> labelMap, String name,
-			boolean required, boolean state)
+			String readOnly, String readOnlyConditionExpression,
+			boolean required, boolean state,
+			List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException;
 
 	@Indexable(type = IndexableType.REINDEX)
 	public ObjectField addSystemObjectField(
-			long userId, long listTypeDefinitionId, long objectDefinitionId,
+			String externalReferenceCode, long userId,
+			long listTypeDefinitionId, long objectDefinitionId,
 			String businessType, String dbColumnName, String dbTableName,
 			String dbType, boolean indexed, boolean indexedAsKeyword,
 			String indexedLanguageId, Map<Locale, String> labelMap, String name,
-			boolean required, boolean state)
+			String readOnly, String readOnlyConditionExpression,
+			boolean required, boolean state,
+			List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException;
 
 	/**
@@ -395,17 +401,6 @@ public interface ObjectFieldLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Table getTable(long objectDefinitionId, String name)
-		throws PortalException;
-
-	@Indexable(type = IndexableType.REINDEX)
-	public ObjectField updateCustomObjectField(
-			String externalReferenceCode, long objectFieldId,
-			long listTypeDefinitionId, String businessType, String dbType,
-			boolean indexed, boolean indexedAsKeyword, String indexedLanguageId,
-			Map<Locale, String> labelMap, boolean localized, String name,
-			String readOnly, String readOnlyConditionExpression,
-			boolean required, boolean state,
-			List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException;
 
 	/**

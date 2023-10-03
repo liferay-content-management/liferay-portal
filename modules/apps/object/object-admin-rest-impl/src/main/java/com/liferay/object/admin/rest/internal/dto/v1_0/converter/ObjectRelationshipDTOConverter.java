@@ -60,11 +60,6 @@ public class ObjectRelationshipDTOConverter
 				actions = dtoConverterContext.getActions();
 				deletionType = ObjectRelationship.DeletionType.create(
 					serviceBuilderObjectRelationship.getDeletionType());
-
-				if (FeatureFlagManagerUtil.isEnabled("LPS-187142")) {
-					edge = serviceBuilderObjectRelationship.isEdge();
-				}
-
 				id = serviceBuilderObjectRelationship.getObjectRelationshipId();
 				label = LocalizedMapUtil.getLanguageIdMap(
 					serviceBuilderObjectRelationship.getLabelMap());
@@ -77,25 +72,43 @@ public class ObjectRelationshipDTOConverter
 					serviceBuilderObjectRelationship.getObjectDefinitionId1();
 				objectDefinitionId2 =
 					serviceBuilderObjectRelationship.getObjectDefinitionId2();
-
-				if (FeatureFlagManagerUtil.isEnabled("LPS-167253")) {
-					objectDefinitionModifiable2 =
-						objectDefinition2.isModifiable();
-				}
-
 				objectDefinitionName2 = objectDefinition2.getShortName();
-
-				if (FeatureFlagManagerUtil.isEnabled("LPS-167253")) {
-					objectDefinitionSystem2 = objectDefinition2.isSystem();
-				}
-
 				parameterObjectFieldId =
 					serviceBuilderObjectRelationship.
 						getParameterObjectFieldId();
 				reverse = serviceBuilderObjectRelationship.isReverse();
+
+				if (FeatureFlagManagerUtil.isEnabled("LPS-193355")) {
+					system = serviceBuilderObjectRelationship.isSystem();
+				}
+
 				type = ObjectRelationship.Type.create(
 					serviceBuilderObjectRelationship.getType());
 
+				setEdge(
+					() -> {
+						if (!FeatureFlagManagerUtil.isEnabled("LPS-187142")) {
+							return null;
+						}
+
+						return serviceBuilderObjectRelationship.isEdge();
+					});
+				setObjectDefinitionModifiable2(
+					() -> {
+						if (!FeatureFlagManagerUtil.isEnabled("LPS-167253")) {
+							return null;
+						}
+
+						return objectDefinition2.isModifiable();
+					});
+				setObjectDefinitionSystem2(
+					() -> {
+						if (!FeatureFlagManagerUtil.isEnabled("LPS-167253")) {
+							return null;
+						}
+
+						return objectDefinition2.isSystem();
+					});
 				setParameterObjectFieldName(
 					() -> {
 						if (Validator.isNull(

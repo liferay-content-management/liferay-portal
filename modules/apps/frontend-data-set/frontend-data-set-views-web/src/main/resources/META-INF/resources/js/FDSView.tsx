@@ -19,7 +19,7 @@ import Pagination from './fds_view/Pagination';
 import Sorting from './fds_view/Sorting';
 import openDefaultFailureToast from './utils/openDefaultFailureToast';
 
-let NAVIGATION_BAR_ITEMS = [
+const NAVIGATION_BAR_ITEMS = [
 	{
 		Component: Details,
 		label: Liferay.Language.get('details'),
@@ -28,42 +28,27 @@ let NAVIGATION_BAR_ITEMS = [
 		Component: Fields,
 		label: Liferay.Language.get('fields'),
 	},
-];
-
-if (Liferay.FeatureFlags['LPS-188645']) {
-	NAVIGATION_BAR_ITEMS = [
-		...NAVIGATION_BAR_ITEMS,
-		{
-			Component: Filters,
-			label: Liferay.Language.get('filters'),
-		},
-		{
-			Component: Sorting,
-			label: Liferay.Language.get('sorting'),
-		},
-	];
-}
-
-if (Liferay.FeatureFlags['LPS-192282']) {
-	NAVIGATION_BAR_ITEMS = [
-		...NAVIGATION_BAR_ITEMS,
-		{
-			Component: Actions,
-			label: Liferay.Language.get('actions'),
-		},
-	];
-}
-
-NAVIGATION_BAR_ITEMS = [
-	...NAVIGATION_BAR_ITEMS,
+	{
+		Component: Filters,
+		label: Liferay.Language.get('filters'),
+	},
+	{
+		Component: Sorting,
+		label: Liferay.Language.get('sorting'),
+	},
+	{
+		Component: Actions,
+		label: Liferay.Language.get('actions'),
+	},
 	{
 		Component: Pagination,
 		label: Liferay.Language.get('pagination'),
 	},
 ];
 
-interface IFDSViewSectionInterface {
+interface IFDSViewSectionProps {
 	fdsClientExtensionCellRenderers: IClientExtensionRenderer[];
+	fdsFilterClientExtensions: IClientExtensionRenderer[];
 	fdsView: FDSViewType;
 	fdsViewsURL: string;
 	namespace: string;
@@ -72,8 +57,9 @@ interface IFDSViewSectionInterface {
 	spritemap: string;
 }
 
-interface IFDSViewInterface {
+interface IFDSViewProps {
 	fdsClientExtensionCellRenderers: IClientExtensionRenderer[];
+	fdsFilterClientExtensions: IClientExtensionRenderer[];
 	fdsViewId: string;
 	fdsViewsURL: string;
 	namespace: string;
@@ -83,12 +69,13 @@ interface IFDSViewInterface {
 
 const FDSView = ({
 	fdsClientExtensionCellRenderers,
+	fdsFilterClientExtensions,
 	fdsViewId,
 	fdsViewsURL,
 	namespace,
 	saveFDSFieldsURL,
 	spritemap,
-}: IFDSViewInterface) => {
+}: IFDSViewProps) => {
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [fdsView, setFDSView] = useState<FDSViewType>();
 	const [loading, setLoading] = useState(true);
@@ -146,6 +133,7 @@ const FDSView = ({
 						fdsClientExtensionCellRenderers={
 							fdsClientExtensionCellRenderers
 						}
+						fdsFilterClientExtensions={fdsFilterClientExtensions}
 						fdsView={fdsView}
 						fdsViewsURL={fdsViewsURL}
 						namespace={namespace}
@@ -161,5 +149,5 @@ const FDSView = ({
 	);
 };
 
-export {IFDSViewSectionInterface};
+export {IFDSViewSectionProps};
 export default FDSView;

@@ -503,7 +503,7 @@ definition {
 
 		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
 
-		CommerceEntry.gotoMenuTab(menuTab = "Price Lists");
+		CommerceEntry.gotoMenuTab(menuTab = "Price");
 
 		Click(locator1 = "Button#PLUS");
 
@@ -1230,7 +1230,7 @@ definition {
 
 		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
 
-		CommerceEntry.gotoMenuTab(menuTab = "Price Lists");
+		CommerceEntry.gotoMenuTab(menuTab = "Price");
 
 		CommerceNavigator.gotoEntry(entryName = ${priceList});
 
@@ -1383,12 +1383,12 @@ definition {
 
 		if (isSet(setAsPrimaryUOM)) {
 			Check.checkToggleSwitch(
-				key_toggleSwitchLabel = "Set as Primary UOM",
+				key_toggleSwitchLabel = "Set as Primary Unit of Measure",
 				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
 
 			Button.clickNoError(button = "Save");
 
-			AssertConfirm.waitForConfirmation(value1 = "If the actual unit of measure is changed, all conversion rates to primary units of measure already set may become incorrect. Are you sure you want to change the Primary UOM ?");
+			AssertConfirm.waitForConfirmation(value1 = "If the actual unit of measure is changed, all conversion rates to primary units of measure already set may become incorrect. Are you sure you want to change the primary unit of measure?");
 		}
 		else {
 			Button.clickSave();

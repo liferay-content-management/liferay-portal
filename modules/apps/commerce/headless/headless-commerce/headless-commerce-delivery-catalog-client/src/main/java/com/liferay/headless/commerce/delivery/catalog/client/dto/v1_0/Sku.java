@@ -424,6 +424,27 @@ public class Sku implements Cloneable, Serializable {
 
 	protected Price price;
 
+	public Long getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Long productId) {
+		this.productId = productId;
+	}
+
+	public void setProductId(
+		UnsafeSupplier<Long, Exception> productIdUnsafeSupplier) {
+
+		try {
+			productId = productIdUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Long productId;
+
 	public Boolean getPublished() {
 		return published;
 	}
@@ -596,6 +617,27 @@ public class Sku implements Cloneable, Serializable {
 	}
 
 	protected SkuUnitOfMeasure[] skuUnitOfMeasures;
+
+	public TierPrice[] getTierPrices() {
+		return tierPrices;
+	}
+
+	public void setTierPrices(TierPrice[] tierPrices) {
+		this.tierPrices = tierPrices;
+	}
+
+	public void setTierPrices(
+		UnsafeSupplier<TierPrice[], Exception> tierPricesUnsafeSupplier) {
+
+		try {
+			tierPrices = tierPricesUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected TierPrice[] tierPrices;
 
 	public Double getWeight() {
 		return weight;

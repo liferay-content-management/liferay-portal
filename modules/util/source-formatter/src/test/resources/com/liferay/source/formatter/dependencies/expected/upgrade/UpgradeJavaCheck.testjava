@@ -5,6 +5,9 @@
 
 package com.liferay.source.formatter.dependencies.upgrade;
 
+import java.util.Locale;
+
+import com.liferay.frontend.data.set.provider.search.FDSPagination;
 import com.liferay.frontend.data.set.view.FDSView;
 import com.liferay.frontend.data.set.view.table.BaseTableFDSView;
 import com.liferay.frontend.data.set.view.table.FDSTableSchema;
@@ -32,7 +35,6 @@ import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
-import com.liferay.portal.kernel.service.permission.CommonPermission;
 import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -58,7 +60,7 @@ import com.liferay.journal.service.JournalContentSearchLocalServiceUtil;
 public class UpgradeJavaCheck extends BaseTableFDSView {
 
 	@Override
-	public FDSTableSchema getFDSTableSchema() {
+	public FDSTableSchema getFDSTableSchema(Locale locale) {
 		FDSTableSchemaBuilder fDSTableSchemaBuilder =
 			_fDSTableSchemaBuilderFactory.create();
 

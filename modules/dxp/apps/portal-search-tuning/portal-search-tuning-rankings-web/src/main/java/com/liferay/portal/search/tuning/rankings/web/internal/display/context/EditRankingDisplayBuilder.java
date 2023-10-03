@@ -134,13 +134,18 @@ public class EditRankingDisplayBuilder {
 
 	private Map<String, Object> _getProps() {
 		return HashMapBuilder.<String, Object>put(
-			"cancelUrl", HtmlUtil.escape(_getRedirect())
+			"cancelURL", HtmlUtil.escape(_getRedirect())
 		).put(
-			"fetchDocumentsHiddenUrl", _getHiddenResultRankingsResourceURL()
+			"fetchDocumentsHiddenURL", _getHiddenResultRankingsResourceURL()
 		).put(
-			"fetchDocumentsSearchUrl", _getSearchResultRankingsResourceURL()
+			"fetchDocumentsSearchURL", _getSearchResultRankingsResourceURL()
 		).put(
-			"fetchDocumentsVisibleUrl", _getVisibleResultRankingsResourceURL()
+			"fetchDocumentsVisibleURL", _getVisibleResultRankingsResourceURL()
+		).put(
+			"fetchSiteByExternalReferenceCodeURL",
+			_getSiteByExternalReferenceCodeResourceURL()
+		).put(
+			"fetchSitesURL", _getSitesResourceURL()
 		).put(
 			"formName", _renderResponse.getNamespace() + _getFormName()
 		).put(
@@ -162,7 +167,7 @@ public class EditRankingDisplayBuilder {
 		).put(
 			"searchQuery", _getKeywords()
 		).put(
-			"validateFormUrl", _getValidateResultRankingsResourceURL()
+			"validateFormURL", _getValidateResultRankingsResourceURL()
 		).build();
 	}
 
@@ -192,6 +197,25 @@ public class EditRankingDisplayBuilder {
 			"companyId", String.valueOf(_themeDisplay.getCompanyId()));
 		resourceURL.setParameter(Constants.CMD, "getSearchResultsJSONObject");
 		resourceURL.setResourceID("/result_rankings/get_results");
+
+		return resourceURL.toString();
+	}
+
+	private String _getSiteByExternalReferenceCodeResourceURL() {
+		ResourceURL resourceURL = _renderResponse.createResourceURL();
+
+		resourceURL.setParameter(
+			Constants.CMD, "getSiteByExternalReferenceCodeJSONObject");
+		resourceURL.setResourceID("/result_rankings/get_sites");
+
+		return resourceURL.toString();
+	}
+
+	private String _getSitesResourceURL() {
+		ResourceURL resourceURL = _renderResponse.createResourceURL();
+
+		resourceURL.setParameter(Constants.CMD, "getSitesJSONObject");
+		resourceURL.setResourceID("/result_rankings/get_sites");
 
 		return resourceURL.toString();
 	}

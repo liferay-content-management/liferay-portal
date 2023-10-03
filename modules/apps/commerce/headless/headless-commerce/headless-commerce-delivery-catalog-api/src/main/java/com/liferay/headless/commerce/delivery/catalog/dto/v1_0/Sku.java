@@ -593,6 +593,35 @@ public class Sku implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Price price;
 
+	@DecimalMin("0")
+	@Schema(example = "30130")
+	public Long getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Long productId) {
+		this.productId = productId;
+	}
+
+	@JsonIgnore
+	public void setProductId(
+		UnsafeSupplier<Long, Exception> productIdUnsafeSupplier) {
+
+		try {
+			productId = productIdUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Long productId;
+
 	@Schema(example = "true")
 	public Boolean getPublished() {
 		return published;
@@ -825,6 +854,35 @@ public class Sku implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected SkuUnitOfMeasure[] skuUnitOfMeasures;
+
+	@Schema
+	@Valid
+	public TierPrice[] getTierPrices() {
+		return tierPrices;
+	}
+
+	public void setTierPrices(TierPrice[] tierPrices) {
+		this.tierPrices = tierPrices;
+	}
+
+	@JsonIgnore
+	public void setTierPrices(
+		UnsafeSupplier<TierPrice[], Exception> tierPricesUnsafeSupplier) {
+
+		try {
+			tierPrices = tierPricesUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected TierPrice[] tierPrices;
 
 	@DecimalMin("0")
 	@Schema(example = "1.1")
@@ -1152,6 +1210,16 @@ public class Sku implements Serializable {
 			sb.append(String.valueOf(price));
 		}
 
+		if (productId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"productId\": ");
+
+			sb.append(productId);
+		}
+
 		if (published != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -1253,6 +1321,26 @@ public class Sku implements Serializable {
 				sb.append(String.valueOf(skuUnitOfMeasures[i]));
 
 				if ((i + 1) < skuUnitOfMeasures.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
+		if (tierPrices != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"tierPrices\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < tierPrices.length; i++) {
+				sb.append(String.valueOf(tierPrices[i]));
+
+				if ((i + 1) < tierPrices.length) {
 					sb.append(", ");
 				}
 			}

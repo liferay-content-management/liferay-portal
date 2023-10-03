@@ -9,9 +9,9 @@ import ClayLoadingIndicator from '@clayui/loading-indicator';
 import ClayModal, {useModal} from '@clayui/modal';
 import {ClayPaginationBarWithBasicItems} from '@clayui/pagination-bar';
 import ClayTable from '@clayui/table';
-import {addParams, fetch} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
+import {fetchResponse} from '../../utils/api.es';
 import {DELTAS, SCOPE_TYPES} from '../../utils/constants.es';
 import {sub} from '../../utils/language.es';
 
@@ -39,28 +39,9 @@ const ScopeSelectModal = ({
 	useEffect(() => {
 		setLoading(true);
 
-		fetch(
-			addParams(
-				{
-					page: activePage,
-					pageSize: delta,
-				},
-				`${
-					window.location.origin
-				}${Liferay.ThemeDisplay.getPathContext()}${fetchItemsUrl}`
-			),
-			{
-				credentials: 'include',
-				headers: new Headers({
-					'Accept-Language': Liferay.ThemeDisplay.getBCP47LanguageId(),
-					'x-csrf-token': Liferay.authToken,
-				}),
-				method: 'GET',
-			}
-		)
-			.then((response) => response.json())
-			.then((json) => {
-				setResource(json);
+		fetchResponse(fetchItemsUrl, {page: activePage, pageSize: delta})
+			.then((response) => {
+				setResource(response);
 			})
 			.catch((error) => {
 				setError(error);
@@ -68,7 +49,7 @@ const ScopeSelectModal = ({
 			.finally(() => {
 				setLoading(false);
 			});
-	}, [activePage, delta, fetchItemsUrl, type]);
+	}, [activePage, delta, fetchItemsUrl]);
 
 	/**
 	 * Handles what is displayed depending on loading/error/results/no results.

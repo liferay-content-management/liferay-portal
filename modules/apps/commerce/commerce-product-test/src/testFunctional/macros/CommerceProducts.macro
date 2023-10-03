@@ -107,7 +107,7 @@ definition {
 		UserBar.gotoDropdownItem(dropdownItem = "Notifications");
 
 		Click(
-			key_text = "${userFirstName} ${userLastName} sent you a Commerce Product for review in the workflow.",
+			key_text = "${userFirstName} ${userLastName} sent you a Product for review in the workflow.",
 			locator1 = "Link#ANY");
 
 		Click(
@@ -598,9 +598,9 @@ definition {
 
 		CommerceEntry.gotoMenuTab(menuTab = "Configuration");
 
-		Workflow.configureWorkflow(
+		CommerceConfiguration.configureWorkflow(
 			workflowDefinition = "No Workflow",
-			workflowResourceValue = "Commerce Product");
+			workflowResourceValue = "Product");
 	}
 
 	macro discontinueSKU {
@@ -677,9 +677,9 @@ definition {
 
 		CommerceEntry.gotoMenuTab(menuTab = "Configuration");
 
-		Workflow.configureWorkflow(
+		CommerceConfiguration.configureWorkflow(
 			workflowDefinition = "Single Approver",
-			workflowResourceValue = "Commerce Product");
+			workflowResourceValue = "Product");
 	}
 
 	macro isProductIdsEqual {

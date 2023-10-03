@@ -10,24 +10,58 @@
 <%
 ViewChangesDisplayContext viewChangesDisplayContext = (ViewChangesDisplayContext)request.getAttribute(CTWebKeys.VIEW_CHANGES_DISPLAY_CONTEXT);
 
-renderResponse.setTitle(LanguageUtil.get(request, "review-changes"));
+Map<String, Object> reactData;
 
-portletDisplay.setURLBack(viewChangesDisplayContext.getBackURL());
-portletDisplay.setShowBackIcon(true);
+if (FeatureFlagManagerUtil.isEnabled("LPS-179035")) {
+	reactData = viewChangesDisplayContext.getToolbarReactData();
+}
+else {
+	reactData = viewChangesDisplayContext.getReactData();
+}
+
+if (!user.isOnDemandUser()) {
+	portletDisplay.setURLBack(viewChangesDisplayContext.getBackURL());
+	portletDisplay.setShowBackIcon(true);
+}
+else {
+	portletDisplay.setShowBackIcon(false);
+}
+
+renderResponse.setTitle(LanguageUtil.get(request, "review-changes"));
 %>
 
 <div class="publications-view-changes-wrapper">
 	<div>
 		<react:component
 			module="publications/js/views/ChangeTrackingChangesToolbar"
-			props="<%= viewChangesDisplayContext.getReactData() %>"
+			props="<%= reactData %>"
 		/>
 	</div>
 
-	<div class="sidenav-content">
-		<react:component
-			module="publications/js/views/ChangeTrackingChangesView"
-			props="<%= viewChangesDisplayContext.getReactData() %>"
-		/>
-	</div>
+	<c:choose>
+		<c:when test='<%= FeatureFlagManagerUtil.isEnabled("LPS-179035") %>'>
+			<clay:navigation-bar
+				navigationItems="<%= viewChangesDisplayContext.getViewNavigationItems() %>"
+			/>
+
+			<clay:container-fluid>
+				<frontend-data-set:headless-display
+					apiURL="<%= viewChangesDisplayContext.getAPIURL() %>"
+					fdsActionDropdownItems="<%= viewChangesDisplayContext.getFDSActionDropdownItems() %>"
+					fdsFilters="<%= viewChangesDisplayContext.getFDSFilters() %>"
+					fdsSortItemList="<%= viewChangesDisplayContext.getFDSSortItemList() %>"
+					id="<%= PublicationsFDSNames.PUBLICATIONS_CHANGES %>"
+					style="stacked"
+				/>
+			</clay:container-fluid>
+		</c:when>
+		<c:otherwise>
+			<div class="sidenav-content">
+				<react:component
+					module="publications/js/views/ChangeTrackingChangesView"
+					props="<%= reactData %>"
+				/>
+			</div>
+		</c:otherwise>
+	</c:choose>
 </div>

@@ -286,6 +286,8 @@ public interface ${schemaName}Resource {
 										</#if>
 									</#if>
 								</#list>
+						<#elseif freeMarkerTool.hasHTTPMethod(javaMethodSignature, "patch", "post", "put")>
+							httpInvoker.body("[]", "application/json");
 						</#if>
 					</#if>
 				</#if>

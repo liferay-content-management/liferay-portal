@@ -173,7 +173,7 @@ definition {
 	@description = "This is a test for LPS-190586. Even with the option to be redirected to a DPT, if there are validation errors on the object entry the page creator will remain on the same page and get a validation error message."
 	@priority = 4
 	test CannotRedirectToAssociatedDisplayPageTemplateWhenValidationFailed {
-		property custom.properties = "feature.flag.LPS-195205=true${line.separator}feature.flag.LPS-183727=true";
+		property custom.properties = "feature.flag.LPS-183727=true${line.separator}feature.flag.LPS-195205=true";
 
 		task ("Given a page creator has a Form Container with redirection option to a DPT") {
 			ObjectAdmin.addObjectFieldViaAPI(
@@ -526,15 +526,12 @@ definition {
 		task ("When the page creator enables the Show Notification when Form Is Submitted") {
 			PageEditor.editFormContainer(
 				panel = "General",
-				showNotificationWhenFormIsSubmitted = "true");
+				showNotificationWhenFormIsSubmitted = "true",
+				successNotificationText = "Your form was successfully submitted.");
 		}
 
 		task ("Then the page creator could preview the success notification") {
-			PageEditor.editFormContainer(
-				panel = "General",
-				previewSuccessNotification = "true",
-				showNotificationWhenFormIsSubmitted = "true",
-				successNotificationText = "Your form was successfully submitted.");
+			PageEditor.previewSuccessNotification();
 
 			Alert.viewSuccessMessageText(successMessage = "Your form was successfully submitted.");
 		}
@@ -693,10 +690,7 @@ definition {
 		}
 
 		task ("When the page designer previews success state") {
-			PageEditor.editFormContainer(
-				panel = "General",
-				previewSuccessState = "true",
-				successMessage = "Show Embedded Message");
+			PageEditor.previewEmbeddedMessage();
 		}
 
 		task ("Then the page designer can see sucess text under Form Container") {
@@ -742,12 +736,13 @@ definition {
 
 			PageEditor.editFormContainer(
 				panel = "General",
-				previewSuccessState = "true",
 				successMessage = "Show Embedded Message",
 				successText = "We are glad to receive your Form!");
 		}
 
 		task ("Then the page designer can see custom sucess text under Form Container") {
+			PageEditor.previewEmbeddedMessage();
+
 			AssertTextPresent(value1 = "We are glad to receive your Form!");
 		}
 
@@ -1048,10 +1043,7 @@ definition {
 		}
 
 		task ("Then the page designer can see Portuguese translation on preview success state") {
-			PageEditor.editFormContainer(
-				panel = "General",
-				previewSuccessState = "true",
-				successMessage = "Show Embedded Message");
+			PageEditor.previewEmbeddedMessage();
 
 			AssertTextPresent(value1 = "Obrigado por nos enviar seu formulario!");
 		}
@@ -2041,7 +2033,7 @@ definition {
 	@description = "This is a test for LPS-188036. Success notification with toast message must be compatible with Go to Entry Display Page redirect option."
 	@priority = 4
 	test ViewSuccessNotificationOfGoToEntryDisplayPage {
-		property custom.properties = "feature.flag.LPS-195205=true${line.separator}feature.flag.LPS-183727=true";
+		property custom.properties = "feature.flag.LPS-183727=true${line.separator}feature.flag.LPS-195205=true";
 
 		task ("Given a page creator has a mapped Form Container on a content page") {
 			ObjectAdmin.addObjectFieldViaAPI(
@@ -2180,7 +2172,7 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-188036. Success notification with toast message must be compatible with Show Embedded Message redirect option.."
+	@description = "This is a test for LPS-188036. Success notification with toast message must be compatible with Show Embedded Message redirect option."
 	@priority = 4
 	test ViewSuccessNotificationOfShowEmbeddedMessage {
 		task ("Given a page creator has a mapped Form Container on a content page") {

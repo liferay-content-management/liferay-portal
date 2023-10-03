@@ -43,11 +43,12 @@ definition {
 		task ("And given a notification template is created") {
 			Notifications.goToNotificationTemplateAdmin();
 
-			ObjectNotifications.addNewNotificationTemplate(
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
 				fromAddress = "test@liferay",
 				fromName = "Test Test",
-				name = "Notification Template",
-				notificationType = "Email");
+				name = "Notification Template");
 		}
 
 		task ("When an attachment is added to the notification template") {
@@ -160,13 +161,14 @@ definition {
 		task ("And given an email notification template using the attachment field from Object A") {
 			Notifications.goToNotificationTemplateAdmin();
 
-			ObjectNotifications.addNewNotificationTemplate(
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
 				emailBody = "Email Body",
 				entryTo = "[%CURRENT_USER_EMAIL_ADDRESS%]",
 				fromAddress = "[%USER_AUTHOR_FIRST_NAME%]",
 				fromName = "[%CURRENT_USER_EMAIL_ADDRESS%]",
 				name = "Notification Template",
-				notificationType = "Email",
 				subject = "[%USER_AUTHOR_LAST_NAME%]");
 
 			ObjectNotifications.addNotificationTemplateAttachment(objectLabel = "Custom Object A 183441");
@@ -201,41 +203,108 @@ definition {
 
 	@description = "LPS-161917 - Verify that it's possible to create an e-mail notification template"
 	@priority = 5
-	test CanCreateEmailTemplate {
+	test CanCreateEmailNotificationTemplate {
 		property portal.acceptance = "true";
 
-		task ("Given the user navigates to Notifications - Templates in the Control Panel") {
+		task ("Given the user navigates to notification templates in the Control Panel") {
 			ApplicationsMenu.gotoPortlet(
 				category = "Notifications",
 				panel = "Control Panel",
 				portlet = "Templates");
 		}
 
-		task ("When the user creates a new Notification Template") {
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "test@liferay.com",
+		task ("When the user creates a new Email Notification Template") {
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
+				bcc = "test3@liferay.com",
+				cc = "test2@liferay.com",
+				description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+				emailBody = "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.",
+				entryTo = "test@liferay.com, test4@liferay.com",
+				fromAddress = "Liferay",
+				fromName = "Test Test",
+				name = "Notification Template",
+				subject = "Subject");
+
+			PortletEntry.save();
+		}
+
+		task ("Then the email notification template is saved with the correct valuess") {
+			AssertElementPresent(
+				key_name = "Notification Template",
+				locator1 = "ObjectAdmin#TABLE_LIST_TITLE");
+
+			ObjectNotifications.viewEmailNotificationTemplateDetails(
+				bcc = "test3@liferay.com",
+				cc = "test2@liferay.com",
+				description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+				emailBody = "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.",
+				entryTo = "test@liferay.com, test4@liferay.com",
 				fromAddress = "Liferay",
 				fromName = "Test Test",
 				name = "Notification Template",
 				notificationType = "Email",
 				subject = "Subject");
 
+			ObjectNotifications.selectEntity(entityName = "User");
+
+			var listOfTerms = "Middle Name,Screen Name,Create Date,First Name,Last Login Date,UUID";
+
+			for (var entityTerms : list ${listOfTerms}) {
+				AssertElementPresent(
+					key_termName = ${entityTerms},
+					locator1 = "ObjectNotifications#ENTITY_TERMS");
+			}
+		}
+	}
+
+	@description = "LPS-162133 - Verify that it's possible to create a user notification template"
+	@priority = 5
+	test CanCreateUserNotificationTemplate {
+		property portal.acceptance = "true";
+
+		task ("Given the user navigates to Notifications Templates in the Control Panel") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Notifications",
+				panel = "Control Panel",
+				portlet = "Templates");
+		}
+
+		task ("When the user adds a new user notification template") {
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "User Notification");
+
+			ObjectNotifications.configureUserNotificationTemplate(
+				description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+				name = "Notification Template",
+				recipientType = "User",
+				subject = "Subject content",
+				userName = "Test");
+
 			PortletEntry.save();
 		}
 
-		task ("Then the Notification Template is saved with the correct values") {
+		task ("Then the user notification template is created") {
 			AssertElementPresent(
 				key_name = "Notification Template",
 				locator1 = "ObjectAdmin#TABLE_LIST_TITLE");
 
-			ObjectNotifications.viewNotificationTemplateDetails(
-				emailBody = "Email Body",
-				entryTo = "test@liferay.com",
-				fromAddress = "Liferay",
-				fromName = "Test Test",
+			ObjectNotifications.viewUserNotificationTemplateDetails(
+				description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
 				name = "Notification Template",
-				subject = "Subject");
+				notificationType = "User Notification",
+				recipientType = "User",
+				subject = "Subject content");
+
+			ObjectNotifications.selectEntity(entityName = "User");
+
+			var listOfTerms = "Middle Name,Screen Name,Create Date,First Name,Last Login Date,UUID";
+
+			for (var entityTerms : list ${listOfTerms}) {
+				AssertElementPresent(
+					key_termName = ${entityTerms},
+					locator1 = "ObjectNotifications#ENTITY_TERMS");
+			}
 		}
 	}
 
@@ -261,11 +330,12 @@ definition {
 		task ("And given a notification template is created") {
 			Notifications.goToNotificationTemplateAdmin();
 
-			ObjectNotifications.addNewNotificationTemplate(
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
 				fromAddress = "test@liferay",
 				fromName = "Test Test",
-				name = "Notification Template",
-				notificationType = "Email");
+				name = "Notification Template");
 		}
 
 		task ("And given an attachment is added to the notification template") {
@@ -295,13 +365,17 @@ definition {
 		task ("Go to Templates and add a new Notification Template") {
 			Notifications.goToNotificationTemplateAdmin();
 
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "test@liferay.com",
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
+				bcc = "test3@liferay.com",
+				cc = "test2@liferay.com",
+				description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+				emailBody = "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.",
+				entryTo = "test@liferay.com, test4@liferay.com",
 				fromAddress = "Liferay",
 				fromName = "Test Test",
 				name = "Notification Template",
-				notificationType = "Email",
 				subject = "Subject");
 
 			PortletEntry.save();
@@ -324,18 +398,15 @@ definition {
 	@priority = 4
 	test CanDeleteNotification {
 		task ("Given a notification template is created") {
-			Notifications.goToNotificationTemplateAdmin();
-
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "test@liferay.com",
+			JSONObject.addEmailNotificationTemplateViaAPI(
+				bcc = "bccAddress",
+				bodyContent = "Email Body",
+				cc = "ccAddress ",
 				fromAddress = "Liferay",
 				fromName = "Test Test",
-				name = "Notification Template",
-				notificationType = "Email",
-				subject = "Subject");
-
-			PortletEntry.save();
+				subject = "Subject",
+				templateName = "Notification Template",
+				toAddress = "test@liferay.com");
 		}
 
 		task ("And given an object with an attachment field is created") {
@@ -400,71 +471,164 @@ definition {
 		}
 	}
 
+	@description = "LPS-162133 - Verify that it's possible to delete a user notification template"
+	@priority = 3
+	test CanDeleteUserTemplate {
+		task ("Given a user notification template") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Notifications",
+				panel = "Control Panel",
+				portlet = "Templates");
+
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "User Notification");
+
+			ObjectNotifications.configureUserNotificationTemplate(
+				description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+				name = "User Notification Template",
+				recipientType = "User",
+				subject = "Subject content",
+				userName = "Test");
+
+			PortletEntry.save();
+		}
+
+		task ("When delete the User Notification Template") {
+			ObjectNotifications.deleteNotificationTemplate(templateName = "Notification Template");
+		}
+
+		task ("Then the User Notification Template is not present") {
+			Refresh();
+
+			AssertElementNotPresent(
+				key_name = "Notification Template",
+				locator1 = "ObjectAdmin#TABLE_LIST_TITLE");
+		}
+	}
+
 	@description = "LPS-161918 - Verify that it's possible to edit an e-mail notification template"
 	@priority = 3
 	test CanEditEmailTemplate {
+		property custom.properties = "mail.send.blacklist=noreply@liferay.com,noreply@domain.invalid,test@domain.invalid";
+		property test.smtp.server.enabled = "true";
+
 		task ("Given a user creates an email notification template") {
 			Notifications.goToNotificationTemplateAdmin();
 
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
+				emailBody = "Email Body Content",
 				entryTo = "test@liferay.com",
-				fromAddress = "Liferay",
+				fromAddress = "test@liferay.com",
 				fromName = "Test Test",
 				name = "Notification Template",
-				notificationType = "Email",
-				subject = "Subject");
+				subject = "Subject Field");
 
 			PortletEntry.save();
 		}
 
-		task ("When the user edits the template") {
+		task ("and Given a custom object definition") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 161918",
+				objectName = "CustomObject161918",
+				pluralLabelName = "Custom Objects 161918");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObject161918");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject161918");
+		}
+
+		task ("and Given an action to send the email notification after adding an object entry") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 161918");
+
+			ObjectAdmin.goToActionsTab();
+
+			ObjectAdmin.addObjectActionViaUI(
+				actionLabel = "Custom Action",
+				active = "true",
+				inputMethod = "true",
+				inputValue = "Action shot on add",
+				notificationName = "Notification Template",
+				objectLabel = "Custom Object 161918",
+				thenAction = "Notification",
+				whenAction = "On After Add");
+		}
+
+		task ("When the user edits the email notification template") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Notifications",
+				panel = "Control Panel",
+				portlet = "Templates");
+
 			ObjectNotifications.editNotificationTemplate(
-				emailBody = "Email Body Edit",
+				emailBody = "Email Body Content Edited",
 				entryTo = "test2@liferay.com",
-				externalReferenceCode = "ERC Edit",
-				fromAddress = "Liferay Edit",
-				fromName = "Test Test Edit",
-				name = "New Notification Edit",
+				externalReferenceCode = "ERC Edited",
+				fromAddress = "test2@liferay.com",
+				fromName = "Test Test Edited",
+				name = "Notification Template Edited",
 				notificationTemplateName = "Notification Template",
-				subject = "Subject Edit");
+				subject = "Subject Field Edited");
 
 			PortletEntry.save();
 		}
 
-		task ("Then the notification template will have all edited values") {
-			ObjectNotifications.viewNotificationTemplateDetails(
-				emailBody = "Email Body Edit",
+		task ("Then the email notification template is updated") {
+			ObjectNotifications.viewEmailNotificationTemplateDetails(
+				emailBody = "Email Body Content Edited",
 				entryTo = "test2@liferay.com",
-				externalReferenceCode = "ERC Edit",
-				fromAddress = "Liferay Edit",
-				fromName = "Test Test Edit",
-				name = "New Notification Edit",
-				subject = "Subject Edit");
+				externalReferenceCode = "ERC Edited",
+				fromAddress = "test2@liferay.com",
+				fromName = "Test Test Edited",
+				name = "Notification Template Edited",
+				subject = "Subject Field Edited");
+		}
+
+		task ("and When an object entry is added") {
+			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+				fieldName = "customObjectField",
+				objectName = "CustomObject161918",
+				value = "Trigger");
+		}
+
+		task ("Then the action is triggered and an email is sent using the updated notification template") {
+			MockMock.viewMail(
+				asset = "Subject Field Edited",
+				content = "Email Body Content Edited",
+				recipient = "test2@liferay",
+				sender = "test2@liferay.com",
+				subject = "Subject Field Edited");
 		}
 	}
 
 	@description = "LPS-161923 - Verify that it's possible to search for notifications"
 	@priority = 3
 	test CanSearchForNotifications {
-		task ("Go to Templates and add Notification Templates") {
+		task ("Given a Notification Templates") {
 			Notifications.goToNotificationTemplateAdmin();
 
 			for (var templateName : list "Test,Liferay,Site") {
-				ObjectNotifications.addNewNotificationTemplate(
-					emailBody = "Email Body",
-					entryTo = "test@liferay.com",
+				JSONObject.addEmailNotificationTemplateViaAPI(
+					bcc = "bccAddress",
+					bodyContent = "Email Body",
+					cc = "ccAddress ",
 					fromAddress = "Liferay",
 					fromName = "Test Test",
-					name = "Notification ${templateName}",
-					notificationType = "Email",
-					subject = "Subject");
-
-				PortletEntry.save();
+					subject = "Subject",
+					templateName = "Notification ${templateName}",
+					toAddress = "test@liferay.com");
 			}
 		}
 
-		task ("Search for Liferay") {
+		task ("When search for Liferay") {
 			Refresh();
 
 			Type(
@@ -476,7 +640,7 @@ definition {
 				value1 = "\RETURN");
 		}
 
-		task ("Assert only Notification Liferay is present") {
+		task ("Then assert only Notification Liferay is present") {
 			AssertElementPresent(
 				key_name = "Notification Liferay",
 				locator1 = "ObjectAdmin#TABLE_LIST_TITLE");
@@ -494,21 +658,20 @@ definition {
 	@description = "LPS-161920 - Verify that it's possible to send an e-mail notification via an Action"
 	@priority = 5
 	test CanSendEmailViaActionAdd {
+		property custom.properties = "mail.send.blacklist=noreply@liferay.com,noreply@domain.invalid,test@domain.invalid";
 		property portal.acceptance = "true";
+		property test.smtp.server.enabled = "true";
 
-		task ("Go to Templates and add a new Notification Template") {
-			Notifications.goToNotificationTemplateAdmin();
-
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "test@liferay.com",
+		task ("Given a new Notification Template") {
+			JSONObject.addEmailNotificationTemplateViaAPI(
+				bcc = "bccAddress",
+				bodyContent = "Email Body",
+				cc = "ccAddress ",
 				fromAddress = "Liferay",
-				fromName = "Test Test",
-				name = "Notification Template",
-				notificationType = "Email",
-				subject = "Subject");
-
-			PortletEntry.save();
+				fromName = "CanSendEmailViaActionAdd",
+				subject = "Subject",
+				templateName = "Notification Template",
+				toAddress = "test@liferay.com");
 		}
 
 		task ("Create a Custom Object and add a field") {
@@ -547,45 +710,43 @@ definition {
 			PortletEntry.save();
 		}
 
-		task ("Go to the created Object and add an Entry") {
-			ObjectAdmin.goToCustomObject(objectName = "CustomObject161920");
-
-			ObjectAdmin.addObjectStringFieldEntryViaUI(entryValue = "Entry");
+		task ("On the created Object add a Entry") {
+			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+				fieldName = "customObjectField",
+				objectName = "CustomObject161920",
+				value = "Trigger");
 		}
 
-		task ("Go to the Notifications Queue and assert the notification is present") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Notifications",
-				panel = "Control Panel",
-				portlet = "Queue");
-
-			AssertElementPresent(
-				key_validationInfo = "Subject",
-				locator1 = "ObjectCustomValidation#VIEW_INFO_VALIDATION");
+		task ("Then the email is received correctly on the email server") {
+			MockMock.viewMail(
+				asset = "Subject",
+				content = "Email Body",
+				recipient = "test@liferay",
+				sender = "Liferay",
+				subject = "Subject");
 		}
 	}
 
 	@description = "LPS-173894 - Verify that it's possible to send an e-mail notification via an Action (Delete)"
 	@priority = 5
 	test CanSendEmailViaActionDelete {
-		property custom.properties = "feature.flag.LPS-173894=true";
+		property custom.properties = "mail.send.blacklist=noreply@liferay.com,noreply@domain.invalid,test@domain.invalid";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
+		property test.name.skip.portal.instance = "ObjectNotifications#CanSendEmailViaActionDelete";
 		property test.run.type = "single";
+		property test.smtp.server.enabled = "true";
 
 		task ("Given an Email Notification Template") {
-			Notifications.goToNotificationTemplateAdmin();
-
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "test@liferay.com",
+			JSONObject.addEmailNotificationTemplateViaAPI(
+				bcc = "bccAddress",
+				bodyContent = "Email Body",
+				cc = "ccAddress ",
 				fromAddress = "Liferay",
 				fromName = "Test Test",
-				name = "Notification Template",
-				notificationType = "Email",
-				subject = "Subject");
-
-			PortletEntry.save();
+				subject = "Subject",
+				templateName = "Notification Template",
+				toAddress = "test@liferay.com");
 		}
 
 		task ("And given a custom object with a text field and an object entry") {
@@ -651,38 +812,33 @@ definition {
 			ObjectPortlet.deleteEntry(entry = "Entry Test");
 		}
 
-		task ("Then the Action is triggered and a sent email is seen in the Notification Queue") {
-			Notifications.goToNotificationQueueAdmin();
-
-			AssertElementPresent(
-				key_entryLabel = "CustomObject178781",
-				key_entryStatus = "Sent",
-				locator1 = "ObjectNotifications#VIEW_NOTIFICATION_ENTRIES");
+		task ("Then the email is received correctly on the email server") {
+			MockMock.viewMail(
+				asset = "Subject",
+				content = "Email Body",
+				recipient = "test@liferay",
+				sender = "Liferay",
+				subject = "Subject");
 		}
 	}
 
 	@description = "LPS-173894 - Verify that it's possible to send an e-mail notification with Action (Download)"
 	@priority = 5
 	test CanSendEmailViaActionDownload {
+		property custom.properties = "mail.send.blacklist=noreply@liferay.com,noreply@domain.invalid,test@domain.invalid";
 		property portal.acceptance = "true";
 		property test.smtp.server.enabled = "true";
 
 		task ("Given an Email Notification Template") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Notifications",
-				panel = "Control Panel",
-				portlet = "Templates");
-
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "test@liferay.com",
+			JSONObject.addEmailNotificationTemplateViaAPI(
+				bcc = "bccAddress",
+				bodyContent = "Email Body",
+				cc = "ccAddress ",
 				fromAddress = "test@liferay.com",
 				fromName = "Test Test",
-				name = "Notification Template",
-				notificationType = "Email",
-				subject = "Subject");
-
-			PortletEntry.save();
+				subject = "Subject",
+				templateName = "Notification Template",
+				toAddress = "test@liferay.com");
 		}
 
 		task ("And given a Custom Object that contains an attachment field") {
@@ -751,24 +907,22 @@ definition {
 	@description = "LPS-178783 - Verify a standalone action can be triggered manually to send an email"
 	@priority = 5
 	test CanSendEmailViaActionStandalone {
+		property custom.properties = "mail.send.blacklist=noreply@liferay.com,noreply@domain.invalid,test@domain.invalid";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 		property test.smtp.server.enabled = "true";
 
 		task ("Given an Email Notification Template") {
-			Notifications.goToNotificationTemplateAdmin();
-
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "test@liferay.com",
+			JSONObject.addEmailNotificationTemplateViaAPI(
+				bcc = "bccAddress",
+				bodyContent = "Email Body",
+				cc = "ccAddress ",
 				fromAddress = "test@liferay.com",
 				fromName = "Test Test",
-				name = "Notification Template",
-				notificationType = "Email",
-				subject = "Subject");
-
-			PortletEntry.save();
+				subject = "Subject",
+				templateName = "Notification Template",
+				toAddress = "test@liferay.com");
 		}
 
 		task ("And create a Custom Object entryCustom Object with an Action (Standalone)") {
@@ -836,24 +990,23 @@ definition {
 	@description = "LPS-173894 -Verify that it's possible to send an e-mail notification with Action (Update)"
 	@priority = 5
 	test CanSendEmailViaActionUpdate {
-		property custom.properties = "feature.flag.LPS-173894=true";
+		property custom.properties = "mail.send.blacklist=noreply@liferay.com,noreply@domain.invalid,test@domain.invalid";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
+		property test.name.skip.portal.instance = "ObjectNotifications#CanSendEmailViaActionUpdate";
 		property test.run.type = "single";
+		property test.smtp.server.enabled = "true";
 
 		task ("Given an Email Notification Template") {
-			Notifications.goToNotificationTemplateAdmin();
-
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "test@liferay.com",
+			JSONObject.addEmailNotificationTemplateViaAPI(
+				bcc = "bccAddress",
+				bodyContent = "Email Body",
+				cc = "ccAddress ",
 				fromAddress = "Liferay",
 				fromName = "Test Test",
-				name = "Notification Template",
-				notificationType = "Email",
-				subject = "Subject");
-
-			PortletEntry.save();
+				subject = "Subject",
+				templateName = "Notification Template",
+				toAddress = "test@liferay.com");
 		}
 
 		task ("And given a custom object with a text field and an object entry") {
@@ -895,39 +1048,21 @@ definition {
 				whenAction = "On After Update");
 		}
 
-		task ("And given the Notification Queue Entry Delete Interval is set to 1 in System Settings > Notifications > Notification Queue") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Configuration",
-				panel = "Control Panel",
-				portlet = "System Settings");
-
-			SystemSettings.gotoConfiguration(
-				configurationCategory = "Notifications",
-				configurationName = "Notification Queue",
-				configurationScope = "System Scope");
-
-			SystemSettings.editTextSetting(
-				settingName = "Notification Queue Entry Delete Interval",
-				settingValue = 1);
-
-			SystemSettings.saveConfiguration();
-		}
-
 		task ("When the object entry is updated") {
 			ObjectAdmin.goToCustomObject(objectName = "CustomObject178782");
 
 			ObjectPortlet.updateEntry(
 				entry = "Entry Test",
-				updateEntry = "Entry Test Updated");
+				updateEntry = "Trigger");
 		}
 
-		task ("Then the Action is triggered and a sent email is seen in the Notification Queue") {
-			Notifications.goToNotificationQueueAdmin();
-
-			AssertElementPresent(
-				key_entryLabel = "CustomObject178782",
-				key_entryStatus = "Sent",
-				locator1 = "ObjectNotifications#VIEW_NOTIFICATION_ENTRIES");
+		task ("Then the email is received correctly on the email server") {
+			MockMock.viewMail(
+				asset = "Subject",
+				content = "Email Body",
+				recipient = "test@liferay",
+				sender = "Liferay",
+				subject = "Subject");
 		}
 	}
 
@@ -972,13 +1107,14 @@ definition {
 				panel = "Control Panel",
 				portlet = "Templates");
 
-			ObjectNotifications.addNewNotificationTemplate(
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
 				emailBody = "[%RELATIONSHIP_CUSTOMOBJECTA_CUSTOMFIELD%] | [%CUSTOMOBJECTB_CUSTOMFIELD%]",
 				entryTo = "[%CUSTOMOBJECTB_AUTHOR_EMAIL_ADDRESS%]",
 				fromAddress = "[%RELATIONSHIP_CUSTOMOBJECTA_AUTHOR_EMAIL_ADDRESS%]",
 				fromName = "[%CUSTOMOBJECTB_AUTHOR_FIRST_NAME%]",
 				name = "Notification Template",
-				notificationType = "Email",
 				subject = "[%RELATIONSHIP_CUSTOMOBJECTA_AUTHOR_EMAIL_ADDRESS%] | [%RELATIONSHIP_CUSTOMOBJECTA_AUTHOR_FIRST_NAME%] [%RELATIONSHIP_CUSTOMOBJECTA_AUTHOR_LAST_NAME%]");
 
 			PortletEntry.save();
@@ -1078,13 +1214,14 @@ definition {
 				panel = "Control Panel",
 				portlet = "Templates");
 
-			ObjectNotifications.addNewNotificationTemplate(
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
 				emailBody = "[%CUSTOMOBJECT182606_CUSTOMFIELD%]",
 				entryTo = "[%CUSTOMOBJECT182606_AUTHOR_EMAIL_ADDRESS%]",
 				fromAddress = "[%CUSTOMOBJECT182606_AUTHOR_EMAIL_ADDRESS%]",
 				fromName = "[%RELATIONSHIP_USER_AUTHOR_FIRST_NAME%]",
 				name = "Notification Template",
-				notificationType = "Email",
 				subject = "[%RELATIONSHIP_USER_AUTHOR_FIRST_NAME%] [%RELATIONSHIP_USER_AUTHOR_LAST_NAME%]");
 
 			PortletEntry.save();
@@ -1249,7 +1386,10 @@ definition {
 	@description = "LPS-171625 - Verify that after updating a custom object entry, triggered email notifications using Object Author and Current User terms are filled correctly for the To, From Address and From Name and Subject fields"
 	@priority = 5
 	test CanUseObjectAuthorAndCurrentUserTermsInEmailNotificationOnCustomObject {
+		property custom.properties = "feature.flag.LPS-165849=true";
+		property custom.properties = "mail.send.blacklist=noreply@liferay.com,noreply@domain.invalid,test@domain.invalid";
 		property portal.acceptance = "true";
+		property test.smtp.server.enabled = "true";
 
 		task ("Given a custom object a text field and an entry are created") {
 			ObjectAdmin.addObjectViaAPI(
@@ -1274,18 +1414,15 @@ definition {
 		}
 
 		task ("And given an email notification template with the applicable fields filled with the Author and Current User terms") {
-			Notifications.goToNotificationTemplateAdmin();
-
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "[%CURRENT_USER_EMAIL_ADDRESS%]",
+			JSONObject.addEmailNotificationTemplateViaAPI(
+				bcc = "bccAddress",
+				bodyContent = "Email Body",
+				cc = "ccAddress ",
 				fromAddress = "[%CURRENT_USER_EMAIL_ADDRESS%]",
 				fromName = "[%CURRENT_USER_FIRST_NAME%]",
-				name = "Notification Template",
-				notificationType = "Email",
-				subject = "[%CUSTOMOBJECT180337_CUSTOMOBJECTFIELD%]");
-
-			PortletEntry.save();
+				subject = "[%CUSTOMOBJECT180337_CUSTOMOBJECTFIELD%]",
+				templateName = "Notification Template",
+				toAddress = "[%CURRENT_USER_EMAIL_ADDRESS%]");
 		}
 
 		task ("And given an action to send an email notification after updating a custom object entry") {
@@ -1331,35 +1468,33 @@ definition {
 			ObjectAdmin.editEntryName(newEntryValue = "After");
 		}
 
-		task ("Then the email is received with the terms replaced with the correct values") {
-			Notifications.goToNotificationQueueAdmin();
-
-			AssertTextPresent(value1 = "userfn");
-
-			AssertTextPresent(value1 = "userea@liferay.com");
-
-			AssertTextPresent(value1 = "After");
+		task ("Then the email is received on the server email with the terms replaced with the correct values") {
+			MockMock.viewMail(
+				asset = "After",
+				content = "Email Body",
+				recipient = "userea@liferay",
+				sender = "userea@liferay.com",
+				subject = "After");
 		}
 	}
 
 	@description = "LPS-171625 - Verify that after updating a system object entry, triggered email notifications using Object Author and Current User terms are filled correctly for the To, From Address, From Name and Template Body fields"
 	@priority = 5
 	test CanUseObjectAuthorAndCurrentUserTermsInEmailNotificationOnSystemObject {
+		property custom.properties = "mail.send.blacklist=noreply@liferay.com,noreply@domain.invalid,test@domain.invalid";
 		property portal.acceptance = "true";
+		property test.smtp.server.enabled = "true";
 
 		task ("Given an email notification template with the applicable fields filled with the Author and Current User terms") {
-			Notifications.goToNotificationTemplateAdmin();
-
-			ObjectNotifications.addNewNotificationTemplate(
-				emailBody = "Email Body",
-				entryTo = "[%CURRENT_USER_EMAIL_ADDRESS%]",
+			JSONObject.addEmailNotificationTemplateViaAPI(
+				bcc = "bccAddress",
+				bodyContent = "Email Body",
+				cc = "ccAddress ",
 				fromAddress = "[%USER_AUTHOR_FIRST_NAME%]",
 				fromName = "[%CURRENT_USER_EMAIL_ADDRESS%]",
-				name = "Notification Template",
-				notificationType = "Email",
-				subject = "[%USER_AUTHOR_LAST_NAME%]");
-
-			PortletEntry.save();
+				subject = "[%USER_AUTHOR_LAST_NAME%]",
+				templateName = "Notification Template",
+				toAddress = "[%CURRENT_USER_EMAIL_ADDRESS%]");
 		}
 
 		task ("And given an action to send an email notification after updating a system object entry") {
@@ -1403,11 +1538,12 @@ definition {
 		}
 
 		task ("Then the email is received with the terms replaced with the correct values") {
-			Notifications.goToNotificationQueueAdmin();
-
-			AssertTextPresent(value1 = "edituserln");
-
-			AssertTextPresent(value1 = "userea@liferay.com");
+			MockMock.viewMail(
+				asset = "userln",
+				content = "Email Body",
+				recipient = "userea@liferay",
+				sender = "userfn",
+				subject = "userln");
 		}
 	}
 

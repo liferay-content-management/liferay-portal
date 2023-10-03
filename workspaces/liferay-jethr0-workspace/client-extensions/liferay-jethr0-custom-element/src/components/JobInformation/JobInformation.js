@@ -5,6 +5,8 @@
 
 import ClayPanel from '@clayui/panel';
 
+import {toLocaleString} from '../../services/DateUtil';
+
 function JobInformation({job}) {
 	if (!job) {
 		return (
@@ -35,9 +37,20 @@ function JobInformation({job}) {
 				<br />
 				Job Type: {job.type.name}
 				<br />
-				Create Date: {job.dateCreated}
+				Create Date: {toLocaleString(job.dateCreated)}
 				<br />
-				Modified Date: {job.dateModified}
+				Modified Date: {toLocaleString(job.dateModified)}
+				<br />
+				Start Date: {toLocaleString(job.startDate)}
+				{job.jenkinsGitHubURL && job.jenkinsGitHubURL !== null && (
+					<>
+						<br />
+						Jenkins GitHub URL:{' '}
+						<a href={job.jenkinsGitHubURL}>
+							{job.jenkinsGitHubURL}
+						</a>
+					</>
+				)}
 				{job.pullRequestURL && (
 					<>
 						<br />

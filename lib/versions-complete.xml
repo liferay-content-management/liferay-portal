@@ -399,18 +399,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>com.liferay.commerce.report.impl.jar!groovy-all.jar</file-name>
-				<version>2.4.21</version>
-				<project-name>Groovy Runtime</project-name>
-				<project-url>http://groovy-lang.org</project-url>
-				<licenses>
-					<license>
-						<license-name>The Apache Software License, Version 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>com.liferay.commerce.report.impl.jar!icu4j.jar</file-name>
 				<version>57.1</version>
 				<project-name>ICU4J</project-name>
@@ -1980,7 +1968,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.portal.change.tracking.jar!com.github.jsqlparser.jar</file-name>
-				<version>2.1.LIFERAY-PATCHED-1</version>
+				<version>2.1.LIFERAY-PATCHED-2</version>
 				<project-name>JSQLParser library</project-name>
 				<licenses>
 					<license>
@@ -2513,7 +2501,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.portal.osgi.web.http.servlet.impl.jar!org.eclipse.equinox.http.servlet.jar</file-name>
-				<version>1.2.2.v20211118-0920.LIFERAY-PATCHED-1</version>
+				<version>1.2.2.v20211118-0920.LIFERAY-PATCHED-2</version>
 				<project-name>com.liferay:org.eclipse.equinox.http.servlet</project-name>
 				<licenses>
 					<license>
@@ -2614,18 +2602,6 @@
 					<license>
 						<license-name>LGPL 2.1</license-name>
 						<license-url>http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>com.liferay.portal.scripting.groovy.jar!groovy.jar</file-name>
-				<version>2.4.21</version>
-				<project-name>Groovy Runtime</project-name>
-				<project-url>http://groovy-lang.org</project-url>
-				<licenses>
-					<license>
-						<license-name>The Apache Software License, Version 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -4552,18 +4528,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>com.liferay.server.admin.web.jar!groovy.jar</file-name>
-				<version>2.4.21</version>
-				<project-name>Groovy Runtime</project-name>
-				<project-url>http://groovy-lang.org</project-url>
-				<licenses>
-					<license>
-						<license-name>The Apache Software License, Version 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>com.liferay.shared.dependencies.apache.commons.jar!commons-beanutils.jar</file-name>
 				<version>1.9.4</version>
 				<project-name>Apache Commons BeanUtils</project-name>
@@ -4783,6 +4747,18 @@
 				<version>7.0</version>
 				<project-name>org.objectweb.asm</project-name>
 				<project-url>http://asm.ow2.org/</project-url>
+				<licenses>
+					<license>
+						<license-name>The Apache Software License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.groovy.all.jar!groovy-all.jar</file-name>
+				<version>2.4.21</version>
+				<project-name>Groovy Runtime</project-name>
+				<project-url>http://groovy-lang.org</project-url>
 				<licenses>
 					<license>
 						<license-name>The Apache Software License, Version 2.0</license-name>
@@ -6443,7 +6419,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/mariadb.jar</file-name>
-				<version>2.7.4</version>
+				<version>3.2.0</version>
 				<project-name>MariaDB Connector/J</project-name>
 				<project-url>https://downloads.mariadb.org/connector-java</project-url>
 				<licenses>

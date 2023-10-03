@@ -22,8 +22,8 @@ import com.liferay.change.tracking.web.internal.constants.CTWebKeys;
 import com.liferay.change.tracking.web.internal.display.BasePersistenceRegistry;
 import com.liferay.change.tracking.web.internal.display.context.PublicationsDisplayContext;
 import com.liferay.change.tracking.web.internal.display.context.ViewChangesDisplayContext;
+import com.liferay.change.tracking.web.internal.helper.PublicationHelper;
 import com.liferay.change.tracking.web.internal.scheduler.PublishScheduler;
-import com.liferay.osgi.util.service.Snapshot;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
+import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -45,6 +47,8 @@ import java.util.Map;
 
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -87,6 +91,9 @@ public class ViewChangesMVCRenderCommand implements MVCRenderCommand {
 		CTCollection ctCollection = _ctCollectionLocalService.fetchCTCollection(
 			ctCollectionId);
 
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
+			renderRequest);
+
 		try {
 			if ((ctCollection == null) ||
 				!_ctCollectionModelResourcePermission.contains(
@@ -108,7 +115,7 @@ public class ViewChangesMVCRenderCommand implements MVCRenderCommand {
 						_ctCollectionLocalService, _ctCollectionService,
 						_ctDisplayRendererRegistry, _ctEntryLocalService,
 						_ctPreferencesLocalService, _ctRemoteLocalService,
-						_portal.getHttpServletRequest(renderRequest), _language,
+						httpServletRequest, _language, _publicationHelper,
 						renderRequest, renderResponse),
 					_publishSchedulerSnapshot.get(), renderRequest,
 					renderResponse, _userLocalService);
@@ -123,6 +130,14 @@ public class ViewChangesMVCRenderCommand implements MVCRenderCommand {
 			}
 
 			return "/publications/view_publications.jsp";
+		}
+
+		if (GetterUtil.getBoolean(
+				httpServletRequest.getParameter("relationships"))) {
+
+			renderRequest.setAttribute("relationships", Boolean.TRUE);
+
+			return "/publications/view_relationships.jsp";
 		}
 
 		return "/publications/view_changes.jsp";
@@ -201,6 +216,9 @@ public class ViewChangesMVCRenderCommand implements MVCRenderCommand {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private PublicationHelper _publicationHelper;
 
 	@Reference
 	private UserLocalService _userLocalService;

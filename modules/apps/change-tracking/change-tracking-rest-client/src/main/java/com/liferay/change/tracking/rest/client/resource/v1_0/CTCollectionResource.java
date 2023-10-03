@@ -461,6 +461,8 @@ public interface CTCollectionResource {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
+			httpInvoker.body("[]", "application/json");
+
 			if (_builder._locale != null) {
 				httpInvoker.header(
 					"Accept-Language", _builder._locale.toLanguageTag());
@@ -1732,6 +1734,8 @@ public interface CTCollectionResource {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
+			httpInvoker.body("[]", "application/json");
+
 			if (_builder._locale != null) {
 				httpInvoker.header(
 					"Accept-Language", _builder._locale.toLanguageTag());
@@ -1834,6 +1838,8 @@ public interface CTCollectionResource {
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body("[]", "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(
@@ -1940,6 +1946,8 @@ public interface CTCollectionResource {
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body("[]", "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(

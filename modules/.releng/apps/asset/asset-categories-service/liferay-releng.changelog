@@ -212,3 +212,8 @@ ef507a78f31f4cf176eddb6b53755e19928caf20^..4a6bbdb788f367ffdb1b14b1918449e0dad4f
 # Bundle Version 5.0.40
 #
 4a6bbdb788f367ffdb1b14b1918449e0dad4f741^..ba92f5379c523faf43b1cec3d36ce0c5fe988fcc=LPS-188270 LPS-192105
+
+#
+# Bundle Version 5.0.41
+#
+ba92f5379c523faf43b1cec3d36ce0c5fe988fcc^..a0a16aacebd6ad92e765abcd51dbc361304a5784=LPS-195345

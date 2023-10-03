@@ -5,9 +5,10 @@
 
 import {FrontendDataSet} from '@liferay/frontend-data-set-web';
 import {openModal} from 'frontend-js-web';
-import React, {useContext, useEffect} from 'react';
+import React, {Dispatch, SetStateAction, useContext, useEffect} from 'react';
 
 import {EditAPIApplicationContext} from '../EditAPIApplicationContext';
+import {CreateAPIEndpointModalContent} from '../modals/CreateAPIEndpointModalContent';
 import {DeleteAPIEndpointModalContent} from '../modals/DeleteAPIEndpointModalContent';
 import {getFilterRelatedItemURL} from '../utils/urlUtil';
 import {getAPIEndpointsFDSProps} from './fdsUtils/endpointsFDSProps';
@@ -15,21 +16,42 @@ import {getAPIEndpointsFDSProps} from './fdsUtils/endpointsFDSProps';
 interface APIApplicationsTableProps {
 	apiApplicationBaseURL: string;
 	apiURLPaths: APIURLPaths;
+	basePath: string;
 	currentAPIApplicationId: string | null;
 	portletId: string;
 	readOnly: boolean;
+	setMainEndpointNav: Dispatch<SetStateAction<MainNav>>;
 }
 
 export default function APIEndpointsTable({
 	apiApplicationBaseURL,
 	apiURLPaths,
+	basePath,
 	currentAPIApplicationId,
 	portletId,
+	setMainEndpointNav,
 }: APIApplicationsTableProps) {
 	const {setHideManagementButtons} = useContext(EditAPIApplicationContext);
 
 	const createAPIEndpoint = {
 		label: Liferay.Language.get('add-api-endpoint'),
+		onClick: ({loadData}: {loadData: voidReturn}) => {
+			openModal({
+				center: true,
+				contentComponent: ({closeModal}: {closeModal: voidReturn}) =>
+					CreateAPIEndpointModalContent({
+						apiApplicationBaseURL,
+						apiEndpointsURLPath: apiURLPaths.endpoints,
+						basePath,
+						closeModal,
+						currentAPIApplicationId,
+						loadData,
+						setMainEndpointNav,
+					}),
+				id: 'createAPIEndpointModal',
+				size: 'md',
+			});
+		},
 	};
 
 	const endpointAPIURLPath = getFilterRelatedItemURL({
@@ -60,9 +82,15 @@ export default function APIEndpointsTable({
 		itemData,
 		loadData,
 	}: FDSItem<APIEndpointItem>) {
+		if (action.id === 'editAPIEndpoint') {
+			setMainEndpointNav({edit: itemData.id});
+		}
+
 		if (action.id === 'copyEndpointURL') {
 			navigator.clipboard.writeText(
-				`${window.location.origin}/o/${apiApplicationBaseURL}${itemData.path}/`
+				itemData.scope.key === 'group'
+					? `${window.location.origin}${basePath}${apiApplicationBaseURL}/scopes/group${itemData.path}`
+					: `${window.location.origin}${basePath}${apiApplicationBaseURL}${itemData.path}`
 			);
 		}
 
@@ -78,7 +106,11 @@ export default function APIEndpointsTable({
 
 	return (
 		<FrontendDataSet
-			{...getAPIEndpointsFDSProps(endpointAPIURLPath, portletId)}
+			{...getAPIEndpointsFDSProps(
+				endpointAPIURLPath,
+				portletId,
+				setMainEndpointNav
+			)}
 			creationMenu={{
 				primaryItems: [createAPIEndpoint],
 			}}

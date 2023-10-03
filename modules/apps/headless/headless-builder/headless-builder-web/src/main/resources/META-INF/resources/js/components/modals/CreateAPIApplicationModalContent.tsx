@@ -9,12 +9,8 @@ import {fetch, localStorage, openToast} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
 import BaseAPIApplicationField from '../baseComponents/BaseAPIApplicationFields';
+import {headers} from '../utils/fetchUtil';
 import {openEditURL} from '../utils/urlUtil';
-
-type DataError = {
-	baseURL: boolean;
-	title: boolean;
-};
 
 interface HandleCreateInModal {
 	apiApplicationsURLPath: string;
@@ -24,12 +20,6 @@ interface HandleCreateInModal {
 	loadData: voidReturn;
 	portletId: string;
 }
-
-const headers = new Headers({
-	'Accept': 'application/json',
-	'Accept-Language': Liferay.ThemeDisplay.getBCP47LanguageId(),
-	'Content-Type': 'application/json',
-});
 
 export function CreateAPIApplicationModalContent({
 	apiApplicationsURLPath,
@@ -44,7 +34,7 @@ export function CreateAPIApplicationModalContent({
 		description: '',
 		title: '',
 	});
-	const [displayError, setDisplayError] = useState<DataError>({
+	const [displayError, setDisplayError] = useState<ApplicationDataError>({
 		baseURL: false,
 		title: false,
 	});
@@ -109,7 +99,7 @@ export function CreateAPIApplicationModalContent({
 				(errors, field) => ({...errors, [field]: true}),
 				{}
 			);
-			setDisplayError(errors as DataError);
+			setDisplayError(errors as ApplicationDataError);
 
 			isDataValid = false;
 		}

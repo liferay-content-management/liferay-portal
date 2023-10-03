@@ -102,7 +102,7 @@
 </tr>
 <tr>
 	<td>ANY_TITLE</td>
-	<td>//button[@title='${key_title}'] | //button//span[@*='${key_title}']</td>
+	<td>//button[@*='${key_title}'] | //button//span[@*='${key_title}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -992,7 +992,7 @@
 </tr>
 <tr>
 	<td>UNSUBSCRIBE</td>
-	<td>//button[contains(.,'Unsubscribe')] | //li[contains(@class,'nav-item')]/*[contains(@class,'nav-link')]</td>
+	<td>//button[contains(.,'Unsubscribe')] | //a[contains(.,'Unsubscribe')]</td>
 	<td></td>
 </tr>
 <tr>

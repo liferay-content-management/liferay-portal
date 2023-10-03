@@ -697,13 +697,14 @@ definition {
 		task ("Given a notification template is created") {
 			Notifications.goToNotificationTemplateAdmin();
 
-			ObjectNotifications.addNewNotificationTemplate(
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
 				emailBody = "Email Body",
 				entryTo = "test@liferay.com",
 				fromAddress = "test@liferay.com",
 				fromName = "Test Test",
 				name = "Email Template",
-				notificationType = "Email",
 				subject = "Subject Test");
 
 			PortletEntry.save();
@@ -803,12 +804,13 @@ definition {
 		task ("Given a Notification Template is created") {
 			Notifications.goToNotificationTemplateAdmin();
 
-			ObjectNotifications.addNewNotificationTemplate(
+			ObjectNotifications.addNewNotificationTemplate(notificationType = "Email");
+
+			ObjectNotifications.configureEmailNotificationTemplate(
 				entryTo = "test@liferay.com",
 				fromAddress = "test@liferay.com",
 				fromName = "Test Test",
 				name = "Notification Template",
-				notificationType = "Email",
 				subject = "Subject Test");
 
 			PortletEntry.save();
@@ -2538,6 +2540,63 @@ definition {
 		task ("Then the action will be triggered after updating the entry.") {
 			ObjectAdmin.goToCustomObject(objectName = "CustomObject173219");
 
+			ObjectPortlet.viewEntry(entry = "New Entry Test");
+		}
+	}
+
+	@description = "LPS-172918 - Verify the user can trigger a standalone action for a site scoped object"
+	@priority = 4
+	test CanTriggerStandaloneActionForSiteScopedObject {
+		task ("Given a site scoped object definition with a standalone action") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 172918",
+				objectName = "CustomObject172918",
+				pluralLabelName = "Custom Objects 172918",
+				scope = "site");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "true",
+				objectName = "CustomObject172918");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject172918");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 172918");
+
+			ObjectAdmin.goToActionsTab();
+
+			ObjectAdmin.addObjectActionViaUI(
+				actionLabel = "Action",
+				actionName = "ActionName",
+				active = "true",
+				errorMessage = "Error Message",
+				inputMethod = "true",
+				inputValue = "New Entry Test",
+				objectLabel = "Custom Object 172918",
+				thenAction = "Add an Object Entry",
+				whenAction = "Standalone");
+		}
+
+		task ("When the standalone action is triggered manually") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject172918");
+
+			ObjectAdmin.addObjectStringFieldEntryViaUI(entryValue = "Entry");
+
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject172918");
+
+			Click(locator1 = "Icon#SVG_ELLIPSIS");
+
+			Click(
+				key_columnOption = "Action",
+				locator1 = "ObjectCustomViews#SELECT_AUTO_COMPLETE_OPTION");
+		}
+
+		task ("Then the action is triggered successfully") {
 			ObjectPortlet.viewEntry(entry = "New Entry Test");
 		}
 	}

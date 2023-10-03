@@ -50,16 +50,6 @@
 					"name": "FileEntry"
 				}
 			},
-			"IndividualSchemaName": {
-				"description": "individual description",
-				"properties": {
-					"individualTextProperty": {
-						"description": "individualTextProperty description",
-						"type": "string"
-					}
-				},
-				"type": "object"
-			},
 			"Link": {
 				"properties": {
 					"href": {
@@ -261,6 +251,26 @@
 				},
 				"type": "object"
 			},
+			"SingleElementSchemaName": {
+				"description": "description",
+				"properties": {
+					"singleElementTextProperty": {
+						"description": "description",
+						"type": "string"
+					}
+				},
+				"type": "object"
+			},
+			"SingleElementSiteScopedSchemaName": {
+				"description": "site scoped description",
+				"properties": {
+					"singleElementSiteScopedTextProperty": {
+						"description": "singleElementSiteScopedTextProperty description",
+						"type": "string"
+					}
+				},
+				"type": "object"
+			},
 			"SiteScopedSchemaName": {
 				"description": "site scoped description",
 				"properties": {
@@ -284,41 +294,6 @@
 	},
 	"openapi": "3.0.1",
 	"paths": {
-		"/individual-path/{individualPathId}": {
-			"get": {
-				"operationId": "getIndividualPath",
-				"parameters": [
-					{
-						"in": "path",
-						"name": "individualPathId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"default": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/IndividualSchemaName"
-								}
-							},
-							"application/xml": {
-								"schema": {
-									"$ref": "#/components/schemas/IndividualSchemaName"
-								}
-							}
-						},
-						"description": "default response"
-					}
-				},
-				"tags": [
-					"IndividualSchemaName"
-				]
-			}
-		},
 		"/openapi.{type}": {
 			"get": {
 				"operationId": "getOpenAPI",
@@ -405,16 +380,16 @@
 				"operationId": "getScopeScopeKeyNoSchemaPage",
 				"parameters": [
 					{
-						"in": "query",
-						"name": "filter",
+						"in": "path",
+						"name": "scopeKey",
+						"required": true,
 						"schema": {
 							"type": "string"
 						}
 					},
 					{
-						"in": "path",
-						"name": "scopeKey",
-						"required": true,
+						"in": "query",
+						"name": "filter",
 						"schema": {
 							"type": "string"
 						}
@@ -448,21 +423,64 @@
 				}
 			}
 		},
-		"/scopes/{scopeKey}/site-scoped-path": {
+		"/scopes/{scopeKey}/single-element-path/by-external-reference-code/{singleElementPathERC}": {
 			"get": {
-				"operationId": "getScopeScopeKeySiteScopedPathPage",
+				"operationId": "getScopeScopeKeySingleElementPathByExternalReferenceCodeSingleElementPathERC",
 				"parameters": [
 					{
-						"in": "query",
-						"name": "filter",
+						"in": "path",
+						"name": "scopeKey",
+						"required": true,
 						"schema": {
 							"type": "string"
 						}
 					},
 					{
 						"in": "path",
+						"name": "singleElementPathERC",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"default": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SingleElementSiteScopedSchemaName"
+								}
+							},
+							"application/xml": {
+								"schema": {
+									"$ref": "#/components/schemas/SingleElementSiteScopedSchemaName"
+								}
+							}
+						},
+						"description": "default response"
+					}
+				},
+				"tags": [
+					"SingleElementSiteScopedSchemaName"
+				]
+			}
+		},
+		"/scopes/{scopeKey}/site-scoped-path": {
+			"get": {
+				"operationId": "getScopeScopeKeySiteScopedPathPage",
+				"parameters": [
+					{
+						"in": "path",
 						"name": "scopeKey",
 						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "filter",
 						"schema": {
 							"type": "string"
 						}
@@ -508,6 +526,41 @@
 				},
 				"tags": [
 					"SiteScopedSchemaName"
+				]
+			}
+		},
+		"/single-element-path/{singleElementPathId}": {
+			"get": {
+				"operationId": "getSingleElementPath",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "singleElementPathId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"default": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SingleElementSchemaName"
+								}
+							},
+							"application/xml": {
+								"schema": {
+									"$ref": "#/components/schemas/SingleElementSchemaName"
+								}
+							}
+						},
+						"description": "default response"
+					}
+				},
+				"tags": [
+					"SingleElementSchemaName"
 				]
 			}
 		}

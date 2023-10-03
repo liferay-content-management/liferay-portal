@@ -493,6 +493,8 @@ public interface AccountGroupResource {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
+			httpInvoker.body("[]", "application/json");
+
 			if (_builder._locale != null) {
 				httpInvoker.header(
 					"Accept-Language", _builder._locale.toLanguageTag());
@@ -936,6 +938,8 @@ public interface AccountGroupResource {
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body("[]", "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(
@@ -2299,6 +2303,8 @@ public interface AccountGroupResource {
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body("[]", "application/json");
 
 			if (_builder._locale != null) {
 				httpInvoker.header(

@@ -9,26 +9,15 @@ import {fetch, openToast} from 'frontend-js-web';
 import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
 
 import BaseAPISchemaFields from '../baseComponents/BaseAPISchemaFields';
-
-type DataError = {
-	description: boolean;
-	mainObjectDefinitionERC: boolean;
-	name: boolean;
-};
+import {headers} from '../utils/fetchUtil';
 
 interface CreateAPISchemaModalProps {
 	apiSchemasURLPath: string;
 	closeModal: voidReturn;
 	currentAPIApplicationId: string | null;
 	loadData: voidReturn;
-	setMainSchemaNav: Dispatch<SetStateAction<MainSchemaNav>>;
+	setMainSchemaNav: Dispatch<SetStateAction<MainNav>>;
 }
-
-const headers = new Headers({
-	'Accept': 'application/json',
-	'Accept-Language': Liferay.ThemeDisplay.getBCP47LanguageId(),
-	'Content-Type': 'application/json',
-});
 
 export function CreateAPISchemaModalContent({
 	apiSchemasURLPath,
@@ -42,7 +31,7 @@ export function CreateAPISchemaModalContent({
 		mainObjectDefinitionERC: '',
 		name: '',
 	});
-	const [displayError, setDisplayError] = useState<DataError>({
+	const [displayError, setDisplayError] = useState<SchemaDataError>({
 		description: false,
 		mainObjectDefinitionERC: false,
 		name: false,
@@ -110,7 +99,7 @@ export function CreateAPISchemaModalContent({
 				(errors, field) => ({...errors, [field]: true}),
 				{}
 			);
-			setDisplayError(errors as DataError);
+			setDisplayError(errors as SchemaDataError);
 
 			isDataValid = false;
 		}

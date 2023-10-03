@@ -40,10 +40,13 @@ KBArticleViewDisplayContext kbArticleViewDisplayContext = new KBArticleViewDispl
 				%>
 
 				<liferay-ui:search-container-column-text
+					cssClass="table-cell-expand"
 					name="title"
 				>
 					<clay:content-row>
-						<clay:content-col>
+						<clay:content-col
+							cssClass="pr-1"
+						>
 							<clay:sticker
 								cssClass="sticker-secondary"
 								icon="folder"
@@ -51,6 +54,7 @@ KBArticleViewDisplayContext kbArticleViewDisplayContext = new KBArticleViewDispl
 						</clay:content-col>
 
 						<clay:content-col
+							cssClass="pl-1"
 							expand="<%= true %>"
 						>
 							<liferay-portlet:renderURL varImpl="rowURL">
@@ -61,9 +65,11 @@ KBArticleViewDisplayContext kbArticleViewDisplayContext = new KBArticleViewDispl
 								<portlet:param name="selectedItemId" value="<%= String.valueOf(kbFolder.getKbFolderId()) %>" />
 							</liferay-portlet:renderURL>
 
-							<aui:a href="<%= rowURL.toString() %>">
-								<%= HtmlUtil.escape(kbFolder.getName()) %>
-							</aui:a>
+							<clay:link
+								aria-label="<%= HtmlUtil.escape(kbFolder.getName()) %>"
+								href="<%= rowURL.toString() %>"
+								label="<%= HtmlUtil.escape(kbFolder.getName()) %>"
+							/>
 						</clay:content-col>
 					</clay:content-row>
 				</liferay-ui:search-container-column-text>
@@ -103,6 +109,7 @@ KBArticleViewDisplayContext kbArticleViewDisplayContext = new KBArticleViewDispl
 				</liferay-ui:search-container-column-text>
 
 				<liferay-ui:search-container-column-text
+					cssClass="table-cell-minw-150"
 					name="status"
 					value="--"
 				/>
@@ -136,10 +143,13 @@ KBArticleViewDisplayContext kbArticleViewDisplayContext = new KBArticleViewDispl
 				%>
 
 				<liferay-ui:search-container-column-text
+					cssClass="table-cell-expand"
 					name="title"
 				>
 					<clay:content-row>
-						<clay:content-col>
+						<clay:content-col
+							cssClass="pr-1"
+						>
 							<clay:sticker
 								cssClass="sticker-secondary"
 								icon="document-text"
@@ -147,6 +157,7 @@ KBArticleViewDisplayContext kbArticleViewDisplayContext = new KBArticleViewDispl
 						</clay:content-col>
 
 						<clay:content-col
+							cssClass="pl-1"
 							expand="<%= true %>"
 						>
 
@@ -154,9 +165,11 @@ KBArticleViewDisplayContext kbArticleViewDisplayContext = new KBArticleViewDispl
 							PortletURL viewURL = kbArticleURLHelper.createViewWithRedirectURL(kbArticle, currentURL);
 							%>
 
-							<aui:a href="<%= viewURL.toString() %>">
-								<%= HtmlUtil.escape(kbArticle.getTitle()) %>
-							</aui:a>
+							<clay:link
+								aria-label="<%= HtmlUtil.escape(kbArticle.getTitle()) %>"
+								href="<%= viewURL.toString() %>"
+								label="<%= HtmlUtil.escape(kbArticle.getTitle()) %>"
+							/>
 						</clay:content-col>
 					</clay:content-row>
 				</liferay-ui:search-container-column-text>
@@ -191,6 +204,7 @@ KBArticleViewDisplayContext kbArticleViewDisplayContext = new KBArticleViewDispl
 				</liferay-ui:search-container-column-text>
 
 				<liferay-ui:search-container-column-text
+					cssClass="table-cell-minw-150"
 					name="status"
 				>
 					<c:choose>

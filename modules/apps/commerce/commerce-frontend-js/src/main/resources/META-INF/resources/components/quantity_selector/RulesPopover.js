@@ -16,6 +16,7 @@ export default function RulesPopover({
 	max,
 	min,
 	multiple,
+	precision,
 }) {
 	const popoverRef = useRef();
 	const [popoverPosition, setPopoverPosition] = useState({});
@@ -72,7 +73,25 @@ export default function RulesPopover({
 			style={popoverPosition}
 		>
 			<ul className="list-group list-group-flush mb-0">
-				{min > 1 && (
+				{errors.includes('decimals') && (
+					<li className="list-group-item px-0 py-1 text-truncate">
+						<small
+							className={classNames({
+								'text-danger': true,
+							})}
+							dangerouslySetInnerHTML={{
+								__html: sub(
+									Liferay.Language.get(
+										'quantity-allows-for-x-decimal-places'
+									),
+									`<b>${precision}</b>`
+								),
+							}}
+						/>
+					</li>
+				)}
+
+				{min > 0 && (
 					<li className="list-group-item px-0 py-1 text-truncate">
 						<small
 							className={classNames({
@@ -108,7 +127,7 @@ export default function RulesPopover({
 					</li>
 				)}
 
-				{multiple > 1 && (
+				{multiple > 0 && (
 					<li className="list-group-item px-0 py-1 text-truncate">
 						<small
 							className={classNames({

@@ -24,8 +24,10 @@ import com.liferay.commerce.product.catalog.CPCatalogEntry;
 import com.liferay.commerce.product.catalog.CPSku;
 import com.liferay.commerce.product.constants.CommerceChannelConstants;
 import com.liferay.commerce.product.content.helper.CPContentHelper;
+import com.liferay.commerce.product.model.CPInstanceUnitOfMeasure;
 import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.service.CPDefinitionOptionRelLocalService;
+import com.liferay.commerce.product.service.CPInstanceUnitOfMeasureLocalService;
 import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.commerce.product.util.CPJSONUtil;
 import com.liferay.commerce.service.CommerceOrderItemLocalService;
@@ -33,6 +35,7 @@ import com.liferay.commerce.service.CommerceOrderTypeLocalService;
 import com.liferay.commerce.util.CommerceUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -98,6 +101,8 @@ public class AddToCartTag extends IncludeTag {
 			if (_cpCatalogEntry != null) {
 				cpSku = _cpContentHelper.getDefaultCPSku(_cpCatalogEntry);
 
+				_productId = _cpCatalogEntry.getCProductId();
+
 				_productSettingsModel = _productHelper.getProductSettingsModel(
 					_cpCatalogEntry.getCPDefinitionId());
 
@@ -133,6 +138,17 @@ public class AddToCartTag extends IncludeTag {
 
 					if (!commerceOrderItems.isEmpty()) {
 						_inCart = true;
+					}
+				}
+
+				if (FeatureFlagManagerUtil.isEnabled("COMMERCE-11287")) {
+					List<CPInstanceUnitOfMeasure> cpInstanceUnitOfMeasures =
+						_cpInstanceUnitOfMeasureLocalService.
+							getActiveCPInstanceUnitOfMeasures(_cpInstanceId);
+
+					if (!cpInstanceUnitOfMeasures.isEmpty()) {
+						_cpInstanceUnitOfMeasure = cpInstanceUnitOfMeasures.get(
+							0);
 					}
 				}
 			}
@@ -250,16 +266,16 @@ public class AddToCartTag extends IncludeTag {
 		return _quantity;
 	}
 
+	public boolean getShowUnitOfMeasureSelector() {
+		return _showUnitOfMeasureSelector;
+	}
+
 	public String getSize() {
 		return _size;
 	}
 
 	public String getSkuOptions() {
 		return _skuOptions;
-	}
-
-	public String getUnitOfMeasureKey() {
-		return _unitOfMeasureKey;
 	}
 
 	public void setAlignment(String alignment) {
@@ -284,11 +300,15 @@ public class AddToCartTag extends IncludeTag {
 			httpServletRequest, "commerceOrderId", _commerceOrderId);
 		setNamespacedAttribute(
 			httpServletRequest, "cpInstanceId", _cpInstanceId);
+		setNamespacedAttribute(
+			httpServletRequest, "cpInstanceUnitOfMeasure",
+			_cpInstanceUnitOfMeasure);
 		setNamespacedAttribute(httpServletRequest, "disabled", _disabled);
 		setNamespacedAttribute(httpServletRequest, "iconOnly", _iconOnly);
 		setNamespacedAttribute(httpServletRequest, "inCart", _inCart);
 		setNamespacedAttribute(httpServletRequest, "inline", _inline);
 		setNamespacedAttribute(httpServletRequest, "namespace", _namespace);
+		setNamespacedAttribute(httpServletRequest, "productId", _productId);
 		setNamespacedAttribute(
 			httpServletRequest, "productSettingsModel", _productSettingsModel);
 		setNamespacedAttribute(httpServletRequest, "size", _size);
@@ -297,11 +317,12 @@ public class AddToCartTag extends IncludeTag {
 		setNamespacedAttribute(
 			httpServletRequest, "showOrderTypeModalURL",
 			_showOrderTypeModalURL);
+		setNamespacedAttribute(
+			httpServletRequest, "showUnitOfMeasureSelector",
+			_showUnitOfMeasureSelector);
 		setNamespacedAttribute(httpServletRequest, "skuOptions", _skuOptions);
 		setNamespacedAttribute(
 			httpServletRequest, "stockQuantity", _stockQuantity);
-		setNamespacedAttribute(
-			httpServletRequest, "unitOfMeasureKey", _unitOfMeasureKey);
 	}
 
 	public void setCPCatalogEntry(CPCatalogEntry cpCatalogEntry) {
@@ -346,11 +367,19 @@ public class AddToCartTag extends IncludeTag {
 		_cpContentHelper = ServletContextUtil.getCPContentHelper();
 		_cpDefinitionOptionRelLocalService =
 			ServletContextUtil.getCPDefinitionOptionRelLocalService();
+		_cpInstanceUnitOfMeasureLocalService =
+			ServletContextUtil.getCPInstanceUnitOfMeasureLocalService();
 		_productHelper = ServletContextUtil.getProductHelper();
 	}
 
 	public void setQuantity(BigDecimal quantity) {
 		_quantity = quantity;
+	}
+
+	public void setShowUnitOfMeasureSelector(
+		boolean showUnitOfMeasureSelector) {
+
+		_showUnitOfMeasureSelector = showUnitOfMeasureSelector;
 	}
 
 	public void setSize(String size) {
@@ -359,10 +388,6 @@ public class AddToCartTag extends IncludeTag {
 
 	public void setSkuOptions(String skuOptions) {
 		_skuOptions = skuOptions;
-	}
-
-	public void setUnitOfMeasureKey(String unitOfMeasureKey) {
-		_unitOfMeasureKey = unitOfMeasureKey;
 	}
 
 	@Override
@@ -386,20 +411,23 @@ public class AddToCartTag extends IncludeTag {
 		_cpContentHelper = null;
 		_cpDefinitionOptionRelLocalService = null;
 		_cpInstanceId = 0;
+		_cpInstanceUnitOfMeasure = null;
+		_cpInstanceUnitOfMeasureLocalService = null;
 		_disabled = false;
 		_iconOnly = false;
 		_inCart = false;
 		_inline = false;
 		_namespace = StringPool.BLANK;
 		_productHelper = null;
+		_productId = 0;
 		_productSettingsModel = null;
 		_quantity = BigDecimal.ZERO;
 		_showOrderTypeModal = false;
 		_showOrderTypeModalURL = null;
+		_showUnitOfMeasureSelector = false;
 		_size = "md";
 		_skuOptions = null;
 		_stockQuantity = 0;
-		_unitOfMeasureKey = StringPool.BLANK;
 	}
 
 	@Override
@@ -453,19 +481,23 @@ public class AddToCartTag extends IncludeTag {
 	private CPDefinitionOptionRelLocalService
 		_cpDefinitionOptionRelLocalService;
 	private long _cpInstanceId;
+	private CPInstanceUnitOfMeasure _cpInstanceUnitOfMeasure;
+	private CPInstanceUnitOfMeasureLocalService
+		_cpInstanceUnitOfMeasureLocalService;
 	private boolean _disabled;
 	private boolean _iconOnly;
 	private boolean _inCart;
 	private boolean _inline;
 	private String _namespace = StringPool.BLANK;
 	private ProductHelper _productHelper;
+	private long _productId;
 	private ProductSettingsModel _productSettingsModel;
 	private BigDecimal _quantity = BigDecimal.ZERO;
 	private boolean _showOrderTypeModal;
 	private String _showOrderTypeModalURL;
+	private boolean _showUnitOfMeasureSelector;
 	private String _size = "md";
 	private String _skuOptions;
 	private int _stockQuantity;
-	private String _unitOfMeasureKey = StringPool.BLANK;
 
 }

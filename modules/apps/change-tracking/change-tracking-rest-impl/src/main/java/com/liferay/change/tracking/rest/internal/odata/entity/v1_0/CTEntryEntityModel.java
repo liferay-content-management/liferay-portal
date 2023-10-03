@@ -6,6 +6,7 @@
 package com.liferay.change.tracking.rest.internal.odata.entity.v1_0;
 
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.odata.entity.BooleanEntityField;
 import com.liferay.portal.odata.entity.DateTimeEntityField;
 import com.liferay.portal.odata.entity.EntityField;
@@ -23,7 +24,7 @@ public class CTEntryEntityModel implements EntityModel {
 
 	public CTEntryEntityModel() {
 		_entityFieldsMap = EntityModel.toEntityFieldsMap(
-			new IntegerEntityField("changeType", locale -> "changeType"),
+			new BooleanEntityField("hideable", locale -> "hideable"),
 			new DateTimeEntityField(
 				"dateCreated",
 				locale -> Field.getSortableFieldName(Field.CREATE_DATE),
@@ -32,17 +33,34 @@ public class CTEntryEntityModel implements EntityModel {
 				"dateModified",
 				locale -> Field.getSortableFieldName(Field.MODIFIED_DATE),
 				locale -> Field.MODIFIED_DATE),
-			new BooleanEntityField("hideable", locale -> "hideable"),
 			new IdEntityField(
 				"modelClassNameId", locale -> "modelClassNameId",
 				String::valueOf),
-			new StringEntityField("ownerName", locale -> Field.USER_NAME),
-			new StringEntityField("siteName", locale -> "groupName"),
+			new IdEntityField(
+				"ownerId", locale -> Field.USER_ID, String::valueOf),
+			new IdEntityField(
+				"siteId", locale -> Field.GROUP_ID, String::valueOf),
 			new IntegerEntityField("status", locale -> Field.STATUS),
-			new EntityField(
-				"title", EntityField.Type.STRING,
-				locale -> Field.getSortableFieldName(Field.TITLE),
-				locale -> Field.TITLE, String::valueOf));
+			new StringEntityField(
+				"changeType",
+				locale -> Field.getSortableFieldName(
+					"changeTypeLabel_".concat(
+						LocaleUtil.toLanguageId(locale)))),
+			new StringEntityField("ownerName", locale -> Field.USER_NAME),
+			new StringEntityField(
+				"siteName",
+				locale -> Field.getSortableFieldName(
+					"groupName_".concat(LocaleUtil.toLanguageId(locale)))),
+			new StringEntityField(
+				"title",
+				locale -> Field.getSortableFieldName(
+					"title_".concat(LocaleUtil.toLanguageId(locale))),
+				locale -> Field.TITLE),
+			new StringEntityField(
+				"typeName",
+				locale -> Field.getSortableFieldName(
+					"typeName_".concat(LocaleUtil.toLanguageId(locale))),
+				locale -> "typeName"));
 	}
 
 	@Override

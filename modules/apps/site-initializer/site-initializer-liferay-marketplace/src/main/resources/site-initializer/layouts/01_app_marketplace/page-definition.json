@@ -481,6 +481,31 @@
 													},
 													{
 														"definition": {
+															"widgetInstance": {
+																"widgetConfig": {
+																	"boost": "",
+																	"customHeading": "",
+																	"disabled": "false",
+																	"displayStyle": "default",
+																	"displayStyleGroupId": "[$GROUP_ID$]",
+																	"federatedSearchKey": "",
+																	"filterField": "assetCategoryIds",
+																	"filterQueryType": "match",
+																	"filterValue": "[$TAXONOMY_CATEGORY_ID:App$]",
+																	"immutable": "true",
+																	"invisible": "true",
+																	"occur": "must",
+																	"parameterName": "",
+																	"parentQueryName": "",
+																	"queryName": ""
+																},
+																"widgetName": "com_liferay_portal_search_web_internal_custom_filter_portlet_CustomFilterPortlet"
+															}
+														},
+														"type": "Widget"
+													},
+													{
+														"definition": {
 															"customCSS": ".breadcrumb-left-desktop {\ndisplay: flex;\nalign-items: center;\n}\n.breadcrumb-left-desktop svg {\nmargin-bottom: 6px;\n}",
 															"fragmentStyle": {
 																"textColor": "#54555F"
@@ -578,8 +603,16 @@
 													},
 													{
 														"definition": {
+															"fragmentStyle": {
+																"backgroundColor": "whiteColor"
+															},
 															"widgetInstance": {
 																"widgetConfig": {
+																	"displayStyle": "ddmTemplate_MARKETPLACE-PRICE-MODEL",
+																	"displayStyleGroupId": "[$GROUP_ID$]",
+																	"frequenciesVisible": "true",
+																	"frequencyThreshold": "1",
+																	"maxTerms": "10"
 																},
 																"widgetName": "com_liferay_commerce_product_content_search_web_internal_portlet_CPSpecificationOptionFacetsPortlet",
 																"widgetPermissions": [
@@ -660,6 +693,9 @@
 												"pageElements": [
 													{
 														"definition": {
+															"fragmentStyle": {
+																"hidden": true
+															},
 															"widgetInstance": {
 																"widgetConfig": {
 																	"cpContentListRendererKey": "list-default",
@@ -681,6 +717,28 @@
 																	"virtual--cpTypeListEntryRendererKey": "list-entry-default"
 																},
 																"widgetName": "com_liferay_commerce_product_content_search_web_internal_portlet_CPSearchResultsPortlet"
+															}
+														},
+														"type": "Widget"
+													},
+													{
+														"definition": {
+															"widgetInstance": {
+																"widgetConfig": {
+																	"displayInDocumentForm": "false",
+																	"displayStyle": "ddmTemplate_APPS-SEARCH-RESULTS",
+																	"displayStyleGroupId": "[$GROUP_ID$]",
+																	"federatedSearchKey": "",
+																	"fieldsToDisplay": "",
+																	"highlightEnabled": "true",
+																	"paginationDelta": "20",
+																	"paginationDeltaParameterName": "delta",
+																	"paginationStartParameterName": "start",
+																	"showEmptyResultMessage": "true",
+																	"showPagination": "true",
+																	"viewInContext": "true"
+																},
+																"widgetName": "com_liferay_portal_search_web_search_results_portlet_SearchResultsPortlet"
 															}
 														},
 														"type": "Widget"

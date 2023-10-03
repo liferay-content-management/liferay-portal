@@ -14,6 +14,7 @@ import com.liferay.commerce.service.CommerceOrderService;
 import com.liferay.headless.commerce.core.util.ServiceContextHelper;
 import com.liferay.headless.commerce.delivery.cart.dto.v1_0.Cart;
 import com.liferay.headless.commerce.delivery.cart.dto.v1_0.CartItem;
+import com.liferay.headless.commerce.delivery.cart.dto.v1_0.SkuUnitOfMeasure;
 import com.liferay.headless.commerce.delivery.cart.internal.dto.v1_0.converter.CartItemDTOConverterContext;
 import com.liferay.headless.commerce.delivery.cart.internal.dto.v1_0.converter.constants.DTOConverterConstants;
 import com.liferay.headless.commerce.delivery.cart.resource.v1_0.CartItemResource;
@@ -130,6 +131,13 @@ public class CartItemResourceImpl extends BaseCartItemResourceImpl {
 		CommerceOrder commerceOrder = _commerceOrderService.getCommerceOrder(
 			cartId);
 
+		SkuUnitOfMeasure skuUnitOfMeasure = cartItem.getSkuUnitOfMeasure();
+		String skuUnitOfMeasureKey = StringPool.BLANK;
+
+		if (skuUnitOfMeasure != null) {
+			skuUnitOfMeasureKey = skuUnitOfMeasure.getKey();
+		}
+
 		return _toCartItem(
 			commerceOrder.getCommerceAccountId(),
 			_commerceOrderItemService.addOrUpdateCommerceOrderItem(
@@ -137,7 +145,7 @@ public class CartItemResourceImpl extends BaseCartItemResourceImpl {
 				cartItem.getOptions(),
 				BigDecimal.valueOf(GetterUtil.get(cartItem.getQuantity(), 1)),
 				GetterUtil.getLong(cartItem.getReplacedSkuId()),
-				BigDecimal.ZERO, StringPool.BLANK,
+				BigDecimal.ZERO, skuUnitOfMeasureKey,
 				_commerceContextFactory.create(
 					contextCompany.getCompanyId(), commerceOrder.getGroupId(),
 					contextUser.getUserId(), cartId,

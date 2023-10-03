@@ -5,15 +5,20 @@
 
 package com.liferay.change.tracking.rest.internal.resource.v1_0;
 
-import com.liferay.change.tracking.rest.dto.v1_0.CTCollection;
+import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.rest.dto.v1_0.CTEntry;
 import com.liferay.change.tracking.rest.internal.odata.entity.v1_0.CTEntryEntityModel;
 import com.liferay.change.tracking.rest.resource.v1_0.CTEntryResource;
 import com.liferay.change.tracking.service.CTEntryLocalService;
+import com.liferay.change.tracking.spi.display.CTDisplayRendererRegistry;
+import com.liferay.portal.kernel.change.tracking.sql.CTSQLModeThreadLocal;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Validator;
@@ -30,6 +35,8 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.component.annotations.ServiceScope;
 
 /**
@@ -43,8 +50,8 @@ public class CTEntryResourceImpl extends BaseCTEntryResourceImpl {
 
 	@Override
 	public Page<CTEntry> getCtCollectionCTEntriesPage(
-			Long ctCollectionId, String search, Filter filter,
-			Pagination pagination, Sort[] sorts)
+			Long ctCollectionId, Boolean showHideable, String search,
+			Filter filter, Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		return SearchUtil.search(
@@ -56,6 +63,7 @@ public class CTEntryResourceImpl extends BaseCTEntryResourceImpl {
 				Field.ENTRY_CLASS_PK),
 			searchContext -> {
 				searchContext.setAttribute("ctCollectionId", ctCollectionId);
+				searchContext.setAttribute("showHideable", showHideable);
 				searchContext.setCompanyId(contextCompany.getCompanyId());
 
 				if (Validator.isNotNull(search)) {
@@ -77,8 +85,9 @@ public class CTEntryResourceImpl extends BaseCTEntryResourceImpl {
 		return _entityModel;
 	}
 
-	private DefaultDTOConverterContext _getDTOConverterContext(
-			com.liferay.change.tracking.model.CTEntry ctEntry)
+	private <T extends BaseModel<T>> DefaultDTOConverterContext
+			_getDTOConverterContext(
+				com.liferay.change.tracking.model.CTEntry ctEntry)
 		throws Exception {
 
 		return new DefaultDTOConverterContext(
@@ -86,8 +95,38 @@ public class CTEntryResourceImpl extends BaseCTEntryResourceImpl {
 			HashMapBuilder.put(
 				"get",
 				addAction(
-					ActionKeys.VIEW, "getCTEntry", CTCollection.class.getName(),
-					ctEntry.getCtCollectionId())
+					ActionKeys.VIEW, ctEntry.getCtCollectionId(), "getCTEntry",
+					_ctCollectionModelResourcePermission)
+			).put(
+				"move-changes",
+				() -> {
+					CTSQLModeThreadLocal.CTSQLMode ctSQLMode =
+						_ctDisplayRendererRegistry.getCTSQLMode(
+							ctEntry.getCtCollectionId(), ctEntry);
+
+					T model = _ctDisplayRendererRegistry.fetchCTModel(
+						ctEntry.getCtCollectionId(), ctSQLMode,
+						ctEntry.getModelClassNameId(),
+						ctEntry.getModelClassPK());
+
+					if (!FeatureFlagManagerUtil.isEnabled(
+							contextCompany.getCompanyId(), "LPS-171364") ||
+						(model == null) ||
+						_ctDisplayRendererRegistry.isHideable(
+							model, ctEntry.getModelClassNameId())) {
+
+						return null;
+					}
+
+					return addAction(
+						ActionKeys.VIEW, ctEntry.getCtCollectionId(),
+						"getCTEntry", _ctCollectionModelResourcePermission);
+				}
+			).put(
+				"view-discard",
+				addAction(
+					ActionKeys.VIEW, ctEntry.getCtCollectionId(), "getCTEntry",
+					_ctCollectionModelResourcePermission)
 			).build(),
 			null, contextHttpServletRequest, ctEntry.getCtCollectionId(),
 			contextAcceptLanguage.getPreferredLocale(), contextUriInfo,
@@ -103,6 +142,17 @@ public class CTEntryResourceImpl extends BaseCTEntryResourceImpl {
 	}
 
 	private static final EntityModel _entityModel = new CTEntryEntityModel();
+
+	@Reference(
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY,
+		target = "(model.class.name=com.liferay.change.tracking.model.CTCollection)"
+	)
+	private volatile ModelResourcePermission<CTCollection>
+		_ctCollectionModelResourcePermission;
+
+	@Reference
+	private CTDisplayRendererRegistry _ctDisplayRendererRegistry;
 
 	@Reference(
 		target = "(component.name=com.liferay.change.tracking.rest.internal.dto.v1_0.converter.CTEntryDTOConverter)"

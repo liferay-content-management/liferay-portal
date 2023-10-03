@@ -19,8 +19,6 @@ AUI.add(
 
 		const CSS_ACTIVE_AREA = 'active-area';
 
-		const CSS_APP_VIEW_ENTRY = 'app-view-entry-taglib';
-
 		const CSS_DISPLAY_DESCRIPTIVE = 'display-descriptive';
 
 		const CSS_DISPLAY_ICON = 'display-icon';
@@ -88,8 +86,6 @@ AUI.add(
 
 		const STR_SIZE = 'size';
 
-		const STR_SPACE = ' ';
-
 		const STR_ICON_DEFAULT = 'document-default';
 
 		const STR_ICON_PDF = 'document-vector';
@@ -102,23 +98,21 @@ AUI.add(
 
 		const TPL_ENTRIES_CONTAINER = '<dl class="{cssClass}"></dl>';
 
-		const TPL_ENTRY_ROW_TITLE = `<div class="autofit-row ${
-			CSS_APP_VIEW_ENTRY + STR_SPACE + CSS_ENTRY_DISPLAY_STYLE
-		}">
-			<div class="autofit-col">
+		const TPL_ENTRY_ROW_TITLE = `<div class="autofit-row">
+			<div class="autofit-col pr-1">
 				<span class="sticker sticker-rounded sticker-document sticker-secondary file-icon-color-0">
 					<span class="sticker-overlay">
 						${Liferay.Util.getLexiconIconTpl(STR_ICON_DEFAULT)}
 					</span>
-				</span>
-			</div>
-
-			<div class="autofit-col autofit-col-expand">
-				<div class="table-title">
-					<a>{0}</a>
+					</span>
 				</div>
-			</div>
-		</div>`;
+
+				<div class="autofit-col autofit-col-expand pl-1">
+					<div class="table-title">
+						<a>{0}</a>
+					</div>
+				</div>
+			</div>`;
 
 		const TPL_ENTRY_WRAPPER =
 			'<dd class="card-page-item card-page-item-asset" data-title="{title}"></dd>';

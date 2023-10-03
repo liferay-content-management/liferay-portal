@@ -161,6 +161,16 @@ long cpDefinitionId = cpCatalogEntry.getCPDefinitionId();
 
 			<liferay-util:dynamic-include key="com.liferay.commerce.product.type.grouped.web#/grouped_product_type.jsp#" />
 
+			<c:if test="<%= cpSku != null %>">
+				<div class="mt-3">
+					<liferay-commerce:unit-of-measure-tier-price
+						CPInstanceId="<%= cpSku.getCPInstanceId() %>"
+						CProductId="<%= cpCatalogEntry.getCProductId() %>"
+						namespace="<%= liferayPortletResponse.getNamespace() %>"
+					/>
+				</div>
+			</c:if>
+
 			<div class="mt-3 price-container row">
 				<div class="col col-lg-9 col-xl-6">
 					<commerce-ui:price
@@ -170,13 +180,6 @@ long cpDefinitionId = cpCatalogEntry.getCPDefinitionId();
 					/>
 				</div>
 			</div>
-
-			<c:if test="<%= cpSku != null %>">
-				<liferay-commerce:tier-price
-					CPInstanceId="<%= cpSku.getCPInstanceId() %>"
-					taglibQuantityInputId='<%= liferayPortletResponse.getNamespace() + cpDefinitionId + "Quantity" %>'
-				/>
-			</c:if>
 
 			<%
 			BigDecimal minOrderQuantity = cpContentHelper.getMinOrderQuantity(cpDefinitionId);
@@ -188,12 +191,13 @@ long cpDefinitionId = cpCatalogEntry.getCPDefinitionId();
 				</span>
 			</c:if>
 
-			<div class="align-items-center d-flex mt-3 product-detail-actions">
+			<div class="align-items-end d-flex mt-3 product-detail-actions">
 				<commerce-ui:add-to-cart
 					alignment="left"
 					CPCatalogEntry="<%= cpCatalogEntry %>"
 					inline="<%= true %>"
 					namespace="<%= liferayPortletResponse.getNamespace() %>"
+					showUnitOfMeasureSelector="<%= true %>"
 					size="lg"
 					skuOptions="<%= cpContentSkuOptionsHelper.getDefaultCPInstanceSkuOptions(cpCatalogEntry.getCPDefinitionId(), request) %>"
 				/>

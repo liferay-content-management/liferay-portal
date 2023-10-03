@@ -309,8 +309,10 @@ interface Product {
 	name: {[key: string]: string};
 	productChannels: Channel[];
 	productId: number;
+	productSpecifications: ProductSpecification[];
 	productStatus: number;
 	productType: string;
+	skus: SKU[];
 	thumbnail: string;
 	version: number;
 	workflowStatusInfo: {
@@ -457,7 +459,7 @@ type OrderInfo = {
 	specifications?: ProductSpecification[];
 };
 
-type RadioOption = {
+type RadioOption<T> = {
 	index: number;
-	value: Account;
+	value: T;
 };

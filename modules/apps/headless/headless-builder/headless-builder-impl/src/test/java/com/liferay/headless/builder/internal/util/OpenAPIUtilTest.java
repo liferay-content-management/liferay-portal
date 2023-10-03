@@ -25,7 +25,7 @@ public class OpenAPIUtilTest {
 		LiferayUnitTestRule.INSTANCE;
 
 	@Test
-	public void testGetCollectionOperationId() {
+	public void testGetOperationIdWithCollection() {
 		Assert.assertEquals(
 			"getCamelSchemasPage",
 			OpenAPIUtil.getOperationId(
@@ -71,7 +71,83 @@ public class OpenAPIUtilTest {
 	}
 
 	@Test
-	public void testGetIndividualOperationId() {
+	public void testGetOperationIdWithScopedSingleElementByExternalReferenceCode() {
+		Assert.assertEquals(
+			"getScopeScopeKeyByExternalReferenceCodeSchemaERC",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET,
+				"/scopes/{scopeKey}/by-external-reference-code/{schemaERC}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, "Schema"));
+		Assert.assertEquals(
+			"getScopeScopeKeyByExternalReferenceCodeSchemaExternal" +
+				"ReferenceCode",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET,
+				"/scopes/{scopeKey}/by-external-reference-code " +
+					"/{schemaExternalReferenceCode}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, "Schema"));
+		Assert.assertEquals(
+			"getScopeScopeKeyPathNameByExternalReferenceCodePathNameERC",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET,
+				"/scopes/{scopeKey}/path-names/by-external-reference-code" +
+					"/{pathNameERC}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, "Schema"));
+		Assert.assertEquals(
+			"getScopeScopeKeySchemaByExternalReferenceCodeSchemaERC",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET,
+				"/scopes/{scopeKey}/schemas/by-external-reference-code" +
+					"/{schemaERC}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, null));
+		Assert.assertEquals(
+			"getScopeScopeKeySchemaByExternalReferenceCodeSchemaERC",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET,
+				"/scopes/{scopeKey}/schemas/by-external-reference-code" +
+					"/{schemaERC}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, "Schema"));
+	}
+
+	@Test
+	public void testGetOperationIdWithSingleElementByExternalReferenceCode() {
+		Assert.assertEquals(
+			"getByExternalReferenceCode",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET,
+				"/by-external-reference-code/{externalReferenceCode}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, "Schema"));
+		Assert.assertEquals(
+			"getByExternalReferenceCodeExternalReferenceCode",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET,
+				"/by-external-reference-code/{externalReferenceCode}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, null));
+		Assert.assertEquals(
+			"getPathNamePathNameERC",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET, "/path-names/{pathNameERC}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, "Schema"));
+		Assert.assertEquals(
+			"getSchemaByExternalReferenceCodeSchemaERC",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET,
+				"/schemas/by-external-reference-code/{schemaERC}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, "Schema"));
+		Assert.assertEquals(
+			"getSchemaWhateverWhateverERC",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET, "/schema/whatever/{whateverERC}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, "Schema"));
+		Assert.assertEquals(
+			"getSegmentASegmentBSegmentBERC",
+			OpenAPIUtil.getOperationId(
+				Http.Method.GET, "/segment-a/segment-b/{segmentBERC}",
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT, "Schema"));
+	}
+
+	@Test
+	public void testGetOperationIdWithSingleElementById() {
 		Assert.assertEquals(
 			"getCamelSchema",
 			OpenAPIUtil.getOperationId(

@@ -6,6 +6,7 @@
 package com.liferay.info.request.struts.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.layout.constants.LayoutTypeSettingsConstants;
 import com.liferay.object.constants.ObjectActionExecutorConstants;
 import com.liferay.object.constants.ObjectActionTriggerConstants;
 import com.liferay.object.constants.ObjectDefinitionConstants;
@@ -49,8 +50,7 @@ import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.upload.UploadPortletRequestImpl;
-import com.liferay.portal.upload.UploadServletRequestImpl;
+import com.liferay.portal.upload.test.util.UploadTestUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
@@ -116,7 +116,7 @@ public class ExecuteInfoItemActionStrutsActionTest {
 			Collections.emptyMap(), Collections.emptyMap(),
 			LayoutConstants.TYPE_CONTENT,
 			UnicodePropertiesBuilder.put(
-				"published", "true"
+				LayoutTypeSettingsConstants.KEY_PUBLISHED, "true"
 			).buildString(),
 			false, false, Collections.emptyMap(), 0,
 			ServiceContextTestUtil.getServiceContext(
@@ -134,7 +134,8 @@ public class ExecuteInfoItemActionStrutsActionTest {
 				"script",
 				"File file = new File('" + _fileName +
 					"'); file.append('true');"
-			).build());
+			).build(),
+			false);
 	}
 
 	@After
@@ -213,9 +214,12 @@ public class ExecuteInfoItemActionStrutsActionTest {
 		MockMultipartHttpServletRequest mockMultipartHttpServletRequest =
 			new MockMultipartHttpServletRequest();
 
+		mockMultipartHttpServletRequest.setContentType(
+			"multipart/form-data;boundary=" + System.currentTimeMillis());
+
 		UploadPortletRequest uploadPortletRequest =
-			new UploadPortletRequestImpl(
-				new UploadServletRequestImpl(
+			UploadTestUtil.createUploadPortletRequest(
+				UploadTestUtil.createUploadServletRequest(
 					mockMultipartHttpServletRequest, null,
 					HashMapBuilder.put(
 						"classNameId", Collections.singletonList(_classNameId)

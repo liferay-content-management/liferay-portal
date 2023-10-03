@@ -7,10 +7,8 @@ package com.liferay.jethr0.job.queue;
 
 import com.liferay.jethr0.bui1d.BuildEntity;
 import com.liferay.jethr0.bui1d.repository.BuildEntityRepository;
-import com.liferay.jethr0.bui1d.repository.BuildParameterEntityRepository;
 import com.liferay.jethr0.bui1d.repository.BuildRunEntityRepository;
 import com.liferay.jethr0.bui1d.run.BuildRunEntity;
-import com.liferay.jethr0.gitbranch.repository.GitBranchEntityRepository;
 import com.liferay.jethr0.job.JobEntity;
 import com.liferay.jethr0.job.comparator.BaseJobComparatorEntity;
 import com.liferay.jethr0.job.comparator.JobComparatorEntity;
@@ -18,8 +16,6 @@ import com.liferay.jethr0.job.prioritizer.JobPrioritizerEntity;
 import com.liferay.jethr0.job.repository.JobComparatorEntityRepository;
 import com.liferay.jethr0.job.repository.JobEntityRepository;
 import com.liferay.jethr0.job.repository.JobPrioritizerEntityRepository;
-import com.liferay.jethr0.task.repository.TaskEntityRepository;
-import com.liferay.jethr0.testsuite.repository.TestSuiteEntityRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,45 +83,11 @@ public class JobQueue {
 	}
 
 	public void initialize() {
-		_jobComparatorEntityRepository.initialize();
-		_jobPrioritizerEntityRepository.initialize();
-
-		_jobComparatorEntityRepository.setJobPrioritizerEntityRepository(
-			_jobPrioritizerEntityRepository);
-
-		_jobPrioritizerEntityRepository.setJobComparatorEntityRepository(
-			_jobComparatorEntityRepository);
-
-		_jobComparatorEntityRepository.initializeRelationships();
-		_jobPrioritizerEntityRepository.initializeRelationships();
-
-		_buildParameterEntityRepository.initialize();
-		_buildEntityRepository.initialize();
-		_buildRunEntityRepository.initialize();
-		_jobEntityRepository.initialize();
-
-		_buildEntityRepository.setBuildParameterEntityRepository(
-			_buildParameterEntityRepository);
-		_buildEntityRepository.setBuildRunEntityRepository(
-			_buildRunEntityRepository);
-		_buildEntityRepository.setJobEntityRepository(_jobEntityRepository);
-
-		_buildRunEntityRepository.setBuildEntityRepository(
-			_buildEntityRepository);
-
-		_buildParameterEntityRepository.setBuildRepository(
-			_buildEntityRepository);
-
-		_jobEntityRepository.setBuildEntityRepository(_buildEntityRepository);
-
-		_buildParameterEntityRepository.initializeRelationships();
-		_buildEntityRepository.initializeRelationships();
-		_buildRunEntityRepository.initializeRelationships();
-		_jobEntityRepository.initializeRelationships();
-
 		setJobPrioritizerEntity(_getDefaultJobPrioritizerEntity());
 
-		addJobEntities(_jobEntityRepository.getAll());
+		addJobEntities(
+			_jobEntityRepository.getByState(
+				JobEntity.State.QUEUED, JobEntity.State.RUNNING));
 
 		update();
 	}
@@ -214,12 +176,11 @@ public class JobQueue {
 						continue;
 					}
 
-					Set<BuildRunEntity> buildRunEntities =
-						_buildRunEntityRepository.getAll(buildEntity);
-
 					boolean blocked = false;
 
-					for (BuildRunEntity buildRunEntity : buildRunEntities) {
+					for (BuildRunEntity buildRunEntity :
+							buildEntity.getBuildRunEntities()) {
+
 						if (buildRunEntity.isBlocked()) {
 							blocked = true;
 
@@ -247,17 +208,19 @@ public class JobQueue {
 			return jobPrioritizerEntity;
 		}
 
-		jobPrioritizerEntity = _jobPrioritizerEntityRepository.add(
+		jobPrioritizerEntity = _jobPrioritizerEntityRepository.create(
 			_liferayJobPrioritizer);
 
-		_jobComparatorEntityRepository.add(
+		_jobComparatorEntityRepository.create(
 			jobPrioritizerEntity, 1, JobComparatorEntity.Type.JOB_START_DATE,
 			null);
-		_jobComparatorEntityRepository.add(
+		_jobComparatorEntityRepository.create(
 			jobPrioritizerEntity, 2, JobComparatorEntity.Type.JOB_PRIORITY,
 			null);
-		_jobComparatorEntityRepository.add(
+		_jobComparatorEntityRepository.create(
 			jobPrioritizerEntity, 3, JobComparatorEntity.Type.FIFO, null);
+
+		_jobPrioritizerEntityRepository.update(jobPrioritizerEntity);
 
 		return jobPrioritizerEntity;
 	}
@@ -268,13 +231,7 @@ public class JobQueue {
 	private BuildEntityRepository _buildEntityRepository;
 
 	@Autowired
-	private BuildParameterEntityRepository _buildParameterEntityRepository;
-
-	@Autowired
 	private BuildRunEntityRepository _buildRunEntityRepository;
-
-	@Autowired
-	private GitBranchEntityRepository _gitBranchEntityRepository;
 
 	@Autowired
 	private JobComparatorEntityRepository _jobComparatorEntityRepository;
@@ -294,12 +251,6 @@ public class JobQueue {
 
 	private final List<JobComparatorEntity> _sortedJobComparatorEntities =
 		new ArrayList<>();
-
-	@Autowired
-	private TaskEntityRepository _taskEntityRepository;
-
-	@Autowired
-	private TestSuiteEntityRepository _testSuiteEntityRepository;
 
 	private class PrioritizedJobComparator implements Comparator<JobEntity> {
 

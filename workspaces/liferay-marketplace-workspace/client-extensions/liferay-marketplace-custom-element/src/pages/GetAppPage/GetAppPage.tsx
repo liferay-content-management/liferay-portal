@@ -5,18 +5,128 @@
 
 import ClayButton from '@clayui/button';
 import {useState} from 'react';
+import {useForm} from 'react-hook-form';
 
-import {GetAppModal} from '../../components/GetAppModal/GetAppModal';
+import {getSiteURL} from '../../components/InviteMemberModal/services';
+import {Liferay} from '../../liferay/liferay';
+import {getUrlParam} from '../../utils/getUrlParam';
+import AccountSelection from './components/AccountSelection';
+import ProductCard from './components/ProductCard';
+import {StepType} from './enums/stepType';
 
-export default function GetAppPage() {
-	const [showModal, setShowModal] = useState(false);
+type StepComponent = {
+	[key in StepType]?: JSX.Element;
+};
+
+type getAppProps = {
+	product?: Product;
+	selectedAccount?: Account;
+};
+
+const sectionProperties = {
+	[StepType.ACCOUNT]: {
+		backStep: StepType.ACCOUNT,
+		nextStep: StepType.LICENSES,
+		title: 'Account Selection',
+	},
+	[StepType.LICENSES]: {
+		backStep: StepType.ACCOUNT,
+		nextStep: StepType.PAYMENT,
+		title: 'License Selection',
+	},
+	[StepType.PAYMENT]: {
+		backStep: StepType.LICENSES,
+		nextStep: StepType.PAYMENT,
+		title: 'Payment Method',
+	},
+};
+
+const GetAppFlow = () => {
+	const [step, setStep] = useState<StepType>(StepType.ACCOUNT);
+
+	const {getValues, setValue, watch} = useForm<getAppProps>({
+		defaultValues: {
+			product: undefined,
+			selectedAccount: undefined,
+		},
+	});
+
+	const onCancel = () => {
+		Liferay.Util.navigate(getSiteURL());
+	};
+
+	const onContinue = async (nextStep: StepType) => {
+		setStep(nextStep);
+
+		return;
+	};
+
+	const onPrevious = async (previousStep: StepType) => {
+		setStep(previousStep);
+
+		return;
+	};
+
+	const StepFormComponent: StepComponent = {
+		[StepType.ACCOUNT]: (
+			<AccountSelection
+				onSelectAccount={(account: Account) => {
+					setValue('selectedAccount', account);
+				}}
+				selectedAccount={getValues('selectedAccount')}
+			/>
+		),
+	};
 
 	return (
 		<>
-			<ClayButton onClick={() => setShowModal(true)}>Get App</ClayButton>
-			{showModal && (
-				<GetAppModal handleClose={() => setShowModal(false)} />
-			)}
+			<ProductCard
+				productId={Number(getUrlParam('productId'))}
+				selectedAccount={watch('selectedAccount')}
+				setProductToForm={(product: Product) =>
+					setValue('product', product)
+				}
+			/>
+			<div className="border d-flex flex-column mt-7 p-5 rounded">
+				<div className="d-flex flex-column">
+					<div className="align-self-center h1 mb-6">
+						{sectionProperties[step].title}
+					</div>
+
+					<div>{StepFormComponent[step]}</div>
+				</div>
+				<div className="d-flex justify-content-between mt-5 pt-2">
+					<ClayButton displayType={null} onClick={() => onCancel()}>
+						Cancel
+					</ClayButton>
+					<div className="align-self-end">
+						{sectionProperties[step].backStep !== step && (
+							<ClayButton
+								displayType="secondary"
+								onClick={() =>
+									onPrevious(sectionProperties[step].backStep)
+								}
+							>
+								Back
+							</ClayButton>
+						)}
+						{sectionProperties[step].nextStep && (
+							<ClayButton
+								className="ml-5"
+								onClick={() => {
+									onContinue(
+										sectionProperties[step].nextStep
+									);
+								}}
+							>
+								Continue
+							</ClayButton>
+						)}
+					</div>
+				</div>
+			</div>
 		</>
 	);
-}
+};
+
+export default GetAppFlow;

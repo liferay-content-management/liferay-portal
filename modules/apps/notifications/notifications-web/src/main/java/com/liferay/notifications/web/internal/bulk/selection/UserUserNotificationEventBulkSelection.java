@@ -10,14 +10,18 @@ import com.liferay.bulk.selection.BaseContainerEntryBulkSelection;
 import com.liferay.bulk.selection.BulkSelection;
 import com.liferay.bulk.selection.BulkSelectionFactory;
 import com.liferay.bulk.selection.EmptyBulkSelection;
+import com.liferay.notifications.web.internal.util.comparator.UserNotificationEventUserNotificationEventIdOrderByComparator;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.interval.IntervalActionProcessor;
 import com.liferay.portal.kernel.model.UserNotificationEvent;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
+import com.liferay.portal.kernel.util.MapUtil;
 
 import java.util.List;
 import java.util.Map;
+
+import javax.portlet.ActionRequest;
 
 /**
  * @author Roberto Díaz
@@ -49,12 +53,25 @@ public class UserUserNotificationEventBulkSelection
 				(start, end) -> {
 					List<UserNotificationEvent> userNotificationEvents =
 						_userNotificationEventLocalService.
-							getUserNotificationEvents(_userId, start, end);
+							getUserNotificationEvents(
+								_userId, start, end,
+								new UserNotificationEventUserNotificationEventIdOrderByComparator(
+									true));
 
 					for (UserNotificationEvent userNotificationEvent :
 							userNotificationEvents) {
 
 						unsafeConsumer.accept(userNotificationEvent);
+					}
+
+					String actionName = MapUtil.getString(
+						getParameterMap(), ActionRequest.ACTION_NAME);
+
+					if (!actionName.equals("deleteNotifications") &&
+						!actionName.equals("deleteUserNotificationEvent")) {
+
+						userNotificationEventIntervalActionProcessor.
+							incrementStart(userNotificationEvents.size());
 					}
 
 					return null;

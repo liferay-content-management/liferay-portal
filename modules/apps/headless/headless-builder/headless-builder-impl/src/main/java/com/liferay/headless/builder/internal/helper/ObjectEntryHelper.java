@@ -5,7 +5,10 @@
 
 package com.liferay.headless.builder.internal.helper;
 
+import com.liferay.object.constants.ObjectFieldSettingConstants;
+import com.liferay.object.field.setting.util.ObjectFieldSettingUtil;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.filter.parser.ObjectDefinitionFilterParser;
@@ -13,8 +16,10 @@ import com.liferay.object.rest.manager.v1_0.DefaultObjectEntryManager;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.petra.function.UnsafeSupplier;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
@@ -51,13 +56,13 @@ public class ObjectEntryHelper {
 
 	public List<ObjectEntry> getObjectEntries(
 			long companyId, String filterString, List<String> nestedFields,
-			String objectDefinitionExternalReferenceCode)
+			String objectDefinitionExternalReferenceCode, String scopeKey)
 		throws Exception {
 
 		Page<ObjectEntry> objectEntriesPage = getObjectEntriesPage(
 			companyId, filterString, nestedFields,
 			Pagination.of(QueryUtil.ALL_POS, QueryUtil.ALL_POS),
-			objectDefinitionExternalReferenceCode);
+			objectDefinitionExternalReferenceCode, scopeKey);
 
 		return new ArrayList<>(objectEntriesPage.getItems());
 	}
@@ -69,7 +74,7 @@ public class ObjectEntryHelper {
 
 		return getObjectEntries(
 			companyId, filterString, Collections.emptyList(),
-			objectDefinitionExternalReferenceCode);
+			objectDefinitionExternalReferenceCode, null);
 	}
 
 	public Page<ObjectEntry> getObjectEntriesPage(
@@ -108,7 +113,8 @@ public class ObjectEntryHelper {
 
 	public Page<ObjectEntry> getObjectEntriesPage(
 			long companyId, String filterString, List<String> nestedFields,
-			Pagination pagination, String objectDefinitionExternalReferenceCode)
+			Pagination pagination, String objectDefinitionExternalReferenceCode,
+			String scopeKey)
 		throws Exception {
 
 		ObjectDefinition objectDefinition =
@@ -124,7 +130,7 @@ public class ObjectEntryHelper {
 			companyId,
 			_objectDefinitionFilterParser.parse(filterString, objectDefinition),
 			nestedFields, pagination, objectDefinitionExternalReferenceCode,
-			null, null);
+			scopeKey, null);
 	}
 
 	public ObjectEntry getObjectEntry(
@@ -155,6 +161,36 @@ public class ObjectEntryHelper {
 				return defaultObjectEntryManager.getObjectEntry(
 					_getDefaultDTOConverterContext(objectDefinition),
 					objectDefinition, objectEntryId);
+			});
+	}
+
+	public ObjectEntry getObjectEntry(
+			long companyId, List<String> nestedFields,
+			String objectDefinitionExternalReferenceCode,
+			String objetEntryExternalReferenceCode, String scopeKey)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					objectDefinitionExternalReferenceCode, companyId);
+
+		if (objectDefinition == null) {
+			return null;
+		}
+
+		return _withNestedFields(
+			nestedFields,
+			() -> {
+				PermissionThreadLocal.setPermissionChecker(
+					_permissionCheckerFactory.create(
+						_userLocalService.getUser(
+							objectDefinition.getUserId())));
+
+				return _objectEntryManager.getObjectEntry(
+					companyId, _getDefaultDTOConverterContext(objectDefinition),
+					objetEntryExternalReferenceCode, objectDefinition,
+					scopeKey);
 			});
 	}
 
@@ -190,6 +226,21 @@ public class ObjectEntryHelper {
 						objectDefinition.getObjectDefinitionId(),
 						StringUtil.trim(objectRelationshipNames.remove(0)))),
 			objectRelationshipNames);
+	}
+
+	public List<String> getUniqueObjectFieldNames(
+			long companyId, String objectDefinitionExternalReferenceCode)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.
+				getObjectDefinitionByExternalReferenceCode(
+					objectDefinitionExternalReferenceCode, companyId);
+
+		return TransformUtil.transform(
+			_objectFieldLocalService.getObjectFields(
+				objectDefinition.getObjectDefinitionId()),
+			this::_getUniqueFieldName);
 	}
 
 	public boolean isValidObjectEntry(
@@ -262,6 +313,19 @@ public class ObjectEntryHelper {
 		return relatedObjectDefinition;
 	}
 
+	private String _getUniqueFieldName(ObjectField objectField) {
+		if (Objects.equals(
+				ObjectFieldSettingUtil.getValue(
+					ObjectFieldSettingConstants.NAME_UNIQUE_VALUES,
+					objectField),
+				"true")) {
+
+			return objectField.getName();
+		}
+
+		return null;
+	}
+
 	private <T> T _withNestedFields(
 			List<String> nestedFields,
 			UnsafeSupplier<T, Exception> unsafeSupplier)
@@ -294,6 +358,9 @@ public class ObjectEntryHelper {
 
 	@Reference(target = "(object.entry.manager.storage.type=default)")
 	private ObjectEntryManager _objectEntryManager;
+
+	@Reference
+	private ObjectFieldLocalService _objectFieldLocalService;
 
 	@Reference
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;

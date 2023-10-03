@@ -6,7 +6,7 @@
 import ClayButton from '@clayui/button';
 import {TreeView} from '@clayui/core';
 import ClayIcon from '@clayui/icon';
-import {openModal, sub} from 'frontend-js-web';
+import {openModal, openToast, sub} from 'frontend-js-web';
 import React, {Dispatch, SetStateAction} from 'react';
 
 import EditAPIPropertyModalContent from './modals/EditAPIPropertyModalContent';
@@ -87,6 +87,10 @@ export default function PropertiesTreeView({
 				  }
 				: previous;
 		});
+		openToast({
+			message: Liferay.Language.get('schema-property-was-deleted'),
+			type: 'success',
+		});
 	};
 
 	return (
@@ -166,7 +170,7 @@ export default function PropertiesTreeView({
 						>
 							<ClayIcon symbol={getIconName(businessType)} />
 
-							{name}
+							<span className="treeview-item-label">{name}</span>
 
 							<span className="text-truncate treeview-item-path">
 								&nbsp;

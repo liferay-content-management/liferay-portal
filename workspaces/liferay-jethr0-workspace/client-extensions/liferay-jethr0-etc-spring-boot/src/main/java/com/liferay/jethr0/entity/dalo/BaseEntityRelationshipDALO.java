@@ -371,9 +371,19 @@ public abstract class BaseEntityRelationshipDALO
 		}
 
 		if (_log.isDebugEnabled()) {
+			EntityFactory<U> childEntityFactory = getChildEntityFactory();
+
+			int entityCount = jsonObjects.size();
+
+			String entityLabel = childEntityFactory.getEntityPluralLabel();
+
+			if (entityCount == 0) {
+				entityLabel = childEntityFactory.getEntityLabel();
+			}
+
 			_log.debug(
 				StringUtil.combine(
-					"Retrieved ", jsonObjects.size(), " objects"));
+					"Retrieved ", entityCount, " ", entityLabel));
 		}
 
 		return jsonObjects;
@@ -404,7 +414,9 @@ public abstract class BaseEntityRelationshipDALO
 	private static final Log _log = LogFactory.getLog(
 		BaseEntityRelationshipDALO.class);
 
-	@Value("${liferay.portal.url}")
+	@Value(
+		"${com.liferay.lxc.dxp.server.protocol}://${com.liferay.lxc.dxp.main.domain}"
+	)
 	private String _liferayPortalURL;
 
 }

@@ -9,6 +9,7 @@ import com.liferay.jethr0.entity.repository.BaseEntityRepository;
 import com.liferay.jethr0.jenkins.cohort.JenkinsCohortEntity;
 import com.liferay.jethr0.jenkins.dalo.JenkinsServerEntityDALO;
 import com.liferay.jethr0.jenkins.dalo.JenkinsServerToJenkinsNodesEntityRelationshipDALO;
+import com.liferay.jethr0.jenkins.node.JenkinsNodeEntity;
 import com.liferay.jethr0.jenkins.server.JenkinsServerEntity;
 import com.liferay.jethr0.util.StringUtil;
 
@@ -30,24 +31,18 @@ import org.springframework.context.annotation.Configuration;
 public class JenkinsServerEntityRepository
 	extends BaseEntityRepository<JenkinsServerEntity> {
 
-	public JenkinsServerEntity add(
+	public JenkinsServerEntity create(
 		JenkinsCohortEntity jenkinsCohortEntity, JSONObject jsonObject) {
 
 		jsonObject.put(
 			"r_jenkinsCohortToJenkinsServers_c_jenkinsCohortId",
 			jenkinsCohortEntity.getId());
 
-		JenkinsServerEntity jenkinsServerEntity = add(jsonObject);
-
-		jenkinsServerEntity.setJenkinsCohortEntity(jenkinsCohortEntity);
-
-		jenkinsCohortEntity.addJenkinsServerEntity(jenkinsServerEntity);
-
-		return jenkinsServerEntity;
+		return create(jsonObject);
 	}
 
 	@Override
-	public JenkinsServerEntity add(JSONObject jsonObject) {
+	public JenkinsServerEntity create(JSONObject jsonObject) {
 		URL url = StringUtil.toURL(jsonObject.getString("url"));
 
 		Matcher jenkinsURLMatcher = _jenkinsURLPattern.matcher(
@@ -63,10 +58,10 @@ public class JenkinsServerEntityRepository
 			jsonObject.put("name", jenkinsURLMatcher.group("name"));
 		}
 
-		return super.add(jsonObject);
+		return super.create(jsonObject);
 	}
 
-	public JenkinsServerEntity add(
+	public JenkinsServerEntity create(
 		String jenkinsUserName, String jenkinsUserPassword, String name,
 		URL url) {
 
@@ -82,10 +77,10 @@ public class JenkinsServerEntityRepository
 			"url", String.valueOf(url)
 		);
 
-		return add(jsonObject);
+		return create(jsonObject);
 	}
 
-	public JenkinsServerEntity add(URL url) {
+	public JenkinsServerEntity create(URL url) {
 		JSONObject jsonObject = new JSONObject();
 
 		jsonObject.put(
@@ -96,7 +91,7 @@ public class JenkinsServerEntityRepository
 			"url", String.valueOf(url)
 		);
 
-		return add(jsonObject);
+		return create(jsonObject);
 	}
 
 	public JenkinsServerEntity getByURL(URL url) {
@@ -118,31 +113,15 @@ public class JenkinsServerEntityRepository
 
 	@Override
 	public void initializeRelationships() {
-		for (JenkinsServerEntity jenkinsServerEntity : getAll()) {
-			JenkinsCohortEntity jenkinsCohortEntity = null;
+	}
 
-			long jenkinsCohortId =
-				jenkinsServerEntity.getJenkinsCohortEntityId();
+	public void relateJenkinsServerToJenkinsNode(
+		JenkinsServerEntity jenkinsServerEntity,
+		JenkinsNodeEntity jenkinsNodeEntity) {
 
-			if (jenkinsCohortId != 0) {
-				jenkinsCohortEntity = _jenkinsCohortEntityRepository.getById(
-					jenkinsCohortId);
-			}
+		jenkinsServerEntity.addJenkinsNodeEntity(jenkinsNodeEntity);
 
-			jenkinsServerEntity.setJenkinsCohortEntity(jenkinsCohortEntity);
-
-			for (long jenkinsNodeId :
-					_jenkinsServerToJenkinsNodesEntityRelationshipDALO.
-						getChildEntityIds(jenkinsServerEntity)) {
-
-				if (jenkinsNodeId == 0) {
-					continue;
-				}
-
-				jenkinsServerEntity.addJenkinsNodeEntity(
-					_jenkinsNodeEntityRepository.getById(jenkinsNodeId));
-			}
-		}
+		jenkinsNodeEntity.setJenkinsServerEntity(jenkinsServerEntity);
 	}
 
 	public void setJenkinsCohortEntityRepository(
@@ -155,6 +134,45 @@ public class JenkinsServerEntityRepository
 		JenkinsNodeEntityRepository jenkinsNodeEntityRepository) {
 
 		_jenkinsNodeEntityRepository = jenkinsNodeEntityRepository;
+	}
+
+	@Override
+	protected JenkinsServerEntity updateRelationshipsFromDALO(
+		JenkinsServerEntity jenkinsServerEntity) {
+
+		_jenkinsCohortEntityRepository.relateJenkinsCohortToJenkinsServer(
+			_jenkinsCohortEntityRepository.getById(
+				jenkinsServerEntity.getJenkinsCohortEntityId()),
+			jenkinsServerEntity);
+
+		return _updateJenkinsCohortToJenkinsServersRelationshipsFromDALO(
+			jenkinsServerEntity);
+	}
+
+	@Override
+	protected JenkinsServerEntity updateRelationshipsToDALO(
+		JenkinsServerEntity jenkinsServerEntity) {
+
+		_jenkinsServerToJenkinsNodesEntityRelationshipDALO.updateChildEntities(
+			jenkinsServerEntity);
+
+		return jenkinsServerEntity;
+	}
+
+	private JenkinsServerEntity
+		_updateJenkinsCohortToJenkinsServersRelationshipsFromDALO(
+			JenkinsServerEntity parentJenkinsServerEntity) {
+
+		return updateParentToChildRelationshipsFromDALO(
+			parentJenkinsServerEntity,
+			_jenkinsServerToJenkinsNodesEntityRelationshipDALO,
+			_jenkinsNodeEntityRepository,
+			(jenkinsServerEntity, jenkinsNodeEntity) ->
+				relateJenkinsServerToJenkinsNode(
+					jenkinsServerEntity, jenkinsNodeEntity),
+			jenkinsServerEntity -> jenkinsServerEntity.getJenkinsNodeEntities(),
+			(jenkinsServerEntity, jenkinsNodeEntity) ->
+				jenkinsServerEntity.removeJenkinsNode(jenkinsNodeEntity));
 	}
 
 	private static final Pattern _jenkinsURLPattern = Pattern.compile(

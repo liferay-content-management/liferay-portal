@@ -675,9 +675,6 @@ public interface PropsKeys {
 	public static final String DISCUSSION_COMMENTS_ALLOWED_CONTENT =
 		"discussion.comments.allowed.content";
 
-	public static final String DISCUSSION_COMMENTS_ALWAYS_EDITABLE_BY_OWNER =
-		"discussion.comments.always.editable.by.owner";
-
 	public static final String DISCUSSION_COMMENTS_DELTA_VALUE =
 		"discussion.comments.delta.value";
 
@@ -2708,7 +2705,7 @@ public interface PropsKeys {
 		"upgrade.concurrent.fetch.size";
 
 	public static final String UPGRADE_CONCURRENT_PROCESS_FUTURE_LIST_MAX_SIZE =
-		"upgrade.concurrent.process.list.max.size";
+		"upgrade.concurrent.process.future.list.max.size";
 
 	public static final String UPGRADE_DATABASE_AUTO_RUN =
 		"upgrade.database.auto.run";
