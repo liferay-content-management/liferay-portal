@@ -313,7 +313,7 @@ public class FriendlyURLServlet extends HttpServlet {
 					Locale originalLocale = _setAlternativeLayoutFriendlyURL(
 						httpServletRequest, layout,
 						layoutFriendlyURLSeparatorCompositeFriendlyURL,
-						alternativeSiteFriendlyURL);
+						alternativeSiteFriendlyURL, companyId);
 
 					if (localeUnavailable &&
 						PropsValues.LOCALE_USE_DEFAULT_IF_NOT_AVAILABLE) {
@@ -929,6 +929,18 @@ public class FriendlyURLServlet extends HttpServlet {
 		return false;
 	}
 
+	private boolean _isShowRedirectAlternativeFriendlyURLMessage(
+		long companyId) {
+
+		FriendlyURLRedirectionConfiguration
+			friendlyURLRedirectionConfiguration =
+				friendlyURLRedirectionConfigurationProvider.
+					getCompanyFriendlyURLRedirectionConfiguration(companyId);
+
+		return friendlyURLRedirectionConfiguration.
+			showRedirectAlternativeFriendlyURLMessage();
+	}
+
 	private boolean _isSkipRedirect(HttpServletRequest httpServletRequest) {
 		String refererURL = httpServletRequest.getHeader(HttpHeaders.REFERER);
 
@@ -967,7 +979,7 @@ public class FriendlyURLServlet extends HttpServlet {
 
 	private Locale _setAlternativeLayoutFriendlyURL(
 		HttpServletRequest httpServletRequest, Layout layout,
-		String friendlyURL, SiteFriendlyURL siteFriendlyURL) {
+		String friendlyURL, SiteFriendlyURL siteFriendlyURL, long companyId) {
 
 		List<LayoutFriendlyURL> layoutFriendlyURLs =
 			layoutFriendlyURLLocalService.getLayoutFriendlyURLs(
@@ -998,13 +1010,15 @@ public class FriendlyURLServlet extends HttpServlet {
 		String alternativeLayoutFriendlyURL = portal.getLocalizedFriendlyURL(
 			httpServletRequest, layout, groupLocale, locale);
 
-		SessionMessages.add(
-			httpServletRequest, "alternativeLayoutFriendlyURL",
-			alternativeLayoutFriendlyURL);
+		if (_isShowRedirectAlternativeFriendlyURLMessage(companyId)) {
+			SessionMessages.add(
+				httpServletRequest, "alternativeLayoutFriendlyURL",
+				alternativeLayoutFriendlyURL);
 
-		PortalMessages.add(
-			httpServletRequest, PortalMessages.KEY_JSP_PATH,
-			"/html/common/themes/layout_friendly_url_redirect.jsp");
+			PortalMessages.add(
+				httpServletRequest, PortalMessages.KEY_JSP_PATH,
+				"/html/common/themes/layout_friendly_url_redirect.jsp");
+		}
 
 		return groupLocale;
 	}
