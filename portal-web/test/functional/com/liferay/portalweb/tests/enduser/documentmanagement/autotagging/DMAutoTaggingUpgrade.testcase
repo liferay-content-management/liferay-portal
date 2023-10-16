@@ -43,25 +43,48 @@ definition {
 			dmDocumentTitle = "Document Google Text AutoTagging",
 			tagName = "computers");
 
-		ValidateAutoTaggingUpgrade.addAutoTaggedDM(
-			dmDocumentFile = "Commerce_Blue.jpg",
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "Description",
 			dmDocumentTitle = "DM New Document JPG",
-			tagName = "jersey");
+			groupName = "Guest",
+			mimeType = "image/jpg",
+			sourceFileName = "Commerce_Blue.jpg");
 
-		ValidateAutoTaggingUpgrade.addAutoTaggedDM(
-			dmDocumentFile = "Alice's Adventures in Wonderland.pdf",
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentTitle = "DM New Document PDF",
-			tagName = "alice");
+			groupName = "Guest",
+			mimeType = "application/pdf",
+			sourceFileName = "Alice's Adventures in Wonderland.pdf");
 
-		ValidateAutoTaggingUpgrade.addAutoTaggedDM(
-			dmDocumentFile = "Commerce_White.jpg",
-			dmDocumentTitle = "Document New Google Image AutoTagging",
-			tagName = "pattern");
-
-		ValidateAutoTaggingUpgrade.addAutoTaggedDM(
-			dmDocumentFile = "Document_3.docx",
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentTitle = "Document New Google Text AutoTagging",
-			tagName = "computers");
+			groupName = "Guest",
+			mimeType = "application/docx",
+			sourceFileName = "Document_3.docx");
+
+		Refresh();
+
+		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM New Document JPG");
+
+		DMDocument.viewCP(dmDocumentTitle = "DM New Document JPG");
+
+		DMDocument.viewTagInfo(tagName = "jersey");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM New Document PDF");
+
+		DMDocument.viewCP(dmDocumentTitle = "DM New Document PDF");
+
+		DMDocument.viewTagInfo(tagName = "alice");
+
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+
+		DMNavigator.gotoDocumentCP(dmDocumentTitle = "Document New Google Text AutoTagging");
+
+		DMDocument.viewCP(dmDocumentTitle = "Document New Google Text AutoTagging");
+
+		DMDocument.viewTagInfo(tagName = "computers");
 
 		ValidateAutoTaggingUpgrade.addAutoTagViaGogoShell(
 			blogEntryTitle = "Blogs Without Autotagging",
