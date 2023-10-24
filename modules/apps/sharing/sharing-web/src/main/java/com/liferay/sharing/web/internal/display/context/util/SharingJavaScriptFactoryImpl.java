@@ -13,14 +13,20 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.sharing.display.context.util.SharingJavaScriptFactory;
 import com.liferay.sharing.web.internal.util.SharingJavaScriptThreadLocal;
 
 import java.util.Locale;
+
+import javax.portlet.RenderResponse;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,10 +41,12 @@ import org.osgi.service.component.annotations.Reference;
 public class SharingJavaScriptFactoryImpl implements SharingJavaScriptFactory {
 
 	@Override
-	public String createCopyLinkClickMethod(String className, long classPK) {
+	public String createCopyLinkClickMethod(
+		String className, long classPK, HttpServletRequest httpServletRequest) {
+
 		requestSharingJavascript();
 
-		String link = className + "_" + classPK;
+		String link = _getAssetLink(className, classPK, httpServletRequest);
 
 		return StringBundler.concat("Liferay.Sharing.copyLink('", link, "')");
 	}
@@ -73,6 +81,47 @@ public class SharingJavaScriptFactoryImpl implements SharingJavaScriptFactory {
 	@Override
 	public void requestSharingJavascript() {
 		SharingJavaScriptThreadLocal.setSharingJavaScriptNeeded(true);
+	}
+
+	private String _getAssetLink(
+		String className, long classPK, HttpServletRequest httpServletRequest) {
+
+		try {
+			AssetRendererFactory<?> assetRendererFactory =
+				AssetRendererFactoryRegistryUtil.
+					getAssetRendererFactoryByClassName(className);
+
+			if (assetRendererFactory == null) {
+				return null;
+			}
+
+			AssetRenderer<?> assetRenderer =
+				assetRendererFactory.getAssetRenderer(classPK);
+
+			if (assetRenderer == null) {
+				return null;
+			}
+
+			RenderResponse renderResponse =
+				(RenderResponse)httpServletRequest.getAttribute(
+					JavaConstants.JAVAX_PORTLET_RESPONSE);
+
+			LiferayPortletResponse liferayPortletResponse =
+				PortalUtil.getLiferayPortletResponse(renderResponse);
+
+			return assetRenderer.getURLView(
+				liferayPortletResponse, LiferayWindowState.POP_UP);
+		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get asset renderer with class primary key " +
+						classPK,
+					exception);
+			}
+
+			return null;
+		}
 	}
 
 	private String _getAssetTitle(
