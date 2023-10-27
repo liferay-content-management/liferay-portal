@@ -11,9 +11,19 @@ definition {
 
 		Click(locator1 = "Button#SAVE");
 
+		AssertNotVisible(locator1 = "Button#SAVE");
+
 		SelectWindow.waitForSelectPopUp(
 			locator1 = "null",
 			value1 = 60000);
+
+		while ((IsElementNotPresent(locator1 = "IFrame#WEB_APPLICATION")) && (${i} != 3)) {
+				var i = ${i} + 1;
+	
+				WaitForFrameLoad();
+	
+				takeScreenshot();
+			}
 
 		if (IsElementNotPresent(locator1 = "IFrame#WEB_APPLICATION")) {
 			Close.closeWindow(locator1 = "null");
