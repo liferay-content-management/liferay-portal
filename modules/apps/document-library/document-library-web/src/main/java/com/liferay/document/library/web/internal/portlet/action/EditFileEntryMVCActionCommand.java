@@ -37,6 +37,7 @@ import com.liferay.document.library.util.DLFileEntryTypeUtil;
 import com.liferay.document.library.web.internal.exception.FileEntryExpirationDateException;
 import com.liferay.document.library.web.internal.exception.FileEntryReviewDateException;
 import com.liferay.document.library.web.internal.exception.FileNameExtensionException;
+import com.liferay.document.library.web.internal.exception.FileNameExtensionException.MismatchExtension;
 import com.liferay.document.library.web.internal.settings.DLPortletInstanceSettings;
 import com.liferay.dynamic.data.mapping.exception.StorageFieldRequiredException;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
@@ -1400,7 +1401,7 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	private void _validateFileName(String sourceFileName, String extension)
-		throws FileNameExtensionException {
+		throws PortalException {
 
 		if (Validator.isNotNull(extension) &&
 			(Validator.isNull(sourceFileName) ||
@@ -1408,6 +1409,13 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 
 			throw new FileNameExtensionException(
 				"The file name cannot be empty or without extension");
+		}
+
+		if (Validator.isNotNull(extension) &&
+			!extension.equals(FileUtil.getExtension(sourceFileName))) {
+
+			throw new MismatchExtension(
+				"The file name extension should match file extension");
 		}
 	}
 
