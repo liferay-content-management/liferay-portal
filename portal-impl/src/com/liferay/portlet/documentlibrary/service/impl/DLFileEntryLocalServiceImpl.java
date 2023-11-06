@@ -12,7 +12,6 @@ import com.liferay.document.library.kernel.exception.DuplicateFileEntryExternalR
 import com.liferay.document.library.kernel.exception.DuplicateFolderNameException;
 import com.liferay.document.library.kernel.exception.FileExtensionException;
 import com.liferay.document.library.kernel.exception.FileNameException;
-import com.liferay.document.library.kernel.exception.FileNameException.MismatchExtension;
 import com.liferay.document.library.kernel.exception.InvalidFileEntryTypeException;
 import com.liferay.document.library.kernel.exception.InvalidFileVersionException;
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
@@ -3657,7 +3656,7 @@ public class DLFileEntryLocalServiceImpl
 		if (Validator.isNotNull(actualExtension) &&
 			!extension.equals(actualExtension)) {
 
-			throw new MismatchExtension(
+			throw new FileNameException.MismatchExtension(
 				StringBundler.concat(
 					extension, " of file ", fileName,
 					" should match original exception ", actualExtension));
