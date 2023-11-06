@@ -27,4 +27,12 @@ public class FileNameExtensionException extends PortalException {
 		super(throwable);
 	}
 
+	public static class MismatchExtension extends FileNameExtensionException {
+
+		public MismatchExtension(String msg) {
+			super(msg);
+		}
+
+	}
+
 }
