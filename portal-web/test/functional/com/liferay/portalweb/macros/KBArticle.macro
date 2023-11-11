@@ -23,6 +23,116 @@ definition {
 	}
 
 	@summary = "Default summary"
+	macro addArticleWithScheduledDate(increaseMinutes = null, kbArticleContent = null, kbArticleTitle = null) {
+		if (isSet(addChildArticleWithScheduledDate)) {
+			Click(
+				key_rowEntry = ${kbParentArticleTitle},
+				locator1 = "Icon#ROW_VERTICAL_ELLIPSIS");
+
+			MenuItem.click(menuItem = "Add Child Article");
+		}
+		else {
+			WaitForVisible(locator1 = "Button#PLUS");
+
+			LexiconEntry.gotoAddMenuItem(menuItem = "Basic Article");
+		}
+
+		WaitForElementPresent(locator1 = "TextInput#TITLE");
+
+		Type(
+			locator1 = "TextInput#TITLE",
+			value1 = ${kbArticleTitle});
+
+		CKEditor.addContent(content = ${kbArticleContent});
+
+		Panel.expandPanel(panel = "Expiration Date");  //debug
+
+		if (isSet(expirationDate)) {
+			Panel.expandPanel(panel = "Expiration Date");
+
+			Uncheck(
+				checkboxName = "Never Expire",
+				locator1 = "Checkbox#ANY_CHECKBOX");
+
+			var expirationDate = DateUtil.getFormattedCurrentDate("MM/dd/yyyy");
+
+			if (!(isSet(increaseExpirationMinutes))) {
+				var increaseExpirationMinutes = 5;
+			}
+
+			var expirationTime = DateUtil.getDateOffsetByMinutes(${increaseExpirationMinutes}, "hh:mm a");
+
+			var expirationTime = StringUtil.removeSpaces(${expirationTime});
+
+			Type(
+				locator1 = "TextInput#EXPIRATION_DATE",
+				value1 = ${expirationDate});
+
+			Type.sendKeys(
+				locator1 = "TextInput#EXPIRATION_DATE_TIME",
+				value1 = ${expirationTime});
+		}
+
+		if (isSet(workflowEnabled)) {
+			Button.click(button = "Submit for Workflow");
+		}
+		else {
+			Button.click(button = "Publish");
+		}
+
+		MenuItem.click(menuItem = "Schedule Publication");
+
+		AssertTextEquals(
+			locator1 = "Modal#HEADER",
+			value1 = "Schedule Publication");
+
+		VerifyElementPresent(
+			key_text = "Schedule",
+			locator1 = "Button#ANY_DISABLED");
+			
+		var currentDate = DateUtil.getFormattedCurrentDate("yyyy-MM-dd HH:mm"); //debug
+		var scheduledDate = DateUtil.getDateOffsetByMinutes(${increaseMinutes}, "yyyy-MM-dd HH:mm");
+
+		var successMessageDate = DateUtil.format(${scheduledDate}, "yyyy-MM-dd HH:mm", "M/d/yy h:mm a");
+
+		echo("## * currentDate: ${currentDate}");
+
+		echo("## * scheduledDate: ${scheduledDate}");
+
+		echo("## * successMessageDate: ${successMessageDate}");
+
+		Type.sendKeys(
+			key_placeHolder = "yyyy-MM-dd HH:mm",
+			locator1 = "TextInput#ANY_PLACEHOLDER",
+			value1 = ${scheduledDate});
+
+		if (isSet(invalidScheduledDate)) {
+			AssertTextEquals.assertPartialText(
+				key_alertMessage = "Please enter a valid date.",
+				locator1 = "Message#ERROR_ENTER_A_VALID_VALUE",
+				value1 = "Please enter a valid date.");
+		}
+		else if (isSet(scheduledDateAfterexpirationDate)) {
+			Button.click(button = "Schedule");
+
+			AssertTextEquals.assertPartialText(
+				key_alertMessage = "Please enter a valid expiration date.",
+				locator1 = "Message#ERROR_ENTER_A_VALID_VALUE",
+				value1 = "Please enter a valid expiration date.");
+		}
+		else {
+			Button.click(button = "Schedule");
+
+			if (isSet(workflowEnabled)) {
+				Alert.viewSuccessMessageText(successMessage = "${kbArticleTitle} was successfully published");
+			}
+			else {
+				Alert.viewSuccessMessageText(successMessage = "${kbArticleTitle} will be published on ${successMessageDate}");
+			}
+		}
+	}
+
+	@summary = "Default summary"
 	macro addChildArticleViaKBAdmin(kbChildArticleContent = null, kbChildArticleTitle = null, kbArticleTitle = null) {
 		if (isSet(navigationPane)) {
 			KBArticle.gotoMenuItemViaNavigationPane(
@@ -663,6 +773,90 @@ definition {
 		}
 		else {
 			PortletEntry.publish();
+		}
+	}
+
+	@summary = "Default summary"
+	macro editScheduledDate(increaseMinutes = null, tooltipMessageDate = null, kbArticleTitle = null) {
+		if (isSet(tooltipMessageDate)) {
+			MouseOver.javaScriptFocus(locator1 = "Icon#TOOLTIP");
+
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#TOOLTIP",
+				value1 = ${tooltipMessageDate});
+		}
+
+		Click(
+			key_rowEntry = ${kbArticleTitle},
+			locator1 = "Icon#ROW_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Edit");
+
+		if (isSet(tooltipMessageDate)) {
+			MouseOver.javaScriptFocus(
+				key_text = "Scheduled",
+				locator1 = "Button#ANY");
+
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#TOOLTIP",
+				value1 = "This article will be published on ${tooltipMessageDate}");
+		}
+
+		Panel.expandPanel(panel = "Expiration Date"); //debug
+
+		if (isSet(editExpiredArticle)) {
+			var expirationDate = DateUtil.getDateOffsetByDays(1, "MM/dd/yyyy");
+
+			Panel.expandPanel(panel = "Expiration Date");
+
+			Type(
+				locator1 = "TextInput#EXPIRATION_DATE",
+				value1 = ${expirationDate});
+
+			Button.click(button = "Publish");
+
+			MenuItem.click(menuItem = "Schedule Publication");
+		}
+		else if (isSet(editDraftArticle)) {
+			Button.click(button = "Publish");
+
+			MenuItem.click(menuItem = "Schedule Publication");
+		}
+		else {
+			Button.click(button = "Scheduled");
+
+			AssertTextEquals(
+				locator1 = "Modal#HEADER",
+				value1 = "Edit Scheduled Publication");
+		}
+
+		if (isSet(publishNow)) {
+			Button.click(button = "Publish Now");
+
+			Alert.viewSuccessMessageText(successMessage = "${kbArticleTitle} was successfully published");
+		}
+		else {
+			var increaseMinutes = StringUtil.replace(480, 0, ${increaseMinutes}); //debug
+
+			var currentDate = DateUtil.getFormattedCurrentDate("yyyy-MM-dd HH:mm"); //debug
+			var scheduledDate = DateUtil.getDateOffsetByMinutes(${increaseMinutes}, "yyyy-MM-dd HH:mm");
+
+			var successMessageDate = DateUtil.format(${scheduledDate}, "yyyy-MM-dd HH:mm", "M/d/yy h:mm a");
+
+			echo("## * currentDate: ${currentDate}");
+
+			echo("## * scheduledDate: ${scheduledDate}");
+
+			echo("## * successMessageDate: ${successMessageDate}");
+
+			Type(
+				key_placeHolder = "yyyy-MM-dd HH:mm",
+				locator1 = "TextInput#ANY_PLACEHOLDER",
+				value1 = ${scheduledDate});
+
+			Button.click(button = "Schedule");
+
+			Alert.viewSuccessMessageText(successMessage = "${kbArticleTitle} will be published on ${successMessageDate}");
 		}
 	}
 
