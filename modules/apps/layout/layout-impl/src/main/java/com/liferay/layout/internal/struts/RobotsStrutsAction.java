@@ -70,7 +70,7 @@ public class RobotsStrutsAction implements StrutsAction {
 			}
 
 			String robots = RobotsUtil.getRobots(
-				layoutSet, httpServletRequest.isSecure());
+				layoutSet, httpServletRequest.isSecure(), virtualHost);
 
 			ServletResponseUtil.sendFile(
 				httpServletRequest, httpServletResponse, null,

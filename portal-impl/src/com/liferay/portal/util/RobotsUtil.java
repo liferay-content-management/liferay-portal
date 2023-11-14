@@ -10,6 +10,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.model.VirtualHost;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -25,7 +26,8 @@ import java.util.TreeMap;
  */
 public class RobotsUtil {
 
-	public static String getRobots(LayoutSet layoutSet, boolean secure)
+	public static String getRobots(
+			LayoutSet layoutSet, boolean secure, VirtualHost virtualHost)
 		throws PortalException {
 
 		if (layoutSet == null) {
@@ -50,7 +52,12 @@ public class RobotsUtil {
 		String virtualHostname = StringPool.BLANK;
 
 		if (!virtualHostnames.isEmpty()) {
-			virtualHostname = virtualHostnames.firstKey();
+			if (virtualHostnames.containsKey(virtualHost.getHostname())) {
+				virtualHostname = virtualHost.getHostname();
+			}
+			else {
+				virtualHostname = virtualHostnames.firstKey();
+			}
 		}
 
 		String robotsTxt = null;
