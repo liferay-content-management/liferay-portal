@@ -41,6 +41,7 @@ import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.repository.Repository;
 import com.liferay.portal.kernel.repository.RepositoryProviderUtil;
 import com.liferay.portal.kernel.repository.capabilities.FileEntryTypeCapability;
+import com.liferay.portal.kernel.repository.capabilities.WorkflowCapability;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.search.Document;
@@ -299,8 +300,8 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 		}
 
 		return DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcutsCount(
-			_getStagingAwareGroupId(), getFolderId(),
-			WorkflowConstants.STATUS_APPROVED, _getMimeTypes(), false, false);
+			_repository.getRepositoryId(), getFolderId(),
+			WorkflowConstants.STATUS_APPROVED, _getMimeTypes(), true, false);
 	}
 
 	public String getTitle() {
