@@ -360,7 +360,8 @@ public class DLItemSelectorViewDisplayContext<T extends ItemSelectorCriterion> {
 			_showDragAndDropZone = false;
 		}
 		else {
-			if (DLUtil.hasWorkflowDefinitionLink(
+			if (!_repository.isCapabilityProvided(WorkflowCapability.class) ||
+				DLUtil.hasWorkflowDefinitionLink(
 					_themeDisplay.getCompanyId(),
 					_themeDisplay.getScopeGroupId(), getFolderId(),
 					DLFileEntryTypeLocalServiceUtil.getDefaultFileEntryTypeId(
