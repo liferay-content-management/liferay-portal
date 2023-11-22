@@ -1,0 +1,8 @@
+Bundle-Name: Liferay Permission Template API
+Bundle-SymbolicName: com.liferay.permission.template.api
+Bundle-Version: 1.0.0
+Export-Package:\
+	com.liferay.permission.template.exception,\
+	com.liferay.permission.template.model,\
+	com.liferay.permission.template.service,\
+	com.liferay.permission.template.service.persistence
