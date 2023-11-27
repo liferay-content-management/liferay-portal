@@ -14,7 +14,7 @@ import {withEmpty, withError, withLoading} from 'shared/hoc/util';
 const withLocationsCard = (
 	withLocations,
 	withCountries,
-	{documentationTitle, documentationUrl, title}
+	{documentationTitle, documentationUrl, id, title}
 ) => {
 	const LocationsGeoMap = compose(
 		withLocations(),
@@ -62,6 +62,7 @@ const withLocationsCard = (
 	}) => (
 		<BaseCard
 			className={className}
+			id={id}
 			label={label}
 			legacyDropdownRangeKey={legacyDropdownRangeKey}
 			minHeight={536}

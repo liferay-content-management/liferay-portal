@@ -23,12 +23,20 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 		<clay:col
 			lg="3"
 		>
-			<p class="small text-uppercase">
+			<p class="c-mb-1 sheet-tertiary-title text-2 text-secondary">
+				<liferay-ui:message key="settings" />
+			</p>
+
+			<clay:vertical-nav
+				verticalNavItems="<%= journalConfigurationDisplayContext.getSettingsVerticalNavItemList() %>"
+			/>
+
+			<p class="c-mb-1 sheet-tertiary-title text-2 text-secondary">
 				<liferay-ui:message key="notifications" />
 			</p>
 
 			<clay:vertical-nav
-				verticalNavItems="<%= journalConfigurationDisplayContext.getVerticalNavItemList() %>"
+				verticalNavItems="<%= journalConfigurationDisplayContext.getNotificationsVerticalNavItemList() %>"
 			/>
 		</clay:col>
 
@@ -40,6 +48,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 			</h1>
 
 			<liferay-portlet:actionURL portletConfiguration="<%= true %>" var="configurationActionURL">
+				<portlet:param name="navigation" value="<%= journalConfigurationDisplayContext.getNavigation() %>" />
 				<portlet:param name="serviceName" value="<%= JournalConstants.SERVICE_NAME %>" />
 				<portlet:param name="settingsScope" value="group" />
 			</liferay-portlet:actionURL>
@@ -54,7 +63,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							verticalAlign="center"
 						>
 							<clay:content-col>
-								<liferay-ui:message key="email" />
+								<%= journalConfigurationDisplayContext.getSubtitle() %>
 							</clay:content-col>
 						</clay:content-row>
 					</h2>
@@ -62,7 +71,44 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 					<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
 					<aui:input name="redirect" type="hidden" value="<%= journalConfigurationDisplayContext.getRedirect() %>" />
 
+					<liferay-ui:error embed="<%= false %>" key="emailArticleAddedBody" message="please-enter-a-valid-body" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleAddedSubject" message="please-enter-a-valid-subject" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleApprovalDeniedBody" message="please-enter-a-valid-body" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleApprovalDeniedSubject" message="please-enter-a-valid-subject" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleApprovalGrantedBody" message="please-enter-a-valid-body" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleApprovalGrantedSubject" message="please-enter-a-valid-subject" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleApprovalRequestedBody" message="please-enter-a-valid-body" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleApprovalRequestedSubject" message="please-enter-a-valid-subject" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleExpiredBody" message="please-enter-a-valid-body" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleExpiredSubject" message="please-enter-a-valid-subject" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleMovedFromFolderBody" message="please-enter-a-valid-body" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleMovedFromFolderSubject" message="please-enter-a-valid-subject" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleMovedToFolderBody" message="please-enter-a-valid-body" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleMovedToFolderSubject" message="please-enter-a-valid-subject" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleReviewBody" message="please-enter-a-valid-body" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleReviewSubject" message="please-enter-a-valid-subject" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleUpdatedBody" message="please-enter-a-valid-body" />
+					<liferay-ui:error embed="<%= false %>" key="emailArticleUpdatedSubject" message="please-enter-a-valid-subject" />
+
 					<c:choose>
+						<c:when test='<%= Objects.equals(journalConfigurationDisplayContext.getNavigation(), "structures") %>'>
+							<div>
+								<div class="inline-item my-5 p-5 w-100">
+									<span aria-hidden="true" class="loading-animation"></span>
+								</div>
+
+								<react:component
+									module="js/configuration_browse/HighlightedDDMStructuresConfiguration"
+									props='<%=
+										HashMapBuilder.<String, Object>put(
+											"ddmStructures", journalDisplayContext.getHighlightedDDMStructuresJSONArray()
+										).put(
+											"selectDDMStructureURL", journalConfigurationDisplayContext.getSelectDDMStructureURL()
+										).build()
+									%>'
+								/>
+							</div>
+						</c:when>
 						<c:when test='<%= Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-added") %>'>
 							<div class="c-px-1">
 								<liferay-frontend:email-notification-settings

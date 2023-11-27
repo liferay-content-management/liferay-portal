@@ -8,8 +8,7 @@ components:
                     readOnly: true
                     type: array
                 creator:
-                    allOf:
-                        - $ref: "../../headless/headless-delivery/headless-delivery-impl/rest-openapi.yaml#Creator"
+                    $ref: "../../headless/headless-delivery/headless-delivery-impl/rest-openapi.yaml#Creator"
                     readOnly: true
                 dateCreated:
                     format: date
@@ -33,7 +32,6 @@ components:
                     description:
                         optional field with the content of the document in Base64, can be embedded with nestedFields
                         (the format of the nested field must be `<attachment field name>.fileBase64`)
-                    readOnly: true
                     type: string
                 id:
                     format: int64
@@ -80,8 +78,7 @@ components:
                     readOnly: true
                     type: array
                 creator:
-                    allOf:
-                        - $ref: "../../headless/headless-delivery/headless-delivery-impl/rest-openapi.yaml#Creator"
+                    $ref: "../../headless/headless-delivery/headless-delivery-impl/rest-openapi.yaml#Creator"
                     readOnly: true
                 dateCreated:
                     format: date

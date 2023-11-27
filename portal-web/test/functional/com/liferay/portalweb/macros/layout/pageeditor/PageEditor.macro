@@ -1679,7 +1679,7 @@ definition {
 		if (isSet(opacity)) {
 			Type(
 				ariaLabel = "Opacity",
-				locator1 = "TextInput#ANY_WITH_AIRA_LABEL",
+				locator1 = "TextInput#ANY_WITH_ARIA_LABEL",
 				value1 = ${opacity});
 
 			Click(
@@ -1752,6 +1752,13 @@ definition {
 				key_fieldLabel = "Success Interaction",
 				locator1 = "Select#GENERIC_SELECT_FIELD",
 				value1 = ${successInteraction});
+
+			if (isSet(displayPage)) {
+				Select(
+					key_fieldLabel = "Display Page",
+					locator1 = "Select#GENERIC_SELECT_FIELD",
+					value1 = ${displayPage});
+			}
 
 			if (isSet(successText)) {
 				Type(
@@ -3139,6 +3146,10 @@ definition {
 				value1 = "Direct");
 		}
 
+		if (${enableLazyLoading} == "true") {
+			PageEditor.configureFragment(enableLazyLoading = "true");
+		}
+
 		if (IsTextEqual(key_fieldLabel = "Image", locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT", value1 = "")) {
 			Click(
 				key_fieldLabel = "Image",
@@ -3483,6 +3494,16 @@ definition {
 			key_sidebarButton = "Browser",
 			locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE");
 
+		if (${enableLazyLoading} == "true") {
+			Navigator.gotoNavTab(navTab = "Advanced");
+
+			Check.checkNotVisible(
+				checkboxName = "Set Content Visibility to Auto",
+				locator1 = "Checkbox#ANY_CHECKBOX");
+
+			PageEditor.waitForAutoSave();
+		}
+
 		if (${panel} == "Styles") {
 			Navigator.gotoNavTab(navTab = "Styles");
 
@@ -3639,7 +3660,7 @@ definition {
 			if (isSet(opacity)) {
 				Type(
 					ariaLabel = "Opacity",
-					locator1 = "TextInput#ANY_WITH_AIRA_LABEL",
+					locator1 = "TextInput#ANY_WITH_ARIA_LABEL",
 					value1 = ${opacity});
 
 				Click(
@@ -3650,7 +3671,7 @@ definition {
 
 				AssertTextEquals(
 					ariaLabel = "Opacity",
-					locator1 = "TextInput#ANY_WITH_AIRA_LABEL",
+					locator1 = "TextInput#ANY_WITH_ARIA_LABEL",
 					value1 = ${opacity});
 			}
 		}
@@ -3993,7 +4014,7 @@ definition {
 			if (isSet(opacity)) {
 				Type(
 					ariaLabel = "Opacity",
-					locator1 = "TextInput#ANY_WITH_AIRA_LABEL",
+					locator1 = "TextInput#ANY_WITH_ARIA_LABEL",
 					value1 = ${opacity});
 
 				Click(
@@ -4004,7 +4025,7 @@ definition {
 
 				AssertTextEquals(
 					ariaLabel = "Opacity",
-					locator1 = "TextInput#ANY_WITH_AIRA_LABEL",
+					locator1 = "TextInput#ANY_WITH_ARIA_LABEL",
 					value1 = ${opacity});
 			}
 		}
@@ -4528,7 +4549,7 @@ return	Array.from(getWebElement("(//div[@aria-label='${fragmentName}'])[${index}
 		else {
 			WaitForVisible(locator1 = "Sidebar#PANEL_OPEN");
 
-			if (IsElementNotPresent(key_sidebarButton = ${tabName}, locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE")) {
+			if ((IsElementPresent.isElementPresentAfterWait(locator1 = "//div[contains(@class,'content--open')]//*[contains(@class,'page-editor__sidebar__panel-header')]")) && (IsElementNotPresent(key_sidebarButton = ${tabName}, locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE"))) {
 				Click(
 					key_tabName = ${tabName},
 					locator1 = "PageEditor#FRAGMENT_SIDEBAR_TAB_BUTTON");
@@ -4825,11 +4846,38 @@ return	Array.from(getWebElement("(//div[@aria-label='${fragmentName}'])[${index}
 
 		Modal.gotoNavTab(navTab = ${navTab});
 
-		Click.waitForMenuToggleJSClick(
+		KeyPress(
 			key_card = ${setName},
-			locator1 = "Card#CARD_ELLIPSIS");
+			locator1 = "Card#CARD_DRAG_ICON",
+			value1 = "\ENTER");
 
-		DropdownMenuItem.click(menuItem = ${action});
+		if (${action} == "Move Up") {
+			KeyPress(
+				key_card = ${setName},
+				locator1 = "Card#CARD_DRAG_ICON",
+				value1 = "\UP");
+
+			KeyPress(
+				key_card = ${setName},
+				locator1 = "Card#CARD_DRAG_ICON",
+				value1 = "\ENTER");
+		}
+		else if (${action} == "Move Down") {
+			KeyPress(
+				key_card = ${setName},
+				locator1 = "Card#CARD_DRAG_ICON",
+				value1 = "\DOWN");
+
+			KeyPress(
+				key_card = ${setName},
+				locator1 = "Card#CARD_DRAG_ICON",
+				value1 = "\DOWN");
+
+			KeyPress(
+				key_card = ${setName},
+				locator1 = "Card#CARD_DRAG_ICON",
+				value1 = "\ENTER");
+		}
 
 		Button.click(button = "Save");
 	}

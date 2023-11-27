@@ -46,6 +46,12 @@ public class FaroUserComparator extends OrderByComparator<FaroUser> {
 						format = "lower(%s) %s";
 					}
 
+					if (orderByField.getOrderBy() ==
+							OrderByField.OrderBy.desc) {
+
+						format += " nulls last";
+					}
+
 					return String.format(
 						format, _fieldNames.get(orderByField.getFieldName()),
 						orderByField.getOrderBy());

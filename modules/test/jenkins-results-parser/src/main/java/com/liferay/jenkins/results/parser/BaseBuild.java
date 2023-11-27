@@ -33,6 +33,7 @@ import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,9 +76,14 @@ public abstract class BaseBuild implements Build {
 		}
 
 		ParallelExecutor<Object> parallelExecutor = new ParallelExecutor<>(
-			getArchiveCallables(), getExecutorService());
+			getArchiveCallables(), getExecutorService(), "archive");
 
-		parallelExecutor.execute();
+		try {
+			parallelExecutor.execute();
+		}
+		catch (TimeoutException timeoutException) {
+			throw new RuntimeException(timeoutException);
+		}
 	}
 
 	@Override
@@ -252,6 +258,10 @@ public abstract class BaseBuild implements Build {
 			JSONObject descriptionJSONObject = getBuildJSONObject(
 				"description");
 
+			if (descriptionJSONObject == null) {
+				return null;
+			}
+
 			String description = descriptionJSONObject.optString("description");
 
 			if (description.equals("")) {
@@ -323,7 +333,13 @@ public abstract class BaseBuild implements Build {
 			return new JSONObject(archiveFileContent);
 		}
 
-		return JenkinsAPIUtil.getAPIJSONObject(getBuildURL(), tree);
+		String buildURL = getBuildURL();
+
+		if (JenkinsResultsParserUtil.isNullOrEmpty(buildURL)) {
+			return null;
+		}
+
+		return JenkinsAPIUtil.getAPIJSONObject(buildURL, tree);
 	}
 
 	@Override
@@ -789,6 +805,10 @@ public abstract class BaseBuild implements Build {
 
 		JSONObject builtOnJSONObject = getBuildJSONObject("builtOn");
 
+		if (builtOnJSONObject == null) {
+			return null;
+		}
+
 		String slaveName = builtOnJSONObject.optString("builtOn");
 
 		if (slaveName.equals("")) {
@@ -947,6 +967,10 @@ public abstract class BaseBuild implements Build {
 	public long getQueuingDuration() {
 		JSONObject buildJSONObject = getBuildJSONObject(
 			"actions[queuingDurationMillis]");
+
+		if (buildJSONObject == null) {
+			return 0;
+		}
 
 		JSONArray actionsJSONArray = buildJSONObject.getJSONArray("actions");
 
@@ -1478,7 +1502,7 @@ public abstract class BaseBuild implements Build {
 		_jenkinsMaster = null;
 		_jenkinsSlave = null;
 		_result = null;
-		_statusModifiedTime = 0;
+		_statusModifiedTime = JenkinsResultsParserUtil.getCurrentTimeMillis();
 
 		if (_buildUpdater != null) {
 			_buildUpdater.reset();
@@ -1532,23 +1556,21 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public void setStatus(String status) {
-		if (_isDifferent(status, _status)) {
-			_previousStatus = _status;
+		boolean different = _isDifferent(status, _status);
 
-			_status = status;
+		_previousStatus = _status;
 
-			long previousStatusModifiedTime = _statusModifiedTime;
+		_status = status;
 
-			_statusModifiedTime =
-				JenkinsResultsParserUtil.getCurrentTimeMillis();
+		long previousStatusModifiedTime = _statusModifiedTime;
 
-			_statusDurations.put(
-				_previousStatus,
-				_statusModifiedTime - previousStatusModifiedTime);
+		_statusModifiedTime = JenkinsResultsParserUtil.getCurrentTimeMillis();
 
-			if (isParentBuildRoot()) {
-				System.out.println(getBuildMessage());
-			}
+		_statusDurations.put(
+			_previousStatus, _statusModifiedTime - previousStatusModifiedTime);
+
+		if (different && isParentBuildRoot()) {
+			System.out.println(getBuildMessage());
 		}
 	}
 
@@ -1605,6 +1627,8 @@ public abstract class BaseBuild implements Build {
 	@Override
 	public synchronized void update() {
 		if (skipUpdate()) {
+			System.out.println("Skipping build status: " + getStatus());
+
 			return;
 		}
 
@@ -2029,8 +2053,11 @@ public abstract class BaseBuild implements Build {
 	protected List<Callable<Object>> getArchiveCallables() {
 		List<Callable<Object>> archiveCallables = new ArrayList<>();
 
+		JenkinsMaster jenkinsMaster = getJenkinsMaster();
+
 		archiveCallables.add(
-			new Callable<Object>() {
+			new ParallelExecutor.SequentialCallable<Object>(
+				jenkinsMaster.getName()) {
 
 				@Override
 				public Object call() {
@@ -2041,7 +2068,8 @@ public abstract class BaseBuild implements Build {
 
 			});
 		archiveCallables.add(
-			new Callable<Object>() {
+			new ParallelExecutor.SequentialCallable<Object>(
+				jenkinsMaster.getName()) {
 
 				@Override
 				public Object call() {
@@ -2052,7 +2080,8 @@ public abstract class BaseBuild implements Build {
 
 			});
 		archiveCallables.add(
-			new Callable<Object>() {
+			new ParallelExecutor.SequentialCallable<Object>(
+				jenkinsMaster.getName()) {
 
 				@Override
 				public Object call() {
@@ -2063,7 +2092,8 @@ public abstract class BaseBuild implements Build {
 
 			});
 		archiveCallables.add(
-			new Callable<Object>() {
+			new ParallelExecutor.SequentialCallable<Object>(
+				jenkinsMaster.getName()) {
 
 				@Override
 				public Object call() {

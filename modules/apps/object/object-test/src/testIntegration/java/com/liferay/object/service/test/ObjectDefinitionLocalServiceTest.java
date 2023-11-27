@@ -12,8 +12,6 @@ import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
-import com.liferay.object.definition.tree.Tree;
-import com.liferay.object.definition.tree.TreeFactory;
 import com.liferay.object.exception.NoSuchObjectFieldException;
 import com.liferay.object.exception.NoSuchObjectFolderException;
 import com.liferay.object.exception.ObjectDefinitionAccountEntryRestrictedException;
@@ -27,6 +25,7 @@ import com.liferay.object.exception.ObjectDefinitionPluralLabelException;
 import com.liferay.object.exception.ObjectDefinitionRootObjectDefinitionIdException;
 import com.liferay.object.exception.ObjectDefinitionScopeException;
 import com.liferay.object.exception.ObjectDefinitionStatusException;
+import com.liferay.object.exception.ObjectDefinitionSystemException;
 import com.liferay.object.exception.ObjectDefinitionVersionException;
 import com.liferay.object.exception.ObjectFieldRelationshipTypeException;
 import com.liferay.object.field.builder.BooleanObjectFieldBuilder;
@@ -43,14 +42,18 @@ import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectActionLocalService;
 import com.liferay.object.service.ObjectActionLocalServiceUtil;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectFolderLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
-import com.liferay.object.service.test.util.ObjectDefinitionTestUtil;
-import com.liferay.object.service.test.util.ObjectRelationshipTestUtil;
-import com.liferay.object.service.test.util.TreeTestUtil;
 import com.liferay.object.system.BaseSystemObjectDefinitionManager;
 import com.liferay.object.system.JaxRsApplicationDescriptor;
+import com.liferay.object.test.util.ObjectDefinitionTestUtil;
+import com.liferay.object.test.util.ObjectRelationshipTestUtil;
+import com.liferay.object.test.util.TreeTestUtil;
+import com.liferay.object.tree.Tree;
+import com.liferay.object.tree.TreeFactory;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
 import com.liferay.petra.string.StringBundler;
@@ -62,27 +65,36 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
 import com.liferay.portal.kernel.model.UserNotificationEvent;
 import com.liferay.portal.kernel.model.UserNotificationEventTable;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.test.AssertUtils;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
 import java.sql.Connection;
@@ -149,19 +161,7 @@ public class ObjectDefinitionLocalServiceTest {
 			"The first character of a name must be an upper case letter",
 			() -> _addCustomObjectDefinition("test"));
 
-		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.addCustomObjectDefinition(
-				TestPropsValues.getUserId(), 0, false, false, false,
-				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				"Test", null, null,
-				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				true, ObjectDefinitionConstants.SCOPE_COMPANY,
-				ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
-				Arrays.asList(
-					ObjectFieldUtil.createObjectField(
-						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
-						ObjectFieldConstants.DB_TYPE_STRING,
-						RandomTestUtil.randomString(), StringUtil.randomId())));
+		ObjectDefinition objectDefinition = _addCustomObjectDefinition("Test");
 
 		objectDefinition =
 			_objectDefinitionLocalService.publishCustomObjectDefinition(
@@ -295,7 +295,7 @@ public class ObjectDefinitionLocalServiceTest {
 		Assert.assertFalse(
 			_hasTable(objectDefinition.getExtensionDBTableName()));
 
-		Tree tree = TreeTestUtil.createTree(
+		Tree tree = TreeTestUtil.createObjectDefinitionTree(
 			_objectDefinitionLocalService, _objectRelationshipLocalService,
 			_treeFactory);
 
@@ -477,18 +477,31 @@ public class ObjectDefinitionLocalServiceTest {
 		TreeTestUtil.forEachNodeObjectDefinition(
 			tree.iterator(), _objectDefinitionLocalService,
 			nodeObjectDefinition -> {
-				Assert.assertEquals(
-					4,
-					_resourceActionLocalService.getResourceActionsCount(
-						nodeObjectDefinition.getClassName()));
+				if (nodeObjectDefinition.isRootNode()) {
+					Assert.assertEquals(
+						4,
+						_resourceActionLocalService.getResourceActionsCount(
+							nodeObjectDefinition.getClassName()));
+					Assert.assertEquals(
+						2,
+						_resourceActionLocalService.getResourceActionsCount(
+							nodeObjectDefinition.getResourceName()));
+				}
+				else {
+					Assert.assertEquals(
+						1,
+						_resourceActionLocalService.getResourceActionsCount(
+							nodeObjectDefinition.getClassName()));
+					Assert.assertEquals(
+						0,
+						_resourceActionLocalService.getResourceActionsCount(
+							nodeObjectDefinition.getResourceName()));
+				}
+
 				Assert.assertEquals(
 					6,
 					_resourceActionLocalService.getResourceActionsCount(
 						nodeObjectDefinition.getPortletId()));
-				Assert.assertEquals(
-					2,
-					_resourceActionLocalService.getResourceActionsCount(
-						nodeObjectDefinition.getResourceName()));
 				Assert.assertEquals(
 					1,
 					_resourcePermissionLocalService.getResourcePermissionsCount(
@@ -514,7 +527,8 @@ public class ObjectDefinitionLocalServiceTest {
 
 		TreeTestUtil.deleteObjectDefinitionHierarchy(
 			_objectDefinitionLocalService,
-			new String[] {"C_A", "C_AA", "C_AAA", "C_AAB", "C_AB"});
+			new String[] {"C_A", "C_AA", "C_AAA", "C_AAB", "C_AB"},
+			_objectEntryLocalService);
 	}
 
 	@Test
@@ -935,33 +949,23 @@ public class ObjectDefinitionLocalServiceTest {
 
 		// External reference code
 
-		String liferayMode = SystemProperties.get("liferay.mode");
-
-		SystemProperties.clear("liferay.mode");
-
-		try {
-			AssertUtils.assertFailure(
-				ObjectDefinitionExternalReferenceCodeException.
-					ForbiddenUnmodifiableSystemObjectDefinitionExternalReferenceCode.class,
-				"Forbidden unmodifiable system object definition external " +
-					"reference code INVALID_TEST",
-				() ->
-					ObjectDefinitionTestUtil.
-						addUnmodifiableSystemObjectDefinition(
-							"INVALID_TEST", TestPropsValues.getUserId(), "Test",
-							null,
-							LocalizedMapUtil.getLocalizedMap(
-								RandomTestUtil.randomString()),
-							"Test", null, null,
-							LocalizedMapUtil.getLocalizedMap(
-								RandomTestUtil.randomString()),
-							ObjectDefinitionConstants.SCOPE_COMPANY, null, 1,
-							_objectDefinitionLocalService,
-							Collections.<ObjectField>emptyList()));
-		}
-		finally {
-			SystemProperties.set("liferay.mode", liferayMode);
-		}
+		AssertUtils.assertFailure(
+			ObjectDefinitionExternalReferenceCodeException.
+				ForbiddenUnmodifiableSystemObjectDefinitionExternalReferenceCode.class,
+			false,
+			"Forbidden unmodifiable system object definition external " +
+				"reference code INVALID_TEST",
+			() ->
+				ObjectDefinitionTestUtil.addUnmodifiableSystemObjectDefinition(
+					"INVALID_TEST", TestPropsValues.getUserId(), "Test", null,
+					LocalizedMapUtil.getLocalizedMap(
+						RandomTestUtil.randomString()),
+					"Test", null, null,
+					LocalizedMapUtil.getLocalizedMap(
+						RandomTestUtil.randomString()),
+					ObjectDefinitionConstants.SCOPE_COMPANY, null, 1,
+					_objectDefinitionLocalService,
+					Collections.<ObjectField>emptyList()));
 
 		// Label is null
 
@@ -1319,24 +1323,90 @@ public class ObjectDefinitionLocalServiceTest {
 
 		TreeTestUtil.deleteObjectDefinitionHierarchy(
 			_objectDefinitionLocalService,
-			new String[] {"C_A", "C_AA", "C_AAA", "C_AAB"});
+			new String[] {"C_A", "C_AA", "C_AAA", "C_AAB"},
+			_objectEntryLocalService);
+	}
+
+	@Test
+	public void testDeleteCompanyObjectDefinitions() throws Exception {
+		PermissionChecker originalPermissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+		String originalName = PrincipalThreadLocal.getName();
+
+		Company company = CompanyTestUtil.addCompany();
+
+		PortalInstances.initCompany(company);
+
+		try (SafeCloseable safeCloseable =
+				CompanyThreadLocal.setWithSafeCloseable(
+					company.getCompanyId())) {
+
+			User user = UserTestUtil.getAdminUser(company.getCompanyId());
+
+			PermissionThreadLocal.setPermissionChecker(
+				PermissionCheckerFactoryUtil.create(user));
+			PrincipalThreadLocal.setName(user.getUserId());
+
+			ObjectDefinition customObjectDefinition =
+				_objectDefinitionLocalService.addCustomObjectDefinition(
+					user.getUserId(), 0, false, false, false,
+					LocalizedMapUtil.getLocalizedMap("Able"), "Able", null,
+					null, LocalizedMapUtil.getLocalizedMap("Ables"), true,
+					ObjectDefinitionConstants.SCOPE_COMPANY,
+					ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
+					Collections.singletonList(
+						ObjectFieldUtil.createObjectField(
+							ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+							ObjectFieldConstants.DB_TYPE_STRING,
+							RandomTestUtil.randomString(),
+							StringUtil.randomId())));
+
+			_objectDefinitionLocalService.publishCustomObjectDefinition(
+				user.getUserId(),
+				customObjectDefinition.getObjectDefinitionId());
+
+			ObjectDefinition modifiableSystemObjectDefinition =
+				ObjectDefinitionTestUtil.addModifiableSystemObjectDefinition(
+					user.getUserId(), null,
+					LocalizedMapUtil.getLocalizedMap(
+						RandomTestUtil.randomString()),
+					"Test", null, null,
+					LocalizedMapUtil.getLocalizedMap(
+						RandomTestUtil.randomString()),
+					ObjectDefinitionConstants.SCOPE_SITE, null, 1,
+					_objectDefinitionLocalService,
+					Collections.singletonList(
+						ObjectFieldUtil.createObjectField(
+							ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+							ObjectFieldConstants.DB_TYPE_STRING,
+							StringUtil.randomId(), Collections.emptyList())));
+
+			_objectDefinitionLocalService.publishSystemObjectDefinition(
+				user.getUserId(),
+				modifiableSystemObjectDefinition.getObjectDefinitionId());
+		}
+		finally {
+			_companyLocalService.deleteCompany(company);
+
+			PermissionThreadLocal.setPermissionChecker(
+				originalPermissionChecker);
+			PrincipalThreadLocal.setName(originalName);
+		}
+
+		Assert.assertNull(
+			_objectDefinitionLocalService.fetchObjectDefinition(
+				company.getCompanyId(), "Able"));
+		Assert.assertNull(
+			_objectDefinitionLocalService.fetchObjectDefinition(
+				company.getCompanyId(), "Test"));
 	}
 
 	@Test
 	public void testDeleteObjectDefinition() throws Exception {
-		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.addCustomObjectDefinition(
-				TestPropsValues.getUserId(), 0, false, false, false,
-				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				"Test", null, null,
-				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				true, ObjectDefinitionConstants.SCOPE_COMPANY,
-				ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
-				Arrays.asList(
-					ObjectFieldUtil.createObjectField(
-						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
-						ObjectFieldConstants.DB_TYPE_STRING,
-						RandomTestUtil.randomString(), StringUtil.randomId())));
+
+		// Delete custom object definition
+
+		ObjectDefinition objectDefinition = _addCustomObjectDefinition("Test");
 
 		objectDefinition =
 			_objectDefinitionLocalService.updateRootObjectDefinitionId(
@@ -1394,6 +1464,35 @@ public class ObjectDefinitionLocalServiceTest {
 				ObjectDefinition.class.getName(),
 				ResourceConstants.SCOPE_INDIVIDUAL,
 				String.valueOf(objectDefinition.getObjectDefinitionId())));
+
+		// Delete modifiable system object definition
+
+		ObjectDefinition modifiableSystemObjectDefinition =
+			ObjectDefinitionTestUtil.addModifiableSystemObjectDefinition(
+				TestPropsValues.getUserId(), null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				"Test", null, null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				ObjectDefinitionConstants.SCOPE_SITE, null, 1,
+				_objectDefinitionLocalService,
+				Collections.singletonList(
+					ObjectFieldUtil.createObjectField(
+						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+						ObjectFieldConstants.DB_TYPE_STRING,
+						StringUtil.randomId(), Collections.emptyList())));
+
+		_objectDefinitionLocalService.publishCustomObjectDefinition(
+			TestPropsValues.getUserId(),
+			modifiableSystemObjectDefinition.getObjectDefinitionId());
+
+		AssertUtils.assertFailure(
+			ObjectDefinitionSystemException.class, false,
+			"Only allowed bundles can delete system object definitions",
+			() -> _objectDefinitionLocalService.deleteObjectDefinition(
+				modifiableSystemObjectDefinition.getObjectDefinitionId()));
+
+		_objectDefinitionLocalService.deleteObjectDefinition(
+			modifiableSystemObjectDefinition.getObjectDefinitionId());
 	}
 
 	@Test
@@ -1554,7 +1653,7 @@ public class ObjectDefinitionLocalServiceTest {
 		objectDefinition =
 			_objectDefinitionLocalService.enableAccountEntryRestricted(
 				_objectRelationshipLocalService.addObjectRelationship(
-					TestPropsValues.getUserId(),
+					null, TestPropsValues.getUserId(),
 					_objectDefinitionLocalService.fetchSystemObjectDefinition(
 						"AccountEntry"
 					).getObjectDefinitionId(),
@@ -1577,7 +1676,7 @@ public class ObjectDefinitionLocalServiceTest {
 			"Custom object definitions can only be restricted by account entry",
 			() -> _objectDefinitionLocalService.enableAccountEntryRestricted(
 				_objectRelationshipLocalService.addObjectRelationship(
-					TestPropsValues.getUserId(),
+					null, TestPropsValues.getUserId(),
 					_addCustomObjectDefinition(
 						"Test" + RandomTestUtil.randomString()
 					).getObjectDefinitionId(),
@@ -1627,7 +1726,7 @@ public class ObjectDefinitionLocalServiceTest {
 
 		// Unbind object definition internal node
 
-		TreeTestUtil.assertTree(
+		TreeTestUtil.assertObjectDefinitionTree(
 			LinkedHashMapBuilder.put(
 				"A", new String[] {"AA", "AB"}
 			).put(
@@ -1639,7 +1738,7 @@ public class ObjectDefinitionLocalServiceTest {
 			).put(
 				"AAB", new String[0]
 			).build(),
-			TreeTestUtil.createTree(
+			TreeTestUtil.createObjectDefinitionTree(
 				_objectDefinitionLocalService, _objectRelationshipLocalService,
 				_treeFactory),
 			_objectDefinitionLocalService);
@@ -1650,24 +1749,26 @@ public class ObjectDefinitionLocalServiceTest {
 			_objectDefinitionLocalService.fetchObjectDefinition(
 				TestPropsValues.getCompanyId(), "C_A");
 
-		TreeTestUtil.assertTree(
+		TreeTestUtil.assertObjectDefinitionTree(
 			LinkedHashMapBuilder.put(
 				"A", new String[] {"AB"}
 			).put(
 				"AB", new String[0]
 			).build(),
-			_treeFactory.create(objectDefinition.getRootObjectDefinitionId()),
+			_treeFactory.createObjectDefinitionTree(
+				objectDefinition.getRootObjectDefinitionId()),
 			_objectDefinitionLocalService);
 
 		// Unbind object definition leaf node
 
 		TreeTestUtil.unbind(_objectDefinitionLocalService, "C_AB");
 
-		TreeTestUtil.assertTree(
+		TreeTestUtil.assertObjectDefinitionTree(
 			LinkedHashMapBuilder.put(
 				"A", new String[0]
 			).build(),
-			_treeFactory.create(objectDefinition.getRootObjectDefinitionId()),
+			_treeFactory.createObjectDefinitionTree(
+				objectDefinition.getRootObjectDefinitionId()),
 			_objectDefinitionLocalService);
 
 		// Unbind object definition root node
@@ -1681,7 +1782,8 @@ public class ObjectDefinitionLocalServiceTest {
 
 		TreeTestUtil.deleteObjectDefinitionHierarchy(
 			_objectDefinitionLocalService,
-			new String[] {"C_A", "C_AA", "C_AAA", "C_AAB", "C_AB"});
+			new String[] {"C_A", "C_AA", "C_AAA", "C_AAB", "C_AB"},
+			_objectEntryLocalService);
 	}
 
 	@Test
@@ -2373,10 +2475,27 @@ public class ObjectDefinitionLocalServiceTest {
 			Assert.assertEquals(
 				objectRelationship.getDeletionType(),
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE);
+
+			ObjectDefinition objectDefinition1 =
+				_objectDefinitionLocalService.getObjectDefinition(
+					objectRelationship.getObjectDefinitionId1());
+
+			if (objectDefinition1.isRootDescendantNode()) {
+				Assert.assertFalse(objectDefinition1.isPortlet());
+			}
+
+			ObjectDefinition objectDefinition2 =
+				_objectDefinitionLocalService.getObjectDefinition(
+					objectRelationship.getObjectDefinitionId2());
+
+			if (objectDefinition2.isRootDescendantNode()) {
+				Assert.assertFalse(objectDefinition2.isPortlet());
+			}
 		}
 
-		TreeTestUtil.assertTree(
-			expectedMap, _treeFactory.create(rootObjectDefinitionId),
+		TreeTestUtil.assertObjectDefinitionTree(
+			expectedMap,
+			_treeFactory.createObjectDefinitionTree(rootObjectDefinitionId),
 			_objectDefinitionLocalService);
 	}
 
@@ -2535,7 +2654,7 @@ public class ObjectDefinitionLocalServiceTest {
 
 		ObjectRelationship objectRelationship =
 			_objectRelationshipLocalService.addObjectRelationship(
-				TestPropsValues.getUserId(),
+				null, TestPropsValues.getUserId(),
 				objectDefinition1.getObjectDefinitionId(),
 				objectDefinition2.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
@@ -2597,6 +2716,9 @@ public class ObjectDefinitionLocalServiceTest {
 	private static ObjectFolder _uncategorizedObjectFolder;
 
 	@Inject
+	private CompanyLocalService _companyLocalService;
+
+	@Inject
 	private MessageBus _messageBus;
 
 	@Inject
@@ -2604,6 +2726,9 @@ public class ObjectDefinitionLocalServiceTest {
 
 	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Inject
+	private ObjectEntryLocalService _objectEntryLocalService;
 
 	@Inject
 	private ObjectFieldLocalService _objectFieldLocalService;

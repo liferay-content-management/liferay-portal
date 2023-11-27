@@ -5,8 +5,9 @@
 
 package com.liferay.object.storage.salesforce.internal.rest.manager.v1_0;
 
-import com.liferay.account.model.AccountEntry;
-import com.liferay.account.service.AccountEntryUserRelLocalService;
+import com.liferay.account.constants.AccountConstants;
+import com.liferay.account.model.AccountEntryModel;
+import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.list.type.entry.util.ListTypeEntryUtil;
 import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
@@ -35,10 +36,13 @@ import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -54,6 +58,7 @@ import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -222,15 +227,14 @@ public class SalesforceObjectEntryManagerImpl
 			objectField.getExternalReferenceCode(), " IN ('",
 			StringUtil.merge(
 				TransformUtil.transform(
-					_accountEntryUserRelLocalService.
-						getAccountEntryUserRelsByAccountUserId(
-							dtoConverterContext.getUserId()),
-					accountEntryUserRel -> {
-						AccountEntry accountEntry =
-							accountEntryUserRel.getAccountEntry();
-
-						return accountEntry.getExternalReferenceCode();
-					}),
+					_accountEntryLocalService.getUserAccountEntries(
+						dtoConverterContext.getUserId(),
+						AccountConstants.PARENT_ACCOUNT_ENTRY_ID_DEFAULT, null,
+						AccountConstants.
+							ACCOUNT_ENTRY_TYPES_DEFAULT_ALLOWED_TYPES,
+						WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
+						QueryUtil.ALL_POS),
+					AccountEntryModel::getExternalReferenceCode),
 				"', '"),
 			"')");
 	}
@@ -696,7 +700,7 @@ public class SalesforceObjectEntryManagerImpl
 	private static final String _CUSTOM_OBJECT_SUFFIX = "__c";
 
 	@Reference
-	private AccountEntryUserRelLocalService _accountEntryUserRelLocalService;
+	private AccountEntryLocalService _accountEntryLocalService;
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;
@@ -802,15 +806,30 @@ public class SalesforceObjectEntryManagerImpl
 		private JSONObject _getSalesforceAccessTokenJSONObject(
 			SalesforceConfiguration salesforceConfiguration) {
 
-			JSONObject jSONObject = SalesforceAccessTokenWebCacheItem.get(
-				salesforceConfiguration);
+			int retry = 0;
 
-			if (jSONObject == null) {
-				throw new ObjectEntryManagerHttpException(
-					"Unable to authenticate with Salesforce");
+			while (retry < 3) {
+				JSONObject jSONObject = SalesforceAccessTokenWebCacheItem.get(
+					salesforceConfiguration);
+
+				if (jSONObject != null) {
+					return jSONObject;
+				}
+
+				try {
+					Thread.sleep(500);
+				}
+				catch (InterruptedException interruptedException) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(interruptedException);
+					}
+				}
+
+				retry++;
 			}
 
-			return jSONObject;
+			throw new ObjectEntryManagerHttpException(
+				"Unable to authenticate with Salesforce");
 		}
 
 		private SalesforceConfiguration _getSalesforceConfiguration(
@@ -893,6 +912,8 @@ public class SalesforceObjectEntryManagerImpl
 
 			return bytes;
 		}
+
+		private final Log _log = LogFactoryUtil.getLog(SalesforceHttp.class);
 
 	}
 

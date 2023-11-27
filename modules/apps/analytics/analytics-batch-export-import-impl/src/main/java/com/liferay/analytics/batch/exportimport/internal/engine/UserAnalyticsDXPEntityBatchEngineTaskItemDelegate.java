@@ -22,8 +22,8 @@ import com.liferay.petra.sql.dsl.query.JoinStep;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserTable;
-import com.liferay.portal.kernel.model.Users_GroupsTable;
 import com.liferay.portal.kernel.model.Users_OrgsTable;
+import com.liferay.portal.kernel.model.Users_UserGroupsTable;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -34,6 +34,7 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import java.io.Serializable;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -77,13 +78,34 @@ public class UserAnalyticsDXPEntityBatchEngineTaskItemDelegate
 					contextCompany.getCompanyId(), parameters)));
 	}
 
+	private Predicate _buildPredicate(
+		UserTable userTable, long companyId,
+		Map<String, Serializable> parameters) {
+
+		Predicate predicate = userTable.companyId.eq(companyId);
+
+		Serializable resourceLastModifiedDate = parameters.get(
+			"resourceLastModifiedDate");
+
+		if (resourceLastModifiedDate == null) {
+			return predicate;
+		}
+
+		return predicate.and(
+			userTable.modifiedDate.gt((Date)resourceLastModifiedDate));
+	}
+
 	private DSLQuery _createCountDSLQuery(
 		long companyId, Map<String, Serializable> parameters) {
 
+		UserTable userTableAlias = UserTable.INSTANCE.as("userTable");
+
 		JoinStep joinStep = DSLQueryFactoryUtil.count(
 		).from(
-			UserTable.INSTANCE
+			userTableAlias
 		);
+
+		Predicate predicate = null;
 
 		AnalyticsConfiguration analyticsConfiguration =
 			_analyticsConfigurationRegistry.getAnalyticsConfiguration(
@@ -94,42 +116,41 @@ public class UserAnalyticsDXPEntityBatchEngineTaskItemDelegate
 				analyticsConfiguration.syncedOrganizationIds();
 
 			if (!ArrayUtil.isEmpty(syncedOrganizationIds)) {
-				joinStep = joinStep.innerJoinON(
+				joinStep = joinStep.leftJoinOn(
 					Users_OrgsTable.INSTANCE,
-					Users_OrgsTable.INSTANCE.userId.eq(
-						UserTable.INSTANCE.userId
-					).and(
-						Users_OrgsTable.INSTANCE.organizationId.in(
-							TransformUtil.transform(
-								syncedOrganizationIds, Long::parseLong,
-								Long.class))
-					));
+					Users_OrgsTable.INSTANCE.userId.eq(userTableAlias.userId));
+
+				predicate = Users_OrgsTable.INSTANCE.organizationId.in(
+					TransformUtil.transform(
+						syncedOrganizationIds, Long::parseLong, Long.class));
 			}
 
-			String[] syncedGroupIds =
+			String[] syncedUserGroupIds =
 				analyticsConfiguration.syncedUserGroupIds();
 
-			if (!ArrayUtil.isEmpty(syncedGroupIds)) {
-				joinStep = joinStep.innerJoinON(
-					Users_GroupsTable.INSTANCE,
-					Users_GroupsTable.INSTANCE.userId.eq(
-						UserTable.INSTANCE.userId
-					).and(
-						Users_GroupsTable.INSTANCE.groupId.in(
-							TransformUtil.transform(
-								syncedGroupIds, Long::parseLong, Long.class))
-					));
+			if (!ArrayUtil.isEmpty(syncedUserGroupIds)) {
+				joinStep = joinStep.leftJoinOn(
+					Users_UserGroupsTable.INSTANCE,
+					Users_UserGroupsTable.INSTANCE.userId.eq(
+						userTableAlias.userId));
+
+				predicate = Predicate.or(
+					predicate,
+					Users_UserGroupsTable.INSTANCE.userGroupId.in(
+						TransformUtil.transform(
+							syncedUserGroupIds, Long::parseLong, Long.class)));
 			}
 		}
 
 		return joinStep.where(
 			Predicate.and(
-				buildPredicate(UserTable.INSTANCE, companyId, parameters),
-				UserTable.INSTANCE.screenName.neq(
+				_buildPredicate(userTableAlias, companyId, parameters),
+				userTableAlias.screenName.neq(
 					AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN
 				).and(
-					UserTable.INSTANCE.status.neq(
-						WorkflowConstants.STATUS_INACTIVE)
+					userTableAlias.status.neq(WorkflowConstants.STATUS_INACTIVE)
+				).and(
+					Predicate.withParentheses(predicate)
 				)));
 	}
 
@@ -137,10 +158,15 @@ public class UserAnalyticsDXPEntityBatchEngineTaskItemDelegate
 		long companyId, Pagination pagination,
 		Map<String, Serializable> parameters) {
 
+		UserTable userTableAlias = UserTable.INSTANCE.as("userTable");
+
 		JoinStep joinStep = DSLQueryFactoryUtil.select(
+			userTableAlias
 		).from(
-			UserTable.INSTANCE
+			userTableAlias
 		);
+
+		Predicate predicate = null;
 
 		AnalyticsConfiguration analyticsConfiguration =
 			_analyticsConfigurationRegistry.getAnalyticsConfiguration(
@@ -151,46 +177,45 @@ public class UserAnalyticsDXPEntityBatchEngineTaskItemDelegate
 				analyticsConfiguration.syncedOrganizationIds();
 
 			if (!ArrayUtil.isEmpty(syncedOrganizationIds)) {
-				joinStep = joinStep.innerJoinON(
+				joinStep = joinStep.leftJoinOn(
 					Users_OrgsTable.INSTANCE,
-					Users_OrgsTable.INSTANCE.userId.eq(
-						UserTable.INSTANCE.userId
-					).and(
-						Users_OrgsTable.INSTANCE.organizationId.in(
-							TransformUtil.transform(
-								syncedOrganizationIds, Long::parseLong,
-								Long.class))
-					));
+					Users_OrgsTable.INSTANCE.userId.eq(userTableAlias.userId));
+
+				predicate = Users_OrgsTable.INSTANCE.organizationId.in(
+					TransformUtil.transform(
+						syncedOrganizationIds, Long::parseLong, Long.class));
 			}
 
-			String[] syncedGroupIds =
+			String[] syncedUserGroupIds =
 				analyticsConfiguration.syncedUserGroupIds();
 
-			if (!ArrayUtil.isEmpty(syncedGroupIds)) {
-				joinStep = joinStep.innerJoinON(
-					Users_GroupsTable.INSTANCE,
-					Users_GroupsTable.INSTANCE.userId.eq(
-						UserTable.INSTANCE.userId
-					).and(
-						Users_GroupsTable.INSTANCE.groupId.in(
-							TransformUtil.transform(
-								syncedGroupIds, Long::parseLong, Long.class))
-					));
+			if (!ArrayUtil.isEmpty(syncedUserGroupIds)) {
+				joinStep = joinStep.leftJoinOn(
+					Users_UserGroupsTable.INSTANCE,
+					Users_UserGroupsTable.INSTANCE.userId.eq(
+						userTableAlias.userId));
+
+				predicate = Predicate.or(
+					predicate,
+					Users_UserGroupsTable.INSTANCE.userGroupId.in(
+						TransformUtil.transform(
+							syncedUserGroupIds, Long::parseLong, Long.class)));
 			}
 		}
 
 		return joinStep.where(
 			Predicate.and(
-				buildPredicate(UserTable.INSTANCE, companyId, parameters),
-				UserTable.INSTANCE.screenName.neq(
+				_buildPredicate(userTableAlias, companyId, parameters),
+				userTableAlias.screenName.neq(
 					AnalyticsSecurityConstants.SCREEN_NAME_ANALYTICS_ADMIN
 				).and(
-					UserTable.INSTANCE.status.neq(
-						WorkflowConstants.STATUS_INACTIVE)
+					userTableAlias.status.neq(WorkflowConstants.STATUS_INACTIVE)
+				).and(
+					Predicate.withParentheses(predicate)
 				))
 		).limit(
-			pagination.getPage() * pagination.getPageSize(),
-			(pagination.getPage() + 1) * pagination.getPageSize()
+			(pagination.getPage() - 1) * pagination.getPageSize(),
+			pagination.getPage() * pagination.getPageSize()
 		);
 	}
 

@@ -13,28 +13,31 @@ definition {
 
 		User.firstLoginPG();
 
-		task ("Given access to the Data Sets admin page") {
+		task ("Given creating a Data Set via API") {
 			DataSetAdmin.goToDataSetAdminPage();
+
+			DataSetAdmin.createDataSetEntryViaAPI(
+				dataSetName = "Data Set Test",
+				restApplication = "/data-set-manager/sorts",
+				restEndpoint = "/",
+				restSchema = "FDSSort");
 		}
 
-		task ("The user goes to add a new data set") {
-			DataSetAdmin.createDataSet(
-				key_name = "Test Data Set",
-				key_type = "/data-set-manager/entries");
+		task ("And a data set view created via api") {
+			DataSetAdmin.createFDSViewViaAPI(
+				dataSetName = "Data Set Test",
+				dataSetViewDescription = "FDSViewDescription",
+				key_dataSetViewNameList = "View Test");
 		}
 
-		task ("Add a new view") {
-			DataSetAdmin.goToViews(dataSetName = "Test Data Set");
-
-			DataSetAdmin.createDataSetView(
-				description = "Test Description",
-				key_name = "View Test");
+		task ("When go to the View page of the data set created.") {
+			DataSetAdmin.goToSpecificViewPage(
+				dataSetName = "Data Set Test",
+				key_viewName = "View Test");
 		}
 
 		task ("When goes to Pagination Tab") {
-			DataSetAdmin.goToTab(
-				dataSetViewName = "View Test",
-				tabName = "Pagination");
+			DataSetAdmin.goToTab(tabName = "Pagination");
 		}
 	}
 
@@ -295,6 +298,26 @@ definition {
 			AssertElementPresent(
 				key_fieldValue = "4, 8, 20, 40, 60",
 				locator1 = "DataSet#PAGINATION_LIST_OF_ITEMS");
+		}
+	}
+
+	@description = "LPS-188333. Confirm that changes in the pagination are not autosaved"
+	@priority = 3
+	test PaginationChangesAreNotAutoSaved {
+		task ("And the user fills in the pagination items field") {
+			DataSetAdmin.changePaginationItems(paginationItems = "10, 20, 30, 40, 50, 60");
+		}
+
+		task ("And fills the default value field") {
+			DataSetAdmin.changePaginationDefaultItems(defaultPagination = 10);
+
+			DataSetAdmin.goToTab(tabName = "Pagination");
+		}
+
+		task ("Then the changes are autosaved") {
+			Button.clickSave();
+
+			Alert.viewSuccessMessage();
 		}
 	}
 

@@ -81,7 +81,9 @@ definition {
 
 		CreateObject.checkToggleActive();
 
-		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Choose an Option");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Panel Link",
+			optionName = "Choose an Option");
 
 		CustomerPortal.checkToggleHideWidget();
 

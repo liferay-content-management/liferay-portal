@@ -41,6 +41,7 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -82,7 +83,8 @@ public class FunctionObjectEntryManagerImpl
 					StringPool.SLASH,
 					HttpComponentsUtil.encodePath(
 						objectDefinition.getExternalReferenceCode())),
-				dtoConverterContext.getUserId()),
+				dtoConverterContext.getUserId()
+			).get(),
 			objectDefinition, scopeKey, dtoConverterContext.getUser());
 	}
 
@@ -142,7 +144,8 @@ public class FunctionObjectEntryManagerImpl
 		return _toObjectEntries(
 			_launch(
 				Http.Method.GET, null, resourcePath,
-				dtoConverterContext.getUserId()),
+				dtoConverterContext.getUserId()
+			).get(),
 			objectDefinition, pagination, scopeKey,
 			dtoConverterContext.getUser());
 	}
@@ -174,7 +177,8 @@ public class FunctionObjectEntryManagerImpl
 				Http.Method.GET, null,
 				_appendBaseParameters(
 					dtoConverterContext, resourcePath, scopeKey),
-				dtoConverterContext.getUserId()),
+				dtoConverterContext.getUserId()
+			).get(),
 			objectDefinition, scopeKey, dtoConverterContext.getUser());
 	}
 
@@ -213,7 +217,8 @@ public class FunctionObjectEntryManagerImpl
 					HttpComponentsUtil.encodePath(
 						objectDefinition.getExternalReferenceCode()),
 					StringPool.SLASH, externalReferenceCode),
-				dtoConverterContext.getUserId()),
+				dtoConverterContext.getUserId()
+			).get(),
 			objectDefinition, scopeKey, dtoConverterContext.getUser());
 	}
 
@@ -295,7 +300,7 @@ public class FunctionObjectEntryManagerImpl
 		return resourcePath;
 	}
 
-	private byte[] _launch(
+	private Future<byte[]> _launch(
 			Http.Method method, JSONObject payloadJSONObject,
 			String resourcePath, long userId)
 		throws Exception {

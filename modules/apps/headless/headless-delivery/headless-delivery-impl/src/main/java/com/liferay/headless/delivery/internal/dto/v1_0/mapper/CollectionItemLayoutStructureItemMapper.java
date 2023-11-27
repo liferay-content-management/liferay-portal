@@ -20,14 +20,12 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Jürgen Kappler
  */
-@Component(service = LayoutStructureItemMapper.class)
+@Component(
+	property = "class.name=com.liferay.layout.util.structure.CollectionItemLayoutStructureItem",
+	service = LayoutStructureItemMapper.class
+)
 public class CollectionItemLayoutStructureItemMapper
 	implements LayoutStructureItemMapper {
-
-	@Override
-	public String getClassName() {
-		return CollectionItemLayoutStructureItem.class.getName();
-	}
 
 	@Override
 	public PageElement getPageElement(
@@ -46,6 +44,7 @@ public class CollectionItemLayoutStructureItemMapper
 								getItemConfigJSONObject());
 					}
 				};
+				id = layoutStructureItem.getItemId();
 				type = Type.COLLECTION_ITEM;
 			}
 		};

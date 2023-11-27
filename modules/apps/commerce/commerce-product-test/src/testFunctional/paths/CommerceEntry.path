@@ -86,6 +86,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>LABEL_SELECT_BY_INDEX</td>
+	<td>xpath=(//label[contains(text(),'${key_fieldLabel}')]/..//select)[${key_index}]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>LABEL_GENERIC_SELECT_POSITION</td>
 	<td>//label[contains(text(),'${key_fieldLabel}')]/..//select/option['${row}']</td>
 	<td></td>
@@ -553,6 +558,16 @@
 <tr>
 	<td>WORKFLOW_STATUS</td>
 	<td>//span[@class='workflow-status']//*[contains(.,'${key_status}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COMBOBOX_BUTTON</td>
+	<td>//div[normalize-space(text())='${key_objectName}']//button[@role='combobox']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COMBOBOX_DROPDOWN_OPTION_NAME</td>
+	<td>//div[contains(@class, 'dropdown-menu dropdown-menu-indicator-start dropdown-menu-select show')]//span[contains(text(),'${key_optionName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -1124,6 +1139,21 @@
 <tr>
 	<td>PRODUCT_CARD_CUSTOM_IMAGE</td>
 	<td>//span[contains(text(),'${key_itemName}')]/../../../../../../..//div[contains(@class,'product-card')]//a//picture[@data-fileentryid="${key_fileEntryId}"]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REMOVE_IMAGE_TAG</td>
+	<td>//span[contains(@class,'label label-secondary')]//span[contains(.,'${key_tagName}')]/..//*[name()='svg']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>IMAGE_TAG</td>
+	<td>//span[contains(@class,'label label-secondary')]//span[contains(.,'${key_tagName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REMOVE_ALL_IMAGE_TAG</td>
+	<td>//label[contains(.,'Tags')]/..//div[contains(@class,'input-group-item input-group-item-shrink')]//*[name()='svg']</td>
 	<td></td>
 </tr>
 

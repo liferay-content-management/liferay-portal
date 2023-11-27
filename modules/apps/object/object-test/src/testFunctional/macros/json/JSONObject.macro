@@ -606,11 +606,11 @@ definition {
 		return ${objectEntryId};
 	}
 
-	@summary = "Default summary"
-	macro addObjectValidation(validationType = null, objectName = null, labelName = null) {
+	@summary = "Add partial or full object validations"
+	macro addObjectValidation(validationType, objectName, labelName, fieldName = null, isActive = null) {
 		Variables.assertDefined(parameterList = "${objectName},${labelName},${script},${validationType}");
 
-		var portalURL = JSONCompany.getDefaultPortalURL();
+		var portalURL = JSONCompany.getPortalURL();
 		var userLoginInfo = JSONUtil2.formatJSONSuperAdminUser();
 		var objectId = JSONObject.getObjectId(
 			objectName = ${objectName},
@@ -629,29 +629,65 @@ definition {
 			var errorMessage = "Please enter a valid entry.";
 		}
 
+		if (!(isSet(isActive))) {
+			var isActive = "true";
+		}
+
 		var single_quote = "'";
 		var escape_quotes = "'\''";
 
 		var script = StringUtil.replace(${script}, ${single_quote}, ${escape_quotes});
 
-		var curl = '''
-			${portalURL}/o/object-admin/v1.0/object-definitions/${objectId}/object-validation-rules \
-				-u ${userLoginInfo} \
-				-H Content-Type: application/json \
-				-d '{
-					"active": "true",
-					"engine": "${validationType}",
-					"errorLabel": {
-						"en_US": "${errorMessage}"
-					},
-					"name": {
-						"en_US": "${labelName}"
-					},
-					"outputType": "fullValidation",
-					"script": "${script}",
-					"system": false
-				}'
-		''';
+		if (${outputValidationType} == "partialValidation") {
+			var objectFieldERC = JSONObject.getObjectFieldERC(
+				fieldName = ${fieldName},
+				objectName = ${objectName});
+
+			var curl = '''
+				${portalURL}/o/object-admin/v1.0/object-definitions/${objectId}/object-validation-rules \
+					-u ${userLoginInfo} \
+					-H Content-Type: application/json \
+					-d '{
+						"active": "${isActive}",
+						"engine": "${validationType}",
+						"errorLabel": {
+							"en_US": "${errorMessage}"
+						},
+						"name": {
+							"en_US": "${labelName}"
+						},
+						"objectValidationRuleSettings": [
+							{
+								"name": "outputObjectFieldExternalReferenceCode",
+								"value": "${objectFieldERC}"
+							}
+						],
+						"outputType": "${outputValidationType}",
+						"script": "${script}",
+						"system": false
+					}'
+			''';
+		}
+		else {
+			var curl = '''
+				${portalURL}/o/object-admin/v1.0/object-definitions/${objectId}/object-validation-rules \
+					-u ${userLoginInfo} \
+					-H Content-Type: application/json \
+					-d '{
+						"active": "${isActive}",
+						"engine": "${validationType}",
+						"errorLabel": {
+							"en_US": "${errorMessage}"
+						},
+						"name": {
+							"en_US": "${labelName}"
+						},
+						"outputType": "fullValidation",
+						"script": "${script}",
+						"system": false
+					}'
+			''';
+		}
 
 		JSONCurlUtil.post(${curl});
 	}
@@ -1050,9 +1086,45 @@ definition {
 				-u ${userEmailAddress}:${userPassword}
 		''';
 
-		var entryId = JSONCurlUtil.get(${curl}, "$.items[?(@['${fieldName}'] == '${entryValue}')]['id']");
+		if (${entryValue} == "") {
+			var entryId = JSONCurlUtil.get(${curl}, "$.items[?(@['${fieldName}'] empty true)]['id']");
+		}
+		else if (${entryValue} == "null") {
+			var entryId = JSONCurlUtil.get(${curl}, "$.items[?(@['${fieldName}'] == null)]['id']");
+		}
+		else {
+			var entryId = JSONCurlUtil.get(${curl}, "$.items[?(@['${fieldName}'] == '${entryValue}')]['id']");
+		}
 
 		return ${entryId};
+	}
+
+	@summary = "Get the external reference code of an object field"
+	macro getObjectFieldERC(objectName, fieldName) {
+		var portalURL = JSONCompany.getPortalURL();
+		var userLoginInfo = JSONUtil2.formatJSONSuperAdminUser();
+		var objectId = JSONObject.getObjectId(objectName = ${objectName});
+
+		if (!(isSet(userEmailAddress))) {
+			var userEmailAddress = "test@liferay.com";
+		}
+
+		if (!(isSet(userPassword))) {
+			var userPassword = "test";
+		}
+
+		var objectFieldId = JSONObject.getObjectFieldId(
+			fieldName = ${fieldName},
+			objectId = ${objectId});
+
+		var curl = '''
+			${portalURL}/o/object-admin/v1.0/object-fields/${objectFieldId} \
+				-u ${userLoginInfo}
+		''';
+
+		var objectFiedERC = JSONCurlUtil.get(${curl}, "$..['externalReferenceCode']");
+
+		return ${objectFiedERC};
 	}
 
 	@summary = "Default summary"

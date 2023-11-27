@@ -18,6 +18,17 @@ interface AddObjectEntryDefinitions {
 	system?: boolean;
 }
 
+interface ObjectActionTriggerExecutorItem {
+	checked?: boolean;
+	description?: string;
+	disabled?: boolean;
+	label: string;
+	name?: string;
+	popover?: {body: string; header: string};
+	type?: string;
+	value?: string;
+}
+
 type DefinitionAction = {
 	href: string;
 	method: string;
@@ -30,10 +41,11 @@ type DefinitionActions = {
 	update: DefinitionAction;
 };
 
-type DeletionNotAllowedModal = {
+type ObjectFieldDeleteInfoProps = {
 	deleteLastPublishedObjectDefinitionObjectField: boolean;
 	deleteObjectFieldObjectValidationRuleSetting: boolean;
-	showModal: boolean;
+	showObjectFieldDeletionConfirmationModal: boolean;
+	showObjectFieldDeletionNotAllowedModal: boolean;
 };
 
 type ExcludesFilterOperator = {
@@ -55,14 +67,19 @@ type IncludesFilterOperator = {
 	in: string[] | number[];
 };
 
+interface LabelKeyObject {
+	key: string;
+	label: string;
+}
+
 interface LabelNameObject {
 	label: string;
 	name: string;
 }
 
-interface LabelValueObject {
+interface LabelValueObject<T = string> {
 	label: string;
-	value: string;
+	value: T;
 }
 
 interface ListTypeDefinition {
@@ -91,7 +108,7 @@ interface ModelBuilderModals
 	extends Omit<
 		ViewObjectDefinitionsModals,
 		| 'bindToRootObjectDefinition'
-		| 'deletionNotAllowed'
+		| 'objectFieldDeletionNotAllowed'
 		| 'unbindFromRootObjectDefinition'
 	> {
 	addObjectField: boolean;
@@ -241,7 +258,7 @@ interface ObjectField {
 	id: number;
 	indexed: boolean;
 	indexedAsKeyword: boolean;
-	indexedLanguageId: Liferay.Language.Locale | null;
+	indexedLanguageId: Liferay.Language.Locale | string;
 	label: LocalizedValue<string>;
 	listTypeDefinitionExternalReferenceCode: string;
 	listTypeDefinitionId?: number;
@@ -479,8 +496,8 @@ interface ViewObjectDefinitionsModals {
 	bindToRootObjectDefinition: boolean;
 	deleteObjectDefinition: boolean;
 	deleteObjectFolder: boolean;
-	deletionNotAllowed: boolean;
 	editObjectFolder: boolean;
 	moveObjectDefinition: boolean;
+	objectFieldDeletionNotAllowed: boolean;
 	unbindFromRootObjectDefinition: boolean;
 }

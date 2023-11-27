@@ -448,8 +448,7 @@ components:
                             type: array
                     type: object
                 parentOrganization:
-                    allOf:
-                        - $ref: "#/components/schemas/Organization"
+                    $ref: "#/components/schemas/Organization"
                     description:
                         The organization's parent organization.
                 services:
@@ -627,8 +626,7 @@ components:
                     readOnly: true
                     type: array
                 creator:
-                    allOf:
-                        - $ref: "#/components/schemas/Creator"
+                    $ref: "#/components/schemas/Creator"
                     description:
                         The role's creator.
                     readOnly: true
@@ -1004,6 +1002,11 @@ components:
                     format: uri
                     readOnly: true
                     type: string
+                imageId:
+                    description:
+                        The user's profile image id.
+                    format: int64
+                    type: integer
                 jobTitle:
                     description:
                         The user's job title.
@@ -1015,6 +1018,15 @@ components:
                         type: string
                     readOnly: true
                     type: array
+                languageDisplayName:
+                    description:
+                        The user's preferred language.
+                    readOnly: true
+                    type: string
+                languageId:
+                    description:
+                        The user's preferred language id.
+                    type: string
                 lastLoginDate:
                     description:
                         The last time the user logged in.
@@ -1125,6 +1137,34 @@ components:
                     readOnly: true
                     type: array
             type: object
+        UserAccountFullNameDefinition:
+            description:
+                Represents the definition of the user full name.
+            properties:
+                userAccountFullNameDefinitionFields:
+                    description:
+                        A list of the user's account.
+                    items:
+                        $ref: "#/components/schemas/UserAccountFullNameDefinitionField"
+                    readOnly: true
+                    type: array
+            type: object
+        UserAccountFullNameDefinitionField:
+            description:
+                Represents the definition of a single part of the user full name.
+            properties:
+                key:
+                    readOnly: true
+                    type: string
+                required:
+                    readOnly: true
+                    type: boolean
+                values:
+                    items:
+                        type: string
+                    readOnly: true
+                    type: array
+            type: object
         UserGroup:
             properties:
                 actions:
@@ -1189,7 +1229,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.admin.user.client', and version '4.0.49'."
+        'com.liferay.headless.admin.user.client', and version '4.0.50'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -4596,6 +4636,26 @@ paths:
                                     $ref: "#/components/schemas/Segment"
                                 type: array
             tags: ["Segment"]
+    "/user-account-full-name-definition":
+        get:
+            description:
+                Retrieves the user account full name definition.
+            parameters:
+                - in: query
+                  name: languageId
+                  required: false
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserAccountFullNameDefinition"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/UserAccountFullNameDefinition"
+            tags: ["UserAccountFullNameDefinition"]
     "/user-accounts":
         get:
             description:

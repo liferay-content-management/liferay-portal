@@ -223,6 +223,34 @@ public class AttachmentBase64 implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String externalReferenceCode;
 
+	@Schema
+	public Boolean getGalleryEnabled() {
+		return galleryEnabled;
+	}
+
+	public void setGalleryEnabled(Boolean galleryEnabled) {
+		this.galleryEnabled = galleryEnabled;
+	}
+
+	@JsonIgnore
+	public void setGalleryEnabled(
+		UnsafeSupplier<Boolean, Exception> galleryEnabledUnsafeSupplier) {
+
+		try {
+			galleryEnabled = galleryEnabledUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean galleryEnabled;
+
 	@DecimalMin("0")
 	@Schema(example = "30130")
 	public Long getId() {
@@ -360,6 +388,34 @@ public class AttachmentBase64 implements Serializable {
 	@GraphQLField(description = "URL of the location")
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String src;
+
+	@Schema(example = "[tag1, tag2, tag3]")
+	public String[] getTags() {
+		return tags;
+	}
+
+	public void setTags(String[] tags) {
+		this.tags = tags;
+	}
+
+	@JsonIgnore
+	public void setTags(
+		UnsafeSupplier<String[], Exception> tagsUnsafeSupplier) {
+
+		try {
+			tags = tagsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String[] tags;
 
 	@Schema(
 		example = "{en_US=Hand Saw, hr_HR=Attachment Title HR, hu_HU=Attachment Title HU}"
@@ -538,6 +594,16 @@ public class AttachmentBase64 implements Serializable {
 			sb.append("\"");
 		}
 
+		if (galleryEnabled != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"galleryEnabled\": ");
+
+			sb.append(galleryEnabled);
+		}
+
 		if (id != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -590,6 +656,30 @@ public class AttachmentBase64 implements Serializable {
 			sb.append(_escape(src));
 
 			sb.append("\"");
+		}
+
+		if (tags != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"tags\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < tags.length; i++) {
+				sb.append("\"");
+
+				sb.append(_escape(tags[i]));
+
+				sb.append("\"");
+
+				if ((i + 1) < tags.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		if (title != null) {

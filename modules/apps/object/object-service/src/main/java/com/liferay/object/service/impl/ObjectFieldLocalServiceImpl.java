@@ -10,8 +10,8 @@ import com.liferay.dynamic.data.mapping.expression.CreateExpressionRequest;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
-import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
+import com.liferay.object.constants.ObjectValidationRuleSettingConstants;
 import com.liferay.object.definition.util.ObjectDefinitionUtil;
 import com.liferay.object.exception.DuplicateObjectFieldExternalReferenceCodeException;
 import com.liferay.object.exception.ObjectDefinitionEnableLocalizationException;
@@ -31,7 +31,6 @@ import com.liferay.object.exception.ObjectFieldSystemException;
 import com.liferay.object.exception.RequiredObjectFieldException;
 import com.liferay.object.field.business.type.ObjectFieldBusinessType;
 import com.liferay.object.field.business.type.ObjectFieldBusinessTypeRegistry;
-import com.liferay.object.field.setting.util.ObjectFieldSettingUtil;
 import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.internal.dao.db.ObjectDBManagerUtil;
 import com.liferay.object.internal.field.setting.contributor.ObjectFieldSettingContributor;
@@ -45,8 +44,10 @@ import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionTable;
 import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionTableUtil;
 import com.liferay.object.service.ObjectFieldSettingLocalService;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.service.ObjectStateFlowLocalService;
 import com.liferay.object.service.ObjectValidationRuleLocalService;
+import com.liferay.object.service.ObjectValidationRuleSettingLocalService;
 import com.liferay.object.service.ObjectViewLocalService;
 import com.liferay.object.service.base.ObjectFieldLocalServiceBaseImpl;
 import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
@@ -69,10 +70,12 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -310,6 +313,13 @@ public class ObjectFieldLocalServiceImpl
 			}
 
 			objectFieldPersistence.remove(objectField);
+
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_AUTO_INCREMENT)) {
+
+				counterLocalService.reset(
+					ObjectFieldUtil.getCounterName(objectField));
+			}
 
 			_objectFieldSettingLocalService.deleteObjectFieldObjectFieldSetting(
 				objectField);
@@ -652,6 +662,14 @@ public class ObjectFieldLocalServiceImpl
 			boolean system, List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException {
 
+		if (!FeatureFlagManagerUtil.isEnabled("LPS-196724") &&
+			Objects.equals(
+				businessType,
+				ObjectFieldConstants.BUSINESS_TYPE_AUTO_INCREMENT)) {
+
+			throw new UnsupportedOperationException();
+		}
+
 		ObjectDefinition objectDefinition =
 			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
@@ -676,6 +694,7 @@ public class ObjectFieldLocalServiceImpl
 		_validateName(0, objectDefinition, name, system);
 		_validateReadOnlyAndReadOnlyConditionExpression(
 			businessType, readOnly, readOnlyConditionExpression);
+		_validateRequired(0, businessType, required);
 		_validateState(required, state);
 
 		ObjectField objectField = objectFieldPersistence.create(
@@ -755,11 +774,16 @@ public class ObjectFieldLocalServiceImpl
 				dbTableName, objectField.getDBColumnName(),
 				objectField.getDBType()));
 
-		if (GetterUtil.getBoolean(
-				ObjectFieldSettingUtil.getValue(
-					ObjectFieldSettingConstants.NAME_UNIQUE_VALUES,
-					objectField))) {
+		if (objectField.compareBusinessType(
+				ObjectFieldConstants.BUSINESS_TYPE_AUTO_INCREMENT)) {
 
+			runSQL(
+				DynamicObjectDefinitionTableUtil.getAlterTableAddColumnSQL(
+					dbTableName, objectField.getSortableDBColumnName(),
+					ObjectFieldConstants.DB_TYPE_LONG));
+		}
+
+		if (objectField.hasUniqueValues()) {
 			ObjectDBManagerUtil.createIndexMetadata(
 				_currentConnection.getConnection(
 					objectFieldPersistence.getDataSource()),
@@ -883,7 +907,8 @@ public class ObjectFieldLocalServiceImpl
 						"a relationship type");
 			}
 			else if (!objectField.isDeletionAllowed()) {
-				throw new RequiredObjectFieldException();
+				throw new RequiredObjectFieldException.MustNotDeleteObjectField(
+					objectField.getName());
 			}
 		}
 		else if (!deleteRelationshipObjectField) {
@@ -903,13 +928,27 @@ public class ObjectFieldLocalServiceImpl
 				"Only allowed bundles can delete system object fields");
 		}
 
+		int count =
+			_objectValidationRuleSettingLocalService.
+				getObjectValidationRuleSettingsCount(
+					ObjectValidationRuleSettingConstants.
+						NAME_COMPOSITE_KEY_OBJECT_FIELD_ID,
+					String.valueOf(objectField.getObjectFieldId()));
+
+		if (count > 0) {
+			throw new RequiredObjectFieldException.
+				MustNotDeleteObjectFieldCompositeKey(objectField.getName());
+		}
+
 		List<ObjectField> objectFields = ListUtil.filter(
 			objectFieldLocalService.getObjectFields(
 				objectField.getObjectDefinitionId()),
 			objectField1 -> !objectField1.isMetadata());
 
 		if (objectDefinition.isApproved() && (objectFields.size() == 1)) {
-			throw new RequiredObjectFieldException();
+			throw new RequiredObjectFieldException.
+				MustNotDeleteObjectFieldPublishedObjectDefinition(
+					objectField.getName());
 		}
 
 		if (Objects.equals(
@@ -972,25 +1011,40 @@ public class ObjectFieldLocalServiceImpl
 
 		_objectViewLocalService.unassociateObjectField(objectField);
 
-		if (objectDefinition.isApproved() &&
-			!objectField.compareBusinessType(
-				ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
-			!objectField.compareBusinessType(
-				ObjectFieldConstants.BUSINESS_TYPE_FORMULA) &&
-			!Objects.equals(objectField.getDBTableName(), "ObjectEntry") &&
-			!objectField.isLocalized()) {
-
-			_alterTableDropColumn(
-				objectField.getDBTableName(), objectField.getDBColumnName());
+		if (!objectDefinition.isApproved()) {
+			return objectField;
 		}
 
-		if (objectDefinition.isApproved() &&
-			objectDefinition.isEnableLocalization() &&
+		if (objectDefinition.isEnableLocalization() &&
 			objectField.isLocalized()) {
 
 			_alterTableDropColumn(
 				objectDefinition.getLocalizationDBTableName(),
 				objectField.getDBColumnName());
+
+			return objectField;
+		}
+
+		if (!objectField.hasInsertValues() ||
+			Objects.equals(
+				objectField.getDBTableName(),
+				ObjectEntryTable.INSTANCE.getTableName())) {
+
+			return objectField;
+		}
+
+		_alterTableDropColumn(
+			objectField.getDBTableName(), objectField.getDBColumnName());
+
+		if (objectField.compareBusinessType(
+				ObjectFieldConstants.BUSINESS_TYPE_AUTO_INCREMENT)) {
+
+			_alterTableDropColumn(
+				objectField.getDBTableName(),
+				objectField.getSortableDBColumnName());
+
+			counterLocalService.reset(
+				ObjectFieldUtil.getCounterName(objectField));
 		}
 
 		return objectField;
@@ -1450,6 +1504,34 @@ public class ObjectFieldLocalServiceImpl
 
 			throw new ObjectFieldNameException.MustNotBeDuplicate(name);
 		}
+
+		ObjectRelationshipLocalService objectRelationshipLocalService =
+			_objectRelationshipLocalServiceSnapshot.get();
+
+		ObjectRelationship objectRelationship =
+			objectRelationshipLocalService.
+				fetchObjectRelationshipByObjectDefinitionId(
+					objectDefinition.getObjectDefinitionId(), name);
+
+		if (objectRelationship == null) {
+			return;
+		}
+
+		if (objectRelationship.getObjectDefinitionId1() ==
+				objectDefinition.getObjectDefinitionId()) {
+
+			throw new ObjectFieldNameException.
+				MustNotBeEqualToObjectRelationshipName(
+					objectDefinition.getShortName());
+		}
+
+		ObjectDefinition objectDefinition1 =
+			_objectDefinitionPersistence.findByPrimaryKey(
+				objectRelationship.getObjectDefinitionId1());
+
+		throw new ObjectFieldNameException.
+			MustNotBeEqualToObjectRelationshipName(
+				objectDefinition1.getShortName());
 	}
 
 	private void _validateObjectRelationshipDeletionType(
@@ -1482,6 +1564,14 @@ public class ObjectFieldLocalServiceImpl
 			Validator.isNull(readOnly)) {
 
 			return;
+		}
+
+		if (Objects.equals(
+				businessType,
+				ObjectFieldConstants.BUSINESS_TYPE_AUTO_INCREMENT) &&
+			!Objects.equals(readOnly, ObjectFieldConstants.READ_ONLY_FALSE)) {
+
+			throw new ObjectFieldReadOnlyException();
 		}
 
 		if (!(Objects.equals(
@@ -1522,6 +1612,14 @@ public class ObjectFieldLocalServiceImpl
 			long objectFieldId, String businessType, boolean required)
 		throws PortalException {
 
+		if (Objects.equals(
+				businessType,
+				ObjectFieldConstants.BUSINESS_TYPE_AUTO_INCREMENT) &&
+			required) {
+
+			throw new ObjectFieldRequiredException();
+		}
+
 		if (!StringUtil.equals(
 				businessType,
 				ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
@@ -1530,9 +1628,11 @@ public class ObjectFieldLocalServiceImpl
 		}
 
 		ObjectRelationship objectRelationship =
-			_objectRelationshipPersistence.findByObjectFieldId2(objectFieldId);
+			_objectRelationshipPersistence.fetchByObjectFieldId2(objectFieldId);
 
-		if (objectRelationship.isEdge() && !required) {
+		if ((objectRelationship != null) && objectRelationship.isEdge() &&
+			!required) {
+
 			throw new ObjectFieldRequiredException();
 		}
 	}
@@ -1548,6 +1648,11 @@ public class ObjectFieldLocalServiceImpl
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ObjectFieldLocalServiceImpl.class);
+
+	private static final Snapshot<ObjectRelationshipLocalService>
+		_objectRelationshipLocalServiceSnapshot = new Snapshot<>(
+			ObjectFieldLocalServiceImpl.class,
+			ObjectRelationshipLocalService.class, null, true);
 
 	private final Map<String, String> _businessTypes = HashMapBuilder.put(
 		"BigDecimal", "PrecisionDecimal"
@@ -1606,6 +1711,10 @@ public class ObjectFieldLocalServiceImpl
 
 	@Reference
 	private ObjectValidationRuleLocalService _objectValidationRuleLocalService;
+
+	@Reference
+	private ObjectValidationRuleSettingLocalService
+		_objectValidationRuleSettingLocalService;
 
 	@Reference
 	private ObjectViewLocalService _objectViewLocalService;

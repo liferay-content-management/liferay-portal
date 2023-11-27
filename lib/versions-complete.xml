@@ -2536,7 +2536,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.portal.osgi.web.http.servlet.impl.jar!org.eclipse.equinox.http.servlet.jar</file-name>
-				<version>1.2.2.v20211118-0920.LIFERAY-PATCHED-3</version>
+				<version>1.2.2.v20211118-0920.LIFERAY-PATCHED-4</version>
 				<project-name>com.liferay:org.eclipse.equinox.http.servlet</project-name>
 				<licenses>
 					<license>
@@ -3042,7 +3042,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.portal.security.antisamy.jar!antisamy.jar</file-name>
-				<version>1.7.2</version>
+				<version>1.7.4</version>
 				<project-name>OWASP AntiSamy</project-name>
 				<project-url>https://github.com/nahsra/antisamy</project-url>
 				<licenses>
@@ -3131,9 +3131,9 @@
 			</library>
 			<library>
 				<file-name>com.liferay.portal.security.antisamy.jar!neko-htmlunit.jar</file-name>
-				<version>2.66.0</version>
+				<version>3.6.0</version>
 				<project-name>HtmlUnit NekoHtml</project-name>
-				<project-url>http://htmlunit.sourceforge.net</project-url>
+				<project-url>https://www.htmlunit.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License, Version 2.0</license-name>
@@ -5287,6 +5287,18 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>com.liferay.shared.dependencies.xmlsec.jar!xmlsec.jar</file-name>
+				<version>3.0.3</version>
+				<project-name>Apache XML Security for Java</project-name>
+				<project-url>https://www.apache.org/</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache-2.0</license-name>
+						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>com.liferay.shared.dependencies.xmpcore.jar!xmpcore.jar</file-name>
 				<version>6.1.11</version>
 				<project-name>Adobe XMPCore</project-name>
@@ -6502,7 +6514,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/mysql.jar</file-name>
-				<version>8.0.32</version>
+				<version>8.0.33</version>
 				<project-name>MySQL Connector/J</project-name>
 				<project-url>http://www.mysql.com/products/connector/j</project-url>
 				<licenses>

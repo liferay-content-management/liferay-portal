@@ -6,18 +6,6 @@
 package com.liferay.analytics.machine.learning.internal.recommendation.search;
 
 import com.liferay.analytics.machine.learning.internal.search.api.RecommendationIndexer;
-import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactory;
-import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.search.capabilities.SearchCapabilities;
-import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
-import com.liferay.portal.search.engine.adapter.index.CreateIndexRequest;
-import com.liferay.portal.search.engine.adapter.index.DeleteIndexRequest;
-import com.liferay.portal.search.engine.adapter.index.IndicesExistsIndexRequest;
-import com.liferay.portal.search.engine.adapter.index.IndicesExistsIndexResponse;
 import com.liferay.portal.search.index.IndexNameBuilder;
 
 import org.osgi.service.component.annotations.Component;
@@ -27,63 +15,8 @@ import org.osgi.service.component.annotations.Reference;
  * @author Riccardo Ferrari
  */
 @Component(service = RecommendationIndexer.class)
-public class UserContentRecommendationIndexer implements RecommendationIndexer {
-
-	@Override
-	public void createIndex(long companyId) {
-		if (!_searchCapabilities.isAnalyticsSupported()) {
-			return;
-		}
-
-		String indexName = getIndexName(companyId);
-
-		if (_indexExists(indexName)) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Index " + indexName + " already exist");
-			}
-
-			return;
-		}
-
-		CreateIndexRequest createIndexRequest = new CreateIndexRequest(
-			indexName);
-
-		createIndexRequest.setMappings(
-			_readJSON("user-content-recommendation-mappings.json"));
-		createIndexRequest.setSettings(_readJSON("settings.json"));
-
-		_searchEngineAdapter.execute(createIndexRequest);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("Index " + indexName + " created successfully");
-		}
-	}
-
-	@Override
-	public void dropIndex(long companyId) {
-		if (!_searchCapabilities.isAnalyticsSupported()) {
-			return;
-		}
-
-		String indexName = getIndexName(companyId);
-
-		if (!_indexExists(indexName)) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Index " + indexName + " does not exist");
-			}
-
-			return;
-		}
-
-		DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(
-			indexName);
-
-		_searchEngineAdapter.execute(deleteIndexRequest);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("Index " + indexName + " dropped successfully");
-		}
-	}
+public class UserContentRecommendationIndexer
+	extends BaseRecommendationIndexer {
 
 	@Override
 	public String getIndexName(long companyId) {
@@ -91,43 +24,12 @@ public class UserContentRecommendationIndexer implements RecommendationIndexer {
 			"-user-content-recommendation";
 	}
 
-	private boolean _indexExists(String indexName) {
-		IndicesExistsIndexRequest indicesExistsIndexRequest =
-			new IndicesExistsIndexRequest(indexName);
-
-		IndicesExistsIndexResponse indicesExistsIndexResponse =
-			_searchEngineAdapter.execute(indicesExistsIndexRequest);
-
-		return indicesExistsIndexResponse.isExists();
+	@Override
+	protected String getIndexMappingFileName() {
+		return "user-content-recommendation-mappings.json";
 	}
-
-	private String _readJSON(String fileName) {
-		try {
-			JSONObject jsonObject = _jsonFactory.createJSONObject(
-				StringUtil.read(getClass(), "/META-INF/search/" + fileName));
-
-			return jsonObject.toString();
-		}
-		catch (JSONException jsonException) {
-			_log.error(jsonException);
-
-			throw new IllegalStateException("Unable to read file " + fileName);
-		}
-	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		UserContentRecommendationIndexer.class);
 
 	@Reference
 	private IndexNameBuilder _indexNameBuilder;
-
-	@Reference
-	private JSONFactory _jsonFactory;
-
-	@Reference
-	private SearchCapabilities _searchCapabilities;
-
-	@Reference
-	private SearchEngineAdapter _searchEngineAdapter;
 
 }

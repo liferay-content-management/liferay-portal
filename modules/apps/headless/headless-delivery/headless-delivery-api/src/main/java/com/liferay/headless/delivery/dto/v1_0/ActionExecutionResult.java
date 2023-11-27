@@ -198,7 +198,8 @@ public class ActionExecutionResult implements Serializable {
 	@GraphQLName("Type")
 	public static enum Type {
 
-		NONE("None"), NOTIFICATION("Notification"), PAGE("Page"), URL("URL");
+		DISPLAY_PAGE("DisplayPage"), NONE("None"), NOTIFICATION("Notification"),
+		PAGE("Page"), URL("URL");
 
 		@JsonCreator
 		public static Type create(String value) {

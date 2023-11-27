@@ -59,6 +59,10 @@ definition {
 
 		PublicationsNavigator.gotoReviewChanges();
 
+		PublicationsChanges.filterChangesByItem(
+			checkboxName = "Site",
+			menuItem = "Types");
+
 		PublicationsChanges.viewChanges(
 			changeCategory = "Site",
 			changeSite = "Site Name",
@@ -93,9 +97,13 @@ definition {
 
 		PublicationsNavigator.gotoReviewChanges();
 
+		PublicationsChanges.filterChangesByItem(
+			checkboxName = "Site",
+			menuItem = "Types");
+
 		PublicationsChanges.viewChanges(
 			changeCategory = "Site",
-			changeSite = "Global",
+			changeSite = "",
 			changeTitle = "Site Name",
 			changeType = "Added",
 			changeUser = "Test Test");

@@ -138,6 +138,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletPreferences;
@@ -202,7 +203,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		validateMx(-1, mx);
 
 		if ((companyId == null) || (companyId == 0)) {
-			companyId = counterLocalService.increment();
+			companyId = _getNextCompanyId();
 		}
 
 		Company company = companyPersistence.create(companyId);
@@ -399,6 +400,43 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		Company company = companyPersistence.findByPrimaryKey(companyId);
 
 		PortalUtil.updateImageId(company, false, null, "logoId", 0, 0, 0);
+
+		return company;
+	}
+
+	public Company extractCompany(long companyId) throws PortalException {
+		if (!DBPartition.isPartitionEnabled()) {
+			throw new UnsupportedOperationException(
+				"Database partition must be enabled");
+		}
+
+		if (companyId == PortalInstances.getDefaultCompanyId()) {
+			throw new RequiredCompanyException(
+				"Select another default company before extracting company " +
+					companyId);
+		}
+
+		Company company = companyPersistence.findByPrimaryKey(companyId);
+
+		try (SafeCloseable safeCloseable1 =
+				CompanyThreadLocal.setWithSafeCloseable(companyId);
+			SafeCloseable safeCloseable2 =
+				PortalInstances.setCompanyInDeletionProcess(companyId)) {
+
+			_clearCompanyCache(companyId, true);
+			_clearVirtualHostCache(companyId);
+
+			TransactionCommitCallbackUtil.registerCallback(
+				() -> {
+					PortalInstances.removeCompany(company.getCompanyId());
+
+					unregisterCompany(company);
+
+					return null;
+				});
+
+			DBPartitionUtil.extractDBPartition(companyId);
+		}
 
 		return company;
 	}
@@ -656,15 +694,15 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	 */
 	@Override
 	public void removePreferences(long companyId, String[] keys) {
-		PortletPreferences preferences = PrefsPropsUtil.getPreferences(
+		PortletPreferences portletPreferences = PrefsPropsUtil.getPreferences(
 			companyId);
 
 		try {
 			for (String key : keys) {
-				preferences.reset(key);
+				portletPreferences.reset(key);
 			}
 
-			preferences.store();
+			portletPreferences.store();
 		}
 		catch (Exception exception) {
 			throw new SystemException(exception);
@@ -1148,28 +1186,28 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		boolean sendPassword, boolean strangers, boolean strangersWithMx,
 		boolean strangersVerify, boolean siteLogo) {
 
-		PortletPreferences preferences = PrefsPropsUtil.getPreferences(
+		PortletPreferences portletPreferences = PrefsPropsUtil.getPreferences(
 			companyId);
 
 		try {
-			preferences.setValue(
+			portletPreferences.setValue(
 				PropsKeys.COMPANY_SECURITY_AUTH_TYPE, authType);
-			preferences.setValue(
+			portletPreferences.setValue(
 				PropsKeys.COMPANY_SECURITY_AUTO_LOGIN,
 				String.valueOf(autoLogin));
-			preferences.setValue(
+			portletPreferences.setValue(
 				PropsKeys.COMPANY_SECURITY_STRANGERS,
 				String.valueOf(strangers));
-			preferences.setValue(
+			portletPreferences.setValue(
 				PropsKeys.COMPANY_SECURITY_STRANGERS_WITH_MX,
 				String.valueOf(strangersWithMx));
-			preferences.setValue(
+			portletPreferences.setValue(
 				PropsKeys.COMPANY_SECURITY_STRANGERS_VERIFY,
 				String.valueOf(strangersVerify));
-			preferences.setValue(
+			portletPreferences.setValue(
 				PropsKeys.COMPANY_SECURITY_SITE_LOGO, String.valueOf(siteLogo));
 
-			preferences.store();
+			portletPreferences.store();
 		}
 		catch (IOException | PortletException exception) {
 			throw new SystemException(exception);
@@ -1824,16 +1862,16 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			company.getCompanyId(), CompanyConstants.AUTH_TYPE_EA, true, true,
 			true, true, false, true);
 
-		PortletPreferences preferences = PrefsPropsUtil.getPreferences(
+		PortletPreferences portletPreferences = PrefsPropsUtil.getPreferences(
 			company.getCompanyId());
 
 		try {
-			preferences.setValue(
+			portletPreferences.setValue(
 				PropsKeys.ADMIN_EMAIL_FROM_NAME, "Liferay Demo");
-			preferences.setValue(
+			portletPreferences.setValue(
 				PropsKeys.ADMIN_EMAIL_FROM_ADDRESS, "test@liferay.net");
 
-			preferences.store();
+			portletPreferences.store();
 		}
 		catch (IOException ioException) {
 			throw new SystemException(ioException);
@@ -2061,6 +2099,21 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 				return null;
 			});
+	}
+
+	private long _getNextCompanyId() {
+		long nextLong = 0;
+
+		ThreadLocalRandom threadLocalRandom = ThreadLocalRandom.current();
+
+		while ((nextLong == 0) ||
+			   ArrayUtil.contains(PortalInstances.getCompanyIds(), nextLong)) {
+
+			nextLong = threadLocalRandom.nextLong(
+				(long)Math.pow(10, 15), Long.MAX_VALUE);
+		}
+
+		return nextLong;
 	}
 
 	private void _updateGroupLanguageIds(

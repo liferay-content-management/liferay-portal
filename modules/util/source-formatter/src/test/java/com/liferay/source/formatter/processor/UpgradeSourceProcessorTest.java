@@ -104,11 +104,6 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
-	public void testUpgradeJavaCookieUtilCheck() throws Exception {
-		test("upgrade/UpgradeJavaCookieUtilCheck.testjava");
-	}
-
-	@Test
 	public void testUpgradeJavaFacetedSearcherCheck() throws Exception {
 		test("upgrade/UpgradeJavaFacetedSearcherCheck.testjava");
 	}
@@ -121,21 +116,6 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	@Test
 	public void testUpgradeJavaFDSDataProviderCheck() throws Exception {
 		test("upgrade/UpgradeJavaFDSDataProviderCheck.testjava");
-	}
-
-	@Test
-	public void testUpgradeJavaFetchAssetCategoryByExternalReferenceCodeCheck()
-		throws Exception {
-
-		test(
-			"upgrade/UpgradeJavaFetchAssetCategoryByExternalReference" +
-				"CodeCheck.testjava",
-			StringBundler.concat(
-				"The fetchAssetCategoryByExternalReferenceCode method from ",
-				"AssetCategoryLocalService and AssetCategoryLocalServiceUtil ",
-				"no longer uses companyId as a parameter and has changed the ",
-				"order of its parameters. Fill the new parameters manually, ",
-				"see LPS-194134."));
 	}
 
 	@Test
@@ -220,19 +200,8 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
-	public void testUpgradeJavaUpdateCommerceAddressCheck() throws Exception {
-		test("upgrade/UpgradeJavaUpdateCommerceAddressCheck.testjava");
-	}
-
-	@Test
 	public void testUpgradeJSPFieldSetGroupCheck() throws Exception {
 		test("upgrade/UpgradeJSPFieldSetGroupCheck.testjsp");
-	}
-
-	@Test
-	public void testUpgradePortletDisplayCheck() throws Exception {
-		test("upgrade/UpgradeJavaPortletDisplayCheck.testjava");
-		test("upgrade/UpgradeJSPPortletDisplayCheck.testjsp");
 	}
 
 	@Test

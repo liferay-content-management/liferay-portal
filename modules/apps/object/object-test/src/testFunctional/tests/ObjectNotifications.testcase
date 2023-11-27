@@ -64,9 +64,10 @@ definition {
 
 			MenuItem.clickNoError(menuItem = "View");
 
-			AssertElementPresent(
-				key_dataSource = "Custom Object 161924",
-				locator1 = "ObjectNotifications#DATA_SOURCE_ATTACHMENTS");
+			AssertTextEquals(
+				key_labelName = "Data Source",
+				locator1 = "ObjectAdmin#CLAY_GENERIC_BUTTON",
+				value1 = "Custom Object 161924");
 
 			AssertElementPresent(locator1 = "ObjectNotifications#FIELD_ATTACHMENTS_OBJECT");
 		}
@@ -183,13 +184,9 @@ definition {
 
 			MenuItem.click(menuItem = "Email");
 
-			Click(
-				key_dataSource = "Select a Data Source",
-				locator1 = "ObjectNotifications#DATA_SOURCE_ATTACHMENTS");
-
-			Click(
-				key_optionName = "Custom Object B 183441",
-				locator1 = "ObjectAdmin#LAYOUT_ADD_FIELD_OPTION");
+			ObjectAdmin.selectDropdownItem(
+				labelName = "Data Source",
+				optionName = "Custom Object B 183441");
 
 			Click(locator1 = "ObjectNotifications#FIELD_ATTACHMENTS_OBJECT");
 		}
@@ -247,7 +244,9 @@ definition {
 				notificationType = "Email",
 				subject = "Subject");
 
-			ObjectNotifications.selectEntity(entityName = "User");
+			ObjectAdmin.selectDropdownItem(
+				labelName = "Entity",
+				optionName = "User");
 
 			var listOfTerms = "Middle Name,Screen Name,Create Date,First Name,Last Login Date,UUID";
 
@@ -276,7 +275,8 @@ definition {
 
 			ObjectNotifications.configureUserNotificationTemplate(
 				description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-				name = "Notification Template",
+				indexRecipient = 2,
+				name = "User Notification Template",
 				recipientType = "User",
 				subject = "Subject content",
 				userName = "Test");
@@ -291,12 +291,14 @@ definition {
 
 			ObjectNotifications.viewUserNotificationTemplateDetails(
 				description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-				name = "Notification Template",
+				name = "User Notification Template",
 				notificationType = "User Notification",
 				recipientType = "User",
 				subject = "Subject content");
 
-			ObjectNotifications.selectEntity(entityName = "User");
+			ObjectAdmin.selectDropdownItem(
+				labelName = "Entity",
+				optionName = "User");
 
 			var listOfTerms = "Middle Name,Screen Name,Create Date,First Name,Last Login Date,UUID";
 
@@ -484,6 +486,7 @@ definition {
 
 			ObjectNotifications.configureUserNotificationTemplate(
 				description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+				indexRecipient = 2,
 				name = "User Notification Template",
 				recipientType = "User",
 				subject = "Subject content",
@@ -809,6 +812,8 @@ definition {
 			ObjectAdmin.goToCustomObject(objectName = "CustomObject178781");
 
 			ObjectPortlet.deleteEntry(entry = "Entry Test");
+
+			Alert.viewSuccessMessage();
 		}
 
 		task ("Then the email is received correctly on the email server") {

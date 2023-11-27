@@ -28,6 +28,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.cache.PortalCache;
+import com.liferay.portal.kernel.content.security.policy.ContentSecurityPolicyNonceProviderUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -229,7 +230,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 		FragmentRendererContext fragmentRendererContext, String html,
 		HttpServletRequest httpServletRequest) {
 
-		StringBundler sb = new StringBundler(25);
+		StringBundler sb = new StringBundler(26);
 
 		sb.append("<div id=\"");
 
@@ -293,8 +294,11 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 		}
 
 		if (Validator.isNotNull(fragmentEntryLink.getJs())) {
-			sb.append("<script>(function() {");
-			sb.append("const configuration = ");
+			sb.append("<script type=\"module\"");
+			sb.append(
+				ContentSecurityPolicyNonceProviderUtil.getNonceAttribute(
+					httpServletRequest));
+			sb.append(">const configuration = ");
 			sb.append(configuration);
 			sb.append("; const fragmentElement = document.querySelector('#");
 			sb.append(fragmentRendererContext.getFragmentElementId());
@@ -322,7 +326,7 @@ public class FragmentEntryFragmentRenderer implements FragmentRenderer {
 						"p_l_mode", Constants.VIEW)));
 			sb.append("';");
 			sb.append(fragmentEntryLink.getJs());
-			sb.append(";}());</script>");
+			sb.append(";</script>");
 		}
 
 		return sb.toString();

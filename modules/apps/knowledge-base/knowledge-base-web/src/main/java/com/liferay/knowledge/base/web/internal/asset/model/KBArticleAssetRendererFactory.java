@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.security.permission.resource.PortletResourcePer
 import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.trash.TrashHelper;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
@@ -52,13 +53,18 @@ public class KBArticleAssetRendererFactory
 	}
 
 	@Override
+	public AssetEntry getAssetEntry(KBArticle kbArticle)
+		throws PortalException {
+
+		return super.getAssetEntry(getClassName(), kbArticle.getClassPK());
+	}
+
+	@Override
 	public AssetEntry getAssetEntry(String className, long classPK)
 		throws PortalException {
 
-		KBArticle kbArticle = _getKBArticle(
-			classPK, WorkflowConstants.STATUS_ANY);
-
-		return super.getAssetEntry(className, kbArticle.getClassPK());
+		return getAssetEntry(
+			_getKBArticle(classPK, WorkflowConstants.STATUS_ANY));
 	}
 
 	@Override
@@ -68,7 +74,7 @@ public class KBArticleAssetRendererFactory
 		KBArticleAssetRenderer kbArticleAssetRenderer =
 			new KBArticleAssetRenderer(
 				_assetDisplayPageFriendlyURLProvider, _htmlParser,
-				_getKBArticle(classPK, _getTypeStatus(type)));
+				_getKBArticle(classPK, _getTypeStatus(type)), _trashHelper);
 
 		kbArticleAssetRenderer.setAssetRendererType(type);
 		kbArticleAssetRenderer.setServletContext(_servletContext);
@@ -138,7 +144,15 @@ public class KBArticleAssetRendererFactory
 			return kbArticle;
 		}
 
-		return _kbArticleLocalService.getLatestKBArticle(classPK, status);
+		kbArticle = _kbArticleLocalService.fetchLatestKBArticle(
+			classPK, status);
+
+		if (kbArticle != null) {
+			return kbArticle;
+		}
+
+		return _kbArticleLocalService.getLatestKBArticle(
+			classPK, WorkflowConstants.STATUS_IN_TRASH);
 	}
 
 	private int _getTypeStatus(int type) {
@@ -177,5 +191,8 @@ public class KBArticleAssetRendererFactory
 		target = "(osgi.web.symbolicname=com.liferay.knowledge.base.web)"
 	)
 	private ServletContext _servletContext;
+
+	@Reference
+	private TrashHelper _trashHelper;
 
 }

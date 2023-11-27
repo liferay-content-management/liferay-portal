@@ -31,6 +31,8 @@ import ${configYAML.apiPackagePath}.client.problem.Problem;
 
 import java.io.File;
 
+import java.net.URL;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -116,6 +118,10 @@ public interface ${schemaName}Resource {
 			_scheme = scheme;
 
 			return this;
+		}
+
+		public Builder endpoint(URL url) {
+			return endpoint(url.getHost(), url.getPort(), url.getProtocol());
 		}
 
 		public Builder header(String key, String value) {

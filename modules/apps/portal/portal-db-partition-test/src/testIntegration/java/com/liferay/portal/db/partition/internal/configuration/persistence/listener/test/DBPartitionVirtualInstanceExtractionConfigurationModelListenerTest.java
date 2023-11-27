@@ -6,7 +6,13 @@
 package com.liferay.portal.db.partition.internal.configuration.persistence.listener.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.test.rule.Inject;
 
+import java.util.Objects;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,12 +29,35 @@ public class DBPartitionVirtualInstanceExtractionConfigurationModelListenerTest
 	}
 
 	@Test
-	public void testConfigurationIsDeletedAfterDeploy() throws Exception {
-		testConfigurationIsDeletedAfterDeploy(_PID, "webId=T\"testWebId\"\n");
+	public void testDeployConfiguration() throws Exception {
+		try (AutoCloseable autoCloseable = swapCompanyLocalService(
+				(proxy, method, args) -> {
+					if (Objects.equals(method.getName(), "extractCompany")) {
+						Assert.assertEquals(
+							COMPANY_IDS[0], GetterUtil.getLong(args[0]));
+
+						_calledExtractCompany = true;
+					}
+
+					return null;
+				})) {
+
+			deployConfiguration(
+				_PID, "companyId=L\"" + COMPANY_IDS[0] + "\"\n");
+
+			Assert.assertTrue(_calledExtractCompany);
+
+			verifyConfigurationIsDeletedAfterDeploy(_PID);
+		}
 	}
 
 	private static final String _PID =
 		"com.liferay.portal.db.partition.internal.configuration." +
 			"DBPartitionVirtualInstanceExtractionConfiguration";
+
+	private boolean _calledExtractCompany;
+
+	@Inject
+	private CompanyLocalService _companyLocalService;
 
 }

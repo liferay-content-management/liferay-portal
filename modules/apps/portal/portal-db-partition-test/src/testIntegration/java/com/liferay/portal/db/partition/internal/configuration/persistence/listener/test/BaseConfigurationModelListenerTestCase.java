@@ -10,10 +10,14 @@ import com.liferay.portal.configuration.persistence.listener.ConfigurationModelL
 import com.liferay.portal.configuration.test.util.ConfigurationTestUtil;
 import com.liferay.portal.db.partition.test.util.BaseDBPartitionTestCase;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.util.PropsValues;
+
+import java.lang.reflect.InvocationHandler;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -57,10 +61,7 @@ public abstract class BaseConfigurationModelListenerTestCase
 		_deleteConfiguration();
 	}
 
-	protected abstract String getListenerName();
-
-	protected void testConfigurationIsDeletedAfterDeploy(
-			String pid, String content)
+	protected void deployConfiguration(String pid, String content)
 		throws Exception {
 
 		_waitForConfigurationModelListenerEnabled();
@@ -82,18 +83,43 @@ public abstract class BaseConfigurationModelListenerTestCase
 					"(service.pid=" + pid + ")"));
 
 			_countDownLatch.await(10, TimeUnit.SECONDS);
-
-			Assert.assertFalse(Files.exists(_configurationPath));
-
-			Assert.assertNull(
-				_configurationAdmin.listConfigurations(
-					"(service.pid=" + pid + ")"));
-
-			Assert.assertNull(
-				ReflectionTestUtil.invoke(
-					_persistenceManager, "_getDictionary",
-					new Class<?>[] {String.class}, pid));
 		}
+	}
+
+	protected abstract String getListenerName();
+
+	protected AutoCloseable swapCompanyLocalService(
+			InvocationHandler invocationHandler)
+		throws Exception {
+
+		_waitForConfigurationModelListenerEnabled();
+
+		CompanyLocalService companyLocalService =
+			ReflectionTestUtil.getAndSetFieldValue(
+				_configurationModelListener, "_companyLocalService",
+				(CompanyLocalService)ProxyUtil.newProxyInstance(
+					CompanyLocalService.class.getClassLoader(),
+					new Class<?>[] {CompanyLocalService.class},
+					invocationHandler));
+
+		return () -> ReflectionTestUtil.setFieldValue(
+			_configurationModelListener, "_companyLocalService",
+			companyLocalService);
+	}
+
+	protected void verifyConfigurationIsDeletedAfterDeploy(String pid)
+		throws Exception {
+
+		Assert.assertFalse(Files.exists(_configurationPath));
+
+		Assert.assertNull(
+			_configurationAdmin.listConfigurations(
+				"(service.pid=" + pid + ")"));
+
+		Assert.assertNull(
+			ReflectionTestUtil.invoke(
+				_persistenceManager, "_getDictionary",
+				new Class<?>[] {String.class}, pid));
 	}
 
 	private Configuration _createConfiguration(
@@ -143,7 +169,7 @@ public abstract class BaseConfigurationModelListenerTestCase
 			SystemBundleUtil.getBundleContext(),
 			"(component.name=*." + getListenerName() + ")");
 
-		serviceTracker.waitForService(10000);
+		_configurationModelListener = serviceTracker.waitForService(10000);
 
 		serviceTracker.close();
 	}
@@ -151,6 +177,7 @@ public abstract class BaseConfigurationModelListenerTestCase
 	@Inject
 	private ConfigurationAdmin _configurationAdmin;
 
+	private Object _configurationModelListener;
 	private Path _configurationPath;
 	private CountDownLatch _countDownLatch;
 

@@ -175,15 +175,19 @@ definition {
 		task ("And Change de View for Dataset view Test") {
 			PageEditor.gotoConfiguration(fragmentName = "Data Set");
 
-			Click.javaScriptClick(locator1 = "DataSet#SELECT_DATA_SET_VIEW");
+			Click.mouseOverClick(
+				ariaLabel = "Select Data Set View",
+				locator1 = "Button#ANY_WITH_ARIA_LABEL");
+
+			MenuItem.click(menuItem = "Select Data Set View...");
 
 			SelectFrame(
 				key_title = "Select",
 				locator1 = "IFrame#MODAL_ANY");
 
-			Click.clickAtNotVisible(
-				key_radioOption = "Abbreviations view",
-				locator1 = "CommerceEntry#RADIO_BUTTON");
+			Click.mouseOverClick(
+				key_itemName = "Full countries View",
+				locator1 = "DataSet#NAME_OF_VIEWS");
 		}
 
 		task ("And clicking back button on the top of the page") {
@@ -1024,10 +1028,9 @@ definition {
 		task ("Then Confirm that the select view button changes to the name of the selected view") {
 			SelectFrameTop();
 
-			AssertAttributeValue(
+			AssertElementPresent(
 				locator1 = "DataSet#SELECT_DATA_SET_VIEW",
-				value1 = "title",
-				value2 = "Full countries View");
+				value1 = "Full countries View");
 		}
 	}
 

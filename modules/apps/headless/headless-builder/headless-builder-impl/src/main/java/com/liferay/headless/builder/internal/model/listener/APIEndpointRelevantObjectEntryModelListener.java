@@ -8,6 +8,7 @@ package com.liferay.headless.builder.internal.model.listener;
 import com.liferay.headless.builder.application.APIApplication;
 import com.liferay.headless.builder.constants.HeadlessBuilderConstants;
 import com.liferay.headless.builder.internal.helper.ObjectEntryHelper;
+import com.liferay.headless.builder.internal.helper.ValidationHelper;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.exception.ObjectEntryValuesException;
 import com.liferay.object.model.ObjectDefinition;
@@ -25,7 +26,7 @@ import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -124,14 +125,11 @@ public class APIEndpointRelevantObjectEntryModelListener
 		try {
 			Map<String, Serializable> values = objectEntry.getValues();
 
-			String pathString = (String)values.get("path");
+			long apiApplicationId = (long)values.get(
+				"r_apiApplicationToAPIEndpoints_c_apiApplicationId");
 
-			long apiApplicationId = GetterUtil.getLong(
-				values.get(
-					"r_apiApplicationToAPIEndpoints_c_apiApplicationId"));
-
-			if (!_objectEntryHelper.isValidObjectEntry(
-					apiApplicationId, "L_API_APPLICATION")) {
+			if (!_validationHelper.isValidObjectEntry(
+					"L_API_APPLICATION", apiApplicationId)) {
 
 				throw new ObjectEntryValuesException.InvalidObjectField(
 					null,
@@ -139,71 +137,47 @@ public class APIEndpointRelevantObjectEntryModelListener
 					"an-api-endpoint-must-be-related-to-an-api-application");
 			}
 
-			long responseAPISchemaId = GetterUtil.getLong(
-				values.get("r_responseAPISchemaToAPIEndpoints_c_apiSchemaId"));
+			long responseAPISchemaId = (long)values.get(
+				"r_responseAPISchemaToAPIEndpoints_c_apiSchemaId");
+
+			APIApplication.Endpoint.Scope scope =
+				APIApplication.Endpoint.Scope.parse(
+					(String)values.get("scope"));
 
 			if (responseAPISchemaId != 0) {
-				_validateAPISchema(apiApplicationId, responseAPISchemaId);
+				_validateAPISchema(
+					apiApplicationId, responseAPISchemaId, scope);
 			}
 
-			if (Objects.equals(
-					APIApplication.Endpoint.RetrieveType.parse(
-						(String)values.get("retrieveType")),
-					APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT)) {
+			long requestAPISchemaId = (long)values.get(
+				"r_requestAPISchemaToAPIEndpoints_c_apiSchemaId");
 
-				String pathParameter = (String)values.get("pathParameter");
-
-				_validateSingleElementPath(
-					objectEntry, pathParameter, pathString,
-					responseAPISchemaId);
-
-				if (Validator.isNull(pathParameter) &&
-					Validator.isNotNull(
-						(String)values.get("pathParameterDescription"))) {
-
-					throw new ObjectEntryValuesException.InvalidObjectField(
-						null,
-						"Path parameter description cannot be set with empty " +
-							"path parameter property",
-						"path-parameter-description-cannot-be-set-with-empty-" +
-							"path-parameter-property");
-				}
+			if (requestAPISchemaId != 0) {
+				_validateAPISchema(apiApplicationId, requestAPISchemaId, scope);
 			}
-			else {
-				Matcher matcher = _pathPattern.matcher(pathString);
 
-				if (!matcher.matches()) {
-					User user = _userLocalService.getUser(
-						objectEntry.getUserId());
+			Http.Method method = Http.Method.valueOf(
+				StringUtil.toUpperCase((String)values.get("httpMethod")));
 
-					ObjectField objectField =
-						_objectFieldLocalService.getObjectField(
-							objectEntry.getObjectDefinitionId(), "path");
+			if (Objects.equals(method, Http.Method.GET)) {
+				_validateGetAPIEndpoint(objectEntry, responseAPISchemaId);
+			}
+			else if (Objects.equals(method, Http.Method.POST)) {
+				_validatePostAPIEndpoint(objectEntry);
+			}
 
-					String message =
-						"%s can have a maximum of 255 alphanumeric characters";
-					String messageKey =
-						"x-can-have-a-maximum-of-255-alphanumeric-characters";
+			String pathParameter = (String)values.get("pathParameter");
 
-					if (!pathString.startsWith(StringPool.FORWARD_SLASH)) {
-						message = "%s must start with the \"/\" character";
-						messageKey = "x-must-start-with-the-x-character";
-					}
+			if (Validator.isNull(pathParameter) &&
+				Validator.isNotNull(
+					(String)values.get("pathParameterDescription"))) {
 
-					// Order matters in checking pathString
-
-					if (!StringUtil.isLowerCase(pathString)) {
-						message = "%s must contain only lower case characters";
-						messageKey =
-							"x-must-contain-only-lower-case-characters";
-					}
-
-					String label = objectField.getLabel(user.getLocale());
-
-					throw new ObjectEntryValuesException.InvalidObjectField(
-						Arrays.asList(label, "\"/\""),
-						String.format(message, label), messageKey);
-				}
+				throw new ObjectEntryValuesException.InvalidObjectField(
+					null,
+					"Path parameter description cannot be set with empty " +
+						"path parameter property",
+					"path-parameter-description-cannot-be-set-with-empty-" +
+						"path-parameter-property");
 			}
 
 			String filterString = StringBundler.concat(
@@ -235,20 +209,15 @@ public class APIEndpointRelevantObjectEntryModelListener
 					"there-is-an-api-endpoint-with-the-same-http-method-and-" +
 						"path");
 			}
-
-			long requestAPISchemaId = GetterUtil.getLong(
-				values.get("r_requestAPISchemaToAPIEndpoints_c_apiSchemaId"));
-
-			if (requestAPISchemaId != 0) {
-				_validateAPISchema(apiApplicationId, requestAPISchemaId);
-			}
 		}
 		catch (Exception exception) {
 			throw new ModelListenerException(exception);
 		}
 	}
 
-	private void _validateAPISchema(long apiApplicationId, long apiSchemaId)
+	private void _validateAPISchema(
+			long apiApplicationId, long apiSchemaId,
+			APIApplication.Endpoint.Scope scope)
 		throws Exception {
 
 		ObjectEntry objectEntry = _objectEntryLocalService.fetchObjectEntry(
@@ -286,6 +255,115 @@ public class APIEndpointRelevantObjectEntryModelListener
 				"the-api-endpoint-and-the-api-schema-must-be-related-to-the-" +
 					"same-api-application");
 		}
+
+		Map<String, Serializable> values = objectEntry.getValues();
+
+		ObjectDefinition mainObjectDefinition =
+			_objectDefinitionLocalService.
+				getObjectDefinitionByExternalReferenceCode(
+					(String)values.get("mainObjectDefinitionERC"),
+					objectEntry.getCompanyId());
+
+		if (!Objects.equals(
+				mainObjectDefinition.getScope(), scope.getValue())) {
+
+			throw new ObjectEntryValuesException.InvalidObjectField(
+				null,
+				"The API endpoint and the API schema must have the same scope",
+				"the-api-endpoint-and-the-api-schema-must-have-the-same-scope");
+		}
+	}
+
+	private void _validateGetAPIEndpoint(
+			ObjectEntry objectEntry, long responseAPISchemaId)
+		throws Exception {
+
+		Map<String, Serializable> values = objectEntry.getValues();
+
+		String pathString = (String)values.get("path");
+
+		if (Objects.equals(
+				APIApplication.Endpoint.RetrieveType.parse(
+					(String)values.get("retrieveType")),
+				APIApplication.Endpoint.RetrieveType.SINGLE_ELEMENT)) {
+
+			String pathParameter = (String)values.get("pathParameter");
+
+			_validateSingleElementPath(
+				objectEntry, pathParameter, pathString, responseAPISchemaId);
+		}
+		else {
+			_validatePath(objectEntry, pathString);
+		}
+	}
+
+	private void _validatePath(ObjectEntry objectEntry, String pathString)
+		throws Exception {
+
+		Matcher matcher = _pathPattern.matcher(pathString);
+
+		if (!matcher.matches()) {
+			User user = _userLocalService.getUser(objectEntry.getUserId());
+
+			ObjectField objectField = _objectFieldLocalService.getObjectField(
+				objectEntry.getObjectDefinitionId(), "path");
+
+			String message =
+				"%s can have a maximum of 255 alphanumeric characters";
+			String messageKey =
+				"x-can-have-a-maximum-of-255-alphanumeric-characters";
+
+			if (!pathString.startsWith(StringPool.FORWARD_SLASH)) {
+				message = "%s must start with the \"/\" character";
+				messageKey = "x-must-start-with-the-x-character";
+			}
+
+			if (!StringUtil.isLowerCase(pathString)) {
+				message = "%s must contain only lower case characters";
+				messageKey = "x-must-contain-only-lower-case-characters";
+			}
+
+			String label = objectField.getLabel(user.getLocale());
+
+			throw new ObjectEntryValuesException.InvalidObjectField(
+				Arrays.asList(label, "\"/\""), String.format(message, label),
+				messageKey);
+		}
+	}
+
+	private void _validatePostAPIEndpoint(ObjectEntry objectEntry)
+		throws Exception {
+
+		Map<String, Serializable> values = objectEntry.getValues();
+
+		if (Objects.equals(
+				APIApplication.Endpoint.RetrieveType.parse(
+					(String)values.get("retrieveType")),
+				APIApplication.Endpoint.RetrieveType.COLLECTION)) {
+
+			throw new ObjectEntryValuesException.InvalidObjectField(
+				Arrays.asList("singleElement"),
+				"POST API endpoints retrieve type must be \"singleElement\"",
+				"post-api-endpoints-retrieve-type-must-be-x");
+		}
+
+		String pathString = (String)values.get("path");
+
+		String pathInParameterString = StringUtil.extractLast(
+			pathString, StringPool.FORWARD_SLASH);
+
+		Matcher curlyBraceMatcher = _curlyBracePattern.matcher(
+			pathInParameterString);
+
+		String pathParameter = (String)values.get("pathParameter");
+
+		if (!Validator.isBlank(pathParameter) || curlyBraceMatcher.matches()) {
+			throw new ObjectEntryValuesException.InvalidObjectField(
+				null, "Path parameters are not supported by POST API endpoints",
+				"path-parameters-are-not-supported-by-post-api-endpoints");
+		}
+
+		_validatePath(objectEntry, pathString);
 	}
 
 	private void _validateSingleElementPath(
@@ -323,14 +401,14 @@ public class APIEndpointRelevantObjectEntryModelListener
 		if (Objects.equals(
 				APIApplication.Endpoint.Scope.parse(
 					(String)values.get("scope")),
-				APIApplication.Endpoint.Scope.GROUP) &&
+				APIApplication.Endpoint.Scope.SITE) &&
 			Objects.equals(
 				pathParameter, HeadlessBuilderConstants.PATH_PARAMETER_ID)) {
 
 			throw new ObjectEntryValuesException.InvalidObjectField(
 				Arrays.asList(objectField.getLabel(user.getLocale())),
-				"Single element ID endpoint cannot be scoped by group",
-				"single-element-id-endpoint-cannot-be-scoped-by-group");
+				"Single element ID endpoint cannot be scoped by site",
+				"single-element-id-endpoint-cannot-be-scoped-by-site");
 		}
 
 		Matcher singleElementPathMatcher = _singleElementPathPattern.matcher(
@@ -392,5 +470,8 @@ public class APIEndpointRelevantObjectEntryModelListener
 
 	@Reference
 	private UserLocalService _userLocalService;
+
+	@Reference
+	private ValidationHelper _validationHelper;
 
 }

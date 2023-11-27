@@ -102,6 +102,8 @@ const ActivitiesChart: React.FC<IChartProps<IActivitiesHistory<number>>> = ({
 				/>
 			);
 		}
+
+		return null;
 	};
 
 	const intervals = getIntervals(
@@ -193,6 +195,7 @@ const ActivitiesChart: React.FC<IChartProps<IActivitiesHistory<number>>> = ({
 						tickLine={false}
 						tickMargin={12}
 						ticks={intervals}
+						type='number'
 					/>
 
 					<XAxis

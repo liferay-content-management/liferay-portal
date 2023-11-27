@@ -162,7 +162,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 		GroupTestUtil.deleteGroup(testGroup);
 	}
 
-	<#assign properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema) />
+	<#assign properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema, allSchemas) />
 
 	<#if javaDataTypeMap?keys?seq_contains(schemaName)>
 		@Test
@@ -239,7 +239,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 	</#if>
 
 	<#assign
-		enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema)
+		enumSchemas = freeMarkerTool.getDTOEnumSchemas(configYAML, openAPIYAML, schema)
 		generateGetMultipartFilesMethod = false
 		generateSearchTestRule = false
 		randomDataTypes = ["Boolean", "Double", "Integer", "Long", "String"]
@@ -248,7 +248,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 	<#list javaMethodSignatures as javaMethodSignature>
 		<#assign
 			arguments = freeMarkerTool.getResourceTestCaseArguments(javaMethodSignature.javaMethodParameters)
-			parameters = freeMarkerTool.getResourceTestCaseParameters(javaMethodSignature.javaMethodParameters, openAPIYAML, javaMethodSignature.operation, false)
+			parameters = freeMarkerTool.getResourceTestCaseParameters(configYAML, javaMethodSignature.javaMethodParameters, javaMethodSignature.operation, allSchemas, false)
 		/>
 
 		<#if stringUtil.endsWith(javaMethodSignature.methodName, schemaName + "Batch") || stringUtil.endsWith(javaMethodSignature.methodName, schemaNames + "PageExportBatch")>
@@ -1963,7 +1963,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 
 	<#list relatedSchemaNames as relatedSchemaName>
 		<#assign
-			relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName)
+			relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName, allSchemas)
 			relatedSchemaVarName = freeMarkerTool.getSchemaVarName(relatedSchemaName)
 		/>
 
@@ -2202,7 +2202,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 
 	<#list relatedSchemaNames as relatedSchemaName>
 		<#assign
-			relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName)
+			relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName, allSchemas)
 			relatedSchemaVarName = freeMarkerTool.getSchemaVarName(relatedSchemaName)
 		/>
 
@@ -2336,7 +2336,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 
 	<#list relatedSchemaNames as relatedSchemaName>
 		<#assign
-			relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName)
+			relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName, allSchemas)
 			relatedSchemaVarName = freeMarkerTool.getSchemaVarName(relatedSchemaName)
 		/>
 
@@ -2520,7 +2520,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 
 	<#list relatedSchemaNames as relatedSchemaName>
 		<#assign
-			relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName)
+			relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName, allSchemas)
 			relatedSchemaVarName = freeMarkerTool.getSchemaVarName(relatedSchemaName)
 		/>
 
@@ -2775,7 +2775,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 		protected ${relatedSchemaName} random${relatedSchemaName}() throws Exception {
 			return new ${relatedSchemaName}() {
 				{
-					<#assign relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName) />
+					<#assign relatedSchemaProperties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, relatedSchemaName, allSchemas) />
 
 					<#list relatedSchemaProperties?keys as propertyName>
 						<#if randomDataTypes?seq_contains(relatedSchemaProperties[propertyName])>

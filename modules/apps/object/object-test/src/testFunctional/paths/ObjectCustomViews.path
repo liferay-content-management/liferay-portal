@@ -131,11 +131,6 @@
 		<td></td>
 	</tr>
 	<tr>
-		<td>SELECT_AUTO_COMPLETE</td>
-		<td>//div[contains(@class, 'select__content')]//span[contains(text(),'Choose an Option')]</td>
-		<td></td>
-	</tr>
-	<tr>
 		<td>SELECT_AUTO_COMPLETE_OPTION</td>
 		<td>//button[(@class='dropdown-item') and contains(.,'${key_columnOption}')]</td>
 		<td></td>
@@ -238,11 +233,6 @@
 	<tr>
 		<td>ADD_BUTTON_FILTERS</td>
 		<td>//h3[(@class='lfr-objects__card-title') and text()='Filters']/../..//button[contains(@class,'nav-btn nav-btn-monospaced btn btn-monospaced btn-primary')]</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>SELECT_FILTER_GENERIC</td>
-		<td>//label[contains(.,'${key_filterLabel}')]//..//input[@placeholder='Choose an Option']</td>
 		<td></td>
 	</tr>
 	<tr>

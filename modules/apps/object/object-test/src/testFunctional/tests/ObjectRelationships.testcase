@@ -46,16 +46,6 @@ definition {
 			userLastName = "userln",
 			userScreenName = "usersn");
 
-		ObjectAdmin.openObjectAdmin();
-
-		ObjectPortlet.selectCustomObject(label = "User");
-
-		CreateObject.selectTitleField(fieldLabel = "First Name");
-
-		CreateObject.saveObject();
-
-		Navigator.openURL();
-
 		ObjectAdmin.addObjectRelationshipViaAPI(
 			objectName_1 = "User",
 			objectName_2 = "CustomObject288",
@@ -112,16 +102,6 @@ definition {
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
-
-		ObjectAdmin.openObjectAdmin();
-
-		ObjectPortlet.selectCustomObject(label = "User");
-
-		CreateObject.selectTitleField(fieldLabel = "First Name");
-
-		CreateObject.saveObject();
-
-		Navigator.openURL();
 
 		ObjectAdmin.addObjectRelationshipViaAPI(
 			objectName_1 = "User",
@@ -585,16 +565,6 @@ definition {
 			PortletEntry.save();
 		}
 
-		task ("Define First Name as a title field on the native object") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "User");
-
-			CreateObject.selectTitleField(fieldLabel = "First Name");
-
-			CreateObject.saveObject();
-		}
-
 		task ("Add 2 entries by API to relate to user entries") {
 			for (var entryName : list "A,B") {
 				ObjectAdmin.addObjectSingleFieldEntryViaAPI(
@@ -709,14 +679,6 @@ definition {
 				userFirstName = "userfn",
 				userLastName = "userln",
 				userScreenName = "usersn");
-
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "User");
-
-			CreateObject.selectTitleField(fieldLabel = "First Name");
-
-			CreateObject.saveObject();
 		}
 
 		task ("Add a relationship between a Custom Object and Native Object") {
@@ -834,16 +796,6 @@ definition {
 				tabName = "Relationship Tab");
 
 			PortletEntry.save();
-		}
-
-		task ("Define First Name as a title field on the native object") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "User");
-
-			CreateObject.selectTitleField(fieldLabel = "First Name");
-
-			CreateObject.saveObject();
 		}
 
 		task ("Add 2 entries by API to relate to user entries") {
@@ -1289,40 +1241,6 @@ definition {
 		}
 	}
 
-	@description = "LPS-146754 - Verify that it's not possible for a Custom Object to create a Many-to-Many relationship with itself"
-	@priority = 4
-	test CannotCreateManytoManyRelationshipWithItself {
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
-
-		task ("Create Custom Object") {
-			ObjectAdmin.addObjectViaAPI(
-				labelName = "Custom Object 290",
-				objectName = "CustomObject290",
-				pluralLabelName = "Custom Objects 290");
-
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "Custom Object 290");
-		}
-
-		task ("Go to Relationships tab and click to create a Many-to-Many relationship") {
-			ObjectAdmin.gotoRelationshipsTab();
-
-			LexiconEntry.gotoAdd();
-
-			ObjectField.selectType(fieldType = "Many to Many");
-		}
-
-		task ("Assert that the Custom Object created is not present") {
-			Click(locator1 = "ObjectCustomViews#SELECT_AUTO_COMPLETE");
-
-			AssertElementNotPresent(
-				key_columnOption = "Custom Objects 290",
-				locator1 = "ObjectCustomViews#SELECT_AUTO_COMPLETE_OPTION");
-		}
-	}
-
 	@description = "LPS-152508 - Verify that it's not possible to delete a Many-to-Many relationship from the child side"
 	@priority = 4
 	test CannotDeleteManyToManyRelationshipFromChildSide {
@@ -1603,65 +1521,6 @@ definition {
 		}
 	}
 
-	@description = "LPS-155537 - Verify that it's not possible to see the parameter when adding relationships that don't require it"
-	@priority = 3
-	test CannotSeeParameterWhenNotRequiredByRelationship {
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
-
-		task ("Create a custom object, and a relationship non-require by API") {
-			ObjectAdmin.addObjectViaAPI(
-				labelName = "Custom Object",
-				objectName = "CustomObject",
-				pluralLabelName = "Custom Objects");
-
-			ObjectAdmin.addObjectFieldViaAPI(
-				fieldBusinessType = "Text",
-				fieldLabelName = "Custom Field",
-				fieldName = "customField",
-				fieldType = "String",
-				isRequired = "false",
-				objectName = "CustomObject");
-
-			ObjectAdmin.addObjectRelationshipViaAPI(
-				objectName_1 = "CustomObject",
-				objectName_2 = "AccountEntry",
-				relationshipLabel = "Non-require relationship",
-				relationshipName = "Non-requirerelationship",
-				relationshipType = "oneToMany");
-
-			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
-		}
-
-		task ("Verify it's not possible to see the parameter when adding relationships that don't require it") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "Postal Address");
-
-			ObjectAdmin.gotoRelationshipsTab();
-
-			LexiconEntry.gotoAdd();
-
-			Click(locator1 = "ObjectAdmin#RELATIONSHIPS_TYPE_FORM");
-
-			Click(
-				key_type = "One to Many",
-				locator1 = "ObjectAdmin#SELECT_RELATIONSHIPS_TYPE_OPTION");
-
-			Click(locator1 = "ObjectCustomViews#SELECT_AUTO_COMPLETE");
-
-			Click(
-				key_columnOption = "Custom Object",
-				locator1 = "ObjectCustomViews#SELECT_AUTO_COMPLETE_OPTION");
-
-			Click(locator1 = "ObjectRelationships#SELECT_PARAMETER_FORM");
-
-			AssertElementNotPresent(
-				key_parameterOption = "Non-require relationship",
-				locator1 = "ObjectRelationships#SELECT_PARAMETER_OPTION");
-		}
-	}
-
 	@description = "LPS-139803 - It is not possible to select a Relationship field for the Object Entry Title"
 	@priority = 4
 	test CannotSelectRelationshipFieldForObjectEntryTitle {
@@ -1690,33 +1549,26 @@ definition {
 	@description = "LPS-163655 - Verify that the user is not allowed to update the Name, Type or Object from the parent Relationship"
 	@priority = 4
 	test CannotUpdateNameTypeObjectFromParentRelationship {
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
-
 		task ("Given an object related to itself, in a Many-to-Many relationship") {
 			ObjectAdmin.addObjectViaAPI(
-				labelName = "Custom Object LPS163655",
-				objectName = "CustomObjectLPS163655",
-				pluralLabelName = "Custom Objects LPS163655");
+				labelName = "Custom Object 163655",
+				objectName = "CustomObject163655",
+				pluralLabelName = "Custom Objects 163655");
 
 			ObjectAdmin.addObjectFieldViaAPI(
 				fieldBusinessType = "Text",
-				fieldLabelName = "Custom Field",
-				fieldName = "customObjectField",
+				fieldLabelName = "Text Field",
+				fieldName = "textField",
 				fieldType = "String",
 				isRequired = "false",
-				objectName = "CustomObjectLPS163655");
+				objectName = "CustomObject163655");
 
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "Custom Object LPS163655");
-
-			ObjectAdmin.gotoRelationshipsTab();
-
-			ObjectAdmin.addObjectRelationshipViaUI(
-				label = "Relationship",
-				object = "Custom Object LPS163655",
-				type = "Many to Many");
+			ObjectAdmin.addObjectRelationshipViaAPI(
+				objectName_1 = "CustomObject163655",
+				objectName_2 = "CustomObject163655",
+				relationshipLabel = "Relationship",
+				relationshipName = "relationship",
+				relationshipType = "manyToMany");
 
 			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject163655");
 		}
@@ -1724,32 +1576,27 @@ definition {
 		task ("When the user edits the Parent relationships on the Relationship tab") {
 			ObjectAdmin.openObjectAdmin();
 
-			ObjectPortlet.selectCustomObject(label = "Custom Object LPS163655");
+			ObjectPortlet.selectCustomObject(label = "Custom Object 163655");
 
 			ObjectAdmin.gotoRelationshipsTab();
 
-			Click(
-				key_index = 1,
-				key_labelName = "Relationship",
-				locator1 = "CreateObject#OBJECT_NAME_INDEX");
-
-			SelectFrame(
-				key_title = "",
-				locator1 = "IFrame#MODAL_ANY");
+			ObjectAdmin.goToRelationshipsDetails(fieldName = "Relationship");
 		}
 
 		task ("Then the fields Name, Type and Object can not be updated") {
+			AssertElementPresent(locator1 = "CreateObject#DISABLED_OBJECT_NAME");
+
 			AssertElementPresent(
-				key_relation = "relationship",
+				key_relation = "Relationship",
 				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_DISABLED_NAME_OR_TYPE");
+
+			AssertElementPresent(
+				key_valueName = "Custom Object 163655",
+				locator1 = "ObjectRelationships#VIEW_VALUE_DISABLED");
 
 			AssertElementPresent(
 				key_relation = "Many to Many",
 				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_DISABLED_NAME_OR_TYPE");
-
-			AssertElementPresent(
-				key_relationObject = "Custom Object LPS163655",
-				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_DISABLED_OBJECT");
 		}
 	}
 
@@ -1851,16 +1698,6 @@ definition {
 			}
 		}
 
-		task ("Define First Name as a title field on the native object") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "User");
-
-			CreateObject.selectTitleField(fieldLabel = "First Name");
-
-			CreateObject.saveObject();
-		}
-
 		task ("Relates custom object entries to user object entries") {
 			Navigator.openURL();
 
@@ -1930,16 +1767,6 @@ definition {
 				value = "Entry A");
 		}
 
-		task ("Define First Name as a title field on the native object") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "User");
-
-			CreateObject.selectTitleField(fieldLabel = "First Name");
-
-			CreateObject.saveObject();
-		}
-
 		task ("Add layout with relationship tab") {
 			ObjectAdmin.addObjectLayoutViaAPI(
 				layoutName = "Custom Layout",
@@ -2005,16 +1832,6 @@ definition {
 			userFirstName = "userfn",
 			userLastName = "userln",
 			userScreenName = "usersn");
-
-		ObjectAdmin.openObjectAdmin();
-
-		ObjectPortlet.selectCustomObject(label = "User");
-
-		CreateObject.selectTitleField(fieldLabel = "First Name");
-
-		CreateObject.saveObject();
-
-		Navigator.openURL();
 
 		ObjectAdmin.addObjectRelationshipViaAPI(
 			objectName_1 = "User",
@@ -2107,17 +1924,19 @@ definition {
 				key_type = "Relationships",
 				locator1 = "ObjectAdmin#TAB_TYPE");
 
-			Click(locator1 = "ObjectAdmin#LAYOUT_ENTRY_CHOOSE_OPTION");
+			Click(
+				key_labelName = "Relationship",
+				locator1 = "ObjectAdmin#CLAY_GENERIC_BUTTON");
 		}
 
 		task ("Assert that a label indicating the Parent and Child relationships are displayed") {
 			AssertElementPresent(
-				key_relationType = "Parent",
-				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS");
+				key_optionName = "Parent",
+				locator1 = "ObjectAdmin#CLAY_GENERIC_DROPDOWN_ITEM");
 
 			AssertElementPresent(
-				key_relationType = "Child",
-				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS");
+				key_optionName = "Child",
+				locator1 = "ObjectAdmin#CLAY_GENERIC_DROPDOWN_ITEM");
 		}
 	}
 
@@ -2291,7 +2110,7 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = "User");
 
-		CreateObject.selectTitleField(fieldLabel = "First Name");
+		CreateObject.selectTitleField(fieldLabel = "Screen Name");
 
 		CreateObject.saveObject();
 
@@ -2299,9 +2118,107 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = "User");
 
-		AssertElementPresent(
-			locator1 = "CreateObject#TITLE_FIELD",
-			value1 = "First Name");
+		AssertTextEquals(
+			key_labelName = "Entry Title Field",
+			locator1 = "ObjectAdmin#CLAY_GENERIC_BUTTON",
+			value1 = "Screen Name");
+	}
+
+	@description = "LPS-193697 - Verify the user can switch the relationship order between the parent and child object definitions"
+	@priority = 4
+	test CanSwitchRelationshipOrder {
+		task ("Given an object folder with two object definitions") {
+			property custom.properties = "feature.flag.LPS-148856=true";
+
+			var objectFolderERC = JSONObjectFolder.addFolder(
+				folderLabel = "Custom Folder 193697",
+				folderName = "CustomFolder193697");
+
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 193",
+				objectName = "CustomObject193",
+				pluralLabelName = "Custom Objects 193");
+
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 697",
+				objectName = "CustomObject697",
+				pluralLabelName = "Custom Objects 697");
+
+			JSONObject.updateObject(
+				configKey = "objectFolderExternalReferenceCode",
+				configValue = ${objectFolderERC},
+				objectName = "CustomObject193");
+
+			JSONObject.updateObject(
+				configKey = "objectFolderExternalReferenceCode",
+				configValue = ${objectFolderERC},
+				objectName = "CustomObject697");
+		}
+
+		task ("and Given the user creates a 1:M relationship between them using the Add Relationship button") {
+			ObjectAdmin.openObjectAdmin();
+
+			Click(
+				key_label = "Custom Folder 193697",
+				locator1 = "ObjectPortlet#SELECT_OBJECT_FOLDER");
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 193");
+
+			ObjectAdmin.gotoRelationshipsTab();
+
+			LexiconEntry.gotoAdd();
+
+			Type(
+				locator1 = "ObjectAdmin#LABEL_OBJECT_RELATIONSHIP",
+				value1 = "Relationship");
+
+			ObjectAdmin.selectDropdownItem(
+				labelName = "Type",
+				optionName = "One to Many");
+
+			ObjectAdmin.selectDropdownItem(
+				labelName = "Many Records Of",
+				optionName = "Custom Object 697");
+		}
+
+		task ("When the user clicks on the switch button") {
+			Click(
+				key_text = "",
+				locator1 = "Button#ANY_SECONDARY");
+		}
+
+		task ("Then the parent and child object definitions are switched") {
+			AssertElementPresent(
+				key_relationObject = "Custom Object 697",
+				key_relationType = "One Record Of",
+				locator1 = "ObjectRelationships#SELECTED_OBJECT_IN_MODAL");
+
+			AssertElementPresent(
+				key_relationObject = "Custom Object 193",
+				key_relationType = "Many Records Of",
+				locator1 = "ObjectRelationships#SELECTED_OBJECT_IN_MODAL");
+		}
+
+		task ("and When the user clicks save") {
+			Button.clickSave();
+		}
+
+		task ("Then a relationship between the two object definitions is created") {
+			ObjectAdmin.openObjectAdmin();
+
+			Click(
+				key_label = "Custom Folder 193697",
+				locator1 = "ObjectPortlet#SELECT_OBJECT_FOLDER");
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 697");
+
+			ObjectAdmin.gotoRelationshipsTab();
+
+			AssertElementPresent(
+				key_label = "Relationship",
+				key_relatedObject = "CustomObject193",
+				locator1 = "ObjectRelationships#OPTIONS_TAB_RELATIONSHIPS_LABEL_AND_RELATED_OBJECT");
+		}
 	}
 
 	@description = "LPS-143021 - Verify it is possible to view and add entries on an Object after creating a Relationship One to Many for it"
@@ -2367,17 +2284,13 @@ definition {
 
 			LexiconEntry.gotoAdd();
 
-			Click(locator1 = "ObjectAdmin#RELATIONSHIPS_TYPE_FORM");
+			ObjectAdmin.selectDropdownItem(
+				labelName = "Type",
+				optionName = "Many to Many");
 
-			Click(
-				key_type = "Many to Many",
-				locator1 = "ObjectAdmin#SELECT_RELATIONSHIPS_TYPE_OPTION");
-
-			Click(locator1 = "ObjectCustomViews#SELECT_AUTO_COMPLETE");
-
-			Click(
-				key_columnOption = "Custom Object 195296",
-				locator1 = "ObjectCustomViews#SELECT_AUTO_COMPLETE_OPTION");
+			ObjectAdmin.selectDropdownItem(
+				labelName = "Many Records Of",
+				optionName = "Custom Object 195296");
 		}
 
 		task ("Then the switch button is no longer present") {

@@ -63,7 +63,7 @@ create index IX_5B6AC3B8 on AssetEntry (visible, ctCollectionId);
 
 create index IX_E534924E on AssetTag (ctCollectionId);
 create index IX_24286918 on AssetTag (groupId, ctCollectionId);
-create unique index IX_AA52E757 on AssetTag (groupId, name[$COLUMN_LENGTH:75$], ctCollectionId);
+create index IX_AA52E757 on AssetTag (groupId, name[$COLUMN_LENGTH:75$], ctCollectionId);
 create index IX_7A6CD00D on AssetTag (name[$COLUMN_LENGTH:75$], ctCollectionId);
 create index IX_71579042 on AssetTag (uuid_[$COLUMN_LENGTH:75$], companyId, ctCollectionId);
 create index IX_E7450E22 on AssetTag (uuid_[$COLUMN_LENGTH:75$], ctCollectionId);
@@ -367,6 +367,7 @@ create index IX_9FF9CC4E on PortalPreferenceValue (portalPreferencesId, key_[$CO
 create index IX_4C7A38C4 on PortalPreferenceValue (portalPreferencesId, namespace[$COLUMN_LENGTH:255$]);
 
 create index IX_D1F795F1 on PortalPreferences (ownerId, ownerType);
+create index IX_FBB40A2B on PortalPreferences (ownerType);
 
 create unique index IX_12B5E51D on Portlet (companyId, portletId[$COLUMN_LENGTH:200$]);
 

@@ -837,9 +837,6 @@ public interface PropsKeys {
 	public static final String DL_FILE_ENTRY_PREVIEW_VIDEO_WIDTH =
 		"dl.file.entry.preview.video.width";
 
-	public static final String DL_FILE_ENTRY_PROCESSORS =
-		"dl.file.entry.processors";
-
 	public static final String
 		DL_FILE_ENTRY_RAW_METADATA_PROCESSOR_EXCLUDED_MIME_TYPES =
 			"dl.file.entry.raw.metadata.processor.excluded.mime.types";
@@ -2343,12 +2340,6 @@ public interface PropsKeys {
 		"session.test.cookie.support";
 
 	public static final String SESSION_TIMEOUT = "session.timeout";
-
-	public static final String SESSION_TIMEOUT_AUTO_EXTEND =
-		"session.timeout.auto.extend";
-
-	public static final String SESSION_TIMEOUT_AUTO_EXTEND_OFFSET =
-		"session.timeout.auto.extend.offset";
 
 	public static final String SESSION_TIMEOUT_REDIRECT_ON_EXPIRE =
 		"session.timeout.redirect.on.expire";

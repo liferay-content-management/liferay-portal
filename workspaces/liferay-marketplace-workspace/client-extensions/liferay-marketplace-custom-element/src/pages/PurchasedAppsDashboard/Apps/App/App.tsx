@@ -3,86 +3,167 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import ClayAlert from '@clayui/alert';
-import ClayButton from '@clayui/button';
-import ClayNavigationBar from '@clayui/navigation-bar';
-import {useEffect} from 'react';
-import {useOutletContext} from 'react-router-dom';
-
-import {useAppContext} from '../../../../manage-app-state/AppManageState';
-import {TYPES} from '../../../../manage-app-state/actionTypes';
-import {ReviewAndSubmitAppPage} from '../../../ReviewAndSubmitAppPage/ReviewAndSubmitAppPage';
+import {useOutletContext, useParams} from 'react-router-dom';
 
 import './App.scss';
+import {DetailedCard} from '../../../../components/DetailedCard/DetailedCard';
+import {formatDate} from '../../../PublishedAppsDashboard/PublishedDashboardPageUtil';
 
 const App = () => {
-	const [, dispatch] = useAppContext();
-	const {selectedApp} = useOutletContext<any>();
+	const {orderId} = useParams();
+	const {data} = useOutletContext<any>();
 
-	useEffect(() => {
-		if (!selectedApp) {
-			return;
-		}
+	const placedOrder = data.placedOrder;
 
-		dispatch({
-			payload: {
-				value: {
-					appERC: selectedApp.externalReferenceCode,
-					appProductId: selectedApp.productId,
-				},
-			},
-			type: TYPES.SUBMIT_APP_PROFILE,
-		});
-	}, [
-		dispatch,
-		selectedApp,
-		selectedApp?.externalReferenceCode,
-		selectedApp?.productId,
-	]);
-
-	if (!selectedApp) {
-		return null;
-	}
-
-	const status = selectedApp.workflowStatusInfo.label.replace(
-		/(^\w|\s\w)/g,
-		(m: string) => m.toUpperCase()
+	const projectNameField = data.product.customFields.find(
+		(field: {name: string}) => field.name === 'Project Name'
 	);
 
 	return (
-		<div className="w-100">
-			{status === 'Draft' && (
-				<ClayAlert
-					className="app-details-page-alert-container"
-					displayType="info"
+		<div className="app-details-page-container mt-6">
+			<div className="app-details-body-container">
+				<DetailedCard
+					cardIconAltText="Details Icon"
+					cardTitle="Details"
+					clayIcon="order-form-tag"
 				>
-					<span className="app-details-page-alert-text">
-						This submission is currently under review by Liferay.
-						Once the process is complete, you will be able to
-						publish it to the marketplace. Meanwhile, any
-						information or data from this app submission cannot be
-						updated.
-					</span>
-				</ClayAlert>
-			)}
-
-			<div>
-				<ClayNavigationBar
-					className="app-details-page-navigation-bar"
-					triggerLabel="App Detatils"
+					<div className="mb-2 mt-4 row">
+						<h5 className="col-6">Order ID</h5>
+						<p className="col">{orderId}</p>
+					</div>
+					<div className="mb-2 row">
+						<h5 className="col-6">Order Date</h5>
+						<p className="col">
+							{formatDate(placedOrder.createDate)}
+						</p>
+					</div>
+					<div className="mb-2 row">
+						<h5 className="col-6">Customer Account</h5>
+						<p className="col">{placedOrder.account}</p>
+					</div>
+					<div className="mb-2 row">
+						<h5 className="col-6">Customer Project</h5>
+						<p className="col">
+							{projectNameField.customValue.data || '-'}
+						</p>
+					</div>
+					<div className="mb-2 row">
+						<h5 className="col-6">Purchased by</h5>
+						<p className="col">{placedOrder.author}</p>
+					</div>
+					<div className="row">
+						<h5 className="col-6">Purchase Number</h5>
+						<p className="col">
+							{placedOrder.purchaseOrderNumber || '-'}
+						</p>
+					</div>
+				</DetailedCard>
+				<DetailedCard
+					cardIconAltText="Summary Icon"
+					cardTitle="Summary"
+					clayIcon="shopping-cart"
 				>
-					<ClayNavigationBar.Item active>
-						<ClayButton>App Details</ClayButton>
-					</ClayNavigationBar.Item>
-				</ClayNavigationBar>
-
-				<ReviewAndSubmitAppPage
-					onClickBack={() => {}}
-					onClickContinue={() => {}}
-					productERC={selectedApp.externalReferenceCode}
-					productId={selectedApp.productId}
-					readonly
-				/>
+					<div className="justify-content-center mb-2 mt-4 row">
+						<h5 className="col-3">Type</h5>
+						<h5 className="col-1">Qty</h5>
+					</div>
+					<div className="mb-2 row">
+						<h5 className="col">License Price</h5>
+						<div className="col-8">
+							{placedOrder.placedOrderItems.map(
+								(order: PlacedOrderItems) => {
+									return (
+										<div className="row" key={order.id}>
+											<p className="col text-capitalize">
+												{order.sku.toLowerCase() || ''}
+											</p>
+											<p className="col">
+												{order.quantity}
+											</p>
+											<p className="col-3">
+												{order.price.priceFormatted}
+											</p>
+										</div>
+									);
+								}
+							)}
+						</div>
+					</div>
+					<div className="justify-content-between mb-2 row">
+						<h5 className="col-2">Subtotal</h5>
+						<p className="col-2">
+							{placedOrder.summary.subtotalFormatted || ''}
+						</p>
+					</div>
+					<div className="justify-content-between mb-2 row">
+						<h6 className="col">Subtotal Discount</h6>
+						<p className="col-2">
+							{placedOrder.summary.totalDiscountValueFormatted ||
+								''}
+						</p>
+					</div>
+					<div className="justify-content-between mb-2 row">
+						<h6 className="col">Coupon Code</h6>
+						<p className="col-2">{placedOrder.couponCode || '-'}</p>
+					</div>
+					<div className="justify-content-between mb-2 row">
+						<h5 className="col">Tax/VAT</h5>
+						<p className="col-2">
+							{placedOrder.summary.taxValueFormatted || ''}
+						</p>
+					</div>
+					<div className="justify-content-between row">
+						<h5 className="col">Total</h5>
+						<p className="col-2">
+							{placedOrder.summary.totalFormatted || ''}
+						</p>
+					</div>
+				</DetailedCard>
+				<DetailedCard
+					cardIconAltText="Location Icon"
+					cardTitle="Address"
+					clayIcon="geolocation"
+				>
+					<div className="mb-2 mt-4 row">
+						<h5 className="col-6">Billing Address</h5>
+						<div className="col-6">
+							<p>
+								{placedOrder.placedOrderBillingAddress
+									.street1 || ''}
+								,
+							</p>
+							{placedOrder.placedOrderBillingAddress.street2 && (
+								<p>
+									{
+										placedOrder.placedOrderBillingAddress
+											.street2
+									}
+								</p>
+							)}
+							{placedOrder.placedOrderBillingAddress.street3 && (
+								<p>
+									{
+										placedOrder.placedOrderBillingAddress
+											.street3
+									}
+								</p>
+							)}
+							<p>{placedOrder.placedOrderBillingAddress.city},</p>
+							<p>
+								{placedOrder.placedOrderBillingAddress
+									.regionISOCode || ''}
+								,{' '}
+								{placedOrder.placedOrderBillingAddress.zip ||
+									''}
+								,
+							</p>
+							<p>
+								{placedOrder.placedOrderBillingAddress
+									.countryISOCode || ''}
+							</p>
+						</div>
+					</div>
+				</DetailedCard>
 			</div>
 		</div>
 	);

@@ -287,6 +287,14 @@ public class CompanyLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portal.kernel.model.Company extractCompany(
+			long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _companyLocalService.extractCompany(companyId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.model.Company fetchCompany(
 		long companyId) {
 

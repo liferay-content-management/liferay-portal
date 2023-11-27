@@ -13,12 +13,7 @@ import com.liferay.layout.model.LayoutClassedModelUsage;
 import com.liferay.layout.service.LayoutClassedModelUsageLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
-import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
-import com.liferay.object.definition.tree.Edge;
-import com.liferay.object.definition.tree.Node;
-import com.liferay.object.definition.tree.Tree;
-import com.liferay.object.definition.tree.TreeFactory;
 import com.liferay.object.definition.util.ObjectDefinitionUtil;
 import com.liferay.object.deployer.InactiveObjectDefinitionDeployer;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
@@ -43,8 +38,6 @@ import com.liferay.object.exception.ObjectDefinitionSystemException;
 import com.liferay.object.exception.ObjectDefinitionVersionException;
 import com.liferay.object.exception.ObjectFieldRelationshipTypeException;
 import com.liferay.object.exception.RequiredObjectDefinitionException;
-import com.liferay.object.exception.RequiredObjectFieldException;
-import com.liferay.object.field.setting.util.ObjectFieldSettingUtil;
 import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.internal.dao.db.ObjectDBManagerUtil;
 import com.liferay.object.internal.deployer.InactiveObjectDefinitionDeployerImpl;
@@ -80,6 +73,10 @@ import com.liferay.object.service.persistence.ObjectFieldPersistence;
 import com.liferay.object.service.persistence.ObjectFolderPersistence;
 import com.liferay.object.service.persistence.ObjectRelationshipPersistence;
 import com.liferay.object.system.SystemObjectDefinitionManager;
+import com.liferay.object.tree.Edge;
+import com.liferay.object.tree.Node;
+import com.liferay.object.tree.Tree;
+import com.liferay.object.tree.TreeFactory;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
@@ -122,7 +119,6 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalService;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -401,6 +397,7 @@ public class ObjectDefinitionLocalServiceImpl
 			}
 
 			_objectRelationshipLocalService.updateObjectRelationship(
+				objectRelationship.getExternalReferenceCode(),
 				objectRelationship.getObjectRelationshipId(),
 				objectRelationship.getParameterObjectFieldId(),
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE, true,
@@ -411,21 +408,27 @@ public class ObjectDefinitionLocalServiceImpl
 					objectRelationship.getObjectDefinitionId1());
 
 			if (objectDefinition1.getRootObjectDefinitionId() == 0) {
-				objectDefinitionLocalService.updateRootObjectDefinitionId(
-					objectDefinition1.getObjectDefinitionId(),
-					rootObjectDefinitionId);
+				objectDefinition1 =
+					objectDefinitionLocalService.updateRootObjectDefinitionId(
+						objectDefinition1.getObjectDefinitionId(),
+						rootObjectDefinitionId);
 			}
+
+			_updateObjectDefinitionPortlet(objectDefinition1);
 
 			ObjectDefinition objectDefinition2 =
 				objectDefinitionLocalService.getObjectDefinition(
 					objectRelationship.getObjectDefinitionId2());
 
-			objectDefinitionLocalService.updateRootObjectDefinitionId(
-				objectDefinition2.getObjectDefinitionId(),
-				rootObjectDefinitionId);
+			objectDefinition2 =
+				objectDefinitionLocalService.updateRootObjectDefinitionId(
+					objectDefinition2.getObjectDefinitionId(),
+					rootObjectDefinitionId);
 
 			_objectFieldLocalService.updateRequired(
 				objectRelationship.getObjectFieldId2(), true);
+
+			_updateObjectDefinitionPortlet(objectDefinition2);
 		}
 	}
 
@@ -656,11 +659,8 @@ public class ObjectDefinitionLocalServiceImpl
 			return objectDefinition2;
 		}
 
-		ObjectField objectField = _objectFieldLocalService.getObjectField(
-			objectRelationship.getObjectFieldId2());
-
 		objectDefinition2.setAccountEntryRestrictedObjectFieldId(
-			objectField.getObjectFieldId());
+			objectRelationship.getObjectFieldId2());
 
 		objectDefinition2.setAccountEntryRestricted(true);
 
@@ -825,7 +825,8 @@ public class ObjectDefinitionLocalServiceImpl
 			objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
 		if (objectDefinition.isUnmodifiableSystemObject()) {
-			throw new ObjectDefinitionStatusException();
+			throw new ObjectDefinitionStatusException(
+				"Unmodifiable system object definition cannot be published");
 		}
 
 		if (objectDefinition.getRootObjectDefinitionId() == 0) {
@@ -838,7 +839,7 @@ public class ObjectDefinitionLocalServiceImpl
 					"are ineligible for publication");
 		}
 
-		Tree tree = _treeFactory.create(objectDefinitionId);
+		Tree tree = _treeFactory.createObjectDefinitionTree(objectDefinitionId);
 
 		Iterator<Node> iterator = tree.iterator();
 
@@ -846,7 +847,7 @@ public class ObjectDefinitionLocalServiceImpl
 			Node node = iterator.next();
 
 			_publishObjectDefinition(
-				userId, getObjectDefinition(node.getObjectDefinitionId()));
+				userId, getObjectDefinition(node.getPrimaryKey()));
 		}
 
 		return getObjectDefinition(objectDefinitionId);
@@ -997,7 +998,7 @@ public class ObjectDefinitionLocalServiceImpl
 			objectDefinitionLocalService.getObjectDefinition(
 				objectDefinitionId);
 
-		Tree tree = _treeFactory.create(
+		Tree tree = _treeFactory.createObjectDefinitionTree(
 			objectDefinition.getRootObjectDefinitionId());
 
 		Iterator<Node> iterator = tree.iterator(
@@ -1007,7 +1008,7 @@ public class ObjectDefinitionLocalServiceImpl
 			Node node = iterator.next();
 
 			objectDefinitionLocalService.updateRootObjectDefinitionId(
-				node.getObjectDefinitionId(), 0);
+				node.getPrimaryKey(), 0);
 
 			if (node.isRoot()) {
 				continue;
@@ -1020,6 +1021,7 @@ public class ObjectDefinitionLocalServiceImpl
 					edge.getObjectRelationshipId());
 
 			_objectRelationshipLocalService.updateObjectRelationship(
+				objectRelationship.getExternalReferenceCode(),
 				objectRelationship.getObjectRelationshipId(),
 				objectRelationship.getParameterObjectFieldId(),
 				objectRelationship.getDeletionType(), false,
@@ -1584,11 +1586,7 @@ public class ObjectDefinitionLocalServiceImpl
 
 				indexable = true;
 			}
-			else if (GetterUtil.getBoolean(
-						ObjectFieldSettingUtil.getValue(
-							ObjectFieldSettingConstants.NAME_UNIQUE_VALUES,
-							objectField))) {
-
+			else if (objectField.hasUniqueValues()) {
 				indexable = true;
 				unique = true;
 			}
@@ -1781,7 +1779,10 @@ public class ObjectDefinitionLocalServiceImpl
 					objectDefinition.getObjectDefinitionId()),
 				objectField -> !objectField.isMetadata())) {
 
-			throw new RequiredObjectFieldException();
+			throw new ObjectDefinitionStatusException(
+				"At least one object field must be added when publishing the " +
+					"object definition",
+				"at-least-one-object-field-must-be-added");
 		}
 
 		objectDefinition.setActive(true);
@@ -1987,6 +1988,19 @@ public class ObjectDefinitionLocalServiceImpl
 			objectDefinition.getObjectFolderId(), oldObjectFolderId);
 
 		return objectDefinition;
+	}
+
+	private void _updateObjectDefinitionPortlet(
+			ObjectDefinition objectDefinition)
+		throws PortalException {
+
+		if (objectDefinition.isPortlet() &&
+			objectDefinition.isRootDescendantNode()) {
+
+			objectDefinition.setPortlet(false);
+
+			objectDefinitionPersistence.update(objectDefinition);
+		}
 	}
 
 	private ObjectDefinition _updateTitleObjectFieldId(

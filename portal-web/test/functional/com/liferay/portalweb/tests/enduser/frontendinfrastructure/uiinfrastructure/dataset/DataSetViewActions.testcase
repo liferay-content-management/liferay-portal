@@ -384,10 +384,17 @@ definition {
 				locator1 = "Select#GENERIC_SELECT_FIELD",
 				value1 = "Link");
 
-			Select(
-				key_fieldLabel = "Icon",
-				locator1 = "Select#GENERIC_SELECT_FIELD",
+			Click(locator1 = "Button#PLUS");
+
+			SelectFrameTop();
+
+			Type(
+				locator1 = "DataSet#MODAL_SEARCH",
 				value1 = "view");
+
+			Click.mouseOverClick(
+				key_text = "view",
+				locator1 = "Icon#ANY");
 
 			Type(
 				key_fieldId = "URL",
@@ -396,10 +403,6 @@ definition {
 		}
 
 		task ("And clicks on the Save button") {
-			Click(
-				key_fieldLabel = "Icon",
-				locator1 = "Select#GENERIC_SELECT_FIELD");
-
 			PortletEntry.save();
 		}
 
@@ -792,10 +795,17 @@ definition {
 				locator1 = "TextInput#DEPOT_UNNAMED_DEFAULT_TITLE",
 				value1 = "edit");
 
-			Select(
-				key_fieldLabel = "Icon",
-				locator1 = "Select#GENERIC_SELECT_FIELD",
+			Click(locator1 = "Button#PLUS");
+
+			SelectFrameTop();
+
+			Type(
+				locator1 = "DataSet#MODAL_SEARCH",
 				value1 = "pencil");
+
+			Click.mouseOverClick(
+				key_text = "pencil",
+				locator1 = "Icon#ANY");
 
 			Select(
 				key_fieldLabel = "Type",
@@ -1201,10 +1211,6 @@ definition {
 		}
 
 		task ("And clicks on Save button") {
-			Click(
-				key_fieldLabel = "Icon",
-				locator1 = "Select#GENERIC_SELECT_FIELD");
-
 			PortletEntry.save();
 		}
 
@@ -1240,23 +1246,22 @@ definition {
 		}
 
 		task ("When the user clicks on the Icon field") {
-			Click(
-				key_fieldLabel = "Icon",
-				locator1 = "Select#GENERIC_SELECT_FIELD");
+			Click(locator1 = "Button#PLUS");
 		}
 
-		task ("Then a dropdown list all the icons in clay with the name and the corresponding icon") {
-			Select(
-				key_fieldLabel = "Icon",
-				locator1 = "Select#GENERIC_SELECT_FIELD",
-				value1 = "accessibility");
+		task ("Then a modal list all the icons in clay with the name and the corresponding icon") {
+			SelectFrameTop();
 
 			AssertElementPresent(
-				key_text = "pt-br",
+				key_text = "accessibility",
 				locator1 = "Icon#ANY");
 		}
 
 		task ("When the mandatory fields are filled") {
+			Click(
+				key_modalTitle = "",
+				locator1 = "Button#CLOSE_MODAL");
+
 			Type(
 				key_unnamedTitle = "",
 				locator1 = "TextInput#DEPOT_UNNAMED_DEFAULT_TITLE",
@@ -1269,10 +1274,6 @@ definition {
 		}
 
 		task ("And clicks on Save button") {
-			Click(
-				key_fieldLabel = "Icon",
-				locator1 = "Select#GENERIC_SELECT_FIELD");
-
 			PortletEntry.save();
 		}
 
@@ -1319,10 +1320,6 @@ definition {
 		}
 
 		task ("And clicks on Save button") {
-			Click(
-				key_fieldLabel = "Icon",
-				locator1 = "Select#GENERIC_SELECT_FIELD");
-
 			PortletEntry.save();
 		}
 
@@ -1423,10 +1420,6 @@ definition {
 		}
 
 		task ("And clicks on Save button") {
-			Click(
-				key_fieldLabel = "Icon",
-				locator1 = "Select#GENERIC_SELECT_FIELD");
-
 			PortletEntry.save();
 		}
 

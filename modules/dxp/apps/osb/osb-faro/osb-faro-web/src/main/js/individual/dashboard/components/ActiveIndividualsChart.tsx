@@ -97,6 +97,8 @@ const ActiveIndividualsChart: React.FC<IActiveIndividualsChartProps> = ({
 				/>
 			);
 		}
+
+		return null;
 	};
 
 	const yAxisWidth = getYAxisWidth(data, 'knownVisitors');
@@ -165,6 +167,7 @@ const ActiveIndividualsChart: React.FC<IActiveIndividualsChartProps> = ({
 						tickLine={false}
 						tickMargin={12}
 						ticks={intervals}
+						type='number'
 					/>
 
 					<XAxis

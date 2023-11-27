@@ -7,20 +7,24 @@ package com.liferay.source.formatter.dependencies.upgrade;
 
 import com.liferay.commerce.constants.CommerceOrderPaymentConstants;
 
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProviderUtil;
 
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
 import java.util.Date;
 
-import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-
 import java.util.ArrayList;
+
+import com.liferay.portal.kernel.util.PortalUtil;
 
 import com.liferay.portal.kernel.util.HtmlParser;
 
 import com.liferay.portal.kernel.search.Sort;
 
 import com.liferay.document.library.util.DLURLHelperUtil;
+
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+
+import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 
 import org.osgi.service.component.annotations.Reference;
 
@@ -66,6 +70,12 @@ public class UpgradeCatchAllCheck {
 		assetCategory.getCategoryId;
 	}
 
+	public void method(CommerceAddress commerceAddress) {
+		CommerceAddressLocalServiceUtil.updateCommerceAddress(commerceAddress.getCommerceAddressId(), commerceAddress.getName(), commerceAddress.getDescription(), commerceAddress.getStreet1(), commerceAddress.getStreet2(), commerceAddress.getStreet3(), commerceAddress.getCity(), commerceAddress.getZip(), commerceAddress.getRegionId(), commerceAddress.getCountryId(), commerceAddress.getPhoneNumber(), commerceAddress.getType(), ServiceContextThreadLocal.getServiceContext());
+		CommerceAddressLocalServiceUtil.updateCommerceAddress(null);
+		_commerceAddressLocalService.updateCommerceAddress(commerceAddress.getCommerceAddressId(), commerceAddress.getName(), commerceAddress.getDescription(), commerceAddress.getStreet1(), commerceAddress.getStreet2(), commerceAddress.getStreet3(), commerceAddress.getCity(), commerceAddress.getZip(), commerceAddress.getRegionId(), commerceAddress.getCountryId(), commerceAddress.getPhoneNumber(), commerceAddress.getType(), ServiceContextThreadLocal.getServiceContext());
+	}
+
 	public void method(
 		CommerceAddress commerceAddress, Country country, Region region) {
 
@@ -82,6 +92,19 @@ public class UpgradeCatchAllCheck {
 	public void method(HttpServletRequest httpServletRequest) {
 		_commerceAccountHelper.getCurrentAccountEntry(0, httpServletRequest);
 		_commerceAccountHelper.getCurrentCommerceAccount(null);
+	}
+
+	public void method(HttpServletRequest httpServletRequest, String name) {
+		CookieUtil.get(httpServletRequest, "test123");
+		CookiesManagerUtil.getCookieValue(name, httpServletRequest);
+	}
+
+	public void method(
+		HttpServletRequest httpServletRequest, String name,
+		boolean toUpperCase) {
+
+		CookieUtil.get(httpServletRequest, "test123", toUpperCase);
+		CookiesManagerUtil.getCookieValue(name, httpServletRequest, toUpperCase);
 	}
 
 	public void method(
@@ -371,6 +394,14 @@ public class UpgradeCatchAllCheck {
 	}
 
 	public void method(
+		long companyId, String externalReferenceCode, long groupId) {
+
+		AssetCategoryLocalServiceUtil.fetchAssetCategoryByExternalReferenceCode(companyId, externalReferenceCode);
+		AssetCategoryLocalServiceUtil.fetchAssetCategoryByExternalReferenceCode(externalReferenceCode, groupId);
+		_assetCategoryLocalService.fetchAssetCategoryByExternalReferenceCode(companyId, externalReferenceCode);
+	}
+
+	public void method(
 		long userId, String className, long classPK, String number,
 		String extension, long listTypeId, boolean primary) {
 
@@ -401,6 +432,11 @@ public class UpgradeCatchAllCheck {
 		AddressServiceUtil.addAddress(null, userId, className, classPK, null, null, street1, street2, street3, city, zip, regionId, countryId, typeId, mailing, primary, null, serviceContext);
 		_addressLocalService.addAddress(null, userId, className, classPK, null, null, street1, street2, street3, city, zip, regionId, countryId, typeId, mailing, primary, null, serviceContext);
 		_addressService.addAddress(null, userId, className, classPK, null, null, street1, street2, street3, city, zip, regionId, countryId, typeId, mailing, primary, null, serviceContext);
+	}
+
+	public void method(PortletDisplay portletDisplay, Class<T> clazz) {
+		ConfigurationProviderUtil.getPortletInstanceConfiguration(clazz, ServiceContextThreadLocal.getServiceContext().getThemeDisplay());
+		portletDisplay.getPortletInstanceConfiguration(null);
 	}
 
 	public void method(
@@ -466,6 +502,9 @@ public class UpgradeCatchAllCheck {
 
 	@Reference
 	private CommerceAccountHelper _commerceAccountHelper;
+
+	@Reference
+	private CommerceAddressLocalService _commerceAddressLocalService;
 
 	@Reference
 	private CommerceOrderItemLocalService _commerceOrderItemLocalService;

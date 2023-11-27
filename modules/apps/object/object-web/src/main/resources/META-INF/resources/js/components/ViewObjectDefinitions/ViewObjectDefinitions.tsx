@@ -20,9 +20,10 @@ import {
 	fdsItem,
 	formatActionURL,
 } from '../../utils/fds';
-import ModalDeletionNotAllowed from '../ModalDeletionNotAllowed';
+import statusDataRenderer from '../FDSPropsTransformer/FDSDataRenderers/StatusDataRenderer';
+import LabelRenderer from '../LabelRenderer';
+import ModalObjectFieldDeletionNotAllowed from '../ModalObjectFieldDeletionNotAllowed';
 import objectDefinitionModifiedDateDataRenderer from './FDSDataRenderers/ObjectDefinitionModifiedDateDataRenderer';
-import objectDefinitionStatusDataRenderer from './FDSDataRenderers/ObjectDefinitionStatusDataRenderer';
 import objectDefinitionSystemDataRenderer from './FDSDataRenderers/ObjectDefinitionSystemDataRenderer';
 import {ModalAddObjectDefinition} from './ModalAddObjectDefinition';
 import {ModalAddObjectFolder} from './ModalAddObjectFolder';
@@ -98,9 +99,9 @@ export default function ViewObjectDefinitions({
 		bindToRootObjectDefinition: false,
 		deleteObjectDefinition: false,
 		deleteObjectFolder: false,
-		deletionNotAllowed: false,
 		editObjectFolder: false,
 		moveObjectDefinition: false,
+		objectFieldDeletionNotAllowed: false,
 		unbindFromRootObjectDefinition: false,
 	});
 	const [selectedObjectFolder, setSelectedObjectFolder] = useState<
@@ -137,19 +138,16 @@ export default function ViewObjectDefinitions({
 		itemData,
 		value,
 	}: fdsItem<ObjectDefinition>) {
-		const handleEditObjectDefinition = () => {
-			window.location.href = formatActionURL(
-				editObjectDefinitionURL,
-				itemData.id
-			);
-		};
-
 		return (
-			<div className="table-list-title">
-				<a href="#" onClick={handleEditObjectDefinition}>
-					{value}
-				</a>
-			</div>
+			<LabelRenderer
+				onClick={() => {
+					window.location.href = formatActionURL(
+						editObjectDefinitionURL,
+						itemData.id
+					);
+				}}
+				value={value}
+			/>
 		);
 	}
 	const getURL = () => {
@@ -173,8 +171,8 @@ export default function ViewObjectDefinitions({
 		customDataRenderers: {
 			objectDefinitionLabelDataRenderer,
 			objectDefinitionModifiedDateDataRenderer,
-			objectDefinitionStatusDataRenderer,
 			objectDefinitionSystemDataRenderer,
+			statusDataRenderer,
 		},
 		emptyState: {
 			description: Liferay.Language.get(
@@ -213,7 +211,6 @@ export default function ViewObjectDefinitions({
 					objectDefinitionId: itemData.id,
 					objectDefinitionName: itemData.name,
 					setDeletedObjectDefinition,
-					status: itemData.status.label,
 				});
 			}
 
@@ -284,8 +281,7 @@ export default function ViewObjectDefinitions({
 							sortable: true,
 						},
 						{
-							contentRenderer:
-								'objectDefinitionStatusDataRenderer',
+							contentRenderer: 'statusDataRenderer',
 							expand: false,
 							fieldName: 'status',
 							label: Liferay.Language.get('status'),
@@ -419,6 +415,41 @@ export default function ViewObjectDefinitions({
 				/>
 			)}
 
+			{showModal.addObjectFolder && (
+				<ModalAddObjectFolder
+					handleOnClose={() => {
+						setShowModal(
+							(previousState: ViewObjectDefinitionsModals) => ({
+								...previousState,
+								addObjectFolder: false,
+							})
+						);
+					}}
+					setObjectFolders={setObjectFolders}
+					setSelectedObjectFolder={setSelectedObjectFolder}
+				/>
+			)}
+
+			{showModal.bindToRootObjectDefinition &&
+				Liferay.FeatureFlags['LPS-187142'] && (
+					<ModalBindToRootObjectDefinition
+						baseResourceURL={baseResourceURL}
+						onVisibilityChange={() => {
+							setShowModal(
+								(
+									previousState: ViewObjectDefinitionsModals
+								) => ({
+									...previousState,
+									bindToRootObjectDefinition: false,
+								})
+							);
+						}}
+						selectedObjectDefinitionToBind={
+							selectedObjectDefinition
+						}
+					/>
+				)}
+
 			{showModal.deleteObjectDefinition && (
 				<ModalDeleteObjectDefinition
 					handleOnClose={() => {
@@ -433,54 +464,6 @@ export default function ViewObjectDefinitions({
 						deletedObjectDefinition as DeletedObjectDefinition
 					}
 					setDeletedObjectDefinition={setDeletedObjectDefinition}
-				/>
-			)}
-
-			{showModal.deletionNotAllowed &&
-				selectedObjectDefinition &&
-				Liferay.FeatureFlags['LPS-187142'] && (
-					<ModalDeletionNotAllowed
-						content={
-							<span
-								dangerouslySetInnerHTML={{
-									__html: sub(
-										Liferay.Language.get(
-											'x-is-being-used-by-a-root-object-and-cannot-be-deleted'
-										),
-										`<strong>"${getLocalizableLabel(
-											selectedObjectDefinition.defaultLanguageId,
-											selectedObjectDefinition.label,
-											selectedObjectDefinition.name
-										)}"</strong>`
-									),
-								}}
-							/>
-						}
-						onVisibilityChange={() =>
-							setShowModal(
-								(
-									previousState: ViewObjectDefinitionsModals
-								) => ({
-									...previousState,
-									deletionNotAllowed: false,
-								})
-							)
-						}
-					/>
-				)}
-
-			{showModal.addObjectFolder && (
-				<ModalAddObjectFolder
-					handleOnClose={() => {
-						setShowModal(
-							(previousState: ViewObjectDefinitionsModals) => ({
-								...previousState,
-								addObjectFolder: false,
-							})
-						);
-					}}
-					setObjectFolders={setObjectFolders}
-					setSelectedObjectFolder={setSelectedObjectFolder}
 				/>
 			)}
 
@@ -534,22 +517,35 @@ export default function ViewObjectDefinitions({
 				/>
 			)}
 
-			{showModal.bindToRootObjectDefinition &&
+			{showModal.objectFieldDeletionNotAllowed &&
+				selectedObjectDefinition &&
 				Liferay.FeatureFlags['LPS-187142'] && (
-					<ModalBindToRootObjectDefinition
-						baseResourceURL={baseResourceURL}
-						onVisibilityChange={() => {
+					<ModalObjectFieldDeletionNotAllowed
+						content={
+							<span
+								dangerouslySetInnerHTML={{
+									__html: sub(
+										Liferay.Language.get(
+											'x-is-being-used-by-a-root-object-and-cannot-be-deleted'
+										),
+										`<strong>"${getLocalizableLabel(
+											selectedObjectDefinition.defaultLanguageId,
+											selectedObjectDefinition.label,
+											selectedObjectDefinition.name
+										)}"</strong>`
+									),
+								}}
+							/>
+						}
+						onVisibilityChange={() =>
 							setShowModal(
 								(
 									previousState: ViewObjectDefinitionsModals
 								) => ({
 									...previousState,
-									bindToRootObjectDefinition: false,
+									objectFieldDeletionNotAllowed: false,
 								})
-							);
-						}}
-						selectedObjectDefinitionToBind={
-							selectedObjectDefinition
+							)
 						}
 					/>
 				)}

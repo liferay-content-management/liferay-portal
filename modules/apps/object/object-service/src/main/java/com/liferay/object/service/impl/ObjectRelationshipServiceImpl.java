@@ -38,10 +38,10 @@ public class ObjectRelationshipServiceImpl
 
 	@Override
 	public ObjectRelationship addObjectRelationship(
-			long objectDefinitionId1, long objectDefinitionId2,
-			long parameterObjectFieldId, String deletionType,
-			Map<Locale, String> labelMap, String name, boolean system,
-			String type)
+			String externalReferenceCode, long objectDefinitionId1,
+			long objectDefinitionId2, long parameterObjectFieldId,
+			String deletionType, Map<Locale, String> labelMap, String name,
+			boolean system, String type)
 		throws PortalException {
 
 		ObjectDefinition objectDefinition =
@@ -52,8 +52,9 @@ public class ObjectRelationshipServiceImpl
 			ActionKeys.UPDATE);
 
 		return objectRelationshipLocalService.addObjectRelationship(
-			getUserId(), objectDefinitionId1, objectDefinitionId2,
-			parameterObjectFieldId, deletionType, labelMap, name, system, type);
+			externalReferenceCode, getUserId(), objectDefinitionId1,
+			objectDefinitionId2, parameterObjectFieldId, deletionType, labelMap,
+			name, system, type);
 	}
 
 	@Override
@@ -90,6 +91,25 @@ public class ObjectRelationshipServiceImpl
 
 		return objectRelationshipLocalService.deleteObjectRelationship(
 			objectRelationshipId);
+	}
+
+	@Override
+	public ObjectRelationship fetchObjectRelationshipByExternalReferenceCode(
+			String externalReferenceCode, long companyId,
+			long objectDefinitionId1)
+		throws PortalException {
+
+		ObjectRelationship objectRelationship =
+			objectRelationshipLocalService.
+				fetchObjectRelationshipByExternalReferenceCode(
+					externalReferenceCode, companyId, objectDefinitionId1);
+
+		if (objectRelationship != null) {
+			_objectDefinitionModelResourcePermission.check(
+				getPermissionChecker(), objectDefinitionId1, ActionKeys.VIEW);
+		}
+
+		return objectRelationship;
 	}
 
 	@Override
@@ -138,8 +158,9 @@ public class ObjectRelationshipServiceImpl
 
 	@Override
 	public ObjectRelationship updateObjectRelationship(
-			long objectRelationshipId, long parameterObjectFieldId,
-			String deletionType, boolean edge, Map<Locale, String> labelMap)
+			String externalReferenceCode, long objectRelationshipId,
+			long parameterObjectFieldId, String deletionType, boolean edge,
+			Map<Locale, String> labelMap)
 		throws PortalException {
 
 		ObjectRelationship objectRelationship =
@@ -151,8 +172,8 @@ public class ObjectRelationshipServiceImpl
 			ActionKeys.UPDATE);
 
 		return objectRelationshipLocalService.updateObjectRelationship(
-			objectRelationshipId, parameterObjectFieldId, deletionType, edge,
-			labelMap);
+			externalReferenceCode, objectRelationshipId, parameterObjectFieldId,
+			deletionType, edge, labelMap);
 	}
 
 	@Reference(

@@ -10,6 +10,60 @@ import {ManagementToolbar} from 'frontend-js-components-web';
 import {navigate, sub} from 'frontend-js-web';
 import React, {useEffect, useRef} from 'react';
 
+/**
+ * @see {ManagementToolbarTag._getResultsLanguageKey} It should have the exact
+ * 	same logic than the corresponding Java method.
+ */
+function getResultText(searchValue, itemTotal, filterTotal) {
+	if (Liferay.FeatureFlags['LPS-198573']) {
+		if (!searchValue) {
+			if (filterTotal) {
+				if (itemTotal === 1) {
+					return Liferay.Language.get('x-result-found-with-filters');
+				}
+
+				return Liferay.Language.get('x-results-found-with-filters');
+			}
+
+			if (itemTotal === 1) {
+				return Liferay.Language.get('x-result-found');
+			}
+
+			return Liferay.Language.get('x-results-found');
+		}
+
+		if (filterTotal) {
+			if (itemTotal === 1) {
+				return Liferay.Language.get(
+					'x-result-found-for-x-with-filters'
+				);
+			}
+
+			return Liferay.Language.get('x-results-found-for-x-with-filters');
+		}
+
+		if (itemTotal === 1) {
+			return Liferay.Language.get('x-result-found-for-x');
+		}
+
+		return Liferay.Language.get('x-results-found-for-x');
+	}
+
+	if (!searchValue) {
+		if (itemTotal === 1) {
+			return Liferay.Language.get('x-result');
+		}
+
+		return Liferay.Language.get('x-results');
+	}
+
+	if (itemTotal === 1) {
+		return Liferay.Language.get('x-result-for-x');
+	}
+
+	return Liferay.Language.get('x-results-for-x');
+}
+
 const ResultsBar = ({
 	clearResultsURL,
 	filterLabelItems,
@@ -42,15 +96,12 @@ const ResultsBar = ({
 				>
 					<span
 						aria-label={sub(
-							itemsTotal === 1
-								? Liferay.Language.get('x-result-for-x')
-								: Liferay.Language.get('x-results-for-x'),
-							[
+							getResultText(
 								itemsTotal,
-								filterLabelItems
-									?.map((item) => item.label)
-									.join(', '),
-							]
+								filterLabelItems?.length || 0
+							),
+							itemsTotal,
+							`"${searchValue}"`
 						)}
 						className="component-text text-truncate-inline"
 						ref={resultsBarRef}
@@ -58,14 +109,13 @@ const ResultsBar = ({
 					>
 						<span className="text-truncate">
 							{sub(
-								itemsTotal === 1
-									? Liferay.Language.get('x-result-for')
-									: Liferay.Language.get('x-results-for'),
-								itemsTotal
-							)}
-
-							{searchValue && (
-								<strong>{` "${searchValue}"`}</strong>
+								getResultText(
+									searchValue,
+									itemsTotal,
+									filterLabelItems?.length || 0
+								),
+								itemsTotal,
+								<strong>{`"${searchValue}"`}</strong>
 							)}
 						</span>
 					</span>

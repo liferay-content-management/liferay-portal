@@ -8,10 +8,10 @@ import {useEffect, useState} from 'react';
 
 import {CreateProjectModal} from '../../components/CreateProjectModal/CreateProjectModal';
 import {ProjectDetailsCard} from '../../components/CreateProjectModal/ProjectDetailsCard';
+import {DashboardPage} from '../../components/DashBoardPage/DashboardPage';
 import {DashboardTable} from '../../components/DashboardTable/DashboardTable';
 import {getPlacedOrders} from '../../utils/api';
-import {DashboardPage} from '../DashBoardPage/DashboardPage';
-import {NextStepPage} from '../NextStepPage/NextStepPage';
+import {NextSteps} from '../NextSteps';
 import {ProjectsTableRow} from './ProjectsTableRow';
 
 import './ProjectsPage.scss';
@@ -93,7 +93,7 @@ export function ProjectsPage({
 
 	if (showNextStepsPage) {
 		return (
-			<NextStepPage
+			<NextSteps
 				continueButtonText="Go to Dashboard"
 				header={{
 					description:
@@ -110,7 +110,7 @@ export function ProjectsPage({
 				size="lg"
 			>
 				<ProjectDetailsCard showHeader />
-			</NextStepPage>
+			</NextSteps>
 		);
 	}
 
@@ -167,7 +167,7 @@ export function ProjectsPage({
 								projectName={
 									projectOrder.customFields['Project Name']
 								}
-								status={projectOrder.orderStatusInfo.label_i18n}
+								status={projectOrder.orderStatusInfo.label}
 							/>
 						);
 					}}

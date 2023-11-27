@@ -3,15 +3,14 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {Option, Text} from '@clayui/core';
 import ClayForm from '@clayui/form';
 import {
 	API,
-	AutoComplete,
 	FormError,
 	Input,
 	SingleSelect,
 	Toggle,
-	stringIncludesQuery,
 } from '@liferay/object-js-components-web';
 import React, {
 	ChangeEventHandler,
@@ -30,12 +29,12 @@ import {removeFieldSettings} from '../../utils/fieldSettings';
 import {toCamelCase} from '../../utils/string';
 import {AggregationFormBase} from './AggregationFormBase';
 import {AttachmentFormBase} from './AttachmentFormBase';
+import {AutoIncrementFormBase} from './AutoIncrementFormBase';
 import {TimeStorage} from './TimeStorage';
 import {UniqueValues} from './UniqueValues';
 import {FORMULA_OUTPUT_OPTIONS, FormulaOutput} from './formulaFieldUtil';
 
 import './ObjectFieldFormBase.scss';
-import {AutoIncrementFormBase} from './AutoIncrementFormBase';
 
 interface ObjectFieldFormBaseProps {
 	children?: ReactNode;
@@ -119,7 +118,7 @@ async function getObjectFieldSettingsByBusinessType(
 	objectRelationshipId: number,
 	setListTypeDefinitions: (value: ListTypeDefinition[]) => void,
 	setOneToManyObjectRelationship: (value: TObjectRelationship) => void,
-	setSelectedOutput: (value: string) => void,
+	setSelectedOutputValue: (value: string) => void,
 	values: Partial<ObjectField>
 ) {
 	const {businessType, objectFieldSettings} = values;
@@ -136,10 +135,10 @@ async function getObjectFieldSettingsByBusinessType(
 		);
 
 		if (output) {
-			setSelectedOutput(
+			setSelectedOutputValue(
 				FORMULA_OUTPUT_OPTIONS.find(
 					(formulaOption) => formulaOption.value === output?.value
-				)?.label as string
+				)?.value as string
 			);
 		}
 	}
@@ -176,67 +175,60 @@ export default function ObjectFieldFormBase({
 	const [listTypeDefinitions, setListTypeDefinitions] = useState<
 		Partial<ListTypeDefinition>[]
 	>([]);
-	const [listTypeDefinitionQuery, setListTypeDefinitionQuery] = useState<
-		string
-	>('');
 
 	const [
 		oneToManyObjectRelationship,
 		setOneToManyObjectRelationship,
 	] = useState<TObjectRelationship>();
-	const [selectedOutput, setSelectedOutput] = useState<string>('');
-
-	const businessTypeMap = useMemo(() => {
-		const businessTypeMap = new Map<string, ObjectFieldType>();
-
-		objectFieldTypes.forEach((type) => {
-			businessTypeMap.set(type.businessType, type);
-		});
-
-		return businessTypeMap;
-	}, [objectFieldTypes]);
+	const [selectedOutputValue, setSelectedOutputValue] = useState<string>('');
 
 	const validListTypeDefinitionId =
 		values.listTypeDefinitionId !== undefined &&
 		values.listTypeDefinitionId !== 0;
 
-	const filteredListTypeDefinitions = useMemo(() => {
-		return listTypeDefinitions.filter(({name}) => {
-			return stringIncludesQuery(name as string, listTypeDefinitionQuery);
-		});
-	}, [listTypeDefinitionQuery, listTypeDefinitions]);
+	const listTypeDefinitionsItems = useMemo(() => {
+		return listTypeDefinitions.map(({externalReferenceCode, name}) => ({
+			label: name,
+			value: externalReferenceCode,
+		})) as LabelValueObject[];
+	}, [listTypeDefinitions]);
 
-	const selectedListTypeDefinition = useMemo(() => {
+	const selectedListTypeDefinitionExternalReferenceCode = useMemo(() => {
 		return listTypeDefinitions.find(
 			({externalReferenceCode}) =>
 				values.listTypeDefinitionExternalReferenceCode ===
 				externalReferenceCode
-		);
+		)?.externalReferenceCode;
 	}, [listTypeDefinitions, values.listTypeDefinitionExternalReferenceCode]);
 
-	const handleTypeChange = async (option: ObjectFieldType) => {
-		const objectFieldSettings: ObjectFieldSetting[] =
-			fieldSettingsMap.get(option.businessType) || [];
+	const handleTypeChange = async (selectedBusinessType: string) => {
+		const selectedObjectFieldType = objectFieldTypes.find(
+			(objectFieldType) =>
+				objectFieldType.businessType === selectedBusinessType
+		);
 
-		const indexed = option.businessType !== 'Encrypted';
+		const objectFieldSettings: ObjectFieldSetting[] =
+			fieldSettingsMap.get(selectedBusinessType) || [];
+
+		const indexed = selectedBusinessType !== 'Encrypted';
 
 		const isSearchableByText =
-			option.businessType === 'Attachment' ||
-			option.dbType === 'Clob' ||
-			option.dbType === 'String';
+			selectedBusinessType === 'Attachment' ||
+			selectedObjectFieldType?.dbType === 'Clob' ||
+			selectedObjectFieldType?.dbType === 'String';
 
 		const indexedAsKeyword = isSearchableByText && values.indexedAsKeyword;
 
 		const indexedLanguageId =
 			isSearchableByText && !values.indexedAsKeyword
 				? values.indexedLanguageId ?? defaultLanguageId
-				: null;
+				: '';
 
-		setSelectedOutput('');
+		setSelectedOutputValue('');
 
 		setValues({
-			DBType: option.dbType,
-			businessType: option.businessType,
+			DBType: selectedObjectFieldType?.dbType,
+			businessType: selectedObjectFieldType?.businessType,
 			indexed,
 			indexedAsKeyword,
 			indexedLanguageId,
@@ -249,8 +241,8 @@ export default function ObjectFieldFormBase({
 		if (onSubmit) {
 			onSubmit({
 				...values,
-				DBType: option.dbType,
-				businessType: option.businessType,
+				DBType: selectedObjectFieldType?.dbType,
+				businessType: selectedObjectFieldType?.businessType,
 				indexed,
 				indexedAsKeyword,
 				indexedLanguageId,
@@ -286,21 +278,6 @@ export default function ObjectFieldFormBase({
 
 		return disabled || values.localized || values.state;
 	};
-
-	useEffect(() => {
-		const makeFetch = async () => {
-			await getObjectFieldSettingsByBusinessType(
-				objectRelationshipId as number,
-				setListTypeDefinitions,
-				setOneToManyObjectRelationship,
-				setSelectedOutput,
-				values
-			);
-		};
-
-		makeFetch();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [values.businessType]);
 
 	const handleStateToggleChange = (toggled: boolean) => {
 		let defaultValue;
@@ -377,7 +354,7 @@ export default function ObjectFieldFormBase({
 				objectRelationshipId as number,
 				setListTypeDefinitions,
 				setOneToManyObjectRelationship,
-				setSelectedOutput,
+				setSelectedOutputValue,
 				values
 			);
 		};
@@ -411,16 +388,35 @@ export default function ObjectFieldFormBase({
 			<SingleSelect<ObjectFieldType>
 				disabled={disabled}
 				error={errors.businessType}
-				label={Liferay.Language.get('type')}
-				onChange={handleTypeChange}
-				options={
+				items={
 					!Liferay.FeatureFlags['LPS-164948']
 						? applyFeatureFlag()
 						: objectFieldTypes
 				}
+				label={Liferay.Language.get('type')}
+				onSelectionChange={(value) => {
+					handleTypeChange(value as string);
+				}}
 				required
-				value={businessTypeMap.get(values.businessType ?? '')?.label}
-			/>
+				selectedKey={values.businessType}
+			>
+				{(item) => (
+					<Option
+						key={item.businessType}
+						textValue={item.businessType}
+					>
+						<div className="lfr-objects__object-field-form-base-object-field-type-option">
+							<Text size={3} weight="semi-bold">
+								{item.label}
+							</Text>
+
+							<Text aria-hidden color="secondary" size={2}>
+								{item.description}
+							</Text>
+						</div>
+					</Option>
+				)}
+			</SingleSelect>
 
 			{values.businessType === 'Attachment' && (
 				<AttachmentFormBase
@@ -432,6 +428,7 @@ export default function ObjectFieldFormBase({
 					}
 					onSubmit={onSubmit}
 					setValues={setValues}
+					values={values}
 				/>
 			)}
 
@@ -471,15 +468,9 @@ export default function ObjectFieldFormBase({
 			{values.businessType === 'Formula' && (
 				<SingleSelect<FormulaOutput>
 					error={errors.output}
+					items={FORMULA_OUTPUT_OPTIONS}
 					label={Liferay.Language.get('output')}
-					onBlur={(event) => {
-						event.stopPropagation();
-
-						if (onSubmit) {
-							onSubmit();
-						}
-					}}
-					onChange={({label, value}) => {
+					onSelectionChange={(value) => {
 						let newObjectFieldSettings: ObjectFieldSetting[] = [];
 
 						if (values.objectFieldSettings) {
@@ -499,64 +490,75 @@ export default function ObjectFieldFormBase({
 							],
 						});
 
-						setSelectedOutput(label);
+						if (onSubmit) {
+							onSubmit({
+								...values,
+								objectFieldSettings: [
+									...newObjectFieldSettings,
+									{
+										name: 'output',
+										value,
+									},
+								],
+							});
+						}
+
+						setSelectedOutputValue(
+							FORMULA_OUTPUT_OPTIONS.find(
+								(formulaFieldOption) =>
+									formulaFieldOption.value === value
+							)?.value as string
+						);
 					}}
-					options={FORMULA_OUTPUT_OPTIONS.filter(
-						(formulaOutput) =>
-							formulaOutput.value === 'Decimal' ||
-							formulaOutput.value === 'Integer'
-					)}
 					required
-					value={selectedOutput}
+					selectedKey={selectedOutputValue}
 				/>
 			)}
 
 			{(values.businessType === 'Picklist' ||
 				values.businessType === 'MultiselectPicklist') && (
-				<AutoComplete<Partial<ListTypeDefinition>>
+				<SingleSelect
 					disabled={disabled}
-					emptyStateMessage={Liferay.Language.get('option-not-found')}
 					error={errors.listTypeDefinitionId}
 					id="objectFieldFormBase"
-					items={filteredListTypeDefinitions}
+					items={listTypeDefinitionsItems}
 					label={Liferay.Language.get('picklist')}
-					onActive={(item) =>
-						item.name === selectedListTypeDefinition?.name
-					}
-					onChangeQuery={setListTypeDefinitionQuery}
-					onSelectItem={(item) => {
-						setValues({
-							listTypeDefinitionExternalReferenceCode:
-								item.externalReferenceCode,
-							listTypeDefinitionId: item.id,
-							objectFieldSettings: removeFieldSettings(
-								['defaultValue', 'stateFlow'],
-								values
-							),
-						});
-
-						if (onSubmit) {
-							onSubmit({
-								...values,
+					onSelectionChange={(value) => {
+						const selectedListTypeDefinition = listTypeDefinitions.find(
+							({externalReferenceCode}) =>
+								externalReferenceCode === value
+						);
+						if (selectedListTypeDefinition) {
+							setValues({
 								listTypeDefinitionExternalReferenceCode:
-									item.externalReferenceCode,
-								listTypeDefinitionId: item.id,
+									selectedListTypeDefinition.externalReferenceCode,
+								listTypeDefinitionId:
+									selectedListTypeDefinition.id,
 								objectFieldSettings: removeFieldSettings(
 									['defaultValue', 'stateFlow'],
 									values
 								),
 							});
+
+							if (onSubmit) {
+								onSubmit({
+									...values,
+									listTypeDefinitionExternalReferenceCode:
+										selectedListTypeDefinition.externalReferenceCode,
+									listTypeDefinitionId:
+										selectedListTypeDefinition.id,
+									objectFieldSettings: removeFieldSettings(
+										['defaultValue', 'stateFlow'],
+										values
+									),
+								});
+							}
 						}
 					}}
-					query={listTypeDefinitionQuery}
-					value={selectedListTypeDefinition?.name}
-				>
-					{({name}) => (
-						<div className="d-flex justify-content-between">
-							<div>{name}</div>
-						</div>
-					)}
-				</AutoComplete>
+					selectedKey={
+						selectedListTypeDefinitionExternalReferenceCode
+					}
+				/>
 			)}
 
 			{values.businessType === 'DateTime' && (
@@ -567,6 +569,7 @@ export default function ObjectFieldFormBase({
 					}
 					onSubmit={onSubmit}
 					setValues={setValues}
+					values={values}
 				/>
 			)}
 

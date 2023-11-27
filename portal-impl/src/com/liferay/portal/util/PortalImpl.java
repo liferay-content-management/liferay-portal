@@ -1195,11 +1195,11 @@ public class PortalImpl implements Portal {
 
 		Locale siteDefaultLocale = getSiteDefaultLocale(layout.getGroupId());
 
-		if ((pos <= 0) || (pos >= canonicalURL.length())) {
-			int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
-				themeDisplay.getCompanyId(),
-				PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
+		int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
+			themeDisplay.getCompanyId(),
+			PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
 
+		if ((pos <= 0) || (pos >= canonicalURL.length())) {
 			for (Locale locale : availableLocales) {
 				if (siteDefaultLocale.equals(locale) &&
 					(localePrependFriendlyURLStyle != 2)) {
@@ -1222,6 +1222,14 @@ public class PortalImpl implements Portal {
 		boolean replaceFriendlyURL = true;
 
 		String currentURL = canonicalURL.substring(pos);
+
+		String siteDefaultLocaleI18nPath = _buildI18NPath(
+			siteDefaultLocale, layout.getGroup());
+
+		if (currentURL.startsWith(siteDefaultLocaleI18nPath)) {
+			currentURL = currentURL.substring(
+				siteDefaultLocaleI18nPath.length());
+		}
 
 		int[] groupFriendlyURLIndex = getGroupFriendlyURLIndex(currentURL);
 
@@ -1258,17 +1266,10 @@ public class PortalImpl implements Portal {
 		}
 
 		String canonicalURLPrefix = canonicalURL.substring(0, pos);
+
 		String canonicalURLSuffix = canonicalURL.substring(pos);
 
-		int localePrependFriendlyURLStyle = PrefsPropsUtil.getInteger(
-			themeDisplay.getCompanyId(),
-			PropsKeys.LOCALE_PREPEND_FRIENDLY_URL_STYLE);
-		String siteDefaultLocaleI18nPath = _buildI18NPath(
-			siteDefaultLocale, layout.getGroup());
-
-		if ((localePrependFriendlyURLStyle == 2) &&
-			canonicalURLSuffix.startsWith(siteDefaultLocaleI18nPath)) {
-
+		if (canonicalURLSuffix.startsWith(siteDefaultLocaleI18nPath)) {
 			canonicalURLSuffix = canonicalURLSuffix.substring(
 				siteDefaultLocaleI18nPath.length());
 		}
@@ -2194,26 +2195,28 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public String getEmailFromAddress(
-		PortletPreferences preferences, long companyId, String defaultValue) {
+		PortletPreferences portletPreferences, long companyId,
+		String defaultValue) {
 
 		if (Validator.isNull(defaultValue)) {
 			defaultValue = PrefsPropsUtil.getString(
 				companyId, PropsKeys.ADMIN_EMAIL_FROM_ADDRESS);
 		}
 
-		return preferences.getValue("emailFromAddress", defaultValue);
+		return portletPreferences.getValue("emailFromAddress", defaultValue);
 	}
 
 	@Override
 	public String getEmailFromName(
-		PortletPreferences preferences, long companyId, String defaultValue) {
+		PortletPreferences portletPreferences, long companyId,
+		String defaultValue) {
 
 		if (Validator.isNull(defaultValue)) {
 			defaultValue = PrefsPropsUtil.getString(
 				companyId, PropsKeys.ADMIN_EMAIL_FROM_NAME);
 		}
 
-		return preferences.getValue("emailFromName", defaultValue);
+		return portletPreferences.getValue("emailFromName", defaultValue);
 	}
 
 	@Override
@@ -8118,20 +8121,20 @@ public class PortalImpl implements Portal {
 			return layout.getGroupId();
 		}
 
-		PortletPreferences portletSetup = null;
+		PortletPreferences portletPreferences = null;
 
 		if (themeDisplay == null) {
-			portletSetup =
+			portletPreferences =
 				PortletPreferencesFactoryUtil.getStrictLayoutPortletSetup(
 					layout, portletId);
 		}
 		else {
-			portletSetup = themeDisplay.getStrictLayoutPortletSetup(
+			portletPreferences = themeDisplay.getStrictLayoutPortletSetup(
 				layout, portletId);
 		}
 
 		String scopeType = GetterUtil.getString(
-			portletSetup.getValue("lfrScopeType", null));
+			portletPreferences.getValue("lfrScopeType", null));
 
 		if (Validator.isNull(scopeType)) {
 			return layout.getGroupId();
@@ -8149,7 +8152,7 @@ public class PortalImpl implements Portal {
 		}
 
 		String scopeLayoutUuid = GetterUtil.getString(
-			portletSetup.getValue("lfrScopeLayoutUuid", null));
+			portletPreferences.getValue("lfrScopeLayoutUuid", null));
 
 		Layout scopeLayout = LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(
 			scopeLayoutUuid, layout.getGroupId(), layout.isPrivateLayout());

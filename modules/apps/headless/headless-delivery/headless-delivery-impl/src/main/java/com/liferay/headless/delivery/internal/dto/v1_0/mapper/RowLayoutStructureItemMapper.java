@@ -25,14 +25,12 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Jürgen Kappler
  */
-@Component(service = LayoutStructureItemMapper.class)
+@Component(
+	property = "class.name=com.liferay.layout.util.structure.RowStyledLayoutStructureItem",
+	service = LayoutStructureItemMapper.class
+)
 public class RowLayoutStructureItemMapper
 	extends BaseStyledLayoutStructureItemMapper {
-
-	@Override
-	public String getClassName() {
-		return RowStyledLayoutStructureItem.class.getName();
-	}
 
 	@Override
 	public PageElement getPageElement(
@@ -118,6 +116,7 @@ public class RowLayoutStructureItemMapper
 							});
 					}
 				};
+				id = layoutStructureItem.getItemId();
 				type = Type.ROW;
 			}
 		};

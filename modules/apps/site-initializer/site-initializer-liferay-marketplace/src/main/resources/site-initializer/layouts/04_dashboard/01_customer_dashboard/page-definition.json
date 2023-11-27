@@ -3,6 +3,11 @@
 		"pageElements": [
 			{
 				"definition": {
+					"fragmentStyle": {
+						"borderWidth": "0",
+						"marginBottom": "6",
+						"marginTop": "9"
+					},
 					"indexed": true,
 					"layout": {
 						"borderWidth": 0,
@@ -15,7 +20,7 @@
 						"paddingLeft": 0,
 						"paddingRight": 0,
 						"paddingTop": 0,
-						"widthType": "Fluid"
+						"widthType": "Fixed"
 					}
 				},
 				"pageElements": [
@@ -37,6 +42,7 @@
 						"definition": {
 							"widgetInstance": {
 								"widgetConfig": {
+									"properties": "cloudBaseURL=https://console.liferay.cloud"
 								},
 								"widgetName": "com_liferay_client_extension_web_internal_portlet_ClientExtensionEntryPortlet_[$COMPANY_ID$]_LXC_liferay_marketplace_custom_element_purchased_apps"
 							}

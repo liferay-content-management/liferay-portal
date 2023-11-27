@@ -12,10 +12,6 @@ import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationCategory;
 import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationEntry;
 import com.liferay.notification.handler.NotificationHandler;
 import com.liferay.notification.term.evaluator.NotificationTermEvaluator;
-import com.liferay.object.definition.tree.Edge;
-import com.liferay.object.definition.tree.Node;
-import com.liferay.object.definition.tree.Tree;
-import com.liferay.object.definition.tree.TreeFactory;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
 import com.liferay.object.internal.layout.tab.screen.navigation.category.ObjectLayoutTabScreenNavigationCategory;
 import com.liferay.object.internal.notification.handler.ObjectDefinitionNotificationHandler;
@@ -55,6 +51,11 @@ import com.liferay.object.service.ObjectLayoutLocalService;
 import com.liferay.object.service.ObjectLayoutTabLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.service.ObjectViewLocalService;
+import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
+import com.liferay.object.tree.Edge;
+import com.liferay.object.tree.Node;
+import com.liferay.object.tree.Tree;
+import com.liferay.object.tree.TreeFactory;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -182,7 +183,9 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 		try {
 			ObjectDefinitionResourcePermissionUtil.populateResourceActions(
 				_objectActionLocalService, objectDefinition,
-				_portletLocalService, _resourceActions);
+				(ObjectDefinitionPersistence)
+					_objectDefinitionLocalService.getBasePersistence(),
+				_portletLocalService, _resourceActions, _treeFactory);
 		}
 		catch (Exception exception) {
 			return ReflectionUtil.throwException(exception);
@@ -196,13 +199,6 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_objectEntryLocalService);
 		ObjectEntryModelSummaryContributor objectEntryModelSummaryContributor =
 			new ObjectEntryModelSummaryContributor();
-
-		PortletResourcePermission portletResourcePermission =
-			PortletResourcePermissionFactory.create(
-				objectDefinition.getResourceName(),
-				new ObjectEntryPortletResourcePermissionLogic(
-					_accountEntryLocalService, _groupLocalService,
-					_objectDefinitionLocalService, _organizationLocalService));
 
 		List<ServiceRegistration<?>> serviceRegistrations = ListUtil.fromArray(
 			_bundleContext.registerService(
@@ -238,21 +234,6 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					"indexer.class.name", objectDefinition.getClassName()
 				).build()),
 			_bundleContext.registerService(
-				ModelResourcePermission.class,
-				new ObjectEntryModelResourcePermission(
-					_accountEntryLocalService,
-					_accountEntryOrganizationRelLocalService,
-					_groupLocalService, objectDefinition.getClassName(),
-					_objectDefinitionLocalService, _objectEntryLocalService,
-					_objectFieldLocalService, _objectRelationshipLocalService,
-					portletResourcePermission, _resourcePermissionLocalService,
-					_treeFactory, _userGroupRoleLocalService),
-				HashMapDictionaryBuilder.<String, Object>put(
-					"com.liferay.object", "true"
-				).put(
-					"model.class.name", objectDefinition.getClassName()
-				).build()),
-			_bundleContext.registerService(
 				NotificationHandler.class,
 				new ObjectDefinitionNotificationHandler(objectDefinition),
 				HashMapDictionaryBuilder.<String, Object>put(
@@ -282,13 +263,6 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				PersistedModelLocalService.class, _objectEntryLocalService,
 				MapUtil.singletonDictionary(
 					"model.class.name", objectDefinition.getClassName())),
-			_bundleContext.registerService(
-				PortletResourcePermission.class, portletResourcePermission,
-				HashMapDictionaryBuilder.<String, Object>put(
-					"com.liferay.object", "true"
-				).put(
-					"resource.name", objectDefinition.getResourceName()
-				).build()),
 			_bundleContext.registerService(
 				RESTContextPathResolver.class,
 				new RESTContextPathResolverImpl(
@@ -365,6 +339,45 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					objectDefinition, _objectEntryService,
 					_objectFieldLocalService,
 					_objectRelationshipLocalService)));
+
+		if (!objectDefinition.isRootDescendantNode()) {
+			PortletResourcePermission portletResourcePermission =
+				PortletResourcePermissionFactory.create(
+					objectDefinition.getResourceName(),
+					new ObjectEntryPortletResourcePermissionLogic(
+						_accountEntryLocalService, _groupLocalService,
+						_objectDefinitionLocalService,
+						_organizationLocalService));
+
+			serviceRegistrations.add(
+				_bundleContext.registerService(
+					ModelResourcePermission.class,
+					new ObjectEntryModelResourcePermission(
+						_accountEntryLocalService,
+						_accountEntryOrganizationRelLocalService,
+						_groupLocalService, objectDefinition.getClassName(),
+						_objectActionLocalService,
+						_objectDefinitionLocalService, _objectEntryLocalService,
+						_objectFieldLocalService,
+						_objectRelationshipLocalService,
+						portletResourcePermission,
+						_resourcePermissionLocalService, _treeFactory,
+						_userGroupRoleLocalService),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"com.liferay.object", "true"
+					).put(
+						"model.class.name", objectDefinition.getClassName()
+					).build()));
+
+			serviceRegistrations.add(
+				_bundleContext.registerService(
+					PortletResourcePermission.class, portletResourcePermission,
+					HashMapDictionaryBuilder.<String, Object>put(
+						"com.liferay.object", "true"
+					).put(
+						"resource.name", objectDefinition.getResourceName()
+					).build()));
+		}
 
 		try {
 			for (Locale locale : LanguageUtil.getAvailableLocales()) {
@@ -447,7 +460,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			long rootObjectDefinitionId)
 		throws PortalException {
 
-		Tree tree = _treeFactory.create(rootObjectDefinitionId);
+		Tree tree = _treeFactory.createObjectDefinitionTree(
+			rootObjectDefinitionId);
 
 		Iterator<Node> iterator = tree.iterator();
 
@@ -456,7 +470,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 			ObjectDefinition objectDefinition =
 				_objectDefinitionLocalService.fetchObjectDefinition(
-					node.getObjectDefinitionId());
+					node.getPrimaryKey());
 
 			if (objectDefinition == null) {
 				continue;

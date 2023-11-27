@@ -1218,7 +1218,7 @@ definition {
 			DropdownMenuItem.click(menuItem = ${cacheControl});
 
 			AssertTextEquals(
-				locator1 = "Dropdown#SELECTED_VALUE",
+				locator1 = "Dropdown#TRIGGER",
 				value1 = ${cacheControl});
 		}
 
@@ -1427,7 +1427,7 @@ definition {
 				Alert.viewErrorMessage(errorMessage = "The item is not copied because the site and asset library are not connected.");
 			}
 			else if (isSet(copyToStagingSite)) {
-				Alert.viewErrorMessage(errorMessage = "Cannot copy file entries to the live version of a site. Make your changes in staging and publish them to Live afterwards to make them public.");
+				Alert.viewErrorMessage(errorMessage = "Cannot copy to the live version of a site. Make your changes in staging and publish them to Live afterwards to make them public.");
 			}
 			else if (isSet(copyWithRequiredField)) {
 				Alert.viewErrorMessage(errorMessage = "No value defined for field name");
@@ -1439,6 +1439,23 @@ definition {
 				Alert.viewSuccessMessage();
 			}
 		}
+	}
+
+	@summary = "Copy a document's URL through the actions dropdown"
+	macro copyLink(rowEntry = null, sharingDisabled = null) {
+		LexiconEntry.openEntryMenu(rowEntry = ${rowEntry});
+
+		if (!(isSet(sharingDisabled))) {
+			MouseOver(
+				key_menuItem = "Share",
+				locator1 = "MenuItem#ANY_MENU_ITEM");
+		}
+
+		Click.mouseOverClick(
+			key_menuItem = "Copy Link",
+			locator1 = "MenuItem#MENU_ITEM_SPECIFIC");
+
+		Alert.viewSuccessMessage();
 	}
 
 	@summary = "Default summary"
@@ -2721,7 +2738,12 @@ definition {
 
 		SelectFrameTop();
 
-		Button.clickApply();
+		if (IsTextEqual(locator1 = "Modal#HEADER", value1 = "Filter by Extension")) {
+			Button.clickApply();
+		}
+		else {
+			Button.clickSelect();
+		}
 	}
 
 	@summary = "Default summary"

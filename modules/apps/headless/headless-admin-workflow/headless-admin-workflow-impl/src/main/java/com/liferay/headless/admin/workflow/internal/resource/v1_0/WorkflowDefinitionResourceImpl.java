@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
 
@@ -56,7 +55,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 )
 @CTAware
 public class WorkflowDefinitionResourceImpl
-	extends BaseWorkflowDefinitionResourceImpl implements EntityModelResource {
+	extends BaseWorkflowDefinitionResourceImpl {
 
 	@Override
 	public void create(
@@ -123,16 +122,18 @@ public class WorkflowDefinitionResourceImpl
 		throws Exception {
 
 		return _toWorkflowDefinition(
+			null,
 			() -> _workflowDefinitionManager.getWorkflowDefinition(
 				workflowDefinitionId));
 	}
 
 	@Override
 	public WorkflowDefinition getWorkflowDefinitionByName(
-			String name, Integer version)
+			String name, String contentFormat, Integer version)
 		throws Exception {
 
 		return _toWorkflowDefinition(
+			contentFormat,
 			() -> {
 				if (version == null) {
 					return _workflowDefinitionManager.
@@ -282,13 +283,14 @@ public class WorkflowDefinitionResourceImpl
 	}
 
 	private WorkflowDefinition _toWorkflowDefinition(
+			String contentFormat,
 			UnsafeSupplier
 				<com.liferay.portal.kernel.workflow.WorkflowDefinition,
 				 Exception> unsafeSupplier)
 		throws Exception {
 
 		try {
-			return _toWorkflowDefinition(unsafeSupplier.get());
+			return _toWorkflowDefinition(contentFormat, unsafeSupplier.get());
 		}
 		catch (Exception exception) {
 			Throwable throwable = exception.getCause();
@@ -302,13 +304,13 @@ public class WorkflowDefinitionResourceImpl
 	}
 
 	private WorkflowDefinition _toWorkflowDefinition(
+		String contentFormat,
 		com.liferay.portal.kernel.workflow.WorkflowDefinition
 			workflowDefinition) {
 
 		return new WorkflowDefinition() {
 			{
 				active = workflowDefinition.isActive();
-				content = workflowDefinition.getContent();
 				dateCreated = workflowDefinition.getCreateDate();
 				dateModified = workflowDefinition.getModifiedDate();
 				description = workflowDefinition.getDescription();
@@ -347,7 +349,14 @@ public class WorkflowDefinitionResourceImpl
 							"putWorkflowDefinition",
 							_workflowDefinitionModelResourcePermission)
 					).build());
+				setContent(
+					() -> {
+						if (StringUtil.equalsIgnoreCase(contentFormat, "xml")) {
+							return workflowDefinition.getContentAsXML();
+						}
 
+						return workflowDefinition.getContent();
+					});
 				setTitle_i18n(
 					() -> {
 						Map<String, String> title_i18n = new HashMap<>();
@@ -366,6 +375,13 @@ public class WorkflowDefinitionResourceImpl
 					});
 			}
 		};
+	}
+
+	private WorkflowDefinition _toWorkflowDefinition(
+		com.liferay.portal.kernel.workflow.WorkflowDefinition
+			workflowDefinition) {
+
+		return _toWorkflowDefinition(null, workflowDefinition);
 	}
 
 	private static final EntityModel _entityModel =

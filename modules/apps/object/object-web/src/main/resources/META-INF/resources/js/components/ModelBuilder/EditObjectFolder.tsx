@@ -6,13 +6,14 @@
 import React, {useEffect, useState} from 'react';
 import {FlowElement, useStore} from 'react-flow-renderer';
 
-import {KeyValuePair} from '../ObjectDetails/EditObjectDetails';
+import {Scope} from '../ObjectDetails/EditObjectDetails';
 import {ModalAddObjectDefinition} from '../ViewObjectDefinitions/ModalAddObjectDefinition';
 import {ModalEditObjectFolder} from '../ViewObjectDefinitions/ModalEditObjectFolder';
 import {getUpdatedModelBuilderStructurePayload} from '../ViewObjectDefinitions/objectDefinitionUtil';
 import Diagram from './Diagram/Diagram';
 import EditObjectFolderHeader from './EditObjectFolderHeader/EditObjectFolderHeader';
 import {ModalPublishObjectDefinitions} from './EditObjectFolderHeader/ModalPublishObjectDefinitions';
+import EmptyObjectFolderCard from './EmptyObjectFolderCard/EmptyObjectFolderCard';
 import LeftSidebar from './LeftSidebar/LeftSidebar';
 import {useObjectFolderContext} from './ModelBuilderContext/objectFolderContext';
 import {TYPES} from './ModelBuilderContext/typesEnum';
@@ -21,19 +22,20 @@ import {RightSideBar} from './RightSidebar/index';
 import './EditObjectFolder.scss';
 
 interface EditObjectFolder {
-	companyKeyValuePairs: KeyValuePair[];
+	companies: Scope[];
 	objectRelationshipDeletionTypes: LabelValueObject[];
-	siteKeyValuePairs: KeyValuePair[];
+	sites: Scope[];
 }
 
 export default function EditObjectFolder({
-	companyKeyValuePairs,
+	companies,
 	objectRelationshipDeletionTypes,
-	siteKeyValuePairs,
+	sites,
 }: EditObjectFolder) {
 	const [
 		{
 			elements,
+			isLoadingObjectFolder,
 			objectDefinitionsStorageTypes,
 			objectFolderName,
 			rightSidebarType,
@@ -180,15 +182,19 @@ export default function EditObjectFolder({
 			<div className="lfr-objects__model-builder-content">
 				<LeftSidebar setShowModal={setShowModal} />
 
-				<Diagram setShowModal={setShowModal} />
+				{!elements.length && !isLoadingObjectFolder && (
+					<EmptyObjectFolderCard setShowModal={setShowModal} />
+				)}
+
+				<Diagram />
 
 				<RightSideBar.Root>
 					{rightSidebarType === 'empty' && <RightSideBar.Empty />}
 
 					{rightSidebarType === 'objectDefinitionDetails' && (
 						<RightSideBar.ObjectDefinitionDetails
-							companyKeyValuePairs={companyKeyValuePairs}
-							siteKeyValuePairs={siteKeyValuePairs}
+							companies={companies}
+							sites={sites}
 						/>
 					)}
 

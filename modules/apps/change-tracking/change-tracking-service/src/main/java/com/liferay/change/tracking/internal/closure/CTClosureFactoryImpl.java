@@ -104,6 +104,8 @@ public class CTClosureFactoryImpl implements CTClosureFactory {
 		long ctCollectionId, Set<Long> classNameIds,
 		Map<Long, TableReferenceInfo<?>> combinedTableReferenceInfos) {
 
+		CTCollection ctCollection = _ctCollectionPersistence.fetchByPrimaryKey(
+			ctCollectionId);
 		Map<Long, List<Long>> map = new LinkedHashMap<>();
 		List<Node> nodes = new ArrayList<>();
 
@@ -146,9 +148,6 @@ public class CTClosureFactoryImpl implements CTClosureFactory {
 				combinedTableReferenceInfos.get(childClassNameId);
 
 			if (childTableReferenceInfo == null) {
-				CTCollection ctCollection =
-					_ctCollectionPersistence.fetchByPrimaryKey(ctCollectionId);
-
 				if ((ctCollection != null) &&
 					(ctCollection.getStatus() !=
 						WorkflowConstants.STATUS_DRAFT) &&

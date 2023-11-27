@@ -6,6 +6,7 @@
 package com.liferay.commerce.order.content.web.internal.portlet;
 
 import com.liferay.commerce.constants.CommerceOrderConstants;
+import com.liferay.commerce.constants.CommerceOrderWebKeys;
 import com.liferay.commerce.constants.CommercePortletKeys;
 import com.liferay.commerce.constants.CommerceWebKeys;
 import com.liferay.commerce.model.CommerceOrder;
@@ -50,6 +51,8 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -152,8 +155,14 @@ public class CommerceOpenOrderContentPortlet extends MVCPortlet {
 					commerceOrderUuid, groupId);
 			}
 
+			HttpServletRequest httpServletRequest =
+				_portal.getHttpServletRequest(portletRequest);
+
+			httpServletRequest.setAttribute(
+				CommerceOrderWebKeys.MERGE_GUEST_ORDER, Boolean.FALSE);
+
 			return _commerceOrderHttpHelper.getCurrentCommerceOrder(
-				_portal.getHttpServletRequest(portletRequest));
+				httpServletRequest);
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {

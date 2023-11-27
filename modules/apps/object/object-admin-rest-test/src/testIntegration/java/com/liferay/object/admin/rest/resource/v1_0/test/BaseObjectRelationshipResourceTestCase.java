@@ -178,6 +178,7 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 
 		ObjectRelationship objectRelationship = randomObjectRelationship();
 
+		objectRelationship.setExternalReferenceCode(regex);
 		objectRelationship.setName(regex);
 		objectRelationship.setObjectDefinitionExternalReferenceCode1(regex);
 		objectRelationship.setObjectDefinitionExternalReferenceCode2(regex);
@@ -190,6 +191,8 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 
 		objectRelationship = ObjectRelationshipSerDes.toDTO(json);
 
+		Assert.assertEquals(
+			regex, objectRelationship.getExternalReferenceCode());
 		Assert.assertEquals(regex, objectRelationship.getName());
 		Assert.assertEquals(
 			regex,
@@ -1145,6 +1148,78 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 	}
 
 	@Test
+	public void testPutObjectRelationshipByExternalReferenceCode()
+		throws Exception {
+
+		ObjectRelationship postObjectRelationship =
+			testPutObjectRelationshipByExternalReferenceCode_addObjectRelationship();
+
+		ObjectRelationship randomObjectRelationship =
+			randomObjectRelationship();
+
+		ObjectRelationship putObjectRelationship =
+			objectRelationshipResource.
+				putObjectRelationshipByExternalReferenceCode(
+					postObjectRelationship.getExternalReferenceCode(),
+					randomObjectRelationship);
+
+		assertEquals(randomObjectRelationship, putObjectRelationship);
+		assertValid(putObjectRelationship);
+
+		ObjectRelationship getObjectRelationship =
+			testPutObjectRelationshipByExternalReferenceCode_getObjectRelationship(
+				putObjectRelationship.getExternalReferenceCode());
+
+		assertEquals(randomObjectRelationship, getObjectRelationship);
+		assertValid(getObjectRelationship);
+
+		ObjectRelationship newObjectRelationship =
+			testPutObjectRelationshipByExternalReferenceCode_createObjectRelationship();
+
+		putObjectRelationship =
+			objectRelationshipResource.
+				putObjectRelationshipByExternalReferenceCode(
+					newObjectRelationship.getExternalReferenceCode(),
+					newObjectRelationship);
+
+		assertEquals(newObjectRelationship, putObjectRelationship);
+		assertValid(putObjectRelationship);
+
+		getObjectRelationship =
+			testPutObjectRelationshipByExternalReferenceCode_getObjectRelationship(
+				putObjectRelationship.getExternalReferenceCode());
+
+		assertEquals(newObjectRelationship, getObjectRelationship);
+
+		Assert.assertEquals(
+			newObjectRelationship.getExternalReferenceCode(),
+			putObjectRelationship.getExternalReferenceCode());
+	}
+
+	protected ObjectRelationship
+		testPutObjectRelationshipByExternalReferenceCode_getObjectRelationship(
+			String externalReferenceCode) {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected ObjectRelationship
+			testPutObjectRelationshipByExternalReferenceCode_createObjectRelationship()
+		throws Exception {
+
+		return randomObjectRelationship();
+	}
+
+	protected ObjectRelationship
+			testPutObjectRelationshipByExternalReferenceCode_addObjectRelationship()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
 	public void testDeleteObjectRelationship() throws Exception {
 		@SuppressWarnings("PMD.UnusedLocalVariable")
 		ObjectRelationship objectRelationship =
@@ -1447,6 +1522,16 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals(
+					"externalReferenceCode", additionalAssertFieldName)) {
+
+				if (objectRelationship.getExternalReferenceCode() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("label", additionalAssertFieldName)) {
 				if (objectRelationship.getLabel() == null) {
 					valid = false;
@@ -1732,6 +1817,19 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 				if (!Objects.deepEquals(
 						objectRelationship1.getEdge(),
 						objectRelationship2.getEdge())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"externalReferenceCode", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						objectRelationship1.getExternalReferenceCode(),
+						objectRelationship2.getExternalReferenceCode())) {
 
 					return false;
 				}
@@ -2045,6 +2143,52 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 		if (entityFieldName.equals("edge")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("externalReferenceCode")) {
+			Object object = objectRelationship.getExternalReferenceCode();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
 		}
 
 		if (entityFieldName.equals("id")) {
@@ -2374,6 +2518,8 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 		return new ObjectRelationship() {
 			{
 				edge = RandomTestUtil.randomBoolean();
+				externalReferenceCode = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				id = RandomTestUtil.randomLong();
 				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				objectDefinitionExternalReferenceCode1 = StringUtil.toLowerCase(

@@ -39,14 +39,12 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Jürgen Kappler
  */
-@Component(service = LayoutStructureItemMapper.class)
+@Component(
+	property = "class.name=com.liferay.layout.util.structure.ContainerStyledLayoutStructureItem",
+	service = LayoutStructureItemMapper.class
+)
 public class ContainerLayoutStructureItemMapper
 	extends BaseStyledLayoutStructureItemMapper {
-
-	@Override
-	public String getClassName() {
-		return ContainerStyledLayoutStructureItem.class.getName();
-	}
 
 	@Override
 	public PageElement getPageElement(
@@ -110,6 +108,7 @@ public class ContainerLayoutStructureItemMapper
 								containerStyledLayoutStructureItem));
 					}
 				};
+				id = layoutStructureItem.getItemId();
 				type = Type.SECTION;
 			}
 		};

@@ -1470,6 +1470,17 @@ public class VerifyProperties {
 			"com.liferay.search.web"
 		},
 
+		// Session
+
+		{
+			"session.timeout.auto.extend", "auto-extend",
+			"com.liferay.frontend.js.web"
+		},
+		{
+			"session.timeout.auto.extend.offset", "auto-extend-offset",
+			"com.liferay.frontend.js.web"
+		},
+
 		// Site Map
 
 		{
@@ -1735,7 +1746,7 @@ public class VerifyProperties {
 		"dl.file.entry.preview.auto.create.on.upgrade",
 		"dl.file.entry.preview.document.depth",
 		"dl.file.entry.previewable.processor.max.size",
-		"dl.file.entry.read.count.enabled",
+		"dl.file.entry.processors", "dl.file.entry.read.count.enabled",
 		"dl.file.entry.thumbnail.video.frame.percentage",
 		"dl.file.entry.type.ig.image.auto.create.on.upgrade",
 		"dl.file.entry.version.policy", "dl.file.extensions",

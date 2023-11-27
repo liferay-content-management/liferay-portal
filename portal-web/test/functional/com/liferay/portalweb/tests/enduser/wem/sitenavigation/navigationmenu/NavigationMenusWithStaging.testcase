@@ -1459,6 +1459,10 @@ definition {
 			MouseOver.javaScriptFocus(
 				key_nodeName = "Test Page Name",
 				locator1 = "Treeview#NODE_ITEM");
+
+			MouseOver.javaScriptFocus(
+				key_nodeName = "Test Page Name",
+				locator1 = "Treeview#NODE_ITEM");
 		}
 
 		task ("Then the navigation menu creator could view a tooltip with the page url") {

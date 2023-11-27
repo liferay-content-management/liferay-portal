@@ -12,13 +12,12 @@
 
 	.adt-apps-search-results .card-image-title-container .image-container {
 		height: 3rem;
-		min-width: 3rem;
 	}
 
-	.adt-apps-search-results .card-image-title-container .image-container .app-search-image {
-		height: 100%;
-		max-width: 100%;
-	  	object-fit: cover;
+	.adt-apps-search-results .cards-container .app-search-results-card .card-image-title-container .image-container .app-search-image {
+		height: 3rem;
+		min-width: 3rem;
+		object-fit: cover;
 	}
 
 	.adt-apps-search-results .labels .category-label-remainder:hover .category-names {
@@ -90,7 +89,7 @@
 					</#if>
 
 					<#if product.urls?has_content>
-						<#assign productURL = portalURL?replace("solutions-marketplace", "p") + "/" + product.urls.en_US />
+						<#assign productURL = portalURL?replace("home", "p") + "/" + product.urls.en_US />
 					<#else>
 						<#assign productURL = "" />
 					</#if>
@@ -110,7 +109,7 @@
 						<div class="align-items-center card-image-title-container d-flex pb-3">
 							<div class="image-container rounded">
 								<img
-									alt=${productName}
+									alt="${productName}"
 									class="app-search-image"
 									src="${productThumbnail1}"
 								/>

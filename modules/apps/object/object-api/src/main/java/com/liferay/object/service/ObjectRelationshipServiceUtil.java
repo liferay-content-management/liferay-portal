@@ -31,15 +31,15 @@ public class ObjectRelationshipServiceUtil {
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectRelationshipServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
 	public static ObjectRelationship addObjectRelationship(
-			long objectDefinitionId1, long objectDefinitionId2,
-			long parameterObjectFieldId, String deletionType,
-			Map<java.util.Locale, String> labelMap, String name, boolean system,
-			String type)
+			String externalReferenceCode, long objectDefinitionId1,
+			long objectDefinitionId2, long parameterObjectFieldId,
+			String deletionType, Map<java.util.Locale, String> labelMap,
+			String name, boolean system, String type)
 		throws PortalException {
 
 		return getService().addObjectRelationship(
-			objectDefinitionId1, objectDefinitionId2, parameterObjectFieldId,
-			deletionType, labelMap, name, system, type);
+			externalReferenceCode, objectDefinitionId1, objectDefinitionId2,
+			parameterObjectFieldId, deletionType, labelMap, name, system, type);
 	}
 
 	public static void addObjectRelationshipMappingTableValues(
@@ -56,6 +56,16 @@ public class ObjectRelationshipServiceUtil {
 		throws PortalException {
 
 		return getService().deleteObjectRelationship(objectRelationshipId);
+	}
+
+	public static ObjectRelationship
+			fetchObjectRelationshipByExternalReferenceCode(
+				String externalReferenceCode, long companyId,
+				long objectDefinitionId1)
+		throws PortalException {
+
+		return getService().fetchObjectRelationshipByExternalReferenceCode(
+			externalReferenceCode, companyId, objectDefinitionId1);
 	}
 
 	public static ObjectRelationship getObjectRelationship(
@@ -90,14 +100,14 @@ public class ObjectRelationshipServiceUtil {
 	}
 
 	public static ObjectRelationship updateObjectRelationship(
-			long objectRelationshipId, long parameterObjectFieldId,
-			String deletionType, boolean edge,
+			String externalReferenceCode, long objectRelationshipId,
+			long parameterObjectFieldId, String deletionType, boolean edge,
 			Map<java.util.Locale, String> labelMap)
 		throws PortalException {
 
 		return getService().updateObjectRelationship(
-			objectRelationshipId, parameterObjectFieldId, deletionType, edge,
-			labelMap);
+			externalReferenceCode, objectRelationshipId, parameterObjectFieldId,
+			deletionType, edge, labelMap);
 	}
 
 	public static ObjectRelationshipService getService() {

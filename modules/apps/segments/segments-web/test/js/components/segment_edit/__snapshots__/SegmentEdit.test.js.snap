@@ -56,7 +56,7 @@ exports[`SegmentEdit renders 1`] = `
                   role="presentation"
                 >
                   <use
-                    xlink:href="#en-us"
+                    href="#en-us"
                   />
                 </svg>
                 <span
@@ -146,7 +146,7 @@ exports[`SegmentEdit renders with edit buttons if the user has update permission
                   role="presentation"
                 >
                   <use
-                    xlink:href="#en-us"
+                    href="#en-us"
                   />
                 </svg>
                 <span
@@ -213,7 +213,7 @@ exports[`SegmentEdit renders with edit buttons if the user has update permission
                   role="presentation"
                 >
                   <use
-                    xlink:href="#cog"
+                    href="#cog"
                   />
                 </svg>
               </button>
@@ -285,7 +285,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                   role="presentation"
                 >
                   <use
-                    xlink:href="#en-us"
+                    href="#en-us"
                   />
                 </svg>
                 <span
@@ -350,7 +350,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                   role="presentation"
                 >
                   <use
-                    xlink:href="#cog"
+                    href="#cog"
                   />
                 </svg>
               </button>
@@ -386,7 +386,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                     role="presentation"
                   >
                     <use
-                      xlink:href="#warning-full"
+                      href="#warning-full"
                     />
                   </svg>
                 </span>
@@ -417,7 +417,7 @@ exports[`SegmentEdit renders with given values 1`] = `
               role="presentation"
             >
               <use
-                xlink:href="#times"
+                href="#times"
               />
             </svg>
           </button>
@@ -451,18 +451,18 @@ exports[`SegmentEdit renders with given values 1`] = `
                 >
                   <input
                     aria-label="search-properties"
-                    class="form-control input-group-inset input-group-inset-after"
+                    class="form-control form-control-sm input-group-inset input-group-inset-after"
                     data-testid="search-input"
                     placeholder="search-properties"
                     type="text"
                     value=""
                   />
                   <div
-                    class="input-group-inset-item input-group-inset-item-after"
+                    class="c-pr-0 input-group-inset-item input-group-inset-item-after"
                   >
                     <button
                       aria-label="search-properties"
-                      class="btn btn-unstyled"
+                      class="mr-1 pr-2 btn btn-unstyled"
                       data-testid="search-button"
                       title="search-properties"
                       type="button"
@@ -472,7 +472,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                         role="presentation"
                       >
                         <use
-                          xlink:href="#search"
+                          href="#search"
                         />
                       </svg>
                     </button>
@@ -490,12 +490,14 @@ exports[`SegmentEdit renders with given values 1`] = `
               >
                 <div
                   class="panel panel-unstyled"
+                  id="first-test-values-group"
                   role="tablist"
                 >
                   <button
                     aria-expanded="true"
                     class="panel-header panel-header-link collapse-icon collapse-icon-middle show btn btn-unstyled"
                     role="tab"
+                    tabindex="0"
                     type="button"
                   >
                     <div
@@ -516,7 +518,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                         role="presentation"
                       >
                         <use
-                          xlink:href="#angle-right"
+                          href="#angle-right"
                         />
                       </svg>
                     </span>
@@ -528,7 +530,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                         role="presentation"
                       >
                         <use
-                          xlink:href="#angle-down"
+                          href="#angle-down"
                         />
                       </svg>
                     </span>
@@ -541,7 +543,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                       class="panel-body c-px-0"
                     >
                       <p
-                        class="c-pt-1 c-px-4 text-secondary"
+                        class="c-pt-1 text-secondary"
                       >
                         inherited-attributes-are-not-taken-into-account-to-include-members-in-segments
                       </p>
@@ -549,19 +551,21 @@ exports[`SegmentEdit renders with given values 1`] = `
                         class="c-pl-0"
                       >
                         <li
-                          class="align-items-center criteria-sidebar-item-root c-py-2 c-pr-3 c-pl-3 c-my-1 c-mx-n4 d-flex  color--first-test-values-group"
+                          class="align-items-center criteria-sidebar-item-root c-py-2 c-pr-3 c-pl-1 c-my-1 d-flex  color--first-test-values-group"
                           draggable="true"
-                          tabindex="0"
+                          role="menuitem"
+                          tabindex="-1"
                         >
                           <span
-                            class="inline-item"
+                            class="c-p-2 inline-item"
+                            tabindex="-1"
                           >
                             <svg
                               class="lexicon-icon lexicon-icon-drag"
                               role="presentation"
                             >
                               <use
-                                xlink:href="#drag"
+                                href="#drag"
                               />
                             </svg>
                           </span>
@@ -576,7 +580,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                                 role="presentation"
                               >
                                 <use
-                                  xlink:href="#text"
+                                  href="#text"
                                 />
                               </svg>
                             </span>
@@ -679,7 +683,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                                 role="presentation"
                               >
                                 <use
-                                  xlink:href="#drag"
+                                  href="#drag"
                                 />
                               </svg>
                             </div>
@@ -735,7 +739,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                                 role="presentation"
                               >
                                 <use
-                                  xlink:href="#paste"
+                                  href="#paste"
                                 />
                               </svg>
                             </button>
@@ -750,7 +754,7 @@ exports[`SegmentEdit renders with given values 1`] = `
                                 role="presentation"
                               >
                                 <use
-                                  xlink:href="#times-circle"
+                                  href="#times-circle"
                                 />
                               </svg>
                             </button>
@@ -849,7 +853,7 @@ exports[`SegmentEdit renders without edit buttons if the user does not have upda
                   role="presentation"
                 >
                   <use
-                    xlink:href="#en-us"
+                    href="#en-us"
                   />
                 </svg>
                 <span

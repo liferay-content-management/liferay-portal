@@ -920,11 +920,20 @@ public class ProductResourceImpl extends BaseProductResourceImpl {
 
 		if (productOptions != null) {
 			for (ProductOption productOption : productOptions) {
+				serviceContext.setExpandoBridgeAttributes(
+					CustomFieldsUtil.toMap(
+						CPDefinitionOptionRel.class.getName(),
+						contextCompany.getCompanyId(),
+						productOption.getCustomFields(),
+						contextAcceptLanguage.getPreferredLocale()));
+
 				CPDefinitionOptionRel cpDefinitionOptionRel =
 					ProductOptionUtil.addOrUpdateCPDefinitionOptionRel(
 						_cpDefinitionOptionRelService, _cpOptionService,
 						productOption, cpDefinition.getCPDefinitionId(),
 						serviceContext);
+
+				serviceContext.setExpandoBridgeAttributes(null);
 
 				ProductOptionValue[] productOptionValues =
 					productOption.getProductOptionValues();
@@ -996,6 +1005,10 @@ public class ProductResourceImpl extends BaseProductResourceImpl {
 
 		if (images != null) {
 			for (Attachment attachment : images) {
+				if (attachment.getTags() != null) {
+					serviceContext.setAssetTagNames(attachment.getTags());
+				}
+
 				serviceContext.setExpandoBridgeAttributes(
 					_getExpandoBridgeAttributes(attachment));
 
@@ -1018,6 +1031,10 @@ public class ProductResourceImpl extends BaseProductResourceImpl {
 
 		if (attachments != null) {
 			for (Attachment attachment : attachments) {
+				if (attachment.getTags() != null) {
+					serviceContext.setAssetTagNames(attachment.getTags());
+				}
+
 				serviceContext.setExpandoBridgeAttributes(
 					_getExpandoBridgeAttributes(attachment));
 

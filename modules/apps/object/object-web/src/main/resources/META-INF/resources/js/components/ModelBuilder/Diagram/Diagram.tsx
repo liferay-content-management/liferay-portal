@@ -4,6 +4,7 @@
  */
 
 import {API} from '@liferay/object-js-components-web';
+import classNames from 'classnames';
 import React, {useCallback, useState} from 'react';
 import ReactFlow, {
 	Background,
@@ -24,13 +25,11 @@ import DefaultObjectRelationshipEdge from '../Edges/DefaultObjectRelationshipEdg
 import SelfObjectRelationshipEdge from '../Edges/SelfObjectRelationshipEdge';
 import {useObjectFolderContext} from '../ModelBuilderContext/objectFolderContext';
 import {TYPES} from '../ModelBuilderContext/typesEnum';
-import {EmptyNode} from '../ObjectDefinitionNode/EmptyNode';
 import {ObjectDefinitionNode} from '../ObjectDefinitionNode/ObjectDefinitionNode';
 
 import './Diagram.scss';
 
 const NODE_TYPES = {
-	emptyNode: EmptyNode,
 	objectDefinitionNode: ObjectDefinitionNode,
 };
 
@@ -39,11 +38,7 @@ const EDGE_TYPES = {
 	selfObjectRelationshipEdge: SelfObjectRelationshipEdge,
 };
 
-function DiagramBuilder({
-	setShowModal,
-}: {
-	setShowModal: (value: React.SetStateAction<ModelBuilderModals>) => void;
-}) {
+function DiagramBuilder() {
 	const [
 		{
 			baseResourceURL,
@@ -51,6 +46,7 @@ function DiagramBuilder({
 			isLoadingObjectFolder,
 			selectedObjectFolder,
 			showChangesSaved,
+			showSidebars,
 		},
 		dispatch,
 	] = useObjectFolderContext();
@@ -72,20 +68,6 @@ function DiagramBuilder({
 		};
 	}>();
 
-	const emptyNode = [
-		{
-			data: {
-				setShowModal,
-			},
-			id: 'empty',
-			position: {
-				x: 400,
-				y: 400,
-			},
-			type: 'emptyNode',
-		},
-	];
-
 	const store = useStore();
 
 	const onConnect = useCallback(
@@ -99,6 +81,7 @@ function DiagramBuilder({
 			) as Node<ObjectDefinitionNodeData>;
 
 			if (
+				connection.targetHandle === connection.sourceHandle ||
 				(sourceNode.data?.modifiable === false &&
 					targetNode.data?.modifiable === false) ||
 				(sourceNode.data?.system && targetNode.data?.system) ||
@@ -125,11 +108,7 @@ function DiagramBuilder({
 	);
 
 	const onNodeDragStop = async (node: Node<ObjectDefinitionNodeData>) => {
-		const objectFolder = await API.getObjectFolderByExternalReferenceCode(
-			selectedObjectFolder.externalReferenceCode
-		);
-
-		const updatedObjectFolderItems = objectFolder.objectFolderItems.map(
+		const updatedObjectFolderItems = selectedObjectFolder.objectFolderItems.map(
 			(objectFolderItem) => {
 				if (
 					objectFolderItem.objectDefinitionExternalReferenceCode ===
@@ -147,10 +126,7 @@ function DiagramBuilder({
 		);
 
 		const updatedObjectFolder = {
-			externalReferenceCode: selectedObjectFolder.externalReferenceCode,
-			id: selectedObjectFolder.id,
-			label: selectedObjectFolder.label,
-			name: selectedObjectFolder.name,
+			...selectedObjectFolder,
 			objectFolderItems: updatedObjectFolderItems,
 		};
 
@@ -167,6 +143,7 @@ function DiagramBuilder({
 				objectDefinitionNodes: nodes,
 				objectRelationshipEdges: edges,
 				updatedObjectDefinitionNodeId: node.data?.id as number,
+				updatedObjectFolder,
 			},
 			type: TYPES.SET_SELECTED_OBJECT_DEFINITION_NODE_POSITION,
 		});
@@ -190,9 +167,16 @@ function DiagramBuilder({
 			payload: {
 				...payload,
 				rightSidebarType: 'objectRelationshipDetails',
-				selectedObjectRelationshipEdgeId: newObjectRelationshipId,
+				selectedObjectRelationshipId: newObjectRelationshipId,
 			},
 			type: TYPES.UPDATE_MODEL_BUILDER_STRUCTURE,
+		});
+
+		dispatch({
+			payload: {
+				selectedObjectRelationshipId: newObjectRelationshipId,
+			},
+			type: TYPES.SET_SELECTED_OBJECT_RELATIONSHIP_EDGE,
 		});
 	};
 
@@ -226,13 +210,7 @@ function DiagramBuilder({
 				connectionLineType={ConnectionLineType.SmoothStep}
 				connectionMode={ConnectionMode.Loose}
 				edgeTypes={EDGE_TYPES}
-				elements={
-					!isLoadingObjectFolder
-						? elements.length
-							? elements
-							: emptyNode
-						: []
-				}
+				elements={elements}
 				minZoom={0.1}
 				nodeTypes={NODE_TYPES}
 				onConnect={onConnect}
@@ -242,8 +220,26 @@ function DiagramBuilder({
 
 				{!isLoadingObjectFolder ? (
 					<>
-						<Controls showInteractive={false} />
-						<MiniMap />
+						<Controls
+							className={classNames({
+								'lfr__object-model-builder-controls-sidebars-hidden': !showSidebars,
+								'lfr__object-model-builder-controls-sidebars-not-hidden': showSidebars,
+							})}
+							showInteractive={false}
+						/>
+
+						<MiniMap
+							maskColor="none"
+							nodeBorderRadius={8}
+							nodeColor="#F7F8F9"
+							nodeStrokeColor="#0B5FFF"
+							nodeStrokeWidth={10}
+							style={{
+								backgroundColor: '#F7F8F9',
+								border: '4px solid #A7A9BC',
+								borderRadius: '8px',
+							}}
+						/>
 					</>
 				) : (
 					<div className="lfr-objects__model-builder-diagram-area-loading">

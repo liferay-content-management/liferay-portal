@@ -92,10 +92,16 @@ const DLFolderSelector = ({
 
 		return sub(TPL_ERROR_MESSAGES, {
 			messages: errors,
-			title: sub(
-				Liferay.Language.get('x-items-could-not-be-copied'),
-				failedItems
-			),
+			title:
+				failedItems > 1
+					? sub(
+							Liferay.Language.get('x-items-could-not-be-copied'),
+							failedItems
+					  )
+					: sub(
+							Liferay.Language.get('x-item-could-not-be-copied'),
+							failedItems
+					  ),
 		});
 	};
 
@@ -182,6 +188,7 @@ const DLFolderSelector = ({
 					disabled
 					id={`${portletNamespace}copyFromInput`}
 					placeholder={dlObjectName}
+					readOnly
 					type="text"
 				/>
 

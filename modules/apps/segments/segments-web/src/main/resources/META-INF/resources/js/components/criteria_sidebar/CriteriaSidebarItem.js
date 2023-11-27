@@ -6,11 +6,13 @@
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useState} from 'react';
 import {DragSource as dragSource} from 'react-dnd';
 
+import useKeyboardNavigation from '../../hooks/useKeyboardNavigation';
 import {PROPERTY_TYPES} from '../../utils/constants';
 import {DragTypes} from '../../utils/drag-types';
+import {LIST_ITEM_TYPES} from '../../utils/listItemTypes';
 
 const TYPE_ICON_MAP = {
 	[PROPERTY_TYPES.BOOLEAN]: 'check-circle',
@@ -31,16 +33,31 @@ function CriteriaSidebarItem({
 	label,
 	type,
 }) {
+	const [isActive, setIsActive] = useState(false);
+	const {isTarget, setElement} = useKeyboardNavigation({
+		type: LIST_ITEM_TYPES.listItem,
+	});
+
 	return connectDragSource(
 		<li
 			className={classNames(
-				'align-items-center criteria-sidebar-item-root c-py-2 c-pr-3 c-pl-3 c-my-1 c-mx-n4 d-flex ',
-				{dragging},
+				'align-items-center criteria-sidebar-item-root c-py-2 c-pr-3 c-pl-1 c-my-1 d-flex ',
+				{
+					'criteria-sidebar-item-root--active': isActive,
+					dragging,
+				},
 				className
 			)}
-			tabIndex="0"
+			ref={setElement}
+			role="menuitem"
+			tabIndex={isTarget ? 0 : -1}
 		>
-			<span className="inline-item">
+			<span
+				className="c-p-2 inline-item"
+				onBlur={() => setIsActive(false)}
+				onFocus={() => setIsActive(true)}
+				tabIndex={isTarget ? 0 : -1}
+			>
 				<ClayIcon symbol="drag" />
 			</span>
 

@@ -4,7 +4,7 @@
  */
 
 import {getLocalizableLabel} from '@liferay/object-js-components-web';
-import {Edge, Node, isEdge} from 'react-flow-renderer';
+import {Edge, Node, isEdge, isNode} from 'react-flow-renderer';
 
 import {defaultLanguageId} from '../../../utils/constants';
 import {manyMarkerId} from '../Edges/ManyMarker';
@@ -410,7 +410,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 				objectFolders,
 				rightSidebarType,
 				selectedObjectFolder,
-				selectedObjectRelationshipEdgeId,
+				selectedObjectRelationshipId,
 			} = action.payload;
 
 			const newLeftSidebarItems = objectFolders.map((objectFolder) => {
@@ -455,6 +455,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 
 			let newObjectDefinitionNodes: Node<ObjectDefinitionNodeData>[] = [];
 			const allEdges: Edge<ObjectRelationshipEdgeData>[] = [];
+			const updatedObjectFolderItems: ObjectFolderItem[] = [];
 
 			if (currentObjectFolder) {
 				const positionColumn = {positionX: 0, positionY: 0};
@@ -506,7 +507,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 												objectRelationshipId:
 													objectRelationship.id,
 												selected:
-													selectedObjectRelationshipEdgeId ===
+													selectedObjectRelationshipId ===
 													objectRelationship.id,
 												selfObjectRelationships,
 												sourceY: 0,
@@ -517,11 +518,11 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 											source: `${objectDefinition.id}`,
 											sourceHandle: isSelfObjectRelationship
 												? 'fixedLeftHandle'
-												: `${objectDefinition.id}`,
+												: null,
 											target: `${objectRelationship.objectDefinitionId2}`,
 											targetHandle: isSelfObjectRelationship
 												? 'fixedRightHandle'
-												: `${objectRelationship.objectDefinitionId2}`,
+												: null,
 											type: isSelfObjectRelationship
 												? 'selfObjectRelationshipEdge'
 												: 'defaultObjectRelationshipEdge',
@@ -543,16 +544,23 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 						} = objectFolderItem as ObjectFolderItem;
 
 						if (positionX === 0 && positionY === 0) {
-							positionX = positionColumn.positionX * 300 + 200;
-							positionY = positionColumn.positionY * 400 + 100;
+							positionX = positionColumn.positionX * 380 + 50;
+							positionY = positionColumn.positionY * 450 + 100;
 
 							positionColumn.positionX++;
 						}
 
-						if (index % 4 === 0 && index !== 0) {
+						if ((index + 1) % 4 === 0 && index !== 0) {
 							positionColumn.positionY++;
 							positionColumn.positionX = 0;
 						}
+
+						updatedObjectFolderItems.push({
+							linkedObjectDefinition: objectFolderItem?.linkedObjectDefinition!,
+							objectDefinitionExternalReferenceCode: objectFolderItem?.objectDefinitionExternalReferenceCode!,
+							positionX,
+							positionY,
+						});
 
 						return {
 							data: {
@@ -581,7 +589,11 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 					...newObjectRelationshipEdges,
 				],
 				leftSidebarItems: newLeftSidebarItems,
-				selectedObjectFolder,
+				selectedObjectFolder: {
+					...selectedObjectFolder,
+					objectFolderItems: updatedObjectFolderItems,
+				},
+				selectedObjectRelationship: null,
 			};
 
 			if (rightSidebarType) {
@@ -839,6 +851,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 				objectDefinitionNodes,
 				objectRelationshipEdges,
 				updatedObjectDefinitionNodeId,
+				updatedObjectFolder,
 			} = action.payload;
 
 			const newObjectDefinitionNodes = objectDefinitionNodes.map(
@@ -863,23 +876,22 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 					...newObjectDefinitionNodes,
 					...objectRelationshipEdges,
 				],
+				selectedObjectFolder: updatedObjectFolder,
 			};
 		}
 
 		case TYPES.SET_SELECTED_OBJECT_RELATIONSHIP_EDGE: {
-			const {
-				objectDefinitionNodes,
-				objectRelationshipEdges,
-				selectedObjectRelationshipId,
-			} = action.payload;
+			const {selectedObjectRelationshipId} = action.payload;
 
 			const {elements} = state;
 
-			const edges = objectRelationshipEdges
-				? objectRelationshipEdges
-				: (elements.filter((element) => isEdge(element)) as Edge<
-						ObjectRelationshipEdgeData
-				  >[]);
+			const edges = elements.filter((element) => isEdge(element)) as Edge<
+				ObjectRelationshipEdgeData
+			>[];
+
+			const nodes = elements.filter((element) => isNode(element)) as Node<
+				ObjectDefinitionNodeData
+			>[];
 
 			const selectedObjectRelationshipEdge = edges.find(
 				(objectRelationshipEdge) =>
@@ -900,15 +912,15 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 				})
 			) as Edge<ObjectRelationshipEdgeData>[];
 
-			const selectedObjectDefinitionNode = objectDefinitionNodes.find(
+			const selectedObjectDefinitionNode = nodes.find(
 				(objectDefinitionNode) => objectDefinitionNode.data?.selected
 			);
 
-			const newObjectDefinitionNodes = objectDefinitionNodes;
+			const newObjectDefinitionNodes = nodes;
 
 			if (selectedObjectDefinitionNode?.data) {
 				const {objectFields} = selectedObjectDefinitionNode.data;
-				const selectedObjectDefinitionNodeIndex = objectDefinitionNodes.findIndex(
+				const selectedObjectDefinitionNodeIndex = nodes.findIndex(
 					(objectDefinitionNode) =>
 						objectDefinitionNode.data?.selected
 				);
@@ -970,7 +982,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 				(objectDefinitionNode) => {
 					if (
 						objectDefinitionNode.data?.id ===
-						updatedObjectDefinition.id?.toString()
+						updatedObjectDefinition.id
 					) {
 						return {
 							...objectDefinitionNode,
@@ -1000,8 +1012,8 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 						updatedObjectDefinitions = leftSidebarItem.leftSidebarObjectDefinitionItems?.map(
 							(leftSidebarObjectDefinitionItem) => {
 								if (
-									leftSidebarObjectDefinitionItem.id.toString() ===
-									updatedObjectDefinition.id?.toString()
+									leftSidebarObjectDefinitionItem.id ===
+									updatedObjectDefinition.id
 								) {
 									return {
 										...leftSidebarObjectDefinitionItem,

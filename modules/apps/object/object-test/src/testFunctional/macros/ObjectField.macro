@@ -24,20 +24,6 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro assertOptionAndDescriptionOnRequestFiles(description = null, option = null) {
-		Click(locator1 = "ObjectField#REQUEST_FILES_INPUT");
-
-		AssertElementPresent(
-			key_fieldType = ${option},
-			locator1 = "ObjectField#TYPE_OPTION");
-
-		AssertTextEquals(
-			key_type = ${option},
-			locator1 = "ObjectField#FIELD_TYPE_DESCRIPTION",
-			value1 = ${description});
-	}
-
-	@summary = "Default summary"
 	macro checkLimitCharacters() {
 		Click(
 			key_labelName = "Limit Characters",
@@ -58,13 +44,9 @@ definition {
 	macro editFormulaField(newContent = null, formulaScript = null, newTypeFormula = null) {
 		ObjectField.typeLabel(content = ${newContent});
 
-		Click(
-			key_filterLabel = "Output",
-			locator1 = "ObjectCustomViews#SELECT_FILTER_GENERIC");
-
-		Click(
-			key_dropdownItem = ${newTypeFormula},
-			locator1 = "ObjectField#SELECT_FORMULA_FIELD_OPTION");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Output",
+			optionName = ${newTypeFormula});
 
 		Type(
 			key_text = "Formula Builder",
@@ -81,33 +63,16 @@ definition {
 
 	@summary = "Default summary"
 	macro selectOptionOnRequestFiles(option = null) {
-		Click(locator1 = "ObjectField#REQUEST_FILES_INPUT");
-
-		Click(
-			key_fieldType = ${option},
-			locator1 = "ObjectField#TYPE_OPTION");
-	}
-
-	@summary = "Default summary"
-	macro selectPicklist(picklistName = null) {
-		if (!(isSet(dropdownLabel))) {
-			var dropdownLabel = "Picklist";
-		}
-
-		Click(
-			dropdownLabel = ${dropdownLabel},
-			locator1 = "ObjectField#ANY_DROPDOWN_LABEL");
-
-		MenuItem.click(menuItem = ${picklistName});
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Request Files",
+			optionName = ${option});
 	}
 
 	@summary = "Default summary"
 	macro selectType(fieldType = null) {
-		Click(locator1 = "ObjectField#TYPE_FIELD");
-
-		Click(
-			key_fieldType = ${fieldType},
-			locator1 = "ObjectField#TYPE_OPTION");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Type",
+			optionName = ${fieldType});
 	}
 
 	@summary = "Default summary"

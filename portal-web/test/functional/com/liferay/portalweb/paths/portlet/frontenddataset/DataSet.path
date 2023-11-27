@@ -84,6 +84,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EDIT_DATA_SET_ITEMS</td>
+	<td>//textarea</td>
+	<td></td>
+</tr>
+<tr>
 	<td>EDIT_DATA_SET_VIEW</td>
 	<td>//div[contains(@class,"sheet-section")]//div[contains(@class,"form-group") and contains (.,'${key_type}')]//input[contains(@class,"form-control")]</td>
 	<td></td>
@@ -385,7 +390,7 @@
 
 <tr>
 	<td>FILTER_BY_SELECT</td>
-	<td>//div[label[contains(.,'Filter By')]]/select</td>
+	<td>//div[label[contains(.,'Filter By')]]/..//button[contains(@class,'select')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -395,7 +400,7 @@
 </tr>
 <tr>
 	<td>SELECT_DATASET</td>
-	<td>//table[contains(@class,'table-list')]//tr[contains(@class,'orderable-table-row') and contains(.,'${key_nameField}')]//td[@class="drag-handle-cell"]//button[@aria-label="Drag Item"]</td>
+	<td>//table[contains(@class,'table-list')]//tr[contains(@class,'orderable-table-row') and contains(.,'${key_nameField}')]//td[@class="drag-handle-cell"]//button[contains(@aria-label, 'Drag')]</td>
 	<td></td>
 </tr>
 
@@ -462,6 +467,21 @@
 <tr>
 	<td>ICON_IN_DATA_SET_FRAGMENT</td>
 	<td>xpath=(//div[(@class="dnd-tr")]/div[contains(@class,"dnd-td") and contains(string(), "${key_entryName}")]/..//*[contains(@class,'${key_icon}')])[${key_rowNumber}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANY_DISABLED</td>
+	<td>//select[@placeholder="${key_placeholderText}"]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VERTICAL_ELLIPSIS_N</td>
+	<td>xpath=(//tr[.//*[normalize-space(text())='${key_text}']]//button[contains(@class,'dropdown-toggle')])[${key_index}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PLUS_N</td>
+	<td>xpath=(//a[contains(@class,'btn')][contains(@href,'new') or contains(@href,'redirect') or contains(@href,'mvc') or contains(@href,'javascript')][.//*[name()='svg'][contains(@class,'icon-plus')]][not(contains(@class,'borderless'))] | //button[not(contains(@class,'borderless'))][not(contains(@class,'btn-unstyled'))][*[contains(@class,'icon-plus')]])[2]</td>
 	<td></td>
 </tr>
 

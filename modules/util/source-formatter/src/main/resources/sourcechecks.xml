@@ -84,6 +84,11 @@
 
 		<!-- Liferay Source Checks -->
 
+		<check name="BNDBreakingChangeCommitMessageCheck">
+			<category name="Bug Prevention" />
+			<description name="Checks that commit message should contain the schematized breaking changes." />
+			<property name="enabled" value="false" />
+		</check>
 		<check name="BNDExportsCheck">
 			<category name="Bug Prevention" />
 			<description name="Checks that modules not ending with `-api`, `-client`, `-spi`, `-taglib`, `-test-util` do not export packages." />
@@ -974,6 +979,10 @@
 
 		<!-- Liferay Source Checks -->
 
+		<check name="JSONBatchEngineDataFileCheck">
+			<category name="Styling" />
+			<description name="Remove elements in `*.batch-engine-data.json` files." />
+		</check>
 		<check name="JSONDeprecatedPackagesCheck">
 			<category name="Bug Prevention" />
 			<description name="Finds incorrect use of deprecated packages in `package.json` files." />
@@ -1635,10 +1644,6 @@
 			<category name="Upgrade" />
 			<description name="CookieKeys class was replaced by CookiesManagerUtil and CookieConstants" />
 		</check>
-		<check name="UpgradeJavaCookieUtilCheck">
-			<category name="Upgrade" />
-			<description name="Replace CookieUtilCheck.get by CookiesManagerUtil.getCookieValue and reorder parameters" />
-		</check>
 		<check name="UpgradeJavaFacetedSearcherCheck">
 			<category name="Upgrade" />
 			<description name="Replaces the references of the `Indexer indexer = FacetedSearcher.getInstance();` declaration and `indexer.search` method call." />
@@ -1652,10 +1657,6 @@
 			<category name="Upgrade" />
 			<description name="Reorder parameters in the getItems and getItemsCount methods of the FDSDataProvider interface" />
 			<weight>1</weight>
-		</check>
-		<check name="UpgradeJavaFetchAssetCategoryByExternalReferenceCodeCheck">
-			<category name="Upgrade" />
-			<description name="Adds a message about the breaking change made on method `fetchAssetCategoryByExternalReferenceCode` of `AssetCategoryLocalService` and `AssetCategoryLocalServiceUtil` classes." />
 		</check>
 		<check name="UpgradeJavaGetFDSTableSchemaParameterCheck">
 			<category name="Upgrade" />
@@ -1704,17 +1705,9 @@
 			<category name="Upgrade" />
 			<description name="Run code to delete StorageTypeAware interface" />
 		</check>
-		<check name="UpgradeJavaUpdateCommerceAddressCheck">
-			<category name="Upgrade" />
-			<description name="Replace parameter in updateCommerceAddress method by other parameters list" />
-		</check>
 		<check name="UpgradeJSPFieldSetGroupCheck">
 			<category name="Upgrade" />
 			<description name="Run code to remove 'fieldset-group' tag" />
-		</check>
-		<check name="UpgradePortletDisplayCheck">
-			<category name="Upgrade" />
-			<description name="Replaces 'portletDisplay.getPortletInstanceConfiguration' with 'ConfigurationProviderUtil.getPortletInstanceConfiguration'" />
 		</check>
 		<check name="UpgradePortletFTLCheck">
 			<category name="Upgrade" />
@@ -1734,7 +1727,7 @@
 		</check>
 		<check name="UpgradeSetResultsSetTotalMethodCheck">
 			<category name="Upgrade" />
-			<description name="Run code migration of method searchContainer.setResults to the searchContainer.setResultsAndTotal and delete searchContainer.setTotal" />
+			<description name="Replaces methods setResults and setTotal from SearchContainer with the method setResultsAndTotal only" />
 		</check>
 		<check name="UpgradeVelocityCommentMigrationCheck">
 			<category name="Upgrade" />

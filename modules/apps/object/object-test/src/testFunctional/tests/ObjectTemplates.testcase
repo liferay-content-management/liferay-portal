@@ -82,7 +82,9 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = "Custom Object 149241");
 
-		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Panel Link",
+			optionName = "Object");
 
 		PortletEntry.save();
 
@@ -140,6 +142,8 @@ definition {
 	@description = "LPS-148544 - Verify it's possible to map a Date field for a template on the content page and view the entries"
 	@priority = 4
 	test CanMapAndViewDateField {
+		property portal.upstream = "quarantine";
+
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 149245",
 			objectName = "CustomObject149245",
@@ -161,7 +165,9 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = "Custom Object 149245");
 
-		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Panel Link",
+			optionName = "Object");
 
 		PortletEntry.save();
 
@@ -240,7 +246,9 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = "Custom Object 149246");
 
-		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Panel Link",
+			optionName = "Object");
 
 		PortletEntry.save();
 
@@ -319,7 +327,9 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = "Custom Object 149242");
 
-		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Panel Link",
+			optionName = "Object");
 
 		PortletEntry.save();
 
@@ -398,7 +408,9 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = "Custom Object 149244");
 
-		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Panel Link",
+			optionName = "Object");
 
 		PortletEntry.save();
 
@@ -472,7 +484,9 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = "Custom Object 149243");
 
-		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Panel Link",
+			optionName = "Object");
 
 		ObjectAdmin.goToFieldsTab();
 
@@ -488,7 +502,9 @@ definition {
 
 		ObjectAdmin.goToCustomObject(objectName = "CustomObject149243");
 
-		ObjectAdmin.addObjectPicklistFieldEntryViaUI(picklistOption = "Item Test");
+		ObjectAdmin.addObjectPicklistFieldEntryViaUI(
+			labelName = "Field Picklist",
+			picklistOption = "Item Test");
 
 		ObjectAdmin.goToCustomObject(objectName = "CustomObject149243");
 
@@ -562,7 +578,9 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = "Custom Object 149240");
 
-		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Panel Link",
+			optionName = "Object");
 
 		PortletEntry.save();
 

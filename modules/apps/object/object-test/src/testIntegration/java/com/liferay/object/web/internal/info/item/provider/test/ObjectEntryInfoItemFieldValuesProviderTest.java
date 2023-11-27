@@ -146,7 +146,7 @@ public class ObjectEntryInfoItemFieldValuesProviderTest {
 				_parentObjectDefinition.getObjectDefinitionId());
 
 		_objectRelationshipLocalService.addObjectRelationship(
-			TestPropsValues.getUserId(),
+			null, TestPropsValues.getUserId(),
 			_parentObjectDefinition.getObjectDefinitionId(),
 			_childObjectDefinition.getObjectDefinitionId(), 0,
 			ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
@@ -313,6 +313,7 @@ public class ObjectEntryInfoItemFieldValuesProviderTest {
 			_companyLocalService.getCompany(group.getCompanyId()));
 		themeDisplay.setLocale(LocaleUtil.getDefault());
 		themeDisplay.setScopeGroupId(group.getGroupId());
+		themeDisplay.setSiteGroupId(group.getGroupId());
 		themeDisplay.setTimeZone(TimeZoneUtil.getDefault());
 		themeDisplay.setUser(TestPropsValues.getUser());
 

@@ -43,16 +43,6 @@ definition {
 			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject288");
 		}
 
-		task ("Change the Commerce Product Group title field") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectSystemObject(label = "Commerce Product Group");
-
-			CreateObject.selectTitleField(fieldLabel = "Title");
-
-			PortletEntry.save();
-		}
-
 		task ("Create a Commerce Product Group") {
 			Navigator.openURL();
 
@@ -102,6 +92,7 @@ definition {
 	@description = "LPS-152408 - Verify that it's possible to create an object entry related to Commerce Products"
 	@priority = 4
 	test CanCreateEntryRelatedToCommerceProducts {
+		property portal.upstream = "quarantine";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -119,16 +110,6 @@ definition {
 				relationshipType = "oneToMany");
 
 			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject289");
-		}
-
-		task ("Change the Commerce Product title field") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectSystemObject(label = "Commerce Product");
-
-			CreateObject.selectTitleField(fieldLabel = "Name");
-
-			CreateObject.saveObject();
 		}
 
 		task ("Create a Commerce Product") {

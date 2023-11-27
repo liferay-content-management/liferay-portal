@@ -9,6 +9,7 @@ import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectValidationRuleConstants;
 import com.liferay.object.constants.ObjectValidationRuleSettingConstants;
 import com.liferay.object.internal.entry.util.ObjectEntrySearchUtil;
+import com.liferay.object.model.ObjectEntryTable;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectValidationRule;
 import com.liferay.object.model.ObjectValidationRuleSetting;
@@ -64,6 +65,7 @@ public class UniqueCompositeKeyObjectValidationRuleEngineImpl
 				_objectDefinitionLocalService.fetchObjectDefinition(
 					objectValidationRule.getObjectDefinitionId()),
 				_getPredicate(
+					GetterUtil.getLong(entryDTO.get("id")),
 					(Map<String, Object>)entryDTO.get("properties"),
 					objectValidationRule));
 		}
@@ -91,10 +93,11 @@ public class UniqueCompositeKeyObjectValidationRuleEngineImpl
 	}
 
 	private Predicate _getPredicate(
-		Map<String, Object> entryValues,
+		long objectEntryId, Map<String, Object> entryValues,
 		ObjectValidationRule objectValidationRule) {
 
-		Predicate predicate = null;
+		Predicate predicate = ObjectEntryTable.INSTANCE.objectEntryId.neq(
+			objectEntryId);
 
 		for (ObjectValidationRuleSetting objectValidationRuleSetting :
 				objectValidationRule.getObjectValidationRuleSettings()) {
@@ -146,13 +149,11 @@ public class UniqueCompositeKeyObjectValidationRuleEngineImpl
 				ObjectEntrySearchUtil.getUniqueCompositeKeyObjectFieldPredicate(
 					(Column<?, Object>)column, objectField.getDBType(), value);
 
-			if (predicate == null) {
-				predicate = uniqueCompositeKeyObjectFieldPredicate;
+			if (uniqueCompositeKeyObjectFieldPredicate == null) {
+				continue;
 			}
-			else {
-				predicate = predicate.and(
-					uniqueCompositeKeyObjectFieldPredicate);
-			}
+
+			predicate = predicate.and(uniqueCompositeKeyObjectFieldPredicate);
 		}
 
 		return predicate;

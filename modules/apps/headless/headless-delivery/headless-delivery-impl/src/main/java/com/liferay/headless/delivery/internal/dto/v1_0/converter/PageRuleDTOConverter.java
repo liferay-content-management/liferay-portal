@@ -6,7 +6,12 @@
 package com.liferay.headless.delivery.internal.dto.v1_0.converter;
 
 import com.liferay.headless.delivery.dto.v1_0.PageRule;
+import com.liferay.headless.delivery.dto.v1_0.PageRuleAction;
+import com.liferay.headless.delivery.dto.v1_0.PageRuleCondition;
+import com.liferay.headless.delivery.internal.dto.v1_0.util.PageRulesUtil;
+import com.liferay.layout.converter.ConditionTypeConverter;
 import com.liferay.layout.util.structure.LayoutStructureRule;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 
@@ -35,8 +40,18 @@ public class PageRuleDTOConverter
 
 		return new PageRule() {
 			{
+				conditionType = ConditionType.create(
+					ConditionTypeConverter.convertToExternalValue(
+						layoutStructureRule.getConditionType()));
 				id = layoutStructureRule.getId();
 				name = layoutStructureRule.getName();
+				pageRuleActions = JSONUtil.toArray(
+					layoutStructureRule.getActionsJSONArray(),
+					PageRulesUtil::toPageRuleAction, PageRuleAction.class);
+				pageRuleConditions = JSONUtil.toArray(
+					layoutStructureRule.getConditionsJSONArray(),
+					PageRulesUtil::toPageRuleCondition,
+					PageRuleCondition.class);
 			}
 		};
 	}

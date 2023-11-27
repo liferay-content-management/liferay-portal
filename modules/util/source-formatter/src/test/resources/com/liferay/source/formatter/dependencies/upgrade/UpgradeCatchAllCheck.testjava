@@ -49,6 +49,12 @@ public class UpgradeCatchAllCheck {
 		assetCategory.getLeftCategoryId;
 	}
 
+	public void method(CommerceAddress commerceAddress) {
+		CommerceAddressLocalServiceUtil.updateCommerceAddress(commerceAddress);
+		CommerceAddressLocalServiceUtil.updateCommerceAddress(null);
+		_commerceAddressLocalService.updateCommerceAddress(commerceAddress);
+	}
+
 	public void method(
 		CommerceAddress commerceAddress, Country country, Region region) {
 
@@ -65,6 +71,19 @@ public class UpgradeCatchAllCheck {
 	public void method(HttpServletRequest httpServletRequest) {
 		_commerceAccountHelper.getCurrentCommerceAccount(httpServletRequest);
 		_commerceAccountHelper.getCurrentCommerceAccount(null);
+	}
+
+	public void method(HttpServletRequest httpServletRequest, String name) {
+		CookieUtil.get(httpServletRequest, "test123");
+		CookieUtil.get(httpServletRequest, name);
+	}
+
+	public void method(
+		HttpServletRequest httpServletRequest, String name,
+		boolean toUpperCase) {
+
+		CookieUtil.get(httpServletRequest, "test123", toUpperCase);
+		CookieUtil.get(httpServletRequest, name, toUpperCase);
 	}
 
 	public void method(
@@ -354,6 +373,14 @@ public class UpgradeCatchAllCheck {
 	}
 
 	public void method(
+		long companyId, String externalReferenceCode, long groupId) {
+
+		AssetCategoryLocalServiceUtil.fetchAssetCategoryByExternalReferenceCode(companyId, externalReferenceCode);
+		AssetCategoryLocalServiceUtil.fetchAssetCategoryByExternalReferenceCode(externalReferenceCode, groupId);
+		_assetCategoryLocalService.fetchAssetCategoryByExternalReferenceCode(companyId, externalReferenceCode);
+	}
+
+	public void method(
 		long userId, String className, long classPK, String number,
 		String extension, long listTypeId, boolean primary) {
 
@@ -384,6 +411,11 @@ public class UpgradeCatchAllCheck {
 		AddressServiceUtil.addAddress(userId, className, classPK, street1, street2, street3, city, zip,regionId, countryId, typeId, mailing, primary, serviceContext);
 		_addressLocalService.addAddress(userId, className, classPK, street1, street2, street3, city, zip,regionId, countryId, typeId, mailing, primary, serviceContext);
 		_addressService.addAddress(userId, className, classPK, street1, street2, street3, city, zip,regionId, countryId, typeId, mailing, primary, serviceContext);
+	}
+
+	public void method(PortletDisplay portletDisplay, Class<T> clazz) {
+		portletDisplay.getPortletInstanceConfiguration(clazz);
+		portletDisplay.getPortletInstanceConfiguration(null);
 	}
 
 	public void method(
@@ -449,6 +481,9 @@ public class UpgradeCatchAllCheck {
 
 	@Reference
 	private CommerceAccountHelper _commerceAccountHelper;
+
+	@Reference
+	private CommerceAddressLocalService _commerceAddressLocalService;
 
 	@Reference
 	private CommerceOrderItemLocalService _commerceOrderItemLocalService;

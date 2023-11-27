@@ -453,69 +453,51 @@ public class ViewTreeManagementToolbarDisplayContext {
 
 		int navigationStatus = status;
 
-		if (Validator.isNotNull(getKeywords())) {
-			searchContainer.setResultsAndTotal(
-				() -> {
-					Hits hits =
-						OrganizationLocalServiceUtil.
-							searchOrganizationsAndUsers(
-								_themeDisplay.getCompanyId(),
-								_organization.getOrganizationId(),
-								getKeywords(), navigationStatus, null,
-								searchContainer.getStart(),
-								searchContainer.getEnd(),
-								new Sort[] {
-									new Sort(
-										"name",
-										Objects.equals(
-											searchContainer.getOrderByType(),
-											"desc")),
-									new Sort(
-										"lastName",
-										Objects.equals(
-											searchContainer.getOrderByType(),
-											"desc"))
-								});
+		searchContainer.setResultsAndTotal(
+			() -> {
+				Hits hits =
+					OrganizationLocalServiceUtil.searchOrganizationsAndUsers(
+						_themeDisplay.getCompanyId(),
+						_organization.getOrganizationId(), getKeywords(),
+						navigationStatus, null, searchContainer.getStart(),
+						searchContainer.getEnd(),
+						new Sort[] {
+							new Sort(
+								"name",
+								Objects.equals(
+									searchContainer.getOrderByType(), "desc")),
+							new Sort(
+								"lastName",
+								Objects.equals(
+									searchContainer.getOrderByType(), "desc"))
+						});
 
-					List<Object> results = new ArrayList<>(hits.getLength());
+				List<Object> results = new ArrayList<>(hits.getLength());
 
-					List<SearchResult> searchResults =
-						SearchResultUtil.getSearchResults(
-							hits, _themeDisplay.getLocale());
+				List<SearchResult> searchResults =
+					SearchResultUtil.getSearchResults(
+						hits, _themeDisplay.getLocale());
 
-					for (SearchResult searchResult : searchResults) {
-						String className = searchResult.getClassName();
+				for (SearchResult searchResult : searchResults) {
+					String className = searchResult.getClassName();
 
-						if (className.equals(Organization.class.getName())) {
-							results.add(
-								OrganizationLocalServiceUtil.fetchOrganization(
-									searchResult.getClassPK()));
-						}
-						else if (className.equals(User.class.getName())) {
-							results.add(
-								UserLocalServiceUtil.fetchUser(
-									searchResult.getClassPK()));
-						}
+					if (className.equals(Organization.class.getName())) {
+						results.add(
+							OrganizationLocalServiceUtil.fetchOrganization(
+								searchResult.getClassPK()));
 					}
+					else if (className.equals(User.class.getName())) {
+						results.add(
+							UserLocalServiceUtil.fetchUser(
+								searchResult.getClassPK()));
+					}
+				}
 
-					return results;
-				},
-				OrganizationLocalServiceUtil.searchOrganizationsAndUsersCount(
-					_themeDisplay.getCompanyId(),
-					_organization.getOrganizationId(), getKeywords(),
-					navigationStatus, null));
-		}
-		else {
-			searchContainer.setResultsAndTotal(
-				() -> OrganizationLocalServiceUtil.getOrganizationsAndUsers(
-					_themeDisplay.getCompanyId(),
-					_organization.getOrganizationId(), navigationStatus,
-					searchContainer.getStart(), searchContainer.getEnd(),
-					searchContainer.getOrderByComparator()),
-				OrganizationLocalServiceUtil.getOrganizationsAndUsersCount(
-					_themeDisplay.getCompanyId(),
-					_organization.getOrganizationId(), navigationStatus));
-		}
+				return results;
+			},
+			OrganizationLocalServiceUtil.searchOrganizationsAndUsersCount(
+				_themeDisplay.getCompanyId(), _organization.getOrganizationId(),
+				getKeywords(), navigationStatus, null));
 
 		searchContainer.setRowChecker(
 			new OrganizationUserChecker(_renderResponse));

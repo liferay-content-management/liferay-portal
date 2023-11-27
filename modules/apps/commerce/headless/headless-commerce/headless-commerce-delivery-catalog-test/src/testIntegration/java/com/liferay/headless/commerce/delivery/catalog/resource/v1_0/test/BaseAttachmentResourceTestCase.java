@@ -578,6 +578,14 @@ public abstract class BaseAttachmentResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("customFields", additionalAssertFieldName)) {
+				if (attachment.getCustomFields() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("displayDate", additionalAssertFieldName)) {
 				if (attachment.getDisplayDate() == null) {
 					valid = false;
@@ -588,6 +596,14 @@ public abstract class BaseAttachmentResourceTestCase {
 
 			if (Objects.equals("expirationDate", additionalAssertFieldName)) {
 				if (attachment.getExpirationDate() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("galleryEnabled", additionalAssertFieldName)) {
+				if (attachment.getGalleryEnabled() == null) {
 					valid = false;
 				}
 
@@ -620,6 +636,14 @@ public abstract class BaseAttachmentResourceTestCase {
 
 			if (Objects.equals("src", additionalAssertFieldName)) {
 				if (attachment.getSrc() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("tags", additionalAssertFieldName)) {
+				if (attachment.getTags() == null) {
 					valid = false;
 				}
 
@@ -770,6 +794,17 @@ public abstract class BaseAttachmentResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("customFields", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						attachment1.getCustomFields(),
+						attachment2.getCustomFields())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("displayDate", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						attachment1.getDisplayDate(),
@@ -785,6 +820,17 @@ public abstract class BaseAttachmentResourceTestCase {
 				if (!Objects.deepEquals(
 						attachment1.getExpirationDate(),
 						attachment2.getExpirationDate())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("galleryEnabled", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						attachment1.getGalleryEnabled(),
+						attachment2.getGalleryEnabled())) {
 
 					return false;
 				}
@@ -837,6 +883,16 @@ public abstract class BaseAttachmentResourceTestCase {
 			if (Objects.equals("src", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						attachment1.getSrc(), attachment2.getSrc())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("tags", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						attachment1.getTags(), attachment2.getTags())) {
 
 					return false;
 				}
@@ -1013,6 +1069,11 @@ public abstract class BaseAttachmentResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("customFields")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("displayDate")) {
 			if (operator.equals("between")) {
 				sb = new StringBundler();
@@ -1075,6 +1136,11 @@ public abstract class BaseAttachmentResourceTestCase {
 			}
 
 			return sb.toString();
+		}
+
+		if (entityFieldName.equals("galleryEnabled")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("id")) {
@@ -1142,6 +1208,11 @@ public abstract class BaseAttachmentResourceTestCase {
 			}
 
 			return sb.toString();
+		}
+
+		if (entityFieldName.equals("tags")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("title")) {
@@ -1244,6 +1315,7 @@ public abstract class BaseAttachmentResourceTestCase {
 					RandomTestUtil.randomString());
 				displayDate = RandomTestUtil.nextDate();
 				expirationDate = RandomTestUtil.nextDate();
+				galleryEnabled = RandomTestUtil.randomBoolean();
 				id = RandomTestUtil.randomLong();
 				neverExpire = RandomTestUtil.randomBoolean();
 				priority = RandomTestUtil.randomDouble();

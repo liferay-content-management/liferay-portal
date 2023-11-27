@@ -1,8 +1,8 @@
 definition {
 
 	@summary = "Default summary"
-	macro addAndPublishFiltersAndSortingInEndpointConfiguration(name = null,entity = null,fieldName = null,title = null,unpublish = null) {
-		Variables.assertDefined(parameterList = "${name},${entity},${fieldName},${title},${editValue}");
+	macro addAndPublishEndpointConfiguration(fieldName = null, name = null, editValue = null, title = null, schemaName = null, entity = null) {
+		Variables.assertDefined(parameterList = "${name},${entity},${title}");
 
 		APIBuilderUI.goToEditRelatedEntryInEditApplication(
 			entity = ${entity},
@@ -10,10 +10,90 @@ definition {
 			tabEntity = "Configuration",
 			title = ${title});
 
-		Type(
-			fieldName = ${fieldName},
-			locator1 = "APIBuilder#ODATA_TEXTAREA",
-			value1 = ${editValue});
+		if (isSet(schemaName)) {
+			Click(
+				key_value = "Select a Schema",
+				locator1 = "APIBuilder#DROPDOWN_TOGGLE");
+
+			Click(
+				key_optionName = ${schemaName},
+				locator1 = "ObjectAdmin#LAYOUT_ADD_FIELD_OPTION");
+		}
+
+		if (isSet(fieldName)) {
+			Type(
+				fieldName = ${fieldName},
+				locator1 = "APIBuilder#ODATA_TEXTAREA",
+				value1 = ${editValue});
+		}
+
+		Click(locator1 = "APIBuilder#PUBLISH_BUTTON");
+
+		Alert.viewSuccessMessage();
+	}
+
+	@summary = "Default summary"
+	macro addAndPublishEndpointInfo(endpointPath = null, name = null, description = null, title = null, entity = null) {
+		Variables.assertDefined(parameterList = "${name},${entity},${title}");
+
+		APIBuilderUI.goToEditRelatedEntryInEditApplication(
+			entity = ${entity},
+			name = ${name},
+			tabEntity = "Info",
+			title = ${title});
+
+		if (isSet(description)) {
+			Type(
+				key_value = "endpoint",
+				locator1 = "APIBuilder#DESCRIPTION",
+				value1 = ${description});
+		}
+
+		if (isSet(endpointPath)) {
+			Type(
+				key_placeHolder = "Enter Path",
+				locator1 = "TextInput#ANY_PLACEHOLDER",
+				value1 = ${endpointPath});
+		}
+
+		Click(locator1 = "APIBuilder#PUBLISH_BUTTON");
+
+		Alert.viewSuccessMessage();
+	}
+
+	@summary = "Default summary"
+	macro addAndPublishSchemaProperties(fieldName = null, relatedPropertyName = null, relatedFieldName = null, propertyName = null, name = null, relatedObjectName = null, title = null, entity = null) {
+		Variables.assertDefined(parameterList = "${name},${entity},${title}");
+
+		APIBuilderUI.goToEditRelatedEntryInEditApplication(
+			entity = ${entity},
+			name = ${name},
+			tabEntity = "Properties",
+			title = ${title});
+
+		Click(
+			key_text = ${fieldName},
+			locator1 = "APIBuilder#PROPERTY_CONTAINER");
+
+		if (isSet(propertyName)) {
+			APIBuilderUI.editSchemaProperty(
+				fieldName = ${fieldName},
+				propertyName = ${propertyName});
+		}
+
+		if (IsElementPresent(locator1 = "APIBuilder#VIEW_RELATED_OBJECTS")) {
+			APIBuilderUI.gotoRelatedObjectsProperties(relatedObjectName = ${relatedObjectName});
+
+			Click(
+				key_text = ${relatedFieldName},
+				locator1 = "APIBuilder#PROPERTY_CONTAINER");
+
+			if (isSet(relatedPropertyName)) {
+				APIBuilderUI.editSchemaProperty(
+					fieldName = ${relatedFieldName},
+					propertyName = ${relatedPropertyName});
+			}
+		}
 
 		Click(locator1 = "APIBuilder#PUBLISH_BUTTON");
 
@@ -42,6 +122,10 @@ definition {
 			category = "Object",
 			panel = "Control Panel",
 			portlet = "API Builder");
+
+		WaitForElementPresent(
+			key_objectLabel = "API Builder",
+			locator1 = "ObjectPortlet#OBJECT_PORTLET_HEADER");
 
 		Click(
 			key_title = ${key_title},
@@ -84,6 +168,7 @@ definition {
 
 		if (isSet(description)) {
 			Type(
+				key_value = "API",
 				locator1 = "APIBuilder#DESCRIPTION",
 				value1 = ${description});
 		}
@@ -106,7 +191,7 @@ definition {
 		if (isSet(scope)) {
 			Click(
 				key_value = "Select Scope",
-				locator1 = "APIBuilder#ENDPOINT_DROPDOWN");
+				locator1 = "APIBuilder#DROPDOWN_TOGGLE");
 
 			Click(
 				key_optionName = ${scope},
@@ -142,11 +227,23 @@ definition {
 	macro createAPISchema(objectDefinitionName = null, name = null) {
 		Variables.assertDefined(parameterList = "${name},${objectDefinitionName}");
 
-		Click(locator1 = "APIBuilder#ADD_NEW_SCHEMA");
+		if (isSet(addByPlus)) {
+			Click(locator1 = "Button#PLUS");
+		}
+		else {
+			Click(locator1 = "APIBuilder#ADD_NEW_SCHEMA");
+		}
 
 		Type(
 			locator1 = "TextInput#NAME",
 			value1 = ${name});
+
+		if (isSet(fieldDescription)) {
+			Type(
+				key_value = "schema",
+				locator1 = "APIBuilder#DESCRIPTION",
+				value1 = ${fieldDescription});
+		}
 
 		Click(locator1 = "APIBuilder#SELECT_AN_OBJECT_DEFINITION");
 
@@ -208,6 +305,26 @@ definition {
 	}
 
 	@summary = "Default summary"
+	macro editSchemaProperty(fieldName = null, propertyName = null) {
+		Variables.assertDefined(parameterList = "${fieldName},${propertyName}");
+
+		MouseOver(
+			key_commentValue = ${fieldName},
+			locator1 = "PublicationsChanges#COMMENT_VALUE");
+
+		Click(
+			key_text = "pencil",
+			locator1 = "Icon#ANY");
+
+		Type(
+			key_placeHolder = "Enter name",
+			locator1 = "TextInput#ANY_PLACEHOLDER",
+			value1 = ${propertyName});
+
+		Click(locator1 = "Button#UPDATE");
+	}
+
+	@summary = "Default summary"
 	macro filterByLastUpdated(fromDate = null, toDate = null) {
 		Variables.assertDefined(parameterList = "${fromDate},${toDate}");
 
@@ -256,6 +373,10 @@ definition {
 			panel = "Control Panel",
 			portlet = "API Builder");
 
+		WaitForElementPresent(
+			key_objectLabel = "API Builder",
+			locator1 = "ObjectPortlet#OBJECT_PORTLET_HEADER");
+
 		Click(
 			key_title = ${key_title},
 			locator1 = "APIBuilder#DROPDOWN_MENU");
@@ -272,8 +393,10 @@ definition {
 			title = ${title});
 
 		Click(
-			locator1 = "Button#BUTTON_WITH_VALUE",
-			value = "/${name}/");
+			key_title = ${name},
+			locator1 = "APIBuilder#DROPDOWN_MENU");
+
+		Click(locator1 = "APIBuilder#EDIT_BUTTON");
 
 		Click(
 			locator1 = "Button#BUTTON_WITH_VALUE",
@@ -281,10 +404,23 @@ definition {
 	}
 
 	@summary = "Default summary"
+	macro gotoRelatedObjectsProperties(relatedObjectName = null) {
+		Variables.assertDefined(parameterList = ${relatedObjectName});
+
+		Click(locator1 = "APIBuilder#VIEW_RELATED_OBJECTS");
+
+		Click(
+			key_componentName = ${relatedObjectName},
+			locator1 = "Panel#PANEL_TITLE");
+	}
+
+	@summary = "Default summary"
 	macro publishApplication(key_title = null) {
 		APIBuilderUI.goToEditAPIApplicationPage(key_title = ${key_title});
 
 		Click.pauseClickAt(locator1 = "APIBuilder#PUBLISH_BUTTON");
+
+		Alert.viewSuccessMessage();
 	}
 
 	@summary = "Default summary"
@@ -310,7 +446,9 @@ definition {
 
 		ObjectPortlet.selectCustomObject(label = ${objectDefinition});
 
-		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
+		ObjectAdmin.selectDropdownItem(
+			labelName = "Panel Link",
+			optionName = "Object");
 
 		CreateObject.saveObject();
 	}

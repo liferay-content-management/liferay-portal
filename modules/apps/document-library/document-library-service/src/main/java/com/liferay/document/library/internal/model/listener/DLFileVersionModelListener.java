@@ -70,6 +70,35 @@ public class DLFileVersionModelListener
 	}
 
 	@Override
+	public void onAfterUpdate(DLFileVersion originalModel, DLFileVersion model)
+		throws ModelListenerException {
+
+		if (Objects.equals(originalModel.getVersion(), model.getVersion()) &&
+			!Objects.equals(
+				DLFileEntryConstants.PRIVATE_WORKING_COPY_VERSION,
+				originalModel.getVersion()) &&
+			!Objects.equals(
+				originalModel.getStoreFileName(), model.getStoreFileName())) {
+
+			try {
+				DLFileEntry fileEntry = originalModel.getFileEntry();
+
+				DLStoreUtil.deleteFile(
+					originalModel.getCompanyId(),
+					originalModel.getRepositoryId(), fileEntry.getName(),
+					originalModel.getStoreFileName());
+				DLStoreUtil.deleteFile(
+					originalModel.getCompanyId(),
+					originalModel.getRepositoryId(), fileEntry.getName(),
+					originalModel.getStoreFileName() + ".index");
+			}
+			catch (PortalException portalException) {
+				_log.error(portalException);
+			}
+		}
+	}
+
+	@Override
 	public void onBeforeRemove(DLFileVersion dlFileVersion)
 		throws ModelListenerException {
 

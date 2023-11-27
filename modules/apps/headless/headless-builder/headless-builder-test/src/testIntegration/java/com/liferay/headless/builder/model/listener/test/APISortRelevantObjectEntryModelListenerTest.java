@@ -73,24 +73,6 @@ public class APISortRelevantObjectEntryModelListenerTest extends BaseTestCase {
 			JSONUtil.put(
 				"status", "BAD_REQUEST"
 			).put(
-				"title", "An API sort must be related to an API endpoint."
-			).toString(),
-			HTTPTestUtil.invokeToJSONObject(
-				JSONUtil.put(
-					"objectFieldERC", RandomTestUtil.randomString()
-				).put(
-					"oDataSort", "test:desc"
-				).put(
-					"r_apiEndpointToAPISorts_c_apiEndpointId",
-					RandomTestUtil.randomLong()
-				).toString(),
-				"headless-builder/sorts", Http.Method.POST
-			).toString(),
-			JSONCompareMode.LENIENT);
-		JSONAssert.assertEquals(
-			JSONUtil.put(
-				"status", "BAD_REQUEST"
-			).put(
 				"title",
 				"Object entry value exceeds the maximum length of 1000 " +
 					"characters for object field \"oDataSort\""
@@ -121,6 +103,81 @@ public class APISortRelevantObjectEntryModelListenerTest extends BaseTestCase {
 				).put(
 					"r_apiEndpointToAPISorts_c_apiEndpointERC",
 					_API_ENDPOINT_ERC
+				).toString(),
+				"headless-builder/sorts", Http.Method.POST
+			).toString(),
+			JSONCompareMode.LENIENT);
+
+		JSONObject apiApplicationJSONObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				"applicationStatus", "published"
+			).put(
+				"baseURL", StringUtil.toLowerCase(RandomTestUtil.randomString())
+			).put(
+				"externalReferenceCode", RandomTestUtil.randomString()
+			).put(
+				"title", RandomTestUtil.randomString()
+			).toString(),
+			"headless-builder/applications", Http.Method.POST);
+
+		JSONObject apiEndpointJSONObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				"description", "description"
+			).put(
+				"externalReferenceCode", RandomTestUtil.randomString()
+			).put(
+				"httpMethod", "get"
+			).put(
+				"name", "name"
+			).put(
+				"path",
+				StringBundler.concat(
+					StringPool.FORWARD_SLASH,
+					StringUtil.toLowerCase(RandomTestUtil.randomString()),
+					"/{pathParameterId}")
+			).put(
+				"pathParameter", "id"
+			).put(
+				"r_apiApplicationToAPIEndpoints_c_apiApplicationId",
+				apiApplicationJSONObject.get("id")
+			).put(
+				"retrieveType", "singleElement"
+			).put(
+				"scope", APIApplication.Endpoint.Scope.COMPANY.getValue()
+			).toString(),
+			"headless-builder/endpoints", Http.Method.POST);
+
+		JSONAssert.assertEquals(
+			JSONUtil.put(
+				"status", "BAD_REQUEST"
+			).put(
+				"title",
+				"The API sort can only be associated to API endpoints with a " +
+					"retrieve type of \"collection.\""
+			).toString(),
+			HTTPTestUtil.invokeToJSONObject(
+				JSONUtil.put(
+					"oDataSort", "test:desc"
+				).put(
+					"r_apiEndpointToAPISorts_c_apiEndpointId",
+					apiEndpointJSONObject.get("id")
+				).toString(),
+				"headless-builder/sorts", Http.Method.POST
+			).toString(),
+			JSONCompareMode.LENIENT);
+
+		JSONAssert.assertEquals(
+			JSONUtil.put(
+				"status", "BAD_REQUEST"
+			).put(
+				"title", "The API sort must be related to an API endpoint."
+			).toString(),
+			HTTPTestUtil.invokeToJSONObject(
+				JSONUtil.put(
+					"oDataSort", "test:desc"
+				).put(
+					"r_apiEndpointToAPISorts_c_apiEndpointId",
+					RandomTestUtil.randomLong()
 				).toString(),
 				"headless-builder/sorts", Http.Method.POST
 			).toString(),

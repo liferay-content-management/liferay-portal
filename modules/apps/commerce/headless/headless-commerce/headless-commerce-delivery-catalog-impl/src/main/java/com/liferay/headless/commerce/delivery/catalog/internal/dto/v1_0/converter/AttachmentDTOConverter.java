@@ -5,10 +5,14 @@
 
 package com.liferay.headless.commerce.delivery.catalog.internal.dto.v1_0.converter;
 
+import com.liferay.asset.kernel.model.AssetTag;
+import com.liferay.asset.kernel.service.AssetTagService;
 import com.liferay.commerce.media.CommerceMediaResolver;
 import com.liferay.commerce.product.model.CPAttachmentFileEntry;
 import com.liferay.commerce.product.service.CPAttachmentFileEntryLocalService;
 import com.liferay.headless.commerce.delivery.catalog.dto.v1_0.Attachment;
+import com.liferay.headless.commerce.delivery.catalog.internal.dto.v1_0.util.CustomFieldsUtil;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -66,12 +70,24 @@ public class AttachmentDTOConverter
 
 		return new Attachment() {
 			{
+				customFields = CustomFieldsUtil.toCustomFields(
+					dtoConverterContext.isAcceptAllLanguages(),
+					CPAttachmentFileEntry.class.getName(),
+					cpAttachmentFileEntry.getCPAttachmentFileEntryId(),
+					cpAttachmentFileEntry.getCompanyId(),
+					dtoConverterContext.getLocale());
 				displayDate = cpAttachmentFileEntry.getDisplayDate();
 				expirationDate = cpAttachmentFileEntry.getExpirationDate();
+				galleryEnabled = cpAttachmentFileEntry.isGalleryEnabled();
 				id = cpAttachmentFileEntry.getCPAttachmentFileEntryId();
 				options = _getAttachmentOptions(cpAttachmentFileEntry);
 				priority = cpAttachmentFileEntry.getPriority();
 				src = portalURL + downloadURL;
+				tags = TransformUtil.transformToArray(
+					_assetTagService.getTags(
+						cpAttachmentFileEntry.getModelClassName(),
+						cpAttachmentFileEntry.getCPAttachmentFileEntryId()),
+					AssetTag::getName, String.class);
 				title = cpAttachmentFileEntry.getTitle(
 					_language.getLanguageId(
 						attachmentDTOConverterContext.getLocale()));
@@ -107,6 +123,9 @@ public class AttachmentDTOConverter
 
 		return options;
 	}
+
+	@Reference
+	private AssetTagService _assetTagService;
 
 	@Reference
 	private CommerceMediaResolver _commerceMediaResolver;

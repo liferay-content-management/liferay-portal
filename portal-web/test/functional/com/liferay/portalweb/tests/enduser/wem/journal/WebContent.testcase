@@ -163,7 +163,7 @@ definition {
 	@description = "This is a test for LPS-192836. Assert can select feature image from Document and Media in web content creation."
 	@priority = 5
 	test AddWebContentWithFeaturedImageFromDocumentsAndMedia {
-		property custom.properties = "feature.flag.LPS-180855=true";
+		property portal.acceptance = "true";
 
 		task ("Given a user accesses to the web content editor") {
 			HeadlessSite.addSite(
@@ -2297,8 +2297,6 @@ definition {
 		}
 
 		task ("Then there's warning message inside Friendly URL section") {
-			Pause(value1 = 60000);
-
 			AssertTextEquals(
 				locator1 = "Message#ERROR_3",
 				value1 = "Warning:The URL used in English (United States), Chinese (China) and German (Germany) already exists in other sites or asset libraries.");

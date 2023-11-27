@@ -28,21 +28,30 @@ import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.SearchOrderByUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.Accessor;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.site.navigation.taglib.servlet.taglib.util.BreadcrumbEntryBuilder;
+import com.liferay.site.navigation.taglib.servlet.taglib.util.BreadcrumbEntryListBuilder;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.portlet.PortletURL;
@@ -71,19 +80,15 @@ public class DisplayPageDisplayContext {
 			WebKeys.THEME_DISPLAY);
 	}
 
-	public String getChangeContentTypeURL(
+	public boolean existsMappedContentType(
 		LayoutPageTemplateEntry layoutPageTemplateEntry) {
 
-		return PortletURLBuilder.createActionURL(
-			_renderResponse
-		).setActionName(
-			"/layout_page_template_admin/update_display_page_entry_content_type"
-		).setRedirect(
-			_themeDisplay.getURLCurrent()
-		).setParameter(
-			"layoutPageTemplateEntryId",
-			layoutPageTemplateEntry.getLayoutPageTemplateEntryId()
-		).buildString();
+		if (!FeatureFlagManagerUtil.isEnabled("LPS-195263")) {
+			return true;
+		}
+
+		return _isContentTypeInMap(
+			_getClassNameIdsMap(), layoutPageTemplateEntry);
 	}
 
 	public SearchContainer<?> getDisplayPagesSearchContainer() {
@@ -227,35 +232,56 @@ public class DisplayPageDisplayContext {
 	}
 
 	public List<BreadcrumbEntry> getLayoutPageTemplateBreadcrumbEntries() {
-		PortletURL portletURL = PortletURLBuilder.createRenderURL(
-			_renderResponse
-		).setTabs1(
-			"display-page-templates"
-		).buildPortletURL();
+		return BreadcrumbEntryListBuilder.add(
+			breadcrumbEntry -> {
+				breadcrumbEntry.setTitle(
+					LanguageUtil.get(_httpServletRequest, "home"));
+				breadcrumbEntry.setURL(
+					PortletURLBuilder.createRenderURL(
+						_renderResponse
+					).setTabs1(
+						"display-page-templates"
+					).setParameter(
+						"layoutPageTemplateCollectionId",
+						LayoutPageTemplateConstants.
+							PARENT_LAYOUT_PAGE_TEMPLATE_COLLECTION_ID_DEFAULT
+					).buildString());
+			}
+		).addAll(
+			() ->
+				_getLayoutPageTemplateCollectionId() !=
+					LayoutPageTemplateConstants.
+						PARENT_LAYOUT_PAGE_TEMPLATE_COLLECTION_ID_DEFAULT,
+			() -> {
+				LayoutPageTemplateCollection layoutPageTemplateCollection =
+					LayoutPageTemplateCollectionLocalServiceUtil.
+						fetchLayoutPageTemplateCollection(
+							_getLayoutPageTemplateCollectionId());
 
-		if (_getLayoutPageTemplateCollectionId() ==
-				LayoutPageTemplateConstants.
-					PARENT_LAYOUT_PAGE_TEMPLATE_COLLECTION_ID_DEFAULT) {
+				List<LayoutPageTemplateCollection>
+					layoutPageTemplateCollections =
+						layoutPageTemplateCollection.getAncestors();
 
-			return Collections.singletonList(
-				_getRootBreadcrumbEntry(portletURL));
-		}
+				Collections.reverse(layoutPageTemplateCollections);
 
-		LayoutPageTemplateCollection layoutPageTemplateCollection =
-			LayoutPageTemplateCollectionLocalServiceUtil.
-				fetchLayoutPageTemplateCollection(
-					_getLayoutPageTemplateCollectionId());
-
-		List<BreadcrumbEntry> breadcrumbEntries = TransformUtil.transform(
-			layoutPageTemplateCollection.getAncestors(),
-			curLayoutPageTemplateCollection -> _createBreadcrumbEntry(
-				curLayoutPageTemplateCollection, portletURL));
-
-		breadcrumbEntries.add(_getRootBreadcrumbEntry(portletURL));
-
-		Collections.reverse(breadcrumbEntries);
-
-		return breadcrumbEntries;
+				return TransformUtil.transform(
+					layoutPageTemplateCollections,
+					curLayoutPageTemplateCollection ->
+						BreadcrumbEntryBuilder.setTitle(
+							curLayoutPageTemplateCollection.getName()
+						).setURL(
+							PortletURLBuilder.createRenderURL(
+								_renderResponse
+							).setTabs1(
+								"display-page-templates"
+							).setParameter(
+								"layoutPageTemplateCollectionId",
+								curLayoutPageTemplateCollection.
+									getLayoutPageTemplateCollectionId()
+							).buildString()
+						).build());
+			}
+		).build();
 	}
 
 	public long getLayoutPageTemplateEntryId() {
@@ -270,6 +296,10 @@ public class DisplayPageDisplayContext {
 	}
 
 	public JSONArray getMappingTypesJSONArray() {
+		if (_mappingTypesJSONArray != null) {
+			return _mappingTypesJSONArray;
+		}
+
 		JSONArray mappingTypesJSONArray = JSONFactoryUtil.createJSONArray();
 
 		for (InfoItemClassDetails infoItemClassDetails :
@@ -293,7 +323,9 @@ public class DisplayPageDisplayContext {
 				));
 		}
 
-		return mappingTypesJSONArray;
+		_mappingTypesJSONArray = mappingTypesJSONArray;
+
+		return _mappingTypesJSONArray;
 	}
 
 	public String getOrderByCol() {
@@ -366,6 +398,17 @@ public class DisplayPageDisplayContext {
 		).buildPortletURL();
 	}
 
+	public boolean isAllowedMappedContentType(
+		LayoutPageTemplateEntry layoutPageTemplateEntry) {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPS-195263")) {
+			return true;
+		}
+
+		return _isContentTypeInMap(
+			_getAllowedClassNameIdsMap(), layoutPageTemplateEntry);
+	}
+
 	public boolean isSearch() {
 		if (Validator.isNotNull(getKeywords())) {
 			return true;
@@ -374,23 +417,96 @@ public class DisplayPageDisplayContext {
 		return false;
 	}
 
-	private BreadcrumbEntry _createBreadcrumbEntry(
-		LayoutPageTemplateCollection layoutPageTemplateCollection,
-		PortletURL portletURL) {
+	private Map<Long, Long[]> _getAllowedClassNameIdsMap() {
+		if (_allowedClassNameIdsMap != null) {
+			return _allowedClassNameIdsMap;
+		}
 
-		BreadcrumbEntry breadcrumbEntry = new BreadcrumbEntry();
+		Map<Long, Long[]> classNameIdsMap = new HashMap<>();
 
-		breadcrumbEntry.setTitle(layoutPageTemplateCollection.getName());
+		JSONArray mappingTypesJSONArray = getMappingTypesJSONArray();
 
-		portletURL.setParameter(
-			"layoutPageTemplateCollectionId",
-			String.valueOf(
-				layoutPageTemplateCollection.
-					getLayoutPageTemplateCollectionId()));
+		for (int i = 0; i < mappingTypesJSONArray.length(); i++) {
+			JSONObject typeJSONObject = mappingTypesJSONArray.getJSONObject(i);
 
-		breadcrumbEntry.setURL(portletURL.toString());
+			JSONArray subtypesJSONArray = typeJSONObject.getJSONArray(
+				"subtypes");
 
-		return breadcrumbEntry;
+			Long[] classTypeIds = new Long[subtypesJSONArray.length()];
+
+			for (int j = 0; j < subtypesJSONArray.length(); j++) {
+				JSONObject subtypeJSONObject = subtypesJSONArray.getJSONObject(
+					j);
+
+				classTypeIds[j] = GetterUtil.getLong(
+					subtypeJSONObject.getString("id"));
+			}
+
+			classNameIdsMap.put(
+				GetterUtil.getLong(typeJSONObject.getString("id")),
+				classTypeIds);
+		}
+
+		_allowedClassNameIdsMap = classNameIdsMap;
+
+		return _allowedClassNameIdsMap;
+	}
+
+	private Map<Long, Long[]> _getClassNameIdsMap() {
+		if (_classNameIdsMap != null) {
+			return _classNameIdsMap;
+		}
+
+		Map<Long, Long[]> classNameIdsMap = new HashMap<>();
+
+		for (InfoItemClassDetails infoItemClassDetails :
+				_infoItemServiceRegistry.getInfoItemClassDetails(
+					DisplayPageInfoItemCapability.KEY)) {
+
+			classNameIdsMap.put(
+				PortalUtil.getClassNameId(infoItemClassDetails.getClassName()),
+				_getInfoFormVariationIds(infoItemClassDetails));
+		}
+
+		_classNameIdsMap = classNameIdsMap;
+
+		return _classNameIdsMap;
+	}
+
+	private Long[] _getInfoFormVariationIds(
+		InfoItemClassDetails infoItemClassDetails) {
+
+		InfoItemFormVariationsProvider<?> infoItemFormVariationsProvider =
+			_infoItemServiceRegistry.getFirstInfoItemService(
+				InfoItemFormVariationsProvider.class,
+				infoItemClassDetails.getClassName());
+
+		if (infoItemFormVariationsProvider == null) {
+			return new Long[0];
+		}
+
+		return ListUtil.toArray(
+			ListUtil.fromCollection(
+				infoItemFormVariationsProvider.getInfoItemFormVariations(
+					_themeDisplay.getScopeGroupId())),
+			new Accessor<InfoItemFormVariation, Long>() {
+
+				@Override
+				public Long get(InfoItemFormVariation infoItemFormVariation) {
+					return Long.valueOf(infoItemFormVariation.getKey());
+				}
+
+				@Override
+				public Class<Long> getAttributeClass() {
+					return Long.class;
+				}
+
+				@Override
+				public Class<InfoItemFormVariation> getTypeClass() {
+					return InfoItemFormVariation.class;
+				}
+
+			});
 	}
 
 	private long _getLayoutPageTemplateCollectionId() {
@@ -468,29 +584,40 @@ public class DisplayPageDisplayContext {
 		return null;
 	}
 
-	private BreadcrumbEntry _getRootBreadcrumbEntry(PortletURL portletURL) {
-		BreadcrumbEntry homeBreadcrumbEntry = new BreadcrumbEntry();
+	private boolean _isContentTypeInMap(
+		Map<Long, Long[]> classNameIdsMap,
+		LayoutPageTemplateEntry layoutPageTemplateEntry) {
 
-		homeBreadcrumbEntry.setTitle(
-			LanguageUtil.get(_httpServletRequest, "home"));
+		if ((layoutPageTemplateEntry.getClassNameId() == 0) ||
+			!classNameIdsMap.containsKey(
+				layoutPageTemplateEntry.getClassNameId())) {
 
-		portletURL.setParameter(
-			"layoutPageTemplateCollectionId",
-			String.valueOf(
-				LayoutPageTemplateConstants.
-					PARENT_LAYOUT_PAGE_TEMPLATE_COLLECTION_ID_DEFAULT));
+			return false;
+		}
 
-		homeBreadcrumbEntry.setURL(portletURL.toString());
+		Long[] classTypeIds = classNameIdsMap.get(
+			layoutPageTemplateEntry.getClassNameId());
 
-		return homeBreadcrumbEntry;
+		if (((layoutPageTemplateEntry.getClassTypeId() == 0) &&
+			 ArrayUtil.isEmpty(classTypeIds)) ||
+			ArrayUtil.contains(
+				classTypeIds, layoutPageTemplateEntry.getClassTypeId())) {
+
+			return true;
+		}
+
+		return false;
 	}
 
+	private Map<Long, Long[]> _allowedClassNameIdsMap;
+	private Map<Long, Long[]> _classNameIdsMap;
 	private SearchContainer<?> _displayPagesSearchContainer;
 	private final HttpServletRequest _httpServletRequest;
 	private final InfoItemServiceRegistry _infoItemServiceRegistry;
 	private String _keywords;
 	private Long _layoutPageTemplateCollectionId;
 	private Long _layoutPageTemplateEntryId;
+	private JSONArray _mappingTypesJSONArray;
 	private String _orderByCol;
 	private String _orderByType;
 	private final RenderRequest _renderRequest;

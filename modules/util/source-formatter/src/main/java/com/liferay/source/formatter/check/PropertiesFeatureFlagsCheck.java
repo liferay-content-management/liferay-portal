@@ -24,7 +24,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,7 +51,10 @@ public class PropertiesFeatureFlagsCheck extends BaseFileCheck {
 
 		_checkUnnecessaryFeatureFlags(fileName, content);
 
-		return _generateFeatureFlags(content);
+		content = _generateFeatureFlagProperties(content);
+		content = _generateFeatureFlagUIProperties(fileName, content);
+
+		return content;
 	}
 
 	private void _checkUnnecessaryFeatureFlags(String fileName, String content)
@@ -80,7 +85,9 @@ public class PropertiesFeatureFlagsCheck extends BaseFileCheck {
 		}
 	}
 
-	private String _generateFeatureFlags(String content) throws IOException {
+	private String _generateFeatureFlagProperties(String content)
+		throws IOException {
+
 		List<String> featureFlagKeys = new ArrayList<>();
 
 		List<String> fileNames = SourceFormatterUtil.filterFileNames(
@@ -155,7 +162,7 @@ public class PropertiesFeatureFlagsCheck extends BaseFileCheck {
 					deprecationFeatureFlagKeyMatcher.group(1));
 			}
 
-			StringBundler sb = new StringBundler(featureFlagKeys.size() * 14);
+			StringBundler sb = new StringBundler(featureFlagKeys.size() * 15);
 
 			for (String featureFlagKey : featureFlagKeys) {
 				String featureFlagPropertyKey =
@@ -196,6 +203,110 @@ public class PropertiesFeatureFlagsCheck extends BaseFileCheck {
 				content = StringUtil.insert(
 					content, sb.toString(), matcher.start(2));
 			}
+		}
+
+		return content;
+	}
+
+	private String _generateFeatureFlagUIProperties(
+		Map<String, String> properties) {
+
+		StringBundler sb = new StringBundler(properties.size() * 15);
+
+		for (Map.Entry<String, String> entry : properties.entrySet()) {
+			String key = entry.getKey();
+
+			String environmentVariable = ToolsUtil.encodeEnvironmentProperty(
+				key);
+
+			sb.append(StringPool.NEW_LINE);
+			sb.append(StringPool.NEW_LINE);
+			sb.append(StringPool.FOUR_SPACES);
+			sb.append(StringPool.POUND);
+			sb.append(StringPool.NEW_LINE);
+			sb.append("    # Env: ");
+			sb.append(environmentVariable);
+			sb.append(StringPool.NEW_LINE);
+			sb.append(StringPool.FOUR_SPACES);
+			sb.append(StringPool.POUND);
+			sb.append(StringPool.NEW_LINE);
+			sb.append(StringPool.FOUR_SPACES);
+			sb.append(key);
+			sb.append(StringPool.EQUAL);
+			sb.append(entry.getValue());
+		}
+
+		return sb.toString();
+	}
+
+	private String _generateFeatureFlagUIProperties(
+			String fileName, String content)
+		throws IOException {
+
+		Matcher matcher = _featureFlagUIPattern.matcher(content);
+
+		if (!matcher.find()) {
+			return content;
+		}
+
+		String matchedFeatureFlags = matcher.group(2);
+
+		if (!matchedFeatureFlags.contains("feature.flag.")) {
+			return content;
+		}
+
+		Map<String, String> featureFlagUIPropertiesMap = new TreeMap<>(
+			new NaturalOrderStringComparator());
+		Map<String, String> featureFlagUICommonPropertiesMap = new TreeMap<>(
+			new NaturalOrderStringComparator());
+
+		Properties properties = new Properties();
+
+		properties.load(new StringReader(matcher.group()));
+
+		Enumeration<String> enumeration =
+			(Enumeration<String>)properties.propertyNames();
+
+		while (enumeration.hasMoreElements()) {
+			String key = enumeration.nextElement();
+
+			String value = properties.getProperty(key);
+
+			if (!key.matches("feature\\.flag\\.[A-Z]+-\\d+\\.\\w+")) {
+				featureFlagUICommonPropertiesMap.put(key, value);
+
+				continue;
+			}
+
+			if (key.endsWith(".type") &&
+				StringUtil.contains("beta,deprecation,release", value)) {
+
+				int x = key.lastIndexOf(".");
+
+				for (String enforcePropertyName : _ENFORCE_PROPERTY_NAMES) {
+					String featureFlagUIPropertyName =
+						key.substring(0, x) + "." + enforcePropertyName;
+
+					if (!properties.containsKey(featureFlagUIPropertyName)) {
+						addMessage(
+							fileName,
+							"Missing property '" + featureFlagUIPropertyName +
+								"' in ## Feature Flag UI block");
+					}
+				}
+			}
+
+			featureFlagUIPropertiesMap.put(key, value);
+		}
+
+		String featureFlagUIProperties =
+			_generateFeatureFlagUIProperties(featureFlagUICommonPropertiesMap) +
+				_generateFeatureFlagUIProperties(featureFlagUIPropertiesMap);
+
+		if (!StringUtil.equals(matchedFeatureFlags, featureFlagUIProperties)) {
+			return StringUtil.replaceFirst(
+				content, matchedFeatureFlags, featureFlagUIProperties,
+				matcher.start(2));
 		}
 
 		return content;
@@ -258,6 +369,10 @@ public class PropertiesFeatureFlagsCheck extends BaseFileCheck {
 		return featureFlagKeys;
 	}
 
+	private static final String[] _ENFORCE_PROPERTY_NAMES = {
+		"description", "title"
+	};
+
 	private static final Pattern _deprecationFeatureFlagPattern =
 		Pattern.compile("feature\\.flag\\.([A-Z]+-\\d+)\\.type=deprecation");
 	private static final Pattern _featureFlagPattern1 = Pattern.compile(
@@ -270,6 +385,8 @@ public class PropertiesFeatureFlagsCheck extends BaseFileCheck {
 		"\"featureFlag\": \"(.+?)\"");
 	private static final Pattern _featureFlagsPattern = Pattern.compile(
 		"(\n|\\A)##\n## Feature Flag\n##(\n\n[\\s\\S]*?)(?=(\n\n##|\\Z))");
+	private static final Pattern _featureFlagUIPattern = Pattern.compile(
+		"(\n|\\A)##\n## Feature Flag UI\n##(\n\n[\\s\\S]*?)(?=(\n\n##|\\Z))");
 
 	private List<String> _allFileNames;
 

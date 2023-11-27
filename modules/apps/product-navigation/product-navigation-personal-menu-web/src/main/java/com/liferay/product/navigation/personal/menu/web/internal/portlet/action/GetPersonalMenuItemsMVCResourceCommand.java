@@ -233,7 +233,11 @@ public class GetPersonalMenuItemsMVCResourceCommand
 					jsonObject.put(
 						"jsOnClickConfig",
 						personalMenuEntry.getJSOnClickConfigJSONObject(
-							_portal.getHttpServletRequest(portletRequest)));
+							_portal.getHttpServletRequest(portletRequest))
+					).put(
+						"onClickJSModuleURL",
+						personalMenuEntry.getOnClickJSModuleURL()
+					);
 				}
 			}
 			catch (PortalException portalException) {

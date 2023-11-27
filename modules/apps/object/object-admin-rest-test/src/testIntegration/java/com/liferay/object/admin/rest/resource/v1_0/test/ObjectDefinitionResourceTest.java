@@ -9,6 +9,8 @@ import com.liferay.account.model.AccountEntry;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.object.admin.rest.client.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.client.dto.v1_0.ObjectField;
+import com.liferay.object.admin.rest.client.dto.v1_0.ObjectValidationRule;
+import com.liferay.object.admin.rest.client.dto.v1_0.ObjectValidationRuleSetting;
 import com.liferay.object.admin.rest.client.dto.v1_0.Status;
 import com.liferay.object.admin.rest.client.pagination.Page;
 import com.liferay.object.admin.rest.client.pagination.Pagination;
@@ -17,6 +19,8 @@ import com.liferay.object.admin.rest.client.serdes.v1_0.ObjectDefinitionSerDes;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
+import com.liferay.object.constants.ObjectValidationRuleConstants;
+import com.liferay.object.constants.ObjectValidationRuleSettingConstants;
 import com.liferay.object.exception.NoSuchObjectDefinitionException;
 import com.liferay.object.model.ObjectFolder;
 import com.liferay.object.service.ObjectDefinitionLocalService;
@@ -32,9 +36,11 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.language.LanguageResources;
@@ -274,7 +280,7 @@ public class ObjectDefinitionResourceTest
 
 		_objectDefinitionLocalService.enableAccountEntryRestricted(
 			_objectRelationshipLocalService.addObjectRelationship(
-				TestPropsValues.getUserId(),
+				null, TestPropsValues.getUserId(),
 				serviceBuilderAccountEntryObjectDefinition.
 					getObjectDefinitionId(),
 				postObjectDefinition.getId(), 0,
@@ -312,6 +318,122 @@ public class ObjectDefinitionResourceTest
 
 		_objectDefinitionLocalService.deleteObjectDefinition(
 			postObjectDefinition.getId());
+
+		// Modifiable system object definition
+
+		ObjectDefinition randomModifiableSystemObjectDefinition =
+			_addObjectDefinition(_randomModifiableSystemObjectDefinition());
+
+		ObjectValidationRule customObjectValidationRule =
+			(ObjectValidationRule)ArrayUtil.getValue(
+				randomModifiableSystemObjectDefinition.
+					getObjectValidationRules(),
+				0);
+		ObjectValidationRule systemObjectValidationRule =
+			(ObjectValidationRule)ArrayUtil.getValue(
+				randomModifiableSystemObjectDefinition.
+					getObjectValidationRules(),
+				1);
+
+		randomModifiableSystemObjectDefinition.setEnableObjectEntryDraft(
+			(Boolean)null);
+		randomModifiableSystemObjectDefinition.
+			setObjectFolderExternalReferenceCode(StringPool.BLANK);
+
+		ObjectValidationRule updatedCustomObjectValidationRule =
+			new ObjectValidationRule() {
+				{
+					active = false;
+					engine = ObjectValidationRuleConstants.ENGINE_TYPE_GROOVY;
+					errorLabel = Collections.singletonMap(
+						"en_US", RandomTestUtil.randomString());
+					externalReferenceCode =
+						customObjectValidationRule.getExternalReferenceCode();
+					name = Collections.singletonMap(
+						"en_US", RandomTestUtil.randomString());
+					objectDefinitionExternalReferenceCode =
+						randomModifiableSystemObjectDefinition.
+							getExternalReferenceCode();
+					objectValidationRuleSettings =
+						new ObjectValidationRuleSetting[] {
+							new ObjectValidationRuleSetting() {
+								{
+									name =
+										ObjectValidationRuleSettingConstants.
+											NAME_OUTPUT_OBJECT_FIELD_EXTERNAL_REFERENCE_CODE;
+									value = "customObjectFieldERC";
+								}
+							}
+						};
+					outputType = OutputType.create("partialValidation");
+					script = RandomTestUtil.randomString();
+					system = false;
+				}
+			};
+
+		randomModifiableSystemObjectDefinition.setObjectValidationRules(
+			new ObjectValidationRule[] {
+				updatedCustomObjectValidationRule,
+				new ObjectValidationRule() {
+					{
+						active = false;
+						engine =
+							ObjectValidationRuleConstants.ENGINE_TYPE_GROOVY;
+						errorLabel = Collections.singletonMap(
+							"en_US", RandomTestUtil.randomString());
+						externalReferenceCode =
+							systemObjectValidationRule.
+								getExternalReferenceCode();
+						name = Collections.singletonMap(
+							"en_US", RandomTestUtil.randomString());
+						objectDefinitionExternalReferenceCode =
+							randomModifiableSystemObjectDefinition.
+								getExternalReferenceCode();
+						objectValidationRuleSettings =
+							new ObjectValidationRuleSetting[] {
+								new ObjectValidationRuleSetting() {
+									{
+										name =
+											ObjectValidationRuleSettingConstants.NAME_OUTPUT_OBJECT_FIELD_EXTERNAL_REFERENCE_CODE;
+										value = "customObjectFieldERC";
+									}
+								}
+							};
+						outputType = OutputType.create("partialValidation");
+						script = RandomTestUtil.randomString();
+						system = true;
+					}
+				}
+			});
+
+		String liferayMode = SystemProperties.get("liferay.mode");
+
+		SystemProperties.clear("liferay.mode");
+
+		try {
+			objectDefinitionResource.putObjectDefinition(
+				randomModifiableSystemObjectDefinition.getId(),
+				randomModifiableSystemObjectDefinition);
+		}
+		finally {
+			SystemProperties.set("liferay.mode", liferayMode);
+		}
+
+		ObjectDefinition getObjectDefinition =
+			objectDefinitionResource.getObjectDefinition(
+				randomModifiableSystemObjectDefinition.getId());
+
+		_assertObjectValidationRule(
+			"customObjectFieldERC", updatedCustomObjectValidationRule,
+			(ObjectValidationRule)ArrayUtil.getValue(
+				getObjectDefinition.getObjectValidationRules(), 0));
+		_assertObjectValidationRule(
+			"customObjectFieldERC", systemObjectValidationRule,
+			(ObjectValidationRule)ArrayUtil.getValue(
+				getObjectDefinition.getObjectValidationRules(), 1));
+
+		_objectDefinitionLocalService.deleteObjectDefinition(
+			randomModifiableSystemObjectDefinition.getId());
 
 		// Storage type
 
@@ -548,6 +670,171 @@ public class ObjectDefinitionResourceTest
 
 		assertEquals(
 			expectedObjectDefinitions, (List<ObjectDefinition>)page.getItems());
+	}
+
+	private void _assertObjectValidationRule(
+		String expectedObjectFieldExternalReferenceCode,
+		ObjectValidationRule expectedObjectValidationRule,
+		ObjectValidationRule actualObjectValidationRule) {
+
+		Assert.assertEquals(
+			expectedObjectValidationRule.getActive(),
+			actualObjectValidationRule.getActive());
+		Assert.assertEquals(
+			expectedObjectValidationRule.getEngine(),
+			actualObjectValidationRule.getEngine());
+		Assert.assertEquals(
+			expectedObjectValidationRule.getErrorLabel(),
+			actualObjectValidationRule.getErrorLabel());
+		Assert.assertEquals(
+			expectedObjectValidationRule.getExternalReferenceCode(),
+			expectedObjectValidationRule.getExternalReferenceCode());
+		Assert.assertEquals(
+			expectedObjectValidationRule.getName(),
+			actualObjectValidationRule.getName());
+		Assert.assertEquals(
+			expectedObjectValidationRule.getOutputType(),
+			actualObjectValidationRule.getOutputType());
+		Assert.assertEquals(
+			expectedObjectValidationRule.getScript(),
+			actualObjectValidationRule.getScript());
+
+		if (StringUtil.equals(
+				actualObjectValidationRule.getOutputTypeAsString(),
+				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION)) {
+
+			Assert.assertTrue(
+				ArrayUtil.isEmpty(
+					actualObjectValidationRule.
+						getObjectValidationRuleSettings()));
+		}
+		else if (StringUtil.equals(
+					actualObjectValidationRule.getOutputTypeAsString(),
+					ObjectValidationRuleConstants.
+						OUTPUT_TYPE_PARTIAL_VALIDATION)) {
+
+			Assert.assertTrue(
+				ArrayUtil.isNotEmpty(
+					actualObjectValidationRule.
+						getObjectValidationRuleSettings()));
+
+			for (ObjectValidationRuleSetting objectValidationRuleSetting :
+					actualObjectValidationRule.
+						getObjectValidationRuleSettings()) {
+
+				if (StringUtil.equals(
+						objectValidationRuleSetting.getName(),
+						ObjectValidationRuleSettingConstants.
+							NAME_OUTPUT_OBJECT_FIELD_EXTERNAL_REFERENCE_CODE)) {
+
+					Assert.assertEquals(
+						expectedObjectFieldExternalReferenceCode,
+						objectValidationRuleSetting.getValue());
+				}
+			}
+		}
+	}
+
+	private ObjectDefinition _randomModifiableSystemObjectDefinition()
+		throws Exception {
+
+		ObjectDefinition objectDefinition = randomObjectDefinition();
+
+		objectDefinition.setActive(true);
+
+		String randomObjectDefinitionExternalReferenceCode =
+			"L_" + objectDefinition.getExternalReferenceCode();
+
+		objectDefinition.setExternalReferenceCode(
+			randomObjectDefinitionExternalReferenceCode);
+
+		objectDefinition.setName("Test");
+		objectDefinition.setObjectFields(
+			new ObjectField[] {
+				new ObjectField() {
+					{
+						businessType = BusinessType.TEXT;
+						DBType = ObjectField.DBType.create("String");
+						externalReferenceCode = "customObjectFieldERC";
+						indexed = false;
+						indexedAsKeyword = false;
+						label = Collections.singletonMap(
+							"en-US", RandomTestUtil.randomString());
+						localized = false;
+						name = "customObjectField";
+						readOnly = ReadOnly.FALSE;
+						required = false;
+						system = false;
+					}
+				},
+				new ObjectField() {
+					{
+						businessType = BusinessType.TEXT;
+						DBType = ObjectField.DBType.create("String");
+						externalReferenceCode = RandomTestUtil.randomString();
+						indexed = false;
+						indexedAsKeyword = false;
+						label = Collections.singletonMap(
+							"en-US", RandomTestUtil.randomString());
+						localized = false;
+						name = "systemObjectField";
+						readOnly = ReadOnly.FALSE;
+						required = false;
+						system = true;
+					}
+				}
+			});
+		objectDefinition.setObjectValidationRules(
+			new ObjectValidationRule[] {
+				new ObjectValidationRule() {
+					{
+						active = true;
+						engine = ObjectValidationRuleConstants.ENGINE_TYPE_DDM;
+						errorLabel = Collections.singletonMap(
+							"en-US", RandomTestUtil.randomString());
+						externalReferenceCode = RandomTestUtil.randomString();
+						name = Collections.singletonMap(
+							"en-US", RandomTestUtil.randomString());
+						objectDefinitionExternalReferenceCode =
+							randomObjectDefinitionExternalReferenceCode;
+						outputType = OutputType.create("fullValidation");
+						script = "isEmailAddress(customObjectField)";
+						system = false;
+					}
+				},
+				new ObjectValidationRule() {
+					{
+						active = true;
+						engine = ObjectValidationRuleConstants.ENGINE_TYPE_DDM;
+						errorLabel = Collections.singletonMap(
+							"en-US", RandomTestUtil.randomString());
+						externalReferenceCode = RandomTestUtil.randomString();
+						name = Collections.singletonMap(
+							"en-US", RandomTestUtil.randomString());
+						objectDefinitionExternalReferenceCode =
+							randomObjectDefinitionExternalReferenceCode;
+						outputType = OutputType.create("fullValidation");
+						script = "isEmailAddress(systemObjectField)";
+						system = true;
+					}
+				}
+			});
+		objectDefinition.setStatus(
+			new Status() {
+				{
+					code = WorkflowConstants.STATUS_APPROVED;
+					label = WorkflowConstants.getStatusLabel(
+						WorkflowConstants.STATUS_APPROVED);
+					label_i18n = _language.get(
+						LanguageResources.getResourceBundle(
+							LocaleUtil.getDefault()),
+						WorkflowConstants.getStatusLabel(
+							WorkflowConstants.STATUS_APPROVED));
+				}
+			});
+		objectDefinition.setSystem(true);
+
+		return objectDefinition;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

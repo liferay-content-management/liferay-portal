@@ -25,13 +25,13 @@ import {useObjectDetailsForm} from './useObjectDetailsForm';
 
 import './ObjectDetails.scss';
 
-export type KeyValuePair = {
-	key: string;
-	value: string;
+export type Scope = {
+	items: LabelValueObject[];
+	label: string;
 };
 interface EditObjectDetailsProps {
 	backURL: string;
-	companyKeyValuePair: KeyValuePair[];
+	companies: Scope[];
 	dbTableName: string;
 	externalReferenceCode: string;
 	hasPublishObjectPermission: boolean;
@@ -47,7 +47,7 @@ interface EditObjectDetailsProps {
 	pluralLabel: LocalizedValue<string>;
 	portletNamespace: string;
 	shortName: string;
-	siteKeyValuePair: KeyValuePair[];
+	sites: Scope[];
 	storageTypes: LabelValueObject[];
 }
 
@@ -75,7 +75,7 @@ function setAccountRelationshipFieldMandatory(
 
 export default function EditObjectDetails({
 	backURL,
-	companyKeyValuePair,
+	companies,
 	dbTableName,
 	externalReferenceCode,
 	hasPublishObjectPermission,
@@ -88,7 +88,7 @@ export default function EditObjectDetails({
 	pluralLabel,
 	portletNamespace,
 	shortName,
-	siteKeyValuePair,
+	sites,
 	storageTypes,
 }: EditObjectDetailsProps) {
 	const [objectFields, setObjectFields] = useState<ObjectField[]>([]);
@@ -290,7 +290,6 @@ export default function EditObjectDetails({
 								<div className="lfr__object-web-edit-object-details-external-data-source-container">
 									<ExternalDataSourceContainer
 										errors={errors}
-										setValues={setValues}
 										storageTypes={storageTypes}
 										values={values}
 									/>
@@ -307,7 +306,7 @@ export default function EditObjectDetails({
 					>
 						<ClayPanel.Body>
 							<ScopeContainer
-								companyKeyValuePairs={companyKeyValuePair}
+								companies={companies}
 								errors={errors}
 								hasUpdateObjectDefinitionPermission={
 									hasUpdateObjectDefinitionPermission
@@ -315,7 +314,7 @@ export default function EditObjectDetails({
 								isApproved={isApproved}
 								isRootDescendantNode={isRootDescendantNode}
 								setValues={setValues}
-								siteKeyValuePairs={siteKeyValuePair}
+								sites={sites}
 								values={values}
 							/>
 						</ClayPanel.Body>

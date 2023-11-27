@@ -8,13 +8,18 @@ import {ClayDropDownWithItems} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import ClaySticker from '@clayui/sticker';
-import {fetch, navigate, openSelectionModal, sub} from 'frontend-js-web';
+import {fetch, sub} from 'frontend-js-web';
 import PropTypes from 'prop-types';
 import React, {useEffect, useRef, useState} from 'react';
 
 function mapItemsOnClick(items) {
 	return items.map((item) => {
-		const {items: nestedItems, jsOnClickConfig, ...otherKeys} = item;
+		const {
+			items: nestedItems,
+			jsOnClickConfig,
+			onClickJSModuleURL,
+			...otherKeys
+		} = item;
 
 		const newVal = {...otherKeys};
 
@@ -22,19 +27,17 @@ function mapItemsOnClick(items) {
 			newVal.items = mapItemsOnClick(nestedItems);
 		}
 
-		if (jsOnClickConfig) {
-			newVal.onClick = () => {
-				const {selectEventName, title, url} = jsOnClickConfig;
-
-				openSelectionModal({
-					id: selectEventName,
-					onSelect(selectedItem) {
-						navigate(selectedItem.url);
-					},
-					selectEventName,
-					title,
-					url,
+		if (onClickJSModuleURL) {
+			newVal.onClick = async () => {
+				const onClickFn = await new Promise((resolve, reject) => {
+					Liferay.Loader.require(
+						onClickJSModuleURL,
+						(jsModule) => resolve(jsModule.default),
+						(error) => reject(error)
+					);
 				});
+
+				onClickFn(jsOnClickConfig);
 			};
 		}
 

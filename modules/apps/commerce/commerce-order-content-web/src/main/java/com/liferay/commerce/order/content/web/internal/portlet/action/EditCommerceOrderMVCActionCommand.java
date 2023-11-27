@@ -9,6 +9,7 @@ import com.liferay.account.exception.NoSuchEntryException;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.commerce.constants.CommerceAddressConstants;
 import com.liferay.commerce.constants.CommerceOrderConstants;
+import com.liferay.commerce.constants.CommerceOrderWebKeys;
 import com.liferay.commerce.constants.CommercePortletKeys;
 import com.liferay.commerce.constants.CommerceWebKeys;
 import com.liferay.commerce.context.CommerceContext;
@@ -59,6 +60,8 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -211,9 +214,15 @@ public class EditCommerceOrderMVCActionCommand extends BaseMVCActionCommand {
 			ActionRequest actionRequest, long commerceOrderId)
 		throws Exception {
 
+		HttpServletRequest httpServletRequest = _portal.getHttpServletRequest(
+			actionRequest);
+
+		httpServletRequest.setAttribute(
+			CommerceOrderWebKeys.MERGE_GUEST_ORDER, Boolean.FALSE);
+
 		CommerceOrder currentCommerceOrder =
 			_commerceOrderHttpHelper.getCurrentCommerceOrder(
-				_portal.getHttpServletRequest(actionRequest));
+				httpServletRequest);
 
 		if ((currentCommerceOrder == null) ||
 			(commerceOrderId != currentCommerceOrder.getCommerceOrderId())) {

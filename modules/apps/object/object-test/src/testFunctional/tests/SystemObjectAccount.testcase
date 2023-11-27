@@ -577,8 +577,9 @@ definition {
 		for (var label : list "Name,Type") {
 			ObjectAdmin.goToFieldsDetails(label = ${label});
 
-			AssertElementPresent(
-				locator1 = "ObjectField#TYPE_FIELD",
+			AssertTextEquals(
+				key_labelName = "Type",
+				locator1 = "ObjectAdmin#CLAY_GENERIC_BUTTON",
 				value1 = "Text");
 
 			AssertChecked.assertCheckedNotVisible(locator1 = "ObjectField#MANDATORY_TOGGLE");
@@ -620,14 +621,6 @@ definition {
 
 		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject153527");
 
-		ObjectAdmin.openObjectAdmin();
-
-		ObjectPortlet.selectSystemObject(label = "Account");
-
-		CreateObject.selectTitleField(fieldLabel = "Name");
-
-		CreateObject.saveObject();
-
 		ObjectAdmin.goToCustomObject(objectName = "CustomObject153527");
 
 		LexiconEntry.gotoAdd();
@@ -661,10 +654,6 @@ definition {
 			ObjectAdmin.openObjectAdmin();
 
 			ObjectPortlet.selectSystemObject(label = "Account");
-
-			CreateObject.selectTitleField(fieldLabel = "Name");
-
-			CreateObject.saveObject();
 
 			ObjectAdmin.gotoRelationshipsTab();
 
@@ -784,8 +773,9 @@ definition {
 
 		ObjectPortlet.selectSystemObject(label = "Account");
 
-		AssertElementPresent(
-			locator1 = "CreateObject#TITLE_FIELD",
+		AssertTextEquals(
+			key_labelName = "Entry Title Field",
+			locator1 = "ObjectAdmin#CLAY_GENERIC_BUTTON",
 			value1 = "Type");
 	}
 

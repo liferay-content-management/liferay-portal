@@ -9,6 +9,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
+import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
@@ -28,6 +29,7 @@ import com.liferay.object.exception.ObjectEntryStatusException;
 import com.liferay.object.exception.ObjectEntryValuesException;
 import com.liferay.object.exception.ObjectValidationRuleEngineException;
 import com.liferay.object.field.builder.AttachmentObjectFieldBuilder;
+import com.liferay.object.field.builder.AutoIncrementObjectFieldBuilder;
 import com.liferay.object.field.builder.DateObjectFieldBuilder;
 import com.liferay.object.field.builder.DateTimeObjectFieldBuilder;
 import com.liferay.object.field.builder.DecimalObjectFieldBuilder;
@@ -43,6 +45,7 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFieldSetting;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.model.ObjectState;
 import com.liferay.object.model.ObjectStateFlow;
 import com.liferay.object.model.ObjectStateTransition;
@@ -52,12 +55,17 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectFieldSettingLocalService;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.service.ObjectStateFlowLocalService;
 import com.liferay.object.service.ObjectStateLocalService;
 import com.liferay.object.service.ObjectStateTransitionLocalService;
 import com.liferay.object.service.ObjectValidationRuleLocalService;
-import com.liferay.object.service.test.util.ObjectDefinitionTestUtil;
 import com.liferay.object.service.test.util.ObjectFieldTestUtil;
+import com.liferay.object.test.util.ObjectDefinitionTestUtil;
+import com.liferay.object.test.util.TreeTestUtil;
+import com.liferay.object.tree.Node;
+import com.liferay.object.tree.Tree;
+import com.liferay.object.tree.TreeFactory;
 import com.liferay.object.validation.rule.ObjectValidationRuleResult;
 import com.liferay.object.validation.rule.setting.builder.ObjectValidationRuleSettingBuilder;
 import com.liferay.petra.string.StringBundler;
@@ -97,6 +105,7 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -112,6 +121,7 @@ import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
 import java.io.Serializable;
@@ -160,7 +170,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
  * @author Marco Leo
  * @author Brian Wing Shun Chan
  */
-@FeatureFlags("LPS-181663")
+@FeatureFlags({"LPS-181663", "LPS-187142"})
 @RunWith(Arquillian.class)
 public class ObjectEntryLocalServiceTest {
 
@@ -169,6 +179,7 @@ public class ObjectEntryLocalServiceTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
+			PermissionCheckerMethodTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -228,9 +239,9 @@ public class ObjectEntryLocalServiceTest {
 					ObjectFieldConstants.DB_TYPE_STRING, true, true, null,
 					"Email Address Domain", "emailAddressDomain", false),
 				ObjectFieldUtil.createObjectField(
-					ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+					0, ObjectFieldConstants.BUSINESS_TYPE_TEXT, null,
 					ObjectFieldConstants.DB_TYPE_STRING, true, false, null,
-					"First Name", "firstName", false),
+					"First Name", "firstName", false, true),
 				ObjectFieldUtil.createObjectField(
 					ObjectFieldConstants.BUSINESS_TYPE_DECIMAL,
 					ObjectFieldConstants.DB_TYPE_DOUBLE, true, false, null,
@@ -648,6 +659,197 @@ public class ObjectEntryLocalServiceTest {
 		finally {
 			serviceContext.setWorkflowAction(originalWorkflowAction);
 		}
+	}
+
+	@FeatureFlags("LPS-196724")
+	@Test
+	public void testAddObjectEntryWithAutoIncrementObjectField()
+		throws Exception {
+
+		ObjectField objectField = _addCustomObjectField(
+			new AutoIncrementObjectFieldBuilder(
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+			).name(
+				"autoIncrement"
+			).objectDefinitionId(
+				_objectDefinition.getObjectDefinitionId()
+			).objectFieldSettings(
+				Arrays.asList(
+					new ObjectFieldSettingBuilder(
+					).name(
+						ObjectFieldSettingConstants.NAME_INITIAL_VALUE
+					).value(
+						"0123"
+					).build(),
+					new ObjectFieldSettingBuilder(
+					).name(
+						ObjectFieldSettingConstants.NAME_PREFIX
+					).value(
+						"LPS-"
+					).build(),
+					new ObjectFieldSettingBuilder(
+					).name(
+						ObjectFieldSettingConstants.NAME_SUFFIX
+					).value(
+						"-private"
+					).build())
+			).build());
+
+		Map<String, Serializable> requiredValues =
+			HashMapBuilder.<String, Serializable>put(
+				"emailAddressRequired", "athanasius@liferay.com"
+			).put(
+				"listTypeEntryKeyRequired", "listTypeEntryKey1"
+			).build();
+
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.InvalidValue.class,
+			"The value is invalid for object field \"autoIncrement\"",
+			() -> _addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"autoIncrement",
+					RandomTestUtil.randomString() + "0123-private"
+				).putAll(
+					requiredValues
+				).build()));
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.InvalidValue.class,
+			"The value is invalid for object field \"autoIncrement\"",
+			() -> _addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"autoIncrement",
+					"LPS-" + RandomTestUtil.randomString() + "-private"
+				).putAll(
+					requiredValues
+				).build()));
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.InvalidValue.class,
+			"The value is invalid for object field \"autoIncrement\"",
+			() -> _addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"autoIncrement", "LPS-0123" + RandomTestUtil.randomString()
+				).putAll(
+					requiredValues
+				).build()));
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.InvalidValue.class,
+			"The value is invalid for object field \"autoIncrement\"",
+			() -> _addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"autoIncrement", "LPS-xxxx-private"
+				).putAll(
+					requiredValues
+				).build()));
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.InvalidValue.class,
+			"The value is invalid for object field \"autoIncrement\"",
+			() -> _addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"autoIncrement", "LPS-3-private"
+				).putAll(
+					requiredValues
+				).build()));
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.InvalidValue.class,
+			"The value is invalid for object field \"autoIncrement\"",
+			() -> _addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"autoIncrement", "LPS-123-private"
+				).putAll(
+					requiredValues
+				).build()));
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.InvalidValue.class,
+			"The value is invalid for object field \"autoIncrement\"",
+			() -> _addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"autoIncrement", "LPS-00123-private"
+				).putAll(
+					requiredValues
+				).build()));
+
+		ObjectEntry objectEntry1 = _addObjectEntry(
+			HashMapBuilder.<String, Serializable>put(
+				"autoIncrement", "LPS-0200-private"
+			).putAll(
+				requiredValues
+			).build());
+
+		try (Connection connection = DataAccess.getConnection();
+			PreparedStatement preparedStatement = connection.prepareStatement(
+				StringBundler.concat(
+					"select ", objectField.getSortableDBColumnName(), " from ",
+					objectField.getDBTableName(), " where ",
+					_objectDefinition.getPKObjectFieldDBColumnName(), " = ",
+					objectEntry1.getObjectEntryId()));
+			ResultSet resultSet = preparedStatement.executeQuery()) {
+
+			resultSet.next();
+
+			Assert.assertEquals(200, resultSet.getLong(1));
+		}
+
+		// Auto increment object field value must always be unique
+
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.UniqueValueConstraintViolation.class,
+			String.format(
+				"Unique value constraint violation for %s.%s with value %s",
+				objectField.getDBTableName(), objectField.getDBColumnName(),
+				"LPS-0200-private"),
+			() -> _addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"autoIncrement", "LPS-0200-private"
+				).putAll(
+					requiredValues
+				).build()));
+
+		// Auto increment object field value must not be updatable
+
+		objectEntry1 = _addOrUpdateObjectEntry(
+			objectEntry1.getExternalReferenceCode(), 0,
+			HashMapBuilder.<String, Serializable>put(
+				"autoIncrement", "LPS-2000-private"
+			).putAll(
+				requiredValues
+			).build());
+
+		Assert.assertEquals(
+			"LPS-0200-private",
+			MapUtil.getString(objectEntry1.getValues(), "autoIncrement"));
+
+		ObjectEntry objectEntry2 = _addObjectEntry(
+			HashMapBuilder.<String, Serializable>put(
+				"autoIncrement", "LPS-0150-private"
+			).putAll(
+				requiredValues
+			).build());
+
+		Assert.assertEquals(
+			"LPS-0150-private",
+			MapUtil.getString(objectEntry2.getValues(), "autoIncrement"));
+
+		ObjectEntry objectEntry3 = _addObjectEntry(
+			HashMapBuilder.putAll(
+				requiredValues
+			).build());
+
+		Assert.assertEquals(
+			"LPS-0201-private",
+			MapUtil.getString(objectEntry3.getValues(), "autoIncrement"));
+
+		Assert.assertEquals(
+			201,
+			_counterLocalService.getCurrentId(
+				ObjectFieldUtil.getCounterName(objectField)));
+
+		_objectFieldLocalService.deleteObjectField(objectField);
+
+		Assert.assertEquals(
+			0,
+			_counterLocalService.getCurrentId(
+				ObjectFieldUtil.getCounterName(objectField)));
 	}
 
 	@Test
@@ -1163,6 +1365,133 @@ public class ObjectEntryLocalServiceTest {
 	}
 
 	@Test
+	public void testAddOrUpdateObjectEntryWithObjectDefinitionTree()
+		throws Exception {
+
+		Tree objectDefinitionTree = TreeTestUtil.createObjectDefinitionTree(
+			_objectDefinitionLocalService, _objectRelationshipLocalService,
+			_treeFactory);
+
+		Node rootObjectDefinitionNode = objectDefinitionTree.getRootNode();
+
+		_objectDefinitionLocalService.publishCustomObjectDefinition(
+			TestPropsValues.getUserId(),
+			rootObjectDefinitionNode.getPrimaryKey());
+
+		Tree objectEntryTree1 = TreeTestUtil.createObjectEntryTree(
+			"1", _objectEntryLocalService, _objectFieldLocalService,
+			rootObjectDefinitionNode.getPrimaryKey(),
+			_objectRelationshipLocalService, _treeFactory);
+
+		TreeTestUtil.assertObjectEntryTree(
+			LinkedHashMapBuilder.put(
+				"A1", new String[] {"AA1", "AB1"}
+			).put(
+				"AA1", new String[] {"AAA1", "AAB1"}
+			).put(
+				"AB1", new String[0]
+			).put(
+				"AAA1", new String[0]
+			).put(
+				"AAB1", new String[0]
+			).build(),
+			objectEntryTree1, _objectEntryLocalService);
+
+		Tree objectEntryTree2 = TreeTestUtil.createObjectEntryTree(
+			"2", _objectEntryLocalService, _objectFieldLocalService,
+			rootObjectDefinitionNode.getPrimaryKey(),
+			_objectRelationshipLocalService, _treeFactory);
+
+		TreeTestUtil.assertObjectEntryTree(
+			LinkedHashMapBuilder.put(
+				"A2", new String[] {"AA2", "AB2"}
+			).put(
+				"AA2", new String[] {"AAA2", "AAB2"}
+			).put(
+				"AB2", new String[0]
+			).put(
+				"AAA2", new String[0]
+			).put(
+				"AAB2", new String[0]
+			).build(),
+			objectEntryTree2, _objectEntryLocalService);
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.fetchObjectDefinition(
+				TestPropsValues.getCompanyId(), "C_AA");
+
+		_objectEntryLocalService.addOrUpdateObjectEntry(
+			"AA1", TestPropsValues.getUserId(), 0,
+			objectDefinition.getObjectDefinitionId(),
+			HashMapBuilder.<String, Serializable>put(
+				() -> {
+					Node node = objectDefinitionTree.getNode(
+						objectDefinition.getObjectDefinitionId());
+
+					ObjectRelationship objectRelationship =
+						_objectRelationshipLocalService.getObjectRelationship(
+							node.getEdge(
+							).getObjectRelationshipId());
+
+					ObjectField objectField =
+						_objectFieldLocalService.fetchObjectField(
+							objectRelationship.getObjectFieldId2());
+
+					return objectField.getName();
+				},
+				() -> {
+					ObjectEntry objectEntry =
+						_objectEntryLocalService.getObjectEntry(
+							"A2", rootObjectDefinitionNode.getPrimaryKey());
+
+					return objectEntry.getObjectEntryId();
+				}
+			).build(),
+			ServiceContextTestUtil.getServiceContext());
+
+		objectEntryTree1 = _treeFactory.createObjectEntryTree(
+			objectEntryTree1.getRootNode(
+			).getPrimaryKey());
+
+		TreeTestUtil.assertObjectEntryTree(
+			LinkedHashMapBuilder.put(
+				"A1", new String[] {"AB1"}
+			).put(
+				"AB1", new String[0]
+			).build(),
+			objectEntryTree1, _objectEntryLocalService);
+
+		objectEntryTree2 = _treeFactory.createObjectEntryTree(
+			objectEntryTree2.getRootNode(
+			).getPrimaryKey());
+
+		TreeTestUtil.assertObjectEntryTree(
+			LinkedHashMapBuilder.put(
+				"A2", new String[] {"AA1", "AA2", "AB2"}
+			).put(
+				"AA1", new String[] {"AAA1", "AAB1"}
+			).put(
+				"AA2", new String[] {"AAA2", "AAB2"}
+			).put(
+				"AB2", new String[0]
+			).put(
+				"AAA1", new String[0]
+			).put(
+				"AAB1", new String[0]
+			).put(
+				"AAA2", new String[0]
+			).put(
+				"AAB2", new String[0]
+			).build(),
+			objectEntryTree2, _objectEntryLocalService);
+
+		TreeTestUtil.deleteObjectDefinitionHierarchy(
+			_objectDefinitionLocalService,
+			new String[] {"C_A", "C_AA", "C_AB", "C_AAA", "C_AAB"},
+			_objectEntryLocalService);
+	}
+
+	@Test
 	public void testAuditRouter() throws Exception {
 		Queue<AuditMessage> auditMessages = new LinkedList<>();
 
@@ -1672,8 +2001,6 @@ public class ObjectEntryLocalServiceTest {
 	public void testGetObjectEntry() throws Exception {
 		ObjectEntry objectEntry = _addObjectEntry(
 			HashMapBuilder.<String, Serializable>put(
-				"ageOfDeath", 0
-			).put(
 				"emailAddressRequired", "john@liferay.com"
 			).put(
 				"firstName", "John"
@@ -1711,18 +2038,18 @@ public class ObjectEntryLocalServiceTest {
 		Assert.assertEquals(
 			"john@liferay.com", values.get("emailAddressRequired"));
 		Assert.assertEquals("John", values.get("firstName"));
-		Assert.assertEquals(null, values.get("height"));
+		Assert.assertEquals(0D, values.get("height"));
 		Assert.assertEquals(null, values.get("lastName"));
 		Assert.assertEquals(null, values.get("middleName"));
-		Assert.assertEquals(null, values.get("numberOfBooksWritten"));
+		Assert.assertEquals(0, values.get("numberOfBooksWritten"));
 		Assert.assertEquals(null, values.get("listTypeEntryKey"));
 		Assert.assertEquals(
 			"listTypeEntryKey1", values.get("listTypeEntryKeyRequired"));
 		Assert.assertEquals(StringPool.BLANK, values.get("script"));
-		Assert.assertEquals(null, values.get("speed"));
+		Assert.assertEquals(_getBigDecimal(0L), values.get("speed"));
 		Assert.assertEquals("listTypeEntryKey1", values.get("state"));
 		Assert.assertEquals(null, values.get("time"));
-		Assert.assertEquals(null, values.get("weight"));
+		Assert.assertEquals(0D, values.get("weight"));
 		Assert.assertEquals(
 			objectEntry.getObjectEntryId(),
 			values.get(_objectDefinition.getPKObjectFieldName()));
@@ -2069,13 +2396,13 @@ public class ObjectEntryLocalServiceTest {
 		Map<String, Serializable> values = objectEntry.getValues();
 
 		Assert.assertEquals(_getValuesFromCacheField(objectEntry), values);
-		Assert.assertEquals(null, values.get("ageOfDeath"));
+		Assert.assertEquals(0L, values.get("ageOfDeath"));
 		Assert.assertFalse((boolean)values.get("authorOfGospel"));
 		Assert.assertEquals(null, values.get("birthday"));
 		Assert.assertEquals(
 			"john@liferay.com", values.get("emailAddressRequired"));
 		Assert.assertEquals("João", values.get("firstName"));
-		Assert.assertEquals(null, values.get("height"));
+		Assert.assertEquals(0D, values.get("height"));
 		Assert.assertEquals("o Discípulo Amado", values.get("lastName"));
 		Assert.assertEquals(null, values.get("listTypeEntryKey"));
 		Assert.assertEquals(
@@ -2084,13 +2411,13 @@ public class ObjectEntryLocalServiceTest {
 		Assert.assertEquals(
 			"multipleListTypeEntryKey3, multipleListTypeEntryKey4",
 			values.get("multipleListTypeEntriesKey"));
-		Assert.assertEquals(null, values.get("numberOfBooksWritten"));
+		Assert.assertEquals(0, values.get("numberOfBooksWritten"));
 		Assert.assertEquals(StringPool.BLANK, values.get("script"));
-		Assert.assertEquals(null, values.get("speed"));
+		Assert.assertEquals(_getBigDecimal(0L), values.get("speed"));
 		Assert.assertEquals("listTypeEntryKey1", values.get("state"));
 		Assert.assertEquals(null, values.get("time"));
-		Assert.assertEquals(null, values.get("upload"));
-		Assert.assertEquals(null, values.get("weight"));
+		Assert.assertEquals(0L, values.get("upload"));
+		Assert.assertEquals(0D, values.get("weight"));
 		Assert.assertEquals(
 			objectEntry.getObjectEntryId(),
 			values.get(_objectDefinition.getPKObjectFieldName()));
@@ -2098,7 +2425,7 @@ public class ObjectEntryLocalServiceTest {
 
 		Calendar calendar = new GregorianCalendar();
 
-		calendar.set(6, Calendar.DECEMBER, 27);
+		calendar.set(6, Calendar.DECEMBER, 28);
 		calendar.setTimeInMillis(0);
 
 		Date birthdayDate = calendar.getTime();
@@ -3010,6 +3337,9 @@ public class ObjectEntryLocalServiceTest {
 	private AssetEntryLocalService _assetEntryLocalService;
 
 	@Inject
+	private CounterLocalService _counterLocalService;
+
+	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Inject
@@ -3047,6 +3377,9 @@ public class ObjectEntryLocalServiceTest {
 	private ObjectFieldSettingLocalService _objectFieldSettingLocalService;
 
 	@Inject
+	private ObjectRelationshipLocalService _objectRelationshipLocalService;
+
+	@Inject
 	private ObjectStateFlowLocalService _objectStateFlowLocalService;
 
 	@Inject
@@ -3058,6 +3391,9 @@ public class ObjectEntryLocalServiceTest {
 
 	@Inject
 	private ObjectValidationRuleLocalService _objectValidationRuleLocalService;
+
+	@Inject
+	private TreeFactory _treeFactory;
 
 	@Inject
 	private WorkflowDefinitionLinkLocalService

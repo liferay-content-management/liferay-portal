@@ -259,6 +259,12 @@ public class CompanyLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery, projection);
 	}
 
+	public static Company extractCompany(long companyId)
+		throws PortalException {
+
+		return getService().extractCompany(companyId);
+	}
+
 	public static Company fetchCompany(long companyId) {
 		return getService().fetchCompany(companyId);
 	}

@@ -54,6 +54,7 @@ import com.liferay.headless.commerce.delivery.catalog.dto.v1_0.SkuOption;
 import com.liferay.headless.commerce.delivery.catalog.dto.v1_0.SkuUnitOfMeasure;
 import com.liferay.headless.commerce.delivery.catalog.dto.v1_0.TierPrice;
 import com.liferay.headless.commerce.delivery.catalog.dto.v1_0.converter.SkuDTOConverterContext;
+import com.liferay.headless.commerce.delivery.catalog.internal.dto.v1_0.util.CustomFieldsUtil;
 import com.liferay.headless.commerce.delivery.catalog.internal.util.v1_0.SkuOptionUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
@@ -119,7 +120,8 @@ public class SkuDTOConverter implements DTOConverter<CPInstance, Sku> {
 
 		SkuOption[] skuOptionsArray = _getSkuOptions(
 			_cpInstanceHelper.getCPDefinitionOptionValueRelsMap(
-				cpInstance.getCPDefinitionId(), jsonArray.toString()));
+				cpInstance.getCPDefinitionId(), jsonArray.toString()),
+			skuDTOConverterContext.getLocale());
 
 		CPInstance replacementCPInstance = _checkReplacementCPInstance(
 			_cpInstanceLocalService.fetchCProductInstance(
@@ -135,6 +137,10 @@ public class SkuDTOConverter implements DTOConverter<CPInstance, Sku> {
 					cpInstance.getSku(),
 					skuDTOConverterContext.getUnitOfMeasureKey(),
 					skuDTOConverterContext.getLocale());
+				customFields = CustomFieldsUtil.toCustomFields(
+					dtoConverterContext.isAcceptAllLanguages(),
+					CPInstance.class.getName(), cpInstance.getCPInstanceId(),
+					cpInstance.getCompanyId(), dtoConverterContext.getLocale());
 				depth = cpInstance.getDepth();
 				discontinued = cpInstance.isDiscontinued();
 				discontinuedDate = cpInstance.getDiscontinuedDate();
@@ -435,12 +441,14 @@ public class SkuDTOConverter implements DTOConverter<CPInstance, Sku> {
 
 	private SkuOption[] _getSkuOptions(
 			Map<CPDefinitionOptionRel, List<CPDefinitionOptionValueRel>>
-				cpDefinitionOptionValueRelsMap)
+				cpDefinitionOptionValueRelsMap,
+			Locale locale)
 		throws Exception {
 
 		if (MapUtil.isNotEmpty(cpDefinitionOptionValueRelsMap)) {
 			return SkuOptionUtil.getSkuOptions(
-				cpDefinitionOptionValueRelsMap, _cpInstanceLocalService);
+				cpDefinitionOptionValueRelsMap, _cpInstanceLocalService,
+				locale);
 		}
 
 		return null;
@@ -483,7 +491,8 @@ public class SkuDTOConverter implements DTOConverter<CPInstance, Sku> {
 		SkuOption[] replacementSkuSkuOptions = _getSkuOptions(
 			_cpInstanceHelper.getCPDefinitionOptionValueRelsMap(
 				replacementCPInstance.getCPDefinitionId(),
-				jsonArray.toString()));
+				jsonArray.toString()),
+			skuDTOConverterContext.getLocale());
 
 		List<CPInstanceUnitOfMeasure> replacementUnitOfMeasures =
 			_cpInstanceUnitOfMeasureLocalService.
@@ -548,7 +557,8 @@ public class SkuDTOConverter implements DTOConverter<CPInstance, Sku> {
 						_cpInstanceHelper.
 							getCPInstanceCPDefinitionOptionRelsMap(
 								replacementCPInstance.getCPInstanceId()),
-						_cpInstanceLocalService));
+						_cpInstanceLocalService,
+						skuDTOConverterContext.getLocale()));
 			}
 		};
 	}

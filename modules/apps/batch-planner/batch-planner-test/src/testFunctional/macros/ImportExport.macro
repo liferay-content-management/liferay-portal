@@ -223,8 +223,16 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro configureExport(containsHeaders = null, templateName = null, entityType = null, exportFields = null, exportFileFormat = null) {
-		ImportExport.selectEntity(entityType = ${entityType});
+	macro configureExport(containsHeaders = null, templateName = null, entityType = null, scope = null, exportFields = null, exportFileFormat = null) {
+		if (isSet(entityType)) {
+			ImportExport.selectEntity(entityType = ${entityType});
+		}
+
+		if (isSet(scope)) {
+			Select(
+				locator1 = "Select#SCOPE_CONFIGURATION",
+				value1 = ${scope});
+		}
 
 		Select(
 			key_selectFieldLabel = "Export File Format",
@@ -247,7 +255,7 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro configureImport(containsHeaders = null, fileName = null, templateName = null, entityType = null, importName = null, csvSeparator = null, fieldMappings = null, importStrategy = null, stopImportOnError = null) {
+	macro configureImport(containsHeaders = null, fileName = null, templateName = null, entityType = null, scope = null, importName = null, csvSeparator = null, fieldMappings = null, importStrategy = null, stopImportOnError = null) {
 		UploadDependencyFile.uploadFile(fileName = ${fileName});
 
 		if (isSet(importName)) {
@@ -270,6 +278,12 @@ definition {
 		}
 
 		ImportExport.selectEntity(entityType = ${entityType});
+
+		if (isSet(scope)) {
+			Select(
+				locator1 = "Select#SCOPE_CONFIGURATION",
+				value1 = ${scope});
+		}
 
 		if (isSet(importStrategy)) {
 			Select(
@@ -295,6 +309,26 @@ definition {
 	}
 
 	@summary = "Default summary"
+	macro exportAndUnzipFile(containsHeaders = null, entityType = null, exportFields = null, exportFileFormat = null) {
+		ImportExport.openImportExportAdmin();
+
+		ImportExport.gotoExport();
+
+		ImportExport.configureExport(
+			containsHeaders = ${containsHeaders},
+			entityType = ${entityType},
+			exportFields = ${exportFields},
+			exportFileFormat = ${exportFileFormat},
+			templateName = ${templateName});
+
+		Button.click(button = "Export");
+
+		WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
+
+		ImportExport.unzipDownloadedExportFile();
+	}
+
+	@summary = "Default summary"
 	macro exportEntityWithAllFieldsInJsontFormat(entityType = null) {
 		Variables.assertDefined(parameterList = ${entityType});
 
@@ -309,42 +343,6 @@ definition {
 		Button.click(button = "Export");
 
 		WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
-	}
-
-	@summary = "Default summary"
-	macro exportFile(containsHeaders = null, entityType = null, exportFields = null, exportFileFormat = null) {
-		Click(locator1 = "Button#PLUS");
-
-		MenuItem.click(menuItem = "Export File");
-
-		ImportExport.selectEntity(entityType = ${entityType});
-
-		Select(
-			key_selectFieldLabel = "Export File Format",
-			locator1 = "ImportExport#SELECT",
-			value1 = ${exportFileFormat});
-
-		if (${containsHeaders} == "false") {
-			Uncheck.uncheckNotVisible(
-				checkboxName = "Headers",
-				locator1 = "Checkbox#ANY_CHECKBOX");
-		}
-
-		if (isSet(exportFields)) {
-			ImportExport.mapExport(exportFields = ${exportFields});
-		}
-
-		Button.click(button = "Export");
-
-		WaitForElementPresent(locator1 = "ImportExport#EXECUTION_SUCCESS");
-
-		Button.click(button = "Download");
-
-		DownloadTempFile();
-
-		DMDocument.assertFileNameFromTempFolder(fileName = "Export.zip");
-
-		AntCommands.runCommand("build-test.xml", "unzip-temp-file -DfileName=Export.zip");
 	}
 
 	@summary = "Default summary"
@@ -498,6 +496,8 @@ definition {
 		Button.click(button = "Download");
 
 		DownloadTempFile();
+
+		DMDocument.assertFileNameFromTempFolder(fileName = "Export.zip");
 
 		AntCommands.runCommand("build-test.xml", "unzip-temp-file -DfileName=Export.zip");
 	}

@@ -64,6 +64,8 @@ definition {
 	@description = "This is a test for LPS-166203. The site designer could add fragment set during copy OOTB fragment when the site doesn't have fragment set."
 	@priority = 5
 	test AddFirstFragmentSetWhenCopyContributedFragment {
+		property portal.acceptance = "true";
+
 		task ("Given a site designer navigates to the Fragments admin of a new site") {
 			FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = ${siteURLKey});
 		}
@@ -99,8 +101,6 @@ definition {
 	@description = "This is a test for LPS-159235. Add folders to fragment resource and check hints."
 	@priority = 4
 	test AddFoldersToResourceAndCheckHints {
-		property custom.properties = "feature.flag.LPS-158675=true";
-
 		task ("When user is in resources tab") {
 			task ("Add a fragment collection") {
 				JSONFragment.addFragmentCollection(
@@ -258,6 +258,8 @@ definition {
 	@description = "This is a test for LPS-166203. The site designer could save in new set during copy OOTB fragment when the site has fragment sets."
 	@priority = 5
 	test AddNewFragmentSetWhenCopyContributedFragment {
+		property portal.acceptance = "true";
+
 		task ("Given a site designer has a fragment set") {
 			JSONFragment.addFragmentCollection(
 				groupName = ${randomSiteName},
@@ -939,9 +941,9 @@ definition {
 
 			task ("Open the Select Fragment modal for Text field type") {
 				Click(
-					key_class = "btn-secondary",
-					key_index = 10,
-					locator1 = "Button#ANY_WITH_CLASS_AND_INDEX");
+					key_tableEntry = "Text",
+					key_text = "Select",
+					locator1 = "LexiconTable#TABLE_ENTRY_BUTTON");
 			}
 
 			task ("View two tabs shown on modal, Default, Global") {
@@ -1045,9 +1047,9 @@ definition {
 
 			task ("Open the Select Fragment modal for Text field type") {
 				Click(
-					key_class = "btn-secondary",
-					key_index = 10,
-					locator1 = "Button#ANY_WITH_CLASS_AND_INDEX");
+					key_tableEntry = "Text",
+					key_text = "Select",
+					locator1 = "LexiconTable#TABLE_ENTRY_BUTTON");
 			}
 
 			task ("View three tabs shown on modal, Default, Global and current site") {
@@ -1333,9 +1335,9 @@ definition {
 
 			task ("Open the Select Fragment modal for Text field type") {
 				Click(
-					key_class = "btn-secondary",
-					key_index = 10,
-					locator1 = "Button#ANY_WITH_CLASS_AND_INDEX");
+					key_tableEntry = "Text",
+					key_text = "Select",
+					locator1 = "LexiconTable#TABLE_ENTRY_BUTTON");
 			}
 
 			task ("View only the copy of fragment is available in form fragment selector") {
@@ -1401,9 +1403,9 @@ definition {
 		task ("Then view only same type form fragments display in form fragment selector") {
 			task ("Open the Select Fragment modal for Text field type") {
 				Click(
-					key_class = "btn-secondary",
-					key_index = 10,
-					locator1 = "Button#ANY_WITH_CLASS_AND_INDEX");
+					key_tableEntry = "Text",
+					key_text = "Select",
+					locator1 = "LexiconTable#TABLE_ENTRY_BUTTON");
 			}
 
 			task ("Select the copy of fragment from current site") {

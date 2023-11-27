@@ -46,6 +46,11 @@ components:
                     description:
                         Base64 encoded file
                     type: string
+                customFields:
+                    items:
+                        $ref: "#/components/schemas/CustomField"
+                    readOnly: true
+                    type: array
                 displayDate:
                     example: 2017-07-21
                     format: date
@@ -54,6 +59,9 @@ components:
                     example: 2017-08-21
                     format: date
                     type: string
+                galleryEnabled:
+                    readOnly: true
+                    type: boolean
                 id:
                     example: 30130
                     format: int64
@@ -79,6 +87,15 @@ components:
                     description:
                         URL of the location
                     type: string
+                tags:
+                    example:
+                        - tag1
+                        - tag2
+                        - tag3
+                    items:
+                        type: string
+                    readOnly: true
+                    type: array
                 title:
                     type: string
                 type:
@@ -141,6 +158,40 @@ components:
                 - name
                 - type
             type: object
+        CustomField:
+            description:
+                Represents the value of each custom field. Fields can contain different information types (e.g.,
+                geolocation, strings, etc.).
+            properties:
+                customValue:
+                    $ref: "#/components/schemas/CustomValue"
+                dataType:
+                    description:
+                        The field type (e.g., image, text, etc.).
+                    readOnly: true
+                    type: string
+                name:
+                    description:
+                        The field's internal name. This is valid for comparisons and unique in the structured content.
+                    readOnly: true
+                    type: string
+        CustomValue:
+            properties:
+                data:
+                    description:
+                        The field's content for simple types.
+                    readOnly: true
+                    type: object
+                data_i18n:
+                    additionalProperties:
+                        type: string
+                    readOnly: true
+                    type: object
+                geo:
+                    $ref: "#/components/schemas/Geo"
+                    description:
+                        A point determined by latitude and longitude.
+                    readOnly: true
         DDMOption:
             properties:
                 key:
@@ -181,6 +232,23 @@ components:
                 - errorDescription
                 - message
                 - status
+            type: object
+        Geo:
+            description:
+                A point determined by latitude and longitude.
+            properties:
+                latitude:
+                    description:
+                        The latitude of a point in space.
+                    format: double
+                    readOnly: true
+                    type: number
+                longitude:
+                    description:
+                        The longitude of a point in space.
+                    format: double
+                    readOnly: true
+                    type: number
             type: object
         LinkedProduct:
             properties:
@@ -357,6 +425,9 @@ components:
                     items:
                         $ref: "#/components/schemas/Attachment"
                     type: array
+                catalogName:
+                    readOnly: true
+                    type: string
                 categories:
                     items:
                         $ref: "#/components/schemas/Category"
@@ -364,6 +435,11 @@ components:
                 createDate:
                     format: date
                     type: string
+                customFields:
+                    items:
+                        $ref: "#/components/schemas/CustomField"
+                    readOnly: true
+                    type: array
                 description:
                     type: string
                 expando:
@@ -556,6 +632,9 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
+                infoMessage:
+                    readOnly: true
+                    type: string
                 key:
                     example: black
                     type: string
@@ -588,6 +667,10 @@ components:
                 relativePriceFormatted:
                     readOnly: true
                     type: string
+                selectable:
+                    example: true
+                    readOnly: true
+                    type: boolean
                 skuId:
                     example: 30130
                     format: int64
@@ -721,6 +804,11 @@ components:
                 backOrderAllowed:
                     readOnly: true
                     type: boolean
+                customFields:
+                    items:
+                        $ref: "#/components/schemas/CustomField"
+                    readOnly: true
+                    type: array
                 depth:
                     example: 1.1
                     format: double
@@ -853,6 +941,9 @@ components:
                 skuOptionKey:
                     example: Sku Option Key
                     type: string
+                skuOptionName:
+                    example: Sku Option Name
+                    type: string
                 skuOptionValueId:
                     example: 30130
                     format: int64
@@ -860,6 +951,10 @@ components:
                 skuOptionValueKey:
                     example: Sku Option Value Key
                     type: string
+                skuOptionValueNames:
+                    items:
+                        type: string
+                    type: array
                 value:
                     example: 31130
                     format: int64
@@ -957,7 +1052,7 @@ components:
 info:
     description:
         "Headless Commerce Delivery Catalog API. A Java client JAR is available for use with the group ID 'com.liferay',
-        artifact ID 'com.liferay.headless.commerce.delivery.catalog.client', and version '4.0.41'."
+        artifact ID 'com.liferay.headless.commerce.delivery.catalog.client', and version '4.0.43'."
     license:
         name: Apache 2.0
         url: http://www.apache.org/licenses/LICENSE-2.0.html

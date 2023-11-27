@@ -82,7 +82,7 @@ public class AssetTagFinderTest {
 	}
 
 	@Test
-	public void testCountByG_C_N() throws Exception {
+	public void testCountByG_C_N1() throws Exception {
 		long classNameId = PortalUtil.getClassNameId(MBMessage.class);
 		String assetTagName = RandomTestUtil.randomString();
 
@@ -109,25 +109,25 @@ public class AssetTagFinderTest {
 	}
 
 	@Test
-	public void testCountByG_N() throws Exception {
+	public void testCountByG_C_N2() throws Exception {
 		String assetTagName = RandomTestUtil.randomString();
 
 		int initialScopeGroupAssetTagsCount =
 			AssetTagLocalServiceUtil.getTagsSize(
-				_scopeGroup.getGroupId(), assetTagName);
+				_scopeGroup.getGroupId(), 0, assetTagName);
 		int initialTagsCountSiteGroup = AssetTagLocalServiceUtil.getTagsSize(
-			_scopeGroup.getParentGroupId(), assetTagName);
+			_scopeGroup.getParentGroupId(), 0, assetTagName);
 
 		addMBMessage(_scopeGroup.getGroupId(), assetTagName);
 
 		int scopeGroupAssetTagsCount = AssetTagLocalServiceUtil.getTagsSize(
-			_scopeGroup.getGroupId(), assetTagName);
+			_scopeGroup.getGroupId(), 0, assetTagName);
 
 		Assert.assertEquals(
 			initialScopeGroupAssetTagsCount + 1, scopeGroupAssetTagsCount);
 
 		int siteGroupAssetTagsCount = AssetTagLocalServiceUtil.getTagsSize(
-			_scopeGroup.getParentGroupId(), assetTagName);
+			_scopeGroup.getParentGroupId(), 0, assetTagName);
 
 		Assert.assertEquals(initialTagsCountSiteGroup, siteGroupAssetTagsCount);
 	}

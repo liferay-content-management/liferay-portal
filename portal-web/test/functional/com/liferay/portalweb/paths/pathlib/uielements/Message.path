@@ -201,8 +201,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ERROR_CHECKBOX_FIELD</td>
+	<td>//div[contains(@class,'forms-checkbox')][.//label[normalize-space()='${fieldLabel}']]//p[contains(@class,'text-danger')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ERROR_FIELD</td>
 	<td>//label[normalize-space()='${fieldLabel}']//following-sibling::p[contains(@class,'text-danger')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ERROR_FORM</td>
+	<td>//form/div[contains(@class,'alert-danger')]</td>
 	<td></td>
 </tr>
 <tr>

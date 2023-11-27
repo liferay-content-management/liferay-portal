@@ -25,17 +25,6 @@ definition {
 		}
 	}
 
-	tearDown {
-		var testLiferayVirtualInstance = PropsUtil.get("test.liferay.virtual.instance");
-
-		if (${testLiferayVirtualInstance} == "true") {
-			PortalInstances.tearDownCP();
-		}
-		else {
-			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
-		}
-	}
-
 	@description = "This is a use case for LPS-146171. Check the behaviors when user define different Maximum Number of Pages to Display."
 	@priority = 4
 	test ConfigureMaximumNumberOfPagesToDisplay {
@@ -480,7 +469,7 @@ definition {
 		}
 
 		task ("Navigate to page 3 in Collection Display") {
-			Click(
+			Click.waitForMenuToggleJSClick(
 				key_pageNumber = 3,
 				locator1 = "Pagination#ANY_PAGE");
 		}
@@ -498,7 +487,7 @@ definition {
 		}
 
 		task ("Navigate to previous page in Collection Display") {
-			Click(
+			Click.waitForMenuToggleJSClick(
 				locator1 = "Pagination#ICON",
 				type = "angle-left");
 		}
@@ -532,7 +521,7 @@ definition {
 		}
 
 		task ("Navigate to page 2 in Collection Display") {
-			Click(
+			Click.waitForMenuToggleJSClick(
 				key_pageNumber = 2,
 				locator1 = "Pagination#ANY_PAGE");
 		}
@@ -550,7 +539,7 @@ definition {
 		}
 
 		task ("Navigate to next page in Collection Display") {
-			Click(
+			Click.waitForMenuToggleJSClick(
 				locator1 = "Pagination#ICON",
 				type = "angle-right");
 		}
@@ -590,7 +579,7 @@ definition {
 		}
 
 		task ("Navigate to page 3 in Collection Display") {
-			Click(
+			Click.waitForMenuToggleJSClick(
 				key_pageNumber = 3,
 				locator1 = "Pagination#ANY_PAGE");
 		}
@@ -608,7 +597,7 @@ definition {
 		}
 
 		task ("Navigate to previous page in Collection Display") {
-			Click(
+			Click.waitForMenuToggleJSClick(
 				locator1 = "Pagination#ICON",
 				type = "angle-left");
 		}

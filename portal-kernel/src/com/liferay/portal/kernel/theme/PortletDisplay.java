@@ -85,8 +85,7 @@ public class PortletDisplay implements Cloneable, Serializable {
 		_portletDisplayName = master.getPortletDisplayName();
 		_portletName = master.getPortletName();
 		_portletResource = master.getPortletResource();
-		_portletSetup = master.getPortletSetup();
-		_portletToolbar = master.getPortletToolbar();
+		_portletPreferences = master.getPortletPreferences();
 		_resourcePK = master.getResourcePK();
 		_restoreCurrentView = master.isRestoreCurrentView();
 		_rootPortletId = master.getRootPortletId();
@@ -156,8 +155,7 @@ public class PortletDisplay implements Cloneable, Serializable {
 		slave.setPortletDisplayName(_portletDisplayName);
 		slave.setPortletName(_portletName);
 		slave.setPortletResource(_portletResource);
-		slave.setPortletSetup(_portletSetup);
-		slave.setPortletToolbar(_portletToolbar);
+		slave.setPortletPreferences(_portletPreferences);
 		slave.setResourcePK(_resourcePK);
 		slave.setRestoreCurrentView(_restoreCurrentView);
 		slave.setRootPortletId(_rootPortletId);
@@ -258,16 +256,16 @@ public class PortletDisplay implements Cloneable, Serializable {
 		return _portletName;
 	}
 
+	public PortletPreferences getPortletPreferences() {
+		return _portletPreferences;
+	}
+
 	public String getPortletResource() {
 		return _portletResource;
 	}
 
-	public PortletPreferences getPortletSetup() {
-		return _portletSetup;
-	}
-
 	public PortletToolbar getPortletToolbar() {
-		return _portletToolbar;
+		return PortletToolbar.INSTANCE;
 	}
 
 	public String getResourcePK() {
@@ -461,9 +459,9 @@ public class PortletDisplay implements Cloneable, Serializable {
 			return false;
 		}
 
-		PortletPreferences portletSetup = getPortletSetup();
+		PortletPreferences portletPreferences = getPortletPreferences();
 
-		String portletSetupPortletDecoratorId = portletSetup.getValue(
+		String portletSetupPortletDecoratorId = portletPreferences.getValue(
 			"portletSetupPortletDecoratorId", StringPool.BLANK);
 
 		Layout layout = _themeDisplay.getLayout();
@@ -572,7 +570,7 @@ public class PortletDisplay implements Cloneable, Serializable {
 		_namespace = StringPool.BLANK;
 		_portletDisplayName = StringPool.BLANK;
 		_portletName = StringPool.BLANK;
-		_portletSetup = null;
+		_portletPreferences = null;
 		_resourcePK = StringPool.BLANK;
 		_restoreCurrentView = false;
 		_rootPortletId = StringPool.BLANK;
@@ -720,16 +718,12 @@ public class PortletDisplay implements Cloneable, Serializable {
 		_portletName = portletName;
 	}
 
+	public void setPortletPreferences(PortletPreferences portletPreferences) {
+		_portletPreferences = portletPreferences;
+	}
+
 	public void setPortletResource(String portletResource) {
 		_portletResource = portletResource;
-	}
-
-	public void setPortletSetup(PortletPreferences portletSetup) {
-		_portletSetup = portletSetup;
-	}
-
-	public void setPortletToolbar(PortletToolbar portletToolbar) {
-		_portletToolbar = portletToolbar;
 	}
 
 	public void setResourcePK(String resourcePK) {
@@ -951,9 +945,8 @@ public class PortletDisplay implements Cloneable, Serializable {
 	private String _portletDecoratorId = StringPool.BLANK;
 	private String _portletDisplayName = StringPool.BLANK;
 	private String _portletName = StringPool.BLANK;
+	private PortletPreferences _portletPreferences;
 	private String _portletResource = StringPool.BLANK;
-	private PortletPreferences _portletSetup;
-	private PortletToolbar _portletToolbar;
 	private String _resourcePK = StringPool.BLANK;
 	private boolean _restoreCurrentView;
 	private String _rootPortletId = StringPool.BLANK;

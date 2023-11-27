@@ -37,7 +37,6 @@ import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.service.JournalArticleServiceUtil;
 import com.liferay.journal.service.JournalFolderLocalServiceUtil;
-import com.liferay.journal.web.internal.configuration.FFJournalAutoSaveDraftConfiguration;
 import com.liferay.journal.web.internal.security.permission.resource.JournalArticlePermission;
 import com.liferay.journal.web.internal.security.permission.resource.JournalFolderPermission;
 import com.liferay.journal.web.internal.util.RecentGroupManagerUtil;
@@ -49,6 +48,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -114,13 +114,8 @@ public class JournalEditArticleDisplayContext {
 		_liferayPortletResponse = liferayPortletResponse;
 		_article = article;
 
-		_ffJournalAutoSaveDraftConfiguration =
-			(FFJournalAutoSaveDraftConfiguration)
-				httpServletRequest.getAttribute(
-					FFJournalAutoSaveDraftConfiguration.class.getName());
 		_itemSelector = (ItemSelector)httpServletRequest.getAttribute(
 			ItemSelector.class.getName());
-
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -383,8 +378,7 @@ public class JournalEditArticleDisplayContext {
 			"articleId", getArticleId()
 		).put(
 			"autoSaveDraftEnabled",
-			_ffJournalAutoSaveDraftConfiguration.
-				journalArticleAutoSaveDraftEnabled()
+			FeatureFlagManagerUtil.isEnabled("LPS-141392")
 		).put(
 			"availableLocales", _getAvailableLanguageIds()
 		).put(
@@ -1001,40 +995,6 @@ public class JournalEditArticleDisplayContext {
 		return _defaultLanguageId;
 	}
 
-	public int getSmallImageSource() {
-		if (_smallImageSource != null) {
-			return _smallImageSource;
-		}
-
-		if (_article == null) {
-			_smallImageSource = JournalArticleConstants.SMALL_IMAGE_SOURCE_NONE;
-
-			return _smallImageSource;
-		}
-
-		_smallImageSource = ParamUtil.getInteger(
-			_httpServletRequest, "smallImageSource");
-
-		if (_smallImageSource <= 0) {
-			return _smallImageSource;
-		}
-
-		if (!_article.isSmallImage()) {
-			_smallImageSource = JournalArticleConstants.SMALL_IMAGE_SOURCE_NONE;
-		}
-		else if (Validator.isNotNull(_article.getSmallImageURL())) {
-			_smallImageSource = JournalArticleConstants.SMALL_IMAGE_SOURCE_URL;
-		}
-		else if ((_article.getSmallImageId() > 0) &&
-				 Validator.isNull(_article.getSmallImageURL())) {
-
-			_smallImageSource =
-				JournalArticleConstants.SMALL_IMAGE_SOURCE_USER_COMPUTER;
-		}
-
-		return _smallImageSource;
-	}
-
 	public List<TabsItem> getTabsItems() {
 		TabsItemList tabsItemList = TabsItemListBuilder.add(
 			tabsItem -> {
@@ -1178,11 +1138,6 @@ public class JournalEditArticleDisplayContext {
 			ParamUtil.getString(_httpServletRequest, "changeStructure"));
 
 		return _changeStructure;
-	}
-
-	public boolean isJournalArticleAutoSaveDraftEnabled() {
-		return _ffJournalAutoSaveDraftConfiguration.
-			journalArticleAutoSaveDraftEnabled();
 	}
 
 	public boolean isNeverExpire() {
@@ -1569,7 +1524,8 @@ public class JournalEditArticleDisplayContext {
 		PortletDisplay portletDisplay = _themeDisplay.getPortletDisplay();
 
 		portletDisplay.setShowBackIcon(true);
-		portletDisplay.setURLBackTitle(portletDisplay.getPortletDisplayName());
+		portletDisplay.setURLBackTitle(
+			ParamUtil.getString(_httpServletRequest, "backURLTitle"));
 
 		if (Validator.isNotNull(getRedirect())) {
 			portletDisplay.setURLBack(getRedirect());
@@ -1616,8 +1572,6 @@ public class JournalEditArticleDisplayContext {
 	private String _defaultLanguageId;
 	private LayoutPageTemplateEntry _defaultLayoutPageTemplateEntry;
 	private Integer _displayPageType;
-	private final FFJournalAutoSaveDraftConfiguration
-		_ffJournalAutoSaveDraftConfiguration;
 	private Long _folderId;
 	private String _folderName;
 	private String _friendlyURLDuplicatedWarningMessage;
@@ -1634,7 +1588,6 @@ public class JournalEditArticleDisplayContext {
 	private String _referringPortletResource;
 	private Boolean _showHeader;
 	private Boolean _showSelectFolder;
-	private Integer _smallImageSource;
 	private final ThemeDisplay _themeDisplay;
 	private Double _version;
 

@@ -11,6 +11,7 @@ import com.liferay.asset.kernel.service.AssetCategoryServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.asset.tags.item.selector.AssetTagsItemSelectorReturnType;
 import com.liferay.asset.tags.item.selector.criterion.AssetTagsItemSelectorCriterion;
+import com.liferay.depot.group.provider.SiteConnectedGroupGroupProvider;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.util.comparator.StructureModifiedDateComparator;
 import com.liferay.dynamic.data.mapping.util.comparator.StructureNameComparator;
@@ -53,6 +54,7 @@ import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
+import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -111,6 +113,9 @@ public class JournalManagementToolbarDisplayContext
 		_journalWebConfiguration =
 			(JournalWebConfiguration)httpServletRequest.getAttribute(
 				JournalWebConfiguration.class.getName());
+		_siteConnectedGroupGroupProvider =
+			(SiteConnectedGroupGroupProvider)httpServletRequest.getAttribute(
+				SiteConnectedGroupGroupProvider.class.getName());
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 		_translationURLProvider =
@@ -472,6 +477,20 @@ public class JournalManagementToolbarDisplayContext
 		).setParameter(
 			"folderId", _journalDisplayContext.getFolderId()
 		).setParameter(
+			"highlightedDDMStructureId",
+			() -> {
+				long highlightedDDMStructureId =
+					_journalDisplayContext.getHighlightedDDMStructureId();
+
+				if (FeatureFlagManagerUtil.isEnabled("LPS-194763") &&
+					(highlightedDDMStructureId > 0)) {
+
+					return highlightedDDMStructureId;
+				}
+
+				return null;
+			}
+		).setParameter(
 			"status", _journalDisplayContext.getStatus()
 		).buildString();
 	}
@@ -566,48 +585,53 @@ public class JournalManagementToolbarDisplayContext
 			).buildPortletURL(),
 			getNavigationParam(), getNavigation());
 
-		filterNavigationDropdownItems.add(
-			DropdownItemBuilder.putData(
-				"action", "openDDMStructuresSelector"
-			).setActive(
-				_journalDisplayContext.isNavigationStructure()
-			).setLabel(
-				LanguageUtil.get(httpServletRequest, "structures")
-			).build());
-
-		if (FeatureFlagManagerUtil.isEnabled("LPS-196766")) {
-			filterNavigationDropdownItems.add(
-				DropdownItemBuilder.putData(
-					"action", "openCategoriesSelector"
-				).putData(
-					"redirectURL",
-					PortletURLBuilder.create(
-						getPortletURL()
-					).setParameter(
-						"assetCategoryId", (String)null
-					).buildString()
-				).setActive(
-					ArrayUtil.isNotEmpty(_getAssetCategoryIds())
-				).setLabel(
-					LanguageUtil.get(httpServletRequest, "categories")
-				).build());
+		if (!FeatureFlagManagerUtil.isEnabled("LPS-194763") ||
+			(FeatureFlagManagerUtil.isEnabled("LPS-194763") &&
+			 (_journalDisplayContext.getHighlightedDDMStructureId() <= 0))) {
 
 			filterNavigationDropdownItems.add(
 				DropdownItemBuilder.putData(
-					"action", "openTagsSelector"
-				).putData(
-					"redirectURL",
-					PortletURLBuilder.create(
-						getPortletURL()
-					).setParameter(
-						"assetTagId", (String)null
-					).buildString()
+					"action", "openDDMStructuresSelector"
 				).setActive(
-					ArrayUtil.isNotEmpty(_getAssetTagIds())
+					_journalDisplayContext.isNavigationStructure()
 				).setLabel(
-					LanguageUtil.get(httpServletRequest, "tags")
+					LanguageUtil.get(httpServletRequest, "structures") +
+						StringPool.TRIPLE_PERIOD
 				).build());
 		}
+
+		filterNavigationDropdownItems.add(
+			DropdownItemBuilder.putData(
+				"action", "openCategoriesSelector"
+			).putData(
+				"redirectURL",
+				PortletURLBuilder.create(
+					getPortletURL()
+				).setParameter(
+					"assetCategoryId", (String)null
+				).buildString()
+			).setActive(
+				ArrayUtil.isNotEmpty(_getAssetCategoryIds())
+			).setLabel(
+				LanguageUtil.get(httpServletRequest, "categories") +
+					StringPool.TRIPLE_PERIOD
+			).build());
+		filterNavigationDropdownItems.add(
+			DropdownItemBuilder.putData(
+				"action", "openTagsSelector"
+			).putData(
+				"redirectURL",
+				PortletURLBuilder.create(
+					getPortletURL()
+				).setParameter(
+					"assetTagId", (String)null
+				).buildString()
+			).setActive(
+				ArrayUtil.isNotEmpty(_getAssetTagIds())
+			).setLabel(
+				LanguageUtil.get(httpServletRequest, "tags") +
+					StringPool.TRIPLE_PERIOD
+			).build());
 
 		return filterNavigationDropdownItems;
 	}
@@ -763,8 +787,8 @@ public class JournalManagementToolbarDisplayContext
 		).setParameter(
 			"vocabularyIds",
 			() -> ListUtil.toString(
-				_assetVocabularyLocalService.getCompanyVocabularies(
-					_themeDisplay.getCompanyId()),
+				_assetVocabularyLocalService.getGroupsVocabularies(
+					_getGroupIds()),
 				AssetVocabulary.VOCABULARY_ID_ACCESSOR)
 		).buildString();
 	}
@@ -782,9 +806,9 @@ public class JournalManagementToolbarDisplayContext
 		AssetTagsItemSelectorCriterion assetTagsItemSelectorCriterion =
 			new AssetTagsItemSelectorCriterion();
 
-		assetTagsItemSelectorCriterion.setAllGroupIds(true);
 		assetTagsItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 			new AssetTagsItemSelectorReturnType());
+		assetTagsItemSelectorCriterion.setGroupIds(_getGroupIds());
 		assetTagsItemSelectorCriterion.setMultiSelection(true);
 
 		return String.valueOf(
@@ -848,6 +872,15 @@ public class JournalManagementToolbarDisplayContext
 								"/edit_article.jsp"
 							).setRedirect(
 								PortalUtil.getCurrentURL(httpServletRequest)
+							).setParameter(
+								"backURLTitle",
+								() -> {
+									PortletDisplay portletDisplay =
+										_themeDisplay.getPortletDisplay();
+
+									return portletDisplay.
+										getPortletDisplayName();
+								}
 							).setParameter(
 								"ddmStructureId", ddmStructure.getStructureId()
 							).setParameter(
@@ -958,6 +991,26 @@ public class JournalManagementToolbarDisplayContext
 		_ddmStructureOrderByType = orderByType;
 
 		return _ddmStructureOrderByType;
+	}
+
+	private long[] _getGroupIds() {
+		if (_groupIds != null) {
+			return _groupIds;
+		}
+
+		try {
+			_groupIds =
+				_siteConnectedGroupGroupProvider.
+					getCurrentAndAncestorSiteAndDepotGroupIds(
+						_themeDisplay.getScopeGroupId());
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+		}
+
+		return _groupIds;
 	}
 
 	private List<Integer> _getStatuses() {
@@ -1094,9 +1147,12 @@ public class JournalManagementToolbarDisplayContext
 	private final AssetVocabularyLocalService _assetVocabularyLocalService;
 	private String _ddmStructureOrderByCol;
 	private String _ddmStructureOrderByType;
+	private long[] _groupIds;
 	private final ItemSelector _itemSelector;
 	private final JournalDisplayContext _journalDisplayContext;
 	private final JournalWebConfiguration _journalWebConfiguration;
+	private final SiteConnectedGroupGroupProvider
+		_siteConnectedGroupGroupProvider;
 	private final ThemeDisplay _themeDisplay;
 	private final TranslationURLProvider _translationURLProvider;
 	private final TrashHelper _trashHelper;

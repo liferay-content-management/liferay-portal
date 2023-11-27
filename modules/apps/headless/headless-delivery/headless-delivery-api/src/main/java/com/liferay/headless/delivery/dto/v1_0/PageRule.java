@@ -5,9 +5,11 @@
 
 package com.liferay.headless.delivery.dto.v1_0;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
@@ -26,6 +28,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Generated;
+
+import javax.validation.Valid;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -48,6 +52,44 @@ public class PageRule implements Serializable {
 	public static PageRule unsafeToDTO(String json) {
 		return ObjectMapperUtil.unsafeReadValue(PageRule.class, json);
 	}
+
+	@Schema(description = "The custom name of a Page rule.")
+	@Valid
+	public ConditionType getConditionType() {
+		return conditionType;
+	}
+
+	@JsonIgnore
+	public String getConditionTypeAsString() {
+		if (conditionType == null) {
+			return null;
+		}
+
+		return conditionType.toString();
+	}
+
+	public void setConditionType(ConditionType conditionType) {
+		this.conditionType = conditionType;
+	}
+
+	@JsonIgnore
+	public void setConditionType(
+		UnsafeSupplier<ConditionType, Exception> conditionTypeUnsafeSupplier) {
+
+		try {
+			conditionType = conditionTypeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(description = "The custom name of a Page rule.")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected ConditionType conditionType;
 
 	@Schema(description = "The page rule ID.")
 	public String getId() {
@@ -72,7 +114,7 @@ public class PageRule implements Serializable {
 	}
 
 	@GraphQLField(description = "The page rule ID.")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String id;
 
 	@Schema(description = "The custom name of a Page rule.")
@@ -101,6 +143,66 @@ public class PageRule implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String name;
 
+	@Schema(description = "A list of actions of a Page rule.")
+	@Valid
+	public PageRuleAction[] getPageRuleActions() {
+		return pageRuleActions;
+	}
+
+	public void setPageRuleActions(PageRuleAction[] pageRuleActions) {
+		this.pageRuleActions = pageRuleActions;
+	}
+
+	@JsonIgnore
+	public void setPageRuleActions(
+		UnsafeSupplier<PageRuleAction[], Exception>
+			pageRuleActionsUnsafeSupplier) {
+
+		try {
+			pageRuleActions = pageRuleActionsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(description = "A list of actions of a Page rule.")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected PageRuleAction[] pageRuleActions;
+
+	@Schema(description = "A list of conditions of a Page rule.")
+	@Valid
+	public PageRuleCondition[] getPageRuleConditions() {
+		return pageRuleConditions;
+	}
+
+	public void setPageRuleConditions(PageRuleCondition[] pageRuleConditions) {
+		this.pageRuleConditions = pageRuleConditions;
+	}
+
+	@JsonIgnore
+	public void setPageRuleConditions(
+		UnsafeSupplier<PageRuleCondition[], Exception>
+			pageRuleConditionsUnsafeSupplier) {
+
+		try {
+			pageRuleConditions = pageRuleConditionsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(description = "A list of conditions of a Page rule.")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected PageRuleCondition[] pageRuleConditions;
+
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -127,6 +229,20 @@ public class PageRule implements Serializable {
 		StringBundler sb = new StringBundler();
 
 		sb.append("{");
+
+		if (conditionType != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"conditionType\": ");
+
+			sb.append("\"");
+
+			sb.append(conditionType);
+
+			sb.append("\"");
+		}
 
 		if (id != null) {
 			if (sb.length() > 1) {
@@ -156,6 +272,46 @@ public class PageRule implements Serializable {
 			sb.append("\"");
 		}
 
+		if (pageRuleActions != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"pageRuleActions\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < pageRuleActions.length; i++) {
+				sb.append(String.valueOf(pageRuleActions[i]));
+
+				if ((i + 1) < pageRuleActions.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
+		if (pageRuleConditions != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"pageRuleConditions\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < pageRuleConditions.length; i++) {
+				sb.append(String.valueOf(pageRuleConditions[i]));
+
+				if ((i + 1) < pageRuleConditions.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -167,6 +323,44 @@ public class PageRule implements Serializable {
 		name = "x-class-name"
 	)
 	public String xClassName;
+
+	@GraphQLName("ConditionType")
+	public static enum ConditionType {
+
+		ALL("All"), ANY("Any");
+
+		@JsonCreator
+		public static ConditionType create(String value) {
+			if ((value == null) || value.equals("")) {
+				return null;
+			}
+
+			for (ConditionType conditionType : values()) {
+				if (Objects.equals(conditionType.getValue(), value)) {
+					return conditionType;
+				}
+			}
+
+			throw new IllegalArgumentException("Invalid enum value: " + value);
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private ConditionType(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
 
 	private static String _escape(Object object) {
 		return StringUtil.replace(

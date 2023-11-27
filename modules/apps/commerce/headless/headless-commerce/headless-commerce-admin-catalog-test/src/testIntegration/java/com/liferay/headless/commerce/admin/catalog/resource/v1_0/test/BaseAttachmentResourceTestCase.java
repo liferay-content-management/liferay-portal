@@ -1198,6 +1198,14 @@ public abstract class BaseAttachmentResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("galleryEnabled", additionalAssertFieldName)) {
+				if (attachment.getGalleryEnabled() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("neverExpire", additionalAssertFieldName)) {
 				if (attachment.getNeverExpire() == null) {
 					valid = false;
@@ -1224,6 +1232,14 @@ public abstract class BaseAttachmentResourceTestCase {
 
 			if (Objects.equals("src", additionalAssertFieldName)) {
 				if (attachment.getSrc() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("tags", additionalAssertFieldName)) {
+				if (attachment.getTags() == null) {
 					valid = false;
 				}
 
@@ -1463,6 +1479,17 @@ public abstract class BaseAttachmentResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("galleryEnabled", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						attachment1.getGalleryEnabled(),
+						attachment2.getGalleryEnabled())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("id", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						attachment1.getId(), attachment2.getId())) {
@@ -1508,6 +1535,16 @@ public abstract class BaseAttachmentResourceTestCase {
 			if (Objects.equals("src", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						attachment1.getSrc(), attachment2.getSrc())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("tags", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						attachment1.getTags(), attachment2.getTags())) {
 
 					return false;
 				}
@@ -1902,6 +1939,11 @@ public abstract class BaseAttachmentResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("galleryEnabled")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("id")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -1967,6 +2009,11 @@ public abstract class BaseAttachmentResourceTestCase {
 			}
 
 			return sb.toString();
+		}
+
+		if (entityFieldName.equals("tags")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("title")) {
@@ -2035,6 +2082,7 @@ public abstract class BaseAttachmentResourceTestCase {
 				externalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				fileEntryId = RandomTestUtil.randomLong();
+				galleryEnabled = RandomTestUtil.randomBoolean();
 				id = RandomTestUtil.randomLong();
 				neverExpire = RandomTestUtil.randomBoolean();
 				priority = RandomTestUtil.randomDouble();

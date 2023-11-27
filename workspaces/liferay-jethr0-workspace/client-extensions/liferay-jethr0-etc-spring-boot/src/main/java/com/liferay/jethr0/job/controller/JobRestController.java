@@ -8,7 +8,6 @@ package com.liferay.jethr0.job.controller;
 import com.liferay.jethr0.bui1d.BuildEntity;
 import com.liferay.jethr0.bui1d.queue.BuildQueue;
 import com.liferay.jethr0.bui1d.repository.BuildEntityRepository;
-import com.liferay.jethr0.bui1d.repository.BuildParameterEntityRepository;
 import com.liferay.jethr0.bui1d.run.BuildRunEntity;
 import com.liferay.jethr0.jenkins.JenkinsQueue;
 import com.liferay.jethr0.job.JobEntity;
@@ -51,19 +50,7 @@ public class JobRestController {
 		for (JSONObject initialBuildJSONObject :
 				jobEntity.getInitialBuildJSONObjects()) {
 
-			BuildEntity buildEntity = _buildEntityRepository.create(
-				jobEntity, initialBuildJSONObject);
-
-			JSONArray buildParametersJSONArray =
-				initialBuildJSONObject.optJSONArray("buildParameters");
-
-			for (int i = 0; i < buildParametersJSONArray.length(); i++) {
-				JSONObject buildParameterJSONObject =
-					buildParametersJSONArray.getJSONObject(i);
-
-				_buildParameterEntityRepository.create(
-					buildEntity, buildParameterJSONObject);
-			}
+			_buildEntityRepository.create(jobEntity, initialBuildJSONObject);
 		}
 
 		if (jobEntity.getState() == JobEntity.State.QUEUED) {
@@ -125,17 +112,52 @@ public class JobRestController {
 
 		JSONArray buildsJSONArray = new JSONArray();
 
-		for (BuildEntity buildEntity : jobEntity.getBuildEntities()) {
+		List<BuildEntity> buildEntities = new ArrayList<>(
+			jobEntity.getBuildEntities());
+
+		Collections.sort(
+			buildEntities,
+			new Comparator<BuildEntity>() {
+
+				@Override
+				public int compare(
+					BuildEntity buildEntity1, BuildEntity buildEntity2) {
+
+					if (buildEntity1.isInitialBuild() &&
+						buildEntity2.isInitialBuild()) {
+
+						return _compareBuildNames(buildEntity1, buildEntity2);
+					}
+
+					if (buildEntity1.isInitialBuild()) {
+						return -1;
+					}
+
+					if (buildEntity2.isInitialBuild()) {
+						return 1;
+					}
+
+					return _compareBuildNames(buildEntity1, buildEntity2);
+				}
+
+				private int _compareBuildNames(
+					BuildEntity buildEntity1, BuildEntity buildEntity2) {
+
+					String buildName1 = buildEntity1.getName();
+					String buildName2 = buildEntity2.getName();
+
+					return buildName1.compareTo(buildName2);
+				}
+
+			});
+
+		for (BuildEntity buildEntity : buildEntities) {
 			JSONObject buildJSONObject = buildEntity.getJSONObject();
 
-			List<BuildRunEntity> historyBuildRunEntities =
-				buildEntity.getHistoryBuildRunEntities();
+			BuildRunEntity latestBuildRunEntity =
+				buildEntity.getLatestBuildRunEntity();
 
-			if (!historyBuildRunEntities.isEmpty()) {
-				BuildRunEntity latestBuildRunEntity =
-					historyBuildRunEntities.get(
-						historyBuildRunEntities.size() - 1);
-
+			if (latestBuildRunEntity != null) {
 				buildJSONObject.put(
 					"latestDuration", latestBuildRunEntity.getDuration()
 				).put(
@@ -207,7 +229,7 @@ public class JobRestController {
 		JSONArray jobsJSONArray = new JSONArray();
 
 		List<JobEntity> jobEntities = new ArrayList<>(
-			_jobEntityRepository.getByState(JobEntity.State.COMPLETED));
+			_jobEntityRepository.getAll());
 
 		Collections.sort(
 			jobEntities,
@@ -244,9 +266,6 @@ public class JobRestController {
 
 	@Autowired
 	private BuildEntityRepository _buildEntityRepository;
-
-	@Autowired
-	private BuildParameterEntityRepository _buildParameterEntityRepository;
 
 	@Autowired
 	private BuildQueue _buildQueue;

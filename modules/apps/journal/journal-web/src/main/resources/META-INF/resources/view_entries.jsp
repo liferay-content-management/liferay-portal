@@ -71,6 +71,8 @@ Map<String, Object> componentContext = journalDisplayContext.getComponentContext
 					).setParameter(
 						"articleId", curArticle.getArticleId()
 					).setParameter(
+						"backURLTitle", portletDisplay.getPortletDisplayName()
+					).setParameter(
 						"folderId", curArticle.getFolderId()
 					).setParameter(
 						"groupId", curArticle.getGroupId()
@@ -122,9 +124,20 @@ Map<String, Object> componentContext = journalDisplayContext.getComponentContext
 							</span>
 
 							<c:if test="<%= journalDisplayContext.isSearch() && ((curArticle.getFolderId() <= 0) || JournalFolderPermission.contains(permissionChecker, curArticle.getFolder(), ActionKeys.VIEW)) %>">
-								<liferay-site-navigation:breadcrumb
-									breadcrumbEntries="<%= JournalPortletUtil.getPortletBreadcrumbEntries(curArticle.getFolder(), request, true, liferayPortletResponse) %>"
-								/>
+								<c:choose>
+									<c:when test="<%= curArticle.getFolderId() != JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID %>">
+										<liferay-site-navigation:breadcrumb
+											breadcrumbEntries="<%= JournalPortletUtil.getPortletBreadcrumbEntries(curArticle.getFolder(), request, true, liferayPortletResponse) %>"
+											cssClass="c-pl-0 c-pt-0"
+										/>
+									</c:when>
+									<c:otherwise>
+										<liferay-site-navigation:breadcrumb
+											breadcrumbEntries="<%= JournalPortletUtil.getPortletBreadcrumbEntries(null, request, true, liferayPortletResponse) %>"
+											cssClass="c-pl-0 c-pt-0"
+										/>
+									</c:otherwise>
+								</c:choose>
 							</c:if>
 
 							<span class="text-default">
@@ -200,20 +213,33 @@ Map<String, Object> componentContext = journalDisplayContext.getComponentContext
 							</div>
 						</liferay-ui:search-container-column-text>
 
-						<liferay-ui:search-container-column-text
-							cssClass="table-cell-expand table-cell-minw-200 text-truncate"
-							name="description"
-							value="<%= StringUtil.shorten(HtmlUtil.stripHtml(curArticle.getDescription(locale)), 200) %>"
-						/>
+						<c:if test='<%= !FeatureFlagManagerUtil.isEnabled("LPS-194763") %>'>
+							<liferay-ui:search-container-column-text
+								cssClass="table-cell-expand table-cell-minw-200 text-truncate"
+								name="description"
+								value="<%= StringUtil.shorten(HtmlUtil.stripHtml(curArticle.getDescription(locale)), 200) %>"
+							/>
+						</c:if>
 
 						<c:if test="<%= journalDisplayContext.isSearch() && ((curArticle.getFolderId() <= 0) || JournalFolderPermission.contains(permissionChecker, curArticle.getFolder(), ActionKeys.VIEW)) %>">
 							<liferay-ui:search-container-column-text
 								cssClass="table-cell-expand-smallest table-cell-minw-200"
 								name="path"
 							>
-								<liferay-site-navigation:breadcrumb
-									breadcrumbEntries="<%= JournalPortletUtil.getPortletBreadcrumbEntries(curArticle.getFolder(), request, true, liferayPortletResponse) %>"
-								/>
+								<c:choose>
+									<c:when test="<%= curArticle.getFolderId() != JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID %>">
+										<liferay-site-navigation:breadcrumb
+											breadcrumbEntries="<%= JournalPortletUtil.getPortletBreadcrumbEntries(curArticle.getFolder(), request, true, liferayPortletResponse) %>"
+											cssClass="c-pl-0 c-pt-0"
+										/>
+									</c:when>
+									<c:otherwise>
+										<liferay-site-navigation:breadcrumb
+											breadcrumbEntries="<%= JournalPortletUtil.getPortletBreadcrumbEntries(null, request, true, liferayPortletResponse) %>"
+											cssClass="c-pl-0 c-pt-0"
+										/>
+									</c:otherwise>
+								</c:choose>
 							</liferay-ui:search-container-column-text>
 						</c:if>
 
@@ -240,35 +266,65 @@ Map<String, Object> componentContext = journalDisplayContext.getComponentContext
 							/>
 						</liferay-ui:search-container-column-text>
 
-						<liferay-ui:search-container-column-text
-							cssClass="table-cell-expand-smallest"
-							name="modified"
-						>
+						<c:choose>
+							<c:when test='<%= FeatureFlagManagerUtil.isEnabled("LPS-194763") %>'>
+								<c:if test="<%= journalDisplayContext.getHighlightedDDMStructureId() <= 0 %>">
 
-							<%
-							Date createDate = curArticle.getModifiedDate();
+									<%
+									DDMStructure ddmStructure = curArticle.getDDMStructure();
+									%>
 
-							String modifiedDateDescription = LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - createDate.getTime(), true);
-							%>
+									<liferay-ui:search-container-column-text
+										cssClass="table-cell-expand-smallest table-cell-minw-100"
+										name="type"
+										value="<%= HtmlUtil.escape(ddmStructure.getName(locale)) %>"
+									/>
+								</c:if>
 
-							<liferay-ui:message arguments="<%= new String[] {modifiedDateDescription, HtmlUtil.escape(curArticle.getStatusByUserName())} %>" key="modified-x-ago-by-x" />
-						</liferay-ui:search-container-column-text>
+								<liferay-ui:search-container-column-date
+									cssClass="table-cell-expand-smallest table-cell-ws-nowrap"
+									name="modified-date"
+									value="<%= curArticle.getModifiedDate() %>"
+								/>
 
-						<liferay-ui:search-container-column-date
-							cssClass="table-cell-expand-smallest table-cell-ws-nowrap"
-							name="display-date"
-							value="<%= curArticle.getDisplayDate() %>"
-						/>
+								<liferay-ui:search-container-column-date
+									cssClass="table-cell-expand-smallest table-cell-ws-nowrap"
+									name="create-date"
+									value="<%= curArticle.getCreateDate() %>"
+								/>
+							</c:when>
+							<c:otherwise>
+								<liferay-ui:search-container-column-text
+									cssClass="table-cell-expand-smallest"
+									name="modified"
+								>
 
-						<%
-						DDMStructure ddmStructure = curArticle.getDDMStructure();
-						%>
+									<%
+									Date createDate = curArticle.getModifiedDate();
 
-						<liferay-ui:search-container-column-text
-							cssClass="table-cell-expand-smallest table-cell-minw-100"
-							name="type"
-							value="<%= HtmlUtil.escape(ddmStructure.getName(locale)) %>"
-						/>
+									String modifiedDateDescription = LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - createDate.getTime(), true);
+									%>
+
+									<liferay-ui:message arguments="<%= new String[] {modifiedDateDescription, HtmlUtil.escape(curArticle.getStatusByUserName())} %>" key="modified-x-ago-by-x" />
+								</liferay-ui:search-container-column-text>
+
+								<liferay-ui:search-container-column-date
+									cssClass="table-cell-expand-smallest table-cell-ws-nowrap"
+									name="display-date"
+									value="<%= curArticle.getDisplayDate() %>"
+								/>
+
+								<%
+								DDMStructure ddmStructure = curArticle.getDDMStructure();
+								%>
+
+								<liferay-ui:search-container-column-text
+									cssClass="table-cell-expand-smallest table-cell-minw-100"
+									name="type"
+									value="<%= HtmlUtil.escape(ddmStructure.getName(locale)) %>"
+								/>
+							</c:otherwise>
+						</c:choose>
 
 						<liferay-ui:search-container-column-text>
 							<clay:dropdown-actions
@@ -355,6 +411,7 @@ Map<String, Object> componentContext = journalDisplayContext.getComponentContext
 							<c:if test="<%= journalDisplayContext.isSearch() && ((curFolder.getParentFolderId() <= 0) || JournalFolderPermission.contains(permissionChecker, curFolder.getParentFolder(), ActionKeys.VIEW)) %>">
 								<liferay-site-navigation:breadcrumb
 									breadcrumbEntries="<%= JournalPortletUtil.getPortletBreadcrumbEntries(curFolder.getParentFolder(), request, true, liferayPortletResponse) %>"
+									cssClass="c-pl-0 c-pt-0"
 								/>
 							</c:if>
 						</liferay-ui:search-container-column-text>
@@ -437,6 +494,7 @@ Map<String, Object> componentContext = journalDisplayContext.getComponentContext
 							>
 								<liferay-site-navigation:breadcrumb
 									breadcrumbEntries="<%= JournalPortletUtil.getPortletBreadcrumbEntries(curFolder.getParentFolder(), request, true, liferayPortletResponse) %>"
+									cssClass="c-pl-0 c-pt-0"
 								/>
 							</liferay-ui:search-container-column-text>
 						</c:if>

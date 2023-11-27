@@ -14,7 +14,7 @@ import {useStore} from 'react-flow-renderer';
 
 import {AccountRestrictionContainer} from '../../ObjectDetails/AccountRestrictionContainer';
 import {ConfigurationContainer} from '../../ObjectDetails/ConfigurationContainer';
-import {KeyValuePair} from '../../ObjectDetails/EditObjectDetails';
+import {Scope} from '../../ObjectDetails/EditObjectDetails';
 import {EntryDisplayContainer} from '../../ObjectDetails/EntryDisplayContainer';
 import {ObjectDataContainer} from '../../ObjectDetails/ObjectDataContainer';
 import {ScopeContainer} from '../../ObjectDetails/ScopeContainer';
@@ -27,8 +27,8 @@ import {nonRelationshipObjectFieldsInfo} from '../types';
 import './RightSidebarObjectDefinitionDetails.scss';
 
 interface RightSidebarObjectDefinitionDetailsProps {
-	companyKeyValuePairs: KeyValuePair[];
-	siteKeyValuePairs: KeyValuePair[];
+	companies: Scope[];
+	sites: Scope[];
 }
 
 function setAccountRelationshipFieldMandatory(
@@ -54,8 +54,8 @@ function setAccountRelationshipFieldMandatory(
 }
 
 export function RightSidebarObjectDefinitionDetails({
-	companyKeyValuePairs,
-	siteKeyValuePairs,
+	companies,
+	sites,
 }: RightSidebarObjectDefinitionDetailsProps) {
 	const [
 		nonRelationshipObjectFieldsInfo,
@@ -142,7 +142,7 @@ export function RightSidebarObjectDefinitionDetails({
 
 		makeFetch();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [selectedObjectDefinitionNode?.id]);
 
 	const onSubmit = async (
 		editedObjectDefinition?: Partial<ObjectDefinition>
@@ -166,7 +166,7 @@ export function RightSidebarObjectDefinitionDetails({
 			}
 
 			try {
-				const updatedObjectDefinitionResponse = await API.putObjectDefinitionByExternalReferenceCode(
+				const updatedObjectDefinitionResponse = await API.patchObjectDefinitionById(
 					objectDefinition
 				);
 
@@ -255,7 +255,7 @@ export function RightSidebarObjectDefinitionDetails({
 				/>
 
 				<ScopeContainer
-					companyKeyValuePairs={companyKeyValuePairs}
+					companies={companies}
 					errors={errors}
 					hasUpdateObjectDefinitionPermission={true}
 					isApproved={values.status?.label === 'approved'}
@@ -266,7 +266,7 @@ export function RightSidebarObjectDefinitionDetails({
 					isRootDescendantNode={isRootDescendantNode}
 					onSubmit={onSubmit}
 					setValues={setValues}
-					siteKeyValuePairs={siteKeyValuePairs}
+					sites={sites}
 					values={values as ObjectDefinition}
 				/>
 			</div>

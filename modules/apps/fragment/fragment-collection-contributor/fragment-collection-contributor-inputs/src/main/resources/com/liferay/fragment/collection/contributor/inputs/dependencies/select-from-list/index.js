@@ -58,8 +58,8 @@ if (input.value) {
 		(option) => option.value === input.value
 	);
 
-	lastSearchQuery = selectedOption.label;
-	valueInputElement.value = selectedOption.label;
+	lastSearchQuery = selectedOption.label.toLowerCase();
+	valueInputElement.value = selectedOption.value;
 
 	const selectedOptionElement = optionListElement.querySelector(
 		'.active.dropdown-item'
@@ -391,6 +391,12 @@ function openDropdown() {
 	dropdownElement.classList.replace('d-none', 'show');
 	uiInputElement.setAttribute('aria-expanded', 'true');
 	buttonElement.setAttribute('aria-expanded', 'true');
+
+	const wrapperWidth = `${fragmentElement.getBoundingClientRect().width}px`;
+
+	dropdownElement.style.maxWidth = wrapperWidth;
+	dropdownElement.style.minWidth = wrapperWidth;
+	dropdownElement.style.width = wrapperWidth;
 
 	requestAnimationFrame(() => {
 		handleInputChange();

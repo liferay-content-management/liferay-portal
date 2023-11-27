@@ -1745,12 +1745,10 @@ public class JenkinsResultsParserUtil {
 		return System.currentTimeMillis() - _currentTimeMillisDelta;
 	}
 
-	public static String[] getDateStrings(long startTime, long duration) {
-		long durationDays = TimeUnit.MILLISECONDS.toDays(duration);
+	public static String[] getDateStrings(
+		long durationDays, LocalDate localDate) {
 
 		String[] dateStrings = new String[(int)durationDays];
-
-		LocalDate localDate = getLocalDate(startTime);
 
 		for (int i = 0; i < durationDays; i++) {
 			String dateString = localDate.format(
@@ -1762,6 +1760,12 @@ public class JenkinsResultsParserUtil {
 		}
 
 		return dateStrings;
+	}
+
+	public static String[] getDateStrings(long startTime, long duration) {
+		long durationDays = TimeUnit.MILLISECONDS.toDays(duration);
+
+		return getDateStrings(durationDays, getLocalDate(startTime));
 	}
 
 	public static List<File> getDirectoriesContainingFiles(
@@ -3118,15 +3122,23 @@ public class JenkinsResultsParserUtil {
 			jenkinsMasters.size(), true);
 
 		ParallelExecutor<List<JenkinsSlave>> parallelExecutor =
-			new ParallelExecutor<>(callables, threadPoolExecutor);
+			new ParallelExecutor<>(
+				callables, threadPoolExecutor, "getReachableJenkinsSlaves");
 
-		List<JenkinsSlave> onlineJenkinsSlaves = concatenate(
-			parallelExecutor.execute(), false);
+		List<JenkinsSlave> onlineJenkinsSlaves;
 
-		Collections.sort(onlineJenkinsSlaves);
+		try {
+			onlineJenkinsSlaves = concatenate(
+				parallelExecutor.execute(), false);
 
-		if (targetSlaveCount == null) {
-			targetSlaveCount = onlineJenkinsSlaves.size();
+			Collections.sort(onlineJenkinsSlaves);
+
+			if (targetSlaveCount == null) {
+				targetSlaveCount = onlineJenkinsSlaves.size();
+			}
+		}
+		catch (TimeoutException timeoutException) {
+			throw new RuntimeException(timeoutException);
 		}
 
 		List<JenkinsSlave> reachableJenkinsSlaves = new ArrayList<>(
@@ -3731,6 +3743,10 @@ public class JenkinsResultsParserUtil {
 		StringBuilder sb = new StringBuilder();
 
 		for (String string : strings) {
+			if (string == null) {
+				continue;
+			}
+
 			if (sb.length() > 0) {
 				sb.append(delimiter);
 			}
@@ -4156,6 +4172,75 @@ public class JenkinsResultsParserUtil {
 		files.removeAll(excludedFiles);
 
 		return files;
+	}
+
+	public static void rsync(
+		String destinationHostName, String destinationDirPath,
+		String sourceHostName, String sourceFilePath) {
+
+		rsync(
+			destinationHostName, destinationDirPath, sourceHostName,
+			sourceFilePath, "-aqsz --chmod=go=rx");
+	}
+
+	public static void rsync(
+		final String destinationHostName, final String destinationDirPath,
+		final String sourceHostName, final String sourceFilePath,
+		final String argumentString) {
+
+		if ((destinationHostName != null) &&
+			!destinationDirPath.startsWith("::")) {
+
+			RemoteExecutor remoteExecutor = new RemoteExecutor();
+
+			int returnCode = remoteExecutor.execute(
+				1, new String[] {destinationHostName},
+				new String[] {"mkdir -p " + destinationDirPath});
+
+			if (returnCode != 0) {
+				throw new RuntimeException("Unable to create target directory");
+			}
+		}
+		else {
+			File destinationDir = new File(destinationDirPath);
+
+			destinationDir.mkdirs();
+		}
+
+		Retryable<Process> retryable = new Retryable<Process>(
+			true, 3, 3000, false) {
+
+			@Override
+			public Process execute() {
+				String command = _combineCommandArgs(
+					"time", "timeout", "1200", "rsync", argumentString,
+					_getRyncPath(sourceHostName, sourceFilePath),
+					_getRyncPath(destinationHostName, destinationDirPath));
+
+				try {
+					return executeBashCommands(command);
+				}
+				catch (IOException | TimeoutException exception) {
+					throw new RuntimeException(exception);
+				}
+			}
+
+		};
+
+		try {
+			Process process = retryable.executeWithRetries();
+
+			if (process.exitValue() != 0) {
+				throw new RuntimeException(
+					readInputStream(process.getErrorStream()));
+			}
+		}
+		catch (Exception exception) {
+			throw new RuntimeException(
+				"Unable to rsync " +
+					_getRyncPath(sourceHostName, sourceFilePath),
+				exception);
+		}
 	}
 
 	public static void saveToCacheFile(String key, String text) {
@@ -5747,6 +5832,10 @@ public class JenkinsResultsParserUtil {
 		return duration;
 	}
 
+	private static String _combineCommandArgs(String... args) {
+		return join(" ", args);
+	}
+
 	private static void _executeCommandService(
 		final String command, final File baseDir,
 		final Map<String, String> environments, final long maxLogSize,
@@ -5953,8 +6042,16 @@ public class JenkinsResultsParserUtil {
 			System.out.println("WARNING: " + ioException.getMessage());
 		}
 
-		return combine(
-			_DIST_PORTAL_JOB_URL_DEFAULT, "(", portalBranchName, ")");
+		try {
+			return combine(
+				"http://",
+				getBuildProperty("upstream.acceptance.jenkins.master"),
+				"/job/test-portal-acceptance-upstream", "(", portalBranchName,
+				")");
+		}
+		catch (IOException ioException) {
+			throw new RuntimeException(ioException);
+		}
 	}
 
 	private static String _getFilteredPropertyValue(String propertyValue) {
@@ -6365,6 +6462,14 @@ public class JenkinsResultsParserUtil {
 		return "github.message.redact.token[" + index + "]";
 	}
 
+	private static String _getRyncPath(String hostName, String filePath) {
+		if (hostName == null) {
+			return filePath;
+		}
+
+		return hostName + ":" + filePath;
+	}
+
 	private static void _initializeRedactTokens() {
 		Properties properties = null;
 
@@ -6444,8 +6549,6 @@ public class JenkinsResultsParserUtil {
 	private static final String _DIST_PORTAL_BUNDLES_URL_DEFAULT =
 		"http://test-1-0/userContent/bundles/test-portal-acceptance-upstream";
 
-	private static final String _DIST_PORTAL_JOB_URL_DEFAULT;
-
 	private static final long _MILLIS_BASH_COMMAND_TIMEOUT_DEFAULT =
 		1000 * 60 * 60;
 
@@ -6457,7 +6560,7 @@ public class JenkinsResultsParserUtil {
 
 	private static final long _MILLIS_SECOND = 1000L;
 
-	private static final int _MILLIS_TIMEOUT_DEFAULT = 0;
+	private static final int _MILLIS_TIMEOUT_DEFAULT = 1000 * 60 * 5;
 
 	private static final String _PREFIX_TO_STRING_CACHE = "toStringCache-";
 
@@ -6554,17 +6657,6 @@ public class JenkinsResultsParserUtil {
 		System.getProperty("user.home"));
 
 	static {
-		try {
-			_DIST_PORTAL_JOB_URL_DEFAULT = combine(
-				"http://",
-				getBuildProperty("upstream.acceptance.jenkins.master"),
-				"/job/test-portal-acceptance-upstream");
-		}
-		catch (IOException ioException) {
-			throw new RuntimeException(
-				"Unable to upstream acceptance Jenkins master property");
-		}
-
 		try {
 			_initializeRedactTokens();
 

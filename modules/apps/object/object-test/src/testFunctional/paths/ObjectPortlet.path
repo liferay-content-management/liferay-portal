@@ -57,7 +57,7 @@
 	</tr>
 	<tr>
 		<td>ENTRY_STATUS</td>
-		<td>//*[contains(text(),'${key_entry}')]/parent::div/following-sibling::div//span[contains(@class,'workflow-status')]//strong[contains(text(),'${key_status}')]</td>
+		<td>//*[text()='${key_entry}']/../following-sibling::div//*[text()='${key_status}']</td>
 		<td></td>
 	</tr>
 	<tr>
@@ -143,6 +143,11 @@
 	<tr>
 		<td>SELECT_CUSTOM_OBJECT</td>
 		<td>//div[(@class='table-list-title') and contains (.,'${key_label}')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>SELECT_OBJECT_FOLDER</td>
+		<td>//li[contains(@class,'object-folder-list-item') and (.='${key_label}')]</td>
 		<td></td>
 	</tr>
 	<tr>

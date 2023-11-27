@@ -25,14 +25,12 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Jürgen Kappler
  */
-@Component(service = LayoutStructureItemMapper.class)
+@Component(
+	property = "class.name=com.liferay.layout.util.structure.FragmentStyledLayoutStructureItem",
+	service = LayoutStructureItemMapper.class
+)
 public class FragmentLayoutStructureItemMapper
 	extends BaseStyledLayoutStructureItemMapper {
-
-	@Override
-	public String getClassName() {
-		return FragmentStyledLayoutStructureItem.class.getName();
-	}
 
 	@Override
 	public PageElement getPageElement(
@@ -82,6 +80,7 @@ public class FragmentLayoutStructureItemMapper
 									saveMappingConfiguration),
 								getFragmentViewPorts(itemConfigJSONObject),
 								saveInlineContent, saveMappingConfiguration);
+					id = layoutStructureItem.getItemId();
 					type = Type.FRAGMENT;
 				}
 			};
@@ -104,6 +103,7 @@ public class FragmentLayoutStructureItemMapper
 								itemConfigJSONObject.getJSONObject("style")),
 							PortletIdCodec.encode(portletId, instanceId),
 							_widgetInstanceMapper);
+				id = layoutStructureItem.getItemId();
 				type = Type.WIDGET;
 			}
 		};

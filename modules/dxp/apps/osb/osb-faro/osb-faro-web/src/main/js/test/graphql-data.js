@@ -9,9 +9,11 @@ import EventAttributeValuesQuery from 'event-analysis/queries/EventAttributeValu
 import EventDefinitionQuery from 'event-analysis/queries/EventDefinitionQuery';
 import EventDefinitionsQuery from 'event-analysis/queries/EventDefinitionsQuery';
 import EventMetricQuery from 'shared/queries/EventMetricQuery';
+import getInterestsQuery from 'contacts/queries/InterestsQuery';
 import IndividualInterestsQuery from 'shared/queries/IndividualInterestsQuery';
 import IndividualMetricsQuery from 'shared/queries/IndividualMetricsQuery';
 import OrganizationsQuery from 'segment/segment-editor/dynamic/queries/OrganizationsQuery';
+import PagePathQuery from 'shared/queries/PagePathQuery';
 import PreferenceQuery from 'settings/data-privacy/queries/PreferenceQuery';
 import RecommendationActivitiesQuery from 'settings/recommendations/queries/RecommendationActivitiesQuery';
 import RecommendationJobRunsQuery from 'settings/recommendations/queries/RecommendationJobRunsQuery';
@@ -21,7 +23,6 @@ import SitesDashboardQuery from 'shared/queries/SitesDashboardQuery';
 import SitesTopPagesQuery from 'shared/queries/SitesTopPagesQuery';
 import SuppressedUsersListQuery from 'settings/data-privacy/queries/SuppressedUsersListQuery';
 import TimeRangeQuery from 'shared/queries/TimeRangeQuery';
-import TouchpointPathQuery from 'shared/queries/TouchpointPathQuery';
 import TouchpointsQuery from 'shared/queries/TouchpointsQuery';
 import UserSessionQuery from 'shared/queries/UserSessionQuery';
 import {
@@ -29,6 +30,11 @@ import {
 	DataTypes,
 	DateGroupings
 } from 'event-analysis/utils/types';
+import {
+	CompositionTypes,
+	OrderByDirections,
+	RangeKeyTimeRanges
+} from 'shared/util/constants';
 import {COUNT, NAME} from 'shared/util/pagination';
 import {
 	EventAnalysisListQuery,
@@ -45,7 +51,6 @@ import {
 import {getSafeRangeSelectors} from 'shared/util/util';
 import {INTERVAL_KEY_MAP} from 'shared/util/time';
 import {isArray, mapValues, range} from 'lodash';
-import {OrderByDirections, RangeKeyTimeRanges} from 'shared/util/constants';
 
 const METRIC_TYPENAME_MAP = {
 	histogram: 'HistogramMetric',
@@ -470,6 +475,42 @@ export function mockSitesTopPagesReq() {
 						}
 					],
 					total: 2
+				}
+			}
+		}
+	};
+}
+
+export function mockInterestsReq() {
+	return {
+		request: {
+			query: getInterestsQuery(CompositionTypes.AccountInterests),
+			variables: {
+				active: true,
+				channelId: '123',
+				id: 'test',
+				size: 5,
+				sort: {
+					column: 'count',
+					type: 'DESC'
+				},
+				start: 0
+			}
+		},
+		result: {
+			data: {
+				accountInterests: {
+					__typename: 'CompositionBag',
+					compositions: [
+						{
+							__typename: 'CompositionItem',
+							count: 10,
+							name: 'composition 01'
+						}
+					],
+					maxCount: 0,
+					total: 0,
+					totalCount: 0
 				}
 			}
 		}
@@ -954,6 +995,25 @@ export function mockRecommendationReq(item = {}, mockVariables = {}) {
 	};
 }
 
+export function mockPagePathReq(data = []) {
+	return {
+		request: {
+			query: PagePathQuery,
+			variables: {
+				canonicalUrl: 'https://liferay.com/home',
+				channelId: '123',
+				rangeEnd: null,
+				rangeKey: 30,
+				rangeStart: null,
+				title: 'Liferay DXP - Home'
+			}
+		},
+		result: {
+			data
+		}
+	};
+}
+
 export function mockRecommendationActivitiesReq(items, mockVariables = {}) {
 	return {
 		request: {
@@ -1149,30 +1209,6 @@ export function mockTimeRangeReq() {
 						startDate: '2020-04-08T00:00'
 					}
 				]
-			}
-		}
-	};
-}
-
-export function mockTouchpointsPath(page, variables) {
-	return {
-		request: {
-			query: TouchpointPathQuery,
-			variables: {
-				channelId: '123',
-				devices: 'Any',
-				location: 'Any',
-				rangeEnd: null,
-				rangeKey: 30,
-				rangeStart: null,
-				title: '',
-				touchpoint: '',
-				...variables
-			}
-		},
-		result: {
-			data: {
-				page
 			}
 		}
 	};

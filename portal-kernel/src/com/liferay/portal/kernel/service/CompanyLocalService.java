@@ -244,6 +244,8 @@ public interface CompanyLocalService
 	public long dynamicQueryCount(
 		DynamicQuery dynamicQuery, Projection projection);
 
+	public Company extractCompany(long companyId) throws PortalException;
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Company fetchCompany(long companyId);
 

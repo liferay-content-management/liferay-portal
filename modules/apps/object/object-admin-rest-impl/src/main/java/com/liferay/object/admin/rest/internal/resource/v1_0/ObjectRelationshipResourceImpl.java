@@ -170,6 +170,7 @@ public class ObjectRelationshipResourceImpl
 
 		return _toObjectRelationship(
 			_objectRelationshipService.addObjectRelationship(
+				objectRelationship.getExternalReferenceCode(),
 				objectDefinition1.getObjectDefinitionId(),
 				objectDefinition2.getObjectDefinitionId(),
 				objectRelationship.getParameterObjectFieldId(),
@@ -205,6 +206,7 @@ public class ObjectRelationshipResourceImpl
 
 		return _toObjectRelationship(
 			_objectRelationshipService.addObjectRelationship(
+				objectRelationship.getExternalReferenceCode(),
 				objectDefinitionId, objectDefinitionId2,
 				GetterUtil.getLong(
 					objectRelationship.getParameterObjectFieldId()),
@@ -249,6 +251,7 @@ public class ObjectRelationshipResourceImpl
 
 		return _toObjectRelationship(
 			_objectRelationshipService.updateObjectRelationship(
+				objectRelationship.getExternalReferenceCode(),
 				objectRelationshipId,
 				GetterUtil.getLong(
 					objectRelationship.getParameterObjectFieldId()),
@@ -256,6 +259,30 @@ public class ObjectRelationshipResourceImpl
 				GetterUtil.getBoolean(objectRelationship.getEdge()),
 				LocalizedMapUtil.getLocalizedMap(
 					objectRelationship.getLabel())));
+	}
+
+	@Override
+	public ObjectRelationship putObjectRelationshipByExternalReferenceCode(
+			String externalReferenceCode, ObjectRelationship objectRelationship)
+		throws Exception {
+
+		com.liferay.object.model.ObjectRelationship
+			serviceBuilderObjectRelationship =
+				_objectRelationshipService.
+					fetchObjectRelationshipByExternalReferenceCode(
+						externalReferenceCode, contextCompany.getCompanyId(),
+						objectRelationship.getObjectDefinitionId1());
+
+		objectRelationship.setExternalReferenceCode(externalReferenceCode);
+
+		if (serviceBuilderObjectRelationship != null) {
+			return putObjectRelationship(
+				serviceBuilderObjectRelationship.getObjectRelationshipId(),
+				objectRelationship);
+		}
+
+		return postObjectDefinitionObjectRelationship(
+			objectRelationship.getObjectDefinitionId1(), objectRelationship);
 	}
 
 	private com.liferay.object.model.ObjectDefinition _getObjectDefinition2(

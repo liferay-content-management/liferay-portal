@@ -6,9 +6,13 @@
 package com.liferay.portal.security.content.security.policy.internal.servlet.taglib;
 
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.content.security.policy.ContentSecurityPolicyNonceProvider;
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.security.content.security.policy.internal.configuration.ContentSecurityPolicyConfiguration;
+import com.liferay.portal.security.content.security.policy.internal.configuration.ContentSecurityPolicyConfigurationUtil;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -48,7 +52,18 @@ public class ContentSecurityPolicyTopHeadDynamicInclude
 		printWriter.print(
 			" type=\"text/javascript\">window.Liferay = window.Liferay || ");
 		printWriter.print("{}; window.Liferay.CSP = {nonce: '");
-		printWriter.print(nonce);
+
+		ContentSecurityPolicyConfiguration contentSecurityPolicyConfiguration =
+			ContentSecurityPolicyConfigurationUtil.
+				getContentSecurityPolicyConfiguration(
+					_configurationProvider, httpServletRequest, _portal);
+
+		String policy = contentSecurityPolicyConfiguration.policy();
+
+		if (!policy.contains("'strict-dynamic'")) {
+			printWriter.print(nonce);
+		}
+
 		printWriter.println("'};</script>");
 	}
 
@@ -58,7 +73,13 @@ public class ContentSecurityPolicyTopHeadDynamicInclude
 	}
 
 	@Reference
+	private ConfigurationProvider _configurationProvider;
+
+	@Reference
 	private ContentSecurityPolicyNonceProvider
 		_contentSecurityPolicyNonceProvider;
+
+	@Reference
+	private Portal _portal;
 
 }

@@ -50,6 +50,7 @@ import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.definition.security.permission.resource.ObjectDefinitionPortletResourcePermissionRegistryUtil;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
+import com.liferay.object.field.attachment.AttachmentManager;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
@@ -88,6 +89,7 @@ import com.liferay.object.web.internal.item.selector.ObjectEntryItemSelectorView
 import com.liferay.object.web.internal.layout.display.page.ObjectEntryLayoutDisplayPageProvider;
 import com.liferay.object.web.internal.notifications.ObjectUserNotificationsDefinition;
 import com.liferay.object.web.internal.notifications.ObjectUserNotificationsHandler;
+import com.liferay.object.web.internal.object.definitions.portlet.ObjectDefinitionsControlPanelEntry;
 import com.liferay.object.web.internal.object.entries.application.list.ObjectEntriesPanelApp;
 import com.liferay.object.web.internal.object.entries.display.context.ObjectEntryDisplayContextFactory;
 import com.liferay.object.web.internal.object.entries.frontend.data.set.filter.factory.ObjectFieldFDSFilterFactoryRegistry;
@@ -97,7 +99,6 @@ import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectE
 import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectEntryMVCRenderCommand;
 import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectEntryRelatedModelMVCActionCommand;
 import com.liferay.object.web.internal.object.entries.portlet.action.UploadAttachmentMVCActionCommand;
-import com.liferay.object.web.internal.object.entries.upload.util.AttachmentValidator;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -107,6 +108,7 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.notifications.UserNotificationHandler;
+import com.liferay.portal.kernel.portlet.ControlPanelEntry;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -178,7 +180,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				_templateInfoItemFieldSetProvider, _userLocalService);
 
 		PortletResourcePermission portletResourcePermission =
-			_getPortletResourcePermission(objectDefinition.getResourceName());
+			_getPortletResourcePermission(_getResourceName(objectDefinition));
 
 		InfoPermissionProvider infoPermissionProvider =
 			new ObjectEntryInfoPermissionProvider(
@@ -195,6 +197,13 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				HashMapDictionaryBuilder.<String, Object>put(
 					"company.id", objectDefinition.getCompanyId()
 				).put(
+					"javax.portlet.name", objectDefinition.getPortletId()
+				).build()),
+			_bundleContext.registerService(
+				ControlPanelEntry.class,
+				new ObjectDefinitionsControlPanelEntry(
+					objectDefinition, _objectDefinitionLocalService),
+				HashMapDictionaryBuilder.<String, Object>put(
 					"javax.portlet.name", objectDefinition.getPortletId()
 				).build()),
 			_bundleContext.registerService(
@@ -452,6 +461,15 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				).put(
 					"javax.portlet.name", objectDefinition.getPortletId()
 				).put(
+					"javax.portlet.security-role-ref",
+					() -> {
+						if (objectDefinition.isRootDescendantNode()) {
+							return StringPool.BLANK;
+						}
+
+						return null;
+					}
+				).put(
 					"javax.portlet.version", "3.0"
 				).build()),
 			_bundleContext.registerService(
@@ -554,6 +572,17 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 		return portletResourcePermission;
 	}
 
+	private String _getResourceName(ObjectDefinition objectDefinition) {
+		if (!objectDefinition.isRootDescendantNode()) {
+			return objectDefinition.getResourceName();
+		}
+
+		objectDefinition = _objectDefinitionLocalService.fetchObjectDefinition(
+			objectDefinition.getRootObjectDefinitionId());
+
+		return objectDefinition.getResourceName();
+	}
+
 	@Reference
 	private AssetCategoryLocalService _assetCategoryLocalService;
 
@@ -567,16 +596,15 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	@Reference
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
 
+	@Reference
+	private AttachmentManager _attachmentManager;
+
 	private final AttachmentUploadFileEntryHandler
 		_attachmentUploadFileEntryHandler =
 			new AttachmentUploadFileEntryHandler();
 	private final AttachmentUploadResponseHandler
 		_attachmentUploadResponseHandler =
 			new AttachmentUploadResponseHandler();
-
-	@Reference
-	private AttachmentValidator _attachmentValidator;
-
 	private BundleContext _bundleContext;
 
 	@Reference(target = "(upload.response.handler.system.default=true)")
@@ -720,7 +748,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 			PortletResourcePermission portletResourcePermission =
 				ObjectDefinitionPortletResourcePermissionRegistryUtil.
-					getService(objectDefinition.getResourceName());
+					getService(_getResourceName(objectDefinition));
 
 			ThemeDisplay themeDisplay =
 				(ThemeDisplay)uploadPortletRequest.getAttribute(
@@ -734,7 +762,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 			String fileName = uploadPortletRequest.getFileName("file");
 
-			_attachmentValidator.validateFileExtension(fileName, objectFieldId);
+			_attachmentManager.validateFileExtension(fileName, objectFieldId);
 
 			File file = null;
 
@@ -748,7 +776,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 						"File is null for " + fileName);
 				}
 
-				_attachmentValidator.validateFileSize(
+				_attachmentManager.validateFileSize(
 					fileName, file.length(), objectFieldId,
 					themeDisplay.isSignedIn());
 
@@ -806,7 +834,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				errorMessage = themeDisplay.translate(
 					"please-enter-a-file-with-a-valid-extension-x",
 					StringUtil.merge(
-						_attachmentValidator.getAcceptedFileExtensions(
+						_attachmentManager.getAcceptedFileExtensions(
 							ParamUtil.getLong(portletRequest, "objectFieldId")),
 						StringPool.COMMA_AND_SPACE));
 			}
@@ -815,7 +843,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					"please-enter-a-file-with-a-valid-file-size-no-larger-" +
 						"than-x",
 					_language.formatStorageSize(
-						_attachmentValidator.getMaximumFileSize(
+						_attachmentManager.getMaximumFileSize(
 							ParamUtil.getLong(portletRequest, "objectFieldId"),
 							themeDisplay.isSignedIn()),
 						themeDisplay.getLocale()));

@@ -5,6 +5,8 @@
 
 package com.liferay.layout.type.controller.display.page.internal.layout.type.controller;
 
+import com.liferay.asset.display.page.layout.asset.entry.provider.LayoutAssetEntryProvider;
+import com.liferay.asset.display.page.layout.asset.entry.provider.LayoutAssetEntryProviderRegistry;
 import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.info.display.request.attributes.contributor.InfoDisplayRequestAttributesContributor;
@@ -71,12 +73,33 @@ public class DisplayPageLayoutTypeController
 			return null;
 		}
 
-		Object object = httpServletRequest.getAttribute(
-			WebKeys.LAYOUT_ASSET_ENTRY);
+		AssetEntry assetEntry = null;
 
-		if ((object != null) && (object instanceof AssetEntry)) {
-			AssetEntry assetEntry = (AssetEntry)object;
+		try {
+			assetEntry = (AssetEntry)httpServletRequest.getAttribute(
+				WebKeys.LAYOUT_ASSET_ENTRY);
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Unable to get asset entry", exception);
+			}
+		}
 
+		if (assetEntry == null) {
+			String portletId = ParamUtil.getString(
+				httpServletRequest, "p_p_id");
+
+			LayoutAssetEntryProvider layoutAssetEntryProvider =
+				_layoutAssetEntryProviderRegistry.getLayoutAssetEntryProvider(
+					portletId);
+
+			if (layoutAssetEntryProvider != null) {
+				assetEntry = layoutAssetEntryProvider.getLayoutAssetEntry(
+					httpServletRequest, layout);
+			}
+		}
+
+		if (assetEntry != null) {
 			ThemeDisplay themeDisplay =
 				(ThemeDisplay)httpServletRequest.getAttribute(
 					WebKeys.THEME_DISPLAY);
@@ -360,6 +383,9 @@ public class DisplayPageLayoutTypeController
 
 	@Reference
 	private InfoSearchClassMapperRegistry _infoSearchClassMapperRegistry;
+
+	@Reference
+	private LayoutAssetEntryProviderRegistry _layoutAssetEntryProviderRegistry;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

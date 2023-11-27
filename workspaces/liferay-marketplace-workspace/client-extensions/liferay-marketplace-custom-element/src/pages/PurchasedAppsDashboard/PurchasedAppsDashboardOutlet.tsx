@@ -4,17 +4,18 @@
  */
 
 import {useEffect, useState} from 'react';
-import {Outlet, useSearchParams} from 'react-router-dom';
+import {Outlet} from 'react-router-dom';
 
 import {DashboardNavigation} from '../../components/DashboardNavigation/DashboardNavigation';
-import {getCompanyId} from '../../liferay/constants';
 import {
 	getAccountInfoFromCommerce,
 	getAccounts,
-	getCustomFieldExpandoValue,
 	getProductAttachments,
 } from '../../utils/api';
-import {getAccountImage} from '../../utils/util';
+import {
+	getAccountImage,
+	getThumbnailByProductAttachment,
+} from '../../utils/util';
 import {initialDashboardNavigationItems as dashboardNavigationItems} from './PurchasedDashboardPageUtil';
 
 import './PurchasedAppsDashboard.scss';
@@ -34,7 +35,7 @@ export type PurchasedAppProps = {
 	project?: string;
 	provisioning: string;
 	provisioningLabel: string;
-	purchasedBy: string;
+	purchasedBy?: string;
 	purchasedDate: string;
 	thumbnail: string;
 	type: string;
@@ -42,18 +43,11 @@ export type PurchasedAppProps = {
 	virtualURL: string;
 };
 
-const options: Intl.DateTimeFormatOptions = {
-	day: 'numeric',
-	month: 'short',
-	year: 'numeric',
-};
-
 const PurchasedAppsDashboardOutlet = () => {
-	const [searchParams] = useSearchParams();
-	const accountId = searchParams.get('accountId');
+	const {accountId} = Liferay.CommerceContext.account || {};
 	const [commerceAccount, setCommerceAccount] = useState<CommerceAccount>();
 
-	const [page, setPage] = useState<number>(1);
+	const [page, setPage] = useState(1);
 	const {channel} = useMarketplaceContext();
 
 	const {data: accounts = []} = useSWR('/purchased/accounts', async () => {
@@ -62,7 +56,10 @@ const PurchasedAppsDashboardOutlet = () => {
 		return accounts.items ?? [];
 	});
 
-	const selectedAccount = useAccountCached(accounts ?? [], accountId);
+	const selectedAccount = useAccountCached(
+		accounts ?? [],
+		accountId as string
+	);
 
 	useEffect(() => {
 		const getAccountCommerce = async () => {
@@ -89,91 +86,42 @@ const PurchasedAppsDashboardOutlet = () => {
 
 	const {
 		data: placedOrdersWithAttachements = {items: [], totalCount: 0},
-	} = useSWR(`/${key}/with-attachments`, async () => {
-		if (!selectedAccount?.id && channel?.id) {
-			return {items: [], totalCount: 0};
+	} = useSWR(
+		`/${key}/with-attachments/${placedOrders.totalCount}`,
+		async () => {
+			if (!selectedAccount?.id && channel?.id) {
+				return {items: [], totalCount: 0};
+			}
+
+			const orders = await Promise.all(
+				placedOrders.items.map(async (order) => {
+					const [placeOrderItem] = order.placedOrderItems;
+
+					const attachments = await getProductAttachments(
+						selectedAccount.id,
+						channel.id as number,
+						placeOrderItem.productId
+					);
+
+					return {
+						...order,
+						name: placeOrderItem.name,
+						productId: order.placedOrderItems[0].productId,
+						thumbnail: getThumbnailByProductAttachment(attachments),
+						type: placeOrderItem.subscription
+							? 'Subscription'
+							: 'Perpetual',
+						virtualURL: placeOrderItem?.virtualItemURLs,
+					};
+				})
+			);
+
+			return {
+				items: orders,
+				totalCount: placedOrders.totalCount,
+			};
 		}
-
-		const orders = await Promise.all(
-			placedOrders.items.map(async (order) => {
-				const [placeOrderItem] = order.placedOrderItems;
-
-				const date = new Date(order.createDate);
-
-				const formattedDate = date.toLocaleDateString('en-US', options);
-
-				const version = await getCustomFieldExpandoValue({
-					className: 'com.liferay.commerce.product.model.CPInstance',
-					classPK: placeOrderItem.skuId,
-					columnName: 'version',
-					companyId: Number(getCompanyId()),
-					tableName: 'CUSTOM_FIELDS',
-				});
-
-				const attachments = await getProductAttachments(
-					selectedAccount.id,
-					channel.id as number,
-					placeOrderItem.productId
-				);
-
-				let orderThumbnail;
-
-				if (attachments) {
-					orderThumbnail = await (async () => {
-						const promises = attachments.map(
-							async (currentAttachment) => {
-								const attachmentsCustomField = await getCustomFieldExpandoValue(
-									{
-										className:
-											'com.liferay.commerce.product.model.CPAttachmentFileEntry',
-										classPK: currentAttachment.id,
-										columnName: 'App Icon',
-										companyId: Number(
-											Liferay.ThemeDisplay.getCompanyId()
-										),
-										tableName: 'CUSTOM_FIELDS',
-									}
-								);
-
-								return attachmentsCustomField[0] === 'Yes'
-									? currentAttachment
-									: null;
-							}
-						);
-
-						const results = await Promise.all(promises);
-
-						return results.find(
-							(attachment) => attachment !== null
-						);
-					})();
-				}
-
-				return {
-					name: placeOrderItem.name,
-					orderId: order.id,
-					orderTypeExternalReferenceCode:
-						order.orderTypeExternalReferenceCode,
-					productId: order.placedOrderItems[0].productId,
-					provisioning: order.orderStatusInfo.label_i18n,
-					provisioningLabel: order.orderStatusInfo.label,
-					purchasedBy: order.author,
-					purchasedDate: formattedDate,
-					thumbnail: orderThumbnail?.src as string,
-					type: placeOrderItem.subscription
-						? 'Subscription'
-						: 'Perpetual',
-					version: Object.keys(version).length ? version : '',
-					virtualURL: placeOrderItem?.virtualItemURLs,
-				};
-			})
-		);
-
-		return {
-			items: orders,
-			totalCount: placedOrders.totalCount,
-		};
-	});
+	);
 
 	return (
 		<div className="purchased-apps-dashboard-page-container">

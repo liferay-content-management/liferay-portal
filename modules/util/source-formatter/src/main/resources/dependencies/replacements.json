@@ -1,5 +1,21 @@
 [
 	{
+		"from": "CookieUtil.get(HttpServletRequest, String)",
+		"issueKey": "LPS-159681",
+		"newImports": [
+			"com.liferay.portal.kernel.cookies.CookiesManagerUtil"
+		],
+		"to": "CookiesManagerUtil.getCookieValue(param#1#, param#0#)"
+	},
+	{
+		"from": "CookieUtil.get(HttpServletRequest, String, boolean)",
+		"issueKey": "LPS-159681",
+		"newImports": [
+			"com.liferay.portal.kernel.cookies.CookiesManagerUtil"
+		],
+		"to": "CookiesManagerUtil.getCookieValue(param#1#, param#0#, param#2#)"
+	},
+	{
 		"classNames": [
 			"JournalFolderLocalService",
 			"JournalFolderLocalServiceUtil"
@@ -61,6 +77,18 @@
 		"from": "setTwoLettersISOCode",
 		"issueKey": "LPS-186923",
 		"to": "setA2"
+	},
+	{
+		"classNames": [
+			"CommerceAddressLocalService",
+			"CommerceAddressLocalServiceUtil"
+		],
+		"from": "updateCommerceAddress(CommerceAddress)",
+		"issueKey": "LPS-186925",
+		"newImports": [
+			"com.liferay.portal.kernel.service.ServiceContextThreadLocal"
+		],
+		"to": "updateCommerceAddress(param#0#.getCommerceAddressId(), param#0#.getName(), param#0#.getDescription(), param#0#.getStreet1(), param#0#.getStreet2(), param#0#.getStreet3(), param#0#.getCity(), param#0#.getZip(), param#0#.getRegionId(), param#0#.getCountryId(), param#0#.getPhoneNumber(), param#0#.getType(), ServiceContextThreadLocal.getServiceContext())"
 	},
 	{
 		"from": "DLUtil.getImagePreviewURL",
@@ -191,7 +219,9 @@
 	{
 		"from": "DLUtil.getGroupIds(ThemeDisplay)",
 		"issueKey": "LPS-192396",
-		"newImports": "com.liferay.portal.kernel.util.PortalUtil",
+		"newImports": [
+			"com.liferay.portal.kernel.util.PortalUtil"
+		],
 		"to": "PortalUtil.getCurrentAndAncestorSiteGroupIds(param#0#.getScopeGroupId())",
 		"validExtensions": [
 			"java",
@@ -356,6 +386,29 @@
 	},
 	{
 		"classNames": [
+			"PortletDisplay"
+		],
+		"from": "getPortletInstanceConfiguration(Class<T>)",
+		"issueKey": "LPS-195850",
+		"newImports": [
+			"com.liferay.portal.configuration.module.configuration.ConfigurationProviderUtil",
+			"com.liferay.portal.kernel.service.ServiceContextThreadLocal"
+		],
+		"to": "ConfigurationProviderUtil.getPortletInstanceConfiguration(param#0#, ServiceContextThreadLocal.getServiceContext().getThemeDisplay())"
+	},
+	{
+		"from": "portletDisplay.getPortletInstanceConfiguration(Class<T>)",
+		"issueKey": "LPS-195850",
+		"newImports": [
+			"com.liferay.portal.configuration.module.configuration.ConfigurationProviderUtil"
+		],
+		"to": "ConfigurationProviderUtil.getPortletInstanceConfiguration(param#0#, themeDisplay)",
+		"validExtensions": [
+			"jsp"
+		]
+	},
+	{
+		"classNames": [
 			"CaptchaUtil"
 		],
 		"from": "serveImage(ResourceRequest, ResourceResponse)",
@@ -364,6 +417,14 @@
 			"com.liferay.portal.kernel.util.PortalUtil"
 		],
 		"to": "serveImage(PortalUtil.getHttpServletRequest(param#0#), PortalUtil.getHttpServletResponse(param#1#))"
+	},
+	{
+		"classNames": [
+			"AssetCategoryLocalService",
+			"AssetCategoryLocalServiceUtil"
+		],
+		"from": "fetchAssetCategoryByExternalReferenceCode(long, String)",
+		"issueKey": "LPS-196608"
 	},
 	{
 		"classNames": [
