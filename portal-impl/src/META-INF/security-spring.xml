@@ -30,10 +30,6 @@
 	<bean class="com.liferay.portal.kernel.security.membershippolicy.OrganizationMembershipPolicyFactoryUtil" id="com.liferay.portal.kernel.security.membershippolicy.OrganizationMembershipPolicyFactoryUtil">
 		<property name="organizationMembershipPolicyFactory" ref="com.liferay.portal.kernel.security.membershippolicy.OrganizationMembershipPolicyFactory" />
 	</bean>
-	<bean class="com.liferay.portal.security.membershippolicy.UserGroupMembershipPolicyFactoryImpl" id="com.liferay.portal.kernel.security.membershippolicy.UserGroupMembershipPolicyFactory" />
-	<bean class="com.liferay.portal.kernel.security.membershippolicy.UserGroupMembershipPolicyFactoryUtil" id="com.liferay.portal.kernel.security.membershippolicy.UserGroupMembershipPolicyFactoryUtil">
-		<property name="userGroupMembershipPolicyFactory" ref="com.liferay.portal.kernel.security.membershippolicy.UserGroupMembershipPolicyFactory" />
-	</bean>
 	<bean class="com.liferay.portal.security.permission.PermissionCheckerFactoryImpl" id="com.liferay.portal.kernel.security.permission.PermissionCheckerFactory" />
 	<bean class="com.liferay.portal.security.permission.ResourceActionsImpl" id="com.liferay.portal.kernel.security.permission.ResourceActions" />
 	<bean class="com.liferay.portal.kernel.security.permission.ResourceActionsUtil" id="com.liferay.portal.kernel.security.permission.ResourceActionsUtil">
@@ -42,15 +38,6 @@
 	<bean class="com.liferay.portal.security.xml.SecureXMLFactoryProviderImpl" id="com.liferay.portal.kernel.security.xml.SecureXMLFactoryProvider" />
 	<bean class="com.liferay.portal.kernel.security.xml.SecureXMLFactoryProviderUtil" id="com.liferay.portal.kernel.security.xml.SecureXMLFactoryProviderUtil">
 		<property name="secureXMLFactoryProvider" ref="com.liferay.portal.kernel.security.xml.SecureXMLFactoryProvider" />
-	</bean>
-	<bean class="com.liferay.portal.kernel.webdav.methods.MethodFactoryRegistryUtil" id="com.liferay.portal.kernel.webdav.methods.MethodFactoryRegistryUtil">
-		<property name="methodFactoryRegistry">
-			<bean class="com.liferay.portal.webdav.methods.MethodFactoryRegistryImpl">
-				<property name="defaultMethodFactory">
-					<bean class="com.liferay.portal.webdav.methods.MethodFactoryImpl" />
-				</property>
-			</bean>
-		</property>
 	</bean>
 	<bean class="com.liferay.portal.xml.SAXReaderImpl" id="com.liferay.portal.kernel.xml.SAXReader">
 		<property name="secure" value="true" />

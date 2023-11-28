@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
+import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalServiceUtil;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderResponse;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -355,6 +356,46 @@ public class LayoutWorkflowHandlerTest {
 		_assertSegmentExperienceFragmentEntryLink(
 			languageId, segmentsExperience2.getSegmentsExperienceId(),
 			experience2HeadingText, layoutPageTemplateStructure);
+	}
+
+	@Test
+	public void testWorkflowHandlerDeleteContentLayout() throws Exception {
+		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
+
+		Assert.assertEquals(WorkflowConstants.STATUS_DRAFT, layout.getStatus());
+
+		WorkflowHandler<?> workflowHandler =
+			WorkflowHandlerRegistryUtil.getWorkflowHandler(
+				Layout.class.getName());
+
+		Assert.assertNotNull(
+			workflowHandler.getWorkflowDefinitionLink(
+				TestPropsValues.getCompanyId(), _group.getGroupId(),
+				layout.getPlid()));
+
+		WorkflowHandlerRegistryUtil.startWorkflowInstance(
+			TestPropsValues.getCompanyId(), _group.getGroupId(),
+			TestPropsValues.getUserId(), Layout.class.getName(),
+			layout.getPlid(), layout, _serviceContext, Collections.emptyMap());
+
+		layout = _layoutLocalService.getLayout(layout.getPlid());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, layout.getStatus());
+
+		Assert.assertNotNull(
+			WorkflowInstanceLinkLocalServiceUtil.fetchWorkflowInstanceLink(
+				layout.getCompanyId(), layout.getGroupId(),
+				Layout.class.getName(), layout.getPlid()));
+
+		_layoutLocalService.deleteLayout(layout.getPlid());
+
+		Assert.assertNull(
+			WorkflowInstanceLinkLocalServiceUtil.fetchWorkflowInstanceLink(
+				layout.getCompanyId(), layout.getGroupId(),
+				Layout.class.getName(), layout.getPlid()));
+
+		Assert.assertNull(_layoutLocalService.fetchLayout(layout.getPlid()));
 	}
 
 	@Test

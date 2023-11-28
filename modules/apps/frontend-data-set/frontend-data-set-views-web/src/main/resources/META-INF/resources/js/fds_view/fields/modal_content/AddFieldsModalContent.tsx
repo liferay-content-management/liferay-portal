@@ -7,12 +7,16 @@ import ClayButton from '@clayui/button';
 import {TreeView} from '@clayui/core';
 import {ClayCheckbox} from '@clayui/form';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
+import ClayManagementToolbar, {
+	ClayResultsBar,
+} from '@clayui/management-toolbar';
 import ClayModal from '@clayui/modal';
-import {fetch} from 'frontend-js-web';
+import {fetch, sub} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
 import {FDSViewType} from '../../../FDSViews';
 import {getFields} from '../../../api';
+import Search from '../../../components/Search';
 import {IField} from '../../../types';
 import openDefaultFailureToast from '../../../utils/openDefaultFailureToast';
 import openDefaultSuccessToast from '../../../utils/openDefaultSuccessToast';
@@ -61,6 +65,60 @@ const applySavedFDSFields = ({
 	return [selectedKeys, fields];
 };
 
+function filterFields(
+	fields: Array<IFieldTreeItem>,
+	query: string,
+	onFilter?: Function
+) {
+	const filteredItems: Array<IFieldTreeItem> = [];
+	const regexp = new RegExp(query, 'i');
+
+	fields.forEach((field) => {
+		const match = field.label ? regexp.test(field.label) : false;
+
+		const filteredChildren = field.children?.length
+			? filterFields(field.children, query, onFilter)
+			: [];
+
+		if (match || (field.children?.length && filteredChildren.length)) {
+			filteredItems.push({
+				...field,
+				children: filteredChildren,
+			});
+
+			if (onFilter) {
+				onFilter(field);
+			}
+		}
+	});
+
+	return filteredItems;
+}
+
+function applyFilter({
+	fields,
+	query,
+}: {fields?: Array<IFieldTreeItem>; query?: string} = {}) {
+	if (!query || !fields) {
+		return {
+			filteredItems: fields ?? [],
+			filteredKeys: [],
+		};
+	}
+
+	const filteredKeys: Array<React.Key> = [];
+	const filteredItems = filterFields(fields, query, ({id}: IField) => {
+		if (id) {
+			filteredKeys.push(id);
+		}
+	});
+
+	return {
+		filteredItems,
+		filteredKeys,
+	};
+}
+
 const AddFieldsModalContent = ({
 	closeModal,
 	fdsView,
@@ -82,11 +140,16 @@ const AddFieldsModalContent = ({
 	saveFDSFieldsURL: string;
 	savedFDSFields: Array<IFDSField>;
 }) => {
-	const [fields, setFields] = useState<Array<IFieldTreeItem> | null>(null);
+	const [initialFields, setInitialFields] = useState<Array<
+		IFieldTreeItem
+	> | null>(null);
 	const [saveButtonDisabled, setSaveButtonDisabled] = useState(false);
 	const [selectedKeys, setSelectedKeys] = useState<Set<React.Key>>(
 		new Set<React.Key>()
 	);
+	const [fields, setFields] = useState<Array<IField> | null>(initialFields);
+	const [query, setQuery] = useState<string>('');
+	const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
 
 	const saveFDSFields = async () => {
 		setSaveButtonDisabled(true);
@@ -94,7 +157,7 @@ const AddFieldsModalContent = ({
 		const creationData: Array<{name: string; type: string}> = [];
 		const deletionIds: Array<number> = [];
 
-		visit(fields || [], (field: IFieldTreeItem) => {
+		visit(initialFields || [], (field: IFieldTreeItem) => {
 			if (selectedKeys.has(field.name) && !field.savedId) {
 				creationData.push({name: field.name, type: field.type});
 			}
@@ -158,10 +221,23 @@ const AddFieldsModalContent = ({
 
 				setSelectedKeys(initialSelectedKeys);
 
+				setInitialFields(updatedFields);
 				setFields(updatedFields);
 			}
 		});
 	}, [savedFDSFields, fdsView]);
+
+	const onSearch = (query: string) => {
+		setQuery(query);
+
+		const {filteredItems, filteredKeys} = applyFilter({
+			fields: initialFields ?? [],
+			query,
+		});
+
+		setFields(filteredItems);
+		setExpandedKeys(filteredKeys);
+	};
 
 	return (
 		<>
@@ -169,38 +245,95 @@ const AddFieldsModalContent = ({
 				{Liferay.Language.get('add-fields')}
 			</ClayModal.Header>
 
-			<ClayModal.Body className="bg-light m-4 p-0">
+			<ClayModal.Body className="pt-0 px-0">
 				{fields === null ? (
 					<ClayLoadingIndicator />
 				) : (
-					<div className="pb-2 pt-2">
-						<TreeView
-							defaultItems={fields}
-							nestedKey="children"
-							onSelectionChange={setSelectedKeys}
-							selectedKeys={selectedKeys}
-							selectionMode="multiple"
-						>
-							{({children, label}: IFieldTreeItem) => (
-								<TreeView.Item>
-									<TreeView.ItemStack>
-										<ClayCheckbox checked label={label} />
-									</TreeView.ItemStack>
+					<>
+						<ClayManagementToolbar>
+							<ClayManagementToolbar.Search>
+								<Search onSearch={onSearch} query={query} />
+							</ClayManagementToolbar.Search>
+						</ClayManagementToolbar>
 
-									<TreeView.Group items={children}>
-										{({label}: IFieldTreeItem) => (
-											<TreeView.Item>
-												<ClayCheckbox
-													checked
-													label={label}
-												/>
-											</TreeView.Item>
-										)}
-									</TreeView.Group>
-								</TreeView.Item>
-							)}
-						</TreeView>
-					</div>
+						{query && (
+							<ClayResultsBar>
+								<ClayResultsBar.Item expand>
+									<span className="component-text text-truncate-inline">
+										<span className="text-truncate">
+											{sub(
+												fields.length === 1
+													? Liferay.Language.get(
+															'x-result-for-x'
+													  )
+													: Liferay.Language.get(
+															'x-results-for-x'
+													  ),
+												fields.length,
+												query
+											)}
+										</span>
+									</span>
+								</ClayResultsBar.Item>
+
+								<ClayResultsBar.Item>
+									<ClayButton
+										className="component-link tbar-link"
+										displayType="unstyled"
+										onClick={() => {
+											setQuery('');
+											setFields(initialFields);
+										}}
+									>
+										{Liferay.Language.get('clear')}
+									</ClayButton>
+								</ClayResultsBar.Item>
+							</ClayResultsBar>
+						)}
+
+						<div className="container-fluid container-fluid-max-xl px-4 py-2">
+							<TreeView
+								className="bg-light"
+								expandedKeys={new Set(expandedKeys)}
+								items={fields}
+								nestedKey="children"
+								onExpandedChange={(keys) => {
+									setExpandedKeys(Array.from(keys));
+								}}
+								onItemsChange={(items) =>
+									setInitialFields(
+										items as Array<IFieldTreeItem>
+									)
+								}
+								onSelectionChange={setSelectedKeys}
+								selectedKeys={selectedKeys}
+								selectionMode="multiple"
+								showExpanderOnHover={false}
+							>
+								{({children, label}: IFieldTreeItem) => (
+									<TreeView.Item>
+										<TreeView.ItemStack>
+											<ClayCheckbox
+												checked
+												label={label}
+											/>
+										</TreeView.ItemStack>
+
+										<TreeView.Group items={children}>
+											{({label}: IFieldTreeItem) => (
+												<TreeView.Item>
+													<ClayCheckbox
+														checked
+														label={label}
+													/>
+												</TreeView.Item>
+											)}
+										</TreeView.Group>
+									</TreeView.Item>
+								)}
+							</TreeView>
+						</div>
+					</>
 				)}
 			</ClayModal.Body>
 

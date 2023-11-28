@@ -14,10 +14,11 @@ Map<String, String> emailDefinitionTerms = journalConfigurationDisplayContext.ge
 
 portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
+portletDisplay.setURLBackTitle("web-content");
 %>
 
 <clay:container-fluid
-	cssClass="container-form-lg journal-configuration"
+	cssClass="container-form-lg"
 >
 	<clay:row>
 		<clay:col
@@ -110,7 +111,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							</div>
 						</c:when>
 						<c:when test='<%= Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-added") %>'>
-							<div class="c-px-1">
+							<div class="c-px-4 panel-group-flush">
 								<liferay-frontend:email-notification-settings
 									emailBodyLocalizedValuesMap="<%= journalGroupServiceConfiguration.emailArticleAddedBody() %>"
 									emailDefinitionTerms="<%= emailDefinitionTerms %>"
@@ -121,7 +122,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							</div>
 						</c:when>
 						<c:when test='<%= Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-expired") %>'>
-							<div class="c-px-1">
+							<div class="c-px-4 panel-group-flush">
 								<liferay-frontend:email-notification-settings
 									emailBodyLocalizedValuesMap="<%= journalGroupServiceConfiguration.emailArticleExpiredBody() %>"
 									emailDefinitionTerms="<%= emailDefinitionTerms %>"
@@ -132,7 +133,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							</div>
 						</c:when>
 						<c:when test='<%= Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-moved-from-folder") %>'>
-							<div class="c-px-1">
+							<div class="c-px-4 panel-group-flush">
 								<liferay-frontend:email-notification-settings
 									emailBodyLocalizedValuesMap="<%= journalGroupServiceConfiguration.emailArticleMovedFromFolderBody() %>"
 									emailDefinitionTerms="<%= emailDefinitionTerms %>"
@@ -143,7 +144,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							</div>
 						</c:when>
 						<c:when test='<%= Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-moved-to-folder") %>'>
-							<div class="c-px-1">
+							<div class="c-px-4 panel-group-flush">
 								<liferay-frontend:email-notification-settings
 									emailBodyLocalizedValuesMap="<%= journalGroupServiceConfiguration.emailArticleMovedToFolderBody() %>"
 									emailDefinitionTerms="<%= emailDefinitionTerms %>"
@@ -154,7 +155,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							</div>
 						</c:when>
 						<c:when test='<%= Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-review") %>'>
-							<div class="c-px-1">
+							<div class="c-px-4 panel-group-flush">
 								<liferay-frontend:email-notification-settings
 									emailBodyLocalizedValuesMap="<%= journalGroupServiceConfiguration.emailArticleReviewBody() %>"
 									emailDefinitionTerms="<%= emailDefinitionTerms %>"
@@ -165,7 +166,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							</div>
 						</c:when>
 						<c:when test='<%= Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-updated") %>'>
-							<div class="c-px-1">
+							<div class="c-px-4 panel-group-flush">
 								<liferay-frontend:email-notification-settings
 									emailBodyLocalizedValuesMap="<%= journalGroupServiceConfiguration.emailArticleUpdatedBody() %>"
 									emailDefinitionTerms="<%= emailDefinitionTerms %>"
@@ -176,7 +177,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							</div>
 						</c:when>
 						<c:when test='<%= JournalUtil.hasWorkflowDefinitionsLinks(themeDisplay) && Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-approval-denied") %>'>
-							<div class="c-px-1">
+							<div class="c-px-4 panel-group-flush">
 								<liferay-frontend:email-notification-settings
 									emailBodyLocalizedValuesMap="<%= journalGroupServiceConfiguration.emailArticleApprovalDeniedBody() %>"
 									emailDefinitionTerms="<%= emailDefinitionTerms %>"
@@ -187,7 +188,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							</div>
 						</c:when>
 						<c:when test='<%= JournalUtil.hasWorkflowDefinitionsLinks(themeDisplay) && Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-approval-granted") %>'>
-							<div class="c-px-1">
+							<div class="c-px-4 panel-group-flush">
 								<liferay-frontend:email-notification-settings
 									emailBodyLocalizedValuesMap="<%= journalGroupServiceConfiguration.emailArticleApprovalGrantedBody() %>"
 									emailDefinitionTerms="<%= emailDefinitionTerms %>"
@@ -198,7 +199,7 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 							</div>
 						</c:when>
 						<c:when test='<%= JournalUtil.hasWorkflowDefinitionsLinks(themeDisplay) && Objects.equals(journalConfigurationDisplayContext.getNavigation(), "web-content-approval-requested") %>'>
-							<div class="c-px-1">
+							<div class="c-px-4 panel-group-flush">
 								<liferay-frontend:email-notification-settings
 									emailBodyLocalizedValuesMap="<%= journalGroupServiceConfiguration.emailArticleApprovalRequestedBody() %>"
 									emailDefinitionTerms="<%= emailDefinitionTerms %>"
@@ -224,9 +225,18 @@ portletDisplay.setURLBack(journalConfigurationDisplayContext.getBackURL());
 				</clay:sheet>
 
 				<aui:button-row>
-					<aui:button type="submit" />
+					<clay:button
+						cssClass="c-mr-2"
+						label="save"
+						type="submit"
+					/>
 
-					<aui:button href="<%= journalConfigurationDisplayContext.getBackURL() %>" type="cancel" />
+					<clay:link
+						displayType="secondary"
+						href="<%= journalConfigurationDisplayContext.getBackURL() %>"
+						label="cancel"
+						type="button"
+					/>
 				</aui:button-row>
 			</aui:form>
 		</clay:col>

@@ -10,6 +10,7 @@ import com.liferay.info.item.InfoItemFormVariation;
 import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemFormVariationsProvider;
 import com.liferay.info.localized.InfoLocalizedValue;
+import com.liferay.info.permission.provider.InfoPermissionProvider;
 import com.liferay.layout.page.template.admin.constants.LayoutPageTemplateAdminPortletKeys;
 import com.liferay.layout.page.template.admin.web.internal.util.LayoutPageTemplatePortletUtil;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateConstants;
@@ -536,12 +537,26 @@ public class DisplayPageDisplayContext {
 			return jsonArray;
 		}
 
+		InfoPermissionProvider infoPermissionProvider =
+			_infoItemServiceRegistry.getFirstInfoItemService(
+				InfoPermissionProvider.class,
+				infoItemClassDetails.getClassName());
+
 		Collection<InfoItemFormVariation> infoItemFormVariations =
 			infoItemFormVariationsProvider.getInfoItemFormVariations(
 				_themeDisplay.getScopeGroupId());
 
 		for (InfoItemFormVariation infoItemFormVariation :
 				infoItemFormVariations) {
+
+			if ((infoPermissionProvider != null) &&
+				!infoPermissionProvider.hasViewPermission(
+					infoItemFormVariation.getKey(),
+					_themeDisplay.getScopeGroupId(),
+					_themeDisplay.getPermissionChecker())) {
+
+				continue;
+			}
 
 			jsonArray.put(
 				JSONUtil.put(

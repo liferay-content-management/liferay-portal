@@ -14,8 +14,6 @@ import com.liferay.source.formatter.SourceFormatterArgs;
 import com.liferay.source.formatter.check.util.SourceUtil;
 import com.liferay.source.formatter.processor.SourceProcessor;
 
-import java.io.File;
-
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,14 +40,15 @@ public class BNDBreakingChangeCommitMessageCheck extends BaseFileCheck {
 			sourceProcessor.getSourceFormatterArgs();
 
 		if (_hasMajorVersionBump(absolutePath, sourceFormatterArgs)) {
-			_checkCommitMessages(fileName, sourceFormatterArgs);
+			_checkCommitMessages(fileName, absolutePath, sourceFormatterArgs);
 		}
 
 		return content;
 	}
 
 	private void _checkCommitMessages(
-			String fileName, SourceFormatterArgs sourceFormatterArgs)
+			String fileName, String absolutePath,
+			SourceFormatterArgs sourceFormatterArgs)
 		throws Exception {
 
 		List<String> commitMessages = GitUtil.getCurrentBranchCommitMessages(
@@ -86,37 +85,35 @@ public class BNDBreakingChangeCommitMessageCheck extends BaseFileCheck {
 
 			_checkMissingEmptyLinesAroundHeaders(fileName, parts);
 
-			String[] breakingChangeReports = parts[1].split("\n----");
+			String[] breakingChanges = parts[1].split("\n----");
 
-			for (String breakingChangeReport : breakingChangeReports) {
+			for (String breakingChange : breakingChanges) {
 				int alternativesCount = StringUtil.count(
-					breakingChangeReport, "## Alternatives");
-				int breakingChangeReportCount = StringUtil.count(
-					breakingChangeReport, "# breaking");
-				int whatCount = StringUtil.count(
-					breakingChangeReport, "## What");
-				int whyCount = StringUtil.count(breakingChangeReport, "## Why");
+					breakingChange, "## Alternatives");
+				int breakingCount = StringUtil.count(
+					breakingChange, "# breaking\n");
+				int whatCount = StringUtil.count(breakingChange, "## What");
+				int whyCount = StringUtil.count(breakingChange, "## Why");
 
-				if ((alternativesCount > 1) ||
-					(breakingChangeReportCount != 1) || (whatCount != 1) ||
-					(whyCount != 1)) {
+				if ((alternativesCount > 1) || (breakingCount != 1) ||
+					(whatCount != 1) || (whyCount != 1)) {
 
 					addMessage(
 						fileName,
 						StringBundler.concat(
 							"Incorrect commit message in SHA ", parts[0], ": ",
-							"Each breaking change report should have one, and ",
-							"only one '# breaking', '## What', '## Why' and ",
-							"'## Alternatives'(Optional). Use '----' to split ",
+							"Each breaking change should have one, and only ",
+							"one '# breaking', '## What', '## Why' and ## ",
+							"'Alternatives'(Optional). Use '----' to split ",
 							"each breaking change."));
 
 					return;
 				}
 
-				int alternativesPosition = breakingChangeReport.indexOf(
+				int alternativesPosition = breakingChange.indexOf(
 					"## Alternatives");
-				int whatPosition = breakingChangeReport.indexOf("## What");
-				int whyPosition = breakingChangeReport.indexOf("## Why");
+				int whatPosition = breakingChange.indexOf("## What");
+				int whyPosition = breakingChange.indexOf("## Why");
 
 				if ((whatPosition > whyPosition) ||
 					((alternativesPosition != -1) &&
@@ -133,10 +130,10 @@ public class BNDBreakingChangeCommitMessageCheck extends BaseFileCheck {
 				}
 
 				int lineNumber = SourceUtil.getLineNumber(
-					breakingChangeReport, whatPosition);
+					breakingChange, whatPosition);
 
 				String trimmedLine = StringUtil.trimLeading(
-					SourceUtil.getLine(breakingChangeReport, lineNumber));
+					SourceUtil.getLine(breakingChange, lineNumber));
 
 				if (trimmedLine.length() == 7) {
 					addMessage(
@@ -150,26 +147,14 @@ public class BNDBreakingChangeCommitMessageCheck extends BaseFileCheck {
 
 				String filePath = StringUtil.trim(trimmedLine.substring(7));
 
-				File portalDir = getPortalDir();
-
-				File file = new File(portalDir, filePath);
-
-				if (file.exists()) {
-					continue;
-				}
-
-				List<String> currentBranchDeletedFileNames =
-					GitUtil.getCurrentBranchDeletedFileNames(
-						sourceFormatterArgs.getBaseDirName(),
-						sourceFormatterArgs.getGitWorkingBranchName());
-
-				if (!currentBranchDeletedFileNames.contains(filePath)) {
+				if (getPortalContent(filePath, absolutePath, true) == null) {
 					addMessage(
 						fileName,
 						StringBundler.concat(
-							"Incorrect commit message in SHA ", parts[0], ": ",
-							"'## What' should be followed by only one path, ",
-							"which is from ", portalDir.getAbsolutePath()));
+							"Incorrect commit message in SHA ", parts[0], ": '",
+							filePath, "' points to nonexistent file. '## ",
+							"What' should be followed by only one path, which ",
+							"is from ", _LIFERAY_PORTAL_MASTER_URL, "."));
 
 					return;
 				}
@@ -191,7 +176,7 @@ public class BNDBreakingChangeCommitMessageCheck extends BaseFileCheck {
 			return;
 		}
 
-		for (String header : _BREAKING_CHANGE_REPORT_HEADER_NAMES) {
+		for (String header : _BREAKING_CHANGE_HEADER_NAMES) {
 			int x = parts[1].indexOf(header);
 
 			if (x == -1) {
@@ -282,9 +267,12 @@ public class BNDBreakingChangeCommitMessageCheck extends BaseFileCheck {
 		return false;
 	}
 
-	private static final String[] _BREAKING_CHANGE_REPORT_HEADER_NAMES = {
+	private static final String[] _BREAKING_CHANGE_HEADER_NAMES = {
 		"----", "## Alternatives", "# breaking", "## What", "## Why"
 	};
+
+	private static final String _LIFERAY_PORTAL_MASTER_URL =
+		"https://github.com/liferay/liferay-portal/blob/master/";
 
 	private static List<String> _currentBranchFileNames;
 
