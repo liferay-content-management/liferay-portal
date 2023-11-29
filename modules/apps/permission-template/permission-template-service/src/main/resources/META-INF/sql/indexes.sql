@@ -1,0 +1,1 @@
+create unique index IX_CE227482 on PermissionTemplate (classNameId, classPK, ctCollectionId);

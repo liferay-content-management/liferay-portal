@@ -32,6 +32,15 @@ public class PermissionTemplateLocalServiceWrapper
 		_permissionTemplateLocalService = permissionTemplateLocalService;
 	}
 
+	@Override
+	public PermissionTemplate addPermissionTemplate(
+		long companyId, long groupId, String className, long classPK,
+		boolean permissionTemplateEnabled) {
+
+		return _permissionTemplateLocalService.addPermissionTemplate(
+			companyId, groupId, className, classPK, permissionTemplateEnabled);
+	}
+
 	/**
 	 * Adds the permission template to the database. Also notifies the appropriate model listeners.
 	 *
@@ -238,6 +247,14 @@ public class PermissionTemplateLocalServiceWrapper
 	}
 
 	@Override
+	public PermissionTemplate fetchPermissionTemplate(
+		String className, long classPK) {
+
+		return _permissionTemplateLocalService.fetchPermissionTemplate(
+			className, classPK);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
@@ -315,6 +332,15 @@ public class PermissionTemplateLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _permissionTemplateLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	@Override
+	public PermissionTemplate updatePermissionTemplate(
+		long companyId, long groupId, String className, long classPK,
+		boolean permissionTemplateEnabled) {
+
+		return _permissionTemplateLocalService.updatePermissionTemplate(
+			companyId, groupId, className, classPK, permissionTemplateEnabled);
 	}
 
 	/**

@@ -113,6 +113,74 @@ public class PermissionTemplateUtil {
 	}
 
 	/**
+	 * Returns the permission template where classNameId = &#63; and classPK = &#63; or throws a <code>NoSuchPermissionTemplateException</code> if it could not be found.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class pk
+	 * @return the matching permission template
+	 * @throws NoSuchPermissionTemplateException if a matching permission template could not be found
+	 */
+	public static PermissionTemplate findByC_C(long classNameId, long classPK)
+		throws com.liferay.permission.template.exception.
+			NoSuchPermissionTemplateException {
+
+		return getPersistence().findByC_C(classNameId, classPK);
+	}
+
+	/**
+	 * Returns the permission template where classNameId = &#63; and classPK = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class pk
+	 * @return the matching permission template, or <code>null</code> if a matching permission template could not be found
+	 */
+	public static PermissionTemplate fetchByC_C(
+		long classNameId, long classPK) {
+
+		return getPersistence().fetchByC_C(classNameId, classPK);
+	}
+
+	/**
+	 * Returns the permission template where classNameId = &#63; and classPK = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class pk
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching permission template, or <code>null</code> if a matching permission template could not be found
+	 */
+	public static PermissionTemplate fetchByC_C(
+		long classNameId, long classPK, boolean useFinderCache) {
+
+		return getPersistence().fetchByC_C(
+			classNameId, classPK, useFinderCache);
+	}
+
+	/**
+	 * Removes the permission template where classNameId = &#63; and classPK = &#63; from the database.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class pk
+	 * @return the permission template that was removed
+	 */
+	public static PermissionTemplate removeByC_C(long classNameId, long classPK)
+		throws com.liferay.permission.template.exception.
+			NoSuchPermissionTemplateException {
+
+		return getPersistence().removeByC_C(classNameId, classPK);
+	}
+
+	/**
+	 * Returns the number of permission templates where classNameId = &#63; and classPK = &#63;.
+	 *
+	 * @param classNameId the class name ID
+	 * @param classPK the class pk
+	 * @return the number of matching permission templates
+	 */
+	public static int countByC_C(long classNameId, long classPK) {
+		return getPersistence().countByC_C(classNameId, classPK);
+	}
+
+	/**
 	 * Caches the permission template in the entity cache if it is enabled.
 	 *
 	 * @param permissionTemplate the permission template
