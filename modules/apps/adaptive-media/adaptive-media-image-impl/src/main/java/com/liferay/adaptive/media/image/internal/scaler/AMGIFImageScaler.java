@@ -7,7 +7,7 @@ package com.liferay.adaptive.media.image.internal.scaler;
 
 import com.liferay.adaptive.media.exception.AMRuntimeException;
 import com.liferay.adaptive.media.image.configuration.AMImageConfigurationEntry;
-import com.liferay.adaptive.media.image.internal.configuration.AMImageConfiguration;
+import com.liferay.adaptive.media.image.internal.configuration.AMGifsicleConfiguration;
 import com.liferay.adaptive.media.image.internal.util.RenderedImageUtil;
 import com.liferay.adaptive.media.image.internal.util.Tuple;
 import com.liferay.adaptive.media.image.scaler.AMImageScaledImage;
@@ -42,14 +42,14 @@ import org.osgi.service.component.annotations.Reference;
  * @author Sergio González
  */
 @Component(
-	configurationPid = "com.liferay.adaptive.media.image.internal.configuration.AMImageConfiguration",
+	configurationPid = "com.liferay.adaptive.media.image.internal.configuration.AMGifsicleConfiguration",
 	property = "supportedMimeTypes=image/gif", service = AMImageScaler.class
 )
 public class AMGIFImageScaler implements AMImageScaler {
 
 	@Override
 	public boolean isEnabled() {
-		return _amImageConfiguration.gifsicleEnabled();
+		return _amGifsicleConfiguration.gifsicleEnabled();
 	}
 
 	@Override
@@ -89,8 +89,8 @@ public class AMGIFImageScaler implements AMImageScaler {
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
-		_amImageConfiguration = ConfigurableUtil.createConfigurable(
-			AMImageConfiguration.class, properties);
+		_amGifsicleConfiguration = ConfigurableUtil.createConfigurable(
+			AMGifsicleConfiguration.class, properties);
 	}
 
 	private Tuple<Integer, Integer> _getDimension(byte[] bytes)
@@ -138,7 +138,7 @@ public class AMGIFImageScaler implements AMImageScaler {
 		return StringBundler.concat(maxWidthString, "x", maxHeightString);
 	}
 
-	private volatile AMImageConfiguration _amImageConfiguration;
+	private volatile AMGifsicleConfiguration _amGifsicleConfiguration;
 
 	@Reference
 	private com.liferay.portal.kernel.util.File _file;
