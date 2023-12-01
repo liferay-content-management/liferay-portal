@@ -6,7 +6,6 @@
 package com.liferay.knowledge.base.web.internal.display.context;
 
 import com.liferay.knowledge.base.constants.KBActionKeys;
-import com.liferay.knowledge.base.constants.KBPortletKeys;
 import com.liferay.knowledge.base.model.KBArticle;
 import com.liferay.knowledge.base.web.internal.security.permission.resource.KBArticlePermission;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -16,12 +15,10 @@ import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.subscription.service.SubscriptionLocalServiceUtil;
 
 import javax.portlet.ActionURL;
-import javax.portlet.PortletRequest;
 
 /**
  * @author Ambrín Chaudhary
@@ -43,12 +40,10 @@ public class ViewKBArticleDisplayContext {
 	}
 
 	public String getEditArticleURL(KBArticle kbArticle) {
-		return PortletURLBuilder.create(
-			PortalUtil.getControlPanelPortletURL(
-				_liferayPortletRequest, KBPortletKeys.KNOWLEDGE_BASE_ADMIN,
-				PortletRequest.RENDER_PHASE)
-		).setMVCPath(
-			"/admin/common/edit_kb_article.jsp"
+		return PortletURLBuilder.createRenderURL(
+			_liferayPortletResponse
+		).setMVCRenderCommandName(
+			"/knowledge_base/edit_kb_article"
 		).setRedirect(
 			_currentURL
 		).setParameter(

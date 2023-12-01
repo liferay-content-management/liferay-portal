@@ -589,13 +589,10 @@ public class KBDropdownItemsProvider {
 
 		return dropdownItem -> {
 			dropdownItem.setHref(
-				PortletURLBuilder.create(
-					PortalUtil.getControlPanelPortletURL(
-						_liferayPortletRequest,
-						KBPortletKeys.KNOWLEDGE_BASE_ADMIN,
-						PortletRequest.RENDER_PHASE)
-				).setMVCPath(
-					"/admin/common/edit_kb_article.jsp"
+				PortletURLBuilder.createRenderURL(
+					_liferayPortletResponse
+				).setMVCRenderCommandName(
+					"/knowledge_base/edit_kb_article"
 				).setRedirect(
 					_currentURL
 				).setParameter(
