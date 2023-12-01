@@ -1128,7 +1128,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void moveKBArticle(
+	public KBArticle moveKBArticle(
 			long userId, long resourcePrimKey, long parentResourceClassNameId,
 			long parentResourcePrimKey, double priority)
 		throws PortalException {
@@ -1137,7 +1137,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 			resourcePrimKey, WorkflowConstants.STATUS_ANY);
 
 		if (kbArticle.getResourcePrimKey() == parentResourcePrimKey) {
-			return;
+			return kbArticle;
 		}
 
 		_validateParent(
@@ -1216,6 +1216,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 		}
 
 		_indexKBArticle(latestKBArticle);
+
+		return latestKBArticle;
 	}
 
 	@Override
