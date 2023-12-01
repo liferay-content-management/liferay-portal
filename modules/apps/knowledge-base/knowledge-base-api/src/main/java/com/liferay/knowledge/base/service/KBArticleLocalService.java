@@ -533,7 +533,7 @@ public interface KBArticleLocalService
 			KBArticle kbArticle, long trashEntryId)
 		throws PortalException;
 
-	public void moveKBArticle(
+	public KBArticle moveKBArticle(
 			long userId, long resourcePrimKey, long parentResourceClassNameId,
 			long parentResourcePrimKey, double priority)
 		throws PortalException;

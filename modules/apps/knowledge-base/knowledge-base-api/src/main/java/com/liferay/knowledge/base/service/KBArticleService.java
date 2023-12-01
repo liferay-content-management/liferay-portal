@@ -234,7 +234,7 @@ public interface KBArticleService extends BaseService {
 	public String[] getTempAttachmentNames(long groupId, String tempFolderName)
 		throws PortalException;
 
-	public void moveKBArticle(
+	public KBArticle moveKBArticle(
 			long resourcePrimKey, long parentResourceClassNameId,
 			long parentResourcePrimKey, double priority)
 		throws PortalException;

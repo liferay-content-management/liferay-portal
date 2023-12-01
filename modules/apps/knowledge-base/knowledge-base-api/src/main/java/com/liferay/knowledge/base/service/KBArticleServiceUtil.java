@@ -340,12 +340,12 @@ public class KBArticleServiceUtil {
 		return getService().getTempAttachmentNames(groupId, tempFolderName);
 	}
 
-	public static void moveKBArticle(
+	public static KBArticle moveKBArticle(
 			long resourcePrimKey, long parentResourceClassNameId,
 			long parentResourcePrimKey, double priority)
 		throws PortalException {
 
-		getService().moveKBArticle(
+		return getService().moveKBArticle(
 			resourcePrimKey, parentResourceClassNameId, parentResourcePrimKey,
 			priority);
 	}

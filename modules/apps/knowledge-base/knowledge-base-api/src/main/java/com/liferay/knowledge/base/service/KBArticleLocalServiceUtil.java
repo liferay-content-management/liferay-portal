@@ -714,12 +714,12 @@ public class KBArticleLocalServiceUtil {
 		getService().moveDependentKBArticleToTrash(kbArticle, trashEntryId);
 	}
 
-	public static void moveKBArticle(
+	public static KBArticle moveKBArticle(
 			long userId, long resourcePrimKey, long parentResourceClassNameId,
 			long parentResourcePrimKey, double priority)
 		throws PortalException {
 
-		getService().moveKBArticle(
+		return getService().moveKBArticle(
 			userId, resourcePrimKey, parentResourceClassNameId,
 			parentResourcePrimKey, priority);
 	}

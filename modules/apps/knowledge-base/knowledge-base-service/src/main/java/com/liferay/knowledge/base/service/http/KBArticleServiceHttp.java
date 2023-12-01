@@ -1501,7 +1501,7 @@ public class KBArticleServiceHttp {
 		}
 	}
 
-	public static void moveKBArticle(
+	public static com.liferay.knowledge.base.model.KBArticle moveKBArticle(
 			HttpPrincipal httpPrincipal, long resourcePrimKey,
 			long parentResourceClassNameId, long parentResourcePrimKey,
 			double priority)
@@ -1516,8 +1516,10 @@ public class KBArticleServiceHttp {
 				methodKey, resourcePrimKey, parentResourceClassNameId,
 				parentResourcePrimKey, priority);
 
+			Object returnObj = null;
+
 			try {
-				TunnelUtil.invoke(httpPrincipal, methodHandler);
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
 				if (exception instanceof
@@ -1530,6 +1532,8 @@ public class KBArticleServiceHttp {
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
+
+			return (com.liferay.knowledge.base.model.KBArticle)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException
 					systemException) {

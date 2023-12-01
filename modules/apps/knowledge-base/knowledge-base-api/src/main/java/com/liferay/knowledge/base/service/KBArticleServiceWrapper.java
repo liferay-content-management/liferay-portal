@@ -384,12 +384,12 @@ public class KBArticleServiceWrapper
 	}
 
 	@Override
-	public void moveKBArticle(
+	public KBArticle moveKBArticle(
 			long resourcePrimKey, long parentResourceClassNameId,
 			long parentResourcePrimKey, double priority)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		_kbArticleService.moveKBArticle(
+		return _kbArticleService.moveKBArticle(
 			resourcePrimKey, parentResourceClassNameId, parentResourcePrimKey,
 			priority);
 	}

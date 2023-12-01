@@ -739,7 +739,7 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	@Override
-	public void moveKBArticle(
+	public KBArticle moveKBArticle(
 			long resourcePrimKey, long parentResourceClassNameId,
 			long parentResourcePrimKey, double priority)
 		throws PortalException {
@@ -748,7 +748,7 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 			getPermissionChecker(), resourcePrimKey,
 			KBActionKeys.MOVE_KB_ARTICLE);
 
-		kbArticleLocalService.moveKBArticle(
+		return kbArticleLocalService.moveKBArticle(
 			getUserId(), resourcePrimKey, parentResourceClassNameId,
 			parentResourcePrimKey, priority);
 	}
