@@ -8,6 +8,7 @@ package com.liferay.knowledge.base.web.internal.portlet.action;
 import com.liferay.knowledge.base.constants.KBPortletKeys;
 import com.liferay.knowledge.base.model.KBArticle;
 import com.liferay.knowledge.base.service.KBArticleService;
+import com.liferay.knowledge.base.web.internal.util.KBArticleLockManagerUtil;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.TrashedModel;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
@@ -56,6 +57,8 @@ public class DeleteKBArticleMVCActionCommand extends BaseMVCActionCommand {
 
 		long resourcePrimKey = ParamUtil.getLong(
 			actionRequest, "resourcePrimKey");
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
 
 		if (cmd.equals(Constants.MOVE_TO_TRASH) &&
 			FeatureFlagManagerUtil.isEnabled("LPS-188058")) {
@@ -65,20 +68,20 @@ public class DeleteKBArticleMVCActionCommand extends BaseMVCActionCommand {
 				HashMapBuilder.<String, Object>put(
 					"trashedModels",
 					ListUtil.toList(
-						(TrashedModel)_kbArticleService.moveKBArticleToTrash(
-							resourcePrimKey))
+						(TrashedModel)KBArticleLockManagerUtil.withLock(
+							themeDisplay.getUserId(), resourcePrimKey,
+							_kbArticleService::moveKBArticleToTrash))
 				).build());
 		}
 		else {
-			_kbArticleService.deleteKBArticle(resourcePrimKey);
+			KBArticleLockManagerUtil.withLock(
+				themeDisplay.getUserId(), resourcePrimKey,
+				_kbArticleService::deleteKBArticle);
 		}
 
 		if (Objects.equals(
 				_portal.getPortletId(actionRequest),
 				KBPortletKeys.KNOWLEDGE_BASE_DISPLAY)) {
-
-			ThemeDisplay themeDisplay =
-				(ThemeDisplay)actionRequest.getAttribute(WebKeys.THEME_DISPLAY);
 
 			KBArticle kbArticle = _kbArticleService.getLatestKBArticle(
 				resourcePrimKey);

@@ -13,6 +13,7 @@ import com.liferay.knowledge.base.model.KBFolder;
 import com.liferay.knowledge.base.service.KBArticleService;
 import com.liferay.knowledge.base.service.KBFolderService;
 import com.liferay.knowledge.base.util.comparator.KBArticlePriorityComparator;
+import com.liferay.knowledge.base.web.internal.util.KBArticleLockManagerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -20,9 +21,11 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.IOException;
@@ -75,13 +78,21 @@ public class MoveKBObjectMVCActionCommand extends BaseMVCActionCommand {
 				KBArticleConstants.getClassName());
 
 			if (resourceClassNameId == kbArticleClassNameId) {
+				ThemeDisplay themeDisplay =
+					(ThemeDisplay)actionRequest.getAttribute(
+						WebKeys.THEME_DISPLAY);
+
 				if (!dragAndDrop) {
 					double priority = ParamUtil.getDouble(
 						actionRequest, "priority");
 
-					_kbArticleService.moveKBArticle(
-						resourcePrimKey, parentResourceClassNameId,
-						parentResourcePrimKey, priority);
+					KBArticleLockManagerUtil.withLock(
+						themeDisplay.getUserId(), resourcePrimKey,
+						kbArticleResourcePrimKey ->
+							_kbArticleService.moveKBArticle(
+								kbArticleResourcePrimKey,
+								parentResourceClassNameId,
+								parentResourcePrimKey, priority));
 				}
 				else {
 					KBArticle kbArticle = _kbArticleService.getLatestKBArticle(
@@ -93,11 +104,16 @@ public class MoveKBObjectMVCActionCommand extends BaseMVCActionCommand {
 							parentResourcePrimKey) ||
 						(position != -1)) {
 
-						_kbArticleService.moveKBArticle(
-							resourcePrimKey, parentResourceClassNameId,
-							parentResourcePrimKey,
-							_getPriority(
-								kbArticle, parentResourcePrimKey, position));
+						KBArticleLockManagerUtil.withLock(
+							themeDisplay.getUserId(), resourcePrimKey,
+							kbArticleResourcePrimKey ->
+								_kbArticleService.moveKBArticle(
+									kbArticleResourcePrimKey,
+									parentResourceClassNameId,
+									parentResourcePrimKey,
+									_getPriority(
+										kbArticle, parentResourcePrimKey,
+										position)));
 					}
 				}
 			}

@@ -8,10 +8,13 @@ package com.liferay.knowledge.base.web.internal.portlet.action;
 import com.liferay.knowledge.base.constants.KBPortletKeys;
 import com.liferay.knowledge.base.model.KBArticle;
 import com.liferay.knowledge.base.service.KBArticleService;
+import com.liferay.knowledge.base.web.internal.util.KBArticleLockManagerUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.WebKeys;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -39,10 +42,15 @@ public class ExpireKBArticleMVCActionCommand extends BaseMVCActionCommand {
 		long resourcePrimKey = ParamUtil.getLong(
 			actionRequest, "resourcePrimKey");
 
-		_kbArticleService.expireKBArticle(
-			resourcePrimKey,
-			ServiceContextFactory.getInstance(
-				KBArticle.class.getName(), actionRequest));
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		KBArticleLockManagerUtil.withLock(
+			themeDisplay.getUserId(), resourcePrimKey,
+			kbArticleResourcePrimKey -> _kbArticleService.expireKBArticle(
+				kbArticleResourcePrimKey,
+				ServiceContextFactory.getInstance(
+					KBArticle.class.getName(), actionRequest)));
 	}
 
 	@Reference

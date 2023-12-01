@@ -14,6 +14,7 @@ import com.liferay.knowledge.base.exception.KBArticleExpirationDateException;
 import com.liferay.knowledge.base.exception.KBArticleReviewDateException;
 import com.liferay.knowledge.base.model.KBArticle;
 import com.liferay.knowledge.base.service.KBArticleService;
+import com.liferay.knowledge.base.web.internal.util.KBArticleLockManagerUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.User;
@@ -85,12 +86,24 @@ public class UpdateKBArticleMVCActionCommand
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			KBArticle.class.getName(), actionRequest);
 
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		if (cmd.equals(Constants.REVERT)) {
 			int version = ParamUtil.getInteger(
 				actionRequest, "version", KBArticleConstants.DEFAULT_VERSION);
 
-			kbArticle = _kbArticleService.revertKBArticle(
-				resourcePrimKey, version, serviceContext);
+			kbArticle = KBArticleLockManagerUtil.withLock(
+				themeDisplay.getUserId(), resourcePrimKey,
+				kbArticleResourcePrimKey -> _kbArticleService.revertKBArticle(
+					kbArticleResourcePrimKey, version, serviceContext));
+		}
+		else if (cmd.equals(Constants.CANCEL)) {
+			KBArticleLockManagerUtil.unlock(
+				themeDisplay.getUserId(), resourcePrimKey);
+
+			hideDefaultSuccessMessage(actionRequest);
+			sendRedirect(actionRequest, actionResponse);
 		}
 
 		if (!cmd.equals(Constants.ADD) && !cmd.equals(Constants.UPDATE)) {
@@ -101,9 +114,6 @@ public class UpdateKBArticleMVCActionCommand
 		String content = ParamUtil.getString(actionRequest, "content");
 		String description = ParamUtil.getString(actionRequest, "description");
 		String sourceURL = ParamUtil.getString(actionRequest, "sourceURL");
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
 
 		User user = _userLocalService.getUser(themeDisplay.getUserId());
 
@@ -137,10 +147,13 @@ public class UpdateKBArticleMVCActionCommand
 			long[] removeFileEntryIds = ParamUtil.getLongValues(
 				actionRequest, "removeFileEntryIds");
 
-			kbArticle = _kbArticleService.updateKBArticle(
-				resourcePrimKey, title, content, description, sections,
-				sourceURL, displayDate, expirationDate, reviewDate,
-				selectedFileNames, removeFileEntryIds, serviceContext);
+			kbArticle = KBArticleLockManagerUtil.withLock(
+				themeDisplay.getUserId(), resourcePrimKey,
+				kbArticleResourcePrimKey -> _kbArticleService.updateKBArticle(
+					kbArticleResourcePrimKey, title, content, description,
+					sections, sourceURL, displayDate, expirationDate,
+					reviewDate, selectedFileNames, removeFileEntryIds,
+					serviceContext));
 		}
 
 		_assetDisplayPageEntryFormProcessor.process(
