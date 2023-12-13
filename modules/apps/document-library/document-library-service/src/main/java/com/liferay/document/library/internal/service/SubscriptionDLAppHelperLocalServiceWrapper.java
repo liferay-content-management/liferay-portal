@@ -18,14 +18,21 @@ import com.liferay.document.library.kernel.service.DLAppHelperLocalServiceWrappe
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.document.library.kernel.util.DLAppHelperThreadLocal;
+import com.liferay.friendly.url.model.FriendlyURLEntry;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalServiceUtil;
 import com.liferay.info.item.ClassPKInfoItemIdentifier;
 import com.liferay.info.item.InfoItemReference;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.json.jabsorb.serializer.LiferayJSONDeserializationWhitelist;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.portlet.constants.FriendlyURLResolverConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
@@ -37,8 +44,11 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.EscapableLocalizableFunction;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Localization;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.SubscriptionSender;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.util.RepositoryUtil;
 import com.liferay.portlet.documentlibrary.DLGroupServiceSettings;
@@ -179,6 +189,29 @@ public class SubscriptionDLAppHelperLocalServiceWrapper
 
 			if (Validator.isNotNull(friendlyURL)) {
 				entryURL = friendlyURL;
+			}
+			else {
+				FriendlyURLEntry friendlyURLEntry =
+					FriendlyURLEntryLocalServiceUtil.fetchMainFriendlyURLEntry(
+						_portal.getClassNameId(FileEntry.class.getName()),
+						fileVersion.getFileEntryId());
+
+				if (friendlyURLEntry != null) {
+					StringBundler sb = new StringBundler(4);
+
+					sb.append("/documents");
+					sb.append(
+						FriendlyURLResolverConstants.
+							URL_SEPARATOR_X_FILE_ENTRY);
+
+					Group group = themeDisplay.getScopeGroup();
+
+					sb.append(group.getFriendlyURL());
+
+					sb.append(StringPool.SLASH);
+
+					sb.append(friendlyURLEntry.getUrlTitle());
+				}
 			}
 		}
 
@@ -350,6 +383,9 @@ public class SubscriptionDLAppHelperLocalServiceWrapper
 	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
 
 	@Reference
+	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
+
+	@Reference
 	private Language _language;
 
 	@Reference
@@ -358,6 +394,9 @@ public class SubscriptionDLAppHelperLocalServiceWrapper
 
 	@Reference
 	private Localization _localization;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private SubscriptionLocalService _subscriptionLocalService;
