@@ -217,9 +217,10 @@ public class PermissionTemplateLocalServiceUtil {
 	}
 
 	public static PermissionTemplate fetchPermissionTemplate(
-		String className, long classPK) {
+		long companyId, long groupId, String className, long classPK) {
 
-		return getService().fetchPermissionTemplate(className, classPK);
+		return getService().fetchPermissionTemplate(
+			companyId, groupId, className, classPK);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery

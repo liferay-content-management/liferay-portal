@@ -248,10 +248,10 @@ public class PermissionTemplateLocalServiceWrapper
 
 	@Override
 	public PermissionTemplate fetchPermissionTemplate(
-		String className, long classPK) {
+		long companyId, long groupId, String className, long classPK) {
 
 		return _permissionTemplateLocalService.fetchPermissionTemplate(
-			className, classPK);
+			companyId, groupId, className, classPK);
 	}
 
 	@Override

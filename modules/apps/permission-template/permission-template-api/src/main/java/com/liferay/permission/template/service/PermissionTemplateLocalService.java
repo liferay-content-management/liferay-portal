@@ -207,7 +207,7 @@ public interface PermissionTemplateLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PermissionTemplate fetchPermissionTemplate(
-		String className, long classPK);
+		long companyId, long groupId, String className, long classPK);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();

@@ -88,30 +88,39 @@ public class PermissionTemplatePersistenceImpl
 	private FinderPath _finderPathWithPaginationFindAll;
 	private FinderPath _finderPathWithoutPaginationFindAll;
 	private FinderPath _finderPathCountAll;
-	private FinderPath _finderPathFetchByC_C;
-	private FinderPath _finderPathCountByC_C;
+	private FinderPath _finderPathFetchByG_C_C_C;
+	private FinderPath _finderPathCountByG_C_C_C;
 
 	/**
-	 * Returns the permission template where classNameId = &#63; and classPK = &#63; or throws a <code>NoSuchPermissionTemplateException</code> if it could not be found.
+	 * Returns the permission template where groupId = &#63; and companyId = &#63; and classNameId = &#63; and classPK = &#63; or throws a <code>NoSuchPermissionTemplateException</code> if it could not be found.
 	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @param classPK the class pk
 	 * @return the matching permission template
 	 * @throws NoSuchPermissionTemplateException if a matching permission template could not be found
 	 */
 	@Override
-	public PermissionTemplate findByC_C(long classNameId, long classPK)
+	public PermissionTemplate findByG_C_C_C(
+			long groupId, long companyId, long classNameId, long classPK)
 		throws NoSuchPermissionTemplateException {
 
-		PermissionTemplate permissionTemplate = fetchByC_C(
-			classNameId, classPK);
+		PermissionTemplate permissionTemplate = fetchByG_C_C_C(
+			groupId, companyId, classNameId, classPK);
 
 		if (permissionTemplate == null) {
-			StringBundler sb = new StringBundler(6);
+			StringBundler sb = new StringBundler(10);
 
 			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
 
-			sb.append("classNameId=");
+			sb.append("groupId=");
+			sb.append(groupId);
+
+			sb.append(", companyId=");
+			sb.append(companyId);
+
+			sb.append(", classNameId=");
 			sb.append(classNameId);
 
 			sb.append(", classPK=");
@@ -130,40 +139,49 @@ public class PermissionTemplatePersistenceImpl
 	}
 
 	/**
-	 * Returns the permission template where classNameId = &#63; and classPK = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the permission template where groupId = &#63; and companyId = &#63; and classNameId = &#63; and classPK = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @param classPK the class pk
 	 * @return the matching permission template, or <code>null</code> if a matching permission template could not be found
 	 */
 	@Override
-	public PermissionTemplate fetchByC_C(long classNameId, long classPK) {
-		return fetchByC_C(classNameId, classPK, true);
+	public PermissionTemplate fetchByG_C_C_C(
+		long groupId, long companyId, long classNameId, long classPK) {
+
+		return fetchByG_C_C_C(groupId, companyId, classNameId, classPK, true);
 	}
 
 	/**
-	 * Returns the permission template where classNameId = &#63; and classPK = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the permission template where groupId = &#63; and companyId = &#63; and classNameId = &#63; and classPK = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @param classPK the class pk
 	 * @param useFinderCache whether to use the finder cache
 	 * @return the matching permission template, or <code>null</code> if a matching permission template could not be found
 	 */
 	@Override
-	public PermissionTemplate fetchByC_C(
-		long classNameId, long classPK, boolean useFinderCache) {
+	public PermissionTemplate fetchByG_C_C_C(
+		long groupId, long companyId, long classNameId, long classPK,
+		boolean useFinderCache) {
 
 		Object[] finderArgs = null;
 
 		if (useFinderCache) {
-			finderArgs = new Object[] {classNameId, classPK};
+			finderArgs = new Object[] {
+				groupId, companyId, classNameId, classPK
+			};
 		}
 
 		Object result = null;
 
 		if (useFinderCache) {
 			result = finderCache.getResult(
-				_finderPathFetchByC_C, finderArgs, this);
+				_finderPathFetchByG_C_C_C, finderArgs, this);
 		}
 
 		boolean productionMode = ctPersistenceHelper.isProductionMode(
@@ -172,7 +190,9 @@ public class PermissionTemplatePersistenceImpl
 		if (result instanceof PermissionTemplate) {
 			PermissionTemplate permissionTemplate = (PermissionTemplate)result;
 
-			if ((classNameId != permissionTemplate.getClassNameId()) ||
+			if ((groupId != permissionTemplate.getGroupId()) ||
+				(companyId != permissionTemplate.getCompanyId()) ||
+				(classNameId != permissionTemplate.getClassNameId()) ||
 				(classPK != permissionTemplate.getClassPK())) {
 
 				result = null;
@@ -189,13 +209,17 @@ public class PermissionTemplatePersistenceImpl
 		}
 
 		if (result == null) {
-			StringBundler sb = new StringBundler(4);
+			StringBundler sb = new StringBundler(6);
 
 			sb.append(_SQL_SELECT_PERMISSIONTEMPLATE_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_C_CLASSNAMEID_2);
+			sb.append(_FINDER_COLUMN_G_C_C_C_GROUPID_2);
 
-			sb.append(_FINDER_COLUMN_C_C_CLASSPK_2);
+			sb.append(_FINDER_COLUMN_G_C_C_C_COMPANYID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_C_C_CLASSNAMEID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_C_C_CLASSPK_2);
 
 			String sql = sb.toString();
 
@@ -208,6 +232,10 @@ public class PermissionTemplatePersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
+				queryPos.add(groupId);
+
+				queryPos.add(companyId);
+
 				queryPos.add(classNameId);
 
 				queryPos.add(classPK);
@@ -217,7 +245,7 @@ public class PermissionTemplatePersistenceImpl
 				if (list.isEmpty()) {
 					if (useFinderCache && productionMode) {
 						finderCache.putResult(
-							_finderPathFetchByC_C, finderArgs, list);
+							_finderPathFetchByG_C_C_C, finderArgs, list);
 					}
 				}
 				else {
@@ -245,30 +273,38 @@ public class PermissionTemplatePersistenceImpl
 	}
 
 	/**
-	 * Removes the permission template where classNameId = &#63; and classPK = &#63; from the database.
+	 * Removes the permission template where groupId = &#63; and companyId = &#63; and classNameId = &#63; and classPK = &#63; from the database.
 	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @param classPK the class pk
 	 * @return the permission template that was removed
 	 */
 	@Override
-	public PermissionTemplate removeByC_C(long classNameId, long classPK)
+	public PermissionTemplate removeByG_C_C_C(
+			long groupId, long companyId, long classNameId, long classPK)
 		throws NoSuchPermissionTemplateException {
 
-		PermissionTemplate permissionTemplate = findByC_C(classNameId, classPK);
+		PermissionTemplate permissionTemplate = findByG_C_C_C(
+			groupId, companyId, classNameId, classPK);
 
 		return remove(permissionTemplate);
 	}
 
 	/**
-	 * Returns the number of permission templates where classNameId = &#63; and classPK = &#63;.
+	 * Returns the number of permission templates where groupId = &#63; and companyId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @param classPK the class pk
 	 * @return the number of matching permission templates
 	 */
 	@Override
-	public int countByC_C(long classNameId, long classPK) {
+	public int countByG_C_C_C(
+		long groupId, long companyId, long classNameId, long classPK) {
+
 		boolean productionMode = ctPersistenceHelper.isProductionMode(
 			PermissionTemplate.class);
 
@@ -278,21 +314,27 @@ public class PermissionTemplatePersistenceImpl
 		Long count = null;
 
 		if (productionMode) {
-			finderPath = _finderPathCountByC_C;
+			finderPath = _finderPathCountByG_C_C_C;
 
-			finderArgs = new Object[] {classNameId, classPK};
+			finderArgs = new Object[] {
+				groupId, companyId, classNameId, classPK
+			};
 
 			count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 		}
 
 		if (count == null) {
-			StringBundler sb = new StringBundler(3);
+			StringBundler sb = new StringBundler(5);
 
 			sb.append(_SQL_COUNT_PERMISSIONTEMPLATE_WHERE);
 
-			sb.append(_FINDER_COLUMN_C_C_CLASSNAMEID_2);
+			sb.append(_FINDER_COLUMN_G_C_C_C_GROUPID_2);
 
-			sb.append(_FINDER_COLUMN_C_C_CLASSPK_2);
+			sb.append(_FINDER_COLUMN_G_C_C_C_COMPANYID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_C_C_CLASSNAMEID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_C_C_CLASSPK_2);
 
 			String sql = sb.toString();
 
@@ -304,6 +346,10 @@ public class PermissionTemplatePersistenceImpl
 				Query query = session.createQuery(sql);
 
 				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				queryPos.add(companyId);
 
 				queryPos.add(classNameId);
 
@@ -326,10 +372,16 @@ public class PermissionTemplatePersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_C_C_CLASSNAMEID_2 =
+	private static final String _FINDER_COLUMN_G_C_C_C_GROUPID_2 =
+		"permissionTemplate.groupId = ? AND ";
+
+	private static final String _FINDER_COLUMN_G_C_C_C_COMPANYID_2 =
+		"permissionTemplate.companyId = ? AND ";
+
+	private static final String _FINDER_COLUMN_G_C_C_C_CLASSNAMEID_2 =
 		"permissionTemplate.classNameId = ? AND ";
 
-	private static final String _FINDER_COLUMN_C_C_CLASSPK_2 =
+	private static final String _FINDER_COLUMN_G_C_C_C_CLASSPK_2 =
 		"permissionTemplate.classPK = ?";
 
 	public PermissionTemplatePersistenceImpl() {
@@ -357,8 +409,10 @@ public class PermissionTemplatePersistenceImpl
 			permissionTemplate);
 
 		finderCache.putResult(
-			_finderPathFetchByC_C,
+			_finderPathFetchByG_C_C_C,
 			new Object[] {
+				permissionTemplate.getGroupId(),
+				permissionTemplate.getCompanyId(),
 				permissionTemplate.getClassNameId(),
 				permissionTemplate.getClassPK()
 			},
@@ -444,13 +498,15 @@ public class PermissionTemplatePersistenceImpl
 		PermissionTemplateModelImpl permissionTemplateModelImpl) {
 
 		Object[] args = new Object[] {
+			permissionTemplateModelImpl.getGroupId(),
+			permissionTemplateModelImpl.getCompanyId(),
 			permissionTemplateModelImpl.getClassNameId(),
 			permissionTemplateModelImpl.getClassPK()
 		};
 
-		finderCache.putResult(_finderPathCountByC_C, args, Long.valueOf(1));
+		finderCache.putResult(_finderPathCountByG_C_C_C, args, Long.valueOf(1));
 		finderCache.putResult(
-			_finderPathFetchByC_C, args, permissionTemplateModelImpl);
+			_finderPathFetchByG_C_C_C, args, permissionTemplateModelImpl);
 	}
 
 	/**
@@ -1087,7 +1143,8 @@ public class PermissionTemplatePersistenceImpl
 		_ctColumnNamesMap.put(
 			CTColumnResolutionType.STRICT, ctStrictColumnNames);
 
-		_uniqueIndexColumnNames.add(new String[] {"classNameId", "classPK"});
+		_uniqueIndexColumnNames.add(
+			new String[] {"groupId", "companyId", "classNameId", "classPK"});
 	}
 
 	/**
@@ -1110,15 +1167,23 @@ public class PermissionTemplatePersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0], new String[0], false);
 
-		_finderPathFetchByC_C = new FinderPath(
-			FINDER_CLASS_NAME_ENTITY, "fetchByC_C",
-			new String[] {Long.class.getName(), Long.class.getName()},
-			new String[] {"classNameId", "classPK"}, true);
+		_finderPathFetchByG_C_C_C = new FinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByG_C_C_C",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				Long.class.getName(), Long.class.getName()
+			},
+			new String[] {"groupId", "companyId", "classNameId", "classPK"},
+			true);
 
-		_finderPathCountByC_C = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_C",
-			new String[] {Long.class.getName(), Long.class.getName()},
-			new String[] {"classNameId", "classPK"}, false);
+		_finderPathCountByG_C_C_C = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_C_C_C",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				Long.class.getName(), Long.class.getName()
+			},
+			new String[] {"groupId", "companyId", "classNameId", "classPK"},
+			false);
 
 		PermissionTemplateUtil.setPersistence(this);
 	}
