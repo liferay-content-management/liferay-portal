@@ -44,9 +44,10 @@ public class PermissionTemplateLocalServiceImpl
 	}
 
 	public PermissionTemplate fetchPermissionTemplate(
-		String className, long classPK) {
+		long companyId, long groupId, String className, long classPK) {
 
-		return permissionTemplatePersistence.fetchByC_C(
+		return permissionTemplatePersistence.fetchByG_C_C_C(
+			groupId, companyId,
 			_classNameLocalService.getClassNameId(className), classPK);
 	}
 
@@ -55,7 +56,7 @@ public class PermissionTemplateLocalServiceImpl
 		boolean permissionTemplateEnabled) {
 
 		PermissionTemplate permissionTemplate = fetchPermissionTemplate(
-			className, classPK);
+			companyId, groupId, className, classPK);
 
 		if (permissionTemplate == null) {
 			return addPermissionTemplate(
