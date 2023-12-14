@@ -23,14 +23,15 @@ import org.osgi.service.component.annotations.Reference;
 public class PermissionTemplateLocalServiceImpl
 	extends PermissionTemplateLocalServiceBaseImpl {
 
+	@Override
 	public PermissionTemplate addPermissionTemplate(
 		long companyId, long groupId, String className, long classPK,
 		boolean permissionTemplateEnabled) {
 
-		long permissionTemplateId = counterLocalService.increment();
-
 		PermissionTemplate permissionTemplate =
-			permissionTemplatePersistence.create(permissionTemplateId);
+			permissionTemplatePersistence.create(
+				counterLocalService.increment(
+					PermissionTemplate.class.getName()));
 
 		permissionTemplate.setGroupId(groupId);
 		permissionTemplate.setCompanyId(companyId);
@@ -43,6 +44,7 @@ public class PermissionTemplateLocalServiceImpl
 		return permissionTemplatePersistence.update(permissionTemplate);
 	}
 
+	@Override
 	public PermissionTemplate fetchPermissionTemplate(
 		long companyId, long groupId, String className, long classPK) {
 
@@ -51,6 +53,7 @@ public class PermissionTemplateLocalServiceImpl
 			_classNameLocalService.getClassNameId(className), classPK);
 	}
 
+	@Override
 	public PermissionTemplate updatePermissionTemplate(
 		long companyId, long groupId, String className, long classPK,
 		boolean permissionTemplateEnabled) {
