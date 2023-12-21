@@ -1012,6 +1012,13 @@ public class DLAdminDisplayContext {
 			_searchFolderId = ParamUtil.getLong(
 				_httpServletRequest, "searchFolderId",
 				ParamUtil.getLong(_httpServletRequest, "folderId"));
+
+			if ((_rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) &&
+				(_searchFolderId ==
+					DLFolderConstants.DEFAULT_PARENT_FOLDER_ID)) {
+
+				_searchFolderId = _rootFolderId;
+			}
 		}
 
 		return _searchFolderId;
