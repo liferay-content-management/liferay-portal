@@ -23,7 +23,8 @@ boolean dropdown = Validator.isNotNull(bodyContentString.trim());
 String escapedHREF = StringPool.BLANK;
 
 if (Validator.isNotNull(href)) {
-	escapedHREF = HtmlUtil.escapeAttribute(PortalUtil.escapeRedirect(href));
+	escapedHREF = href.replace("\'", "");
+	escapedHREF = HtmlUtil.escapeAttribute(PortalUtil.escapeRedirect(escapedHREF));
 }
 else if (onClick.startsWith(Http.HTTP_WITH_SLASH) || onClick.startsWith(Http.HTTPS_WITH_SLASH) || onClick.startsWith(StringPool.SLASH)) {
 	href = onClick;
