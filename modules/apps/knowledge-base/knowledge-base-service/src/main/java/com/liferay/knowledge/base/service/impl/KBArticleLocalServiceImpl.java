@@ -409,6 +409,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	public KBArticle deleteKBArticle(KBArticle kbArticle)
 		throws PortalException {
 
+		_checkUnlockedKBArticle(kbArticle.getResourcePrimKey(), PrincipalThreadLocal.getUserId());
+
 		// Child KB articles
 
 		deleteKBArticles(
@@ -568,6 +570,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	public KBArticle expireKBArticle(
 			long userId, long resourcePrimKey, ServiceContext serviceContext)
 		throws PortalException {
+
+		_checkUnlockedKBArticle(resourcePrimKey, userId);
 
 		KBArticle kbArticle = getLatestKBArticle(
 			resourcePrimKey, WorkflowConstants.STATUS_ANY);
@@ -1133,6 +1137,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 			long parentResourcePrimKey, double priority)
 		throws PortalException {
 
+		_checkUnlockedKBArticle(resourcePrimKey, userId);
+
 		KBArticle kbArticle = getLatestKBArticle(
 			resourcePrimKey, WorkflowConstants.STATUS_ANY);
 
@@ -1247,6 +1253,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	public KBArticle moveKBArticleToTrash(long userId, long resourcePrimKey)
 		throws PortalException {
 
+		_checkUnlockedKBArticle(resourcePrimKey, userId);
+
 		KBArticle kbArticle = getLatestKBArticle(resourcePrimKey);
 
 		if (kbArticle.isInTrash()) {
@@ -1339,6 +1347,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
+		_checkUnlockedKBArticle(resourcePrimKey, userId);
+
 		KBArticle kbArticle = kbArticleLocalService.getKBArticle(
 			resourcePrimKey, version);
 
@@ -1408,6 +1418,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 			String[] selectedFileNames, long[] removeFileEntryIds,
 			ServiceContext serviceContext)
 		throws PortalException {
+
+		_checkUnlockedKBArticle(resourcePrimKey, userId);
 
 		// KB article
 
@@ -1956,6 +1968,14 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 				_getServiceContext(company, kbArticle));
 		}
 	}
+
+	private void _checkUnlockedKBArticle(long resourcePrimKey, long userId)
+		throws PortalException {
+
+		if (!KBArticleLockManager.isUnlocked(resourcePrimKey, userId)) {
+			throw new LockedKBArticleException();
+		}
+	}	
 
 	private void _deleteAssets(KBArticle kbArticle) throws PortalException {
 		_assetEntryLocalService.deleteEntry(

@@ -106,6 +106,23 @@ public class KBArticleLockManagerImpl implements KBArticleLockManager {
 	}
 
 	@Override
+	public boolean isUnlocked(long resourcePrimKey, long userId) {
+		if (!FeatureFlagManagerUtil.isEnabled("LPS-195016")) {
+
+			return true;
+		}
+
+		Lock lock = LockManagerUtil.fetchLock(
+			KBArticleConstants.getClassName(), resourcePrimKey);
+
+		if ((lock != null) && (lock.getUserId() != userId)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
 	public void unlock(KBArticle kbArticle, long userId) {
 		if (!FeatureFlagManagerUtil.isEnabled("LPS-195016") ||
 			(kbArticle == null)) {

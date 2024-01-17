@@ -25,5 +25,7 @@ public interface KBArticleLockManager {
 
 	public void getLock(KBArticle kbArticle, long userId) throws PortalException;
 
+	public boolean isUnlocked(long resourcePrimKey, long userId);
+
 	public void unlock(KBArticle kbArticle, long userId);
 }
