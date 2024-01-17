@@ -1972,7 +1972,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	private void _checkUnlockedKBArticle(long resourcePrimKey, long userId)
 		throws PortalException {
 
-		if (!KBArticleLockManager.isUnlocked(resourcePrimKey, userId)) {
+		if (!_kbArticleLockManager.isUnlocked(resourcePrimKey, userId)) {
 			throw new LockedKBArticleException();
 		}
 	}	
@@ -2950,6 +2950,9 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 
 	@Reference
 	private KBArchiveFactory _kbArchiveFactory;
+
+	@Reference
+	private KBArticleLockManager _kbArticleLockManager;
 
 	@Reference
 	private KBCommentPersistence _kbCommentPersistence;
