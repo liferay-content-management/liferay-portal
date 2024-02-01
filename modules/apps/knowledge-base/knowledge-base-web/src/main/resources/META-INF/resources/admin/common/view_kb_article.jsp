@@ -283,7 +283,9 @@ String kbArticleSuccessMessage = GetterUtil.getString(MultiSessionMessages.get(r
 
 <c:if test="<%= MultiSessionErrors.contains(liferayPortletRequest, DuplicateLockException.class.getName()) %>">
 	<div>
-		<react:component module="admin/js/components/LockedArticleModal" />
+		<react:component
+			module="admin/js/components/LockedArticleModal"
+		/>
 	</div>
 </c:if>
 
