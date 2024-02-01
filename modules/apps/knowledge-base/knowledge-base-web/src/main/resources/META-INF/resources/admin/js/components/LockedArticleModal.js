@@ -12,24 +12,18 @@ export default function LockedArticleModal() {
 
 	return (
 		<ClayModal observer={observer} size="md" status="info">
-			<ClayModal.Header>Article in Edition</ClayModal.Header>
+			<ClayModal.Header>
+				{Liferay.Language.get('article-in-edition')}
+			</ClayModal.Header>
 
 			<ClayModal.Body>
-				<p>
-					This article is currently being edited by another user.
-					Actions such as Edit, Expire, Move, and Delete are
-					temporarily unavailable. If you need to take control over
-					this article, contact your admin.
-				</p>
+				<p>{Liferay.Language.get('article-in-edition-description')}</p>
 			</ClayModal.Body>
 
 			<ClayModal.Footer
 				last={
 					<ClayButton.Group>
-						<ClayButton
-							displayType="primary"
-							onClick={onClose}
-						>
+						<ClayButton displayType="primary" onClick={onClose}>
 							{Liferay.Language.get('ok')}
 						</ClayButton>
 					</ClayButton.Group>
