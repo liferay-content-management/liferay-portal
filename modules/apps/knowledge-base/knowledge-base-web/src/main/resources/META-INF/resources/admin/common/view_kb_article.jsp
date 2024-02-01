@@ -282,13 +282,9 @@ String kbArticleSuccessMessage = GetterUtil.getString(MultiSessionMessages.get(r
 </c:if>
 
 <c:if test="<%= MultiSessionErrors.contains(liferayPortletRequest, DuplicateLockException.class.getName()) %>">
-	<aui:script>
-		Liferay.Util.openToast({
-			message: 'LOCKED ARTICLE',
-			title: Liferay.Language.get('error'),
-			type: 'danger',
-		});
-	</aui:script>
+	<div>
+		<react:component module="admin/js/components/LockedArticleModal" />
+	</div>
 </c:if>
 
 <%
