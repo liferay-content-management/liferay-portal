@@ -1,16 +1,16 @@
 /**
- * SPDX-FileCopyrightText: (c) 2023 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-package com.liferay.layout.locked.layouts.web.internal.application.list;
+package com.liferay.locked.items.web.internal.application.list;
 
 import com.liferay.application.list.BasePanelApp;
 import com.liferay.application.list.PanelApp;
 import com.liferay.application.list.constants.PanelCategoryKeys;
-import com.liferay.layout.locked.layouts.web.internal.constants.LockedLayoutsPortletKeys;
+import com.liferay.locked.items.constants.LockedItemsPortletKeys;
+import com.liferay.locked.items.web.internal.util.LockedItemsScreenRetriever;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -20,7 +20,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * @author Lourdes Fernández Besada
+ * @author Marco Galluzzi
  */
 @Component(
 	property = {
@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.Reference;
 	},
 	service = PanelApp.class
 )
-public class LockedLayoutsPanelApp extends BasePanelApp {
+public class LockedItemsPanelApp extends BasePanelApp {
 
 	@Override
 	public Portlet getPortlet() {
@@ -38,14 +38,14 @@ public class LockedLayoutsPanelApp extends BasePanelApp {
 
 	@Override
 	public String getPortletId() {
-		return LockedLayoutsPortletKeys.LOCKED_LAYOUTS_PORTLET;
+		return LockedItemsPortletKeys.LOCKED_ITEMS;
 	}
 
 	@Override
 	public boolean isShow(PermissionChecker permissionChecker, Group group)
 		throws PortalException {
 
-		if (!FeatureFlagManagerUtil.isEnabled("LPS-180328") ||
+		if ((_lockedItemsScreenRetriever.getLockedItemsScreensCount() < 1) ||
 			group.isCompany() || _stagingGroupHelper.isLocalLiveGroup(group) ||
 			_stagingGroupHelper.isRemoteLiveGroup(group)) {
 
@@ -55,8 +55,11 @@ public class LockedLayoutsPanelApp extends BasePanelApp {
 		return super.isShow(permissionChecker, group);
 	}
 
+	@Reference
+	private LockedItemsScreenRetriever _lockedItemsScreenRetriever;
+
 	@Reference(
-		target = "(javax.portlet.name=" + LockedLayoutsPortletKeys.LOCKED_LAYOUTS_PORTLET + ")"
+		target = "(javax.portlet.name=" + LockedItemsPortletKeys.LOCKED_ITEMS + ")"
 	)
 	private Portlet _portlet;
 
