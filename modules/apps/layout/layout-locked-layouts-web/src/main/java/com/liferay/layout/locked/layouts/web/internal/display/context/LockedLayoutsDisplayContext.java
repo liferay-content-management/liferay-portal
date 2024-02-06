@@ -133,7 +133,7 @@ public class LockedLayoutsDisplayContext {
 							PortletURLBuilder.createActionURL(
 								_liferayPortletResponse
 							).setActionName(
-								"/layout_locked_layouts/unlock_layouts"
+								"/locked_items/unlock_layouts"
 							).setRedirect(
 								_themeDisplay.getURLCurrent()
 							).setParameter(
