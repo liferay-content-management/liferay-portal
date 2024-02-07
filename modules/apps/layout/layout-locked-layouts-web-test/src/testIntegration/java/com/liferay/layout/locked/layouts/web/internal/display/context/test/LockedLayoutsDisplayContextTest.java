@@ -568,7 +568,7 @@ public class LockedLayoutsDisplayContextTest {
 	private LockLocalService _lockLocalService;
 
 	@Inject(
-		filter = "component.name=com.liferay.layout.locked.layouts.web.internal.portlet.LockedLayoutsPortlet"
+		filter = "component.name=com.liferay.locked.items.web.internal.portlet.LockedItemsPortlet"
 	)
 	private Portlet _portlet;
 
