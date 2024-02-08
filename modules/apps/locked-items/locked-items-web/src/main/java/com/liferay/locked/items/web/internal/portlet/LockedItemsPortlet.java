@@ -9,6 +9,7 @@ import com.liferay.locked.items.constants.LockedItemsPortletKeys;
 import com.liferay.locked.items.display.LockedItemsScreen;
 import com.liferay.locked.items.web.internal.display.context.LockedItemsDisplayContext;
 import com.liferay.locked.items.web.internal.util.LockedItemsScreenRetriever;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.util.Portal;
 
@@ -60,6 +61,15 @@ public class LockedItemsPortlet extends MVCPortlet {
 		}
 
 		super.render(renderRequest, renderResponse);
+	}
+
+	@Override
+	protected String getTitle(RenderRequest renderRequest) {
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-11003")) {
+			return translate(renderRequest, "locked-pages");
+		}
+
+		return super.getTitle(renderRequest);
 	}
 
 	@Reference

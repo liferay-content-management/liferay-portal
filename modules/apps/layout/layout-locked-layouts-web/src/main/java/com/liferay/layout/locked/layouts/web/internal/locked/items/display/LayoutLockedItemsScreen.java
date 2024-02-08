@@ -49,6 +49,10 @@ public class LayoutLockedItemsScreen implements LockedItemsScreen {
 
 	@Override
 	public String getName(Locale locale) {
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-11003")) {
+			return _language.get(locale, "locked-pages");
+		}
+
 		return _language.get(locale, "pages");
 	}
 

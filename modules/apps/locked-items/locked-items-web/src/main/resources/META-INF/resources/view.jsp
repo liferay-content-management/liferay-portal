@@ -17,13 +17,15 @@ LockedItemsScreen lockedItemsScreen = lockedItemsDisplayContext.getLockedItemsSc
 	cssClass="container-view"
 >
 	<clay:row>
-		<clay:col
-			lg="3"
-		>
-			<clay:vertical-nav
-				verticalNavItems="<%= lockedItemsDisplayContext.getVerticalNavItemList() %>"
-			/>
-		</clay:col>
+		<c:if test='<%= FeatureFlagManagerUtil.isEnabled("LPD-11003") %>'>
+			<clay:col
+				lg="3"
+			>
+				<clay:vertical-nav
+					verticalNavItems="<%= lockedItemsDisplayContext.getVerticalNavItemList() %>"
+				/>
+			</clay:col>
+		</c:if>
 
 		<clay:col
 			lg="9"

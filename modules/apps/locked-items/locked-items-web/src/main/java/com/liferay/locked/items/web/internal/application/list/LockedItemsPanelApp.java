@@ -11,10 +11,14 @@ import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.locked.items.constants.LockedItemsPortletKeys;
 import com.liferay.locked.items.web.internal.util.LockedItemsScreenRetriever;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.staging.StagingGroupHelper;
+
+import java.util.Locale;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -30,6 +34,15 @@ import org.osgi.service.component.annotations.Reference;
 	service = PanelApp.class
 )
 public class LockedItemsPanelApp extends BasePanelApp {
+
+	@Override
+	public String getLabel(Locale locale) {
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-11003")) {
+			return _language.get(locale, "locked-pages");
+		}
+
+		return super.getLabel(locale);
+	}
 
 	@Override
 	public Portlet getPortlet() {
@@ -54,6 +67,9 @@ public class LockedItemsPanelApp extends BasePanelApp {
 
 		return super.isShow(permissionChecker, group);
 	}
+
+	@Reference
+	private Language _language;
 
 	@Reference
 	private LockedItemsScreenRetriever _lockedItemsScreenRetriever;
