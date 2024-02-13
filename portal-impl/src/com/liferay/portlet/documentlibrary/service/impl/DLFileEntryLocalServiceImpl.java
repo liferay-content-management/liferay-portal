@@ -1983,6 +1983,15 @@ public class DLFileEntryLocalServiceImpl
 
 		int oldStatus = dlFileVersion.getStatus();
 
+		Date date = new Date();
+
+		if ((status == WorkflowConstants.STATUS_APPROVED) &&
+			(dlFileVersion.getDisplayDate() != null) &&
+			date.before(dlFileVersion.getDisplayDate())) {
+
+			status = WorkflowConstants.STATUS_SCHEDULED;
+		}
+
 		dlFileVersion.setStatus(status);
 		dlFileVersion.setStatusByUserId(user.getUserId());
 		dlFileVersion.setStatusByUserName(user.getFullName());
@@ -2079,6 +2088,7 @@ public class DLFileEntryLocalServiceImpl
 		if (((status == WorkflowConstants.STATUS_APPROVED) ||
 			 (status == WorkflowConstants.STATUS_EXPIRED) ||
 			 (status == WorkflowConstants.STATUS_IN_TRASH) ||
+			 (status == WorkflowConstants.STATUS_SCHEDULED) ||
 			 (oldStatus == WorkflowConstants.STATUS_IN_TRASH)) &&
 			((serviceContext == null) || serviceContext.isIndexingEnabled())) {
 
