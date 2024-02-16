@@ -45,6 +45,13 @@ long assetClassPK = DLAssetHelperUtil.getAssetClassPK(fileEntry, fileVersion);
 
 				<aui:model-context bean="<%= fileVersion %>" model="<%= DLFileVersion.class %>" />
 
+				<c:if test="<%= !fileVersion.isApproved() && dlViewFileVersionDisplayContext.hasApprovedVersion() %>">
+					<clay:label
+						displayType="success"
+						label="approved"
+					/>
+				</c:if>
+
 				<aui:workflow-status model="<%= DLFileEntry.class %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= fileVersion.getStatus() %>" />
 			</clay:content-section>
 		</clay:content-col>
