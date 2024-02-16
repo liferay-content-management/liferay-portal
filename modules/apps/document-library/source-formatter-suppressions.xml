@@ -9,5 +9,7 @@
 	</checkstyle>
 	<source-check>
 		<suppress checks="BNDDefinitionKeysCheck" files="document-library-preview-pdf/bnd\.bnd" />
+		<suppress checks="IllegalTaglibsCheck" files="document-library-web/src/main/resources/META-INF/resources/document_library/view_entries\.jsp" />
+		<suppress checks="IllegalTaglibsCheck" files="document-library-web/src/main/resources/META-INF/resources/document_library/view_file_entry_descriptive\.jsp" />
 	</source-check>
 </suppressions>
