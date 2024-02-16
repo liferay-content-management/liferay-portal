@@ -142,14 +142,14 @@ DLViewEntriesDisplayContext dlViewEntriesDisplayContext = new DLViewEntriesDispl
 													</div>
 
 													<div class="card-detail">
-														<aui:workflow-status markupView="lexicon" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= latestFileVersion.getStatus() %>" />
-
 														<c:if test="<%= !latestFileVersion.isApproved() && dlViewEntriesDisplayContext.hasApprovedVersion(latestFileVersion.getFileEntryId()) %>">
 															<clay:label
 																displayType="success"
 																label="approved"
 															/>
 														</c:if>
+
+														<aui:workflow-status markupView="lexicon" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= latestFileVersion.getStatus() %>" />
 
 														<c:choose>
 															<c:when test="<%= fileShortcut != null %>">
