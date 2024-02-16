@@ -241,6 +241,8 @@ public class DLAdminManagementToolbarDisplayContext
 			() -> stagedActions && !user.isGuestUser(),
 			dropdownItem -> {
 				dropdownItem.putData("action", "permissions");
+				dropdownItem.putData(
+					"maxItemsToShowInfoMessage", String.valueOf(200));
 				dropdownItem.setIcon("password-policies");
 				dropdownItem.setLabel(
 					LanguageUtil.get(_httpServletRequest, "permissions"));

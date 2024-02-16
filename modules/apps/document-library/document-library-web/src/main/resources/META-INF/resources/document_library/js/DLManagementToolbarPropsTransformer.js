@@ -352,7 +352,7 @@ export default function propsTransformer({
 		});
 	};
 
-	const permissions = () => {
+	const permissions = (item) => {
 		const map = new Map();
 
 		getAllSelectedElements().each((element) => {
@@ -384,10 +384,48 @@ export default function propsTransformer({
 
 		const permissionsURL = permissionsURLs[selectedModelClassName];
 
-		openChangePermissionsSelectionModal(
-			permissionsURL,
-			selectedFileEntries
-		);
+		if (
+			selectedFileEntries.length > item?.data?.maxItemsToShowInfoMessage
+		) {
+			openModal({
+				bodyHTML: `<p class="text-secondary">
+					${sub(
+						Liferay.Language.get(
+							'you-have-selected-more-than-x-x-info-message'
+						),
+						item?.data?.maxItemsToShowInfoMessage,
+						Liferay.Language.get('documents')
+					)}
+				</p>`,
+				buttons: [
+					{
+						displayType: 'secondary',
+						label: Liferay.Language.get('cancel'),
+						type: 'cancel',
+					},
+					{
+						displayType: 'info',
+						label: Liferay.Language.get('continue'),
+						onClick: ({processClose}) => {
+							processClose();
+							openChangePermissionsSelectionModal(
+								permissionsURL,
+								selectedFileEntries
+							);
+						},
+						type: 'button',
+					},
+				],
+				status: 'info',
+				title: Liferay.Language.get('bulk-action-performance'),
+			});
+		}
+		else {
+			openChangePermissionsSelectionModal(
+				permissionsURL,
+				selectedFileEntries
+			);
+		}
 	};
 
 	return {
@@ -426,7 +464,7 @@ export default function propsTransformer({
 				move();
 			}
 			else if (action === 'permissions') {
-				permissions();
+				permissions(item);
 			}
 		},
 		onCreationMenuItemClick: (event, {item}) => {
