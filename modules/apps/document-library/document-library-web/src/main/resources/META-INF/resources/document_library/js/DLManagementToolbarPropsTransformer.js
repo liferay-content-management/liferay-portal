@@ -340,6 +340,18 @@ export default function propsTransformer({
 		}
 	};
 
+	const openChangePermissionsSelectionModal = (
+		changePermissionsURL,
+		selectedFileEntries
+	) => {
+		openSelectionModal({
+			title: Liferay.Language.get('permissions'),
+			url: createPortletURL(changePermissionsURL, {
+				resourcePrimKey: selectedFileEntries.join(','),
+			}),
+		});
+	};
+
 	const permissions = () => {
 		const map = new Map();
 
@@ -372,19 +384,10 @@ export default function propsTransformer({
 
 		const permissionsURL = permissionsURLs[selectedModelClassName];
 
-		const url = new URL(permissionsURL);
-
-		openSelectionModal({
-			title: Liferay.Language.get('permissions'),
-			url: addParams(
-				{
-					[`_${url.searchParams.get(
-						'p_p_id'
-					)}_resourcePrimKey`]: selectedFileEntries.join(','),
-				},
-				permissionsURL
-			),
-		});
+		openChangePermissionsSelectionModal(
+			permissionsURL,
+			selectedFileEntries
+		);
 	};
 
 	return {
