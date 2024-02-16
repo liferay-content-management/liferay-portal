@@ -385,6 +385,7 @@ export default function propsTransformer({
 		const permissionsURL = permissionsURLs[selectedModelClassName];
 
 		if (
+			Liferay.FeatureFlags['LPD-16469'] &&
 			selectedFileEntries.length > item?.data?.maxItemsToShowInfoMessage
 		) {
 			openModal({
