@@ -10,7 +10,7 @@ import React from 'react';
 
 import TranslationManager, {
 	fieldToTranslations,
-} from '../../../src/main/resources/META-INF/resources/js/translation_manager/TranslationManager';
+} from '../../../src/main/resources/META-INF/resources/js/translation_manager/TranslationsWrapper';
 
 const FIELDS = {
 	description: {
