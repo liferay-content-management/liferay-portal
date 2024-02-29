@@ -2294,7 +2294,8 @@ public class CPDefinitionLocalServiceImpl
 				friendlyURLEntry.getFriendlyURLEntryId(),
 				friendlyURLEntry.getClassNameId(),
 				friendlyURLEntry.getClassPK(),
-				friendlyURLEntry.getDefaultLanguageId(), newUrlTitleMap);
+				friendlyURLEntry.getDefaultLanguageId(), newUrlTitleMap,
+				serviceContext);
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {

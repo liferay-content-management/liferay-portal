@@ -75,7 +75,8 @@ public class EditAssetCategoryFriendlyURLMVCActionCommand
 				friendlyURLEntry.getClassNameId(),
 				friendlyURLEntry.getClassPK(),
 				friendlyURLEntry.getDefaultLanguageId(),
-				_getUniqueUrlTitles(assetCategory, urlTitleMap));
+				_getUniqueUrlTitles(assetCategory, urlTitleMap),
+				serviceContext);
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
