@@ -400,7 +400,9 @@ Map<String, Object> componentContext = journalDisplayContext.getComponentContext
 							</div>
 
 							<span class="c-pt-1 text-secondary">
-								<liferay-ui:message arguments="<%= new String[] {createDateDescription, HtmlUtil.escape(curFolder.getUserName())} %>" key="modified-x-ago-by-x" />
+								<span class="lfr-portal-tooltip" title="<%= journalDisplayContext.getFolderSubtitleTooltip(curFolder) %>">
+									<liferay-ui:message arguments="<%= new String[] {createDateDescription, HtmlUtil.escape(curFolder.getUserName())} %>" key="modified-x-ago-by-x" />
+								</span>
 							</span>
 
 							<c:if test="<%= journalDisplayContext.isSearch() && ((curFolder.getParentFolderId() <= 0) || JournalFolderPermission.contains(permissionChecker, curFolder.getParentFolder(), ActionKeys.VIEW)) %>">

@@ -328,14 +328,7 @@ public class JournalDisplayContext {
 			modifiedDate = article.getCreateDate();
 		}
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)_liferayPortletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		Format dateTimeFormat = FastDateFormatFactoryUtil.getDateTime(
-			themeDisplay.getLocale(), themeDisplay.getTimeZone());
-
-		return dateTimeFormat.format(modifiedDate);
+		return _formatTooltipDate(modifiedDate);
 	}
 
 	public List<DropdownItem> getArticleVersionActionDropdownItems(
@@ -716,6 +709,10 @@ public class JournalDisplayContext {
 			).put(
 				"name", LanguageUtil.get(_themeDisplay.getLocale(), "home")
 			));
+	}
+
+	public String getFolderSubtitleTooltip(JournalFolder folder) {
+		return _formatTooltipDate(folder.getModifiedDate());
 	}
 
 	public long getHighlightedDDMStructureId() {
@@ -1585,6 +1582,17 @@ public class JournalDisplayContext {
 
 		_dateTimeFormat = FastDateFormatFactoryUtil.getDateTime(
 			_themeDisplay.getLocale(), _themeDisplay.getTimeZone());
+	}
+
+	private String _formatTooltipDate(Date date) {
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_liferayPortletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		Format dateTimeFormat = FastDateFormatFactoryUtil.getDateTime(
+			themeDisplay.getLocale(), themeDisplay.getTimeZone());
+
+		return dateTimeFormat.format(date);
 	}
 
 	private SearchContainer<Object> _getArticleAndFolderSearchContainer()
