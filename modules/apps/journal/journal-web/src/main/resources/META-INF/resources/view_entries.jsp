@@ -122,7 +122,9 @@ Map<String, Object> componentContext = journalDisplayContext.getComponentContext
 							</div>
 
 							<span class="c-pb-1 c-pt-1 text-secondary">
-								<%= journalDisplayContext.getArticleSubtitle(curArticle) %>
+								<span class="lfr-portal-tooltip" title="<%= journalDisplayContext.getArticleSubtitleTooltip(curArticle) %>">
+									<%= journalDisplayContext.getArticleSubtitle(curArticle) %>
+								</span>
 							</span>
 
 							<c:if test="<%= journalDisplayContext.isSearch() && ((curArticle.getFolderId() <= 0) || JournalFolderPermission.contains(permissionChecker, curArticle.getFolder(), ActionKeys.VIEW)) %>">

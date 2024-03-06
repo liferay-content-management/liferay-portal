@@ -319,6 +319,25 @@ public class JournalDisplayContext {
 			});
 	}
 
+	public String getArticleSubtitleTooltip(JournalArticle article) {
+		Date modifiedDate = article.getModifiedDate();
+
+		if (FeatureFlagManagerUtil.isEnabled("LPD-11218") &&
+			isNavigationMine()) {
+
+			modifiedDate = article.getCreateDate();
+		}
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_liferayPortletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		Format dateTimeFormat = FastDateFormatFactoryUtil.getDateTime(
+			themeDisplay.getLocale(), themeDisplay.getTimeZone());
+
+		return dateTimeFormat.format(modifiedDate);
+	}
+
 	public List<DropdownItem> getArticleVersionActionDropdownItems(
 			JournalArticle article)
 		throws Exception {
