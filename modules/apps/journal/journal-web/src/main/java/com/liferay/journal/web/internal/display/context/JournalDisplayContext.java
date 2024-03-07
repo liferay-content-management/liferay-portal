@@ -320,15 +320,13 @@ public class JournalDisplayContext {
 	}
 
 	public String getArticleSubtitleTooltip(JournalArticle article) {
-		Date modifiedDate = article.getModifiedDate();
-
 		if (FeatureFlagManagerUtil.isEnabled("LPD-11218") &&
 			isNavigationMine()) {
 
-			modifiedDate = article.getCreateDate();
+			return _getFormatTooltipDate(article.getCreateDate());
 		}
 
-		return _formatTooltipDate(modifiedDate);
+		return _getFormatTooltipDate(article.getModifiedDate());
 	}
 
 	public List<DropdownItem> getArticleVersionActionDropdownItems(
@@ -712,7 +710,7 @@ public class JournalDisplayContext {
 	}
 
 	public String getFolderSubtitleTooltip(JournalFolder folder) {
-		return _formatTooltipDate(folder.getModifiedDate());
+		return _getFormatTooltipDate(folder.getModifiedDate());
 	}
 
 	public long getHighlightedDDMStructureId() {
@@ -1584,17 +1582,6 @@ public class JournalDisplayContext {
 			_themeDisplay.getLocale(), _themeDisplay.getTimeZone());
 	}
 
-	private String _formatTooltipDate(Date date) {
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)_liferayPortletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		Format dateTimeFormat = FastDateFormatFactoryUtil.getDateTime(
-			themeDisplay.getLocale(), themeDisplay.getTimeZone());
-
-		return dateTimeFormat.format(date);
-	}
-
 	private SearchContainer<Object> _getArticleAndFolderSearchContainer()
 		throws PortalException {
 
@@ -2127,6 +2114,17 @@ public class JournalDisplayContext {
 		}
 
 		return jsonArray;
+	}
+
+	private String _getFormatTooltipDate(Date date) {
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_liferayPortletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		Format dateTimeFormat = FastDateFormatFactoryUtil.getDateTime(
+			themeDisplay.getLocale(), themeDisplay.getTimeZone());
+
+		return dateTimeFormat.format(date);
 	}
 
 	private String _getSearchIn() {
