@@ -49,7 +49,7 @@ public class FileEntryURLItemSelectorReturnTypeResolver
 
 			return _dlURLHelper.getPreviewURL(
 				fileEntry, fileEntry.getFileVersion(), themeDisplay,
-				StringPool.BLANK, false, false);
+				StringPool.BLANK, false, false, false);
 		}
 
 		return PortletFileRepositoryUtil.getPortletFileEntryURL(
