@@ -57,6 +57,11 @@ public interface DLURLHelper {
 		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
 		String queryString, boolean appendVersion, boolean absoluteURL);
 
+	public String getPreviewURL(
+		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
+		String queryString, boolean appendVersion, boolean absoluteURL,
+		boolean doAsUser);
+
 	public String getThumbnailSrc(
 			FileEntry fileEntry, FileVersion fileVersion,
 			ThemeDisplay themeDisplay)

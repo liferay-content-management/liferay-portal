@@ -211,6 +211,17 @@ public class DLURLHelperImpl implements DLURLHelper {
 		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
 		String queryString, boolean appendVersion, boolean absoluteURL) {
 
+		return getPreviewURL(
+			fileEntry, fileVersion, themeDisplay, queryString, true, true,
+			true);
+	}
+
+	@Override
+	public String getPreviewURL(
+		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
+		String queryString, boolean appendVersion, boolean absoluteURL,
+		boolean doAsUser) {
+
 		String previewURLPrefix = _getPreviewURLPrefix(
 			themeDisplay, absoluteURL);
 
@@ -223,7 +234,7 @@ public class DLURLHelperImpl implements DLURLHelper {
 				appendVersion);
 		}
 
-		if ((themeDisplay != null) &&
+		if (doAsUser && (themeDisplay != null) &&
 			Validator.isNotNull(themeDisplay.getDoAsUserId())) {
 
 			previewURL = _portal.addPreservedParameters(
