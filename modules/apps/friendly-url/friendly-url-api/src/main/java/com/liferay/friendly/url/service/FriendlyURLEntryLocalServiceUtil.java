@@ -564,12 +564,13 @@ public class FriendlyURLEntryLocalServiceUtil {
 
 	public static FriendlyURLEntry updateFriendlyURLEntry(
 			long friendlyURLEntryId, long classNameId, long classPK,
-			String defaultLanguageId, Map<String, String> urlTitleMap)
+			String defaultLanguageId, Map<String, String> urlTitleMap,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws PortalException {
 
 		return getService().updateFriendlyURLEntry(
 			friendlyURLEntryId, classNameId, classPK, defaultLanguageId,
-			urlTitleMap);
+			urlTitleMap, serviceContext);
 	}
 
 	public static com.liferay.friendly.url.model.FriendlyURLEntryLocalization

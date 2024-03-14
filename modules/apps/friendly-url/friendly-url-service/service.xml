@@ -92,6 +92,7 @@
 	</entity>
 	<exceptions>
 		<exception>DuplicateFriendlyURLEntry</exception>
+		<exception>FriendlyURLCategory</exception>
 		<exception>FriendlyURLLength</exception>
 	</exceptions>
 </service-builder>

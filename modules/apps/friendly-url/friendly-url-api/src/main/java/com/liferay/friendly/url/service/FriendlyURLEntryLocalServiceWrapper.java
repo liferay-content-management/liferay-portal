@@ -634,12 +634,13 @@ public class FriendlyURLEntryLocalServiceWrapper
 	@Override
 	public FriendlyURLEntry updateFriendlyURLEntry(
 			long friendlyURLEntryId, long classNameId, long classPK,
-			String defaultLanguageId, java.util.Map<String, String> urlTitleMap)
+			String defaultLanguageId, java.util.Map<String, String> urlTitleMap,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _friendlyURLEntryLocalService.updateFriendlyURLEntry(
 			friendlyURLEntryId, classNameId, classPK, defaultLanguageId,
-			urlTitleMap);
+			urlTitleMap, serviceContext);
 	}
 
 	@Override

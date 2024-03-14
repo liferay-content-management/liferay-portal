@@ -432,7 +432,8 @@ public interface FriendlyURLEntryLocalService
 
 	public FriendlyURLEntry updateFriendlyURLEntry(
 			long friendlyURLEntryId, long classNameId, long classPK,
-			String defaultLanguageId, Map<String, String> urlTitleMap)
+			String defaultLanguageId, Map<String, String> urlTitleMap,
+			ServiceContext serviceContext)
 		throws PortalException;
 
 	public FriendlyURLEntryLocalization updateFriendlyURLEntryLocalization(
