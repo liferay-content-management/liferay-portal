@@ -83,9 +83,11 @@ public class DLURLHelperImpl implements DLURLHelper {
 		}
 
 		return HttpComponentsUtil.addParameter(
-			getPreviewURL(
-				fileEntry, fileVersion, themeDisplay, queryString,
-				appendVersion, absoluteURL),
+			_addDoAsUserIdParameter(
+				themeDisplay,
+				getPreviewURL(
+					fileEntry, fileVersion, themeDisplay, queryString,
+					appendVersion, absoluteURL)),
 			"download", true);
 	}
 
@@ -264,8 +266,10 @@ public class DLURLHelperImpl implements DLURLHelper {
 			}
 		}
 
-		return _getImageSrc(
-			fileEntry, fileVersion, themeDisplay, thumbnailQueryString);
+		return _addDoAsUserIdParameter(
+			themeDisplay,
+			_getImageSrc(
+				fileEntry, fileVersion, themeDisplay, thumbnailQueryString));
 	}
 
 	@Override
@@ -387,6 +391,20 @@ public class DLURLHelperImpl implements DLURLHelper {
 	@Deactivate
 	protected void deactivate() {
 		_serviceTrackerMap.close();
+	}
+
+	private String _addDoAsUserIdParameter(
+		ThemeDisplay themeDisplay, String url) {
+
+		if ((themeDisplay != null) &&
+			Validator.isNotNull(themeDisplay.getDoAsUserId()) &&
+			Validator.isNotNull(url)) {
+
+			return HttpComponentsUtil.setParameter(
+				url, "doAsUserId", themeDisplay.getDoAsUserId());
+		}
+
+		return url;
 	}
 
 	private String _getDLFileVersionURLProviderURL(
