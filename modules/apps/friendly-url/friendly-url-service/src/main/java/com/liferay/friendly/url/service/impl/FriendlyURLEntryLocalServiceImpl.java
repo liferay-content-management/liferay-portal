@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManager;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
@@ -800,6 +801,10 @@ public class FriendlyURLEntryLocalServiceImpl
 			FriendlyURLEntry friendlyURLEntry, ServiceContext serviceContext)
 		throws PortalException {
 
+		if (!_featureFlagManager.isEnabled("LPD-11147")) {
+			return;
+		}
+
 		_assetEntryLocalService.updateEntry(
 			serviceContext.getUserId(), friendlyURLEntry.getGroupId(),
 			friendlyURLEntry.getCreateDate(),
@@ -880,6 +885,10 @@ public class FriendlyURLEntryLocalServiceImpl
 			Map<String, String> urlTitleMap, ServiceContext serviceContext)
 		throws PortalException {
 
+		if (!_featureFlagManager.isEnabled("LPD-11147")) {
+			return;
+		}
+
 		long[] friendlyURLAssetCategoryIds = GetterUtil.getLongValues(
 			serviceContext.getAttribute("friendlyURLAssetCategoryIds"));
 
@@ -901,6 +910,9 @@ public class FriendlyURLEntryLocalServiceImpl
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
+
+	@Reference
+	private FeatureFlagManager _featureFlagManager;
 
 	@Reference
 	private FriendlyURLEntryMappingPersistence
