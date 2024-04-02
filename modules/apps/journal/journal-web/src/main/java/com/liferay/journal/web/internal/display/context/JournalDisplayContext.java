@@ -1495,7 +1495,7 @@ public class JournalDisplayContext {
 		}
 
 		if (isNavigationRecent()) {
-			articleSearchContainer.setOrderByCol("modified-date");
+			articleSearchContainer.setOrderByCol("create-date");
 		}
 
 		return articleSearchContainer;
