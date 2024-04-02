@@ -284,7 +284,7 @@ public class JournalDisplayContext {
 
 	public String getArticleSubtitle(JournalArticle article) {
 		if (FeatureFlagManagerUtil.isEnabled("LPD-11218") &&
-			isNavigationMine()) {
+			(isNavigationMine() || isNavigationRecent())) {
 
 			Date createDate = article.getCreateDate();
 
