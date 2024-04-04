@@ -122,7 +122,7 @@ class MapBase extends EventEmitter {
 				MapBase.CONTROLS.TYPE,
 				MapBase.CONTROLS.ZOOM,
 			],
-			data,
+			data = '{}',
 			geolocation = false,
 			position = {location: {lat: 0, lng: 0}},
 			zoom = 11,
@@ -131,7 +131,7 @@ class MapBase extends EventEmitter {
 		this._STATE_ = {
 			boundingBox,
 			controls,
-			data,
+			data: JSON.parse(data),
 			geolocation,
 			position,
 			zoom,
