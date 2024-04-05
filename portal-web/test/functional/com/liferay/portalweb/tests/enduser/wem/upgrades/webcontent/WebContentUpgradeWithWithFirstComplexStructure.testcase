@@ -30,6 +30,10 @@ definition {
 
 			NavItem.gotoStructures();
 
+			// Pausing 6 seconds to ensure Structures sidebar is loaded. See LPD-22490
+
+			Pause(value1 = 6000);
+
 			WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
 
 			PortletEntry.changeLocale(locale = "en-US");
