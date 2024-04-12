@@ -95,10 +95,23 @@ public class ContentFieldUtil {
 
 						Value value = ddmFormFieldValue.getValue();
 
+						Locale defaultLocale = value.getDefaultLocale();
+
 						Map<Locale, String> values = value.getValues();
 
 						if (values == null) {
 							values = Collections.emptyMap();
+						}
+
+						if (!values.containsKey(defaultLocale)) {
+							map.put(
+								LocaleUtil.toBCP47LanguageId(defaultLocale),
+								_getContentFieldValue(
+									ddmFormField, dlAppService, dlURLHelper,
+									dtoConverterContext, journalArticleService,
+									layoutLocalService, defaultLocale,
+									String.valueOf(
+										value.getString(defaultLocale))));
 						}
 
 						for (Map.Entry<Locale, String> entry :
