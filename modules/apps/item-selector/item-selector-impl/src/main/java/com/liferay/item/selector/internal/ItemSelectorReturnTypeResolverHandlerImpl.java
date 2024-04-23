@@ -49,14 +49,11 @@ public class ItemSelectorReturnTypeResolverHandlerImpl
 			ItemSelectorCriterion itemSelectorCriterion,
 			ItemSelectorView<?> itemSelectorView, Class<?> modelClass) {
 
-		ItemSelectorReturnType itemSelectorReturnType =
-			_getFirstAvailableItemSelectorReturnType(
-				itemSelectorCriterion.getDesiredItemSelectorReturnTypes(),
-				_itemSelectorViewReturnTypeProviderHandler.
-					getSupportedItemSelectorReturnTypes(itemSelectorView));
-
-		return getItemSelectorReturnTypeResolver(
-			itemSelectorReturnType.getClass(), modelClass);
+		return _getFirstAvailableItemSelectorReturnTypeResolver(
+			itemSelectorCriterion.getDesiredItemSelectorReturnTypes(),
+			_itemSelectorViewReturnTypeProviderHandler.
+				getSupportedItemSelectorReturnTypes(itemSelectorView),
+			modelClass);
 	}
 
 	@Override
@@ -79,9 +76,11 @@ public class ItemSelectorReturnTypeResolverHandlerImpl
 				bundleContext));
 	}
 
-	private ItemSelectorReturnType _getFirstAvailableItemSelectorReturnType(
-		List<ItemSelectorReturnType> desiredItemSelectorReturnTypes,
-		List<ItemSelectorReturnType> supportedItemSelectorReturnTypes) {
+	private ItemSelectorReturnTypeResolver<?, ?>
+		_getFirstAvailableItemSelectorReturnTypeResolver(
+			List<ItemSelectorReturnType> desiredItemSelectorReturnTypes,
+			List<ItemSelectorReturnType> supportedItemSelectorReturnTypes,
+			Class<?> modelClass) {
 
 		List<String> supportedItemSelectorReturnTypeNames = ListUtil.toList(
 			supportedItemSelectorReturnTypes, ClassUtil::getClassName);
@@ -92,7 +91,14 @@ public class ItemSelectorReturnTypeResolverHandlerImpl
 			if (supportedItemSelectorReturnTypeNames.contains(
 					ClassUtil.getClassName(itemSelectorReturnType))) {
 
-				return itemSelectorReturnType;
+				ItemSelectorReturnTypeResolver<?, ?>
+					itemSelectorReturnTypeResolver =
+						getItemSelectorReturnTypeResolver(
+							itemSelectorReturnType.getClass(), modelClass);
+
+				if (itemSelectorReturnTypeResolver != null) {
+					return itemSelectorReturnTypeResolver;
+				}
 			}
 		}
 
