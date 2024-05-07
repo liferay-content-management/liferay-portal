@@ -279,11 +279,11 @@ StagingGroupHelper stagingGroupHelper = StagingGroupHelperUtil.getStagingGroupHe
 				).put(
 					"messageId", ParamUtil.getString(request, "messageId")
 				).put(
-					"namespace", namespace
-				).put(
 					"paginationURL", paginationURL
 				).put(
 					"portletDisplayId", portletDisplay.getId()
+				).put(
+					"portletNamespace", namespace
 				).put(
 					"randomNamespace", randomNamespace
 				).put(
