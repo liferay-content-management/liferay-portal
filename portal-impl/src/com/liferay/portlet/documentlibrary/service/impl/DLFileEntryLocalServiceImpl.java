@@ -3910,7 +3910,7 @@ public class DLFileEntryLocalServiceImpl
 			DLFileEntry.class.getName(), "extension");
 
 		if (extension.length() > maxLength) {
-			throw new FileExtensionException(
+			throw new FileExtensionException.InvalidExtension(
 				StringBundler.concat(
 					extension, " of file ", fileName, " exceeds max length of ",
 					maxLength));
