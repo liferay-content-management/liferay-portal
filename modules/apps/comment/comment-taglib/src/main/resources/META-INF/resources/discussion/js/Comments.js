@@ -40,6 +40,10 @@ export default function Comments({
 	const Util = Liferay.Util;
 	const form = document[`${namespace}${randomNamespace}${formName}`];
 
+	if (!portletDisplayId) {
+		portletDisplayId = namespace.substr(1, namespace.length - 2);
+	}
+
 	if (messageId) {
 		document
 			.getElementById(`${randomNamespace}messageScroll${messageId}`)
