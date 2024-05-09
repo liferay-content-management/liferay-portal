@@ -140,8 +140,10 @@ definition {
 		}
 		else {
 			var increaseMinutes = StringUtil.replace(480, 0, ${increaseMinutes});
-
+			var currentDate = DateUtil.getFormattedCurrentDate("yyyy-MM-dd HH:mm");
 			var displayDate = DateUtil.getDateOffsetByMinutes(${increaseMinutes}, "yyyy-MM-dd HH:mm");
+
+			echo("## * currentDate: ${currentDate}");
 
 			echo("## * displayDate: ${displayDate}");
 		}
@@ -205,8 +207,10 @@ definition {
 		}
 		else {
 			var increaseMinutes = StringUtil.replace(480, 0, ${increaseMinutes});
-
+			var currentDate = DateUtil.getFormattedCurrentDate("yyyy-MM-dd HH:mm");
 			var displayDate = DateUtil.getDateOffsetByMinutes(${increaseMinutes}, "yyyy-MM-dd HH:mm");
+
+			echo("## * currentDate: ${currentDate}");
 
 			echo("## * displayDate: ${displayDate}");
 		}

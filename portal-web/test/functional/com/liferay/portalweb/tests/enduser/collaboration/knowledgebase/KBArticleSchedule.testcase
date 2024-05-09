@@ -287,7 +287,15 @@ definition {
 
 		// We need to wait for the system time to pass by 1 minute in order to verify the scheduled child article is not published. There is currently no easy way to manipulate the system time in CI for automation. 1 minute is the shortest value we can set while ensuring the stability of the test. See LPS-188060.
 
+		var beforePause = DateUtil.getFormattedCurrentDate("yyyy-MM-dd HH:mm");
+
+		echo("## * beforePause: ${beforePause}");
+
 		Pause(value1 = 120000);
+
+		var afterPause = DateUtil.getFormattedCurrentDate("yyyy-MM-dd HH:mm");
+
+		echo("## * afterPause: ${afterPause}");
 
 		KBArticle.gotoChildArticleDescriptiveDetails(kbArticleTitle = "Knowledge Base Article Title");
 
@@ -297,7 +305,15 @@ definition {
 
 		// We need to wait for the system time to pass by 1 minute in order to verify the scheduled articles are published. There is currently no easy way to manipulate the system time in CI for automation. 1 minute is the shortest value we can set while ensuring the stability of the test. See LPS-188060.
 
+		var beforePause2 = DateUtil.getFormattedCurrentDate("yyyy-MM-dd HH:mm");
+
+		echo("## * beforePause2: ${beforePause2}");
+
 		Pause(value1 = 120000);
+
+		var afterPause2 = DateUtil.getFormattedCurrentDate("yyyy-MM-dd HH:mm");
+
+		echo("## * afterPause2: ${afterPause2}");
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
