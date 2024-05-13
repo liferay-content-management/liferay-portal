@@ -5101,6 +5101,11 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                dateExpired:
+                    description:
+                        The expiration date of the structured content.
+                    format: date-time
+                    type: string
                 dateModified:
                     description:
                         The last time any field of the structured content was changed.
