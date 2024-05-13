@@ -292,7 +292,7 @@ public class JournalDisplayContext {
 
 		return _getSubtitle(
 			article.getModifiedDate(), "modified-x-ago-by-x",
-			article.getStatusByUserName());
+			article.getUserName());
 	}
 
 	public List<DropdownItem> getArticleVersionActionDropdownItems(
