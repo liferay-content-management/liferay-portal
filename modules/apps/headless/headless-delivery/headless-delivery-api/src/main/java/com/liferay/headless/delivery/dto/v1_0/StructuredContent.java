@@ -463,6 +463,49 @@ public class StructuredContent implements Serializable {
 	@JsonIgnore
 	private Supplier<Date> _dateCreatedSupplier;
 
+	@Schema(description = "The expiration date of the structured content.")
+	public Date getDateExpired() {
+		if (_dateExpiredSupplier != null) {
+			dateExpired = _dateExpiredSupplier.get();
+
+			_dateExpiredSupplier = null;
+		}
+
+		return dateExpired;
+	}
+
+	public void setDateExpired(Date dateExpired) {
+		this.dateExpired = dateExpired;
+
+		_dateExpiredSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setDateExpired(
+		UnsafeSupplier<Date, Exception> dateExpiredUnsafeSupplier) {
+
+		_dateExpiredSupplier = () -> {
+			try {
+				return dateExpiredUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The expiration date of the structured content."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Date dateExpired;
+
+	@JsonIgnore
+	private Supplier<Date> _dateExpiredSupplier;
+
 	@Schema(
 		description = "The last time any field of the structured content was changed."
 	)
@@ -1725,6 +1768,22 @@ public class StructuredContent implements Serializable {
 			sb.append("\"");
 
 			sb.append(liferayToJSONDateFormat.format(dateCreated));
+
+			sb.append("\"");
+		}
+
+		Date dateExpired = getDateExpired();
+
+		if (dateExpired != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateExpired\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(dateExpired));
 
 			sb.append("\"");
 		}

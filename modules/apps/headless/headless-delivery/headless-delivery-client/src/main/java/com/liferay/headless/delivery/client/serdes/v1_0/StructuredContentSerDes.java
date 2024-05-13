@@ -202,6 +202,22 @@ public class StructuredContentSerDes {
 			sb.append("\"");
 		}
 
+		if (structuredContent.getDateExpired() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateExpired\": ");
+
+			sb.append("\"");
+
+			sb.append(
+				liferayToJSONDateFormat.format(
+					structuredContent.getDateExpired()));
+
+			sb.append("\"");
+		}
+
 		if (structuredContent.getDateModified() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -667,6 +683,16 @@ public class StructuredContentSerDes {
 					structuredContent.getDateCreated()));
 		}
 
+		if (structuredContent.getDateExpired() == null) {
+			map.put("dateExpired", null);
+		}
+		else {
+			map.put(
+				"dateExpired",
+				liferayToJSONDateFormat.format(
+					structuredContent.getDateExpired()));
+		}
+
 		if (structuredContent.getDateModified() == null) {
 			map.put("dateModified", null);
 		}
@@ -972,6 +998,12 @@ public class StructuredContentSerDes {
 			else if (Objects.equals(jsonParserFieldName, "dateCreated")) {
 				if (jsonParserFieldValue != null) {
 					structuredContent.setDateCreated(
+						toDate((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "dateExpired")) {
+				if (jsonParserFieldValue != null) {
+					structuredContent.setDateExpired(
 						toDate((String)jsonParserFieldValue));
 				}
 			}
