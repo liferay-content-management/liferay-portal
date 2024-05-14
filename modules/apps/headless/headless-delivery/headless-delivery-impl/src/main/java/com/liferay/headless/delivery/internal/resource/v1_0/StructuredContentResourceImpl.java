@@ -89,6 +89,7 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -123,6 +124,8 @@ import java.time.ZoneId;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -513,6 +516,35 @@ public class StructuredContentResourceImpl
 			journalArticle.getDisplayDate(),
 			ZoneId.of(contextUser.getTimeZoneId()));
 
+		int expirationDateMonth = 0;
+		int expirationDateDay = 0;
+		int expirationDateYear = 0;
+		int expirationDateHour = 0;
+		int expirationDateMinute = 0;
+
+		Date dateExpired = structuredContent.getDateExpired();
+
+		if (dateExpired == null) {
+			dateExpired = journalArticle.getExpirationDate();
+		}
+
+		boolean neverExpire = true;
+
+		if (dateExpired != null) {
+			neverExpire = false;
+
+			Calendar expirationCal = CalendarFactoryUtil.getCalendar(
+				contextUser.getTimeZone());
+
+			expirationCal.setTime(dateExpired);
+
+			expirationDateMonth = expirationCal.get(Calendar.MONTH);
+			expirationDateDay = expirationCal.get(Calendar.DATE);
+			expirationDateYear = expirationCal.get(Calendar.YEAR);
+			expirationDateHour = expirationCal.get(Calendar.HOUR);
+			expirationDateMinute = expirationCal.get(Calendar.MINUTE);
+		}
+
 		return _toStructuredContent(
 			_journalArticleService.updateArticle(
 				journalArticle.getGroupId(), journalArticle.getFolderId(),
@@ -541,9 +573,10 @@ public class StructuredContentResourceImpl
 				journalArticle.getLayoutUuid(),
 				localDateTime.getMonthValue() - 1,
 				localDateTime.getDayOfMonth(), localDateTime.getYear(),
-				localDateTime.getHour(), localDateTime.getMinute(), 0, 0, 0, 0,
-				0, true, 0, 0, 0, 0, 0, true, true, false, 0, 0, null, null,
-				null, null,
+				localDateTime.getHour(), localDateTime.getMinute(),
+				expirationDateMonth, expirationDateDay, expirationDateYear,
+				expirationDateHour, expirationDateMinute, neverExpire, 0, 0, 0,
+				0, 0, true, true, false, 0, 0, null, null, null, null,
 				_createServiceContext(
 					_getAssetCategoryIds(journalArticle, structuredContent),
 					_getAssetLinkEntryIds(journalArticle, structuredContent),
@@ -1310,6 +1343,35 @@ public class StructuredContentResourceImpl
 			journalArticle.getDisplayDate(),
 			ZoneId.of(contextUser.getTimeZoneId()));
 
+		int expirationDateMonth = 0;
+		int expirationDateDay = 0;
+		int expirationDateYear = 0;
+		int expirationDateHour = 0;
+		int expirationDateMinute = 0;
+
+		Date dateExpired = structuredContent.getDateExpired();
+
+		if (dateExpired == null) {
+			dateExpired = journalArticle.getExpirationDate();
+		}
+
+		boolean neverExpire = true;
+
+		if (dateExpired != null) {
+			neverExpire = false;
+
+			Calendar expirationCal = CalendarFactoryUtil.getCalendar(
+				contextUser.getTimeZone());
+
+			expirationCal.setTime(dateExpired);
+
+			expirationDateMonth = expirationCal.get(Calendar.MONTH);
+			expirationDateDay = expirationCal.get(Calendar.DATE);
+			expirationDateYear = expirationCal.get(Calendar.YEAR);
+			expirationDateHour = expirationCal.get(Calendar.HOUR);
+			expirationDateMinute = expirationCal.get(Calendar.MINUTE);
+		}
+
 		return _toStructuredContent(
 			_journalArticleService.updateArticle(
 				journalArticle.getGroupId(), journalArticle.getFolderId(),
@@ -1325,9 +1387,10 @@ public class StructuredContentResourceImpl
 				journalArticle.getLayoutUuid(),
 				localDateTime.getMonthValue() - 1,
 				localDateTime.getDayOfMonth(), localDateTime.getYear(),
-				localDateTime.getHour(), localDateTime.getMinute(), 0, 0, 0, 0,
-				0, true, 0, 0, 0, 0, 0, true, true, false, 0, 0, null, null,
-				null, null,
+				localDateTime.getHour(), localDateTime.getMinute(),
+				expirationDateMonth, expirationDateDay, expirationDateYear,
+				expirationDateHour, expirationDateMinute, neverExpire, 0, 0, 0,
+				0, 0, true, true, false, 0, 0, null, null, null, null,
 				_createServiceContext(
 					_getAssetCategoryIds(journalArticle, structuredContent),
 					_getAssetLinkEntryIds(journalArticle, structuredContent),
