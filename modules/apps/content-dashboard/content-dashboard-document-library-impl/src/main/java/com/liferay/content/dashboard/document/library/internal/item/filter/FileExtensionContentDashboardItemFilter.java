@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.search.filter.TermsFilter;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -102,6 +103,23 @@ public class FileExtensionContentDashboardItemFilter
 	@Override
 	public List<String> getParameterValues() {
 		return _getFileExtensions(_httpServletRequest);
+	}
+
+	@Override
+	public TermsFilter getTermsFilter() {
+		List<String> fileExtensions = getParameterValues();
+
+		if (ListUtil.isEmpty(fileExtensions)) {
+			return null;
+		}
+
+		TermsFilter termsFilter = new TermsFilter(getParameterName());
+
+		for (String fileExtension : fileExtensions) {
+			termsFilter.addValue(fileExtension);
+		}
+
+		return termsFilter;
 	}
 
 	@Override
