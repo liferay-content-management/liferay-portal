@@ -31,6 +31,18 @@ export class DisplayPageTemplatesPage {
 			.click();
 	}
 
+	async deleteAllDisplayPageTemplates() {
+		await this.goto();
+		await this.page
+			.getByLabel('Select All Items on the Page')
+			.setChecked(true);
+		await this.page.getByRole('button', {name: 'Delete'}).click();
+		await this.page
+			.getByLabel('Delete Entries- Loading')
+			.getByRole('button', {name: 'Delete'})
+			.click();
+	}
+
 	async goto(siteUrl?: Site['friendlyUrlPath']) {
 		await this.page.goto(
 			`/group${siteUrl || '/guest'}${PORTLET_URLS.displayPageTemplates}`
@@ -70,8 +82,8 @@ export class DisplayPageTemplatesPage {
 			.getByLabel('Content Type')
 			.selectOption({label: contentType});
 		if (contentType === 'Web Content Article') {
-		await this.page
-			.getByLabel('Subtype')
+			await this.page
+				.getByLabel('Subtype')
 				.selectOption({label: subtype});
 		}
 		await this.page.getByRole('button', {name: 'Save'}).click();
