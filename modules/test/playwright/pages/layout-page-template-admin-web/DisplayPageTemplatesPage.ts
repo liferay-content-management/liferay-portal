@@ -21,27 +21,6 @@ export class DisplayPageTemplatesPage {
 		this.publishButton = page.getByLabel('Publish', {exact: true});
 	}
 
-	async goto(siteUrl?: Site['friendlyUrlPath']) {
-		await this.page.goto(
-			`/group${siteUrl || '/guest'}${PORTLET_URLS.displayPageTemplates}`
-		);
-	}
-
-	async publishNewTemplate(name: string) {
-		await this.newButton.click();
-		await this.page.getByRole('button', {name: 'Blank'}).click();
-		await this.page.getByLabel('Name').fill(name);
-		await this.page
-			.getByLabel('Content Type')
-			.selectOption({label: 'Web Content Article'});
-		await this.page
-			.getByLabel('Subtype')
-			.selectOption({label: 'Basic Web Content'});
-		await this.page.getByRole('button', {name: 'Save'}).click();
-		await this.publishButton.waitFor();
-		await this.publishButton.click();
-	}
-
 	async clickMoreActions(name: string) {
 		await this.page
 			.locator(
@@ -50,6 +29,12 @@ export class DisplayPageTemplatesPage {
 			.filter({hasText: name})
 			.getByLabel('More actions')
 			.click();
+	}
+
+	async goto(siteUrl?: Site['friendlyUrlPath']) {
+		await this.page.goto(
+			`/group${siteUrl || '/guest'}${PORTLET_URLS.displayPageTemplates}`
+		);
 	}
 
 	async markAsDefault(name: string) {
@@ -67,5 +52,20 @@ export class DisplayPageTemplatesPage {
 			.click();
 
 		await waitForSuccessAlert(this.page);
+	}
+
+	async publishNewTemplate(name: string) {
+		await this.newButton.click();
+		await this.page.getByRole('button', {name: 'Blank'}).click();
+		await this.page.getByLabel('Name').fill(name);
+		await this.page
+			.getByLabel('Content Type')
+			.selectOption({label: 'Web Content Article'});
+		await this.page
+			.getByLabel('Subtype')
+			.selectOption({label: 'Basic Web Content'});
+		await this.page.getByRole('button', {name: 'Save'}).click();
+		await this.publishButton.waitFor();
+		await this.publishButton.click();
 	}
 }
