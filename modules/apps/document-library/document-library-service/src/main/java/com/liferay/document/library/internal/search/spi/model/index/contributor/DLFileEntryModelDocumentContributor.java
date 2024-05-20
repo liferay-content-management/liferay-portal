@@ -16,7 +16,9 @@ import com.liferay.document.library.kernel.store.DLStore;
 import com.liferay.document.library.kernel.store.DLStoreRequest;
 import com.liferay.document.library.security.io.InputStreamSanitizer;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageEngineManager;
 import com.liferay.dynamic.data.mapping.util.DDMIndexer;
@@ -30,6 +32,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.metadata.RawMetadataProcessor;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentHelper;
 import com.liferay.portal.kernel.search.Field;
@@ -121,9 +124,17 @@ public class DLFileEntryModelDocumentContributor
 
 			document.addKeyword(
 				"dataRepositoryId", dlFileEntry.getDataRepositoryId());
+
+			List<DLFileEntryMetadata> dlFileEntryMetadatas =
+				_dlFileEntryMetadataLocalService.
+					getFileVersionFileEntryMetadatas(
+						dlFileVersion.getFileVersionId());
+
 			document.addText(
 				"ddmContent",
-				_extractDDMContent(dlFileVersion, LocaleUtil.getSiteDefault()));
+				_extractDDMContent(
+					dlFileEntryMetadatas, LocaleUtil.getSiteDefault()));
+
 			document.addKeyword("extension", dlFileEntry.getExtension());
 			document.addKeyword(
 				"fileEntryTypeId", dlFileEntry.getFileEntryTypeId());
@@ -141,7 +152,8 @@ public class DLFileEntryModelDocumentContributor
 			document.addNumber(
 				"versionCount", GetterUtil.getDouble(dlFileEntry.getVersion()));
 
-			_addFileEntryTypeAttributes(document, dlFileVersion);
+			_addFileEntryMetadataAttributes(document, dlFileEntryMetadatas);
+			_addFileEntryTypeAttributes(document, dlFileEntryMetadatas);
 
 			if (dlFileEntry.isInHiddenFolder()) {
 				List<RelatedEntryIndexer> relatedEntryIndexers =
@@ -202,12 +214,39 @@ public class DLFileEntryModelDocumentContributor
 		}
 	}
 
-	private void _addFileEntryTypeAttributes(
-		Document document, DLFileVersion dlFileVersion) {
+	private void _addFileEntryMetadataAttributes(
+		Document document, List<DLFileEntryMetadata> dlFileEntryMetadatas) {
 
-		List<DLFileEntryMetadata> dlFileEntryMetadatas =
-			_dlFileEntryMetadataLocalService.getFileVersionFileEntryMetadatas(
-				dlFileVersion.getFileVersionId());
+		for (DLFileEntryMetadata dlFileEntryMetadata : dlFileEntryMetadatas) {
+			try {
+				DDMFormValues ddmFormValues =
+					_ddmStorageEngineManager.getDDMFormValues(
+						dlFileEntryMetadata.getDDMStorageId());
+
+				if (ddmFormValues != null) {
+					Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
+						ddmFormValues.getDDMFormFieldValuesMap(true);
+
+					document.addNumber(
+						"height",
+						_getDDMFormFieldValue(
+							ddmFormFieldValuesMap, "TIFF_IMAGE_LENGTH"));
+					document.addNumber(
+						"width",
+						_getDDMFormFieldValue(
+							ddmFormFieldValuesMap, "TIFF_IMAGE_WIDTH"));
+				}
+			}
+			catch (Exception exception) {
+				if (_log.isDebugEnabled()) {
+					_log.debug("Unable to retrieve metadata values", exception);
+				}
+			}
+		}
+	}
+
+	private void _addFileEntryTypeAttributes(
+		Document document, List<DLFileEntryMetadata> dlFileEntryMetadatas) {
 
 		for (DLFileEntryMetadata dlFileEntryMetadata : dlFileEntryMetadatas) {
 			try {
@@ -233,11 +272,7 @@ public class DLFileEntryModelDocumentContributor
 	}
 
 	private String _extractDDMContent(
-		DLFileVersion dlFileVersion, Locale locale) {
-
-		List<DLFileEntryMetadata> dlFileEntryMetadatas =
-			_dlFileEntryMetadataLocalService.getFileVersionFileEntryMetadatas(
-				dlFileVersion.getFileVersionId());
+		List<DLFileEntryMetadata> dlFileEntryMetadatas, Locale locale) {
 
 		StringBundler sb = new StringBundler(dlFileEntryMetadatas.size() * 2);
 
@@ -311,6 +346,26 @@ public class DLFileEntryModelDocumentContributor
 		}
 
 		return text;
+	}
+
+	private long _getDDMFormFieldValue(
+		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap,
+		String property) {
+
+		List<DDMFormFieldValue> ddmFormFieldValues = ddmFormFieldValuesMap.get(
+			property);
+
+		if (ListUtil.isEmpty(ddmFormFieldValues)) {
+			return 0;
+		}
+
+		DDMFormFieldValue ddmFormFieldValue = ddmFormFieldValues.get(0);
+
+		UnlocalizedValue unlocalizedValue =
+			(UnlocalizedValue)ddmFormFieldValue.getValue();
+
+		return GetterUtil.getLong(
+			unlocalizedValue.getString(unlocalizedValue.getDefaultLocale()));
 	}
 
 	private String _getIndexVersionLabel(DLFileEntry dlFileEntry)
@@ -403,6 +458,9 @@ public class DLFileEntryModelDocumentContributor
 
 	@Reference
 	private PrefsProps _prefsProps;
+
+	@Reference
+	private RawMetadataProcessor _rawMetadataProcessor;
 
 	@Reference
 	private RelatedEntryIndexerRegistry _relatedEntryIndexerRegistry;
