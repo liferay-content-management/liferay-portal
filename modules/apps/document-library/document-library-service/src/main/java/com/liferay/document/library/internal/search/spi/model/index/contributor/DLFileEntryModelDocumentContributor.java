@@ -30,6 +30,7 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.metadata.RawMetadataProcessor;
@@ -216,6 +217,10 @@ public class DLFileEntryModelDocumentContributor
 
 	private void _addFileEntryMetadataAttributes(
 		Document document, List<DLFileEntryMetadata> dlFileEntryMetadatas) {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-25680")) {
+			return;
+		}
 
 		for (DLFileEntryMetadata dlFileEntryMetadata : dlFileEntryMetadatas) {
 			try {
