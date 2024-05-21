@@ -380,6 +380,214 @@ public class FriendlyURLEntryLocalizationUtil {
 	}
 
 	/**
+	 * Returns all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @return the matching friendly url entry localizations
+	 */
+	public static List<FriendlyURLEntryLocalization> findByC_C_U(
+		long companyId, long classNameId, String urlTitle) {
+
+		return getPersistence().findByC_C_U(companyId, classNameId, urlTitle);
+	}
+
+	/**
+	 * Returns a range of all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FriendlyURLEntryLocalizationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param start the lower bound of the range of friendly url entry localizations
+	 * @param end the upper bound of the range of friendly url entry localizations (not inclusive)
+	 * @return the range of matching friendly url entry localizations
+	 */
+	public static List<FriendlyURLEntryLocalization> findByC_C_U(
+		long companyId, long classNameId, String urlTitle, int start, int end) {
+
+		return getPersistence().findByC_C_U(
+			companyId, classNameId, urlTitle, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FriendlyURLEntryLocalizationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param start the lower bound of the range of friendly url entry localizations
+	 * @param end the upper bound of the range of friendly url entry localizations (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching friendly url entry localizations
+	 */
+	public static List<FriendlyURLEntryLocalization> findByC_C_U(
+		long companyId, long classNameId, String urlTitle, int start, int end,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator) {
+
+		return getPersistence().findByC_C_U(
+			companyId, classNameId, urlTitle, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FriendlyURLEntryLocalizationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param start the lower bound of the range of friendly url entry localizations
+	 * @param end the upper bound of the range of friendly url entry localizations (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching friendly url entry localizations
+	 */
+	public static List<FriendlyURLEntryLocalization> findByC_C_U(
+		long companyId, long classNameId, String urlTitle, int start, int end,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByC_C_U(
+			companyId, classNameId, urlTitle, start, end, orderByComparator,
+			useFinderCache);
+	}
+
+	/**
+	 * Returns the first friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching friendly url entry localization
+	 * @throws NoSuchFriendlyURLEntryLocalizationException if a matching friendly url entry localization could not be found
+	 */
+	public static FriendlyURLEntryLocalization findByC_C_U_First(
+			long companyId, long classNameId, String urlTitle,
+			OrderByComparator<FriendlyURLEntryLocalization> orderByComparator)
+		throws com.liferay.friendly.url.exception.
+			NoSuchFriendlyURLEntryLocalizationException {
+
+		return getPersistence().findByC_C_U_First(
+			companyId, classNameId, urlTitle, orderByComparator);
+	}
+
+	/**
+	 * Returns the first friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching friendly url entry localization, or <code>null</code> if a matching friendly url entry localization could not be found
+	 */
+	public static FriendlyURLEntryLocalization fetchByC_C_U_First(
+		long companyId, long classNameId, String urlTitle,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator) {
+
+		return getPersistence().fetchByC_C_U_First(
+			companyId, classNameId, urlTitle, orderByComparator);
+	}
+
+	/**
+	 * Returns the last friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching friendly url entry localization
+	 * @throws NoSuchFriendlyURLEntryLocalizationException if a matching friendly url entry localization could not be found
+	 */
+	public static FriendlyURLEntryLocalization findByC_C_U_Last(
+			long companyId, long classNameId, String urlTitle,
+			OrderByComparator<FriendlyURLEntryLocalization> orderByComparator)
+		throws com.liferay.friendly.url.exception.
+			NoSuchFriendlyURLEntryLocalizationException {
+
+		return getPersistence().findByC_C_U_Last(
+			companyId, classNameId, urlTitle, orderByComparator);
+	}
+
+	/**
+	 * Returns the last friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching friendly url entry localization, or <code>null</code> if a matching friendly url entry localization could not be found
+	 */
+	public static FriendlyURLEntryLocalization fetchByC_C_U_Last(
+		long companyId, long classNameId, String urlTitle,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator) {
+
+		return getPersistence().fetchByC_C_U_Last(
+			companyId, classNameId, urlTitle, orderByComparator);
+	}
+
+	/**
+	 * Returns the friendly url entry localizations before and after the current friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param friendlyURLEntryLocalizationId the primary key of the current friendly url entry localization
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next friendly url entry localization
+	 * @throws NoSuchFriendlyURLEntryLocalizationException if a friendly url entry localization with the primary key could not be found
+	 */
+	public static FriendlyURLEntryLocalization[] findByC_C_U_PrevAndNext(
+			long friendlyURLEntryLocalizationId, long companyId,
+			long classNameId, String urlTitle,
+			OrderByComparator<FriendlyURLEntryLocalization> orderByComparator)
+		throws com.liferay.friendly.url.exception.
+			NoSuchFriendlyURLEntryLocalizationException {
+
+		return getPersistence().findByC_C_U_PrevAndNext(
+			friendlyURLEntryLocalizationId, companyId, classNameId, urlTitle,
+			orderByComparator);
+	}
+
+	/**
+	 * Removes all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 */
+	public static void removeByC_C_U(
+		long companyId, long classNameId, String urlTitle) {
+
+		getPersistence().removeByC_C_U(companyId, classNameId, urlTitle);
+	}
+
+	/**
+	 * Returns the number of friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @return the number of matching friendly url entry localizations
+	 */
+	public static int countByC_C_U(
+		long companyId, long classNameId, String urlTitle) {
+
+		return getPersistence().countByC_C_U(companyId, classNameId, urlTitle);
+	}
+
+	/**
 	 * Returns all the friendly url entry localizations where groupId = &#63; and classNameId = &#63; and urlTitle = &#63;.
 	 *
 	 * @param groupId the group ID

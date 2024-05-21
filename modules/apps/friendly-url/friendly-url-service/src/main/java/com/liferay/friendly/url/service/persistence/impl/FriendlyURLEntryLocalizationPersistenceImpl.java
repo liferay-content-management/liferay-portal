@@ -914,6 +914,659 @@ public class FriendlyURLEntryLocalizationPersistenceImpl
 		_FINDER_COLUMN_FRIENDLYURLENTRYID_LANGUAGEID_LANGUAGEID_3 =
 			"(friendlyURLEntryLocalization.languageId IS NULL OR friendlyURLEntryLocalization.languageId = '')";
 
+	private FinderPath _finderPathWithPaginationFindByC_C_U;
+	private FinderPath _finderPathWithoutPaginationFindByC_C_U;
+	private FinderPath _finderPathCountByC_C_U;
+
+	/**
+	 * Returns all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @return the matching friendly url entry localizations
+	 */
+	@Override
+	public List<FriendlyURLEntryLocalization> findByC_C_U(
+		long companyId, long classNameId, String urlTitle) {
+
+		return findByC_C_U(
+			companyId, classNameId, urlTitle, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FriendlyURLEntryLocalizationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param start the lower bound of the range of friendly url entry localizations
+	 * @param end the upper bound of the range of friendly url entry localizations (not inclusive)
+	 * @return the range of matching friendly url entry localizations
+	 */
+	@Override
+	public List<FriendlyURLEntryLocalization> findByC_C_U(
+		long companyId, long classNameId, String urlTitle, int start, int end) {
+
+		return findByC_C_U(companyId, classNameId, urlTitle, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FriendlyURLEntryLocalizationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param start the lower bound of the range of friendly url entry localizations
+	 * @param end the upper bound of the range of friendly url entry localizations (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching friendly url entry localizations
+	 */
+	@Override
+	public List<FriendlyURLEntryLocalization> findByC_C_U(
+		long companyId, long classNameId, String urlTitle, int start, int end,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator) {
+
+		return findByC_C_U(
+			companyId, classNameId, urlTitle, start, end, orderByComparator,
+			true);
+	}
+
+	/**
+	 * Returns an ordered range of all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FriendlyURLEntryLocalizationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param start the lower bound of the range of friendly url entry localizations
+	 * @param end the upper bound of the range of friendly url entry localizations (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching friendly url entry localizations
+	 */
+	@Override
+	public List<FriendlyURLEntryLocalization> findByC_C_U(
+		long companyId, long classNameId, String urlTitle, int start, int end,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator,
+		boolean useFinderCache) {
+
+		try (SafeCloseable safeCloseable =
+				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
+					FriendlyURLEntryLocalization.class)) {
+
+			urlTitle = Objects.toString(urlTitle, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByC_C_U;
+					finderArgs = new Object[] {
+						companyId, classNameId, urlTitle
+					};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByC_C_U;
+				finderArgs = new Object[] {
+					companyId, classNameId, urlTitle, start, end,
+					orderByComparator
+				};
+			}
+
+			List<FriendlyURLEntryLocalization> list = null;
+
+			if (useFinderCache) {
+				list =
+					(List<FriendlyURLEntryLocalization>)finderCache.getResult(
+						finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (FriendlyURLEntryLocalization
+							friendlyURLEntryLocalization : list) {
+
+						if ((companyId !=
+								friendlyURLEntryLocalization.getCompanyId()) ||
+							(classNameId !=
+								friendlyURLEntryLocalization.
+									getClassNameId()) ||
+							!urlTitle.equals(
+								friendlyURLEntryLocalization.getUrlTitle())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						5 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(5);
+				}
+
+				sb.append(_SQL_SELECT_FRIENDLYURLENTRYLOCALIZATION_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_U_COMPANYID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_U_CLASSNAMEID_2);
+
+				boolean bindUrlTitle = false;
+
+				if (urlTitle.isEmpty()) {
+					sb.append(_FINDER_COLUMN_C_C_U_URLTITLE_3);
+				}
+				else {
+					bindUrlTitle = true;
+
+					sb.append(_FINDER_COLUMN_C_C_U_URLTITLE_2);
+				}
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(
+						FriendlyURLEntryLocalizationModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					queryPos.add(classNameId);
+
+					if (bindUrlTitle) {
+						queryPos.add(urlTitle);
+					}
+
+					list = (List<FriendlyURLEntryLocalization>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
+		}
+	}
+
+	/**
+	 * Returns the first friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching friendly url entry localization
+	 * @throws NoSuchFriendlyURLEntryLocalizationException if a matching friendly url entry localization could not be found
+	 */
+	@Override
+	public FriendlyURLEntryLocalization findByC_C_U_First(
+			long companyId, long classNameId, String urlTitle,
+			OrderByComparator<FriendlyURLEntryLocalization> orderByComparator)
+		throws NoSuchFriendlyURLEntryLocalizationException {
+
+		FriendlyURLEntryLocalization friendlyURLEntryLocalization =
+			fetchByC_C_U_First(
+				companyId, classNameId, urlTitle, orderByComparator);
+
+		if (friendlyURLEntryLocalization != null) {
+			return friendlyURLEntryLocalization;
+		}
+
+		StringBundler sb = new StringBundler(8);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("companyId=");
+		sb.append(companyId);
+
+		sb.append(", classNameId=");
+		sb.append(classNameId);
+
+		sb.append(", urlTitle=");
+		sb.append(urlTitle);
+
+		sb.append("}");
+
+		throw new NoSuchFriendlyURLEntryLocalizationException(sb.toString());
+	}
+
+	/**
+	 * Returns the first friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching friendly url entry localization, or <code>null</code> if a matching friendly url entry localization could not be found
+	 */
+	@Override
+	public FriendlyURLEntryLocalization fetchByC_C_U_First(
+		long companyId, long classNameId, String urlTitle,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator) {
+
+		List<FriendlyURLEntryLocalization> list = findByC_C_U(
+			companyId, classNameId, urlTitle, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching friendly url entry localization
+	 * @throws NoSuchFriendlyURLEntryLocalizationException if a matching friendly url entry localization could not be found
+	 */
+	@Override
+	public FriendlyURLEntryLocalization findByC_C_U_Last(
+			long companyId, long classNameId, String urlTitle,
+			OrderByComparator<FriendlyURLEntryLocalization> orderByComparator)
+		throws NoSuchFriendlyURLEntryLocalizationException {
+
+		FriendlyURLEntryLocalization friendlyURLEntryLocalization =
+			fetchByC_C_U_Last(
+				companyId, classNameId, urlTitle, orderByComparator);
+
+		if (friendlyURLEntryLocalization != null) {
+			return friendlyURLEntryLocalization;
+		}
+
+		StringBundler sb = new StringBundler(8);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("companyId=");
+		sb.append(companyId);
+
+		sb.append(", classNameId=");
+		sb.append(classNameId);
+
+		sb.append(", urlTitle=");
+		sb.append(urlTitle);
+
+		sb.append("}");
+
+		throw new NoSuchFriendlyURLEntryLocalizationException(sb.toString());
+	}
+
+	/**
+	 * Returns the last friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching friendly url entry localization, or <code>null</code> if a matching friendly url entry localization could not be found
+	 */
+	@Override
+	public FriendlyURLEntryLocalization fetchByC_C_U_Last(
+		long companyId, long classNameId, String urlTitle,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator) {
+
+		int count = countByC_C_U(companyId, classNameId, urlTitle);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<FriendlyURLEntryLocalization> list = findByC_C_U(
+			companyId, classNameId, urlTitle, count - 1, count,
+			orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the friendly url entry localizations before and after the current friendly url entry localization in the ordered set where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param friendlyURLEntryLocalizationId the primary key of the current friendly url entry localization
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next friendly url entry localization
+	 * @throws NoSuchFriendlyURLEntryLocalizationException if a friendly url entry localization with the primary key could not be found
+	 */
+	@Override
+	public FriendlyURLEntryLocalization[] findByC_C_U_PrevAndNext(
+			long friendlyURLEntryLocalizationId, long companyId,
+			long classNameId, String urlTitle,
+			OrderByComparator<FriendlyURLEntryLocalization> orderByComparator)
+		throws NoSuchFriendlyURLEntryLocalizationException {
+
+		urlTitle = Objects.toString(urlTitle, "");
+
+		FriendlyURLEntryLocalization friendlyURLEntryLocalization =
+			findByPrimaryKey(friendlyURLEntryLocalizationId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			FriendlyURLEntryLocalization[] array =
+				new FriendlyURLEntryLocalizationImpl[3];
+
+			array[0] = getByC_C_U_PrevAndNext(
+				session, friendlyURLEntryLocalization, companyId, classNameId,
+				urlTitle, orderByComparator, true);
+
+			array[1] = friendlyURLEntryLocalization;
+
+			array[2] = getByC_C_U_PrevAndNext(
+				session, friendlyURLEntryLocalization, companyId, classNameId,
+				urlTitle, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception exception) {
+			throw processException(exception);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected FriendlyURLEntryLocalization getByC_C_U_PrevAndNext(
+		Session session,
+		FriendlyURLEntryLocalization friendlyURLEntryLocalization,
+		long companyId, long classNameId, String urlTitle,
+		OrderByComparator<FriendlyURLEntryLocalization> orderByComparator,
+		boolean previous) {
+
+		StringBundler sb = null;
+
+		if (orderByComparator != null) {
+			sb = new StringBundler(
+				6 + (orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			sb = new StringBundler(5);
+		}
+
+		sb.append(_SQL_SELECT_FRIENDLYURLENTRYLOCALIZATION_WHERE);
+
+		sb.append(_FINDER_COLUMN_C_C_U_COMPANYID_2);
+
+		sb.append(_FINDER_COLUMN_C_C_U_CLASSNAMEID_2);
+
+		boolean bindUrlTitle = false;
+
+		if (urlTitle.isEmpty()) {
+			sb.append(_FINDER_COLUMN_C_C_U_URLTITLE_3);
+		}
+		else {
+			bindUrlTitle = true;
+
+			sb.append(_FINDER_COLUMN_C_C_U_URLTITLE_2);
+		}
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields =
+				orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				sb.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			sb.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						sb.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC);
+					}
+					else {
+						sb.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			sb.append(FriendlyURLEntryLocalizationModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = sb.toString();
+
+		Query query = session.createQuery(sql);
+
+		query.setFirstResult(0);
+		query.setMaxResults(2);
+
+		QueryPos queryPos = QueryPos.getInstance(query);
+
+		queryPos.add(companyId);
+
+		queryPos.add(classNameId);
+
+		if (bindUrlTitle) {
+			queryPos.add(urlTitle);
+		}
+
+		if (orderByComparator != null) {
+			for (Object orderByConditionValue :
+					orderByComparator.getOrderByConditionValues(
+						friendlyURLEntryLocalization)) {
+
+				queryPos.add(orderByConditionValue);
+			}
+		}
+
+		List<FriendlyURLEntryLocalization> list = query.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 */
+	@Override
+	public void removeByC_C_U(
+		long companyId, long classNameId, String urlTitle) {
+
+		for (FriendlyURLEntryLocalization friendlyURLEntryLocalization :
+				findByC_C_U(
+					companyId, classNameId, urlTitle, QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS, null)) {
+
+			remove(friendlyURLEntryLocalization);
+		}
+	}
+
+	/**
+	 * Returns the number of friendly url entry localizations where companyId = &#63; and classNameId = &#63; and urlTitle = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param classNameId the class name ID
+	 * @param urlTitle the url title
+	 * @return the number of matching friendly url entry localizations
+	 */
+	@Override
+	public int countByC_C_U(long companyId, long classNameId, String urlTitle) {
+		try (SafeCloseable safeCloseable =
+				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
+					FriendlyURLEntryLocalization.class)) {
+
+			urlTitle = Objects.toString(urlTitle, "");
+
+			FinderPath finderPath = _finderPathCountByC_C_U;
+
+			Object[] finderArgs = new Object[] {
+				companyId, classNameId, urlTitle
+			};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(_SQL_COUNT_FRIENDLYURLENTRYLOCALIZATION_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_U_COMPANYID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_U_CLASSNAMEID_2);
+
+				boolean bindUrlTitle = false;
+
+				if (urlTitle.isEmpty()) {
+					sb.append(_FINDER_COLUMN_C_C_U_URLTITLE_3);
+				}
+				else {
+					bindUrlTitle = true;
+
+					sb.append(_FINDER_COLUMN_C_C_U_URLTITLE_2);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					queryPos.add(classNameId);
+
+					if (bindUrlTitle) {
+						queryPos.add(urlTitle);
+					}
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
+		}
+	}
+
+	private static final String _FINDER_COLUMN_C_C_U_COMPANYID_2 =
+		"friendlyURLEntryLocalization.companyId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_U_CLASSNAMEID_2 =
+		"friendlyURLEntryLocalization.classNameId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_U_URLTITLE_2 =
+		"friendlyURLEntryLocalization.urlTitle = ?";
+
+	private static final String _FINDER_COLUMN_C_C_U_URLTITLE_3 =
+		"(friendlyURLEntryLocalization.urlTitle IS NULL OR friendlyURLEntryLocalization.urlTitle = '')";
+
 	private FinderPath _finderPathWithPaginationFindByG_C_U;
 	private FinderPath _finderPathWithoutPaginationFindByG_C_U;
 	private FinderPath _finderPathCountByG_C_U;
@@ -4247,6 +4900,31 @@ public class FriendlyURLEntryLocalizationPersistenceImpl
 			"countByFriendlyURLEntryId_LanguageId",
 			new String[] {Long.class.getName(), String.class.getName()},
 			new String[] {"friendlyURLEntryId", "languageId"}, false);
+
+		_finderPathWithPaginationFindByC_C_U = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_C_U",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				String.class.getName(), Integer.class.getName(),
+				Integer.class.getName(), OrderByComparator.class.getName()
+			},
+			new String[] {"companyId", "classNameId", "urlTitle"}, true);
+
+		_finderPathWithoutPaginationFindByC_C_U = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_C_U",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				String.class.getName()
+			},
+			new String[] {"companyId", "classNameId", "urlTitle"}, true);
+
+		_finderPathCountByC_C_U = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_C_U",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				String.class.getName()
+			},
+			new String[] {"companyId", "classNameId", "urlTitle"}, false);
 
 		_finderPathWithPaginationFindByG_C_U = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_C_U",
