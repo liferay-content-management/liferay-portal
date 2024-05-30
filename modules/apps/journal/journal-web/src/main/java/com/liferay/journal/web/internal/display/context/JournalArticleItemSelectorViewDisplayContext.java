@@ -328,6 +328,8 @@ public class JournalArticleItemSelectorViewDisplayContext {
 			getPortletURL()
 		).setParameter(
 			"folderId", _getFolderId()
+		).setParameter(
+			"scope", _getScopeFilter()
 		).buildPortletURL();
 
 		SearchContainer<Object> articleAndFolderSearchContainer =
@@ -630,6 +632,14 @@ public class JournalArticleItemSelectorViewDisplayContext {
 		return _orderByType;
 	}
 
+	private String _getScopeFilter() {
+		if (Validator.isNull(_scope)) {
+			_scope = ParamUtil.getString(_httpServletRequest, "scope");
+		}
+
+		return _scope;
+	}
+
 	private long _getStagingAwareGroupId() {
 		if (_groupId != null) {
 			return _groupId;
@@ -783,6 +793,7 @@ public class JournalArticleItemSelectorViewDisplayContext {
 	private final ResourcePermissionLocalService
 		_resourcePermissionLocalService;
 	private final RoleLocalService _roleLocalService;
+	private String _scope;
 	private final boolean _search;
 	private Boolean _searchEverywhere;
 	private final StagingGroupHelper _stagingGroupHelper;
