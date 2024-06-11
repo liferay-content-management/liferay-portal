@@ -59,6 +59,10 @@ definition {
 	macro configureSystemSetting(enableSetting = null, settingValue = null, settingFieldName = null, settingName = null) {
 		var key_settingFieldName = ${settingFieldName};
 
+		WaitForElementPresent(
+			key_checkboxOption = ${settingFieldName},
+			locator1 = "SystemSettings#SETTING_FIELD_NAME_CHECKBOX");
+
 		if (${enableSetting} == "true") {
 			Check.toggleSwitch(locator1 = "SystemSettings#SETTING_FIELD_NAME_CHECKBOX");
 
