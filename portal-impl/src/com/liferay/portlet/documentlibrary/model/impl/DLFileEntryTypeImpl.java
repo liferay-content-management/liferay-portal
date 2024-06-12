@@ -14,6 +14,7 @@ import com.liferay.dynamic.data.mapping.kernel.DDMStructureManagerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -60,6 +61,17 @@ public class DLFileEntryTypeImpl extends DLFileEntryTypeBaseImpl {
 		}
 
 		return ddmStructures;
+	}
+
+	@Override
+	public long getCompanyId() {
+		if (getFileEntryTypeId() ==
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT) {
+
+			return CompanyThreadLocal.getCompanyId();
+		}
+
+		return super.getCompanyId();
 	}
 
 	@Override
