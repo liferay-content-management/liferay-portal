@@ -19,6 +19,7 @@ export class JournalEditArticlePage {
 	readonly propertiesTab: Locator;
 	readonly publishButton: Locator;
 	readonly redoButton: Locator;
+	readonly selectAndConfirmPublishButton: Locator;
 	readonly submitForWorkflowButton: Locator;
 	readonly titleInput: Locator;
 	readonly undoButton: Locator;
@@ -33,6 +34,9 @@ export class JournalEditArticlePage {
 		this.propertiesTab = page.getByRole('tab', {name: 'Properties'});
 		this.publishButton = page.getByRole('button', {name: 'Publish'});
 		this.redoButton = page.getByTitle('Redo', {exact: true});
+		this.selectAndConfirmPublishButton = page.getByLabel(
+			'Select and Confirm Publish Settings'
+		);
 		this.submitForWorkflowButton = page.getByRole('button', {
 			name: 'Submit for Workflow',
 		});
@@ -143,7 +147,9 @@ export class JournalEditArticlePage {
 
 		await this.fillTitle(title);
 
-		await this.publishButton.waitFor();
+		await this.selectAndConfirmPublishButton.waitFor();
+
+		await this.selectAndConfirmPublishButton.click();
 
 		await this.publishButton.click();
 
