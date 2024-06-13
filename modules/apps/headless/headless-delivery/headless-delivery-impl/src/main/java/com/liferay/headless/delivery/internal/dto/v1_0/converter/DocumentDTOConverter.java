@@ -157,10 +157,12 @@ public class DocumentDTOConverter
 				setDateCreated(fileEntry::getCreateDate);
 				setDateModified(fileEntry::getModifiedDate);
 				setDescription(fileEntry::getDescription);
+				setDisplayDate(fileEntry::getDisplayDate);
 				setDocumentFolderId(fileEntry::getFolderId);
 				setDocumentType(
 					() -> _toDocumentType(dtoConverterContext, fileVersion));
 				setEncodingFormat(fileEntry::getMimeType);
+				setExpirationDate(fileEntry::getExpirationDate);
 				setExternalReferenceCode(fileEntry::getExternalReferenceCode);
 				setFileExtension(fileEntry::getExtension);
 				setFileName(fileEntry::getFileName);
