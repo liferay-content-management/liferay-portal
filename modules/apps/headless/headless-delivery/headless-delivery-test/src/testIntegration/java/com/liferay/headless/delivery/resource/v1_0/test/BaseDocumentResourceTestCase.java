@@ -3312,6 +3312,14 @@ public abstract class BaseDocumentResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("displayDate", additionalAssertFieldName)) {
+				if (document.getDisplayDate() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("documentFolderId", additionalAssertFieldName)) {
 				if (document.getDocumentFolderId() == null) {
 					valid = false;
@@ -3330,6 +3338,14 @@ public abstract class BaseDocumentResourceTestCase {
 
 			if (Objects.equals("encodingFormat", additionalAssertFieldName)) {
 				if (document.getEncodingFormat() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("expirationDate", additionalAssertFieldName)) {
+				if (document.getExpirationDate() == null) {
 					valid = false;
 				}
 
@@ -3749,6 +3765,17 @@ public abstract class BaseDocumentResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("displayDate", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						document1.getDisplayDate(),
+						document2.getDisplayDate())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("documentFolderId", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						document1.getDocumentFolderId(),
@@ -3775,6 +3802,17 @@ public abstract class BaseDocumentResourceTestCase {
 				if (!Objects.deepEquals(
 						document1.getEncodingFormat(),
 						document2.getEncodingFormat())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("expirationDate", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						document1.getExpirationDate(),
+						document2.getExpirationDate())) {
 
 					return false;
 				}
@@ -4407,6 +4445,37 @@ public abstract class BaseDocumentResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("displayDate")) {
+			if (operator.equals("between")) {
+				Date date = document.getDisplayDate();
+
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(date.getTime() - (2 * Time.SECOND)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(date.getTime() + (2 * Time.SECOND)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(document.getDisplayDate()));
+			}
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("documentFolderId")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -4458,6 +4527,37 @@ public abstract class BaseDocumentResourceTestCase {
 				sb.append("'");
 				sb.append(value);
 				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("expirationDate")) {
+			if (operator.equals("between")) {
+				Date date = document.getExpirationDate();
+
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(date.getTime() - (2 * Time.SECOND)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(date.getTime() + (2 * Time.SECOND)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(document.getExpirationDate()));
 			}
 
 			return sb.toString();
@@ -4804,9 +4904,11 @@ public abstract class BaseDocumentResourceTestCase {
 				dateModified = RandomTestUtil.nextDate();
 				description = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
+				displayDate = RandomTestUtil.nextDate();
 				documentFolderId = RandomTestUtil.randomLong();
 				encodingFormat = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
+				expirationDate = RandomTestUtil.nextDate();
 				externalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				fileExtension = StringUtil.toLowerCase(

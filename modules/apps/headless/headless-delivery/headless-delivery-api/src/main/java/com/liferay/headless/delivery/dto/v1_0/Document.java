@@ -540,6 +540,49 @@ public class Document implements Serializable {
 	@JsonIgnore
 	private Supplier<String> _descriptionSupplier;
 
+	@Schema(description = "The date on which the document will be displayed.")
+	public Date getDisplayDate() {
+		if (_displayDateSupplier != null) {
+			displayDate = _displayDateSupplier.get();
+
+			_displayDateSupplier = null;
+		}
+
+		return displayDate;
+	}
+
+	public void setDisplayDate(Date displayDate) {
+		this.displayDate = displayDate;
+
+		_displayDateSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setDisplayDate(
+		UnsafeSupplier<Date, Exception> displayDateUnsafeSupplier) {
+
+		_displayDateSupplier = () -> {
+			try {
+				return displayDateUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The date on which the document will be displayed."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Date displayDate;
+
+	@JsonIgnore
+	private Supplier<Date> _displayDateSupplier;
+
 	@Schema(
 		description = "The ID of the `DocumentFolder` where this document is stored."
 	)
@@ -671,6 +714,49 @@ public class Document implements Serializable {
 
 	@JsonIgnore
 	private Supplier<String> _encodingFormatSupplier;
+
+	@Schema(description = "The date on which the document will be expired.")
+	public Date getExpirationDate() {
+		if (_expirationDateSupplier != null) {
+			expirationDate = _expirationDateSupplier.get();
+
+			_expirationDateSupplier = null;
+		}
+
+		return expirationDate;
+	}
+
+	public void setExpirationDate(Date expirationDate) {
+		this.expirationDate = expirationDate;
+
+		_expirationDateSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setExpirationDate(
+		UnsafeSupplier<Date, Exception> expirationDateUnsafeSupplier) {
+
+		_expirationDateSupplier = () -> {
+			try {
+				return expirationDateUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The date on which the document will be expired."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Date expirationDate;
+
+	@JsonIgnore
+	private Supplier<Date> _expirationDateSupplier;
 
 	@Schema(description = "The document's external reference code.")
 	public String getExternalReferenceCode() {
@@ -1528,6 +1614,22 @@ public class Document implements Serializable {
 			sb.append("\"");
 		}
 
+		Date displayDate = getDisplayDate();
+
+		if (displayDate != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"displayDate\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(displayDate));
+
+			sb.append("\"");
+		}
+
 		Long documentFolderId = getDocumentFolderId();
 
 		if (documentFolderId != null) {
@@ -1564,6 +1666,22 @@ public class Document implements Serializable {
 			sb.append("\"");
 
 			sb.append(_escape(encodingFormat));
+
+			sb.append("\"");
+		}
+
+		Date expirationDate = getExpirationDate();
+
+		if (expirationDate != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"expirationDate\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(expirationDate));
 
 			sb.append("\"");
 		}

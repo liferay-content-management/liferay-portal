@@ -211,6 +211,21 @@ public class DocumentSerDes {
 			sb.append("\"");
 		}
 
+		if (document.getDisplayDate() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"displayDate\": ");
+
+			sb.append("\"");
+
+			sb.append(
+				liferayToJSONDateFormat.format(document.getDisplayDate()));
+
+			sb.append("\"");
+		}
+
 		if (document.getDocumentFolderId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -241,6 +256,21 @@ public class DocumentSerDes {
 			sb.append("\"");
 
 			sb.append(_escape(document.getEncodingFormat()));
+
+			sb.append("\"");
+		}
+
+		if (document.getExpirationDate() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"expirationDate\": ");
+
+			sb.append("\"");
+
+			sb.append(
+				liferayToJSONDateFormat.format(document.getExpirationDate()));
 
 			sb.append("\"");
 		}
@@ -579,6 +609,15 @@ public class DocumentSerDes {
 			map.put("description", String.valueOf(document.getDescription()));
 		}
 
+		if (document.getDisplayDate() == null) {
+			map.put("displayDate", null);
+		}
+		else {
+			map.put(
+				"displayDate",
+				liferayToJSONDateFormat.format(document.getDisplayDate()));
+		}
+
 		if (document.getDocumentFolderId() == null) {
 			map.put("documentFolderId", null);
 		}
@@ -601,6 +640,15 @@ public class DocumentSerDes {
 		else {
 			map.put(
 				"encodingFormat", String.valueOf(document.getEncodingFormat()));
+		}
+
+		if (document.getExpirationDate() == null) {
+			map.put("expirationDate", null);
+		}
+		else {
+			map.put(
+				"expirationDate",
+				liferayToJSONDateFormat.format(document.getExpirationDate()));
 		}
 
 		if (document.getExternalReferenceCode() == null) {
@@ -773,6 +821,9 @@ public class DocumentSerDes {
 			else if (Objects.equals(jsonParserFieldName, "description")) {
 				return false;
 			}
+			else if (Objects.equals(jsonParserFieldName, "displayDate")) {
+				return false;
+			}
 			else if (Objects.equals(jsonParserFieldName, "documentFolderId")) {
 				return false;
 			}
@@ -780,6 +831,9 @@ public class DocumentSerDes {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "encodingFormat")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "expirationDate")) {
 				return false;
 			}
 			else if (Objects.equals(
@@ -925,6 +979,12 @@ public class DocumentSerDes {
 					document.setDescription((String)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "displayDate")) {
+				if (jsonParserFieldValue != null) {
+					document.setDisplayDate(
+						toDate((String)jsonParserFieldValue));
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "documentFolderId")) {
 				if (jsonParserFieldValue != null) {
 					document.setDocumentFolderId(
@@ -940,6 +1000,12 @@ public class DocumentSerDes {
 			else if (Objects.equals(jsonParserFieldName, "encodingFormat")) {
 				if (jsonParserFieldValue != null) {
 					document.setEncodingFormat((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "expirationDate")) {
+				if (jsonParserFieldValue != null) {
+					document.setExpirationDate(
+						toDate((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(

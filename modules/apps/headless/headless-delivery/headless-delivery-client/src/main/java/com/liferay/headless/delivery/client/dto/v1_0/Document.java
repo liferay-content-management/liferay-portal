@@ -260,6 +260,27 @@ public class Document implements Cloneable, Serializable {
 
 	protected String description;
 
+	public Date getDisplayDate() {
+		return displayDate;
+	}
+
+	public void setDisplayDate(Date displayDate) {
+		this.displayDate = displayDate;
+	}
+
+	public void setDisplayDate(
+		UnsafeSupplier<Date, Exception> displayDateUnsafeSupplier) {
+
+		try {
+			displayDate = displayDateUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Date displayDate;
+
 	public Long getDocumentFolderId() {
 		return documentFolderId;
 	}
@@ -322,6 +343,27 @@ public class Document implements Cloneable, Serializable {
 	}
 
 	protected String encodingFormat;
+
+	public Date getExpirationDate() {
+		return expirationDate;
+	}
+
+	public void setExpirationDate(Date expirationDate) {
+		this.expirationDate = expirationDate;
+	}
+
+	public void setExpirationDate(
+		UnsafeSupplier<Date, Exception> expirationDateUnsafeSupplier) {
+
+		try {
+			expirationDate = expirationDateUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Date expirationDate;
 
 	public String getExternalReferenceCode() {
 		return externalReferenceCode;
