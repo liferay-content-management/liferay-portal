@@ -116,6 +116,8 @@ public class DocumentResourceTest extends BaseDocumentResourceTestCase {
 			testGroup.getGroupId(), randomDocument(), getMultipartFiles());
 
 		Assert.assertTrue(Validator.isNotNull(document1.getContentUrl()));
+		Assert.assertTrue(Validator.isNotNull(document1.getDisplayDate()));
+		Assert.assertTrue(Validator.isNotNull(document1.getExpirationDate()));
 		Assert.assertTrue(Validator.isNotNull(document1.getFriendlyUrlPath()));
 
 		Document document2 = documentResource.postSiteDocument(
@@ -125,6 +127,8 @@ public class DocumentResourceTest extends BaseDocumentResourceTestCase {
 			).build());
 
 		Assert.assertTrue(Validator.isNull(document2.getContentUrl()));
+		Assert.assertTrue(Validator.isNotNull(document2.getDisplayDate()));
+		Assert.assertTrue(Validator.isNotNull(document2.getExpirationDate()));
 		Assert.assertTrue(Validator.isNotNull(document2.getFriendlyUrlPath()));
 
 		Role guestRole = _roleLocalService.getRole(
@@ -154,6 +158,8 @@ public class DocumentResourceTest extends BaseDocumentResourceTestCase {
 		document1 = regularUserDocumentResource.getDocument(document1.getId());
 
 		Assert.assertTrue(Validator.isNull(document1.getContentUrl()));
+		Assert.assertTrue(Validator.isNotNull(document1.getDisplayDate()));
+		Assert.assertTrue(Validator.isNotNull(document1.getExpirationDate()));
 		Assert.assertTrue(Validator.isNotNull(document1.getFriendlyUrlPath()));
 	}
 

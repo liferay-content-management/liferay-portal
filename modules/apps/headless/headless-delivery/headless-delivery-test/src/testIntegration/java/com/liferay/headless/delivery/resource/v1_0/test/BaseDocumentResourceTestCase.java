@@ -4904,11 +4904,11 @@ public abstract class BaseDocumentResourceTestCase {
 				dateModified = RandomTestUtil.nextDate();
 				description = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
-				displayDate = RandomTestUtil.nextDate();
+				displayDate = new Date(System.currentTimeMillis() - Time.YEAR);
 				documentFolderId = RandomTestUtil.randomLong();
 				encodingFormat = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
-				expirationDate = RandomTestUtil.nextDate();
+				expirationDate = new Date(System.currentTimeMillis() + Time.YEAR);
 				externalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				fileExtension = StringUtil.toLowerCase(
