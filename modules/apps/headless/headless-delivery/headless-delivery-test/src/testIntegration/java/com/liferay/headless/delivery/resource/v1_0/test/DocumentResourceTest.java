@@ -25,7 +25,9 @@ import com.liferay.headless.delivery.client.dto.v1_0.DocumentType;
 import com.liferay.headless.delivery.client.http.HttpInvoker;
 import com.liferay.headless.delivery.client.resource.v1_0.DocumentResource;
 import com.liferay.headless.delivery.client.serdes.v1_0.DocumentSerDes;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -51,7 +53,10 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.odata.entity.EntityField;
+import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -61,8 +66,10 @@ import com.liferay.ratings.kernel.service.RatingsEntryLocalService;
 import java.io.File;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -107,6 +114,7 @@ public class DocumentResourceTest extends BaseDocumentResourceTestCase {
 				irrelevantDocument.getId()));
 	}
 
+	@FeatureFlags("LPS-10701")
 	@Override
 	@Test
 	public void testGetDocument() throws Exception {
@@ -245,8 +253,1000 @@ public class DocumentResourceTest extends BaseDocumentResourceTestCase {
 	}
 
 	@Override
+	protected boolean equals(Document document1, Document document2) {
+		if (document1 == document2) {
+			return true;
+		}
+
+		for (String additionalAssertFieldName :
+				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(additionalAssertFieldName, "actions")) {
+				if (!equals(
+						(Map)document1.getActions(),
+						(Map)document2.getActions())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "adaptedImages")) {
+				if (!Objects.deepEquals(
+						document1.getAdaptedImages(),
+						document2.getAdaptedImages())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "aggregateRating")) {
+				if (!Objects.deepEquals(
+						document1.getAggregateRating(),
+						document2.getAggregateRating())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "contentUrl")) {
+				if (!Objects.deepEquals(
+						document1.getContentUrl(), document2.getContentUrl())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "contentValue")) {
+				if (!Objects.deepEquals(
+						document1.getContentValue(),
+						document2.getContentValue())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "creator")) {
+				if (!Objects.deepEquals(
+						document1.getCreator(), document2.getCreator())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "customFields")) {
+				if (!Objects.deepEquals(
+						document1.getCustomFields(),
+						document2.getCustomFields())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "dateCreated")) {
+				if (!Objects.deepEquals(
+						document1.getDateCreated(),
+						document2.getDateCreated())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "dateExpired")) {
+				if (!Objects.deepEquals(
+						document1.getDateExpired(),
+						document2.getDateExpired())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "dateModified")) {
+				if (!Objects.deepEquals(
+						document1.getDateModified(),
+						document2.getDateModified())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (FeatureFlagManagerUtil.isEnabled(
+					testCompany.getCompanyId(), "LPD-10701") &&
+				Objects.equals(additionalAssertFieldName, "datePublished")) {
+
+				if (!Objects.deepEquals(
+						document1.getDatePublished(),
+						document2.getDatePublished())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "description")) {
+				if (!Objects.deepEquals(
+						document1.getDescription(),
+						document2.getDescription())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "documentFolderId")) {
+				if (!Objects.deepEquals(
+						document1.getDocumentFolderId(),
+						document2.getDocumentFolderId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "documentType")) {
+				if (!Objects.deepEquals(
+						document1.getDocumentType(),
+						document2.getDocumentType())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "encodingFormat")) {
+				if (!Objects.deepEquals(
+						document1.getEncodingFormat(),
+						document2.getEncodingFormat())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					additionalAssertFieldName, "externalReferenceCode")) {
+
+				if (!Objects.deepEquals(
+						document1.getExternalReferenceCode(),
+						document2.getExternalReferenceCode())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "fileExtension")) {
+				if (!Objects.deepEquals(
+						document1.getFileExtension(),
+						document2.getFileExtension())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "fileName")) {
+				if (!Objects.deepEquals(
+						document1.getFileName(), document2.getFileName())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "friendlyUrlPath")) {
+				if (!Objects.deepEquals(
+						document1.getFriendlyUrlPath(),
+						document2.getFriendlyUrlPath())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "id")) {
+				if (!Objects.deepEquals(document1.getId(), document2.getId())) {
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "keywords")) {
+				if (!Objects.deepEquals(
+						document1.getKeywords(), document2.getKeywords())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "numberOfComments")) {
+				if (!Objects.deepEquals(
+						document1.getNumberOfComments(),
+						document2.getNumberOfComments())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "relatedContents")) {
+				if (!Objects.deepEquals(
+						document1.getRelatedContents(),
+						document2.getRelatedContents())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "renderedContents")) {
+				if (!Objects.deepEquals(
+						document1.getRenderedContents(),
+						document2.getRenderedContents())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "sizeInBytes")) {
+				if (!Objects.deepEquals(
+						document1.getSizeInBytes(),
+						document2.getSizeInBytes())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					additionalAssertFieldName, "taxonomyCategoryBriefs")) {
+
+				if (!Objects.deepEquals(
+						document1.getTaxonomyCategoryBriefs(),
+						document2.getTaxonomyCategoryBriefs())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					additionalAssertFieldName, "taxonomyCategoryIds")) {
+
+				if (!Objects.deepEquals(
+						document1.getTaxonomyCategoryIds(),
+						document2.getTaxonomyCategoryIds())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "title")) {
+				if (!Objects.deepEquals(
+						document1.getTitle(), document2.getTitle())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(additionalAssertFieldName, "viewableBy")) {
+				if (!Objects.deepEquals(
+						document1.getViewableBy(), document2.getViewableBy())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			throw new IllegalArgumentException(
+				"Invalid additional assert field name " +
+					additionalAssertFieldName);
+		}
+
+		return true;
+	}
+
+	@Override
 	protected String[] getAdditionalAssertFieldNames() {
 		return new String[] {"description", "fileName", "title"};
+	}
+
+	@Override
+	protected String getFilterString(
+		EntityField entityField, String operator, Document document) {
+
+		StringBundler sb = new StringBundler(4);
+
+		String entityFieldName = entityField.getName();
+
+		sb.append(entityFieldName);
+
+		sb.append(" ");
+		sb.append(operator);
+		sb.append(" ");
+
+		if (entityFieldName.equals("actions") ||
+			entityFieldName.equals("adaptedImages") ||
+			entityFieldName.equals("aggregateRating")) {
+
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("assetLibraryKey")) {
+			Object object = document.getAssetLibraryKey();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("contentUrl")) {
+			Object object = document.getContentUrl();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("contentValue")) {
+			Object object = document.getContentValue();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("creator") ||
+			entityFieldName.equals("customFields")) {
+
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("dateCreated")) {
+			if (operator.equals("between")) {
+				Date date = document.getDateCreated();
+
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(date.getTime() - (2 * Time.SECOND)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(date.getTime() + (2 * Time.SECOND)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(document.getDateCreated()));
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("dateExpired")) {
+			if (operator.equals("between")) {
+				Date date = document.getDateExpired();
+
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(date.getTime() - (2 * Time.SECOND)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(date.getTime() + (2 * Time.SECOND)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(document.getDateExpired()));
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("dateModified")) {
+			if (operator.equals("between")) {
+				Date date = document.getDateModified();
+
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(date.getTime() - (2 * Time.SECOND)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(date.getTime() + (2 * Time.SECOND)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(document.getDateModified()));
+			}
+
+			return sb.toString();
+		}
+
+		if (FeatureFlagManagerUtil.isEnabled(
+				testCompany.getCompanyId(), "LPD-10701") &&
+			entityFieldName.equals("datePublished")) {
+
+			if (operator.equals("between")) {
+				Date date = document.getDatePublished();
+
+				sb = new StringBundler();
+
+				sb.append("(");
+				sb.append(entityFieldName);
+				sb.append(" gt ");
+				sb.append(
+					_dateFormat.format(date.getTime() - (2 * Time.SECOND)));
+				sb.append(" and ");
+				sb.append(entityFieldName);
+				sb.append(" lt ");
+				sb.append(
+					_dateFormat.format(date.getTime() + (2 * Time.SECOND)));
+				sb.append(")");
+			}
+			else {
+				sb.append(entityFieldName);
+
+				sb.append(" ");
+				sb.append(operator);
+				sb.append(" ");
+
+				sb.append(_dateFormat.format(document.getDatePublished()));
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("description")) {
+			Object object = document.getDescription();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("documentFolderId") ||
+			entityFieldName.equals("documentType")) {
+
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("encodingFormat")) {
+			Object object = document.getEncodingFormat();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("externalReferenceCode")) {
+			Object object = document.getExternalReferenceCode();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("fileExtension")) {
+			Object object = document.getFileExtension();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("fileName")) {
+			Object object = document.getFileName();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("friendlyUrlPath")) {
+			Object object = document.getFriendlyUrlPath();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("id") ||
+			entityFieldName.equals("keywords")) {
+
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("numberOfComments")) {
+			sb.append(String.valueOf(document.getNumberOfComments()));
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("relatedContents") ||
+			entityFieldName.equals("renderedContents") ||
+			entityFieldName.equals("siteId") ||
+			entityFieldName.equals("sizeInBytes") ||
+			entityFieldName.equals("taxonomyCategoryBriefs") ||
+			entityFieldName.equals("taxonomyCategoryIds")) {
+
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("title")) {
+			Object object = document.getTitle();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
+		if (entityFieldName.equals("viewableBy")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		throw new IllegalArgumentException(
+			"Invalid entity field " + entityFieldName);
 	}
 
 	@Override
