@@ -28,6 +28,7 @@ import com.liferay.petra.function.UnsafeTriConsumer;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONDeserializer;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -3765,7 +3766,9 @@ public abstract class BaseDocumentResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("datePublished", additionalAssertFieldName)) {
+			if (Objects.equals("datePublished", additionalAssertFieldName) &&
+			FeatureFlagManagerUtil.isEnabled(
+				testCompany.getCompanyId(), "LPD-10701")) {
 				if (!Objects.deepEquals(
 						document1.getDatePublished(),
 						document2.getDatePublished())) {
@@ -4430,7 +4433,9 @@ public abstract class BaseDocumentResourceTestCase {
 			return sb.toString();
 		}
 
-		if (entityFieldName.equals("datePublished")) {
+		if (entityFieldName.equals("datePublished") &&
+			FeatureFlagManagerUtil.isEnabled(
+			testCompany.getCompanyId(), "LPD-10701")) {
 			if (operator.equals("between")) {
 				Date date = document.getDatePublished();
 
