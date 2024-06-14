@@ -4901,7 +4901,7 @@ public abstract class BaseDocumentResourceTestCase {
 				contentValue = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				dateCreated = RandomTestUtil.nextDate();
-				dateExpired = RandomTestUtil.nextDate();
+				dateExpired = new Date(System.currentTimeMillis() + Time.YEAR);
 				dateModified = RandomTestUtil.nextDate();
 				datePublished = RandomTestUtil.nextDate();
 				description = StringUtil.toLowerCase(
