@@ -65,7 +65,6 @@ const autoSaveAsDraftTest = mergeTests(
 	baseTest,
 	featureFlagsTest({
 		'LPD-11228': true,
-		'LPS-141392': true,
 	})
 );
 
@@ -673,7 +672,6 @@ prefixUrlTest(
 		await friendlyUrlInstanceSettingsPage.resetSeparator(
 			'Web Content URL Separator'
 		);
-
 		expect(
 			await page.request.get(
 				'/group' + site.friendlyUrlPath + '/w/' + articleTitle
