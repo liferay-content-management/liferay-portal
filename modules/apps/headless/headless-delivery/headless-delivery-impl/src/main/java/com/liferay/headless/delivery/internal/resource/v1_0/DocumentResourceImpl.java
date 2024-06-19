@@ -543,7 +543,7 @@ public class DocumentResourceImpl extends BaseDocumentResourceImpl {
 		BinaryFile binaryFile = multipartBody.getBinaryFile("file");
 
 		if (binaryFile == null) {
-			throw new BadRequestException("No file found in body");
+			binaryFile = new BinaryFile(null, null, null, 0);
 		}
 
 		String fileName = null;
@@ -946,15 +946,14 @@ public class DocumentResourceImpl extends BaseDocumentResourceImpl {
 			FileEntry fileEntry, MultipartBody multipartBody)
 		throws Exception {
 
-		BinaryFile binaryFile = multipartBody.getBinaryFile("file");
-
 		Document document = multipartBody.getValueAsNullableInstance(
 			"document", Document.class);
 
-		if ((binaryFile == null) && (document == null)) {
-			throw new BadRequestException(
-				"Document and file are not found in body");
+		if (document == null) {
+			throw new BadRequestException("Document not found in body");
 		}
+
+		BinaryFile binaryFile = multipartBody.getBinaryFile("file");
 
 		if (binaryFile == null) {
 			binaryFile = new BinaryFile(
