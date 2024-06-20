@@ -658,7 +658,7 @@ definition {
 			webContentDescription = "WebContentDescription@!#",
 			webContentTitle = "WebContentTitle@!&#");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		Translations.gotoExportTranslation(webContentTitle = "WebContentTitle");
 
