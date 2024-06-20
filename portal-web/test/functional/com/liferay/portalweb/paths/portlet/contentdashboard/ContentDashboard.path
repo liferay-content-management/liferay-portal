@@ -322,7 +322,7 @@
 </tr>
 <tr>
 	<td>X_AXIS_VOCABULARY_NAME</td>
-	<td>//*[contains(@class, 'recharts-layer recharts-cartesian-axis-tick')]//*[contains(text(), '${xAxisCategoryName}')]</td>
+	<td>//*[contains(@class, 'recharts-layer recharts-cartesian-axis recharts-xAxis xAxis')]//*[contains(@class, 'recharts-layer recharts-cartesian-axis-tick')]//*[contains(text(), '${xAxisCategoryName}')]</td>
 	<td></td>
 </tr>
 </tbody>
