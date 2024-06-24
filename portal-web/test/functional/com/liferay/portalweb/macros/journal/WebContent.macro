@@ -129,7 +129,7 @@ definition {
 			webContentContent = ${webContentContent},
 			webContentTitle = ${webContentTitle});
 
-		Button.clickSaveAsDraft();
+		WebContent.saveAsDraftWithPermissions();
 
 		Alert.viewSuccessMessage();
 	}
@@ -1796,6 +1796,13 @@ definition {
 	}
 
 	@summary = "Default summary"
+	macro saveAsDraftWithPermissions() {
+		Button.clickSaveAsDraft();
+
+		Click(locator1 = "WCEditWebContent#SAVE_AS_DRAFT_IN_MODAL");
+	}
+
+	@summary = "Default summary"
 	macro removeDuplicatedFieldsGroup(index = null) {
 		Click(
 			key_class = "delete-button",
@@ -1805,7 +1812,7 @@ definition {
 
 	@summary = "Default summary"
 	macro saveAsDraftViaAP() {
-		Button.clickSaveAsDraft();
+		WebContent.saveAsDraftWithPermissions();
 
 		Alert.viewSuccessMessage();
 
