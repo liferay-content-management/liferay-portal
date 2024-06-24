@@ -77,12 +77,7 @@ const prefixUrlTest = mergeTests(
 	})
 );
 
-const scheduleTest = mergeTests(
-	baseTest,
-	featureFlagsTest({
-		'LPD-15596': true,
-	})
-);
+const scheduleTest = mergeTests(baseTest);
 
 const translationTest = mergeTests(
 	baseTest,
