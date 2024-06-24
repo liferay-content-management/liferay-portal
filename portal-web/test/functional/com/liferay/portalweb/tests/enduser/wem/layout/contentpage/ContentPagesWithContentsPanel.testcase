@@ -90,7 +90,7 @@ definition {
 		task ("Edit the web content title") {
 			WebContent.addCP(webContentTitle = "Web Content Title Edit");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View the edited web content title shown in Collection Display") {

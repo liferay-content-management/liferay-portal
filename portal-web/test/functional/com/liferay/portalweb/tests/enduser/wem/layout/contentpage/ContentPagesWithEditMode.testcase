@@ -236,7 +236,7 @@ definition {
 						content = "Web Content Content Edit",
 						fieldLabel = "Content");
 
-					Button.clickPublish();
+					WebContent.publishWithPermissions();
 				}
 
 				if (${title} == "Blogs Entry Title") {

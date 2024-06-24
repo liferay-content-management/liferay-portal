@@ -41,7 +41,7 @@ definition {
 				webContentContent = ${content},
 				webContentTitle = "Article ${count}");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 
 			var content = StringUtil.replaceFirst(${content}, "Article ", "");
 		}
@@ -157,7 +157,7 @@ definition {
 
 			WebContent.addCP(webContentTitle = "WC Title ${count}");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		Navigator.openSpecificURL(url = "http://localhost:8080");

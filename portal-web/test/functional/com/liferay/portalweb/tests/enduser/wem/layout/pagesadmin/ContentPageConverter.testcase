@@ -942,7 +942,7 @@ definition {
 				pageName = "Test Page Name",
 				pageType = "Pages");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 
 			PagesAdmin.openPagesAdmin(siteURLKey = ${randomSiteName});
 
