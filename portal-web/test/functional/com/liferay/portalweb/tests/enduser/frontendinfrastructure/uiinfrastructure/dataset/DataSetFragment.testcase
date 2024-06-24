@@ -486,8 +486,7 @@ definition {
 		}
 
 		task ("And Publish it") {
-			PortletEntry.publish();
-		}
+			WebContent.publishWithPermissions();
 
 		task ("When go to new content page created") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");

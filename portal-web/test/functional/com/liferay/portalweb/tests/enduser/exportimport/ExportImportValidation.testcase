@@ -57,7 +57,7 @@ definition {
 
 			ExportImport.addSourceContent(content = '''<p><a href="${portalURL}/dl/XYZ123">${portalURL}/dl/XYZ123</a></p>''');
 
-			Button.clickPublish();
+			WebContent.publishWithPermissions();
 
 			ExportImport.viewValidationMessage(
 				url = "/dl/XYZ123",
@@ -81,7 +81,7 @@ definition {
 
 			ExportImport.addSourceContent(content = '''<p><a href="${portalURL}/dl/XYZ123">${portalURL}/dl/XYZ123</a></p>''');
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 	}
 
@@ -109,7 +109,7 @@ definition {
 
 			ExportImport.addSourceContent(content = '''<p><a href="${portalURL}/dl/XYZ123">${portalURL}/dl/XYZ123</a></p>''');
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("When: Reset default values in Instance Settings") {
@@ -129,7 +129,7 @@ definition {
 
 			ExportImport.addSourceContent(content = '''<p><a href="${portalURL}/dl/XYZ123">${portalURL}/dl/XYZ123</a></p>''');
 
-			Button.clickPublish();
+			WebContent.publishWithPermissions();
 
 			ExportImport.viewValidationMessage(
 				url = "/dl/XYZ123",
@@ -193,7 +193,7 @@ definition {
 				webContentContent = '''<p><a href="${portalURL}/unaddedurl/XYZ123">${portalURL}/unaddedurl/XYZ123</a></p>''',
 				webContentTitle = "Web Content Title");
 
-			Button.clickPublish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("Then: Custom URL cannot bypass validation") {
@@ -215,7 +215,7 @@ definition {
 		}
 
 		task ("Then: Custom URL can bypass validation") {
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 	}
 
@@ -303,7 +303,7 @@ definition {
 
 			ExportImport.addSourceContent(content = '''<p><a href="${portalURL}/dl/XYZ123">${portalURL}/dl/XYZ123</a></p>''');
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 	}
 
@@ -344,7 +344,7 @@ definition {
 
 			ExportImport.addSourceContent(content = '''<p><a href="${portalURL}/dl/XYZ123">${portalURL}/dl/XYZ123</a></p>''');
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 	}
 

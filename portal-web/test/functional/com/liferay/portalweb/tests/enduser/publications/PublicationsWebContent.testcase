@@ -868,7 +868,7 @@ definition {
 
 		WebContent.addCP(webContentDescription = "Web Content Description");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		PublicationsNavigator.gotoReviewChanges();
 

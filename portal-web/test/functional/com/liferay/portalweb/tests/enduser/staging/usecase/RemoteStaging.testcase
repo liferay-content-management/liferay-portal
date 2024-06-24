@@ -378,7 +378,7 @@ definition {
 				webContentContent = "Web Content Content A",
 				webContentTitle = "Web Content Title A");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("And: Create basic web content using the latest version URL") {
@@ -392,7 +392,7 @@ definition {
 				webContentContent = "Web Content Content B",
 				webContentTitle = "Web Content Title B");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("And: Configure that only shows the WC in AP") {
@@ -854,7 +854,7 @@ definition {
 			webContentContent = "Web Content Content",
 			webContentTitle = "Web Content Title");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContent.viewTitle(webContentTitle = "Web Content Title");
 
@@ -1021,7 +1021,7 @@ definition {
 			webContentId = 12345,
 			webContentTitle = "WC WebContent Title");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		Navigator.openSiteURL(siteName = "Site Name");
 
@@ -1355,7 +1355,7 @@ definition {
 			webContentContent = "Web Content Content",
 			webContentTitle = "Web Content Title");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContent.viewTitle(webContentTitle = "Web Content Title");
 

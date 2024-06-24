@@ -76,7 +76,7 @@ definition {
 				webContentContent = "Web Content Content",
 				webContentTitle = "Web Content Title");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View web content is shown in content panel") {
@@ -170,7 +170,7 @@ definition {
 				webContentContent = "Web Content Content 2",
 				webContentTitle = "Web Content Title 2");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View the Home page shown in IFrame widget") {
