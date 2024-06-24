@@ -65,7 +65,6 @@ const autoSaveAsDraftTest = mergeTests(
 	baseTest,
 	featureFlagsTest({
 		'LPD-11228': true,
-		'LPD-15596': true,
 	})
 );
 
@@ -488,7 +487,6 @@ prefixUrlTest(
 		await friendlyUrlInstanceSettingsPage.resetSeparator(
 			'_com_liferay_configuration_admin_web_portlet_InstanceSettingsPortlet_com.liferay.journal.model.JournalArticle-reset-to-default-value'
 		);
-
 		expect(
 			await page.request.get(
 				'/group' + site.friendlyUrlPath + '/w/' + articleTitle
