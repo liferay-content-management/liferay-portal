@@ -201,7 +201,7 @@ definition {
 			content = "Web Content Content",
 			fieldLabel = "Content");
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		AssertElementPresent(locator1 = "Icon#ASTERISK");
 
@@ -292,7 +292,7 @@ definition {
 				fieldLabel = "Content");
 		}
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		AssertElementPresent(locator1 = "TextInput#REQUIRED_ALERT");
 
