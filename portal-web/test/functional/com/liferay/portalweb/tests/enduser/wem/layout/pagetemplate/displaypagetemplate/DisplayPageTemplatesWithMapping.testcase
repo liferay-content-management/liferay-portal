@@ -116,7 +116,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("Navigate to the display page template at view mode") {

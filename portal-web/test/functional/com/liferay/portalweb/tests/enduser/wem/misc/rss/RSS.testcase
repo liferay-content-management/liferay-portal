@@ -534,7 +534,7 @@ definition {
 				webContentContent = "This is the updated version of web content test for rss feed",
 				webContentTitle = "Web Content Title Updated Feed");
 
-			Button.clickPublish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View the Updated Feed Heading and Title on RSS Publisher") {

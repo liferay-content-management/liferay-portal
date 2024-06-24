@@ -217,7 +217,7 @@ definition {
 				webContentContent = "Webcontent Content Edit",
 				webContentTitle = "Webcontent Title Edit");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View the displayed content in display page template") {
@@ -303,7 +303,7 @@ definition {
 				webContentContent = "Webcontent Content Edit",
 				webContentTitle = "Webcontent Title Edit");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View edited web content at view mode") {

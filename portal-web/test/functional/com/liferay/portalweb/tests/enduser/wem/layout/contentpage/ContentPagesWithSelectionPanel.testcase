@@ -495,7 +495,7 @@ definition {
 				webContentContent = "Web Content Content Edit",
 				webContentTitle = "Web Content Title Edit");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View the edited content shown in Content Display") {
@@ -734,7 +734,7 @@ definition {
 				webContentContent = "Web Content Content 2",
 				webContentTitle = "Web Content Title 2");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View the new web content shown in Collection Display") {
@@ -869,7 +869,7 @@ definition {
 				webContentContent = "Web Content Content Edit",
 				webContentTitle = "Web Content Title Edit");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View the edited title shown in Heading") {

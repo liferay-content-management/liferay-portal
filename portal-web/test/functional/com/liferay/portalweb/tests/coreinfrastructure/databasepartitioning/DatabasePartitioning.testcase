@@ -82,7 +82,7 @@ definition {
 			webContentContent = "WC WebContent Content",
 			webContentTitle = "WC WebContent Title");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "WC WebContent Title");
 
@@ -163,7 +163,7 @@ definition {
 			webContentContent = "WC WebContent Content",
 			webContentTitle = "WC WebContent Title");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "WC WebContent Title");
 
@@ -344,7 +344,7 @@ definition {
 
 		WebContent.increaseDisplayDate(minuteIncrease = 2);
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		TestUtils.hardRefresh();
 
@@ -370,7 +370,7 @@ definition {
 
 		WebContent.increaseDisplayDate(minuteIncrease = 2);
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		TestUtils.hardRefresh();
 
@@ -734,7 +734,7 @@ definition {
 
 			WebContent.increaseDisplayDate(minuteIncrease = 4);
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 
 			TestUtils.hardRefresh();
 
@@ -759,7 +759,7 @@ definition {
 
 			WebContent.increaseDisplayDate(minuteIncrease = 2);
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 
 			TestUtils.hardRefresh();
 

@@ -1493,7 +1493,7 @@ definition {
 					webContentContent = "WC WebContent Content",
 					webContentTitle = ${webContentTitle});
 
-				PortletEntry.publish();
+				PWebContent.publishWithPermissions();
 			}
 		}
 

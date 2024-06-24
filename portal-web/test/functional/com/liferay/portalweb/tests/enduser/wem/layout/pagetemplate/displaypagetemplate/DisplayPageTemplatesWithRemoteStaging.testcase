@@ -57,7 +57,7 @@ definition {
 				webContentContent = "Webcontent Content",
 				webContentTitle = "Webcontent Title");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("Publish to live") {
