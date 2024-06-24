@@ -1563,7 +1563,7 @@ definition {
 					webContentContent = "WC WebContent Content",
 					webContentTitle = ${webContentTitle});
 
-				PWebContent.publishWithPermissions();
+				WebContent.publishWithPermissions();
 			}
 		}
 
