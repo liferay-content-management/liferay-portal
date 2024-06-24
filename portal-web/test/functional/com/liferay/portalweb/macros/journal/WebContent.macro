@@ -1796,13 +1796,6 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro saveAsDraftWithPermissions() {
-		Button.clickSaveAsDraft();
-
-		Click(locator1 = "WCEditWebContent#SAVE_AS_DRAFT_IN_MODAL");
-	}
-
-	@summary = "Default summary"
 	macro removeDuplicatedFieldsGroup(index = null) {
 		Click(
 			key_class = "delete-button",
@@ -1819,6 +1812,13 @@ definition {
 		Refresh();
 
 		AssertElementNotPresent(locator1 = "AP#ASSET_ABSTRACT_GENERIC");
+	}
+
+	@summary = "Default summary"
+	macro saveAsDraftWithPermissions() {
+		Button.clickSaveAsDraft();
+
+		Click(locator1 = "WCEditWebContent#SAVE_AS_DRAFT_IN_MODAL");
 	}
 
 	@summary = "Default summary"
