@@ -3362,7 +3362,7 @@ definition {
 
 	@summary = "Default summary"
 	macro viewCacheControlConfigurationInConsole(maxAge = null, responseHeader = null, cacheControl = null) {
-		echo(${responseHeader});
+		echo("responseHeader: ${responseHeader}");
 
 		if (isSet(uncacheableMimeType)) {
 			if (contains(${responseHeader}, "Cache-Control: private, no-cache, no-store, must-revalidate")) {
@@ -3379,6 +3379,8 @@ definition {
 				echo("The cache control setting is correct");
 			}
 			else {
+				echo("cacheControlAttribute: ${cacheControlAttribute}");
+
 				fail("The cache control setting is incorrect");
 			}
 		}
