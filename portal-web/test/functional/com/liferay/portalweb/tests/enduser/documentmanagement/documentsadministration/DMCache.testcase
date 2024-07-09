@@ -94,6 +94,8 @@ definition {
 
 		DMNavigator.gotoDocumentPG(dmDocumentTitle = "DM Document Title");
 
+		WaitForPageLoad();
+
 		var responseHeader = DMDocument.getFileResponseHeader(dmDocumentFileName = "Commerce_Blue.jpg");
 
 		DMDocument.viewCacheControlConfigurationInConsole(
@@ -121,6 +123,8 @@ definition {
 		Navigator.gotoPage(pageName = "Documents and Media Page");
 
 		DMNavigator.gotoDocumentPG(dmDocumentTitle = "DM Document Title");
+
+		WaitForPageLoad();
 
 		var responseHeader = DMDocument.getFileResponseHeader(dmDocumentFileName = "Commerce_Blue.jpg");
 
