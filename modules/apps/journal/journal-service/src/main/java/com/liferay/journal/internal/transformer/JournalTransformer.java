@@ -328,10 +328,15 @@ public class JournalTransformer {
 			templateNodes, themeDisplay, tokens,
 			String.valueOf(article.getResourcePrimKey()));
 
+		String articleImageURL = article.getArticleImageURL(themeDisplay);
+
+		if (articleImageURL == null) {
+			articleImageURL = StringPool.BLANK;
+		}
+
 		_addReservedEl(
 			JournalStructureConstants.RESERVED_ARTICLE_SMALL_IMAGE_URL,
-			templateNodes, themeDisplay, tokens,
-			article.getArticleImageURL(themeDisplay));
+			templateNodes, themeDisplay, tokens, articleImageURL);
 
 		_addReservedEl(
 			JournalStructureConstants.RESERVED_ARTICLE_TITLE, templateNodes,
