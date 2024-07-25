@@ -155,7 +155,14 @@ export default function Comments({
 		}
 
 		if (refreshPage) {
-			window.location.reload();
+			openToast({
+				message: Liferay.Language.get(
+					'your-request-completed-successfully'
+				),
+				type: 'success',
+			});
+
+			setTimeout(() => window.location.reload(), 1000);
 		}
 		else {
 			const data = Liferay.Util.ns(namespace, {
@@ -352,7 +359,7 @@ export default function Comments({
 		hideEl(formId);
 	};
 
-	window[`${randomNamespace}postReply`] = function (i) {
+	window[`${randomNamespace}postReply`] = function (i, refreshPage = false) {
 		const editorInstance =
 			window[`${namespace}${randomNamespace}postReplyBody${i}`];
 
@@ -384,7 +391,7 @@ export default function Comments({
 			});
 		}
 		else {
-			sendMessage(form);
+			sendMessage(form, refreshPage);
 
 			editorInstance.dispose();
 		}
