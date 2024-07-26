@@ -96,10 +96,14 @@ export class WorkflowTaskDetailsPage {
 
 	async writeTaskComment(threadTitle: string, comment: string) {
 		await this.selectAsset(threadTitle);
+		
+		await this.commentSectionButton.first().waitFor();
 
 		await this.commentSectionButton.first().click();
 
 		await this.subscribeButton.click();
+
+		await this.commentSectionButton.first().waitFor();
 
 		await this.commentSectionButton.first().click();
 

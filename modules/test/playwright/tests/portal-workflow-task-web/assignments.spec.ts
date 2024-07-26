@@ -210,7 +210,7 @@ test('logged user must be able to see workflow task at least from a read-only pe
 			'test@liferay.com'
 		);
 
-	const rolesPermissionsJSON = JSON.parse(
+	const rolesPermissionsJSON = await JSON.parse(
 		readFileSync(
 			path.join(
 				__dirname,
