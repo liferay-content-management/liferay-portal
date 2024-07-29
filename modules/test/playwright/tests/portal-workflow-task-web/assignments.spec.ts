@@ -147,7 +147,7 @@ test('send user back to my workflow tasks page after assign another user to revi
 
 	await workflowTaskDetailsPage.selectAssignee(user2.id.toString());
 
-	await workflowTaskDetailsPage.doneAssigneeButton.click();
+	await workflowTaskDetailsPage.assigneeDoneButton.click();
 
 	await expect(workflowTasksPage.assignedToMyRolesLink).toBeVisible();
 });
