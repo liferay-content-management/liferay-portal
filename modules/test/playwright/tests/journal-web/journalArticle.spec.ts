@@ -490,7 +490,7 @@ baseTest(
 
 		await page.getByRole('menuitem', {name: 'View History'}).click();
 
-		await journalPage.changeView('cards');
+		await journalPage.changeView('Cards');
 
 		await page.getByLabel(`More Actions`).waitFor();
 		await page.getByLabel(`More Actions`).click();
@@ -731,7 +731,7 @@ baseTest(
 			}).toPass();
 		}
 
-		await journalEditArticlePage.publishButton.click();
+		await journalEditArticlePage.publishArticle();
 
 		await waitForSuccessAlert(
 			page,
@@ -1284,7 +1284,7 @@ baseTest(
 			).toBeVisible();
 		}).toPass();
 
-		await journalEditArticlePage.publishButton.click();
+		await journalEditArticlePage.publishArticle();
 
 		await waitForSuccessAlert(
 			page,
@@ -1375,17 +1375,7 @@ scheduleTest(
 
 		await journalEditArticlePage.fillTitle(title);
 
-		await clickAndExpectToBeVisible({
-			autoClick: true,
-			target: page.getByRole('menuitem', {
-				name: 'Publish With Permissions',
-			}),
-			trigger: page.getByRole('button', {
-				name: 'Select and Confirm Publish Settings',
-			}),
-		});
-
-		await page.getByRole('button', {exact: true, name: 'Publish'}).click();
+		await journalEditArticlePage.publishArticle();
 
 		await waitForSuccessAlert(
 			page,
