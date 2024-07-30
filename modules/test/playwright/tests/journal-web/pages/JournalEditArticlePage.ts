@@ -19,7 +19,6 @@ export class JournalEditArticlePage {
 	readonly propertiesTab: Locator;
 	readonly publishButton: Locator;
 	readonly redoButton: Locator;
-	readonly selectAndConfirmPublishButton: Locator;
 	readonly submitForWorkflowButton: Locator;
 	readonly titleInput: Locator;
 	readonly undoButton: Locator;
@@ -34,9 +33,6 @@ export class JournalEditArticlePage {
 		this.propertiesTab = page.getByRole('tab', {name: 'Properties'});
 		this.publishButton = page.getByRole('button', {name: 'Publish'});
 		this.redoButton = page.getByTitle('Redo', {exact: true});
-		this.selectAndConfirmPublishButton = page.getByLabel(
-			'Select and Confirm Publish Settings'
-		);
 		this.submitForWorkflowButton = page.getByRole('button', {
 			name: 'Submit for Workflow',
 		});
@@ -107,20 +103,22 @@ export class JournalEditArticlePage {
 		);
 	}
 
-	async publishArticle() {
+	async publishArticle(existingArticle?: boolean) {
 		await clickAndExpectToBeVisible({
 			autoClick: true,
 			target: this.page.getByRole('menuitem', {
-				name: 'Publish With Permissions',
+				name: existingArticle ? 'Publish' : 'Publish With Permissions',
 			}),
 			trigger: this.page.getByRole('button', {
 				name: 'Select and Confirm Publish Settings',
 			}),
 		});
 
-		await this.page
-			.getByRole('button', {exact: true, name: 'Publish'})
-			.click();
+		if (!existingArticle) {
+			await this.page
+				.getByRole('button', {exact: true, name: 'Publish'})
+				.click();
+		}
 	}
 
 	async editArticle(title: string) {
@@ -147,11 +145,7 @@ export class JournalEditArticlePage {
 
 		await this.fillTitle(title);
 
-		await this.selectAndConfirmPublishButton.waitFor();
-
-		await this.selectAndConfirmPublishButton.click();
-
-		await this.publishButton.click();
+		await this.publishArticle(true);
 
 		await waitForSuccessAlert(
 			this.page,
