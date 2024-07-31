@@ -148,7 +148,7 @@ definition {
 				row = ${index});
 		}
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -240,7 +240,7 @@ definition {
 			fieldLabel = "复选列表框",
 			optionValue = "Option 4");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -334,7 +334,7 @@ definition {
 			fieldLabel = "下拉列表",
 			optionValue = "Option 2");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -412,7 +412,7 @@ definition {
 			fieldLabel = "单选列表框",
 			optionValue = "Option 2");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -518,7 +518,7 @@ definition {
 			webContentNumeric = "10.00",
 			webContentTitle = "Test");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -649,7 +649,7 @@ definition {
 			webContentNumeric = 12345,
 			webContentTitle = "Test");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -938,7 +938,7 @@ definition {
 			fieldLabel = "Numeric",
 			value = 456);
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1037,7 +1037,7 @@ definition {
 			fieldLabel = "复选列表框",
 			optionValue = "選項 3");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -1123,7 +1123,7 @@ definition {
 			fieldLabel = "颜色",
 			value = "ff0d0d");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -1178,7 +1178,7 @@ definition {
 			webContentDateFieldLabel = "日期",
 			webContentTitle = "测试");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -1234,7 +1234,7 @@ definition {
 			webContentNumericFieldLabel = "数字",
 			webContentTitle = "测试");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -1290,7 +1290,7 @@ definition {
 			webContentRichTextFieldLabel = "富文本",
 			webContentTitle = "测试");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -1349,7 +1349,7 @@ definition {
 			webContentTextFieldLabel = "文本",
 			webContentTitle = "测试");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -1433,7 +1433,7 @@ definition {
 			webContentTextFieldLabel = "Text - pt-BR",
 			webContentTitle = "Test - pt-BR");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test - en-US");
 
@@ -1549,7 +1549,7 @@ definition {
 			webContentTextFieldLabel = "Text - pt-BR",
 			webContentTitle = "Test - pt-BR");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test - en-US");
 
@@ -3327,7 +3327,7 @@ definition {
 			index = 2,
 			value = "Campo de texto 2");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -3390,7 +3390,7 @@ definition {
 			fieldLabel = "Upload",
 			webContentUpload = "Document_1.jpg");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -3408,7 +3408,7 @@ definition {
 			fieldLabel = "文件",
 			webContentUpload = "Document_2.jpg");
 
-		PortletEntry.publish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -3465,7 +3465,7 @@ definition {
 			webContentImage = "Document_2.jpeg",
 			webContentTitle = "Test");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -3482,7 +3482,7 @@ definition {
 			webContentImageFieldLabel = "图片",
 			webContentTitle = "测试");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -3561,7 +3561,7 @@ definition {
 			linkToPageContent = "Test Page Name 2",
 			linkToPageFieldLabel = "网页链接");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 
@@ -3638,7 +3638,7 @@ definition {
 			webContentWebContent = "Web Content Title 2",
 			webContentWebContentFieldLabel = "网页内容");
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Test");
 

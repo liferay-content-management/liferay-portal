@@ -182,7 +182,7 @@ definition {
 
 		DataEngine.assertNonLocalizableField(fieldFieldName = "Text");
 
-		PortletEntry.publish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		NavItem.gotoStructures();
 
@@ -204,7 +204,7 @@ definition {
 
 		WebContent.addWithStructureCP(webContentText = "Este é um campo de texto");
 
-		PortletEntry.publish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 

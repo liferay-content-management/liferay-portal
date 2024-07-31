@@ -622,7 +622,7 @@ definition {
 			fieldLabel = "Numeric",
 			value = 456);
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -664,7 +664,7 @@ definition {
 			fieldLabel = "Numeric",
 			value = 678);
 
-		PortletEntry.publish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -946,7 +946,7 @@ definition {
 			fieldLabel = "Date",
 			value = "08/06/2021");
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1026,7 +1026,7 @@ definition {
 			index = 2,
 			value = "09/06/2021");
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1131,7 +1131,7 @@ definition {
 			index = 2,
 			value = 123456);
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1219,7 +1219,7 @@ definition {
 			fieldLabel = "Date",
 			value = "08/06/2021");
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1235,7 +1235,7 @@ definition {
 			fieldLabel = "Date",
 			value = "09/06/2021");
 
-		Button.clickPublish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1293,7 +1293,7 @@ definition {
 			fieldLabel = "Date",
 			value = "08/06/2021");
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1309,7 +1309,7 @@ definition {
 			fieldLabel = "Date",
 			value = "");
 
-		Button.clickPublish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1377,7 +1377,7 @@ definition {
 			fieldLabel = "Numeric",
 			value = 456);
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1399,7 +1399,7 @@ definition {
 			fieldLabel = "Numeric",
 			value = 456);
 
-		PortletEntry.publish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1421,7 +1421,7 @@ definition {
 			fieldLabel = "Numeric",
 			value = "");
 
-		PortletEntry.publish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1477,13 +1477,13 @@ definition {
 
 		DataEngine.addRepeatableField(fieldLabel = "Date");
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
 		DERenderer.removeRepeatableField(fieldLabel = "Text");
 
-		Button.clickPublish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1562,7 +1562,7 @@ definition {
 			index = 2,
 			value = 123456);
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1608,7 +1608,7 @@ definition {
 			index = 2,
 			value = 123456);
 
-		Button.clickPublish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1616,7 +1616,7 @@ definition {
 			fieldLabel = "Text",
 			index = 2);
 
-		Button.clickPublish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1757,7 +1757,7 @@ definition {
 				row = ${index});
 		}
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1819,7 +1819,7 @@ definition {
 				row = ${index});
 		}
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1872,7 +1872,7 @@ definition {
 			fieldLabel = "Multiple Selection",
 			optionValue = "Option 1");
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1919,7 +1919,7 @@ definition {
 			fieldLabel = "Multiple Selection",
 			optionValue = "Option 3");
 
-		Button.clickPublish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
@@ -1985,7 +1985,7 @@ definition {
 			fieldLabel = "Numeric",
 			value = 456);
 
-		PortletEntry.publish();
+		WebContent.publishWithPermissions();
 
 		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
