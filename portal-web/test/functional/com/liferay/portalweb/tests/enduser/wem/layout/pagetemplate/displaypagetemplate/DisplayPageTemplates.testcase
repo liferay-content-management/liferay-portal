@@ -51,7 +51,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("View the display page template cannot be deleted") {
@@ -335,7 +335,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Navigate to the display page template at view mode") {
@@ -679,7 +679,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Navigate to the display page template at view mode") {

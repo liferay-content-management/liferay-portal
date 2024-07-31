@@ -461,7 +461,7 @@ definition {
 		}
 
 		task ("View cannot republish expired web content") {
-			Button.clickPublish();
+			WebContent.publishExistingWCArticleWithPermissions();
 
 			Alert.viewRequestFailedToComplete();
 		}
@@ -1473,7 +1473,7 @@ definition {
 
 			WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
 
-			PortletEntry.publish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("View approved status in the web content") {
@@ -2402,7 +2402,7 @@ definition {
 
 			WebContent.editFriendlyURL(webContentFriendlyURL = "wc-ja");
 
-			Button.clickPublish();
+			WebContent.publishWithPermissions();
 		}
 
 		task ("Then there's warning message in pop up") {
@@ -2430,7 +2430,7 @@ definition {
 
 			WebContent.editFriendlyURL(webContentFriendlyURL = "wc-de");
 
-			Button.clickPublish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Then there's warning message in pop up") {
@@ -2458,7 +2458,7 @@ definition {
 
 			WebContent.editFriendlyURL(webContentFriendlyURL = "wc-es");
 
-			Button.clickPublish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Then there's warning message in pop up") {
@@ -2494,7 +2494,7 @@ definition {
 
 				WebContent.editFriendlyURL(webContentFriendlyURL = "wc");
 
-				PortletEntry.publish();
+				WebContent.publishExistingWCArticleWithPermissions();
 			}
 
 			task ("Add another site") {
@@ -2521,7 +2521,7 @@ definition {
 
 				WebContent.editFriendlyURL(webContentFriendlyURL = "wc-ja");
 
-				Button.clickPublish();
+				WebContent.publishExistingWCArticleWithPermissions();
 			}
 
 			task ("Add a third site") {
@@ -2552,7 +2552,7 @@ definition {
 
 				WebContent.editFriendlyURL(webContentFriendlyURL = "wc-es");
 
-				Button.clickPublish();
+				WebContent.publishExistingWCArticleWithPermissions();
 			}
 
 			task ("Add a forth site") {
@@ -2668,7 +2668,7 @@ definition {
 
 				WebContent.editFriendlyURL(webContentFriendlyURL = "wc-ja");
 
-				PortletEntry.publish();
+				WebContent.publishExistingWCArticleWithPermissions();
 			}
 
 			task ("Add a web content with 3 friendly URLs in asset library") {
@@ -2711,7 +2711,7 @@ definition {
 		}
 
 		task ("When publish the web content with one duplicated friendly URL") {
-			Button.clickPublish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Then there's warning message in pop up") {
@@ -2743,7 +2743,7 @@ definition {
 
 			WebContent.editFriendlyURL(webContentFriendlyURL = "wc-ja");
 
-			Button.clickPublish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Then there's warning message in pop up") {

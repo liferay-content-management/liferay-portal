@@ -66,7 +66,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Navigate to the display page template at view mode") {
@@ -140,7 +140,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Add the first user with Administrator role") {
@@ -287,7 +287,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Navigate to the display page template at view mode") {
@@ -354,7 +354,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Add a widget page") {
@@ -424,7 +424,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Navigate to display page template via friendly URL") {
@@ -673,7 +673,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Preview the web content article") {
@@ -1211,7 +1211,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Sign out") {
@@ -1301,7 +1301,7 @@ definition {
 				pageName = "Display Page Name",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("View page source of the web content article's friendly URL page") {
@@ -1357,7 +1357,7 @@ definition {
 				displayPageTemplateType = "None",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Navigate to the display page template via friendly URL") {
@@ -1469,7 +1469,7 @@ definition {
 				pageName = "Non-Default Display Page",
 				pageType = "Display Page Templates");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("Navigate to the display page template at view mode") {
@@ -1575,7 +1575,7 @@ definition {
 					pageName = "Display Page Name",
 					pageType = "Display Page Templates");
 
-				PortletEntry.publish();
+				WebContent.publishExistingWCArticleWithPermissions();
 			}
 		}
 

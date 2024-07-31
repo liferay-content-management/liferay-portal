@@ -1083,7 +1083,7 @@ definition {
 					pageType = "Pages",
 					webContentTitle = "Web Content Title");
 
-				PortletEntry.publish();
+				WebContent.publishExistingWCArticleWithPermissions();
 			}
 		}
 
@@ -1140,7 +1140,7 @@ definition {
 				pageType = "Pages",
 				webContentTitle = "Web Content Title");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("View web content is shown in Asset Publisher") {
@@ -2266,7 +2266,7 @@ definition {
 				pageName = "Content Page Name",
 				pageType = "Pages");
 
-			PortletEntry.publish();
+			WebContent.publishExistingWCArticleWithPermissions();
 		}
 
 		task ("View web content in associated public page") {
