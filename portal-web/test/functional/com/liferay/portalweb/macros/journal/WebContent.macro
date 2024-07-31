@@ -1778,6 +1778,13 @@ definition {
 	}
 
 	@summary = "Default summary"
+	macro publishExistingWCArticleWithPermissions() {
+		Button.clickPublish();
+
+		Click(locator1 = "WCEditWebContent#PUBLISH_BUTTON");
+	}
+
+	@summary = "Default summary"
 	macro publishWithPermissions() {
 		Button.clickPublish();
 

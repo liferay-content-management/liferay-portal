@@ -104,6 +104,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PUBLISH_BUTTON</td>
+	<td>//button[contains(text(),'Publish')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PUBLISH_WITH_PERMISSIONS_BUTTON</td>
 	<td>//button[contains(text(),'Publish With Permissions')]</td>
 	<td></td>
