@@ -457,7 +457,7 @@ export default function UndoRedo({
 				}
 			>
 				<ClayDropDown.ItemList>
-					{history.slice(1, step + 1).map((item, i) => (
+					{history.slice(1, step + 1).reverse().map((item, i) => (
 						<ClayDropDown.Item
 							key={i}
 							onClick={() => {
