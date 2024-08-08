@@ -50,12 +50,14 @@ import com.liferay.dynamic.data.mapping.internal.upgrade.v5_2_1.WorkflowDefiniti
 import com.liferay.dynamic.data.mapping.internal.upgrade.v5_2_2.DLFileEntryDDMFormInstanceRecordUpgradeProcess;
 import com.liferay.dynamic.data.mapping.internal.upgrade.v5_3_3.BrowserSnifferTemplateUpgradeProcess;
 import com.liferay.dynamic.data.mapping.internal.upgrade.v5_4_5.DDMTemplateLinkUpgradeProcess;
+import com.liferay.dynamic.data.mapping.internal.upgrade.v5_5_1.DDMFieldAttributeUpgradeProcess;
 import com.liferay.dynamic.data.mapping.io.DDMFormDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesSerializer;
+import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
 import com.liferay.dynamic.data.mapping.spi.converter.SPIDDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.util.DDM;
 import com.liferay.dynamic.data.mapping.util.DDMDataDefinitionConverter;
@@ -576,6 +578,13 @@ public class DDMServiceUpgradeStepRegistrator
 				}
 
 			});
+
+		registry.register(
+			"5.5.0", "5.5.1",
+			new com.liferay.dynamic.data.mapping.internal.upgrade.v5_5_1.
+				DDMFieldUpgradeProcess(_ddmStructureVersionLocalService),
+			new DDMFieldAttributeUpgradeProcess(
+				_ddmStructureVersionLocalService));
 	}
 
 	@Activate
@@ -610,6 +619,9 @@ public class DDMServiceUpgradeStepRegistrator
 
 	@Reference
 	private DDMFormLayoutDeserializer _ddmFormLayoutDeserializer;
+
+	@Reference
+	private DDMStructureVersionLocalService _ddmStructureVersionLocalService;
 
 	@Reference
 	private DLFileEntryLocalService _dlFileEntryLocalService;
