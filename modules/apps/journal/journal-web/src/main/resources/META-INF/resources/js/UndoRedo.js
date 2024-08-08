@@ -14,7 +14,7 @@ const META_FIELD_NAMES = {
 };
 
 const METADATA_FIELD_NAME_HISTORY = {
-	[META_FIELD_NAMES.description]: Liferay.Language.get('description'),
+	[`${META_FIELD_NAMES.description}Editor`]: Liferay.Language.get('description'),
 	[META_FIELD_NAMES.friendlyURL]: Liferay.Language.get('friendly-url'),
 	[META_FIELD_NAMES.title]: Liferay.Language.get('title'),
 }
