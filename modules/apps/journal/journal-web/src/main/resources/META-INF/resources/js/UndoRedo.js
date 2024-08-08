@@ -14,10 +14,11 @@ const META_FIELD_NAMES = {
 };
 
 const METADATA_FIELD_NAME_HISTORY = {
-	[`${META_FIELD_NAMES.description}Editor`]: Liferay.Language.get('description'),
+	[`${META_FIELD_NAMES.description}Editor`]:
+		Liferay.Language.get('description'),
 	[META_FIELD_NAMES.friendlyURL]: Liferay.Language.get('friendly-url'),
 	[META_FIELD_NAMES.title]: Liferay.Language.get('title'),
-}
+};
 
 export default function UndoRedo({
 	initialDefaultLanguageId,
@@ -463,17 +464,23 @@ export default function UndoRedo({
 				}
 			>
 				<ClayDropDown.ItemList>
-					{history.slice(1, step + 1).reverse().map((item, index) => (
-						<ClayDropDown.Item
-							key={index}
-							onClick={() => {
-								handleUndo(step - 1 - index);
-								setActive(false);
-							}}
-						>
-							{Liferay.Language.get('Edit')} {METADATA_FIELD_NAME_HISTORY[item.name]|| item.name}
-						</ClayDropDown.Item>
-					))}
+					{history
+						.slice(1, step + 1)
+						.reverse()
+						.map((item, index) => (
+							<ClayDropDown.Item
+								key={index}
+								onClick={() => {
+									handleUndo(step - 1 - index);
+									setActive(false);
+								}}
+							>
+								{Liferay.Language.get('edit')}{' '}
+
+								{METADATA_FIELD_NAME_HISTORY[item.name] ||
+									item.name}
+							</ClayDropDown.Item>
+						))}
 
 					<ClayDropDown.Divider />
 
