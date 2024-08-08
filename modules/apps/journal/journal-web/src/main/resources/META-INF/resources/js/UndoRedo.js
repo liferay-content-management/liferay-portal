@@ -13,6 +13,12 @@ const META_FIELD_NAMES = {
 	title: 'titleMapAsXML',
 };
 
+const METADATA_FIELD_NAME_HISTORY = {
+	[META_FIELD_NAMES.description]: Liferay.Language.get('description'),
+	[META_FIELD_NAMES.friendlyURL]: Liferay.Language.get('friendly-url'),
+	[META_FIELD_NAMES.title]: Liferay.Language.get('title'),
+}
+
 export default function UndoRedo({
 	initialDefaultLanguageId,
 	initialFields,
@@ -465,7 +471,7 @@ export default function UndoRedo({
 								setActive(false);
 							}}
 						>
-							{Liferay.Language.get('Edit')} {item.name}
+							{Liferay.Language.get('Edit')} {METADATA_FIELD_NAME_HISTORY[item.name]|| item.name}
 						</ClayDropDown.Item>
 					))}
 
