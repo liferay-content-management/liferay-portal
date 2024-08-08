@@ -463,11 +463,11 @@ export default function UndoRedo({
 				}
 			>
 				<ClayDropDown.ItemList>
-					{history.slice(1, step + 1).reverse().map((item, i) => (
+					{history.slice(1, step + 1).reverse().map((item, index) => (
 						<ClayDropDown.Item
-							key={i}
+							key={index}
 							onClick={() => {
-								handleUndo(i);
+								handleUndo(step - 1 - index);
 								setActive(false);
 							}}
 						>
