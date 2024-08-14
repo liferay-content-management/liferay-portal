@@ -1585,6 +1585,82 @@ components:
             required:
                 - name
             type: object
+        DocumentMetadataSet:
+            description:
+                Represents a document metadata set.
+            properties:
+                actions:
+                    additionalProperties:
+                        additionalProperties:
+                            type: string
+                        type: object
+                    # @review
+                    description:
+                        Block of actions allowed by the user making the request.
+                    readOnly: true
+                    type: object
+                assetLibraryKey:
+                    # @review
+                    description:
+                        The key of the asset library to which the document shortcut is scoped.
+                    readOnly: true
+                    type: string
+                availableLanguages:
+                    # @review
+                    description:
+                        The list of languages the navigation menu item has a translation for.
+                    items:
+                        type: string
+                    readOnly: true
+                    type: array
+                contentStructureFields:
+                    description:
+                        The list of fields that store the structured content's information.
+                    items:
+                        $ref: "#/components/schemas/ContentStructureField"
+                    type: array
+                dateCreated:
+                    description:
+                        The document shortcut's creation date.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                dateModified:
+                    description:
+                        The last time a field of the document shortcut changed.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                description:
+                    description:
+                        The Document Metadata Set's description.
+                    type: string
+                description_i18n:
+                    additionalProperties:
+                        type: string
+                    # @review
+                    description:
+                        The localized Document Metadata Set descriptions.
+                    type: object
+                id:
+                    description:
+                        The ID of the DocumentMetadataSet.
+                    format: int64
+                    readOnly: true
+                    type: integer
+                name:
+                    # @review
+                    description:
+                        The Document Metadata Set's name.
+                    type: string
+                name_i18n:
+                    additionalProperties:
+                        type: string
+                    # @review
+                    description:
+                        the localized Document Metadata Set's names.
+                    type: object
+            type: object
         DocumentShortcut:
             description:
                 Represents a document shortcut.
