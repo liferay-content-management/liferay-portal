@@ -11,7 +11,12 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
 import com.liferay.content.dashboard.web.internal.constants.ContentDashboardPortletKeys;
-import com.liferay.depot.service.DepotEntryGroupRelService;
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.model.DepotEntryGroupRel;
+import com.liferay.depot.service.DepotEntryGroupRelLocalService;
+import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -20,6 +25,7 @@ import com.liferay.portal.kernel.portlet.PortletURLFactory;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -27,9 +33,13 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import javax.portlet.PortletRequest;
@@ -71,22 +81,7 @@ public class GetContentPerformanceInfoMVCResourceCommand
 				_analyticsSettingsManager.getAnalyticsConfiguration(
 					themeDisplay.getCompanyId());
 
-			AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
-				_classNameLocalService.getClassNameId(
-					ParamUtil.getString(resourceRequest, "className")),
-				GetterUtil.getLong(
-					ParamUtil.getLong(resourceRequest, "classPK")));
-
 			boolean connectedToAnalyticsCloud = false;
-
-			boolean siteSyncedToAnalyticsCloud = false;
-
-			if (ArrayUtil.contains(
-					analyticsConfiguration.syncedGroupIds(),
-					String.valueOf(assetEntry.getGroupId()))) {
-
-				siteSyncedToAnalyticsCloud = true;
-			}
 
 			if (!Validator.isBlank(analyticsConfiguration.token())) {
 				connectedToAnalyticsCloud = true;
@@ -94,21 +89,30 @@ public class GetContentPerformanceInfoMVCResourceCommand
 
 			boolean assetLibrary = false;
 
-			if (Validator.isNotNull(
-					_depotEntryGroupRelService.fetchGroupDepotEntry(
-						assetEntry.getGroupId()))) {
+			AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
+				_getClassNameId(resourceRequest),
+				GetterUtil.getLong(
+					ParamUtil.getLong(resourceRequest, "classPK")));
 
-				assetLibrary = true;
-			}
+			DepotEntry depotEntry =
+				_depotEntryLocalService.fetchGroupDepotEntry(
+					assetEntry.getGroupId());
+
+			List<Long> groupIds = new ArrayList<>();
 
 			boolean connectedToAssetLibrary = false;
 
-			long depotEntryGroupRelsCount =
-				_depotEntryGroupRelService.getDepotEntryGroupRelsCount(
-					assetEntry.getGroupId());
+			if (depotEntry != null) {
+				assetLibrary = true;
 
-			if (depotEntryGroupRelsCount > 0) {
-				connectedToAssetLibrary = true;
+				groupIds = _getDepotEntryGroupRelToGroupId(depotEntry);
+
+				if (!groupIds.isEmpty()) {
+					connectedToAssetLibrary = true;
+				}
+			}
+			else {
+				groupIds = Collections.singletonList(assetEntry.getGroupId());
 			}
 
 			JSONPortletResponseUtil.writeJSON(
@@ -123,10 +127,13 @@ public class GetContentPerformanceInfoMVCResourceCommand
 				).put(
 					"connectedToAssetLibrary", connectedToAssetLibrary
 				).put(
-					"depotAdminPortletURL",
-					_getDepotAdminPortletURL(httpServletRequest)
+					"siteEditDepotEntryDepotAdminPortletURL",
+					_getSiteEditDepotEntryDepotAdminPortletURL(
+						depotEntry, httpServletRequest)
 				).put(
-					"siteSyncedToAnalyticsCloud", siteSyncedToAnalyticsCloud
+					"siteSyncedToAnalyticsCloud",
+					_hasSiteSyncedToAnalyticsCloud(
+						analyticsConfiguration.syncedGroupIds(), groupIds)
 				));
 		}
 		catch (Exception exception) {
@@ -159,14 +166,65 @@ public class GetContentPerformanceInfoMVCResourceCommand
 		).buildString();
 	}
 
-	private String _getDepotAdminPortletURL(
-		HttpServletRequest httpServletRequest) {
+	private long _getClassNameId(ResourceRequest resourceRequest) {
+		String className = ParamUtil.getString(resourceRequest, "className");
 
-		return PortletURLBuilder.create(
-			_portletURLFactory.create(
-				httpServletRequest, _DEPOT_ADMIN_PORTLET_ID,
-				PortletRequest.RENDER_PHASE)
-		).buildString();
+		if (StringUtil.equals(className, FileEntry.class.getName())) {
+			className = DLFileEntry.class.getName();
+		}
+
+		return _classNameLocalService.getClassNameId(className);
+	}
+
+	private List<Long> _getDepotEntryGroupRelToGroupId(DepotEntry depotEntry)
+		throws PortalException {
+
+		List<Long> groupIds = new ArrayList<>();
+
+		List<DepotEntryGroupRel> depotEntryGroupRels =
+			_depotEntryGroupRelLocalService.getDepotEntryGroupRels(depotEntry);
+
+		for (DepotEntryGroupRel depotEntryGroupRel : depotEntryGroupRels) {
+			groupIds.add(depotEntryGroupRel.getToGroupId());
+		}
+
+		return groupIds;
+	}
+
+	private String _getSiteEditDepotEntryDepotAdminPortletURL(
+		DepotEntry depotEntry, HttpServletRequest httpServletRequest) {
+
+		PortletURLBuilder.PortletURLStep portletURLStep =
+			PortletURLBuilder.create(
+				_portletURLFactory.create(
+					httpServletRequest, _DEPOT_ADMIN_PORTLET_ID,
+					PortletRequest.RENDER_PHASE));
+
+		if (depotEntry != null) {
+			return portletURLStep.setMVCRenderCommandName(
+				"/depot/edit_depot_entry"
+			).setParameter(
+				"depotEntryId", depotEntry.getDepotEntryId()
+			).setParameter(
+				"screenNavigationEntryKey", "sites"
+			).buildString();
+		}
+
+		return portletURLStep.buildString();
+	}
+
+	private boolean _hasSiteSyncedToAnalyticsCloud(
+		String[] analyticsCloudSyncedGroupIds, List<Long> groupIds) {
+
+		for (long groupId : groupIds) {
+			if (ArrayUtil.contains(
+					analyticsCloudSyncedGroupIds, String.valueOf(groupId))) {
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private static final String _DEPOT_ADMIN_PORTLET_ID =
@@ -185,7 +243,10 @@ public class GetContentPerformanceInfoMVCResourceCommand
 	private ClassNameLocalService _classNameLocalService;
 
 	@Reference
-	private DepotEntryGroupRelService _depotEntryGroupRelService;
+	private DepotEntryGroupRelLocalService _depotEntryGroupRelLocalService;
+
+	@Reference
+	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Reference
 	private Portal _portal;
