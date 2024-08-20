@@ -73,7 +73,15 @@ const SidebarPanelInfoView = ({
 	const hasCategorization =
 		!!tags.length || !!Object.keys(vocabularies).length;
 
-	const showTabs = !!getItemVersionsURL || hasCategorization;
+	const hasPerformanceTab =
+		type === 'Blogs Entry' ||
+		type === 'Document' ||
+		type === 'Web Content Article';
+
+	const showTabs =
+		!!getItemVersionsURL ||
+		hasCategorization ||
+		(Liferay.FeatureFlags['LPD-28830'] && hasPerformanceTab);
 
 	const allTabs = !!getItemVersionsURL && hasCategorization;
 
