@@ -3,22 +3,26 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {expect, mergeTests, Page} from '@playwright/test';
+import {Page, expect, mergeTests} from '@playwright/test';
 
 import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
 import {isolatedSiteTest} from '../../fixtures/isolatedSiteTest';
 import {loginAnalyticsCloudTest} from '../../fixtures/loginAnalyticsCloudTest';
 import {loginTest} from '../../fixtures/loginTest';
-import {getRandomInt} from '../../utils/getRandomInt';
-import {journalPagesTest} from '../journal-web/fixtures/journalPagesTest';
-import {contentDashboardPagesTest} from './fixtures/contentDashboardPagesTest';
-import { blogsPagesTest } from '../blogs-web/fixtures/blogsPagesTest';
+import {liferayConfig} from '../../liferay.config';
 import getRandomString from '../../utils/getRandomString';
-import { createDataSource } from '../osb-faro-web/utils/dataSource';
-import { connectToAnalyticsCloud, disconnectFromAnalyticsCloud, goNextStep, goToAnalyticsCloudInstanceSettings } from '../analytics-settings-web/utils/analyticsSettings';
-import { acceptsCookiesBanner } from '../osb-faro-web/utils/portal';
-import { liferayConfig } from '../../liferay.config';
-import { JournalPage } from '../journal-web/pages/JournalPage';
+import {
+	connectToAnalyticsCloud,
+	disconnectFromAnalyticsCloud,
+	goNextStep,
+	goToAnalyticsCloudInstanceSettings,
+} from '../analytics-settings-web/utils/analyticsSettings';
+import {blogsPagesTest} from '../blogs-web/fixtures/blogsPagesTest';
+import {journalPagesTest} from '../journal-web/fixtures/journalPagesTest';
+import {JournalPage} from '../journal-web/pages/JournalPage';
+import {createDataSource} from '../osb-faro-web/utils/dataSource';
+import {acceptsCookiesBanner} from '../osb-faro-web/utils/portal';
+import {contentDashboardPagesTest} from './fixtures/contentDashboardPagesTest';
 
 async function connectToAnalyticsCloudWithNoSiteSynced(page: Page) {
 	await createDataSource(page);
@@ -32,35 +36,43 @@ async function connectToAnalyticsCloudWithNoSiteSynced(page: Page) {
 	await connectToAnalyticsCloud(page);
 
 	await goNextStep(page);
-	
+
 	await goNextStep(page);
 
 	await page.getByRole('button', {name: 'Finish'}).click();
 }
 
-async function createAssetLibrary({name, page}: {name: string, page: Page}) {
-	await page.getByRole('button', { name: 'Add' }).click();
+async function createAssetLibrary({name, page}: {name: string; page: Page}) {
+	await page.getByRole('button', {name: 'Add'}).click();
 
 	await page.getByLabel('Name').fill(name);
 
-	await page.getByRole('button', { name: 'Save' }).click();
+	await page.getByRole('button', {name: 'Save'}).click();
 
-	await page.getByRole('link', { name: 'Back' }).click();
+	await page.getByRole('link', {name: 'Back'}).click();
 }
 
-async function createWebContentIntoAssetLibrary({articleTitle, assetLibraryName, journalPage, page}: {articleTitle: string, assetLibraryName: string, journalPage: JournalPage, page: Page}) {
+async function createWebContentIntoAssetLibrary({
+	articleTitle,
+	assetLibraryName,
+	journalPage,
+	page,
+}: {
+	articleTitle: string;
+	assetLibraryName: string;
+	journalPage: JournalPage;
+	page: Page;
+}) {
+	await page.getByRole('link', {name: assetLibraryName}).click();
 
-	await page.getByRole('link', { name: assetLibraryName }).click();
+	await page.getByRole('link', {name: 'Web Content'}).click();
 
-	await page.getByRole('link', { name: 'Web Content' }).click();
+	await page.getByRole('button', {name: 'New'}).click();
 
-	await page.getByRole('button', { name: 'New' }).click();
-
-	await page.getByRole('menuitem', { name: 'Basic Web Content' }).click();
-
+	await page.getByRole('menuitem', {name: 'Basic Web Content'}).click();
 
 	await journalPage.fillArticleData(articleTitle, getRandomString());
-	
+
 	await page.evaluate((articleTitle) => {
 		const element = document.querySelector(
 			'[data-field-name=titleMapAsXML]'
@@ -72,13 +84,22 @@ async function createWebContentIntoAssetLibrary({articleTitle, assetLibraryName,
 
 	await journalPage.publishArticle();
 
-	const toastAlertContainer = page.locator('[id="ToastAlertContainer"]');
+	await expect(
+		page.locator(`dd[data-title="${articleTitle}"]`)
+	).toBeVisible();
+}
 
-	await expect(toastAlertContainer).toBeVisible();
+async function deleteAssetLibraries(page: Page) {
+	await goToAssetLibraries(page);
 
-	await expect(toastAlertContainer).toHaveText(
-		'Success:' + articleTitle + ' was created successfully.'
-	);
+	await page.waitForTimeout(3000);
+
+	await page.getByLabel('Select All Items on the Page').click();
+
+	page.once('dialog', (dialog) => {
+		dialog.accept().catch(() => {});
+	});
+	await page.getByRole('button', {name: 'Delete'}).click();
 }
 
 async function goToAssetLibraries(page: Page) {
@@ -90,11 +111,13 @@ async function goToAssetLibraries(page: Page) {
 }
 
 async function goToContentPerformanceTab(page: Page) {
-	const dropDownButton = await page.locator('.lfr-entry-action-column .dropdown-action button').first();
+	const dropDownButton = await page
+		.locator('.lfr-entry-action-column .dropdown-action button')
+		.first();
 
 	await dropDownButton.click();
 
-	const showInfoButton = await page.locator('[data-action=showInfo]').first()
+	const showInfoButton = await page.locator('[data-action=showInfo]').first();
 
 	await showInfoButton.click();
 
@@ -102,10 +125,10 @@ async function goToContentPerformanceTab(page: Page) {
 
 	expect(await activeTab.textContent()).toBe('Details');
 
-	await page.getByRole('tab', {name: "Performance"}).click();
+	await page.getByRole('tab', {name: 'Performance'}).click();
 }
 
-async function searchForContent({page, title} : {page: Page, title: string}) {
+async function searchForContent({page, title}: {page: Page; title: string}) {
 	const searchBar = await page.getByPlaceholder('Search for');
 
 	await searchBar.fill(title);
@@ -156,9 +179,11 @@ test('Displays empty state when Analytics Cloud is not connected', async ({
 
 	await goToContentPerformanceTab(page);
 
-	await expect(page.getByText(
-		'In order to view asset performance, your Liferay DXP instance has to be connected with Liferay Analytics Cloud.'
-	)).toBeVisible();
+	await expect(
+		page.getByText(
+			'In order to view asset performance, your Liferay DXP instance has to be connected with Liferay Analytics Cloud.'
+		)
+	).toBeVisible();
 
 	await page.locator('.tab-content a').click();
 
@@ -172,31 +197,40 @@ test('Displays empty state when asset belongs to an asset library with no site c
 	site,
 }) => {
 	await connectToAnalyticsCloudWithNoSiteSynced(page);
-	
+
 	await page.goto(liferayConfig.environment.baseUrl);
 
 	await goToAssetLibraries(page);
-	
+
 	const assetLibraryName = getRandomString();
 	const articleTitle = getRandomString();
-	
+
 	await createAssetLibrary({name: assetLibraryName, page});
 
-	await createWebContentIntoAssetLibrary({articleTitle, assetLibraryName, journalPage, page});
-	
+	await createWebContentIntoAssetLibrary({
+		articleTitle,
+		assetLibraryName,
+		journalPage,
+		page,
+	});
+
 	await contentDashboardPage.goto(site.friendlyUrlPath);
 
 	await searchForContent({page, title: articleTitle});
-	
+
 	await goToContentPerformanceTab(page);
 
-	await expect(page.getByText(
-		'In order to view asset performance, connect sites that are synced to Analytics Cloud to your asset library.'
-	)).toBeVisible();
+	await expect(
+		page.getByText(
+			'In order to view asset performance, connect sites that are synced to Analytics Cloud to your asset library.'
+		)
+	).toBeVisible();
 
 	await page.locator('.tab-content a').click();
 
 	await expect(page.getByText('Connected Sites')).toBeVisible();
+
+	await deleteAssetLibraries(page);
 });
 
 test('Displays empty state when site is not synced to Analytics Cloud', async ({
@@ -222,9 +256,11 @@ test('Displays empty state when site is not synced to Analytics Cloud', async ({
 
 	await goToContentPerformanceTab(page);
 
-	await expect(page.getByText(
-		'In order to view asset performance, your sites have to be synced to Liferay Analytics Cloud.'
-	)).toBeVisible();
+	await expect(
+		page.getByText(
+			'In order to view asset performance, your sites have to be synced to Liferay Analytics Cloud.'
+		)
+	).toBeVisible();
 
 	await page.locator('.tab-content a').click();
 
