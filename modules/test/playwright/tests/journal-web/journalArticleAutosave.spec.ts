@@ -274,6 +274,65 @@ autoSaveTest(
 );
 
 autoSaveTest(
+	'History button',
+	{
+		tag: '@LPD-22303',
+	},
+	async ({apiHelpers, journalEditArticlePage, page, site}) => {
+		const localizableFieldName = 'Text56789';
+		const structureName = 'Structure undo/redo';
+
+		const dataDefinition = getDataStructureDefinition({
+			defaultLanguageId: 'en_US',
+			fields: [{name: localizableFieldName, repeatable: false}],
+			name: structureName,
+		});
+
+		await apiHelpers.dataEngine.createStructure(site.id, dataDefinition);
+
+		await journalEditArticlePage.goto({
+			siteUrl: site.friendlyUrlPath,
+			structureName,
+		});
+
+		const historyButton = journalEditArticlePage.historyButton;
+		await expect(historyButton).toBeDisabled();
+
+		const title = 'Web Content Title';
+		const friendlyURL = 'web-content-title';
+		const content = 'Web Content Content';
+
+		await journalEditArticlePage.fillTitle(title);
+
+		/*await expect(historyButton).toBeEnabled();
+		await historyButton.click();
+		await expect(page.getByRole('menuitem', { name: 'Undo All' })).toBeEnabled();
+		await expect(page.getByRole('menuitem', { name: 'Edit Title' })).toBeDisabled();*/
+
+		await journalEditArticlePage.fillFriendlyURL(friendlyURL);
+		/*await historyButton.click();
+		await expect(page.getByRole('menuitem', { name: 'Edit Title' })).toBeEnabled();
+		await expect(page.getByRole('menuitem', { name: 'Edit Friendly URL' })).toBeDisabled();*/
+
+		const textField = await page.getByLabel('Text', { exact: true });
+		await fillAndClickOutside(page, textField, content);
+
+		/*await historyButton.click();
+		await page.getByRole('menuitem', { name: 'Undo All' }).click();*/
+
+		//TODO comprobar que los 3 campos están vacios
+
+
+		//Volver al paso 2
+		/*
+		await historyButton.click();
+		await page.getByRole('menuitem', { name: 'Edit Content' }).click();*/
+
+		//comprobar que todos los campos tienen valor.
+	}
+);
+
+autoSaveTest(
 	'Create a web content selecting permissions in the modal',
 	{
 		tag: '@LPD-32949',
