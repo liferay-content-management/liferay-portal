@@ -32,12 +32,7 @@ export const testSearchInDlPortlet = mergeTests(
 		'LPS-178052': true,
 	})
 );
-export const testFeatureFlagsEnabled = mergeTests(
-	baseTest,
-	featureFlagsTest({
-		'LPD-10701': true,
-	})
-);
+export const testFeatureFlagsEnabled = mergeTests(baseTest);
 
 export const testUploadMultipleFieldsWithCustomDocumentType =
 	mergeTests(baseTest);
