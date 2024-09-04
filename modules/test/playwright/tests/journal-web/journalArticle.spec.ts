@@ -18,7 +18,7 @@ import addApprovedStructuredContent from '../../utils/structured-content/addAppr
 import getBasicWebContentStructureId from '../../utils/structured-content/getBasicWebContentStructureId';
 import {waitForSuccessAlert} from '../../utils/waitForSuccessAlert';
 import {journalPagesTest} from './fixtures/journalPagesTest';
-import getDataStructureDefinition from './utils/getDataStructureDefinition';
+import {getDataStructureDefinition, getDataStructureDefinitionWithSelectFromList} from './utils/getDataStructureDefinition';
 
 const translateNameAndMetadataFields = async (
 	page,
@@ -1038,6 +1038,33 @@ translationTest(
 			timeout: 1000,
 			trigger: translationButton,
 		});
+	}
+);
+
+translationTest(
+	'pruebaaaaa',
+	async ({apiHelpers, journalEditArticlePage, page, site}) => {
+		const localizableFieldName = 'Text5678';
+		const structureName = 'Structure 1';
+
+		const dataDefinition = getDataStructureDefinitionWithSelectFromList({
+			defaultLanguageId: 'en_US',
+			fields: [{name: localizableFieldName, repeatable: true}],
+			name: structureName,
+		});
+
+		await apiHelpers.dataEngine.createStructure(site.id, dataDefinition);
+
+		await journalEditArticlePage.goto({
+			siteUrl: site.friendlyUrlPath,
+			structureName,
+		});
+
+		await expect(
+			page.getByRole('textbox', {
+				name: 'ksadjsakjb',
+			})
+		).toBeDisabled();
 	}
 );
 

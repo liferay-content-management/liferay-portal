@@ -16,7 +16,7 @@ interface Field {
 	required?: boolean;
 }
 
-export default function getDataStructureDefinition({
+export function getDataStructureDefinition({
 	defaultLanguageId,
 	fields,
 	name,
@@ -47,6 +47,92 @@ export default function getDataStructureDefinition({
 					repeatable,
 					required,
 					showLabel: true,
+				};
+			}
+		),
+		defaultDataLayout: {
+			dataLayoutPages: [
+				{
+					dataLayoutRows: fields.map((field) => {
+						return {
+							dataLayoutColumns: [
+								{
+									columnSize: 12,
+									fieldNames: [field.name],
+								},
+							],
+						};
+					}),
+					description: {
+						[defaultLanguageId]: '',
+					},
+					title: {
+						[defaultLanguageId]: '',
+					},
+				},
+			],
+			name: {
+				[defaultLanguageId]: name,
+			},
+			paginationMode: 'single-page',
+		},
+		defaultLanguageId,
+		id: '',
+		name: {
+			[defaultLanguageId]: name,
+		},
+	};
+}
+
+export function getDataStructureDefinitionWithSelectFromList({
+	defaultLanguageId,
+	fields,
+	name,
+}: Props): DataDefinition {
+	return {
+		availableLanguageIds: [defaultLanguageId],
+		dataDefinitionFields: fields.map(
+			({
+				localizable = true,
+				name: fieldName,
+				repeatable = false,
+				required = false,
+			}) => {
+				return {
+					customProperties: {
+						dataType: "string",
+						fieldReference: fieldName,
+						options: {
+						  [defaultLanguageId]: [
+							{
+							  label: "1",
+							  reference: "option1",
+							  value: "Option53486543"
+							},
+							{
+							  label: "2",
+							  reference: "option2",
+							  value: "Option95243515"
+							},
+							{
+							  label: "3",
+							  reference: "option3",
+							  value: "Option35020781"
+							}
+						  ]
+						},
+					  },
+					  defaultValue: {},
+					  fieldType: "select",
+					  indexType: "keyword",
+					  label: {
+						[defaultLanguageId]: fieldName
+					  },
+					  localizable,
+					  name: fieldName,
+					  repeatable,
+					  required,
+					  showLabel: true,
 				};
 			}
 		),
