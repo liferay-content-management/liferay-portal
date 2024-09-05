@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -59,20 +60,39 @@ public class DLVideoFFMPEGVideoConverter implements VideoConverter {
 		Properties videoProperties = PropsUtil.getProperties(
 			PropsKeys.DL_FILE_ENTRY_PREVIEW_VIDEO, false);
 
-		_runFFMPEGCommand(
-			Arrays.asList(
-				"ffmpeg", "-y", "-i", file.getAbsolutePath(), "-b:v",
-				String.valueOf(
-					_getVideoBitRate(videoProperties, containerType)),
-				"-vf",
-				String.format(
-					"scale=min(%d\\,iw):-2",
-					GetterUtil.getInteger(
-						PropsValues.DL_FILE_ENTRY_PREVIEW_VIDEO_WIDTH)),
-				"-r",
-				String.valueOf(
-					_getVideoFrameRate(videoProperties, containerType)),
-				destinationFile.getAbsolutePath()));
+		if (Objects.equals(containerType, "mp4")) {
+			_runFFMPEGCommand(
+				Arrays.asList(
+					"ffmpeg", "-y", "-i", file.getAbsolutePath(), "-c:v",
+					"libx264", "-b:v",
+					String.valueOf(
+						_getVideoBitRate(videoProperties, containerType)),
+					"-vf",
+					String.format(
+						"scale=min(%d\\,iw):-2",
+						GetterUtil.getInteger(
+							PropsValues.DL_FILE_ENTRY_PREVIEW_VIDEO_WIDTH)),
+					"-r",
+					String.valueOf(
+						_getVideoFrameRate(videoProperties, containerType)),
+					destinationFile.getAbsolutePath()));
+		}
+		else {
+			_runFFMPEGCommand(
+				Arrays.asList(
+					"ffmpeg", "-y", "-i", file.getAbsolutePath(), "-b:v",
+					String.valueOf(
+						_getVideoBitRate(videoProperties, containerType)),
+					"-vf",
+					String.format(
+						"scale=min(%d\\,iw):-2",
+						GetterUtil.getInteger(
+							PropsValues.DL_FILE_ENTRY_PREVIEW_VIDEO_WIDTH)),
+					"-r",
+					String.valueOf(
+						_getVideoFrameRate(videoProperties, containerType)),
+					destinationFile.getAbsolutePath()));
+		}
 
 		return new AutoDeleteFileInputStream(destinationFile);
 	}
