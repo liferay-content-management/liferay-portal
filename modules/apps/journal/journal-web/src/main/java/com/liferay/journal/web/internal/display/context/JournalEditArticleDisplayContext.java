@@ -36,7 +36,6 @@ import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
-import com.liferay.journal.service.JournalArticleServiceUtil;
 import com.liferay.journal.service.JournalFolderLocalServiceUtil;
 import com.liferay.journal.web.internal.security.permission.resource.JournalArticlePermission;
 import com.liferay.journal.web.internal.security.permission.resource.JournalFolderPermission;
@@ -581,14 +580,8 @@ public class JournalEditArticleDisplayContext {
 			defaultArticleLanguageId = LocaleUtil.toLanguageId(
 				ddmFormValues.getDefaultLocale());
 		}
-		else if (Validator.isNull(defaultArticleLanguageId) &&
-				 (getClassNameId() ==
-					 JournalArticleConstants.CLASS_NAME_ID_DEFAULT)) {
 
-			defaultArticleLanguageId = _getDDMStructureDefaultLanguageId();
-		}
-
-		if ((defaultArticleLanguageId == null) ||
+		if (Validator.isNull(defaultArticleLanguageId) ||
 			!LanguageUtil.isAvailableLocale(
 				getGroupId(), defaultArticleLanguageId)) {
 
@@ -1469,28 +1462,6 @@ public class JournalEditArticleDisplayContext {
 		}
 
 		return _article.getAvailableLanguageIds();
-	}
-
-	private String _getDDMStructureDefaultLanguageId() {
-		DDMStructure ddmStructure = getDDMStructure();
-
-		if (ddmStructure != null) {
-			try {
-				JournalArticle ddmStructureJournalArticle =
-					JournalArticleServiceUtil.getArticle(
-						ddmStructure.getGroupId(), DDMStructure.class.getName(),
-						ddmStructure.getStructureId());
-
-				return ddmStructureJournalArticle.getDefaultLanguageId();
-			}
-			catch (PortalException portalException) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(portalException);
-				}
-			}
-		}
-
-		return null;
 	}
 
 	private LayoutPageTemplateEntry _getDefaultLayoutPageTemplateEntry() {
