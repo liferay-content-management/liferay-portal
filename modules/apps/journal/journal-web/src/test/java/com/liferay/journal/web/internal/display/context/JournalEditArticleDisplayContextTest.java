@@ -9,6 +9,7 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.service.JournalFolderLocalService;
 import com.liferay.journal.service.JournalFolderLocalServiceUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanProperties;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -102,6 +103,7 @@ public class JournalEditArticleDisplayContextTest {
 
 	@Test
 	public void testGetDefaultArticleLanguageId() throws PortalException {
+		_testGetDefaultArticleLanguageIdWithEmptyLocale();
 		_testGetDefaultArticleLanguageIdWithParameter();
 		_testGetDefaultArticleLanguageIdWithUnavailableLocale();
 	}
@@ -345,6 +347,38 @@ public class JournalEditArticleDisplayContextTest {
 		).getParameter(
 			"showSelectFolder"
 		);
+	}
+
+	private void _testGetDefaultArticleLanguageIdWithEmptyLocale()
+		throws PortalException {
+
+		String defaultLanguageId = StringPool.BLANK;
+
+		Mockito.when(
+			_httpServletRequest.getParameter("defaultLanguageId")
+		).thenReturn(
+			defaultLanguageId
+		);
+
+		Mockito.when(
+			_language.isAvailableLocale(0, defaultLanguageId)
+		).thenReturn(
+			true
+		);
+
+		Mockito.when(
+			_portal.getSiteDefaultLocale(0)
+		).thenReturn(
+			LocaleUtil.UK
+		);
+
+		_journalEditArticleDisplayContext =
+			new JournalEditArticleDisplayContext(
+				_httpServletRequest, _liferayPortletResponse, null);
+
+		Assert.assertEquals(
+			LocaleUtil.toLanguageId(LocaleUtil.UK),
+			_journalEditArticleDisplayContext.getDefaultArticleLanguageId());
 	}
 
 	private void _testGetDefaultArticleLanguageIdWithParameter() {
