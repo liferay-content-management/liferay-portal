@@ -54,7 +54,7 @@ test.beforeEach(
 
 		title2 = getRandomString();
 
-		await documentLibraryPage.editFileEntry(title1);
+		await documentLibraryPage.goToEditFileEntry(title1);
 
 		await documentLibraryEditFilePage.titleSelector.fill(title2);
 
@@ -82,7 +82,7 @@ test('LPD-25853 Edit in x publication is added in the timeline dropdown actions'
 
 	await documentLibraryPage.goto(site.friendlyUrlPath);
 
-	await documentLibraryPage.editFileEntry(title1);
+	await documentLibraryPage.goToEditFileEntry(title1);
 
 	await page.getByLabel('timeline-button').click();
 
@@ -115,7 +115,7 @@ test('LPD-25853 Review Change is added in the timeline dropdown actions', async 
 }) => {
 	await documentLibraryPage.goto(site.friendlyUrlPath);
 
-	await documentLibraryPage.editFileEntry(title2);
+	await documentLibraryPage.goToEditFileEntry(title2);
 
 	await page.getByLabel('timeline-button').click();
 
@@ -145,7 +145,7 @@ test('LPD-25853 Discard Change is added in the timeline dropdown actions', async
 }) => {
 	await documentLibraryPage.goto(site.friendlyUrlPath);
 
-	await documentLibraryPage.editFileEntry(title2);
+	await documentLibraryPage.goToEditFileEntry(title2);
 
 	await page.getByLabel('timeline-button').click();
 
@@ -171,7 +171,7 @@ test('LPD-25853 Move Change is added in the timeline dropdown actions', async ({
 }) => {
 	await documentLibraryPage.goto(site.friendlyUrlPath);
 
-	await documentLibraryPage.editFileEntry(title2);
+	await documentLibraryPage.goToEditFileEntry(title2);
 
 	await page.getByLabel('timeline-button').click();
 
@@ -288,7 +288,7 @@ test('LPD-26155 Conflict warning is visible when content is edited in more than 
 
 	const title3 = getRandomString();
 
-	await documentLibraryPage.editFileEntry(title1);
+	await documentLibraryPage.goToEditFileEntry(title1);
 
 	await documentLibraryEditFilePage.titleSelector.fill(title3);
 
@@ -349,7 +349,7 @@ test('LPD-26155 Production conflict info is visible when new changes have been m
 
 	const title3 = getRandomString();
 
-	await documentLibraryPage.editFileEntry(title1);
+	await documentLibraryPage.goToEditFileEntry(title1);
 
 	await documentLibraryEditFilePage.titleSelector.fill(title3);
 
