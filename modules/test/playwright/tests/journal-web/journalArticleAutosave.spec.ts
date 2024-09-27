@@ -427,9 +427,7 @@ autoSaveTest(
 		});
 
 		await expect(
-			page.getByText(
-				'Please enter a valid title for the default language'
-			)
+			page.getByText('The Title field is required.')
 		).toBeVisible({timeout: 1000});
 
 		const title = getRandomString();
