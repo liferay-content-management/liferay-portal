@@ -57,6 +57,7 @@ const autoSaveUndoRedoTest = mergeTests(
 		'LPD-11228': true,
 		'LPD-15596': true,
 		'LPD-36053': true,
+		'LPS-114700': true,
 	}),
 	isolatedSiteTest,
 	journalPagesTest,
@@ -198,45 +199,48 @@ autoSaveUndoRedoTest(
 
 		await journalEditArticlePage.fillTitle(getRandomString());
 
-		const translationButton = page.locator(
-			'[id="_com_liferay_journal_web_portlet_JournalPortlet__com_liferay_journal_web_portlet_JournalPortlet_titleMapAsXMLMenu"]'
-		);
+		const translationButton = page.getByRole('combobox', {
+			name: 'Select a language',
+		});
 
 		await clickAndExpectToBeVisible({
 			autoClick: true,
-			target: page.getByRole('menuitem', {
-				name: 'Not translated into Catalan.',
+			target: page.getByRole('option', {
+				name: 'Catalan Language: Not Translated',
 			}),
 			trigger: translationButton,
 		});
 
 		await journalEditArticlePage.fillTitle(getRandomString());
 
-		await clickAndExpectToBeVisible({
+		clickAndExpectToBeVisible({
 			autoClick: false,
-			target: page.getByRole('menuitem', {
-				name: 'Translated into Catalan.',
+			target: page.getByRole('option', {
+				name: 'Catalan Language: Translating 1/2',
 			}),
+			timeout: 1000,
 			trigger: translationButton,
 		});
 
 		await journalEditArticlePage.undoButton.click();
 
-		await clickAndExpectToBeVisible({
-			autoClick: false,
-			target: page.getByRole('menuitem', {
-				name: 'Not translated into Catalan.',
+		clickAndExpectToBeVisible({
+			autoClick: true,
+			target: page.getByRole('option', {
+				name: 'Catalan Language: Not Translated',
 			}),
+			timeout: 1000,
 			trigger: translationButton,
 		});
 
 		await journalEditArticlePage.redoButton.click();
 
-		await clickAndExpectToBeVisible({
+		clickAndExpectToBeVisible({
 			autoClick: false,
-			target: page.getByRole('menuitem', {
-				name: 'Translated into Catalan.',
+			target: page.getByRole('option', {
+				name: 'Catalan Language: Translating 1/2',
 			}),
+			timeout: 1000,
 			trigger: translationButton,
 		});
 	}
