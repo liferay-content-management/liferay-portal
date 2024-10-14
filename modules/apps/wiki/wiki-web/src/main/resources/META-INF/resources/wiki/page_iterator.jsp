@@ -199,7 +199,7 @@ for (int i = 0; i < pages.size(); i++) {
 	// User
 
 	if (!curWikiPage.isNew()) {
-		row.addText(HtmlUtil.escape(PortalUtil.getUserName(curWikiPage)), rowURL);
+		row.addText(HtmlUtil.escape(curWikiPage.getUserName()), rowURL);
 	}
 	else {
 		row.addText(StringPool.BLANK);
