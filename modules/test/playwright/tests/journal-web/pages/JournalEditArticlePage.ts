@@ -24,7 +24,6 @@ export class JournalEditArticlePage {
 	readonly friendlyUrlToggle: Locator;
 	readonly historyButton: Locator;
 	readonly journalPage: JournalPage;
-	readonly propertiesTab: Locator;
 	readonly publishButton: Locator;
 	readonly redoButton: Locator;
 	readonly selectButton: Locator;
@@ -53,7 +52,6 @@ export class JournalEditArticlePage {
 		this.friendlyUrlToggle = page.locator('a[href="#friendlyUrlContent"]');
 		this.historyButton = page.getByLabel('History');
 		this.journalPage = new JournalPage(page);
-		this.propertiesTab = page.getByRole('tab', {name: 'Properties'});
 		this.publishButton = page.locator(
 			'#_com_liferay_journal_web_portlet_JournalPortlet_publishButton'
 		);
@@ -85,10 +83,20 @@ export class JournalEditArticlePage {
 
 		await this.journalPage.goto(siteUrl);
 		await this.journalPage.goToCreateArticle(structureName);
-
-		await this.propertiesTab.waitFor();
+		const propertiesTab = await this.getPropertiesTab();
+		await propertiesTab.waitFor();
 	}
 
+	async getPropertiesTab(languageCode?: string) {
+		const tabNames = {
+			'en-US': 'Properties',
+			'fr-FR': 'Propriétés',
+		};
+
+		return this.page.getByRole('tab', {
+			name: tabNames[languageCode] || 'Properties',
+		});
+	}
 	async assertPrivateContentIconInRelatedAssetPopUp(assetType: string) {
 		await expect(
 			this.page
@@ -161,7 +169,8 @@ export class JournalEditArticlePage {
 	async editArticle(title: string) {
 		await this.journalPage.goToJournalArticleAction('Edit', title);
 
-		await this.propertiesTab.waitFor();
+		const propertiesTab = await this.getPropertiesTab();
+		await propertiesTab.waitFor();
 
 		await this.page.locator('body').click();
 	}
@@ -186,7 +195,8 @@ export class JournalEditArticlePage {
 		);
 
 		const title = getRandomString();
-		await fillAndClickOutside(this.page, this.titleInput, title);
+
+		await this.fillTitle(title);
 		await this.fillFriendlyURL('test');
 
 		await this.publishButton.click();
@@ -205,7 +215,9 @@ export class JournalEditArticlePage {
 	}
 
 	async fillTitle(title: string) {
-		await this.propertiesTab.waitFor();
+		const languageCode = await this.page.getAttribute('html', 'lang');
+		const propertiesTab = await this.getPropertiesTab(languageCode);
+		await propertiesTab.waitFor();
 
 		await fillAndClickOutside(this.page, this.titleInput, title);
 	}
