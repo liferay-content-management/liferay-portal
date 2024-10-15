@@ -250,10 +250,10 @@ class MBPortlet {
 		const bodyInput = document.getElementById(`${namespace}body`);
 
 		if (replyToMessageId) {
-			bodyInput.value =
-				window[
-					`${namespace}replyMessageBody${replyToMessageId}`
-				].getHTML();
+
+			const editorName =`${namespace}replyMessageBody${replyToMessageId}`;
+
+			bodyInput.value = window[editorName].getHTML();
 
 			submitForm(
 				document[`${namespace}addQuickReplyFm${replyToMessageId}`]

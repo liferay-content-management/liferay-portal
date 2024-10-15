@@ -80,6 +80,19 @@ const BaseEditor = forwardRef(
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, []);
 
+		const destroy = useCallback(() => {
+			console.log('destroy');
+			const editor = editorRef.current.editor;
+
+			if (editor) {
+				editor.instanceReady = false;
+
+				editor.destroy();
+
+				window[name] = null;
+			}
+		}, [name]);
+
 		const getHTML = useCallback(() => {
 			let data = contents;
 
@@ -126,6 +139,7 @@ const BaseEditor = forwardRef(
 
 		useEffect(() => {
 			window[name] = {
+				destroy,
 				getHTML,
 				getText() {
 					return contents;
