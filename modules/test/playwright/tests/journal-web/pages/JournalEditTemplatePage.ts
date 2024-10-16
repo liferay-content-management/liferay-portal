@@ -5,7 +5,6 @@
 
 import {Locator, Page} from '@playwright/test';
 
-import {clickAndExpectToBeVisible} from '../../../utils/clickAndExpectToBeVisible';
 import fillAndClickOutside from '../../../utils/fillAndClickOutside';
 import getRandomString from '../../../utils/getRandomString';
 import {openFieldset} from '../../../utils/openFieldset';
@@ -13,7 +12,6 @@ import {JournalTemplatesPage} from './JournalTemplatesPage';
 
 export class JournalEditTemplatePage {
 	readonly page: Page;
-
 	readonly basicInformation: Locator;
 	readonly elementsButton: Locator;
 	readonly journalTemplatesPage: JournalTemplatesPage;
@@ -81,13 +79,17 @@ export class JournalEditTemplatePage {
 		}
 
 		await this.page
-			.getByRole('button', {name: 'Save', exact: true})
+			.getByRole('button', {exact: true, name: 'Save'})
 			.click();
 	}
 	async selectStructure(structureName: string) {
 		await openFieldset(this.page, 'Basic Information');
 
 		await this.selectStructureButton.click();
+		await this.page
+			.frameLocator('iframe[title="Select Structure"]')
+			.getByRole('cell', {name: 'Title'})
+			.waitFor();
 		await this.page
 			.frameLocator('iframe[title="Select Structure"]')
 			.getByRole('cell', {name: structureName})

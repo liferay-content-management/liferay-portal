@@ -10,6 +10,7 @@ import {applicationsMenuPageTest} from '../../fixtures/applicationsMenuPageTest'
 import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
 import {isolatedSiteTest} from '../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../fixtures/loginTest';
+import {pageEditorPagesTest} from '../../fixtures/pageEditorPagesTest';
 import {pageViewModePagesTest} from '../../fixtures/pageViewModePagesTest';
 import {pagesAdminPagesTest} from '../../fixtures/pagesAdminPagesTest';
 import {workflowPagesTest} from '../../fixtures/workflowPagesTest';
@@ -49,6 +50,7 @@ const baseTest = mergeTests(
 	isolatedSiteTest,
 	journalPagesTest,
 	loginTest(),
+	pageEditorPagesTest,
 	pageViewModePagesTest,
 	pagesAdminPagesTest,
 	workflowPagesTest
@@ -90,6 +92,13 @@ const translationAndAutosaveTest = mergeTests(
 	})
 );
 
+const geoLocationTest = mergeTests(
+	baseTest,
+	featureFlagsTest({
+		'LPS-178052': true,
+	})
+);
+
 const privateContentIconTest = mergeTests(baseTest);
 
 baseTest(
@@ -117,6 +126,83 @@ baseTest(
 		// change back to english language
 
 		await page.goto('/en');
+	}
+);
+
+geoLocationTest(
+	'View Selected Web Content With Geolocation Field',
+	{
+		tag: '@LPS-101248',
+	},
+	async ({
+		apiHelpers,
+		context,
+		journalEditArticlePage,
+		journalEditTemplatePage,
+		page,
+		pageEditorPage,
+		site,
+	}) => {
+		const fieldName = 'Geolocation';
+		const structureName = 'Test Structure';
+		const templateName = 'Test Template';
+		const contentTitle = 'Test Web Content';
+
+		const coords = {latitude: 47.526642, longitude: 19.046394};
+		await context.setGeolocation(coords);
+
+		const dataDefinition = getDataStructureDefinition({
+			defaultLanguageId: 'en_US',
+			fields: [
+				{
+					dataType: 'geolocation',
+					fieldType: 'geolocation',
+					name: fieldName,
+					repeatable: false,
+				},
+			],
+			name: structureName,
+		});
+
+		await apiHelpers.dataEngine.createStructure(site.id, dataDefinition);
+
+		await journalEditTemplatePage.createTemplate({
+			fields: [fieldName],
+			siteUrl: site.friendlyUrlPath,
+			structureName,
+			title: templateName,
+		});
+
+		await journalEditArticlePage.goto({
+			siteUrl: site.friendlyUrlPath,
+			structureName,
+		});
+		await journalEditArticlePage.fillTitle(contentTitle);
+		await expect(page.locator('div[id^="map_"]')).toBeVisible();
+		await journalEditArticlePage.publishButton.click();
+
+		const layout = await apiHelpers.headlessDelivery.createSitePage({
+			siteId: site.id,
+			title: getRandomString(),
+		});
+
+		await pageEditorPage.goto(layout, site.friendlyUrlPath);
+		await pageEditorPage.addFragment('Content Display', 'Content Display');
+
+		await pageEditorPage.selectItemMappingButton.click();
+
+		await page
+			.frameLocator('iframe[title="Select"]')
+			.getByRole('menuitem', {name: 'Web Content'})
+			.click();
+
+		await clickAndExpectToBeVisible({
+			autoClick: false,
+			target: page.locator("div[id*='Geolocation']"),
+			trigger: page
+				.frameLocator('iframe[title="Select"]')
+				.getByText(contentTitle),
+		});
 	}
 );
 

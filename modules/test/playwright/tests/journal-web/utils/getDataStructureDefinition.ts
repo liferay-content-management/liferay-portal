@@ -10,7 +10,8 @@ interface Props {
 }
 
 interface Field {
-	fieldType?: 'journal_article' | 'select' | 'text';
+	dataType?: string;
+	fieldType?: 'geolocation' | 'journal_article' | 'select' | 'text';
 	localizable?: boolean;
 	name: string;
 	options?: Options;
@@ -27,6 +28,7 @@ export default function getDataStructureDefinition({
 		availableLanguageIds: [defaultLanguageId],
 		dataDefinitionFields: fields.map(
 			({
+				dataType,
 				fieldType = 'text',
 				localizable = true,
 				name: fieldName,
@@ -36,7 +38,7 @@ export default function getDataStructureDefinition({
 			}) => {
 				return {
 					customProperties: {
-						dataType: 'string',
+						dataType,
 						displayStyle: 'singleline',
 						fieldReference: fieldName,
 						options,

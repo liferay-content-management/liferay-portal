@@ -7,6 +7,7 @@ export const config = {
 	name: 'journal-web',
 	testDir: 'tests/journal-web',
 	use: {
+		permissions: ['geolocation'],
 		testIdAttribute: 'data-qa-id',
 	},
 };
