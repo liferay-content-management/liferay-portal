@@ -26,8 +26,8 @@ export class JournalTemplatesPage {
 		);
 	}
 
-	async goToCreateNewTemplate() {
-		await this.goto();
+	async goToCreateNewTemplate(siteUrl?: Site['friendlyUrlPath']) {
+		await this.goto(siteUrl);
 		await this.newButton.click();
 	}
 }
