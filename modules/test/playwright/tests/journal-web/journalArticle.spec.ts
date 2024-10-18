@@ -205,6 +205,49 @@ baseTest(
 );
 
 baseTest(
+	'Only 1 Success Popup shows on web content display content edit',
+	{
+		tag: '@LPD-39703',
+	},
+	async ({
+		journalEditArticlePage,
+		page,
+		pagesAdminPage,
+		site,
+		widgetPagePage,
+	}) => {
+		await pagesAdminPage.goto(site.friendlyUrlPath);
+
+		const name = 'widgetPage';
+		await pagesAdminPage.addWidgetPage({name});
+
+		await pagesAdminPage.goto(site.friendlyUrlPath);
+		await page.getByLabel(name, {exact: true}).click();
+
+		await widgetPagePage.addPortlet('Web Content Display');
+
+		await page
+			.getByTestId('addButton')
+			.getByRole('button', {name: 'Add'})
+			.click();
+
+		await page.getByRole('menuitem', {name: 'Basic Web Content'}).click();
+
+		await journalEditArticlePage.fillTitle('testArticle');
+
+		await page.getByRole('button', {name: 'Publish'}).click();
+
+		await expect(page.getByRole('heading', {name})).toBeVisible();
+
+		await page.getByText('Success:Your request').first().isVisible();
+
+		await page.waitForTimeout(100);
+
+		expect(await page.getByText('Success:Your request').count()).toBe(1);
+	}
+);
+
+baseTest(
 	'Navigate in ddm template selector',
 	{
 		tag: '@LPD-36441',
