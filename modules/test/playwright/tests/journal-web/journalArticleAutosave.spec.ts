@@ -286,7 +286,7 @@ autoSaveTest(
 	async ({journalEditArticlePage, page, site}) => {
 		await journalEditArticlePage.goto({siteUrl: site.friendlyUrlPath});
 
-		await journalEditArticlePage.fillTitle(getRandomString());
+		await journalEditArticlePage.fillContent(getRandomString());
 
 		const translationButton = page.getByLabel('Select a language, current');
 
@@ -298,7 +298,7 @@ autoSaveTest(
 			trigger: translationButton,
 		});
 
-		await journalEditArticlePage.fillTitle(getRandomString());
+		await journalEditArticlePage.fillContent(getRandomString());
 
 		await clickAndExpectToBeVisible({
 			autoClick: false,
