@@ -8,12 +8,12 @@ package com.liferay.blogs.web.internal.display.context.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.display.page.constants.AssetDisplayPageConstants;
 import com.liferay.asset.display.page.portlet.AssetDisplayPageEntryFormProcessor;
+import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.model.AssetVocabularyConstants;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
-import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.blogs.constants.BlogsPortletKeys;
 import com.liferay.blogs.model.BlogsEntry;
@@ -25,6 +25,9 @@ import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.module.util.BundleUtil;
+import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
+import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -50,9 +53,7 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
-import javax.portlet.Portlet;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+import java.lang.reflect.Constructor;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -62,6 +63,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -82,6 +87,18 @@ public class BlogsViewEntryContentDisplayContextTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Bundle bundle = FrameworkUtil.getBundle(getClass());
+
+		_bundleContext = bundle.getBundleContext();
+
+		String symbolicName = "com.liferay.blogs.web";
+
+		_bundle = BundleUtil.getBundle(bundle.getBundleContext(), symbolicName);
+
+		Assert.assertNotNull(
+			"Unable to find bundle with symbolic name: " + symbolicName,
+			_bundle);
+
 		_group = GroupTestUtil.addGroup();
 
 		_company = _companyLocalService.getCompany(_group.getCompanyId());
@@ -184,9 +201,14 @@ public class BlogsViewEntryContentDisplayContextTest {
 			serviceContext);
 	}
 
-	private MockLiferayPortletRenderRequest
-			_getMockLiferayPortletRenderRequest()
-		throws Exception {
+	private Object _getBlogsViewEntryContentDisplayContext() throws Exception {
+		Class<?> clazz = _bundle.loadClass(
+			"com.liferay.blogs.web.internal.display.context." +
+				"BlogsViewEntryContentDisplayContext");
+
+		Constructor<?> constructor = clazz.getDeclaredConstructor(
+			AssetDisplayPageFriendlyURLProvider.class,
+			LiferayPortletRequest.class, LiferayPortletResponse.class);
 
 		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
 			new TestMockLiferayPortletRenderRequest(
@@ -195,13 +217,10 @@ public class BlogsViewEntryContentDisplayContextTest {
 		mockLiferayPortletRenderRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, _getThemeDisplay());
 
-		ReflectionTestUtil.invoke(
-			_portlet, "doDispatch",
-			new Class<?>[] {RenderRequest.class, RenderResponse.class},
+		return constructor.newInstance(
+			_assetDisplayPageFriendlyURLProvider,
 			mockLiferayPortletRenderRequest,
 			new TestMockLiferayPortletRenderResponse());
-
-		return mockLiferayPortletRenderRequest;
 	}
 
 	private ThemeDisplay _getThemeDisplay() throws Exception {
@@ -225,16 +244,8 @@ public class BlogsViewEntryContentDisplayContextTest {
 	}
 
 	private String _getViewEntryURL(BlogsEntry entry) throws Exception {
-		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
-			_getMockLiferayPortletRenderRequest();
-
-		Object blogsViewEntryContentDisplayContext =
-			mockLiferayPortletRenderRequest.getAttribute(
-				"com.liferay.blogs.web.internal.display.context." +
-					"BlogsViewEntryContentDisplayContext");
-
 		return ReflectionTestUtil.invoke(
-			blogsViewEntryContentDisplayContext, "getViewEntryURL",
+			_getBlogsViewEntryContentDisplayContext(), "getViewEntryURL",
 			new Class<?>[] {BlogsEntry.class}, entry);
 	}
 
@@ -285,7 +296,8 @@ public class BlogsViewEntryContentDisplayContextTest {
 		_assetDisplayPageEntryFormProcessor;
 
 	@Inject
-	private AssetEntryLocalService _assetEntryLocalService;
+	private AssetDisplayPageFriendlyURLProvider
+		_assetDisplayPageFriendlyURLProvider;
 
 	@Inject
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
@@ -293,6 +305,8 @@ public class BlogsViewEntryContentDisplayContextTest {
 	@Inject
 	private BlogsEntryService _blogsEntryService;
 
+	private Bundle _bundle;
+	private BundleContext _bundleContext;
 	private Company _company;
 
 	@Inject
@@ -306,11 +320,6 @@ public class BlogsViewEntryContentDisplayContextTest {
 	@Inject
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
-
-	@Inject(
-		filter = "component.name=com.liferay.blogs.web.internal.portlet.BlogsPortlet"
-	)
-	private Portlet _portlet;
 
 	private static class TestMockLiferayPortletRenderRequest
 		extends MockLiferayPortletRenderRequest {
