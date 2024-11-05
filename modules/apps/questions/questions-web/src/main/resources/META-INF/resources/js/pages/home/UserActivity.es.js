@@ -100,7 +100,7 @@ export default withRouter(
 
 		const sectionTitleQuestion =
 			data?.messageBoardMessages?.items[0]?.messageBoardThread
-				.messageBoardSection.title;
+				.messageBoardSection?.title;
 
 		const hasActivities = totalCount > 0;
 
