@@ -362,8 +362,16 @@
 
 				const TPL_PROGRESS_BAR = '<div class="progressbar"></div>';
 
+				const ckeditorImage = document.querySelector(
+					'[data-cke-saved-src^="data:image"]'
+				);
+
 				const _onUploadError = () => {
 					const image = this._tempImage;
+
+					if (ckeditorImage) {
+						ckeditorImage.remove();
+					}
 
 					if (image) {
 						image.parentElement.remove();
@@ -391,14 +399,11 @@
 					if (data.success) {
 						const image = this._tempImage;
 
-						if (image) {
-							const ckeditorImage = document.querySelector(
-								'[data-cke-saved-src^="data:image"]'
-							);
+						if (ckeditorImage) {
+							ckeditorImage.remove();
+						}
 
-							if (ckeditorImage) {
-								ckeditorImage.remove();
-							}
+						if (image) {
 
 							image.removeAttribute(ATTR_DATA_RANDOM_ID);
 							image.classList.remove(CSS_UPLOADING_IMAGE);
