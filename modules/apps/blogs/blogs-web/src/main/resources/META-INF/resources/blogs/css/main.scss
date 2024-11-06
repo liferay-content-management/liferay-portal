@@ -25,7 +25,7 @@
 			max-width: 100%;
 		}
 
-		img[data-cke-saved-src^='data:image'] {
+		img[data-cke-saved-src^='data:image']:not([data-fileentryid]) {
 			display: none;
 		}
 

@@ -363,7 +363,7 @@
 				const TPL_PROGRESS_BAR = '<div class="progressbar"></div>';
 
 				const ckeditorImage = document.querySelector(
-					'[data-cke-saved-src^="data:image"]'
+					'img[data-cke-saved-src^="data:image"]:not([data-fileentryid])'
 				);
 
 				const _onUploadError = () => {
@@ -404,7 +404,6 @@
 						}
 
 						if (image) {
-
 							image.removeAttribute(ATTR_DATA_RANDOM_ID);
 							image.classList.remove(CSS_UPLOADING_IMAGE);
 
