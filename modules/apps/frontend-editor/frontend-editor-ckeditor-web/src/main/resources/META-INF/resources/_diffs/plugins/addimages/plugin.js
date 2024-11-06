@@ -356,10 +356,9 @@
 			AUI().use('aui-progressbar', 'uploader', (A) => {
 				const ATTR_DATA_RANDOM_ID = 'data-random-id';
 				const CSS_UPLOADING_IMAGE = 'uploading-image';
-				const CSS_UPLOADING_IMAGE_CONTAINER =
-					'uploading-image-container';
 
-				const TPL_IMAGE_CONTAINER = `<div class="${CSS_UPLOADING_IMAGE_CONTAINER}"></div>`;
+				const TPL_IMAGE_CONTAINER =
+					'<div class="uploading-image-container"></div>';
 
 				const TPL_PROGRESS_BAR = '<div class="progressbar"></div>';
 
@@ -394,8 +393,7 @@
 
 						if (image) {
 							const ckeditorImage = document.querySelector(
-								`.${CSS_UPLOADING_IMAGE_CONTAINER} + img[data-cke-saved-src^="data:image"],
-								img[data-cke-saved-src^="data:image"]:has(+ .${CSS_UPLOADING_IMAGE_CONTAINER})`
+								'[data-cke-saved-src^="data:image"]'
 							);
 
 							if (ckeditorImage) {

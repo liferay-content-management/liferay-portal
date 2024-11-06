@@ -25,10 +25,7 @@
 			max-width: 100%;
 		}
 
-		.uploading-image-container + img[data-cke-saved-src^='data:image'],
-		img[data-cke-saved-src^='data:image']:has(
-				+ .uploading-image-container
-			) {
+		img[data-cke-saved-src^='data:image'] {
 			display: none;
 		}
 
