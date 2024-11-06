@@ -394,7 +394,8 @@
 
 						if (image) {
 							const ckeditorImage = document.querySelector(
-								`img[data-cke-saved-src]:has(+ .${CSS_UPLOADING_IMAGE_CONTAINER})`
+								`.${CSS_UPLOADING_IMAGE_CONTAINER} + img[data-cke-saved-src^="data:image"],
+								img[data-cke-saved-src^="data:image"]:has(+ .${CSS_UPLOADING_IMAGE_CONTAINER})`
 							);
 
 							if (ckeditorImage) {
