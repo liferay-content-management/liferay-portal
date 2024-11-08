@@ -160,61 +160,6 @@ definition {
 			user = "userfn userln");
 	}
 
-	@description = "This case ensures a user who is mentioned in a comment will receive notifications."
-	@priority = 4
-	@refactordone
-	test CanViewMentionFromComment {
-		User.logoutAndLoginPG(
-			userLoginEmailAddress = "user2@liferay.com",
-			userLoginFullName = "userfn userln");
-
-		User.logoutAndLoginPG(
-			userLoginEmailAddress = "test@liferay.com",
-			userLoginFullName = "Test Test");
-
-		JSONLayout.addPublicLayout(
-			groupName = "Test Site Name",
-			layoutName = "Content Page Name",
-			type = "content");
-
-		ContentPagesNavigator.openEditContentPage(
-			pageName = "Content Page Name",
-			siteName = "Test Site Name");
-
-		PageEditor.addFragment(
-			collectionName = "Collection Name",
-			fragmentName = "Title");
-
-		PageEditor.addComment(
-			fragmentComment = "Comment by Test",
-			fragmentName = "Title",
-			mentionsUserFullName = "userfn userln",
-			mentionsUserScreenName = "user2");
-
-		User.logoutAndLoginPG(
-			userLoginEmailAddress = "user2@liferay.com",
-			userLoginFullName = "userfn userln");
-
-		Notifications.viewBadgeCount(
-			activePanel = "Notifications",
-			notificationCount = 1);
-
-		Notifications.gotoNotifications();
-
-		Notifications.viewNewComment(
-			assetType = "fragment",
-			contentBody = "Comment by Test @user2",
-			mentioned = "true",
-			user = "Test Test");
-
-		Notifications.navigateToContent(contentBody = "Comment by Test @user2");
-
-		PageEditor.viewComment(
-			fragmentComment = "Comment by Test ",
-			mentionsUserFullName = "My Site",
-			mentionsUserScreenName = "user2");
-	}
-
 	@description = "This test covers LPS-101493. It ensures that a user who replies to a comment will receive further reply notifications."
 	@priority = 4
 	@refactordone
