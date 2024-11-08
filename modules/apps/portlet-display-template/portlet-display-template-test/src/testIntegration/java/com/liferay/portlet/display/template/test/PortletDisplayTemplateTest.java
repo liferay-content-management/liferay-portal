@@ -58,7 +58,7 @@ public class PortletDisplayTemplateTest {
 			serviceRegistrations.add(
 				bundleContext.registerService(
 					TemplateHandler.class,
-					new TestTemplateHandler(className1, false),
+					new TestPortletDisplayTemplateHandler(className1, false),
 					MapUtil.singletonDictionary(
 						"javax.portlet.name", RandomTestUtil.randomString())));
 
@@ -67,7 +67,7 @@ public class PortletDisplayTemplateTest {
 			serviceRegistrations.add(
 				bundleContext.registerService(
 					TemplateHandler.class,
-					new TestTemplateHandler(className2, true),
+					new TestPortletDisplayTemplateHandler(className2, true),
 					MapUtil.singletonDictionary(
 						"javax.portlet.name", RandomTestUtil.randomString())));
 
@@ -102,7 +102,7 @@ public class PortletDisplayTemplateTest {
 	@Inject
 	private PortletDisplayTemplate _portletDisplayTemplate;
 
-	private class TestTemplateHandler
+	private class TestPortletDisplayTemplateHandler
 		extends BasePortletDisplayTemplateHandler {
 
 		@Override
@@ -125,7 +125,9 @@ public class PortletDisplayTemplateTest {
 			return _enabled;
 		}
 
-		private TestTemplateHandler(String className, boolean enabled) {
+		private TestPortletDisplayTemplateHandler(
+			String className, boolean enabled) {
+
 			_className = className;
 			_enabled = enabled;
 		}
