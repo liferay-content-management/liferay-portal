@@ -141,6 +141,9 @@ public class OAuth2Manager {
 
 		googleAuthorizationCodeFlow.createAndStoreCredential(
 			googleTokenResponse, String.valueOf(userId));
+
+		GoogleAuthorizationCodeFlowStoreUtil.add(
+			companyId, googleAuthorizationCodeFlow);
 	}
 
 	public void revokeCredential(long companyId, long userId)
@@ -155,6 +158,9 @@ public class OAuth2Manager {
 					googleAuthorizationCodeFlow.getCredentialDataStore();
 
 				credentialDataStore.delete(String.valueOf(userId));
+
+				GoogleAuthorizationCodeFlowStoreUtil.add(
+					companyId, googleAuthorizationCodeFlow);
 			}
 		}
 		catch (IOException ioException) {
@@ -177,6 +183,9 @@ public class OAuth2Manager {
 			storedCredential.setAccessToken(accessToken);
 
 			credentialDataStore.set(String.valueOf(userId), storedCredential);
+
+			GoogleAuthorizationCodeFlowStoreUtil.add(
+				companyId, googleAuthorizationCodeFlow);
 		}
 	}
 
