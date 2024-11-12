@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -184,7 +182,7 @@ public class OAuth2Manager {
 
 	@Deactivate
 	protected void deactivate() {
-		_googleAuthorizationCodeFlows.clear();
+		GoogleAuthorizationCodeFlowStoreUtil.clear();
 	}
 
 	private DLGoogleDriveCompanyConfiguration
@@ -208,10 +206,10 @@ public class OAuth2Manager {
 				dlGoogleDriveCompanyConfiguration =
 					_getDLGoogleDriveCompanyConfiguration(companyId);
 
-			if (_googleAuthorizationCodeFlows.containsKey(companyId)) {
-				GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
-					_googleAuthorizationCodeFlows.get(companyId);
+			GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
+				GoogleAuthorizationCodeFlowStoreUtil.get(companyId);
 
+			if (googleAuthorizationCodeFlow != null) {
 				ClientParametersAuthentication clientParametersAuthentication =
 					(ClientParametersAuthentication)
 						googleAuthorizationCodeFlow.getClientAuthentication();
@@ -247,10 +245,10 @@ public class OAuth2Manager {
 				googleAuthorizationCodeFlowBuilder.setDataStoreFactory(
 					MemoryDataStoreFactory.getDefaultInstance());
 
-			GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
+			googleAuthorizationCodeFlow =
 				googleAuthorizationCodeFlowBuilder.build();
 
-			_googleAuthorizationCodeFlows.put(
+			GoogleAuthorizationCodeFlowStoreUtil.add(
 				companyId, googleAuthorizationCodeFlow);
 
 			return googleAuthorizationCodeFlow;
@@ -267,8 +265,5 @@ public class OAuth2Manager {
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;
-
-	private final Map<Long, GoogleAuthorizationCodeFlow>
-		_googleAuthorizationCodeFlows = new ConcurrentHashMap<>();
 
 }
