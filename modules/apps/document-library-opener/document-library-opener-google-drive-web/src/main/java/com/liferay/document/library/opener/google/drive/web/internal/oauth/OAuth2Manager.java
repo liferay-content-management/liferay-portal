@@ -7,18 +7,20 @@ package com.liferay.document.library.opener.google.drive.web.internal.oauth;
 
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.CredentialRefreshListener;
 import com.google.api.client.auth.oauth2.StoredCredential;
+import com.google.api.client.auth.oauth2.TokenErrorResponse;
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.DataStore;
-import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.drive.DriveScopes;
 
 import com.liferay.document.library.google.drive.configuration.DLGoogleDriveCompanyConfiguration;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -54,11 +56,6 @@ public class OAuth2Manager {
 		GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
 			_getGoogleAuthorizationCodeFlow(companyId);
 
-		if (googleAuthorizationCodeFlow == null) {
-			throw new PortalException(
-				"No Google authorization code flow found");
-		}
-
 		GoogleAuthorizationCodeRequestUrl googleAuthorizationCodeRequestUrl =
 			googleAuthorizationCodeFlow.newAuthorizationUrl();
 
@@ -78,20 +75,14 @@ public class OAuth2Manager {
 	public Credential getCredential(long companyId, long userId)
 		throws PortalException {
 
-		try {
-			GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
-				_getGoogleAuthorizationCodeFlow(companyId);
+		StoredCredential storedCredential = StoredCredentialStoreUtil.get(
+			companyId, userId);
 
-			if (googleAuthorizationCodeFlow == null) {
-				return null;
-			}
+		if (storedCredential == null) {
+			return null;
+		}
 
-			return googleAuthorizationCodeFlow.loadCredential(
-				String.valueOf(userId));
-		}
-		catch (IOException ioException) {
-			throw new PortalException(ioException);
-		}
+		return _getCredential(companyId, userId, storedCredential);
 	}
 
 	public boolean isConfigured(long companyId) {
@@ -126,11 +117,6 @@ public class OAuth2Manager {
 		GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
 			_getGoogleAuthorizationCodeFlow(companyId);
 
-		if (googleAuthorizationCodeFlow == null) {
-			throw new PortalException(
-				"No Google Authorization Code Flow found");
-		}
-
 		GoogleAuthorizationCodeTokenRequest
 			googleAuthorizationCodeTokenRequest =
 				googleAuthorizationCodeFlow.newTokenRequest(code);
@@ -141,50 +127,106 @@ public class OAuth2Manager {
 		GoogleTokenResponse googleTokenResponse =
 			googleAuthorizationCodeTokenRequest.execute();
 
-		googleAuthorizationCodeFlow.createAndStoreCredential(
-			googleTokenResponse, String.valueOf(userId));
+		Credential credential = _getCredential(
+			companyId, userId, googleTokenResponse);
+
+		StoredCredentialStoreUtil.add(
+			companyId, userId, new StoredCredential(credential));
 	}
 
-	public void revokeCredential(long companyId, long userId)
-		throws PortalException {
-
-		try {
-			GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
-				_getGoogleAuthorizationCodeFlow(companyId);
-
-			if (googleAuthorizationCodeFlow != null) {
-				DataStore<StoredCredential> credentialDataStore =
-					googleAuthorizationCodeFlow.getCredentialDataStore();
-
-				credentialDataStore.delete(String.valueOf(userId));
-			}
-		}
-		catch (IOException ioException) {
-			throw new PortalException(ioException);
-		}
+	public void revokeCredential(long companyId, long userId) {
+		StoredCredentialStoreUtil.delete(companyId, userId);
 	}
 
-	public void setAccessToken(long companyId, long userId, String accessToken)
-		throws IOException, PortalException {
+	public void setAccessToken(
+		long companyId, long userId, String accessToken) {
 
-		GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
-			_getGoogleAuthorizationCodeFlow(companyId);
+		StoredCredential storedCredential = new StoredCredential();
 
-		if (googleAuthorizationCodeFlow != null) {
-			DataStore<StoredCredential> credentialDataStore =
-				googleAuthorizationCodeFlow.getCredentialDataStore();
+		storedCredential.setAccessToken(accessToken);
 
-			StoredCredential storedCredential = new StoredCredential();
-
-			storedCredential.setAccessToken(accessToken);
-
-			credentialDataStore.set(String.valueOf(userId), storedCredential);
-		}
+		StoredCredentialStoreUtil.add(companyId, userId, storedCredential);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		_googleAuthorizationCodeFlows.clear();
+		StoredCredentialStoreUtil.clear();
+	}
+
+	private Credential _getCredential(long companyId, long userId)
+		throws PortalException {
+
+		GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
+			_getGoogleAuthorizationCodeFlow(companyId);
+
+		CredentialRefreshListener credentialRefreshListener =
+			new CredentialRefreshListener() {
+
+				@Override
+				public void onTokenErrorResponse(
+						Credential credential,
+						TokenErrorResponse tokenErrorResponse)
+					throws IOException {
+
+					StoredCredentialStoreUtil.add(
+						companyId, userId, new StoredCredential(credential));
+				}
+
+				@Override
+				public void onTokenResponse(
+						Credential credential, TokenResponse tokenResponse)
+					throws IOException {
+
+					StoredCredentialStoreUtil.add(
+						companyId, userId, new StoredCredential(credential));
+				}
+
+			};
+
+		return new Credential.Builder(
+			googleAuthorizationCodeFlow.getMethod()
+		).addRefreshListener(
+			credentialRefreshListener
+		).setClientAuthentication(
+			googleAuthorizationCodeFlow.getClientAuthentication()
+		).setClock(
+			googleAuthorizationCodeFlow.getClock()
+		).setJsonFactory(
+			googleAuthorizationCodeFlow.getJsonFactory()
+		).setRequestInitializer(
+			googleAuthorizationCodeFlow.getRequestInitializer()
+		).setTokenServerEncodedUrl(
+			googleAuthorizationCodeFlow.getTokenServerEncodedUrl()
+		).setTransport(
+			googleAuthorizationCodeFlow.getTransport()
+		).build();
+	}
+
+	private Credential _getCredential(
+			long companyId, long userId,
+			GoogleTokenResponse googleTokenResponse)
+		throws PortalException {
+
+		Credential credential = _getCredential(companyId, userId);
+
+		credential.setFromTokenResponse(googleTokenResponse);
+
+		return credential;
+	}
+
+	private Credential _getCredential(
+			long companyId, long userId, StoredCredential storedCredential)
+		throws PortalException {
+
+		Credential credential = _getCredential(companyId, userId);
+
+		credential.setAccessToken(storedCredential.getAccessToken());
+		credential.setExpirationTimeMilliseconds(
+			storedCredential.getExpirationTimeMilliseconds());
+		credential.setRefreshToken(storedCredential.getRefreshToken());
+
+		return credential;
 	}
 
 	private DLGoogleDriveCompanyConfiguration
@@ -200,7 +242,11 @@ public class OAuth2Manager {
 		throws PortalException {
 
 		if (!isConfigured(companyId)) {
-			return null;
+			throw new PortalException(
+				StringBundler.concat(
+					"The company ", companyId,
+					" is not configured to create a Google authorization code ",
+					"flow"));
 		}
 
 		try {
@@ -225,11 +271,6 @@ public class OAuth2Manager {
 
 					return googleAuthorizationCodeFlow;
 				}
-
-				DataStore<StoredCredential> credentialDataStore =
-					googleAuthorizationCodeFlow.getCredentialDataStore();
-
-				credentialDataStore.clear();
 			}
 
 			GoogleAuthorizationCodeFlow.Builder
@@ -243,12 +284,14 @@ public class OAuth2Manager {
 							dlGoogleDriveCompanyConfiguration.clientSecret()),
 						Collections.singleton(DriveScopes.DRIVE_FILE));
 
-			googleAuthorizationCodeFlowBuilder =
-				googleAuthorizationCodeFlowBuilder.setDataStoreFactory(
-					MemoryDataStoreFactory.getDefaultInstance());
-
 			GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow =
 				googleAuthorizationCodeFlowBuilder.build();
+
+			if (googleAuthorizationCodeFlow == null) {
+				throw new PortalException(
+					"A Google authorization code flow could not be created " +
+						"for company " + companyId);
+			}
 
 			_googleAuthorizationCodeFlows.put(
 				companyId, googleAuthorizationCodeFlow);
