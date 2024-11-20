@@ -31,6 +31,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -563,6 +564,20 @@ public class UIItemsBuilder {
 		).build();
 	}
 
+	public DropdownItem createViewUsagesDropdownItem() {
+		return DropdownItemBuilder.setHref(
+			PortletURLBuilder.create(
+				_getRenderURL("/document_library/view_file_entry_usage")
+			).setParameter(
+				"fileEntryId", _fileEntry.getFileEntryId()
+			).buildString()
+		).setIcon(
+			"list-ul"
+		).setLabel(
+			LanguageUtil.get(_httpServletRequest, "view-usages")
+		).build();
+	}
+
 	public DropdownItem createViewVersionDropdownItem() {
 		return DropdownItemBuilder.setHref(
 			PortletURLBuilder.create(
@@ -806,6 +821,16 @@ public class UIItemsBuilder {
 
 	public boolean isViewOriginalFileActionAvailable() {
 		if (_fileShortcut != null) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isViewUsagesActionAvailable() {
+		if (FeatureFlagManagerUtil.isEnabled(
+				_themeDisplay.getCompanyId(), "LPD-36446")) {
+
 			return true;
 		}
 
