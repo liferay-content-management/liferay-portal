@@ -30,6 +30,31 @@ const test = mergeTests(
 	loginTest()
 );
 
+const usageTest = mergeTests(
+	featureFlagsTest({
+		'LPD-36446': true,
+	}),
+	test
+);
+
+usageTest(
+	'Check View Usage in Action Menu',
+	{
+		tag: '@LPD-42542',
+	},
+	async ({documentLibraryEditFilePage, page, site}) => {
+		await documentLibraryEditFilePage.publishNewBasicFileEntry(
+			'test',
+			site.friendlyUrlPath
+		);
+		await clickAndExpectToBeVisible({
+			autoClick: false,
+			target: page.getByRole('menuitem', {name: 'View Usages'}),
+			trigger: page.getByLabel('Actions', {exact: true}),
+		});
+	}
+);
+
 test(
 	'Check order by Relevance in Search of DL',
 	{
