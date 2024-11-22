@@ -7,12 +7,7 @@ package com.liferay.headless.delivery.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
-import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
-import com.liferay.dynamic.data.mapping.model.DDMStructure;
-import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
-import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
-import com.liferay.headless.delivery.client.dto.v1_0.DataDefinitionField;
 import com.liferay.headless.delivery.client.dto.v1_0.DocumentMetadataSet;
 import com.liferay.headless.delivery.client.serdes.v1_0.DataDefinitionFieldSerDes;
 import com.liferay.headless.delivery.client.serdes.v1_0.DataLayoutSerDes;
@@ -42,7 +37,7 @@ import org.junit.runner.RunWith;
 /**
  * @author Javier Gamarra
  */
-@FeatureFlags("LPD-32247")
+@FeatureFlags({"LPD-32247", "LPD-34651"})
 @RunWith(Arquillian.class)
 public class DocumentMetadataSetResourceTest
 	extends BaseDocumentMetadataSetResourceTestCase {
@@ -54,33 +49,11 @@ public class DocumentMetadataSetResourceTest
 			new LiferayIntegrationTestRule(),
 			PermissionCheckerMethodTestRule.INSTANCE);
 
-	@Override
-	@Test
-	public void testGetDocumentMetadataSet() throws Exception {
-		super.testGetDocumentMetadataSet();
-
-		DocumentMetadataSet postDocumentMetadataSet = _addDocumentMetadataSet(
-			testGroup);
-
-		DocumentMetadataSet getDocumentMetadataSet =
-			documentMetadataSetResource.getDocumentMetadataSet(
-				postDocumentMetadataSet.getId());
-
-		getDocumentMetadataSet.setActions(postDocumentMetadataSet.getActions());
-
-		assertEquals(postDocumentMetadataSet, getDocumentMetadataSet);
-		assertValid(getDocumentMetadataSet);
-	}
-
 	@Ignore
 	@Override
 	@Test
-	public void testGraphQLPostSiteDocumentMetadataSet() throws Exception {
-	}
-
-	@Override
-	protected String[] getAdditionalAssertFieldNames() {
-		return new String[] {"availableLanguages", "description", "name"};
+	public void testGraphQLGetAssetLibraryDocumentMetadataSetByExternalReferenceCode()
+		throws Exception {
 	}
 
 	@Override
@@ -90,17 +63,36 @@ public class DocumentMetadataSetResourceTest
 
 	@Override
 	protected DocumentMetadataSet
-			testGetSiteDocumentMetadataSetsPage_addDocumentMetadataSet(
-				Long siteId, DocumentMetadataSet documentMetadataSet)
+			testDeleteAssetLibraryDocumentMetadataSetByExternalReferenceCode_addDocumentMetadataSet()
 		throws Exception {
 
-		if (siteId.equals(
-				testGetSiteDocumentMetadataSetsPage_getIrrelevantSiteId())) {
+		return documentMetadataSetResource.postSiteDocumentMetadataSet(
+			testDepotEntry.getGroupId(), randomDocumentMetadataSet());
+	}
 
-			return _addDocumentMetadataSet(irrelevantGroup);
-		}
+	@Override
+	protected Long
+			testDeleteAssetLibraryDocumentMetadataSetByExternalReferenceCode_getAssetLibraryId()
+		throws Exception {
 
-		return _addDocumentMetadataSet(testGroup);
+		return testDepotEntry.getDepotEntryId();
+	}
+
+	@Override
+	protected DocumentMetadataSet
+			testGetAssetLibraryDocumentMetadataSetByExternalReferenceCode_addDocumentMetadataSet()
+		throws Exception {
+
+		return documentMetadataSetResource.postSiteDocumentMetadataSet(
+			testDepotEntry.getGroupId(), randomDocumentMetadataSet());
+	}
+
+	@Override
+	protected Long
+			testGetAssetLibraryDocumentMetadataSetByExternalReferenceCode_getAssetLibraryId()
+		throws Exception {
+
+		return testDepotEntry.getDepotEntryId();
 	}
 
 	@Override
@@ -112,46 +104,20 @@ public class DocumentMetadataSetResourceTest
 			testGroup.getGroupId(), randomDocumentMetadataSet());
 	}
 
-	private DocumentMetadataSet _addDocumentMetadataSet(Group group)
+	@Override
+	protected Long
+			testGraphQLGetAssetLibraryDocumentMetadataSetByExternalReferenceCode_getAssetLibraryId()
 		throws Exception {
 
-		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			group.getGroupId(), DLFileEntryMetadata.class.getName());
+		return testDepotEntry.getDepotEntryId();
+	}
 
-		DDMStructureLayout ddmStructureLayout =
-			_ddmStructureLayoutLocalService.getDDMStructureLayout(
-				ddmStructure.getDefaultDDMStructureLayoutId());
+	@Override
+	protected Long
+			testPutAssetLibraryDocumentMetadataSetByExternalReferenceCode_getAssetLibraryId()
+		throws Exception {
 
-		return new DocumentMetadataSet() {
-			{
-				setActions(() -> null);
-				setAssetLibraryKey(() -> GroupUtil.getAssetLibraryKey(group));
-				setAvailableLanguages(
-					() -> LocaleUtil.toW3cLanguageIds(
-						ddmStructure.getAvailableLanguageIds()));
-				setDataDefinitionFields(
-					() -> new DataDefinitionField[] {
-						DataDefinitionField.toDTO(ddmStructure.getDefinition())
-					});
-				setDataLayout(
-					DataLayoutSerDes.toDTO(ddmStructureLayout.getDefinition()));
-				setDateCreated(ddmStructure::getCreateDate);
-				setDateModified(ddmStructure::getModifiedDate);
-				setDescription(
-					() -> ddmStructure.getDescription(
-						testGroup.getDefaultLanguageId()));
-				setDescription_i18n(
-					() -> LocalizedMapUtil.getI18nMap(
-						ddmStructure.getDescriptionMap()));
-				setId(ddmStructure.getStructureId());
-				setName(
-					() -> ddmStructure.getName(
-						testGroup.getDefaultLanguageId()));
-				setName_i18n(
-					() -> LocalizedMapUtil.getI18nMap(
-						ddmStructure.getNameMap()));
-			}
-		};
+		return testDepotEntry.getDepotEntryId();
 	}
 
 	private DocumentMetadataSet _randomDocumentMetadataSet(Group group)
@@ -182,6 +148,8 @@ public class DocumentMetadataSetResourceTest
 						HashMapBuilder.put(
 							LocaleUtil.getSiteDefault(), randomDescription
 						).build()));
+				setExternalReferenceCode(
+					StringUtil.toLowerCase(RandomTestUtil.randomString()));
 				setId(RandomTestUtil.randomLong());
 				setName(() -> randomName);
 				setName_i18n(
@@ -189,6 +157,7 @@ public class DocumentMetadataSetResourceTest
 						HashMapBuilder.put(
 							LocaleUtil.getSiteDefault(), randomName
 						).build()));
+				setSiteId(group::getGroupId);
 			}
 		};
 	}
