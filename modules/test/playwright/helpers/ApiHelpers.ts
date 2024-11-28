@@ -68,7 +68,7 @@ interface HeadlessClientConfig {
 	HEADERS: Record<string, string>;
 }
 
-interface PostOptions<T> {
+interface RequestOptions<T> {
 	data?: T;
 	failOnStatusCode?: boolean;
 	headers?: {[key: string]: string};
@@ -239,7 +239,7 @@ export class ApiHelpers {
 
 	async postResponse<T>(
 		url: string,
-		{data, failOnStatusCode, headers, multipart}: PostOptions<T> = {}
+		{data, failOnStatusCode, headers, multipart}: RequestOptions<T> = {}
 	) {
 		return await this.page.request.post(url, {
 			data,
@@ -249,7 +249,7 @@ export class ApiHelpers {
 		});
 	}
 
-	async post<T>(url: string, options: PostOptions<T> = {}) {
+	async post<T>(url: string, options: RequestOptions<T> = {}) {
 		const response = await this.postResponse(url, options);
 
 		if (response.status() === 204) {
@@ -270,7 +270,7 @@ export class ApiHelpers {
 		});
 	}
 
-	async put<T>(url: string, options: PostOptions<T> = {}) {
+	async put<T>(url: string, options: RequestOptions<T> = {}) {
 		const response = await this.putResponse(url, options);
 
 		if (response.status() === 204) {
@@ -282,7 +282,7 @@ export class ApiHelpers {
 
 	async putResponse<T>(
 		url: string,
-		{data, failOnStatusCode, headers, multipart}: PostOptions<T> = {}
+		{data, failOnStatusCode, headers, multipart}: RequestOptions<T> = {}
 	) {
 		return await this.page.request.put(url, {
 			data,
@@ -326,7 +326,7 @@ export class ApiHelpers {
 		return response.json();
 	}
 
-	async patchMultipart<T>(url: string, options: PostOptions<T> = {}) {
+	async patchRequestOptions<T>(url: string, options: RequestOptions<T> = {}) {
 		const response = await this.page.request.patch(url, {
 			data: options.data,
 			failOnStatusCode: options.failOnStatusCode || false,
