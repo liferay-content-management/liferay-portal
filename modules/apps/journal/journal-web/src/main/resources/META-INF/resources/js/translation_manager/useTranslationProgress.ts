@@ -42,6 +42,11 @@ export default function useTranslationProgress({
 				)
 					.filter(
 						(input) =>
+							!input.dataset.translated ||
+							input.dataset.translated === 'true'
+					)
+					.filter(
+						(input) =>
 							input.value || input.getAttribute('data-translated')
 					)
 					.map(
