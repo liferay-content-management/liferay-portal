@@ -22,7 +22,7 @@ export default function useTranslationProgress({
 		titleMapAsXML: initialFields.titleMapAsXML,
 	} as Record<string, Field>);
 	const [translations, setTranslations] = useState(
-		fieldToTranslations(initialFields)
+		fieldToTranslations(fields)
 	);
 	const [translationProgress, setTranslationProgress] =
 		useState<TranslationProgress | null>();
