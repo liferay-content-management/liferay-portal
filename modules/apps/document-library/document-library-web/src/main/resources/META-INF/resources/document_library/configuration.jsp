@@ -32,7 +32,10 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 	<liferay-ui:error key="rootFolderIdInvalid" message="please-enter-a-valid-root-folder" />
 
 	<liferay-frontend:edit-form-body>
-		<aui:input name="preferences--selectedRepositoryId--" type="hidden" value="<%= dlAdminDisplayContext.getSelectedRepositoryId() %>" />
+		<aui:input id="selectedRepositoryId" name="preferences--selectedRepositoryId--" type="hidden" value="<%= dlAdminDisplayContext.getSelectedRepositoryId() %>" />
+		<aui:input id="selectedRepositoryExternalReferenceCode" name="preferences--selectedRepositoryExternalReferenceCode--" type="hidden" />
+		<aui:input id="rootFolderExternalReferenceCode" name="preferences--rootFolderExternalReferenceCode--" type="hidden" />
+		<aui:input id="repositoryGroupId" name="preferences--repositoryGroupId--" type="hidden" />
 		<aui:input name="preferences--displayViews--" type="hidden" />
 		<aui:input name="preferences--entryColumns--" type="hidden" />
 
@@ -180,15 +183,55 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 
 		var Util = Liferay.Util;
 
-		Util.postForm(form, {
-			data: {
-				displayViews: Util.getSelectedOptionValues(
-					Util.getFormElement(form, 'currentDisplayViews')
-				),
-				entryColumns: Util.getSelectedOptionValues(
-					Util.getFormElement(form, 'currentEntryColumns')
-				),
-			},
-		});
+		var selectedRepositoryIdInput = Util.getFormElement(
+			form,
+			'selectedRepositoryId'
+		);
+
+		var rootFolderIdInput = Util.getFormElement(
+			form,
+			'preferences--rootFolderId--'
+		);
+
+		var rootFolderExternalReferenceCodeInput = Util.getFormElement(
+			form,
+			'rootFolderExternalReferenceCode'
+		);
+
+		var repositoryGroupIdInput = Util.getFormElement(form, 'repositoryGroupId');
+
+		var selectedRepositoryExternalReferenceCodeInput = Util.getFormElement(
+			form,
+			'selectedRepositoryExternalReferenceCode'
+		);
+
+		Util.fetch(
+			'<%= (String)request.getAttribute("getExternalReferenceCodeURL") %>&selectedRepositoryId=' +
+				selectedRepositoryIdInput.value +
+				'&rootFolderId=' +
+				rootFolderIdInput.value
+		)
+			.then((response) => {
+				return response.json();
+			})
+			.then((response) => {
+				selectedRepositoryExternalReferenceCodeInput.value =
+					response.selectedRepositoryExternalReferenceCode;
+				rootFolderExternalReferenceCodeInput.value =
+					response.rootFolderExternalReferenceCode;
+				repositoryGroupIdInput.value = response.repositoryGroupId;
+			})
+			.then((response) => {
+				Util.postForm(form, {
+					data: {
+						displayViews: Util.getSelectedOptionValues(
+							Util.getFormElement(form, 'currentDisplayViews')
+						),
+						entryColumns: Util.getSelectedOptionValues(
+							Util.getFormElement(form, 'currentEntryColumns')
+						),
+					},
+				});
+			});
 	}
 </aui:script>

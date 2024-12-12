@@ -83,9 +83,22 @@ public class DLPortletInstanceSettings {
 		return _typedSettings.getValues("mimeTypes", _MIME_TYPES_DEFAULT);
 	}
 
+	public long getRepositoryGroupId() {
+		return _typedSettings.getLongValue("repositoryGroupId");
+	}
+
+	public String getRootFolderExternalReferenceCode() {
+		return _typedSettings.getValue("rootFolderExternalReferenceCodes");
+	}
+
 	public long getRootFolderId() {
 		return _typedSettings.getLongValue(
 			"rootFolderId", DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+	}
+
+	public String getSelectedRepositoryExternalReferenceCode() {
+		return _typedSettings.getValue(
+			"selectedRepositoryExternalReferenceCodes");
 	}
 
 	public long getSelectedRepositoryId() {
