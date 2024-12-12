@@ -11,12 +11,16 @@ import com.liferay.document.library.web.internal.display.context.DLAdminDisplayC
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
+import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletConfig;
+import javax.portlet.PortletRequest;
+import javax.portlet.ResourceURL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,6 +55,20 @@ public class DLConfigurationAction
 				httpServletRequest, httpServletResponse));
 		httpServletRequest.setAttribute(
 			ItemSelector.class.getName(), _itemSelector);
+
+		ResourceURL getExternalReferenceCodeURL =
+			(ResourceURL)PortletURLBuilder.create(
+				PortletURLFactoryUtil.create(
+					httpServletRequest, DLPortletKeys.DOCUMENT_LIBRARY,
+					PortletRequest.RESOURCE_PHASE)
+			).buildPortletURL();
+
+		getExternalReferenceCodeURL.setResourceID(
+			"/document_library/get_external_reference_code");
+
+		httpServletRequest.setAttribute(
+			"getExternalReferenceCodeURL",
+			getExternalReferenceCodeURL.toString());
 
 		super.include(portletConfig, httpServletRequest, httpServletResponse);
 	}
