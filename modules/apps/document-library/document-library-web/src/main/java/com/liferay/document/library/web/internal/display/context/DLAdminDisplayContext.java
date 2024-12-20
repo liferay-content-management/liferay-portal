@@ -22,6 +22,7 @@ import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLAppServiceUtil;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFolderLocalServiceUtil;
 import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.document.library.kernel.versioning.VersioningStrategy;
 import com.liferay.document.library.web.internal.display.context.helper.DLPortletInstanceSettingsHelper;
@@ -39,6 +40,7 @@ import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -95,6 +97,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
+import com.liferay.portal.repository.liferayrepository.model.LiferayFolder;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.trash.TrashHelper;
 
@@ -347,7 +350,15 @@ public class DLAdminDisplayContext {
 			repositoryId = folder.getRepositoryId();
 		}
 		else {
-			repositoryId = _dlPortletInstanceSettings.getSelectedRepositoryId();
+			if (!FeatureFlagManagerUtil.isEnabled(
+					_themeDisplay.getCompanyId(), "LPD-27566")) {
+
+				repositoryId =
+					_dlPortletInstanceSettings.getSelectedRepositoryId();
+			}
+			else {
+				repositoryId = _getRepositoryIdFromExternalReferenceCode();
+			}
 		}
 
 		if (repositoryId == 0) {
@@ -412,8 +423,16 @@ public class DLAdminDisplayContext {
 			return _selectedRepositoryId;
 		}
 
-		long repositoryId =
-			_dlPortletInstanceSettings.getSelectedRepositoryId();
+		long repositoryId = 0;
+
+		if (!FeatureFlagManagerUtil.isEnabled(
+				_themeDisplay.getCompanyId(), "LPD-27566")) {
+
+			repositoryId = _dlPortletInstanceSettings.getSelectedRepositoryId();
+		}
+		else {
+			repositoryId = _getRepositoryIdFromExternalReferenceCode();
+		}
 
 		if (repositoryId != 0) {
 			_selectedRepositoryId = repositoryId;
@@ -508,7 +527,14 @@ public class DLAdminDisplayContext {
 
 	private void _computeFolders() {
 		try {
-			_computeRootFolder();
+			if (!FeatureFlagManagerUtil.isEnabled(
+					_themeDisplay.getCompanyId(), "LPD-27566")) {
+
+				_computeRootFolder();
+			}
+			else {
+				_computeRootFolderFromExternalReferenceCodes();
+			}
 
 			_folder = (Folder)_httpServletRequest.getAttribute(
 				WebKeys.DOCUMENT_LIBRARY_FOLDER);
@@ -598,6 +624,69 @@ public class DLAdminDisplayContext {
 				_log.warn(
 					StringBundler.concat(
 						"Could not find folder {folderId=", _rootFolderId, "}"),
+					noSuchFolderException);
+			}
+
+			_rootFolderNotFound = true;
+		}
+		catch (PortalException portalException) {
+			throw new SystemException(portalException);
+		}
+	}
+
+	private void _computeRootFolderFromExternalReferenceCodes() {
+		String rootFolderExternalReferenceCode =
+			_dlPortletInstanceSettings.getRootFolderExternalReferenceCode();
+
+		_rootFolderName = StringPool.BLANK;
+
+		if (rootFolderExternalReferenceCode == StringPool.BLANK) {
+			_rootFolderName = LanguageUtil.get(_httpServletRequest, "home");
+			_rootFolderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+
+			return;
+		}
+
+		try {
+			Group group = GroupLocalServiceUtil.getGroupByExternalReferenceCode(
+				_dlPortletInstanceSettings.
+					getRepositoryGroupExternalReferenceCode(),
+				_themeDisplay.getCompanyId());
+
+			DLFolder dlFolder =
+				DLFolderLocalServiceUtil.getDLFolderByExternalReferenceCode(
+					rootFolderExternalReferenceCode, group.getGroupId());
+
+			_rootFolder = new LiferayFolder(dlFolder);
+
+			_rootFolderId = _rootFolder.getFolderId();
+
+			_rootFolderName = _rootFolder.getName();
+
+			if (_rootFolder.isRepositoryCapabilityProvided(
+					TrashCapability.class)) {
+
+				TrashCapability trashCapability =
+					_rootFolder.getRepositoryCapability(TrashCapability.class);
+
+				_rootFolderInTrash = trashCapability.isInTrash(_rootFolder);
+
+				if (_rootFolderInTrash) {
+					_rootFolderName = _trashHelper.getOriginalTitle(
+						_rootFolder.getName());
+				}
+			}
+
+			DLFolderUtil.validateDepotFolder(
+				_rootFolderId, _rootFolder.getGroupId(),
+				_themeDisplay.getScopeGroupId());
+		}
+		catch (NoSuchFolderException noSuchFolderException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					StringBundler.concat(
+						"Could not find folder {folderExternalReferenceCode=",
+						rootFolderExternalReferenceCode, "}"),
 					noSuchFolderException);
 			}
 
@@ -972,6 +1061,41 @@ public class DLAdminDisplayContext {
 		}
 
 		return results;
+	}
+
+	private long _getRepositoryIdFromExternalReferenceCode() {
+		String repositoryGroupExternalReferenceCode =
+			_dlPortletInstanceSettings.
+				getRepositoryGroupExternalReferenceCode();
+
+		if (repositoryGroupExternalReferenceCode == StringPool.BLANK) {
+			return 0;
+		}
+
+		String repositoryExternalReferenceCode =
+			_dlPortletInstanceSettings.
+				getSelectedRepositoryExternalReferenceCode();
+
+		try {
+			Group group = GroupLocalServiceUtil.getGroupByExternalReferenceCode(
+				repositoryGroupExternalReferenceCode,
+				_themeDisplay.getCompanyId());
+
+			if (repositoryExternalReferenceCode != StringPool.BLANK) {
+				Repository repository =
+					RepositoryLocalServiceUtil.
+						getRepositoryByExternalReferenceCode(
+							repositoryExternalReferenceCode,
+							group.getGroupId());
+
+				return repository.getRepositoryId();
+			}
+
+			return group.getGroupId();
+		}
+		catch (PortalException portalException) {
+			throw new SystemException(portalException);
+		}
 	}
 
 	private SearchContext _getSearchContext(
