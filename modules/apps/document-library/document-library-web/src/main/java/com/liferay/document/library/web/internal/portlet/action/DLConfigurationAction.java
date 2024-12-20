@@ -6,17 +6,31 @@
 package com.liferay.document.library.web.internal.portlet.action;
 
 import com.liferay.document.library.constants.DLPortletKeys;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.web.internal.display.context.DLAdminDisplayContext;
 import com.liferay.document.library.web.internal.display.context.DLAdminDisplayContextProvider;
 import com.liferay.item.selector.ItemSelector;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
+import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RepositoryLocalService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletConfig;
+import javax.portlet.PortletPreferences;
+import javax.portlet.PortletRequest;
+import javax.portlet.ReadOnlyException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,12 +70,100 @@ public class DLConfigurationAction
 	}
 
 	@Override
+	protected void postProcess(
+			long companyId, PortletRequest portletRequest,
+			PortletPreferences portletPreferences)
+		throws PortalException {
+
+		super.postProcess(companyId, portletRequest, portletPreferences);
+
+		try {
+			String[] displayViews = StringUtil.split(
+				portletPreferences.getValue("displayViews", null));
+
+			portletPreferences.setValues("displayViews", displayViews);
+		}
+		catch (ReadOnlyException readOnlyException) {
+			throw new SystemException(readOnlyException);
+		}
+
+		if (!FeatureFlagManagerUtil.isEnabled(companyId, "LPD-27566")) {
+			return;
+		}
+
+		long rootFolderId = GetterUtil.getLong(
+			portletPreferences.getValue("rootFolderId", null));
+
+		long selectedRepositoryId = GetterUtil.getLong(
+			portletPreferences.getValue("selectedRepositoryId", null));
+
+		try {
+			_setPortletPreferences(
+				portletPreferences, rootFolderId, selectedRepositoryId);
+
+			portletPreferences.reset("rootFolderId");
+			portletPreferences.reset("selectedRepositoryId");
+		}
+		catch (ReadOnlyException readOnlyException) {
+			throw new SystemException(readOnlyException);
+		}
+	}
+
+	@Override
 	protected void validate(ActionRequest actionRequest)
 		throws PortalException {
 
 		_validateDisplayStyleViews(actionRequest);
 
 		super.validate(actionRequest);
+	}
+
+	private void _setPortletPreferences(
+			PortletPreferences portletPreferences, long rootFolderId,
+			long selectedRepositoryId)
+		throws PortalException, ReadOnlyException {
+
+		String rootFolderExternalReferenceCode = StringPool.BLANK;
+
+		if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			Folder folder = _dlAppLocalService.getFolder(rootFolderId);
+
+			rootFolderExternalReferenceCode = folder.getExternalReferenceCode();
+		}
+
+		portletPreferences.setValue(
+			"rootFolderExternalReferenceCode", rootFolderExternalReferenceCode);
+
+		String selectedRepositoryExternalReferenceCodes = StringPool.BLANK;
+		String repositoryGroupExternalReferenceCode = StringPool.BLANK;
+
+		Repository selectedRepository = _repositoryLocalService.fetchRepository(
+			selectedRepositoryId);
+
+		if (selectedRepository == null) {
+			Group group = _groupLocalService.getGroup(selectedRepositoryId);
+
+			repositoryGroupExternalReferenceCode =
+				group.getExternalReferenceCode();
+		}
+		else {
+			selectedRepositoryExternalReferenceCodes =
+				selectedRepository.getExternalReferenceCode();
+
+			Group group = _groupLocalService.getGroup(
+				selectedRepository.getGroupId());
+
+			repositoryGroupExternalReferenceCode =
+				group.getExternalReferenceCode();
+		}
+
+		portletPreferences.setValue(
+			"selectedRepositoryExternalReferenceCode",
+			selectedRepositoryExternalReferenceCodes);
+
+		portletPreferences.setValue(
+			"repositoryGroupExternalReferenceCode",
+			repositoryGroupExternalReferenceCode);
 	}
 
 	private void _validateDisplayStyleViews(ActionRequest actionRequest) {
@@ -77,6 +179,15 @@ public class DLConfigurationAction
 	private DLAdminDisplayContextProvider _dlAdminDisplayContextProvider;
 
 	@Reference
+	private DLAppLocalService _dlAppLocalService;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
+
+	@Reference
 	private ItemSelector _itemSelector;
+
+	@Reference
+	private RepositoryLocalService _repositoryLocalService;
 
 }
