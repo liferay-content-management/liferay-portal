@@ -403,7 +403,7 @@ definition {
 			AssetCategorization.removeTag(tagName = ${tagName});
 		}
 
-		PortletEntry.publish();
+		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
 
