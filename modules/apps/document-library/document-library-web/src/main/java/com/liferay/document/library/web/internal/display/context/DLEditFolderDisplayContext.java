@@ -216,6 +216,18 @@ public class DLEditFolderDisplayContext {
 		return _workflowDefinitions;
 	}
 
+	public boolean hasFolderPermission(String actionKey)
+		throws PortalException {
+		if (DLFolderPermission.contains(
+			_themeDisplay.getPermissionChecker(),
+			_themeDisplay.getScopeGroupId(), getFolderId(),
+			actionKey)) {
+
+			return true;
+		}
+		return false;
+	}
+
 	public boolean isFileEntryTypeSelected(DLFileEntryType dlFileEntryType) {
 		DLFolder dlFolder = _getDLFolder();
 
@@ -237,6 +249,18 @@ public class DLEditFolderDisplayContext {
 
 		if (isRootFolder() ||
 			((folder != null) && (folder.getModel() instanceof DLFolder))) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isNewFolder() {
+		Folder folder = getFolder();
+
+		if ((folder == null) &&
+			!RepositoryUtil.isExternalRepository(getRepositoryId())) {
 
 			return true;
 		}
@@ -317,18 +341,6 @@ public class DLEditFolderDisplayContext {
 		return false;
 	}
 
-	public boolean isSupportsPermissions() {
-		Folder folder = getFolder();
-
-		if ((folder == null) &&
-			!RepositoryUtil.isExternalRepository(getRepositoryId())) {
-
-			return true;
-		}
-
-		return false;
-	}
-
 	public boolean isWorkflowDefinitionSelected(
 		WorkflowDefinition workflowDefinition, long fileEntryTypeId) {
 
@@ -363,10 +375,13 @@ public class DLEditFolderDisplayContext {
 				DLFileEntry.class.getName());
 
 		if ((workflowHandler != null) &&
-			DLFolderPermission.contains(
+			(DLFolderPermission.contains(
 				_themeDisplay.getPermissionChecker(),
 				_themeDisplay.getScopeGroupId(), getFolderId(),
-				ActionKeys.UPDATE) &&
+				ActionKeys.UPDATE) || DLFolderPermission.contains(
+				_themeDisplay.getPermissionChecker(),
+				_themeDisplay.getScopeGroupId(), getFolderId(),
+				ActionKeys.ADVANCE_UPDATE) )&&
 			!scopeGroup.isLayoutSetPrototype()) {
 
 			_workflowEnabled = true;

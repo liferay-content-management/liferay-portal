@@ -1191,6 +1191,19 @@ public class JournalDisplayContext {
 		return false;
 	}
 
+	public boolean hasFolderPermission(String actionKey, JournalFolder folder)
+		throws PortalException {
+
+		if ((folder == null) ||
+			JournalFolderPermission.contains(
+				_themeDisplay.getPermissionChecker(), folder, actionKey)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	public boolean hasGuestViewPermission(JournalArticle journalArticle)
 		throws PortalException {
 

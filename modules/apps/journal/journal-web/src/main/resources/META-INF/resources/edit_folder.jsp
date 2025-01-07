@@ -113,6 +113,7 @@ renderResponse.setTitle(title);
 		<c:if test="<%= !rootFolder %>">
 			<liferay-frontend:fieldset
 				collapsed="<%= false %>"
+				disabled="<%= !journalDisplayContext.hasFolderPermission(ActionKeys.UPDATE, folder) %>"
 				collapsible="<%= true %>"
 				label="details"
 			>
@@ -141,6 +142,7 @@ renderResponse.setTitle(title);
 
 		<c:if test="<%= !rootFolder && (folder != null) %>">
 			<liferay-frontend:fieldset
+				disabled="<%= !journalDisplayContext.hasFolderPermission(ActionKeys.UPDATE, folder) %>"
 				collapsed="<%= true %>"
 				collapsible="<%= true %>"
 				label="parent-folder"
@@ -157,6 +159,7 @@ renderResponse.setTitle(title);
 				%>
 
 				<liferay-frontend:resource-selector
+
 					inputLabel='<%= LanguageUtil.get(request, "folder-name") %>'
 					inputName="newFolderId"
 					modalTitle='<%= LanguageUtil.get(request, "select-folder") %>'
@@ -181,7 +184,7 @@ renderResponse.setTitle(title);
 			</liferay-frontend:fieldset>
 		</c:if>
 
-		<c:if test="<%= rootFolder || (folder != null) %>">
+		<c:if test="<%= (rootFolder || (folder != null)) && journalDisplayContext.hasFolderPermission(ActionKeys.ADVANCE_UPDATE, folder)  %>">
 
 			<%
 			List<DDMStructure> ddmStructures = journalDisplayContext.getDDMStructures(JournalFolderConstants.RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW);

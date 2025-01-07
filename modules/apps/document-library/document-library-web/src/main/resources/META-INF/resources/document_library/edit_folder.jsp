@@ -67,7 +67,7 @@ renderResponse.setTitle(dlEditFolderDisplayContext.getHeaderTitle());
 
 		<div class="sheet">
 			<div class="panel-group panel-group-flush">
-				<aui:fieldset>
+				<aui:fieldset disabled="<%= !dlEditFolderDisplayContext.hasFolderPermission(ActionKeys.UPDATE) && !dlEditFolderDisplayContext.isNewFolder() %>">
 					<c:if test="<%= !dlEditFolderDisplayContext.isRootFolder() %>">
 						<c:if test="<%= folder != null %>">
 							<aui:input name="parentFolder" type="resource" value="<%= dlEditFolderDisplayContext.getParentFolderName() %>" />
@@ -81,7 +81,7 @@ renderResponse.setTitle(dlEditFolderDisplayContext.getHeaderTitle());
 					</c:if>
 				</aui:fieldset>
 
-				<c:if test="<%= dlEditFolderDisplayContext.isFileEntryTypeSupported() %>">
+				<c:if test='<%= dlEditFolderDisplayContext.isFileEntryTypeSupported() && (dlEditFolderDisplayContext.hasFolderPermission(ActionKeys.ADVANCE_UPDATE) || !FeatureFlagManagerUtil.isEnabled(dlEditFolderDisplayContext.getCompanyId(), "LPD-42452")) %>'>
 					<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" helpMessage="<%= dlEditFolderDisplayContext.getFileEntryTypeRestrictionsHelpMessage() %>" label="<%= dlEditFolderDisplayContext.getFileEntryTypeRestrictionsLabel() %>">
 						<c:if test="<%= !dlEditFolderDisplayContext.isRootFolder() %>">
 							<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeInherit() %>" id="restrictionTypeInherit" label='<%= LanguageUtil.format(request, dlEditFolderDisplayContext.isWorkflowEnabled() ? "use-document-type-restrictions-and-workflow-of-the-parent-folder-x" : "use-document-type-restrictions-of-the-parent-folder-x", dlEditFolderDisplayContext.getParentFolderName(), false) %>' name="restrictionType" type="radio" value="<%= DLFolderConstants.RESTRICTION_TYPE_INHERIT %>" />
@@ -213,7 +213,7 @@ renderResponse.setTitle(dlEditFolderDisplayContext.getHeaderTitle());
 						</liferay-expando:custom-attributes-available>
 					</c:if>
 
-					<c:if test="<%= dlEditFolderDisplayContext.isSupportsPermissions() %>">
+					<c:if test="<%= dlEditFolderDisplayContext.isNewFolder() %>">
 						<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="permissions">
 							<liferay-ui:input-permissions
 								modelName="<%= DLFolderConstants.getClassName() %>"
