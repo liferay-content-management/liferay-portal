@@ -12,7 +12,10 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.Portal;
 
 import java.util.ArrayList;
@@ -57,7 +60,15 @@ public class JournalArticleSearchFixture {
 		Map<Locale, String> titleMap = journalArticleBlueprint.getTitleMap();
 		Map<Locale, String> descriptionMap =
 			journalArticleBlueprint.getDescriptionMap();
+
 		String contentString = journalArticleBlueprint.getContentString();
+
+		Locale articleDefaultLocale = LocaleUtil.fromLanguageId(
+			LocalizationUtil.getDefaultLanguageId(contentString));
+
+		if (!titleMap.containsKey(articleDefaultLocale)) {
+			titleMap.put(articleDefaultLocale, RandomTestUtil.randomString());
+		}
 
 		ServiceContext serviceContext = getServiceContext(
 			journalArticleBlueprint);
