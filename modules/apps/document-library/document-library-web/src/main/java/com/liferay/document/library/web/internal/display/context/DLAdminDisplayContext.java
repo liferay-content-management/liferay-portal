@@ -40,7 +40,6 @@ import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -350,15 +349,7 @@ public class DLAdminDisplayContext {
 			repositoryId = folder.getRepositoryId();
 		}
 		else {
-			if (!FeatureFlagManagerUtil.isEnabled(
-					_themeDisplay.getCompanyId(), "LPD-27566")) {
-
-				repositoryId =
-					_dlPortletInstanceSettings.getSelectedRepositoryId();
-			}
-			else {
-				repositoryId = _getRepositoryIdFromExternalReferenceCode();
-			}
+			repositoryId = _getRepositoryIdFromExternalReferenceCode();
 		}
 
 		if (repositoryId == 0) {
@@ -423,16 +414,7 @@ public class DLAdminDisplayContext {
 			return _selectedRepositoryId;
 		}
 
-		long repositoryId = 0;
-
-		if (!FeatureFlagManagerUtil.isEnabled(
-				_themeDisplay.getCompanyId(), "LPD-27566")) {
-
-			repositoryId = _dlPortletInstanceSettings.getSelectedRepositoryId();
-		}
-		else {
-			repositoryId = _getRepositoryIdFromExternalReferenceCode();
-		}
+		long repositoryId = _getRepositoryIdFromExternalReferenceCode();
 
 		if (repositoryId != 0) {
 			_selectedRepositoryId = repositoryId;
@@ -527,14 +509,7 @@ public class DLAdminDisplayContext {
 
 	private void _computeFolders() {
 		try {
-			if (!FeatureFlagManagerUtil.isEnabled(
-					_themeDisplay.getCompanyId(), "LPD-27566")) {
-
-				_computeRootFolder();
-			}
-			else {
-				_computeRootFolderFromExternalReferenceCodes();
-			}
+			_computeRootFolderFromExternalReferenceCodes();
 
 			_folder = (Folder)_httpServletRequest.getAttribute(
 				WebKeys.DOCUMENT_LIBRARY_FOLDER);
@@ -581,56 +556,6 @@ public class DLAdminDisplayContext {
 		}
 		catch (PortalException portalException) {
 			ReflectionUtil.throwException(portalException);
-		}
-	}
-
-	private void _computeRootFolder() {
-		_rootFolder = null;
-
-		_rootFolderId = _dlPortletInstanceSettings.getRootFolderId();
-		_rootFolderName = StringPool.BLANK;
-
-		if (_rootFolderId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
-			_rootFolderName = LanguageUtil.get(_httpServletRequest, "home");
-
-			return;
-		}
-
-		try {
-			_rootFolder = DLAppLocalServiceUtil.getFolder(_rootFolderId);
-
-			_rootFolderName = _rootFolder.getName();
-
-			if (_rootFolder.isRepositoryCapabilityProvided(
-					TrashCapability.class)) {
-
-				TrashCapability trashCapability =
-					_rootFolder.getRepositoryCapability(TrashCapability.class);
-
-				_rootFolderInTrash = trashCapability.isInTrash(_rootFolder);
-
-				if (_rootFolderInTrash) {
-					_rootFolderName = _trashHelper.getOriginalTitle(
-						_rootFolder.getName());
-				}
-			}
-
-			DLFolderUtil.validateDepotFolder(
-				_rootFolderId, _rootFolder.getGroupId(),
-				_themeDisplay.getScopeGroupId());
-		}
-		catch (NoSuchFolderException noSuchFolderException) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					StringBundler.concat(
-						"Could not find folder {folderId=", _rootFolderId, "}"),
-					noSuchFolderException);
-			}
-
-			_rootFolderNotFound = true;
-		}
-		catch (PortalException portalException) {
-			throw new SystemException(portalException);
 		}
 	}
 

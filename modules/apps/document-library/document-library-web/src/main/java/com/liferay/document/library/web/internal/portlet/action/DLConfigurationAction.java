@@ -14,7 +14,6 @@ import com.liferay.item.selector.ItemSelector;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
@@ -85,10 +84,6 @@ public class DLConfigurationAction
 		}
 		catch (ReadOnlyException readOnlyException) {
 			throw new SystemException(readOnlyException);
-		}
-
-		if (!FeatureFlagManagerUtil.isEnabled(companyId, "LPD-27566")) {
-			return;
 		}
 
 		long rootFolderId = GetterUtil.getLong(
