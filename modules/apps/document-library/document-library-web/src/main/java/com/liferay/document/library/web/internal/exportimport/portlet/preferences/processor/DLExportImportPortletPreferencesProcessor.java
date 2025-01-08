@@ -21,13 +21,18 @@ import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
+import com.liferay.exportimport.kernel.staging.StagingURLHelperUtil;
 import com.liferay.exportimport.portlet.preferences.processor.Capability;
 import com.liferay.exportimport.portlet.preferences.processor.ExportImportPortletPreferencesProcessor;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepositoryRegistryUtil;
+import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.petra.lang.ThreadContextClassLoaderUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -37,13 +42,21 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Repository;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.security.auth.HttpPrincipal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.RepositoryLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.service.http.GroupServiceHttp;
 import com.liferay.portlet.documentlibrary.constants.DLConstants;
 
 import java.util.List;
@@ -96,28 +109,116 @@ public class DLExportImportPortletPreferencesProcessor
 		long rootFolderId = GetterUtil.getLong(
 			portletPreferences.getValue("rootFolderId", null));
 
+		// Root folder ID is set, only export that
+
+		if (FeatureFlagManagerUtil.isEnabled(
+				portletDataContext.getCompanyId(), "LPD-27566")) {
+
+			String rootFolderExternalReferenceCode =
+				portletPreferences.getValue(
+					"rootFolderExternalReferenceCode", null);
+
+			if (rootFolderExternalReferenceCode == null) {
+				rootFolderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+			}
+			else {
+				String repositoryGroupExternalReferenceCode =
+					portletPreferences.getValue(
+						"repositoryGroupExternalReferenceCode", null);
+
+				Group group =
+					_groupLocalService.fetchGroupByExternalReferenceCode(
+						repositoryGroupExternalReferenceCode,
+						portletDataContext.getCompanyId());
+
+				DLFolder dlFolder =
+					_dlFolderLocalService.fetchDLFolderByExternalReferenceCode(
+						rootFolderExternalReferenceCode, group.getGroupId());
+
+				if (dlFolder != null) {
+					rootFolderId = dlFolder.getFolderId();
+				}
+			}
+		}
+
 		if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			try {
 				Folder folder = _getFolder(rootFolderId, portletDataContext);
 
 				if (folder != null) {
-					portletPreferences.setValue(
-						"selectedRepositoryId",
-						String.valueOf(folder.getRepositoryId()));
+					if (!FeatureFlagManagerUtil.isEnabled(
+							portletDataContext.getCompanyId(), "LPD-27566")) {
 
-					if ((folder.getGroupId() ==
-							portletDataContext.getGroupId()) ||
-						!ExportImportThreadLocal.isStagingInProcess()) {
+						portletPreferences.setValue(
+							"selectedRepositoryId",
+							String.valueOf(folder.getRepositoryId()));
 
-						StagedModelDataHandlerUtil.exportReferenceStagedModel(
-							portletDataContext,
-							portletDataContext.getPortletId(), folder);
+						if ((folder.getGroupId() ==
+								portletDataContext.getGroupId()) ||
+							!ExportImportThreadLocal.isStagingInProcess()) {
+
+							StagedModelDataHandlerUtil.
+								exportReferenceStagedModel(
+									portletDataContext,
+									portletDataContext.getPortletId(), folder);
+						}
+						else {
+							_saveStagingPreferencesMapping(
+								folder.getRepositoryId(), folder.getUuid(),
+								portletDataContext);
+						}
 					}
 					else {
-						_saveStagingPreferencesMapping(
-							folder.getRepositoryId(), folder.getUuid(),
-							portletDataContext);
+						String selectedRepositoryExternalReferenceCode =
+							StringPool.BLANK;
+
+						Repository repository =
+							_repositoryLocalService.fetchRepository(
+								folder.getRepositoryId());
+
+						if (repository != null) {
+							selectedRepositoryExternalReferenceCode =
+								repository.getExternalReferenceCode();
+						}
+
+						portletPreferences.setValue(
+							"selectedRepositoryExternalReferenceCode",
+							selectedRepositoryExternalReferenceCode);
+
+						if ((folder.getGroupId() ==
+								portletDataContext.getGroupId()) ||
+							!ExportImportThreadLocal.isStagingInProcess()) {
+
+							StagedModelDataHandlerUtil.
+								exportReferenceStagedModel(
+									portletDataContext,
+									portletDataContext.getPortletId(), folder);
+						}
+						else {
+							Group group = _groupLocalService.getGroup(
+								folder.getGroupId());
+
+							_saveStagingPreferencesMapping(
+								selectedRepositoryExternalReferenceCode,
+								group.getExternalReferenceCode(),
+								folder.getExternalReferenceCode(),
+								portletDataContext);
+						}
 					}
+				}
+
+				if (FeatureFlagManagerUtil.isEnabled(
+						portletDataContext.getCompanyId(), "LPD-27566")) {
+
+					String repositoryGroupExternalReferenceCode =
+						portletPreferences.getValue(
+							"repositoryGroupExternalReferenceCode", null);
+
+					portletPreferences.setValue(
+						"repositoryGroupExternalReferenceCode",
+						_getGroupExportPortletPreferencesExternalReferenceCode(
+							portletDataContext,
+							repositoryGroupExternalReferenceCode));
 				}
 
 				return portletPreferences;
@@ -127,22 +228,63 @@ public class DLExportImportPortletPreferencesProcessor
 					"Unable to update portlet preferences during import",
 					readOnlyException);
 			}
+			catch (PortalException portalException) {
+				throw new RuntimeException(portalException);
+			}
 		}
 
-		long selectedRepositoryId = GetterUtil.getLong(
-			portletPreferences.getValue("selectedRepositoryId", null));
+		if (!FeatureFlagManagerUtil.isEnabled(
+				portletDataContext.getCompanyId(), "LPD-27566")) {
 
-		if (!_exportImportHelper.isExportPortletData(portletDataContext) ||
-			(selectedRepositoryId != portletDataContext.getGroupId())) {
+			long selectedRepositoryId = GetterUtil.getLong(
+				portletPreferences.getValue("selectedRepositoryId", null));
 
-			if (ExportImportThreadLocal.isStagingInProcess() &&
-				(selectedRepositoryId > 0)) {
+			if (!_exportImportHelper.isExportPortletData(portletDataContext) ||
+				(selectedRepositoryId != portletDataContext.getGroupId())) {
 
-				_saveStagingPreferencesMapping(
-					selectedRepositoryId, null, portletDataContext);
+				if (ExportImportThreadLocal.isStagingInProcess() &&
+					(selectedRepositoryId > 0)) {
+
+					_saveStagingPreferencesMapping(
+						selectedRepositoryId, null, portletDataContext);
+				}
+
+				return portletPreferences;
 			}
+		}
+		else {
+			String repositoryGroupExternalReferenceCode =
+				portletPreferences.getValue(
+					"repositoryGroupExternalReferenceCode", null);
 
-			return portletPreferences;
+			if (repositoryGroupExternalReferenceCode != null) {
+				Group group =
+					_groupLocalService.fetchGroupByExternalReferenceCode(
+						repositoryGroupExternalReferenceCode,
+						portletDataContext.getCompanyId());
+
+				if (!_exportImportHelper.isExportPortletData(
+						portletDataContext) ||
+					(group.getGroupId() != portletDataContext.getGroupId())) {
+
+					if (ExportImportThreadLocal.isStagingInProcess() &&
+						(repositoryGroupExternalReferenceCode !=
+							StringPool.BLANK)) {
+
+						String selectedRepositoryExternalReferenceCode =
+							portletPreferences.getValue(
+								"selectedRepositoryExternalReferenceCode",
+								null);
+
+						_saveStagingPreferencesMapping(
+							selectedRepositoryExternalReferenceCode,
+							repositoryGroupExternalReferenceCode, null,
+							portletDataContext);
+					}
+
+					return portletPreferences;
+				}
+			}
 		}
 
 		// Root folder ID is not set, we need to export everything
@@ -303,26 +445,55 @@ public class DLExportImportPortletPreferencesProcessor
 
 		if (stagingPreferencesMappingJSONObject != null) {
 			try {
-				long folderRepositoryId =
-					stagingPreferencesMappingJSONObject.getLong(
-						"folderRepositoryId");
-				String folderUuid =
-					stagingPreferencesMappingJSONObject.getString("folderUuid");
+				if (!FeatureFlagManagerUtil.isEnabled(
+						portletDataContext.getCompanyId(), "LPD-27566")) {
 
-				long folderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+					long folderRepositoryId =
+						stagingPreferencesMappingJSONObject.getLong(
+							"folderRepositoryId");
+					String folderUuid =
+						stagingPreferencesMappingJSONObject.getString(
+							"folderUuid");
 
-				if (Validator.isNotNull(folderUuid)) {
-					DLFolder dlFolder =
-						_dlFolderLocalService.getDLFolderByUuidAndGroupId(
-							folderUuid, folderRepositoryId);
+					long folderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
 
-					folderId = dlFolder.getFolderId();
+					if (Validator.isNotNull(folderUuid)) {
+						DLFolder dlFolder =
+							_dlFolderLocalService.getDLFolderByUuidAndGroupId(
+								folderUuid, folderRepositoryId);
+
+						folderId = dlFolder.getFolderId();
+					}
+
+					portletPreferences.setValue(
+						"rootFolderId", String.valueOf(folderId));
+					portletPreferences.setValue(
+						"selectedRepositoryId",
+						String.valueOf(folderRepositoryId));
+
+					return portletPreferences;
 				}
 
+				String folderExternalReferenceCode =
+					stagingPreferencesMappingJSONObject.getString(
+						"folderExternalReferenceCode");
+
+				String repositoryExternalReferenceCode =
+					stagingPreferencesMappingJSONObject.getString(
+						"repositoryExternalReferenceCode");
+
+				String repositoryGroupExternalReferenceCode =
+					stagingPreferencesMappingJSONObject.getString(
+						"repositoryGroupExternalReferenceCode");
+
 				portletPreferences.setValue(
-					"rootFolderId", String.valueOf(folderId));
+					"folderExternalReferenceCode", folderExternalReferenceCode);
 				portletPreferences.setValue(
-					"selectedRepositoryId", String.valueOf(folderRepositoryId));
+					"selectedRepositoryExternalReferenceCode",
+					repositoryExternalReferenceCode);
+				portletPreferences.setValue(
+					"repositoryGroupExternalReferenceCode",
+					repositoryGroupExternalReferenceCode);
 
 				return portletPreferences;
 			}
@@ -333,65 +504,74 @@ public class DLExportImportPortletPreferencesProcessor
 
 		// Root folder ID is set, only import that
 
-		long rootFolderId = GetterUtil.getLong(
-			portletPreferences.getValue("rootFolderId", null));
+		if (!FeatureFlagManagerUtil.isEnabled(
+				portletDataContext.getCompanyId(), "LPD-27566")) {
 
-		if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
-			Element foldersElement =
-				portletDataContext.getImportDataGroupElement(DLFolder.class);
+			long rootFolderId = GetterUtil.getLong(
+				portletPreferences.getValue("rootFolderId", null));
 
-			List<Element> folderElements = foldersElement.elements();
+			if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+				Element foldersElement =
+					portletDataContext.getImportDataGroupElement(
+						DLFolder.class);
 
-			if (!folderElements.isEmpty()) {
-				try {
-					StagedModelDataHandlerUtil.importStagedModel(
-						portletDataContext, folderElements.get(0));
+				List<Element> folderElements = foldersElement.elements();
 
-					Map<Long, Long> folderIds =
-						(Map<Long, Long>)
-							portletDataContext.getNewPrimaryKeysMap(
-								Folder.class +
-									".folderIdsAndRepositoryEntryIds");
+				if (!folderElements.isEmpty()) {
+					try {
+						StagedModelDataHandlerUtil.importStagedModel(
+							portletDataContext, folderElements.get(0));
 
-					long importedRootFolderId = MapUtil.getLong(
-						folderIds, rootFolderId, rootFolderId);
+						Map<Long, Long> folderIds =
+							(Map<Long, Long>)
+								portletDataContext.getNewPrimaryKeysMap(
+									Folder.class +
+										".folderIdsAndRepositoryEntryIds");
+
+						long importedRootFolderId = MapUtil.getLong(
+							folderIds, rootFolderId, rootFolderId);
+
+						portletPreferences.setValue(
+							"rootFolderId",
+							String.valueOf(importedRootFolderId));
+
+						Folder folder = _getFolder(
+							importedRootFolderId, portletDataContext);
+
+						if (folder != null) {
+							portletPreferences.setValue(
+								"selectedRepositoryId",
+								String.valueOf(folder.getRepositoryId()));
+						}
+
+						return portletPreferences;
+					}
+					catch (ReadOnlyException readOnlyException) {
+						throw new PortletDataException(
+							"Unable to update portlet preferences during " +
+								"import",
+							readOnlyException);
+					}
+				}
+			}
+
+			try {
+				long selectedRepositoryId = GetterUtil.getLong(
+					portletPreferences.getValue("selectedRepositoryId", null));
+
+				if (selectedRepositoryId ==
+						portletDataContext.getSourceGroupId()) {
 
 					portletPreferences.setValue(
-						"rootFolderId", String.valueOf(importedRootFolderId));
-
-					Folder folder = _getFolder(
-						importedRootFolderId, portletDataContext);
-
-					if (folder != null) {
-						portletPreferences.setValue(
-							"selectedRepositoryId",
-							String.valueOf(folder.getRepositoryId()));
-					}
-
-					return portletPreferences;
-				}
-				catch (ReadOnlyException readOnlyException) {
-					throw new PortletDataException(
-						"Unable to update portlet preferences during import",
-						readOnlyException);
+						"selectedRepositoryId",
+						String.valueOf(portletDataContext.getGroupId()));
 				}
 			}
-		}
-
-		try {
-			long selectedRepositoryId = GetterUtil.getLong(
-				portletPreferences.getValue("selectedRepositoryId", null));
-
-			if (selectedRepositoryId == portletDataContext.getSourceGroupId()) {
-				portletPreferences.setValue(
-					"selectedRepositoryId",
-					String.valueOf(portletDataContext.getGroupId()));
+			catch (ReadOnlyException readOnlyException) {
+				throw new PortletDataException(
+					"Unable to update portlet preferences during import",
+					readOnlyException);
 			}
-		}
-		catch (ReadOnlyException readOnlyException) {
-			throw new PortletDataException(
-				"Unable to update portlet preferences during import",
-				readOnlyException);
 		}
 
 		// Root folder is not set, need to import everything
@@ -530,6 +710,50 @@ public class DLExportImportPortletPreferencesProcessor
 		return folder;
 	}
 
+	private String _getGroupExportPortletPreferencesExternalReferenceCode(
+		PortletDataContext portletDataContext, String externalReferenceCode) {
+
+		Group group = _groupLocalService.fetchGroupByExternalReferenceCode(
+			externalReferenceCode, portletDataContext.getCompanyId());
+
+		if (group == null) {
+			return externalReferenceCode;
+		}
+
+		if (ExportImportThreadLocal.isStagingInProcess() &&
+			group.isStagedRemotely()) {
+
+			UnicodeProperties typeSettingsUnicodeProperties =
+				group.getTypeSettingsProperties();
+
+			String remoteGroupExternalReferenceCode =
+				typeSettingsUnicodeProperties.get(
+					"remoteGroupExternalReferenceCode");
+
+			if (Validator.isNull(remoteGroupExternalReferenceCode)) {
+				remoteGroupExternalReferenceCode =
+					_getRemoteGroupExternalReferenceCode(
+						typeSettingsUnicodeProperties);
+			}
+
+			if (Validator.isNotNull(remoteGroupExternalReferenceCode)) {
+				externalReferenceCode = remoteGroupExternalReferenceCode;
+			}
+		}
+
+		if (!group.isStagingGroup()) {
+			return externalReferenceCode;
+		}
+
+		Group liveGroup = _groupLocalService.fetchGroup(group.getLiveGroupId());
+
+		if (liveGroup == null) {
+			return externalReferenceCode;
+		}
+
+		return liveGroup.getExternalReferenceCode();
+	}
+
 	private long _getMirrorRepositoryId(long repositoryId) {
 		Group group = _groupLocalService.fetchGroup(repositoryId);
 
@@ -556,6 +780,57 @@ public class DLExportImportPortletPreferencesProcessor
 		return liveGroupId;
 	}
 
+	private String _getRemoteGroupExternalReferenceCode(
+		UnicodeProperties typeSettingsUnicodeProperties) {
+
+		String remoteAddress = GetterUtil.getString(
+			typeSettingsUnicodeProperties.get("remoteAddress"));
+		long remoteGroupId = GetterUtil.getLong(
+			typeSettingsUnicodeProperties.get("remoteGroupId"));
+
+		if (Validator.isNull(remoteAddress) || (remoteGroupId <= 0)) {
+			return null;
+		}
+
+		int remotePort = GetterUtil.getInteger(
+			typeSettingsUnicodeProperties.get("remotePort"));
+		String remotePathContext = GetterUtil.getString(
+			typeSettingsUnicodeProperties.get("remotePathContext"));
+		boolean secureConnection = GetterUtil.getBoolean(
+			typeSettingsUnicodeProperties.get("secureConnection"));
+
+		String remoteURL = StagingURLHelperUtil.buildRemoteURL(
+			remoteAddress, remotePort, remotePathContext, secureConnection);
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		User user = permissionChecker.getUser();
+
+		try {
+			HttpPrincipal httpPrincipal = new HttpPrincipal(
+				remoteURL, user.getLogin(), user.getPassword(),
+				user.isPasswordEncrypted());
+
+			try (SafeCloseable safeCloseable =
+					ThreadContextClassLoaderUtil.swap(
+						PortalClassLoaderUtil.getClassLoader())) {
+
+				Group group = GroupServiceHttp.getGroup(
+					httpPrincipal, remoteGroupId);
+
+				return group.getExternalReferenceCode();
+			}
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception);
+			}
+		}
+
+		return null;
+	}
+
 	private void _saveStagingPreferencesMapping(
 		long folderRepositoryId, String folderUuid,
 		PortletDataContext portletDataContext) {
@@ -570,6 +845,31 @@ public class DLExportImportPortletPreferencesProcessor
 					_getMirrorRepositoryId(folderRepositoryId)
 				).put(
 					"folderUuid", folderUuid
+				).toString());
+		}
+	}
+
+	private void _saveStagingPreferencesMapping(
+		String repositoryExternalReferenceCode,
+		String repositoryGroupExternalReferenceCode,
+		String folderExternalReferenceCode,
+		PortletDataContext portletDataContext) {
+
+		if (ExportImportThreadLocal.isStagingInProcess()) {
+			portletDataContext.addZipEntry(
+				String.format(
+					"%s/staging-preferences-mapping.json",
+					portletDataContext.getPortletId()),
+				JSONUtil.put(
+					"folderExternalReferenceCode", folderExternalReferenceCode
+				).put(
+					"repositoryExternalReferenceCode",
+					repositoryExternalReferenceCode
+				).put(
+					"repositoryGroupExternalReferenceCode",
+					_getGroupExportPortletPreferencesExternalReferenceCode(
+						portletDataContext,
+						repositoryGroupExternalReferenceCode)
 				).toString());
 		}
 	}
@@ -607,5 +907,8 @@ public class DLExportImportPortletPreferencesProcessor
 
 	@Reference
 	private JSONFactory _jsonFactory;
+
+	@Reference
+	private RepositoryLocalService _repositoryLocalService;
 
 }
