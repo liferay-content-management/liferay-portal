@@ -72,7 +72,9 @@ public class JournalFolderActionDropdownItems {
 			dropdownGroupItem -> {
 				dropdownGroupItem.setDropdownItems(
 					DropdownItemListBuilder.add(
-						() -> hasUpdatePermission,
+						() -> hasUpdatePermission || JournalFolderPermission.contains(
+							_themeDisplay.getPermissionChecker(), _folder, ActionKeys.ADVANCE_UPDATE
+						),
 						_getEditFolderActionUnsafeConsumer()
 					).build());
 				dropdownGroupItem.setSeparator(true);
