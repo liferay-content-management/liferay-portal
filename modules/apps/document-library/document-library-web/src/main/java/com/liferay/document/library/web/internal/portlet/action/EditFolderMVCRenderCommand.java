@@ -8,6 +8,7 @@ package com.liferay.document.library.web.internal.portlet.action;
 import com.liferay.document.library.constants.DLPortletKeys;
 import com.liferay.document.library.web.internal.helper.DLTrashHelper;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -43,7 +44,9 @@ public class EditFolderMVCRenderCommand extends BaseFolderMVCRenderCommand {
 		if (!_folderModelResourcePermission.contains(
 				permissionChecker, folder, ActionKeys.UPDATE) &&
 			!_folderModelResourcePermission.contains(
-				permissionChecker, folder, ActionKeys.ADVANCE_UPDATE)) {
+				permissionChecker, folder, ActionKeys.ADVANCE_UPDATE) &&
+			FeatureFlagManagerUtil.isEnabled(
+				permissionChecker.getCompanyId(), "LPD-42452")) {
 
 			throw new PrincipalException.MustHavePermission(
 				permissionChecker.getUserId());

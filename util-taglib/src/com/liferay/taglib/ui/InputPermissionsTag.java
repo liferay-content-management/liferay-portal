@@ -8,11 +8,13 @@ package com.liferay.taglib.ui;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.defaultpermissions.configuration.manager.PortalDefaultPermissionsConfigurationManagerUtil;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleServiceUtil;
@@ -70,15 +72,29 @@ public class InputPermissionsTag extends IncludeTag {
 			"liferay-ui:input-permissions:reverse", reverse);
 		httpServletRequest.setAttribute(
 			"liferay-ui:input-permissions:showAllRoles", showAllRoles);
+
+		List<String> resourceActions =
+			ResourceActionsUtil.getModelResourceActions(modelName);
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		if ((Objects.equals(
+				modelName, "com.liferay.journal.model.JournalFolder") ||
+			 Objects.equals(
+				 modelName,
+				 "com.liferay.document.library.kernel.model.DLFolder")) &&
+			!FeatureFlagManagerUtil.isEnabled(
+				themeDisplay.getCompanyId(), "LPD-42452")) {
+
+			resourceActions.remove(ActionKeys.ADVANCE_UPDATE);
+		}
+
 		httpServletRequest.setAttribute(
-			"liferay-ui:input-permissions:supportedActions",
-			ResourceActionsUtil.getModelResourceActions(modelName));
+			"liferay-ui:input-permissions:supportedActions", resourceActions);
 
 		if (showAllRoles) {
-			ThemeDisplay themeDisplay =
-				(ThemeDisplay)httpServletRequest.getAttribute(
-					WebKeys.THEME_DISPLAY);
-
 			Map<String, String[]> defaultPermissions =
 				PortalDefaultPermissionsConfigurationManagerUtil.
 					getDefaultPermissions(

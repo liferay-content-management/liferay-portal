@@ -17,6 +17,7 @@ import com.liferay.journal.web.internal.security.permission.resource.JournalPerm
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -72,9 +73,9 @@ public class JournalFolderActionDropdownItems {
 			dropdownGroupItem -> {
 				dropdownGroupItem.setDropdownItems(
 					DropdownItemListBuilder.add(
-						() -> hasUpdatePermission || JournalFolderPermission.contains(
-							_themeDisplay.getPermissionChecker(), _folder, ActionKeys.ADVANCE_UPDATE
-						),
+						() ->
+							hasUpdatePermission ||
+							_hasAdvancedUpdatePermission(),
 						_getEditFolderActionUnsafeConsumer()
 					).build());
 				dropdownGroupItem.setSeparator(true);
@@ -386,6 +387,19 @@ public class JournalFolderActionDropdownItems {
 			_liferayPortletRequest, "redirect", _themeDisplay.getURLCurrent());
 
 		return _redirect;
+	}
+
+	private boolean _hasAdvancedUpdatePermission() throws PortalException {
+		if (JournalFolderPermission.contains(
+				_themeDisplay.getPermissionChecker(), _folder,
+				ActionKeys.ADVANCE_UPDATE) &&
+			FeatureFlagManagerUtil.isEnabled(
+				_themeDisplay.getCompanyId(), "LPD-42452")) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private boolean _isShowPublishAction() {

@@ -16,6 +16,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -64,6 +65,10 @@ public class DLEditFolderDisplayContext {
 		}
 
 		return Constants.UPDATE;
+	}
+
+	public long getCompanyId() {
+		return _themeDisplay.getCompanyId();
 	}
 
 	public List<DLFileEntryType> getDLFileEntryTypes() throws PortalException {
@@ -218,13 +223,14 @@ public class DLEditFolderDisplayContext {
 
 	public boolean hasFolderPermission(String actionKey)
 		throws PortalException {
+
 		if (DLFolderPermission.contains(
-			_themeDisplay.getPermissionChecker(),
-			_themeDisplay.getScopeGroupId(), getFolderId(),
-			actionKey)) {
+				_themeDisplay.getPermissionChecker(),
+				_themeDisplay.getScopeGroupId(), getFolderId(), actionKey)) {
 
 			return true;
 		}
+
 		return false;
 	}
 
@@ -378,10 +384,13 @@ public class DLEditFolderDisplayContext {
 			(DLFolderPermission.contains(
 				_themeDisplay.getPermissionChecker(),
 				_themeDisplay.getScopeGroupId(), getFolderId(),
-				ActionKeys.UPDATE) || DLFolderPermission.contains(
-				_themeDisplay.getPermissionChecker(),
-				_themeDisplay.getScopeGroupId(), getFolderId(),
-				ActionKeys.ADVANCE_UPDATE) )&&
+				ActionKeys.UPDATE) ||
+			 (DLFolderPermission.contains(
+				 _themeDisplay.getPermissionChecker(),
+				 _themeDisplay.getScopeGroupId(), getFolderId(),
+				 ActionKeys.ADVANCE_UPDATE) &&
+			  FeatureFlagManagerUtil.isEnabled(
+				  _themeDisplay.getCompanyId(), "LPD-42452"))) &&
 			!scopeGroup.isLayoutSetPrototype()) {
 
 			_workflowEnabled = true;
