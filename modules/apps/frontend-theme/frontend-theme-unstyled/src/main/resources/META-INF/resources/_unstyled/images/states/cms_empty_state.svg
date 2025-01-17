@@ -1,0 +1,67 @@
+<svg width="261" height="250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="36" y="68.379" width="176.471" height="114.973" rx="8" fill="#F0F5FF" stroke="#5791FF" stroke-width="2" />
+  <path fill="#B3CDFF" d="M62.738 104.476H96.16v4.011H62.738z" />
+  <path fill="#80ACFF" d="M117.551 104.476h18.717v4.011h-18.717zm52.139 0h18.717v4.011H169.69z" />
+  <path opacity=".5" fill="#B3CDFF" d="M48.032 104.476h4.011v4.011h-4.011zm0 12.032h4.011v4.011h-4.011z" />
+  <path fill="#B3CDFF" d="M62.738 116.508h34.759v4.011H62.738z" />
+  <path fill="#80ACFF" d="M117.551 116.508h24.064v4.011h-24.064zm52.139 0h24.064v4.011H169.69z" />
+  <path opacity=".5" fill="#B3CDFF" d="M48.032 128.54h4.011v4.011h-4.011z" />
+  <path fill="#B3CDFF" d="M62.738 128.54H92.15v4.011H62.738z" />
+  <path fill="#80ACFF" d="M117.551 128.54h18.717v4.011h-18.717zm52.139 0h18.717v4.011H169.69z" />
+  <path opacity=".5" fill="#B3CDFF" d="M48.032 140.572h4.011v4.011h-4.011z" />
+  <path fill="#B3CDFF" d="M62.738 140.572H96.16v4.011H62.738z" />
+  <path fill="#80ACFF" d="M117.551 140.572h22.727v4.011h-22.727zm52.139 0h22.727v4.011H169.69z" />
+  <path opacity=".5" fill="#B3CDFF" d="M48.032 152.604h4.011v4.011h-4.011z" />
+  <path fill="#B3CDFF" d="M62.738 152.604h30.749v4.011H62.738zm54.813 0h21.39v4.011h-21.39zm52.139 0h21.39v4.011h-21.39z" />
+  <path opacity=".5" fill="#B3CDFF" d="M48.032 164.636h4.011v4.011h-4.011z" />
+  <path fill="#B3CDFF" d="M62.738 164.636H96.16v4.011H62.738zm54.813 0h22.727v4.011h-22.727zm52.139 0h22.727v4.011H169.69z" />
+  <path opacity=".5" fill="#B3CDFF" d="M62.738 77.738h34.759v4.011H62.738zm54.813 0h21.39v4.011h-21.39zm52.139 0h17.38v4.011h-17.38z" />
+  <path opacity=".3" fill="#B3CDFF" d="M36 89.77h176.471v1.337H36z" />
+  <path opacity=".4" fill="#0B5FFF" d="M153.647 68.38v114.972h-1.337V68.38z" />
+  <rect x="53.802" y="161.962" width="32.086" height="32.086" rx="5.348" fill="#0B5FFF" />
+  <mask id="_Illustration__a" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="63" y="169" width="13" height="18">
+    <path d="M72.062 169.985h-6.768c-.831 0-1.504.673-1.504 1.504v13.035c0 .831.673 1.504 1.504 1.504h9.024c.831 0 1.504-.673 1.504-1.504v-10.779l-3.76-3.76Zm-4.512 6.016c.414 0 .752.338.752.752a.754.754 0 0 1-.752.752.754.754 0 0 1-.752-.752c0-.414.338-.752.752-.752Zm-1.504 5.264 2.256-3.008 1.504 1.504 1.504-2.256 2.256 3.76h-7.52Z" fill="#000" />
+  </mask>
+  <g mask="url(#_Illustration__a)">
+    <path fill="#F0F5FF" d="M61.784 169.984h16.043v16.043H61.784z" />
+  </g>
+  <rect x="137.385" y="51" width="32.086" height="32.086" rx="5.348" fill="#0B5FFF" />
+  <mask id="_Illustration__b" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="147" y="59" width="13" height="17">
+    <path d="M155.645 59.022h-6.768c-.832 0-1.504.673-1.504 1.504V73.56c0 .831.672 1.504 1.504 1.504h9.024c.831 0 1.504-.673 1.504-1.504V62.782l-3.76-3.76Zm-4.136 11.618V64.7l4.473 2.97-4.473 2.97Z" fill="#000" />
+  </mask>
+  <g mask="url(#_Illustration__b)">
+    <path fill="#F0F5FF" d="M145.367 59.021h16.043v16.043h-16.043z" />
+  </g>
+  <rect x="15" y="100.465" width="32.086" height="32.086" rx="5.348" fill="#0B5FFF" />
+  <mask id="_Illustration__c" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="22" y="108" width="18" height="17">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M22.982 122.524v-12.032c0-1.107.9-2.006 2.006-2.006H37.02c1.106 0 2.005.899 2.005 2.006v12.032a2.007 2.007 0 0 1-2.005 2.005H24.987a2.007 2.007 0 0 1-2.005-2.005Zm14.038 0v-12.032H24.987v12.032H37.02Zm-2.507-4.011c.69 0 .658-1.003 0-1.003h-7.019c-.658 0-.658 1.003 0 1.003h7.019Zm-2.005 2.005h-5.014c-.69 0-.658-1.002 0-1.002h5.014c.626 0 .689 1.002 0 1.002Zm.5-5.013a2.005 2.005 0 1 0 0-4.01 2.005 2.005 0 0 0 0 4.01Zm-4.01-4.011-2.005 4.011h4.01l-2.005-4.011Z" fill="#6B6C7E" />
+  </mask>
+  <g mask="url(#_Illustration__c)">
+    <path fill="#F0F5FF" d="M22.982 108.486h16.043v16.043H22.982z" />
+  </g>
+  <g filter="url(#_Illustration__d)">
+    <rect x="92.246" y="105.139" width="153.743" height="42.781" rx="5.348" fill="#fff" />
+    <rect x="92.246" y="105.139" width="153.743" height="42.781" rx="5.348" stroke="#0B5FFF" stroke-opacity=".4" stroke-width="8.021" />
+  </g>
+  <rect x="92.246" y="105.139" width="153.743" height="42.781" rx="4" fill="#fff" />
+  <rect x="102.941" y="115.834" width="21.39" height="21.39" rx="5.348" fill="#F0F5FF" />
+  <mask id="_Illustration__e" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="109" y="121" width="9" height="11">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M115.114 121.182h-4.512c-.554 0-1.003.448-1.003 1.002v8.69c0 .554.449 1.003 1.003 1.003h6.016c.554 0 1.003-.449 1.003-1.003v-7.186l-2.507-2.506Zm1.17 5.013c0 .185-.15.334-.334.334h-4.679a.334.334 0 1 1 0-.668h4.679c.184 0 .334.149.334.334Zm-.334 1.003h-4.679a.334.334 0 1 0 0 .668h4.679a.335.335 0 0 0 0-.668Zm-4.679 1.337h2.005a.333.333 0 1 1 0 .668h-2.005a.335.335 0 1 1 0-.668Z" fill="#000" />
+  </mask>
+  <g mask="url(#_Illustration__e)">
+    <path fill="#0B5FFF" d="M108.263 121.182h10.695v10.695h-10.695z" />
+  </g>
+  <path fill="#80ACFF" d="M135.027 119.845h46.791v5.348h-46.791z" />
+  <path opacity=".5" fill="#80ACFF" d="M135.027 130.54h80.214v2.674h-80.214z" />
+  <defs>
+    <filter id="_Illustration__d" x="77.54" y="95.781" width="183.155" height="72.193" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+      <feOffset dy="5.348" />
+      <feGaussianBlur stdDeviation="5.348" />
+      <feColorMatrix values="0 0 0 0 0.152941 0 0 0 0 0.156863 0 0 0 0 0.2 0 0 0 0.12 0" />
+      <feBlend in2="BackgroundImageFix" result="effect1_dropShadow_714_2776" />
+      <feBlend in="SourceGraphic" in2="effect1_dropShadow_714_2776" result="shape" />
+    </filter>
+  </defs>
+</svg>
