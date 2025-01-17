@@ -5,4 +5,12 @@
  */
 --%>
 
-<h1>EMPTY STATE</h1>
+<%@ include file="/init.jsp" %>
+
+<div class="all-section-empty-state">
+	<span aria-hidden="true" class="loading-animation loading-animation-sm"></span>
+
+	<react:component
+		module="{EmptyState} from site-cms-site-initializer"
+	/>
+</div>

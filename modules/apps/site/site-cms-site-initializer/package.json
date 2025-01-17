@@ -1,0 +1,14 @@
+{
+	"dependencies": {
+		"@liferay/frontend-js-react-web": "*",
+		"react": "18.2.0"
+	},
+	"main": "js/index.ts",
+	"name": "site-cms-site-initializer",
+	"scripts": {
+		"build": "node-scripts build",
+		"checkFormat": "node-scripts format --check",
+		"format": "node-scripts format"
+	},
+	"version": "1.0.2"
+}
