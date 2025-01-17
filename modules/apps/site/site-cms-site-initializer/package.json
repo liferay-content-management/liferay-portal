@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@clayui/empty-state": "^3.116.0",
 		"@liferay/frontend-js-react-web": "*",
 		"react": "18.2.0"
 	},

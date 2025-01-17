@@ -3,10 +3,20 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import ClayEmptyState from '@clayui/empty-state';
 import React from 'react';
 
-const EmptyState = ({title = 'test'}) => {
-	return <h1>React Empty state component: {title}</h1>;
-};
-
-export default EmptyState;
+export default function EmptyState({
+	description = Liferay.Language.get(
+		'click-new-to-create-your-first-content'
+	),
+	title = Liferay.Language.get('no-assets-yet'),
+}) {
+	return (
+		<ClayEmptyState
+			description={description}
+			imgSrc={`${themeDisplay.getPathThemeImages()}/states/cms_empty_state.svg`}
+			title={title}
+		/>
+	);
+}
