@@ -196,6 +196,16 @@ export class DocumentLibraryPage {
 		await this.page.getByRole('menuitem', {name: 'Edit'}).click();
 	}
 
+	async goToPermission(entryTitle: string) {
+		await clickAndExpectToBeVisible({
+			autoClick: true,
+			target: this.page.getByRole('menuitem', {name: 'Permissions'}),
+			trigger: this.page
+				.locator(`.card-body:has-text('${entryTitle}')`)
+				.getByLabel('More actions'),
+		});
+	}
+
 	async goToCreateNewFile() {
 		await clickAndExpectToBeVisible({
 			autoClick: true,
