@@ -6,6 +6,8 @@
 package com.liferay.journal.web.internal.display.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownGroupItem;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.journal.constants.JournalArticleConstants;
 import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalFolder;
@@ -17,11 +19,17 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.portlet.bridges.mvc.constants.MVCRenderConstants;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderRequest;
@@ -36,13 +44,16 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portlet.test.MockLiferayPortletContext;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -77,7 +88,32 @@ public class JournalDisplayContextTest {
 		_serviceContext = ServiceContextTestUtil.getServiceContext(
 			_group.getGroupId());
 
-		_user = UserTestUtil.addUser();
+		_user = UserTestUtil.addGroupUser(_group, RoleConstants.SITE_MEMBER);
+	}
+
+	@FeatureFlags("LPD-42452")
+	@Test
+	public void testGetFolderActionDropdownItems() throws Exception {
+		JournalFolder journalFolder = _addJournalFolder(
+			RandomTestUtil.randomString());
+
+		Role siteMemberRole = _roleLocalService.getRole(
+			_group.getCompanyId(), RoleConstants.SITE_MEMBER);
+
+		_resourcePermissionLocalService.setResourcePermissions(
+			_group.getCompanyId(), JournalFolder.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(journalFolder.getFolderId()),
+			siteMemberRole.getRoleId(),
+			new String[] {ActionKeys.VIEW, ActionKeys.ADVANCE_UPDATE});
+
+		List<DropdownItem> dropdownGroupItems = _getDropdownGroupItems(
+			_getFolderActionDropdownItems(journalFolder), 0);
+
+		DropdownItem dropdownItem = dropdownGroupItems.get(0);
+
+		Assert.assertEquals("pencil", dropdownItem.get("icon"));
+		Assert.assertEquals("Edit", dropdownItem.get("label"));
 	}
 
 	@Test
@@ -154,6 +190,37 @@ public class JournalDisplayContextTest {
 			null, LocaleUtil.getDefault(), null, false, false, _serviceContext);
 	}
 
+	private JournalFolder _addJournalFolder(String title) throws Exception {
+		JournalFolderFixture journalFolderFixture = new JournalFolderFixture(
+			_journalFolderLocalService);
+
+		return journalFolderFixture.addFolder(_group.getGroupId(), title);
+	}
+
+	private List<DropdownItem> _getDropdownGroupItems(
+		List<DropdownItem> dropdownItems, int groupIndex) {
+
+		DropdownGroupItem dropdownGroupItem =
+			(DropdownGroupItem)dropdownItems.get(groupIndex);
+
+		return (List<DropdownItem>)dropdownGroupItem.get("items");
+	}
+
+	private List<DropdownItem> _getFolderActionDropdownItems(
+			JournalFolder journalFolder)
+		throws Exception {
+
+		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
+			_renderPortlet();
+
+		return ReflectionTestUtil.invoke(
+			mockLiferayPortletRenderRequest.getAttribute(
+				"com.liferay.journal.web.internal.display.context." +
+					"JournalDisplayContext"),
+			"getFolderActionDropdownItems",
+			new Class<?>[] {JournalFolder.class}, journalFolder);
+	}
+
 	private Map<Locale, String> _getLocaleStringMap(String value) {
 		return HashMapBuilder.put(
 			LocaleUtil.getDefault(), value
@@ -176,11 +243,14 @@ public class JournalDisplayContextTest {
 
 		mockLiferayPortletRenderRequest.setAttribute(
 			WebKeys.COMPANY_ID, _company.getCompanyId());
+
 		mockLiferayPortletRenderRequest.setAttribute(
 			StringBundler.concat(
 				mockLiferayPortletRenderRequest.getPortletName(), "-",
 				WebKeys.CURRENT_PORTLET_URL),
 			new MockLiferayPortletURL());
+		mockLiferayPortletRenderRequest.setAttribute(
+			JavaConstants.JAVAX_PORTLET_CONFIG, null);
 		mockLiferayPortletRenderRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, _getThemeDisplay());
 		mockLiferayPortletRenderRequest.setParameter("mvcPath", path);
@@ -293,6 +363,12 @@ public class JournalDisplayContextTest {
 		filter = "component.name=com.liferay.journal.web.internal.portlet.JournalPortlet"
 	)
 	private Portlet _portlet;
+
+	@Inject
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Inject
+	private RoleLocalService _roleLocalService;
 
 	private ServiceContext _serviceContext;
 	private User _user;
