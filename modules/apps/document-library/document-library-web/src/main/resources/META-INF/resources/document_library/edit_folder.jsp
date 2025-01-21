@@ -81,12 +81,16 @@ renderResponse.setTitle(dlEditFolderDisplayContext.getHeaderTitle());
 					</c:if>
 				</aui:fieldset>
 
-				<c:if test='<%= dlEditFolderDisplayContext.isFileEntryTypeSupported() && (dlEditFolderDisplayContext.hasFolderPermission(ActionKeys.ADVANCE_UPDATE) || !FeatureFlagManagerUtil.isEnabled(dlEditFolderDisplayContext.getCompanyId(), "LPD-42452")) %>'>
+				<c:if test="<%= dlEditFolderDisplayContext.isFileEntryTypeSupported() %>">
+					<c:choose>
+					<c:when test="${dlEditFolderDisplayContext.hasFolderPermission(ActionKeys.ADVANCE_UPDATE) ||
+					!FeatureFlagManagerUtil.isEnabled(dlEditFolderDisplayContext.getCompanyId(), 'LPD-42452')}">
+
 					<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" helpMessage="<%= dlEditFolderDisplayContext.getFileEntryTypeRestrictionsHelpMessage() %>" label="<%= dlEditFolderDisplayContext.getFileEntryTypeRestrictionsLabel() %>">
 						<c:if test="<%= !dlEditFolderDisplayContext.isRootFolder() %>">
-							<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeInherit() %>" id="restrictionTypeInherit" label='<%= LanguageUtil.format(request, dlEditFolderDisplayContext.isWorkflowEnabled() ? "use-document-type-restrictions-and-workflow-of-the-parent-folder-x" : "use-document-type-restrictions-of-the-parent-folder-x", dlEditFolderDisplayContext.getParentFolderName(), false) %>' name="restrictionType" type="radio" value="<%= DLFolderConstants.RESTRICTION_TYPE_INHERIT %>" />
+							<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeInherit() %>" id="restrictionTypeInherit" label='<%= LanguageUtil.format(request, dlEditFolderDisplayContext.isWorkflowEnabled() ? "use-document-type-restrictions-and-workflow-of-the-parent-folder-x" : "use-document-type-restrictions-of-the-parent-folder-x", dlEditFolderDisplayContext.getParentFolderName(), false) %>' name="restrictionType" value="<%= DLFolderConstants.RESTRICTION_TYPE_INHERIT %>" />
 
-							<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeFileEntryTypesAndWorkflow() %>" id="restrictionTypeDefined" label='<%= LanguageUtil.format(request, dlEditFolderDisplayContext.isWorkflowEnabled() ? "define-specific-document-type-restrictions-and-workflow-for-this-folder-x" : "define-specific-document-type-restrictions-for-this-folder-x", folder.getName(), false) %>' name="restrictionType" type="radio" value="<%= DLFolderConstants.RESTRICTION_TYPE_FILE_ENTRY_TYPES_AND_WORKFLOW %>" />
+							<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeFileEntryTypesAndWorkflow() %>" id="restrictionTypeDefined" label='<%= LanguageUtil.format(request, dlEditFolderDisplayContext.isWorkflowEnabled() ? "define-specific-document-type-restrictions-and-workflow-for-this-folder-x" : "define-specific-document-type-restrictions-for-this-folder-x", folder.getName(), false) %>' name="restrictionType" value="<%= DLFolderConstants.RESTRICTION_TYPE_FILE_ENTRY_TYPES_AND_WORKFLOW %>" />
 
 							<div class="<%= dlEditFolderDisplayContext.isRestrictionTypeFileEntryTypesAndWorkflow() ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />restrictionTypeDefinedDiv">
 								<liferay-ui:search-container
@@ -170,7 +174,7 @@ renderResponse.setTitle(dlEditFolderDisplayContext.getHeaderTitle());
 						<c:if test="<%= dlEditFolderDisplayContext.isWorkflowEnabled() %>">
 							<c:choose>
 								<c:when test="<%= !dlEditFolderDisplayContext.isRootFolder() %>">
-									<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeWorkflow() %>" id="restrictionTypeWorkflow" label='<%= LanguageUtil.format(locale, "set-the-default-workflow-for-the-folders-content-x", folder.getName(), false) %>' name="restrictionType" type="radio" value="<%= DLFolderConstants.RESTRICTION_TYPE_WORKFLOW %>" />
+									<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeWorkflow() %>" id="restrictionTypeWorkflow" label='<%= LanguageUtil.format(locale, "set-the-default-workflow-for-the-folders-content-x", folder.getName(), false) %>' name="restrictionType" value="<%= DLFolderConstants.RESTRICTION_TYPE_WORKFLOW %>" />
 								</c:when>
 								<c:otherwise>
 									<aui:input name="restrictionType" type="hidden" value="<%= DLFolderConstants.RESTRICTION_TYPE_WORKFLOW %>" />
@@ -195,6 +199,15 @@ renderResponse.setTitle(dlEditFolderDisplayContext.getHeaderTitle());
 							</div>
 						</c:if>
 					</aui:fieldset>
+					</c:when>
+					<c:otherwise>
+						<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeInherit() %>" id="restrictionTypeInherit" name="restrictionType" type="hidden" value="<%= DLFolderConstants.RESTRICTION_TYPE_INHERIT %>" />
+
+						<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeFileEntryTypesAndWorkflow() %>" id="restrictionTypeDefined" name="restrictionType" type="hidden" value="<%= DLFolderConstants.RESTRICTION_TYPE_FILE_ENTRY_TYPES_AND_WORKFLOW %>" />
+
+						<aui:input checked="<%= dlEditFolderDisplayContext.isRestrictionTypeWorkflow() %>" id="restrictionTypeWorkflow" name="restrictionType" type="hidden" value="<%= DLFolderConstants.RESTRICTION_TYPE_WORKFLOW %>" />
+					</c:otherwise>
+				</c:choose>
 				</c:if>
 
 				<c:if test="<%= !dlEditFolderDisplayContext.isRootFolder() %>">
