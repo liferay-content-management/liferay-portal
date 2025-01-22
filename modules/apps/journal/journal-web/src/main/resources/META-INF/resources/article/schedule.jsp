@@ -26,6 +26,8 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = (JournalEdit
 		<liferay-ui:message arguments="<%= journalEditArticleDisplayContext.getTimeZoneName() %>" key="time-zone-x" />
 	</div>
 
+	<aui:input formName="fm1" name="displayDate" wrapperCssClass="mb-3" />
+
 	<aui:input dateTogglerCheckboxLabel="never-expire" disabled="<%= journalEditArticleDisplayContext.isNeverExpire() %>" formName="fm1" name="expirationDate" wrapperCssClass="expiration-date mb-3" />
 
 	<aui:input dateTogglerCheckboxLabel="never-review" disabled="<%= journalEditArticleDisplayContext.isNeverReview() %>" formName="fm1" name="reviewDate" wrapperCssClass="mb-3 review-date" />
