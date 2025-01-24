@@ -5,4 +5,4 @@
 
 // @ts-ignore
 
-export {default as EmptyState} from './EmpyState';
+export {default as EmptyState} from './EmptyState';

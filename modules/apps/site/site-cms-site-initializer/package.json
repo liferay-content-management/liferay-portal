@@ -4,7 +4,7 @@
 		"@liferay/frontend-js-react-web": "*",
 		"react": "18.2.0"
 	},
-	"main": "js/index.ts",
+	"main": "js/index.tsx",
 	"name": "site-cms-site-initializer",
 	"scripts": {
 		"build": "node-scripts build",
