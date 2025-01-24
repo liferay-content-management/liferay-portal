@@ -1,5 +1,7 @@
 {
 	"dependencies": {
+		"@clayui/button": "^3.116.0",
+		"@clayui/drop-down": "^3.127.0",
 		"@clayui/empty-state": "3.116.0",
 		"@liferay/frontend-js-react-web": "*",
 		"react": "18.2.0"
