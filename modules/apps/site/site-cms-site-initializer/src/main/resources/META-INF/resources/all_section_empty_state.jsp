@@ -7,7 +7,7 @@
 
 <%@ include file="/init.jsp" %>
 
-<div class="all-section-empty-state">
+<div class="cms-empty-state">
 	<span aria-hidden="true" class="loading-animation loading-animation-sm"></span>
 
 	<react:component

@@ -8,7 +8,7 @@ import {ClayDropDownWithItems} from '@clayui/drop-down';
 import ClayEmptyState from '@clayui/empty-state';
 import React from 'react';
 
-import './../css/all_section.scss';
+import './../css/empty_state.scss';
 
 interface IEmptyStateProps {
 	description?: string;
