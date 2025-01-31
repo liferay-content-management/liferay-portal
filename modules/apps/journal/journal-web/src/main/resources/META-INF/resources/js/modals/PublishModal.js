@@ -93,15 +93,14 @@ export default function PublishModal({
 					/>
 				) : null}
 
-				{(!articleId || Liferay.FeatureFlags['LPD-11228']) &&
-					showPermissionsOptions && (
-						<div className="mt-3">
-							<PermissionsOptions
-								formId={formId}
-								permissionsURL={permissionsURL}
-							/>
-						</div>
-					)}
+				{showPermissionsOptions && (
+					<div className="mt-3">
+						<PermissionsOptions
+							formId={formId}
+							permissionsURL={permissionsURL}
+						/>
+					</div>
+				)}
 			</ClayModal.Body>
 
 			<ClayModal.Footer

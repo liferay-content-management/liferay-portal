@@ -14,7 +14,6 @@ const AUTO_SAVE_DELAY = 1500;
 
 export default function _JournalPortlet({
 	articleId: initialArticleId,
-	autoSaveDraftEnabled,
 	autoSaveDraftURL,
 	availableLocales: initialAvailableLocales,
 	classNameId,
@@ -43,7 +42,6 @@ export default function _JournalPortlet({
 	const resetValuesButton = document.getElementById(
 		`${namespace}resetValuesButton`
 	);
-	const saveButton = document.getElementById(`${namespace}saveButton`);
 
 	const availableLocales = [
 		...initialAvailableLocales,
@@ -54,7 +52,6 @@ export default function _JournalPortlet({
 
 	let articleId = initialArticleId;
 	let defaultLanguageId = initialDefaultLanguageId;
-	let selectedLanguageId = initialDefaultLanguageId;
 
 	const lockHolder = {};
 
@@ -162,7 +159,7 @@ export default function _JournalPortlet({
 
 			availableLocalesInput.value = availableLocales;
 
-			if (autoSaveDraftEnabled && !redirectOnSave) {
+			if (!redirectOnSave) {
 				if (showErrors) {
 					Liferay.componentReady(
 						`${namespace}dataEngineLayoutRenderer`
@@ -214,70 +211,8 @@ export default function _JournalPortlet({
 		}
 	};
 
-	const handlePublishButtonClick = (event) => {
+	const handlePublishButtonClick = () => {
 		lockHolder.lock?.lock();
-
-		if (Liferay.FeatureFlags['LPD-11228']) {
-			return;
-		}
-
-		document
-			.querySelectorAll('.journal-alert-container')
-			.forEach((alertElement) => {
-				alertElement.parentElement.removeChild(alertElement);
-			});
-
-		const workflowActionInput = document.getElementById(
-			`${namespace}workflowAction`
-		);
-
-		if (event.currentTarget.dataset.actionname === 'publish') {
-			workflowActionInput.value = Liferay.Workflow.ACTION_PUBLISH;
-		}
-
-		if (editingDefaultValues) {
-			Liferay.component(`${namespace}dataEngineLayoutRenderer`)
-				.reactComponentRef.current.getFields()
-				.forEach((field) => {
-					field.required = false;
-				});
-		}
-		else {
-			articleId = document.getElementById(`${namespace}articleId`).value;
-
-			actionInput.value = articleId
-				? '/journal/update_article'
-				: '/journal/add_article';
-		}
-
-		const descriptionInputComponent = Liferay.component(
-			`${namespace}descriptionMapAsXML`
-		);
-		const titleInputComponent = Liferay.component(
-			`${namespace}titleMapAsXML`
-		);
-
-		[titleInputComponent, descriptionInputComponent].forEach(
-			(inputComponent) => {
-				const translatedLanguages = inputComponent.get(
-					'translatedLanguages'
-				);
-
-				if (
-					!translatedLanguages.has(selectedLanguageId) &&
-					selectedLanguageId !== defaultLanguageId
-				) {
-					inputComponent.updateInput('');
-
-					Liferay.Form.get(formId).removeRule(
-						`${namespace}${inputComponent.get('id')}`,
-						'required'
-					);
-				}
-			}
-		);
-
-		lockHolder.lock?.unlock();
 	};
 
 	const handleResetValuesButtonClick = (event) => {
@@ -417,7 +352,6 @@ export default function _JournalPortlet({
 			handleContextualSidebarButtonClick
 		),
 		attachListener(publishButton, 'click', handlePublishButtonClick),
-		attachListener(saveButton, 'click', handlePublishButtonClick),
 		attachListener(
 			resetValuesButton,
 			'click',
@@ -436,8 +370,6 @@ export default function _JournalPortlet({
 					availableLocales.push(languageId);
 					availableLocalesInput.value = availableLocales;
 				}
-
-				selectedLanguageId = languageId;
 			},
 		}),
 
@@ -461,11 +393,7 @@ export default function _JournalPortlet({
 		);
 	};
 
-	if (
-		autoSaveDraftEnabled &&
-		hasSavePermission &&
-		(!classNameId || classNameId === '0')
-	) {
+	if (hasSavePermission && (!classNameId || classNameId === '0')) {
 		eventHandlers.push(
 			attachFormChangeListener(
 				form,
