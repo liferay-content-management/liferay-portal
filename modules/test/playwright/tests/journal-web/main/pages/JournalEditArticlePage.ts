@@ -306,30 +306,6 @@ export class JournalEditArticlePage {
 		await this.propertiesTab.waitFor();
 	}
 
-	async openDMItemSelectorForImages() {
-		await this.page.getByLabel('Image', {exact: true}).click();
-		await this.page
-			.frameLocator('iframe[title="Select Item"]')
-			.getByRole('link', {name: 'Documents and Media'})
-			.click();
-	}
-
-	async openFieldSet(assetType: string, fieldSetId: string) {
-		const isOpened = await this.page
-			.locator(`#${fieldSetId}Content`)
-			.evaluate((element) => element.classList.contains('show'));
-
-		if (!isOpened) {
-			await this.page.getByRole('button', {name: assetType}).click();
-		}
-	}
-
-	async openRelatedAsset(assetType: string) {
-		await this.openFieldSet('Related Assets', 'relatedAssets');
-		await this.page.getByLabel('Select Items').click();
-		await this.page.getByRole('menuitem', {name: assetType}).click();
-	}
-
 	async publishArticle(
 		existingArticle?: boolean,
 		viewableBy?: 'Site Members' | 'Owner'
@@ -372,24 +348,28 @@ export class JournalEditArticlePage {
 			.click();
 	}
 
-	async saveAsDraftWithPermissions(title: string) {
-		await this.fillTitle(title);
-
+	async openDMItemSelectorForImages() {
+		await this.page.getByLabel('Image', {exact: true}).click();
 		await this.page
-			.getByRole('button', {exact: true, name: 'Save as Draft'})
+			.frameLocator('iframe[title="Select Item"]')
+			.getByRole('link', {name: 'Documents and Media'})
 			.click();
+	}
 
-		await expect(async () => {
-			const draftButton = await this.page
-				.getByLabel('Save as Draft With Permissions')
-				.getByRole('button', {name: 'Save as Draft'});
+	async openFieldSet(assetType: string, fieldSetId: string) {
+		const isOpened = await this.page
+			.locator(`#${fieldSetId}Content`)
+			.evaluate((element) => element.classList.contains('show'));
 
-			await draftButton.waitFor();
+		if (!isOpened) {
+			await this.page.getByRole('button', {name: assetType}).click();
+		}
+	}
 
-			await draftButton.click();
-		}).toPass();
-
-		await expect(this.page.getByText('Version: 1.0 Draft')).toBeVisible();
+	async openRelatedAsset(assetType: string) {
+		await this.openFieldSet('Related Assets', 'relatedAssets');
+		await this.page.getByLabel('Select Items').click();
+		await this.page.getByRole('menuitem', {name: assetType}).click();
 	}
 
 	async scheduleArticle(

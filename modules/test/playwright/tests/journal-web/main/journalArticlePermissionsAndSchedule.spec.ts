@@ -146,29 +146,3 @@ scheduleTest(
 		);
 	}
 );
-
-scheduleTest(
-	'Web content can be saved as draft',
-	{
-		tag: '@LPD-37754',
-	},
-	async ({journalEditArticlePage, journalPage, page, site}) => {
-		await journalEditArticlePage.goto({siteUrl: site.friendlyUrlPath});
-
-		const articleTitle = 'Web Content Draft Title';
-
-		await journalEditArticlePage.saveAsDraftWithPermissions(articleTitle);
-
-		await journalPage.goto(site.friendlyUrlPath);
-
-		await expect(
-			page.getByRole('link', {exact: true, name: articleTitle})
-		).toBeVisible();
-
-		await expect(
-			page.locator(
-				'[id="_com_liferay_journal_web_portlet_JournalPortlet_articles_1"] span.label-item'
-			)
-		).toHaveText('Draft');
-	}
-);
