@@ -17,6 +17,7 @@
 	languageId="<%= journalEditArticleDisplayContext.getSelectedLanguageId() %>"
 	namespace="<%= liferayPortletResponse.getNamespace() %>"
 	persisted="<%= article != null %>"
+	readOnly="<%= JournalUtil.isEditDefaultValues(article) %>"
 	submittable="<%= false %>"
 />
 
