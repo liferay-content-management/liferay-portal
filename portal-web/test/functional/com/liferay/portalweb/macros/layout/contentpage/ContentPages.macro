@@ -126,7 +126,7 @@ definition {
 				locator1 = "Breadcrumb#BREADCRUMB_ENTRY",
 				value1 = "Pages");
 
-			LexiconEntry.gotoAddMenuItem(menuItem = "Public Page");
+			Button.click(button = "New");
 		}
 
 		ContentPages._selectCard(
