@@ -305,11 +305,16 @@ Map<String, Object> componentContext = journalDisplayContext.getComponentContext
 							/>
 						</c:if>
 
-						<liferay-ui:search-container-column-date
-							cssClass="table-cell-expand-smallest table-cell-ws-nowrap"
+						<liferay-ui:search-container-column-text
+							cssClass="table-cell-expand-smallest"
 							name="modified-date"
-							value="<%= curArticle.getModifiedDate() %>"
-						/>
+						>
+							<%
+                            Date modifiedDate = curArticle.getModifiedDate();
+                            String modifiedDateDescription = LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - modifiedDate.getTime(), true);
+                            %>
+                            <liferay-ui:message arguments="<%= new String[] {modifiedDateDescription, HtmlUtil.escape(curArticle.getStatusByUserName())} %>" key="modified-x-ago-by-x" />
+						</liferay-ui:search-container-column-text>
 
 						<liferay-ui:search-container-column-date
 							cssClass="table-cell-expand-smallest table-cell-ws-nowrap"
