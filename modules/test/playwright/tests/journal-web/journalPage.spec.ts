@@ -142,3 +142,56 @@ test(
 		).toBeVisible();
 	}
 );
+
+test(
+	'Validate Modified Date format in Table View',
+	{
+		tag: '@LPD-48258',
+	},
+	async ({apiHelpers, journalPage, page, site}) => {
+		const basicWebContentStructureId =
+			await getBasicWebContentStructureId(apiHelpers);
+
+		await apiHelpers.jsonWebServicesJournal.addWebContent({
+			ddmStructureId: basicWebContentStructureId,
+			groupId: site.id,
+			titleMap: {en_US: 'First Web content'},
+		});
+
+		await journalPage.goto(site.friendlyUrlPath);
+
+		await journalPage.changeView('table');
+
+		const headers = await page.locator('tr th').allInnerTexts();
+
+		const modifiedDateIndex = headers.findIndex((header) =>
+			header.includes('Modified Date')
+		);
+
+		if (modifiedDateIndex === -1) {
+			throw new Error('Modified Date column not found.');
+		}
+
+		const rows = await page.locator('tbody tr').all();
+
+		if (!rows.length) {
+			throw new Error('No rows found in the table.');
+		}
+
+		const modifiedDateCell = await rows[0]
+			.locator(`td:nth-child(${modifiedDateIndex + 1})`)
+			.textContent();
+
+		if (!modifiedDateCell) {
+			throw new Error('Modified Date cell not found in the first row.');
+		}
+
+		const modifiedDateText = modifiedDateCell.trim();
+
+		// Validate the Modified Date format using regex (modified-x-ago-by-x)
+
+		const modifiedDatePattern = /^Modified\s+\d+\s+\w+\s+ago\s+by\s+.+$/;
+
+		expect(modifiedDateText).toMatch(modifiedDatePattern);
+	}
+);
