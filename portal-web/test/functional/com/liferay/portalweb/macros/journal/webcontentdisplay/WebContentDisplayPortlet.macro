@@ -43,15 +43,6 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro addDraft(webContentTitle = null, webContentContent = null) {
-		WebContentDisplayPortletNavigator.gotoAdd();
-
-		WebContent.addDraft(
-			webContentContent = ${webContentContent},
-			webContentTitle = ${webContentTitle});
-	}
-
-	@summary = "Default summary"
 	macro addLocalized(localizedBasicWebContent = null, portletNameTranslation = null, publish = null, publishWithPermissions = null,  webContentContent = null, webContentTitle = null) {
 		WebContentDisplayPortletNavigator.gotoAdd(
 			portletNameTranslation = ${portletNameTranslation},
@@ -642,16 +633,11 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro viewMessage(recycleBinWebContentTitle = null, expiredWebContentTitle = null, draftWebContentTitle = null) {
+	macro viewMessage(recycleBinWebContentTitle = null, expiredWebContentTitle = null) {
 		if (isSet(recycleBinWebContentTitle)) {
 			AssertTextEquals.assertPartialText(
 				locator1 = "Message#ERROR_3",
 				value1 = "The web content article ${recycleBinWebContentTitle} was moved to the Recycle Bin");
-		}
-		else if (isSet(draftWebContentTitle)) {
-			AssertTextEquals(
-				locator1 = "Message#ERROR_3",
-				value1 = "${draftWebContentTitle} is not approved.");
 		}
 		else if (isSet(expiredWebContentTitle)) {
 			AssertTextEquals(

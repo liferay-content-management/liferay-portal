@@ -129,20 +129,7 @@ definition {
 			webContentContent = ${webContentContent},
 			webContentTitle = ${webContentTitle});
 
-		WebContent.saveAsDraftWithPermissions();
-
 		Alert.viewSuccessMessage();
-	}
-
-	@summary = "Default summary"
-	macro addDraftPGViaAP(webContentTitle = null, webContentContent = null) {
-		AssetPublisherPortlet.addAsset(assetType = "Basic Web Content");
-
-		WebContent.addCP(
-			webContentContent = ${webContentContent},
-			webContentTitle = ${webContentTitle});
-
-		WebContent.saveAsDraftViaAP();
 	}
 
 	@summary = "Default summary"
@@ -860,8 +847,6 @@ definition {
 		}
 
 		if (${saveAsDraft} == "true") {
-			WebContent.saveAsDraftWithPermissions();
-
 			AssertTextEquals(
 				key_status = "Draft",
 				locator1 = "WCEditWebContent#WORKFLOW_STATUS",
@@ -1168,15 +1153,18 @@ definition {
 		}
 
 		if (${saveAsDraft} == "true") {
-			PortletEntry.saveAsDraft();
-
 			AssertTextEquals.assertPartialText(
 				key_status = "Draft",
 				locator1 = "WCEditWebContent#WORKFLOW_STATUS",
 				value1 = "Draft");
 		}
 		else {
-			WebContent.publishExistingWCArticleWithPermissions();
+			if (${isDraft} == "true") {
+				WebContent.publishWithPermissions();
+			}
+			else {
+				WebContent.publishExistingWCArticleWithPermissions();
+			}
 
 			LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
@@ -1410,8 +1398,6 @@ definition {
 		}
 
 		if (isSet(saveAsDraft) && (${saveAsDraft} == "true")) {
-			WebContent.saveAsDraftWithPermissions();
-
 			AssertTextEquals.assertPartialText(
 				key_status = "Draft",
 				locator1 = "WCEditWebContent#WORKFLOW_STATUS",
@@ -1436,8 +1422,6 @@ definition {
 		SelectFrame(value1 = "relative=top");
 
 		if (${saveAsDraft} == "true") {
-			WebContent.saveAsDraftWithPermissions();
-
 			AssertTextEquals.assertPartialText(
 				key_status = "Draft",
 				locator1 = "WCEditWebContent#WORKFLOW_STATUS",
@@ -1481,8 +1465,6 @@ definition {
 			webContentWebContent = ${webContentWebContent});
 
 		if (isSet(saveAsDraft) && (${saveAsDraft} == "true")) {
-			WebContent.saveAsDraftWithPermissions();
-
 			AssertTextEquals.assertPartialText(
 				key_status = "Draft",
 				locator1 = "WCEditWebContent#WORKFLOW_STATUS",
@@ -1787,24 +1769,6 @@ definition {
 			key_class = "delete-button",
 			key_index = ${index},
 			locator1 = "Button#ANY_WITH_CLASS_AND_INDEX");
-	}
-
-	@summary = "Default summary"
-	macro saveAsDraftViaAP() {
-		Button.clickSaveAsDraft();
-
-		Alert.viewSuccessMessage();
-
-		Refresh();
-
-		AssertElementNotPresent(locator1 = "AP#ASSET_ABSTRACT_GENERIC");
-	}
-
-	@summary = "Default summary"
-	macro saveAsDraftWithPermissions() {
-		Button.clickSaveAsDraft();
-
-		Click(locator1 = "WCEditWebContent#SAVE_AS_DRAFT_IN_MODAL");
 	}
 
 	@summary = "Default summary"

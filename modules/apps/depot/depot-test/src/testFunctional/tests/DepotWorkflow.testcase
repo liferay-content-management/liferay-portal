@@ -633,6 +633,8 @@ definition {
 			dropdownItem = "My Workflow Tasks",
 			webContentTitleEdit = "Depot WebContent Title Edit");
 
+		WebContent.submitForWorkflowWithPermission();
+
 		UserBar.gotoDropdownItem(dropdownItem = "My Workflow Tasks");
 
 		Workflow.resubmitTaskByActions(
@@ -743,7 +745,7 @@ definition {
 
 		WebContent.addCP(webContentTitle = "Depot WebContent Title Edit");
 
-		Button.click(button = "Save");
+		WebContent.submitForWorkflowWithPermission();
 
 		UserBar.gotoDropdownItem(dropdownItem = "My Workflow Tasks");
 

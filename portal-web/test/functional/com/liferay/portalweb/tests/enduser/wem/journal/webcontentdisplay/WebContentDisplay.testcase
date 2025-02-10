@@ -42,28 +42,6 @@ definition {
 		}
 	}
 
-	@description = "Add a draft web content via web content display widget."
-	@priority = 4
-	test AddDraftWebContent {
-		task ("Add a draft web content via Web Content Display") {
-			Navigator.gotoSitePage(
-				pageName = "Test Page Name",
-				siteName = "Test Site Name");
-
-			WebContentDisplayPortlet.addDraft(
-				webContentContent = "Web Content Content",
-				webContentTitle = "Web Content Title");
-		}
-
-		task ("View web content is shown as draft") {
-			Navigator.gotoSitePage(
-				pageName = "Test Page Name",
-				siteName = "Test Site Name");
-
-			WebContentDisplayPortlet.viewMessage(draftWebContentTitle = "Web Content Title");
-		}
-	}
-
 	@description = "Add a web content via web content display widget."
 	@priority = 5
 	test AddWebContent {

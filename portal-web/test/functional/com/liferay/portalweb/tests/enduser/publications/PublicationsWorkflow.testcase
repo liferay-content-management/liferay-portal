@@ -223,8 +223,6 @@ definition {
 				webContentContent = "Web Content Content",
 				webContentTitle = "Web Content Title");
 
-			WebContent.saveAsDraftWithPermissions();
-
 			AssertTextEquals(
 				key_status = "Draft",
 				locator1 = "WCEditWebContent#WORKFLOW_STATUS",

@@ -290,8 +290,6 @@ definition {
 			structureName = "WC Structure Name",
 			templateName = "WC Template Name");
 
-		Button.clickSaveAsDraft();
-
 		WebContent.publishExistingWCArticleWithPermissions();
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");

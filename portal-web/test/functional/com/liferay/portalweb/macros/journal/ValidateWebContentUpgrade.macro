@@ -164,6 +164,7 @@ definition {
 			webContentTitle = "Web Content Draft Title");
 
 		WebContent.editCP(
+			isDraft = "true",
 			webContentContentEdit = "Web Content Content",
 			webContentTitle = "Web Content Draft Title",
 			webContentTitleEdit = "Web Content Title");

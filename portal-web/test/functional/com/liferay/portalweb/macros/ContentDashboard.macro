@@ -181,8 +181,6 @@ definition {
 		}
 
 		if (isSet(saveAsDraft)) {
-			PortletEntry.saveAsDraft();
-
 			Click(locator1 = "Icon#BACK");
 		}
 		else if (isSet(isWebContent)) {
