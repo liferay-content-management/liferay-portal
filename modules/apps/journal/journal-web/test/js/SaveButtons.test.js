@@ -18,7 +18,6 @@ const DEFAULT_PROPS = {
 	permissionsURL: null,
 	portletNamespace: 'portletNamespace',
 	publishButtonLabel: 'publish',
-	saveButtonLabel: 'save',
 	selectedLanguageId: 'en_US',
 	timeZone: 'UTC',
 	workflowEnabled: false,
@@ -66,10 +65,9 @@ describe('SaveButtons', () => {
 	it('renders', () => {
 		renderComponent({
 			...DEFAULT_PROPS,
-			saveButtonLabel: 'save article',
 		});
 
-		expect(screen.getByText('save article')).toBeInTheDocument();
+		expect(screen.getByText('publish')).toBeInTheDocument();
 	});
 
 	it('submit for workflow with permissions when publishing for the first time', () => {
@@ -89,16 +87,7 @@ describe('SaveButtons', () => {
 		renderComponent({
 			...DEFAULT_PROPS,
 			articleId: '2611',
-			saveButtonLabel: 'save',
 		});
-
-		userEvent.click(screen.getByText('save'));
-
-		expect(
-			screen.queryByText(
-				'confirm-the-web-content-visibility-before-saving-as-draft'
-			)
-		).not.toBeInTheDocument();
 
 		userEvent.click(
 			screen.getByText('publish', {
@@ -129,21 +118,6 @@ describe('SaveButtons', () => {
 		renderComponent({
 			...DEFAULT_PROPS,
 			articleId: null,
-			saveButtonLabel: 'save',
-		});
-
-		runAllTimersAndExecuteAction(() => {
-			userEvent.click(screen.getByText('save'));
-		});
-
-		expect(
-			screen.getByText(
-				'confirm-the-web-content-visibility-before-saving-as-draft'
-			)
-		).toBeInTheDocument();
-
-		runAllTimersAndExecuteAction(() => {
-			userEvent.click(screen.getByLabelText('close'));
 		});
 
 		runAllTimersAndExecuteAction(() => {
