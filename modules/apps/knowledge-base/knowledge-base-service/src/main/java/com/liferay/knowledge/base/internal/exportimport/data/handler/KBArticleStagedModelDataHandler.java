@@ -28,7 +28,10 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
+import com.liferay.portal.kernel.repository.LocalRepository;
+import com.liferay.portal.kernel.repository.RepositoryProvider;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -454,6 +457,24 @@ public class KBArticleStagedModelDataHandler
 			KBArticle importedKBArticle)
 		throws Exception {
 
+		Repository repository = _portletFileRepository.fetchPortletRepository(
+			portletDataContext.getGroupId(),
+			KBPortletKeys.KNOWLEDGE_BASE_ADMIN);
+
+		if (repository != null) {
+			LocalRepository localRepository =
+				_repositoryProvider.getLocalRepository(
+					repository.getRepositoryId());
+
+			List<FileEntry> fileEntries = localRepository.getFileEntries(
+				importedKBArticle.getAttachmentsFolderId(), QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, null);
+
+			for (FileEntry fileEntry : fileEntries) {
+				localRepository.deleteFileEntry(fileEntry.getFileEntryId());
+			}
+		}
+
 		List<Element> dlFileEntryElements =
 			portletDataContext.getReferenceDataElements(
 				kbArticle, DLFileEntry.class);
@@ -558,5 +579,8 @@ public class KBArticleStagedModelDataHandler
 
 	@Reference
 	private PortletFileRepository _portletFileRepository;
+
+	@Reference
+	private RepositoryProvider _repositoryProvider;
 
 }
