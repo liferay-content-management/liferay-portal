@@ -54,6 +54,9 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -68,6 +71,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import org.junit.After;
@@ -163,7 +167,27 @@ public class UploadFileEntryMVCActionCommandTest {
 			_dlFileEntryLocalService.fetchDLFileEntry(
 				_oldDLFileEntry.getFileEntryId()));
 
-		JSONObject jsonObject = _processAction();
+		JSONObject jsonObject = null;
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portlet.documentlibrary.service.impl." +
+					"DLFileEntryLocalServiceImpl",
+				LoggerTestUtil.DEBUG)) {
+
+			jsonObject = _processAction();
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(LoggerTestUtil.DEBUG, logEntry.getPriority());
+
+			Assert.assertTrue(
+				StringUtil.startsWith(
+					logEntry.getMessage(), "Adding empty file "));
+		}
 
 		Assert.assertNull(
 			_dlFileEntryLocalService.fetchDLFileEntry(
