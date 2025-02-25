@@ -361,6 +361,10 @@ public class DLFileEntryLocalServiceImpl
 			DLStoreUtil.addFile(dlStoreRequest, inputStream);
 		}
 
+		if (_log.isDebugEnabled()) {
+			_log.debug("Adding empty file " + fileName, new Exception());
+		}
+
 		return dlFileEntry;
 	}
 
