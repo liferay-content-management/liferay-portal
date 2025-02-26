@@ -1713,6 +1713,8 @@ definition {
 
 	@summary = "Default summary"
 	macro publishExistingWCArticleWithPermissions() {
+		WaitForElementPresent.waitForElementPresentNoException(locator1 = "WCEditWebContent#SAVED_INDICATOR");
+
 		Button.clickPublish();
 
 		Click(locator1 = "WCEditWebContent#PUBLISH_BUTTON");
@@ -1720,6 +1722,8 @@ definition {
 
 	@summary = "Default summary"
 	macro publishWithPermissions(viewableBy = null) {
+		WaitForElementPresent.waitForElementPresentNoException(locator1 = "WCEditWebContent#SAVED_INDICATOR");
+
 		Button.clickPublish();
 
 		Click(locator1 = "WCEditWebContent#PUBLISH_WITH_PERMISSIONS_BUTTON");
@@ -1737,6 +1741,8 @@ definition {
 
 	@summary = "Default summary"
 	macro publishWithPermissionsLocalized(publish = null, publishWithPermissions = null, viewableBy = null) {
+		WaitForElementPresent.waitForElementPresentNoException(locator1 = "WCEditWebContent#SAVED_INDICATOR");
+
 		Button.click(button = ${publish});
 
 		Click(
@@ -1773,6 +1779,8 @@ definition {
 
 	@summary = "Default summary"
 	macro scheduleWCArticleWithPermissions(displayDate = null) {
+		WaitForElementPresent.waitForElementPresentNoException(locator1 = "WCEditWebContent#SAVED_INDICATOR");
+
 		Button.clickPublish();
 
 		Click(locator1 = "WCEditWebContent#SCHEDULE_PUBLICATION_BUTTON");

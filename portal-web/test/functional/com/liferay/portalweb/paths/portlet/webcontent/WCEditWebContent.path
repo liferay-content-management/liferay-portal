@@ -134,6 +134,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SAVED_INDICATOR</td>
+	<td>//div[contains(@class,'text-success')][contains(text(),'Saved')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SCHEDULE_IN_MODAL</td>
 	<td>//div[contains(@class,'modal-content')]//button[contains(text(),'Schedule')]</td>
 	<td></td>
