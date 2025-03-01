@@ -86,11 +86,6 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 		).build();
 	}
 
-	@Override
-	public String[] getEntryClassNames() {
-		return cmsSiteInitializerConfiguration.contentsClassNames();
-	}
-
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
 		return ListUtil.fromArray(
 			new FDSActionDropdownItem(
@@ -116,6 +111,12 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 				"password-policies", "permissions",
 				_language.get(httpServletRequest, "permissions"), "get", null,
 				"modal-permissions"));
+	}
+
+	@Override
+	public String[] getObjectDefinitionFolderExternalReferenceCodes() {
+		return cmsSiteInitializerConfiguration.
+			contentsObjectDefinitionFolderExternalReferenceCodes();
 	}
 
 	private final Language _language;

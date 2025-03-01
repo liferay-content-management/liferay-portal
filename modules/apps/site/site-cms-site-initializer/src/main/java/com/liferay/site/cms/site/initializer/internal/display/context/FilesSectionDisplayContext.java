@@ -71,8 +71,9 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 	}
 
 	@Override
-	public String[] getEntryClassNames() {
-		return cmsSiteInitializerConfiguration.filesClassNames();
+	public String[] getObjectDefinitionFolderExternalReferenceCodes() {
+		return cmsSiteInitializerConfiguration.
+			filesObjectDefinitionFolderExternalReferenceCodes();
 	}
 
 }
