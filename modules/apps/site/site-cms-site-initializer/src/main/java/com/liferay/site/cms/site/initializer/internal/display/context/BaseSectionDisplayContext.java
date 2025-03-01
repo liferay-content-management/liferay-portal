@@ -9,8 +9,7 @@ import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.petra.string.StringUtil;
 import com.liferay.site.cms.site.initializer.internal.configuration.CMSSiteInitializerConfiguration;
 
 import java.util.ArrayList;
@@ -34,18 +33,18 @@ public abstract class BaseSectionDisplayContext {
 	}
 
 	public String getAPIURL() {
-		String[] entryClassNames = getEntryClassNames();
+		String[] objectDefinitionFolderExternalReferenceCodes =
+			getObjectDefinitionFolderExternalReferenceCodes();
 
-		if (entryClassNames.length == 0) {
-			return "/o/search/v1.0/search?emptySearch=true" +
-				"&nestedFields=embedded";
-		}
+		StringBundler sb = new StringBundler(4);
 
-		StringBundler sb = new StringBundler(3);
+		sb.append("/o/search/v1.0/search?emptySearch=true&");
+		sb.append("filter=objectDefinitionFolder in ('");
 
-		sb.append("/o/search/v1.0/search?emptySearch=true&entryClassNames=");
-		sb.append(ArrayUtil.toString(entryClassNames, StringPool.BLANK));
-		sb.append("&nestedFields=embedded");
+		sb.append(
+			StringUtil.merge(
+				objectDefinitionFolderExternalReferenceCodes, "','"));
+		sb.append("')&nestedFields=embedded");
 
 		return sb.toString();
 	}
@@ -62,12 +61,14 @@ public abstract class BaseSectionDisplayContext {
 		return Collections.emptyMap();
 	}
 
-	public String[] getEntryClassNames() {
-		return new String[0];
+	public List<FDSActionDropdownItem> getFDSActionDropdownItems()
+		throws Exception {
+
+		return new ArrayList<>();
 	}
 
-	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
-		return new ArrayList<>();
+	public String[] getObjectDefinitionFolderExternalReferenceCodes() {
+		return new String[0];
 	}
 
 	protected final CMSSiteInitializerConfiguration
