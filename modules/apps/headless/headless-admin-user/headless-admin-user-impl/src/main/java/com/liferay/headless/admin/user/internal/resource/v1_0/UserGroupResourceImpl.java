@@ -5,14 +5,21 @@
 
 package com.liferay.headless.admin.user.internal.resource.v1_0;
 
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryService;
 import com.liferay.headless.admin.user.dto.v1_0.UserGroup;
 import com.liferay.headless.admin.user.internal.dto.v1_0.converter.constants.DTOConverterConstants;
 import com.liferay.headless.admin.user.internal.odata.entity.v1_0.UserGroupEntityModel;
 import com.liferay.headless.admin.user.resource.v1_0.UserGroupResource;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.search.BooleanClauseOccur;
+import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.UserGroupService;
@@ -31,6 +38,7 @@ import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.SearchUtil;
 
+import java.util.Collections;
 import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -84,6 +92,34 @@ public class UserGroupResourceImpl extends BaseUserGroupResourceImpl {
 	}
 
 	@Override
+	public Page<UserGroup> getAssetLibraryUserGroupsPage(
+			Long assetLibraryId, String search, Filter filter,
+			Pagination pagination, Sort[] sorts)
+		throws Exception {
+
+		DepotEntry groupDepotEntry = _depotEntryService.getGroupDepotEntry(
+			assetLibraryId);
+
+		return _getUserGroupsPage(
+			Collections.singletonMap(
+				"get",
+				addAction(
+					ActionKeys.VIEW, 0L, "getAssetLibrariesUserGroupsPage",
+					_userGroupModelResourcePermission)),
+			booleanQuery -> {
+				BooleanFilter booleanFilter =
+					booleanQuery.getPreBooleanFilter();
+
+				booleanFilter.add(
+					new TermFilter(
+						"groupIds",
+						String.valueOf(groupDepotEntry.getGroupId())),
+					BooleanClauseOccur.MUST);
+			},
+			search, filter, pagination, sorts);
+	}
+
+	@Override
 	public EntityModel getEntityModel(MultivaluedMap multivaluedMap)
 		throws Exception {
 
@@ -109,7 +145,7 @@ public class UserGroupResourceImpl extends BaseUserGroupResourceImpl {
 			String search, Filter filter, Pagination pagination, Sort[] sorts)
 		throws Exception {
 
-		return SearchUtil.search(
+		return _getUserGroupsPage(
 			HashMapBuilder.<String, Map<String, String>>put(
 				"create",
 				addAction(
@@ -123,21 +159,7 @@ public class UserGroupResourceImpl extends BaseUserGroupResourceImpl {
 			).build(),
 			booleanQuery -> {
 			},
-			filter, com.liferay.portal.kernel.model.UserGroup.class.getName(),
-			search, pagination,
-			queryConfig -> {
-			},
-			searchContext -> {
-				searchContext.setCompanyId(contextCompany.getCompanyId());
-
-				if (Validator.isNotNull(search)) {
-					searchContext.setKeywords(search);
-				}
-			},
-			sorts,
-			document -> _toUserGroup(
-				_userGroupService.getUserGroup(
-					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
+			search, filter, pagination, sorts);
 	}
 
 	@Override
@@ -307,6 +329,31 @@ public class UserGroupResourceImpl extends BaseUserGroupResourceImpl {
 			contextUser);
 	}
 
+	private Page<UserGroup> _getUserGroupsPage(
+			Map<String, Map<String, String>> actions,
+			UnsafeConsumer<BooleanQuery, Exception> booleanQueryUnsafeConsumer,
+			String search, Filter filter, Pagination pagination, Sort[] sorts)
+		throws Exception {
+
+		return SearchUtil.search(
+			actions, booleanQueryUnsafeConsumer, filter,
+			com.liferay.portal.kernel.model.UserGroup.class.getName(), search,
+			pagination,
+			queryConfig -> {
+			},
+			searchContext -> {
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+
+				if (Validator.isNotNull(search)) {
+					searchContext.setKeywords(search);
+				}
+			},
+			sorts,
+			document -> _toUserGroup(
+				_userGroupService.getUserGroup(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
+	}
+
 	private UserGroup _toUserGroup(
 			com.liferay.portal.kernel.model.UserGroup userGroup)
 		throws Exception {
@@ -314,6 +361,9 @@ public class UserGroupResourceImpl extends BaseUserGroupResourceImpl {
 		return _userGroupResourceDTOConverter.toDTO(
 			_getDTOConverterContext(userGroup.getUserGroupId()), userGroup);
 	}
+
+	@Reference
+	private DepotEntryService _depotEntryService;
 
 	private final EntityModel _entityModel = new UserGroupEntityModel();
 
