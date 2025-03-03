@@ -1665,7 +1665,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.admin.user.client', and version '4.0.73'."
+        'com.liferay.headless.admin.user.client', and version '4.0.74'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -3906,6 +3906,52 @@ paths:
                                     $ref: "#/components/schemas/WebUrl"
                                 type: array
             tags: ["WebUrl"]
+    "/asset-libraries/{assetLibraryId}/user-groups":
+        get:
+            description:
+                Retrieves the asset library user groups. Results can be paginated, filtered, searched, and sorted.
+            operationId: getAssetLibraryUserGroupsPage
+            parameters:
+                - in: path
+                  name: assetLibraryId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: query
+                  name: filter
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: search
+                  schema:
+                      type: string
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/UserGroup"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/UserGroup"
+                                type: array
+            tags: ["UserGroup"]
     "/email-addresses/by-external-reference-code/{externalReferenceCode}":
         delete:
             description:
