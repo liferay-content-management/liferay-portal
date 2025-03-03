@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalServiceUtil;
 import com.liferay.headless.admin.user.client.dto.v1_0.UserGroup;
 import com.liferay.headless.admin.user.client.http.HttpInvoker;
 import com.liferay.headless.admin.user.client.pagination.Page;
@@ -29,8 +31,10 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
@@ -98,6 +102,17 @@ public abstract class BaseUserGroupResourceTestCase {
 
 		testCompany = CompanyLocalServiceUtil.getCompany(
 			testGroup.getCompanyId());
+
+		testDepotEntry = DepotEntryLocalServiceUtil.addDepotEntry(
+			Collections.singletonMap(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()),
+			null,
+			new ServiceContext() {
+				{
+					setCompanyId(testGroup.getCompanyId());
+					setUserId(TestPropsValues.getUserId());
+				}
+			});
 
 		_userGroupResource.setContextCompany(testCompany);
 
@@ -184,6 +199,424 @@ public abstract class BaseUserGroupResourceTestCase {
 		Assert.assertEquals(regex, userGroup.getDescription());
 		Assert.assertEquals(regex, userGroup.getExternalReferenceCode());
 		Assert.assertEquals(regex, userGroup.getName());
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPage() throws Exception {
+		Long assetLibraryId =
+			testGetAssetLibraryUserGroupsPage_getAssetLibraryId();
+		Long irrelevantAssetLibraryId =
+			testGetAssetLibraryUserGroupsPage_getIrrelevantAssetLibraryId();
+
+		Page<UserGroup> page = userGroupResource.getAssetLibraryUserGroupsPage(
+			assetLibraryId, null, null, Pagination.of(1, 10), null);
+
+		long totalCount = page.getTotalCount();
+
+		if (irrelevantAssetLibraryId != null) {
+			UserGroup irrelevantUserGroup =
+				testGetAssetLibraryUserGroupsPage_addUserGroup(
+					irrelevantAssetLibraryId, randomIrrelevantUserGroup());
+
+			page = userGroupResource.getAssetLibraryUserGroupsPage(
+				irrelevantAssetLibraryId, null, null,
+				Pagination.of(1, (int)totalCount + 1), null);
+
+			Assert.assertEquals(totalCount + 1, page.getTotalCount());
+
+			assertContains(
+				irrelevantUserGroup, (List<UserGroup>)page.getItems());
+			assertValid(
+				page,
+				testGetAssetLibraryUserGroupsPage_getExpectedActions(
+					irrelevantAssetLibraryId));
+		}
+
+		UserGroup userGroup1 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, randomUserGroup());
+
+		UserGroup userGroup2 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, randomUserGroup());
+
+		page = userGroupResource.getAssetLibraryUserGroupsPage(
+			assetLibraryId, null, null, Pagination.of(1, 10), null);
+
+		Assert.assertEquals(totalCount + 2, page.getTotalCount());
+
+		assertContains(userGroup1, (List<UserGroup>)page.getItems());
+		assertContains(userGroup2, (List<UserGroup>)page.getItems());
+		assertValid(
+			page,
+			testGetAssetLibraryUserGroupsPage_getExpectedActions(
+				assetLibraryId));
+
+		userGroupResource.deleteUserGroup(userGroup1.getId());
+
+		userGroupResource.deleteUserGroup(userGroup2.getId());
+	}
+
+	protected Map<String, Map<String, String>>
+			testGetAssetLibraryUserGroupsPage_getExpectedActions(
+				Long assetLibraryId)
+		throws Exception {
+
+		Map<String, Map<String, String>> expectedActions = new HashMap<>();
+
+		return expectedActions;
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithFilterDateTimeEquals()
+		throws Exception {
+
+		List<EntityField> entityFields = getEntityFields(
+			EntityField.Type.DATE_TIME);
+
+		if (entityFields.isEmpty()) {
+			return;
+		}
+
+		Long assetLibraryId =
+			testGetAssetLibraryUserGroupsPage_getAssetLibraryId();
+
+		UserGroup userGroup1 = randomUserGroup();
+
+		userGroup1 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, userGroup1);
+
+		for (EntityField entityField : entityFields) {
+			Page<UserGroup> page =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null,
+					getFilterString(entityField, "between", userGroup1),
+					Pagination.of(1, 2), null);
+
+			assertEquals(
+				Collections.singletonList(userGroup1),
+				(List<UserGroup>)page.getItems());
+		}
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithFilterDoubleEquals()
+		throws Exception {
+
+		testGetAssetLibraryUserGroupsPageWithFilter(
+			"eq", EntityField.Type.DOUBLE);
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithFilterStringContains()
+		throws Exception {
+
+		testGetAssetLibraryUserGroupsPageWithFilter(
+			"contains", EntityField.Type.STRING);
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithFilterStringEquals()
+		throws Exception {
+
+		testGetAssetLibraryUserGroupsPageWithFilter(
+			"eq", EntityField.Type.STRING);
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithFilterStringStartsWith()
+		throws Exception {
+
+		testGetAssetLibraryUserGroupsPageWithFilter(
+			"startswith", EntityField.Type.STRING);
+	}
+
+	protected void testGetAssetLibraryUserGroupsPageWithFilter(
+			String operator, EntityField.Type type)
+		throws Exception {
+
+		List<EntityField> entityFields = getEntityFields(type);
+
+		if (entityFields.isEmpty()) {
+			return;
+		}
+
+		Long assetLibraryId =
+			testGetAssetLibraryUserGroupsPage_getAssetLibraryId();
+
+		UserGroup userGroup1 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, randomUserGroup());
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		UserGroup userGroup2 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, randomUserGroup());
+
+		for (EntityField entityField : entityFields) {
+			Page<UserGroup> page =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null,
+					getFilterString(entityField, operator, userGroup1),
+					Pagination.of(1, 2), null);
+
+			assertEquals(
+				Collections.singletonList(userGroup1),
+				(List<UserGroup>)page.getItems());
+		}
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithPagination()
+		throws Exception {
+
+		Long assetLibraryId =
+			testGetAssetLibraryUserGroupsPage_getAssetLibraryId();
+
+		Page<UserGroup> userGroupPage =
+			userGroupResource.getAssetLibraryUserGroupsPage(
+				assetLibraryId, null, null, null, null);
+
+		int totalCount = GetterUtil.getInteger(userGroupPage.getTotalCount());
+
+		UserGroup userGroup1 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, randomUserGroup());
+
+		UserGroup userGroup2 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, randomUserGroup());
+
+		UserGroup userGroup3 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, randomUserGroup());
+
+		// See com.liferay.portal.vulcan.internal.configuration.HeadlessAPICompanyConfiguration#pageSizeLimit
+
+		int pageSizeLimit = 500;
+
+		if (totalCount >= (pageSizeLimit - 2)) {
+			Page<UserGroup> page1 =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null, null,
+					Pagination.of(
+						(int)Math.ceil((totalCount + 1.0) / pageSizeLimit),
+						pageSizeLimit),
+					null);
+
+			Assert.assertEquals(totalCount + 3, page1.getTotalCount());
+
+			assertContains(userGroup1, (List<UserGroup>)page1.getItems());
+
+			Page<UserGroup> page2 =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null, null,
+					Pagination.of(
+						(int)Math.ceil((totalCount + 2.0) / pageSizeLimit),
+						pageSizeLimit),
+					null);
+
+			assertContains(userGroup2, (List<UserGroup>)page2.getItems());
+
+			Page<UserGroup> page3 =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null, null,
+					Pagination.of(
+						(int)Math.ceil((totalCount + 3.0) / pageSizeLimit),
+						pageSizeLimit),
+					null);
+
+			assertContains(userGroup3, (List<UserGroup>)page3.getItems());
+		}
+		else {
+			Page<UserGroup> page1 =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null, null,
+					Pagination.of(1, totalCount + 2), null);
+
+			List<UserGroup> userGroups1 = (List<UserGroup>)page1.getItems();
+
+			Assert.assertEquals(
+				userGroups1.toString(), totalCount + 2, userGroups1.size());
+
+			Page<UserGroup> page2 =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null, null,
+					Pagination.of(2, totalCount + 2), null);
+
+			Assert.assertEquals(totalCount + 3, page2.getTotalCount());
+
+			List<UserGroup> userGroups2 = (List<UserGroup>)page2.getItems();
+
+			Assert.assertEquals(userGroups2.toString(), 1, userGroups2.size());
+
+			Page<UserGroup> page3 =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null, null,
+					Pagination.of(1, (int)totalCount + 3), null);
+
+			assertContains(userGroup1, (List<UserGroup>)page3.getItems());
+			assertContains(userGroup2, (List<UserGroup>)page3.getItems());
+			assertContains(userGroup3, (List<UserGroup>)page3.getItems());
+		}
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithSortDateTime()
+		throws Exception {
+
+		testGetAssetLibraryUserGroupsPageWithSort(
+			EntityField.Type.DATE_TIME,
+			(entityField, userGroup1, userGroup2) -> {
+				BeanTestUtil.setProperty(
+					userGroup1, entityField.getName(),
+					new Date(System.currentTimeMillis() - (2 * Time.MINUTE)));
+			});
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithSortDouble()
+		throws Exception {
+
+		testGetAssetLibraryUserGroupsPageWithSort(
+			EntityField.Type.DOUBLE,
+			(entityField, userGroup1, userGroup2) -> {
+				BeanTestUtil.setProperty(
+					userGroup1, entityField.getName(), 0.1);
+				BeanTestUtil.setProperty(
+					userGroup2, entityField.getName(), 0.5);
+			});
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithSortInteger()
+		throws Exception {
+
+		testGetAssetLibraryUserGroupsPageWithSort(
+			EntityField.Type.INTEGER,
+			(entityField, userGroup1, userGroup2) -> {
+				BeanTestUtil.setProperty(userGroup1, entityField.getName(), 0);
+				BeanTestUtil.setProperty(userGroup2, entityField.getName(), 1);
+			});
+	}
+
+	@Test
+	public void testGetAssetLibraryUserGroupsPageWithSortString()
+		throws Exception {
+
+		testGetAssetLibraryUserGroupsPageWithSort(
+			EntityField.Type.STRING,
+			(entityField, userGroup1, userGroup2) -> {
+				Class<?> clazz = userGroup1.getClass();
+
+				String entityFieldName = entityField.getName();
+
+				Method method = clazz.getMethod(
+					"get" + StringUtil.upperCaseFirstLetter(entityFieldName));
+
+				Class<?> returnType = method.getReturnType();
+
+				if (returnType.isAssignableFrom(Map.class)) {
+					BeanTestUtil.setProperty(
+						userGroup1, entityFieldName,
+						Collections.singletonMap("Aaa", "Aaa"));
+					BeanTestUtil.setProperty(
+						userGroup2, entityFieldName,
+						Collections.singletonMap("Bbb", "Bbb"));
+				}
+				else if (entityFieldName.contains("email")) {
+					BeanTestUtil.setProperty(
+						userGroup1, entityFieldName,
+						"aaa" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()) +
+									"@liferay.com");
+					BeanTestUtil.setProperty(
+						userGroup2, entityFieldName,
+						"bbb" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()) +
+									"@liferay.com");
+				}
+				else {
+					BeanTestUtil.setProperty(
+						userGroup1, entityFieldName,
+						"aaa" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()));
+					BeanTestUtil.setProperty(
+						userGroup2, entityFieldName,
+						"bbb" +
+							StringUtil.toLowerCase(
+								RandomTestUtil.randomString()));
+				}
+			});
+	}
+
+	protected void testGetAssetLibraryUserGroupsPageWithSort(
+			EntityField.Type type,
+			UnsafeTriConsumer<EntityField, UserGroup, UserGroup, Exception>
+				unsafeTriConsumer)
+		throws Exception {
+
+		List<EntityField> entityFields = getEntityFields(type);
+
+		if (entityFields.isEmpty()) {
+			return;
+		}
+
+		Long assetLibraryId =
+			testGetAssetLibraryUserGroupsPage_getAssetLibraryId();
+
+		UserGroup userGroup1 = randomUserGroup();
+		UserGroup userGroup2 = randomUserGroup();
+
+		for (EntityField entityField : entityFields) {
+			unsafeTriConsumer.accept(entityField, userGroup1, userGroup2);
+		}
+
+		userGroup1 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, userGroup1);
+
+		userGroup2 = testGetAssetLibraryUserGroupsPage_addUserGroup(
+			assetLibraryId, userGroup2);
+
+		Page<UserGroup> page = userGroupResource.getAssetLibraryUserGroupsPage(
+			assetLibraryId, null, null, null, null);
+
+		for (EntityField entityField : entityFields) {
+			Page<UserGroup> ascPage =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null, null,
+					Pagination.of(1, (int)page.getTotalCount() + 1),
+					entityField.getName() + ":asc");
+
+			assertContains(userGroup1, (List<UserGroup>)ascPage.getItems());
+			assertContains(userGroup2, (List<UserGroup>)ascPage.getItems());
+
+			Page<UserGroup> descPage =
+				userGroupResource.getAssetLibraryUserGroupsPage(
+					assetLibraryId, null, null,
+					Pagination.of(1, (int)page.getTotalCount() + 1),
+					entityField.getName() + ":desc");
+
+			assertContains(userGroup2, (List<UserGroup>)descPage.getItems());
+			assertContains(userGroup1, (List<UserGroup>)descPage.getItems());
+		}
+	}
+
+	protected UserGroup testGetAssetLibraryUserGroupsPage_addUserGroup(
+			Long assetLibraryId, UserGroup userGroup)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected Long testGetAssetLibraryUserGroupsPage_getAssetLibraryId()
+		throws Exception {
+
+		return testDepotEntry.getDepotEntryId();
+	}
+
+	protected Long
+			testGetAssetLibraryUserGroupsPage_getIrrelevantAssetLibraryId()
+		throws Exception {
+
+		return null;
 	}
 
 	@Test
@@ -2100,6 +2533,7 @@ public abstract class BaseUserGroupResourceTestCase {
 	protected UserGroupResource userGroupResource;
 	protected com.liferay.portal.kernel.model.Group irrelevantGroup;
 	protected com.liferay.portal.kernel.model.Company testCompany;
+	protected DepotEntry testDepotEntry;
 	protected com.liferay.portal.kernel.model.Group testGroup;
 
 	protected static class BeanTestUtil {

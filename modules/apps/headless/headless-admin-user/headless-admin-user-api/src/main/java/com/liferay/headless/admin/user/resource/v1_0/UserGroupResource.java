@@ -48,6 +48,16 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface UserGroupResource {
 
+	public Page<UserGroup> getAssetLibraryUserGroupsPage(
+			Long assetLibraryId, String search, Filter filter,
+			Pagination pagination, Sort[] sorts)
+		throws Exception;
+
+	public Response postAssetLibraryUserGroupsPageExportBatch(
+			Long assetLibraryId, String search, Filter filter, Sort[] sorts,
+			String callbackURL, String contentType, String fieldNames)
+		throws Exception;
+
 	public Page<UserGroup> getUserUserGroups(Long userAccountId)
 		throws Exception;
 

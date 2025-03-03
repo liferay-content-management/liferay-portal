@@ -942,6 +942,11 @@ public class ServletDataImpl implements ServletData {
 							UserAccountResourceImpl.class,
 							"postUserAccountImage"));
 					put(
+						"mutation#createAssetLibraryUserGroupsPageExportBatch",
+						new ObjectValuePair<>(
+							UserGroupResourceImpl.class,
+							"postAssetLibraryUserGroupsPageExportBatch"));
+					put(
 						"mutation#createUserGroupsPageExportBatch",
 						new ObjectValuePair<>(
 							UserGroupResourceImpl.class,
@@ -1444,6 +1449,11 @@ public class ServletDataImpl implements ServletData {
 						new ObjectValuePair<>(
 							UserAccountFullNameDefinitionResourceImpl.class,
 							"getUserAccountFullNameDefinition"));
+					put(
+						"query#assetLibraryUserGroups",
+						new ObjectValuePair<>(
+							UserGroupResourceImpl.class,
+							"getAssetLibraryUserGroupsPage"));
 					put(
 						"query#userUserGroups",
 						new ObjectValuePair<>(
