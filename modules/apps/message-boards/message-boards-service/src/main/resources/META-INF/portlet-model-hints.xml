@@ -126,7 +126,7 @@
 			<validator name="required" />
 		</field>
 		<field name="urlSubject" type="String">
-			<hint name="max-length">255</hint>
+			<hint name="max-length">300</hint>
 		</field>
 		<field name="body" type="String">
 			<hint-collection name="CLOB" />
