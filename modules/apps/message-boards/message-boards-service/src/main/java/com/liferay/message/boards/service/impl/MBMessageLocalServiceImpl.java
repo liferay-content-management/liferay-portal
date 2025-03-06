@@ -2362,8 +2362,22 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			urlSubject = urlSubject + StringPool.DASH;
 		}
 
+		int maxLength = ModelHintsUtil.getMaxLength(
+			MBMessage.class.getName(), "urlSubject");
+
 		for (int i = 1; mbMessage != null; i++) {
-			uniqueUrlSubject = urlSubject + i;
+			String suffix = StringPool.DASH + i;
+
+			if ((urlSubject.length() + suffix.length()) >= maxLength) {
+				int allowedUrlSubjectLength = maxLength - suffix.length();
+
+				urlSubject = urlSubject.substring(0, allowedUrlSubjectLength);
+
+				uniqueUrlSubject = urlSubject + suffix;
+			}
+			else {
+				uniqueUrlSubject = urlSubject + i;
+			}
 
 			mbMessage = mbMessagePersistence.fetchByG_US(
 				groupId, uniqueUrlSubject);
