@@ -25,7 +25,7 @@ create index IX_51A8D44D on MBMessage (classNameId, classPK);
 create index IX_B1432D30 on MBMessage (companyId);
 create index IX_1073AB9F on MBMessage (groupId, categoryId);
 create unique index IX_CAD6292D on MBMessage (groupId, ctCollectionId, externalReferenceCode[$COLUMN_LENGTH:75$]);
-create unique index IX_C3FB4E01 on MBMessage (groupId, ctCollectionId, urlSubject[$COLUMN_LENGTH:255$]);
+create unique index IX_C3FB4E01 on MBMessage (groupId, ctCollectionId, urlSubject[$COLUMN_LENGTH:300$]);
 create index IX_1D0DEF85 on MBMessage (groupId, status, categoryId);
 create index IX_5084DE7E on MBMessage (groupId, status, threadId, categoryId);
 create index IX_D12CECD2 on MBMessage (groupId, status, userId);
