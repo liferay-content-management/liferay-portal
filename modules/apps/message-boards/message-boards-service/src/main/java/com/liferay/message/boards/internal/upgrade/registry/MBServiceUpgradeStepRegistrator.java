@@ -180,6 +180,11 @@ public class MBServiceUpgradeStepRegistrator implements UpgradeStepRegistrator {
 				}
 
 			});
+
+		registry.register(
+			"6.6.0", "6.6.1",
+			UpgradeProcessFactory.alterColumnType(
+				"MBMessage", "urlSubject", "VARCHAR(300) null"));
 	}
 
 	@Reference(
