@@ -6,8 +6,10 @@
 package com.liferay.object.internal.search.spi.model.index.contributor;
 
 import com.liferay.object.model.ObjectEntryFolder;
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 
 import org.osgi.service.component.annotations.Component;
