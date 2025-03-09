@@ -31,6 +31,11 @@ public class ObjectEntryFolderModelDocumentContributor
 		document.addText(Field.NAME, objectEntryFolder.getName());
 		document.addLocalizedKeyword(
 			"localized_label", objectEntryFolder.getLabelMap(), true, true);
+
+		document.addKeyword(Field.TREE_PATH, objectEntryFolder.getTreePath());
+		document.addKeyword(
+			Field.TREE_PATH,
+			StringUtil.split(objectEntryFolder.getTreePath(), CharPool.SLASH));
 		document.addKeyword("cms", true);
 	}
 
