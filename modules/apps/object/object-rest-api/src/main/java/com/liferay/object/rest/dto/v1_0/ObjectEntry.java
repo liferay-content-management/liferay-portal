@@ -354,6 +354,92 @@ public class ObjectEntry implements Serializable {
 	@JsonIgnore
 	private Supplier<String> _externalReferenceCodeSupplier;
 
+	@Schema
+	public String getFolderExternalReferenceCode() {
+		if (_folderExternalReferenceCodeSupplier != null) {
+			folderExternalReferenceCode =
+				_folderExternalReferenceCodeSupplier.get();
+
+			_folderExternalReferenceCodeSupplier = null;
+		}
+
+		return folderExternalReferenceCode;
+	}
+
+	public void setFolderExternalReferenceCode(
+		String folderExternalReferenceCode) {
+
+		this.folderExternalReferenceCode = folderExternalReferenceCode;
+
+		_folderExternalReferenceCodeSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setFolderExternalReferenceCode(
+		UnsafeSupplier<String, Exception>
+			folderExternalReferenceCodeUnsafeSupplier) {
+
+		_folderExternalReferenceCodeSupplier = () -> {
+			try {
+				return folderExternalReferenceCodeUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String folderExternalReferenceCode;
+
+	@JsonIgnore
+	private Supplier<String> _folderExternalReferenceCodeSupplier;
+
+	@Schema
+	public Long getFolderId() {
+		if (_folderIdSupplier != null) {
+			folderId = _folderIdSupplier.get();
+
+			_folderIdSupplier = null;
+		}
+
+		return folderId;
+	}
+
+	public void setFolderId(Long folderId) {
+		this.folderId = folderId;
+
+		_folderIdSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setFolderId(
+		UnsafeSupplier<Long, Exception> folderIdUnsafeSupplier) {
+
+		_folderIdSupplier = () -> {
+			try {
+				return folderIdUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Long folderId;
+
+	@JsonIgnore
+	private Supplier<Long> _folderIdSupplier;
+
 	@Schema(description = "A relative URL to the page's rendered content.")
 	public String getFriendlyUrlPath() {
 		if (_friendlyUrlPathSupplier != null) {
@@ -864,6 +950,12 @@ public class ObjectEntry implements Serializable {
 		else if (Objects.equals(propertyName, "externalReferenceCode")) {
 			return getExternalReferenceCode();
 		}
+		else if (Objects.equals(propertyName, "folderExternalReferenceCode")) {
+			return getFolderExternalReferenceCode();
+		}
+		else if (Objects.equals(propertyName, "folderId")) {
+			return getFolderId();
+		}
 		else if (Objects.equals(propertyName, "friendlyUrlPath")) {
 			return getFriendlyUrlPath();
 		}
@@ -1064,6 +1156,34 @@ public class ObjectEntry implements Serializable {
 			sb.append(_escape(externalReferenceCode));
 
 			sb.append("\"");
+		}
+
+		String folderExternalReferenceCode = getFolderExternalReferenceCode();
+
+		if (folderExternalReferenceCode != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"folderExternalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(folderExternalReferenceCode));
+
+			sb.append("\"");
+		}
+
+		Long folderId = getFolderId();
+
+		if (folderId != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"folderId\": ");
+
+			sb.append(folderId);
 		}
 
 		String friendlyUrlPath = getFriendlyUrlPath();

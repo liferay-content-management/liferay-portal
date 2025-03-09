@@ -429,6 +429,15 @@ public abstract class BaseObjectEntryResourceImpl
 				objectEntry.getExternalReferenceCode());
 		}
 
+		if (objectEntry.getFolderExternalReferenceCode() != null) {
+			existingObjectEntry.setFolderExternalReferenceCode(
+				objectEntry.getFolderExternalReferenceCode());
+		}
+
+		if (objectEntry.getFolderId() != null) {
+			existingObjectEntry.setFolderId(objectEntry.getFolderId());
+		}
+
 		if (objectEntry.getFriendlyUrlPath() != null) {
 			existingObjectEntry.setFriendlyUrlPath(
 				objectEntry.getFriendlyUrlPath());
@@ -662,6 +671,15 @@ public abstract class BaseObjectEntryResourceImpl
 		if (objectEntry.getExternalReferenceCode() != null) {
 			existingObjectEntry.setExternalReferenceCode(
 				objectEntry.getExternalReferenceCode());
+		}
+
+		if (objectEntry.getFolderExternalReferenceCode() != null) {
+			existingObjectEntry.setFolderExternalReferenceCode(
+				objectEntry.getFolderExternalReferenceCode());
+		}
+
+		if (objectEntry.getFolderId() != null) {
+			existingObjectEntry.setFolderId(objectEntry.getFolderId());
 		}
 
 		if (objectEntry.getFriendlyUrlPath() != null) {
@@ -921,6 +939,15 @@ public abstract class BaseObjectEntryResourceImpl
 		if (objectEntry.getExternalReferenceCode() != null) {
 			existingObjectEntry.setExternalReferenceCode(
 				objectEntry.getExternalReferenceCode());
+		}
+
+		if (objectEntry.getFolderExternalReferenceCode() != null) {
+			existingObjectEntry.setFolderExternalReferenceCode(
+				objectEntry.getFolderExternalReferenceCode());
+		}
+
+		if (objectEntry.getFolderId() != null) {
+			existingObjectEntry.setFolderId(objectEntry.getFolderId());
 		}
 
 		if (objectEntry.getFriendlyUrlPath() != null) {
