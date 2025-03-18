@@ -105,7 +105,7 @@
 </tr>
 <tr>
 	<td>PUBLISH_BUTTON</td>
-	<td>//button[contains(@class, 'dropdown-item') and contains(text(), 'Publish')]</td>
+	<td>//button[contains(text(), 'Publish') and @aria-label='Select and Confirm Publish Settings']</td>
 	<td></td>
 </tr>
 <tr>

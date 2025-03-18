@@ -305,9 +305,8 @@ definition {
 		PortletEntry.publish();
 
 		AssertClick(
-			buttonName = "Publish",
-			locator1 = "WCEditWebContent#PUBLISH_BUTTON",
-			value1 = "Publish");
+			key_text = "Publish",
+			locator1 = "WCEditWebContent#DROPDOWN_BUTTON");
 
 		WebContent.viewWithStructureCP(
 			webContentMultipleSelection = "Option 3 - edited",

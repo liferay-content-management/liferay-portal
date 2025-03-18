@@ -1715,16 +1715,24 @@ definition {
 	macro publishExistingWCArticleWithPermissions() {
 		WaitForElementPresent.waitForElementPresentNoException(locator1 = "WCEditWebContent#SAVED_INDICATOR");
 
-		Button.clickPublish();
+		WaitForElementPresent.waitForElementPresentNoException(locator1 = "WCEditWebContent#PUBLISH_BUTTON");
 
-		Click(locator1 = "WCEditWebContent#PUBLISH_BUTTON");
+		Click.javaScriptClick(locator1 = "WCEditWebContent#PUBLISH_BUTTON");
+
+		Click(
+			key_text = "Publish",
+			locator1 = "WCEditWebContent#DROPDOWN_BUTTON");
 	}
 
 	@summary = "Default summary"
 	macro publishWithPermissions(viewableBy = null) {
 		WaitForElementPresent.waitForElementPresentNoException(locator1 = "WCEditWebContent#SAVED_INDICATOR");
 
-		Button.clickPublish();
+		WaitForElementPresent.waitForElementPresentNoException(locator1 = "WCEditWebContent#PUBLISH_BUTTON");
+
+		Click.javaScriptClick(locator1 = "WCEditWebContent#PUBLISH_BUTTON");
+
+		WaitForElementPresent.waitForElementPresentNoException(locator1 = "WCEditWebContent#PUBLISH_WITH_PERMISSIONS_BUTTON");
 
 		Click(locator1 = "WCEditWebContent#PUBLISH_WITH_PERMISSIONS_BUTTON");
 
