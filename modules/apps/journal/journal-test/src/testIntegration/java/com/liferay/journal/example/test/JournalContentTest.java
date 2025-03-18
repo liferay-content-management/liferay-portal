@@ -14,6 +14,7 @@ import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.journal.util.JournalContent;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.Theme;
@@ -26,6 +27,8 @@ import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.ThemeLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -33,6 +36,7 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
@@ -70,9 +74,11 @@ public class JournalContentTest {
 		new LiferayIntegrationTestRule();
 
 	@Before
-	public void setUp() throws PortalException {
+	public void setUp() throws Exception {
 		MockHttpServletRequest mockHttpServletRequest =
 			new MockHttpServletRequest();
+
+		_group = GroupTestUtil.addGroup();
 
 		setUpPortletRequestModel(mockHttpServletRequest);
 		setUpServiceContext(mockHttpServletRequest);
@@ -81,6 +87,130 @@ public class JournalContentTest {
 	@After
 	public void tearDown() {
 		tearDownServiceContext();
+	}
+
+	@Test
+	public void testClearCacheForLocalization() throws Exception {
+		String defaultLanguageId = LocaleUtil.toLanguageId(
+			LocaleUtil.getSiteDefault());
+		String spainLanguageId = LocaleUtil.toLanguageId(LocaleUtil.SPAIN);
+
+		_journalArticle = JournalTestUtil.addArticle(
+			_group.getGroupId(), 0,
+			PortalUtil.getClassNameId(JournalArticle.class),
+			HashMapBuilder.put(
+				LocaleUtil.SPAIN, "Este es el titulo"
+			).put(
+				LocaleUtil.US, RandomTestUtil.randomString()
+			).build(),
+			HashMapBuilder.put(
+				LocaleUtil.SPAIN, "Esta es la descripcion"
+			).put(
+				LocaleUtil.US, RandomTestUtil.randomString()
+			).build(),
+			HashMapBuilder.put(
+				LocaleUtil.SPAIN, "Este es el contenido"
+			).put(
+				LocaleUtil.US, RandomTestUtil.randomString()
+			).build(),
+			LocaleUtil.getSiteDefault(), false, true, _serviceContext);
+
+		long groupId = _journalArticle.getGroupId();
+		String articleId = _journalArticle.getArticleId();
+		String ddmTemplateKey = _journalArticle.getDDMTemplateKey();
+
+		JournalArticleDisplay displayEn1 = _journalContent.getDisplay(
+			groupId, articleId, Constants.VIEW, defaultLanguageId,
+			_portletRequestModel);
+		JournalArticleDisplay displayEs1 = _journalContent.getDisplay(
+			groupId, articleId, Constants.VIEW, spainLanguageId,
+			_portletRequestModel);
+
+		Assert.assertNotNull(displayEn1);
+		Assert.assertNotNull(displayEs1);
+
+		Assert.assertEquals("Este es el contenido", displayEs1.getContent());
+
+		_journalArticleLocalService.removeArticleLocale(
+			_journalArticle.getGroupId(), _journalArticle.getArticleId(),
+			_journalArticle.getVersion(), spainLanguageId);
+
+		_journalContent.clearCache(
+			groupId, articleId, ddmTemplateKey, new String[] {spainLanguageId});
+
+		JournalArticleDisplay displayEn2 = _journalContent.getDisplay(
+			groupId, articleId, Constants.VIEW, defaultLanguageId,
+			_portletRequestModel);
+		JournalArticleDisplay displayEs2 = _journalContent.getDisplay(
+			groupId, articleId, Constants.VIEW, spainLanguageId,
+			_portletRequestModel);
+
+		Assert.assertEquals(
+			"US display should remain cached", displayEn1.getContent(),
+			displayEn2.getContent());
+		Assert.assertNotEquals(
+			"Spanish display should have been cleared from cache",
+			displayEs1.getContent(), displayEs2.getContent());
+	}
+
+	@Test
+	public void testClearCacheForPartialLocalization() throws Exception {
+		String defaultLanguageId = LocaleUtil.toLanguageId(
+			LocaleUtil.getSiteDefault());
+		String spainLanguageId = LocaleUtil.toLanguageId(LocaleUtil.SPAIN);
+
+		_journalArticle = JournalTestUtil.addArticle(
+			_group.getGroupId(), 0,
+			PortalUtil.getClassNameId(JournalArticle.class),
+			HashMapBuilder.put(
+				LocaleUtil.US, RandomTestUtil.randomString()
+			).build(),
+			HashMapBuilder.put(
+				LocaleUtil.US, RandomTestUtil.randomString()
+			).build(),
+			HashMapBuilder.put(
+				LocaleUtil.SPAIN, "Este es el contenido"
+			).put(
+				LocaleUtil.US, RandomTestUtil.randomString()
+			).build(),
+			LocaleUtil.getSiteDefault(), false, true, _serviceContext);
+
+		long groupId = _journalArticle.getGroupId();
+		String articleId = _journalArticle.getArticleId();
+		String ddmTemplateKey = _journalArticle.getDDMTemplateKey();
+
+		JournalArticleDisplay displayEn1 = _journalContent.getDisplay(
+			groupId, articleId, Constants.VIEW, defaultLanguageId,
+			_portletRequestModel);
+		JournalArticleDisplay displayEs1 = _journalContent.getDisplay(
+			groupId, articleId, Constants.VIEW, spainLanguageId,
+			_portletRequestModel);
+
+		Assert.assertNotNull(displayEn1);
+		Assert.assertNotNull(displayEs1);
+
+		Assert.assertEquals("Este es el contenido", displayEs1.getContent());
+
+		_journalArticleLocalService.removeArticleLocale(
+			_journalArticle.getGroupId(), _journalArticle.getArticleId(),
+			_journalArticle.getVersion(), spainLanguageId);
+
+		_journalContent.clearCache(
+			groupId, articleId, ddmTemplateKey, new String[] {spainLanguageId});
+
+		JournalArticleDisplay displayEn2 = _journalContent.getDisplay(
+			groupId, articleId, Constants.VIEW, defaultLanguageId,
+			_portletRequestModel);
+		JournalArticleDisplay displayEs2 = _journalContent.getDisplay(
+			groupId, articleId, Constants.VIEW, spainLanguageId,
+			_portletRequestModel);
+
+		Assert.assertEquals(
+			"US display should remain cached", displayEn1.getContent(),
+			displayEn2.getContent());
+		Assert.assertNotEquals(
+			"Spanish display should have been cleared from cache",
+			displayEs1.getContent(), displayEs2.getContent());
 	}
 
 	@Test
@@ -197,6 +327,8 @@ public class JournalContentTest {
 			MockHttpServletRequest mockHttpServletRequest)
 		throws PortalException {
 
+		_serviceContext = getServiceContext(mockHttpServletRequest);
+
 		ServiceContextThreadLocal.pushServiceContext(
 			getServiceContext(mockHttpServletRequest));
 	}
@@ -207,6 +339,9 @@ public class JournalContentTest {
 
 	@Inject
 	private CompanyLocalService _companyLocalService;
+
+	@DeleteAfterTestRun
+	private Group _group;
 
 	@DeleteAfterTestRun
 	private JournalArticle _journalArticle;
@@ -224,6 +359,7 @@ public class JournalContentTest {
 	private LayoutSetLocalService _layoutSetLocalService;
 
 	private PortletRequestModel _portletRequestModel;
+	private ServiceContext _serviceContext;
 
 	@Inject
 	private ThemeLocalService _themeLocalService;
