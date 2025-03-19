@@ -7,8 +7,4 @@ Import-Package:\
 	!org.yaml.snakeyaml.*,\
 	\
 	*
--includeresource:\
-	com.liferay.headless.admin.taxonomy.client.jar=com.liferay.headless.admin.taxonomy.client-*.jar;lib:=true,\
-	@jackson-dataformat-yaml-[0-9.]*.jar,\
-	@jsonassert-[0-9.]*.jar,\
-	@snakeyaml-[0-9.]*.jar
+-includeresource: com.liferay.headless.object.client.jar=com.liferay.headless.object.client-*.jar;lib:=true
