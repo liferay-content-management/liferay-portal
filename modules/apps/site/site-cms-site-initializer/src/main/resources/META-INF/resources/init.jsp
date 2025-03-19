@@ -18,6 +18,9 @@ page import="com.liferay.site.cms.site.initializer.internal.display.context.Cont
 page import="com.liferay.site.cms.site.initializer.internal.display.context.FilesSectionDisplayContext" %><%@
 page import="com.liferay.site.cms.site.initializer.internal.display.context.StructuresSectionDisplayContext" %>
 
+<@
+page import="com.liferay.site.cms.site.initializer.internal.display.context.StructureUsagesDisplayContext" %>
+
 <liferay-theme:defineObjects />
 
 <liferay-util:html-top>

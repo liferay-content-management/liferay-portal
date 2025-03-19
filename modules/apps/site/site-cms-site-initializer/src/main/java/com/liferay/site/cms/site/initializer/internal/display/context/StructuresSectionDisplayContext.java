@@ -79,6 +79,17 @@ public class StructuresSectionDisplayContext extends BaseSectionDisplayContext {
 				"pencil", "edit", LanguageUtil.get(httpServletRequest, "edit"),
 				"get", null, null),
 			new FDSActionDropdownItem(
+				HttpComponentsUtil.addParameters(
+					PortalUtil.getLayoutFullURL(
+						LayoutLocalServiceUtil.getLayoutByFriendlyURL(
+							themeDisplay.getScopeGroupId(), false,
+							"/structure-usages"),
+						themeDisplay),
+					"objectDefinitionId", "{id}"),
+				null, "viewUsages",
+				LanguageUtil.get(httpServletRequest, "view-usages"), "get",
+				null, null),
+			new FDSActionDropdownItem(
 				"", "copy", "copy",
 				LanguageUtil.get(httpServletRequest, "make-a-copy"), null, null,
 				null),
