@@ -16,12 +16,16 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.search.BooleanClauseOccur;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
@@ -29,6 +33,7 @@ import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
+import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.Map;
 
@@ -122,7 +127,7 @@ public class ObjectEntryFolderResourceImpl
 			throw new NoSuchObjectEntryFolderException();
 		}
 
-		return _getObjectEntryFoldersPage(
+		return SearchUtil.search(
 			HashMapBuilder.put(
 				"create",
 				addAction(
@@ -134,7 +139,32 @@ public class ObjectEntryFolderResourceImpl
 					ActionKeys.VIEW, "getScopeScopeKeyObjectEntryFoldersPage",
 					_CLASS_NAME, groupId)
 			).build(),
-			groupId, pagination);
+			booleanQuery -> {
+				if (!GetterUtil.getBoolean(flatten)) {
+					BooleanFilter booleanFilter =
+						booleanQuery.getPreBooleanFilter();
+
+					booleanFilter.add(
+						new TermFilter(Field.GROUP_ID, scopeKey),
+						BooleanClauseOccur.MUST);
+				}
+			},
+			filter, com.liferay.object.model.ObjectEntryFolder.class.getName(),
+			search, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> {
+				if (Validator.isNotNull(search)) {
+					searchContext.setKeywords(search);
+				}
+
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+				searchContext.setGroupIds(new long[] {groupId});
+			},
+			sorts,
+			document -> _toObjectEntryFolder(
+				_objectEntryFolderService.getObjectEntryFolder(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
 	@Override
@@ -267,25 +297,6 @@ public class ObjectEntryFolderResourceImpl
 					siteId, contextHttpServletRequest,
 					objectEntryFolder.getViewableByAsString()
 				).build()));
-	}
-
-	private Page<ObjectEntryFolder> _getObjectEntryFoldersPage(
-			Map<String, Map<String, String>> actions, long groupId,
-			Pagination pagination)
-		throws Exception {
-
-		Group group = groupLocalService.getGroup(groupId);
-
-		return Page.of(
-			actions,
-			transform(
-				_objectEntryFolderService.getObjectEntryFolders(
-					groupId, group.getCompanyId(), 0L,
-					pagination.getStartPosition(), pagination.getEndPosition()),
-				objectEntryFolder -> _toObjectEntryFolder(objectEntryFolder)),
-			pagination,
-			_objectEntryFolderService.getObjectEntryFoldersCount(
-				groupId, group.getCompanyId(), 0L));
 	}
 
 	private ObjectEntryFolder _patchObjectEntryFolder(
