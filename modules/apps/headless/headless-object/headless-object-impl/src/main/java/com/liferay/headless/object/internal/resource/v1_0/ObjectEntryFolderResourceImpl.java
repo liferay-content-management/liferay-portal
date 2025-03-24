@@ -12,6 +12,7 @@ import com.liferay.expando.kernel.service.ExpandoTableLocalService;
 import com.liferay.headless.common.spi.odata.entity.EntityFieldsUtil;
 import com.liferay.headless.common.spi.service.context.ServiceContextBuilder;
 import com.liferay.headless.object.dto.v1_0.ObjectEntryFolder;
+import com.liferay.headless.object.dto.v1_0.ObjectEntryFolderBrief;
 import com.liferay.headless.object.internal.odata.entity.v1_0.ObjectEntryFolderEntityModel;
 import com.liferay.headless.object.resource.v1_0.ObjectEntryFolderResource;
 import com.liferay.object.exception.NoSuchObjectEntryFolderException;
@@ -231,10 +232,12 @@ public class ObjectEntryFolderResourceImpl
 			throw new UnsupportedOperationException();
 		}
 
+		long groupId = GetterUtil.getLong(scopeKey);
+
 		return _addObjectEntryFolder(
-			GetterUtil.getLong(scopeKey),
-			GetterUtil.getLong(
-				objectEntryFolder.getParentObjectEntryFolderId()),
+			groupId,
+			_getParentObjectEntryFolderId(
+				false, objectEntryFolder.getParentObjectEntryFolder(), groupId),
 			objectEntryFolder);
 	}
 
@@ -253,8 +256,6 @@ public class ObjectEntryFolderResourceImpl
 			null;
 
 		long groupId = GetterUtil.getLong(scopeKey);
-		long parentObjectEntryFolderId = GetterUtil.getLong(
-			objectEntryFolder.getParentObjectEntryFolderId());
 
 		try {
 			persistedObjectEntryFolder =
@@ -269,13 +270,19 @@ public class ObjectEntryFolderResourceImpl
 			}
 
 			return _addObjectEntryFolder(
-				groupId, parentObjectEntryFolderId, objectEntryFolder);
+				groupId,
+				_getParentObjectEntryFolderId(
+					true, objectEntryFolder.getParentObjectEntryFolder(),
+					groupId),
+				objectEntryFolder);
 		}
 
 		return _toObjectEntryFolder(
 			_objectEntryFolderService.updateObjectEntryFolder(
 				persistedObjectEntryFolder.getObjectEntryFolderId(),
-				parentObjectEntryFolderId,
+				_getParentObjectEntryFolderId(
+					true, objectEntryFolder.getParentObjectEntryFolder(),
+					groupId),
 				LocalizedMapUtil.getLocalizedMap(
 					contextAcceptLanguage.getPreferredLocale(),
 					objectEntryFolder.getLabel(),
@@ -303,6 +310,67 @@ public class ObjectEntryFolderResourceImpl
 				).build()));
 	}
 
+	private long _getParentObjectEntryFolderId(
+			boolean createIfNotExist,
+			ObjectEntryFolderBrief parentObjectEntryFolderBrief, long groupId)
+		throws PortalException {
+
+		long parentObjectEntryFolderId = 0;
+
+		if (parentObjectEntryFolderBrief != null) {
+			parentObjectEntryFolderId = GetterUtil.getLong(
+				parentObjectEntryFolderBrief.getId());
+
+			if (parentObjectEntryFolderId > 0) {
+				return parentObjectEntryFolderId;
+			}
+
+			if (Validator.isNotNull(
+					parentObjectEntryFolderBrief.getExternalReferenceCode())) {
+
+				com.liferay.object.model.ObjectEntryFolder
+					objectEntryFolderPersistence = null;
+
+				try {
+					objectEntryFolderPersistence =
+						_objectEntryFolderService.
+							getObjectEntryFolderByExternalReferenceCode(
+								parentObjectEntryFolderBrief.
+									getExternalReferenceCode(),
+								groupId, contextUser.getCompanyId());
+				}
+				catch (PortalException portalException) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(portalException);
+					}
+
+					if (!createIfNotExist) {
+						throw portalException;
+					}
+
+					objectEntryFolderPersistence =
+						_objectEntryFolderService.addObjectEntryFolder(
+							parentObjectEntryFolderBrief.
+								getExternalReferenceCode(),
+							groupId, 0,
+							LocalizedMapUtil.getLocalizedMap(
+								contextAcceptLanguage.getPreferredLocale(),
+								parentObjectEntryFolderBrief.getLabel(),
+								parentObjectEntryFolderBrief.getLabel_i18n()),
+							parentObjectEntryFolderBrief.getName(),
+							ServiceContextBuilder.create(
+								groupId, contextHttpServletRequest, null
+							).build());
+				}
+
+				parentObjectEntryFolderId =
+					objectEntryFolderPersistence.getObjectEntryFolderId();
+			}
+		}
+
+		return parentObjectEntryFolderId;
+	}
+
 	private ObjectEntryFolder _patchObjectEntryFolder(
 			ObjectEntryFolder objectEntryFolder,
 			com.liferay.object.model.ObjectEntryFolder
@@ -316,12 +384,19 @@ public class ObjectEntryFolderResourceImpl
 				persistedObjectEntryFolder.getLabelMap());
 		}
 
+		long parentObjectEntryFolderId = _getParentObjectEntryFolderId(
+			false, objectEntryFolder.getParentObjectEntryFolder(),
+			persistedObjectEntryFolder.getGroupId());
+
+		if (parentObjectEntryFolderId == 0) {
+			parentObjectEntryFolderId =
+				persistedObjectEntryFolder.getObjectEntryFolderId();
+		}
+
 		return _toObjectEntryFolder(
 			_objectEntryFolderService.updateObjectEntryFolder(
 				persistedObjectEntryFolder.getObjectEntryFolderId(),
-				GetterUtil.getLong(
-					objectEntryFolder.getParentObjectEntryFolderId(),
-					persistedObjectEntryFolder.getParentObjectEntryFolderId()),
+				parentObjectEntryFolderId,
 				LocalizedMapUtil.getLocalizedMap(
 					contextAcceptLanguage.getPreferredLocale(),
 					GetterUtil.getString(
