@@ -186,14 +186,15 @@ public class ObjectEntryFolderSerDes {
 			sb.append(objectEntryFolder.getNumberOfObjectEntryFolders());
 		}
 
-		if (objectEntryFolder.getParentObjectEntryFolderId() != null) {
+		if (objectEntryFolder.getParentObjectEntryFolder() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"parentObjectEntryFolderId\": ");
+			sb.append("\"parentObjectEntryFolder\": ");
 
-			sb.append(objectEntryFolder.getParentObjectEntryFolderId());
+			sb.append(
+				String.valueOf(objectEntryFolder.getParentObjectEntryFolder()));
 		}
 
 		if (objectEntryFolder.getScopeKey() != null) {
@@ -340,14 +341,13 @@ public class ObjectEntryFolderSerDes {
 					objectEntryFolder.getNumberOfObjectEntryFolders()));
 		}
 
-		if (objectEntryFolder.getParentObjectEntryFolderId() == null) {
-			map.put("parentObjectEntryFolderId", null);
+		if (objectEntryFolder.getParentObjectEntryFolder() == null) {
+			map.put("parentObjectEntryFolder", null);
 		}
 		else {
 			map.put(
-				"parentObjectEntryFolderId",
-				String.valueOf(
-					objectEntryFolder.getParentObjectEntryFolderId()));
+				"parentObjectEntryFolder",
+				String.valueOf(objectEntryFolder.getParentObjectEntryFolder()));
 		}
 
 		if (objectEntryFolder.getScopeKey() == null) {
@@ -425,7 +425,7 @@ public class ObjectEntryFolderSerDes {
 				return false;
 			}
 			else if (Objects.equals(
-						jsonParserFieldName, "parentObjectEntryFolderId")) {
+						jsonParserFieldName, "parentObjectEntryFolder")) {
 
 				return false;
 			}
@@ -515,11 +515,12 @@ public class ObjectEntryFolderSerDes {
 				}
 			}
 			else if (Objects.equals(
-						jsonParserFieldName, "parentObjectEntryFolderId")) {
+						jsonParserFieldName, "parentObjectEntryFolder")) {
 
 				if (jsonParserFieldValue != null) {
-					objectEntryFolder.setParentObjectEntryFolderId(
-						Long.valueOf((String)jsonParserFieldValue));
+					objectEntryFolder.setParentObjectEntryFolder(
+						ObjectEntryFolderBriefSerDes.toDTO(
+							(String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "scopeKey")) {

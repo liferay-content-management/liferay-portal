@@ -553,33 +553,35 @@ public class ObjectEntryFolder implements Serializable {
 	private Supplier<Integer> _numberOfObjectEntryFoldersSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "The ID of the object entry folder's parent, if it exists."
+		description = "The object entry folder's parent, if it exists."
 	)
-	public Long getParentObjectEntryFolderId() {
-		if (_parentObjectEntryFolderIdSupplier != null) {
-			parentObjectEntryFolderId =
-				_parentObjectEntryFolderIdSupplier.get();
+	@Valid
+	public ObjectEntryFolderBrief getParentObjectEntryFolder() {
+		if (_parentObjectEntryFolderSupplier != null) {
+			parentObjectEntryFolder = _parentObjectEntryFolderSupplier.get();
 
-			_parentObjectEntryFolderIdSupplier = null;
+			_parentObjectEntryFolderSupplier = null;
 		}
 
-		return parentObjectEntryFolderId;
+		return parentObjectEntryFolder;
 	}
 
-	public void setParentObjectEntryFolderId(Long parentObjectEntryFolderId) {
-		this.parentObjectEntryFolderId = parentObjectEntryFolderId;
+	public void setParentObjectEntryFolder(
+		ObjectEntryFolderBrief parentObjectEntryFolder) {
 
-		_parentObjectEntryFolderIdSupplier = null;
+		this.parentObjectEntryFolder = parentObjectEntryFolder;
+
+		_parentObjectEntryFolderSupplier = null;
 	}
 
 	@JsonIgnore
-	public void setParentObjectEntryFolderId(
-		UnsafeSupplier<Long, Exception>
-			parentObjectEntryFolderIdUnsafeSupplier) {
+	public void setParentObjectEntryFolder(
+		UnsafeSupplier<ObjectEntryFolderBrief, Exception>
+			parentObjectEntryFolderUnsafeSupplier) {
 
-		_parentObjectEntryFolderIdSupplier = () -> {
+		_parentObjectEntryFolderSupplier = () -> {
 			try {
-				return parentObjectEntryFolderIdUnsafeSupplier.get();
+				return parentObjectEntryFolderUnsafeSupplier.get();
 			}
 			catch (RuntimeException runtimeException) {
 				throw runtimeException;
@@ -591,13 +593,13 @@ public class ObjectEntryFolder implements Serializable {
 	}
 
 	@GraphQLField(
-		description = "The ID of the object entry folder's parent, if it exists."
+		description = "The object entry folder's parent, if it exists."
 	)
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Long parentObjectEntryFolderId;
+	protected ObjectEntryFolderBrief parentObjectEntryFolder;
 
 	@JsonIgnore
-	private Supplier<Long> _parentObjectEntryFolderIdSupplier;
+	private Supplier<ObjectEntryFolderBrief> _parentObjectEntryFolderSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The scope key of the object entry folder."
@@ -882,16 +884,17 @@ public class ObjectEntryFolder implements Serializable {
 			sb.append(numberOfObjectEntryFolders);
 		}
 
-		Long parentObjectEntryFolderId = getParentObjectEntryFolderId();
+		ObjectEntryFolderBrief parentObjectEntryFolder =
+			getParentObjectEntryFolder();
 
-		if (parentObjectEntryFolderId != null) {
+		if (parentObjectEntryFolder != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"parentObjectEntryFolderId\": ");
+			sb.append("\"parentObjectEntryFolder\": ");
 
-			sb.append(parentObjectEntryFolderId);
+			sb.append(String.valueOf(parentObjectEntryFolder));
 		}
 
 		String scopeKey = getScopeKey();
