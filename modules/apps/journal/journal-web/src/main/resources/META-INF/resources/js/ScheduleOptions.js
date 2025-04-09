@@ -5,7 +5,7 @@
 
 import ClayAlert from '@clayui/alert';
 import ClayDatePicker from '@clayui/date-picker';
-import ClayForm, {ClayInput} from '@clayui/form';
+import ClayForm from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
 import {dateUtils, sub} from 'frontend-js-web';
@@ -14,14 +14,11 @@ import React, {useEffect} from 'react';
 export default function ScheduleOptions({
 	displayDate,
 	error,
-	formId,
 	portletNamespace,
 	setDisplayDate,
 	setError,
 	timeZone,
 }) {
-	const {day, hour, minutes, month, year} = getDate(displayDate);
-
 	useEffect(() => {
 		if (displayDate) {
 			if (displayDate.length !== 16 || !dateUtils.isValid(displayDate)) {
@@ -45,6 +42,44 @@ export default function ScheduleOptions({
 		}
 	}, [displayDate, setError, timeZone]);
 
+	const handleDateChange = (newDate) => {
+		setDisplayDate(newDate);
+
+		const {day, hour, minutes, month, year} = getDate(newDate);
+
+		const dayInput = document.querySelector(
+			`input[name="${portletNamespace}displayDateDay"]`
+		);
+		const hourInput = document.querySelector(
+			`input[name="${portletNamespace}displayDateHour"]`
+		);
+		const minuteInput = document.querySelector(
+			`input[name="${portletNamespace}displayDateMinute"]`
+		);
+		const monthInput = document.querySelector(
+			`input[name="${portletNamespace}displayDateMonth"]`
+		);
+		const yearInput = document.querySelector(
+			`input[name="${portletNamespace}displayDateYear"]`
+		);
+
+		if (dayInput) {
+			dayInput.value = day;
+		}
+		if (hourInput) {
+			hourInput.value = hour;
+		}
+		if (minuteInput) {
+			minuteInput.value = minutes;
+		}
+		if (monthInput) {
+			monthInput.value = month;
+		}
+		if (yearInput) {
+			yearInput.value = year;
+		}
+	};
+
 	return (
 		<>
 			<ClayForm.Group
@@ -63,7 +98,7 @@ export default function ScheduleOptions({
 
 				<ClayDatePicker
 					id={`${portletNamespace}displayDatePicker`}
-					onChange={setDisplayDate}
+					onChange={handleDateChange}
 					placeholder="YYYY-MM-DD HH:mm"
 					required
 					time
@@ -92,41 +127,6 @@ export default function ScheduleOptions({
 			<p className="mt-1 text-3 text-secondary">
 				{sub(Liferay.Language.get('time-zone-x'), timeZone)}
 			</p>
-
-			<ClayInput
-				form={formId}
-				name={`${portletNamespace}displayDateDay`}
-				type="hidden"
-				value={day}
-			/>
-
-			<ClayInput
-				form={formId}
-				name={`${portletNamespace}displayDateHour`}
-				type="hidden"
-				value={hour}
-			/>
-
-			<ClayInput
-				form={formId}
-				name={`${portletNamespace}displayDateMinute`}
-				type="hidden"
-				value={minutes}
-			/>
-
-			<ClayInput
-				form={formId}
-				name={`${portletNamespace}displayDateMonth`}
-				type="hidden"
-				value={month}
-			/>
-
-			<ClayInput
-				form={formId}
-				name={`${portletNamespace}displayDateYear`}
-				type="hidden"
-				value={year}
-			/>
 		</>
 	);
 }
