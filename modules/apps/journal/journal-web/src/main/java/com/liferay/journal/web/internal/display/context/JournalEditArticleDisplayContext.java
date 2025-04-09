@@ -1117,6 +1117,20 @@ public class JournalEditArticleDisplayContext {
 		return "save";
 	}
 
+	public String getArticleDisplayDate(){
+		if ((_article == null) || (_article.getDisplayDate() == null) ||
+			(!_article.isPending() && !_article.isScheduled())) {
+
+			return null;
+		}
+
+		Format format = FastDateFormatFactoryUtil.getSimpleDateFormat(
+			"yyyy-MM-dd HH:mm", _themeDisplay.getLocale(),
+			_themeDisplay.getTimeZone());
+
+		return format.format(_article.getDisplayDate());
+	}
+
 	public Map<String, Object> getSaveButtonsContext() throws PortalException {
 		return HashMapBuilder.<String, Object>put(
 			"articleId", getArticleId()
@@ -1124,19 +1138,7 @@ public class JournalEditArticleDisplayContext {
 			"defaultLanguageId", getDefaultArticleLanguageId()
 		).put(
 			"displayDate",
-			() -> {
-				if ((_article == null) || (_article.getDisplayDate() == null) ||
-					(!_article.isPending() && !_article.isScheduled())) {
-
-					return null;
-				}
-
-				Format format = FastDateFormatFactoryUtil.getSimpleDateFormat(
-					"yyyy-MM-dd HH:mm", _themeDisplay.getLocale(),
-					_themeDisplay.getTimeZone());
-
-				return format.format(_article.getDisplayDate());
-			}
+			getArticleDisplayDate()
 		).put(
 			"editingDefaultValues",
 			getClassNameId() != JournalArticleConstants.CLASS_NAME_ID_DEFAULT

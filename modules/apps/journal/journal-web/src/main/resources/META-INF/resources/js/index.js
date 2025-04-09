@@ -12,6 +12,7 @@ export {default as DDMTemplateElementsDefaultPropsTransformer} from './DDMTempla
 export {default as DDMTemplatesManagementToolbarPropsTransformer} from './DDMTemplatesManagementToolbarPropsTransformer';
 export {default as DataEngineLayoutBuilderHandler} from './DataEngineLayoutBuilderHandler.es';
 export {default as DataEngineLayoutRendererLanguageProxy} from './DataEngineLayoutRendererLanguageProxy.es';
+export {default as DisplayDateInputs} from './DisplayDateInputs';
 export {default as EditFeed} from './EditFeed';
 export {default as ElementsDefaultPropsTransformer} from './ElementsDefaultPropsTransformer';
 export {default as FeedElementsDefaultPropsTransformer} from './FeedElementsDefaultPropsTransformer';
