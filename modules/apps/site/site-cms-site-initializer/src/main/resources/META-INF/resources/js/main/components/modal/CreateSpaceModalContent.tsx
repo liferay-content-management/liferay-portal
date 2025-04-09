@@ -6,7 +6,7 @@
 import ClayButton from '@clayui/button';
 import ClayModal from '@clayui/modal';
 import {useFormik} from 'formik';
-import {navigate, sub} from 'frontend-js-web';
+import {navigate} from 'frontend-js-web';
 import React from 'react';
 
 import {SpaceData} from '../../FDSPropsTransformer/actions/createSPaceAction';
@@ -26,32 +26,31 @@ export default function CreateSpaceModalContent({
 	redirect,
 	title,
 }: Props) {
-	const {errors, handleChange, handleSubmit, setFieldValue, touched, values} =
-		useFormik({
-			initialValues: {
-				name: '',
-			},
-			onSubmit: (values) => {
-				if (redirect) {
-					const {name} = values;
+	const {errors, handleChange, handleSubmit, touched, values} = useFormik({
+		initialValues: {
+			name: '',
+		},
+		onSubmit: (values) => {
+			if (redirect) {
+				const {name} = values;
 
-					const url = new URL(redirect);
+				const url = new URL(redirect);
 
-					url.searchParams.set('name', name);
-					navigate(url.pathname + url.search);
-				}
-				else {
-					alert(JSON.stringify(values, null, 4));
-				}
-			},
-			validate: (values) =>
-				validate(
-					{
-						name: action === 'createSpace' ? [required] : [],
-					},
-					values
-				),
-		});
+				url.searchParams.set('name', name);
+				navigate(url.pathname + url.search);
+			}
+			else {
+				alert(JSON.stringify(values, null, 4));
+			}
+		},
+		validate: (values) =>
+			validate(
+				{
+					name: action === 'createSpace' ? [required] : [],
+				},
+				values
+			),
+	});
 
 	return (
 		<form onSubmit={handleSubmit}>
