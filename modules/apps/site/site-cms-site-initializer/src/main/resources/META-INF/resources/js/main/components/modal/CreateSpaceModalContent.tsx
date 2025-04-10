@@ -9,14 +9,15 @@ import {useFormik} from 'formik';
 import {navigate} from 'frontend-js-web';
 import React from 'react';
 
-import {SpaceData} from '../../FDSPropsTransformer/actions/createSpaceAction';
+import SpaceService from '../../../structure_builder/services/SpaceService';
+import {SpaceData} from '../../FDSPropsTransformer/actions/createSPaceAction';
 import {FieldText} from '../forms';
 import {required, validate} from '../forms/validations';
 
 type Props = {
 	action: SpaceData['action'];
 	closeModal: () => void;
-	redirect?: string;
+	redirect: string;
 	title: string;
 };
 
@@ -31,17 +32,13 @@ export default function CreateSpaceModalContent({
 			name: '',
 		},
 		onSubmit: (values) => {
-			if (redirect) {
-				const {name} = values;
+			const {name} = values;
 
-				const url = new URL(redirect);
+			SpaceService.addSpace({name}).then((response) => {
 
-				url.searchParams.set('name', name);
-				navigate(url.pathname + url.search);
-			}
-			else {
-				alert(JSON.stringify(values, null, 4));
-			}
+				// TODO navigate(redirect + "/" + response.id);
+
+			});
 		},
 		validate: (values) =>
 			validate(
