@@ -96,13 +96,16 @@ journalEditArticleDisplayContext.setViewAttributes();
 	<aui:input name="workflowAction" type="hidden" value="<%= String.valueOf(WorkflowConstants.ACTION_SAVE_DRAFT) %>" />
 
 	<div>
-		<react:component module="{DisplayDateInputs} from journal-web" props='<%=
-			HashMapBuilder.<String, Object>put(
-				"displayDate", journalEditArticleDisplayContext.getArticleDisplayDate()
-			).put(
-				"timeZone", journalEditArticleDisplayContext.getTimeZoneName()
-			).build()
-		%>' />
+		<react:component
+			module="{DisplayDateInputs} from journal-web"
+			props='<%=
+				HashMapBuilder.<String, Object>put(
+					"displayDate", journalEditArticleDisplayContext.getArticleDisplayDate()
+				).put(
+					"timeZone", journalEditArticleDisplayContext.getTimeZoneName()
+				).build()
+			%>'
+		/>
 	</div>
 
 	<nav class="component-tbar subnav-tbar-light tbar tbar-article">
