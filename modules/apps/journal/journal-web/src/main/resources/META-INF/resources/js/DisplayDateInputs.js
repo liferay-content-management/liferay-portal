@@ -5,7 +5,7 @@
 
 import {ClayInput} from '@clayui/form';
 import {dateUtils} from 'frontend-js-web';
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
 function getDate(value) {
 	const date = new Date(value);
@@ -30,11 +30,31 @@ export default function DisplayDateInputs({
 }) {
 	const formId = `${portletNamespace}fm1`;
 
-	const currentDate = new Date(
-		new Date().toLocaleString('en-US', {timeZone})
-	);
+	const [displayDate, setDisplayDate] = useState(() => {
+		const currentDate = new Date(
+			new Date().toLocaleString('en-US', {timeZone})
+		);
 
-	const displayDate = defaultDisplayDate || currentDate;
+		return defaultDisplayDate || currentDate;
+	});
+
+	const updateDisplayDateToCurrent = useCallback(() => {
+		const currentDate = new Date(
+			new Date().toLocaleString('en-US', {timeZone})
+		);
+		setDisplayDate(currentDate);
+	}, [timeZone]);
+
+	useEffect(() => {
+		Liferay.on('displayDate:updateToCurrent', updateDisplayDateToCurrent);
+
+		return () => {
+			Liferay.detach(
+				'displayDate:updateToCurrent',
+				updateDisplayDateToCurrent
+			);
+		};
+	}, [updateDisplayDateToCurrent]);
 
 	const {day, hour, minutes, month, year} = getDate(displayDate);
 

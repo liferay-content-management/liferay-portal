@@ -72,6 +72,10 @@ export default function SaveButtons({
 
 		if (titleInputComponent?.getValue(defaultLanguageId)) {
 			if (articleId && !showPublishModal) {
+				if (action === ACTION_PUBLISH) {
+					Liferay.fire('displayDate:updateToCurrent');
+				}
+
 				handleButtonClick(action);
 			}
 			else {
