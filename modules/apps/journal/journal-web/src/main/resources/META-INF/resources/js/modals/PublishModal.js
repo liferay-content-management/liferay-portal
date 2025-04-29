@@ -108,6 +108,7 @@ export default function PublishModal({
 								}
 								else {
 									onPublishButtonClick(actionButton);
+									onClose();
 								}
 							}}
 							type={
