@@ -7,6 +7,7 @@ package com.liferay.site.cms.site.initializer.internal.display.context;
 
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
+import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectDefinitionService;
@@ -82,6 +83,11 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 		return new String[] {
 			ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENT_STRUCTURES
 		};
+	}
+
+	@Override
+	public String getRootObjectEntryFolderExternalReferenceCode() {
+		return ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS;
 	}
 
 	@Override
