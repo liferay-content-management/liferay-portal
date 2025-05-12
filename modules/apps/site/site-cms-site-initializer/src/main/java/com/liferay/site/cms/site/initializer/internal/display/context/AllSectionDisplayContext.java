@@ -88,7 +88,7 @@ public class AllSectionDisplayContext extends BaseSectionDisplayContext {
 
 	@Override
 	protected String getCMSSectionFilterString() {
-		return StringPool.BLANK;
+		return "cmsContent eq true";
 	}
 
 }
