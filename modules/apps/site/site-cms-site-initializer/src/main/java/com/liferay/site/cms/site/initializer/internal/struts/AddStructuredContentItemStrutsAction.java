@@ -19,8 +19,6 @@ import com.liferay.layout.util.structure.ContainerStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.FormStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.object.constants.ObjectDefinitionConstants;
-import com.liferay.object.constants.ObjectEntryFolderConstants;
-import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.dto.v1_0.Status;
@@ -118,19 +116,9 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 		ObjectEntry objectEntry = new ObjectEntry();
 
 		objectEntry.setObjectEntryFolderExternalReferenceCode(
-			() -> {
-				if (Objects.equals(
-						objectDefinition.getObjectFolderExternalReferenceCode(),
-						ObjectFolderConstants.
-							EXTERNAL_REFERENCE_CODE_FILE_TYPES)) {
+			() -> ParamUtil.getString(
+				httpServletRequest, "objectEntryFolderExternalReferenceCode"));
 
-					return ObjectEntryFolderConstants.
-						EXTERNAL_REFERENCE_CODE_FILES;
-				}
-
-				return ObjectEntryFolderConstants.
-					EXTERNAL_REFERENCE_CODE_CONTENTS;
-			});
 		objectEntry.setStatus(
 			() -> new Status() {
 				{
