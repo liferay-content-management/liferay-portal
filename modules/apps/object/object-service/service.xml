@@ -1224,6 +1224,7 @@
 		<exception>ObjectEntryCount</exception>
 		<exception>ObjectEntryDefaultLanguageId</exception>
 		<exception>ObjectEntryFolderName</exception>
+		<exception>ObjectEntryFolderParentObjectEntryFolder</exception>
 		<exception>ObjectEntryFolderScope</exception>
 		<exception>ObjectEntryValues</exception>
 		<exception>ObjectFieldBusinessType</exception>
