@@ -13,16 +13,29 @@ import CreationModalContent, {
 export type AssetData = {
 	action: 'createAsset';
 	assetLibraries: AssetLibrary[];
+	defaultGroupId: number;
 	redirect: string;
 	title: string;
 };
 
 export default function createAssetAction(data: AssetData) {
-	if (data.assetLibraries.length === 1) {
+	if (
+		(data.assetLibraries && data.assetLibraries.length === 1) ||
+		data.defaultGroupId > 0
+	) {
 		const url = new URL(data.redirect);
 
+		let groupId = '';
+
+		if (data.defaultGroupId > 0) {
+			groupId = String(data.defaultGroupId);
+		}
+		else {
+			groupId = String(data.assetLibraries[0].groupId);
+		}
+
 		url.searchParams.set('name', '');
-		url.searchParams.set('groupId', data.assetLibraries[0].groupId);
+		url.searchParams.set('groupId', groupId);
 
 		navigate(url.pathname + url.search);
 
