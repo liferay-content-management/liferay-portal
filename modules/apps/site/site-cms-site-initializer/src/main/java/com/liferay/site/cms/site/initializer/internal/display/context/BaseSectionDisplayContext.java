@@ -165,7 +165,7 @@ public abstract class BaseSectionDisplayContext {
 			new FDSActionDropdownItem(
 				StringBundler.concat(
 					themeDisplay.getPathFriendlyURLPublic(),
-					themeDisplay.getPathCms(), "/f/{embedded.id}"),
+					GroupConstants.CMS_FRIENDLY_URL, "/f/{embedded.id}"),
 				"pencil", "edit",
 				LanguageUtil.get(httpServletRequest, "view-folder"), "get",
 				"update", null,
