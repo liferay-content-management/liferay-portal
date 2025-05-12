@@ -44,6 +44,8 @@ public class ObjectEntryFolderModelDocumentContributor
 		document.addKeyword(Field.TREE_PATH, parts);
 		document.addKeyword("cms_section", _getCMSSection(parts));
 
+		document.addKeyword("cms_root", parts.length == 3);
+
 		document.addLocalizedKeyword(
 			"localized_label", objectEntryFolder.getLabelMap(), true, true);
 	}
