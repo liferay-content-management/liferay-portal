@@ -77,6 +77,11 @@ public class AllSectionDisplayContext extends BaseSectionDisplayContext {
 	}
 
 	@Override
+	public String getRootObjectEntryFolderExternalReferenceCode() {
+		return null;
+	}
+
+	@Override
 	protected String getCMSSectionFilterString() {
 		return "cmsContent eq true";
 	}

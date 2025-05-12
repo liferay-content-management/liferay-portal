@@ -115,10 +115,7 @@ public abstract class BaseSectionDisplayContext {
 	public CreationMenu getCreationMenu() {
 		return new CreationMenu() {
 			{
-				String[] objectFolderExternalReferenceCodes =
-					getObjectFolderExternalReferenceCodes();
-
-				if (objectFolderExternalReferenceCodes.length == 1) {
+				if (getRootObjectEntryFolderExternalReferenceCode() != null) {
 					addPrimaryDropdownItem(
 						dropdownItem -> {
 							dropdownItem.putData("action", "createFolder");
@@ -130,26 +127,23 @@ public abstract class BaseSectionDisplayContext {
 										_depotEntryLocalService.getDepotEntries(
 											QueryUtil.ALL_POS,
 											QueryUtil.ALL_POS)));
+
+								dropdownItem.putData(
+									"parentObjectEntryFolderExternalReference" +
+										"Code",
+									getRootObjectEntryFolderExternalReferenceCode());
 							}
 							else {
 								dropdownItem.putData(
 									"defaultGroupId",
 									objectEntryFolder.getGroupId());
-							}
 
-							String
-								parentObjectEntryFolderExternalReferenceCode =
-									objectFolderExternalReferenceCodes[0];
-
-							if (objectEntryFolder != null) {
-								parentObjectEntryFolderExternalReferenceCode =
+								dropdownItem.putData(
+									"parentObjectEntryFolderExternalReference" +
+										"Code",
 									objectEntryFolder.
-										getExternalReferenceCode();
+										getExternalReferenceCode());
 							}
-
-							dropdownItem.putData(
-								"parentObjectEntryFolderExternalReferenceCode",
-								parentObjectEntryFolderExternalReferenceCode);
 
 							dropdownItem.putData(
 								"baseAssetLibraryViewURL",
@@ -187,7 +181,7 @@ public abstract class BaseSectionDisplayContext {
 				StringBundler.concat(
 					themeDisplay.getPathFriendlyURLPublic(),
 					GroupConstants.CMS_FRIENDLY_URL, "/f/{embedded.id}"),
-				"pencil", "edit",
+				"pencil", "view",
 				LanguageUtil.get(httpServletRequest, "view-folder"), "get",
 				"update", null,
 				HashMapBuilder.<String, Object>put(
@@ -235,6 +229,8 @@ public abstract class BaseSectionDisplayContext {
 	}
 
 	public abstract String[] getObjectFolderExternalReferenceCodes();
+
+	public abstract String getRootObjectEntryFolderExternalReferenceCode();
 
 	protected void addStructureContentDropdownItems(CreationMenu creationMenu) {
 		for (ObjectDefinition objectDefinition :
