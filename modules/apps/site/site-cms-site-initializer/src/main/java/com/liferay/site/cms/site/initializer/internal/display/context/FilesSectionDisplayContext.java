@@ -7,12 +7,9 @@ package com.liferay.site.cms.site.initializer.internal.display.context;
 
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
-import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -40,37 +37,6 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 			depotEntryLocalService, groupLocalService, httpServletRequest,
 			language, objectDefinitionService,
 			objectDefinitionSettingLocalService);
-
-		_depotEntryLocalService = depotEntryLocalService;
-	}
-
-	public Map<String, Object> getAdditionalProps() {
-		return HashMapBuilder.<String, Object>put(
-			"parentObjectEntryFolderExternalReferenceCode",
-			ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES
-		).build();
-	}
-
-	@Override
-	public CreationMenu getCreationMenu() {
-		return new CreationMenu() {
-			{
-				addPrimaryDropdownItem(
-					dropdownItem -> {
-						dropdownItem.putData("action", "createFolder");
-						dropdownItem.putData(
-							"assetLibraries",
-							getDepotEntriesJSONArray(
-								_depotEntryLocalService.getDepotEntries(
-									QueryUtil.ALL_POS, QueryUtil.ALL_POS)));
-						dropdownItem.setIcon("folder");
-						dropdownItem.setLabel(
-							language.get(httpServletRequest, "folder"));
-					});
-
-				addStructureContentDropdownItems(this);
-			}
-		};
 	}
 
 	@Override
@@ -112,7 +78,5 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 	protected String getCMSSectionFilterString() {
 		return "cmsSection eq 'files' and cmsRoot eq true";
 	}
-
-	private final DepotEntryLocalService _depotEntryLocalService;
 
 }
