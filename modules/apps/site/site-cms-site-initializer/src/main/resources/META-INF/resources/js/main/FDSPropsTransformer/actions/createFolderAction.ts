@@ -14,11 +14,12 @@ import CreationModalContent, {
 export type FolderData = {
 	action: 'createFolder';
 	assetLibraries: AssetLibrary[];
+	defaultGroupId: number;
+	parentObjectEntryFolderExternalReferenceCode: string;
 };
 
 export default function createFolderAction(
 	data: FolderData,
-	additionalProps: {parentObjectEntryFolderExternalReferenceCode: string},
 	loadData?: () => {}
 ) {
 	openModal({
@@ -32,7 +33,7 @@ export default function createFolderAction(
 						await postScopeScopeKeyObjectEntryFolder(
 							groupId,
 							title,
-							additionalProps.parentObjectEntryFolderExternalReferenceCode
+							data.parentObjectEntryFolderExternalReferenceCode
 						);
 
 					if (success) {

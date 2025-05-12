@@ -16,7 +16,7 @@ import {FieldPicker, FieldText} from '../forms';
 import {required, validate} from '../forms/validations';
 
 export type AssetLibrary = {
-	groupId: string;
+	groupId: number;
 	name: string;
 };
 
@@ -24,13 +24,14 @@ type Props = {
 	action: AssetData['action'] | FolderData['action'] | SpaceData['action'];
 	assetLibraries: AssetLibrary[];
 	closeModal: () => void;
+	defaultGroupId: number;
 	onSubmit?: (
 		values: {
-			groupId: string;
+			groupId: number;
 			name: string;
 		},
 		formikHelpers: FormikHelpers<{
-			groupId: string;
+			groupId: number;
 			name: string;
 		}>
 	) => Promise<any> | void;
@@ -42,6 +43,7 @@ export default function CreationModalContent({
 	action,
 	assetLibraries,
 	closeModal,
+	defaultGroupId,
 	onSubmit,
 	redirect,
 	title,
@@ -50,9 +52,9 @@ export default function CreationModalContent({
 		useFormik({
 			initialValues: {
 				groupId:
-					assetLibraries.length === 1
+					assetLibraries && assetLibraries.length === 1
 						? assetLibraries[0].groupId
-						: '',
+						: defaultGroupId,
 				name: '',
 			},
 			onSubmit: async (values, formikHelpers) => {
@@ -62,7 +64,7 @@ export default function CreationModalContent({
 					const url = new URL(redirect);
 
 					url.searchParams.set('name', name);
-					url.searchParams.set('groupId', groupId);
+					url.searchParams.set('groupId', String(groupId));
 
 					navigate(url.pathname + url.search);
 
@@ -99,7 +101,7 @@ export default function CreationModalContent({
 					/>
 				) : null}
 
-				{assetLibraries.length > 1 && (
+				{assetLibraries && assetLibraries.length > 1 && (
 					<FieldPicker
 						errorMessage={
 							touched.groupId ? errors.groupId : undefined
