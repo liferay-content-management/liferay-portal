@@ -83,7 +83,7 @@ public class AllSectionDisplayContext extends BaseSectionDisplayContext {
 
 	@Override
 	protected String getCMSSectionFilterString() {
-		return "cmsContent eq true";
+		return "cmsSection eq 'contents' or cmsSection eq 'files'";
 	}
 
 }

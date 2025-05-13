@@ -67,15 +67,18 @@ public class ObjectEntryDocumentContributor
 				objectEntryFolderId);
 
 		if (objectEntryFolder == null) {
+			document.addKeyword("cms_section", "none");
+
 			return;
 		}
 
-		String section = null;
 		String externalReferenceCode =
 			objectEntryFolder.getExternalReferenceCode();
 
 		String[] parts = StringUtil.split(
 			objectEntryFolder.getTreePath(), CharPool.SLASH);
+
+		document.addKeyword("cms_root", parts.length == 2);
 
 		if (parts.length > 2) {
 			ObjectEntryFolder rootObjectEntryFolder =
@@ -85,6 +88,8 @@ public class ObjectEntryDocumentContributor
 			externalReferenceCode =
 				rootObjectEntryFolder.getExternalReferenceCode();
 		}
+
+		String section = "none";
 
 		if (externalReferenceCode.equals(
 				ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS)) {
@@ -98,13 +103,7 @@ public class ObjectEntryDocumentContributor
 			section = "files";
 		}
 
-		if (section != null) {
-			document.addKeyword("cms_content", true);
-
-			document.addKeyword("cms_section", section);
-
-			document.addKeyword("cms_root", parts.length == 2);
-		}
+		document.addKeyword("cms_section", section);
 	}
 
 	@Reference
