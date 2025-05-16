@@ -8,6 +8,7 @@ export {default as AllSpacesFDSPropsTransformer} from './main/FDSPropsTransforme
 export {default as CategoryFDSPropsTransformer} from './main/FDSPropsTransformer/CategoryFDSPropsTransformer';
 export {default as ContentsFDSPropsTransformer} from './main/FDSPropsTransformer/ContentsFDSPropsTransformer';
 export {default as FilesFDSPropsTransformer} from './main/FDSPropsTransformer/FilesFDSPropsTransformer';
+export {default as FolderFDSPropsTransformer} from './main/FDSPropsTransformer/FolderFDSPropsTransformer';
 export {default as StructureUsagesFDSPropsTransformer} from './main/FDSPropsTransformer/StructureUsagesFDSPropsTransformer';
 export {default as StructuresFDSPropsTransformer} from './main/FDSPropsTransformer/StructuresFDSPropsTransformer';
 export {default as VocabularyFDSPropsTransformer} from './main/FDSPropsTransformer/VocabularyFDSPropsTransformer';
