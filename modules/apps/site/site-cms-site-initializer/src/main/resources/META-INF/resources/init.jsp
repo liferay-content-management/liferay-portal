@@ -23,6 +23,7 @@ page import="com.liferay.site.cms.site.initializer.internal.display.context.Stru
 page import="com.liferay.site.cms.site.initializer.internal.display.context.StructuresSectionDisplayContext" %><%@
 page import="com.liferay.site.cms.site.initializer.internal.display.context.ViewCategoriesDisplayContext" %><%@
 page import="com.liferay.site.cms.site.initializer.internal.display.context.ViewDashboardDisplayContext" %><%@
+page import="com.liferay.site.cms.site.initializer.internal.display.context.ViewFolderDisplayContext" %><%@
 page import="com.liferay.site.cms.site.initializer.internal.display.context.ViewTagsDisplayContext" %><%@
 page import="com.liferay.site.cms.site.initializer.internal.display.context.ViewVocabulariesDisplayContext" %>
 
