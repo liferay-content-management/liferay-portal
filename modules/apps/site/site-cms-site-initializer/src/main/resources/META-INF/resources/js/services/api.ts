@@ -104,8 +104,8 @@ export async function fetchJSON<T>(input: RequestInfo, init?: RequestInit) {
 
 export async function postScopeScopeKeyObjectEntryFolder<DataType = unknown>(
 	groupId: number,
-	title: string,
-	parentObjectEntryFolderExternalReferenceCode: string
+	parentObjectEntryFolderExternalReferenceCode: string,
+	title: string
 ) {
 	return await handleRequest<DataType>(
 		() =>
