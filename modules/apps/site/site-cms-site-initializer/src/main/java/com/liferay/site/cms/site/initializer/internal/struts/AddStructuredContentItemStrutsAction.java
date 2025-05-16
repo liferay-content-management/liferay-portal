@@ -8,8 +8,6 @@ package com.liferay.site.cms.site.initializer.internal.struts;
 import com.liferay.fragment.listener.FragmentEntryLinkListenerRegistry;
 import com.liferay.layout.manager.FormManager;
 import com.liferay.object.constants.ObjectDefinitionConstants;
-import com.liferay.object.constants.ObjectEntryFolderConstants;
-import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.dto.v1_0.Status;
@@ -71,19 +69,8 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 		ObjectEntry objectEntry = new ObjectEntry();
 
 		objectEntry.setObjectEntryFolderExternalReferenceCode(
-			() -> {
-				if (Objects.equals(
-						objectDefinition.getObjectFolderExternalReferenceCode(),
-						ObjectFolderConstants.
-							EXTERNAL_REFERENCE_CODE_FILE_TYPES)) {
-
-					return ObjectEntryFolderConstants.
-						EXTERNAL_REFERENCE_CODE_FILES;
-				}
-
-				return ObjectEntryFolderConstants.
-					EXTERNAL_REFERENCE_CODE_CONTENTS;
-			});
+			() -> ParamUtil.getString(
+				httpServletRequest, "objectEntryFolderExternalReferenceCode"));
 		objectEntry.setStatus(
 			() -> new Status() {
 				{
