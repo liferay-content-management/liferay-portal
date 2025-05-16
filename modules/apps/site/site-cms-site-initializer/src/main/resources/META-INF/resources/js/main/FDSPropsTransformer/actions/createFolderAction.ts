@@ -37,12 +37,12 @@ export default function createFolderAction(
 						success,
 					} = await postScopeScopeKeyObjectEntryFolder<{
 						groupId: number;
-						title: string;
 						parentObjectEntryFolderExternalReferenceCode: string;
+						title: string;
 					}>(
 						groupId,
-						title,
-						data.parentObjectEntryFolderExternalReferenceCode
+						data.parentObjectEntryFolderExternalReferenceCode,
+						title
 					);
 
 					if (success) {
