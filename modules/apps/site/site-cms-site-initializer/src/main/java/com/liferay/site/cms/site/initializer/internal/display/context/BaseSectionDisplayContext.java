@@ -180,10 +180,12 @@ public abstract class BaseSectionDisplayContext {
 			new FDSActionDropdownItem(
 				StringBundler.concat(
 					themeDisplay.getPathFriendlyURLPublic(),
-					GroupConstants.CMS_FRIENDLY_URL, "/f/{embedded.id}"),
-				"pencil", "view",
+					GroupConstants.CMS_FRIENDLY_URL, "/e/view-folder/",
+					portal.getClassNameId(ObjectEntryFolder.class),
+					"/{embedded.id}/"),
+				"view", "view",
 				LanguageUtil.get(httpServletRequest, "view-folder"), "get",
-				"update", null,
+				null, null,
 				HashMapBuilder.<String, Object>put(
 					"entryClassName",
 					"com.liferay.object.model.ObjectEntryFolder"
