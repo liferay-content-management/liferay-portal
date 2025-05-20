@@ -4,8 +4,6 @@
  */
 
 import ClayBreadcrumb from '@clayui/breadcrumb';
-import {ClayButtonWithIcon} from '@clayui/button';
-import {ClayDropDownWithItems} from '@clayui/drop-down';
 import ClayToolbar from '@clayui/toolbar';
 import React from 'react';
 
@@ -22,7 +20,7 @@ interface BreadcrumbItem {
 	onClick?: () => void;
 }
 
-const FolderBreadcrumb = ({breadcrumbItems}: Props) => {
+export default function FolderBreadcrumb({breadcrumbItems}: Props) {
 	return (
 		<ClayToolbar aria-label={breadcrumbItems[0]?.label} light>
 			<div className="container-fluid">
@@ -36,31 +34,8 @@ const FolderBreadcrumb = ({breadcrumbItems}: Props) => {
 					</div>
 
 					<ClayBreadcrumb items={breadcrumbItems} />
-
-					<ClayToolbar.Item>
-						<ClayDropDownWithItems
-							items={[
-								{
-									label: Liferay.Language.get('order-by'),
-									type: 'group',
-								},
-							]}
-							trigger={
-								<ClayButtonWithIcon
-									aria-label={Liferay.Language.get(
-										'more-actions'
-									)}
-									displayType="unstyled"
-									size="xs"
-									symbol="ellipsis-v"
-								/>
-							}
-						/>
-					</ClayToolbar.Item>
 				</ClayToolbar.Nav>
 			</div>
 		</ClayToolbar>
 	);
-};
-
-export default FolderBreadcrumb;
+}
