@@ -15,7 +15,7 @@ ViewFolderDisplayContext viewFolderDisplayContext = (ViewFolderDisplayContext)re
 	<div>
 		<react:component
 			module="{FolderBreadcrumb} from site-cms-site-initializer"
-			props="<%= viewFolderDisplayContext.getBreadcrumbReactData() %>"
+			props="<%= viewFolderDisplayContext.getBreadcrumbProps() %>"
 		/>
 	</div>
 

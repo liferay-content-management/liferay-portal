@@ -53,7 +53,7 @@ public class ViewFolderDisplayContext extends BaseSectionDisplayContext {
 		_objectEntryFolderLocalService = objectEntryFolderLocalService;
 	}
 
-	public Map<String, Object> getBreadcrumbReactData() {
+	public Map<String, Object> getBreadcrumbProps() {
 		if (objectEntryFolder == null) {
 			return Collections.emptyMap();
 		}
