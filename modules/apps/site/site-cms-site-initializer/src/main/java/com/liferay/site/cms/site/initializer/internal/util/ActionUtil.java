@@ -5,6 +5,7 @@
 
 package com.liferay.site.cms.site.initializer.internal.util;
 
+import com.liferay.depot.model.DepotEntry;
 import com.liferay.fragment.listener.FragmentEntryLinkListener;
 import com.liferay.fragment.listener.FragmentEntryLinkListenerRegistry;
 import com.liferay.fragment.model.FragmentEntryLink;
@@ -19,6 +20,7 @@ import com.liferay.layout.util.structure.ContainerStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.FormStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -138,6 +140,28 @@ public class ActionUtil {
 		}
 
 		return StringPool.BLANK;
+	}
+
+	public static String getSpaceFullURL(
+		long classPK, ThemeDisplay themeDisplay) {
+
+		return StringBundler.concat(
+			themeDisplay.getPortalURL(),
+			themeDisplay.getPathFriendlyURLPublic(),
+			GroupConstants.CMS_FRIENDLY_URL, "/e/space/",
+			PortalUtil.getClassNameId(DepotEntry.class), StringPool.SLASH,
+			classPK, StringPool.SLASH);
+	}
+
+	public static String geViewFolderFullURL(
+		long objectEntryFolderId, ThemeDisplay themeDisplay) {
+
+		return StringBundler.concat(
+			themeDisplay.getPortalURL(),
+			themeDisplay.getPathFriendlyURLPublic(),
+			GroupConstants.CMS_FRIENDLY_URL, "/e/view-folder/",
+			PortalUtil.getClassNameId(ObjectEntryFolder.class),
+			StringPool.SLASH, objectEntryFolderId, StringPool.SLASH);
 	}
 
 	private static LayoutPageTemplateEntry _addDefaultLayoutPageTemplateEntry(
