@@ -13,14 +13,20 @@ import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.petra.string.CharPool;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
 
+import java.util.Collections;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +51,46 @@ public class ViewFolderDisplayContext extends BaseSectionDisplayContext {
 			objectDefinitionSettingLocalService, portal);
 
 		_objectEntryFolderLocalService = objectEntryFolderLocalService;
+	}
+
+	public Map<String, Object> getBreadcrumbReactData() {
+		if (objectEntryFolder == null) {
+			return Collections.emptyMap();
+		}
+
+		Group group = groupLocalService.fetchGroup(
+			objectEntryFolder.getGroupId());
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		_addBreadcrumbItem(
+			jsonArray, false,
+			ActionUtil.getSpaceFullURL(group.getClassPK(), themeDisplay),
+			group.getName(themeDisplay.getLocale()));
+
+		String[] parts = StringUtil.split(
+			objectEntryFolder.getTreePath(), CharPool.SLASH);
+
+		if (parts.length > 2) {
+			for (int i = 1; i < (parts.length - 1); i++) {
+				ObjectEntryFolder objectEntryFolder =
+					_objectEntryFolderLocalService.fetchObjectEntryFolder(
+						GetterUtil.getLong(parts[i]));
+
+				_addBreadcrumbItem(
+					jsonArray, false,
+					ActionUtil.geViewFolderFullURL(
+						objectEntryFolder.getObjectEntryFolderId(),
+						themeDisplay),
+					objectEntryFolder.getName());
+			}
+		}
+
+		_addBreadcrumbItem(jsonArray, true, null, objectEntryFolder.getName());
+
+		return HashMapBuilder.<String, Object>put(
+			"breadcrumbItems", jsonArray
+		).build();
 	}
 
 	@Override
@@ -143,6 +189,19 @@ public class ViewFolderDisplayContext extends BaseSectionDisplayContext {
 	@Override
 	protected String getCMSSectionFilterString() {
 		return null;
+	}
+
+	private void _addBreadcrumbItem(
+		JSONArray jsonArray, boolean active, String friendlyURL, String label) {
+
+		jsonArray.put(
+			JSONUtil.put(
+				"active", active
+			).put(
+				"href", () -> friendlyURL
+			).put(
+				"label", label
+			));
 	}
 
 	private final ObjectEntryFolderLocalService _objectEntryFolderLocalService;

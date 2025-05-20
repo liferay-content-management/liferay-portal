@@ -64,8 +64,7 @@ public abstract class BaseSectionDisplayContext {
 		Portal portal) {
 
 		_depotEntryLocalService = depotEntryLocalService;
-		_groupLocalService = groupLocalService;
-
+		this.groupLocalService = groupLocalService;
 		this.httpServletRequest = httpServletRequest;
 		this.language = language;
 
@@ -298,8 +297,7 @@ public abstract class BaseSectionDisplayContext {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		for (DepotEntry depotEntry : depotEntries) {
-			Group group = _groupLocalService.fetchGroup(
-				depotEntry.getGroupId());
+			Group group = groupLocalService.fetchGroup(depotEntry.getGroupId());
 
 			if (group != null) {
 				jsonArray.put(
@@ -314,6 +312,7 @@ public abstract class BaseSectionDisplayContext {
 		return jsonArray;
 	}
 
+	protected final GroupLocalService groupLocalService;
 	protected final HttpServletRequest httpServletRequest;
 	protected final Language language;
 	protected final ObjectEntryFolder objectEntryFolder;
@@ -377,7 +376,6 @@ public abstract class BaseSectionDisplayContext {
 	}
 
 	private final DepotEntryLocalService _depotEntryLocalService;
-	private final GroupLocalService _groupLocalService;
 	private final ObjectDefinitionService _objectDefinitionService;
 	private final ObjectDefinitionSettingLocalService
 		_objectDefinitionSettingLocalService;

@@ -12,6 +12,13 @@ ViewFolderDisplayContext viewFolderDisplayContext = (ViewFolderDisplayContext)re
 %>
 
 <div class="cms-section">
+	<div>
+		<react:component
+			module="{FolderBreadcrumb} from site-cms-site-initializer"
+			props="<%= viewFolderDisplayContext.getBreadcrumbReactData() %>"
+		/>
+	</div>
+
 	<frontend-data-set:headless-display
 		apiURL="<%= viewFolderDisplayContext.getAPIURL() %>"
 		bulkActionDropdownItems="<%= viewFolderDisplayContext.getBulkActionDropdownItems() %>"
