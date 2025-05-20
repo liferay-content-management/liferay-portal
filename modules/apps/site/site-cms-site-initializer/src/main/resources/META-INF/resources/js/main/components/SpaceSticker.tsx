@@ -30,9 +30,11 @@ function getDisplayType(
 export default function SpaceSticker({
 	displayType,
 	name,
+	showName = true,
 	size,
 }: {
 	name: string;
+	showName: boolean;
 } & Pick<React.ComponentProps<typeof ClaySticker>, 'displayType' | 'size'>) {
 	return (
 		<>
@@ -43,7 +45,7 @@ export default function SpaceSticker({
 				{name.charAt(0).toUpperCase()}
 			</ClaySticker>
 
-			<span className="ml-2">{name}</span>
+			{showName && <span className="ml-2">{name}</span>}
 		</>
 	);
 }

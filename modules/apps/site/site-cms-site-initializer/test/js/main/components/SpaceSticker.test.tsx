@@ -26,6 +26,15 @@ describe('SpaceSticker', () => {
 		expect(screen.getByText(spaceTitle)).toBeInTheDocument();
 	});
 
+	it('renders only the first letter of the name in uppercase', () => {
+		render(<SpaceSticker name={spaceTitle} showName={false} />);
+
+		expect(
+			screen.getByText(spaceTitle.charAt(0).toUpperCase())
+		).toBeInTheDocument();
+		expect(screen.queryByText(spaceTitle)).not.toBeInTheDocument();
+	});
+
 	it('applies the provided style to the ClaySticker', () => {
 		const {container} = render(
 			<SpaceSticker displayType="outline-3" name={spaceTitle} />
