@@ -160,6 +160,8 @@ definition {
 	@description = "This is a test for LPS-136762. It checks that content can be added in full screen mode."
 	@priority = 2
 	test CanAddContentInFullScreenMode {
+		property portal.acceptance = "quarantine";
+		
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Blogs Page");

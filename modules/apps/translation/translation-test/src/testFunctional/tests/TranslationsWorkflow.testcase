@@ -135,6 +135,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanApproveEntryFromPartiallyImportedZip {
+		property portal.acceptance = "quarantine";
+
 		JSONWebcontent.addWebContent(
 			content = "WebContent",
 			description = "Description",

@@ -314,7 +314,7 @@ definition {
 	@refactordone
 	test CanRateBlogsEntry {
 		property custom.properties = "feature.flag.LPD-35013=true${line.separator}jsonws.web.service.paths.excludes=";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",

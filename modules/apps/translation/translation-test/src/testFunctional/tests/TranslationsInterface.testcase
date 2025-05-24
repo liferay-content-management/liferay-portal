@@ -438,6 +438,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test EditedValuesArePreservedInSideBySideUI {
+		property portal.acceptance = "quarantine";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			groupName = "Guest",

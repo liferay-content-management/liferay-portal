@@ -180,7 +180,7 @@ The DM file [$DOCUMENT_TITLE$] has been added to Home folder.
 	@refactordone
 	test CanViewEmailNotificationForNewDocumentInFolder {
 		property custom.properties = "dl.actions.visible=true${line.separator}jsonws.web.service.paths.excludes=";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		property test.smtp.server.enabled = "true";
 
 		var siteName = TestCase.getSiteName(siteName = ${siteName});

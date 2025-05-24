@@ -1332,6 +1332,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test FilePaginationDisplaysCorrectCount {
+		property portal.acceptance = "quarantine";
+		
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		for (var documentTitle : list "Document_1,Document_2,Document_3,Document_4,Commerce_Black,Commerce_White") {

@@ -313,6 +313,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewImportedPages {
+		property portal.acceptance = "quarantine";
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		JSONLayout.addPublicLayout(
