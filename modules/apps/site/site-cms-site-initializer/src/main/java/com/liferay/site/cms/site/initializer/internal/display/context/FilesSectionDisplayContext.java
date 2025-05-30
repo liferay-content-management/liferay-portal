@@ -97,6 +97,13 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 							getDepotEntriesJSONArray(
 								depotEntryLocalService.getDepotEntries(
 									QueryUtil.ALL_POS, QueryUtil.ALL_POS)));
+						dropdownItem.putData(
+							"baseAssetLibraryViewURL",
+							StringBundler.concat(
+								themeDisplay.getPathFriendlyURLPublic(),
+								GroupConstants.CMS_FRIENDLY_URL, "/e/space/",
+								_portal.getClassNameId(DepotEntry.class),
+								StringPool.SLASH));
 						dropdownItem.setIcon("upload-multiple");
 						dropdownItem.setLabel(
 							language.get(httpServletRequest, "multiple-files"));

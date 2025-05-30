@@ -104,5 +104,4 @@ public class AllSectionDisplayContext extends BaseSectionDisplayContext {
 	protected String getCMSSectionFilterString() {
 		return StringPool.BLANK;
 	}
-
 }
