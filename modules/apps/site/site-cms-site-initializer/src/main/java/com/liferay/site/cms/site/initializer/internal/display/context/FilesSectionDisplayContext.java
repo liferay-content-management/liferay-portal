@@ -45,9 +45,7 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 		super(
 			depotEntryLocalService, groupLocalService, httpServletRequest,
 			language, objectDefinitionService,
-			objectDefinitionSettingLocalService);
-
-		_portal = portal;
+			objectDefinitionSettingLocalService, portal);
 	}
 
 	public Map<String, Object> getAdditionalProps() {
@@ -74,7 +72,7 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 							StringBundler.concat(
 								themeDisplay.getPathFriendlyURLPublic(),
 								GroupConstants.CMS_FRIENDLY_URL, "/e/space/",
-								_portal.getClassNameId(DepotEntry.class),
+								portal.getClassNameId(DepotEntry.class),
 								StringPool.SLASH));
 						dropdownItem.putData(
 							"baseFolderViewURL",
@@ -82,7 +80,7 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 								themeDisplay.getPathFriendlyURLPublic(),
 								GroupConstants.CMS_FRIENDLY_URL,
 								"/e/view-folder/",
-								_portal.getClassNameId(ObjectEntryFolder.class),
+								portal.getClassNameId(ObjectEntryFolder.class),
 								StringPool.SLASH));
 						dropdownItem.setIcon("folder");
 						dropdownItem.setLabel(
@@ -102,7 +100,7 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 							StringBundler.concat(
 								themeDisplay.getPathFriendlyURLPublic(),
 								GroupConstants.CMS_FRIENDLY_URL, "/e/space/",
-								_portal.getClassNameId(DepotEntry.class),
+								portal.getClassNameId(DepotEntry.class),
 								StringPool.SLASH));
 						dropdownItem.setIcon("upload-multiple");
 						dropdownItem.setLabel(
@@ -138,7 +136,7 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 				StringBundler.concat(
 					themeDisplay.getPathFriendlyURLPublic(),
 					GroupConstants.CMS_FRIENDLY_URL, "/e/edit-folder/",
-					_portal.getClassNameId(ObjectEntryFolder.class),
+					portal.getClassNameId(ObjectEntryFolder.class),
 					"/{embedded.id}?redirect=", themeDisplay.getURLCurrent()),
 				"pencil", "editFolder",
 				LanguageUtil.get(httpServletRequest, "edit"), "get", "update",
@@ -164,7 +162,5 @@ public class FilesSectionDisplayContext extends BaseSectionDisplayContext {
 	protected String getCMSSectionFilterString() {
 		return "cmsSection eq 'files'";
 	}
-
-	private final Portal _portal;
 
 }

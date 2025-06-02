@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -55,8 +56,8 @@ public abstract class BaseSectionDisplayContext {
 		GroupLocalService groupLocalService,
 		HttpServletRequest httpServletRequest, Language language,
 		ObjectDefinitionService objectDefinitionService,
-		ObjectDefinitionSettingLocalService
-			objectDefinitionSettingLocalService) {
+		ObjectDefinitionSettingLocalService objectDefinitionSettingLocalService,
+		Portal portal) {
 
 		this.depotEntryLocalService = depotEntryLocalService;
 		_groupLocalService = groupLocalService;
@@ -75,6 +76,7 @@ public abstract class BaseSectionDisplayContext {
 			object instanceof ObjectEntryFolder ? (ObjectEntryFolder)object :
 				null;
 
+		this.portal = portal;
 		themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
@@ -224,6 +226,7 @@ public abstract class BaseSectionDisplayContext {
 	protected final DepotEntryLocalService depotEntryLocalService;
 	protected final HttpServletRequest httpServletRequest;
 	protected final Language language;
+	protected final Portal portal;
 	protected final ThemeDisplay themeDisplay;
 
 	private JSONArray _getDepotEntriesJSONArray(

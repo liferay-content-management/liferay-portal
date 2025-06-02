@@ -45,10 +45,9 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 		super(
 			depotEntryLocalService, groupLocalService, httpServletRequest,
 			language, objectDefinitionService,
-			objectDefinitionSettingLocalService);
+			objectDefinitionSettingLocalService, portal);
 
 		_depotEntryLocalService = depotEntryLocalService;
-		_portal = portal;
 	}
 
 	public Map<String, Object> getAdditionalProps() {
@@ -75,7 +74,7 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 							StringBundler.concat(
 								themeDisplay.getPathFriendlyURLPublic(),
 								GroupConstants.CMS_FRIENDLY_URL, "/e/space/",
-								_portal.getClassNameId(DepotEntry.class),
+								portal.getClassNameId(DepotEntry.class),
 								StringPool.SLASH));
 						dropdownItem.putData(
 							"baseFolderViewURL",
@@ -83,7 +82,7 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 								themeDisplay.getPathFriendlyURLPublic(),
 								GroupConstants.CMS_FRIENDLY_URL,
 								"/e/view-folder/",
-								_portal.getClassNameId(ObjectEntryFolder.class),
+								portal.getClassNameId(ObjectEntryFolder.class),
 								StringPool.SLASH));
 						dropdownItem.setIcon("folder");
 						dropdownItem.setLabel(
@@ -120,7 +119,7 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 				StringBundler.concat(
 					themeDisplay.getPathFriendlyURLPublic(),
 					GroupConstants.CMS_FRIENDLY_URL, "/e/edit-folder/",
-					_portal.getClassNameId(ObjectEntryFolder.class),
+					portal.getClassNameId(ObjectEntryFolder.class),
 					"/{embedded.id}?redirect=", themeDisplay.getURLCurrent()),
 				"pencil", "editFolder",
 				LanguageUtil.get(httpServletRequest, "edit"), "get", "update",
@@ -142,6 +141,5 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 	}
 
 	private final DepotEntryLocalService _depotEntryLocalService;
-	private final Portal _portal;
 
 }
