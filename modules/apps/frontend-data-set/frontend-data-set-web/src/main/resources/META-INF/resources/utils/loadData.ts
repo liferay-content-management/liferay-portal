@@ -84,7 +84,7 @@ export async function loadData({
 	}
 
 	if (delta) {
-		delta && url.searchParams.append('pageSize', delta.toString());
+		url.searchParams.append('pageSize', delta.toString());
 	}
 
 	if (searchParam) {
