@@ -25,7 +25,7 @@ import java.util.Map;
  * @author Roberto Díaz
  */
 public class SpaceContentsAbstractSectionDisplayContext
-	extends ContentsSectionDisplayContext {
+	extends SpaceContentsSectionDisplayContext {
 
 	public SpaceContentsAbstractSectionDisplayContext(
 		long assetLibraryId, DepotEntryLocalService depotEntryLocalService,
@@ -36,15 +36,9 @@ public class SpaceContentsAbstractSectionDisplayContext
 		Portal portal) {
 
 		super(
-			depotEntryLocalService, groupLocalService, httpServletRequest,
-			language, objectDefinitionService,
+			assetLibraryId, depotEntryLocalService, groupLocalService,
+			httpServletRequest, language, objectDefinitionService,
 			objectDefinitionSettingLocalService, portal);
-
-		_assetLibraryId = assetLibraryId;
-		_portal = portal;
-
-		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
 	}
 
 	@Override
@@ -53,55 +47,21 @@ public class SpaceContentsAbstractSectionDisplayContext
 			super.getAPIURL(), "&page=", _PAGE, "&pageSize=", _PAGE_SIZE);
 	}
 
-	@Override
-	public Map<String, Object> getEmptyState() {
-		return HashMapBuilder.<String, Object>put(
-			"description",
-			language.get(
-				httpServletRequest,
-				"create-and-manage-content-within-this-space")
-		).put(
-			"image", "/states/cms_empty_state_content.svg"
-		).put(
-			"title", language.get(httpServletRequest, "no-content-yet")
-		).build();
-	}
-
 	public Map<String, Object> getHeaderProps() throws Exception {
-		Group group = groupLocalService.fetchGroup(_assetLibraryId);
-
-		String logoColor = "outline-0";
-		String name = StringPool.BLANK;
-
-		if (group != null) {
-			UnicodeProperties unicodeProperties =
-				group.getTypeSettingsProperties();
-
-			logoColor = GetterUtil.get(
-				unicodeProperties.get("logoColor"), "outline-0");
-
-			name = group.getDescriptiveName(_themeDisplay.getLocale());
-		}
-
 		return HashMapBuilder.<String, Object>put(
-			"viewAllLabel",
-			language.get(httpServletRequest, "view-all-content")
+			"viewAllLabel", language.get(httpServletRequest, "view-all-content")
 		).put(
 			"viewAllURL",
 			StringBundler.concat(
 				themeDisplay.getPathFriendlyURLPublic(),
 				GroupConstants.CMS_FRIENDLY_URL, "/e/space-contents/",
-				_portal.getClassNameId(DepotEntry.class), StringPool.SLASH,
-				_assetLibraryId)
+				portal.getClassNameId(DepotEntry.class), StringPool.SLASH,
+				assetLibraryId)
 		).build();
 	}
 
 	private static final int _PAGE = 1;
 
 	private static final int _PAGE_SIZE = 6;
-
-	private final long _assetLibraryId;
-	private final Portal _portal;
-	private final ThemeDisplay _themeDisplay;
 
 }
