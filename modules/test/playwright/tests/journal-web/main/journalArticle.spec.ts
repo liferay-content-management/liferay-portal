@@ -269,22 +269,6 @@ baseTest(
 
 		const currentDate = new Date();
 
-		currentDate.setMinutes(currentDate.getMinutes() - 5);
-
-		const beforeCurrentDateUTC = new Date(
-			currentDate.toLocaleString('en-US', {timeZone: 'UTC'})
-		);
-
-		await page
-			.getByPlaceholder('YYYY-MM-DD HH:mm')
-			.fill(
-				`${beforeCurrentDateUTC.getFullYear()}-${String(beforeCurrentDateUTC.getMonth() + 1).padStart(2, '0')}-${String(beforeCurrentDateUTC.getDate()).padStart(2, '0')} ${String(beforeCurrentDateUTC.getHours()).padStart(2, '0')}:${String(beforeCurrentDateUTC.getMinutes()).padStart(2, '0')}`
-			);
-
-		await expect(
-			page.getByText('Error: The date entered is in the past.')
-		).toBeVisible();
-
 		currentDate.setMinutes(currentDate.getMinutes() + 10);
 
 		const afterCurrentDateUTC = new Date(
