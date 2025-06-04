@@ -22,21 +22,23 @@ import java.util.Map;
  * @author Georgel Pop
  * @author Roberto Díaz
  */
-public class SpaceListDisplayContext {
+public class SpaceStickerDisplayContext {
 
-	public SpaceListDisplayContext(
-		long assetLibraryId, GroupLocalService groupLocalService,
-		HttpServletRequest httpServletRequest) {
+	public SpaceStickerDisplayContext(
+		long groupId, GroupLocalService groupLocalService,
+		HttpServletRequest httpServletRequest, String size) {
 
-		_assetLibraryId = assetLibraryId;
+		_groupId = groupId;
 		_groupLocalService = groupLocalService;
 
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		_size = size;
 	}
 
 	public Map<String, Object> getProps() throws Exception {
-		Group group = _groupLocalService.fetchGroup(_assetLibraryId);
+		Group group = _groupLocalService.fetchGroup(_groupId);
 
 		String logoColor = "outline-0";
 		String name = StringPool.BLANK;
@@ -56,12 +58,13 @@ public class SpaceListDisplayContext {
 		).put(
 			"name", name
 		).put(
-			"size", "sm"
+			"size", _size
 		).build();
 	}
 
-	private final long _assetLibraryId;
+	private final long _groupId;
 	private final GroupLocalService _groupLocalService;
+	private final String _size;
 	private final ThemeDisplay _themeDisplay;
 
 }

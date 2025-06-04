@@ -9,10 +9,7 @@ import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.fragment.renderer.FragmentRendererContext;
 import com.liferay.frontend.taglib.react.servlet.taglib.ComponentTag;
 import com.liferay.portal.kernel.language.Language;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.site.cms.site.initializer.internal.constants.CMSSpaceStickerConstants;
 import com.liferay.site.cms.site.initializer.internal.display.context.SpaceStickerDisplayContext;
 import com.liferay.taglib.servlet.PageContextFactoryUtil;
@@ -30,19 +27,19 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * @author Georgel Pop
+ * @author Roberto Díaz
  */
 @Component(service = FragmentRenderer.class)
-public class SpaceListFragmentRenderer extends BaseSectionFragmentRenderer {
+public class SpaceStickerFragmentRenderer extends BaseSectionFragmentRenderer {
 
 	@Override
 	public String getCollectionKey() {
-		return "space-list";
+		return "sections";
 	}
 
 	@Override
 	public String getLabel(Locale locale) {
-		return _language.get(locale, "space-list");
+		return _language.get(locale, "space-sticker");
 	}
 
 	@Override
@@ -61,7 +58,8 @@ public class SpaceListFragmentRenderer extends BaseSectionFragmentRenderer {
 			ComponentTag componentTag = new ComponentTag();
 
 			componentTag.setModule(
-				"{SpaceList} from site-cms-site-initializer");
+				"{SpaceSticker} from site-cms-site-initializer");
+
 			componentTag.setPageContext(
 				PageContextFactoryUtil.create(
 					httpServletRequest, httpServletResponse));
@@ -69,15 +67,10 @@ public class SpaceListFragmentRenderer extends BaseSectionFragmentRenderer {
 			SpaceStickerDisplayContext spaceStickerDisplayContext =
 				new SpaceStickerDisplayContext(
 					getGroupId(httpServletRequest), _groupLocalService,
-					httpServletRequest, CMSSpaceStickerConstants.SM);
-
-			if (PortalRunMode.isTestMode()) {
-				httpServletRequest.setAttribute(
-					SpaceStickerDisplayContext.class.getName(),
-					spaceStickerDisplayContext);
-			}
+					httpServletRequest, CMSSpaceStickerConstants.LG);
 
 			componentTag.setProps(spaceStickerDisplayContext.getProps());
+
 			componentTag.setServletContext(_servletContext);
 
 			componentTag.doStartTag();
@@ -87,14 +80,9 @@ public class SpaceListFragmentRenderer extends BaseSectionFragmentRenderer {
 			printWriter.write("</div>");
 		}
 		catch (Exception exception) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(exception);
-			}
+			throw new RuntimeException(exception);
 		}
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		SpaceListFragmentRenderer.class);
 
 	@Reference
 	private GroupLocalService _groupLocalService;
