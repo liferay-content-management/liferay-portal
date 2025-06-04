@@ -84,6 +84,8 @@ public abstract class BaseSectionDisplayContext {
 
 		themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		initEmptyState();
 	}
 
 	public String getAPIURL() {
@@ -164,7 +166,16 @@ public abstract class BaseSectionDisplayContext {
 		};
 	}
 
-	public abstract Map<String, Object> getEmptyState();
+	public Map<String, Object> getEmptyState() {
+		return HashMapBuilder.<String, Object>put(
+			"description",
+			language.get(httpServletRequest, emptyStateDescriptionKey)
+		).put(
+			"image", emptyStateImage
+		).put(
+			"title", language.get(httpServletRequest, emptyStateTitleKey)
+		).build();
+	}
 
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
 		return ListUtil.fromArray(
@@ -298,7 +309,12 @@ public abstract class BaseSectionDisplayContext {
 
 	protected abstract String getRootObjectEntryFolderExternalReferenceCode();
 
+	protected abstract void initEmptyState();
+
 	protected final DepotEntryLocalService depotEntryLocalService;
+	protected String emptyStateDescriptionKey;
+	protected String emptyStateImage;
+	protected String emptyStateTitleKey;
 	protected final GroupLocalService groupLocalService;
 	protected final HttpServletRequest httpServletRequest;
 	protected final Language language;

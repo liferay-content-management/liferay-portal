@@ -13,13 +13,11 @@ import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Jürgen Kappler
@@ -38,19 +36,6 @@ public class ViewAllSectionDisplayContext extends BaseSectionDisplayContext {
 			depotEntryLocalService, groupLocalService, httpServletRequest,
 			language, objectDefinitionService,
 			objectDefinitionSettingLocalService, portal);
-	}
-
-	@Override
-	public Map<String, Object> getEmptyState() {
-		return HashMapBuilder.<String, Object>put(
-			"description",
-			LanguageUtil.get(
-				httpServletRequest, "click-new-to-create-your-first-asset")
-		).put(
-			"image", "/states/cms_empty_state.svg"
-		).put(
-			"title", LanguageUtil.get(httpServletRequest, "no-assets-yet")
-		).build();
 	}
 
 	@Override
@@ -85,6 +70,13 @@ public class ViewAllSectionDisplayContext extends BaseSectionDisplayContext {
 	@Override
 	protected String getRootObjectEntryFolderExternalReferenceCode() {
 		return null;
+	}
+
+	@Override
+	protected void initEmptyState() {
+		emptyStateDescriptionKey = "click-new-to-create-your-first-asset";
+		emptyStateImage = "/states/cms_empty_state.svg";
+		emptyStateTitleKey = "no-assets-yet";
 	}
 
 }

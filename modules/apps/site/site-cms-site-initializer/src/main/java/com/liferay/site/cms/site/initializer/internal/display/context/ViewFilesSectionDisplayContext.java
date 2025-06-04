@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.util.Portal;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Sam Ziemer
@@ -42,19 +41,6 @@ public class ViewFilesSectionDisplayContext extends BaseSectionDisplayContext {
 			depotEntryLocalService, groupLocalService, httpServletRequest,
 			language, objectDefinitionService,
 			objectDefinitionSettingLocalService, portal);
-	}
-
-	@Override
-	public Map<String, Object> getEmptyState() {
-		return HashMapBuilder.<String, Object>put(
-			"description",
-			LanguageUtil.get(
-				httpServletRequest, "click-new-to-create-your-first-file")
-		).put(
-			"image", "/states/cms_empty_state_files.svg"
-		).put(
-			"title", LanguageUtil.get(httpServletRequest, "no-files-yet")
-		).build();
 	}
 
 	@Override
@@ -101,6 +87,13 @@ public class ViewFilesSectionDisplayContext extends BaseSectionDisplayContext {
 	@Override
 	protected String getRootObjectEntryFolderExternalReferenceCode() {
 		return ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES;
+	}
+
+	@Override
+	protected void initEmptyState() {
+		emptyStateDescriptionKey = "click-new-to-create-your-first-file";
+		emptyStateImage = "/states/cms_empty_state_files.svg";
+		emptyStateTitleKey = "no-files-yet";
 	}
 
 }

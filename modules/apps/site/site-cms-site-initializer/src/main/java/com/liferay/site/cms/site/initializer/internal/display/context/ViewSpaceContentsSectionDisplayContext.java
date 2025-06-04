@@ -42,6 +42,14 @@ public class ViewSpaceContentsSectionDisplayContext
 		return String.format("groupIds/any(g:g eq %s) and ", groupId);
 	}
 
+	@Override
+	protected void initEmptyState() {
+		emptyStateDescriptionKey =
+			"create-and-manage-content-within-this-space";
+		emptyStateImage = "/states/cms_empty_state_content.svg";
+		emptyStateTitleKey = "no-content-yet";
+	}
+
 	protected final long groupId;
 	protected final Portal portal;
 

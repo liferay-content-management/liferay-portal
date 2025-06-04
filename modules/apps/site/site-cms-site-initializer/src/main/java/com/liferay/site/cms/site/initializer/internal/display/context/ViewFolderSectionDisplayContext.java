@@ -99,41 +99,6 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 	}
 
 	@Override
-	public Map<String, Object> getEmptyState() {
-		String rootObjectEntryFolderExternalReferenceCode =
-			getRootObjectEntryFolderExternalReferenceCode();
-
-		String description = "click-new-to-create-your-first-asset";
-		String image = "/states/cms_empty_state.svg";
-		String title = "no-assets-yet";
-
-		if (Objects.equals(
-				rootObjectEntryFolderExternalReferenceCode,
-				ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS)) {
-
-			description = "click-new-to-create-your-first-piece-of-content";
-			image = "/states/cms_empty_state_content.svg";
-			title = "no-content-yet";
-		}
-		else if (Objects.equals(
-					rootObjectEntryFolderExternalReferenceCode,
-					ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES)) {
-
-			description = "click-new-to-create-your-first-file";
-			image = "/states/cms_empty_state_files.svg";
-			title = "no-files-yet";
-		}
-
-		return HashMapBuilder.<String, Object>put(
-			"description", LanguageUtil.get(httpServletRequest, description)
-		).put(
-			"image", image
-		).put(
-			"title", LanguageUtil.get(httpServletRequest, title)
-		).build();
-	}
-
-	@Override
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
 		List<FDSActionDropdownItem> fdsActionDropdownItems =
 			super.getFDSActionDropdownItems();
@@ -236,6 +201,34 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 	@Override
 	protected String getCMSSectionFilterString() {
 		return null;
+	}
+
+	@Override
+	protected void initEmptyState() {
+		String rootObjectEntryFolderExternalReferenceCode =
+			getRootObjectEntryFolderExternalReferenceCode();
+
+		emptyStateDescriptionKey = "click-new-to-create-your-first-asset";
+		emptyStateImage = "/states/cms_empty_state.svg";
+		emptyStateTitleKey = "no-assets-yet";
+
+		if (Objects.equals(
+				rootObjectEntryFolderExternalReferenceCode,
+				ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS)) {
+
+			emptyStateDescriptionKey =
+				"click-new-to-create-your-first-piece-of-content";
+			emptyStateImage = "/states/cms_empty_state_content.svg";
+			emptyStateTitleKey = "no-content-yet";
+		}
+		else if (Objects.equals(
+					rootObjectEntryFolderExternalReferenceCode,
+					ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES)) {
+
+			emptyStateDescriptionKey = "click-new-to-create-your-first-file";
+			emptyStateImage = "/states/cms_empty_state_files.svg";
+			emptyStateTitleKey = "no-files-yet";
+		}
 	}
 
 	private void _addBreadcrumbItem(
