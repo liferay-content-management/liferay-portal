@@ -5,12 +5,20 @@
 
 package com.liferay.site.cms.site.initializer.internal.fragment.renderer;
 
+import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.fragment.renderer.FragmentRendererContext;
+import com.liferay.info.exception.NoSuchInfoItemException;
+import com.liferay.info.item.InfoItemIdentifier;
+import com.liferay.info.item.InfoItemReference;
+import com.liferay.info.item.InfoItemServiceRegistry;
+import com.liferay.info.item.provider.InfoItemObjectProvider;
 import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.site.cms.site.initializer.internal.display.context.SpaceContentsAbstractSectionDisplayContext;
@@ -59,6 +67,8 @@ public class SpaceContentsAbstractSectionFragmentRenderer
 			httpServletRequest.setAttribute(
 				SpaceContentsAbstractSectionDisplayContext.class.getName(),
 				new SpaceContentsAbstractSectionDisplayContext(
+					_getObjectEntryGroupId(
+						fragmentRendererContext.getContextInfoItemReference()),
 					_depotEntryLocalService, _groupLocalService,
 					httpServletRequest, _language, _objectDefinitionService,
 					_objectDefinitionSettingLocalService, _portal));
@@ -70,11 +80,51 @@ public class SpaceContentsAbstractSectionFragmentRenderer
 		}
 	}
 
+	private long _getObjectEntryGroupId(InfoItemReference infoItemReference) {
+		if (infoItemReference == null) {
+			return 0;
+		}
+
+		InfoItemIdentifier infoItemIdentifier =
+			infoItemReference.getInfoItemIdentifier();
+
+		InfoItemObjectProvider<Object> infoItemObjectProvider =
+			_infoItemServiceRegistry.getFirstInfoItemService(
+				InfoItemObjectProvider.class, infoItemReference.getClassName(),
+				infoItemIdentifier.getInfoItemServiceFilter());
+
+		try {
+			DepotEntry depotEntry =
+				(DepotEntry)infoItemObjectProvider.getInfoItem(
+					infoItemIdentifier);
+
+			if (depotEntry != null) {
+				return depotEntry.getGroupId();
+			}
+		}
+		catch (NoSuchInfoItemException noSuchInfoItemException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Unable to get object with info item reference " +
+						infoItemReference,
+					noSuchInfoItemException);
+			}
+		}
+
+		return 0;
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		SpaceContentsAbstractSectionFragmentRenderer.class);
+
 	@Reference
 	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	@Reference
 	private Language _language;
