@@ -43,42 +43,19 @@ public class ImportAndOverrideDataDefinitionMVCActionCommandTest
 				_read("previous_version_valid_data_definition.json"),
 				TestPropsValues.getUser());
 
-		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
-			createMockLiferayPortletActionRequest(
-				"previous_version_valid_data_definition.json",
-				"Imported Structure", dataDefinition.getId());
+		_processAction(
+			"previous_version_valid_data_definition.json", dataDefinition);
 
-		setUpUploadPortletRequest(mockLiferayPortletActionRequest);
+		DataDefinition importedDataDefinition = getImportedDataDefinition();
 
-		_mvcActionCommand.processAction(
-			mockLiferayPortletActionRequest,
-			new MockLiferayPortletActionResponse());
+		_assertDataDefinitionKey(
+			dataDefinition.getDataDefinitionKey(), importedDataDefinition);
 
-		Assert.assertNull(
-			SessionMessages.get(
-				mockLiferayPortletActionRequest,
-				portal.getPortletId(mockLiferayPortletActionRequest) +
-					SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_ERROR_MESSAGE));
-		Assert.assertNull(
-			SessionErrors.get(
-				mockLiferayPortletActionRequest,
-				"importDataDefinitionErrorMessage"));
+		_assertDataDefinitionFields(
+			importedDataDefinition.getDataDefinitionFields(), "Text1");
 
-		dataDefinition = getImportedDataDefinition();
-
-		DataDefinitionField[] dataDefinitionFields =
-			dataDefinition.getDataDefinitionFields();
-
-		String previousTextFieldName = "Text1";
-
-		Assert.assertTrue(
-			StringUtil.startsWith(
-				dataDefinitionFields[0].getName(), previousTextFieldName));
-
-		String suffix = StringUtil.removeSubstring(
-			dataDefinitionFields[0].getName(), previousTextFieldName);
-
-		Assert.assertTrue(Validator.isNumber(suffix));
+		_assertSuffix(
+			importedDataDefinition.getDataDefinitionFields(), "Text1");
 	}
 
 	@Test
@@ -89,11 +66,55 @@ public class ImportAndOverrideDataDefinitionMVCActionCommandTest
 				_read("previous_version_valid_data_definition.json"),
 				TestPropsValues.getUser());
 
+		_processAction(
+			"previous_version_valid_data_definition_with_data_definition_key." +
+				"json",
+			dataDefinition);
+
+		DataDefinition importedDataDefinition = getImportedDataDefinition();
+
+		_assertDataDefinitionKey(
+			"CUSTOM_DATA_DEFINITION_KEY", importedDataDefinition);
+
+		_assertDataDefinitionFields(
+			importedDataDefinition.getDataDefinitionFields(), "Text1");
+
+		_assertSuffix(
+			importedDataDefinition.getDataDefinitionFields(), "Text1");
+	}
+
+	private void _assertDataDefinitionFields(
+		DataDefinitionField[] dataDefinitionFields,
+		String previousTextFieldName) {
+
+		Assert.assertTrue(
+			StringUtil.startsWith(
+				dataDefinitionFields[0].getName(), previousTextFieldName));
+	}
+
+	private void _assertDataDefinitionKey(
+		String expectedDataDefinitionKey, DataDefinition dataDefinition) {
+
+		Assert.assertEquals(
+			expectedDataDefinitionKey, dataDefinition.getDataDefinitionKey());
+	}
+
+	private void _assertSuffix(
+		DataDefinitionField[] dataDefinitionFields,
+		String previousTextFieldName) {
+
+		String suffix = StringUtil.removeSubstring(
+			dataDefinitionFields[0].getName(), previousTextFieldName);
+
+		Assert.assertTrue(Validator.isNumber(suffix));
+	}
+
+	private void _processAction(String fileName, DataDefinition dataDefinition)
+		throws Exception {
+
 		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
 			createMockLiferayPortletActionRequest(
-				"previous_version_valid_data_definition_with_data_definition_" +
-					"key.json",
-				"Imported Structure", dataDefinition.getId());
+				fileName, "Imported Structure", dataDefinition.getId());
 
 		setUpUploadPortletRequest(mockLiferayPortletActionRequest);
 
@@ -110,26 +131,6 @@ public class ImportAndOverrideDataDefinitionMVCActionCommandTest
 			SessionErrors.get(
 				mockLiferayPortletActionRequest,
 				"importDataDefinitionErrorMessage"));
-
-		dataDefinition = getImportedDataDefinition();
-
-		Assert.assertEquals(
-			"CUSTOM_DATA_DEFINITION_KEY",
-			dataDefinition.getDataDefinitionKey());
-
-		DataDefinitionField[] dataDefinitionFields =
-			dataDefinition.getDataDefinitionFields();
-
-		String previousTextFieldName = "Text1";
-
-		Assert.assertTrue(
-			StringUtil.startsWith(
-				dataDefinitionFields[0].getName(), previousTextFieldName));
-
-		String suffix = StringUtil.removeSubstring(
-			dataDefinitionFields[0].getName(), previousTextFieldName);
-
-		Assert.assertTrue(Validator.isNumber(suffix));
 	}
 
 	private String _read(String fileName) throws Exception {
