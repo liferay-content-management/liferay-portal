@@ -11,6 +11,8 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.web.internal.util.DataDefinitionUtil;
+import com.liferay.journal.web.internal.util.ImportAndOverrideDataDefinitionThreadLocal;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
@@ -78,8 +80,14 @@ public class ImportAndOverrideDataDefinitionMVCActionCommand
 			dataDefinition.setExternalReferenceCode(
 				ddmStructure::getExternalReferenceCode);
 
-			dataDefinitionResource.putDataDefinition(
-				dataDefinitionId, dataDefinition);
+			try (SafeCloseable safeCloseable =
+					ImportAndOverrideDataDefinitionThreadLocal.
+						setImportAndOverrideDataDefinitionWithSafeCloseable(
+							true)) {
+
+				dataDefinitionResource.putDataDefinition(
+					dataDefinitionId, dataDefinition);
+			}
 
 			SessionMessages.add(
 				actionRequest, "importDataDefinitionSuccessMessage");

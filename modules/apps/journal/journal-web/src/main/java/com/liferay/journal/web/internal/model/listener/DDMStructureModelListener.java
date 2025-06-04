@@ -9,6 +9,7 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.web.internal.exception.DDMStructureValidationModelListenerException;
+import com.liferay.journal.web.internal.util.ImportAndOverrideDataDefinitionThreadLocal;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.log.Log;
@@ -38,7 +39,9 @@ public class DDMStructureModelListener extends BaseModelListener<DDMStructure> {
 				JournalArticle.class)) ||
 			Objects.equals(
 				originalDDMStructure.getStructureKey(),
-				ddmStructure.getStructureKey())) {
+				ddmStructure.getStructureKey()) ||
+			ImportAndOverrideDataDefinitionThreadLocal.
+				isImportAndOverrideDataDefinition()) {
 
 			return;
 		}
