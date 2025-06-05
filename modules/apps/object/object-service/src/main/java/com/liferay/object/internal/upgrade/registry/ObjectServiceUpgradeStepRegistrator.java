@@ -11,6 +11,7 @@ import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectValidationRuleSettingConstants;
 import com.liferay.object.internal.upgrade.v10_0_1.ObjectDefinitionPortletIdUpgradeProcess;
+import com.liferay.object.internal.upgrade.v10_19_1.ObjectEntryFolderAddAssetResourcePermissionUpgradeProcess;
 import com.liferay.object.internal.upgrade.v10_1_1.ObjectDefinitionStaleUserIdUpgradeProcess;
 import com.liferay.object.internal.upgrade.v10_1_1.ObjectFieldStaleUserIdUpgradeProcess;
 import com.liferay.object.internal.upgrade.v10_1_1.ObjectRelationshipStaleUserIdUpgradeProcess;
@@ -628,6 +629,11 @@ public class ObjectServiceUpgradeStepRegistrator
 			"10.18.0", "10.19.0",
 			new com.liferay.object.internal.upgrade.v10_19_0.
 				ObjectDefinitionUpgradeProcess());
+
+		registry.register(
+			"10.19.0", "10.19.1",
+			new ObjectEntryFolderAddAssetResourcePermissionUpgradeProcess(
+				_resourcePermissionLocalService, _roleLocalService));
 	}
 
 	@Reference
