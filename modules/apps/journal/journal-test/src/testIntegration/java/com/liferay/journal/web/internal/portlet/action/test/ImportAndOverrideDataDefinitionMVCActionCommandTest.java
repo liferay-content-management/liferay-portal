@@ -83,6 +83,33 @@ public class ImportAndOverrideDataDefinitionMVCActionCommandTest
 			importedDataDefinition.getDataDefinitionFields(), "Text1");
 	}
 
+	@Test
+	public void testProcessActionOverrideWithValidDataDefinition()
+		throws Exception {
+
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", dataDefinitionResourceFactory, group.getGroupId(),
+				_read("previous_version_valid_data_definition.json"),
+				TestPropsValues.getUser());
+
+		_processAction(
+			"valid_data_definition_with_data_definition_key_and_external_" +
+				"reference_code.json",
+			dataDefinition);
+
+		DataDefinition importedDataDefinition = getImportedDataDefinition();
+
+		_assertDataDefinitionKey(
+			"CUSTOM_DATA_DEFINITION_KEY", importedDataDefinition);
+
+		_assertDataDefinitionFields(
+			importedDataDefinition.getDataDefinitionFields(), "Text32861154");
+
+		_assertEmptySuffix(
+			importedDataDefinition.getDataDefinitionFields(), "Text32861154");
+	}
+
 	private void _assertDataDefinitionFields(
 		DataDefinitionField[] dataDefinitionFields,
 		String previousTextFieldName) {
@@ -97,6 +124,16 @@ public class ImportAndOverrideDataDefinitionMVCActionCommandTest
 
 		Assert.assertEquals(
 			expectedDataDefinitionKey, dataDefinition.getDataDefinitionKey());
+	}
+
+	private void _assertEmptySuffix(
+		DataDefinitionField[] dataDefinitionFields,
+		String previousTextFieldName) {
+
+		String suffix = StringUtil.removeSubstring(
+			dataDefinitionFields[0].getName(), previousTextFieldName);
+
+		Assert.assertTrue(Validator.isBlank(suffix));
 	}
 
 	private void _assertSuffix(
