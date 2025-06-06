@@ -21,6 +21,7 @@ import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -83,12 +84,16 @@ public abstract class BaseSectionDisplayContext {
 
 		themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		populateEmptyStateMessages();
 	}
 
 	public String getAPIURL() {
-		StringBundler sb = new StringBundler(4);
+		StringBundler sb = new StringBundler(6);
 
 		sb.append("/o/search/v1.0/search?emptySearch=true&filter=");
+
+		sb.append(getFilterByGroupString());
 
 		if (objectEntryFolder != null) {
 			sb.append("folderId eq ");
@@ -99,6 +104,8 @@ public abstract class BaseSectionDisplayContext {
 		}
 
 		sb.append("&nestedFields=embedded,file.thumbnailURL");
+
+		sb.append(getPaginationString());
 
 		return sb.toString();
 	}
@@ -158,7 +165,16 @@ public abstract class BaseSectionDisplayContext {
 		};
 	}
 
-	public abstract Map<String, Object> getEmptyState();
+	public Map<String, Object> getEmptyState() {
+		return HashMapBuilder.<String, Object>put(
+			"description",
+			language.get(httpServletRequest, emptyStateDescription)
+		).put(
+			"image", emptyStateImage
+		).put(
+			"title", language.get(httpServletRequest, emptyStateTitle)
+		).build();
+	}
 
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
 		return ListUtil.fromArray(
@@ -223,6 +239,8 @@ public abstract class BaseSectionDisplayContext {
 				"headless"));
 	}
 
+	public abstract void populateEmptyStateMessages();
+
 	protected void addStructureContentDropdownItems(CreationMenu creationMenu) {
 		for (ObjectDefinition objectDefinition :
 				_objectDefinitionService.getCMSObjectDefinitions(
@@ -282,11 +300,22 @@ public abstract class BaseSectionDisplayContext {
 		return jsonArray;
 	}
 
+	protected String getFilterByGroupString() {
+		return StringPool.BLANK;
+	}
+
 	protected abstract String[] getObjectFolderExternalReferenceCodes();
+
+	protected String getPaginationString() {
+		return StringPool.BLANK;
+	}
 
 	protected abstract String getRootObjectEntryFolderExternalReferenceCode();
 
 	protected final DepotEntryLocalService depotEntryLocalService;
+	protected String emptyStateDescription;
+	protected String emptyStateImage;
+	protected String emptyStateTitle;
 	protected final GroupLocalService groupLocalService;
 	protected final HttpServletRequest httpServletRequest;
 	protected final Language language;

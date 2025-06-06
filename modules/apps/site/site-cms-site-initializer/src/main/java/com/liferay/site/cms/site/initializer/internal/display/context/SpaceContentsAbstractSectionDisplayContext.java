@@ -28,7 +28,7 @@ public class SpaceContentsAbstractSectionDisplayContext
 	extends SpaceContentsSectionDisplayContext {
 
 	public SpaceContentsAbstractSectionDisplayContext(
-		long assetLibraryId, DepotEntryLocalService depotEntryLocalService,
+		long groupId, DepotEntryLocalService depotEntryLocalService,
 		GroupLocalService groupLocalService,
 		HttpServletRequest httpServletRequest, Language language,
 		ObjectDefinitionService objectDefinitionService,
@@ -36,15 +36,9 @@ public class SpaceContentsAbstractSectionDisplayContext
 		Portal portal) {
 
 		super(
-			assetLibraryId, depotEntryLocalService, groupLocalService,
+			groupId, depotEntryLocalService, groupLocalService,
 			httpServletRequest, language, objectDefinitionService,
 			objectDefinitionSettingLocalService, portal);
-	}
-
-	@Override
-	public String getAPIURL() {
-		return StringBundler.concat(
-			super.getAPIURL(), "&page=", _PAGE, "&pageSize=", _PAGE_SIZE);
 	}
 
 	public Map<String, Object> getHeaderProps() throws Exception {
@@ -56,8 +50,13 @@ public class SpaceContentsAbstractSectionDisplayContext
 				themeDisplay.getPathFriendlyURLPublic(),
 				GroupConstants.CMS_FRIENDLY_URL, "/e/space-contents/",
 				portal.getClassNameId(DepotEntry.class), StringPool.SLASH,
-				assetLibraryId)
+				groupId)
 		).build();
+	}
+
+	@Override
+	protected String getPaginationString() {
+		return StringBundler.concat("&page=", _PAGE, "&pageSize=", _PAGE_SIZE);
 	}
 
 	private static final int _PAGE = 1;
