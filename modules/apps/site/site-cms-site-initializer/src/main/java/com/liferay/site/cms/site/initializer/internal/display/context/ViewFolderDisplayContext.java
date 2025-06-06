@@ -56,6 +56,8 @@ public class ViewFolderDisplayContext extends BaseSectionDisplayContext {
 			objectDefinitionSettingLocalService, portal);
 
 		_objectEntryFolderLocalService = objectEntryFolderLocalService;
+
+		populateEmptyStateMessages();
 	}
 
 	public Map<String, Object> getBreadcrumbProps() {
@@ -95,41 +97,6 @@ public class ViewFolderDisplayContext extends BaseSectionDisplayContext {
 
 		return HashMapBuilder.<String, Object>put(
 			"breadcrumbItems", jsonArray
-		).build();
-	}
-
-	@Override
-	public Map<String, Object> getEmptyState() {
-		String rootObjectEntryFolderExternalReferenceCode =
-			getRootObjectEntryFolderExternalReferenceCode();
-
-		String description = "click-new-to-create-your-first-asset";
-		String image = "/states/cms_empty_state.svg";
-		String title = "no-assets-yet";
-
-		if (Objects.equals(
-				rootObjectEntryFolderExternalReferenceCode,
-				ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS)) {
-
-			description = "click-new-to-create-your-first-piece-of-content";
-			image = "/states/cms_empty_state_content.svg";
-			title = "no-content-yet";
-		}
-		else if (Objects.equals(
-					rootObjectEntryFolderExternalReferenceCode,
-					ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES)) {
-
-			description = "click-new-to-create-your-first-file";
-			image = "/states/cms_empty_state_files.svg";
-			title = "no-files-yet";
-		}
-
-		return HashMapBuilder.<String, Object>put(
-			"description", LanguageUtil.get(httpServletRequest, description)
-		).put(
-			"image", image
-		).put(
-			"title", LanguageUtil.get(httpServletRequest, title)
 		).build();
 	}
 
@@ -231,6 +198,34 @@ public class ViewFolderDisplayContext extends BaseSectionDisplayContext {
 			rootObjectEntryFolder.getExternalReferenceCode();
 
 		return _rootObjectEntryFolderExternalReferenceCode;
+	}
+
+	@Override
+	public void populateEmptyStateMessages() {
+		String rootObjectEntryFolderExternalReferenceCode =
+			getRootObjectEntryFolderExternalReferenceCode();
+
+		emptyStateDescription = "click-new-to-create-your-first-asset";
+		emptyStateImage = "/states/cms_empty_state.svg";
+		emptyStateTitle = "no-assets-yet";
+
+		if (Objects.equals(
+				rootObjectEntryFolderExternalReferenceCode,
+				ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS)) {
+
+			emptyStateDescription =
+				"click-new-to-create-your-first-piece-of-content";
+			emptyStateImage = "/states/cms_empty_state_content.svg";
+			emptyStateTitle = "no-content-yet";
+		}
+		else if (Objects.equals(
+					rootObjectEntryFolderExternalReferenceCode,
+					ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES)) {
+
+			emptyStateDescription = "click-new-to-create-your-first-file";
+			emptyStateImage = "/states/cms_empty_state_files.svg";
+			emptyStateTitle = "no-files-yet";
+		}
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.Portal;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +29,7 @@ public class SpaceContentsAbstractSectionDisplayContext
 	extends SpaceContentsSectionDisplayContext {
 
 	public SpaceContentsAbstractSectionDisplayContext(
-		long assetLibraryId, DepotEntryLocalService depotEntryLocalService,
+		long groupId, DepotEntryLocalService depotEntryLocalService,
 		GroupLocalService groupLocalService,
 		HttpServletRequest httpServletRequest, Language language,
 		ObjectDefinitionService objectDefinitionService,
@@ -36,27 +37,29 @@ public class SpaceContentsAbstractSectionDisplayContext
 		Portal portal) {
 
 		super(
-			assetLibraryId, depotEntryLocalService, groupLocalService,
+			groupId, depotEntryLocalService, groupLocalService,
 			httpServletRequest, language, objectDefinitionService,
 			objectDefinitionSettingLocalService, portal);
 	}
 
 	@Override
 	public String getAPIURL() {
-		return StringBundler.concat(
-			super.getAPIURL(), "&page=", _PAGE, "&pageSize=", _PAGE_SIZE);
+		return HttpComponentsUtil.addParameters(
+			super.getAPIURL(), "page", _PAGE, "pageSize", _PAGE_SIZE);
 	}
 
 	public Map<String, Object> getHeaderProps() throws Exception {
 		return HashMapBuilder.<String, Object>put(
-			"viewAllLabel", language.get(httpServletRequest, "view-all-content")
+			"label", language.get(httpServletRequest, "view-all-content")
 		).put(
-			"viewAllURL",
+			"title", language.get(httpServletRequest, "content")
+		).put(
+			"url",
 			StringBundler.concat(
 				themeDisplay.getPathFriendlyURLPublic(),
 				GroupConstants.CMS_FRIENDLY_URL, "/e/space-contents/",
 				portal.getClassNameId(DepotEntry.class), StringPool.SLASH,
-				assetLibraryId)
+				groupId)
 		).build();
 	}
 

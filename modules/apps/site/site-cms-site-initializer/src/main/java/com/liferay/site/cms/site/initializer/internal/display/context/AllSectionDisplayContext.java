@@ -13,13 +13,11 @@ import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Jürgen Kappler
@@ -41,19 +39,6 @@ public class AllSectionDisplayContext extends BaseSectionDisplayContext {
 	}
 
 	@Override
-	public Map<String, Object> getEmptyState() {
-		return HashMapBuilder.<String, Object>put(
-			"description",
-			LanguageUtil.get(
-				httpServletRequest, "click-new-to-create-your-first-asset")
-		).put(
-			"image", "/states/cms_empty_state.svg"
-		).put(
-			"title", LanguageUtil.get(httpServletRequest, "no-assets-yet")
-		).build();
-	}
-
-	@Override
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
 		List<FDSActionDropdownItem> fdsActionDropdownItems =
 			super.getFDSActionDropdownItems();
@@ -66,6 +51,13 @@ public class AllSectionDisplayContext extends BaseSectionDisplayContext {
 				"link"));
 
 		return fdsActionDropdownItems;
+	}
+
+	@Override
+	public void populateEmptyStateMessages() {
+		emptyStateDescription = "click-new-to-create-your-first-asset";
+		emptyStateImage = "/states/cms_empty_state.svg";
+		emptyStateTitle = "no-assets-yet";
 	}
 
 	@Override
