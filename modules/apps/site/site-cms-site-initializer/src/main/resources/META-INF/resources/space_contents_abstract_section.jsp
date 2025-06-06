@@ -11,20 +11,27 @@
 SpaceContentsAbstractSectionDisplayContext spaceContentsAbstractSectionDisplayContext = (SpaceContentsAbstractSectionDisplayContext)request.getAttribute(SpaceContentsAbstractSectionDisplayContext.class.getName());
 %>
 
-<div class="cms-section custom-empty-state">
-	<frontend-data-set:headless-display
-		additionalProps="<%= spaceContentsAbstractSectionDisplayContext.getAdditionalProps() %>"
-		apiURL="<%= spaceContentsAbstractSectionDisplayContext.getAPIURL() %>"
-		creationMenu="<%= spaceContentsAbstractSectionDisplayContext.getCreationMenu() %>"
-		emptyState="<%= spaceContentsAbstractSectionDisplayContext.getEmptyState() %>"
-		fdsActionDropdownItems="<%= spaceContentsAbstractSectionDisplayContext.getFDSActionDropdownItems() %>"
-		formName="fm"
-		id="<%= CMSSiteInitializerFDSNames.SPACE_CONTENTS_ABSTRACT_SECTION %>"
-		propsTransformer="{ContentsFDSPropsTransformer} from site-cms-site-initializer"
-		showManagementBar="<%= false %>"
-		showPagination="<%= false %>"
-		showSearch="<%= false %>"
-		showSelectAll="<%= false %>"
-		style="fluid"
-	/>
+<div class="cms-section">
+	<div id="<%= CMSSiteInitializerFDSNames.SPACE_CONTENTS_ABSTRACT_SECTION %>">
+		<react:component
+			module="{SpaceAbstractHeader} from site-cms-site-initializer"
+			props="<%= spaceContentsAbstractSectionDisplayContext.getHeaderProps() %>"
+		/>
+	</div>
+
+	<div class="cms-section custom-empty-state">
+		<frontend-data-set:headless-display
+			apiURL="<%= spaceContentsAbstractSectionDisplayContext.getAPIURL() %>"
+			creationMenu="<%= spaceContentsAbstractSectionDisplayContext.getCreationMenu() %>"
+			emptyState="<%= spaceContentsAbstractSectionDisplayContext.getEmptyState() %>"
+			fdsActionDropdownItems="<%= spaceContentsAbstractSectionDisplayContext.getFDSActionDropdownItems() %>"
+			formName="fm"
+			id="<%= CMSSiteInitializerFDSNames.SPACE_CONTENTS_ABSTRACT_SECTION %>"
+			propsTransformer="{ContentsFDSPropsTransformer} from site-cms-site-initializer"
+			showManagementBar="<%= false %>"
+			showPagination="<%= false %>"
+			showSearch="<%= false %>"
+			showSelectAll="<%= false %>"
+		/>
+	</div>
 </div>
