@@ -46,7 +46,7 @@ public class SpaceStickerDisplayContext {
 			).put(
 				"name", StringPool.BLANK
 			).put(
-				"size", "sm"
+				"size", "lg"
 			).build();
 		}
 

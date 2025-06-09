@@ -49,7 +49,7 @@ public class SpaceStickerFragmentRenderer
 		SpaceStickerDisplayContext spaceStickerDisplayContext =
 			new SpaceStickerDisplayContext(
 				getGroupId(httpServletRequest), _groupLocalService,
-				httpServletRequest, CMSSpaceStickerConstants.SM);
+				httpServletRequest, CMSSpaceStickerConstants.LG);
 
 		return spaceStickerDisplayContext.getProps();
 	}
