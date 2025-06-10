@@ -12,7 +12,9 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.site.cms.site.initializer.internal.constants.CMSSpaceStickerConstants;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -34,7 +36,9 @@ public class SpaceStickerDisplayContext {
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		_size = size;
+		if (Validator.isNotNull(size)) {
+			_size = size;
+		}
 	}
 
 	public Map<String, Object> getProps() throws Exception {
@@ -46,7 +50,7 @@ public class SpaceStickerDisplayContext {
 			).put(
 				"name", StringPool.BLANK
 			).put(
-				"size", "lg"
+				"size", _size
 			).build();
 		}
 
@@ -68,7 +72,7 @@ public class SpaceStickerDisplayContext {
 
 	private final long _groupId;
 	private final GroupLocalService _groupLocalService;
-	private final String _size;
+	private String _size = CMSSpaceStickerConstants.LG;
 	private final ThemeDisplay _themeDisplay;
 
 }
