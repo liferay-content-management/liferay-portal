@@ -349,8 +349,8 @@ public class ObjectEntryLocalServiceImpl
 			false, serviceContext, null, userId, null, values);
 
 		_addDLFileEntries(
-			dlFileEntriesMap, objectDefinition, objectEntryId, serviceContext,
-			userId, values);
+			dlFileEntriesMap, groupId, objectDefinition, objectEntryId,
+			serviceContext, userId, values);
 
 		Map<String, Serializable> insertedValues = new HashMap<>();
 
@@ -500,8 +500,8 @@ public class ObjectEntryLocalServiceImpl
 				serviceContext, null, userId, null, values);
 
 			_addDLFileEntries(
-				dlFileEntriesMap, objectDefinition, primaryKey, serviceContext,
-				userId, values);
+				dlFileEntriesMap, 0, objectDefinition, primaryKey,
+				serviceContext, userId, values);
 
 			_updateTable(
 				dynamicObjectDefinitionTable, primaryKey, true, values);
@@ -515,8 +515,8 @@ public class ObjectEntryLocalServiceImpl
 				serviceContext, null, userId, null, values);
 
 			_addDLFileEntries(
-				dlFileEntriesMap, objectDefinition, primaryKey, serviceContext,
-				userId, values);
+				dlFileEntriesMap, 0, objectDefinition, primaryKey,
+				serviceContext, userId, values);
 
 			_insertIntoTable(
 				dynamicObjectDefinitionTable, new HashMap<>(), primaryKey,
@@ -2080,7 +2080,7 @@ public class ObjectEntryLocalServiceImpl
 	}
 
 	private void _addDLFileEntries(
-			Map<ObjectField, Set<DLFileEntry>> dlFileEntriesMap,
+			Map<ObjectField, Set<DLFileEntry>> dlFileEntriesMap, long groupId,
 			ObjectDefinition objectDefinition, long objectEntryId,
 			ServiceContext serviceContext, long userId,
 			Map<String, Serializable> values)
@@ -2091,16 +2091,16 @@ public class ObjectEntryLocalServiceImpl
 
 			for (DLFileEntry dlFileEntry : entry.getValue()) {
 				_addDLFileEntry(
-					dlFileEntry, objectDefinition, objectEntryId,
+					dlFileEntry, groupId, objectDefinition, objectEntryId,
 					entry.getKey(), serviceContext, userId, values);
 			}
 		}
 	}
 
 	private void _addDLFileEntry(
-			DLFileEntry dlFileEntry, ObjectDefinition objectDefinition,
-			long objectEntryId, ObjectField objectField,
-			ServiceContext serviceContext, long userId,
+			DLFileEntry dlFileEntry, long groupId,
+			ObjectDefinition objectDefinition, long objectEntryId,
+			ObjectField objectField, ServiceContext serviceContext, long userId,
 			Map<String, Serializable> values)
 		throws PortalException {
 
@@ -2113,9 +2113,13 @@ public class ObjectEntryLocalServiceImpl
 
 		DLFolder dlFileEntryFolder = dlFileEntry.getFolder();
 
+		if (groupId == 0) {
+			groupId = dlFileEntryFolder.getGroupId();
+		}
+
 		DLFolder dlFolder = _attachmentManager.getDLFolder(
-			dlFileEntry.getCompanyId(), dlFileEntry.getGroupId(),
-			objectField.getObjectFieldId(), serviceContext, userId);
+			dlFileEntry.getCompanyId(), groupId, objectField.getObjectFieldId(),
+			serviceContext, userId);
 
 		if (Objects.equals(
 				dlFileEntryFolder.getFolderId(), dlFolder.getFolderId())) {
@@ -5462,8 +5466,8 @@ public class ObjectEntryLocalServiceImpl
 			null, values);
 
 		_addDLFileEntries(
-			dlFileEntriesMap, objectDefinition, objectEntryId, serviceContext,
-			userId, values);
+			dlFileEntriesMap, objectEntry.getGroupId(), objectDefinition,
+			objectEntryId, serviceContext, userId, values);
 
 		int workflowAction = serviceContext.getWorkflowAction();
 
