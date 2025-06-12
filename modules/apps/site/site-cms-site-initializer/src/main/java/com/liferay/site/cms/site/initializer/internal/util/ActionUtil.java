@@ -54,6 +54,7 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.segments.service.SegmentsExperienceLocalServiceUtil;
 
+import com.liferay.site.cms.site.initializer.internal.fragment.renderer.SpaceListComponentSectionFragmentRenderer;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
@@ -118,8 +119,7 @@ public class ActionUtil {
 		FragmentEntryLink spaceListFragmentEntryLink = _addFragmentEntryLink(
 			StringPool.BLANK, fragmentEntryLinkService,
 			fragmentRendererRegistry,
-			"com.liferay.site.cms.site.initializer.internal.fragment." +
-				"renderer.SpaceListComponentSectionFragmentRenderer",
+			SpaceListComponentSectionFragmentRenderer.class.getName(),
 			layout, segmentsExperienceId, serviceContext);
 
 		if (spaceListFragmentEntryLink != null) {
