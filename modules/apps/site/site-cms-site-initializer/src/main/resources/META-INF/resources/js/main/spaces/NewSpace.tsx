@@ -7,6 +7,7 @@ import ClayButton from '@clayui/button';
 import Form, {ClayInput} from '@clayui/form';
 import ClayLayout from '@clayui/layout';
 import {useFormik} from 'formik';
+import {openToast} from 'frontend-js-components-web';
 import {navigate} from 'frontend-js-web';
 import React from 'react';
 
@@ -19,16 +20,17 @@ import {NewSpaceFormSection} from './NewSpaceFormSection';
 import SpaceColorDropdown from './SpaceLogoColorDropdown';
 
 export interface NewSpaceProps {
-	baseAddMembersUrl: string;
+	baseAddSpaceMembersUrl: string;
 }
 
-const NewSpace = ({baseAddMembersUrl}: NewSpaceProps) => {
+const NewSpace = ({baseAddSpaceMembersUrl}: NewSpaceProps) => {
 	const {
 		errors,
 		handleChange,
 		handleSubmit,
 		isSubmitting,
 		setFieldValue,
+		setSubmitting,
 		submitForm,
 		touched,
 		values,
@@ -48,10 +50,18 @@ const NewSpace = ({baseAddMembersUrl}: NewSpaceProps) => {
 			}).then((response) => {
 				if (response.data) {
 					navigate(
-						baseAddMembersUrl +
+						baseAddSpaceMembersUrl +
 							'?assetLibraryId=' +
 							response.data.id
 					);
+				}
+
+				if (response.error) {
+					setSubmitting(false);
+					openToast({
+						message: Liferay.Language.get('unable-to-create-space'),
+						type: 'danger',
+					});
 				}
 			});
 		},
