@@ -63,16 +63,8 @@ public class ViewSpaceFilesAbstractSectionDisplayContext
 			"title", language.get(httpServletRequest, "files")
 		).put(
 			"url",
-			() -> {
-				ObjectEntryFolder objectEntryFolder =
-					_objectEntryFolderLocalService.
-						getObjectEntryFolderByExternalReferenceCode(
-							getRootObjectEntryFolderExternalReferenceCode(),
-							_groupId, themeDisplay.getCompanyId());
-
-				return ActionUtil.getBaseViewFolderURL(themeDisplay) +
-					objectEntryFolder.getObjectEntryFolderId();
-			}
+			ActionUtil.getBaseViewFolderURL(themeDisplay) +
+				objectEntryFolder.getObjectEntryFolderId()
 		).build();
 	}
 
@@ -87,6 +79,14 @@ public class ViewSpaceFilesAbstractSectionDisplayContext
 	@Override
 	protected String getEmptyStateDescriptionKey() {
 		return "create-and-manage-files-within-this-space";
+	}
+
+	@Override
+	protected ObjectEntryFolder getObjectEntryFolder() {
+		return _objectEntryFolderLocalService.
+			fetchObjectEntryFolderByExternalReferenceCode(
+				getRootObjectEntryFolderExternalReferenceCode(), _groupId,
+				themeDisplay.getCompanyId());
 	}
 
 	private final long _groupId;
