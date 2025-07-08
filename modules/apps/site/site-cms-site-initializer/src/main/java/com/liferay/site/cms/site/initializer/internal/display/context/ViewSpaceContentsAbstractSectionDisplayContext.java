@@ -16,10 +16,10 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.site.cms.site.initializer.internal.constants.CMSSpaceConstants;
+import com.liferay.site.cms.site.initializer.internal.util.SpaceAbstractHeaderUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -59,18 +59,13 @@ public class ViewSpaceContentsAbstractSectionDisplayContext
 	}
 
 	public Map<String, Object> getHeaderProps() throws Exception {
-		return HashMapBuilder.<String, Object>put(
-			"label", language.get(httpServletRequest, "view-all-content")
-		).put(
-			"title", language.get(httpServletRequest, "content")
-		).put(
-			"url",
+		return SpaceAbstractHeaderUtil.getSpaceAbstractHeaderProps(
+			httpServletRequest, "view-all-content", "content",
 			StringBundler.concat(
 				themeDisplay.getPathFriendlyURLPublic(),
-				GroupConstants.CMS_FRIENDLY_URL, "/e/space-contents/",
+				GroupConstants.CMS_FRIENDLY_URL, "/e/space-content/",
 				portal.getClassNameId(DepotEntry.class), StringPool.SLASH,
-				_groupId)
-		).build();
+				_groupId));
 	}
 
 	@Override
