@@ -86,8 +86,16 @@ public class ViewFilesSectionDisplayContext
 				HashMapBuilder.<String, Object>put(
 					"entryClassName", ObjectEntryFolder.class.getName()
 				).build()));
+
 		fdsActionDropdownItems.add(
 			3,
+			new FDSActionDropdownItem(
+				"#", "share", "share", LanguageUtil.get(httpServletRequest, "share"),
+				"get", null, "link"
+			));
+
+		fdsActionDropdownItems.add(
+			4,
 			new FDSActionDropdownItem(
 				StringPool.BLANK, "info-circle-open", "show-details",
 				LanguageUtil.get(httpServletRequest, "show-details"), null,
