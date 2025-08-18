@@ -12,8 +12,11 @@ import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.publisher.constants.AssetPublisherPortletKeys;
 import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.journal.constants.JournalArticleConstants;
+import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalArticle;
+import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.service.JournalArticleLocalService;
+import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.layout.display.page.LayoutDisplayPageProvider;
 import com.liferay.layout.display.page.LayoutDisplayPageProviderRegistry;
@@ -34,6 +37,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderRequest;
 import com.liferay.portal.kernel.test.portlet.MockRenderRequest;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -53,6 +57,8 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import jakarta.portlet.PortletPreferences;
+
+import java.util.HashMap;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -95,51 +101,8 @@ public class JournalArticleAssetRendererTest {
 
 	@Test
 	public void testGetURLViewInContext() throws Exception {
-		long classNameId = _portal.getClassNameId(
-			JournalArticle.class.getName());
-
-		JournalArticle article = JournalTestUtil.addArticleWithWorkflow(
-			_group.getGroupId(), false);
-
-		LayoutPageTemplateEntry layoutPageTemplateEntry =
-			DisplayPageTemplateTestUtil.addDisplayPageTemplate(
-				_group.getGroupId(), classNameId, article.getDDMStructureId(),
-				true, WorkflowConstants.STATUS_APPROVED);
-
-		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
-			_layoutDisplayPageProviderRegistry.
-				getLayoutDisplayPageProviderByClassName(
-					JournalArticle.class.getName());
-
-		String urlSeparator = layoutDisplayPageProvider.getURLSeparator();
-
-		ThemeDisplay themeDisplay = ContentLayoutTestUtil.getThemeDisplay(
-			_company, _group,
-			_layoutLocalService.getLayout(layoutPageTemplateEntry.getPlid()));
-
-		String viewInContextURL = _getURLViewInContext(
-			article.getResourcePrimKey(), themeDisplay);
-
-		_assertURL(viewInContextURL, urlSeparator, article.getUrlTitle());
-
-		String version = HttpComponentsUtil.getParameter(
-			viewInContextURL, "version");
-
-		Assert.assertNotNull(version);
-		Assert.assertEquals(
-			article.getVersion(), GetterUtil.getDouble(version),
-			GetterUtil.DEFAULT_DOUBLE);
-
-		article = JournalTestUtil.updateArticleWithWorkflow(article, true);
-
-		viewInContextURL = _getURLViewInContext(
-			article.getResourcePrimKey(), themeDisplay);
-
-		_assertURL(viewInContextURL, urlSeparator, article.getUrlTitle());
-
-		Assert.assertEquals(
-			StringPool.BLANK,
-			HttpComponentsUtil.getParameter(viewInContextURL, "version"));
+		_testGetURLViewInContext();
+		_testGetURLViewInContextWithPendingStatus();
 	}
 
 	@Test
@@ -285,6 +248,118 @@ public class JournalArticleAssetRendererTest {
 			_getLiferayPortletRequest(themeDisplay), null, null);
 	}
 
+	private void _testGetURLViewInContext() throws Exception {
+		long classNameId = _portal.getClassNameId(
+			JournalArticle.class.getName());
+
+		JournalArticle article = JournalTestUtil.addArticleWithWorkflow(
+			_group.getGroupId(), false);
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			DisplayPageTemplateTestUtil.addDisplayPageTemplate(
+				_group.getGroupId(), classNameId, article.getDDMStructureId(),
+				true, WorkflowConstants.STATUS_APPROVED);
+
+		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
+			_layoutDisplayPageProviderRegistry.
+				getLayoutDisplayPageProviderByClassName(
+					JournalArticle.class.getName());
+
+		String urlSeparator = layoutDisplayPageProvider.getURLSeparator();
+
+		ThemeDisplay themeDisplay = ContentLayoutTestUtil.getThemeDisplay(
+			_company, _group,
+			_layoutLocalService.getLayout(layoutPageTemplateEntry.getPlid()));
+
+		String viewInContextURL = _getURLViewInContext(
+			article.getResourcePrimKey(), themeDisplay);
+
+		_assertURL(viewInContextURL, urlSeparator, article.getUrlTitle());
+
+		String version = HttpComponentsUtil.getParameter(
+			viewInContextURL, "version");
+
+		Assert.assertNotNull(version);
+		Assert.assertEquals(
+			article.getVersion(), GetterUtil.getDouble(version),
+			GetterUtil.DEFAULT_DOUBLE);
+
+		article = JournalTestUtil.updateArticleWithWorkflow(article, true);
+
+		viewInContextURL = _getURLViewInContext(
+			article.getResourcePrimKey(), themeDisplay);
+
+		_assertURL(viewInContextURL, urlSeparator, article.getUrlTitle());
+
+		Assert.assertEquals(
+			StringPool.BLANK,
+			HttpComponentsUtil.getParameter(viewInContextURL, "version"));
+	}
+
+	private void _testGetURLViewInContextWithPendingStatus() throws Exception {
+		long classNameId = _portal.getClassNameId(
+			JournalArticle.class.getName());
+
+		_workflowDefinitionLinkLocalService.updateWorkflowDefinitionLink(
+			TestPropsValues.getUserId(), _group.getCompanyId(),
+			_group.getGroupId(), JournalFolder.class.getName(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			JournalArticleConstants.DDM_STRUCTURE_ID_ALL, "Single Approver", 1);
+
+		JournalArticle article = JournalTestUtil.addArticleWithWorkflow(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, true);
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			DisplayPageTemplateTestUtil.addDisplayPageTemplate(
+				_group.getGroupId(), classNameId, article.getDDMStructureId(),
+				true, WorkflowConstants.STATUS_APPROVED);
+
+		LayoutDisplayPageProvider<?> layoutDisplayPageProvider =
+			_layoutDisplayPageProviderRegistry.
+				getLayoutDisplayPageProviderByClassName(
+					JournalArticle.class.getName());
+
+		String urlSeparator = layoutDisplayPageProvider.getURLSeparator();
+
+		ThemeDisplay themeDisplay = ContentLayoutTestUtil.getThemeDisplay(
+			_company, _group,
+			_layoutLocalService.getLayout(layoutPageTemplateEntry.getPlid()));
+
+		String viewInContextURL = _getURLViewInContext(
+			article.getResourcePrimKey(), themeDisplay);
+
+		_assertURL(viewInContextURL, urlSeparator, article.getUrlTitle());
+
+		String version = HttpComponentsUtil.getParameter(
+			viewInContextURL, "version");
+
+		Assert.assertNotNull(version);
+		Assert.assertEquals(
+			article.getVersion(), GetterUtil.getDouble(version),
+			GetterUtil.DEFAULT_DOUBLE);
+
+		article = JournalArticleLocalServiceUtil.updateStatus(
+			TestPropsValues.getUserId(), article,
+			WorkflowConstants.STATUS_APPROVED, null,
+			ServiceContextTestUtil.getServiceContext(), new HashMap<>());
+
+		viewInContextURL = _getURLViewInContext(
+			article.getResourcePrimKey(), themeDisplay);
+
+		_assertURL(viewInContextURL, urlSeparator, article.getUrlTitle());
+
+		Assert.assertEquals(
+			StringPool.BLANK,
+			HttpComponentsUtil.getParameter(viewInContextURL, "version"));
+
+		_workflowDefinitionLinkLocalService.updateWorkflowDefinitionLink(
+			TestPropsValues.getUserId(), _group.getCompanyId(),
+			_group.getGroupId(), JournalFolder.class.getName(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			JournalArticleConstants.DDM_STRUCTURE_ID_ALL, null);
+	}
+
 	private Company _company;
 
 	@Inject
@@ -314,5 +389,9 @@ public class JournalArticleAssetRendererTest {
 	private Portal _portal;
 
 	private ServiceContext _serviceContext;
+
+	@Inject
+	private WorkflowDefinitionLinkLocalService
+		_workflowDefinitionLinkLocalService;
 
 }
