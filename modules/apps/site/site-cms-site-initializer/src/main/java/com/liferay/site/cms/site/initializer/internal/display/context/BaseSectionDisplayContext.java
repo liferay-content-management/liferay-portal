@@ -107,12 +107,18 @@ public abstract class BaseSectionDisplayContext {
 
 	public Map<String, Object> getAdditionalProps() {
 		return HashMapBuilder.<String, Object>put(
+			"assetLibraries", _getDepotEntriesJSONArray()
+		).put(
 			"autocompleteURL",
 			() -> StringBundler.concat(
 				"/o/search/v1.0/search?emptySearch=",
 				"true&entryClassNames=com.liferay.portal.kernel.model.User,",
 				"com.liferay.portal.kernel.model.UserGroup&nestedFields=",
 				"embedded")
+		).put(
+			"baseAssetLibraryViewURL", ActionUtil.getBaseSpaceURL(themeDisplay)
+		).put(
+			"baseFolderViewURL", ActionUtil.getBaseViewFolderURL(themeDisplay)
 		).put(
 			"cmsGroupId",
 			() -> {
@@ -172,6 +178,11 @@ public abstract class BaseSectionDisplayContext {
 
 				return _getFileMimeTypeIcons();
 			}
+		).put(
+			"parentObjectEntryFolderExternalReferenceCode",
+			_getParentObjectEntryFolderExternalReferenceCode()
+		).put(
+			"redirect", themeDisplay.getURLCurrent()
 		).build();
 	}
 
