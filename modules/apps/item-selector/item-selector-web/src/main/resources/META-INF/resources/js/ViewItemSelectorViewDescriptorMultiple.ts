@@ -29,12 +29,9 @@ export default function ({
 		getOpener().Liferay.fire(itemSelectorSelectedEvent, {
 			data: {
 				returnType: itemSelectorReturnType,
-				value: searchContainerItems
-					.map((item: HTMLElement) => item.closest('li, tr, dd'))
-					.filter((domElement): domElement is HTMLElement =>
-						Boolean(domElement)
-					)
-					.map((domElement) => domElement.dataset.value),
+				value: searchContainerItems.map(
+					(item: HTMLElement) => (item as HTMLInputElement).value
+				),
 			},
 		});
 	});

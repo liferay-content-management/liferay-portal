@@ -28,14 +28,8 @@ export default function propsTransformer({
 								document[`${portletNamespace}fm`],
 								{
 									data: {
-										assetEntryIds: Array.from(selectedItems)
-											.map((selectedItem) => {
-												const assetEntry =
-													JSON.parse(selectedItem);
-
-												return assetEntry.assetEntryId;
-											})
-											.join(','),
+										assetEntryIds:
+											Array.from(selectedItems).join(','),
 									},
 								}
 							);
