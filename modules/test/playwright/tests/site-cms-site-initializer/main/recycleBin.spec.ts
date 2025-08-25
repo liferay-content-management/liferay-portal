@@ -144,3 +144,131 @@ test(
 		});
 	}
 );
+
+test(
+	'Can restore a folder and its contents from Recycle Bin',
+	{tag: '@LPD-59716'},
+	async ({contentsPage, folderPage, page, recycleBinPage}) => {
+		test.slow();
+
+		const folderName = getRandomString();
+		const nestedFolderName = `nested-${getRandomString()}`;
+		const contentName = getRandomString();
+		const friendlyUrl = getRandomString();
+
+		await test.step('Create a folder with nested content', async () => {
+			await contentsPage.goto();
+
+			await folderPage.createFolder(folderName);
+
+			await page
+				.getByRole('row', {name: folderName})
+				.getByRole('link')
+				.click();
+
+			await folderPage.createFolder(nestedFolderName);
+
+			await page
+				.getByRole('row', {name: nestedFolderName})
+				.getByRole('link')
+				.click();
+
+			await contentsPage.createContent('Knowledge Base');
+
+			await page.getByLabel('Title').fill(contentName);
+
+			await page.getByLabel('Friendly URL').fill(friendlyUrl);
+
+			await contentsPage.saveContent();
+		});
+
+		await test.step('Move the folder to Recycle Bin', async () => {
+			await contentsPage.goto();
+
+			await contentsPage.deleteContent(folderName);
+		});
+
+		await test.step('Assert navigation within Recycle Bin', async () => {
+			await recycleBinPage.goto();
+
+			await page
+				.getByRole('row', {name: folderName})
+				.getByRole('link')
+				.click();
+
+			await page
+				.getByRole('row', {name: nestedFolderName})
+				.getByRole('link')
+				.click();
+
+			await page.waitForLoadState('networkidle');
+
+			await expect(
+				page.getByRole('row', {name: contentName})
+			).toBeVisible();
+		});
+
+		await test.step('Restore the folder from Recycle Bin', async () => {
+			await recycleBinPage.goto();
+
+			await page
+				.getByRole('row', {name: folderName})
+				.getByRole('button')
+				.click();
+
+			await page.getByRole('menuitem', {name: 'Restore'}).click();
+
+			await waitForAlert(
+				page,
+				`Success:${folderName} was restored to Contents.`,
+				{autoClose: false}
+			);
+		});
+
+		await test.step('Assert folder and its contents are restored', async () => {
+			await contentsPage.goto();
+
+			await page
+				.getByRole('row', {name: folderName})
+				.getByRole('link')
+				.click();
+
+			await page
+				.getByRole('row', {name: nestedFolderName})
+				.getByRole('link')
+				.click();
+
+			await page.waitForLoadState('networkidle');
+
+			await expect(
+				page.getByRole('row', {name: contentName})
+			).toBeVisible();
+		});
+
+		await test.step('Clean up', async () => {
+			await contentsPage.goto();
+
+			await contentsPage.deleteContent(folderName);
+
+			await recycleBinPage.goto();
+
+			await page
+				.getByRole('row', {name: folderName})
+				.getByRole('button')
+				.click();
+
+			await page.getByRole('menuitem', {name: 'Delete'}).click();
+
+			await expect(
+				recycleBinPage.deleteItemConfirmationText
+			).toBeVisible();
+
+			await recycleBinPage.deleteButton.last().click();
+
+			await waitForAlert(
+				page,
+				`Success:${folderName} has been permanently deleted.`
+			);
+		});
+	}
+);
