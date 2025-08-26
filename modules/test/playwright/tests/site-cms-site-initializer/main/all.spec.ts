@@ -26,32 +26,45 @@ test(
 	{tag: '@LPD-62554'},
 	async ({apiHelpers, assetsPage, page}) => {
 		const applicationName = 'cms/knowledge-bases';
-		const spaceName = 'Default';
+		const file1Title = `Title ${getRandomString()}`;
+		const spaceName = `Space ${getRandomString()}`;
+		let objectEntry1;
 
-		const file1Title = `title ${getRandomString()}`;
-
-		const objectEntry1 = await apiHelpers.objectEntry.postObjectEntry(
-			{
-				objectEntryFolderExternalReferenceCode: 'L_CONTENTS',
-				title: file1Title,
+		await apiHelpers.headlessAssetLibrary.createAssetLibrariesPage({
+			name: spaceName,
+			settings: {
+				logoColor: 'outline-3',
+				sharingEnabled: true,
 			},
-			applicationName,
-			spaceName
-		);
-
-		await assetsPage.gotoAll();
-
-		await assetsPage.execItemAction({
-			action: 'Share',
-			filter: file1Title,
 		});
 
-		await expect(page.locator('.modal-title')).toContainText(file1Title);
+		try {
+			objectEntry1 = await apiHelpers.objectEntry.postObjectEntry(
+				{
+					objectEntryFolderExternalReferenceCode: 'L_CONTENTS',
+					title: file1Title,
+				},
+				applicationName,
+				spaceName
+			);
 
-		await apiHelpers.objectEntry.deleteObjectEntry(
-			applicationName,
-			String(objectEntry1.id)
-		);
+			await assetsPage.gotoAll();
+
+			await assetsPage.execItemAction({
+				action: 'Share',
+				filter: file1Title,
+			});
+
+			await expect(page.locator('.modal-title')).toContainText(
+				file1Title
+			);
+		}
+		finally {
+			await apiHelpers.objectEntry.deleteObjectEntry(
+				applicationName,
+				String(objectEntry1.id)
+			);
+		}
 	}
 );
 

@@ -157,3 +157,50 @@ test(
 		expect(globalSiteLocator).not.toBeVisible();
 	}
 );
+
+test(
+	'Can view Share modal for added content',
+	{tag: '@LPD-62554'},
+	async ({apiHelpers, assetsPage, page, spaceSummaryPage}) => {
+		const applicationName = 'cms/knowledge-bases';
+		const file1Title = `Title ${getRandomString()}`;
+		const spaceName = `Space ${getRandomString()}`;
+		let objectEntry1;
+
+		await apiHelpers.headlessAssetLibrary.createAssetLibrariesPage({
+			name: spaceName,
+			settings: {
+				logoColor: 'outline-3',
+				sharingEnabled: true,
+			},
+		});
+
+		try {
+			objectEntry1 = await apiHelpers.objectEntry.postObjectEntry(
+				{
+					objectEntryFolderExternalReferenceCode: 'L_CONTENTS',
+					title: file1Title,
+				},
+				applicationName,
+				spaceName
+			);
+
+			await spaceSummaryPage.goto(spaceName);
+
+			await assetsPage.execItemAction({
+				action: 'Share',
+				filter: file1Title,
+			});
+
+			await expect(page.locator('.modal-title')).toContainText(
+				file1Title
+			);
+		}
+		finally {
+			await apiHelpers.objectEntry.deleteObjectEntry(
+				applicationName,
+				String(objectEntry1.id)
+			);
+		}
+	}
+);
