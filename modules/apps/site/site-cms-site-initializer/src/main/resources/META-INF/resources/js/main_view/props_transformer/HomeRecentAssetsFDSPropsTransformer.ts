@@ -8,12 +8,19 @@ import {openModal} from 'frontend-js-components-web';
 
 import formatActionURL from '../../common/utils/formatActionURL';
 import FilePreviewerModalContent from '../modal/FilePreviewerModalContent';
+import shareAction from './actions/shareAction';
 import AssetRenderer from './cell_renderers/AssetRenderer';
 
 export default function HomeRecentAssetsFDSPropsTransformer({
+	additionalProps,
 	itemsActions = [],
 	...otherProps
 }: {
+	additionalProps: {
+		autocompleteURL: string;
+		cmsGroupId?: number;
+		collaboratorURLs: Record<string, string>;
+	};
 	itemsActions?: any[];
 	otherProps: any;
 }) {
@@ -80,6 +87,17 @@ export default function HomeRecentAssetsFDSPropsTransformer({
 							headerName: itemData.embedded.title,
 						}),
 					size: 'full-screen',
+				});
+			}
+			else if (action?.data?.id === 'share') {
+				const {autocompleteURL, collaboratorURLs} = additionalProps;
+
+				shareAction({
+					autocompleteURL,
+					collaboratorURL: collaboratorURLs[itemData.entryClassName],
+					creator: itemData.embedded.creator,
+					itemId: itemData.embedded.id,
+					title: itemData.embedded?.title,
 				});
 			}
 		},
