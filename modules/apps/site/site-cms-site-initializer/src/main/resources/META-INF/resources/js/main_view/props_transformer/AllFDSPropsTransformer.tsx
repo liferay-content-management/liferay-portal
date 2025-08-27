@@ -30,6 +30,9 @@ const ACTIONS = {
 	uploadMultipleFiles: multipleFilesUploadAction,
 };
 
+const OBJECT_ENTRY_FOLDER_CLASSNAME =
+	'com.liferay.object.model.ObjectEntryFolder';
+
 export default function AllFDSPropsTransformer({
 	additionalProps,
 	creationMenu,
@@ -86,7 +89,7 @@ export default function AllFDSPropsTransformer({
 			enabled: true,
 			isDropTarget: ({item}: {item: any}) => {
 				return item.entryClassName.includes(
-					'com.liferay.object.model.ObjectEntryFolder'
+					OBJECT_ENTRY_FOLDER_CLASSNAME
 				);
 			},
 			onFileDrop: (droppedFiles: any, dropTarget?: any) =>
