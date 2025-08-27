@@ -11,6 +11,7 @@ import com.liferay.headless.admin.site.dto.v1_0.PageSpecification;
 import com.liferay.headless.admin.site.dto.v1_0.UtilityPage;
 import com.liferay.headless.admin.site.dto.v1_0.UtilityPageSEOSettings;
 import com.liferay.headless.admin.site.dto.v1_0.UtilityPageSettings;
+import com.liferay.headless.admin.site.internal.odata.entity.v1_0.UtilityPageEntityModel;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.FileEntryUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.GroupUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.LayoutUtil;
@@ -22,15 +23,20 @@ import com.liferay.layout.utility.page.service.LayoutUtilityPageEntryService;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import jakarta.ws.rs.core.MultivaluedMap;
+
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -41,6 +47,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
+import com.liferay.portal.vulcan.util.SearchUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
@@ -103,20 +110,34 @@ public class UtilityPageResourceImpl extends BaseUtilityPageResourceImpl {
 
 		long groupId = GroupUtil.getGroupId(
 			true, contextCompany.getCompanyId(), siteExternalReferenceCode);
-
-		return Page.of(
-			transform(
-				_layoutUtilityPageEntryService.getLayoutUtilityPageEntries(
-					groupId, pagination.getStartPosition(),
-					pagination.getEndPosition(), null),
-				layoutUtilityPageEntry -> _utilityPageDTOConverter.toDTO(
-					layoutUtilityPageEntry)),
-			pagination,
-			_layoutUtilityPageEntryService.getLayoutUtilityPageEntriesCount(
-				groupId));
+        String mappedSearch = _mapToInternalTypeIfExists(search);
+        return SearchUtil.search(
+                Collections.emptyMap(),
+                booleanQuery -> {
+                },
+                filter, LayoutUtilityPageEntry.class.getName(),
+                mappedSearch, pagination, queryConfig ->
+                        queryConfig.setSelectedFieldNames(Field.ENTRY_CLASS_PK),
+                searchContext -> {
+                        if (Validator.isNotNull(mappedSearch)) {
+                                searchContext.setKeywords(mappedSearch);
+                        }
+                        searchContext.setCompanyId(contextCompany.getCompanyId());
+                        searchContext.setGroupIds(new long[] {groupId});
+                    },
+                    sorts,
+                    document -> _toUtilityPage(
+                            _layoutUtilityPageEntryService.fetchLayoutUtilityPageEntry(
+                                    Long.parseLong(document.get(Field.ENTRY_CLASS_PK)))
+                    )
+        );
 	}
 
-	@Override
+    private UtilityPage _toUtilityPage(LayoutUtilityPageEntry layoutUtilityPageEntry) throws Exception {
+        return _utilityPageDTOConverter.toDTO(layoutUtilityPageEntry);
+    }
+
+    @Override
 	public UtilityPage postSiteSiteByExternalReferenceCodeUtilityPage(
 			String siteExternalReferenceCode, UtilityPage utilityPage)
 		throws Exception {
@@ -268,6 +289,11 @@ public class UtilityPageResourceImpl extends BaseUtilityPageResourceImpl {
 		}
 	}
 
+    @Override
+    public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
+        return _entityModel;
+    }
+
 	private UtilityPage _addLayoutUtilityPageEntry(
 			long groupId, UtilityPage utilityPage)
 		throws Exception {
@@ -345,9 +371,18 @@ public class UtilityPageResourceImpl extends BaseUtilityPageResourceImpl {
 		if (_externalToInternalValuesMap.containsKey(type)) {
 			return _externalToInternalValuesMap.get(type);
 		}
-
 		throw new UnsupportedOperationException();
 	}
+
+    private String _mapToInternalTypeIfExists(String search) {
+        try {
+            return _externalToInternalValuesMap.get(UtilityPage.Type.create(search));
+        } catch (IllegalArgumentException e) {
+            return search;
+        }
+    }
+
+
 
 	private void _validateUtilityPage(UtilityPage utilityPage) {
 		if (ArrayUtil.isEmpty(utilityPage.getPageSpecifications())) {
@@ -362,6 +397,9 @@ public class UtilityPageResourceImpl extends BaseUtilityPageResourceImpl {
 			}
 		}
 	}
+
+    private static final EntityModel _entityModel =
+            new UtilityPageEntityModel();
 
 	private static final Map<UtilityPage.Type, String>
 		_externalToInternalValuesMap = HashMapBuilder.put(
