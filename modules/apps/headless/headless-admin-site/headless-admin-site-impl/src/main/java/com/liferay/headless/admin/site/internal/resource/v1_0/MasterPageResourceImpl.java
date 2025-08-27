@@ -9,6 +9,8 @@ import com.liferay.client.extension.type.manager.CETManager;
 import com.liferay.headless.admin.site.dto.v1_0.ContentPageSpecification;
 import com.liferay.headless.admin.site.dto.v1_0.MasterPage;
 import com.liferay.headless.admin.site.dto.v1_0.PageSpecification;
+import com.liferay.headless.admin.site.dto.v1_0.PageTemplate;
+import com.liferay.headless.admin.site.internal.odata.entity.v1_0.MasterPageEntityModel;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.FileEntryUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.GroupUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.LayoutUtil;
@@ -19,9 +21,11 @@ import com.liferay.layout.page.template.constants.LayoutPageTemplateConstants;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
+import com.liferay.layout.utility.page.model.LayoutUtilityPageEntry;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -29,12 +33,15 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-
+import com.liferay.portal.vulcan.util.SearchUtil;
+import jakarta.ws.rs.core.MultivaluedMap;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -111,8 +118,29 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 
 		long groupId = GroupUtil.getGroupId(
 			true, contextCompany.getCompanyId(), siteExternalReferenceCode);
-
-		return Page.of(
+        return SearchUtil.search(
+                Collections.emptyMap(),
+                booleanQuery -> {
+                },
+                filter, LayoutPageTemplateEntry.class.getName(),
+                search, pagination, queryConfig ->
+                        queryConfig.setSelectedFieldNames(Field.ENTRY_CLASS_PK),
+                searchContext -> {
+                    if (Validator.isNotNull(search)) {
+                        searchContext.setKeywords(search);
+                    }
+                    searchContext.setCompanyId(contextCompany.getCompanyId());
+                    searchContext.setGroupIds(new long[] {groupId});
+                    searchContext.setAttribute("types", new String[]{
+                            String.valueOf(LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT)});
+                },
+                sorts,
+                document -> _toLayoutPageTemplatePage(
+                        _layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
+                                Long.parseLong(document.get(Field.ENTRY_CLASS_PK)))
+                )
+        );
+		/*return Page.of(
 			transform(
 				_layoutPageTemplateEntryService.getLayoutPageTemplateEntries(
 					groupId, LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT,
@@ -123,9 +151,17 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 			pagination,
 			_layoutPageTemplateEntryService.getLayoutPageTemplateEntriesCount(
 				groupId, LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT));
+
+
+		 */
 	}
 
-	@Override
+    private MasterPage _toLayoutPageTemplatePage(LayoutPageTemplateEntry layoutPageTemplateEntry) throws Exception {
+        return _masterPageDTOConverter.toDTO(layoutPageTemplateEntry);
+    }
+
+
+    @Override
 	public MasterPage postSiteSiteByExternalReferenceCodeMasterPage(
 			String siteExternalReferenceCode, MasterPage masterPage)
 		throws Exception {
@@ -276,6 +312,11 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 		}
 	}
 
+    @Override
+    public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
+        return _entityModel;
+    }
+
 	private MasterPage _addMasterPage(long groupId, MasterPage masterPage)
 		throws Exception {
 
@@ -336,7 +377,12 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 			contextUser.getUserId(), masterPage.getUuid());
 	}
 
-	@Reference
+    private static final EntityModel _entityModel =
+            new MasterPageEntityModel();
+
+
+
+    @Reference
 	private CETManager _cetManager;
 
 	@Reference
