@@ -16,6 +16,7 @@ import com.liferay.headless.admin.site.dto.v1_0.DisplayPageTemplateSettings;
 import com.liferay.headless.admin.site.dto.v1_0.ItemExternalReference;
 import com.liferay.headless.admin.site.dto.v1_0.PageSpecification;
 import com.liferay.headless.admin.site.dto.v1_0.SitemapSettings;
+import com.liferay.headless.admin.site.internal.odata.entity.v1_0.DisplayPageTemplateEntityModel;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.DisplayPageTemplateFolderUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.FileEntryUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.GroupUtil;
@@ -35,12 +36,14 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
+import com.liferay.layout.utility.page.model.LayoutUtilityPageEntry;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
@@ -50,13 +53,16 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
-
+import com.liferay.portal.vulcan.util.SearchUtil;
+import jakarta.ws.rs.core.MultivaluedMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -178,7 +184,29 @@ public class DisplayPageTemplateResourceImpl
 		long groupId = GroupUtil.getGroupId(
 			true, contextCompany.getCompanyId(), siteExternalReferenceCode);
 
-		return Page.of(
+        return SearchUtil.search(
+                Collections.emptyMap(),
+                booleanQuery -> {
+                },
+                filter, LayoutPageTemplateEntry.class.getName(),
+                search, pagination, queryConfig ->
+                        queryConfig.setSelectedFieldNames(Field.ENTRY_CLASS_PK),
+                searchContext -> {
+                    if (Validator.isNotNull(search)) {
+                        searchContext.setKeywords(search);
+                    }
+                    searchContext.setCompanyId(contextCompany.getCompanyId());
+                    searchContext.setGroupIds(new long[] {groupId});
+                    searchContext.setAttribute("types", new String[]{
+                            String.valueOf(LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE)});
+                },
+                sorts,
+                document -> _toLayoutPageTemplatePage(
+                        _layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
+                                Long.parseLong(document.get(Field.ENTRY_CLASS_PK)))
+                )
+        );
+		/*return Page.of(
 			transform(
 				_layoutPageTemplateEntryService.getLayoutPageTemplateEntries(
 					groupId, LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE,
@@ -190,9 +218,15 @@ public class DisplayPageTemplateResourceImpl
 			pagination,
 			_layoutPageTemplateEntryService.getLayoutPageTemplateEntriesCount(
 				groupId, LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE));
+
+		 */
 	}
 
-	@Override
+    private DisplayPageTemplate _toLayoutPageTemplatePage(LayoutPageTemplateEntry layoutPageTemplateEntry) throws Exception {
+        return _displayPageTemplateDTOConverter.toDTO(layoutPageTemplateEntry);
+    }
+
+    @Override
 	public DisplayPageTemplate
 			postSiteSiteByExternalReferenceCodeDisplayPageTemplate(
 				String siteExternalReferenceCode,
@@ -441,6 +475,11 @@ public class DisplayPageTemplateResourceImpl
 		}
 	}
 
+    @Override
+    public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
+        return _entityModel;
+    }
+
 	private DisplayPageTemplate _addDisplayPageTemplate(
 			DisplayPageTemplate displayPageTemplate, long groupId,
 			long layoutPageTemplateCollectionId)
@@ -675,7 +714,12 @@ public class DisplayPageTemplateResourceImpl
 		return unicodeProperties;
 	}
 
-	@Reference
+    private static final EntityModel _entityModel =
+            new DisplayPageTemplateEntityModel();
+
+
+
+    @Reference
 	private CETManager _cetManager;
 
 	@Reference
