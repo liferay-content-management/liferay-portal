@@ -140,20 +140,7 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
                                 Long.parseLong(document.get(Field.ENTRY_CLASS_PK)))
                 )
         );
-		/*return Page.of(
-			transform(
-				_layoutPageTemplateEntryService.getLayoutPageTemplateEntries(
-					groupId, LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT,
-					pagination.getStartPosition(), pagination.getEndPosition(),
-					null),
-				layoutPageTemplateEntry -> _masterPageDTOConverter.toDTO(
-					layoutPageTemplateEntry)),
-			pagination,
-			_layoutPageTemplateEntryService.getLayoutPageTemplateEntriesCount(
-				groupId, LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT));
 
-
-		 */
 	}
 
     private MasterPage _toLayoutPageTemplatePage(LayoutPageTemplateEntry layoutPageTemplateEntry) throws Exception {

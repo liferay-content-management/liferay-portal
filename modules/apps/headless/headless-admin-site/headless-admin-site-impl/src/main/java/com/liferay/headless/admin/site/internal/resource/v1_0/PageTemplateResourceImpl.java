@@ -206,26 +206,7 @@ public class PageTemplateResourceImpl extends BasePageTemplateResourceImpl {
                                 Long.parseLong(document.get(Field.ENTRY_CLASS_PK)))
                 )
         );
-		/*return Page.of(
-			transform(
-				_layoutPageTemplateEntryService.getLayoutPageTemplateEntries(
-					groupId,
-					new int[] {
-						LayoutPageTemplateEntryTypeConstants.BASIC,
-						LayoutPageTemplateEntryTypeConstants.WIDGET_PAGE
-					},
-					pagination.getStartPosition(), pagination.getEndPosition(),
-					null),
-				layoutPageTemplateEntry -> _pageTemplateDTOConverter.toDTO(
-					layoutPageTemplateEntry)),
-			pagination,
-			_layoutPageTemplateEntryService.getLayoutPageTemplateEntriesCount(
-				groupId,
-				new int[] {
-					LayoutPageTemplateEntryTypeConstants.BASIC,
-					LayoutPageTemplateEntryTypeConstants.WIDGET_PAGE
-				}));
-        */
+
 	}
 
     private PageTemplate _toLayoutPageTemplatePage(LayoutPageTemplateEntry layoutPageTemplateEntry) throws Exception {

@@ -206,20 +206,6 @@ public class DisplayPageTemplateResourceImpl
                                 Long.parseLong(document.get(Field.ENTRY_CLASS_PK)))
                 )
         );
-		/*return Page.of(
-			transform(
-				_layoutPageTemplateEntryService.getLayoutPageTemplateEntries(
-					groupId, LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE,
-					pagination.getStartPosition(), pagination.getEndPosition(),
-					null),
-				layoutPageTemplateEntry ->
-					_displayPageTemplateDTOConverter.toDTO(
-						layoutPageTemplateEntry)),
-			pagination,
-			_layoutPageTemplateEntryService.getLayoutPageTemplateEntriesCount(
-				groupId, LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE));
-
-		 */
 	}
 
     private DisplayPageTemplate _toLayoutPageTemplatePage(LayoutPageTemplateEntry layoutPageTemplateEntry) throws Exception {
