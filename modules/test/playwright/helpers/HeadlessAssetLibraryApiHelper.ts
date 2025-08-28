@@ -18,15 +18,18 @@ export class HeadlessAssetLibraryApiHelper {
 		description,
 		name,
 		settings = {},
+		type = 'Space',
 	}: {
 		description?: string;
 		name: string;
 		settings: any;
+		type: string;
 	}) {
 		const data = JSON.stringify({
 			description,
 			name,
 			settings,
+			type,
 		});
 
 		const assetLibrary = await this.apiHelpers.post(

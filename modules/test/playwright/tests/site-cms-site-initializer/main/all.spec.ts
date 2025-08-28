@@ -36,6 +36,7 @@ test(
 				logoColor: 'outline-3',
 				sharingEnabled: true,
 			},
+			type: 'Space',
 		});
 
 		try {
