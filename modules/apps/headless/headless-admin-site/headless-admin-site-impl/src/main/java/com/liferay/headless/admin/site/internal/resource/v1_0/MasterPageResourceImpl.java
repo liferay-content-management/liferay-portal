@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2025 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -9,7 +9,6 @@ import com.liferay.client.extension.type.manager.CETManager;
 import com.liferay.headless.admin.site.dto.v1_0.ContentPageSpecification;
 import com.liferay.headless.admin.site.dto.v1_0.MasterPage;
 import com.liferay.headless.admin.site.dto.v1_0.PageSpecification;
-import com.liferay.headless.admin.site.dto.v1_0.PageTemplate;
 import com.liferay.headless.admin.site.internal.odata.entity.v1_0.MasterPageEntityModel;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.FileEntryUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.GroupUtil;
@@ -21,7 +20,6 @@ import com.liferay.layout.page.template.constants.LayoutPageTemplateConstants;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
-import com.liferay.layout.utility.page.model.LayoutUtilityPageEntry;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
@@ -41,7 +39,9 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.SearchUtil;
+
 import jakarta.ws.rs.core.MultivaluedMap;
+
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -75,6 +75,11 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 			GroupUtil.getGroupId(
 				false, contextCompany.getCompanyId(),
 				siteExternalReferenceCode));
+	}
+
+	@Override
+	public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
+		return _entityModel;
 	}
 
 	@Override
@@ -118,37 +123,35 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 
 		long groupId = GroupUtil.getGroupId(
 			true, contextCompany.getCompanyId(), siteExternalReferenceCode);
-        return SearchUtil.search(
-                Collections.emptyMap(),
-                booleanQuery -> {
-                },
-                filter, LayoutPageTemplateEntry.class.getName(),
-                search, pagination, queryConfig ->
-                        queryConfig.setSelectedFieldNames(Field.ENTRY_CLASS_PK),
-                searchContext -> {
-                    if (Validator.isNotNull(search)) {
-                        searchContext.setKeywords(search);
-                    }
-                    searchContext.setCompanyId(contextCompany.getCompanyId());
-                    searchContext.setGroupIds(new long[] {groupId});
-                    searchContext.setAttribute("types", new String[]{
-                            String.valueOf(LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT)});
-                },
-                sorts,
-                document -> _toLayoutPageTemplatePage(
-                        _layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
-                                Long.parseLong(document.get(Field.ENTRY_CLASS_PK)))
-                )
-        );
 
+		return SearchUtil.search(
+			Collections.emptyMap(),
+			booleanQuery -> {
+			},
+			filter, LayoutPageTemplateEntry.class.getName(), search, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> {
+				if (Validator.isNotNull(search)) {
+					searchContext.setKeywords(search);
+				}
+
+				searchContext.setAttribute(
+					"types",
+					new String[] {
+						String.valueOf(
+							LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT)
+					});
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+				searchContext.setGroupIds(new long[] {groupId});
+			},
+			sorts,
+			document -> _toLayoutPageTemplatePage(
+				_layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
-    private MasterPage _toLayoutPageTemplatePage(LayoutPageTemplateEntry layoutPageTemplateEntry) throws Exception {
-        return _masterPageDTOConverter.toDTO(layoutPageTemplateEntry);
-    }
-
-
-    @Override
+	@Override
 	public MasterPage postSiteSiteByExternalReferenceCodeMasterPage(
 			String siteExternalReferenceCode, MasterPage masterPage)
 		throws Exception {
@@ -299,11 +302,6 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 		}
 	}
 
-    @Override
-    public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
-        return _entityModel;
-    }
-
 	private MasterPage _addMasterPage(long groupId, MasterPage masterPage)
 		throws Exception {
 
@@ -364,12 +362,16 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 			contextUser.getUserId(), masterPage.getUuid());
 	}
 
-    private static final EntityModel _entityModel =
-            new MasterPageEntityModel();
+	private MasterPage _toLayoutPageTemplatePage(
+			LayoutPageTemplateEntry layoutPageTemplateEntry)
+		throws Exception {
 
+		return _masterPageDTOConverter.toDTO(layoutPageTemplateEntry);
+	}
 
+	private static final EntityModel _entityModel = new MasterPageEntityModel();
 
-    @Reference
+	@Reference
 	private CETManager _cetManager;
 
 	@Reference

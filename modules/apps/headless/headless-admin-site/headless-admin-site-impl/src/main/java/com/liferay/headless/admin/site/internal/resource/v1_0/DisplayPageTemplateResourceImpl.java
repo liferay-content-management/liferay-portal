@@ -36,7 +36,6 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
-import com.liferay.layout.utility.page.model.LayoutUtilityPageEntry;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
@@ -62,7 +61,9 @@ import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
+
 import jakarta.ws.rs.core.MultivaluedMap;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -99,6 +100,11 @@ public class DisplayPageTemplateResourceImpl
 			GroupUtil.getGroupId(
 				false, contextCompany.getCompanyId(),
 				siteExternalReferenceCode));
+	}
+
+	@Override
+	public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
+		return _entityModel;
 	}
 
 	@Override
@@ -184,35 +190,34 @@ public class DisplayPageTemplateResourceImpl
 		long groupId = GroupUtil.getGroupId(
 			true, contextCompany.getCompanyId(), siteExternalReferenceCode);
 
-        return SearchUtil.search(
-                Collections.emptyMap(),
-                booleanQuery -> {
-                },
-                filter, LayoutPageTemplateEntry.class.getName(),
-                search, pagination, queryConfig ->
-                        queryConfig.setSelectedFieldNames(Field.ENTRY_CLASS_PK),
-                searchContext -> {
-                    if (Validator.isNotNull(search)) {
-                        searchContext.setKeywords(search);
-                    }
-                    searchContext.setCompanyId(contextCompany.getCompanyId());
-                    searchContext.setGroupIds(new long[] {groupId});
-                    searchContext.setAttribute("types", new String[]{
-                            String.valueOf(LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE)});
-                },
-                sorts,
-                document -> _toLayoutPageTemplatePage(
-                        _layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
-                                Long.parseLong(document.get(Field.ENTRY_CLASS_PK)))
-                )
-        );
+		return SearchUtil.search(
+			Collections.emptyMap(),
+			booleanQuery -> {
+			},
+			filter, LayoutPageTemplateEntry.class.getName(), search, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> {
+				if (Validator.isNotNull(search)) {
+					searchContext.setKeywords(search);
+				}
+
+				searchContext.setAttribute(
+					"types",
+					new String[] {
+						String.valueOf(
+							LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE)
+					});
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+				searchContext.setGroupIds(new long[] {groupId});
+			},
+			sorts,
+			document -> _toLayoutPageTemplatePage(
+				_layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
-    private DisplayPageTemplate _toLayoutPageTemplatePage(LayoutPageTemplateEntry layoutPageTemplateEntry) throws Exception {
-        return _displayPageTemplateDTOConverter.toDTO(layoutPageTemplateEntry);
-    }
-
-    @Override
+	@Override
 	public DisplayPageTemplate
 			postSiteSiteByExternalReferenceCodeDisplayPageTemplate(
 				String siteExternalReferenceCode,
@@ -461,11 +466,6 @@ public class DisplayPageTemplateResourceImpl
 		}
 	}
 
-    @Override
-    public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
-        return _entityModel;
-    }
-
 	private DisplayPageTemplate _addDisplayPageTemplate(
 			DisplayPageTemplate displayPageTemplate, long groupId,
 			long layoutPageTemplateCollectionId)
@@ -700,12 +700,17 @@ public class DisplayPageTemplateResourceImpl
 		return unicodeProperties;
 	}
 
-    private static final EntityModel _entityModel =
-            new DisplayPageTemplateEntityModel();
+	private DisplayPageTemplate _toLayoutPageTemplatePage(
+			LayoutPageTemplateEntry layoutPageTemplateEntry)
+		throws Exception {
 
+		return _displayPageTemplateDTOConverter.toDTO(layoutPageTemplateEntry);
+	}
 
+	private static final EntityModel _entityModel =
+		new DisplayPageTemplateEntityModel();
 
-    @Reference
+	@Reference
 	private CETManager _cetManager;
 
 	@Reference
