@@ -68,11 +68,11 @@ public class ViewContentsSectionDisplayContextTest
 			fdsActionDropdownItems.get(2), "pencil", "editFolder", "edit",
 			"get", "item");
 		assertFDSActionDropdownItem(
-			fdsActionDropdownItems.get(3), "share", "share", "share", "get",
-			"item");
-		assertFDSActionDropdownItem(
-			fdsActionDropdownItems.get(4), "pencil", "actionLink", "edit",
+			fdsActionDropdownItems.get(3), "pencil", "actionLink", "edit",
 			"get", "item");
+		assertFDSActionDropdownItem(
+			fdsActionDropdownItems.get(4), "share", "share", "share", "get",
+			"item");
 		assertFDSActionDropdownItem(
 			fdsActionDropdownItems.get(5), "time", "expire", "expire", "post",
 			"item");
