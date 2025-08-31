@@ -211,7 +211,7 @@ public class PageTemplateResourceImpl extends BasePageTemplateResourceImpl {
 				searchContext.setGroupIds(new long[] {groupId});
 			},
 			sorts,
-			document -> _toLayoutPageTemplatePage(
+			document -> _pageTemplateDTOConverter.toDTO(
 				_layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
@@ -729,13 +729,6 @@ public class PageTemplateResourceImpl extends BasePageTemplateResourceImpl {
 			existingWidgetPageTemplate.setPageTemplateSettings(
 				widgetPageTemplate::getPageTemplateSettings);
 		}
-	}
-
-	private PageTemplate _toLayoutPageTemplatePage(
-			LayoutPageTemplateEntry layoutPageTemplateEntry)
-		throws Exception {
-
-		return _pageTemplateDTOConverter.toDTO(layoutPageTemplateEntry);
 	}
 
 	private PageTemplate _updatePageTemplate(

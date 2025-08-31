@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2025 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -146,7 +146,7 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 				searchContext.setGroupIds(new long[] {groupId});
 			},
 			sorts,
-			document -> _toLayoutPageTemplatePage(
+			document -> _masterPageDTOConverter.toDTO(
 				_layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
@@ -360,13 +360,6 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 			masterPage.getDateCreated(), groupId, contextHttpServletRequest,
 			masterPage.getKeywords(), masterPage.getDateModified(),
 			contextUser.getUserId(), masterPage.getUuid());
-	}
-
-	private MasterPage _toLayoutPageTemplatePage(
-			LayoutPageTemplateEntry layoutPageTemplateEntry)
-		throws Exception {
-
-		return _masterPageDTOConverter.toDTO(layoutPageTemplateEntry);
 	}
 
 	private static final EntityModel _entityModel = new MasterPageEntityModel();

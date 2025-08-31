@@ -212,7 +212,7 @@ public class DisplayPageTemplateResourceImpl
 				searchContext.setGroupIds(new long[] {groupId});
 			},
 			sorts,
-			document -> _toLayoutPageTemplatePage(
+			document -> _displayPageTemplateDTOConverter.toDTO(
 				_layoutPageTemplateEntryService.fetchLayoutPageTemplateEntry(
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
@@ -698,13 +698,6 @@ public class DisplayPageTemplateResourceImpl
 		}
 
 		return unicodeProperties;
-	}
-
-	private DisplayPageTemplate _toLayoutPageTemplatePage(
-			LayoutPageTemplateEntry layoutPageTemplateEntry)
-		throws Exception {
-
-		return _displayPageTemplateDTOConverter.toDTO(layoutPageTemplateEntry);
 	}
 
 	private static final EntityModel _entityModel =

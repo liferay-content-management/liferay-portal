@@ -70,6 +70,7 @@ public class LayoutPageTemplateEntryModelPreFilterContributor
 			TermsFilter termsFilter = new TermsFilter(Field.TYPE);
 
 			termsFilter.addValues(types);
+            
 			booleanFilter.add(termsFilter, BooleanClauseOccur.MUST);
 		}
 	}
