@@ -29,10 +29,12 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -422,6 +424,25 @@ public class MasterPageResourceTest extends BaseMasterPageResourceTestCase {
 			"taxonomyCategoryItemExternalReferences"
 		};
 	}
+
+    @Override
+    protected void publishMasterPage(long groupId, MasterPage masterPage) throws Exception {
+
+            LayoutPageTemplateEntry layoutPageTemplateEntry =
+                    _layoutPageTemplateEntryLocalService.
+                            getLayoutPageTemplateEntryByExternalReferenceCode(
+                                    masterPage.getExternalReferenceCode(),
+                                    groupId);
+
+            Layout layout = _layoutLocalService.getLayout(
+                    layoutPageTemplateEntry.getPlid());
+            ReflectionTestUtil.invoke(
+                    _mvcActionCommand, "_publishLayoutPageTemplateEntry",
+                    new Class<?>[] {
+                            Layout.class, Layout.class},
+                    layout.fetchDraftLayout(), layout);
+
+    }
 
 	@Override
 	protected MasterPage randomIrrelevantMasterPage() throws Exception {
@@ -1103,6 +1124,11 @@ public class MasterPageResourceTest extends BaseMasterPageResourceTestCase {
 	@Inject
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
+
+    @Inject(
+            filter = "mvc.command.name=/layout_content_page_editor/publish_layout_page_template_entry"
+    )
+    private MVCActionCommand _mvcActionCommand;
 
 	@Inject
 	private PortletFileRepository _portletFileRepository;
