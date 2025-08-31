@@ -425,24 +425,23 @@ public class MasterPageResourceTest extends BaseMasterPageResourceTestCase {
 		};
 	}
 
-    @Override
-    protected void publishMasterPage(long groupId, MasterPage masterPage) throws Exception {
+	@Override
+	protected void publishMasterPage(long groupId, MasterPage masterPage)
+		throws Exception {
 
-            LayoutPageTemplateEntry layoutPageTemplateEntry =
-                    _layoutPageTemplateEntryLocalService.
-                            getLayoutPageTemplateEntryByExternalReferenceCode(
-                                    masterPage.getExternalReferenceCode(),
-                                    groupId);
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				getLayoutPageTemplateEntryByExternalReferenceCode(
+					masterPage.getExternalReferenceCode(), groupId);
 
-            Layout layout = _layoutLocalService.getLayout(
-                    layoutPageTemplateEntry.getPlid());
-            ReflectionTestUtil.invoke(
-                    _mvcActionCommand, "_publishLayoutPageTemplateEntry",
-                    new Class<?>[] {
-                            Layout.class, Layout.class},
-                    layout.fetchDraftLayout(), layout);
+		Layout layout = _layoutLocalService.getLayout(
+			layoutPageTemplateEntry.getPlid());
 
-    }
+		ReflectionTestUtil.invoke(
+			_mvcActionCommand, "_publishLayoutPageTemplateEntry",
+			new Class<?>[] {Layout.class, Layout.class},
+			layout.fetchDraftLayout(), layout);
+	}
 
 	@Override
 	protected MasterPage randomIrrelevantMasterPage() throws Exception {
@@ -1125,10 +1124,10 @@ public class MasterPageResourceTest extends BaseMasterPageResourceTestCase {
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
 
-    @Inject(
-            filter = "mvc.command.name=/layout_content_page_editor/publish_layout_page_template_entry"
-    )
-    private MVCActionCommand _mvcActionCommand;
+	@Inject(
+		filter = "mvc.command.name=/layout_content_page_editor/publish_layout_page_template_entry"
+	)
+	private MVCActionCommand _mvcActionCommand;
 
 	@Inject
 	private PortletFileRepository _portletFileRepository;

@@ -18,7 +18,6 @@ import com.liferay.headless.admin.site.client.dto.v1_0.DisplayPageTemplateSettin
 import com.liferay.headless.admin.site.client.dto.v1_0.FriendlyUrlHistory;
 import com.liferay.headless.admin.site.client.dto.v1_0.ItemExternalReference;
 import com.liferay.headless.admin.site.client.dto.v1_0.PageSpecification;
-
 import com.liferay.headless.admin.site.client.dto.v1_0.SitemapSettings;
 import com.liferay.headless.admin.site.client.pagination.Page;
 import com.liferay.headless.admin.site.client.problem.Problem;
@@ -111,23 +110,7 @@ public class DisplayPageTemplateResourceTest
 			new LiferayIntegrationTestRule(),
 			PermissionCheckerMethodTestRule.INSTANCE);
 
-    @Override
-    protected void publishDisplayPageTemplate(long groupId, DisplayPageTemplate displayPageTemplate) throws PortalException {
-        LayoutPageTemplateEntry layoutPageTemplateEntry =
-                _layoutPageTemplateEntryLocalService.
-                        getLayoutPageTemplateEntryByExternalReferenceCode(
-                                displayPageTemplate.getExternalReferenceCode(),
-                                groupId);
-
-        Layout layout = _layoutLocalService.getLayout(
-                layoutPageTemplateEntry.getPlid());
-        ReflectionTestUtil.invoke(
-                _mvcActionCommand, "_publishLayoutPageTemplateEntry",
-                new Class<?>[] {
-                        Layout.class, Layout.class},
-                layout.fetchDraftLayout(), layout);
-    }
-    @Before
+	@Before
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
@@ -239,7 +222,7 @@ public class DisplayPageTemplateResourceTest
 		_testGetSiteSiteByExternalReferenceCodeDisplayPageTemplateWithNestedFields(
 			displayPageTemplate);
 
-        publishDisplayPageTemplate(testGroup.getGroupId(), displayPageTemplate);
+		publishDisplayPageTemplate(testGroup.getGroupId(), displayPageTemplate);
 
 		Assert.assertTrue(_isPublished(layout));
 
@@ -268,8 +251,8 @@ public class DisplayPageTemplateResourceTest
 		throws Exception {
 
 		super.testGetSiteSiteByExternalReferenceCodeDisplayPageTemplatesPage();
-		_testGetSiteSiteByExternalReferenceCodeDisplayPageTemplatesPageWithNestedFields();
 
+		_testGetSiteSiteByExternalReferenceCodeDisplayPageTemplatesPageWithNestedFields();
 	}
 
 	@Ignore
@@ -568,6 +551,25 @@ public class DisplayPageTemplateResourceTest
 	}
 
 	@Override
+	protected void publishDisplayPageTemplate(
+			long groupId, DisplayPageTemplate displayPageTemplate)
+		throws PortalException {
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				getLayoutPageTemplateEntryByExternalReferenceCode(
+					displayPageTemplate.getExternalReferenceCode(), groupId);
+
+		Layout layout = _layoutLocalService.getLayout(
+			layoutPageTemplateEntry.getPlid());
+
+		ReflectionTestUtil.invoke(
+			_mvcActionCommand, "_publishLayoutPageTemplateEntry",
+			new Class<?>[] {Layout.class, Layout.class},
+			layout.fetchDraftLayout(), layout);
+	}
+
+	@Override
 	protected DisplayPageTemplate randomDisplayPageTemplate() throws Exception {
 		DisplayPageTemplate displayPageTemplate =
 			super.randomDisplayPageTemplate();
@@ -577,7 +579,7 @@ public class DisplayPageTemplateResourceTest
 		displayPageTemplate.setDisplayPageTemplateSettings(
 			_randomDisplayPageTemplateSettings());
 
-        displayPageTemplate.setFriendlyUrlPath_i18n(
+		displayPageTemplate.setFriendlyUrlPath_i18n(
 			() -> HashMapBuilder.put(
 				LocaleUtil.toBCP47LanguageId(LocaleUtil.SPAIN),
 				StringPool.FORWARD_SLASH +
@@ -643,7 +645,7 @@ public class DisplayPageTemplateResourceTest
 				DisplayPageTemplate displayPageTemplate)
 		throws Exception {
 
-        return displayPageTemplateResource.
+		return displayPageTemplateResource.
 			postSiteSiteByExternalReferenceCodeDisplayPageTemplate(
 				siteExternalReferenceCode, displayPageTemplate);
 	}
@@ -940,7 +942,6 @@ public class DisplayPageTemplateResourceTest
 			draftLayout.getTypeSettingsProperty("published"));
 	}
 
-
 	private DisplayPageTemplateSettings _randomDisplayPageTemplateSettings() {
 		DisplayPageTemplateSettings displayPageTemplateSettings =
 			new DisplayPageTemplateSettings();
@@ -1077,7 +1078,6 @@ public class DisplayPageTemplateResourceTest
 		assertValid(getDisplayPageTemplate);
 	}
 
-
 	private void _testGetSiteSiteByExternalReferenceCodeDisplayPageTemplatesPageWithNestedFields()
 		throws Exception {
 
@@ -1105,19 +1105,21 @@ public class DisplayPageTemplateResourceTest
 
 		Assert.assertFalse(_isPublished(layout));
 
-        publishDisplayPageTemplate(testGroup.getGroupId(), displayPageTemplate);
+		publishDisplayPageTemplate(testGroup.getGroupId(), displayPageTemplate);
 
-        Assert.assertTrue(_isPublished(layout));
-		page =
-                _getDisplayPageTemplateResource().
-				getSiteSiteByExternalReferenceCodeDisplayPageTemplatesPage(
-					testGroup.getExternalReferenceCode(), null, null, null,
-					null, null);
+		Assert.assertTrue(_isPublished(layout));
+
+		page = _getDisplayPageTemplateResource()
+                .getSiteSiteByExternalReferenceCodeDisplayPageTemplatesPage(
+                        testGroup.getExternalReferenceCode(), null,
+                        null, null, null, null);
 
 		Assert.assertEquals(totalCount + 1, page.getTotalCount());
-List<LayoutPageTemplateEntry> lista = LayoutPageTemplateEntryServiceUtil.getLayoutPageTemplateEntries(testGroup.getGroupId(),
-        LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, -1 ,-1, null);
 
+        LayoutPageTemplateEntryServiceUtil.getLayoutPageTemplateEntries(
+                testGroup.getGroupId(),
+				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, -1, -1,
+				null);
 
 		_assertNestedFields(
 			_getDisplayPageTemplate(
@@ -1823,7 +1825,6 @@ List<LayoutPageTemplateEntry> lista = LayoutPageTemplateEntryServiceUtil.getLayo
 		filter = "mvc.command.name=/layout_content_page_editor/publish_layout_page_template_entry"
 	)
 	private MVCActionCommand _mvcActionCommand;
-
 
 	@Inject
 	private Portal _portal;

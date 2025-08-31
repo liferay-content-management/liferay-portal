@@ -180,9 +180,12 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 	public void testGetSiteSiteByExternalReferenceCodePageTemplate()
 		throws Exception {
 
-        PageTemplate pageTemplate = testGetSiteSiteByExternalReferenceCodePageTemplatesPage_addPageTemplate(testGroup.getExternalReferenceCode(), randomPageTemplate());
+		PageTemplate pageTemplate =
+			testGetSiteSiteByExternalReferenceCodePageTemplatesPage_addPageTemplate(
+				testGroup.getExternalReferenceCode(), randomPageTemplate());
+
 		publishPageTemplate(testGroup.getGroupId(), pageTemplate);
-        _testGetSiteSiteByExternalReferenceCodePageTemplate(pageTemplate);
+		_testGetSiteSiteByExternalReferenceCodePageTemplate(pageTemplate);
 
 		_testGetSiteSiteByExternalReferenceCodePageTemplateWithNestedFields(
 			_getContentPageTemplate(testGroup));
@@ -199,7 +202,7 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 
 		_enableLocalStaging();
 
-            _testGetSiteSiteByExternalReferenceCodePageTemplate(pageTemplate);
+		_testGetSiteSiteByExternalReferenceCodePageTemplate(pageTemplate);
 
 		_withCompanyGroupWidgetPageTemplate(
 			(group, widgetPageTemplate) ->
@@ -659,25 +662,25 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 		};
 	}
 
-    @Override
-    protected void publishPageTemplate(long groupId, PageTemplate pageTemplate) throws PortalException {
-        if(pageTemplate.getType() == PageTemplate.Type.CONTENT_PAGE_TEMPLATE) {
-            LayoutPageTemplateEntry layoutPageTemplateEntry =
-                    _layoutPageTemplateEntryLocalService.
-                            getLayoutPageTemplateEntryByExternalReferenceCode(
-                                    pageTemplate.getExternalReferenceCode(),
-                                    groupId);
+	@Override
+	protected void publishPageTemplate(long groupId, PageTemplate pageTemplate)
+		throws PortalException {
 
-            Layout layout = _layoutLocalService.getLayout(
-                    layoutPageTemplateEntry.getPlid());
-            ReflectionTestUtil.invoke(
-                    _mvcActionCommand, "_publishLayoutPageTemplateEntry",
-                    new Class<?>[] {
-                            Layout.class, Layout.class},
-                    layout.fetchDraftLayout(), layout);
-        }
+		if (pageTemplate.getType() == PageTemplate.Type.CONTENT_PAGE_TEMPLATE) {
+			LayoutPageTemplateEntry layoutPageTemplateEntry =
+				_layoutPageTemplateEntryLocalService.
+					getLayoutPageTemplateEntryByExternalReferenceCode(
+						pageTemplate.getExternalReferenceCode(), groupId);
 
-    }
+			Layout layout = _layoutLocalService.getLayout(
+				layoutPageTemplateEntry.getPlid());
+
+			ReflectionTestUtil.invoke(
+				_mvcActionCommand, "_publishLayoutPageTemplateEntry",
+				new Class<?>[] {Layout.class, Layout.class},
+				layout.fetchDraftLayout(), layout);
+		}
+	}
 
 	@Override
 	protected PageTemplate randomIrrelevantPageTemplate() throws Exception {
@@ -741,10 +744,9 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 				String siteExternalReferenceCode, PageTemplate pageTemplate)
 		throws Exception {
 
-		 return  pageTemplateResource.
+		return pageTemplateResource.
 			postSiteSiteByExternalReferenceCodePageTemplate(
 				siteExternalReferenceCode, pageTemplate);
-
 	}
 
 	@Override
@@ -885,7 +887,7 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 			(WidgetPageSpecification)pageSpecifications[0]);
 	}
 
-    private void _enableLocalStaging() throws Exception {
+	private void _enableLocalStaging() throws Exception {
 		_stagingLocalService.enableLocalStaging(
 			TestPropsValues.getUserId(), testGroup, true, false,
 			ServiceContextTestUtil.getServiceContext(
@@ -1152,7 +1154,6 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 					pageTemplateSet.getExternalReferenceCode(), pageTemplate));
 	}
 
-
 	private void _testCreatingPageTemplateSetWithLazyReferencingEnabled(
 			UnsafeFunction<PageTemplateSet, PageTemplate, Exception>
 				unsafeFunction)
@@ -1242,7 +1243,6 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 		assertEquals(pageTemplate, getPageTemplate);
 		assertValid(getPageTemplate);
 	}
-
 
 	private void
 			_testGetSiteSiteByExternalReferenceCodePageTemplateWithNestedFields(
@@ -1978,10 +1978,10 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
 
-    @Inject(
-            filter = "mvc.command.name=/layout_content_page_editor/publish_layout_page_template_entry"
-    )
-    private MVCActionCommand _mvcActionCommand;
+	@Inject(
+		filter = "mvc.command.name=/layout_content_page_editor/publish_layout_page_template_entry"
+	)
+	private MVCActionCommand _mvcActionCommand;
 
 	@Inject
 	private com.liferay.headless.admin.site.resource.v1_0.PageTemplateResource
