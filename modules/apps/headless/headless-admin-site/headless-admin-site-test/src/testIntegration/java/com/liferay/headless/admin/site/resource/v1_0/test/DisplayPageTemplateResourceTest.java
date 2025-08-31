@@ -1109,17 +1109,17 @@ public class DisplayPageTemplateResourceTest
 
 		Assert.assertTrue(_isPublished(layout));
 
-		page = _getDisplayPageTemplateResource()
-                .getSiteSiteByExternalReferenceCodeDisplayPageTemplatesPage(
-                        testGroup.getExternalReferenceCode(), null,
-                        null, null, null, null);
+		page =
+			_getDisplayPageTemplateResource().
+				getSiteSiteByExternalReferenceCodeDisplayPageTemplatesPage(
+					testGroup.getExternalReferenceCode(), null, null, null,
+					null, null);
 
 		Assert.assertEquals(totalCount + 1, page.getTotalCount());
 
-        LayoutPageTemplateEntryServiceUtil.getLayoutPageTemplateEntries(
-                testGroup.getGroupId(),
-				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, -1, -1,
-				null);
+		LayoutPageTemplateEntryServiceUtil.getLayoutPageTemplateEntries(
+			testGroup.getGroupId(),
+			LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, -1, -1, null);
 
 		_assertNestedFields(
 			_getDisplayPageTemplate(

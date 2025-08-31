@@ -102,16 +102,13 @@ public class LayoutPageTemplateEntryIndexerReindexTest {
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
 
-    @Inject
-    private Searcher _searcher;
+	@Inject
+	private Searcher _searcher;
 
-    @Inject
+	@Inject
 	private SearchRequestBuilderFactory _searchRequestBuilderFactory;
 
 	private ServiceContext _serviceContext;
-
-    private User _user;
-
-
+	private User _user;
 
 }
