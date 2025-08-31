@@ -32,7 +32,6 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.LayoutLocalService;
-import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -56,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -185,8 +185,8 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 		throws Exception {
 
 		super.testGetSiteSiteByExternalReferenceCodeUtilityPagesPage();
-		_testGetSiteSiteByExternalReferenceCodeUtilityPagesPageWithNestedFields();
 
+		_testGetSiteSiteByExternalReferenceCodeUtilityPagesPageWithNestedFields();
 	}
 
 	@Ignore
@@ -1113,6 +1113,5 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 	@Inject
 	private PortletFileRepository _portletFileRepository;
-
 
 }

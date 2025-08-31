@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
  * @author Juan Pablo Montero
  */
 @RunWith(Arquillian.class)
-    public class LayoutUtilityPageEntryIndexerReindexTest {
+public class LayoutUtilityPageEntryIndexerReindexTest {
 
 	@ClassRule
 	@Rule
@@ -50,6 +50,7 @@ import org.junit.runner.RunWith;
 
 		_serviceContext = ServiceContextTestUtil.getServiceContext(
 			_group.getGroupId(), TestPropsValues.getUserId());
+
 		_user = TestPropsValues.getUser();
 	}
 
@@ -74,7 +75,24 @@ import org.junit.runner.RunWith;
 			).getCount());
 	}
 
+	@Rule
+	public SearchTestRule searchTestRule = new SearchTestRule();
 
+	private SearchResponse _search(String searchTerm) {
+		return _searcher.search(
+			_searchRequestBuilderFactory.builder(
+			).companyId(
+				_user.getCompanyId()
+			).groupIds(
+				_group.getGroupId()
+			).fields(
+				StringPool.STAR
+			).modelIndexerClasses(
+				LayoutUtilityPageEntry.class
+			).queryString(
+				searchTerm
+			).build());
+	}
 
 	@DeleteAfterTestRun
 	private Group _group;
@@ -89,27 +107,7 @@ import org.junit.runner.RunWith;
 	@Inject
 	private SearchRequestBuilderFactory _searchRequestBuilderFactory;
 
-    private SearchResponse _search(String searchTerm) {
-        return _searcher.search(
-                _searchRequestBuilderFactory.builder(
-                ).companyId(
-                        _user.getCompanyId()
-                ).groupIds(
-                        _group.getGroupId()
-                ).fields(
-                        StringPool.STAR
-                ).modelIndexerClasses(
-                        LayoutUtilityPageEntry.class
-                ).queryString(
-                        searchTerm
-                ).build());
-    }
-
-    @Rule
-    public SearchTestRule searchTestRule = new SearchTestRule();
-
 	private ServiceContext _serviceContext;
-
 	private User _user;
 
 }
