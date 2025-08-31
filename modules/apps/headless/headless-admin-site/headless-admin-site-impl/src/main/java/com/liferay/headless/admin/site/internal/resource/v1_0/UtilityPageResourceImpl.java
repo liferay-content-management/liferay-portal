@@ -136,7 +136,7 @@ public class UtilityPageResourceImpl extends BaseUtilityPageResourceImpl {
 				searchContext.setGroupIds(new long[] {groupId});
 			},
 			sorts,
-			document -> _toUtilityPage(
+			document -> _utilityPageDTOConverter.toDTO(
 				_layoutUtilityPageEntryService.fetchLayoutUtilityPageEntry(
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
@@ -386,13 +386,6 @@ public class UtilityPageResourceImpl extends BaseUtilityPageResourceImpl {
 
 			return search;
 		}
-	}
-
-	private UtilityPage _toUtilityPage(
-			LayoutUtilityPageEntry layoutUtilityPageEntry)
-		throws Exception {
-
-		return _utilityPageDTOConverter.toDTO(layoutUtilityPageEntry);
 	}
 
 	private void _validateUtilityPage(UtilityPage utilityPage) {
