@@ -56,7 +56,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -186,8 +185,8 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 		throws Exception {
 
 		super.testGetSiteSiteByExternalReferenceCodeUtilityPagesPage();
-
 		_testGetSiteSiteByExternalReferenceCodeUtilityPagesPageWithNestedFields();
+
 	}
 
 	@Ignore
@@ -1115,7 +1114,5 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 	@Inject
 	private PortletFileRepository _portletFileRepository;
 
-	@Inject
-	private UserLocalService _userLocalService;
 
 }
