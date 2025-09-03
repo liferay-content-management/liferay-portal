@@ -66,11 +66,11 @@ function isMultimediaMimeType(mimeType: string): boolean {
 	return MULTIMEDIA_TYPES.some((prefix) => mimeType.startsWith(prefix));
 }
 
-const getFileMimeTypeObjectDefinitionStickerValue = (
+export function getFileMimeTypeValue(
 	fileMimeTypeValues: Record<string, string> | undefined,
-	item: any,
-	objectDefinitionValues: Record<string, string>
-) => {
+	objectDefinitionValues: Record<string, string>,
+	item: any
+) {
 	if (item.entryClassName === OBJECT_ENTRY_FOLDER_CLASS_NAME) {
 		return '';
 	}
@@ -117,7 +117,7 @@ const getFileMimeTypeObjectDefinitionStickerValue = (
 	}
 
 	return '';
-};
+}
 
 type ViewsItemsProps = {
 	fileMimeTypeCssClasses?: Record<string, string>;
