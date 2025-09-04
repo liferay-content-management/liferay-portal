@@ -342,7 +342,7 @@ public abstract class BaseSectionDisplayContext {
 						httpServletRequest, TranslationPortletKeys.TRANSLATION,
 						ActionRequest.RENDER_PHASE)
 				).setMVCRenderCommandName(
-					"/translation/import_translation"
+					"/translation/export_translation"
 				).setParameter(
 					"className", "{entryClassName}"
 				).setParameter(
