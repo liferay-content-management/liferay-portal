@@ -559,11 +559,15 @@ public class BundleSiteInitializer implements SiteInitializer {
 		Dictionary<String, String> headers = _siteBundle.getHeaders(
 			StringPool.BLANK);
 
+		boolean active = GetterUtil.getBoolean(
+			headers.get("Liferay-Site-Initializer-Active"), true);
+
 		String featureFlagKey = headers.get(
 			"Liferay-Site-Initializer-Feature-Flag");
 
-		if (Validator.isNotNull(featureFlagKey) &&
-			!FeatureFlagManagerUtil.isEnabled(featureFlagKey)) {
+		if (!active ||
+			(Validator.isNotNull(featureFlagKey) &&
+			 !FeatureFlagManagerUtil.isEnabled(featureFlagKey))) {
 
 			return false;
 		}
