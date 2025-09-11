@@ -423,6 +423,148 @@ public interface DepotEntryPersistence
 	public int countByGroupId(long groupId);
 
 	/**
+	 * Returns all the depot entries where type = &#63;.
+	 *
+	 * @param type the type
+	 * @return the matching depot entries
+	 */
+	public java.util.List<DepotEntry> findByType(int type);
+
+	/**
+	 * Returns a range of all the depot entries where type = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryModelImpl</code>.
+	 * </p>
+	 *
+	 * @param type the type
+	 * @param start the lower bound of the range of depot entries
+	 * @param end the upper bound of the range of depot entries (not inclusive)
+	 * @return the range of matching depot entries
+	 */
+	public java.util.List<DepotEntry> findByType(int type, int start, int end);
+
+	/**
+	 * Returns an ordered range of all the depot entries where type = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryModelImpl</code>.
+	 * </p>
+	 *
+	 * @param type the type
+	 * @param start the lower bound of the range of depot entries
+	 * @param end the upper bound of the range of depot entries (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching depot entries
+	 */
+	public java.util.List<DepotEntry> findByType(
+		int type, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<DepotEntry>
+			orderByComparator);
+
+	/**
+	 * Returns an ordered range of all the depot entries where type = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>DepotEntryModelImpl</code>.
+	 * </p>
+	 *
+	 * @param type the type
+	 * @param start the lower bound of the range of depot entries
+	 * @param end the upper bound of the range of depot entries (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching depot entries
+	 */
+	public java.util.List<DepotEntry> findByType(
+		int type, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<DepotEntry>
+			orderByComparator,
+		boolean useFinderCache);
+
+	/**
+	 * Returns the first depot entry in the ordered set where type = &#63;.
+	 *
+	 * @param type the type
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching depot entry
+	 * @throws NoSuchEntryException if a matching depot entry could not be found
+	 */
+	public DepotEntry findByType_First(
+			int type,
+			com.liferay.portal.kernel.util.OrderByComparator<DepotEntry>
+				orderByComparator)
+		throws NoSuchEntryException;
+
+	/**
+	 * Returns the first depot entry in the ordered set where type = &#63;.
+	 *
+	 * @param type the type
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching depot entry, or <code>null</code> if a matching depot entry could not be found
+	 */
+	public DepotEntry fetchByType_First(
+		int type,
+		com.liferay.portal.kernel.util.OrderByComparator<DepotEntry>
+			orderByComparator);
+
+	/**
+	 * Returns the last depot entry in the ordered set where type = &#63;.
+	 *
+	 * @param type the type
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching depot entry
+	 * @throws NoSuchEntryException if a matching depot entry could not be found
+	 */
+	public DepotEntry findByType_Last(
+			int type,
+			com.liferay.portal.kernel.util.OrderByComparator<DepotEntry>
+				orderByComparator)
+		throws NoSuchEntryException;
+
+	/**
+	 * Returns the last depot entry in the ordered set where type = &#63;.
+	 *
+	 * @param type the type
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching depot entry, or <code>null</code> if a matching depot entry could not be found
+	 */
+	public DepotEntry fetchByType_Last(
+		int type,
+		com.liferay.portal.kernel.util.OrderByComparator<DepotEntry>
+			orderByComparator);
+
+	/**
+	 * Returns the depot entries before and after the current depot entry in the ordered set where type = &#63;.
+	 *
+	 * @param depotEntryId the primary key of the current depot entry
+	 * @param type the type
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next depot entry
+	 * @throws NoSuchEntryException if a depot entry with the primary key could not be found
+	 */
+	public DepotEntry[] findByType_PrevAndNext(
+			long depotEntryId, int type,
+			com.liferay.portal.kernel.util.OrderByComparator<DepotEntry>
+				orderByComparator)
+		throws NoSuchEntryException;
+
+	/**
+	 * Removes all the depot entries where type = &#63; from the database.
+	 *
+	 * @param type the type
+	 */
+	public void removeByType(int type);
+
+	/**
+	 * Returns the number of depot entries where type = &#63;.
+	 *
+	 * @param type the type
+	 * @return the number of matching depot entries
+	 */
+	public int countByType(int type);
+
+	/**
 	 * Caches the depot entry in the entity cache if it is enabled.
 	 *
 	 * @param depotEntry the depot entry

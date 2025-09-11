@@ -204,6 +204,13 @@ public class DepotEntryPersistenceTest {
 	}
 
 	@Test
+	public void testCountByType() throws Exception {
+		_persistence.countByType(RandomTestUtil.nextInt());
+
+		_persistence.countByType(0);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		DepotEntry newDepotEntry = addDepotEntry();
 
