@@ -21,6 +21,8 @@ import SpaceRenderer from './cell_renderers/SpaceRenderer';
 import TypeRenderer from './cell_renderers/TypeRenderer';
 import addOnClickToCreationMenuItems from './utils/addOnClickToCreationMenuItems';
 import transformViewsItemsProps from './utils/transformViewsItemProps';
+import SimpleActionLinkRenderer
+	from "./cell_renderers/SimpleActionLinkRenderer";
 
 const ACTIONS = {
 	createAsset: createAssetAction,
@@ -67,6 +69,11 @@ export default function AllFDSPropsTransformer({
 				{
 					component: NameRenderer,
 					name: 'nameTableCellRenderer',
+					type: 'internal',
+				} as IInternalRenderer,
+				{
+					component: SimpleActionLinkRenderer,
+					name: 'simpleActionLinkTableCellRenderer',
 					type: 'internal',
 				} as IInternalRenderer,
 				{
