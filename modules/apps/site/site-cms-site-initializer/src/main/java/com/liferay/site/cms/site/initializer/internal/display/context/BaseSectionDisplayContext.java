@@ -5,6 +5,7 @@
 
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
+import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.configuration.DLConfiguration;
@@ -583,7 +584,8 @@ public abstract class BaseSectionDisplayContext {
 		return _getDepotEntriesJSONArray(
 			TransformUtil.transform(
 				depotEntryLocalService.getDepotEntries(
-					QueryUtil.ALL_POS, QueryUtil.ALL_POS),
+					DepotConstants.TYPE_SPACE, QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS),
 				DepotEntry::getGroupId));
 	}
 
