@@ -586,14 +586,14 @@ public abstract class BaseSectionDisplayContext {
 				depotEntryLocalService.getDepotEntries(
 					DepotConstants.TYPE_SPACE, QueryUtil.ALL_POS,
 					QueryUtil.ALL_POS),
-				DepotEntry::getGroupId));
+				DepotEntry::getGroup));
 	}
 
-	private JSONArray _getDepotEntriesJSONArray(List<Long> groupIds) {
+	private JSONArray _getDepotEntriesJSONArray(List<Group> groups) {
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
-		for (Long groupId : groupIds) {
-			JSONObject jsonObject = _getJSONObject(groupId);
+		for (Group group : groups) {
+			JSONObject jsonObject = _getJSONObject(group);
 
 			if (jsonObject != null) {
 				jsonArray.put(jsonObject);
@@ -724,13 +724,7 @@ public abstract class BaseSectionDisplayContext {
 		return fileMimeTypeValues;
 	}
 
-	private JSONObject _getJSONObject(long groupId) {
-		Group group = groupLocalService.fetchGroup(groupId);
-
-		if (group == null) {
-			return null;
-		}
-
+	private JSONObject _getJSONObject(Group group) {
 		return JSONUtil.put(
 			"groupId", group.getGroupId()
 		).put(
