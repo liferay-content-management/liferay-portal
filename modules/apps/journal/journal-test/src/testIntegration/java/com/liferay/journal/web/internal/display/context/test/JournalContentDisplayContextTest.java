@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderResponse;
+import com.liferay.portal.kernel.test.portlet.MockPortletPreferences;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -32,6 +33,7 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portlet.test.MockLiferayPortletContext;
 
 import jakarta.portlet.Portlet;
+import jakarta.portlet.PortletPreferences;
 import jakarta.portlet.RenderRequest;
 
 import org.junit.Assert;
@@ -67,6 +69,36 @@ public class JournalContentDisplayContextTest {
 		_testGetArticleWithArticleResourcePrimKey();
 		_testGetArticleWithExternalReferenceCode();
 		_testGetArticleWithoutParameters();
+	}
+
+	@Test
+	public void testGetArticleGroupId() throws Exception {
+		MVCPortlet mvcPortlet = (MVCPortlet)_portlet;
+
+		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
+			_getMockLiferayPortletRenderRequest();
+
+		mvcPortlet.render(
+			mockLiferayPortletRenderRequest,
+			new MockLiferayPortletRenderResponse());
+
+		MockPortletPreferences mockPortletPreferences =
+			new MockPortletPreferences();
+
+		mockPortletPreferences.setValue(
+			"groupId", String.valueOf(_journalArticle.getGroupId()));
+
+		mockLiferayPortletRenderRequest.setAttribute(
+			PortletPreferences.class.getName(), mockPortletPreferences);
+
+		Object journalContentDisplayContext =
+			mockLiferayPortletRenderRequest.getAttribute(
+				"JOURNAL_CONTENT_DISPLAY_CONTEXT#");
+
+		Object expectedValue = (long)ReflectionTestUtil.invoke(
+			journalContentDisplayContext, "getArticleGroupId", new Class<?>[0]);
+
+		Assert.assertEquals(expectedValue, _journalArticle.getGroupId());
 	}
 
 	private JournalArticle _getArticle(RenderRequest renderRequest)
