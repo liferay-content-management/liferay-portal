@@ -215,18 +215,20 @@ test(
 	async ({apiHelpers, journalPage, page, site}) => {
 		const basicWebContentStructureId =
 			await getBasicWebContentStructureId(apiHelpers);
-
+		const articleTitle = 'Basic Web content';
 		const article = await apiHelpers.jsonWebServicesJournal.addWebContent({
 			ddmStructureId: basicWebContentStructureId,
 			groupId: site.id,
-			titleMap: {en_US: 'Basic Web content'},
+			titleMap: {en_US: articleTitle},
 		});
+		const editedArticleTitle = 'Updated Basic Web content';
 
 		await journalPage.goto(site.friendlyUrlPath);
 
-		await page.getByRole('button', {name: 'Actions'}).click();
-
-		await page.getByRole('menuitem', {name: 'View History'}).click();
+		await journalPage.goToJournalArticleAction(
+			'View History',
+			articleTitle
+		);
 
 		await page.getByRole('button', {name: 'Actions'}).first().click();
 
@@ -235,16 +237,17 @@ test(
 		).not.toBeVisible();
 
 		await apiHelpers.jsonWebServicesJournal.editWebContent(
-			{title: 'Updated Basic Web content'},
+			{title: editedArticleTitle},
 			site.id,
 			article
 		);
 
 		await journalPage.goto(site.friendlyUrlPath);
 
-		await page.getByRole('button', {name: 'Actions'}).click();
-
-		await page.getByRole('menuitem', {name: 'View History'}).click();
+		await journalPage.goToJournalArticleAction(
+			'View History',
+			editedArticleTitle
+		);
 
 		await page.getByRole('button', {name: 'Actions'}).first().click();
 
