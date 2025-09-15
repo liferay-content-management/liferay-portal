@@ -1971,7 +1971,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			JSONObject depotAppCustomizationJSONObject =
 				jsonObject.getJSONObject("depotAppCustomization");
 
-			_depotEntryLocalService.updateDepotEntry(
+			depotEntry = _depotEntryLocalService.updateDepotEntry(
 				(group != null) ? group.getClassPK() :
 					depotEntry.getDepotEntryId(),
 				SiteInitializerUtil.toMap(jsonObject.getString("name_i18n")),
@@ -2004,10 +2004,11 @@ public class BundleSiteInitializer implements SiteInitializer {
 				).build(),
 				unicodeProperties, serviceContext);
 
-			_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
-				(group != null) ? group.getClassPK() :
+			if ((group != null) && group.isSite()) {
+				_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
 					depotEntry.getDepotEntryId(),
-				serviceContext.getScopeGroupId());
+					serviceContext.getScopeGroupId());
+			}
 		}
 	}
 
