@@ -49,6 +49,47 @@ public class FileEntry implements Serializable {
 	}
 
 	@io.swagger.v3.oas.annotations.media.Schema
+	public String getAlternativeText() {
+		if (_alternativeTextSupplier != null) {
+			alternativeText = _alternativeTextSupplier.get();
+
+			_alternativeTextSupplier = null;
+		}
+
+		return alternativeText;
+	}
+
+	public void setAlternativeText(String alternativeText) {
+		this.alternativeText = alternativeText;
+
+		_alternativeTextSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setAlternativeText(
+		UnsafeSupplier<String, Exception> alternativeTextUnsafeSupplier) {
+
+		_alternativeTextSupplier = () -> {
+			try {
+				return alternativeTextUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected String alternativeText;
+
+	@JsonIgnore
+	private Supplier<String> _alternativeTextSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public String getExternalReferenceCode() {
 		if (_externalReferenceCodeSupplier != null) {
 			externalReferenceCode = _externalReferenceCodeSupplier.get();
@@ -381,6 +422,51 @@ public class FileEntry implements Serializable {
 	private Supplier<String> _nameSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "optional field that specifies the number of pages of the document, can be embedded with nestedFields (the format of the nested field must be `<attachment field name>.totalPages`)"
+	)
+	public Integer getNumberOfPages() {
+		if (_numberOfPagesSupplier != null) {
+			numberOfPages = _numberOfPagesSupplier.get();
+
+			_numberOfPagesSupplier = null;
+		}
+
+		return numberOfPages;
+	}
+
+	public void setNumberOfPages(Integer numberOfPages) {
+		this.numberOfPages = numberOfPages;
+
+		_numberOfPagesSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setNumberOfPages(
+		UnsafeSupplier<Integer, Exception> numberOfPagesUnsafeSupplier) {
+
+		_numberOfPagesSupplier = () -> {
+			try {
+				return numberOfPagesUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "optional field that specifies the number of pages of the document, can be embedded with nestedFields (the format of the nested field must be `<attachment field name>.totalPages`)"
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Integer numberOfPages;
+
+	@JsonIgnore
+	private Supplier<Integer> _numberOfPagesSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "optional field that specifies the preview URL of the file to be used, can be embedded with nestedFields (the format of the nested field must be `<attachment field name>.previewURL`)"
 	)
 	public String getPreviewURL() {
@@ -537,6 +623,22 @@ public class FileEntry implements Serializable {
 
 		sb.append("{");
 
+		String alternativeText = getAlternativeText();
+
+		if (alternativeText != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"alternativeText\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(alternativeText));
+
+			sb.append("\"");
+		}
+
 		String externalReferenceCode = getExternalReferenceCode();
 
 		if (externalReferenceCode != null) {
@@ -651,6 +753,18 @@ public class FileEntry implements Serializable {
 			sb.append(_escape(name));
 
 			sb.append("\"");
+		}
+
+		Integer numberOfPages = getNumberOfPages();
+
+		if (numberOfPages != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"numberOfPages\": ");
+
+			sb.append(numberOfPages);
 		}
 
 		String previewURL = getPreviewURL();
