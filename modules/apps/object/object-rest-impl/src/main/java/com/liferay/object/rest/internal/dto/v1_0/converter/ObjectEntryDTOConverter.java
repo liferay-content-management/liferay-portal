@@ -10,6 +10,7 @@ import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.kernel.processor.PDFProcessorUtil;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
@@ -77,6 +78,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PermissionService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
@@ -741,6 +743,12 @@ public class ObjectEntryDTOConverter
 			return fileEntry;
 		}
 
+		LiferayFileEntry liferayFileEntry = new LiferayFileEntry(dlFileEntry);
+
+		FileVersion fileVersion = liferayFileEntry.getFileVersion();
+
+		fileEntry.setAlternativeText(fileVersion::getDescription);
+
 		fileEntry.setExternalReferenceCode(
 			dlFileEntry::getExternalReferenceCode);
 
@@ -806,13 +814,24 @@ public class ObjectEntryDTOConverter
 				objectEntry.getExternalReferenceCode(), _portal));
 		fileEntry.setMimeType(dlFileEntry::getMimeType);
 		fileEntry.setName(dlFileEntry::getFileName);
+		fileEntry.setNumberOfPages(
+			() -> NestedFieldsSupplier.supply(
+				objectFieldName + ".numberOfPages",
+				fieldName -> {
+					if ((fileVersion == null) || (fileVersion.getSize() == 0) ||
+						(!PDFProcessorUtil.hasImages(fileVersion) &&
+						 !PDFProcessorUtil.isDocumentSupported(
+							 fileVersion.getMimeType()))) {
+
+						return null;
+					}
+
+					return PDFProcessorUtil.getPreviewFileCount(fileVersion);
+				}));
 		fileEntry.setPreviewURL(
 			() -> NestedFieldsSupplier.supply(
 				objectFieldName + ".previewURL",
 				fieldName -> {
-					LiferayFileEntry liferayFileEntry = new LiferayFileEntry(
-						dlFileEntry);
-
 					String previewURL = _dlURLHelper.getPreviewURL(
 						liferayFileEntry, liferayFileEntry.getFileVersion(),
 						null, StringPool.BLANK, false, false);
