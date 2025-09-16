@@ -466,11 +466,7 @@ export class JournalEditArticlePage {
 				: `Success:${title} will be published on`
 		);
 
-		await clickAndExpectToBeVisible({
-			autoClick: true,
-			target: this.page.getByRole('menuitem', {name: 'list'}),
-			trigger: this.page.getByLabel('Select View, Currently Selected: '),
-		});
+		await this.journalPage.changeView('list');
 
 		const row = this.page
 			.locator('.list-group-item')

@@ -106,6 +106,7 @@ export class JournalPage {
 	}
 
 	async goToJournalArticleAction(action: string, title: string) {
+		await this.changeView('list');
 		await this.page.getByLabel(`Actions for ${title}`).waitFor();
 
 		await clickAndExpectToBeVisible({
@@ -121,11 +122,7 @@ export class JournalPage {
 	}
 
 	async goToJournalFolderAction(action: string, title: string) {
-		await clickAndExpectToBeVisible({
-			autoClick: true,
-			target: this.page.getByRole('menuitem', {name: 'cards'}),
-			trigger: this.page.getByLabel('Select View, Currently Selected: '),
-		});
+		await this.changeView('cards');
 
 		const folder = this.page.locator(
 			`[data-qa-id="row"][data-title="${title}"]`
@@ -189,7 +186,7 @@ export class JournalPage {
 		).toBeVisible({timeout: 1000});
 	}
 
-	async changeView(viewName: string) {
+	async changeView(viewName: 'cards' | 'list' | 'table') {
 		await clickAndExpectToBeVisible({
 			autoClick: true,
 			target: this.page.getByRole('menuitem', {name: viewName}),

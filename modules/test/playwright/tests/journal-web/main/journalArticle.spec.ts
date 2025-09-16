@@ -374,9 +374,7 @@ baseTest(
 
 		await journalEditArticlePage.publishArticle();
 
-		await page.getByLabel('Select View, Currently').click();
-
-		await page.getByRole('menuitem', {name: 'Table'}).click();
+		await journalPage.changeView('table')
 
 		await expect(
 			page.getByRole('cell', {name: 'Description'})

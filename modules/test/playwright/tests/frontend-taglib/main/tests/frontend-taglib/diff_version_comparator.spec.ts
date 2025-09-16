@@ -51,7 +51,7 @@ test(
 		await test.step('Create web content for workflow and approve it', async () => {
 			await journalPage.goto();
 
-			await journalPage.changeView('List');
+			await journalPage.changeView('list');
 
 			await journalEditArticlePage.goto();
 
