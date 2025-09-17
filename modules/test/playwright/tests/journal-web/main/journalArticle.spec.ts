@@ -107,7 +107,10 @@ baseTest(
 	{
 		tag: '@LPD-32185',
 	},
-	async ({journalEditArticlePage, page, site}) => {
+	async ({journalPage, journalEditArticlePage, page, site}) => {
+		await journalPage.goto();
+		await journalPage.changeView('list');
+
 		await page.goto('/fr');
 		await journalEditArticlePage.createBasicArticleWithFriendlyURL(
 			site,
@@ -374,7 +377,7 @@ baseTest(
 
 		await journalEditArticlePage.publishArticle();
 
-		await journalPage.changeView('table')
+		await journalPage.changeView('table');
 
 		await expect(
 			page.getByRole('cell', {name: 'Description'})
