@@ -29,6 +29,10 @@
 			},
 			"FileEntry": {
 				"properties": {
+					"alternativeText": {
+						"readOnly": true,
+						"type": "string"
+					},
 					"externalReferenceCode": {
 						"type": "string"
 					},
@@ -56,6 +60,12 @@
 					},
 					"name": {
 						"type": "string"
+					},
+					"numberOfPages": {
+						"description": "optional field that specifies the number of pages of the document, can be embedded with nestedFields (the format of the nested field must be `<attachment field name>.totalPages`)",
+						"format": "int32",
+						"readOnly": true,
+						"type": "integer"
 					},
 					"previewURL": {
 						"description": "optional field that specifies the preview URL of the file to be used, can be embedded with nestedFields (the format of the nested field must be `<attachment field name>.previewURL`)",
