@@ -194,6 +194,7 @@ import com.liferay.portal.kernel.util.SubscriptionSender;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
+import com.liferay.portal.kernel.util.UniqueNameUtils;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
@@ -8289,35 +8290,19 @@ public class JournalArticleLocalServiceImpl
 	private String _getUniqueCopyUrlTitle(
 		long groupId, String articleId, String urlTitle) {
 
-		String copyText = _language.get(LocaleUtil.getSiteDefault(), "copy");
+		urlTitle = UniqueNameUtils.getCopyName(
+			urlTitle,
+			candidate -> {
+				JournalArticle article = fetchArticleByUrlTitle(
+					groupId, candidate);
 
-		String baseTitle = StringBundler.concat(
-			urlTitle, StringPool.SPACE, StringPool.OPEN_PARENTHESIS, copyText);
-		String baseUrlTitle = StringBundler.concat(
-			urlTitle, StringPool.DASH, copyText, StringPool.DASH);
+				return (article != null) &&
+					   !Objects.equals(articleId, article.getArticleId());
+			},
+			StringPool.DASH);
 
-		for (int i = 0;; i++) {
-			String title;
-
-			if (i == 0) {
-				title = baseTitle + StringPool.CLOSE_PARENTHESIS;
-				urlTitle = baseUrlTitle;
-			}
-			else {
-				title = StringBundler.concat(
-					baseTitle, StringPool.SPACE, i,
-					StringPool.CLOSE_PARENTHESIS);
-				urlTitle = baseUrlTitle + i;
-			}
-
-			JournalArticle article = fetchArticleByUrlTitle(groupId, urlTitle);
-
-			if ((article == null) ||
-				Objects.equals(articleId, article.getArticleId())) {
-
-				return title;
-			}
-		}
+		return UniqueNameUtils.transformCopyStyle(
+			urlTitle, StringPool.DASH, StringPool.CLOSE_PARENTHESIS);
 	}
 
 	private Map<String, String> _getURLTitleMap(
