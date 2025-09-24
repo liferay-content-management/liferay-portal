@@ -98,6 +98,17 @@ public class DepotAssetRendererFactoryWrapper<T>
 			return assetRenderer;
 		}
 
+		if (FeatureFlagManagerUtil.isEnabled(
+				assetRendererGroup.getCompanyId(), "LPD-17564")) {
+
+			DepotEntry depotEntry = _depotEntryLocalService.getGroupDepotEntry(
+				groupId);
+
+			if (depotEntry.getType() == DepotConstants.TYPE_SPACE) {
+				return assetRenderer;
+			}
+		}
+
 		Group group = _getGroup(assetRendererGroup);
 
 		if (group == null) {
@@ -111,19 +122,6 @@ public class DepotAssetRendererFactoryWrapper<T>
 						_getGroupId(group.getGroupId())),
 				groupId)) {
 
-			return assetRenderer;
-		}
-
-		if (!FeatureFlagManagerUtil.isEnabled(
-				group.getCompanyId(), "LPD-17564")) {
-
-			return null;
-		}
-
-		DepotEntry depotEntry = _depotEntryLocalService.getGroupDepotEntry(
-			groupId);
-
-		if (depotEntry.getType() == DepotConstants.TYPE_SPACE) {
 			return assetRenderer;
 		}
 
