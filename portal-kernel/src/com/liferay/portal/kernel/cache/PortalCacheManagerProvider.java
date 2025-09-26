@@ -48,6 +48,16 @@ public class PortalCacheManagerProvider {
 		<PortalCacheManager<? extends Serializable, ?>,
 		 DynamicPortalCacheManager<? extends Serializable, ?>> _serviceTracker;
 
+	static {
+		_serviceTracker = new ServiceTracker<>(
+			_bundleContext,
+			(Class<PortalCacheManager<? extends Serializable, ?>>)
+				(Class<?>)PortalCacheManager.class,
+			new PortalCacheProviderServiceTrackerCustomizer());
+
+		_serviceTracker.open();
+	}
+
 	private static class PortalCacheProviderServiceTrackerCustomizer
 		implements ServiceTrackerCustomizer
 			<PortalCacheManager<? extends Serializable, ?>,
@@ -93,16 +103,6 @@ public class PortalCacheManagerProvider {
 			dynamicPortalCacheManager.setPortalCacheManager(null);
 		}
 
-	}
-
-	static {
-		_serviceTracker = new ServiceTracker<>(
-			_bundleContext,
-			(Class<PortalCacheManager<? extends Serializable, ?>>)
-				(Class<?>)PortalCacheManager.class,
-			new PortalCacheProviderServiceTrackerCustomizer());
-
-		_serviceTracker.open();
 	}
 
 }
