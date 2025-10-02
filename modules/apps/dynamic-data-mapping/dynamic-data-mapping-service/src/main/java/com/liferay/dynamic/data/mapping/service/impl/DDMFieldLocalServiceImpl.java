@@ -18,6 +18,8 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.model.impl.DDMFieldAttributeImpl;
+import com.liferay.dynamic.data.mapping.model.impl.DDMFieldAttributeModelImpl;
+import com.liferay.dynamic.data.mapping.model.impl.DDMFieldModelImpl;
 import com.liferay.dynamic.data.mapping.service.base.DDMFieldLocalServiceBaseImpl;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMFieldAttributePersistence;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMStructurePersistence;
@@ -31,9 +33,11 @@ import com.liferay.petra.sql.dsl.expression.Expression;
 import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.sql.dsl.query.JoinStep;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -42,17 +46,25 @@ import com.liferay.portal.kernel.json.JSONSerializer;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 
+import java.io.Serializable;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -119,9 +131,14 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 
 	@Override
 	public void deleteDDMFormValues(long storageId) {
-		ddmFieldPersistence.removeByStorageId(storageId);
+		_removeByStorageId(
+			ddmFieldPersistence, DDMFieldModelImpl.TABLE_NAME, "fieldId",
+			storageId);
 
-		_ddmFieldAttributePersistence.removeByStorageId(storageId);
+		_removeByStorageId(
+			_ddmFieldAttributePersistence,
+			DDMFieldAttributeModelImpl.TABLE_NAME, "fieldAttributeId",
+			storageId);
 	}
 
 	@Override
@@ -938,6 +955,53 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 		ddmFieldsAttributesMap.remove(ddmField.getFieldId());
 
 		return true;
+	}
+
+	private <T extends BaseModel<T>> void _removeByStorageId(
+		BasePersistence basePersistence, String tableName,
+		String primaryKeyColumnName, long storageId) {
+
+		Session session = basePersistence.openSession();
+
+		try {
+			session.apply(
+				connection -> {
+					Set<Serializable> primaryKeys = new HashSet<>();
+
+					try (PreparedStatement preparedStatement =
+							connection.prepareStatement(
+								StringBundler.concat(
+									"select ", primaryKeyColumnName, " from ",
+									tableName, " where storageId = ",
+									storageId));
+						ResultSet resultSet =
+							preparedStatement.executeQuery()) {
+
+						while (resultSet.next()) {
+							primaryKeys.add(resultSet.getLong(1));
+						}
+					}
+
+					if (primaryKeys.isEmpty()) {
+						return;
+					}
+
+					try (PreparedStatement preparedStatement =
+							connection.prepareStatement(
+								"delete from " + tableName +
+									" where storageId = ?")) {
+
+						preparedStatement.setLong(1, storageId);
+
+						preparedStatement.executeUpdate();
+
+						basePersistence.clearCache(primaryKeys);
+					}
+				});
+		}
+		finally {
+			basePersistence.closeSession(session);
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
