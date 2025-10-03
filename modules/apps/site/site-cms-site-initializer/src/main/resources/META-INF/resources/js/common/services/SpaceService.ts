@@ -32,9 +32,9 @@ async function getSpace({
 }: {
 	externalReferenceCode?: string;
 }): Promise<Space> {
-	const url = `/o/headless-asset-library/v1.0/asset-libraries/by-external-reference-code/${externalReferenceCode}`;
-
-	const {data, error} = await ApiHelper.get<Space>(url);
+	const {data, error} = await ApiHelper.get<Space>(
+		`/o/headless-asset-library/v1.0/asset-libraries/by-external-reference-code/${externalReferenceCode}`
+	);
 
 	if (data) {
 		return data;

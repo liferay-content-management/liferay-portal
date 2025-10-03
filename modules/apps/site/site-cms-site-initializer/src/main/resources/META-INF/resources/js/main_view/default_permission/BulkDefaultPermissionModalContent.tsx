@@ -197,7 +197,12 @@ export default function BulkDefaultPermissionModalContent({
 						else {
 							const space =
 								await CMSDefaultPermissionService.getSpace(
-									firstItem.embedded.scopeId
+									firstItem?.entryClassName !==
+										OBJECT_ENTRY_FOLDER_CLASS_NAME
+										? firstItem.embedded.systemProperties
+												.scope.externalReferenceCode
+										: firstItem.embedded.scope
+												.externalReferenceCode
 								);
 
 							entryClassExternalReferenceCode =
