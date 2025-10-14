@@ -33,11 +33,9 @@ import com.liferay.headless.cms.client.problem.Problem;
 import com.liferay.layout.service.LayoutClassedModelUsageLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
-import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryFolder;
-import com.liferay.object.model.ObjectFolder;
 import com.liferay.object.rest.filter.factory.FilterFactory;
 import com.liferay.object.rest.test.util.ObjectEntryTestUtil;
 import com.liferay.object.service.ObjectDefinitionLocalService;
@@ -58,6 +56,7 @@ import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -83,8 +82,9 @@ import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.site.cms.site.initializer.test.util.CMSGroupTestUtil;
+import com.liferay.site.initializer.SiteInitializerRegistry;
 
-import java.io.File;
 import java.io.Serializable;
 
 import java.util.Collections;
@@ -93,18 +93,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 
 /**
  * @author Crescenzo Rega
@@ -131,39 +127,11 @@ public class BulkActionResourceTest extends BaseBulkActionResourceTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 
-		if (!_isCMSSiteInitialized()) {
+		_originalTestGroupId = testGroup.getGroupId();
 
-			// These tests require the instance to be created with the feature
-			// flag LPD-17564 enabled. On CI, feature flags are enabled on
-			// demand for each test, but not during instance initialization.
-			// Until the feature flag LPD-17564 is removed, run the batch
-			// engine unit processor manually so that the object definitions
-			// are created.
-
-			Bundle testBundle = FrameworkUtil.getBundle(
-				BulkActionResourceTest.class);
-
-			BundleContext bundleContext = testBundle.getBundleContext();
-
-			for (Bundle bundle : bundleContext.getBundles()) {
-				if (!Objects.equals(
-						bundle.getSymbolicName(),
-						"com.liferay.site.initializer.cms")) {
-
-					continue;
-				}
-
-				_deleteFile(bundle, "00.list.type.definition");
-				_deleteFile(bundle, "01.object.folder");
-				_deleteFile(bundle, "02.object.definition");
-
-				CompletableFuture<Void> completableFuture =
-					_batchEngineUnitProcessor.processBatchEngineUnits(
-						_batchEngineUnitReader.getBatchEngineUnits(bundle));
-
-				completableFuture.join();
-			}
-		}
+		testGroup = CMSGroupTestUtil.getCMSGroup(
+			_siteInitializerRegistry, BulkActionResourceTest.class,
+			_batchEngineUnitProcessor, _batchEngineUnitReader);
 
 		_cmsBasicWebContentObjectDefinition =
 			_objectDefinitionLocalService.
@@ -192,6 +160,14 @@ public class BulkActionResourceTest extends BaseBulkActionResourceTestCase {
 		).build();
 
 		_user = UserTestUtil.addUser();
+	}
+
+	@After
+	@Override
+	public void tearDown() throws Exception {
+		testGroup = _groupLocalService.getGroup(_originalTestGroupId);
+
+		super.tearDown();
 	}
 
 	@Override
@@ -302,16 +278,6 @@ public class BulkActionResourceTest extends BaseBulkActionResourceTestCase {
 		Assert.assertEquals(expectedName, bulkActionItem.getName());
 	}
 
-	private void _deleteFile(Bundle bundle, String fileName) {
-		File file = bundle.getDataFile(
-			".com.liferay.site.initializer.cms.internal.batch." + fileName +
-				".batch.engine.data.json.0.processed");
-
-		if ((file != null) && file.exists()) {
-			file.delete();
-		}
-	}
-
 	private JSONObject _getDefaultPermissionsJSONObject(
 			ObjectDefinition objectDefinition,
 			ObjectEntryFolder objectEntryFolder)
@@ -367,19 +333,6 @@ public class BulkActionResourceTest extends BaseBulkActionResourceTestCase {
 		ObjectEntry objectEntry = objectEntries.get(0);
 
 		return objectEntry.getValues();
-	}
-
-	private boolean _isCMSSiteInitialized() throws Exception {
-		ObjectFolder objectFolder =
-			_objectFolderLocalService.fetchObjectFolderByExternalReferenceCode(
-				ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_FILE_TYPES,
-				TestPropsValues.getCompanyId());
-
-		if (objectFolder != null) {
-			return true;
-		}
-
-		return false;
 	}
 
 	private void _postBulkAction(BulkAction bulkAction) throws Exception {
@@ -1044,6 +997,9 @@ public class BulkActionResourceTest extends BaseBulkActionResourceTestCase {
 	)
 	private FilterFactory<Predicate> _filterFactory;
 
+	@Inject
+	private GroupLocalService _groupLocalService;
+
 	private ImportTaskResource _importTaskResource;
 
 	@Inject
@@ -1065,6 +1021,8 @@ public class BulkActionResourceTest extends BaseBulkActionResourceTestCase {
 	@Inject
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;
 
+	private long _originalTestGroupId;
+
 	@Inject
 	private Portal _portal;
 
@@ -1075,6 +1033,10 @@ public class BulkActionResourceTest extends BaseBulkActionResourceTestCase {
 	private RoleLocalService _roleLocalService;
 
 	private ServiceContext _serviceContext;
+
+	@Inject
+	private SiteInitializerRegistry _siteInitializerRegistry;
+
 	private User _user;
 
 }
