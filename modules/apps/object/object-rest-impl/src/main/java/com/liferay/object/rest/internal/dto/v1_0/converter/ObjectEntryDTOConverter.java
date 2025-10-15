@@ -424,13 +424,13 @@ public class ObjectEntryDTOConverter
 		objectEntry.setStatus(
 			() -> _getAttribute(
 				objectEntryVersion,
-				objectEntryVersion -> _toStatus(
+				curObjectEntryVersion -> _toStatus(
 					dtoConverterContext.getLocale(),
-					objectEntryVersion.getStatus()),
+					curObjectEntryVersion.getStatus()),
 				serviceBuilderObjectEntry,
-				serviceBuilderObjectEntry -> _toStatus(
+				curServiceBuilderObjectEntry -> _toStatus(
 					dtoConverterContext.getLocale(),
-					serviceBuilderObjectEntry.getStatus())));
+					curServiceBuilderObjectEntry.getStatus())));
 		objectEntry.setSystemProperties(
 			() -> {
 				if (objectEntryVersion != null) {
