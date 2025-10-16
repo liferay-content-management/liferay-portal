@@ -12,6 +12,9 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -51,9 +54,15 @@ public class CMSGroupTestUtil {
 			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(), 0,
 			GroupConstants.CMS);
 
+		PermissionChecker originalPermissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
 		String originalName = PrincipalThreadLocal.getName();
 
 		try {
+			PermissionThreadLocal.setPermissionChecker(
+				PermissionCheckerFactoryUtil.create(TestPropsValues.getUser()));
+
 			PrincipalThreadLocal.setName(TestPropsValues.getUserId());
 
 			ServiceContextThreadLocal.pushServiceContext(
@@ -100,6 +109,9 @@ public class CMSGroupTestUtil {
 			}
 		}
 		finally {
+			PermissionThreadLocal.setPermissionChecker(
+				originalPermissionChecker);
+
 			PrincipalThreadLocal.setName(originalName);
 
 			ServiceContextThreadLocal.popServiceContext();
