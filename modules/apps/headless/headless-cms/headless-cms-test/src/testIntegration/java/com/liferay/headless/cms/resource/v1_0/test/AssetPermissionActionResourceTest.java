@@ -18,11 +18,9 @@ import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.headless.cms.client.dto.v1_0.ResetAssetPermissionAction;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
-import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryFolder;
-import com.liferay.object.model.ObjectFolder;
 import com.liferay.object.rest.filter.factory.FilterFactory;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
@@ -38,6 +36,7 @@ import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -53,26 +52,22 @@ import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.site.cms.site.initializer.test.util.CMSGroupTestUtil;
 import com.liferay.site.cms.site.initializer.util.CMSDefaultPermissionUtil;
+import com.liferay.site.initializer.SiteInitializerRegistry;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.Serializable;
 
 import java.util.HashMap;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 
 /**
  * @author Balazs Breier
@@ -97,40 +92,19 @@ public class AssetPermissionActionResourceTest
 		_userRole = _roleLocalService.getRole(
 			TestPropsValues.getCompanyId(), RoleConstants.USER);
 
-		if (_isCMSSiteInitialized()) {
-			return;
-		}
+		_originalTestGroupId = testGroup.getGroupId();
 
-		// These tests require the instance to be created with the feature
-		// flag LPD-17564 enabled. On CI, feature flags are enabled on
-		// demand for each test, but not during instance initialization.
-		// Until the feature flag LPD-17564 is removed, run the batch
-		// engine unit processor manually so that the object definitions
-		// are created.
+		testGroup = CMSGroupTestUtil.getCMSGroup(
+			_siteInitializerRegistry, AssetPermissionActionResourceTest.class,
+			_batchEngineUnitProcessor, _batchEngineUnitReader);
+	}
 
-		Bundle testBundle = FrameworkUtil.getBundle(
-			AssetPermissionActionResourceTest.class);
+	@After
+	@Override
+	public void tearDown() throws Exception {
+		testGroup = _groupLocalService.getGroup(_originalTestGroupId);
 
-		BundleContext bundleContext = testBundle.getBundleContext();
-
-		for (Bundle bundle : bundleContext.getBundles()) {
-			if (!Objects.equals(
-					bundle.getSymbolicName(),
-					"com.liferay.site.initializer.cms")) {
-
-				continue;
-			}
-
-			_deleteFile(bundle, "00.list.type.definition");
-			_deleteFile(bundle, "01.object.folder");
-			_deleteFile(bundle, "02.object.definition");
-
-			CompletableFuture<Void> completableFuture =
-				_batchEngineUnitProcessor.processBatchEngineUnits(
-					_batchEngineUnitReader.getBatchEngineUnits(bundle));
-
-			completableFuture.join();
-		}
+		super.tearDown();
 	}
 
 	@FeatureFlag("LPD-17564")
@@ -138,16 +112,6 @@ public class AssetPermissionActionResourceTest
 	@Test
 	public void testPostAssetPermission() throws Exception {
 		_testPostAssetPermissionWithTypeResetAssetPermission();
-	}
-
-	private void _deleteFile(Bundle bundle, String fileName) {
-		File file = bundle.getDataFile(
-			".com.liferay.site.initializer.cms.internal.batch." + fileName +
-				".batch.engine.data.json.0.processed");
-
-		if ((file != null) && file.exists()) {
-			file.delete();
-		}
 	}
 
 	private Role _getOrAddCMSAdministratorRole(long companyId, long userId)
@@ -163,19 +127,6 @@ public class AssetPermissionActionResourceTest
 		return _roleLocalService.addRole(
 			null, userId, null, 0, RoleConstants.CMS_ADMINISTRATOR, null, null,
 			RoleConstants.TYPE_REGULAR, null, null);
-	}
-
-	private boolean _isCMSSiteInitialized() throws Exception {
-		ObjectFolder objectFolder =
-			_objectFolderLocalService.fetchObjectFolderByExternalReferenceCode(
-				ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_FILE_TYPES,
-				TestPropsValues.getCompanyId());
-
-		if (objectFolder != null) {
-			return true;
-		}
-
-		return false;
 	}
 
 	private void _testPostAssetPermissionWithTypeResetAssetPermission()
@@ -419,6 +370,9 @@ public class AssetPermissionActionResourceTest
 	private FilterFactory<Predicate> _filterFactory;
 
 	@Inject
+	private GroupLocalService _groupLocalService;
+
+	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	@Inject
@@ -430,11 +384,16 @@ public class AssetPermissionActionResourceTest
 	@Inject
 	private ObjectFolderLocalService _objectFolderLocalService;
 
+	private long _originalTestGroupId;
+
 	@Inject
 	private ResourcePermissionLocalService _resourcePermissionLocalService;
 
 	@Inject
 	private RoleLocalService _roleLocalService;
+
+	@Inject
+	private SiteInitializerRegistry _siteInitializerRegistry;
 
 	private Role _userRole;
 
