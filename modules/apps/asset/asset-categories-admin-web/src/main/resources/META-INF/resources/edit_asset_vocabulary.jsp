@@ -24,7 +24,17 @@ portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(redirect);
 portletDisplay.setURLBackTitle(portletDisplay.getPortletDisplayName());
 
-renderResponse.setTitle((vocabulary == null) ? LanguageUtil.get(request, "add-vocabulary") : vocabulary.getTitle(locale));
+String vocabularyTitle = null;
+
+if (vocabulary != null) {
+	vocabularyTitle = vocabulary.getTitle(locale);
+
+	if (vocabulary.getVisibilityType() == AssetVocabularyConstants.VISIBILITY_TYPE_EMPTY) {
+		vocabularyTitle += " EMPTY";
+	}
+}
+
+renderResponse.setTitle((vocabulary == null) ? LanguageUtil.get(request, "add-vocabulary") : vocabularyTitle);
 %>
 
 <portlet:actionURL name="/asset_categories_admin/edit_asset_vocabulary" var="editVocabularyURL">
