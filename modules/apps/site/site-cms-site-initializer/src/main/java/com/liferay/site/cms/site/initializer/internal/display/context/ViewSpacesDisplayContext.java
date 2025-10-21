@@ -6,9 +6,13 @@
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
 import com.liferay.depot.constants.DepotActionKeys;
+import com.liferay.depot.model.DepotEntryPin;
+import com.liferay.depot.service.DepotEntryPinLocalService;
 import com.liferay.headless.asset.library.dto.v1_0.AssetLibrary;
 import com.liferay.headless.asset.library.resource.v1_0.AssetLibraryResource;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -37,10 +41,12 @@ public class ViewSpacesDisplayContext {
 
 	public ViewSpacesDisplayContext(
 		AssetLibraryResource.Factory assetLibraryResourceFactory,
+		DepotEntryPinLocalService depotEntryPinLocalService,
 		HttpServletRequest httpServletRequest, JSONFactory jsonFactory,
 		PortletResourcePermission portletResourcePermission) {
 
 		_assetLibraryResourceFactory = assetLibraryResourceFactory;
+		_depotEntryPinLocalService = depotEntryPinLocalService;
 		_httpServletRequest = httpServletRequest;
 		_jsonFactory = jsonFactory;
 		_portletResourcePermission = portletResourcePermission;
@@ -69,6 +75,8 @@ public class ViewSpacesDisplayContext {
 					"id", assetLibrary.getId()
 				).put(
 					"name", assetLibrary.getName()
+				).put(
+					"pinned", _isAssetLibraryPinned(assetLibrary)
 				).put(
 					"settings",
 					_jsonFactory.createJSONObject(
@@ -137,12 +145,19 @@ public class ViewSpacesDisplayContext {
 				null, null, assetLibraryResource.toFilter("type eq 'Space'"),
 				Pagination.of(1, 5), null);
 
+		Page<AssetLibrary> assetLibrariesPinnedByMePage =
+			assetLibraryResource.getAssetLibrariesPinnedByMePage(
+				Pagination.of(1, 5));
+
+		if (_pinnedByMeAssetLibraryIds == null) {
+			_pinnedByMeAssetLibraryIds = TransformUtil.transform(
+				assetLibrariesPinnedByMePage.getItems(), AssetLibrary::getId);
+		}
+
 		return Page.of(
 			assetLibrariesPage.getActions(),
 			_getAssetLibraries(
-				assetLibrariesPage,
-				assetLibraryResource.getAssetLibrariesPinnedByMePage(
-					Pagination.of(1, 5))),
+				assetLibrariesPage, assetLibrariesPinnedByMePage),
 			Pagination.of(1, 5), assetLibrariesPage.getTotalCount());
 	}
 
@@ -164,9 +179,23 @@ public class ViewSpacesDisplayContext {
 		return false;
 	}
 
+	private boolean _isAssetLibraryPinned(AssetLibrary assetLibrary) {
+		if (_pinnedByMeAssetLibraryIds == null) {
+			_pinnedByMeAssetLibraryIds = TransformUtil.transform(
+				_depotEntryPinLocalService.getUserDepotEntryPins(
+					_themeDisplay.getUserId(), QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS),
+				DepotEntryPin::getDepotEntryId);
+		}
+
+		return _pinnedByMeAssetLibraryIds.contains(assetLibrary.getId());
+	}
+
 	private final AssetLibraryResource.Factory _assetLibraryResourceFactory;
+	private final DepotEntryPinLocalService _depotEntryPinLocalService;
 	private final HttpServletRequest _httpServletRequest;
 	private final JSONFactory _jsonFactory;
+	private List<Long> _pinnedByMeAssetLibraryIds;
 	private final PortletResourcePermission _portletResourcePermission;
 	private final ThemeDisplay _themeDisplay;
 

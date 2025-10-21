@@ -16,6 +16,7 @@ export interface AssetLibrary {
 	active?: boolean;
 	id: number;
 	name: string;
+	pinned?: boolean;
 	settings?: {
 		logoColor: string;
 	};
@@ -44,6 +45,7 @@ interface VerticalNavItem {
 		'role'?: string;
 		'title'?: string;
 	};
+	pinned?: boolean;
 	stickerDisplayType?: LogoColor;
 }
 
@@ -65,10 +67,11 @@ const SpacesNavigation: React.FC<SpacesNavigationProps> = ({
 
 	const spacesNavigationItem = {
 		items: [
-			...assetLibraries.map(({active, name, settings, url}) => ({
+			...assetLibraries.map(({active, name, pinned, settings, url}) => ({
 				active,
 				href: url,
 				label: name,
+				pinned,
 				stickerDisplayType: settings?.logoColor as LogoColor,
 			})),
 			{
@@ -123,6 +126,7 @@ const SpacesNavigation: React.FC<SpacesNavigationProps> = ({
 									aria-hidden="true"
 									displayType={item.stickerDisplayType}
 									name={item.label}
+									pinned={item.pinned}
 									size="sm"
 								/>
 							) : (

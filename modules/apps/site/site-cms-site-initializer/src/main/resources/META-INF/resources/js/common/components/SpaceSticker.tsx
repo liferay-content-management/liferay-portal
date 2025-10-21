@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import ClayIcon from '@clayui/icon';
 import ClayLink from '@clayui/link';
 import ClaySticker from '@clayui/sticker';
 import cx from 'classnames';
@@ -34,12 +35,14 @@ export default function SpaceSticker({
 	hideName,
 	href,
 	name,
+	pinned,
 	size,
 	...otherProps
 }: {
 	hideName?: boolean;
 	href?: string;
 	name: string;
+	pinned?: boolean;
 } & Pick<
 	React.ComponentProps<typeof ClaySticker>,
 	'className' | 'displayType' | 'id' | 'size'
@@ -63,6 +66,8 @@ export default function SpaceSticker({
 				) : (
 					<span>{name}</span>
 				))}
+
+			{pinned && <ClayIcon symbol="pin" />}
 		</div>
 	);
 }

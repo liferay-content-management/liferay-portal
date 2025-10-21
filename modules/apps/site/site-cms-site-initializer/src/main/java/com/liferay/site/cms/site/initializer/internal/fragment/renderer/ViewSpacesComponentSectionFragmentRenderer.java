@@ -6,6 +6,7 @@
 package com.liferay.site.cms.site.initializer.internal.fragment.renderer;
 
 import com.liferay.depot.constants.DepotConstants;
+import com.liferay.depot.service.DepotEntryPinLocalService;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.fragment.renderer.FragmentRendererContext;
 import com.liferay.headless.asset.library.resource.v1_0.AssetLibraryResource;
@@ -51,8 +52,8 @@ public class ViewSpacesComponentSectionFragmentRenderer
 
 		ViewSpacesDisplayContext viewSpacesDisplayContext =
 			new ViewSpacesDisplayContext(
-				_assetLibraryResourceFactory, httpServletRequest, _jsonFactory,
-				_portletResourcePermission);
+				_assetLibraryResourceFactory, _depotEntryPinLocalService,
+				httpServletRequest, _jsonFactory, _portletResourcePermission);
 
 		if (PortalRunMode.isTestMode()) {
 			httpServletRequest.setAttribute(
@@ -65,6 +66,9 @@ public class ViewSpacesComponentSectionFragmentRenderer
 
 	@Reference
 	private AssetLibraryResource.Factory _assetLibraryResourceFactory;
+
+	@Reference
+	private DepotEntryPinLocalService _depotEntryPinLocalService;
 
 	@Reference
 	private JSONFactory _jsonFactory;
