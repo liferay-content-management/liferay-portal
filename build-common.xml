@@ -2070,19 +2070,9 @@ artifact.url=${remote.repository.cdn.url}/com/liferay/portal/com.liferay.${proce
 						</else>
 					</if>
 
-					<if>
-						<and>
-							<isset property="env.JENKINS_HOME" />
-							<not>
-								<available file="build/node" />
-							</not>
-						</and>
-						<then>
-							<retry retrycount="5" retrydelay="30000">
-								<gradle-execute dir="${project.dir}/modules" task=":portalYarnInstall" />
-							</retry>
-						</then>
-					</if>
+					<retry retrycount="5" retrydelay="30000">
+						<gradle-execute dir="${project.dir}/modules" task=":portalYarnInstall" />
+					</retry>
 
 					<if>
 						<isset property="env.FIX_PACKS_RELEASE_ENVIRONMENT" />
