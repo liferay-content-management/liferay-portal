@@ -306,7 +306,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanApproveWCArticleByContentReviewerWithCMSEnabled {
-		property custom.properties = "feature.flag.LPD-17564=true${line.separator}jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-17564=true${line.separator}feature.flag.LPD-32050=true${line.separator}feature.flag.LPD-34594=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONUser.addUser(
 			userEmailAddress = "user1@liferay.com",
@@ -945,7 +945,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanRejectWCArticleByContentReviewerWithCMSEnabled {
-		property custom.properties = "feature.flag.LPD-17564=true${line.separator}jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-17564=true${line.separator}feature.flag.LPD-32050=true${line.separator}feature.flag.LPD-34594=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONUser.addUser(
 			userEmailAddress = "user1@liferay.com",
