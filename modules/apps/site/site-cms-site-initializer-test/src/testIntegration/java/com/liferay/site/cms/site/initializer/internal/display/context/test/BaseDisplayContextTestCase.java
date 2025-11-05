@@ -10,20 +10,20 @@ import com.liferay.batch.engine.unit.BatchEngineUnitReader;
 import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.object.constants.ObjectDefinitionConstants;
-import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectDefinitionSetting;
 import com.liferay.object.model.ObjectEntryFolder;
-import com.liferay.object.model.ObjectFolder;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFolderLocalService;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -61,58 +61,11 @@ public abstract class BaseDisplayContextTestCase {
 
 	@Before
 	public void setUp() throws Exception {
-		group = GroupTestUtil.addGroup();
+		group = _getGroup();
 
 		mockHttpServletRequest = getMockHttpServletRequest();
 
 		themeDisplay = getThemeDisplay(mockHttpServletRequest);
-
-		if (_isCMSSiteInitialized()) {
-			return;
-		}
-
-		ServiceContextThreadLocal.pushServiceContext(
-			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
-
-		try {
-
-			// These tests require the instance to be created with the feature
-			// flag LPD-17564 enabled. On CI, feature flags are enabled on
-			// demand for each test, but not during instance initialization.
-			// Until the feature flag LPD-17564 is removed, run the instance
-			// lifecycle initializer manually so that the role is created.
-
-			SiteInitializer siteInitializer =
-				_siteInitializerRegistry.getSiteInitializer(
-					"com.liferay.site.initializer.cms");
-
-			siteInitializer.initialize(group.getGroupId());
-
-			Bundle testBundle = FrameworkUtil.getBundle(
-				BaseDisplayContextTestCase.class);
-
-			BundleContext bundleContext = testBundle.getBundleContext();
-
-			for (Bundle bundle : bundleContext.getBundles()) {
-				if (Objects.equals(
-						bundle.getSymbolicName(),
-						"com.liferay.site.initializer.cms")) {
-
-					_deleteFile(bundle, "00.list.type.definition");
-					_deleteFile(bundle, "01.object.folder");
-					_deleteFile(bundle, "02.object.definition");
-
-					CompletableFuture<Void> completableFuture =
-						_batchEngineUnitProcessor.processBatchEngineUnits(
-							_batchEngineUnitReader.getBatchEngineUnits(bundle));
-
-					completableFuture.join();
-				}
-			}
-		}
-		finally {
-			ServiceContextThreadLocal.popServiceContext();
-		}
 	}
 
 	protected ObjectDefinition addCustomObjectDefinition(
@@ -240,9 +193,7 @@ public abstract class BaseDisplayContextTestCase {
 	@Inject
 	protected CompanyLocalService companyLocalService;
 
-	@DeleteAfterTestRun
 	protected Group group;
-
 	protected MockHttpServletRequest mockHttpServletRequest;
 
 	@Inject
@@ -266,17 +217,64 @@ public abstract class BaseDisplayContextTestCase {
 		}
 	}
 
-	private boolean _isCMSSiteInitialized() {
-		ObjectFolder objectFolder =
-			objectFolderLocalService.fetchObjectFolderByExternalReferenceCode(
-				ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_FILE_TYPES,
-				group.getCompanyId());
+	private Group _getGroup() throws Exception {
+		Group group = _groupLocalService.fetchGroup(
+			CompanyThreadLocal.getCompanyId(), GroupConstants.CMS);
 
-		if (objectFolder != null) {
-			return true;
+		if (group != null) {
+			return group;
 		}
 
-		return false;
+		group = GroupTestUtil.addGroup();
+
+		group.setGroupKey(GroupConstants.CMS);
+
+		group = _groupLocalService.updateGroup(group);
+
+		ServiceContextThreadLocal.pushServiceContext(
+			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+
+		try {
+
+			// These tests require the instance to be created with the feature
+			// flag LPD-17564 enabled. On CI, feature flags are enabled on
+			// demand for each test, but not during instance initialization.
+			// Until the feature flag LPD-17564 is removed, run the instance
+			// lifecycle initializer manually so that the role is created.
+
+			SiteInitializer siteInitializer =
+				_siteInitializerRegistry.getSiteInitializer(
+					"com.liferay.site.initializer.cms");
+
+			siteInitializer.initialize(group.getGroupId());
+
+			Bundle testBundle = FrameworkUtil.getBundle(
+				BaseDisplayContextTestCase.class);
+
+			BundleContext bundleContext = testBundle.getBundleContext();
+
+			for (Bundle bundle : bundleContext.getBundles()) {
+				if (Objects.equals(
+						bundle.getSymbolicName(),
+						"com.liferay.site.initializer.cms")) {
+
+					_deleteFile(bundle, "00.list.type.definition");
+					_deleteFile(bundle, "01.object.folder");
+					_deleteFile(bundle, "02.object.definition");
+
+					CompletableFuture<Void> completableFuture =
+						_batchEngineUnitProcessor.processBatchEngineUnits(
+							_batchEngineUnitReader.getBatchEngineUnits(bundle));
+
+					completableFuture.join();
+				}
+			}
+		}
+		finally {
+			ServiceContextThreadLocal.popServiceContext();
+		}
+
+		return group;
 	}
 
 	@Inject
@@ -284,6 +282,9 @@ public abstract class BaseDisplayContextTestCase {
 
 	@Inject
 	private BatchEngineUnitReader _batchEngineUnitReader;
+
+	@Inject
+	private GroupLocalService _groupLocalService;
 
 	@Inject
 	private SiteInitializerRegistry _siteInitializerRegistry;
