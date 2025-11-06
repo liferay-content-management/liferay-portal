@@ -5,7 +5,6 @@
 
 package com.liferay.site.cms.site.initializer.internal.frontend.data.set.view.cards;
 
-import com.liferay.frontend.data.set.view.FDSView;
 import com.liferay.frontend.data.set.view.cards.BaseCardsFDSView;
 import com.liferay.frontend.data.set.view.cards.FDSCardSchema;
 import com.liferay.frontend.data.set.view.cards.FDSCardSchemaBuilder;
@@ -13,11 +12,8 @@ import com.liferay.frontend.data.set.view.cards.FDSCardSchemaBuilderFactory;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.site.cms.site.initializer.internal.constants.CMSSiteInitializerFDSNames;
 
 import java.util.Locale;
-
-import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Balázs Sáfrány-Kovalik
@@ -25,18 +21,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Mikel Lorza
  * @author Roberto Díaz
  */
-@Component(
-	property = {
-		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.ALL_SECTION,
-		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.CONTENTS_SECTION,
-		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.FILES_SECTION,
-		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.SPACE_FILES_SUMMARY_SECTION,
-		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.VIEW_CONTENTS_FOLDER,
-		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.VIEW_FILES_FOLDER
-	},
-	service = FDSView.class
-)
-public class ContentAndFileSectionsCardsFDSView extends BaseCardsFDSView {
+public class BaseSectionCardsFDSView extends BaseCardsFDSView {
 
 	@Override
 	public String getDescription() {
@@ -87,7 +72,6 @@ public class ContentAndFileSectionsCardsFDSView extends BaseCardsFDSView {
 
 	private static final Snapshot<FDSCardSchemaBuilderFactory>
 		_fdsCardSchemaBuilderFactorySnapshot = new Snapshot<>(
-			ContentAndFileSectionsCardsFDSView.class,
-			FDSCardSchemaBuilderFactory.class);
+			BaseSectionCardsFDSView.class, FDSCardSchemaBuilderFactory.class);
 
 }
