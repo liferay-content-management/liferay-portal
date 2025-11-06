@@ -24,8 +24,8 @@ import org.osgi.service.component.annotations.Component;
 	property = "frontend.data.set.name=" + CMSSiteInitializerFDSNames.HOME_RECENT_ASSETS_SECTION,
 	service = FDSView.class
 )
-public class HomeRecentAssetsContentsSectionCMSTableFDSView
-	extends BaseContentsSectionCMSTableFDSView {
+public class HomeRecentAssetsSectionCMSTableFDSView
+	extends BaseSectionCMSTableFDSView {
 
 	@Override
 	public FDSTableSchema getFDSTableSchema(Locale locale) {
@@ -40,11 +40,6 @@ public class HomeRecentAssetsContentsSectionCMSTableFDSView
 				"assetRenderer"
 			)
 		).build();
-	}
-
-	@Override
-	public boolean isDefault() {
-		return true;
 	}
 
 }
