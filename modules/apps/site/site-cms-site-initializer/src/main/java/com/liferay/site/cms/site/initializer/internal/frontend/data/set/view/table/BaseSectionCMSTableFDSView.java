@@ -16,8 +16,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Roberto Díaz
  */
-public abstract class BaseContentsSectionCMSTableFDSView
-	extends BaseCMSTableFDSView {
+public abstract class BaseSectionCMSTableFDSView extends BaseCMSTableFDSView {
 
 	@Override
 	public FDSTableSchema getFDSTableSchema(Locale locale) {
