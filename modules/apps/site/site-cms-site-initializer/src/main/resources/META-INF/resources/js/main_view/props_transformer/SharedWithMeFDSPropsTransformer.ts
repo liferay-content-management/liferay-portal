@@ -6,14 +6,12 @@
 import {IInternalRenderer} from '@liferay/frontend-data-set-web';
 import {openModal} from 'frontend-js-components-web';
 
+import {OBJECT_ENTRY_FOLDER_CLASS_NAME} from '../../common/utils/constants';
 import AssetNavigationModalContent from '../modal/asset_navigation_view/AssetNavigationModalContent';
 import {AdditionalProps} from './AssetsFDSPropsTransformer';
 import shareAction from './actions/shareAction';
 import AuthorRenderer from './cell_renderers/AuthorRenderer';
 import SharedItemRenderer from './cell_renderers/SharedItemRenderer';
-
-const OBJECT_ENTRY_FOLDER_CLASS_NAME =
-	'com.liferay.object.model.ObjectEntryFolder';
 
 export default function SharedWithMeFDSPropsTransformer({
 	additionalProps,
