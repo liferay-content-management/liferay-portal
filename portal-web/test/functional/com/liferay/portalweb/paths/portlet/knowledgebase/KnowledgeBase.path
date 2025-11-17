@@ -124,7 +124,7 @@
 </tr>
 <tr>
 	<td>DESCRIPTIVE_VIEW_ARTICLE_TITLE</td>
-	<td>//h2/a[contains(.,'${key_kbArticleTitle}')]</td>
+	<td>//a[contains(.,'${key_kbArticleTitle}')]</td>
 	<td></td>
 </tr>
 <tr>
