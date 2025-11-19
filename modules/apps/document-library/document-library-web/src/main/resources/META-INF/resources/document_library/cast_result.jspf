@@ -26,7 +26,5 @@ else if (result instanceof FileShortcut) {
 }
 else if (result instanceof Folder) {
 	curFolder = (Folder)result;
-
-	curFolder = curFolder.toEscapedModel();
 }
 %>
