@@ -5,6 +5,7 @@
 
 import {ClayButtonWithIcon} from '@clayui/button';
 import ClayForm, {ClayInput} from '@clayui/form';
+import {ItemSelector} from '@liferay/frontend-js-item-selector-web';
 import {useId} from 'frontend-js-components-web';
 import {sub} from 'frontend-js-web';
 import PropTypes from 'prop-types';
@@ -14,6 +15,14 @@ import {VIEWPORT_SIZES} from '../../app/config/constants/viewportSizes';
 import {useSelector} from '../../app/contexts/StoreContext';
 import usePageContents from '../../app/utils/usePageContents';
 import {openImageSelector} from '../openImageSelector';
+
+const FDS_DEFAULT_PROPS = {
+	pagination: {
+		deltas: [{label: 20}, {label: 40}, {label: 60}],
+		initialDelta: 20,
+	},
+	selectionType: 'single',
+};
 
 export function ImageSelector({
 	fileEntryId,
@@ -97,6 +106,34 @@ export function ImageSelector({
 						</>
 					)}
 				</ClayInput.Group>
+
+				<hr />
+
+				<label>New Item Selector</label>
+
+				<ItemSelector
+					apiURL={`${location.origin}/o/headless-asset-library/v1.0/asset-libraries`}
+					itemSelectorModalProps={{
+						fdsProps: {
+							...FDS_DEFAULT_PROPS,
+							id: 'itemSelectorModal-documents',
+						},
+					}}
+					items={[]}
+					locator={{
+						id: 'id',
+						label: 'name',
+						value: 'id',
+					}}
+					onItemsChange={(image) => onImageSelected(image)}
+					placeholder="Select Image"
+				>
+					{(item) => (
+						<ItemSelector.Item key={item.id} textValue={item.name}>
+							{item.name}
+						</ItemSelector.Item>
+					)}
+				</ItemSelector>
 			</ClayForm.Group>
 		</>
 	) : (
