@@ -375,7 +375,6 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 		searchContext.setAttribute("status", WorkflowConstants.STATUS_APPROVED);
 		searchContext.setEnd(QueryUtil.ALL_POS);
 		searchContext.setFolderIds(new long[] {searchFolderId});
-		searchContext.setStart(QueryUtil.ALL_POS);
 
 		Group group = _groupLocalService.fetchGroup(searchRepositoryId);
 
@@ -389,6 +388,7 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 		searchContext.setIncludeDiscussions(true);
 		searchContext.setIncludeInternalAssetCategories(true);
 		searchContext.setLocale(themeDisplay.getSiteDefaultLocale());
+		searchContext.setStart(QueryUtil.ALL_POS);
 
 		QueryConfig queryConfig = searchContext.getQueryConfig();
 
