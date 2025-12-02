@@ -169,11 +169,11 @@ test(
 
 			await spaceSummaryPage.goto(spaceName);
 
-			await spaceSummaryPage.viewAllContentLink.click();
-
 			const folderName = 'Folder' + getRandomInt();
 
-			await folderPage.createFolder(folderName);
+			await spaceSummaryPage.createContentFolder(folderName);
+
+			await spaceSummaryPage.viewAllContentLink.click();
 
 			await verifyPermissions({
 				menuitem: 'Default Permissions',
@@ -452,11 +452,9 @@ test(
 		await createSpace(page, spaceName);
 
 		try {
-			await spaceSummaryPage.viewAllContentLink.click();
-
 			const folderName = 'Folder' + getRandomInt();
 
-			await folderPage.createFolder(folderName);
+			await spaceSummaryPage.createContentFolder(folderName);
 
 			await page.getByRole('link', {name: folderName}).click();
 
@@ -535,7 +533,6 @@ test(
 	{tag: '@LPD-62475'},
 	async ({
 		defaultPermissionsPage,
-		folderPage,
 		page,
 		permissionsPage,
 		spaceSummaryPage,
@@ -562,11 +559,11 @@ test(
 
 			await spaceSummaryPage.goto(spaceName);
 
-			await spaceSummaryPage.viewAllContentLink.click();
-
 			const folderName = 'Folder' + getRandomInt();
 
-			await folderPage.createFolder(folderName);
+			await spaceSummaryPage.createContentFolder(folderName);
+
+			await spaceSummaryPage.viewAllContentLink.click();
 
 			await verifyPermissions({
 				menuitem: 'Permissions',
@@ -619,7 +616,6 @@ test(
 	async ({
 		contentsPage,
 		defaultPermissionsPage,
-		folderPage,
 		page,
 		permissionsPage,
 		spaceSummaryPage,
@@ -654,11 +650,11 @@ test(
 
 			await spaceSummaryPage.goto(spaceName);
 
-			await spaceSummaryPage.viewAllContentLink.click();
-
 			const folderName = 'Folder' + getRandomInt();
 
-			await folderPage.createFolder(folderName);
+			await spaceSummaryPage.createContentFolder(folderName);
+
+			await spaceSummaryPage.viewAllContentLink.click();
 
 			await verifyPermissions({
 				menuitem: 'Permissions',
