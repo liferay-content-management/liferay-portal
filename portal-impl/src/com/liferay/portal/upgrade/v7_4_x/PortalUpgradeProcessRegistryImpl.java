@@ -716,6 +716,9 @@ public class PortalUpgradeProcessRegistryImpl
 			UpgradeProcessFactory.alterColumnName(
 				"Layout", "layoutPrototypeLinkEnabled",
 				"portletLPTELE BOOLEAN"));
+
+		upgradeVersionTreeMap.put(
+			new Version(38, 0, 1), new ClassNameUpgradeProcess());
 	}
 
 }
