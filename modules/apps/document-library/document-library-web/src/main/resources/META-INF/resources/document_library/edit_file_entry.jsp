@@ -187,6 +187,7 @@ renderResponse.setTitle(headerTitle);
 		<aui:input name="repositoryId" type="hidden" value="<%= repositoryId %>" />
 		<aui:input name="folderId" type="hidden" value="<%= folderId %>" />
 		<aui:input name="fileEntryId" type="hidden" value="<%= fileEntryId %>" />
+		<aui:input name="latestFileVersionStatus" type="hidden" value="<%= (fileVersion != null) ? fileVersion.getStatus() : WorkflowConstants.STATUS_ANY %>" />
 
 		<c:if test="<%= (fileEntry != null) && checkedOut %>">
 			<aui:input name="versionIncrease" type="hidden" />
@@ -620,11 +621,11 @@ renderResponse.setTitle(headerTitle);
 						</c:if>
 
 						<c:if test="<%= dlEditFileEntryDisplayContext.isPublishButtonVisible() %>">
-							<aui:button disabled="<%= dlEditFileEntryDisplayContext.isPublishButtonDisabled() %>" name="publishButton" type="submit" value="<%= dlEditFileEntryDisplayContext.getPublishButtonLabel() %>" />
+							<aui:button disabled="<%= dlEditFileEntryDisplayContext.isPublishButtonDisabled() || pending %>" name="publishButton" type="submit" value="<%= dlEditFileEntryDisplayContext.getPublishButtonLabel() %>" />
 						</c:if>
 
 						<c:if test="<%= dlEditFileEntryDisplayContext.isCheckoutDocumentButtonVisible() %>">
-							<aui:button disabled="<%= dlEditFileEntryDisplayContext.isCheckoutDocumentButtonDisabled() %>" onClick='<%= liferayPortletResponse.getNamespace() + "checkOut();" %>' primary="<%= false %>" type="submit" value="checkout[document]" />
+							<aui:button disabled="<%= dlEditFileEntryDisplayContext.isCheckoutDocumentButtonDisabled() || pending %>" onClick='<%= liferayPortletResponse.getNamespace() + "checkOut();" %>' primary="<%= false %>" type="submit" value="checkout[document]" />
 						</c:if>
 
 						<c:if test="<%= dlEditFileEntryDisplayContext.isCheckinButtonVisible() %>">

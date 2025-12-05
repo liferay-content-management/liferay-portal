@@ -1347,7 +1347,8 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 
 		long fileEntryId = ParamUtil.getLong(
 			uploadPortletRequest, "fileEntryId");
-
+		int latestFileVersionStatus = ParamUtil.getInteger(
+			uploadPortletRequest, "latestFileVersionStatus");
 		String externalReferenceCode = ParamUtil.getString(
 			actionRequest, "externalReferenceCode");
 		long repositoryId = ParamUtil.getLong(
@@ -1505,25 +1506,31 @@ public class EditFileEntryMVCActionCommand extends BaseMVCActionCommand {
 					_validateFileName(sourceFileName, fileEntry.getExtension());
 				}
 
-				if (cmd.equals(Constants.UPDATE_AND_CHECKIN)) {
+				if (latestFileVersionStatus !=
+						WorkflowConstants.STATUS_PENDING) {
 
-					// Update file entry and checkin
+					if (cmd.equals(Constants.UPDATE_AND_CHECKIN)) {
 
-					fileEntry = _dlAppService.updateFileEntryAndCheckIn(
-						fileEntryId, sourceFileName, contentType, title,
-						urlTitle, description, changeLog,
-						dlVersionNumberIncrease, inputStream, size, displayDate,
-						expirationDate, reviewDate, serviceContext);
-				}
-				else {
+						// Update file entry and checkin
 
-					// Update file entry
+						fileEntry = _dlAppService.updateFileEntryAndCheckIn(
+							fileEntryId, sourceFileName, contentType, title,
+							urlTitle, description, changeLog,
+							dlVersionNumberIncrease, inputStream, size,
+							displayDate, expirationDate, reviewDate,
+							serviceContext);
+					}
+					else {
 
-					fileEntry = _dlAppService.updateFileEntry(
-						fileEntryId, sourceFileName, contentType, title,
-						urlTitle, description, changeLog,
-						dlVersionNumberIncrease, inputStream, size, displayDate,
-						expirationDate, reviewDate, serviceContext);
+						// Update file entry
+
+						fileEntry = _dlAppService.updateFileEntry(
+							fileEntryId, sourceFileName, contentType, title,
+							urlTitle, description, changeLog,
+							dlVersionNumberIncrease, inputStream, size,
+							displayDate, expirationDate, reviewDate,
+							serviceContext);
+					}
 				}
 			}
 
