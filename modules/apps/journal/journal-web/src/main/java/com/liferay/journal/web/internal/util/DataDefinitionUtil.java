@@ -19,7 +19,9 @@ import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Attila Bakay
@@ -39,13 +41,18 @@ public class DataDefinitionUtil {
 	public static void updateDataDefinitionFields(
 		DataDefinition dataDefinition, DDMStructure ddmStructure) {
 
+		Set<String> ddmFormFieldNames = new HashSet<>();
+
 		for (DataDefinitionField dataDefinitionField :
 				dataDefinition.getDataDefinitionFields()) {
 
 			String oldFieldName = dataDefinitionField.getName();
 
 			String newFieldName = _getFieldName(
-				dataDefinitionField, ddmStructure, oldFieldName);
+				dataDefinitionField, ddmFormFieldNames, ddmStructure,
+				oldFieldName);
+
+			ddmFormFieldNames.add(newFieldName);
 
 			if (StringUtil.equals(newFieldName, oldFieldName)) {
 				continue;
@@ -92,8 +99,8 @@ public class DataDefinitionUtil {
 	}
 
 	private static String _getFieldName(
-		DataDefinitionField dataDefinitionField, DDMStructure ddmStructure,
-		String fieldName) {
+		DataDefinitionField dataDefinitionField, Set<String> ddmFormFieldNames,
+		DDMStructure ddmStructure, String fieldName) {
 
 		if (ddmStructure != null) {
 			String existingFieldName = _getExistingFieldName(
@@ -104,7 +111,7 @@ public class DataDefinitionUtil {
 			}
 		}
 
-		if (isValidFieldName(fieldName)) {
+		if (!ddmFormFieldNames.contains(fieldName)) {
 			return fieldName;
 		}
 
