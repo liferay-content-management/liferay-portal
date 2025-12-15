@@ -43,11 +43,13 @@ public class DataDefinitionUtilTest {
 	public void setUp() {
 		_fieldName = RandomTestUtil.randomString(8);
 		_fieldReference = RandomTestUtil.randomString();
+		_secondFieldReference = RandomTestUtil.randomString();
 	}
 
 	@Test
 	public void testUpdateDataDefinitionFields() {
 		_testUpdateDataDefinitionFields();
+		_testUpdateDataDefinitionFieldsWithDuplicateFieldNames();
 		_testUpdateDataDefinitionFieldsWithExistingFieldName();
 		_testUpdateDataDefinitionFieldsWithExistingFieldNameAndExistingReference();
 		_testUpdateDataDefinitionFieldsWithExistingLegacyFieldNameAndExistingReference();
@@ -77,6 +79,35 @@ public class DataDefinitionUtilTest {
 			dataDefinition.getDataDefinitionFields()[0];
 
 		return dataDefinitionField.getName();
+	}
+
+	private DataDefinition _getDataDefinitionWithDuplicateFieldNames() {
+		DataDefinition dataDefinition = new DataDefinition();
+
+		DataDefinitionField dataDefinitionField1 = new DataDefinitionField();
+
+		dataDefinitionField1.setCustomProperties(
+			HashMapBuilder.<String, Object>put(
+				"fieldReference", _fieldReference
+			).build());
+		dataDefinitionField1.setName(_fieldName);
+
+		DataDefinitionField dataDefinitionField2 = new DataDefinitionField();
+
+		dataDefinitionField2.setCustomProperties(
+			HashMapBuilder.<String, Object>put(
+				"fieldReference", _secondFieldReference
+			).build());
+		dataDefinitionField2.setName(_fieldName);
+
+		dataDefinition.setDataDefinitionFields(
+			new DataDefinitionField[] {
+				dataDefinitionField1, dataDefinitionField2
+			});
+
+		dataDefinition.setDefaultDataLayout(_getDataLayout(_fieldName));
+
+		return dataDefinition;
 	}
 
 	private DataLayout _getDataLayout(String fieldName) {
@@ -143,9 +174,25 @@ public class DataDefinitionUtilTest {
 
 		DataDefinitionUtil.updateDataDefinitionFields(dataDefinition, null);
 
-		Assert.assertTrue(
-			DataDefinitionUtil.isValidFieldName(
-				_getDataDefinitionFieldName(dataDefinition)));
+		Assert.assertEquals(
+			_fieldName, _getDataDefinitionFieldName(dataDefinition));
+	}
+
+	private void _testUpdateDataDefinitionFieldsWithDuplicateFieldNames() {
+		DataDefinition dataDefinition =
+			_getDataDefinitionWithDuplicateFieldNames();
+
+		DataDefinitionUtil.updateDataDefinitionFields(dataDefinition, null);
+
+		DataDefinitionField[] dataDefinitionFields =
+			dataDefinition.getDataDefinitionFields();
+
+		String firstFieldName = dataDefinitionFields[0].getName();
+		String secondFieldName = dataDefinitionFields[1].getName();
+
+		Assert.assertEquals(_fieldName, firstFieldName);
+		Assert.assertTrue(DataDefinitionUtil.isValidFieldName(secondFieldName));
+		Assert.assertNotEquals(firstFieldName, secondFieldName);
 	}
 
 	private void _testUpdateDataDefinitionFieldsWithExistingFieldName() {
@@ -197,5 +244,6 @@ public class DataDefinitionUtilTest {
 
 	private String _fieldName;
 	private String _fieldReference;
+	private String _secondFieldReference;
 
 }
