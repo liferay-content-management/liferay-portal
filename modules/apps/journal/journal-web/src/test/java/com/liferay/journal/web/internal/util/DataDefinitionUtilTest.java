@@ -17,6 +17,7 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.util.DDMFormFieldUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.util.Map;
@@ -169,6 +170,16 @@ public class DataDefinitionUtilTest {
 		return ddmStructure;
 	}
 
+	private boolean _isValidFieldName(String fieldName) {
+		int index = fieldName.length() - 8;
+
+		if ((index >= 0) && Validator.isNumber(fieldName.substring(index))) {
+			return true;
+		}
+
+		return false;
+	}
+
 	private void _testUpdateDataDefinitionFields() {
 		DataDefinition dataDefinition = _getDataDefinition();
 
@@ -191,7 +202,7 @@ public class DataDefinitionUtilTest {
 		String secondFieldName = dataDefinitionFields[1].getName();
 
 		Assert.assertEquals(_fieldName, firstFieldName);
-		Assert.assertTrue(DataDefinitionUtil.isValidFieldName(secondFieldName));
+		Assert.assertTrue(_isValidFieldName(secondFieldName));
 		Assert.assertNotEquals(firstFieldName, secondFieldName);
 	}
 
@@ -206,7 +217,7 @@ public class DataDefinitionUtilTest {
 
 		String newFieldName = _getDataDefinitionFieldName(dataDefinition);
 
-		Assert.assertTrue(DataDefinitionUtil.isValidFieldName(newFieldName));
+		Assert.assertTrue(_isValidFieldName(newFieldName));
 		Assert.assertEquals(existingFieldName, newFieldName);
 	}
 
@@ -225,7 +236,7 @@ public class DataDefinitionUtilTest {
 
 		String newFieldName = _getDataDefinitionFieldName(dataDefinition);
 
-		Assert.assertTrue(DataDefinitionUtil.isValidFieldName(newFieldName));
+		Assert.assertTrue(_isValidFieldName(newFieldName));
 		Assert.assertEquals(existingFieldName, newFieldName);
 
 		_fieldName = originalFieldName;

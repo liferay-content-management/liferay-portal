@@ -28,16 +28,6 @@ import java.util.Set;
  */
 public class DataDefinitionUtil {
 
-	public static boolean isValidFieldName(String fieldName) {
-		int index = fieldName.length() - 8;
-
-		if ((index >= 0) && Validator.isNumber(fieldName.substring(index))) {
-			return true;
-		}
-
-		return false;
-	}
-
 	public static void updateDataDefinitionFields(
 		DataDefinition dataDefinition, DDMStructure ddmStructure) {
 
