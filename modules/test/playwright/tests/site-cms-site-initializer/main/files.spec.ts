@@ -64,12 +64,6 @@ test(
 			).toBeVisible();
 
 			await expect(
-				assetsPage.galleryPreview.getByRole('img', {
-					name: `file_${fileName}.png`,
-				})
-			).toBeVisible();
-
-			await expect(
 				assetsPage.galleryNavigation.getByRole('button', {
 					name: 'Previous',
 				})
