@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {Locator, Page} from '@playwright/test';
+import {Locator, Page, expect} from '@playwright/test';
 
 import {clickAndExpectToBeVisible} from '../../../../utils/clickAndExpectToBeVisible';
 import {PORTLET_URLS} from '../../../../utils/portletUrls';
@@ -96,6 +96,32 @@ export class AssetsPage {
 			exact: true,
 			name: 'Delete',
 		});
+	}
+
+	async deleteAllAssetsGalleryView() {
+		const selecAllButton = this.page.getByLabel(
+			'Select All Items on the Page'
+		);
+		if (await selecAllButton.isVisible()) {
+			selecAllButton.check();
+
+			await this.page
+				.getByTestId('visualization-mode-gallery')
+				.getByLabel('Actions')
+				.click();
+
+			const dropdownMenuItemDelete = this.page.getByRole('menuitem', {
+				name: 'Delete',
+			});
+
+			await expect(dropdownMenuItemDelete).toBeVisible();
+
+			await dropdownMenuItemDelete.click();
+
+			await expect(
+				this.page.getByTestId('fdsCreationActionButton').nth(1)
+			).toBeVisible();
+		}
 	}
 
 	async gotoAll() {

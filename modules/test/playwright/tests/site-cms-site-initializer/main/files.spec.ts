@@ -35,6 +35,12 @@ test(
 	'Opens in Gallery View by default',
 	{tag: '@LPD-68467'},
 	async ({apiHelpers, assetsPage, page}) => {
+		await test.step('remove possible previous files', async () => {
+			await assetsPage.gotoFiles();
+
+			await assetsPage.deleteAllAssetsGalleryView();
+		});
+
 		const applicationName = 'cms/basic-documents';
 		const fileName = getRandomString();
 
@@ -70,7 +76,9 @@ test(
 			).toBeDisabled();
 
 			await expect(
-				assetsPage.galleryNavigation.getByRole('button', {name: 'Next'})
+				assetsPage.galleryNavigation.getByRole('button', {
+					name: 'Next',
+				})
 			).toBeDisabled();
 
 			await expect(
@@ -284,9 +292,9 @@ test(
 					page.getByRole('tab', {name: 'Details'})
 				).not.toBeVisible();
 
-				await expect(page.getByLabel('Show Details')).not.toHaveClass(
-					/active/
-				);
+				await expect(
+					page.getByLabel('Show Details')
+				).not.toHaveClass(/active/);
 
 				await expect(page.getByLabel('Show Comments')).toHaveClass(
 					/active/
@@ -316,6 +324,7 @@ test(
 		}
 	}
 );
+
 
 test(
 	'Document can be downloaded from the Files section and saved correctly',
