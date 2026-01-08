@@ -1072,17 +1072,17 @@ public class ObjectEntryResourceImpl
 			throw new BadRequestException("No file found in body");
 		}
 
-		com.liferay.object.model.ObjectEntry objectEntry =
+		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			_objectEntryService.getObjectEntry(objectEntryId);
 
 		List<Map<String, String>> failureMessages = new LinkedList<>();
 		List<String> successMessages = new ArrayList<>();
 
-		_initThemeDisplay(objectEntry);
+		_initThemeDisplay(serviceBuilderObjectEntry);
 
 		_translationManager.processXLIFFTranslation(
-			objectEntry.getGroupId(), _objectDefinition.getClassName(),
-			objectEntryId,
+			serviceBuilderObjectEntry.getGroupId(),
+			_objectDefinition.getClassName(), objectEntryId,
 			new Translation(
 				() -> MimeTypesUtil.getContentType(binaryFile.getFileName()),
 				binaryFile.getFileName(), binaryFile::getInputStream),
@@ -1454,10 +1454,10 @@ public class ObjectEntryResourceImpl
 
 	@Override
 	protected Long getPermissionCheckerGroupId(Object id) throws Exception {
-		com.liferay.object.model.ObjectEntry objectEntry =
+		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			_objectEntryLocalService.getObjectEntry(GetterUtil.getLong(id));
 
-		return objectEntry.getGroupId();
+		return serviceBuilderObjectEntry.getGroupId();
 	}
 
 	@Override
@@ -1645,7 +1645,7 @@ public class ObjectEntryResourceImpl
 	}
 
 	private void _initThemeDisplay(
-			com.liferay.object.model.ObjectEntry objectEntry)
+			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry)
 		throws Exception {
 
 		ThemeDisplay themeDisplay =
@@ -1674,7 +1674,7 @@ public class ObjectEntryResourceImpl
 			WebKeys.THEME_DISPLAY);
 
 		themeDisplay.setCompany(contextCompany);
-		themeDisplay.setScopeGroupId(objectEntry.getGroupId());
+		themeDisplay.setScopeGroupId(serviceBuilderObjectEntry.getGroupId());
 		themeDisplay.setUser(contextUser);
 	}
 
