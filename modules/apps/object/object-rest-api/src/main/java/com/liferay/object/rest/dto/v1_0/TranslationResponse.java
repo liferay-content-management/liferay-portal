@@ -48,29 +48,29 @@ public class TranslationResponse implements Serializable {
 	}
 
 	@io.swagger.v3.oas.annotations.media.Schema
-	public String[] getFailureMessages() {
-		if (_failureMessagesSupplier != null) {
-			failureMessages = _failureMessagesSupplier.get();
+	public String[] getFailureMessagesJSON() {
+		if (_failureMessagesJSONSupplier != null) {
+			failureMessagesJSON = _failureMessagesJSONSupplier.get();
 
-			_failureMessagesSupplier = null;
+			_failureMessagesJSONSupplier = null;
 		}
 
-		return failureMessages;
+		return failureMessagesJSON;
 	}
 
-	public void setFailureMessages(String[] failureMessages) {
-		this.failureMessages = failureMessages;
+	public void setFailureMessagesJSON(String[] failureMessagesJSON) {
+		this.failureMessagesJSON = failureMessagesJSON;
 
-		_failureMessagesSupplier = null;
+		_failureMessagesJSONSupplier = null;
 	}
 
 	@JsonIgnore
-	public void setFailureMessages(
-		UnsafeSupplier<String[], Exception> failureMessagesUnsafeSupplier) {
+	public void setFailureMessagesJSON(
+		UnsafeSupplier<String[], Exception> failureMessagesJSONUnsafeSupplier) {
 
-		_failureMessagesSupplier = () -> {
+		_failureMessagesJSONSupplier = () -> {
 			try {
-				return failureMessagesUnsafeSupplier.get();
+				return failureMessagesJSONUnsafeSupplier.get();
 			}
 			catch (RuntimeException runtimeException) {
 				throw runtimeException;
@@ -83,10 +83,10 @@ public class TranslationResponse implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	protected String[] failureMessages;
+	protected String[] failureMessagesJSON;
 
 	@JsonIgnore
-	private Supplier<String[]> _failureMessagesSupplier;
+	private Supplier<String[]> _failureMessagesJSONSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
 	public String[] getSuccessMessages() {
@@ -156,25 +156,25 @@ public class TranslationResponse implements Serializable {
 
 		sb.append("{");
 
-		String[] failureMessages = getFailureMessages();
+		String[] failureMessagesJSON = getFailureMessagesJSON();
 
-		if (failureMessages != null) {
+		if (failureMessagesJSON != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"failureMessages\": ");
+			sb.append("\"failureMessagesJSON\": ");
 
 			sb.append("[");
 
-			for (int i = 0; i < failureMessages.length; i++) {
+			for (int i = 0; i < failureMessagesJSON.length; i++) {
 				sb.append("\"");
 
-				sb.append(_escape(failureMessages[i]));
+				sb.append(_escape(failureMessagesJSON[i]));
 
 				sb.append("\"");
 
-				if ((i + 1) < failureMessages.length) {
+				if ((i + 1) < failureMessagesJSON.length) {
 					sb.append(", ");
 				}
 			}
