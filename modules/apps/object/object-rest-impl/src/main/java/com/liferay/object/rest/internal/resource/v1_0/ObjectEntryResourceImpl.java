@@ -1684,7 +1684,7 @@ public class ObjectEntryResourceImpl
 
 		TranslationResponse translationResponse = new TranslationResponse();
 
-		translationResponse.setFailureMessages(
+		translationResponse.setFailureMessagesJSON(
 			() -> transformToArray(
 				failureMessages,
 				failureMessage -> {
@@ -1694,10 +1694,10 @@ public class ObjectEntryResourceImpl
 					return jsonObject.toString();
 				},
 				String.class));
-
 		translationResponse.setSuccessMessages(
 			() -> transformToArray(
-				successMessages, successMesage -> successMesage, String.class));
+				successMessages, successMessage -> successMessage,
+				String.class));
 
 		return translationResponse;
 	}
