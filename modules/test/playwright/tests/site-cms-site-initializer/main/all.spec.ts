@@ -804,9 +804,10 @@ test(
 			});
 
 			await test.step('Check that space member can see tags and vocabulary but cannot edit them also in the Content Editor', async () => {
-				await assetsPage.dataSetFragmentPage
-					.assetLink(file1Title)
-					.click();
+				await assetsPage.execItemAction({
+					action: 'Edit',
+					filter: file1Title,
+				});
 
 				await expect(
 					page.getByRole('heading', {
