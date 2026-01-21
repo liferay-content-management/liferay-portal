@@ -384,6 +384,37 @@ public class DDMFieldLocalServiceTest {
 	}
 
 	@Test
+	public void testUpdateDDMFormValuesWithNullValue() throws Exception {
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm("field1");
+
+		DDMStructure ddmStructure = _ddmStructureTestHelper.addStructure(
+			ddmForm, StorageType.DEFAULT.toString());
+
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		ddmFormValues.setDefaultLocale(LocaleUtil.ENGLISH);
+		ddmFormValues.setAvailableLocales(
+			Collections.singleton(LocaleUtil.ENGLISH));
+		ddmFormValues.setDDMFormFieldValues(
+			Arrays.asList(
+				_createDDMFormFieldValue(LocaleUtil.ENGLISH, "field1", null)));
+
+		_ddmFieldLocalService.updateDDMFormValues(
+			ddmStructure.getStructureId(), _STORAGE_ID, ddmFormValues);
+
+		DDMFormValues deserializedDDMFormValues =
+			_ddmFieldLocalService.getDDMFormValues(ddmForm, _STORAGE_ID);
+
+		DDMFormFieldValue field =
+			deserializedDDMFormValues.getDDMFormFieldValue("field1", false);
+
+		LocalizedValue localizedValue = (LocalizedValue)field.getValue();
+
+		Assert.assertEquals(
+			StringPool.BLANK, localizedValue.getString(LocaleUtil.ENGLISH));
+	}
+
+	@Test
 	public void testUpdatedForm() throws Exception {
 		DDMForm ddmForm = DDMFormTestUtil.createDDMForm(
 			"field1", "field2", "field3");
