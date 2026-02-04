@@ -272,12 +272,12 @@
 </tr>
 <tr>
 	<td>INFO</td>
-	<td>//a[contains(@class,'btn')][normalize-space()='Info'] | //div[contains(@class,'management-bar-default')]//a[contains(@class,'infoPanelToggler')] | //button[contains(@class,'btn')]//*[name()='svg'][contains(@class,'lexicon-icon-info')]</td>
+	<td>//a[contains(@class,'btn')][normalize-space()='Info'] | //div[contains(@class,'management-bar-default')]//a[contains(@class,'infoPanelToggler')] | //button[contains(@class,'btn') and @title!='Open Maintenance Mode Definition']//*[name()='svg'][contains(@class,'lexicon-icon-info')] | //a[not(@title)]//*[name()='svg'][contains(@class,'lexicon-icon-info')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>INFO_DM</td>
-	<td>//*[*[name()='svg'][contains(@class,'lexicon-icon-info-circle-open')]]</td>
+	<td>//button[contains(@class,'btn') and @title!='Open Maintenance Mode Definition']//*[name()='svg'][contains(@class,'lexicon-icon-info-circle-open')]</td>
 	<td></td>
 </tr>
 <tr>
