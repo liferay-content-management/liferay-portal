@@ -1087,17 +1087,21 @@ public class JournalFolderLocalServiceImpl
 		List<JournalArticle> articles = _journalArticlePersistence.findByG_F(
 			fromFolder.getGroupId(), fromFolder.getFolderId());
 
+		List<JournalArticle> updatedArticles = new ArrayList<>();
+
 		for (JournalArticle article : articles) {
 			article.setFolderId(toFolderId);
 			article.setTreePath(article.buildTreePath());
 
 			article = _journalArticlePersistence.update(article);
 
-			Indexer<JournalArticle> indexer =
-				IndexerRegistryUtil.nullSafeGetIndexer(JournalArticle.class);
-
-			indexer.reindex(article);
+			updatedArticles.add(article);
 		}
+
+		Indexer<JournalArticle> indexer =
+			IndexerRegistryUtil.nullSafeGetIndexer(JournalArticle.class);
+
+		indexer.reindex(updatedArticles);
 
 		journalFolderLocalService.deleteFolder(fromFolder);
 	}
@@ -1105,6 +1109,9 @@ public class JournalFolderLocalServiceImpl
 	private void _moveDependentsToTrash(
 			List<Object> foldersAndArticles, long trashEntryId)
 		throws PortalException {
+
+		List<JournalArticle> updatedArticles = new ArrayList<>();
+		List<JournalFolder> updatedFolders = new ArrayList<>();
 
 		for (Object object : foldersAndArticles) {
 			if (object instanceof JournalArticle) {
@@ -1171,13 +1178,7 @@ public class JournalFolderLocalServiceImpl
 					JournalArticle.class.getName(),
 					article.getResourcePrimKey(), false);
 
-				// Indexer
-
-				Indexer<JournalArticle> indexer =
-					IndexerRegistryUtil.nullSafeGetIndexer(
-						JournalArticle.class);
-
-				indexer.reindex(article);
+				updatedArticles.add(article);
 			}
 			else if (object instanceof JournalFolder) {
 
@@ -1215,18 +1216,28 @@ public class JournalFolderLocalServiceImpl
 				_assetEntryLocalService.updateVisible(
 					JournalFolder.class.getName(), folder.getFolderId(), false);
 
-				// Indexer
-
-				Indexer<JournalFolder> indexer =
-					IndexerRegistryUtil.nullSafeGetIndexer(JournalFolder.class);
-
-				indexer.reindex(folder);
+				updatedFolders.add(folder);
 			}
 		}
+
+		// Indexer
+
+		Indexer<JournalArticle> journalArticleIndexer =
+			IndexerRegistryUtil.nullSafeGetIndexer(JournalArticle.class);
+
+		journalArticleIndexer.reindex(updatedArticles);
+
+		Indexer<JournalFolder> journalFolderIndexer =
+			IndexerRegistryUtil.nullSafeGetIndexer(JournalFolder.class);
+
+		journalFolderIndexer.reindex(updatedFolders);
 	}
 
 	private void _restoreDependentsFromTrash(List<Object> foldersAndArticles)
 		throws PortalException {
+
+		List<JournalArticle> updatedArticles = new ArrayList<>();
+		List<JournalFolder> updatedFolders = new ArrayList<>();
 
 		for (Object object : foldersAndArticles) {
 			if (object instanceof JournalArticle) {
@@ -1288,13 +1299,7 @@ public class JournalFolderLocalServiceImpl
 						article.getResourcePrimKey(), true);
 				}
 
-				// Indexer
-
-				Indexer<JournalArticle> indexer =
-					IndexerRegistryUtil.nullSafeGetIndexer(
-						JournalArticle.class);
-
-				indexer.reindex(article);
+				updatedArticles.add(article);
 			}
 			else if (object instanceof JournalFolder) {
 
@@ -1339,14 +1344,21 @@ public class JournalFolderLocalServiceImpl
 				_assetEntryLocalService.updateVisible(
 					JournalFolder.class.getName(), folder.getFolderId(), true);
 
-				// Indexer
-
-				Indexer<JournalFolder> indexer =
-					IndexerRegistryUtil.nullSafeGetIndexer(JournalFolder.class);
-
-				indexer.reindex(folder);
+				updatedFolders.add(folder);
 			}
 		}
+
+		// Indexer
+
+		Indexer<JournalArticle> journalArticleIndexer =
+			IndexerRegistryUtil.nullSafeGetIndexer(JournalArticle.class);
+
+		journalArticleIndexer.reindex(updatedArticles);
+
+		Indexer<JournalFolder> journalFolderIndexer =
+			IndexerRegistryUtil.nullSafeGetIndexer(JournalFolder.class);
+
+		journalFolderIndexer.reindex(updatedFolders);
 	}
 
 	private JournalFolder _updateFolder(
