@@ -232,9 +232,15 @@ public class DLURLHelperImpl implements DLURLHelper {
 				appendVersion);
 		}
 
-		if ((themeDisplay != null) && themeDisplay.isAddSessionIdToURL()) {
-			return _portal.getURLWithSessionId(
-				previewURL, themeDisplay.getSessionId());
+		if (themeDisplay != null) {
+			if (themeDisplay.isAddSessionIdToURL()) {
+				return _portal.getURLWithSessionId(
+					previewURL, themeDisplay.getSessionId());
+			}
+
+			if (Validator.isNotNull(themeDisplay.getDoAsUserId())) {
+				return _portal.addPreservedParameters(themeDisplay, previewURL);
+			}
 		}
 
 		return previewURL;
