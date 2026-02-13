@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Component;
 		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.CONTENTS_SECTION,
 		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.FILES_SECTION,
 		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.RECYCLE_BIN_SECTION,
+		"frontend.data.set.name=" + CMSSiteInitializerFDSNames.STRUCTURES_SECTION,
 		"service.ranking:Integer=" + Integer.MAX_VALUE
 	},
 	service = FDSFilter.class
