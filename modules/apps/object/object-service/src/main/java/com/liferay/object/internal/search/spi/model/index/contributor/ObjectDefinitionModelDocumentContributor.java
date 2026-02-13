@@ -6,9 +6,13 @@
 package com.liferay.object.internal.search.spi.model.index.contributor;
 
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectDefinitionSetting;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
+
+import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -41,8 +45,33 @@ public class ObjectDefinitionModelDocumentContributor
 			"rootObjectDefinitionExternalReferenceCode",
 			objectDefinition.getRootObjectDefinitionExternalReferenceCode(),
 			true);
+		document.addKeyword(
+			"scopeGroupId",
+			_getScopeGroupIds(objectDefinition.getObjectDefinitionSettings()));
 
 		document.remove(Field.USER_NAME);
+	}
+
+	private long[] _getScopeGroupIds(
+		List<ObjectDefinitionSetting> objectDefinitionSettings) {
+
+		if ((objectDefinitionSettings != null) &&
+			!objectDefinitionSettings.isEmpty()) {
+
+			for (ObjectDefinitionSetting objectDefinitionSetting :
+					objectDefinitionSettings) {
+
+				if (StringUtil.equals(
+						objectDefinitionSetting.getName(),
+						"acceptedGroupIds")) {
+
+					return StringUtil.split(
+						objectDefinitionSetting.getValue(), 0L);
+				}
+			}
+		}
+
+		return null;
 	}
 
 }
