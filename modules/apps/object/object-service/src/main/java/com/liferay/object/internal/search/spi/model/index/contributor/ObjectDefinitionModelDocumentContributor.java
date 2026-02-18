@@ -5,6 +5,7 @@
 
 package com.liferay.object.internal.search.spi.model.index.contributor;
 
+import com.liferay.object.constants.ObjectDefinitionSettingConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectDefinitionSetting;
 import com.liferay.portal.kernel.search.Document;
@@ -63,7 +64,8 @@ public class ObjectDefinitionModelDocumentContributor
 
 				if (StringUtil.equals(
 						objectDefinitionSetting.getName(),
-						"acceptedGroupIds")) {
+						ObjectDefinitionSettingConstants.
+							NAME_ACCEPTED_GROUP_IDS)) {
 
 					return StringUtil.split(
 						objectDefinitionSetting.getValue(), 0L);
