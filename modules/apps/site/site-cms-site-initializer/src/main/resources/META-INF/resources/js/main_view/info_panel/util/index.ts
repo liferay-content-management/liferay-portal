@@ -15,26 +15,25 @@ export function formatDate(date: string): string {
 export function getAssetType(objectEntry: IAssetObjectEntry): string {
 	const {
 		systemProperties: {
-			objectDefinitionBrief: {externalReferenceCode = ''} = {},
+			objectDefinitionBrief: {
+				objectFolderExternalReferenceCode = '',
+			} = {},
 		} = {},
 	} = objectEntry;
 
-	let type = ASSET_TYPE.FOLDER;
-
-	if (externalReferenceCode === ASSET_TYPE_ERC.BASIC_DOCUMENT) {
-		type = ASSET_TYPE.FILES;
+	if (
+		objectFolderExternalReferenceCode ===
+		ASSET_TYPE_ERC.L_CMS_CONTENT_STRUCTURES
+	) {
+		return ASSET_TYPE.CONTENTS;
 	}
-	else if (externalReferenceCode === ASSET_TYPE_ERC.BASIC_WEB_CONTENT) {
-		type = ASSET_TYPE.CONTENTS;
-	}
-	else if (externalReferenceCode === ASSET_TYPE_ERC.BLOG) {
-		type = ASSET_TYPE.BLOGS;
-	}
-	else if (externalReferenceCode === ASSET_TYPE_ERC.EXTERNAL_VIDEO) {
-		type = ASSET_TYPE.FILES;
+	else if (
+		objectFolderExternalReferenceCode === ASSET_TYPE_ERC.L_CMS_FILE_TYPES
+	) {
+		return ASSET_TYPE.FILES;
 	}
 
-	return type;
+	return ASSET_TYPE.FOLDER;
 }
 
 export function getAssetLanguages(

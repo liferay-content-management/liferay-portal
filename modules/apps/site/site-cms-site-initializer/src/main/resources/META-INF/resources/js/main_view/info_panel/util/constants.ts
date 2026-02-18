@@ -4,17 +4,14 @@
  */
 
 export const ASSET_TYPE = {
-	BLOGS: 'blogs',
-	CONTENTS: 'basic-web-contents',
+	CONTENTS: 'contents',
 	FILES: 'files',
 	FOLDER: 'folder',
 };
 
 export const ASSET_TYPE_ERC = {
-	BASIC_DOCUMENT: 'L_CMS_BASIC_DOCUMENT',
-	BASIC_WEB_CONTENT: 'L_CMS_BASIC_WEB_CONTENT',
-	BLOG: 'L_CMS_BLOG',
-	EXTERNAL_VIDEO: 'L_CMS_EXTERNAL_VIDEO',
+	L_CMS_CONTENT_STRUCTURES: 'L_CMS_CONTENT_STRUCTURES',
+	L_CMS_FILE_TYPES: 'L_CMS_FILE_TYPES',
 };
 
 export const COPY = 'copy';
