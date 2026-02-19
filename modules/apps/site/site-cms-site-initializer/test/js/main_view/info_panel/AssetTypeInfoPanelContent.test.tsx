@@ -11,11 +11,21 @@ import React from 'react';
 import SpaceService from '../../../../src/main/resources/META-INF/resources/js/common/services/SpaceService';
 import {Space} from '../../../../src/main/resources/META-INF/resources/js/common/types/Space';
 import AssetTypeInfoPanelContent from '../../../../src/main/resources/META-INF/resources/js/main_view/info_panel/AssetTypeInfoPanelContent';
+import ObjectEntryService from '../../../../src/main/resources/META-INF/resources/js/main_view/info_panel/services/ObjectEntryService';
 import {
 	CONTENT_OBJECT_ENTRY,
 	DOCUMENT_OBJECT_ENTRY,
 	FOLDER_OBJECT_ENTRY,
 } from './mocks';
+
+const testObjectEntryData = {
+	data: {
+		numberOfObjectEntries:
+			FOLDER_OBJECT_ENTRY.embedded.numberOfObjectEntries,
+		numberOfObjectEntryFolders:
+			FOLDER_OBJECT_ENTRY.embedded.numberOfObjectEntryFolders,
+	},
+};
 
 const testSpace = {
 	externalReferenceCode: 'a0a0a05e-61d2-248e-4ffa-ae1df094e695',
@@ -44,7 +54,10 @@ const testAdditionalProps = {
 
 describe('CMS Asset Type Info Panel', () => {
 	beforeEach(() => {
-		SpaceService.getSpace = jest.fn().mockReturnValue(testSpace);
+		SpaceService.getSpace = jest.fn().mockResolvedValue(testSpace);
+		ObjectEntryService.getObjectEntry = jest
+			.fn()
+			.mockResolvedValue(testObjectEntryData);
 	});
 
 	afterEach(() => {
@@ -94,6 +107,12 @@ describe('CMS Asset Type Info Panel', () => {
 		expect(screen.getByText('location')).toBeInTheDocument();
 
 		const breadcrumb = screen.getByLabelText('Breadcrumb');
+
+		expect(
+			await within(breadcrumb).findByRole('button', {
+				name: testSpace.name,
+			})
+		).toBeInTheDocument();
 
 		expect(
 			within(breadcrumb).getByRole('button', {name: 'content'})
@@ -156,6 +175,12 @@ describe('CMS Asset Type Info Panel', () => {
 		const breadcrumb = screen.getByLabelText('Breadcrumb');
 
 		expect(
+			await within(breadcrumb).findByRole('button', {
+				name: testSpace.name,
+			})
+		).toBeInTheDocument();
+
+		expect(
 			within(breadcrumb).getByRole('button', {name: 'files'})
 		).toBeInTheDocument();
 	});
@@ -192,11 +217,25 @@ describe('CMS Asset Type Info Panel', () => {
 
 		expect(screen.queryByText('url')).not.toBeInTheDocument();
 
-		expect(screen.getByText('number-of-assets')).toBeInTheDocument();
+		const numberOfAssets =
+			FOLDER_OBJECT_ENTRY.embedded.numberOfObjectEntries +
+			FOLDER_OBJECT_ENTRY.embedded.numberOfObjectEntryFolders;
+
+		const numberOfAssetsElement = screen.getByTestId('number-of-assets');
+
+		expect(
+			await within(numberOfAssetsElement).findByText(numberOfAssets)
+		).toBeInTheDocument();
 
 		expect(screen.getByText('location')).toBeInTheDocument();
 
 		const breadcrumb = screen.getByLabelText('Breadcrumb');
+
+		expect(
+			await within(breadcrumb).findByRole('button', {
+				name: testSpace.name,
+			})
+		).toBeInTheDocument();
 
 		expect(
 			within(breadcrumb).getByRole('button', {name: 'content'})

@@ -275,52 +275,53 @@ export const DOCUMENT_OBJECT_ENTRY = {
 };
 
 export const FOLDER_OBJECT_ENTRY = {
+	actions: {
+		'copy': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/by-parent-object-entry-folder-id/{parentObjectEntryFolderId}/copy',
+			method: 'POST',
+		},
+		'copy-replace': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/by-parent-object-entry-folder-id/{parentObjectEntryFolderId}/copy-replace',
+			method: 'POST',
+		},
+		'delete': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134',
+			method: 'DELETE',
+		},
+		'get': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134',
+			method: 'GET',
+		},
+		'get-by-scope': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/scopes/36030/object-entry-folders',
+			method: 'GET',
+		},
+		'move': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/by-parent-object-entry-folder-id/{parentObjectEntryFolderId}/move',
+			method: 'POST',
+		},
+		'move-replace': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/by-parent-object-entry-folder-id/{parentObjectEntryFolderId}/move-replace',
+			method: 'POST',
+		},
+		'permissions': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/permissions',
+			method: 'GET',
+		},
+		'share': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134',
+			method: 'GET',
+		},
+		'update': {
+			href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134',
+			method: 'PATCH',
+		},
+	},
+
 	dateCreated: '2026-02-18T17:15:31Z',
 	dateModified: '2026-02-18T17:15:31Z',
 	description: '',
 	embedded: {
-		actions: {
-			'copy': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/by-parent-object-entry-folder-id/{parentObjectEntryFolderId}/copy',
-				method: 'POST',
-			},
-			'copy-replace': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/by-parent-object-entry-folder-id/{parentObjectEntryFolderId}/copy-replace',
-				method: 'POST',
-			},
-			'delete': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134',
-				method: 'DELETE',
-			},
-			'get': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134',
-				method: 'GET',
-			},
-			'get-by-scope': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/scopes/36030/object-entry-folders',
-				method: 'GET',
-			},
-			'move': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/by-parent-object-entry-folder-id/{parentObjectEntryFolderId}/move',
-				method: 'POST',
-			},
-			'move-replace': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/by-parent-object-entry-folder-id/{parentObjectEntryFolderId}/move-replace',
-				method: 'POST',
-			},
-			'permissions': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134/permissions',
-				method: 'GET',
-			},
-			'share': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134',
-				method: 'GET',
-			},
-			'update': {
-				href: 'http://localhost:8080/o/headless-object/v1.0/object-entry-folders/36134',
-				method: 'PATCH',
-			},
-		},
 		creator: {
 			additionalName: '',
 			contentType: 'UserAccount',
