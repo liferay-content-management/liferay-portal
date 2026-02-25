@@ -19,7 +19,6 @@ import com.liferay.object.model.ObjectDefinitionSetting;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.object.service.ObjectEntryFolderLocalServiceUtil;
-import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
@@ -37,7 +36,6 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
@@ -50,6 +48,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
+import com.liferay.site.cms.site.initializer.util.DepotEntryUtil;
 import com.liferay.translation.constants.TranslationPortletKeys;
 
 import jakarta.portlet.ActionRequest;
@@ -60,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -171,30 +171,41 @@ public class SectionDisplayContextHelper {
 		List<DropdownItem> dropdownItems, HttpServletRequest httpServletRequest,
 		String rootObjectEntryFolderExternalReferenceCode) {
 
-		return new CreationMenu() {
-			{
-				if (_hasAddEntryPermission(
-						httpServletRequest,
-						rootObjectEntryFolderExternalReferenceCode)) {
+		CreationMenu creationMenu = new CreationMenu();
 
-					for (DropdownItem dropdownItem : dropdownItems) {
-						JSONArray depotEntriesJSONArray =
-							_getDepotEntriesJSONArray(
-								dropdownItem, httpServletRequest,
-								rootObjectEntryFolderExternalReferenceCode);
+		if (ListUtil.isEmpty(dropdownItems)) {
+			return creationMenu;
+		}
 
-						if (depotEntriesJSONArray == null) {
-							continue;
-						}
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
-						dropdownItem.putData(
-							"assetLibraries", depotEntriesJSONArray);
+		List<Long> depotEntryGroupIds = DepotEntryUtil.getDepotEntryGroupIds(
+			_getObjectEntryFolder(
+				themeDisplay.getCompanyId(),
+				httpServletRequest.getAttribute(InfoDisplayWebKeys.INFO_ITEM),
+				rootObjectEntryFolderExternalReferenceCode),
+			rootObjectEntryFolderExternalReferenceCode, themeDisplay);
 
-						addPrimaryDropdownItem(dropdownItem);
-					}
-				}
+		if (ListUtil.isEmpty(depotEntryGroupIds)) {
+			return creationMenu;
+		}
+
+		for (DropdownItem dropdownItem : dropdownItems) {
+			JSONArray depotEntriesJSONArray = _getDepotEntriesJSONArray(
+				depotEntryGroupIds, dropdownItem, themeDisplay.getLocale());
+
+			if (depotEntriesJSONArray == null) {
+				continue;
 			}
-		};
+
+			dropdownItem.putData("assetLibraries", depotEntriesJSONArray);
+
+			creationMenu.addPrimaryDropdownItem(dropdownItem);
+		}
+
+		return creationMenu;
 	}
 
 	public JSONArray getDepotEntriesJSONArray(
@@ -212,15 +223,14 @@ public class SectionDisplayContextHelper {
 
 		if (objectEntryFolder != null) {
 			return _getDepotEntriesJSONArray(
-				List.of(objectEntryFolder.getGroupId()), httpServletRequest);
+				List.of(objectEntryFolder.getGroupId()),
+				themeDisplay.getLocale());
 		}
 
 		return _getDepotEntriesJSONArray(
-			TransformUtil.transform(
-				_depotEntryLocalService.getDepotEntries(
-					themeDisplay.getCompanyId(), DepotConstants.TYPE_SPACE),
-				DepotEntry::getGroupId),
-			httpServletRequest);
+			DepotEntryUtil.getDepotEntryGroupIds(
+				themeDisplay.getCompanyId(), themeDisplay.getUserId()),
+			themeDisplay.getLocale());
 	}
 
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems(
@@ -343,6 +353,30 @@ public class SectionDisplayContextHelper {
 				null));
 	}
 
+	private List<Long> _getAcceptedDepotEntryGroupIds(
+		List<Long> depotEntryGroupIds, long objectDefinitionId) {
+
+		if (_isAcceptAllGroups(objectDefinitionId)) {
+			return depotEntryGroupIds;
+		}
+
+		List<Long> acceptedGroupIds = _getAcceptedGroupIds(objectDefinitionId);
+
+		if (acceptedGroupIds.isEmpty()) {
+			return null;
+		}
+
+		List<Long> validGroupIds = new ArrayList<>();
+
+		for (long groupId : depotEntryGroupIds) {
+			if (acceptedGroupIds.contains(groupId)) {
+				validGroupIds.add(groupId);
+			}
+		}
+
+		return validGroupIds;
+	}
+
 	private List<Long> _getAcceptedGroupIds(long objectDefinitionId) {
 		List<Long> acceptedGroupIds = new ArrayList<>();
 
@@ -367,8 +401,8 @@ public class SectionDisplayContextHelper {
 	}
 
 	private JSONArray _getDepotEntriesJSONArray(
-		DropdownItem dropdownItem, HttpServletRequest httpServletRequest,
-		String rootObjectEntryFolderExternalReferenceCode) {
+		List<Long> depotEntryGroupIds, DropdownItem dropdownItem,
+		Locale locale) {
 
 		Map<String, Object> dropdownItemData =
 			(HashMap<String, Object>)dropdownItem.get("data");
@@ -378,57 +412,25 @@ public class SectionDisplayContextHelper {
 
 		if (objectDefinitionId != 0) {
 			return _getDepotEntriesJSONArray(
-				httpServletRequest, objectDefinitionId,
-				rootObjectEntryFolderExternalReferenceCode);
+				_getAcceptedDepotEntryGroupIds(
+					depotEntryGroupIds, objectDefinitionId),
+				locale);
 		}
 
-		return getDepotEntriesJSONArray(
-			httpServletRequest, rootObjectEntryFolderExternalReferenceCode);
+		return _getDepotEntriesJSONArray(depotEntryGroupIds, locale);
 	}
 
 	private JSONArray _getDepotEntriesJSONArray(
-		HttpServletRequest httpServletRequest, long objectDefinitionId,
-		String rootObjectEntryFolderExternalReferenceCode) {
+		List<Long> groupIds, Locale locale) {
 
-		if (_isAcceptAllGroups(objectDefinitionId)) {
-			return getDepotEntriesJSONArray(
-				httpServletRequest, rootObjectEntryFolderExternalReferenceCode);
-		}
-
-		List<Long> acceptedGroupIds = _getAcceptedGroupIds(objectDefinitionId);
-
-		if (acceptedGroupIds.isEmpty()) {
+		if (ListUtil.isEmpty(groupIds)) {
 			return null;
 		}
-
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		ObjectEntryFolder objectEntryFolder = _getObjectEntryFolder(
-			themeDisplay.getCompanyId(),
-			httpServletRequest.getAttribute(InfoDisplayWebKeys.INFO_ITEM),
-			rootObjectEntryFolderExternalReferenceCode);
-
-		if (objectEntryFolder != null) {
-			if (!acceptedGroupIds.contains(objectEntryFolder.getGroupId())) {
-				return null;
-			}
-
-			return _getDepotEntriesJSONArray(
-				List.of(objectEntryFolder.getGroupId()), httpServletRequest);
-		}
-
-		return _getDepotEntriesJSONArray(acceptedGroupIds, httpServletRequest);
-	}
-
-	private JSONArray _getDepotEntriesJSONArray(
-		List<Long> groupIds, HttpServletRequest httpServletRequest) {
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		for (Long groupId : groupIds) {
-			JSONObject jsonObject = _getJSONObject(groupId, httpServletRequest);
+			JSONObject jsonObject = _getJSONObject(groupId, locale);
 
 			if (jsonObject != null) {
 				jsonArray.put(jsonObject);
@@ -438,25 +440,19 @@ public class SectionDisplayContextHelper {
 		return jsonArray;
 	}
 
-	private JSONObject _getJSONObject(
-		long groupId, HttpServletRequest httpServletRequest) {
-
+	private JSONObject _getJSONObject(long groupId, Locale locale) {
 		Group group = _groupLocalService.fetchGroup(groupId);
 
 		if (group == null) {
 			return null;
 		}
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
 		return JSONUtil.put(
 			"externalReferenceCode", group.getExternalReferenceCode()
 		).put(
 			"groupId", group.getGroupId()
 		).put(
-			"name", group.getName(themeDisplay.getLocale())
+			"name", group.getName(locale)
 		);
 	}
 
@@ -574,38 +570,6 @@ public class SectionDisplayContextHelper {
 		).build(
 			"permissions-menu"
 		);
-	}
-
-	private boolean _hasAddEntryPermission(
-		HttpServletRequest httpServletRequest,
-		String rootObjectEntryFolderExternalReferenceCode) {
-
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		ObjectEntryFolder objectEntryFolder = _getObjectEntryFolder(
-			themeDisplay.getCompanyId(),
-			httpServletRequest.getAttribute(InfoDisplayWebKeys.INFO_ITEM),
-			rootObjectEntryFolderExternalReferenceCode);
-
-		if (objectEntryFolder == null) {
-			return true;
-		}
-
-		try {
-			return _objectEntryFolderModelResourcePermission.contains(
-				themeDisplay.getPermissionChecker(),
-				objectEntryFolder.getObjectEntryFolderId(),
-				ActionKeys.ADD_ENTRY);
-		}
-		catch (PortalException portalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(portalException);
-			}
-		}
-
-		return false;
 	}
 
 	private boolean _isAcceptAllGroups(long objectDefinitionId) {
