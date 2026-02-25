@@ -58,6 +58,7 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -67,6 +68,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
+import com.liferay.site.cms.site.initializer.util.DepotEntryUtil;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporter;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 
@@ -273,7 +275,12 @@ public abstract class BaseSectionDisplayContextTestCase
 
 	@Test
 	public void testGetAdditionalProps() throws Exception {
+		DepotEntry depotEntry = addDepotEntry(
+			StringUtil.randomString(), TestPropsValues.getUserId());
+
 		_assertEquals(getBaseAdditionalProps(), getAdditionalProps());
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry);
 	}
 
 	@Test
@@ -348,62 +355,44 @@ public abstract class BaseSectionDisplayContextTestCase
 			return;
 		}
 
-		_testGetCreationMenu(getCreationMenu(), expectedCreationMenuItems);
+		expectedCreationMenuItems = _getLocalizedKeysMap(
+			expectedCreationMenuItems);
 
-		TreeMap<String, String> expectedCustomCreationMenuItems = new TreeMap<>(
-			String.CASE_INSENSITIVE_ORDER);
-		ObjectFolder objectFolder = null;
+		_assertCreationMenu(
+			getCreationMenu(TestPropsValues.getUser()), Collections.emptyMap());
 
-		for (String objectFolderExternalReferenceCode :
-				getObjectFolderExternalReferenceCodes()) {
+		DepotEntry depotEntry1 = addDepotEntry(
+			StringUtil.randomString(), TestPropsValues.getUserId());
 
-			objectFolder =
-				objectFolderLocalService.getObjectFolderByExternalReferenceCode(
-					objectFolderExternalReferenceCode,
-					TestPropsValues.getCompanyId());
+		_testGetCreationMenu(
+			expectedCreationMenuItems, TestPropsValues.getUser());
 
-			ObjectDefinition objectDefinition = addCustomObjectDefinition(
-				objectFolder.getObjectFolderId(), true, true,
-				ObjectDefinitionConstants.SCOPE_DEPOT,
-				WorkflowConstants.STATUS_APPROVED);
+		DepotEntry depotEntry2 = addDepotEntry(
+			StringUtil.randomString(), TestPropsValues.getUserId());
 
-			expectedCustomCreationMenuItems.put(
-				objectDefinition.getLabel(LocaleUtil.US),
-				getRedirect(
-					objectDefinition,
-					_getRootObjectEntryFolderExternalReferenceCode(
-						objectFolderExternalReferenceCode)));
-		}
+		_testGetCreationMenu(
+			expectedCreationMenuItems, TestPropsValues.getUser());
 
-		expectedCreationMenuItems.putAll(expectedCustomCreationMenuItems);
+		User user1 = UserTestUtil.addUser();
 
-		addCustomObjectDefinition(
-			ObjectEntryFolderConstants.PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
-			false, true, ObjectDefinitionConstants.SCOPE_DEPOT,
-			WorkflowConstants.STATUS_APPROVED);
+		_assertCreationMenu(getCreationMenu(user1), Collections.emptyMap());
 
-		addCustomObjectDefinition(
-			objectFolder.getObjectFolderId(), true, true,
-			ObjectDefinitionConstants.SCOPE_COMPANY,
-			WorkflowConstants.STATUS_APPROVED);
-		addCustomObjectDefinition(
-			objectFolder.getObjectFolderId(), false, true,
-			ObjectDefinitionConstants.SCOPE_DEPOT,
-			WorkflowConstants.STATUS_APPROVED);
-		addCustomObjectDefinition(
-			objectFolder.getObjectFolderId(), true, false,
-			ObjectDefinitionConstants.SCOPE_DEPOT,
-			WorkflowConstants.STATUS_APPROVED);
-		addCustomObjectDefinition(
-			objectFolder.getObjectFolderId(), true, true,
-			ObjectDefinitionConstants.SCOPE_DEPOT,
-			WorkflowConstants.STATUS_DRAFT);
-		addCustomObjectDefinition(
-			objectFolder.getObjectFolderId(), true, true,
-			ObjectDefinitionConstants.SCOPE_SITE,
-			WorkflowConstants.STATUS_APPROVED);
+		groupLocalService.addUserGroup(
+			user1.getUserId(), depotEntry1.getGroup());
 
-		_testGetCreationMenu(getCreationMenu(), expectedCreationMenuItems);
+		_testGetCreationMenu(expectedCreationMenuItems, user1);
+
+		User user2 = UserTestUtil.addUser(
+			companyLocalService.getCompany(TestPropsValues.getCompanyId()),
+			RoleConstants.CMS_ADMINISTRATOR);
+
+		_testGetCreationMenu(expectedCreationMenuItems, user2);
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry1);
+		_depotEntryLocalService.deleteDepotEntry(depotEntry2);
+
+		_userLocalService.deleteUser(user1);
+		_userLocalService.deleteUser(user2);
 	}
 
 	@Test
@@ -504,17 +493,24 @@ public abstract class BaseSectionDisplayContextTestCase
 			new Object[0]);
 	}
 
-	protected CreationMenu getCreationMenu() throws Exception {
-		return getCreationMenu(null);
+	protected CreationMenu getCreationMenu(ObjectEntryFolder objectEntryFolder)
+		throws Exception {
+
+		return getCreationMenu(objectEntryFolder, TestPropsValues.getUser());
 	}
 
-	protected CreationMenu getCreationMenu(ObjectEntryFolder objectEntryFolder)
+	protected CreationMenu getCreationMenu(
+			ObjectEntryFolder objectEntryFolder, User user)
 		throws Exception {
 
 		return ReflectionTestUtil.invoke(
 			getSectionDisplayContext(
-				getMockHttpServletRequest(objectEntryFolder)),
+				getMockHttpServletRequest(objectEntryFolder, user)),
 			"getCreationMenu", new Class<?>[0]);
+	}
+
+	protected CreationMenu getCreationMenu(User user) throws Exception {
+		return getCreationMenu(null, user);
 	}
 
 	protected abstract Map<String, String> getExpectedCreationMenuItems()
@@ -620,6 +616,33 @@ public abstract class BaseSectionDisplayContextTestCase
 			rootObjectEntryFolder.getObjectEntryFolderId(),
 			RandomTestUtil.randomString(), null, StringUtil.randomString(),
 			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+	}
+
+	private void _assertCreationMenu(
+		CreationMenu creationMenu,
+		Map<String, String> expectedCreationMenuItems) {
+
+		List<DropdownItem> dropdownItems = (List<DropdownItem>)creationMenu.get(
+			"primaryItems");
+
+		Assert.assertEquals(
+			dropdownItems.toString(), expectedCreationMenuItems.size(),
+			dropdownItems.size());
+
+		for (DropdownItem dropdownItem : dropdownItems) {
+			String key = (String)dropdownItem.get("label");
+
+			Assert.assertTrue(expectedCreationMenuItems.containsKey(key));
+
+			String value = expectedCreationMenuItems.get(key);
+
+			if (Validator.isNull(value)) {
+				Assert.assertNull(_getRedirect(dropdownItem));
+			}
+			else {
+				Assert.assertEquals(value, _getRedirect(dropdownItem));
+			}
+		}
 	}
 
 	private void _assertCreationMenuContainsDropdownItem(
@@ -807,13 +830,15 @@ public abstract class BaseSectionDisplayContextTestCase
 
 	private JSONArray _getDepotEntriesJSONArray() throws PortalException {
 		return _getDepotEntriesJSONArray(
-			TransformUtil.transform(
-				_depotEntryLocalService.getDepotEntries(
-					group.getCompanyId(), DepotConstants.TYPE_SPACE),
-				DepotEntry::getGroupId));
+			DepotEntryUtil.getDepotEntryGroupIds(
+				group.getCompanyId(), TestPropsValues.getUserId()));
 	}
 
 	private JSONArray _getDepotEntriesJSONArray(List<Long> groupIds) {
+		if (ListUtil.isEmpty(groupIds)) {
+			return null;
+		}
+
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		for (Long groupId : groupIds) {
@@ -901,6 +926,18 @@ public abstract class BaseSectionDisplayContextTestCase
 		return jsonArray;
 	}
 
+	private Map<String, String> _getLocalizedKeysMap(Map<String, String> map) {
+		Map<String, String> localizedKeysMap = new HashMap<>();
+
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			localizedKeysMap.put(
+				language.get(LocaleUtil.getDefault(), entry.getKey()),
+				entry.getValue());
+		}
+
+		return localizedKeysMap;
+	}
+
 	private String _getRedirect(DropdownItem dropdownItem) {
 		Map<String, Object> map = (HashMap<String, Object>)dropdownItem.get(
 			"data");
@@ -927,37 +964,65 @@ public abstract class BaseSectionDisplayContextTestCase
 	}
 
 	private void _testGetCreationMenu(
-		CreationMenu creationMenu,
-		Map<String, String> expectedCreationMenuItems) {
+			Map<String, String> expectedCreationMenuItems, User user)
+		throws Exception {
 
-		List<DropdownItem> dropdownItems = (List<DropdownItem>)creationMenu.get(
-			"primaryItems");
+		_assertCreationMenu(getCreationMenu(user), expectedCreationMenuItems);
 
-		Assert.assertEquals(
-			dropdownItems.toString(), expectedCreationMenuItems.size(),
-			dropdownItems.size());
+		TreeMap<String, String> expectedCustomCreationMenuItems = new TreeMap<>(
+			String.CASE_INSENSITIVE_ORDER);
+		ObjectFolder objectFolder = null;
 
-		int index = 0;
+		for (String objectFolderExternalReferenceCode :
+				getObjectFolderExternalReferenceCodes()) {
 
-		for (Map.Entry<String, String> entry :
-				expectedCreationMenuItems.entrySet()) {
+			objectFolder =
+				objectFolderLocalService.getObjectFolderByExternalReferenceCode(
+					objectFolderExternalReferenceCode,
+					TestPropsValues.getCompanyId());
 
-			DropdownItem dropdownItem = dropdownItems.get(index);
+			ObjectDefinition objectDefinition = addCustomObjectDefinition(
+				objectFolder.getObjectFolderId(), true, true,
+				ObjectDefinitionConstants.SCOPE_DEPOT,
+				WorkflowConstants.STATUS_APPROVED);
 
-			Assert.assertEquals(
-				language.get(LocaleUtil.getDefault(), entry.getKey()),
-				dropdownItem.get("label"));
-
-			if (Validator.isNull(entry.getValue())) {
-				Assert.assertNull(_getRedirect(dropdownItem));
-			}
-			else {
-				Assert.assertEquals(
-					entry.getValue(), _getRedirect(dropdownItem));
-			}
-
-			index++;
+			expectedCustomCreationMenuItems.put(
+				objectDefinition.getLabel(LocaleUtil.US),
+				getRedirect(
+					objectDefinition,
+					_getRootObjectEntryFolderExternalReferenceCode(
+						objectFolderExternalReferenceCode)));
 		}
+
+		expectedCreationMenuItems.putAll(expectedCustomCreationMenuItems);
+
+		addCustomObjectDefinition(
+			ObjectEntryFolderConstants.PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
+			false, true, ObjectDefinitionConstants.SCOPE_DEPOT,
+			WorkflowConstants.STATUS_APPROVED);
+
+		addCustomObjectDefinition(
+			objectFolder.getObjectFolderId(), true, true,
+			ObjectDefinitionConstants.SCOPE_COMPANY,
+			WorkflowConstants.STATUS_APPROVED);
+		addCustomObjectDefinition(
+			objectFolder.getObjectFolderId(), false, true,
+			ObjectDefinitionConstants.SCOPE_DEPOT,
+			WorkflowConstants.STATUS_APPROVED);
+		addCustomObjectDefinition(
+			objectFolder.getObjectFolderId(), true, false,
+			ObjectDefinitionConstants.SCOPE_DEPOT,
+			WorkflowConstants.STATUS_APPROVED);
+		addCustomObjectDefinition(
+			objectFolder.getObjectFolderId(), true, true,
+			ObjectDefinitionConstants.SCOPE_DEPOT,
+			WorkflowConstants.STATUS_DRAFT);
+		addCustomObjectDefinition(
+			objectFolder.getObjectFolderId(), true, true,
+			ObjectDefinitionConstants.SCOPE_SITE,
+			WorkflowConstants.STATUS_APPROVED);
+
+		_assertCreationMenu(getCreationMenu(user), expectedCreationMenuItems);
 	}
 
 	private void _testGetDepotEntriesJSONArray(
