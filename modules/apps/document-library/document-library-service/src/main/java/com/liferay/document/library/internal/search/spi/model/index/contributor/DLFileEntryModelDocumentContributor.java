@@ -227,7 +227,8 @@ public class DLFileEntryModelDocumentContributor
 						StringPool.SPACE, text));
 			}
 		}
-		catch (IOException | PortalException exception) {
+		catch (Exception exception) {
+			_log.warn("Unable to extract text from file " + dlFileEntry.getTitle());
 			if (_log.isDebugEnabled()) {
 				_log.debug(exception);
 			}
