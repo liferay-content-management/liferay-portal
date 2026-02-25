@@ -317,6 +317,24 @@ public class AssetCategoryServiceImpl extends AssetCategoryServiceBaseImpl {
 			externalReferenceCode, getUserId(), groupId);
 	}
 
+	public AssetCategory getOrAddEmptyCategoryWithAncestors(
+			String externalReferenceCode, long userId, long groupId,
+			String parentCategoryExternalReferenceCode,
+			String vocabularyExternalReferenceCode)
+		throws PortalException {
+
+		AssetCategoriesPermission.check(
+			getPermissionChecker(), groupId, ActionKeys.ADD_CATEGORY);
+
+		AssetCategoriesPermission.check(
+			getPermissionChecker(), groupId, ActionKeys.ADD_VOCABULARY);
+
+		return assetCategoryLocalService.getOrAddEmptyCategoryWithAncestors(
+			externalReferenceCode, userId, groupId,
+			parentCategoryExternalReferenceCode,
+			vocabularyExternalReferenceCode);
+	}
+
 	@Override
 	public List<AssetCategory> getVocabularyCategories(
 			long vocabularyId, int start, int end,
