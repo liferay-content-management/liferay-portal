@@ -5,7 +5,6 @@
 
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
-import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
 import com.liferay.headless.asset.library.resource.v1_0.AssetLibraryResource;
@@ -13,7 +12,6 @@ import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
-import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringUtil;
@@ -25,10 +23,8 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -38,6 +34,7 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
+import com.liferay.site.cms.site.initializer.util.DepotEntryUtil;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 import com.liferay.trash.TrashHelper;
 
@@ -194,7 +191,18 @@ public class ViewRecycleBinSectionDisplayContext
 		List<Long> groupIds = null;
 
 		try {
-			groupIds = _getDepotGroupIds(_themeDisplay.getCompanyId());
+			groupIds = DepotEntryUtil.getDepotEntryGroupIds(
+				themeDisplay.getCompanyId(), themeDisplay.getUserId(),
+				depotEntryGroupId -> {
+					Group group = groupLocalService.fetchGroup(
+						depotEntryGroupId);
+
+					if ((group != null) && _trashHelper.isTrashEnabled(group)) {
+						return true;
+					}
+
+					return false;
+				});
 		}
 		catch (PortalException portalException) {
 			if (_log.isDebugEnabled()) {
@@ -207,7 +215,7 @@ public class ViewRecycleBinSectionDisplayContext
 				WorkflowConstants.STATUS_ANY;
 		}
 
-		if (groupIds.isEmpty()) {
+		if (ListUtil.isEmpty(groupIds)) {
 			return filterString + " and status eq " +
 				WorkflowConstants.STATUS_ANY;
 		}
@@ -216,40 +224,6 @@ public class ViewRecycleBinSectionDisplayContext
 			filterString, " and groupIds/any(g:g in (",
 			StringUtil.merge(groupIds, ","), ")) and status eq ",
 			WorkflowConstants.STATUS_IN_TRASH);
-	}
-
-	private List<Long> _getDepotGroupIds(long companyId)
-		throws PortalException {
-
-		List<Long> depotEntryGroupIds = null;
-
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		if (RoleLocalServiceUtil.hasUserRole(
-				themeDisplay.getUserId(), themeDisplay.getCompanyId(),
-				RoleConstants.CMS_ADMINISTRATOR, true)) {
-
-			depotEntryGroupIds = depotEntryLocalService.getDepotEntryGroupIds(
-				companyId, DepotConstants.TYPE_SPACE);
-		}
-		else {
-			depotEntryGroupIds = depotEntryLocalService.getDepotEntryGroupIds(
-				companyId, themeDisplay.getUserId(), DepotConstants.TYPE_SPACE);
-		}
-
-		return TransformUtil.transform(
-			depotEntryGroupIds,
-			depotEntryGroupId -> {
-				Group group = groupLocalService.fetchGroup(depotEntryGroupId);
-
-				if ((group == null) || !_trashHelper.isTrashEnabled(group)) {
-					return null;
-				}
-
-				return group.getGroupId();
-			});
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
