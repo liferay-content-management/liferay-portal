@@ -786,9 +786,21 @@ public class TaxonomyCategoryResourceImpl
 				return parentTaxonomyCategory.getId();
 			}
 
+			if (Validator.isNull(
+					parentTaxonomyCategory.getExternalReferenceCode())) {
+
+				return AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID;
+			}
+
 			AssetCategory existingAssetCategory =
-				_assetCategoryLocalService.getAssetCategory(
-					parentTaxonomyCategory.getId());
+				_assetCategoryLocalService.
+					fetchAssetCategoryByExternalReferenceCode(
+						parentTaxonomyCategory.getExternalReferenceCode(),
+						groupId);
+
+			if (existingAssetCategory == null) {
+				return AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID;
+			}
 
 			if (assetVocabularyId != existingAssetCategory.getVocabularyId()) {
 				throw new BadRequestException(
@@ -798,7 +810,7 @@ public class TaxonomyCategoryResourceImpl
 						"same taxonomy vocabulary"));
 			}
 
-			return parentTaxonomyCategory.getId();
+			return existingAssetCategory.getCategoryId();
 		}
 
 		String parentTaxonomyCategoryExternalReferenceCode =
