@@ -2567,13 +2567,14 @@ test(
 					.dropdownVersionActionMenuItem('Make a Copy')
 					.click();
 
-				await page.reload();
-
 				await expect(
 					assetsPage
 						.getItem(`${content1} (Copy)`)
 						.locator('input[title="Select Item"]')
 				).toBeVisible();
+
+				await page.reload();
+
 				await assetsPage.execItemAction({
 					action: 'Delete',
 					filter: `${content1} (Copy)`,
