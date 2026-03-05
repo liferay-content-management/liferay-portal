@@ -14,7 +14,13 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServ
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectEntryService;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
@@ -56,10 +62,11 @@ public class ContentEditorToolbarComponentSectionFragmentRenderer
 			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		String layoutMode = ParamUtil.getString(
-			httpServletRequest, "p_l_mode", Constants.VIEW);
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
-		if (Objects.equals(layoutMode, Constants.READ)) {
+		if ((themeDisplay != null) && themeDisplay.isStatePopUp()) {
 			return;
 		}
 
@@ -82,9 +89,16 @@ public class ContentEditorToolbarComponentSectionFragmentRenderer
 		FragmentRendererContext fragmentRendererContext,
 		HttpServletRequest httpServletRequest) {
 
+		boolean readOnly = Objects.equals(
+			ParamUtil.getString(httpServletRequest, "p_l_mode", Constants.VIEW),
+			Constants.READ);
+
 		HashMapBuilder.HashMapWrapper<String, Object> hashMapWrapper =
 			HashMapBuilder.<String, Object>put(
-				"backURL", ParamUtil.getString(httpServletRequest, "redirect"));
+				"backURL", ParamUtil.getString(httpServletRequest, "redirect")
+			).put(
+				"readOnly", readOnly
+			);
 
 		LayoutDisplayPageObjectProvider<?> layoutDisplayPageObjectProvider =
 			(LayoutDisplayPageObjectProvider<?>)httpServletRequest.getAttribute(
@@ -110,6 +124,11 @@ public class ContentEditorToolbarComponentSectionFragmentRenderer
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
+
+		boolean hasUpdatePermission = _hasUpdatePermission(
+			objectEntry, themeDisplay);
+
+		hashMapWrapper.put("readOnly", readOnly || !hasUpdatePermission);
 
 		return hashMapWrapper.put(
 			"displayDate",
@@ -142,6 +161,11 @@ public class ContentEditorToolbarComponentSectionFragmentRenderer
 			() -> {
 				String title = _getTitle(
 					layoutDisplayPageObjectProvider, objectEntry, themeDisplay);
+
+				if (readOnly || !hasUpdatePermission) {
+					return language.format(
+						themeDisplay.getLocale(), "view-x", title);
+				}
 
 				Layout layout = themeDisplay.getLayout();
 
@@ -197,12 +221,39 @@ public class ContentEditorToolbarComponentSectionFragmentRenderer
 		return title;
 	}
 
+	private boolean _hasUpdatePermission(
+		ObjectEntry objectEntry, ThemeDisplay themeDisplay) {
+
+		try {
+			ModelResourcePermission<ObjectEntry> modelResourcePermission =
+				_objectEntryService.getModelResourcePermission(
+					objectEntry.getObjectDefinitionId());
+
+			return modelResourcePermission.contains(
+				themeDisplay.getPermissionChecker(), objectEntry,
+				ActionKeys.UPDATE);
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+
+			return false;
+		}
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		ContentEditorToolbarComponentSectionFragmentRenderer.class);
+
 	@Reference
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
 
 	@Reference
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Reference
+	private ObjectEntryService _objectEntryService;
 
 	@Reference
 	private WorkflowDefinitionLinkLocalService

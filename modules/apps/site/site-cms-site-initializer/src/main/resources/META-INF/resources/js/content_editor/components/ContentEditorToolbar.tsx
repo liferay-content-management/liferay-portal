@@ -27,12 +27,14 @@ export default function ContentEditorToolbar({
 	displayDate: initialDisplayDate,
 	hasWorkflow,
 	headerTitle,
+	readOnly,
 	type,
 }: {
 	backURL: string;
 	displayDate: string;
 	hasWorkflow: boolean;
 	headerTitle: string;
+	readOnly: boolean;
 	type: string;
 }) {
 	const [displayDate, setDisplayDate] = useState<string>('');
@@ -48,7 +50,6 @@ export default function ContentEditorToolbar({
 			? sub(Liferay.Language.get('submit-x-for-workflow'), type)
 			: sub(Liferay.Language.get('publish-x'), type)
 	);
-
 	useEffect(() => {
 		let form = document.querySelector('.lfr-main-form-container');
 
@@ -82,7 +83,7 @@ export default function ContentEditorToolbar({
 			className="content-editor__toolbar position-fixed"
 			title={headerTitle}
 		>
-			{Liferay.FeatureFlags['LPD-62272'] && (
+			{!readOnly && Liferay.FeatureFlags['LPD-62272'] && (
 				<>
 					<Toolbar.Item>
 						<AIAssistantChat />
@@ -100,98 +101,104 @@ export default function ContentEditorToolbar({
 				</>
 			)}
 
-			<Toolbar.Item>
-				<ClayLink
-					aria-label={Liferay.Language.get('cancel')}
-					borderless
-					button
-					displayType="secondary"
-					href={backURL}
-					small
-				>
-					{Liferay.Language.get('cancel')}
-				</ClayLink>
-			</Toolbar.Item>
+			{!readOnly && (
+				<Toolbar.Item>
+					<ClayLink
+						aria-label={Liferay.Language.get('cancel')}
+						borderless
+						button
+						displayType="secondary"
+						href={backURL}
+						small
+					>
+						{Liferay.Language.get('cancel')}
+					</ClayLink>
+				</Toolbar.Item>
+			)}
 
-			<Toolbar.Item>
-				<ClayButton
-					displayType="secondary"
-					form={formId}
-					name="status"
-					size="sm"
-					type="submit"
-					value={STATUS_DRAFT_CODE}
-				>
-					{Liferay.Language.get('save-as-draft')}
-				</ClayButton>
-			</Toolbar.Item>
-
-			<Toolbar.Item>
-				<ClayButton.Group>
+			{!readOnly && (
+				<Toolbar.Item>
 					<ClayButton
-						aria-labelledby={submitLabelId}
-						data-title={submitTitle}
-						data-title-set-as-html
+						displayType="secondary"
 						form={formId}
-						onClick={(event) => {
-							Liferay.fire(EVENT_VALIDATE_FORM, {event});
-						}}
+						name="status"
 						size="sm"
 						type="submit"
+						value={STATUS_DRAFT_CODE}
 					>
-						{hasWorkflow
-							? Liferay.Language.get('submit-for-workflow')
-							: Liferay.Language.get('publish')}
+						{Liferay.Language.get('save-as-draft')}
 					</ClayButton>
+				</Toolbar.Item>
+			)}
 
-					<span
-						className="sr-only"
-						dangerouslySetInnerHTML={{__html: submitTitle}}
-						id={submitLabelId}
+			{!readOnly && (
+				<Toolbar.Item>
+					<ClayButton.Group>
+						<ClayButton
+							aria-labelledby={submitLabelId}
+							data-title={submitTitle}
+							data-title-set-as-html
+							form={formId}
+							onClick={(event) => {
+								Liferay.fire(EVENT_VALIDATE_FORM, {event});
+							}}
+							size="sm"
+							type="submit"
+						>
+							{hasWorkflow
+								? Liferay.Language.get('submit-for-workflow')
+								: Liferay.Language.get('publish')}
+						</ClayButton>
+
+						<span
+							className="sr-only"
+							dangerouslySetInnerHTML={{__html: submitTitle}}
+							id={submitLabelId}
+						/>
+
+						<ClayDropDownWithItems
+							className="btn-group"
+							items={[
+								{
+									label: hasWorkflow
+										? Liferay.Language.get(
+												'schedule-publication-and-submit-for-workflow'
+											)
+										: Liferay.Language.get(
+												'schedule-publication'
+											),
+									onClick: () => setShowModal(true),
+									symbolLeft: 'date-time',
+								},
+							]}
+							trigger={
+								<ClayButtonWithIcon
+									aria-label={optionsTitle}
+									size="sm"
+									symbol="caret-bottom"
+									title={optionsTitle}
+								/>
+							}
+						/>
+					</ClayButton.Group>
+
+					<ClayInput
+						form={formId}
+						name="redirect"
+						type="hidden"
+						value={backURL}
 					/>
 
-					<ClayDropDownWithItems
-						className="btn-group"
-						items={[
-							{
-								label: hasWorkflow
-									? Liferay.Language.get(
-											'schedule-publication-and-submit-for-workflow'
-										)
-									: Liferay.Language.get(
-											'schedule-publication'
-										),
-								onClick: () => setShowModal(true),
-								symbolLeft: 'date-time',
-							},
-						]}
-						trigger={
-							<ClayButtonWithIcon
-								aria-label={optionsTitle}
-								size="sm"
-								symbol="caret-bottom"
-								title={optionsTitle}
-							/>
-						}
+					<ClayInput
+						form={formId}
+						name="ObjectEntry_displayDate"
+						type="hidden"
+						value={displayDate}
 					/>
-				</ClayButton.Group>
+				</Toolbar.Item>
+			)}
 
-				<ClayInput
-					form={formId}
-					name="redirect"
-					type="hidden"
-					value={backURL}
-				/>
-
-				<ClayInput
-					form={formId}
-					name="ObjectEntry_displayDate"
-					type="hidden"
-					value={displayDate}
-				/>
-			</Toolbar.Item>
-
-			{showModal ? (
+			{!readOnly && showModal ? (
 				<SchedulePublicationModal
 					date={toMomentDate(displayDate || initialDisplayDate)}
 					formId={formId!}
