@@ -63,8 +63,7 @@ export default function SharedItemRenderer({
 		}
 
 		const isFolder = itemData?.className === OBJECT_ENTRY_FOLDER_CLASS_NAME;
-		const isUpdate =
-			itemData?.actionIds?.includes('UPDATE') && itemData?.visible;
+		const isUpdate = itemData?.actionIds?.includes('UPDATE');
 
 		const resolvedActionId = isFolder
 			? `${actionId}Folder`
