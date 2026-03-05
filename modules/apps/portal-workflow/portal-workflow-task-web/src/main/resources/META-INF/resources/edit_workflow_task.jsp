@@ -30,13 +30,13 @@ AssetRenderer<?> assetRenderer = workflowHandler.getAssetRenderer(classPK);
 
 AssetRendererFactory<?> assetRendererFactory = null;
 
-AssetEntry assetEntry = null;
+AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(workflowHandler.getClassName(), classPK);
 
 if (assetRenderer != null) {
 	assetRendererFactory = assetRenderer.getAssetRendererFactory();
 
-	if (assetRendererFactory != null) {
-		assetEntry = assetRendererFactory.getAssetEntry(workflowHandler.getClassName(), classPK);
+	if ((assetRendererFactory != null) && (assetEntry == null)) {
+		assetEntry = assetRendererFactory.getAssetEntry(workflowHandler.getClassName(), assetRenderer.getClassPK());
 	}
 
 	String[] availableLanguageIds = assetRenderer.getAvailableLanguageIds();
