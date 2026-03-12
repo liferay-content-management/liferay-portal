@@ -143,6 +143,24 @@ function BulkActions({
 		}
 	}
 
+	function isBulkActionDisabled(actionDefinition) {
+		const {disabled, isDisabled} = actionDefinition;
+
+		if (typeof isDisabled === 'function') {
+			const selectionDisabled = isDisabled(undefined, selectedItems);
+
+			if (typeof selectionDisabled === 'boolean') {
+				return selectionDisabled;
+			}
+
+			return selectedItems.some((selectedItem) =>
+				isDisabled(selectedItem, selectedItems)
+			);
+		}
+
+		return Boolean(disabled);
+	}
+
 	useEffect(
 		() => {
 			if (!currentSidePanelActionPayload) {
@@ -234,6 +252,10 @@ function BulkActions({
 											bulkAction.data?.highlighted
 									)
 									.map((highlightedBulkAction) => {
+										const disabled = isBulkActionDisabled(
+											highlightedBulkAction
+										);
+
 										return (
 											<li
 												className="nav-item"
@@ -244,8 +266,10 @@ function BulkActions({
 											>
 												<ClayButton
 													className="bulk-action-btn nav-link"
+													disabled={disabled}
 													displayType="unstyled"
 													onClick={() =>
+														!disabled &&
 														handleActionClick(
 															highlightedBulkAction,
 															formId,
@@ -295,28 +319,39 @@ function BulkActions({
 									>
 										<DropDown.ItemList>
 											{bulkActions.map(
-												(actionDefinition) => (
-													<DropDown.Item
-														key={
-															actionDefinition.label
-														}
-														onClick={() =>
-															handleActionClick(
-																actionDefinition,
-																formId,
-																formName,
-																loadData,
-																namespace,
-																sidePanelId
-															)
-														}
-														symbolLeft={
-															actionDefinition.icon
-														}
-													>
-														{actionDefinition.label}
-													</DropDown.Item>
-												)
+												(actionDefinition) => {
+													const disabled =
+														isBulkActionDisabled(
+															actionDefinition
+														);
+
+													return (
+														<DropDown.Item
+															disabled={disabled}
+															key={
+																actionDefinition.label
+															}
+															onClick={() =>
+																!disabled &&
+																handleActionClick(
+																	actionDefinition,
+																	formId,
+																	formName,
+																	loadData,
+																	namespace,
+																	sidePanelId
+																)
+															}
+															symbolLeft={
+																actionDefinition.icon
+															}
+														>
+															{
+																actionDefinition.label
+															}
+														</DropDown.Item>
+													);
+												}
 											)}
 										</DropDown.ItemList>
 									</DropDown>
