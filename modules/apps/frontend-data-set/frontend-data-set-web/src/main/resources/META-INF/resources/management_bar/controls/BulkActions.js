@@ -144,15 +144,13 @@ function BulkActions({
 	}
 
 	function isBulkActionDisabled(actionDefinition) {
-		const {disabled, isDisabled} = actionDefinition;
+		const {disabled, isDisabled, isSelectionDisabled} = actionDefinition;
+
+		if (typeof isSelectionDisabled === 'function') {
+			return isSelectionDisabled(selectedItems);
+		}
 
 		if (typeof isDisabled === 'function') {
-			const selectionDisabled = isDisabled(undefined, selectedItems);
-
-			if (typeof selectionDisabled === 'boolean') {
-				return selectionDisabled;
-			}
-
 			return selectedItems.some((selectedItem) =>
 				isDisabled(selectedItem, selectedItems)
 			);

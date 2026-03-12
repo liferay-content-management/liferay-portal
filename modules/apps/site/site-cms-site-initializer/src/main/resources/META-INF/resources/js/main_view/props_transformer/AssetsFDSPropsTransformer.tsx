@@ -91,7 +91,7 @@ export default function AssetsFDSPropsTransformer({
 
 		return {
 			...action,
-			isDisabled: (_item: any, selectedItems: any[]) =>
+			isSelectionDisabled: (selectedItems: any[]) =>
 				!selectedItems?.some((selectedItem) =>
 					Boolean(selectedItem?.embedded?.file?.link?.href)
 				),
