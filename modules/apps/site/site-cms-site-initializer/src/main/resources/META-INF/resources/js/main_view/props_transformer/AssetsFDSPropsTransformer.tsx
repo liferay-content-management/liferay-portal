@@ -84,6 +84,20 @@ export default function AssetsFDSPropsTransformer({
 	itemsActions?: any[];
 	views: IView[];
 }) {
+	const bulkActions = (otherProps as any).bulkActions?.map((action: any) => {
+		if (action?.data?.id !== 'download') {
+			return action;
+		}
+
+		return {
+			...action,
+			isDisabled: (_item: any, selectedItems: any[]) =>
+				!selectedItems?.some((selectedItem) =>
+					Boolean(selectedItem?.embedded?.file?.link?.href)
+				),
+		};
+	});
+
 	let mergedViews = views;
 
 	if (additionalProps.galleryViewEnabled) {
@@ -115,6 +129,7 @@ export default function AssetsFDSPropsTransformer({
 
 	return {
 		...otherProps,
+		bulkActions,
 		creationMenu: {
 			...creationMenu,
 			primaryItems: addOnClickToCreationMenuItems(
