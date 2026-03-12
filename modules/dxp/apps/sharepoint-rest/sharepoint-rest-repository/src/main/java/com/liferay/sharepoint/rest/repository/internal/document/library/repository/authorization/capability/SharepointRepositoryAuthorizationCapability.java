@@ -11,6 +11,8 @@ import com.liferay.document.library.repository.authorization.oauth2.OAuth2Author
 import com.liferay.document.library.repository.authorization.oauth2.Token;
 import com.liferay.document.library.repository.authorization.oauth2.TokenStore;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -114,7 +116,8 @@ public class SharepointRepositoryAuthorizationCapability
 				PortalUtil.getUserId(httpServletRequest));
 
 			if (token != null) {
-				_requestAccessToken(httpServletRequest, token);
+				_requestAccessToken(
+					httpServletRequest, httpServletResponse, token);
 			}
 			else {
 				_requestAuthorizationGrant(
@@ -174,8 +177,13 @@ public class SharepointRepositoryAuthorizationCapability
 	}
 
 	private void _requestAccessToken(
-			HttpServletRequest httpServletRequest, Token token)
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, Token token)
 		throws PortalException {
+
+		String configurationName =
+			_sharepointRepositoryConfiguration.name();
+		long userId = PortalUtil.getUserId(httpServletRequest);
 
 		try {
 			SharepointRepositoryAuthenticationResult
@@ -184,13 +192,25 @@ public class SharepointRepositoryAuthorizationCapability
 						requestAccessTokenSilently(token);
 
 			_tokenStore.save(
-				_sharepointRepositoryConfiguration.name(),
-				PortalUtil.getUserId(httpServletRequest),
+				configurationName, userId,
 				sharepointRepositoryAuthenticationResult.getToken());
 		}
-		catch (ExecutionException | InterruptedException | MalformedURLException
-					exception) {
+		catch (ExecutionException executionException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to silently refresh SharePoint access token " +
+						"for configuration " + configurationName +
+							", invalidating stored token and requesting " +
+								"new authorization grant",
+					executionException);
+			}
 
+			_tokenStore.delete(configurationName, userId);
+
+			_requestAuthorizationGrant(
+				httpServletRequest, httpServletResponse);
+		}
+		catch (InterruptedException | MalformedURLException exception) {
 			throw new PortalException(exception);
 		}
 	}
@@ -232,6 +252,9 @@ public class SharepointRepositoryAuthorizationCapability
 				error, description);
 		}
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		SharepointRepositoryAuthorizationCapability.class);
 
 	private final SharepointRepositoryTokenBroker
 		_sharepointOAuth2AuthorizationServer;

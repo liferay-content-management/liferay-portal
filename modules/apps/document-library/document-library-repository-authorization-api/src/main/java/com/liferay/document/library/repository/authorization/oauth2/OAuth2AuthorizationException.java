@@ -36,6 +36,23 @@ public class OAuth2AuthorizationException extends AuthorizationException {
 
 	}
 
+	public static class InvalidGrant extends OAuth2AuthorizationException {
+
+		public InvalidGrant(String description) {
+			super(
+				"The provided authorization grant is invalid, expired, or " +
+					"revoked: " + description);
+		}
+
+		public InvalidGrant(String description, Throwable throwable) {
+			super(
+				"The provided authorization grant is invalid, expired, or " +
+					"revoked: " + description,
+				throwable);
+		}
+
+	}
+
 	public static class InvalidNonce extends OAuth2AuthorizationException {
 
 		public InvalidNonce(String description) {
@@ -146,6 +163,9 @@ public class OAuth2AuthorizationException extends AuthorizationException {
 				<String, Function<String, OAuth2AuthorizationException>>put(
 					"access_denied",
 					OAuth2AuthorizationException.AccessDenied::new
+				).put(
+					"invalid_grant",
+					OAuth2AuthorizationException.InvalidGrant::new
 				).put(
 					"invalid_request",
 					OAuth2AuthorizationException.InvalidRequest::new

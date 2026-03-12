@@ -54,7 +54,11 @@ public class SharepointRepositoryToken implements Token {
 
 	@Override
 	public boolean isExpired() {
-		return false;
+		if (_expirationDate == null) {
+			return false;
+		}
+
+		return _expirationDate.before(new Date());
 	}
 
 	private SharepointRepositoryToken(

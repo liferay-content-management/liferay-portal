@@ -23,11 +23,14 @@ import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.document.library.repository.authorization.oauth2.OAuth2AuthorizationException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.SearchContext;
@@ -695,11 +698,13 @@ public class SharepointExtRepository implements ExtRepository {
 	}
 
 	private String _getAccessToken() throws PortalException {
-		Token token = _tokenStore.get(
-			_sharepointRepositoryConfiguration.name(),
-			PrincipalThreadLocal.getUserId());
+		String configurationName =
+			_sharepointRepositoryConfiguration.name();
+		long userId = PrincipalThreadLocal.getUserId();
 
-		if ((token == null) || token.isExpired()) {
+		Token token = _tokenStore.get(configurationName, userId);
+
+		if (token == null) {
 			throw new PrincipalException();
 		}
 
@@ -714,15 +719,28 @@ public class SharepointExtRepository implements ExtRepository {
 						token);
 
 			_tokenStore.save(
-				_sharepointRepositoryConfiguration.name(),
-				PrincipalThreadLocal.getUserId(),
+				configurationName, userId,
 				sharepointRepositoryAuthenticationResult.getToken());
 
 			return sharepointRepositoryAuthenticationResult.getAccessToken();
 		}
-		catch (ExecutionException | InterruptedException | MalformedURLException
-					exception) {
+		catch (ExecutionException executionException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to refresh SharePoint access token for " +
+						"configuration " + configurationName +
+							", invalidating stored token",
+					executionException);
+			}
 
+			_tokenStore.delete(configurationName, userId);
+
+			throw new OAuth2AuthorizationException.InvalidGrant(
+				"The SharePoint access token could not be refreshed. " +
+					"Please reauthorize the SharePoint repository connection.",
+				executionException);
+		}
+		catch (InterruptedException | MalformedURLException exception) {
 			throw new PortalException(exception);
 		}
 	}
@@ -923,6 +941,9 @@ public class SharepointExtRepository implements ExtRepository {
 					"extension");
 		}
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		SharepointExtRepository.class);
 
 	private static final String _RESULTS_SOURCE_ID =
 		"8413cd39-2156-4e00-b54d-11efd9abdb89";
