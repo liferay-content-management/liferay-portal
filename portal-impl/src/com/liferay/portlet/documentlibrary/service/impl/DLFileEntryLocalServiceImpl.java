@@ -459,8 +459,9 @@ public class DLFileEntryLocalServiceImpl
 				serviceContext.getWorkflowAction());
 
 		if ((computedDLVersionNumberIncrease == DLVersionNumberIncrease.NONE) ||
-			(lastDLFileVersion.getStatus() ==
-				WorkflowConstants.STATUS_PENDING)) {
+			((lastDLFileVersion.getStatus() ==
+				WorkflowConstants.STATUS_PENDING) &&
+			 !Objects.equals(serviceContext.getCommand(), Constants.REVERT))) {
 
 			_overwritePreviousFileVersion(
 				user, dlFileEntry, computedDLVersionNumberIncrease,
@@ -3785,7 +3786,8 @@ public class DLFileEntryLocalServiceImpl
 		boolean autoCheckIn = false;
 
 		if (!checkedOut &&
-			(dlFileVersion.isApproved() || dlFileVersion.isScheduled()) &&
+			(dlFileVersion.isApproved() || dlFileVersion.isScheduled() ||
+			 Objects.equals(serviceContext.getCommand(), Constants.REVERT)) &&
 			!Objects.equals(
 				dlFileVersion.getUuid(),
 				serviceContext.getUuidWithoutReset())) {
