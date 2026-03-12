@@ -11,9 +11,11 @@ import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.model.DLFileVersion;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
+import com.liferay.document.library.kernel.service.DLFileVersionLocalService;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
@@ -27,6 +29,7 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -257,6 +260,81 @@ public class DLFileEntryWorkflowHandlerTest {
 	}
 
 	@Test
+	@TestInfo("LPD-82502")
+	public void testWorkflowCreatesNewVersionWhenRevertingWithPendingVersion()
+		throws Exception {
+
+		// Add file entry v1.0 (PENDING)
+
+		FileEntry fileEntry = _addFileEntry(null, null);
+
+		FileVersion fileVersion = fileEntry.getFileVersion();
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, fileVersion.getStatus());
+
+		// Approve v1.0
+
+		_updateStatus(fileVersion, WorkflowConstants.STATUS_APPROVED);
+
+		fileEntry = _dlAppService.getFileEntry(fileEntry.getFileEntryId());
+
+		fileVersion = fileEntry.getFileVersion();
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, fileVersion.getStatus());
+		Assert.assertEquals("1.0", fileVersion.getVersion());
+
+		String approvedVersion = fileVersion.getVersion();
+
+		// Update file entry to v2.0 (PENDING)
+
+		fileEntry = _dlAppService.updateFileEntry(
+			fileEntry.getFileEntryId(), RandomTestUtil.randomString(), "text",
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			DLVersionNumberIncrease.MAJOR,
+			RandomTestUtil.randomString(
+			).getBytes(),
+			null, null, null, _serviceContext);
+
+		DLFileEntry dlFileEntry = _dlFileEntryLocalService.getDLFileEntry(
+			fileEntry.getFileEntryId());
+
+		DLFileVersion pendingDLFileVersion = dlFileEntry.getLatestFileVersion(
+			true);
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, pendingDLFileVersion.getStatus());
+
+		// Revert to v1.0 while v2.0 is pending
+
+		_dlAppService.revertFileEntry(
+			fileEntry.getFileEntryId(), approvedVersion, _serviceContext);
+
+		// Assert v3.0 was created
+
+		dlFileEntry = _dlFileEntryLocalService.getDLFileEntry(
+			fileEntry.getFileEntryId());
+
+		DLFileVersion latestDLFileVersion = dlFileEntry.getLatestFileVersion(
+			true);
+
+		Assert.assertNotEquals(
+			pendingDLFileVersion.getFileVersionId(),
+			latestDLFileVersion.getFileVersionId());
+
+		List<DLFileVersion> dlFileVersions =
+			_dlFileVersionLocalService.getFileVersions(
+				fileEntry.getFileEntryId(), WorkflowConstants.STATUS_ANY);
+
+		Assert.assertTrue(
+			"Expected at least 3 file versions, but found " +
+				dlFileVersions.size(),
+			dlFileVersions.size() >= 3);
+	}
+
+	@Test
 	public void testWorkflowRejectsFileEntry() throws PortalException {
 		FileEntry fileEntry = _addFileEntry(null, null);
 
@@ -413,6 +491,9 @@ public class DLFileEntryWorkflowHandlerTest {
 
 	@Inject
 	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
+
+	@Inject
+	private DLFileVersionLocalService _dlFileVersionLocalService;
 
 	private Folder _folder;
 
