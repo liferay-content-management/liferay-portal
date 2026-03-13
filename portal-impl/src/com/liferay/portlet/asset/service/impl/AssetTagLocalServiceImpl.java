@@ -11,9 +11,14 @@ import com.liferay.asset.kernel.exception.DuplicateTagException;
 import com.liferay.asset.kernel.exception.NoSuchTagException;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetTag;
+import com.liferay.asset.kernel.model.AssetTagGroupRelTable;
+import com.liferay.asset.kernel.model.AssetTagTable;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.persistence.AssetEntryPersistence;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
+import com.liferay.petra.sql.dsl.expression.Predicate;
+import com.liferay.petra.sql.dsl.query.JoinStep;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -26,6 +31,7 @@ import com.liferay.portal.kernel.increment.NumberIncrement;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
@@ -61,7 +67,10 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Provides the local service for accessing, adding, checking, deleting,
@@ -557,6 +566,47 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 			groupId, classNameId, name, start, end, null);
 	}
 
+	@Override
+	public List<AssetTag> getTags(
+			long[] groupIds, String name, int start, int end,
+			OrderByComparator<AssetTag> orderByComparator)
+		throws PortalException {
+
+		JoinStep joinStep = DSLQueryFactoryUtil.selectDistinct(
+			AssetTagTable.INSTANCE
+		).from(
+			AssetTagTable.INSTANCE
+		).leftJoinOn(
+			AssetTagGroupRelTable.INSTANCE,
+			AssetTagGroupRelTable.INSTANCE.tagId.eq(
+				AssetTagTable.INSTANCE.tagId)
+		);
+
+		Predicate predicate = _predicateGetTags(groupIds);
+
+		if ((predicate != null) && Validator.isNotNull(name)) {
+			predicate = predicate.and(AssetTagTable.INSTANCE.name.like(name));
+		}
+
+		if (predicate != null) {
+			return dslQuery(
+				joinStep.where(
+					predicate
+				).orderBy(
+					AssetTagTable.INSTANCE, orderByComparator
+				).limit(
+					start, end
+				));
+		}
+
+		return dslQuery(
+			joinStep.orderBy(
+				AssetTagTable.INSTANCE, orderByComparator
+			).limit(
+				start, end
+			));
+	}
+
 	/**
 	 * Returns the asset tags of the entity.
 	 *
@@ -569,6 +619,33 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 	public List<AssetTag> getTags(String className, long classPK) {
 		return getTags(
 			_classNameLocalService.getClassNameId(className), classPK);
+	}
+
+	@Override
+	public int getTagsCount(long[] groupIds, String name)
+		throws PortalException {
+
+		JoinStep dslQuery = DSLQueryFactoryUtil.countDistinct(
+			AssetTagTable.INSTANCE.tagId
+		).from(
+			AssetTagTable.INSTANCE
+		).leftJoinOn(
+			AssetTagGroupRelTable.INSTANCE,
+			AssetTagGroupRelTable.INSTANCE.tagId.eq(
+				AssetTagTable.INSTANCE.tagId)
+		);
+
+		Predicate predicate = _predicateGetTags(groupIds);
+
+		if ((predicate != null) && Validator.isNotNull(name)) {
+			predicate = predicate.and(AssetTagTable.INSTANCE.name.like(name));
+		}
+
+		if (predicate != null) {
+			return dslQueryCount(dslQuery.where(predicate));
+		}
+
+		return dslQueryCount(dslQuery);
 	}
 
 	@Override
@@ -859,6 +936,17 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		}
 	}
 
+	private boolean _isSpace(Group group) {
+		int depotEntryType = GetterUtil.getInteger(
+			group.getTypeSettingsProperty("depotEntryType"));
+
+		if (depotEntryType == 1) {
+			return true;
+		}
+
+		return false;
+	}
+
 	private boolean _isValidWord(String word) {
 		if (Validator.isBlank(word)) {
 			return false;
@@ -882,6 +970,61 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		}
 
 		return true;
+	}
+
+	private Predicate _predicateGetTags(long[] groupIds)
+		throws PortalException {
+
+		Set<Long> groups = new LinkedHashSet<>();
+		Set<Long> spaceGroups = new LinkedHashSet<>();
+
+		List<Long> groupIdList = ListUtil.fromArray(groupIds);
+
+		Iterator<Long> iterator = groupIdList.iterator();
+
+		while (iterator.hasNext()) {
+			long groupId = iterator.next();
+
+			Group group = _groupLocalService.getGroup(groupId);
+
+			if (group.isDepot() && _isSpace(group)) {
+				spaceGroups.add(groupId);
+			}
+			else {
+				groups.add(groupId);
+			}
+		}
+
+		if (!spaceGroups.isEmpty() &&
+			!ArrayUtil.contains(groupIds, GroupConstants.GROUP_ID_ALL)) {
+
+			spaceGroups.add(GroupConstants.GROUP_ID_ALL);
+		}
+
+		Predicate groupPredicate = null;
+		Predicate groupRelPredicate = null;
+
+		if (!groups.isEmpty()) {
+			groupPredicate = AssetTagTable.INSTANCE.groupId.in(
+				groups.toArray(new Long[0]));
+		}
+
+		if (!spaceGroups.isEmpty()) {
+			groupRelPredicate = AssetTagGroupRelTable.INSTANCE.groupId.in(
+				spaceGroups.toArray(new Long[0]));
+		}
+
+		if ((groupPredicate != null) && (groupRelPredicate != null)) {
+			return groupPredicate.or(
+				groupRelPredicate
+			).withParentheses();
+		}
+
+		if (groupPredicate != null) {
+			return groupPredicate;
+		}
+
+		return groupRelPredicate;
 	}
 
 	private static final char[] _INVALID_CHARACTERS = {

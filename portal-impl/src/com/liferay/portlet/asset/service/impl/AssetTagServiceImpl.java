@@ -127,7 +127,8 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 
 	@Override
 	public AssetTagDisplay getGroupTagsDisplay(
-		long groupId, String name, int start, int end) {
+			long groupId, String name, int start, int end)
+		throws PortalException {
 
 		List<AssetTag> tags = null;
 		int total = 0;
@@ -175,16 +176,17 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 	}
 
 	@Override
-	public List<AssetTag> getTags(
-		long groupId, String name, int start, int end) {
+	public List<AssetTag> getTags(long groupId, String name, int start, int end)
+		throws PortalException {
 
 		return getTags(new long[] {groupId}, name, start, end);
 	}
 
 	@Override
 	public List<AssetTag> getTags(
-		long groupId, String name, int start, int end,
-		OrderByComparator<AssetTag> orderByComparator) {
+			long groupId, String name, int start, int end,
+			OrderByComparator<AssetTag> orderByComparator)
+		throws PortalException {
 
 		return getTags(
 			new long[] {groupId}, name, start, end, orderByComparator);
@@ -192,7 +194,8 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 
 	@Override
 	public List<AssetTag> getTags(
-		long[] groupIds, String name, int start, int end) {
+			long[] groupIds, String name, int start, int end)
+		throws PortalException {
 
 		return getTags(
 			groupIds, name, start, end, new AssetTagNameComparator());
@@ -200,19 +203,13 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 
 	@Override
 	public List<AssetTag> getTags(
-		long[] groupIds, String name, int start, int end,
-		OrderByComparator<AssetTag> orderByComparator) {
-
-		if (Validator.isNull(name)) {
-			return sanitize(
-				assetTagPersistence.findByGroupId(
-					groupIds, start, end, orderByComparator));
-		}
+			long[] groupIds, String name, int start, int end,
+			OrderByComparator<AssetTag> orderByComparator)
+		throws PortalException {
 
 		return sanitize(
-			assetTagPersistence.findByG_LikeN(
-				groupIds, StringUtil.quote(name, StringPool.PERCENT), start,
-				end, orderByComparator));
+			assetTagLocalService.getTags(
+				groupIds, name, start, end, orderByComparator));
 	}
 
 	@Override
@@ -231,13 +228,10 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 	}
 
 	@Override
-	public int getTagsCount(long[] groupIds, String name) {
-		if (Validator.isNull(name)) {
-			return assetTagPersistence.countByGroupId(groupIds);
-		}
+	public int getTagsCount(long[] groupIds, String name)
+		throws PortalException {
 
-		return assetTagPersistence.countByG_LikeN(
-			groupIds, StringUtil.quote(name, StringPool.PERCENT));
+		return assetTagLocalService.getTagsCount(groupIds, name);
 	}
 
 	@Override
@@ -267,13 +261,17 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 	}
 
 	@Override
-	public JSONArray search(long groupId, String name, int start, int end) {
+	public JSONArray search(long groupId, String name, int start, int end)
+		throws PortalException {
+
 		return search(new long[] {groupId}, name, start, end);
 	}
 
 	@AccessControlled(guestAccessEnabled = true)
 	@Override
-	public JSONArray search(long[] groupIds, String name, int start, int end) {
+	public JSONArray search(long[] groupIds, String name, int start, int end)
+		throws PortalException {
+
 		return Autocomplete.arrayToJSONArray(
 			getTags(groupIds, name, start, end), "name", "name");
 	}
