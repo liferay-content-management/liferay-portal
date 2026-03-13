@@ -136,6 +136,7 @@ function Rule({
 	categorySelectorURL,
 	disabled,
 	groupIds,
+	groupRelIds,
 	index,
 	namespace,
 	onDeleteRule,
@@ -213,7 +214,7 @@ function Rule({
 					{rule.type === 'assetTags' && (
 						<ClayForm.Group>
 							<AssetTags
-								groupIds={groupIds}
+								groupIds={groupRelIds}
 								index={index}
 								namespace={namespace}
 								rule={rule}
@@ -261,6 +262,7 @@ function AssetFilterBuilder({
 	categorySelectorURL,
 	disabled,
 	groupIds,
+	groupRelIds,
 	namespace,
 	rules,
 	tagSelectorURL,
@@ -322,6 +324,7 @@ function AssetFilterBuilder({
 							categorySelectorURL={categorySelectorURL}
 							disabled={disabled}
 							groupIds={groupIds}
+							groupRelIds={groupRelIds}
 							index={index}
 							namespace={namespace}
 							onDeleteRule={handleDeleteRule}
@@ -359,6 +362,7 @@ function AssetFilterBuilder({
 AssetFilterBuilder.propTypes = {
 	categorySelectorURL: PropTypes.string,
 	groupIds: PropTypes.arrayOf(PropTypes.string),
+	groupRelIds: PropTypes.arrayOf(PropTypes.string),
 	namespace: PropTypes.string,
 	rules: PropTypes.arrayOf(
 		PropTypes.shape({

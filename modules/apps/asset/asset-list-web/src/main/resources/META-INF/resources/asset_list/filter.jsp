@@ -51,6 +51,8 @@
 				).put(
 					"groupIds", ListUtil.fromArray(editAssetListDisplayContext.getResolvedReferencedModelsGroupIds())
 				).put(
+					"groupRelIds", ListUtil.fromArray(editAssetListDisplayContext.getReferencedModelsGroupIds())
+				).put(
 					"namespace", liferayPortletResponse.getNamespace()
 				).put(
 					"rules", editAssetListDisplayContext.getAutoFieldRulesJSONArray()

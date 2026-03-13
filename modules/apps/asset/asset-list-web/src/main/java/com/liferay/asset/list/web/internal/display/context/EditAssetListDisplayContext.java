@@ -1036,7 +1036,8 @@ public class EditAssetListDisplayContext {
 
 		assetTagsItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 			new AssetTagsItemSelectorReturnType());
-		assetTagsItemSelectorCriterion.setGroupIds(getSelectedGroupIds());
+		assetTagsItemSelectorCriterion.setGroupIds(
+			getReferencedModelsGroupIds());
 		assetTagsItemSelectorCriterion.setMultiSelection(true);
 
 		return String.valueOf(
