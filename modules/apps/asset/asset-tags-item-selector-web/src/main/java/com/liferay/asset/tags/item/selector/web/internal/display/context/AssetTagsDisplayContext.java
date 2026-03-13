@@ -10,6 +10,7 @@ import com.liferay.asset.kernel.service.AssetTagService;
 import com.liferay.asset.tags.item.selector.AssetTagsItemSelectorCriterion;
 import com.liferay.asset.tags.item.selector.web.internal.search.EntriesChecker;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -45,7 +46,8 @@ public class AssetTagsDisplayContext {
 		_renderResponse = renderResponse;
 	}
 
-	public SearchContainer<AssetTag> getTagSearchContainer() {
+	public SearchContainer<AssetTag> getTagSearchContainer()
+		throws PortalException {
 		if (_tagsSearchContainer != null) {
 			return _tagsSearchContainer;
 		}
