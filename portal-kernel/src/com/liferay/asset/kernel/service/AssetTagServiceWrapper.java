@@ -101,7 +101,8 @@ public class AssetTagServiceWrapper
 
 	@Override
 	public com.liferay.asset.kernel.model.AssetTagDisplay getGroupTagsDisplay(
-		long groupId, String name, int start, int end) {
+			long groupId, String name, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetTagService.getGroupTagsDisplay(groupId, name, start, end);
 	}
@@ -149,16 +150,18 @@ public class AssetTagServiceWrapper
 
 	@Override
 	public java.util.List<AssetTag> getTags(
-		long groupId, String name, int start, int end) {
+			long groupId, String name, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetTagService.getTags(groupId, name, start, end);
 	}
 
 	@Override
 	public java.util.List<AssetTag> getTags(
-		long groupId, String name, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetTag>
-			orderByComparator) {
+			long groupId, String name, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator<AssetTag>
+				orderByComparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetTagService.getTags(
 			groupId, name, start, end, orderByComparator);
@@ -166,16 +169,18 @@ public class AssetTagServiceWrapper
 
 	@Override
 	public java.util.List<AssetTag> getTags(
-		long[] groupIds, String name, int start, int end) {
+			long[] groupIds, String name, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetTagService.getTags(groupIds, name, start, end);
 	}
 
 	@Override
 	public java.util.List<AssetTag> getTags(
-		long[] groupIds, String name, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AssetTag>
-			orderByComparator) {
+			long[] groupIds, String name, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator<AssetTag>
+				orderByComparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetTagService.getTags(
 			groupIds, name, start, end, orderByComparator);
@@ -192,7 +197,9 @@ public class AssetTagServiceWrapper
 	}
 
 	@Override
-	public int getTagsCount(long[] groupIds, String name) {
+	public int getTagsCount(long[] groupIds, String name)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
 		return _assetTagService.getTagsCount(groupIds, name);
 	}
 
@@ -220,14 +227,16 @@ public class AssetTagServiceWrapper
 
 	@Override
 	public com.liferay.portal.kernel.json.JSONArray search(
-		long groupId, String name, int start, int end) {
+			long groupId, String name, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetTagService.search(groupId, name, start, end);
 	}
 
 	@Override
 	public com.liferay.portal.kernel.json.JSONArray search(
-		long[] groupIds, String name, int start, int end) {
+			long[] groupIds, String name, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetTagService.search(groupIds, name, start, end);
 	}

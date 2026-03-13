@@ -85,7 +85,8 @@ public interface AssetTagService extends BaseService {
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public AssetTagDisplay getGroupTagsDisplay(
-		long groupId, String name, int start, int end);
+			long groupId, String name, int start, int end)
+		throws PortalException;
 
 	/**
 	 * Returns the OSGi service identifier.
@@ -109,22 +110,25 @@ public interface AssetTagService extends BaseService {
 		OrderByComparator<AssetTag> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<AssetTag> getTags(
-		long groupId, String name, int start, int end);
+	public List<AssetTag> getTags(long groupId, String name, int start, int end)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AssetTag> getTags(
-		long groupId, String name, int start, int end,
-		OrderByComparator<AssetTag> orderByComparator);
+			long groupId, String name, int start, int end,
+			OrderByComparator<AssetTag> orderByComparator)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AssetTag> getTags(
-		long[] groupIds, String name, int start, int end);
+			long[] groupIds, String name, int start, int end)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AssetTag> getTags(
-		long[] groupIds, String name, int start, int end,
-		OrderByComparator<AssetTag> orderByComparator);
+			long[] groupIds, String name, int start, int end,
+			OrderByComparator<AssetTag> orderByComparator)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AssetTag> getTags(String className, long classPK);
@@ -133,7 +137,8 @@ public interface AssetTagService extends BaseService {
 	public int getTagsCount(long groupId, String name);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getTagsCount(long[] groupIds, String name);
+	public int getTagsCount(long[] groupIds, String name)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getVisibleAssetsTagsCount(
@@ -145,11 +150,13 @@ public interface AssetTagService extends BaseService {
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public JSONArray search(long groupId, String name, int start, int end);
+	public JSONArray search(long groupId, String name, int start, int end)
+		throws PortalException;
 
 	@AccessControlled(guestAccessEnabled = true)
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public JSONArray search(long[] groupIds, String name, int start, int end);
+	public JSONArray search(long[] groupIds, String name, int start, int end)
+		throws PortalException;
 
 	public void subscribeTag(long userId, long groupId, long tagId)
 		throws PortalException;

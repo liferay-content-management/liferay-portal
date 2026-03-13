@@ -401,9 +401,10 @@ public class AssetTagServiceHttp {
 	}
 
 	public static com.liferay.asset.kernel.model.AssetTagDisplay
-		getGroupTagsDisplay(
-			HttpPrincipal httpPrincipal, long groupId, String name, int start,
-			int end) {
+			getGroupTagsDisplay(
+				HttpPrincipal httpPrincipal, long groupId, String name,
+				int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -419,6 +420,13 @@ public class AssetTagServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
@@ -583,9 +591,10 @@ public class AssetTagServiceHttp {
 	}
 
 	public static java.util.List<com.liferay.asset.kernel.model.AssetTag>
-		getTags(
-			HttpPrincipal httpPrincipal, long groupId, String name, int start,
-			int end) {
+			getTags(
+				HttpPrincipal httpPrincipal, long groupId, String name,
+				int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -600,6 +609,13 @@ public class AssetTagServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
@@ -617,11 +633,12 @@ public class AssetTagServiceHttp {
 	}
 
 	public static java.util.List<com.liferay.asset.kernel.model.AssetTag>
-		getTags(
-			HttpPrincipal httpPrincipal, long groupId, String name, int start,
-			int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.asset.kernel.model.AssetTag> orderByComparator) {
+			getTags(
+				HttpPrincipal httpPrincipal, long groupId, String name,
+				int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.asset.kernel.model.AssetTag> orderByComparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -636,6 +653,13 @@ public class AssetTagServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
@@ -653,9 +677,10 @@ public class AssetTagServiceHttp {
 	}
 
 	public static java.util.List<com.liferay.asset.kernel.model.AssetTag>
-		getTags(
-			HttpPrincipal httpPrincipal, long[] groupIds, String name,
-			int start, int end) {
+			getTags(
+				HttpPrincipal httpPrincipal, long[] groupIds, String name,
+				int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -670,6 +695,13 @@ public class AssetTagServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
@@ -687,11 +719,12 @@ public class AssetTagServiceHttp {
 	}
 
 	public static java.util.List<com.liferay.asset.kernel.model.AssetTag>
-		getTags(
-			HttpPrincipal httpPrincipal, long[] groupIds, String name,
-			int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.asset.kernel.model.AssetTag> orderByComparator) {
+			getTags(
+				HttpPrincipal httpPrincipal, long[] groupIds, String name,
+				int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.asset.kernel.model.AssetTag> orderByComparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -706,6 +739,13 @@ public class AssetTagServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
@@ -787,7 +827,8 @@ public class AssetTagServiceHttp {
 	}
 
 	public static int getTagsCount(
-		HttpPrincipal httpPrincipal, long[] groupIds, String name) {
+			HttpPrincipal httpPrincipal, long[] groupIds, String name)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -803,6 +844,13 @@ public class AssetTagServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
@@ -924,8 +972,9 @@ public class AssetTagServiceHttp {
 	}
 
 	public static com.liferay.portal.kernel.json.JSONArray search(
-		HttpPrincipal httpPrincipal, long groupId, String name, int start,
-		int end) {
+			HttpPrincipal httpPrincipal, long groupId, String name, int start,
+			int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -940,6 +989,13 @@ public class AssetTagServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
@@ -956,8 +1012,9 @@ public class AssetTagServiceHttp {
 	}
 
 	public static com.liferay.portal.kernel.json.JSONArray search(
-		HttpPrincipal httpPrincipal, long[] groupIds, String name, int start,
-		int end) {
+			HttpPrincipal httpPrincipal, long[] groupIds, String name,
+			int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -972,6 +1029,13 @@ public class AssetTagServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}

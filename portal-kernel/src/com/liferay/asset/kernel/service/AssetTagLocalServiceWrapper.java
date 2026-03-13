@@ -826,6 +826,17 @@ public class AssetTagLocalServiceWrapper
 			groupId, classNameId, name, start, end);
 	}
 
+	@Override
+	public java.util.List<AssetTag> getTags(
+			long[] groupIds, String name, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator<AssetTag>
+				orderByComparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetTagLocalService.getTags(
+			groupIds, name, start, end, orderByComparator);
+	}
+
 	/**
 	 * Returns the asset tags of the entity.
 	 *
@@ -836,6 +847,13 @@ public class AssetTagLocalServiceWrapper
 	@Override
 	public java.util.List<AssetTag> getTags(String className, long classPK) {
 		return _assetTagLocalService.getTags(className, classPK);
+	}
+
+	@Override
+	public int getTagsCount(long[] groupIds, String name)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _assetTagLocalService.getTagsCount(groupIds, name);
 	}
 
 	@Override

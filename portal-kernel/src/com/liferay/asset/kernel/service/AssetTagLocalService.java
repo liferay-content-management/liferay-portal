@@ -635,6 +635,12 @@ public interface AssetTagLocalService
 	public List<AssetTag> getTags(
 		long groupId, long classNameId, String name, int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AssetTag> getTags(
+			long[] groupIds, String name, int start, int end,
+			OrderByComparator<AssetTag> orderByComparator)
+		throws PortalException;
+
 	/**
 	 * Returns the asset tags of the entity.
 	 *
@@ -645,6 +651,10 @@ public interface AssetTagLocalService
 	@ThreadLocalCachable
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<AssetTag> getTags(String className, long classPK);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getTagsCount(long[] groupIds, String name)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getTagsSize(long groupId, long classNameId, String name);

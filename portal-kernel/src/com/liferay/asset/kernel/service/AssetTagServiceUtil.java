@@ -89,7 +89,8 @@ public class AssetTagServiceUtil {
 	}
 
 	public static com.liferay.asset.kernel.model.AssetTagDisplay
-		getGroupTagsDisplay(long groupId, String name, int start, int end) {
+			getGroupTagsDisplay(long groupId, String name, int start, int end)
+		throws PortalException {
 
 		return getService().getGroupTagsDisplay(groupId, name, start, end);
 	}
@@ -128,28 +129,32 @@ public class AssetTagServiceUtil {
 	}
 
 	public static List<AssetTag> getTags(
-		long groupId, String name, int start, int end) {
+			long groupId, String name, int start, int end)
+		throws PortalException {
 
 		return getService().getTags(groupId, name, start, end);
 	}
 
 	public static List<AssetTag> getTags(
-		long groupId, String name, int start, int end,
-		OrderByComparator<AssetTag> orderByComparator) {
+			long groupId, String name, int start, int end,
+			OrderByComparator<AssetTag> orderByComparator)
+		throws PortalException {
 
 		return getService().getTags(
 			groupId, name, start, end, orderByComparator);
 	}
 
 	public static List<AssetTag> getTags(
-		long[] groupIds, String name, int start, int end) {
+			long[] groupIds, String name, int start, int end)
+		throws PortalException {
 
 		return getService().getTags(groupIds, name, start, end);
 	}
 
 	public static List<AssetTag> getTags(
-		long[] groupIds, String name, int start, int end,
-		OrderByComparator<AssetTag> orderByComparator) {
+			long[] groupIds, String name, int start, int end,
+			OrderByComparator<AssetTag> orderByComparator)
+		throws PortalException {
 
 		return getService().getTags(
 			groupIds, name, start, end, orderByComparator);
@@ -163,7 +168,9 @@ public class AssetTagServiceUtil {
 		return getService().getTagsCount(groupId, name);
 	}
 
-	public static int getTagsCount(long[] groupIds, String name) {
+	public static int getTagsCount(long[] groupIds, String name)
+		throws PortalException {
+
 		return getService().getTagsCount(groupIds, name);
 	}
 
@@ -187,13 +194,15 @@ public class AssetTagServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.json.JSONArray search(
-		long groupId, String name, int start, int end) {
+			long groupId, String name, int start, int end)
+		throws PortalException {
 
 		return getService().search(groupId, name, start, end);
 	}
 
 	public static com.liferay.portal.kernel.json.JSONArray search(
-		long[] groupIds, String name, int start, int end) {
+			long[] groupIds, String name, int start, int end)
+		throws PortalException {
 
 		return getService().search(groupIds, name, start, end);
 	}

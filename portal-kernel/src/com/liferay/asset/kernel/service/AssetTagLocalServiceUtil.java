@@ -738,6 +738,15 @@ public class AssetTagLocalServiceUtil {
 		return getService().getTags(groupId, classNameId, name, start, end);
 	}
 
+	public static List<AssetTag> getTags(
+			long[] groupIds, String name, int start, int end,
+			OrderByComparator<AssetTag> orderByComparator)
+		throws PortalException {
+
+		return getService().getTags(
+			groupIds, name, start, end, orderByComparator);
+	}
+
 	/**
 	 * Returns the asset tags of the entity.
 	 *
@@ -747,6 +756,12 @@ public class AssetTagLocalServiceUtil {
 	 */
 	public static List<AssetTag> getTags(String className, long classPK) {
 		return getService().getTags(className, classPK);
+	}
+
+	public static int getTagsCount(long[] groupIds, String name)
+		throws PortalException {
+
+		return getService().getTagsCount(groupIds, name);
 	}
 
 	public static int getTagsSize(long groupId, long classNameId, String name) {
