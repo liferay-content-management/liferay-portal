@@ -532,6 +532,7 @@ public class StructuredContentResourceTest
 		super.testPatchStructuredContent();
 
 		_testPatchStructuredContentWithDateExpired();
+		_testPatchStructuredContentWithLocalizedContentFields();
 		_testPatchStructuredContentWithRandomTitle();
 	}
 
@@ -2814,6 +2815,105 @@ public class StructuredContentResourceTest
 
 		Assert.assertTrue(patchStructuredContent.getNeverExpire());
 		Assert.assertNull(patchStructuredContent.getDateExpired());
+	}
+
+	private void _testPatchStructuredContentWithLocalizedContentFields()
+		throws Exception {
+
+		Locale defaultLocale = LocaleUtil.getDefault();
+
+		StructuredContent randomStructuredContent = _randomStructuredContent(
+			defaultLocale, true);
+
+		StructuredContentResource englishStructuredContentResource =
+			_buildStructureContentResource(defaultLocale);
+
+		StructuredContent postStructuredContent =
+			englishStructuredContentResource.postSiteStructuredContent(
+				testGroup.getGroupId(), randomStructuredContent);
+
+		Assert.assertNotNull(postStructuredContent);
+
+		String updatedEnglishText = RandomTestUtil.randomString(10);
+		String updatedSpanishText = RandomTestUtil.randomString(10);
+
+		StructuredContent patchStructuredContent =
+			englishStructuredContentResource.patchStructuredContent(
+				postStructuredContent.getId(),
+				new StructuredContent() {
+					{
+						contentFields = new ContentField[] {
+							new ContentField() {
+								{
+									contentFieldValue =
+										new ContentFieldValue() {
+											{
+												data = updatedEnglishText;
+											}
+										};
+									contentFieldValue_i18n =
+										HashMapBuilder.
+											<String, ContentFieldValue>put(
+												"en-US",
+												new ContentFieldValue() {
+													{
+														data =
+															updatedEnglishText;
+													}
+												}
+											).put(
+												"es-ES",
+												new ContentFieldValue() {
+													{
+														data =
+															updatedSpanishText;
+													}
+												}
+											).build();
+									name = "MyText";
+								}
+							}
+						};
+					}
+				});
+
+		Assert.assertNotNull(patchStructuredContent);
+
+		ContentField[] contentFields =
+			patchStructuredContent.getContentFields();
+
+		Assert.assertTrue(contentFields.length > 0);
+
+		boolean found = false;
+
+		for (ContentField contentField : contentFields) {
+			if (!Objects.equals(contentField.getName(), "MyText")) {
+				continue;
+			}
+
+			found = true;
+
+			Map<String, ContentFieldValue> contentFieldValueI18n =
+				contentField.getContentFieldValue_i18n();
+
+			Assert.assertNotNull(contentFieldValueI18n);
+			Assert.assertTrue(contentFieldValueI18n.containsKey("en-US"));
+			Assert.assertTrue(contentFieldValueI18n.containsKey("es-ES"));
+
+			Map<String, Object> enUSValue =
+				(Map<String, Object>)contentFieldValueI18n.get("en-US");
+			Map<String, Object> esESValue =
+				(Map<String, Object>)contentFieldValueI18n.get("es-ES");
+
+			Assert.assertEquals(
+				updatedEnglishText, String.valueOf(enUSValue.get("data")));
+			Assert.assertEquals(
+				updatedSpanishText, String.valueOf(esESValue.get("data")));
+		}
+
+		Assert.assertTrue(
+			"MyText content field not found in patched structured content",
+			found);
 	}
 
 	private void _testPatchStructuredContentWithRandomTitle() throws Exception {
