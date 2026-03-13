@@ -484,6 +484,41 @@ public class AssetTagLocalServiceTest {
 	}
 
 	@Test
+	public void testSearchTagsWithMultipleGroups() throws Exception {
+		Group group1 = GroupTestUtil.addGroup();
+		Group group2 = GroupTestUtil.addGroup();
+
+		try {
+			_assetTagLocalService.addTag(
+				null, TestPropsValues.getUserId(), group1.getGroupId(),
+				"tag-group-1", _serviceContext);
+
+			_assetTagLocalService.addTag(
+				null, TestPropsValues.getUserId(), group2.getGroupId(),
+				"tag-group-2", _serviceContext);
+
+			long[] groupIds = {group1.getGroupId(), group2.getGroupId()};
+
+			BaseModelSearchResult<AssetTag> result =
+				_assetTagLocalService.searchTags(
+					groupIds, "tag-group", QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+					null);
+
+			Assert.assertEquals(2, result.getLength());
+
+			List<String> names = TransformUtil.transform(
+				result.getBaseModels(), AssetTag::getName);
+
+			Assert.assertTrue(names.contains("tag-group-1"));
+			Assert.assertTrue(names.contains("tag-group-2"));
+		}
+		finally {
+			GroupTestUtil.deleteGroup(group1);
+			GroupTestUtil.deleteGroup(group2);
+		}
+	}
+
+	@Test
 	public void testSearchWithCaseInsensitive() throws PortalException {
 		String[] tagNames = {"tag1", "Tag1", "TAG1"};
 
