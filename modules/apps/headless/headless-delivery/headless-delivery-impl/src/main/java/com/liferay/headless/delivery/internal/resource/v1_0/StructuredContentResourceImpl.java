@@ -1339,6 +1339,12 @@ public class StructuredContentResourceImpl
 				contextAcceptLanguage.getPreferredLocale(),
 				value.getString(contextAcceptLanguage.getPreferredLocale()));
 
+			if (MapUtil.isNotEmpty(contentField.getContentFieldValue_i18n())) {
+				for (Locale locale : value.getAvailableLocales()) {
+					field.setValue(locale, value.getString(locale));
+				}
+			}
+
 			ContentField[] nestedContentFields =
 				contentField.getNestedContentFields();
 
