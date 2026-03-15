@@ -3450,7 +3450,7 @@ public class DefaultObjectEntryManagerImpl
 			).put(
 				"versions",
 				_addAction(
-					ActionKeys.VIEW,
+					ActionKeys.UPDATE,
 					new String[] {
 						"getByExternalReferenceCodeVersionsPage",
 						"getScopeScopeKeyByExternalReferenceCodeVersionsPage"
