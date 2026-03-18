@@ -1088,11 +1088,11 @@ public class DocumentResourceImpl extends BaseDocumentResourceImpl {
 				"document", Document.class);
 		}
 
-		if (document == null) {
+		BinaryFile binaryFile = multipartBody.getBinaryFile("file");
+
+		if ((document == null) && (binaryFile == null)) {
 			throw new BadRequestException("Document not found in body");
 		}
-
-		BinaryFile binaryFile = multipartBody.getBinaryFile("file");
 
 		if (binaryFile == null) {
 			binaryFile = new BinaryFile(
