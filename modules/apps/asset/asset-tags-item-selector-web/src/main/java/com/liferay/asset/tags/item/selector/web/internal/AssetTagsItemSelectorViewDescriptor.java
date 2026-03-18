@@ -62,6 +62,7 @@ public class AssetTagsItemSelectorViewDescriptor
 	@Override
 	public SearchContainer<AssetTag> getSearchContainer()
 		throws PortalException {
+
 		return _assetTagsDisplayContext.getTagSearchContainer();
 	}
 

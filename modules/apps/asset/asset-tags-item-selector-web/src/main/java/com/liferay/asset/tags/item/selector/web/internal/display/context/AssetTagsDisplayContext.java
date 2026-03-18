@@ -48,6 +48,7 @@ public class AssetTagsDisplayContext {
 
 	public SearchContainer<AssetTag> getTagSearchContainer()
 		throws PortalException {
+
 		if (_tagsSearchContainer != null) {
 			return _tagsSearchContainer;
 		}
