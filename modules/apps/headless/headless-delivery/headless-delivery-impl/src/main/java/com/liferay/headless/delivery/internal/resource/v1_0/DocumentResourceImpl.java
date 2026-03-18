@@ -77,6 +77,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
@@ -1078,8 +1079,14 @@ public class DocumentResourceImpl extends BaseDocumentResourceImpl {
 			FileEntry fileEntry, MultipartBody multipartBody)
 		throws Exception {
 
-		Document document = multipartBody.getValueAsNullableInstance(
-			"document", Document.class);
+		Document document = null;
+
+		String documentString = multipartBody.getValueAsString("document");
+
+		if (!Validator.isBlank(documentString)) {
+			document = multipartBody.getValueAsNullableInstance(
+				"document", Document.class);
+		}
 
 		if (document == null) {
 			throw new BadRequestException("Document not found in body");
