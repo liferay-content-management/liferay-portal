@@ -582,7 +582,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 				AssetTagTable.INSTANCE.tagId)
 		);
 
-		Predicate predicate = _predicateGetTags(groupIds);
+		Predicate predicate = _getGroupsPredicate(groupIds);
 
 		if ((predicate != null) && Validator.isNotNull(name)) {
 			predicate = predicate.and(AssetTagTable.INSTANCE.name.like(name));
@@ -635,7 +635,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 				AssetTagTable.INSTANCE.tagId)
 		);
 
-		Predicate predicate = _predicateGetTags(groupIds);
+		Predicate predicate = _getGroupsPredicate(groupIds);
 
 		if ((predicate != null) && Validator.isNotNull(name)) {
 			predicate = predicate.and(AssetTagTable.INSTANCE.name.like(name));
@@ -936,43 +936,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		}
 	}
 
-	private boolean _isSpace(Group group) {
-		int depotEntryType = GetterUtil.getInteger(
-			group.getTypeSettingsProperty("depotEntryType"));
-
-		if (depotEntryType == 1) {
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean _isValidWord(String word) {
-		if (Validator.isBlank(word)) {
-			return false;
-		}
-
-		char[] wordCharArray = word.toCharArray();
-
-		for (char c : wordCharArray) {
-			for (char invalidChar : _INVALID_CHARACTERS) {
-				if (c == invalidChar) {
-					if (_log.isDebugEnabled()) {
-						_log.debug(
-							StringBundler.concat(
-								"Word ", word, " is not valid because ", c,
-								" is not allowed"));
-					}
-
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	private Predicate _predicateGetTags(long[] groupIds)
+	private Predicate _getGroupsPredicate(long[] groupIds)
 		throws PortalException {
 
 		Set<Long> groups = new LinkedHashSet<>();
@@ -1025,6 +989,42 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		}
 
 		return groupRelPredicate;
+	}
+
+	private boolean _isSpace(Group group) {
+		int depotEntryType = GetterUtil.getInteger(
+			group.getTypeSettingsProperty("depotEntryType"));
+
+		if (depotEntryType == 1) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean _isValidWord(String word) {
+		if (Validator.isBlank(word)) {
+			return false;
+		}
+
+		char[] wordCharArray = word.toCharArray();
+
+		for (char c : wordCharArray) {
+			for (char invalidChar : _INVALID_CHARACTERS) {
+				if (c == invalidChar) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(
+							StringBundler.concat(
+								"Word ", word, " is not valid because ", c,
+								" is not allowed"));
+					}
+
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	private static final char[] _INVALID_CHARACTERS = {
