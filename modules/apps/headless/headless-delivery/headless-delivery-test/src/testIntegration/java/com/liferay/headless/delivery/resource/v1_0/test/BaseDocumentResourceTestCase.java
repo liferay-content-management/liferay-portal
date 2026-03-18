@@ -3786,6 +3786,26 @@ public abstract class BaseDocumentResourceTestCase {
 		assertValid(getDocument, multipartFiles);
 	}
 
+	@Test
+	public void testPutDocumentWithOnlyFile() throws Exception {
+		Document postDocument = testPutDocument_addDocument();
+
+		Map<String, File> multipartFiles = getMultipartFiles();
+
+		Document putDocument = documentResource.putDocument(
+			postDocument.getId(), null, multipartFiles);
+
+		assertValid(putDocument);
+
+		Document getDocument = documentResource.getDocument(
+			putDocument.getId());
+
+		assertValid(getDocument);
+
+		assertValid(getDocument, multipartFiles);
+	}
+
+
 	protected Document testPutDocument_addDocument() throws Exception {
 		return documentResource.postSiteDocument(
 			testGroup.getGroupId(), randomDocument(), getMultipartFiles());
