@@ -26,6 +26,7 @@ const GalleryView = ({
 	frontendDataSetContext,
 	items,
 	schema,
+	setItemComponentProps,
 	...otherProps
 }: {
 	additionalProps: {
@@ -34,6 +35,7 @@ const GalleryView = ({
 	frontendDataSetContext: Context<IFrontendDataSetContext>;
 	items: any[];
 	schema: ICardSchema;
+	setItemComponentProps: (args: {item: any; props: any}) => any;
 }) => {
 	const {selectedItems} = useContext(frontendDataSetContext);
 	const [selectedIndex, setSelectedIndex] = useState(0);
@@ -175,6 +177,21 @@ const GalleryView = ({
 							}
 						);
 
+						const itemProps = setItemComponentProps
+							? setItemComponentProps({
+									item,
+									props: {
+										...otherProps,
+										item,
+										schema,
+									},
+								})
+							: {
+									...otherProps,
+									item,
+									schema,
+								};
+
 						return (
 							<div
 								className={classes}
@@ -188,12 +205,7 @@ const GalleryView = ({
 								}}
 								tabIndex={0}
 							>
-								<Card
-									item={item}
-									items={items}
-									schema={schema}
-									{...otherProps}
-								/>
+								<Card {...itemProps} />
 							</div>
 						);
 					})}

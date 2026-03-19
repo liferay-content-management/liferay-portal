@@ -4,7 +4,12 @@
  */
 
 import ClayIcon from '@clayui/icon';
-import {Card, IView, replaceTokens} from '@liferay/frontend-data-set-web';
+import {
+	Card,
+	IView,
+	findAction,
+	replaceTokens,
+} from '@liferay/frontend-data-set-web';
 import React from 'react';
 
 import dateFormat from '../../../common/utils/dateFormat';
@@ -20,18 +25,16 @@ const MULTIMEDIA_TYPES = ['audio/', 'image/', 'video/'];
 
 const getHrefLink = (item: any, props: Card) => {
 	const actionId = 'actionLink';
-	const {actions} = props;
+	const actions = props.actions || item.actions || [];
 
-	if (!actions.length) {
+	if (!actions || !actions.length) {
 		return null;
 	}
 
 	const isFolder = item.entryClassName === OBJECT_ENTRY_FOLDER_CLASS_NAME;
 	const resolvedActionId = isFolder ? `${actionId}Folder` : actionId;
 
-	const selectedAction = actions.find(
-		({data}: {data: any}) => data?.id === resolvedActionId
-	);
+	const selectedAction = findAction(actions, resolvedActionId);
 
 	if (!selectedAction?.href) {
 		return null;

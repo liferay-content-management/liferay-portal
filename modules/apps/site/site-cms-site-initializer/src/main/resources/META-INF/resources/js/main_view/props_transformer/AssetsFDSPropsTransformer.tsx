@@ -235,6 +235,16 @@ export default function AssetsFDSPropsTransformer({
 						),
 				};
 			}
+			else if (action?.data?.id === 'actionLinkFolder') {
+				return {
+					...action,
+					isVisible: (item: any) =>
+						Boolean(
+							item?.entryClassName ===
+								OBJECT_ENTRY_FOLDER_CLASS_NAME
+						),
+				};
+			}
 			else if (
 				action?.data?.id === 'export-for-translation' ||
 				action?.data?.id === 'import-translation' ||
