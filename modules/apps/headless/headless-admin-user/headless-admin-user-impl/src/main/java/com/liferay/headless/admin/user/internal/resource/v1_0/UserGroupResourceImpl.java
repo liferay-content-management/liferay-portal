@@ -10,11 +10,17 @@ import com.liferay.headless.admin.user.internal.dto.v1_0.converter.constants.DTO
 import com.liferay.headless.admin.user.internal.odata.entity.v1_0.UserGroupEntityModel;
 import com.liferay.headless.admin.user.resource.v1_0.UserGroupResource;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.UserConstants;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserGroupService;
 import com.liferay.portal.kernel.service.UserService;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -33,6 +39,7 @@ import com.liferay.portal.vulcan.util.SearchUtil;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 
+import java.util.List;
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
@@ -133,10 +140,25 @@ public class UserGroupResourceImpl extends BaseUserGroupResourceImpl {
 				if (Validator.isNotNull(search)) {
 					searchContext.setKeywords(search);
 				}
+
+				if (FeatureFlagManagerUtil.isEnabled(
+						contextCompany.getCompanyId(), "LPD-17564")) {
+
+					Role role = _roleLocalService.fetchRole(
+						contextCompany.getCompanyId(),
+						RoleConstants.CMS_ADMINISTRATOR);
+
+					List<Role> userRoles = contextUser.getRoles();
+
+					if ((role != null) && userRoles.contains(role)) {
+						searchContext.setUserId(UserConstants.USER_ID_DEFAULT);
+						searchContext.setVulcanCheckPermissions(false);
+					}
+				}
 			},
 			sorts,
 			document -> _toUserGroup(
-				_userGroupService.getUserGroup(
+				_userGroupLocalService.getUserGroup(
 					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
 	}
 
@@ -308,6 +330,12 @@ public class UserGroupResourceImpl extends BaseUserGroupResourceImpl {
 	}
 
 	private static final EntityModel _entityModel = new UserGroupEntityModel();
+
+	@Reference
+	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private UserGroupLocalService _userGroupLocalService;
 
 	@Reference(
 		target = "(model.class.name=com.liferay.portal.kernel.model.UserGroup)"

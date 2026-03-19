@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.cookies.CookiesManagerUtil;
 import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.exception.UserLockoutException;
 import com.liferay.portal.kernel.exception.UserPasswordException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Address;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyConstants;
@@ -56,9 +57,12 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ListTypeConstants;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.PasswordPolicy;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserConstants;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.model.Website;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactory;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -82,6 +86,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.service.OrganizationService;
 import com.liferay.portal.kernel.service.PortalPreferencesLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
@@ -1688,6 +1693,21 @@ public class UserAccountResourceImpl extends BaseUserAccountResourceImpl {
 				searchContext.setAttribute(Field.STATUS, searchContextStatus);
 
 				searchContext.setCompanyId(contextCompany.getCompanyId());
+
+				if (FeatureFlagManagerUtil.isEnabled(
+						contextCompany.getCompanyId(), "LPD-17564")) {
+
+					Role role = _roleLocalService.fetchRole(
+						contextCompany.getCompanyId(),
+						RoleConstants.CMS_ADMINISTRATOR);
+
+					List<Role> userRoles = contextUser.getRoles();
+
+					if ((role != null) && userRoles.contains(role)) {
+						searchContext.setUserId(UserConstants.USER_ID_DEFAULT);
+						searchContext.setVulcanCheckPermissions(false);
+					}
+				}
 			},
 			sorts,
 			document -> _toUserAccount(
@@ -1969,6 +1989,9 @@ public class UserAccountResourceImpl extends BaseUserAccountResourceImpl {
 
 	@Reference
 	private PortletPreferencesFactory _portletPreferencesFactory;
+
+	@Reference
+	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private UADAnonymousUserProvider _uadAnonymousUserProvider;

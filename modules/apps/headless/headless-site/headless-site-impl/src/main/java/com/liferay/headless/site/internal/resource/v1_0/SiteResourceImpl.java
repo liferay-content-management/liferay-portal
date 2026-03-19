@@ -15,11 +15,14 @@ import com.liferay.portal.events.ThemeServicePreAction;
 import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -28,6 +31,7 @@ import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
@@ -63,6 +67,7 @@ import jakarta.ws.rs.core.Response;
 import java.io.File;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -169,10 +174,7 @@ public class SiteResourceImpl extends BaseSiteResourceImpl {
 					null)
 			).build(),
 			transform(
-				_groupService.search(
-					contextCompany.getCompanyId(), classNameIds, search, null,
-					params, true, pagination.getStartPosition(),
-					pagination.getEndPosition(), new GroupNameComparator()),
+				_search(search, pagination, classNameIds, params),
 				this::_toSite),
 			pagination,
 			_groupService.searchCount(
@@ -613,6 +615,33 @@ public class SiteResourceImpl extends BaseSiteResourceImpl {
 		return manualMembership;
 	}
 
+	private List<Group> _search(
+			String search, Pagination pagination, long[] classNameIds,
+			LinkedHashMap<String, Object> params)
+		throws Exception {
+
+		if (FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPD-17564")) {
+
+			Role role = _roleLocalService.fetchRole(
+				contextCompany.getCompanyId(), RoleConstants.CMS_ADMINISTRATOR);
+
+			List<Role> userRoles = contextUser.getRoles();
+
+			if ((role != null) && userRoles.contains(role)) {
+				return _groupLocalService.search(
+					contextCompany.getCompanyId(), classNameIds, search, null,
+					params, true, pagination.getStartPosition(),
+					pagination.getEndPosition(), new GroupNameComparator());
+			}
+		}
+
+		return _groupService.search(
+			contextCompany.getCompanyId(), classNameIds, search, null, params,
+			true, pagination.getStartPosition(), pagination.getEndPosition(),
+			new GroupNameComparator());
+	}
+
 	private Site _toSite(Group group) {
 		String[] availableLanguageIds = group.getAvailableLanguageIds();
 
@@ -742,6 +771,9 @@ public class SiteResourceImpl extends BaseSiteResourceImpl {
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private SiteInitializerFactory _siteInitializerFactory;
