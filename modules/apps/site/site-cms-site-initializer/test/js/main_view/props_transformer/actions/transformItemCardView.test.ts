@@ -228,4 +228,29 @@ describe('transformItemCardView', () => {
 
 		expect(cardView.title).toBe('untitled-asset');
 	});
+
+	it('Should have href when item is a folder and actionLinkFolder is present', () => {
+		const mockProps = {
+			actions: [
+				{
+					data: {id: 'actionLinkFolder'},
+					href: '/base/view-folder/{id}',
+				},
+			],
+		};
+
+		const cardView = transformItemCardView(
+			{
+				entryClassName: OBJECT_ENTRY_FOLDER_CLASS_NAME,
+				id: 123,
+			},
+			mockFileMimeTypeCssClasses,
+			mockFileMimeTypeIcons,
+			mockObjectDefinitionCssClasses,
+			mockObjectDefinitionIcons,
+			mockProps
+		);
+
+		expect(cardView.href).toBe('/base/view-folder/123');
+	});
 });
