@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
@@ -48,8 +49,10 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LoggerTestUtil;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LanguageIds;
+import com.liferay.site.cms.site.initializer.test.util.CMSTestUtil;
 import com.liferay.site.initializer.SiteInitializer;
 
 import java.io.File;
@@ -198,6 +201,39 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 		_testGetSitesPageWithInactiveSites();
 		_testGetSitesPageWithSearch();
 		_testGetSitesPageWithoutAuthentication();
+	}
+
+	@FeatureFlag("LPD-17564")
+	@Test
+	public void testGetSitesPageWithCMSAdministratorRole() throws Exception {
+		Group originalTestGroup = testGroup;
+
+		testGroup = CMSTestUtil.getOrAddGroup(SiteResourceTest.class);
+
+		User cmsAdminUser = CMSTestUtil.addCMSAdminUser(testCompany);
+
+		Site site1 = testGetSitesPage_addSite(randomSite());
+		Site site2 = testGetSitesPage_addSite(randomSite());
+
+		SiteResource cmsAdminSiteResource = SiteResource.builder(
+		).authentication(
+			cmsAdminUser.getEmailAddress(), "test"
+		).endpoint(
+			testCompany.getVirtualHostname(), 8080, "http"
+		).locale(
+			LocaleUtil.getDefault()
+		).build();
+
+		Page<Site> page = cmsAdminSiteResource.getSitesPage(
+			null, null, Pagination.of(1, 10));
+
+		Assert.assertTrue(page.getTotalCount() >= 2);
+
+		assertContains(site1, (List<Site>)page.getItems());
+		assertContains(site2, (List<Site>)page.getItems());
+		assertValid(page);
+
+		testGroup = originalTestGroup;
 	}
 
 	@LazyReferencing

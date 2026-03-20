@@ -137,10 +137,12 @@ import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.mail.MailMessage;
 import com.liferay.portal.test.mail.MailServiceTestUtil;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.SynchronousMailTestRule;
 import com.liferay.portal.vulcan.jaxrs.exception.mapper.BaseExceptionMapper;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
+import com.liferay.site.cms.site.initializer.test.util.CMSTestUtil;
 
 import jakarta.portlet.PortletPreferences;
 
@@ -714,6 +716,44 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 		_testGetUserAccountsPageWithCustomFields();
 		_testGetUserAccountsPageWithSortCustomField();
 		_testGetUserAccountsPageWithSortFullName();
+	}
+
+	@FeatureFlag("LPD-17564")
+	@Test
+	public void testGetUserAccountsPageWithCMSAdministratorRole()
+		throws Exception {
+
+		Group originalTestGroup = testGroup;
+
+		testGroup = CMSTestUtil.getOrAddGroup(UserAccountResourceTest.class);
+
+		User cmsAdminUser = CMSTestUtil.addCMSAdminUser(testCompany);
+
+		UserAccount userAccount1 = testGetUserAccountsPage_addUserAccount(
+			randomUserAccount());
+		UserAccount userAccount2 = testGetUserAccountsPage_addUserAccount(
+			randomUserAccount());
+
+		UserAccountResource cmsAdminUserAccountResource =
+			UserAccountResource.builder(
+			).authentication(
+				cmsAdminUser.getEmailAddress(), "test"
+			).endpoint(
+				testCompany.getVirtualHostname(), 8080, "http"
+			).locale(
+				LocaleUtil.getDefault()
+			).build();
+
+		Page<UserAccount> page =
+			cmsAdminUserAccountResource.getUserAccountsPage(
+				null, null, Pagination.of(1, 10), null);
+
+		Assert.assertTrue(page.getTotalCount() >= 2);
+
+		assertContains(userAccount1, (List<UserAccount>)page.getItems());
+		assertContains(userAccount2, (List<UserAccount>)page.getItems());
+
+		testGroup = originalTestGroup;
 	}
 
 	@Ignore

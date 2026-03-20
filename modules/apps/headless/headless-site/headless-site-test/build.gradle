@@ -15,5 +15,6 @@ dependencies {
 	testIntegrationImplementation project(":apps:portal-odata:portal-odata-api")
 	testIntegrationImplementation project(":apps:portal-vulcan:portal-vulcan-api")
 	testIntegrationImplementation project(":apps:site:site-api")
+	testIntegrationImplementation project(":apps:site:site-cms-site-initializer-test-util")
 	testIntegrationImplementation project(":test:arquillian-extension-junit-bridge")
 }
