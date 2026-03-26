@@ -40,6 +40,7 @@ import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
@@ -311,6 +312,22 @@ public class SectionDisplayContextHelper {
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
+		FDSActionDropdownItem shareFDSActionDropdownItem =
+			new FDSActionDropdownItem(
+				null, "share", "share",
+				LanguageUtil.get(httpServletRequest, "share"), "get", "share",
+				"link");
+
+		PermissionChecker permissionChecker =
+			themeDisplay.getPermissionChecker();
+
+		if (!permissionChecker.isGroupAdmin(themeDisplay.getScopeGroupId())) {
+			shareFDSActionDropdownItem.setVisibilityFilters(
+				HashMapBuilder.<String, Object>put(
+					"embedded.creator.id", themeDisplay.getUserId()
+				).build());
+		}
+
 		return ListUtil.fromArray(
 			new FDSActionDropdownItem(
 				ActionUtil.getBaseViewFolderURL(themeDisplay) + "{embedded.id}",
@@ -365,10 +382,7 @@ public class SectionDisplayContextHelper {
 				"automatic-translate", "translate",
 				LanguageUtil.get(httpServletRequest, "translate"), "get",
 				"update", null),
-			new FDSActionDropdownItem(
-				null, "share", "share",
-				LanguageUtil.get(httpServletRequest, "share"), "get", "share",
-				"link"),
+			shareFDSActionDropdownItem,
 			new FDSActionDropdownItem(
 				"{actions.expire.href}", "time", "expire",
 				LanguageUtil.get(httpServletRequest, "expire"), "post",
