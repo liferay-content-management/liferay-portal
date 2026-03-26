@@ -40,10 +40,16 @@ const matchesVisibilityFilters = (
 	const visibilityFilters: IItemActionsDataFilter =
 		action?.data?.visibilityFilters;
 
-	return Object.keys(visibilityFilters).every(
-		(key: string) =>
-			getLocalizedValue(itemData, key)?.value === visibilityFilters[key]
-	);
+	return Object.keys(visibilityFilters).every((key: string) => {
+		const actualValue = getLocalizedValue(itemData, key)?.value;
+		const filterValue = visibilityFilters[key];
+		if (typeof filterValue === 'string') {
+			return String(actualValue) === filterValue;
+		}
+		else {
+			return actualValue === filterValue;
+		}
+	});
 };
 
 const isDisabled = (
