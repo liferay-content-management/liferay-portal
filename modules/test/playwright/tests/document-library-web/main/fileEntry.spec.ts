@@ -1124,7 +1124,6 @@ test(
 		documentLibraryPage,
 		page,
 		site,
-		workflowTaskDetailsPage,
 		workflowTasksPage,
 	}) => {
 		const docTitle = getRandomString();
