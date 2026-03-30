@@ -4771,7 +4771,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.api.common.jar!api-common.jar</file-name>
-				<version>2.43.0</version>
+				<version>2.55.1</version>
 				<project-name>API Common</project-name>
 				<licenses>
 					<license>
@@ -4794,7 +4794,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.cloud.jar!gax-grpc.jar</file-name>
-				<version>2.60.0</version>
+				<version>2.72.1</version>
 				<project-name>GAX (Google Api eXtensions) for Java (gRPC)</project-name>
 				<licenses>
 					<license>
@@ -4805,7 +4805,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.cloud.jar!gax-httpjson.jar</file-name>
-				<version>2.60.0</version>
+				<version>2.72.1</version>
 				<project-name>GAX (Google Api eXtensions) for Java (HTTP JSON)</project-name>
 				<licenses>
 					<license>
@@ -4816,7 +4816,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.cloud.jar!gax.jar</file-name>
-				<version>2.60.0</version>
+				<version>2.72.1</version>
 				<project-name>GAX (Google Api eXtensions) for Java (Core)</project-name>
 				<licenses>
 					<license>
@@ -4827,7 +4827,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.cloud.jar!google-cloud-core-grpc.jar</file-name>
-				<version>2.50.0</version>
+				<version>2.62.1</version>
 				<project-name>Google Cloud Core gRPC</project-name>
 				<licenses>
 					<license>
@@ -4838,7 +4838,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.cloud.jar!google-cloud-core-http.jar</file-name>
-				<version>2.50.0</version>
+				<version>2.62.1</version>
 				<project-name>Google Cloud Core HTTP</project-name>
 				<licenses>
 					<license>
@@ -4849,7 +4849,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.cloud.jar!google-cloud-core.jar</file-name>
-				<version>2.50.0</version>
+				<version>2.62.1</version>
 				<project-name>Google Cloud Core</project-name>
 				<licenses>
 					<license>
@@ -4860,7 +4860,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.cloud.jar!proto-google-common-protos.jar</file-name>
-				<version>2.51.0</version>
+				<version>2.63.1</version>
 				<project-name>proto-google-common-protos</project-name>
 				<project-url>https://github.com/googleapis/sdk-platform-java</project-url>
 				<licenses>
@@ -4872,7 +4872,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.cloud.jar!proto-google-iam-v1.jar</file-name>
-				<version>1.46.0</version>
+				<version>1.58.1</version>
 				<project-name>proto-google-iam-v1</project-name>
 				<project-url>https://github.com/googleapis/sdk-platform-java</project-url>
 				<licenses>
@@ -4896,7 +4896,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.http.client.jar!google-http-client-apache-v2.jar</file-name>
-				<version>1.45.3</version>
+				<version>2.0.2</version>
 				<project-name>Apache HTTP transport v2 for the Google HTTP Client Library for Java.</project-name>
 				<project-url>https://www.google.com/</project-url>
 				<licenses>
@@ -4908,7 +4908,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.http.client.jar!google-http-client-appengine.jar</file-name>
-				<version>1.45.3</version>
+				<version>2.0.2</version>
 				<project-name>Google App Engine extensions to the Google HTTP Client Library for Java.</project-name>
 				<licenses>
 					<license>
@@ -4919,7 +4919,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.http.client.jar!google-http-client-gson.jar</file-name>
-				<version>1.45.3</version>
+				<version>2.0.2</version>
 				<project-name>GSON extensions to the Google HTTP Client Library for Java.</project-name>
 				<licenses>
 					<license>
@@ -4930,7 +4930,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.http.client.jar!google-http-client-jackson2.jar</file-name>
-				<version>1.45.3</version>
+				<version>2.0.2</version>
 				<project-name>Jackson 2 extensions to the Google HTTP Client Library for Java.</project-name>
 				<licenses>
 					<license>
@@ -4941,7 +4941,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.http.client.jar!google-http-client-protobuf.jar</file-name>
-				<version>1.45.3</version>
+				<version>2.0.2</version>
 				<project-name>Protocol Buffer extensions to the Google HTTP Client Library for Java.</project-name>
 				<licenses>
 					<license>
@@ -4952,7 +4952,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.http.client.jar!google-http-client.jar</file-name>
-				<version>1.45.3</version>
+				<version>2.0.2</version>
 				<project-name>Google HTTP Client Library for Java</project-name>
 				<project-url>https://www.google.com/</project-url>
 				<licenses>
@@ -4964,7 +4964,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.oauth2.jar!google-auth-library-credentials.jar</file-name>
-				<version>1.31.0</version>
+				<version>1.40.0</version>
 				<project-name>Google Auth Library for Java - Credentials</project-name>
 				<licenses>
 					<license>
@@ -4975,7 +4975,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.oauth2.jar!google-auth-library-oauth2-http.jar</file-name>
-				<version>1.31.0</version>
+				<version>1.40.0</version>
 				<project-name>Google Auth Library for Java - OAuth2 HTTP</project-name>
 				<licenses>
 					<license>
@@ -4986,7 +4986,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.google.oauth2.jar!google-oauth-client.jar</file-name>
-				<version>1.37.0</version>
+				<version>1.39.0</version>
 				<project-name>Google OAuth Client Library for Java</project-name>
 				<project-url>https://www.google.com/</project-url>
 				<licenses>
@@ -5010,9 +5010,9 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.gson.jar!gson.jar</file-name>
-				<version>2.9.0</version>
+				<version>2.12.1</version>
 				<project-name>Gson</project-name>
-				<project-url>https://github.com/google/gson/gson</project-url>
+				<project-url>https://github.com/google/gson</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache-2.0</license-name>
@@ -5057,7 +5057,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.guava.jar!guava.jar</file-name>
-				<version>32.0.1-jre</version>
+				<version>33.5.0-jre</version>
 				<project-name>Guava: Google Core Libraries for Java</project-name>
 				<project-url>https://github.com/google/guava/</project-url>
 				<licenses>
@@ -5127,7 +5127,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-alts.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-alts</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5139,7 +5139,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-api.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-api</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5151,7 +5151,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-auth.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-auth</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5163,7 +5163,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-context.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-context</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5175,7 +5175,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-core.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-core</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5187,7 +5187,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-googleapis.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-googleapis</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5199,7 +5199,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-grpclb.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-grpclb</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5211,7 +5211,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-inprocess.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-inprocess</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5223,7 +5223,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-netty-shaded.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-netty-shaded</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5235,7 +5235,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-opentelemetry.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-opentelemetry</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5247,7 +5247,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-protobuf-lite.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-protobuf-lite</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5259,7 +5259,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-protobuf.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-protobuf</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5271,7 +5271,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-rls.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-rls</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5283,7 +5283,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-services.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-services</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5295,7 +5295,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-stub.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-stub</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5307,7 +5307,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-util.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-util</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5319,7 +5319,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.io.grpc.jar!grpc-xds.jar</file-name>
-				<version>1.75.0</version>
+				<version>1.76.0</version>
 				<project-name>io.grpc:grpc-xds</project-name>
 				<project-url>https://github.com/grpc/grpc-java</project-url>
 				<licenses>
@@ -5927,7 +5927,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.protobuf.jar!protobuf-java-util.jar</file-name>
-				<version>3.25.5</version>
+				<version>3.25.8</version>
 				<project-name>Protocol Buffers [Util]</project-name>
 				<project-url>https://developers.google.com/protocol-buffers/</project-url>
 				<licenses>
@@ -5939,7 +5939,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.shared.dependencies.protobuf.jar!protobuf-java.jar</file-name>
-				<version>3.25.5</version>
+				<version>3.25.8</version>
 				<project-name>Protocol Buffers [Core]</project-name>
 				<project-url>https://developers.google.com/protocol-buffers/</project-url>
 				<licenses>
@@ -6452,7 +6452,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.translation.translator.google.cloud.jar!google-cloud-translate.jar</file-name>
-				<version>2.51.0</version>
+				<version>2.79.0</version>
 				<project-name>Google Cloud Translate</project-name>
 				<project-url>https://github.com/googleapis/google-cloud-java</project-url>
 				<licenses>
@@ -6464,7 +6464,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.translation.translator.google.cloud.jar!proto-google-cloud-translate-v3.jar</file-name>
-				<version>2.51.0</version>
+				<version>2.79.0</version>
 				<project-name>proto-google-cloud-translate-v3</project-name>
 				<project-url>https://github.com/googleapis/google-cloud-java</project-url>
 				<licenses>
@@ -6476,7 +6476,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.translation.translator.google.cloud.jar!proto-google-cloud-translate-v3beta1.jar</file-name>
-				<version>0.133.0</version>
+				<version>0.161.0</version>
 				<project-name>proto-google-cloud-translate-v3beta1</project-name>
 				<project-url>https://github.com/googleapis/google-cloud-java</project-url>
 				<licenses>
@@ -6488,7 +6488,7 @@
 			</library>
 			<library>
 				<file-name>com.liferay.translation.translator.google.cloud.jar!re2j.jar</file-name>
-				<version>1.7</version>
+				<version>1.8</version>
 				<project-name>RE2/J</project-name>
 				<project-url>http://github.com/google/re2j</project-url>
 				<licenses>
