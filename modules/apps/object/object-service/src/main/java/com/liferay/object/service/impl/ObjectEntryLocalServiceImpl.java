@@ -6606,19 +6606,31 @@ public class ObjectEntryLocalServiceImpl
 			}
 		}
 
-		AssetEntry assetEntry = _assetEntryLocalService.updateEntry(
-			userId, objectEntry.getNonzeroGroupId(),
-			objectEntry.getCreateDate(), objectEntry.getModifiedDate(),
-			objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
-			objectEntry.getUuid(), 0, assetCategoryIds, assetTagNames, true,
-			objectEntry.isApproved(), null, null, null, null, mimeType, title,
-			String.valueOf(objectEntry.getObjectEntryId()), null, null, null, 0,
-			0, priority, serviceContext);
+		if (ArrayUtil.contains(
+				_SKIP_REQUIRED_CATEGORY_VALIDATION_OBJECT_DEFINITIONS,
+				objectDefinition.getExternalReferenceCode())) {
 
-		if (assetLinkEntryIds != null) {
-			_assetLinkLocalService.updateLinks(
-				userId, assetEntry.getEntryId(), assetLinkEntryIds,
-				AssetLinkConstants.TYPE_RELATED);
+			AssetVocabularyThreadLocal.setSkipRequiredCategoryValidation(true);
+		}
+
+		try {
+			AssetEntry assetEntry = _assetEntryLocalService.updateEntry(
+				userId, objectEntry.getNonzeroGroupId(),
+				objectEntry.getCreateDate(), objectEntry.getModifiedDate(),
+				objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
+				objectEntry.getUuid(), 0, assetCategoryIds, assetTagNames, true,
+				objectEntry.isApproved(), null, null, null, null, mimeType,
+				title, String.valueOf(objectEntry.getObjectEntryId()), null,
+				null, null, 0, 0, priority, serviceContext);
+
+			if (assetLinkEntryIds != null) {
+				_assetLinkLocalService.updateLinks(
+					userId, assetEntry.getEntryId(), assetLinkEntryIds,
+					AssetLinkConstants.TYPE_RELATED);
+			}
+		}
+		finally {
+			AssetVocabularyThreadLocal.setSkipRequiredCategoryValidation(false);
 		}
 	}
 
@@ -7898,6 +7910,11 @@ public class ObjectEntryLocalServiceImpl
 		ObjectEntryTable.INSTANCE.externalReferenceCode,
 		ObjectEntryTable.INSTANCE.status
 	};
+
+	private static final String[]
+		_SKIP_REQUIRED_CATEGORY_VALIDATION_OBJECT_DEFINITIONS = {
+			"L_CMS_BULK_ACTION_TASK", "L_CMS_DEFAULT_PERMISSION"
+		};
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ObjectEntryLocalServiceImpl.class);
