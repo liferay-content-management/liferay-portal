@@ -951,7 +951,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 
 			Group group = _groupLocalService.getGroup(groupId);
 
-			if (group.isDepot() && _isSpace(group)) {
+			if (group.isDepot() && _isSpaceDepotEntryGroup(group)) {
 				spaceGroups.add(groupId);
 			}
 			else {
@@ -991,7 +991,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		return groupRelPredicate;
 	}
 
-	private boolean _isSpace(Group group) {
+	private boolean _isSpaceDepotEntryGroup(Group group) {
 		int depotEntryType = GetterUtil.getInteger(
 			group.getTypeSettingsProperty("depotEntryType"));
 
