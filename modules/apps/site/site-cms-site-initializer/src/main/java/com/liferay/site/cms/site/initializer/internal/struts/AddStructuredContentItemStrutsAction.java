@@ -67,32 +67,35 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 			return null;
 		}
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
+		String objectEntryFolderExternalReferenceCode = ParamUtil.getString(
+			httpServletRequest, "objectEntryFolderExternalReferenceCode");
+
+		long groupId = ParamUtil.getLong(httpServletRequest, "groupId");
+
+		ObjectEntryFolder objectEntryFolder =
+			_objectEntryFolderLocalService.
+				fetchObjectEntryFolderByExternalReferenceCode(
+					objectEntryFolderExternalReferenceCode, groupId,
+					objectDefinition.getCompanyId());
+
+		if (objectEntryFolder == null) {
+			return null;
+		}
 
 		ObjectEntryManager objectEntryManager =
 			_objectEntryManagerRegistry.getObjectEntryManager(
 				objectDefinition.getCompanyId(),
 				objectDefinition.getStorageType());
 
-		ObjectEntry objectEntry = new ObjectEntry();
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		DefaultDTOConverterContext defaultDTOConverterContext =
 			new DefaultDTOConverterContext(
 				false, null, null, null, null,
 				themeDisplay.getSiteDefaultLocale(), null,
 				themeDisplay.getUser());
-
-		String objectEntryFolderExternalReferenceCode = ParamUtil.getString(
-			httpServletRequest, "objectEntryFolderExternalReferenceCode");
-
-		ObjectEntryFolder objectEntryFolder =
-			_objectEntryFolderLocalService.
-				fetchObjectEntryFolderByExternalReferenceCode(
-					objectEntryFolderExternalReferenceCode,
-					ParamUtil.getLong(httpServletRequest, "groupId"),
-					objectDefinition.getCompanyId());
 
 		String filterString = StringBundler.concat(
 			"status eq ", WorkflowConstants.STATUS_EMPTY_DRAFT,
@@ -106,18 +109,18 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 
 		Page<ObjectEntry> page = objectEntryManager.getObjectEntries(
 			objectDefinition.getCompanyId(), objectDefinition,
-			String.valueOf(ParamUtil.getLong(httpServletRequest, "groupId")),
-			null, defaultDTOConverterContext, filterString, Pagination.of(1, 1),
-			null, null);
+			String.valueOf(groupId), null, defaultDTOConverterContext,
+			filterString, Pagination.of(1, 1), null, null);
+
+		ObjectEntry objectEntry = new ObjectEntry();
 
 		if (page.getTotalCount() > 0) {
 			objectEntry = page.fetchFirstItem();
 		}
 		else {
 			objectEntry.setObjectEntryFolderExternalReferenceCode(
-				() -> ParamUtil.getString(
-					httpServletRequest,
-					"objectEntryFolderExternalReferenceCode"));
+				() -> objectEntryFolderExternalReferenceCode);
+
 			objectEntry.setStatus(
 				() -> new Status() {
 					{
@@ -127,8 +130,7 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 
 			objectEntry = objectEntryManager.addObjectEntry(
 				defaultDTOConverterContext, objectDefinition, objectEntry,
-				String.valueOf(
-					ParamUtil.getLong(httpServletRequest, "groupId")));
+				String.valueOf(groupId));
 		}
 
 		httpServletResponse.sendRedirect(
