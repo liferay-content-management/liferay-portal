@@ -95,8 +95,8 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 					objectDefinition.getCompanyId());
 
 		String filterString = StringBundler.concat(
-			"status eq ", WorkflowConstants.STATUS_DRAFT,
-			" and title eq null and userId eq ", themeDisplay.getUserId());
+			"status eq ", WorkflowConstants.STATUS_EMPTY_DRAFT,
+			" and userId eq ", themeDisplay.getUserId());
 
 		if (objectEntryFolder != null) {
 			filterString = StringBundler.concat(
@@ -121,7 +121,7 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 			objectEntry.setStatus(
 				() -> new Status() {
 					{
-						setCode(() -> WorkflowConstants.STATUS_DRAFT);
+						setCode(() -> WorkflowConstants.STATUS_EMPTY_DRAFT);
 					}
 				});
 
