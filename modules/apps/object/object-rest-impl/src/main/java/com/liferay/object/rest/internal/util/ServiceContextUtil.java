@@ -160,7 +160,8 @@ public class ServiceContextUtil {
 
 	private static boolean _isObjectEntryDraft(Status status) {
 		if ((status != null) &&
-			(status.getCode() == WorkflowConstants.STATUS_DRAFT)) {
+			((status.getCode() == WorkflowConstants.STATUS_DRAFT) ||
+			 (status.getCode() == WorkflowConstants.STATUS_EMPTY_DRAFT))) {
 
 			return true;
 		}

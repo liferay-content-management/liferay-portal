@@ -392,7 +392,9 @@ public class ObjectEntryLocalServiceImpl
 			GetterUtil.getInteger(serviceContext.getAttribute("status")));
 
 		if (ExportImportThreadLocal.isImportInProcess()) {
-			if (status == WorkflowConstants.STATUS_DRAFT) {
+			if ((status == WorkflowConstants.STATUS_DRAFT) ||
+				(status == WorkflowConstants.STATUS_EMPTY_DRAFT)) {
+
 				serviceContext.setWorkflowAction(
 					WorkflowConstants.ACTION_SAVE_DRAFT);
 			}
@@ -423,7 +425,7 @@ public class ObjectEntryLocalServiceImpl
 			user.isGuestUser(), objectDefinition, null,
 			_objectFieldLocalService.getObjectFields(
 				objectDefinition.getObjectDefinitionId()),
-			false, serviceContext, null, userId, null, values);
+			false, serviceContext, status, userId, null, values);
 
 		_addDLFileEntries(
 			dlFileEntriesMap, groupId, objectDefinition, objectEntryId,
@@ -5161,6 +5163,10 @@ public class ObjectEntryLocalServiceImpl
 	}
 
 	private int _getStatus(ObjectDefinition objectDefinition, int status) {
+		if (status == WorkflowConstants.STATUS_EMPTY_DRAFT) {
+			return status;
+		}
+
 		if (!ExportImportThreadLocal.isImportInProcess()) {
 			return WorkflowConstants.STATUS_DRAFT;
 		}
