@@ -14,8 +14,12 @@ import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.test.rule.FeatureFlag;
@@ -145,6 +149,27 @@ public class ViewContentsSectionDisplayContextTest
 
 		FrontendDataSetTestUtil.assertFDSActionDropdownItem(
 			"trash", "delete", "Delete", null, fdsActionDropdownItems.get(15));
+	}
+
+	@Test
+	public void testGetShareFDSActionDropdownItemWithoutGroupAdminPermission()
+		throws Exception {
+
+		User user = UserTestUtil.addUser();
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				user, PermissionCheckerFactoryUtil.create(user))) {
+
+			List<FDSActionDropdownItem> fdsActionDropdownItems =
+				getFDSActionDropdownItems();
+
+			FrontendDataSetTestUtil.assertFDSActionDropdownItem(
+				"share", "share", "Share", "get",
+				HashMapBuilder.<String, Object>put(
+					"embedded.creator.id", themeDisplay.getUserId()
+				).build(),
+				fdsActionDropdownItems.get(6));
+		}
 	}
 
 	@Override
