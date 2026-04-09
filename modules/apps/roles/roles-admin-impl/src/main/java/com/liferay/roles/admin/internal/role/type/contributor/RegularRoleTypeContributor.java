@@ -68,6 +68,7 @@ public class RegularRoleTypeContributor implements RoleTypeContributor {
 
 		if (name.equals(RoleConstants.ADMINISTRATOR) ||
 			name.equals(RoleConstants.ANALYTICS_ADMINISTRATOR) ||
+			name.equals(RoleConstants.CMS_ADMINISTRATOR) ||
 			name.equals(RoleConstants.OWNER)) {
 
 			return false;
@@ -82,7 +83,13 @@ public class RegularRoleTypeContributor implements RoleTypeContributor {
 			return false;
 		}
 
-		return !_portal.isSystemRole(role.getName());
+		String name = role.getName();
+
+		if (name.equals(RoleConstants.CMS_ADMINISTRATOR)) {
+			return false;
+		}
+
+		return !_portal.isSystemRole(name);
 	}
 
 	@Override
