@@ -27,6 +27,37 @@ import {required, validate} from '../../common/components/forms/validations';
 import {AssetLibrary} from '../../common/types/AssetLibrary';
 import {Space} from '../../common/types/Space';
 import FailedFiles from './FailedFiles';
+
+function getBaseName(filename: string): string {
+	const pos = filename.lastIndexOf('.');
+
+	return pos > 0 ? filename.substring(0, pos) : filename;
+}
+
+function getUploadBatches(files: FileData[]): FileData[][] {
+	const uploadBatches: FileData[][] = [];
+	const uploadBatchBaseNames: Set<string>[] = [];
+
+	for (const fileData of files) {
+		const baseName = getBaseName(fileData.name);
+
+		const pos = uploadBatchBaseNames.findIndex(
+			(baseNames) => !baseNames.has(baseName)
+		);
+
+		if (pos === -1) {
+			uploadBatches.push([fileData]);
+			uploadBatchBaseNames.push(new Set([baseName]));
+		}
+		else {
+			uploadBatches[pos].push(fileData);
+			uploadBatchBaseNames[pos].add(baseName);
+		}
+	}
+
+	return uploadBatches;
+}
+
 export interface FileData {
 	errorMessage?: string;
 	failed?: boolean;
@@ -155,53 +186,53 @@ export default function MultipleFileUploader({
 			const failedFiles: FileData[] = [];
 			const uploadedFiles: string[] = [];
 
-			Promise.allSettled(
-				filesToUpload.map(async (fileData: FileData) => {
-					const response = await uploadRequest({
-						fileData,
-						groupId: String(values.groupId),
-					});
-
-					const {error} = response;
-
-					if (error) {
-						failedFiles.push({
-							...fileData,
-							errorMessage: error,
-							failed: true,
+			for (const uploadBatch of getUploadBatches(filesToUpload)) {
+				await Promise.allSettled(
+					uploadBatch.map(async (fileData: FileData) => {
+						const response = await uploadRequest({
+							fileData,
+							groupId: String(values.groupId),
 						});
-					}
-					else if (response.multipleErrors) {
-						response.errors.map((item: any) => {
+
+						const {error} = response;
+
+						if (error) {
 							failedFiles.push({
-								...item,
+								...fileData,
+								errorMessage: error,
 								failed: true,
 							});
-						});
-					}
-					else {
-						uploadedFiles.push(fileData.name);
-					}
+						}
+						else if (response.multipleErrors) {
+							response.errors.map((item: any) => {
+								failedFiles.push({
+									...item,
+									failed: true,
+								});
+							});
+						}
+						else {
+							uploadedFiles.push(fileData.name);
+						}
+					})
+				);
+			}
 
-					return true;
-				})
-			).then(() => {
-				setIsLoading(false);
+			setIsLoading(false);
 
-				setFilesToUpload([]);
-				setFiledFiles(failedFiles);
+			setFilesToUpload([]);
+			setFiledFiles(failedFiles);
 
-				if (onUploadComplete) {
-					onUploadComplete({
-						assetLibrary: assetLibraries
-							? findAssetLibrary(String(values.groupId)) ||
-								assetLibraries?.[0]
-							: null,
-						failedFiles: failedFiles.map((file) => file.name),
-						successFiles: uploadedFiles,
-					});
-				}
-			});
+			if (onUploadComplete) {
+				onUploadComplete({
+					assetLibrary: assetLibraries
+						? findAssetLibrary(String(values.groupId)) ||
+							assetLibraries?.[0]
+						: null,
+					failedFiles: failedFiles.map((file) => file.name),
+					successFiles: uploadedFiles,
+				});
+			}
 		},
 		validate: (values) =>
 			validate(
