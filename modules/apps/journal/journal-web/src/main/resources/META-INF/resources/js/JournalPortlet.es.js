@@ -11,6 +11,20 @@ import removeAlert from './removeAlert';
 import showAlert from './showAlert';
 
 const AUTO_SAVE_DELAY = 1500;
+const NON_CONTENT_FORM_FIELD_SUFFIXES = [
+	'articleId',
+	'formDate',
+	'activePage',
+	'availableLocales',
+	'jakarta-portlet-action',
+	'jakarta.portlet.action',
+	'javax-portlet-action',
+	'javax.portlet.action',
+	'languageId',
+	'persistDefaultValues',
+	'version',
+	'workflowAction',
+];
 
 export default function _JournalPortlet({
 	articleId: initialArticleId,
@@ -94,12 +108,37 @@ export default function _JournalPortlet({
 		contextualSidebarButton.setAttribute('title', title);
 	};
 
-	const handleAutoSave = () => {
+	const ignoredFormFieldNames = new Set(
+		NON_CONTENT_FORM_FIELD_SUFFIXES.map((suffix) => `${namespace}${suffix}`)
+	);
+	const getFormValuesSignature = () =>
+		serializeFormValues(form, ignoredFormFieldNames);
+
+	let hasUnsavedChanges = false;
+	let hasUserInteractedWithForm = false;
+	let inFlightFormValuesSignature = null;
+	let lastSavedFormValuesSignature = '';
+
+	const initializeLastSavedFormValuesSignature = () => {
+		if (!lastSavedFormValuesSignature) {
+			lastSavedFormValuesSignature = getFormValuesSignature();
+		}
+	};
+
+	const handleAutoSave = (formValuesSignature = getFormValuesSignature()) => {
+		initializeLastSavedFormValuesSignature();
+
+		if (formValuesSignature === lastSavedFormValuesSignature) {
+			return;
+		}
+
 		lockHolder.lock?.lock();
 
 		actionInput.value = articleId
 			? '/journal/update_article'
 			: '/journal/add_article';
+
+		inFlightFormValuesSignature = formValuesSignature;
 
 		handleDDMFormValid({
 			redirectOnSave: false,
@@ -161,6 +200,8 @@ export default function _JournalPortlet({
 		);
 
 		if (!titleInputComponent) {
+			inFlightFormValuesSignature = null;
+
 			return;
 		}
 
@@ -224,6 +265,7 @@ export default function _JournalPortlet({
 
 			validateRequiredDDMFields();
 
+			inFlightFormValuesSignature = null;
 			lockHolder.lock?.unlock(true);
 		}
 		else {
@@ -234,6 +276,8 @@ export default function _JournalPortlet({
 				Liferay.Language.get('info'),
 				'info'
 			);
+
+			inFlightFormValuesSignature = null;
 			lockHolder.lock?.unlock(true);
 		}
 	};
@@ -331,8 +375,6 @@ export default function _JournalPortlet({
 		});
 	};
 
-	let hasUnsavedChanges = false;
-
 	const submitAsyncForm = (
 		formElement,
 		{redirectOnSave} = {redirectOnSave: false}
@@ -414,7 +456,22 @@ export default function _JournalPortlet({
 					articleIdWrapper.classList.remove('hide');
 					displayedArticleId.innerHTML = articleId;
 
+					const savedFormValuesSignature =
+						inFlightFormValuesSignature;
+
 					formDateInput.value = data.modifiedDate;
+					if (savedFormValuesSignature !== null) {
+						lastSavedFormValuesSignature = savedFormValuesSignature;
+					}
+
+					inFlightFormValuesSignature = null;
+					hasUnsavedChanges =
+						savedFormValuesSignature !== null &&
+						getFormValuesSignature() !==
+							lastSavedFormValuesSignature;
+					if (!hasUnsavedChanges) {
+						hasUserInteractedWithForm = false;
+					}
 					lockHolder.lock?.unlock();
 					removeAlert();
 
@@ -426,6 +483,7 @@ export default function _JournalPortlet({
 				}
 				else {
 					formDateInput.value = data.modifiedDate;
+					inFlightFormValuesSignature = null;
 					lockHolder.lock?.unlock(true);
 					showAlert(
 						Liferay.Language.get(
@@ -438,6 +496,7 @@ export default function _JournalPortlet({
 			})
 			.catch((error) => {
 				console.error(error);
+				inFlightFormValuesSignature = null;
 				lockHolder.lock?.unlock(true);
 			});
 	};
@@ -512,17 +571,62 @@ export default function _JournalPortlet({
 							node.name !== `${namespace}languageId`
 					);
 				},
-				callback: () => {
+				callback: ({
+					eventSourceType,
+					hadChildListMutation,
+					hadUserInteraction,
+				} = {}) => {
+					if (
+						hadUserInteraction ||
+						eventSourceType === 'change' ||
+						eventSourceType === 'input'
+					) {
+						hasUserInteractedWithForm = true;
+					}
+
+					initializeLastSavedFormValuesSignature();
+
+					const currentFormValuesSignature = getFormValuesSignature();
+					const baselineFormValuesSignature =
+						inFlightFormValuesSignature ??
+						lastSavedFormValuesSignature;
+
 					if (lockHolder.lock?.isLocked()) {
-						hasUnsavedChanges = true;
+						hasUnsavedChanges =
+							currentFormValuesSignature !==
+							(inFlightFormValuesSignature ??
+								lastSavedFormValuesSignature);
 
 						return;
 					}
 
-					handleAutoSave();
+					if (
+						eventSourceType === 'mutation' &&
+						hadChildListMutation &&
+						!hasUserInteractedWithForm &&
+						isFieldMaterializationMutation(
+							baselineFormValuesSignature,
+							currentFormValuesSignature
+						)
+					) {
+						lastSavedFormValuesSignature =
+							currentFormValuesSignature;
+
+						return;
+					}
+
+					if (
+						currentFormValuesSignature ===
+						lastSavedFormValuesSignature
+					) {
+						return;
+					}
+
+					handleAutoSave(currentFormValuesSignature);
 				},
 				form,
 				namespace,
+				onReady: initializeLastSavedFormValuesSignature,
 			})
 		);
 	}
@@ -547,10 +651,29 @@ function attachFormChangeListener({
 	callback,
 	form,
 	namespace,
+	onReady,
 }) {
-	const handleChange = debounce(() => {
-		callback();
+	let hadChildListMutationSinceLastCallback = false;
+	let hadUserInteractionSinceLastCallback = false;
+
+	const handleChange = debounce((eventSourceType) => {
+		callback({
+			eventSourceType,
+			hadChildListMutation: hadChildListMutationSinceLastCallback,
+			hadUserInteraction: hadUserInteractionSinceLastCallback,
+		});
+
+		hadChildListMutationSinceLastCallback = false;
+		hadUserInteractionSinceLastCallback = false;
 	}, AUTO_SAVE_DELAY);
+	const handleFormChange = () => {
+		hadUserInteractionSinceLastCallback = true;
+		handleChange('change');
+	};
+	const handleInput = () => {
+		hadUserInteractionSinceLastCallback = true;
+		handleChange('input');
+	};
 
 	const mutationObserver = new MutationObserver((mutationRecords) => {
 		const observedMutationRecords = mutationRecords
@@ -575,11 +698,19 @@ function attachFormChangeListener({
 			.filter((mutationRecord) => acceptMutationRecord(mutationRecord));
 
 		if (observedMutationRecords.length) {
-			handleChange();
+			hadChildListMutationSinceLastCallback =
+				hadChildListMutationSinceLastCallback ||
+				observedMutationRecords.some(
+					(mutationRecord) => mutationRecord.type === 'childList'
+				);
+
+			handleChange('mutation');
 		}
 	});
 
 	Liferay.componentReady(`${namespace}SelectAssetDisplayPage`).then(() => {
+		onReady?.();
+
 		mutationObserver.observe(form, {
 			attributeFilter: ['value'],
 			attributeOldValue: true,
@@ -588,15 +719,167 @@ function attachFormChangeListener({
 			subtree: true,
 		});
 
-		form.addEventListener('change', handleChange);
+		form.addEventListener('change', handleFormChange);
+		form.addEventListener('input', handleInput);
 	});
 
 	return {
 		detach() {
 			mutationObserver.disconnect();
-			form.removeEventListener('change', handleChange);
+			form.removeEventListener('change', handleFormChange);
+			form.removeEventListener('input', handleInput);
 		},
 	};
+}
+
+export function serializeFormValues(form, ignoredFieldNames = new Set()) {
+	const serializedFormValues = [];
+	const formDataEntries = Array.from(new FormData(form).entries());
+	const localizedFieldBaseNames = getLocalizedFieldBaseNames(formDataEntries);
+
+	formDataEntries.forEach(([name, value]) => {
+		const normalizedFieldName = normalizeTrackedFormFieldName(name);
+
+		if (
+			name.endsWith('_edited') ||
+			normalizedFieldName.endsWith('_edited') ||
+			localizedFieldBaseNames.has(name) ||
+			localizedFieldBaseNames.has(normalizedFieldName) ||
+			ignoredFieldNames.has(name) ||
+			ignoredFieldNames.has(normalizedFieldName)
+		) {
+			return;
+		}
+
+		const normalizedValue =
+			typeof File !== 'undefined' && value instanceof File
+				? `${value.name}:${value.size}:${value.type}:${value.lastModified}`
+				: normalizeTrackedFormFieldValue(value);
+
+		if (normalizedValue === '') {
+			return;
+		}
+
+		serializedFormValues.push([normalizedFieldName, normalizedValue]);
+	});
+
+	serializedFormValues.sort(([fieldNameA, valueA], [fieldNameB, valueB]) => {
+		const comparedFieldNames = fieldNameA.localeCompare(fieldNameB);
+
+		if (comparedFieldNames) {
+			return comparedFieldNames;
+		}
+
+		return valueA.localeCompare(valueB);
+	});
+
+	return JSON.stringify(serializedFormValues);
+}
+
+function getLocalizedFieldBaseNames(formDataEntries) {
+	const localizedFieldBaseNames = new Set();
+
+	formDataEntries.forEach(([name]) => {
+		const matchedName = name.match(/^(.*)_[a-z]{2}_[A-Z]{2}(?:_.*)?$/);
+
+		if (matchedName) {
+			localizedFieldBaseNames.add(matchedName[1]);
+		}
+	});
+
+	return localizedFieldBaseNames;
+}
+
+function isFieldMaterializationMutation(
+	previousSignature = '',
+	nextSignature = ''
+) {
+	const previousFieldValueMap = getSignatureFieldValueMap(previousSignature);
+	const nextFieldValueMap = getSignatureFieldValueMap(nextSignature);
+	const trackedFieldNames = new Set([
+		...previousFieldValueMap.keys(),
+		...nextFieldValueMap.keys(),
+	]);
+	let hasChangedFields = false;
+
+	for (const fieldName of trackedFieldNames) {
+		const previousValues = previousFieldValueMap.get(fieldName) || [];
+		const nextValues = nextFieldValueMap.get(fieldName) || [];
+
+		if (
+			previousValues.length !== nextValues.length ||
+			previousValues.some((value, index) => value !== nextValues[index])
+		) {
+			hasChangedFields = true;
+
+			if (previousValues.length) {
+				return false;
+			}
+		}
+	}
+
+	return hasChangedFields;
+}
+
+function getSignatureFieldValueMap(signature = '') {
+	const signatureFieldValueMap = new Map();
+
+	if (!signature) {
+		return signatureFieldValueMap;
+	}
+
+	try {
+		const parsedSignature = JSON.parse(signature);
+
+		if (!Array.isArray(parsedSignature)) {
+			return signatureFieldValueMap;
+		}
+
+		parsedSignature.forEach((entry) => {
+			if (!Array.isArray(entry) || entry.length !== 2) {
+				return;
+			}
+
+			const [fieldName, fieldValue] = entry;
+			const previousValues = signatureFieldValueMap.get(fieldName) || [];
+
+			previousValues.push(fieldValue);
+
+			signatureFieldValueMap.set(fieldName, previousValues);
+		});
+	}
+	catch (error) {
+		return signatureFieldValueMap;
+	}
+
+	return signatureFieldValueMap;
+}
+
+function normalizeTrackedFormFieldName(name) {
+	if (name.includes('ddm$$')) {
+		let normalizedFieldName = name;
+
+		normalizedFieldName = normalizedFieldName.replace(
+			/\$[^$#]+\$(\d+#)/g,
+			(_matchedName, repeatedSuffix) => `$${repeatedSuffix}`
+		);
+		normalizedFieldName = normalizedFieldName.replace(
+			/\$[^$#]+\$(\d+\$\$)/g,
+			(_matchedName, repeatedSuffix) => `$${repeatedSuffix}`
+		);
+
+		return normalizedFieldName;
+	}
+
+	return name;
+}
+
+function normalizeTrackedFormFieldValue(value) {
+	if (typeof value !== 'string') {
+		return value;
+	}
+
+	return value.replace(/\u200B/g, '').trim();
 }
 
 function attachListener(element, eventType, callback) {
