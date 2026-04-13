@@ -105,12 +105,21 @@ public class DepotAssetRendererFactoryWrapper<T>
 			return null;
 		}
 
+		DepotEntry depotEntry = _depotEntryLocalService.fetchGroupDepotEntry(
+			assetRenderer.getGroupId());
+
 		if (group.isControlPanel() ||
 			ArrayUtil.contains(
 				_siteConnectedGroupGroupProvider.
 					getCurrentAndAncestorSiteAndDepotGroupIds(
 						_getGroupId(group.getGroupId())),
-				groupId)) {
+				groupId) ||
+			((depotEntry != null) &&
+			 ArrayUtil.contains(
+				 _siteConnectedGroupGroupProvider.
+					 getCurrentAndAncestorSiteAndDepotGroupIds(
+						 assetRenderer.getGroupId()),
+				 groupId))) {
 
 			return assetRenderer;
 		}
@@ -121,10 +130,9 @@ public class DepotAssetRendererFactoryWrapper<T>
 			return null;
 		}
 
-		DepotEntry depotEntry = _depotEntryLocalService.getGroupDepotEntry(
-			groupId);
+		if ((depotEntry != null) &&
+			(depotEntry.getType() == DepotConstants.TYPE_SPACE)) {
 
-		if (depotEntry.getType() == DepotConstants.TYPE_SPACE) {
 			return assetRenderer;
 		}
 
