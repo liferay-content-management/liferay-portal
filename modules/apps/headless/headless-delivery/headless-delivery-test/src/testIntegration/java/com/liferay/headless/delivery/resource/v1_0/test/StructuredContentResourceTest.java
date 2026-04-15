@@ -2751,6 +2751,7 @@ public class StructuredContentResourceTest
 		_testPatchStructuredContentWithDateExpiredExpire2();
 		_testPatchStructuredContentWithDateExpiredExpireBadRequest();
 		_testPatchStructuredContentWithDateExpiredNeverExpire();
+		_testPatchStructuredContentWithNewLocal();
 	}
 
 	private void _testPatchStructuredContentWithDateExpiredExpire1()
@@ -2946,6 +2947,54 @@ public class StructuredContentResourceTest
 		_assertData(
 			patchContentFieldValue_I18n,
 			GetterUtil.getString(postFrenchData.get("data")), "fr-FR");
+	}
+
+	private void _testPatchStructuredContentWithNewLocal() throws Exception {
+		StructuredContent structuredContent = _randomStructuredContent(
+			LocaleUtil.getDefault(), true);
+
+		StructuredContent postStructuredContent =
+			structuredContentResource.postSiteStructuredContent(
+				testGroup.getGroupId(), structuredContent);
+
+		String germanData = RandomTestUtil.randomString(10);
+
+		Map<String, ContentFieldValue> contentFieldValues = HashMapBuilder.put(
+			"de-DE",
+			(ContentFieldValue)new ContentFieldValue() {
+
+				{
+					data = germanData;
+				}
+			}
+		).build();
+
+		structuredContent.setContentFields(
+			new ContentField[] {
+				new ContentField() {
+					{
+						contentFieldValue = contentFieldValues.get("de-DE");
+						contentFieldValue_i18n = contentFieldValues;
+						fieldReference = "MyText";
+						name = "MyText";
+					}
+				}
+			});
+
+		StructuredContentResource structuredContentResource =
+			_buildStructureContentResource(LocaleUtil.GERMANY);
+
+		StructuredContent patchStructuredContent =
+			structuredContentResource.patchStructuredContent(
+				postStructuredContent.getId(), structuredContent);
+
+		ContentField patchContentField =
+			patchStructuredContent.getContentFields()[0];
+
+		Map<String, ContentFieldValue> patchContentFieldValue_I18n =
+			patchContentField.getContentFieldValue_i18n();
+
+		_assertData(patchContentFieldValue_I18n, germanData, "de-DE");
 	}
 
 	private void _testPatchStructuredContentWithRandomTitle() throws Exception {
