@@ -118,8 +118,6 @@ public abstract class BaseSectionDisplayContext {
 
 	public Map<String, Object> getAdditionalProps() {
 		return HashMapBuilder.<String, Object>put(
-			"additionalAPIURLParameters", getAdditionalAPIURLParameters()
-		).put(
 			"assetLibraries",
 			_sectionDisplayContextHelper.getDepotEntriesJSONArray(
 				httpServletRequest)
@@ -307,7 +305,7 @@ public abstract class BaseSectionDisplayContext {
 	}
 
 	public String getAPIURL() {
-		return "/o/search/v1.0/search";
+		return "/o/search/v1.0/search?" + getAdditionalAPIURLParameters();
 	}
 
 	public Map<String, Object> getBreadcrumbProps() throws PortalException {
