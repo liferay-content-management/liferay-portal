@@ -179,6 +179,10 @@ components:
                         A flag that indicates whether the user making the requests is subscribed to this keyword.
                     readOnly: true
                     type: boolean
+                uuid:
+                    description:
+                        The UUID of the keyword.
+                    type: string
             required:
                 -   name
             type: object
