@@ -1127,6 +1127,20 @@ public class GroupImpl extends GroupBaseImpl {
 	}
 
 	@Override
+	public boolean isSpace() {
+		if (isDepot()) {
+			int depotEntryType = GetterUtil.getInteger(
+				getTypeSettingsProperty("depotEntryType"));
+
+			if (depotEntryType == 1) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	@Override
 	public boolean isStaged() {
 		return GetterUtil.getBoolean(
 			getLiveParentTypeSettingsProperty("staged"));
