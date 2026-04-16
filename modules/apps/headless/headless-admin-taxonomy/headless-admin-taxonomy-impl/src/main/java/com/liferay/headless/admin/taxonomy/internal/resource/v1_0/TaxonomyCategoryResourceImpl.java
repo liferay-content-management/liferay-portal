@@ -16,6 +16,7 @@ import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetCategoryService;
 import com.liferay.asset.kernel.service.AssetVocabularyGroupRelLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyService;
+import com.liferay.batch.engine.thread.local.BatchEngineThreadLocal;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryService;
@@ -914,6 +915,11 @@ public class TaxonomyCategoryResourceImpl
 			groupId, contextHttpServletRequest,
 			taxonomyCategory.getViewableByAsString()
 		).build();
+
+		if (BatchEngineThreadLocal.isBatchImportInProcess()) {
+			serviceContext.setCreateDate(taxonomyCategory.getDateCreated());
+			serviceContext.setModifiedDate(taxonomyCategory.getDateModified());
+		}
 
 		serviceContext.setUuid(taxonomyCategory.getUuid());
 

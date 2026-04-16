@@ -18,6 +18,7 @@ import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.asset.kernel.service.AssetVocabularyGroupRelLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyService;
+import com.liferay.batch.engine.thread.local.BatchEngineThreadLocal;
 import com.liferay.depot.util.SiteConnectedGroupGroupProviderUtil;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetLibrary;
@@ -822,6 +823,12 @@ public class TaxonomyVocabularyResourceImpl
 			siteId, contextHttpServletRequest,
 			taxonomyVocabulary.getViewableByAsString()
 		).build();
+
+		if (BatchEngineThreadLocal.isBatchImportInProcess()) {
+			serviceContext.setCreateDate(taxonomyVocabulary.getDateCreated());
+			serviceContext.setModifiedDate(
+				taxonomyVocabulary.getDateModified());
+		}
 
 		serviceContext.setUuid(taxonomyVocabulary.getUuid());
 
