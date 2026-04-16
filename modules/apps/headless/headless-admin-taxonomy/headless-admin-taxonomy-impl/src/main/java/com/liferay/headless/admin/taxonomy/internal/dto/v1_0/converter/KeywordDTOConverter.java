@@ -167,6 +167,7 @@ public class KeywordDTOConverter implements DTOConverter<AssetTag, Keyword> {
 						assetTag.getCompanyId(),
 						dtoConverterContext.getUserId(),
 						AssetTag.class.getName(), assetTag.getTagId()));
+				setUuid(assetTag::getUuid);
 			}
 		};
 	}
