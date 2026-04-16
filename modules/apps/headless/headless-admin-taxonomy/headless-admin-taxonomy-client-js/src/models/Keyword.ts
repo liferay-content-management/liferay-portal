@@ -28,6 +28,7 @@
 			"siteExternalReferenceCode"?: string;
 			"siteId"?: number;
 			"subscribed"?: boolean;
+			"uuid"?: string;
 
 		static "discriminator": string | undefined = undefined;
 
@@ -100,6 +101,11 @@
 			baseName: "subscribed",
 			name: "subscribed",
 			type: "boolean",
+		},
+		{
+			baseName: "uuid",
+			name: "uuid",
+			type: "string",
 		},
 		];
 

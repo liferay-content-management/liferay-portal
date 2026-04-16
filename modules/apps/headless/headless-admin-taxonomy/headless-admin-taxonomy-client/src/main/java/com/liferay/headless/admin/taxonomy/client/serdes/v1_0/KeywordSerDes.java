@@ -216,6 +216,20 @@ public class KeywordSerDes {
 			sb.append(keyword.getSubscribed());
 		}
 
+		if (keyword.getUuid() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"uuid\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(keyword.getUuid()));
+
+			sb.append("\"");
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -341,6 +355,13 @@ public class KeywordSerDes {
 			map.put("subscribed", String.valueOf(keyword.getSubscribed()));
 		}
 
+		if (keyword.getUuid() == null) {
+			map.put("uuid", null);
+		}
+		else {
+			map.put("uuid", String.valueOf(keyword.getUuid()));
+		}
+
 		return map;
 	}
 
@@ -399,6 +420,9 @@ public class KeywordSerDes {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "subscribed")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "uuid")) {
 				return false;
 			}
 
@@ -496,6 +520,11 @@ public class KeywordSerDes {
 			else if (Objects.equals(jsonParserFieldName, "subscribed")) {
 				if (jsonParserFieldValue != null) {
 					keyword.setSubscribed((Boolean)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "uuid")) {
+				if (jsonParserFieldValue != null) {
+					keyword.setUuid((String)jsonParserFieldValue);
 				}
 			}
 		}
