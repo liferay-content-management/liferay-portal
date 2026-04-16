@@ -79,23 +79,26 @@ public class TranslationManagerImpl implements TranslationManager {
 			String sourceLanguageId, String targetLanguageId)
 		throws IOException, PortalException {
 
-		String validatedSourceLanguageId = LocaleUtil.toLanguageId(
-			LocaleUtil.fromLanguageId(sourceLanguageId, true));
+		if (!_language.isAvailableLocale(sourceLanguageId)) {
+			throw new XLIFFFileException.MustBeSupportedLanguage(
+				sourceLanguageId);
+		}
 
-		String validatedTargetLanguageId = LocaleUtil.toLanguageId(
-			LocaleUtil.fromLanguageId(targetLanguageId, true));
+		if (!_language.isAvailableLocale(targetLanguageId)) {
+			throw new XLIFFFileException.MustBeSupportedLanguage(
+				targetLanguageId);
+		}
 
 		String fileName = _getXLIFFFileName(
-			className, classPK, locale, validatedSourceLanguageId,
-			validatedTargetLanguageId);
+			className, classPK, locale, sourceLanguageId, targetLanguageId);
 
 		File file = new File(_createTempDirectory(), fileName);
 
 		try (OutputStream outputStream = new FileOutputStream(file)) {
 			StreamUtil.transfer(
 				_getXLIFFInputStream(
-					className, classPK, validatedSourceLanguageId,
-					validatedTargetLanguageId, xliffMimeType),
+					className, classPK, sourceLanguageId, targetLanguageId,
+					xliffMimeType),
 				outputStream);
 		}
 
@@ -108,30 +111,36 @@ public class TranslationManagerImpl implements TranslationManager {
 			Locale locale, String sourceLanguageId, String[] targetLanguageIds)
 		throws IOException, PortalException {
 
-		String validatedSourceLanguageId = LocaleUtil.toLanguageId(
-			LocaleUtil.fromLanguageId(sourceLanguageId, true));
+		if (!_language.isAvailableLocale(sourceLanguageId)) {
+			throw new XLIFFFileException.MustBeSupportedLanguage(
+				sourceLanguageId);
+		}
+
+		for (String targetLanguageId : targetLanguageIds) {
+			if (!_language.isAvailableLocale(targetLanguageId)) {
+				throw new XLIFFFileException.MustBeSupportedLanguage(
+					targetLanguageId);
+			}
+		}
 
 		String fileName = StringBundler.concat(
 			StringUtil.removeSubstrings(
 				_getPrefixName(className, classPKs, locale),
 				PropsValues.DL_CHAR_BLACKLIST),
-			StringPool.DASH, validatedSourceLanguageId, ".zip");
+			StringPool.DASH, sourceLanguageId, ".zip");
 
 		ZipWriter zipWriter = _zipWriterFactory.getZipWriter(
 			new File(_createTempDirectory(), fileName));
 
 		for (long classPK : classPKs) {
 			for (String targetLanguageId : targetLanguageIds) {
-				String validatedTargetLanguageId = LocaleUtil.toLanguageId(
-					LocaleUtil.fromLanguageId(targetLanguageId, true));
-
 				zipWriter.addEntry(
 					_getXLIFFFileName(
-						className, classPK, locale, validatedSourceLanguageId,
-						validatedTargetLanguageId),
+						className, classPK, locale, sourceLanguageId,
+						targetLanguageId),
 					_getXLIFFInputStream(
-						className, classPK, validatedSourceLanguageId,
-						validatedTargetLanguageId, xliffMimeType));
+						className, classPK, sourceLanguageId, targetLanguageId,
+						xliffMimeType));
 			}
 		}
 
