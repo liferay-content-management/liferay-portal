@@ -42,6 +42,7 @@ import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.RSSFeedException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.image.ImageBag;
 import com.liferay.portal.kernel.instance.PortalInstancePool;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -2063,10 +2064,36 @@ public class PortalImpl implements Portal {
 
 		long[] currentAndAncestorSiteGroupIds = new long[groups.size()];
 
-		for (int i = 0; i < groups.size(); i++) {
-			Group group = groups.get(i);
+		if (!FeatureFlagManagerUtil.isEnabled(
+				CompanyThreadLocal.getCompanyId(), "LPD-17564")) {
 
-			currentAndAncestorSiteGroupIds[i] = group.getGroupId();
+			for (int i = 0; i < groups.size(); i++) {
+				Group group = groups.get(i);
+
+				currentAndAncestorSiteGroupIds[i] = group.getGroupId();
+			}
+		}
+		else {
+			Group cmsGroup = GroupLocalServiceUtil.fetchGroup(
+				CompanyThreadLocal.getCompanyId(), GroupConstants.CMS);
+
+			for (int i = 0; i < groups.size(); i++) {
+				Group group = groups.get(i);
+
+				if (!group.isSpace()) {
+					currentAndAncestorSiteGroupIds[i] = group.getGroupId();
+
+					continue;
+				}
+
+				if ((cmsGroup != null) &&
+					!ArrayUtil.contains(
+						currentAndAncestorSiteGroupIds,
+						cmsGroup.getGroupId())) {
+
+					currentAndAncestorSiteGroupIds[i] = cmsGroup.getGroupId();
+				}
+			}
 		}
 
 		return currentAndAncestorSiteGroupIds;

@@ -10,6 +10,10 @@ import com.liferay.asset.kernel.service.AssetTagService;
 import com.liferay.asset.tags.item.selector.AssetTagsItemSelectorCriterion;
 import com.liferay.asset.tags.item.selector.web.internal.search.EntriesChecker;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -102,7 +106,37 @@ public class AssetTagsDisplayContext {
 					themeDisplay.getCompanyId(), true));
 		}
 		else {
-			_groupIds = _assetTagsItemSelectorCriterion.getGroupIds();
+			if (!FeatureFlagManagerUtil.isEnabled(
+					CompanyThreadLocal.getCompanyId(), "LPD-17564")) {
+
+				_groupIds = _assetTagsItemSelectorCriterion.getGroupIds();
+			}
+			else {
+				_groupIds = new long[0];
+
+				Group cmsGroup = _groupLocalService.fetchGroup(
+					CompanyThreadLocal.getCompanyId(), GroupConstants.CMS);
+
+				for (long groupId :
+						_assetTagsItemSelectorCriterion.getGroupIds()) {
+
+					Group group = _groupLocalService.fetchGroup(groupId);
+
+					if (!group.isSpace()) {
+						_groupIds = ArrayUtil.append(
+							_groupIds, group.getGroupId());
+
+						continue;
+					}
+
+					if ((cmsGroup != null) && group.isSpace() &&
+						!ArrayUtil.contains(_groupIds, cmsGroup.getGroupId())) {
+
+						_groupIds = ArrayUtil.append(
+							_groupIds, cmsGroup.getGroupId());
+					}
+				}
+			}
 		}
 
 		return _groupIds;
