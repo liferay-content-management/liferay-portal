@@ -10,6 +10,7 @@ import com.liferay.asset.kernel.service.AssetTagGroupRelLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.asset.kernel.service.AssetTagService;
 import com.liferay.asset.tags.constants.AssetTagsAdminPortletKeys;
+import com.liferay.batch.engine.thread.local.BatchEngineThreadLocal;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryService;
@@ -322,7 +323,7 @@ public class KeywordResourceImpl
 			return _toKeyword(
 				_assetTagService.updateTag(
 					externalReferenceCode, assetTag.getTagId(),
-					keyword.getName(), null));
+					keyword.getName(), _createServiceContext(keyword)));
 		}
 
 		return _postSiteKeyword(externalReferenceCode, keyword, assetLibraryId);
@@ -334,7 +335,7 @@ public class KeywordResourceImpl
 
 		AssetTag assetTag = _assetTagService.updateTag(
 			keyword.getExternalReferenceCode(), keywordId, keyword.getName(),
-			null);
+			_createServiceContext(keyword));
 
 		if (FeatureFlagManagerUtil.isEnabled(
 				assetTag.getCompanyId(), "LPD-17564")) {
@@ -395,7 +396,7 @@ public class KeywordResourceImpl
 			return _toKeyword(
 				_assetTagService.updateTag(
 					externalReferenceCode, assetTag.getTagId(),
-					keyword.getName(), null));
+					keyword.getName(), _createServiceContext(keyword)));
 		}
 
 		return _postSiteKeyword(externalReferenceCode, keyword, siteId);
@@ -416,6 +417,19 @@ public class KeywordResourceImpl
 	@Override
 	protected String getPermissionCheckerResourceName(Object id) {
 		return AssetTagsPermission.RESOURCE_NAME;
+	}
+
+	private ServiceContext _createServiceContext(Keyword keyword) {
+		ServiceContext serviceContext = new ServiceContext();
+
+		if (BatchEngineThreadLocal.isBatchImportInProcess()) {
+			serviceContext.setCreateDate(keyword.getDateCreated());
+			serviceContext.setModifiedDate(keyword.getDateModified());
+		}
+
+		serviceContext.setUuid(keyword.getUuid());
+
+		return serviceContext;
 	}
 
 	private Page<Keyword> _getKeywordsPage(
@@ -524,7 +538,7 @@ public class KeywordResourceImpl
 
 		assetTag = _assetTagService.updateTag(
 			externalReferenceCode, assetTag.getTagId(), keyword.getName(),
-			new ServiceContext());
+			_createServiceContext(keyword));
 
 		Group group = _groupLocalService.getGroup(siteId);
 
@@ -554,7 +568,7 @@ public class KeywordResourceImpl
 
 		AssetTag assetTag = _assetTagService.addTag(
 			externalReferenceCode, siteId, keyword.getName(),
-			new ServiceContext());
+			_createServiceContext(keyword));
 
 		Group group = _groupLocalService.getGroup(siteId);
 
