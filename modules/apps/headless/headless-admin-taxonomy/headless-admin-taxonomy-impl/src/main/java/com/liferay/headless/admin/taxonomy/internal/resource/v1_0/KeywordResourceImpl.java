@@ -19,6 +19,7 @@ import com.liferay.headless.admin.taxonomy.dto.v1_0.Keyword;
 import com.liferay.headless.admin.taxonomy.internal.odata.entity.v1_0.KeywordEntityModel;
 import com.liferay.headless.admin.taxonomy.internal.util.TaxonomyGroupUtil;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.KeywordResource;
+import com.liferay.headless.common.spi.service.context.ServiceContextBuilder;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.OrderFactoryUtil;
@@ -323,7 +324,8 @@ public class KeywordResourceImpl
 			return _toKeyword(
 				_assetTagService.updateTag(
 					externalReferenceCode, assetTag.getTagId(),
-					keyword.getName(), _createServiceContext(keyword)));
+					keyword.getName(),
+					_getServiceContext(assetLibraryId, keyword)));
 		}
 
 		return _postSiteKeyword(externalReferenceCode, keyword, assetLibraryId);
@@ -335,7 +337,7 @@ public class KeywordResourceImpl
 
 		AssetTag assetTag = _assetTagService.updateTag(
 			keyword.getExternalReferenceCode(), keywordId, keyword.getName(),
-			_createServiceContext(keyword));
+			_getServiceContext(keyword.getSiteId(), keyword));
 
 		if (FeatureFlagManagerUtil.isEnabled(
 				assetTag.getCompanyId(), "LPD-17564")) {
@@ -396,7 +398,7 @@ public class KeywordResourceImpl
 			return _toKeyword(
 				_assetTagService.updateTag(
 					externalReferenceCode, assetTag.getTagId(),
-					keyword.getName(), _createServiceContext(keyword)));
+					keyword.getName(), _getServiceContext(siteId, keyword)));
 		}
 
 		return _postSiteKeyword(externalReferenceCode, keyword, siteId);
@@ -417,19 +419,6 @@ public class KeywordResourceImpl
 	@Override
 	protected String getPermissionCheckerResourceName(Object id) {
 		return AssetTagsPermission.RESOURCE_NAME;
-	}
-
-	private ServiceContext _createServiceContext(Keyword keyword) {
-		ServiceContext serviceContext = new ServiceContext();
-
-		if (BatchEngineThreadLocal.isBatchImportInProcess()) {
-			serviceContext.setCreateDate(keyword.getDateCreated());
-			serviceContext.setModifiedDate(keyword.getDateModified());
-		}
-
-		serviceContext.setUuid(keyword.getUuid());
-
-		return serviceContext;
 	}
 
 	private Page<Keyword> _getKeywordsPage(
@@ -504,6 +493,21 @@ public class KeywordResourceImpl
 		return projectionList;
 	}
 
+	private ServiceContext _getServiceContext(long groupId, Keyword keyword) {
+		ServiceContext serviceContext = ServiceContextBuilder.create(
+			groupId, contextHttpServletRequest, null
+		).build();
+
+		if (BatchEngineThreadLocal.isBatchImportInProcess()) {
+			serviceContext.setCreateDate(keyword.getDateCreated());
+			serviceContext.setModifiedDate(keyword.getDateModified());
+		}
+
+		serviceContext.setUuid(keyword.getUuid());
+
+		return serviceContext;
+	}
+
 	private long _getTotalCount(String search, Long siteId) {
 		DynamicQuery dynamicQuery = _assetTagLocalService.dynamicQuery();
 
@@ -538,7 +542,7 @@ public class KeywordResourceImpl
 
 		assetTag = _assetTagService.updateTag(
 			externalReferenceCode, assetTag.getTagId(), keyword.getName(),
-			_createServiceContext(keyword));
+			_getServiceContext(siteId, keyword));
 
 		Group group = _groupLocalService.getGroup(siteId);
 
@@ -568,7 +572,7 @@ public class KeywordResourceImpl
 
 		AssetTag assetTag = _assetTagService.addTag(
 			externalReferenceCode, siteId, keyword.getName(),
-			_createServiceContext(keyword));
+			_getServiceContext(siteId, keyword));
 
 		Group group = _groupLocalService.getGroup(siteId);
 
