@@ -61,6 +61,7 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -738,6 +739,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		validate(name);
 
 		tag.setExternalReferenceCode(externalReferenceCode);
+		tag.setModifiedDate(serviceContext.getModifiedDate(new Date()));
 		tag.setName(name);
 
 		tag = assetTagPersistence.update(tag);
