@@ -10,7 +10,6 @@ import com.liferay.asset.kernel.service.AssetTagGroupRelLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.asset.kernel.service.AssetTagService;
 import com.liferay.asset.tags.constants.AssetTagsAdminPortletKeys;
-import com.liferay.batch.engine.thread.local.BatchEngineThreadLocal;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryService;
@@ -498,11 +497,8 @@ public class KeywordResourceImpl
 			groupId, contextHttpServletRequest, null
 		).build();
 
-		if (BatchEngineThreadLocal.isBatchImportInProcess()) {
-			serviceContext.setCreateDate(keyword.getDateCreated());
-			serviceContext.setModifiedDate(keyword.getDateModified());
-		}
-
+		serviceContext.setCreateDate(keyword.getDateCreated());
+		serviceContext.setModifiedDate(keyword.getDateModified());
 		serviceContext.setUuid(keyword.getUuid());
 
 		return serviceContext;
