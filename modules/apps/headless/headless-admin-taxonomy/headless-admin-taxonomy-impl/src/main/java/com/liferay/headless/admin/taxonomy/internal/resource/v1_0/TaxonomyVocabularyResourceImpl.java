@@ -60,6 +60,7 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.action.DTOActionProvider;
@@ -1057,6 +1058,8 @@ public class TaxonomyVocabularyResourceImpl
 			TaxonomyVocabulary taxonomyVocabulary)
 		throws Exception {
 
+		int status = assetVocabulary.getStatus();
+
 		Map<Locale, String> titleMap = LocalizedMapUtil.getLocalizedMap(
 			contextAcceptLanguage.getPreferredLocale(),
 			taxonomyVocabulary.getName(), taxonomyVocabulary.getName_i18n(),
@@ -1087,7 +1090,7 @@ public class TaxonomyVocabularyResourceImpl
 			}
 		}
 
-		return _assetVocabularyService.updateVocabulary(
+		assetVocabulary = _assetVocabularyService.updateVocabulary(
 			(taxonomyVocabulary.getExternalReferenceCode() == null) ?
 				assetVocabulary.getExternalReferenceCode() :
 					taxonomyVocabulary.getExternalReferenceCode(),
@@ -1101,6 +1104,19 @@ public class TaxonomyVocabularyResourceImpl
 				assetVocabulary.getGroupId(), contextHttpServletRequest,
 				taxonomyVocabulary.getViewableByAsString()
 			).build());
+
+		if (status == WorkflowConstants.STATUS_EMPTY) {
+			assetVocabulary.setUuid(taxonomyVocabulary.getUuid());
+			assetVocabulary.setCreateDate(taxonomyVocabulary.getDateCreated());
+			assetVocabulary.setModifiedDate(
+				taxonomyVocabulary.getDateModified());
+
+			assetVocabulary =
+				_assetVocabularyLocalService.updateAssetVocabulary(
+					assetVocabulary);
+		}
+
+		return assetVocabulary;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
