@@ -79,23 +79,21 @@ public class ExportImportMixedEnginesTest {
 		DateFormat simpleDateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
 			"yyyy-MM-dd");
 
-		AssetVocabulary assetVocabulary1 = AssetTestUtil.addVocabulary(
-			_group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
-		assetVocabulary1.setCreateDate(simpleDateFormat.parse("2020-01-15"));
-		assetVocabulary1.setModifiedDate(simpleDateFormat.parse("2020-01-16"));
+		serviceContext.setCreateDate(simpleDateFormat.parse("2020-01-15"));
+		serviceContext.setModifiedDate(simpleDateFormat.parse("2020-01-16"));
 
-		assetVocabulary1 = _assetVocabularyLocalService.updateAssetVocabulary(
-			assetVocabulary1);
+		AssetVocabulary assetVocabulary1 =
+			_assetVocabularyLocalService.addVocabulary(
+				TestPropsValues.getUserId(), _group.getGroupId(),
+				RandomTestUtil.randomString(), serviceContext);
 
-		AssetCategory assetCategory1 = AssetTestUtil.addCategory(
-			_group.getGroupId(), assetVocabulary1.getVocabularyId());
-
-		assetCategory1.setCreateDate(simpleDateFormat.parse("2021-01-15"));
-		assetCategory1.setModifiedDate(simpleDateFormat.parse("2021-01-16"));
-
-		assetCategory1 = _assetCategoryLocalService.updateAssetCategory(
-			assetCategory1);
+		AssetCategory assetCategory1 = _assetCategoryLocalService.addCategory(
+			TestPropsValues.getUserId(), _group.getGroupId(),
+			RandomTestUtil.randomString(), assetVocabulary1.getVocabularyId(),
+			serviceContext);
 
 		Map<String, String[]> parameterMap = HashMapBuilder.put(
 			PortletDataHandlerKeys.PORTLET_DATA,
@@ -220,7 +218,8 @@ public class ExportImportMixedEnginesTest {
 		DateFormat simpleDateFormat = DateFormatFactoryUtil.getSimpleDateFormat(
 			"yyyy-MM-dd");
 
-		ServiceContext serviceContext = new ServiceContext();
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
 		serviceContext.setCreateDate(simpleDateFormat.parse("2020-01-15"));
 		serviceContext.setModifiedDate(simpleDateFormat.parse("2020-01-16"));
