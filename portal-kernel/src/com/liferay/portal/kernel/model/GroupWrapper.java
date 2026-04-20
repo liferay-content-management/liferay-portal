@@ -1043,6 +1043,11 @@ public class GroupWrapper
 	}
 
 	@Override
+	public boolean isSpace() {
+		return model.isSpace();
+	}
+
+	@Override
 	public boolean isStaged() {
 		return model.isStaged();
 	}
@@ -1518,4 +1523,4 @@ public class GroupWrapper
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1875940727
+// LIFERAY-SERVICE-BUILDER-HASH:1611389916

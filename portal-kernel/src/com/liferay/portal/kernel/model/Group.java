@@ -196,6 +196,8 @@ public interface Group extends GroupModel, PersistedModel, TreeModel {
 			boolean privateSite)
 		throws com.liferay.portal.kernel.exception.PortalException;
 
+	public boolean isSpace();
+
 	public boolean isStaged();
 
 	public boolean isStagedPortlet(String portletId);
@@ -215,4 +217,4 @@ public interface Group extends GroupModel, PersistedModel, TreeModel {
 			typeSettingsUnicodeProperties);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-71914651
+// LIFERAY-SERVICE-BUILDER-HASH:1721103072
