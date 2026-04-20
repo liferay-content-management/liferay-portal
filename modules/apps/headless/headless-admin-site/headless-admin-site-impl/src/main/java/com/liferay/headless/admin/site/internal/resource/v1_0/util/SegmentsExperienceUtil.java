@@ -16,6 +16,8 @@ import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServiceUtil;
 import com.liferay.layout.util.structure.LayoutStructure;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
@@ -184,6 +186,17 @@ public class SegmentsExperienceUtil {
 				UserLocalServiceUtil.getUser(serviceContext.getUserId()));
 
 		for (PageElement pageElement : pageExperience.getPageElements()) {
+			if (pageElement.getPageElementDefinition() == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Skipping page element " +
+							pageElement.getExternalReferenceCode() +
+								" with null definition");
+				}
+
+				continue;
+			}
+
 			LayoutStructureUtil.addLayoutStructureItem(
 				layoutStructure, layoutStructureItemImporterContext,
 				pageElement);
@@ -228,6 +241,9 @@ public class SegmentsExperienceUtil {
 
 		return segmentsEntryReference;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		SegmentsExperienceUtil.class);
 
 	private static class SegmentsEntryReference {
 
