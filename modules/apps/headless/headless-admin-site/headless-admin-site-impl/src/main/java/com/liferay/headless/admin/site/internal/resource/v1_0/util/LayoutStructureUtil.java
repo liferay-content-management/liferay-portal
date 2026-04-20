@@ -10,6 +10,8 @@ import com.liferay.headless.admin.site.internal.resource.v1_0.layout.structure.i
 import com.liferay.headless.admin.site.internal.resource.v1_0.layout.structure.item.importer.context.LayoutStructureItemImporterContext;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -39,6 +41,17 @@ public class LayoutStructureUtil {
 		}
 
 		for (PageElement childPageElement : pageElement.getPageElements()) {
+			if (childPageElement.getPageElementDefinition() == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Skipping page element " +
+							childPageElement.getExternalReferenceCode() +
+								" with null definition");
+				}
+
+				continue;
+			}
+
 			addLayoutStructureItem(
 				layoutStructure, layoutStructureItemImporterContext,
 				childPageElement);
@@ -59,5 +72,8 @@ public class LayoutStructureUtil {
 
 		return layoutStructure.getMainItemId();
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		LayoutStructureUtil.class);
 
 }
