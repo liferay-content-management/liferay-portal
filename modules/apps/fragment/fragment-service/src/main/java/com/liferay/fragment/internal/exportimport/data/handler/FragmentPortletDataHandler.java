@@ -20,6 +20,7 @@ import com.liferay.fragment.configuration.FragmentServiceConfiguration;
 import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.constants.FragmentPortletKeys;
 import com.liferay.fragment.model.FragmentCollection;
+import com.liferay.fragment.model.FragmentComposition;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.layout.util.LayoutServiceContextHelper;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
@@ -76,6 +77,7 @@ public class FragmentPortletDataHandler extends BasePortletDataHandler {
 	protected void activate() {
 		setDeletionSystemEventStagedModelTypes(
 			new StagedModelType(FragmentCollection.class),
+			new StagedModelType(FragmentComposition.class),
 			new StagedModelType(FragmentEntry.class));
 		setExportPortletDataHandlerControls(
 			new PortletDataHandlerBoolean(
@@ -99,6 +101,8 @@ public class FragmentPortletDataHandler extends BasePortletDataHandler {
 		}
 
 		_fragmentEntryStagedModelRepository.deleteStagedModels(
+			portletDataContext);
+		_fragmentCompositionStagedModelRepository.deleteStagedModels(
 			portletDataContext);
 		_fragmentCollectionStagedModelRepository.deleteStagedModels(
 			portletDataContext);
@@ -129,6 +133,12 @@ public class FragmentPortletDataHandler extends BasePortletDataHandler {
 				getExportActionableDynamicQuery(portletDataContext);
 
 		fragmentCollectionExportActionableDynamicQuery.performActions();
+
+		ActionableDynamicQuery fragmentCompositionExportActionableDynamicQuery =
+			_fragmentCompositionStagedModelRepository.
+				getExportActionableDynamicQuery(portletDataContext);
+
+		fragmentCompositionExportActionableDynamicQuery.performActions();
 
 		ActionableDynamicQuery fragmentEntryActionableDynamicQuery =
 			_fragmentEntryStagedModelRepository.getExportActionableDynamicQuery(
@@ -169,38 +179,47 @@ public class FragmentPortletDataHandler extends BasePortletDataHandler {
 
 		List<Element> fragmentEntryElements = fragmentEntriesElement.elements();
 
-		if (ListUtil.isEmpty(fragmentEntryElements)) {
-			return null;
+		if (ListUtil.isNotEmpty(fragmentEntryElements)) {
+			FragmentServiceConfiguration fragmentServiceConfiguration =
+				_configurationProvider.getCompanyConfiguration(
+					FragmentServiceConfiguration.class,
+					portletDataContext.getCompanyId());
+
+			if (!fragmentServiceConfiguration.propagateChanges() ||
+				(ExportImportThreadLocal.isStagingInProcess() &&
+				 _stagingGroupHelper.isStagedPortlet(
+					 portletDataContext.getGroupId(),
+					 FragmentPortletKeys.FRAGMENT))) {
+
+				for (Element fragmentEntryElement : fragmentEntryElements) {
+					StagedModelDataHandlerUtil.importStagedModel(
+						portletDataContext, fragmentEntryElement);
+				}
+			}
+			else {
+				try (AutoCloseable autoCloseable =
+						_layoutServiceContextHelper.
+							getServiceContextAutoCloseable(
+								_companyLocalService.getCompany(
+									portletDataContext.getCompanyId()))) {
+
+					for (Element fragmentEntryElement : fragmentEntryElements) {
+						StagedModelDataHandlerUtil.importStagedModel(
+							portletDataContext, fragmentEntryElement);
+					}
+				}
+			}
 		}
 
-		FragmentServiceConfiguration fragmentServiceConfiguration =
-			_configurationProvider.getCompanyConfiguration(
-				FragmentServiceConfiguration.class,
-				portletDataContext.getCompanyId());
+		Element fragmentCompositionsElement =
+			portletDataContext.getImportDataGroupElement(
+				FragmentComposition.class);
 
-		if (!fragmentServiceConfiguration.propagateChanges() ||
-			(ExportImportThreadLocal.isStagingInProcess() &&
-			 _stagingGroupHelper.isStagedPortlet(
-				 portletDataContext.getGroupId(),
-				 FragmentPortletKeys.FRAGMENT))) {
+		for (Element fragmentCompositionElement :
+				fragmentCompositionsElement.elements()) {
 
-			for (Element fragmentEntryElement : fragmentEntryElements) {
-				StagedModelDataHandlerUtil.importStagedModel(
-					portletDataContext, fragmentEntryElement);
-			}
-
-			return null;
-		}
-
-		try (AutoCloseable autoCloseable =
-				_layoutServiceContextHelper.getServiceContextAutoCloseable(
-					_companyLocalService.getCompany(
-						portletDataContext.getCompanyId()))) {
-
-			for (Element fragmentEntryElement : fragmentEntryElements) {
-				StagedModelDataHandlerUtil.importStagedModel(
-					portletDataContext, fragmentEntryElement);
-			}
+			StagedModelDataHandlerUtil.importStagedModel(
+				portletDataContext, fragmentCompositionElement);
 		}
 
 		return null;
@@ -219,6 +238,7 @@ public class FragmentPortletDataHandler extends BasePortletDataHandler {
 				portletDataContext,
 				new StagedModelType[] {
 					new StagedModelType(FragmentCollection.class.getName()),
+					new StagedModelType(FragmentComposition.class.getName()),
 					new StagedModelType(FragmentEntry.class.getName())
 				});
 
@@ -230,6 +250,12 @@ public class FragmentPortletDataHandler extends BasePortletDataHandler {
 				getExportActionableDynamicQuery(portletDataContext);
 
 		fragmentCollectionExportActionableDynamicQuery.performCount();
+
+		ActionableDynamicQuery fragmentCompositionExportActionableDynamicQuery =
+			_fragmentCompositionStagedModelRepository.
+				getExportActionableDynamicQuery(portletDataContext);
+
+		fragmentCompositionExportActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery fragmentEntryExportActionableDynamicQuery =
 			_fragmentEntryStagedModelRepository.getExportActionableDynamicQuery(
@@ -250,6 +276,13 @@ public class FragmentPortletDataHandler extends BasePortletDataHandler {
 	)
 	private StagedModelRepository<FragmentCollection>
 		_fragmentCollectionStagedModelRepository;
+
+	@Reference(
+		target = "(model.class.name=com.liferay.fragment.model.FragmentComposition)",
+		unbind = "-"
+	)
+	private StagedModelRepository<FragmentComposition>
+		_fragmentCompositionStagedModelRepository;
 
 	@Reference(
 		target = "(model.class.name=com.liferay.fragment.model.FragmentEntry)",
