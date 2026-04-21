@@ -14,6 +14,19 @@
 		.diff-removed-image {
 			display: none;
 		}
+
+		ins.diffins,
+		ins.diffmod,
+		ins.mod {
+			background-color: #cfc;
+			text-decoration: none;
+		}
+
+		del.diffdel,
+		del.diffmod {
+			background-color: #fdc6c6;
+			text-decoration: line-through;
+		}
 	}
 
 	.diff-container-column {
