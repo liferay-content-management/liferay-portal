@@ -18,6 +18,7 @@ import com.liferay.asset.kernel.model.ClassTypeReader;
 import com.liferay.asset.kernel.service.AssetVocabularyGroupRelLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyService;
+import com.liferay.batch.engine.thread.local.BatchEngineThreadLocal;
 import com.liferay.depot.util.SiteConnectedGroupGroupProviderUtil;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.AssetLibrary;
@@ -60,6 +61,7 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
@@ -824,8 +826,12 @@ public class TaxonomyVocabularyResourceImpl
 			taxonomyVocabulary.getViewableByAsString()
 		).build();
 
-		serviceContext.setCreateDate(taxonomyVocabulary.getDateCreated());
-		serviceContext.setModifiedDate(taxonomyVocabulary.getDateModified());
+		if (BatchEngineThreadLocal.isBatchImportInProcess()) {
+			serviceContext.setCreateDate(taxonomyVocabulary.getDateCreated());
+			serviceContext.setModifiedDate(
+				taxonomyVocabulary.getDateModified());
+		}
+
 		serviceContext.setUuid(taxonomyVocabulary.getUuid());
 
 		return serviceContext;
@@ -1053,6 +1059,33 @@ public class TaxonomyVocabularyResourceImpl
 		};
 	}
 
+	private AssetVocabulary _updateEmptyAssetVocabulary(
+		AssetVocabulary assetVocabulary, int status,
+		TaxonomyVocabulary taxonomyVocabulary) {
+
+		if ((status != WorkflowConstants.STATUS_EMPTY) ||
+			!BatchEngineThreadLocal.isBatchImportInProcess()) {
+
+			return assetVocabulary;
+		}
+
+		if (Validator.isNotNull(taxonomyVocabulary.getUuid())) {
+			assetVocabulary.setUuid(taxonomyVocabulary.getUuid());
+		}
+
+		if (taxonomyVocabulary.getDateCreated() != null) {
+			assetVocabulary.setCreateDate(taxonomyVocabulary.getDateCreated());
+		}
+
+		if (taxonomyVocabulary.getDateModified() != null) {
+			assetVocabulary.setModifiedDate(
+				taxonomyVocabulary.getDateModified());
+		}
+
+		return _assetVocabularyLocalService.updateAssetVocabulary(
+			assetVocabulary);
+	}
+
 	private AssetVocabulary _updateVocabulary(
 			AssetVocabulary assetVocabulary, long companyId,
 			TaxonomyVocabulary taxonomyVocabulary)
@@ -1090,33 +1123,21 @@ public class TaxonomyVocabularyResourceImpl
 			}
 		}
 
-		assetVocabulary = _assetVocabularyService.updateVocabulary(
-			(taxonomyVocabulary.getExternalReferenceCode() == null) ?
-				assetVocabulary.getExternalReferenceCode() :
-					taxonomyVocabulary.getExternalReferenceCode(),
-			assetVocabulary.getVocabularyId(), null, titleMap, descriptionMap,
-			_getSettings(
-				taxonomyVocabulary.getAssetTypes(),
-				assetVocabulary.getGroupId(),
-				taxonomyVocabulary.getMultiValued()),
-			_getVisibilityType(taxonomyVocabulary.getVisibilityType()),
-			ServiceContextBuilder.create(
-				assetVocabulary.getGroupId(), contextHttpServletRequest,
-				taxonomyVocabulary.getViewableByAsString()
-			).build());
-
-		if (status == WorkflowConstants.STATUS_EMPTY) {
-			assetVocabulary.setUuid(taxonomyVocabulary.getUuid());
-			assetVocabulary.setCreateDate(taxonomyVocabulary.getDateCreated());
-			assetVocabulary.setModifiedDate(
-				taxonomyVocabulary.getDateModified());
-
-			assetVocabulary =
-				_assetVocabularyLocalService.updateAssetVocabulary(
-					assetVocabulary);
-		}
-
-		return assetVocabulary;
+		return _updateEmptyAssetVocabulary(
+			_assetVocabularyService.updateVocabulary(
+				(taxonomyVocabulary.getExternalReferenceCode() == null) ?
+					assetVocabulary.getExternalReferenceCode() :
+						taxonomyVocabulary.getExternalReferenceCode(),
+				assetVocabulary.getVocabularyId(), null, titleMap,
+				descriptionMap,
+				_getSettings(
+					taxonomyVocabulary.getAssetTypes(),
+					assetVocabulary.getGroupId(),
+					taxonomyVocabulary.getMultiValued()),
+				_getVisibilityType(taxonomyVocabulary.getVisibilityType()),
+				_getServiceContext(
+					assetVocabulary.getGroupId(), taxonomyVocabulary)),
+			status, taxonomyVocabulary);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
