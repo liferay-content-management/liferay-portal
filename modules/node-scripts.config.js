@@ -10,7 +10,7 @@
  */
 
 module.exports = {
-	hash: '911f1d07ad602dac672fe0b368a344fb5801a75744c9d4bbac863ec2677567a6',
+	hash: '9e21d9a15242f9c3adedf7d95fb6e77300d8381fbf58991a79ecaea9176d4d22',
 	imports: {
 		'@liferay/accessibility-menu-web': [],
 		'@liferay/accessibility-settings-state-web': [],
@@ -204,7 +204,7 @@ module.exports = {
 		'@liferay/frontend-js-state-web': ['./react'],
 		'@liferay/frontend-js-walkthrough-sample-web': [],
 		'@liferay/frontend-js-walkthrough-web': [],
-		'@liferay/frontend-taglib': [],
+		'@liferay/frontend-taglib': ['htmldiff-js'],
 		'@liferay/frontend-theme-dialect-style-guide-sample-web': [],
 		'@liferay/headless-admin-taxonomy-client-js': [],
 		'@liferay/headless-builder-web': [],

@@ -4,5 +4,6 @@
  */
 
 module.exports = {
+	exports: ['htmldiff-js'],
 	main: './src/main/resources/META-INF/resources/js/index.js',
 };
