@@ -36,6 +36,11 @@ public interface JournalHelper {
 	public String getAbsolutePath(PortletRequest portletRequest, long folderId)
 		throws PortalException;
 
+	public String getArticleDisplayContent(
+			long groupId, String articleId, double version, String languageId,
+			PortletRequestModel portletRequestModel, ThemeDisplay themeDisplay)
+		throws Exception;
+
 	public Layout getArticleLayout(String layoutUuid, long groupId);
 
 	/**

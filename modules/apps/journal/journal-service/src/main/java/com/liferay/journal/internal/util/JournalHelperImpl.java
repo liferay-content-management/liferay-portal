@@ -90,39 +90,17 @@ public class JournalHelperImpl implements JournalHelper {
 			PortletRequestModel portletRequestModel, ThemeDisplay themeDisplay)
 		throws Exception {
 
-		JournalArticle sourceArticle =
-			JournalArticleLocalServiceUtil.getArticle(
-				groupId, articleId, sourceVersion);
+		String sourceContent = getArticleDisplayContent(
+			groupId, articleId, sourceVersion, languageId, portletRequestModel,
+			themeDisplay);
 
-		if (!JournalArticleLocalServiceUtil.isRenderable(
-				sourceArticle, portletRequestModel, themeDisplay)) {
-
-			throw new CompareVersionsException(sourceVersion);
-		}
-
-		JournalArticleDisplay sourceArticleDisplay =
-			JournalArticleLocalServiceUtil.getArticleDisplay(
-				sourceArticle, null, Constants.VIEW, languageId, 1,
-				portletRequestModel, themeDisplay);
-
-		JournalArticle targetArticle =
-			JournalArticleLocalServiceUtil.getArticle(
-				groupId, articleId, targetVersion);
-
-		if (!JournalArticleLocalServiceUtil.isRenderable(
-				targetArticle, portletRequestModel, themeDisplay)) {
-
-			throw new CompareVersionsException(targetVersion);
-		}
-
-		JournalArticleDisplay targetArticleDisplay =
-			JournalArticleLocalServiceUtil.getArticleDisplay(
-				targetArticle, null, Constants.VIEW, languageId, 1,
-				portletRequestModel, themeDisplay);
+		String targetContent = getArticleDisplayContent(
+			groupId, articleId, targetVersion, languageId, portletRequestModel,
+			themeDisplay);
 
 		String diff = _diffHtml.diff(
-			new UnsyncStringReader(sourceArticleDisplay.getContent()),
-			new UnsyncStringReader(targetArticleDisplay.getContent()));
+			new UnsyncStringReader(sourceContent),
+			new UnsyncStringReader(targetContent));
 
 		if (!diff.matches(_MAP_REGEX)) {
 			return diff;
@@ -199,6 +177,29 @@ public class JournalHelperImpl implements JournalHelper {
 		}
 
 		return sb.toString();
+	}
+
+	@Override
+	public String getArticleDisplayContent(
+			long groupId, String articleId, double version, String languageId,
+			PortletRequestModel portletRequestModel, ThemeDisplay themeDisplay)
+		throws Exception {
+
+		JournalArticle article = JournalArticleLocalServiceUtil.getArticle(
+			groupId, articleId, version);
+
+		if (!JournalArticleLocalServiceUtil.isRenderable(
+				article, portletRequestModel, themeDisplay)) {
+
+			throw new CompareVersionsException(version);
+		}
+
+		JournalArticleDisplay articleDisplay =
+			JournalArticleLocalServiceUtil.getArticleDisplay(
+				article, null, Constants.VIEW, languageId, 1,
+				portletRequestModel, themeDisplay);
+
+		return articleDisplay.getContent();
 	}
 
 	@Override
