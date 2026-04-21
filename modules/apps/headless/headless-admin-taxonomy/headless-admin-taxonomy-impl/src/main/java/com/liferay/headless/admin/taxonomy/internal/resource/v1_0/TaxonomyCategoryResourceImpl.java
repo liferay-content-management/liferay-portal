@@ -16,6 +16,7 @@ import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetCategoryService;
 import com.liferay.asset.kernel.service.AssetVocabularyGroupRelLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyService;
+import com.liferay.batch.engine.thread.local.BatchEngineThreadLocal;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryService;
@@ -55,6 +56,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
@@ -915,8 +917,11 @@ public class TaxonomyCategoryResourceImpl
 			taxonomyCategory.getViewableByAsString()
 		).build();
 
-		serviceContext.setCreateDate(taxonomyCategory.getDateCreated());
-		serviceContext.setModifiedDate(taxonomyCategory.getDateModified());
+		if (BatchEngineThreadLocal.isBatchImportInProcess()) {
+			serviceContext.setCreateDate(taxonomyCategory.getDateCreated());
+			serviceContext.setModifiedDate(taxonomyCategory.getDateModified());
+		}
+
 		serviceContext.setUuid(taxonomyCategory.getUuid());
 
 		return serviceContext;
@@ -1142,6 +1147,8 @@ public class TaxonomyCategoryResourceImpl
 			AssetCategory assetCategory, TaxonomyCategory taxonomyCategory)
 		throws Exception {
 
+		int status = assetCategory.getStatus();
+
 		Map<Locale, String> titleMap = LocalizedMapUtil.getLocalizedMap(
 			contextAcceptLanguage.getPreferredLocale(),
 			taxonomyCategory.getName(), taxonomyCategory.getName_i18n(),
@@ -1164,18 +1171,44 @@ public class TaxonomyCategoryResourceImpl
 		long assetVocabularyId = _getAssetVocabularyId(
 			assetCategory, assetCategory.getGroupId(), taxonomyCategory);
 
-		return _assetCategoryService.updateCategory(
-			taxonomyCategory.getExternalReferenceCode(),
-			assetCategory.getCategoryId(),
-			_getParentAssetCategoryId(
-				assetCategory, assetVocabularyId, assetCategory.getGroupId(),
-				taxonomyCategory),
-			titleMap, descriptionMap, assetVocabularyId,
-			_toStringArray(taxonomyCategory.getTaxonomyCategoryProperties()),
-			ServiceContextBuilder.create(
-				assetCategory.getGroupId(), contextHttpServletRequest,
-				taxonomyCategory.getViewableByAsString()
-			).build());
+		return _updateEmptyAssetCategory(
+			_assetCategoryService.updateCategory(
+				taxonomyCategory.getExternalReferenceCode(),
+				assetCategory.getCategoryId(),
+				_getParentAssetCategoryId(
+					assetCategory, assetVocabularyId,
+					assetCategory.getGroupId(), taxonomyCategory),
+				titleMap, descriptionMap, assetVocabularyId,
+				_toStringArray(
+					taxonomyCategory.getTaxonomyCategoryProperties()),
+				_getServiceContext(
+					assetCategory.getGroupId(), taxonomyCategory)),
+			status, taxonomyCategory);
+	}
+
+	private AssetCategory _updateEmptyAssetCategory(
+		AssetCategory assetCategory, int status,
+		TaxonomyCategory taxonomyCategory) {
+
+		if ((status != WorkflowConstants.STATUS_EMPTY) ||
+			!BatchEngineThreadLocal.isBatchImportInProcess()) {
+
+			return assetCategory;
+		}
+
+		if (Validator.isNotNull(taxonomyCategory.getUuid())) {
+			assetCategory.setUuid(taxonomyCategory.getUuid());
+		}
+
+		if (taxonomyCategory.getDateCreated() != null) {
+			assetCategory.setCreateDate(taxonomyCategory.getDateCreated());
+		}
+
+		if (taxonomyCategory.getDateModified() != null) {
+			assetCategory.setModifiedDate(taxonomyCategory.getDateModified());
+		}
+
+		return _assetCategoryLocalService.updateAssetCategory(assetCategory);
 	}
 
 	private static final EntityModel _entityModel = new CategoryEntityModel();
