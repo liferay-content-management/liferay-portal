@@ -49,7 +49,9 @@ renderResponse.setTitle(LanguageUtil.get(request, "compare-versions"));
 		languageId="<%= languageId %>"
 		portletURL="<%= portletURL %>"
 		resourceURL="<%= resourceURL %>"
+		sourceContent="<%= sourceArticleContent %>"
 		sourceVersion="<%= sourceVersion %>"
+		targetContent="<%= targetArticleContent %>"
 		targetVersion="<%= targetVersion %>"
 	/>
 </clay:container-fluid>
