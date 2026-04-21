@@ -123,8 +123,16 @@ public class DiffVersionComparatorTag extends IncludeTag {
 		return _resourceURL;
 	}
 
+	public String getSourceContent() {
+		return _sourceContent;
+	}
+
 	public double getSourceVersion() {
 		return _sourceVersion;
+	}
+
+	public String getTargetContent() {
+		return _targetContent;
 	}
 
 	public double getTargetVersion() {
@@ -162,8 +170,16 @@ public class DiffVersionComparatorTag extends IncludeTag {
 		_resourceURL = resourceURL;
 	}
 
+	public void setSourceContent(String sourceContent) {
+		_sourceContent = sourceContent;
+	}
+
 	public void setSourceVersion(double sourceVersion) {
 		_sourceVersion = sourceVersion;
+	}
+
+	public void setTargetContent(String targetContent) {
+		_targetContent = targetContent;
 	}
 
 	public void setTargetVersion(double targetVersion) {
@@ -180,7 +196,9 @@ public class DiffVersionComparatorTag extends IncludeTag {
 		_languageId = null;
 		_portletURL = null;
 		_resourceURL = null;
+		_sourceContent = null;
 		_sourceVersion = 0;
+		_targetContent = null;
 		_targetVersion = 0;
 	}
 
@@ -270,7 +288,9 @@ public class DiffVersionComparatorTag extends IncludeTag {
 				"previousVersion",
 				String.valueOf(_diffVersionsInfo.getPreviousVersion()));
 			data.put("resourceURL", _resourceURL.toString());
+			data.put("sourceContent", _sourceContent);
 			data.put("sourceVersion", String.valueOf(_sourceVersion));
+			data.put("targetContent", _targetContent);
 			data.put("targetVersion", String.valueOf(_targetVersion));
 		}
 		catch (PortalException | PortletException exception) {
@@ -294,7 +314,9 @@ public class DiffVersionComparatorTag extends IncludeTag {
 	private String _languageId;
 	private PortletURL _portletURL;
 	private PortletURL _resourceURL;
+	private String _sourceContent;
 	private double _sourceVersion;
+	private String _targetContent;
 	private double _targetVersion;
 
 }
