@@ -7,6 +7,7 @@ import ClayCard from '@clayui/card';
 import {ClayInput} from '@clayui/form';
 import {useIsMounted} from '@liferay/frontend-js-react-web';
 import {fetch} from 'frontend-js-web';
+import HtmlDiff from 'htmldiff-js';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
 import Diff from './components/Diff';
@@ -26,7 +27,9 @@ function Comparator({
 	portletURL,
 	previousVersion,
 	resourceURL,
+	sourceContent,
 	sourceVersion,
+	targetContent,
 	targetVersion,
 }) {
 	const isMounted = useIsMounted();
@@ -68,7 +71,11 @@ function Comparator({
 		[portletNamespace, resourceURL, sourceVersion]
 	);
 
-	const [diff, setDiff] = useState(diffHtmlResults);
+	const [diff, setDiff] = useState(
+		() =>
+			diffHtmlResults ||
+			HtmlDiff.execute(sourceContent || '', targetContent || '')
+	);
 	const [diffURL, setDiffURL] = useState(getDiffURL(targetVersion));
 	const [filterQuery, setFilterQuery] = useState('');
 	const [selectedLanguageId, setSelectedLanguageId] = useState(languageId);
