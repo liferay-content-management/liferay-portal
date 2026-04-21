@@ -18,42 +18,33 @@ import java.io.Reader;
 
 import java.util.Locale;
 
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.osgi.service.component.annotations.Component;
-
-import org.outerj.daisy.diff.HtmlCleaner;
-import org.outerj.daisy.diff.XslFilter;
+import org.outerj.daisy.diff.helper.NekoHtmlParser;
 import org.outerj.daisy.diff.html.HTMLDiffer;
 import org.outerj.daisy.diff.html.HtmlSaxDiffOutput;
 import org.outerj.daisy.diff.html.TextNodeComparator;
 import org.outerj.daisy.diff.html.dom.DomTreeBuilder;
 
+import org.osgi.service.component.annotations.Component;
+
+import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
- * This class can compare two different versions of HTML code. It detects
- * changes to an entire HTML page such as removal or addition of characters or
- * images.
- *
  * @author Julio Camarero
  */
 @Component(service = DiffHtml.class)
 public class DiffHtmlImpl implements DiffHtml {
 
-	/**
-	 * This is a diff method with default values.
-	 *
-	 * @param  source the source text
-	 * @param  target the modified version of the source text
-	 * @return a string containing the HTML code of the source text showing the
-	 *         differences with the target text
-	 * @throws Exception if an exception occurred
-	 */
 	@Override
 	public String diff(Reader source, Reader target) throws Exception {
 		if (source == null) {
@@ -64,9 +55,6 @@ public class DiffHtmlImpl implements DiffHtml {
 			throw new NullPointerException("Target is null");
 		}
 
-		InputSource oldSource = new InputSource(source);
-		InputSource newSource = new InputSource(target);
-
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
 		try (SafeCloseable safeCloseable = ThreadContextClassLoaderUtil.swap(
@@ -76,22 +64,26 @@ public class DiffHtmlImpl implements DiffHtml {
 				(SAXTransformerFactory)
 					SecureXMLFactoryProviderUtil.newTransformerFactory();
 
-			TransformerHandler tranformHandler =
+			TransformerHandler transformerHandler =
 				saxTransformerFactory.newTransformerHandler();
 
-			tranformHandler.setResult(new StreamResult(unsyncStringWriter));
+			Transformer transformer = transformerHandler.getTransformer();
 
-			XslFilter xslFilter = new XslFilter();
+			transformer.setOutputProperty(OutputKeys.METHOD, "html");
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			transformer.setOutputProperty(OutputKeys.INDENT, "no");
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 
-			ContentHandler contentHandler = xslFilter.xsl(
-				tranformHandler,
-				"com/liferay/diff/internal/dependencies/diff_html.xsl");
+			transformerHandler.setResult(new StreamResult(unsyncStringWriter));
 
-			HtmlCleaner htmlCleaner = new HtmlCleaner();
+			ContentHandler contentHandler = new ImageOverlayFilter(
+				transformerHandler);
+
+			NekoHtmlParser nekoHtmlParser = new NekoHtmlParser();
 
 			DomTreeBuilder oldDomTreeBuilder = new DomTreeBuilder();
 
-			htmlCleaner.cleanAndParse(oldSource, oldDomTreeBuilder);
+			nekoHtmlParser.parse(new InputSource(source), oldDomTreeBuilder);
 
 			Locale locale = LocaleUtil.getDefault();
 
@@ -100,16 +92,12 @@ public class DiffHtmlImpl implements DiffHtml {
 
 			DomTreeBuilder newDomTreeBuilder = new DomTreeBuilder();
 
-			htmlCleaner.cleanAndParse(newSource, newDomTreeBuilder);
+			nekoHtmlParser.parse(new InputSource(target), newDomTreeBuilder);
 
 			TextNodeComparator rightTextNodeComparator = new TextNodeComparator(
 				newDomTreeBuilder, locale);
 
 			contentHandler.startDocument();
-
-			contentHandler.startElement(
-				StringPool.BLANK, _DIFF_REPORT, _DIFF_REPORT,
-				new AttributesImpl());
 
 			contentHandler.startElement(
 				StringPool.BLANK, _DIFF, _DIFF, new AttributesImpl());
@@ -123,9 +111,6 @@ public class DiffHtmlImpl implements DiffHtml {
 
 			contentHandler.endElement(StringPool.BLANK, _DIFF, _DIFF);
 
-			contentHandler.endElement(
-				StringPool.BLANK, _DIFF_REPORT, _DIFF_REPORT);
-
 			contentHandler.endDocument();
 
 			unsyncStringWriter.flush();
@@ -136,6 +121,14 @@ public class DiffHtmlImpl implements DiffHtml {
 				int index = string.indexOf("?>");
 
 				string = string.substring(index + 2);
+			}
+
+			if (string.startsWith(_DIFF_OPEN_TAG) &&
+				string.endsWith(_DIFF_CLOSE_TAG)) {
+
+				string = string.substring(
+					_DIFF_OPEN_TAG.length(),
+					string.length() - _DIFF_CLOSE_TAG.length());
 			}
 
 			return string;
@@ -166,6 +159,52 @@ public class DiffHtmlImpl implements DiffHtml {
 
 	private static final String _DIFF = "diff";
 
-	private static final String _DIFF_REPORT = "diffreport";
+	private static final String _DIFF_CLOSE_TAG = "</" + _DIFF + ">";
+
+	private static final String _DIFF_OPEN_TAG = "<" + _DIFF + ">";
+
+	private static class ImageOverlayFilter extends XMLFilterImpl {
+
+		public ImageOverlayFilter(ContentHandler contentHandler) {
+			setContentHandler(contentHandler);
+		}
+
+		@Override
+		public void startElement(
+				String uri, String localName, String qName, Attributes atts)
+			throws SAXException {
+
+			if (!"img".equalsIgnoreCase(localName)) {
+				super.startElement(uri, localName, qName, atts);
+
+				return;
+			}
+
+			String changeType = atts.getValue("changeType");
+
+			if (!"diff-added-image".equals(changeType) &&
+				!"diff-removed-image".equals(changeType)) {
+
+				super.startElement(uri, localName, qName, atts);
+
+				return;
+			}
+
+			AttributesImpl newAtts = new AttributesImpl(atts);
+
+			newAtts.addAttribute(
+				StringPool.BLANK, "onLoad", "onLoad", "CDATA",
+				"updateOverlays()");
+			newAtts.addAttribute(
+				StringPool.BLANK, "onError", "onError", "CDATA",
+				"updateOverlays()");
+			newAtts.addAttribute(
+				StringPool.BLANK, "onAbort", "onAbort", "CDATA",
+				"updateOverlays()");
+
+			super.startElement(uri, localName, qName, newAtts);
+		}
+
+	}
 
 }
