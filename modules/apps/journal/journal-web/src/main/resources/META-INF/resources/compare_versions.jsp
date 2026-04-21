@@ -14,7 +14,6 @@ long groupId = ParamUtil.getLong(request, "groupId");
 String articleId = ParamUtil.getString(request, "articleId");
 
 Set<Locale> availableLocales = (Set<Locale>)request.getAttribute(WebKeys.AVAILABLE_LOCALES);
-String diffHtmlResults = (String)request.getAttribute(WebKeys.DIFF_HTML_RESULTS);
 String languageId = (String)request.getAttribute(WebKeys.LANGUAGE_ID);
 String sourceArticleContent = (String)request.getAttribute("sourceArticleContent");
 double sourceVersion = (Double)request.getAttribute(WebKeys.SOURCE_VERSION);
@@ -44,7 +43,6 @@ renderResponse.setTitle(LanguageUtil.get(request, "compare-versions"));
 <clay:container-fluid>
 	<liferay-frontend:diff-version-comparator
 		availableLocales="<%= availableLocales %>"
-		diffHtmlResults="<%= diffHtmlResults %>"
 		diffVersionsInfo="<%= JournalUtil.getDiffVersionsInfo(groupId, articleId, sourceVersion, targetVersion) %>"
 		languageId="<%= languageId %>"
 		portletURL="<%= portletURL %>"
