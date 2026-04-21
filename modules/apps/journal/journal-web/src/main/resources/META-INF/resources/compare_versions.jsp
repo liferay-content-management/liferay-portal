@@ -16,7 +16,9 @@ String articleId = ParamUtil.getString(request, "articleId");
 Set<Locale> availableLocales = (Set<Locale>)request.getAttribute(WebKeys.AVAILABLE_LOCALES);
 String diffHtmlResults = (String)request.getAttribute(WebKeys.DIFF_HTML_RESULTS);
 String languageId = (String)request.getAttribute(WebKeys.LANGUAGE_ID);
+String sourceArticleContent = (String)request.getAttribute("sourceArticleContent");
 double sourceVersion = (Double)request.getAttribute(WebKeys.SOURCE_VERSION);
+String targetArticleContent = (String)request.getAttribute("targetArticleContent");
 double targetVersion = (Double)request.getAttribute(WebKeys.TARGET_VERSION);
 
 portletDisplay.setShowBackIcon(true);

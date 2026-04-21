@@ -126,12 +126,23 @@ public class CompareVersionsMVCRenderCommand implements MVCRenderCommand {
 			renderRequest, groupId, articleId, sourceVersion, targetVersion);
 
 		String diffHtmlResults = null;
+		String sourceArticleContent = null;
+		String targetArticleContent = null;
 
 		try {
+			PortletRequestModel portletRequestModel = new PortletRequestModel(
+				renderRequest, renderResponse);
+
 			diffHtmlResults = _journalHelper.diffHtml(
 				groupId, articleId, sourceVersion, targetVersion, languageId,
-				new PortletRequestModel(renderRequest, renderResponse),
-				themeDisplay);
+				portletRequestModel, themeDisplay);
+
+			sourceArticleContent = _journalHelper.getArticleDisplayContent(
+				groupId, articleId, sourceVersion, languageId,
+				portletRequestModel, themeDisplay);
+			targetArticleContent = _journalHelper.getArticleDisplayContent(
+				groupId, articleId, targetVersion, languageId,
+				portletRequestModel, themeDisplay);
 		}
 		catch (CompareVersionsException compareVersionsException) {
 			renderRequest.setAttribute(
@@ -141,6 +152,10 @@ public class CompareVersionsMVCRenderCommand implements MVCRenderCommand {
 		renderRequest.setAttribute(WebKeys.DIFF_HTML_RESULTS, diffHtmlResults);
 		renderRequest.setAttribute(WebKeys.SOURCE_VERSION, sourceVersion);
 		renderRequest.setAttribute(WebKeys.TARGET_VERSION, targetVersion);
+		renderRequest.setAttribute(
+			"sourceArticleContent", sourceArticleContent);
+		renderRequest.setAttribute(
+			"targetArticleContent", targetArticleContent);
 	}
 
 	private String _getLanguageId(
