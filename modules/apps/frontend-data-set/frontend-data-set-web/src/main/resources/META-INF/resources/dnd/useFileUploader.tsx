@@ -7,7 +7,7 @@ import {openModal} from 'frontend-js-components-web';
 import {getObjectValueFromPath} from 'frontend-js-web';
 import React, {useCallback, useEffect, useState} from 'react';
 
-import {THandleFileDrop} from '../DnDContext';
+import {THandleFileDrop, THandleItemDrop} from '../DnDContext';
 import isFileDropEnabled from '../utils/isFileDropEnabled';
 import {IFileDropSettings, TOnFileDrop} from '../utils/types';
 
@@ -25,6 +25,7 @@ const useFileUploader = ({
 	selectedItemsKey: string | undefined;
 }): {
 	handleFileDrop: THandleFileDrop;
+	handleItemDrop: THandleItemDrop;
 } => {
 	const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
 	const [dropTarget, setDropTarget] = useState(null);
@@ -79,6 +80,15 @@ const useFileUploader = ({
 		}
 	};
 
+	const handleItemDrop: THandleItemDrop = (
+		draggedItem: any,
+		dropTarget?: any
+	) => {
+		if (draggedItem && fileDropSettings?.onItemDrop) {
+			fileDropSettings.onItemDrop(draggedItem, dropTarget);
+		}
+	};
+
 	useEffect(() => {
 		if (!isFileDropEnabled(fileDropSettings) || !droppedFiles?.length) {
 			return;
@@ -101,7 +111,7 @@ const useFileUploader = ({
 		selectedItemsKey,
 	]);
 
-	return {handleFileDrop};
+	return {handleFileDrop, handleItemDrop};
 };
 
 export default useFileUploader;

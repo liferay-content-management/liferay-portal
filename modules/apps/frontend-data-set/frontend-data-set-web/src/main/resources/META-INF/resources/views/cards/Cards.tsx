@@ -12,6 +12,7 @@ import FrontendDataSetContext, {
 	IFrontendDataSetContext,
 } from '../../FrontendDataSetContext';
 import FDSDndProvider from '../../dnd/FDSDndProvider';
+import useFDSDrag from '../../dnd/useFDSDrag';
 import useFDSDrop from '../../dnd/useFDSDrop';
 import filterItemActions from '../../utils/actionItems/filterItemActions';
 import formatActionURL from '../../utils/actionItems/formatActionURL';
@@ -292,8 +293,18 @@ function ClayCardOptionalDropTarget({
 		targetDropRefQuerySelector: '.card',
 	});
 
+	const {canDrag, isDragging} = useFDSDrag({
+		dragSourceRef: cardRef,
+		item,
+	});
+
 	return (
-		<div className="col-md-3">
+		<div
+			className={classNames('col-md-3', {
+				'fds-card-dragging': isDragging,
+				'fds-card-draggable': canDrag,
+			})}
+		>
 			<Card
 				item={item}
 				items={items}

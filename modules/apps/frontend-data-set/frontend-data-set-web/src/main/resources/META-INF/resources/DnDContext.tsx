@@ -9,9 +9,12 @@ import {IFileDropSettings} from './utils/types';
 
 export type THandleFileDrop = (droppedItem: any, dropTarget?: any) => void;
 
+export type THandleItemDrop = (draggedItem: any, dropTarget?: any) => void;
+
 export interface IFrontendDataSetDropContext {
 	fileDropSettings: IFileDropSettings;
 	handleFileDrop: THandleFileDrop;
+	handleItemDrop: THandleItemDrop;
 }
 
 const DnDContext = React.createContext({
@@ -20,6 +23,7 @@ const DnDContext = React.createContext({
 		isDropTarget: () => true,
 	},
 	handleFileDrop: () => {},
+	handleItemDrop: () => {},
 } as unknown as IFrontendDataSetDropContext);
 
 export default DnDContext;

@@ -2267,7 +2267,7 @@ const FrontendDataSet = ({
 				isDropTarget: () => true,
 			};
 
-	const {handleFileDrop} = useFileUploader({
+	const {handleFileDrop, handleItemDrop} = useFileUploader({
 		fileDropSettings,
 		selectedItemsKey,
 	});
@@ -2277,6 +2277,7 @@ const FrontendDataSet = ({
 			value={{
 				fileDropSettings,
 				handleFileDrop,
+				handleItemDrop,
 			}}
 		>
 			<FDSDndProvider>

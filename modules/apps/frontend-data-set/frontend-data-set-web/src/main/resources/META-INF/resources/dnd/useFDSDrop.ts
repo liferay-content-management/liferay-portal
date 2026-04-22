@@ -16,6 +16,7 @@ import {NativeTypes} from 'react-dnd-html5-backend';
 
 import DnDContext from '../DnDContext';
 import isFileDropEnabled from '../utils/isFileDropEnabled';
+import {FDS_ITEM_DRAG_TYPE} from './useFDSDrag';
 
 const dropTargetClass: string = 'drop-target';
 
@@ -28,12 +29,19 @@ const useFDSDrop = ({
 	targetDropRef?: RefObject<HTMLElement>;
 	targetDropRefQuerySelector?: string;
 }) => {
-	const {fileDropSettings, handleFileDrop} = useContext(DnDContext);
+	const {fileDropSettings, handleFileDrop, handleItemDrop} =
+		useContext(DnDContext);
 
 	const targetDropElementRef: MutableRefObject<HTMLElement | null> =
 		useRef<HTMLElement>(null);
 
 	const nonDroppableRef: MutableRefObject<null> = useRef(null);
+
+	const fileDropActive = isFileDropEnabled(fileDropSettings);
+
+	const itemDropActive = Boolean(fileDropSettings?.onItemDrop);
+
+	const dropActive = fileDropActive || itemDropActive;
 
 	const isDropTarget = useCallback(
 		(item?: any) => {
@@ -48,20 +56,43 @@ const useFDSDrop = ({
 		[fileDropSettings]
 	);
 
+	const acceptedTypes: string[] = [];
+
+	if (fileDropActive) {
+		acceptedTypes.push(NativeTypes.FILE);
+	}
+
+	if (itemDropActive) {
+		acceptedTypes.push(FDS_ITEM_DRAG_TYPE);
+	}
+
 	const [{isOverCurrent}, dropRef] = useDrop({
-		accept: isFileDropEnabled(fileDropSettings) ? [NativeTypes.FILE] : [],
-		canDrop() {
-			return isFileDropEnabled(fileDropSettings) && isDropTarget(item);
+		accept: acceptedTypes,
+		canDrop(draggedItem: any, monitor) {
+			if (monitor.getItemType() === FDS_ITEM_DRAG_TYPE) {
+				if (
+					item &&
+					draggedItem &&
+					draggedItem.embedded?.id === item.embedded?.id &&
+					draggedItem.entryClassName === item.entryClassName
+				) {
+					return false;
+				}
+
+				return itemDropActive && isDropTarget(item);
+			}
+
+			return fileDropActive && isDropTarget(item);
 		},
 		collect: (monitor: DropTargetMonitor) => {
 			return {
 				isOverCurrent:
-					isFileDropEnabled(fileDropSettings) &&
-					isDropTarget(item) &&
+					dropActive &&
+					monitor.canDrop() &&
 					monitor.isOver({shallow: true}),
 			};
 		},
-		drop(fileItem: any, monitor) {
+		drop(droppedItem: any, monitor) {
 			if (monitor.isOver({shallow: true})) {
 				if (targetDropRefQuerySelector && targetDropElementRef) {
 					targetDropElementRef.current?.classList.remove(
@@ -69,7 +100,12 @@ const useFDSDrop = ({
 					);
 				}
 
-				handleFileDrop?.(fileItem, item);
+				if (monitor.getItemType() === FDS_ITEM_DRAG_TYPE) {
+					handleItemDrop?.(droppedItem, item);
+				}
+				else {
+					handleFileDrop?.(droppedItem, item);
+				}
 			}
 		},
 	});
@@ -79,7 +115,7 @@ const useFDSDrop = ({
 			targetDropRef &&
 			targetDropRef.current &&
 			isDropTarget(item) &&
-			isFileDropEnabled(fileDropSettings)
+			dropActive
 		) {
 			dropRef(targetDropRef);
 
@@ -94,7 +130,7 @@ const useFDSDrop = ({
 		isDropTarget,
 		dropRef,
 		item,
-		fileDropSettings,
+		dropActive,
 		targetDropRef,
 		targetDropRefQuerySelector,
 	]);
@@ -110,7 +146,7 @@ const useFDSDrop = ({
 		else {
 			targetDropElementRef?.current?.classList.remove(dropTargetClass);
 		}
-	}, [isOverCurrent, fileDropSettings, targetDropRefQuerySelector]);
+	}, [isOverCurrent, targetDropRefQuerySelector]);
 
 	return {
 		className: isOverCurrent ? dropTargetClass : '',
