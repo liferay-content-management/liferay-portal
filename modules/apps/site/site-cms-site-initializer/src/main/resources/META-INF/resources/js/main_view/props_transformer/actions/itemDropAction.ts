@@ -11,13 +11,7 @@ import FolderService from '../../../common/services/FolderService';
 import {OBJECT_ENTRY_FOLDER_CLASS_NAME} from '../../../common/utils/constants';
 import {displayErrorToast} from '../../../common/utils/toastUtil';
 
-export default function itemDropAction(
-	draggedItem: any,
-	dropTarget: any,
-	additionalProps?: Record<string, any>
-) {
-	const loadData = additionalProps?.loadData as (() => void) | undefined;
-
+export default function itemDropAction(draggedItem: any, dropTarget: any) {
 	if (!draggedItem || !dropTarget) {
 		return;
 	}
@@ -94,6 +88,6 @@ export default function itemDropAction(
 			type: 'success',
 		});
 
-		loadData?.();
+		window.location.reload();
 	});
 }

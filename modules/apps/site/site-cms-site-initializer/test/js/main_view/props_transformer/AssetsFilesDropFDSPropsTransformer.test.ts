@@ -142,7 +142,7 @@ describe('AssetsFilesDropFDSPropsTransformer', () => {
 		);
 	});
 
-	it('route onItemDrop to itemDropAction with the dragged item, drop target, and additionalProps', () => {
+	it('route onItemDrop to itemDropAction with the dragged item and drop target', () => {
 		const result = AssetsFilesDropFDSPropsTransformer({
 			additionalProps: mockAdditionalProps,
 			creationMenu: {primaryItems: [{id: 1}]},
@@ -161,10 +161,6 @@ describe('AssetsFilesDropFDSPropsTransformer', () => {
 
 		result.fileDropSettings.onItemDrop(draggedItem, dropTarget);
 
-		expect(itemDropAction).toHaveBeenCalledWith(
-			draggedItem,
-			dropTarget,
-			mockAdditionalProps
-		);
+		expect(itemDropAction).toHaveBeenCalledWith(draggedItem, dropTarget);
 	});
 });

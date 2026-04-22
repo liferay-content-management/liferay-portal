@@ -55,11 +55,7 @@ export default function AssetsFilesDropFDSPropsTransformer({
 				);
 			},
 			onItemDrop: (draggedItem: any, dropTarget?: any) => {
-				return itemDropAction(
-					draggedItem,
-					dropTarget,
-					additionalProps
-				);
+				return itemDropAction(draggedItem, dropTarget);
 			},
 		},
 		hideManagementBarInEmptyState: true,
