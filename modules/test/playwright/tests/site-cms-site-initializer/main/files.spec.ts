@@ -761,3 +761,88 @@ test(
 		}
 	}
 );
+
+test(
+	'Can move a file into a folder by dragging its card onto the folder card',
+	{tag: '@LPD-83803'},
+	async ({apiHelpers, assetsPage, page}) => {
+		const applicationName = 'cms/basic-documents';
+		const fileTitle = `File ${getRandomString()}`;
+		const folderTitle = `Folder ${getRandomString()}`;
+
+		const folderData = await apiHelpers.objectFolder.createObjectEntryFolder(
+			{
+				scopeKey: 'Default',
+				title: folderTitle,
+			}
+		);
+
+		const objectEntry = await apiHelpers.objectEntry.postObjectEntry(
+			{
+				file: {
+					fileBase64: 'R0lGODlhAQABAAAAACw=',
+					name: `file_${getRandomString()}.png`,
+				},
+				objectEntryFolderExternalReferenceCode: 'L_FILES',
+				title: fileTitle,
+			},
+			applicationName,
+			'Default'
+		);
+
+		try {
+			apiHelpers.data.push({
+				id: objectEntry.file.id,
+				type: 'document',
+			});
+
+			await assetsPage.gotoFiles();
+
+			await assetsPage.changeVisualizationMode('Cards');
+
+			const cardsContainer = page.locator('.cards-container');
+
+			const fileCard = cardsContainer
+				.locator('.card')
+				.filter({hasText: fileTitle});
+			const folderCard = cardsContainer
+				.locator('.card')
+				.filter({hasText: folderTitle});
+
+			await expect(fileCard).toBeVisible();
+			await expect(folderCard).toBeVisible();
+
+			const dataTransfer = await page.evaluateHandle(
+				() => new DataTransfer()
+			);
+
+			await fileCard.dispatchEvent('dragstart', {dataTransfer});
+			await folderCard.dispatchEvent('dragenter', {dataTransfer});
+			await folderCard.dispatchEvent('dragover', {dataTransfer});
+			await folderCard.dispatchEvent('drop', {dataTransfer});
+			await fileCard.dispatchEvent('dragend', {dataTransfer});
+
+			await expect(
+				fileCard,
+				'The moved file should no longer appear in the root folder after the page reloads'
+			).toBeHidden({timeout: 10000});
+
+			const className =
+				await apiHelpers.jsonWebServicesClassName.fetchClassName(
+					OBJECT_ENTRY_FOLDER_CLASS_NAME
+				);
+
+			await page.goto(
+				`${PORTLET_URLS.cmsViewFolder}/${className.classNameId}/${folderData.id}`
+			);
+
+			await expect(
+				assetsPage.getCardItem(fileTitle),
+				'The moved file should appear inside the target folder'
+			).toBeVisible();
+		}
+		finally {
+			await apiHelpers.objectFolder.deleteObjectEntryFolder(folderData.id);
+		}
+	}
+);
