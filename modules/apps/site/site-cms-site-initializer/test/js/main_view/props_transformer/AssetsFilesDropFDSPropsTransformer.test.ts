@@ -115,4 +115,21 @@ describe('AssetsFilesDropFDSPropsTransformer', () => {
 			false
 		);
 	});
+
+	it('reject drop targets whose entryClassName merely contains the folder class as a substring', () => {
+		const result = AssetsFilesDropFDSPropsTransformer({
+			additionalProps: mockAdditionalProps,
+			creationMenu: {primaryItems: [{id: 1}]},
+			otherProps: {},
+			views: mockViews,
+		});
+
+		const lookalike = {
+			entryClassName: `${OBJECT_ENTRY_FOLDER_CLASS_NAME}Alias`,
+		};
+
+		expect(result.fileDropSettings.isDropTarget({item: lookalike})).toBe(
+			false
+		);
+	});
 });

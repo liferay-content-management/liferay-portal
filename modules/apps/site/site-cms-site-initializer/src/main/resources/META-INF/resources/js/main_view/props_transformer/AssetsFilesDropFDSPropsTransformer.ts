@@ -40,9 +40,7 @@ export default function AssetsFilesDropFDSPropsTransformer({
 		fileDropSettings: {
 			enabled: !isCreationMenuEmpty,
 			isDropTarget: ({item}: {item: any}) => {
-				return item.entryClassName.includes(
-					OBJECT_ENTRY_FOLDER_CLASS_NAME
-				);
+				return item.entryClassName === OBJECT_ENTRY_FOLDER_CLASS_NAME;
 			},
 			onFileDrop: (droppedFiles: any, dropTarget?: any) => {
 				if (isCreationMenuEmpty) {
