@@ -40,7 +40,9 @@ export default function itemDropAction(draggedItem: any, dropTarget: any) {
 	const draggedTitle = Liferay.Util.escapeHTML(
 		draggedItem.embedded?.title ?? draggedItem.title ?? ''
 	);
-	const targetTitle = Liferay.Util.escapeHTML(dropTarget.embedded?.title ?? '');
+	const targetTitle = Liferay.Util.escapeHTML(
+		dropTarget.embedded?.title ?? ''
+	);
 
 	openToast({
 		message: sub(

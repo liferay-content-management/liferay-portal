@@ -770,12 +770,11 @@ test(
 		const fileTitle = `File ${getRandomString()}`;
 		const folderTitle = `Folder ${getRandomString()}`;
 
-		const folderData = await apiHelpers.objectFolder.createObjectEntryFolder(
-			{
+		const folderData =
+			await apiHelpers.objectFolder.createObjectEntryFolder({
 				scopeKey: 'Default',
 				title: folderTitle,
-			}
-		);
+			});
 
 		const objectEntry = await apiHelpers.objectEntry.postObjectEntry(
 			{
@@ -842,7 +841,9 @@ test(
 			).toBeVisible();
 		}
 		finally {
-			await apiHelpers.objectFolder.deleteObjectEntryFolder(folderData.id);
+			await apiHelpers.objectFolder.deleteObjectEntryFolder(
+				folderData.id
+			);
 		}
 	}
 );

@@ -301,8 +301,8 @@ function ClayCardOptionalDropTarget({
 	return (
 		<div
 			className={classNames('col-md-3', {
-				'fds-card-dragging': isDragging,
 				'fds-card-draggable': canDrag,
+				'fds-card-dragging': isDragging,
 			})}
 		>
 			<Card
