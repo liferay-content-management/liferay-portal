@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 import {OBJECT_ENTRY_FOLDER_CLASS_NAME} from '../../../../src/main/resources/META-INF/resources/js/common/utils/constants';
 import AssetsFilesDropFDSPropsTransformer from '../../../../src/main/resources/META-INF/resources/js/main_view/props_transformer/AssetsFilesDropFDSPropsTransformer';
 import fileDropAction from '../../../../src/main/resources/META-INF/resources/js/main_view/props_transformer/actions/fileDropAction';
+import itemDropAction from '../../../../src/main/resources/META-INF/resources/js/main_view/props_transformer/actions/itemDropAction';
 
 jest.mock(
 	'../../../../src/main/resources/META-INF/resources/js/main_view/props_transformer/AssetsFDSPropsTransformer',
@@ -24,6 +25,14 @@ jest.mock(
 
 jest.mock(
 	'../../../../src/main/resources/META-INF/resources/js/main_view/props_transformer/actions/fileDropAction',
+	() => ({
+		__esModule: true,
+		default: jest.fn(),
+	})
+);
+
+jest.mock(
+	'../../../../src/main/resources/META-INF/resources/js/main_view/props_transformer/actions/itemDropAction',
 	() => ({
 		__esModule: true,
 		default: jest.fn(),
@@ -130,6 +139,32 @@ describe('AssetsFilesDropFDSPropsTransformer', () => {
 
 		expect(result.fileDropSettings.isDropTarget({item: lookalike})).toBe(
 			false
+		);
+	});
+
+	it('route onItemDrop to itemDropAction with the dragged item, drop target, and additionalProps', () => {
+		const result = AssetsFilesDropFDSPropsTransformer({
+			additionalProps: mockAdditionalProps,
+			creationMenu: {primaryItems: [{id: 1}]},
+			otherProps: {},
+			views: mockViews,
+		});
+
+		const draggedItem = {
+			embedded: {id: 42},
+			entryClassName: 'com.liferay.object.model.ObjectEntry',
+		};
+		const dropTarget = {
+			embedded: {id: 7},
+			entryClassName: OBJECT_ENTRY_FOLDER_CLASS_NAME,
+		};
+
+		result.fileDropSettings.onItemDrop(draggedItem, dropTarget);
+
+		expect(itemDropAction).toHaveBeenCalledWith(
+			draggedItem,
+			dropTarget,
+			mockAdditionalProps
 		);
 	});
 });

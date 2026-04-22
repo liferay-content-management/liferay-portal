@@ -10,6 +10,7 @@ import AssetsFDSPropsTransformer, {
 	AdditionalProps,
 } from './AssetsFDSPropsTransformer';
 import fileDropAction from './actions/fileDropAction';
+import itemDropAction from './actions/itemDropAction';
 import {MultipleFileUploaderData} from './actions/multipleFilesUploadAction';
 
 export default function AssetsFilesDropFDSPropsTransformer({
@@ -51,6 +52,13 @@ export default function AssetsFilesDropFDSPropsTransformer({
 					additionalProps,
 					droppedFiles,
 					dropTarget
+				);
+			},
+			onItemDrop: (draggedItem: any, dropTarget?: any) => {
+				return itemDropAction(
+					draggedItem,
+					dropTarget,
+					additionalProps
 				);
 			},
 		},
