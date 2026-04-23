@@ -34,6 +34,8 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -41,7 +43,6 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -56,6 +57,7 @@ import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRe
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -97,9 +99,12 @@ public abstract class BaseSectionDisplayContext {
 		themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
+		Object infoItem = httpServletRequest.getAttribute(
+			InfoDisplayWebKeys.INFO_ITEM);
+
+		depotEntry = _getDepotEntry(infoItem);
 		objectEntryFolder = _getObjectEntryFolder(
-			themeDisplay.getCompanyId(),
-			httpServletRequest.getAttribute(InfoDisplayWebKeys.INFO_ITEM));
+			themeDisplay.getCompanyId(), infoItem);
 
 		_sectionDisplayContextHelper = new SectionDisplayContextHelper(
 			depotEntryLocalService, groupLocalService, language,
@@ -281,11 +286,17 @@ public abstract class BaseSectionDisplayContext {
 	}
 
 	public List<DropdownItem> getBulkActionDropdownItems() {
-		return ListUtil.fromArray(
-			new FDSActionDropdownItem(
-				"#", "trash", "delete",
-				LanguageUtil.get(httpServletRequest, "delete"), null, null,
-				null));
+		List<DropdownItem> fdsBulkActionDropdownItems = new ArrayList<>();
+
+		if (hasPermission(ActionKeys.UPDATE)) {
+			fdsBulkActionDropdownItems.add(
+				new FDSActionDropdownItem(
+					"#", "trash", "delete",
+					LanguageUtil.get(httpServletRequest, "delete"), null, null,
+					null));
+		}
+
+		return fdsBulkActionDropdownItems;
 	}
 
 	public CreationMenu getCreationMenu() {
@@ -340,6 +351,29 @@ public abstract class BaseSectionDisplayContext {
 		return null;
 	}
 
+	protected boolean hasPermission(String actionId) {
+		if (depotEntry == null) {
+			return false;
+		}
+
+		try {
+			PermissionChecker permissionChecker =
+				themeDisplay.getPermissionChecker();
+
+			return permissionChecker.hasPermission(
+				depotEntry.getGroupId(), DepotEntry.class.getName(),
+				depotEntry.getDepotEntryId(), actionId);
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception);
+			}
+
+			return false;
+		}
+	}
+
+	protected final DepotEntry depotEntry;
 	protected final DepotEntryLocalService depotEntryLocalService;
 	protected final GroupLocalService groupLocalService;
 	protected final HttpServletRequest httpServletRequest;
@@ -347,6 +381,21 @@ public abstract class BaseSectionDisplayContext {
 	protected final ObjectEntryFolder objectEntryFolder;
 	protected final Portal portal;
 	protected final ThemeDisplay themeDisplay;
+
+	private DepotEntry _getDepotEntry(Object object) {
+		if (object instanceof DepotEntry) {
+			return (DepotEntry)object;
+		}
+
+		if (object instanceof ObjectEntryFolder) {
+			ObjectEntryFolder objectEntryFolder = (ObjectEntryFolder)object;
+
+			return depotEntryLocalService.fetchGroupDepotEntry(
+				objectEntryFolder.getGroupId());
+		}
+
+		return null;
+	}
 
 	private JSONObject _getExportFileFormatJSONObject(
 		TranslationInfoItemFieldValuesExporter

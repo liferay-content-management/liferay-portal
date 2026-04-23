@@ -20,6 +20,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -63,47 +64,44 @@ public abstract class BaseFilesSectionDisplayContext
 		List<DropdownItem> fdsBulkActionDropdownItems =
 			super.getBulkActionDropdownItems();
 
-		fdsBulkActionDropdownItems.add(
-			FDSActionDropdownItemBuilder.setHighlighted(
-				true
-			).setHref(
-				"#"
-			).setIcon(
-				"move-folder"
-			).setLabel(
-				LanguageUtil.get(httpServletRequest, "move-to")
-			).build(
-				"move-to"
-			));
-		fdsBulkActionDropdownItems.add(
-			FDSActionDropdownItemBuilder.setHighlighted(
-				true
-			).setHref(
-				"#"
-			).setIcon(
-				"copy"
-			).setLabel(
-				LanguageUtil.get(httpServletRequest, "copy-to")
-			).build(
-				"copy-to"
-			));
+		if (hasPermission(ActionKeys.UPDATE)) {
+			fdsBulkActionDropdownItems.add(
+				FDSActionDropdownItemBuilder.setHighlighted(
+					true
+				).setHref(
+					"#"
+				).setIcon(
+					"move-folder"
+				).setLabel(
+					LanguageUtil.get(httpServletRequest, "move-to")
+				).build(
+					"move-to"
+				));
+			fdsBulkActionDropdownItems.add(
+				FDSActionDropdownItemBuilder.setHighlighted(
+					true
+				).setHref(
+					"#"
+				).setIcon(
+					"copy"
+				).setLabel(
+					LanguageUtil.get(httpServletRequest, "copy-to")
+				).build(
+					"copy-to"
+				));
+		}
+
 		fdsBulkActionDropdownItems.add(
 			new FDSActionDropdownItem(
 				"#", "download", "download",
 				LanguageUtil.get(httpServletRequest, "download"), null, null,
 				null));
+
+		if (!hasPermission(ActionKeys.UPDATE)) {
+			return fdsBulkActionDropdownItems;
+		}
+
 		fdsBulkActionDropdownItems.add(
-			new FDSActionDropdownItem(
-				null, "pencil", "edit-categories",
-				LanguageUtil.get(httpServletRequest, "edit-categories"), "post",
-				"edit-categories", null));
-		fdsBulkActionDropdownItems.add(
-			new FDSActionDropdownItem(
-				null, "pencil", "edit-tags",
-				LanguageUtil.get(httpServletRequest, "edit-tags"), "post",
-				"edit-tags", null));
-		fdsBulkActionDropdownItems.add(
-			3,
 			FDSActionDropdownItemBuilder.setHighlighted(
 				true
 			).setHref(
@@ -115,6 +113,16 @@ public abstract class BaseFilesSectionDisplayContext
 			).build(
 				"expire"
 			));
+		fdsBulkActionDropdownItems.add(
+			new FDSActionDropdownItem(
+				null, "pencil", "edit-categories",
+				LanguageUtil.get(httpServletRequest, "edit-categories"), "post",
+				"edit-categories", null));
+		fdsBulkActionDropdownItems.add(
+			new FDSActionDropdownItem(
+				null, "pencil", "edit-tags",
+				LanguageUtil.get(httpServletRequest, "edit-tags"), "post",
+				"edit-tags", null));
 		fdsBulkActionDropdownItems.add(
 			new FDSActionDropdownItem(
 				"#", "password-policies", "permissions",

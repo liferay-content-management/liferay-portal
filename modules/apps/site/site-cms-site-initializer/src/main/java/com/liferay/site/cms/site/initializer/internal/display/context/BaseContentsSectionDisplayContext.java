@@ -17,6 +17,7 @@ import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -60,54 +61,65 @@ public abstract class BaseContentsSectionDisplayContext
 		List<DropdownItem> fdsBulkActionDropdownItems =
 			super.getBulkActionDropdownItems();
 
-		fdsBulkActionDropdownItems.add(
-			FDSActionDropdownItemBuilder.setHighlighted(
-				true
-			).setHref(
-				"#"
-			).setIcon(
-				"move-folder"
-			).setLabel(
-				LanguageUtil.get(httpServletRequest, "move-to")
-			).build(
-				"move-to"
-			));
-		fdsBulkActionDropdownItems.add(
-			FDSActionDropdownItemBuilder.setHighlighted(
-				true
-			).setHref(
-				"#"
-			).setIcon(
-				"copy"
-			).setLabel(
-				LanguageUtil.get(httpServletRequest, "copy-to")
-			).build(
-				"copy-to"
-			));
-		fdsBulkActionDropdownItems.add(
-			FDSActionDropdownItemBuilder.setHighlighted(
-				true
-			).setHref(
-				"#"
-			).setIcon(
-				"time"
-			).setLabel(
-				LanguageUtil.get(httpServletRequest, "expire")
-			).build(
-				"expire"
-			));
-		fdsBulkActionDropdownItems.add(
-			FDSActionDropdownItemBuilder.setHighlighted(
-				true
-			).setHref(
-				"#"
-			).setIcon(
-				"upload"
-			).setLabel(
-				LanguageUtil.get(httpServletRequest, "export-for-translation")
-			).build(
-				"export-for-translation"
-			));
+		if (hasPermission(ActionKeys.UPDATE)) {
+			fdsBulkActionDropdownItems.add(
+				FDSActionDropdownItemBuilder.setHighlighted(
+					true
+				).setHref(
+					"#"
+				).setIcon(
+					"move-folder"
+				).setLabel(
+					LanguageUtil.get(httpServletRequest, "move-to")
+				).build(
+					"move-to"
+				));
+			fdsBulkActionDropdownItems.add(
+				FDSActionDropdownItemBuilder.setHighlighted(
+					true
+				).setHref(
+					"#"
+				).setIcon(
+					"copy"
+				).setLabel(
+					LanguageUtil.get(httpServletRequest, "copy-to")
+				).build(
+					"copy-to"
+				));
+			fdsBulkActionDropdownItems.add(
+				FDSActionDropdownItemBuilder.setHighlighted(
+					true
+				).setHref(
+					"#"
+				).setIcon(
+					"time"
+				).setLabel(
+					LanguageUtil.get(httpServletRequest, "expire")
+				).build(
+					"expire"
+				));
+		}
+
+		if (hasPermission(ActionKeys.VIEW)) {
+			fdsBulkActionDropdownItems.add(
+				FDSActionDropdownItemBuilder.setHighlighted(
+					true
+				).setHref(
+					"#"
+				).setIcon(
+					"upload"
+				).setLabel(
+					LanguageUtil.get(
+						httpServletRequest, "export-for-translation")
+				).build(
+					"export-for-translation"
+				));
+		}
+
+		if (!hasPermission(ActionKeys.UPDATE)) {
+			return fdsBulkActionDropdownItems;
+		}
+
 		fdsBulkActionDropdownItems.add(
 			new FDSActionDropdownItem(
 				null, "pencil", "edit-categories",
