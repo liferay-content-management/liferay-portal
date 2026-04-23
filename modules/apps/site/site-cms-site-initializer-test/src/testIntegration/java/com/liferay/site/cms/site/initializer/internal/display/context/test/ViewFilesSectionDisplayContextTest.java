@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -22,8 +23,10 @@ import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -58,6 +61,13 @@ public class ViewFilesSectionDisplayContextTest
 	}
 
 	@Override
+	protected Set<String> getExpectedAdminBulkActionIds() {
+		return SetUtil.fromArray(
+			"copy-to", "delete", "download", "edit-categories", "edit-tags",
+			"expire", "move-to", "permissions");
+	}
+
+	@Override
 	protected Map<String, String> getExpectedCreationMenuItems()
 		throws PortalException {
 
@@ -70,6 +80,11 @@ public class ViewFilesSectionDisplayContextTest
 		).put(
 			"external-video", getRedirect("L_CMS_EXTERNAL_VIDEO")
 		).build();
+	}
+
+	@Override
+	protected Set<String> getExpectedMemberBulkActionIds() {
+		return Collections.singleton("download");
 	}
 
 	@Override

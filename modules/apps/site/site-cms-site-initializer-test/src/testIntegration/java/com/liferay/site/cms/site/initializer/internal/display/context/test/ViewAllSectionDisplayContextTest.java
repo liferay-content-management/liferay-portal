@@ -16,6 +16,7 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -24,6 +25,7 @@ import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -56,6 +58,14 @@ public class ViewAllSectionDisplayContextTest
 	}
 
 	@Override
+	protected Set<String> getExpectedAdminBulkActionIds() {
+		return SetUtil.fromArray(
+			"copy-to", "delete", "download", "edit-categories", "edit-tags",
+			"export-for-translation", "expire", "find-and-replace", "move-to",
+			"permissions");
+	}
+
+	@Override
 	protected Map<String, String> getExpectedCreationMenuItems()
 		throws PortalException {
 
@@ -82,6 +92,11 @@ public class ViewAllSectionDisplayContextTest
 				"L_CMS_EXTERNAL_VIDEO",
 				ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES)
 		).build();
+	}
+
+	@Override
+	protected Set<String> getExpectedMemberBulkActionIds() {
+		return SetUtil.fromArray("download", "export-for-translation");
 	}
 
 	@Override

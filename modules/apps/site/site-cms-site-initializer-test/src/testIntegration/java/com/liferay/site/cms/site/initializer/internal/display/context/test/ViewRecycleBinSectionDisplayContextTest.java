@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -212,8 +213,18 @@ public class ViewRecycleBinSectionDisplayContextTest
 	}
 
 	@Override
+	protected Set<String> getExpectedAdminBulkActionIds() {
+		return Collections.singleton("delete");
+	}
+
+	@Override
 	protected Map<String, String> getExpectedCreationMenuItems() {
 		return Collections.emptyMap();
+	}
+
+	@Override
+	protected Set<String> getExpectedMemberBulkActionIds() {
+		return Collections.emptySet();
 	}
 
 	@Override

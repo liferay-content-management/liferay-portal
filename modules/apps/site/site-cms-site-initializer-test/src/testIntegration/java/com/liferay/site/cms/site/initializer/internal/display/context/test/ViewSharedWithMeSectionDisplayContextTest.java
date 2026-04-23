@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -161,6 +162,11 @@ public class ViewSharedWithMeSectionDisplayContextTest
 
 	@Override
 	@Test
+	public void testGetBulkActionDropdownItems() throws Exception {
+	}
+
+	@Override
+	@Test
 	public void testGetCMSSectionFilterString() throws Exception {
 	}
 
@@ -221,10 +227,20 @@ public class ViewSharedWithMeSectionDisplayContextTest
 	}
 
 	@Override
+	protected Set<String> getExpectedAdminBulkActionIds() {
+		return Collections.emptySet();
+	}
+
+	@Override
 	protected Map<String, String> getExpectedCreationMenuItems()
 		throws PortalException {
 
 		return Collections.emptyMap();
+	}
+
+	@Override
+	protected Set<String> getExpectedMemberBulkActionIds() {
+		return Collections.emptySet();
 	}
 
 	@Override

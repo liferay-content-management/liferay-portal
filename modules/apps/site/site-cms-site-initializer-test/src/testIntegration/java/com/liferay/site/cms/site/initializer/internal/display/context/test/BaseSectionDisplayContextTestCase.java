@@ -12,6 +12,7 @@ import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
+import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.info.localized.InfoLocalizedValue;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.object.constants.ObjectActionKeys;
@@ -72,6 +73,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -91,10 +93,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.junit.After;
@@ -335,6 +339,52 @@ public abstract class BaseSectionDisplayContextTestCase
 				"hideSpace", true
 			).build(),
 			_getBreadcrumbProps(httpServletRequest));
+	}
+
+	@Test
+	public void testGetBulkActionDropdownItems() throws Exception {
+		DepotEntry depotEntry = addDepotEntry(
+			RandomTestUtil.randomString(), TestPropsValues.getUserId());
+
+		User user = null;
+
+		try {
+			setUser(adminUser);
+
+			Set<String> bulkActionDropdownItemIds =
+				getBulkActionDropdownItemIds(adminUser, depotEntry);
+
+			Assert.assertTrue(
+				bulkActionDropdownItemIds.toString(),
+				bulkActionDropdownItemIds.containsAll(
+					getExpectedAdminBulkActionIds()));
+
+			Role role = RoleLocalServiceUtil.getRole(
+				depotEntry.getCompanyId(),
+				DepotRolesConstants.ASSET_LIBRARY_MEMBER);
+
+			user = UserTestUtil.addUser();
+
+			_userGroupRoleLocalService.addUserGroupRoles(
+				user.getUserId(), depotEntry.getGroupId(),
+				new long[] {role.getRoleId()});
+
+			setUser(user);
+
+			bulkActionDropdownItemIds = getBulkActionDropdownItemIds(
+				user, depotEntry);
+
+			Assert.assertEquals(
+				bulkActionDropdownItemIds.toString(),
+				getExpectedMemberBulkActionIds(), bulkActionDropdownItemIds);
+		}
+		finally {
+			_depotEntryLocalService.deleteDepotEntry(depotEntry);
+
+			if (user != null) {
+				_userLocalService.deleteUser(user);
+			}
+		}
 	}
 
 	@Test
@@ -707,6 +757,40 @@ public abstract class BaseSectionDisplayContextTestCase
 			"systemProperties.objectDefinitionBrief");
 	}
 
+	protected Set<String> getBulkActionDropdownItemIds(
+			User user, DepotEntry depotEntry)
+		throws Exception {
+
+		Set<String> actionIds = new HashSet<>();
+
+		HttpServletRequest httpServletRequest = getMockHttpServletRequest(
+			null, user);
+
+		httpServletRequest.setAttribute(
+			InfoDisplayWebKeys.INFO_ITEM, depotEntry);
+
+		List<DropdownItem> bulkActionDropdownItems = ReflectionTestUtil.invoke(
+			getSectionDisplayContext(httpServletRequest),
+			"getBulkActionDropdownItems", new Class<?>[0]);
+
+		for (DropdownItem dropdownItem : bulkActionDropdownItems) {
+			Map<String, Object> data = (Map<String, Object>)dropdownItem.get(
+				"data");
+
+			if (MapUtil.isEmpty(data)) {
+				continue;
+			}
+
+			Object id = data.get("id");
+
+			if (id != null) {
+				actionIds.add(id.toString());
+			}
+		}
+
+		return actionIds;
+	}
+
 	protected String getCMSSectionFilterString(Object displayContext) {
 		return ReflectionTestUtil.invoke(
 			displayContext, "getCMSSectionFilterString", new Class<?>[0],
@@ -733,8 +817,12 @@ public abstract class BaseSectionDisplayContextTestCase
 		return getCreationMenu(null, user);
 	}
 
+	protected abstract Set<String> getExpectedAdminBulkActionIds();
+
 	protected abstract Map<String, String> getExpectedCreationMenuItems()
 		throws PortalException;
+
+	protected abstract Set<String> getExpectedMemberBulkActionIds();
 
 	protected List<FDSActionDropdownItem> getFDSActionDropdownItems()
 		throws Exception {
