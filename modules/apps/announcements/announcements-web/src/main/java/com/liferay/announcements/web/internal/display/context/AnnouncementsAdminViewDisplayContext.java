@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.permission.PortalPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -244,27 +245,33 @@ public class AnnouncementsAdminViewDisplayContext {
 	private OrderByComparator<AnnouncementsEntry> _getOrderByComparator(
 		String orderByCol, String orderByType) {
 
-		String columnName = "modifiedDate";
+		String normalizedOrderByCol = StringUtil.toLowerCase(
+			GetterUtil.getString(orderByCol));
 
-		if (orderByCol.equals("display-date")) {
-			columnName = "displayDate";
-		}
-		else if (orderByCol.equals("expiration-date")) {
-			columnName = "expirationDate";
-		}
-		else if (orderByCol.equals("title")) {
-			columnName = "title";
-		}
-		else if (orderByCol.equals("type")) {
-			columnName = "type";
-		}
+		String columnName = _orderByColumns.getOrDefault(
+			normalizedOrderByCol, _DEFAULT_ORDER_BY_COLUMN);
+
+		boolean ascending = StringUtil.equalsIgnoreCase(orderByType, "asc");
 
 		return OrderByComparatorFactoryUtil.create(
-			"AnnouncementsEntry", columnName, orderByType.equals("asc"));
+			"AnnouncementsEntry", columnName, ascending);
 	}
+
+	private static final String _DEFAULT_ORDER_BY_COLUMN = "modifiedDate";
 
 	private static final UUID _UUID = UUID.fromString(
 		"14f20793-d4e2-4173-acd7-7f1c9cda9a36");
+
+	private static final Map<String, String> _orderByColumns =
+		HashMapBuilder.put(
+			"display-date", "displayDate"
+		).put(
+			"expiration-date", "expirationDate"
+		).put(
+			"title", "title"
+		).put(
+			"type", "type"
+		).build();
 
 	private final HttpServletRequest _httpServletRequest;
 	private final LiferayPortletRequest _liferayPortletRequest;
