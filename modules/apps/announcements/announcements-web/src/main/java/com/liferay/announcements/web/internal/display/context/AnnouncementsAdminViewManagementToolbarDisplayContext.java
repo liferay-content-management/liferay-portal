@@ -167,6 +167,13 @@ public class AnnouncementsAdminViewManagementToolbarDisplayContext
 		return false;
 	}
 
+	@Override
+	protected String[] getOrderByKeys() {
+		return new String[] {
+			"display-date", "modified-date", "expiration-date", "title", "type"
+		};
+	}
+
 	private List<DropdownItem> _getFilterNavigationDropdownItems()
 		throws Exception {
 
