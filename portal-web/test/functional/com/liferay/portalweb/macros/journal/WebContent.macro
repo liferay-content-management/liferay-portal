@@ -1062,10 +1062,14 @@ definition {
 		WebContent.addCP(webContentTitle = ${webContentTitleEdit});
 
 		if (isSet(webContentContentEdit)) {
+			SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#BODY_FIELD_IFRAME_2");
+
 			Type(
 				key_fieldLabel = "Content",
-				locator1 = "CKEditor#BODY_FIELD_CONTENTEDITABLE_WEB_CONTENT_ARTICLE",
+				locator1 = "CKEditor#BODY",
 				value1 = ${webContentContentEdit});
+
+			SelectFrame(value1 = "relative=top");
 		}
 
 		if (isSet(webContentWebContent)) {
