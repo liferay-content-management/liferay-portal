@@ -47,6 +47,7 @@ definition {
 	@description = "This is a use case for LPS-128736. Check Asset Publisher can't publish the displayed content to live by default."
 	@priority = 3
 	test AssertContentNotBePublishedByDefault {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -114,6 +115,7 @@ definition {
 	@description = "Able to publish web content via remote staging."
 	@priority = 3
 	test PublishWCViaRemoteStaging {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

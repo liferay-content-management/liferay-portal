@@ -33,6 +33,8 @@ definition {
 	@description = "Assert Web Content created From Structure is published Via SAP"
 	@priority = 4
 	test AssertWebContentFromStructureNotBeDeletedOnLiveViaSAP {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Create a basic web content") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",
@@ -265,6 +267,7 @@ definition {
 	@description = "Publish in Staging a Web Content From Structure"
 	@priority = 5
 	test PublishInStagingWebContentFromStructure {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Create a basic web content") {
@@ -337,6 +340,8 @@ definition {
 	@description = "This is a test for LPS-192836. Assert can select feature image from Document and Media in web content creation in staging."
 	@priority = 3
 	test PublishWebContentWithFeaturedImageFromDocumentsAndMediaToLive {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var siteName = StringUtil.randomString(8);
 
 		var siteURLKey = StringUtil.toLowerCase(${siteName});
@@ -536,6 +541,8 @@ definition {
 	@description = "This is a use case for LPS-163499. Asserts a web content with an image field is displayed after publishing to live."
 	@priority = 3
 	test PublishWebContentWithImageField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a user displayes a web content with image on a draft content page") {
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentTitle = "Document Title",
@@ -622,6 +629,7 @@ definition {
 	@description = "This is a use case for LPS-75802."
 	@priority = 5
 	test PublishWebContentWithImportedStructureDefaultValues {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Create a basic web content") {
@@ -737,6 +745,7 @@ definition {
 	@description = "This is a use case for LPS-77728."
 	@priority = 5
 	test StagingDraftWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Create a basic web content") {
@@ -815,6 +824,7 @@ definition {
 	@description = "This is a use case for LPS-82431."
 	@priority = 5
 	test StagingEditWebContents {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Create three web contents") {

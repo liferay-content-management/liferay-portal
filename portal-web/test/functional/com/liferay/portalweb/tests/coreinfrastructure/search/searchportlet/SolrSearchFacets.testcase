@@ -194,6 +194,8 @@ definition {
 
 	@priority = 4
 	test SearchUsingCustomFacet {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC Content",
 			groupName = "Guest",

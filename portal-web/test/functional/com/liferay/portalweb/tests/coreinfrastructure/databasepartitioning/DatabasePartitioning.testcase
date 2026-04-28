@@ -186,7 +186,7 @@ definition {
 	@description = "This is a use case for LPS-171480."
 	@priority = 3
 	test CanScheduleJobInVariousCompaniesWhenAutoUpgradeIsEnabled {
-		property custom.properties = "virtual.hosts.valid.hosts=localhost,127.0.0.1,www.able.com";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}virtual.hosts.valid.hosts=localhost,127.0.0.1,www.able.com";
 		property database.auto.upgrade.enabled = "true";
 		property database.partition.enabled = "true";
 		property liferay.online.properties = "false";
@@ -776,6 +776,7 @@ definition {
 
 	@priority = 3
 	test ScheduleWebContentChangesWithDBPartitioningActivatedAcrossVariousCompanies {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property database.partition.enabled = "true";
 		property liferay.online.properties = "false";
 		property osgi.module.configuration.file.names = "com.liferay.journal.configuration.JournalServiceConfiguration.config";

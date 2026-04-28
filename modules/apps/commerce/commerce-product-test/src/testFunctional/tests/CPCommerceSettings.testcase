@@ -250,6 +250,7 @@ definition {
 	@description = "This is a test for COMMERCE-11452. CanViewSubcategoryForCategoryOnSitemapPage. Verify that the sitemap contain the URL for the subcategory"
 	@priority = 5
 	test CanViewSubcategoryForCategoryOnSitemapPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";

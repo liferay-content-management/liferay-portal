@@ -27,6 +27,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanDeleteDraftTranslation {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			description = "Description",
@@ -79,6 +81,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanDeleteTranslation {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			description = "Description",
@@ -137,6 +141,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanEditTranslation {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			description = "Description",
@@ -216,6 +222,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanEditTranslationToNewLanguage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			description = "Description",
@@ -304,6 +312,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanTranslateWCAfterEditingStructure {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
 		NavItem.gotoStructures();
@@ -396,6 +406,7 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanViewEntryModifiedDate {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		JSONWebcontent.addWebContent(
@@ -512,6 +523,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test WarningAppearsForTranslationAfterWCIsDeleted {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			groupName = "Guest",

@@ -168,6 +168,8 @@ definition {
 
 	@priority = 4
 	test AssertMatchesAssetType {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		for (var count : list "1,2,3") {
 			JSONBlog.addEntry(
 				entryContent = "Blogs Content",

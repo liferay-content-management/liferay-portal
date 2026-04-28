@@ -356,6 +356,7 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can copy web content and web content structure. Set all fields to Required and check submission With With Second Complex Structure"
 	@priority = 3
 	test CanEditWebContentStructureFieldsToReqiredFields {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.release = "quarantine";
 
 		task ("Copy Article successfully") {

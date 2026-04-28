@@ -1208,6 +1208,8 @@ definition {
 
 	@priority = 4
 	test SearchWikiPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
 			portlet = "Pages");
@@ -1529,6 +1531,8 @@ definition {
 
 	@priority = 4
 	test ViewStagedAndLiveContentInSearchResults {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		PagesAdmin.openPagesAdmin(siteURLKey = "Site Name");

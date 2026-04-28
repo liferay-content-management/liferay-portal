@@ -37,6 +37,8 @@ definition {
 
 	@priority = 5
 	test ApproveInWCSubfolderWorkflow {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.gotoNavItem(navItem = "Structures");
 
 		WebContentStructures.addCP(

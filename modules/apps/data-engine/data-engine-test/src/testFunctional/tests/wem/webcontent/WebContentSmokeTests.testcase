@@ -28,6 +28,7 @@ definition {
 	@description = "This test ensures that a user can create, read and delete a Web Content from a Structure with all possible fields and using a Template with all possible fields."
 	@priority = 5
 	test ViewAndDeleteContentWithTitleAndAllFields {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a widget page") {

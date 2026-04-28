@@ -31,6 +31,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddArticleAsDraft {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		KBArticle.addCP(
@@ -50,6 +51,7 @@ definition {
 	@e2etest
 	@priority = 5
 	test CanAddArticleViaCenterPaneButton {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		KBArticle.openPageTreePanel(section = "Folders and Articles");
@@ -71,6 +73,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddArticleWithAttachment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBArticle.addCP(
 			kbArticleAttachment = "Document_1.txt",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -87,6 +91,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddArticleWithCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Category.openCategoriesAdmin(siteURLKey = "guest");
 
 		Vocabulary.addWithAssociatedAssetTypeCP(
@@ -117,6 +123,7 @@ definition {
 	@description = "This test ensures that users can add an article with a custom friendly URL via the new configuration pane."
 	@priority = 5
 	test CanAddArticleWithCustomFriendlyURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
@@ -142,6 +149,8 @@ definition {
 	@description = "This test ensures that users can add an article with the description."
 	@priority = 5
 	test CanAddArticleWithDescription {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBArticle.addCP(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title",
@@ -158,6 +167,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddArticleWithHTML {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBArticle.addCP(
 			kbArticleAddViaSource = "true",
 			kbArticleContentSource = '''<b>Knowledge Base&rsquo;s Article Content</b>''',
@@ -171,6 +182,8 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanAddArticleWithRelatedBlog {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
@@ -336,6 +349,7 @@ definition {
 	@description = "This test ensures that a user can edit the kb entry from the navigation pane."
 	@priority = 5
 	test CanEditEntryFromNavigationPane {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		JSONKnowledgeBase.addkBArticle(
@@ -539,6 +553,8 @@ definition {
 	@priority = 4
 	@refactorneeded
 	test CannotAddArticleWithDuplicateURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -598,6 +614,8 @@ definition {
 	@priority = 3
 	@refactordone
 	test CannotAddArticleWithoutCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Category.openCategoriesAdmin(siteURLKey = "guest");
 
 		Vocabulary.addWithAssociatedAssetTypeCP(
@@ -622,6 +640,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CannotAddArticleWithoutContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBArticle.viewFieldRequiredAsterisk(fieldLabel = "Content");
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
@@ -750,6 +770,8 @@ definition {
 	@description = "This test ensures that users can replace the related asset for an article via the new configuration pane."
 	@priority = 4
 	test CanReplaceArticleRelatedAsset {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
@@ -825,7 +847,7 @@ definition {
 	@description = "This test ensures that the KB article is expired when the user clicks the "Expire" in the ellipses drop-menu."
 	@priority = 4
 	test CanRepublishAnExpiredArticle {
-		property custom.properties = "company.default.time.zone=America/Los_Angeles";
+		property custom.properties = "company.default.time.zone=America/Los_Angeles${line.separator}feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1128,7 +1150,7 @@ definition {
 	@description = "This test ensures that the owner of the kb article receives a notification once the review date is reached."
 	@priority = 5
 	test CanReviewArticleWhenReviewDateIsReached {
-		property custom.properties = "company.default.time.zone=America/Los_Angeles";
+		property custom.properties = "company.default.time.zone=America/Los_Angeles${line.separator}feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -1176,7 +1198,7 @@ definition {
 	@description = "This test ensures that the owner of the kb article receives a notification once the review date is reached."
 	@priority = 5
 	test CanReviewArticleWhenReviewDateIsUpdated {
-		property custom.properties = "company.default.time.zone=America/Los_Angeles";
+		property custom.properties = "company.default.time.zone=America/Los_Angeles${line.separator}feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1228,6 +1250,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanSaveEditedArticleAsDraft {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -1403,6 +1427,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewEmbeddedVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		PortalSettings.openToConfigInInstanceSettings(portletId = "com.liferay.portal.security.iframe.sanitizer.configuration.IFrameConfiguration");
 
 		SystemSettings.configureSystemSetting(
@@ -1471,7 +1497,7 @@ definition {
 	@description = "This test ensures that the kb article status is expired when the expiration date is reached."
 	@priority = 5
 	test CanViewExpiredArticle {
-		property custom.properties = "company.default.time.zone=America/Los_Angeles";
+		property custom.properties = "company.default.time.zone=America/Los_Angeles${line.separator}feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1533,7 +1559,7 @@ definition {
 	@description = "This test covers LPS-184220. It checks that the article can not be expired before approving and it can be expired after approving."
 	@priority = 4
 	test CanViewExpiredArticleWithWorkflowEnabled {
-		property custom.properties = "company.default.time.zone=America/Los_Angeles";
+		property custom.properties = "company.default.time.zone=America/Los_Angeles${line.separator}feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1597,6 +1623,8 @@ definition {
 	@description = "This ensures that an image in the KB content field can be rendered correctly after moving it to a folder."
 	@priority = 4
 	test CanViewImageInKBAfterMovingToFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document Title",
@@ -1665,6 +1693,8 @@ definition {
 	@description = "This ensures that an external video in the KB content field can be rendered correctly after moving it to a folder."
 	@priority = 4
 	test CanViewVideoInKBAfterMovingToFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -1727,6 +1757,8 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test EditKBArticleWithCustomField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		CustomFields.openCustomFieldAdmin();
 
 		CustomFields.addCP(
@@ -1815,6 +1847,7 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test ViewKBArticleGitHubSourceURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

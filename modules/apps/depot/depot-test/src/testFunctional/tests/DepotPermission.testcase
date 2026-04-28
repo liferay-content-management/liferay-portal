@@ -262,7 +262,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddWebContentPermissionWithinDepot {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",

@@ -153,6 +153,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewAttachmentAfterPublish {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addWidgetToPublicLayout(
 			column = 1,
 			groupName = "Site Name (Staging)",
@@ -369,6 +371,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewWikiPageAfterPublishing {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addWidgetToPublicLayout(
 			column = 1,
 			groupName = "Site Name (Staging)",

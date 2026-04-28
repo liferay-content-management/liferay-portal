@@ -61,6 +61,8 @@ definition {
 	@description = "LPS-96038 - Global Categories do not appear as filters in Asset Publisher Configuration."
 	@priority = 4
 	test ConfigureAPPortletDisplaysGlobalCategoriesAsFilters {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Category.openCategoriesAdmin(siteURLKey = "global");
 
 		Category.addCP(
@@ -226,6 +228,8 @@ definition {
 	@description = "Order web contents by priority in Asset Publisher."
 	@priority = 4
 	test OrderWebContentsByPriority {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add three web contents with different priority") {
 			for (var i : list "1,5,3") {
 				WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");

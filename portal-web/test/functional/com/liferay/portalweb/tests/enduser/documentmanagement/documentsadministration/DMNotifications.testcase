@@ -138,7 +138,7 @@ definition {
 	@description = "This is a test for LPS-136816. It checks that custom fields can be rendered properly when a DM notification email is sent."
 	@priority = 3
 	test CanViewCustomFieldsInEmail {
-		property custom.properties = "dl.actions.visible=true${line.separator}jsonws.web.service.paths.excludes=";
+		property custom.properties = "dl.actions.visible=true${line.separator}feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 		property test.smtp.server.enabled = "true";
 
 		DMDocument.configureDocumentEmailTemplate(

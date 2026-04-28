@@ -140,6 +140,8 @@ definition {
 	@description = "This is a test for LPS-67548. It ensures that the history can be viewed in wiki details."
 	@priority = 3
 	test CanViewHistoryInDetails {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWiki.updateWikiPage(
 			groupName = "Guest",
 			wikiNodeName = "Main",

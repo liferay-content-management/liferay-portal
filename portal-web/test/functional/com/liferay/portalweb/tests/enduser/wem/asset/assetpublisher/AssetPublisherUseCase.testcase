@@ -149,6 +149,7 @@ definition {
 	@description = "This is a test for LPS-97189. A user can edit displayed content in an Asset Publisher widget through Contents panel."
 	@priority = 4
 	test EditDisplayedWebContentInAssetPublisher {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property timeout.explicit.wait = "20";
 
 		task ("Add a content page") {
@@ -270,6 +271,7 @@ definition {
 	@priority = 4
 	@uitest
 	test EditRSSFeedViaAssetPublisherWhenSetFeedTimeToOne {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -379,6 +381,7 @@ definition {
 	@description = "Filter and order the displayed assets by field."
 	@priority = 5
 	test FilterAndOrderAssetsByField {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a Language Selector to page") {
@@ -1066,6 +1069,8 @@ definition {
 	@description = "View the global web content with custom structure in Asset Publisher."
 	@priority = 3
 	test ViewGlobalWebContentWithCustomStructureInAssetPublisher {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var structureName = StringUtil.randomString(8);
 		var title = StringUtil.randomString(8);
 
@@ -1119,6 +1124,8 @@ definition {
 	@description = "LPS-103624 - URLs are not well formed when changing language in classic Display Pages."
 	@priority = 4
 	test ViewInContextTranslatedWCWithFriendlyURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Asset Publisher Page",
@@ -1390,6 +1397,7 @@ definition {
 	@description = "This is a use case for LPS-141570. The user could view non-searchable web content in Asset Publisher after disable search with index."
 	@priority = 4
 	test ViewNonSearchableWebContentAfterDisableSearchWithIndex {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1613,7 +1621,7 @@ definition {
 	@priority = 3
 	@uitest
 	test ViewWebContentAuthor {
-		property custom.properties = "feature.flag.LPD-35013=true${line.separator}jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}feature.flag.LPD-35013=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		var userScreenName1 = StringUtil.randomString(8);
 		var userScreenName2 = StringUtil.randomString(8);
@@ -1712,6 +1720,8 @@ definition {
 	@description = "This is a test for LPS-129012. View web content in associated public content page."
 	@priority = 4
 	test ViewWebContentInAssociatedPublicContentPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a content page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",

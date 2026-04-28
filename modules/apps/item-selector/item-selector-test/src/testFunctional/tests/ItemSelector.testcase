@@ -238,6 +238,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanFilterCustomWCFromCurrentDepot {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
@@ -470,6 +472,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CannotPreviewVideosWithInvalidURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBArticle.openToAddKBArticle(
 			groupName = "Guest",
 			siteURLKey = "guest");
@@ -700,6 +704,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanPreviewTwitchVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -743,6 +748,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanPreviewVimeoVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DMNavigator.openToAddEntry(
 			documentTypeName = "External Video Shortcut",
 			groupName = "Guest",
@@ -769,6 +776,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanPreviewYouTubeVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DMNavigator.openToAddEntry(
 			documentTypeName = "External Video Shortcut",
 			groupName = "Guest",
@@ -884,6 +893,8 @@ definition {
 	@description = "Checks if user can edit a KB article adding an Image via Upload Image."
 	@priority = 3
 	test CanUploadImageInKBContentField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -905,6 +916,7 @@ definition {
 	@description = "Checks if user can edit a Wiki page adding an Image via URL."
 	@priority = 3
 	test CanUploadImageInWikiPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.release = "quarantine";
 
 		JSONDocument.addFileWithUploadedFile(
@@ -1268,6 +1280,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewVideoThumbnailsViaWC {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		JSONDepot.addDepot(
@@ -1467,6 +1481,7 @@ definition {
 	@description = "This is a test for LPS-136943. It checks that only 'File Upload' and 'Folder' options appear when adding images."
 	@priority = 3
 	test OnlyRelevantSelectionsAppearWhenAddingImages {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
@@ -1482,7 +1497,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test PrivateSiteShouldNotBeViewableWithoutPermissionsInCalendar {
-		property custom.properties = "feature.flag.LPD-35013=true${line.separator}jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}feature.flag.LPD-35013=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		task ("Enable private pages") {
 			PagesAdmin.enablePrivatePages();

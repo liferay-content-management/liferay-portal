@@ -56,7 +56,7 @@ definition {
 	@description = "This is a test for LPS-136925. It checks that an email notification can be received in HTML format."
 	@priority = 3
 	test CanReceiveEmailInHTMLFormat {
-		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}message.boards.email.bulk=false";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=${line.separator}message.boards.email.bulk=false";
 		property portal.acceptance = "false";
 		property test.smtp.server.enabled = "true";
 
@@ -129,7 +129,7 @@ definition {
 	@description = "This is a test for LPS-136927. It checks that an email with a localized template can be received."
 	@priority = 3
 	test CanReceiveEmailWithLocalizedTemplate {
-		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}message.boards.email.bulk=false";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=${line.separator}message.boards.email.bulk=false";
 		property portal.acceptance = "false";
 		property test.smtp.server.enabled = "true";
 
@@ -167,7 +167,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewDefaultEmailFromConfigurationAndSubscriptionEmail {
-		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}message.boards.email.bulk=false";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=${line.separator}message.boards.email.bulk=false";
 		property test.smtp.server.enabled = "true";
 
 		MessageboardsPortlet.viewDefaultEmailFromCP(
@@ -334,6 +334,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test NoWebsiteNotificationAppearsForNewThreadInCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.gotoNotifications();
 
 		Portlet.gotoPortletOptions(portletOption = "Configuration");
@@ -443,7 +445,7 @@ definition {
 	@priority = 4
 	@refactorneeded
 	test ViewMBThreadAndReplyThreadInGmail {
-		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}mail.session.mail.smtp.auth=true${line.separator}mail.session.mail.store.protocol=pop3${line.separator}mail.session.mail.transport.protocol=smtp${line.separator}message.boards.message.formats.default=html${line.separator}pop.server.notifications.enabled=true${line.separator}pop.server.subdomain=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=${line.separator}mail.session.mail.smtp.auth=true${line.separator}mail.session.mail.store.protocol=pop3${line.separator}mail.session.mail.transport.protocol=smtp${line.separator}message.boards.message.formats.default=html${line.separator}pop.server.notifications.enabled=true${line.separator}pop.server.subdomain=";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

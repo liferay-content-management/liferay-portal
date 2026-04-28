@@ -29,7 +29,7 @@ definition {
 	@description = "This is a test for LRQA-66585. This test validates the creation, edition and persistence of fields with Options on the Web Content Admin."
 	@priority = 5
 	test AddAndEditTranslatedFieldsWithOptions {
-		property custom.properties = "feature.flag.LPD-11228=true";
+		property custom.properties = "feature.flag.LPD-11228=true${line.separator}feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		NavItem.gotoStructures();
@@ -316,6 +316,8 @@ definition {
 	@description = "This test ensures translations persists for a repeatable duplicated field group."
 	@priority = 5
 	test CheckDuplicatedRepeatableStructureOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -507,6 +509,8 @@ definition {
 	@description = "This test ensures that the default values persists after translating the Web Content for another locale."
 	@priority = 4
 	test DefaultTitlePersistsUponFirstlyTranslatingForAnotherLocale {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -572,6 +576,8 @@ definition {
 	@description = "This test ensures that the default language values are carried to a new locale before translating it."
 	@priority = 4
 	test DefaultValuesAreCarriedToNewLocale {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -630,6 +636,8 @@ definition {
 	@description = "This test ensures translations persists for N languages and N field groups levels."
 	@priority = 5
 	test TranslateWebContentFromStructureWithNLevelNestedFieldsAndToNLanguages {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -868,6 +876,8 @@ definition {
 	@description = "This test ensures that the translations persists for all fields nested."
 	@priority = 5
 	test TranslateWebContentWithAllFieldsNested {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.importStructure(
@@ -923,6 +933,8 @@ definition {
 	@description = "This test ensures Web Content translations do not modify previously translated content."
 	@priority = 5
 	test TranslationDoesNotChangeAnother {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -1002,7 +1014,7 @@ definition {
 	@description = "This test ensures Web Content translations persists."
 	@priority = 5
 	test TranslationsRemainsUponSavingWebContent {
-		property custom.properties = "feature.flag.LPD-11228=true";
+		property custom.properties = "feature.flag.LPD-11228=true${line.separator}feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		NavItem.gotoStructures();

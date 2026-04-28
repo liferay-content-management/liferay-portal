@@ -35,6 +35,8 @@ definition {
 	@description = "Verify that the user can assign a a different Workflow to a Subfolder"
 	@priority = 4
 	test CanAssignDifferentWorkflowToSubfolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentFolder.addCP(
 			folderDescription = "WC Folder Description",
 			folderName = "WC Folder Name");
@@ -93,7 +95,7 @@ definition {
 	@description = "LRQA-70845 Verify that cannot bypass workflow by duplicating article."
 	@priority = 5
 	test CannotBypassWorkflowByduplicatingArticle {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		Workflow.configureWCWorkflowViaFolderInfo(workflowDefinition = "Single Approver");
 
@@ -233,6 +235,8 @@ definition {
 
 	@priority = 5
 	test EditWebContentInReviewProcess {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.gotoNavItem(navItem = "Structures");
 
 		WebContentStructures.addCP(
@@ -344,6 +348,7 @@ definition {
 	@description = "Verify that, when a Web Content is moved to a Folder, it's Workflow changes"
 	@priority = 4
 	test MoveWebContentToFolderChangeItsWorkflow {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -436,6 +441,8 @@ definition {
 	@description = "Verify that the Subfolder can use the Workflow of the Parent Folder"
 	@priority = 4
 	test SubfolderCanUseWorkflowOfParentFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentFolder.addCP(
 			folderDescription = "WC Folder Description",
 			folderName = "WC Folder Name");
@@ -483,6 +490,7 @@ definition {
 	@description = "LPS-190808 - Verify if the image added in the Web Content appears when the user enters the notification"
 	@priority = 4
 	test ViewLargeImageAddedByNotification {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.upstream = "quarantine";
 
 		task ("Given a Structure created with a JSON file") {

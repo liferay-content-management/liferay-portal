@@ -265,6 +265,8 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test SearchKBArticleWithSpecialCharactersViaSearchPortletPG {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(

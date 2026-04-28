@@ -157,6 +157,8 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test ViewDraftWikiPageViaActivities {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Activities Page");

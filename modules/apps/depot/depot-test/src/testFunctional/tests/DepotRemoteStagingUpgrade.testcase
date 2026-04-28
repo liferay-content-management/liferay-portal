@@ -151,6 +151,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test ViewDepotRemoteStagingArchive73101 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-depot-remote-staging";
 		property portal.release = "quarantine";
 		property portal.version = "7.3.10.1";

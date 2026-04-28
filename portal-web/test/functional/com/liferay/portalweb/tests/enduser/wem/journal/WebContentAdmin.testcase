@@ -195,6 +195,8 @@ definition {
 	@description = "This is a test for LPS-202596. The content creator could filter assets by Web Content type in Web Content admin."
 	@priority = 3
 	test CanFilterByWebContentType {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site administrator has a folder and web contents") {
 			JSONWebcontent.addFolder(
 				folderName = "WC Folder Name",
@@ -619,6 +621,8 @@ definition {
 	@description = "This is a test for LPS-196819. The site administrator could manage web contents by structures."
 	@priority = 4
 	test ManageWebContentsByStructures {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site administrator has web contents") {
 			JSONWebcontent.addWebContent(
 				content = "EMEA Guild",
@@ -704,6 +708,8 @@ definition {
 	@description = "This is a test for LPS-196819. The site administrator could manage web contents by structures in Asset Library."
 	@priority = 3
 	test ManageWebContentsByStructuresInAssetLibrary {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site administrator has web contents in asset library") {
 			JSONDepot.addDepot(depotName = "Test Depot Name");
 
@@ -1006,6 +1012,8 @@ definition {
 	@description = "This is a test for LPS-196819. The site administrator could search web contents in Content Library sheet."
 	@priority = 4
 	test SearchWebContentsInContentLibrarySheet {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site administrator has web contents") {
 			JSONWebcontent.addWebContent(
 				content = "Liferay DXP",
@@ -1061,6 +1069,8 @@ definition {
 	@description = "This is a test for LPS-196819. The site administrator could search web contents in specific structure sheet."
 	@priority = 4
 	test SearchWebContentsInHighlightedStructureSheet {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site administrator has web contents") {
 			JSONWebcontent.addWebContent(
 				content = "Liferay DXP",
@@ -1470,6 +1480,8 @@ definition {
 	@description = "This is a test for LPS-196819. The site administrator could see info panel of web contents in specific structure sheet."
 	@priority = 3
 	test ViewInfoPanelOfWebContentsInHighlightedStructureSheet {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site administrator has web contents") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -1813,6 +1825,8 @@ definition {
 	@description = "This is a test for LPS-196819. The site administrator could see all web contents with specific structure on that structure sheet."
 	@priority = 4
 	test ViewWebContentsInHighlightedStructureSheet {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site administrator has a folder and web contents") {
 			JSONWebcontent.addFolder(
 				folderName = "WC Folder Name",

@@ -35,6 +35,7 @@ definition {
 	@description = "This is a use case for LPS-139101. Verify that missing references validation also works on portlet import processes."
 	@priority = 3
 	test CanImportJournalArticleWhenUncheckMissingReferencesValidation {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -586,6 +587,7 @@ definition {
 	@description = "This is a use case for LPS-86608. Verify is possible export/import Web Content with repeat field."
 	@priority = 3
 	test ExportImportWebcontentWithRepeatField {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -724,6 +726,7 @@ definition {
 	@description = "This is a use case for LPS-88831, LPS-88889 and LPS-88890. Verify is possible export a web content with deleted reference."
 	@priority = 3
 	test ExportWebContentWithDeletedReference {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -915,6 +918,7 @@ definition {
 	@description = "This is a use case for LPS-182704. TC-14 and TC-15: Verify that a confirmation pop-up should show up when Delete Application Data Before Importing checkbox is checked during portlet import process on virtual instance."
 	@priority = 3
 	test ViewDeleteApplicationDataPopUpInPortletImportProgressInVirtualInstance {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

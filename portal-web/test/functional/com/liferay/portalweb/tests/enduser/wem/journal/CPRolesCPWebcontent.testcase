@@ -332,6 +332,7 @@ definition {
 
 	@priority = 5
 	test AddWebContentSiteRoleDefinePermission {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		Permissions.definePermissionsViaJSONAPI(

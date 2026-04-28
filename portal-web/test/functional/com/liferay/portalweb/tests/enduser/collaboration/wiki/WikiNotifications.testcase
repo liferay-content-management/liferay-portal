@@ -63,6 +63,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewWebsiteNotificationForNewWikiPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 
 		WikiPortlet.subscribeToNodeCP(wikiNodeName = "Main");

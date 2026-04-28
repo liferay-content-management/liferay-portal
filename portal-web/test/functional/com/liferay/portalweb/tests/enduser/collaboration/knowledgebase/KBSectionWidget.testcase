@@ -32,6 +32,7 @@ definition {
 	@description = "This test ensures that the description can be displayed on the KB section widget after enabling it in the configuration."
 	@priority = 4
 	test CanViewDescriptionAfterEnablingInConfiguration {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

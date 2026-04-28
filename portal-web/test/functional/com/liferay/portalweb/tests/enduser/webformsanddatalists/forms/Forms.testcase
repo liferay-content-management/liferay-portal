@@ -2278,6 +2278,8 @@ definition {
 	@description = "LPS-177877 - Verify that when reloading the widget page the scroll position still at the top"
 	@priority = 4
 	test ViewWidgetPageAtTheTop {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var portalURL = PropsUtil.get("portal.url");
 
 		task ("Enable dynamic and manual selection") {

@@ -88,6 +88,7 @@ definition {
 	@description = "This is a test for LPS-136855. It checks that a pending file cannot be added to another asset."
 	@priority = 4
 	test CannotAddPendingFileToAsset {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		HeadlessSite.addSite(siteName = "Site Name");

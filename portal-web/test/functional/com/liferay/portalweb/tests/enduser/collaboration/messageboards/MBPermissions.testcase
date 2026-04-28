@@ -30,6 +30,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanDisableSubscriptionsToThreadAndCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Message Boards Page");

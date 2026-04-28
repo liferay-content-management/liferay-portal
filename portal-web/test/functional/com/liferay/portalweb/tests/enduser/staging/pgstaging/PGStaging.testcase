@@ -180,6 +180,8 @@ definition {
 
 	@priority = 3
 	test AddDMDocumentWCArticleStagingLocalLive {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Staging Test Page",
@@ -243,6 +245,8 @@ definition {
 
 	@priority = 3
 	test AssertEditWebContentStaging {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.gotoSitePage(
 			pageName = "Staging Test Page",
 			siteName = "Site Name");
@@ -617,6 +621,8 @@ definition {
 	@description = "This is a use case for LPS-80367."
 	@priority = 3
 	test PublishWCIncludingTextsAndImages {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -704,6 +710,8 @@ definition {
 	@description = "This is a use case for LPS-80295."
 	@priority = 3
 	test PublishWCWithFriendlyURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var baseURL = PropsUtil.get("portal.url");
 		var friendlyURL = "link";
 
@@ -772,7 +780,7 @@ definition {
 	@priority = 3
 	test PublishWCWithPagesVariationViaRemoteStaging {
 		property app.server.bundles.size = "1";
-		property custom.properties = "auth.verifier.TunnelAuthVerifier.hosts.allowed=${line.separator}tunneling.servlet.shared.secret=1234567890123456";
+		property custom.properties = "auth.verifier.TunnelAuthVerifier.hosts.allowed=${line.separator}feature.flag.LPD-11235=true${line.separator}tunneling.servlet.shared.secret=1234567890123456";
 		property databases.size = "1";
 		property minimum.slave.ram = "24";
 		property test.liferay.virtual.instance = "false";

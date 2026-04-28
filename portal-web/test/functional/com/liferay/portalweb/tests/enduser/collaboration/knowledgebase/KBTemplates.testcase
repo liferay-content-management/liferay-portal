@@ -32,6 +32,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddArticleWithTemplate {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		JSONKnowledgeBase.addkBTemplate(
@@ -57,6 +58,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddTemplate {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -78,6 +80,8 @@ definition {
 	@e2etest
 	@priority = 4
 	test CanAddTemplateThroughCenterNewButton {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.openPageTreePanel(section = "Templates");
@@ -292,6 +296,7 @@ definition {
 	@description = "This test ensures that users can preview the kb template from the center pane."
 	@priority = 4
 	test CanPreviewTemplateViaCenterPane {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		KBTemplate.addCP(

@@ -66,6 +66,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanDeleteWCInlineImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -189,6 +190,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanEditFriendlyURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -314,6 +316,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanEditWCInlineImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -425,6 +428,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanPublishDeletedWCCustomization {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -517,6 +521,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanPublishEditedWCCustomization {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -633,6 +638,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanPublishWCFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -709,6 +715,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanPublishWCWithCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -779,6 +786,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanPublishWCWithEmbeddedVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

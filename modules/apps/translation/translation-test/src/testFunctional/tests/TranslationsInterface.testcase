@@ -26,6 +26,7 @@ definition {
 	@description = "This ensures that the translator can select which target language she wants to translate into numeric fields. Skip the instance for performance improvement."
 	@priority = 5
 	test CanTranslateCustomizedWCWithNumericFields {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -134,6 +135,8 @@ definition {
 	@description = "This ensures that the translator can select which target language she wants to translate into custom rich text."
 	@priority = 5
 	test CanTranslateCustomizedWCWithRichText {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
 		NavItem.gotoStructures();
@@ -218,6 +221,7 @@ definition {
 	@description = "This ensures that the translator can select which target language she wants to translate into custom text fields. Skip the instance for performance improvement."
 	@priority = 5
 	test CanTranslateCustomizedWCWithTextFields {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -329,6 +333,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanTranslateWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		JSONWebcontent.addWebContent(
@@ -438,6 +443,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test EditedValuesArePreservedInSideBySideUI {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "quarantine";
 
 		JSONWebcontent.addWebContent(

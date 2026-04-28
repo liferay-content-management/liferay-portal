@@ -35,6 +35,8 @@ definition {
 	@description = "This is a test for LPS-179789. Verify it is not possible to mix repeatable fields with other repeatable fields groups"
 	@priority = 4
 	test CannotMixRepeatableFieldsGroups {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a a Structures that contains 2 field groups with repeatable fields") {
 			DataEngine.addField(
 				fieldFieldLabel = "Text",
@@ -163,6 +165,8 @@ definition {
 	@description = "This is a test for LPS-98077. Make sure data inserted on a Group Field persists"
 	@priority = 3
 	test CheckIfFieldGroupDataPersists {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DataEngine.addField(
 			fieldFieldLabel = "Text",
 			fieldName = "Text");
@@ -194,6 +198,7 @@ definition {
 	@description = "This is a test for LRQA-66584. This test validates the fields creation into a field group up to 3 levels, field groups edition, and field groups deletion"
 	@priority = 5
 	test CreateEditAndDeleteFieldGroups {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		DataEngine.addField(
@@ -581,6 +586,7 @@ definition {
 	@description = "This is a test for LRQA-66584. This test validates the duplication of field groups up to 2 levels"
 	@priority = 5
 	test DuplicateTwoLevelFieldGroups {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		DataEngine.addField(
@@ -882,6 +888,8 @@ definition {
 	@description = "LPS-168179: It's possible to reorder Web Content with Structure of repeatable fields groups"
 	@priority = 5
 	test ReorderRepeatableFieldsGroupsByDragAndDrop {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a Web Content Structure that contains repeatable fields groups") {
 			DEBuilder.addField(
 				fieldLabel = "Text",
@@ -962,6 +970,8 @@ definition {
 	@description = "This is a test for LPS-98077. Set a FieldGroup as collapsible and perform this action in a WebContent"
 	@priority = 4
 	test SetFieldGroupAsCollapsibleAndExecuteOnAWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DataEngine.addField(
 			fieldFieldLabel = "Text",
 			fieldName = "Text");
@@ -998,6 +1008,7 @@ definition {
 	@priority = 4
 	test SetFieldGroupAsRepeatableAndExecuteOnAWebContent {
 		property ci.retries.disabled = "true";
+		property custom.properties = "feature.flag.LPD-11235=true";
 
 		DataEngine.addField(
 			fieldFieldLabel = "Text",

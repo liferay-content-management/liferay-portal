@@ -32,6 +32,8 @@ definition {
 	@description = "This ensures that an image in the WC content field can be rendered correctly when publication is enabled."
 	@priority = 5
 	test CanViewImageInWC {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		JSONLayout.addPublicLayout(
@@ -85,6 +87,8 @@ definition {
 	@description = "This ensures that an external video in the WC content field can be rendered correctly when publication is enabled."
 	@priority = 5
 	test CanViewVideoInWC {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");

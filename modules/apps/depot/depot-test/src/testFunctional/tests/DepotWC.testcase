@@ -139,6 +139,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanEditTemplateAndStructure {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -194,6 +195,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanEditWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		DepotNavigator.openDepotAdmin();
@@ -231,6 +233,8 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanExpireWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Expire WC Depot");
@@ -287,6 +291,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanRestoreWebContentWithStructure {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Restore WC In Depot");

@@ -35,7 +35,7 @@ definition {
 	@description = "This test checks that a user can subscribe and unsubscribe from an article."
 	@priority = 4
 	test CanSubscribeToArticleViaToolbar {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
@@ -94,6 +94,8 @@ definition {
 	@description = "This test ensures that users can subscribe to the KB home folder from the navigation pane."
 	@priority = 4
 	test CanSubscribeToHomeFolderViaNavigationPane {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var siteName = TestCase.getSiteName(siteName = ${siteName});
 
 		JSONUser.addUser(
@@ -165,7 +167,7 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test ViewKBArticleSuggestionsWorkflowNotificationEmail {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 		property test.smtp.server.enabled = "true";
 
 		var siteName = TestCase.getSiteName(siteName = ${siteName});

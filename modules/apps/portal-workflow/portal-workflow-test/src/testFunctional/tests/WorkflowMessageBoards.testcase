@@ -342,6 +342,8 @@ definition {
 	@description = "This is a test for LRQA-70150. Verify that the user can edit an approved thread and the status returns to Pending."
 	@priority = 3
 	test StatusReturnstoPendingWhenApprovedThreadIsEdited {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		MessageBoardsAdmin.openMessageBoardsAdmin(siteURLKey = "guest");
 
 		MessageboardsThread.addWithWorkflowCP(

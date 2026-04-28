@@ -53,6 +53,8 @@ definition {
 
 	@priority = 4
 	test ApproveWebContentViaWebContentDisplayPG {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.gotoPage(pageName = "Web Content Display Page");
 
 		WebContentDisplayPortlet.addWithWorkflow(
@@ -96,6 +98,8 @@ definition {
 
 	@priority = 4
 	test RejectWebContentViaWebContentDisplayPG {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.gotoPage(pageName = "Web Content Display Page");
 
 		WebContentDisplayPortlet.addWithWorkflow(

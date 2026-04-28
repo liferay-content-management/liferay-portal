@@ -1037,6 +1037,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanSelectWCWithStructure {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DepotNavigator.openDepotWebContentStructuresAdmin(depotName = "Test Depot Name");
 
 		WebContentStructures.addCP(

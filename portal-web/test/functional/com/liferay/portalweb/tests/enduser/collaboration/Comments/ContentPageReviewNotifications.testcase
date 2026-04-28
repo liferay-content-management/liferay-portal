@@ -58,6 +58,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewComment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -109,6 +111,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewCommentReply {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -164,6 +168,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test WillReceiveNotificationsFromMultipleUsers {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",

@@ -402,6 +402,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanDeleteWCImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -859,6 +860,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanEditWCImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -2314,6 +2316,7 @@ definition {
 	@description = "This test covers LPS-154444. This ensures that an external video with a custom friendlyURL added to the Web content field can be rendered properly on a site after its friendlyURL is edited and published from an asset library."
 	@priority = 4
 	test CanViewExternalVideotInWCAfterFriendlyURLIsUpdated {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -2513,6 +2516,7 @@ definition {
 	@description = "This test covers LPS-154443. It ensures that an image with a custom friendlyURL added to the Web content field can be rendered properly on a site after its friendlyURL is edited and published from an asset library."
 	@priority = 4
 	test CanViewImagetInWCAfterFriendlyURLIsUpdated {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

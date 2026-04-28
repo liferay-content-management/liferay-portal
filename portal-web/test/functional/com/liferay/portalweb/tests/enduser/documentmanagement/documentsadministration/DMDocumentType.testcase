@@ -160,6 +160,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddPredefinedImageViaRichText {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		DMNavigator.openToAddDocumentType(siteURLKey = "guest");

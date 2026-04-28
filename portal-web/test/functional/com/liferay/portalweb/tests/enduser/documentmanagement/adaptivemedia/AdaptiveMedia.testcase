@@ -45,6 +45,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAdaptImageInWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "Adaptive Media Image Description",
 			dmDocumentTitle = "high_resolution_photo.jpg",
@@ -517,6 +519,7 @@ definition {
 	@description = "This test covers LPS-136280. It validates that an image can be adapted in a web content after it is updated."
 	@priority = 4
 	test ImageVariantsAreGeneratedAfterEditingWebContentWithImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		WebContentNavigator.openToAddBasicArticle(

@@ -337,6 +337,7 @@ definition {
 	@description = "This test ensures that a user with permissions can edit a basic article and publish it to live in asset library. Skip the instance for performance improvement."
 	@priority = 4
 	test CanPublishEditedWC {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -404,6 +405,7 @@ definition {
 	@description = "This test ensures that a user with permissions can add a basic article and publish it to live in asset library. Skip the instance for performance improvement."
 	@priority = 4
 	test CanPublishWC {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

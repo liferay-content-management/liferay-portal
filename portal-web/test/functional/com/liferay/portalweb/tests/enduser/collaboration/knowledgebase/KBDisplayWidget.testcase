@@ -367,6 +367,8 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test CanViewArticlesWithDifferentSiteScopes {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Enable Scope Configuration") {
 			Portlet.enableScopeConfiguration();
 		}
@@ -531,6 +533,8 @@ definition {
 	@priority = 4
 	@refactorneeded
 	test CanViewArticleViaUserDefinedFriendlyURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -681,6 +685,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewEditedKBArticleTitleHistory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "KB Article Content",
@@ -756,6 +762,8 @@ definition {
 	@priority = 3
 	@refactordone
 	test JavascriptIsEscapedFromArticleTitle {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(

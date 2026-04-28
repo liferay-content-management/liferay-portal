@@ -171,6 +171,8 @@ definition {
 	@description = "Check the staging in recycle bin with and without staged content"
 	@priority = 3
 	test RecycleBinStaging {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a page and add WCD to the page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -255,6 +257,8 @@ definition {
 	@description = "Move a structured web content to recycle bin and restore it."
 	@priority = 3
 	test RecycleBinWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a structure with text field and save") {
 			WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -373,6 +377,7 @@ definition {
 	@description = "Can restore a basic web content in recycle bin."
 	@priority = 5
 	test RestoreWebcontent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a web content") {
@@ -418,6 +423,8 @@ definition {
 	@description = "Can restore web content within WC folder in recycle bin."
 	@priority = 3
 	test RestoreWebContentFromFolderCP {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a WC folder and a web content to it") {
 			JSONWebcontent.addFolder(
 				folderName = "WC Folder Name",
@@ -462,6 +469,8 @@ definition {
 	@description = "Can restore web content with versions in recycle bin."
 	@priority = 3
 	test RestoreWebContentWithArticleVersions {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a WC folder and WC to the folder") {
 			JSONWebcontent.addFolder(
 				folderName = "WC Folder Name",

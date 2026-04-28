@@ -993,6 +993,8 @@ definition {
 	@description = "LPS-182287 - A user can configure Custom Filter widgets with DDM fields"
 	@priority = 4
 	test FilterByDDMFields {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content structure with a text field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "guest");
 
@@ -3350,6 +3352,7 @@ definition {
 
 	@priority = 4
 	test ViewStagedAndLiveContentInSearchResults {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "quarantine";
 
 		HeadlessSite.addSite(siteName = "Site Name");

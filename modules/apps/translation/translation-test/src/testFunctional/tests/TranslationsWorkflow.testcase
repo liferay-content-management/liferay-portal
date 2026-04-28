@@ -27,7 +27,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanApproveEntry {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
@@ -358,7 +358,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanApproveNewTranslationForPublishedWC {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
@@ -464,6 +464,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanDeletePendingTranslation {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			description = "Description",
@@ -651,6 +653,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanRejectTranslationsForDraftAndApprovedWC {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		for (var resourceValue : list "Translation,Web Content Article") {
 			Workflow.openWorkflowAdmin(siteURLKey = "guest");
 
@@ -788,6 +792,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanResubmitImportedEntryFromZipFile {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -931,7 +936,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanResubmitRejectedEntries {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
@@ -1132,7 +1137,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanUpdateSameTranslationAsAnotherUser {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
@@ -1217,6 +1222,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewUpdatedWCSubmissionAfterApprovedTranslation {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		for (var resourceValue : list "Translation,Web Content Article") {
 			Workflow.openWorkflowAdmin(siteURLKey = "guest");
 

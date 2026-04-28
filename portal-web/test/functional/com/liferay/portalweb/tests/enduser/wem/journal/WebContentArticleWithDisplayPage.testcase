@@ -74,7 +74,7 @@ definition {
 	@description = "This is a test for LPS-140197. Draft version can only be accessed by author."
 	@priority = 4
 	test ViewPreviewDraftViaURLFromNonAuthor {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		task ("Add a user and assign it to the created site") {
 			JSONUser.addUser(

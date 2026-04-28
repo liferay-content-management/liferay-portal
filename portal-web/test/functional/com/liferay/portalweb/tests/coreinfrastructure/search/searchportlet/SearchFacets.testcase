@@ -173,6 +173,8 @@ definition {
 	@description = "This is a use case for LPS-172127 - The Custom Facet widget supports aggregating on a Web Content Structure DDM field either using the single field or nested field notations."
 	@priority = 4
 	test AggregateDDMFieldsViaCustomFacet {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a Web Content Structure and create Web Content Articles using the structure") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
@@ -1787,6 +1789,8 @@ definition {
 	@description = "This is a use case for LPS-194520."
 	@priority = 3
 	test CanSetFrequencyThresholdToZero {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Create a web content structure and a web content using that custom structure") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "guest");
 
@@ -1855,6 +1859,8 @@ definition {
 	@description = "This is a use case for LPS-130126 and LPS-145648."
 	@priority = 4
 	test CustomFacetDoesNotDisplayEmptyDDMField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Create a web content structure with a text DDM field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "guest");
 
@@ -2056,6 +2062,7 @@ definition {
 
 	@priority = 4
 	test SearchUsingCustomFacet {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		JSONWebcontent.addWebContent(
@@ -2130,6 +2137,8 @@ definition {
 
 	@priority = 4
 	test SearchUsingCustomFacetWithUnlocalizedDDMField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		ProductMenu.gotoPortlet(
 			category = "Content & Data",
 			portlet = "Web Content");

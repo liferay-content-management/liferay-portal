@@ -278,6 +278,8 @@ definition {
 	@description = "This ensures that an image in the WC content field can be rendered correctly after moving it to a folder."
 	@priority = 4
 	test CanViewImageInWCAfterMovingToFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "Document_1",

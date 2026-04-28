@@ -168,6 +168,8 @@ definition {
 	@description = "This test validates the fieldset translations are displayed on the Web Content."
 	@priority = 5
 	test CheckStructureTranslationOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Name");
@@ -239,6 +241,8 @@ definition {
 	@description = "This is a test for LPS-123539. As Content Creator, I want to leverage the structures’ translations with fildset when creating a new Web Content"
 	@priority = 5
 	test CheckTranslationOfDuplicatedFieldsetOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Name");
@@ -311,7 +315,7 @@ definition {
 	@description = "This test ensures add fields, translate, edit fieldset, check propagation, translate from different language."
 	@priority = 5
 	test CreateEditAndDeleteLocalizedFieldset {
-		property custom.properties = "feature.flag.LPD-11228=true";
+		property custom.properties = "feature.flag.LPD-11228=true${line.separator}feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		var newStructureName = "WC Structure Name";
@@ -540,6 +544,8 @@ definition {
 	@description = "This test checks when user translates the title, the default language title persists"
 	@priority = 4
 	test DefaultTitlePersistsAfterTranslatingForAnotherLocale {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -643,6 +649,8 @@ definition {
 	@description = "This test ensures create, translate and edit with different instance language."
 	@priority = 5
 	test LocalizedFieldsetWithDifferentInstanceLanguage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		PortalSettings.openInstanceSettingsAdmin();
 
 		SystemSettings.gotoConfiguration(
@@ -827,6 +835,8 @@ definition {
 	@description = "This test ensures is possible to translate a web content from a structure with a fieldset with a field group."
 	@priority = 5
 	test TranslateWebContentFromStructureWithFieldsetWithFieldGroup {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Name");
@@ -967,6 +977,8 @@ definition {
 	@description = "This test ensures translation of a web content from a structure with a fieldset persists after translating for another locale."
 	@priority = 5
 	test TranslationPersistsAfterEditingAnother {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Name");

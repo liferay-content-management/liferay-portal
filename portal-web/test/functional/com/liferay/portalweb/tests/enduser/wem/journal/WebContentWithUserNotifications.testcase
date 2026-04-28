@@ -48,6 +48,8 @@ definition {
 	@description = "When a new user subscribes a web content they should receive an email notification when the web content has a modification."
 	@priority = 4
 	test ViewEditWebContentEmailNotification {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a user has subscribed a web content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -84,6 +86,8 @@ definition {
 	@description = "When a new user subscribes a folder they should receive an email notification when the folder has a modification."
 	@priority = 4
 	test ViewFolderEmailNotification {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a user has subscribed a folder") {
 			User.logoutAndLoginPG(userLoginEmailAddress = "userea@liferay.com");
 
@@ -119,6 +123,8 @@ definition {
 	@description = "This is a test for LPS-151781. When a new user subscribes a web content folder, the Granted email should show the article diffs."
 	@priority = 4
 	test ViewGrantedEmailNotificationWithArticleDiffs {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a user has subscribed a folder with Granted Email enabled") {
 			task ("Add a folder") {
 				JSONWebcontent.addFolder(

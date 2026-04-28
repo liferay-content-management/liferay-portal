@@ -21,6 +21,7 @@ definition {
 	@description = "This is a test for LPS-110247 and LPS-112578. The user can create a display page template for Category and mark it as default. The new non-subcategory will be associated to the Default."
 	@priority = 5
 	test AddDisplayPageTemplateAndMarkItAsDefault {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Navigate to Display Page Template admin") {
@@ -89,6 +90,7 @@ definition {
 	@description = "This is a test for LPS-110247 and LPS-158711. The user can select the specific display page template in category editor."
 	@priority = 5
 	test SelectSpecificDisplayPageTemplateInCategoryEditor {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add the first display page template for Category") {
@@ -186,6 +188,7 @@ definition {
 	@description = "This is a test for LPS-112578. The user can define associated display page template in subcategory and it will be inherited by its subcategory."
 	@priority = 5
 	test SelectSpecificDisplayPageTemplateInSubcategoryEditor {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add the first display page template for Category") {
@@ -291,6 +294,7 @@ definition {
 	@description = "This is a test for LPS-112578. The new subcategory will inherit associated display page template from parent category."
 	@priority = 5
 	test ViewInheritedAssociatedDisplayPageTemplateFromParentCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a display page template for Category") {
@@ -360,6 +364,7 @@ definition {
 	@description = "This is a test for LPS-132081. View mapped content of assets in display page template for Category when apply the Items with This Category to Collection Display."
 	@priority = 5
 	test ViewMappedContentInCollectionDisplayWithItemsWithThisCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a display page template for Category") {
@@ -467,6 +472,7 @@ definition {
 	@description = "This is a test for LPS-110247 and LPS-132081. The user can navigate to associated display page template via View Display Page of category."
 	@priority = 5
 	test ViewMappedContentInDisplayPageTemplate {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		var baseURL = PropsUtil.get("portal.url");

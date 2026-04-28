@@ -156,7 +156,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanTranslateWCWithSpecificLanguagesPermissions {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",

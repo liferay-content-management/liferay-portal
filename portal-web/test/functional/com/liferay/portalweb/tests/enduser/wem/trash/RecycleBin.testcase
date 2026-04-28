@@ -162,6 +162,8 @@ definition {
 	@description = "Restore MB attachment from recycle bin."
 	@priority = 3
 	test RecycleBinMBAttachment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a message and attachement to mb") {
 			JSONMBMessage.addMessage(
 				groupName = "Site Name",
@@ -611,6 +613,8 @@ definition {
 	@description = "This is a test for LPS-190757. The Home folder of web content should be visible on Warning modal."
 	@priority = 4
 	test RestoreWebContentToExistingFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site administrator has folders with web contents") {
 			for (var i : list "1,2") {
 				JSONWebcontent.addFolder(

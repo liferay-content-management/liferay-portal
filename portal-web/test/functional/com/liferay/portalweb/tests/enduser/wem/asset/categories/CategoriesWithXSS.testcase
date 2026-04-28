@@ -104,6 +104,8 @@ definition {
 	@priority = 4
 	@uitest
 	test SelectCategoryWithXSSNameInAccountSettings {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a global category with XSS name in Topic") {
 			Category.openCategoriesAdmin(siteURLKey = "global");
 
@@ -145,6 +147,8 @@ definition {
 	@priority = 4
 	@uitest
 	test SelectCategoryWithXSSNameInPageConfiguration {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var categoryName = '''><img src=xss onerror=alert(1)>''';
 
 		task ("Add a global category with XSS name in Topic") {

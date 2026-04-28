@@ -377,6 +377,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanEditAndRepublishImageWithWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -980,6 +981,7 @@ definition {
 	@description = "This test covers LPS-154408. It ensures that an external video with a custom friendlyURL added to the Web content field can be published on a site."
 	@priority = 4
 	test CanViewExternalVideoInWCAfterPublish {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.release = "quarantine";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -1061,7 +1063,7 @@ definition {
 	@description = "This test covers LPS-154435. It ensures that an external video with a custom friendlyURL added to the Web content field displays properly after its friendlyURL is edited and published on a site."
 	@priority = 4
 	test CanViewExternalVideotInWCAfterFriendlyURLIsUpdated {
-		property custom.properties = "auth.verifier.TunnelAuthVerifier.hosts.allowed=${line.separator}dl.actions.visible=true${line.separator}jsonws.web.service.paths.excludes=${line.separator}tunneling.servlet.shared.secret=1234567890123456";
+		property custom.properties = "auth.verifier.TunnelAuthVerifier.hosts.allowed=${line.separator}dl.actions.visible=true${line.separator}feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=${line.separator}tunneling.servlet.shared.secret=1234567890123456";
 		property portal.release = "quarantine";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -1569,6 +1571,7 @@ definition {
 	@description = "This test covers LPS-154434. It ensures that an image with a custom friendlyURL added to the Web content field displays properly after its friendlyURL is edited and published on a site."
 	@priority = 4
 	test CanViewImagetInWCAfterFriendlyURLIsUpdated {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1777,6 +1780,7 @@ definition {
 	@priority = 4
 	@refactorneeded
 	test CanViewWebContentWithDeletedImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";

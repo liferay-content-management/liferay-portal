@@ -31,6 +31,8 @@ definition {
 
 	@priority = 4
 	test SearchByAssetAndModifiedRangeFacets {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONBlog.addEntry(
 			entryContent = "Blogs Entry1 AssetContent",
 			entryTitle = "Blogs Entry1 Title");

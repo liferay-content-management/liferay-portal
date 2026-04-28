@@ -101,6 +101,7 @@ definition {
 	@description = "This is a use case for LPS-96391, export and import site with web content display in fragment."
 	@priority = 5
 	test ExportImportSiteWithEmbeddedWCDInFragment {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		ApplicationsMenu.gotoPortlet(
@@ -515,6 +516,8 @@ definition {
 	@description = "This is a test for LPS-184799. The Link to Page field is still mapped through a fragment on a Content Page even after the site being imported."
 	@priority = 4
 	test ExportImportSiteWithMappedLinkToPageField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a page designer has a fragment mapped to the Link to Page field") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",

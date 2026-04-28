@@ -74,6 +74,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanSearchOutPageByComment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 
 		JSONWiki.updateWikiPage(

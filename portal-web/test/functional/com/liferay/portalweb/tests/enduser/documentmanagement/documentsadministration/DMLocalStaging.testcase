@@ -1542,6 +1542,8 @@ definition {
 	@description = "This test covers LPS-154417. It checks that an external video with a custom friendlyURL added to the Web content field displays properly after its friendlyURL is edited and published on a site"
 	@priority = 4
 	test CanViewExternalVideotInWCAfterFriendlyURLIsUpdated {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		PortalSettings.openToConfigInInstanceSettings(portletId = "com.liferay.portal.security.iframe.sanitizer.configuration.IFrameConfiguration");
 
 		SystemSettings.configureSystemSetting(
@@ -1895,6 +1897,8 @@ definition {
 	@description = "This test covers LPS-154416. It checks that an image with a custom friendlyURL added to the Web content field displays properly after its friendlyURL is edited and published on a site."
 	@priority = 4
 	test CanViewImageInWCAfterFriendlyURLIsUpdated {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document Title",
@@ -2233,6 +2237,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test ViewWebContentWithDeletedImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		JSONLayout.addWidgetToPublicLayout(
@@ -2333,6 +2338,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test ViewWebContentWithRepublishedImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		JSONLayout.addWidgetToPublicLayout(

@@ -70,6 +70,7 @@ definition {
 	@priority = 4
 	test ViewInstanceManager {
 		property app.server.types = "tomcat";
+		property custom.properties = "feature.flag.LPD-11235=true";
 
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
@@ -158,6 +159,7 @@ ${Application['org.apache.catalina.resources'].getContext().getInstanceManager()
 	@priority = 4
 	test ViewInstanceManagerWildfly {
 		property app.server.types = "wildfly";
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.assert.warning.exceptions = "false";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
@@ -211,6 +213,7 @@ ${Application['org.apache.tomcat.InstanceManager'].newInstance('com.sun.org.apac
 	test ViewServletContext {
 		property app.server.types = "tomcat,weblogic,wildfly";
 		property ci.retries.disabled = "false";
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.assert.warning.exceptions = "false";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
@@ -264,6 +267,8 @@ ${Application['org.apache.tomcat.InstanceManager'].newInstance('com.sun.org.apac
 
 	@priority = 4
 	test ViewSpringBeans {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();

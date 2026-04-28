@@ -99,6 +99,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAddChildPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WikiNavigator.gotoWidgetSpecificTabByURL(
 			layoutURLKey = "wiki-test-page",
 			siteURLKey = "guest",
@@ -226,6 +228,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddPageWithHTMLFormat {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WikiNavigator.gotoWidgetSpecificTabByURL(
 			layoutURLKey = "wiki-test-page",
 			siteURLKey = "guest",
@@ -256,6 +260,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddPageWithImageViaURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -292,6 +297,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddPageWithInlineImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWiki.addWikiPage(
 			groupName = "Guest",
 			wikiNodeName = "Main",
@@ -329,6 +336,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddWikiPages {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.gotoPage(pageName = "Wiki Test Page");
 
 		WikiNavigator.gotoAllPagesPG();
@@ -381,6 +390,7 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanCancelEditingAPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		JSONWiki.addWikiPage(
@@ -530,6 +540,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanEditDraftPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WikiNavigator.gotoWidgetSpecificTabByURL(
 			layoutURLKey = "wiki-test-page",
 			siteURLKey = "guest",
@@ -639,6 +651,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanLinkWikiPageToOtherWikiPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WikiNavigator.openToWikiNode(
 			groupName = "Guest",
 			siteURLKey = "guest",
@@ -1000,6 +1014,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanSaveEditedPageAsDraft {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWiki.addWikiPage(
 			groupName = "Guest",
 			wikiNodeName = "Main",
@@ -1069,6 +1085,7 @@ definition {
 	@description = "This test checks that the javascript in the user name will not be executed when viewing a new wiki page on page."
 	@priority = 3
 	test XSSIsNotExecutedWhenViewingUsernameInEntry {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		Navigator.openURL();

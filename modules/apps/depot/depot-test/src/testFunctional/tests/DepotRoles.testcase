@@ -276,7 +276,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAssignALRoleWithAllWCPermissions {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONRole.addDepotRole(roleTitle = "AL Role Name");
 

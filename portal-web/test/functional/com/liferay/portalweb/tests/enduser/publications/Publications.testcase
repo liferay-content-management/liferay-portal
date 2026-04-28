@@ -1041,6 +1041,8 @@ definition {
 
 	@priority = 4
 	test DiscardSubsetsofChangesInPublication {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
 		JSONPublications.selectPublication(publicationName = "Publication Name");
@@ -1582,6 +1584,8 @@ definition {
 	@description = "Assert that we can schedule a asset inside a publication and publish it."
 	@priority = 3
 	test ScheduledAssetsCanBePublished {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
 		JSONPublications.selectPublication(publicationName = "Publication Name");
@@ -1808,6 +1812,8 @@ definition {
 	@description = "Assert Publications change details on Display Data Parents and Children Tabs"
 	@priority = 4
 	test ViewPublicationsChangeDetails {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			groupName = "Guest",

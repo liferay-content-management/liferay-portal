@@ -46,6 +46,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddQuestionWithDepotImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a connected depot with an image") {
 			JSONDepot.addDepot(
 				depotDescription = "This is the description of a depot",
@@ -95,6 +97,7 @@ definition {
 	@refactordone
 	@uitest
 	test CanAddQuestionWithImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Given an image exists in Document Library and a category is available") {
@@ -995,7 +998,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanSubscribeAndUnsubscribeFromQuestion {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		task ("Given there is a user, a category and a question created") {
 			JSONUser.addUser(
@@ -1099,7 +1102,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanSubscribeAndUnsubscribeFromTopic {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		task ("Given there is a created user") {
 			JSONUser.addUser(
@@ -1844,6 +1847,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewQuestionsWithConfiguredFilter {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given there are a category and questions created") {
 			JSONMBMessage.addCategory(
 				categoryDescription = "Description",
@@ -2335,6 +2340,8 @@ definition {
 	@description = "This test checks that the javascript in the user name will not be executed when viewing a question on page."
 	@priority = 3
 	test XSSIsNotExecutedWhenViewingUsernameInQuestion {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given there is a catergory created") {
 			JSONMBMessage.addCategory(
 				categoryDescription = "Description",

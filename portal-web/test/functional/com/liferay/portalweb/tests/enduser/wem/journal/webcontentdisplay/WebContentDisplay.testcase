@@ -46,6 +46,8 @@ definition {
 	@description = "Add a draft web content via web content display widget."
 	@priority = 4
 	test AddDraftWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a draft web content via Web Content Display") {
 			Navigator.gotoSitePage(
 				pageName = "Test Page Name",
@@ -68,6 +70,7 @@ definition {
 	@description = "Add a web content via web content display widget."
 	@priority = 5
 	test AddWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a web content via Web Content Display") {
@@ -90,6 +93,8 @@ definition {
 	@description = "Add a web content and associate a page scope in Web Content Display widget."
 	@priority = 3
 	test AddWebContentUnderPageScope {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Enable Scope Configuration") {
 			Portlet.enableScopeConfiguration();
 		}
@@ -170,6 +175,7 @@ definition {
 	@description = "This is a use case for LPS-70386. View a web content with portlet URL in Web Content Display."
 	@priority = 5
 	test AddWebContentWithPortletURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a Language Selector to page") {
@@ -220,6 +226,7 @@ definition {
 	@description = "Add a web content article with a custom DDM structure and template and display it in the web content display widget."
 	@priority = 5
 	test AddWithStructure {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a web content structure with a single line Text field and a multiple lines Text field") {
@@ -297,6 +304,8 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	@description = "Change a web content template via Web Content Display widget."
 	@priority = 4
 	test ChangeTemplate {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content template with three content fields") {
 			WebContentTemplates.openWebContentTemplatesAdmin(siteURLKey = "test-site-name");
 
@@ -400,6 +409,8 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	@description = "This is a test for LPS-129944. The user could configure WCD when selected web content based on template with embedded widget."
 	@priority = 4
 	test ConfigureWCDWhenSelectedWebContentBasedOnTemplateWithEmbeddedWidget {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content structure") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -554,6 +565,7 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	@description = "The user could display web content image in Web Content Display."
 	@priority = 5
 	test DisplayWebContentImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a web content") {
@@ -653,6 +665,7 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	@description = "This is a test for LPS-97189. A user can edit displayed content in a Web Content Display widget through Contents panel."
 	@priority = 5
 	test EditDisplayedWebContentInWebContentDisplay {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a content page") {
@@ -746,6 +759,8 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	@description = "The user can edit a web content via Web Content Display widget."
 	@priority = 4
 	test EditWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -1075,6 +1090,7 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	@description = "This is a test for LPS-64814. Validate remote code execution via untrusted Java Deserialization in templates cannot cause out of memory errors."
 	@priority = 5
 	test ValidateRemoteCodeViaTemplatesCannotCauseOutOfMemoryErrors {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a text field to web content structure") {
@@ -1136,6 +1152,7 @@ ${company.getKeyObj()}
 	@description = "This is a test for LPS-58698. Validate remote code execution can't privilege escalation in templates."
 	@priority = 5
 	test ValidateTemplateRCEReturnsNoRuntimeClasses {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a text field to web content structure") {
@@ -1273,6 +1290,8 @@ ${runtimeInstance}
 	@description = "View all settings are shown in Web Content Display."
 	@priority = 4
 	test ViewAllSettingsEnabled {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add two web contents") {
 			for (var i : list "1,2") {
 				JSONWebcontent.addWebContent(
@@ -1599,6 +1618,7 @@ ${runtimeInstance}
 	@description = "This is a test for LPS-83798. Validate File system can't access using Journal/DDM templates."
 	@priority = 5
 	test ViewNoFileSystemAccessViaJournalTemplates {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a web content structure with a text field") {

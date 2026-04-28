@@ -94,7 +94,7 @@ definition {
 	@description = "This is a test for LPS-136941. It checks that a thread submission can be updated."
 	@priority = 3
 	test CanModifyThreadSubmission {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",

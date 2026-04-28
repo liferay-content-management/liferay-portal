@@ -165,6 +165,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test ViewDepotStagingArchive73101 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-depot-staging";
 		property portal.version = "7.3.10.1";
 		property test.assert.warning.exceptions = "false";

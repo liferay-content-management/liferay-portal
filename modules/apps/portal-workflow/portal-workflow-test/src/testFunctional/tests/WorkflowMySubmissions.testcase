@@ -39,6 +39,7 @@ definition {
 
 	@priority = 5
 	test WithdrawTaskAssignedToMeByActions {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		var webContentContent = "WC WebContent Content";
@@ -93,6 +94,8 @@ definition {
 
 	@priority = 3
 	test WithdrawTaskAssignedToMeByDetails {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var webContentContent = "WC WebContent Content";
 		var webContentTitle = "WC WebContent Title";
 
@@ -148,6 +151,8 @@ definition {
 
 	@priority = 4
 	test WithdrawTaskAssignedToMyRolesByActions {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var webContentContent = "WC WebContent Content";
 		var webContentTitle = "WC WebContent Title";
 
@@ -193,6 +198,8 @@ definition {
 
 	@priority = 3
 	test WithdrawTaskAssignedToMyRolesByDetails {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var webContentContent = "WC WebContent Content";
 		var webContentTitle = "WC WebContent Title";
 
@@ -240,6 +247,8 @@ definition {
 
 	@priority = 4
 	test WithdrawTaskCompletedNoByActions {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var webContentContent = "WC WebContent Content";
 		var webContentTitle = "WC WebContent Title";
 
@@ -283,6 +292,8 @@ definition {
 
 	@priority = 3
 	test WithdrawTaskCompletedNoByDetails {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var webContentContent = "WC WebContent Content";
 		var webContentTitle = "WC WebContent Title";
 

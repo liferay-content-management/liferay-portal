@@ -98,6 +98,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanRemoveCustomizedWC {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DepotNavigator.openDepotWebContentStructuresAdmin(depotName = "Test Depot Name");
 
 		WebContentStructures.addCP(
@@ -159,6 +161,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanRemoveCustomizedWCFromDisconnectedSite {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Remove Customized WC Depot Name");
@@ -301,6 +305,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanSelectDepotContentViaWebContentField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Page Name");
@@ -419,6 +425,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanSelectFromFragmentInDisplayPageTemplate {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Depot",
 			groupName = "Test Depot Name",
@@ -614,6 +622,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewCustomizedWCInAP {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -700,6 +709,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewCustomizedWCInWCD {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

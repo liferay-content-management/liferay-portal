@@ -348,6 +348,7 @@ definition {
 	@ignore = "true"
 	@priority = 3
 	test CanPublishWCWithImagesViaAP {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -731,6 +732,7 @@ definition {
 	@description = "This is a use case for LRQA-7589 and LPS-190360 TC-6. Web contents are only published if their content date is in correspondence with the content data range of the publish configuration."
 	@priority = 3
 	test StagingRemoteLiveWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -850,6 +852,7 @@ definition {
 	@description = "This is a use case for LPS-82839 and LPS-190360 TC-4. Web contents can be published on remote staging."
 	@priority = 3
 	test StagingRemoteLiveWebContentViaPortletCP {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -906,6 +909,7 @@ definition {
 	@description = "This is a use case for LPS-81953. Web contents can be published with manually chosen ID."
 	@priority = 3
 	test StagingRemoteLiveWebContentWithManualChosenID {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -989,6 +993,7 @@ definition {
 	@description = "This is a use case for LPS-178088. Verify the error message displays the missing reference information with the implicated Site's name."
 	@priority = 3
 	test VerifyErrorMessageWithMissingReferenceInformation {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1284,6 +1289,7 @@ definition {
 	@description = "This is a use case for LPS-81836. Web contents can be published via SAP."
 	@priority = 3
 	test ViewSingleAssetRemotePublication {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

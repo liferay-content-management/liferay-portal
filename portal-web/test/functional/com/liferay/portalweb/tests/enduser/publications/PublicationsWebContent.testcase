@@ -140,6 +140,8 @@ definition {
 	@description = "LPS-136380 - Add localization for translated titles and content."
 	@priority = 4
 	test CanReviewChangeForWebContentWithLocalization {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Create new Publication, new site and new structure with localization") {
 			JSONPublications.addPublication(publicationName = "Publication Name");
 
@@ -302,6 +304,8 @@ definition {
 	@description = "This is use case for LPS-159561. Making the changes in the description doesn't yield a missing requirement conflict."
 	@priority = 3
 	test MakingChangesInDescriptionCannotYieldConflict {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "site-name");
@@ -414,6 +418,8 @@ definition {
 
 	@priority = 4
 	test PublishWebContentWithCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
 		JSONPublications.selectPublication(publicationName = "Publication Name");
@@ -500,6 +506,7 @@ definition {
 
 	@priority = 4
 	test PublishWebContentWithDMAndImageFields {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.assert.warning.exceptions = "true";
 
 		JSONPublications.addPublication(publicationName = "Publication Name");
@@ -595,6 +602,8 @@ definition {
 
 	@priority = 4
 	test PublishWebContentWithFriendlyURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Enable dynamic and manual selection") {
 			AssetPublisherPortlet.enableDynamicAndManualSelection();
 		}
@@ -669,6 +678,8 @@ definition {
 
 	@priority = 3
 	test ReviewChangesCanProcessWebContentsWithThemeDisplayInTemplate {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
 		JSONPublications.selectPublication(publicationName = "Publication Name");
@@ -737,6 +748,8 @@ definition {
 	@description = "This is the use case for LPS-161841. The order of the versions is not reversed When resolving web content article version conflicts during publication."
 	@priority = 4
 	test WebContentArticleVersionCannotBeReversedWhenResolvingTheConflicts {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add new web content on new added site") {
 			HeadlessSite.addSite(siteName = "Site Name");
 

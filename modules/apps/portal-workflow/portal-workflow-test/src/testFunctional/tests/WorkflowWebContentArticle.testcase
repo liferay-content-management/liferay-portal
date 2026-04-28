@@ -31,6 +31,8 @@ definition {
 	@description = "Verify that a workflow can be assigned to Web Content in the DXP Configuration > Workflow"
 	@priority = 4
 	test CanConfigureWorkflowWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Site Administration",
@@ -64,6 +66,8 @@ definition {
 	@description = "Verify that the user can reject a Web Content Article"
 	@priority = 3
 	test CanRejectWebContentArticle {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Workflow.openWorkflowListView();
 
 		Navigator.gotoNavItem(navItem = "Configuration");
@@ -106,6 +110,8 @@ definition {
 	@description = "Verify that a Web Content draft is not submitted as a Workflow task"
 	@priority = 3
 	test CanSaveAsDraft {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Workflow.openWorkflowListView();
 
 		Navigator.gotoNavItem(navItem = "Configuration");

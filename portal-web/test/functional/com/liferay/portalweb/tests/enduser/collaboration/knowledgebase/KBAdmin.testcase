@@ -66,6 +66,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanEditArticleAndAddAttachment {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		JSONKnowledgeBase.addkBArticle(
@@ -92,7 +93,7 @@ definition {
 	@description = "This test covers LPS-171314. It ensures that the expiration label for Knowledge Base article works."
 	@priority = 4
 	test CanEnableArticleExpirationLabel {
-		property custom.properties = "company.default.time.zone=America/Los_Angeles";
+		property custom.properties = "company.default.time.zone=America/Los_Angeles${line.separator}feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -285,7 +286,7 @@ definition {
 	@description = "This test covers LPS-171314. It ensures that the expiration label is displayed when the Notification Date is reached."
 	@priority = 4
 	test ExpirationNotificationShowsWhenNotificationDateIsReached {
-		property custom.properties = "company.default.time.zone=America/Los_Angeles";
+		property custom.properties = "company.default.time.zone=America/Los_Angeles${line.separator}feature.flag.LPD-11235=true";
 
 		task ("Given the Knowledge Base article is created with the expiration date of 1 week and 2 minutes in the future") {
 			KBAdmin.openKBAdmin(siteURLKey = "guest");

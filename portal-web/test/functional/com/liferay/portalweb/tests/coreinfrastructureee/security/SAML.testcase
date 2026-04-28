@@ -3556,6 +3556,7 @@ definition {
 	@description = "This is a use case for LPS-50747. Validate vulnerabilities XML attacks."
 	@priority = 4
 	test ValidateVulnerabilitiesXMLAttacks {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";

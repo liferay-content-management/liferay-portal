@@ -33,6 +33,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddDMImageToWikiPageViaURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -87,6 +88,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddPageToNode {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 
 		WikiNavigator.gotoNode(wikiNodeName = "Main");
@@ -112,6 +115,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanComparePageVersions {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWiki.addWikiPage(
 			groupName = "Guest",
 			wikiNodeName = "Main",
@@ -296,6 +301,7 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanViewConfiguredEmailContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		WikiNavigator.openWikiAdmin(siteURLKey = "guest");

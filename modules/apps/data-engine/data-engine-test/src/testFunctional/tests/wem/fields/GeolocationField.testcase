@@ -146,6 +146,8 @@ definition {
 	@description = "This test ensures a repeatable geolocation field can be duplicated on the Web Content."
 	@priority = 4
 	test VerifyDuplicatedGeolocationOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var key_fieldName = "Geolocation";
 
 		DataEngine.toggleFieldRepeatable(fieldFieldLabel = ${key_fieldName});

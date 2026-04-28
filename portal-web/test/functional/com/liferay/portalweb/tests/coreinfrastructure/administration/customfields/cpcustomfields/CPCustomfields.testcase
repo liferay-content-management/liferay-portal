@@ -321,6 +321,8 @@ definition {
 
 	@priority = 4
 	test EditRevertCustomFieldWikiPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var siteName = TestCase.getSiteName(siteName = ${siteName});
 
 		CustomFields.openCustomFieldAdmin();

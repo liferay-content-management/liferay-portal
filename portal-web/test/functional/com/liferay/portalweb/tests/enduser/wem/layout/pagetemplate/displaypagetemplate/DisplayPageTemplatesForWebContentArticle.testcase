@@ -103,6 +103,7 @@ definition {
 	@description = "This is a test for LPS-86221. A user can preview a draft web content within its display page."
 	@priority = 5
 	test PreviewDraftWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a Heading fragment to display page template") {
@@ -170,6 +171,7 @@ definition {
 	@description = "This is a test for LPS-86221 and LPS-112994. A user can preview a pending web content within its display page."
 	@priority = 5
 	test PreviewPendingWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a Heading fragment to display page template") {
@@ -240,6 +242,8 @@ definition {
 	@description = "This is a test for LPS-163800. Can preview web content with predefined values in structure in Asset Libraries through site' s display page template."
 	@priority = 3
 	test PreviewPredefinedValuesThroughTheDisplayPageOfSpecificSiteInAssetLibrary {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site designer has display page templates for web content") {
 			JSONDepot.addDepot(depotName = "Test Depot Name");
 
@@ -371,6 +375,7 @@ definition {
 	@description = "This is a test for LPS-130607 and LPS-163074. The site designer could preview current version of web content through display page template in site."
 	@priority = 5
 	test PreviewWebContentThroughTheDisplayPageOfCurrentSite {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Given a site designer has display page templates for web content") {
@@ -473,6 +478,8 @@ definition {
 	@description = "This is a test for LPS-163800. Preview web content in Asset Libraries through sites' display page templates."
 	@priority = 4
 	test PreviewWebContentThroughTheDisplayPageOfSpecificSiteInAssetLibrary {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site designer has display page templates for web content") {
 			var i = 1;
 
@@ -623,6 +630,8 @@ definition {
 	@description = "This is a test for LPS-163800. Preview web content in global site through site's display page templates."
 	@priority = 3
 	test PreviewWebContentThroughTheDisplayPageOfSpecificSiteInGlobalSite {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site designer has display page templates for web content") {
 			var i = 1;
 

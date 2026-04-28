@@ -65,6 +65,8 @@ definition {
 	@priority = 4
 	@uitest
 	test AddWebContentTitleEscapeCharacter {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content with escape characters") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -98,6 +100,8 @@ definition {
 	@description = "Delete a web content with escape characters in web content admin."
 	@priority = 3
 	test DeleteWebContentTitleEscapeCharacter {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content with escape characters") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -127,6 +131,8 @@ definition {
 	@description = "This is a test for LPS-163074. The XSS shouldn't be executed on preview window."
 	@priority = 4
 	test PreviewWebContentWithXSS {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site designer has a display page template for web content") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
 				contentType = "Web Content Article",

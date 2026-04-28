@@ -86,6 +86,7 @@ definition {
 	@description = "This is a test for LPS-192836. Assert can select feature image from Document and Media in web content creation."
 	@priority = 5
 	test AddWebContentWithFeaturedImageFromDocumentsAndMedia {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Given a user accesses to the web content editor") {
@@ -157,6 +158,8 @@ definition {
 	@description = "This is a test for LPS-202016. Can configure required vocabulary in an asset library on the site connected."
 	@priority = 4
 	test CanConfigureRequiredVocabularyInAnAssetLibraryOnTheSiteConnected {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("When adding a vocabulary in asset libraray") {
 			task ("Add an asset library and connect it to the created site") {
 				JSONDepot.addDepot(depotName = "Test Depot Name");
@@ -300,6 +303,8 @@ definition {
 	@description = "This is a test for LPS-202016. Disconnect and connect the site to the Asset Library when selecting 'Required in This Asset Library and Its Connected Sites'."
 	@priority = 4
 	test CanDisconnectAndConnectTheSiteToTheAssetLibraryInRequiredVocabulary {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("When adding a vocabulary in asset libraray") {
 			task ("Add an asset library and connect it to the created site") {
 				JSONDepot.addDepot(depotName = "Test Depot Name");
@@ -411,6 +416,8 @@ definition {
 	@description = "The user cannot republish an expired web content."
 	@priority = 4
 	test CannotRepublishExpiredWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -453,6 +460,8 @@ definition {
 	@description = "The user can compare the web content history in web content admin."
 	@priority = 4
 	test CompareWebContentVersionsHistory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -565,6 +574,7 @@ definition {
 	@description = "The user can edit a web content clicking in the article title in the serach result."
 	@priority = 5
 	test EditWebContentViaArticleTitle {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a web content") {
@@ -602,6 +612,8 @@ definition {
 	@description = "This is a use case for LPS-129096. The user can edit and save a web content after upload a featured image."
 	@priority = 4
 	test EditWebContentWithUploadedFeaturedImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content with a featured image") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -637,6 +649,8 @@ definition {
 	@description = "This is a use case for LPS-80208. The user can expire the latest web content version and view the previous."
 	@priority = 4
 	test ExpireLastestVersion {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -704,6 +718,8 @@ definition {
 	@description = "This is a test for LPS-182417. Can map date-time field to editable field and customize date-time format on content page"
 	@priority = 3
 	test MapDateAndTimeFieldOnContentPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a web content with a date and time field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -789,6 +805,8 @@ definition {
 	@description = "This is a test for LPS-182417. Can map date-time field to editable field and configure date-time format on display page"
 	@priority = 3
 	test MapDateAndTimeFieldOnDisplayPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a web content with a date and time field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -874,6 +892,8 @@ definition {
 	@description = "This is a test for LPS-162071. Verify that updating web content not will add unnecessary UUID value to web content references."
 	@priority = 3
 	test NotShownUUIDInWebContentReferencesWhenEditingWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given: Add new web content and a new WC structure with a web content field") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -966,6 +986,7 @@ definition {
 	@description = "This is a test for LPS-86845. A user can preview a draft or pending status Web Content article through the 'View Usages' screen."
 	@priority = 5
 	test PreviewDraftWebContentInWCD {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a Web Content article") {
@@ -1028,6 +1049,7 @@ definition {
 	@description = "This is a test for LPS-86845. A user can preview a draft or pending status Web Content article through the 'View Usages' screen."
 	@priority = 5
 	test PreviewPendingWebContentInWCD {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a Web Content article") {
@@ -1098,6 +1120,7 @@ definition {
 	@description = "This is a test for LPS-90066 and LPS-127728. A user can preview a scheduled web content via View Usage. The warning message should have link in Web Content Display."
 	@priority = 5
 	test PreviewScheduledWebContentInWCD {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "quarantine";
 
 		task ("Add a web content article with a future display date") {
@@ -1161,6 +1184,8 @@ definition {
 	@description = "This is a use case for LPS-133629. The user can select folder by search when create web content based on custom structure via Asset Publisher."
 	@priority = 4
 	test SelectFolderBySearchWhenCreateWebContentBasedOnCustomStructureViaAssetPublisher {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a widget page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -1250,6 +1275,7 @@ definition {
 	@description = "This is a use case for LPS-133629. The user can select folder when create web content based on Basic Web Content via Asset Publisher."
 	@priority = 5
 	test SelectFolderWhenCreateWebContentViaAssetPublisher {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add a widget page") {
@@ -1325,6 +1351,8 @@ definition {
 	@description = "This is a use case for LPS-98669. The user could select the 12th page in Link to Page field."
 	@priority = 4
 	test SelectThe12thPageInLinkToPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add 12 pages") {
 			for (var pageName : list "P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12") {
 				JSONLayout.addPublicLayout(
@@ -1378,6 +1406,8 @@ definition {
 	@description = "This is a test for LPS-141766. The user could view associated display page from copy of web content."
 	@priority = 4
 	test ViewAssociatedDisplayPageFromCopyOfWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add two Public Pages and Add an Asset Publisher to each page") {
 			for (var i : list "1,2") {
 				JSONLayout.addPublicLayout(
@@ -1541,6 +1571,8 @@ definition {
 	@description = "This is a use case for LPS-138504. Assert display page is still selected after adding a web content without adding required category."
 	@priority = 4
 	test ViewDisplayPageAfterAddingWebContentWithoutAddingRequiredCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a widget page and add Asset Publisher in it") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -1626,6 +1658,8 @@ definition {
 	@description = "This is a test for LPS-134566. View doAsUserId parameter not shown in URL field after add page link to text."
 	@priority = 4
 	test ViewDoAsUserIdNotShownInURLFieldAfterAddPageLinkToText {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add new user") {
 			JSONUser.addUser(
 				userEmailAddress = "userea1@liferay.com",
@@ -1681,6 +1715,8 @@ definition {
 	@priority = 4
 	@uitest
 	test ViewMultipleCategoriesInWebContentEditor {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add five categories") {
 			JSONCategory.addVocabulary(
 				groupName = "Test Site Name",
@@ -1762,6 +1798,8 @@ definition {
 	@description = "View available vocabularies within a web content."
 	@priority = 4
 	test ViewMultipleVocabulariesInWebContentEditor {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add five vocabularies with one category in each one") {
 			for (var i : list "1,2,3,4,5") {
 				JSONCategory.addVocabulary(
@@ -1789,6 +1827,8 @@ definition {
 	@description = "This is a use case for LPS-140253. View no private page in web content."
 	@priority = 4
 	test ViewNoPrivatePageInWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a content page and add Asset Publisher in it") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -1866,6 +1906,8 @@ definition {
 	@description = "This is a test for LPS-172129. reserved-article-id is missing from templates."
 	@priority = 4
 	test ViewReservedVariablesDisplayOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given add a web content structure and a template with reserved-article-id") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -2288,6 +2330,7 @@ definition {
 	@description = "This is a test for LPS-172561. View warning of duplicated friendly URL in web content from sites and asset libraries."
 	@priority = 3
 	test ViewWarningOfDuplicatedFriendlyURLInWebContentFromSitesAndAssetLibraries {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.upstream = "quarantine";
 
 		task ("Given some web contents with one duplicated friendly URL") {

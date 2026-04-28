@@ -80,6 +80,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddMBThreadWithMultipleAttachments {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		MessageboardsThread.addPG(
 			groupName = "Guest",
 			layoutName = "message-boards-page",
@@ -145,6 +147,7 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanConfigureWidgetToAddThreadAsQuestionByDefault {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		MessageboardsThread.viewMarkAsQuestionNotChecked(siteURLKey = "guest");
@@ -293,6 +296,7 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanReplyToThreadAsGuest {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "quarantine";
 
 		Navigator.gotoPage(pageName = "Message Boards Page");
@@ -742,6 +746,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewThreadInSubcategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONMBMessage.addCategory(
 			categoryDescription = "MB Category Description",
 			categoryName = "MB Category Name",
@@ -932,6 +938,7 @@ definition {
 	@description = "This test checks that the javascript in the user name will not be executed when viewing a thread on page."
 	@priority = 3
 	test XSSIsNotExecutedWhenViewingUsernameInThread {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		Navigator.openURL();

@@ -145,6 +145,8 @@ definition {
 	@description = "This is a test for LPS-196819. The Highlighted Structures should comply with WCAG 2.1 AA standard."
 	@priority = 3
 	test ViewAccessibilityOfHighlightedStructures {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a site administrator has web contents") {
 			JSONWebcontent.addWebContent(
 				content = "EMEA Guild",

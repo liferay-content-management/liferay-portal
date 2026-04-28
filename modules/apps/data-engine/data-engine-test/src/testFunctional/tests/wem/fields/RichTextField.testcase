@@ -79,6 +79,8 @@ definition {
 	@description = "This test verifies if the user can repeat and exclude a Rich Text Field."
 	@priority = 5
 	test ExcludeRepeatedRichTextOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DataEngine.toggleFieldRepeatable(fieldFieldLabel = "Rich Text");
 
 		WebContentStructures.saveCP();
@@ -115,6 +117,8 @@ definition {
 	@description = "This test verifies if the user can write a text on the Rich Text Field."
 	@priority = 5
 	test InsertTextOnRichTextOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentStructures.saveCP();
 
 		Navigator.gotoNavTab(navTab = "Web Content");
@@ -180,6 +184,7 @@ definition {
 	@description = "This test verifies that is not possible to publish a Web Content with an empty required Rich Text."
 	@priority = 4
 	test PublishWebContentWithEmptyRequiredRichText {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		DataEngine.editFieldRequired(fieldFieldLabel = "Rich Text");
@@ -204,6 +209,8 @@ definition {
 	@description = "This test ensure is possible to repeat a rich text on a Web Content."
 	@priority = 5
 	test RepeatRichTextOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DataEngine.toggleFieldRepeatable(fieldFieldLabel = "Rich Text");
 
 		WebContentStructures.saveCP();
@@ -294,6 +301,8 @@ definition {
 	@description = "This test verifies that a user can set the field as Required or Not Required on Web Content."
 	@priority = 4
 	test VerifyRichTextIsSetAsRequiredOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DataEngine.editFieldRequired(fieldFieldLabel = "Rich Text");
 
 		AssertClick.assertPartialTextClickAt(

@@ -247,7 +247,7 @@ definition {
 	@priority = 5
 	test CanUpdatePortalPropertiesWithMultipleClusters {
 		property app.server.bundles.size = "1";
-		property custom.properties = "company.security.auth.type=emailAddress";
+		property custom.properties = "company.security.auth.type=emailAddress${line.separator}feature.flag.LPD-11235=true";
 		property portal.release = "true";
 		property portal.upstream = "quarantine";
 		property test.liferay.virtual.instance = "false";
@@ -422,6 +422,7 @@ definition {
 	@description = "This is a use case for LPS-142472."
 	@priority = 4
 	test ValidatePublishOnTwoNodes {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "sequential";
 

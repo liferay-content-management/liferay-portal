@@ -52,6 +52,8 @@ definition {
 	@description = "Publish an expired web content to live."
 	@priority = 4
 	test PublishExpiredWebContentToLive {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -125,6 +127,8 @@ definition {
 	@description = "This is a use case for LPS-101289. View comment is shown after edited in a staging site."
 	@priority = 4
 	test ViewCommentAfterEditingInStaging {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Change the layout of page to 1 Column") {
 			JSONLayout.updateLayoutTemplateOfPublicLayout(
 				groupName = "Test Site Name (Staging)",
@@ -239,6 +243,7 @@ definition {
 	@description = "This is a use case for LPS-77769. View a web content with an edited image field in live."
 	@priority = 5
 	test ViewWebContentWithEditedImageField {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Add an image field to web content structure") {

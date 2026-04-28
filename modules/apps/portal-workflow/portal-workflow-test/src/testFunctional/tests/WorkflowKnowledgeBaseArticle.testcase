@@ -39,6 +39,8 @@ definition {
 	@description = "Verify that the Basic Article status is Pending after Submit for Workflow"
 	@priority = 4
 	test ArticleStatusIsPendingAfterSubmitForWorkflow {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -59,6 +61,8 @@ definition {
 	@description = "Verify that the user can Approve a Basic Article"
 	@priority = 5
 	test CanApproveBasicArticle {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -93,6 +97,8 @@ definition {
 	@description = "Verify that the user can Approve a Basic Article when the Child Article is Pending"
 	@priority = 4
 	test CanApproveBasicArticleWhenChildPending {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -143,6 +149,8 @@ definition {
 	@description = "Verify that the user can Approve a Basic Child Article"
 	@priority = 5
 	test CanApproveBasicChildArticle {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -198,6 +206,8 @@ definition {
 	@ignore = "true"
 	@priority = 4
 	test CanApproveBasicChildArticleWhenParentPending {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -247,6 +257,8 @@ definition {
 	@description = "Verify that when the user Edit an approved Basic Article it's status comes to Pending"
 	@priority = 4
 	test CanEditApprovedBasicArticle {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -300,6 +312,8 @@ definition {
 	@description = "Verify that the user can Reject a Basic Article"
 	@priority = 5
 	test CanRejectBasicArticle {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -335,6 +349,8 @@ definition {
 	@description = "Verify that when the Basic Article is saved as Draft it's status is Draft"
 	@priority = 3
 	test CanSaveAsDraft {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -359,6 +375,8 @@ definition {
 	@ignore = "true"
 	@priority = 4
 	test ChildArticleStatusIsPendingAfterSubmitForWorkflow {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -389,6 +407,8 @@ definition {
 	@description = "Verify that when the Basic Article is saved as Draft the Submit for Workflow button still available"
 	@priority = 3
 	test SubmitForWorkflowButtonIsAvaliable {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(

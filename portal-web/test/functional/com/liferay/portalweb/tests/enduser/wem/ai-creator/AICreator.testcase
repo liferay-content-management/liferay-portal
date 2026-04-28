@@ -447,6 +447,7 @@ definition {
 	@description = "This is a test for LPS-179485. The generated content should be appended to the existing content."
 	@priority = 3
 	test ViewGeneratedContentAppendedToExistingContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

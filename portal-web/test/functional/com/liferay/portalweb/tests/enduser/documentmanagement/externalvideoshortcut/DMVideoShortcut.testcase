@@ -107,6 +107,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddFacebookVideoToKBViaItemSelector {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -128,6 +130,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddKBArticleWithEmbeddedVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -156,6 +160,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddKBArticleWithTwitchStream {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -202,6 +208,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddTwitchToWCViaItemSelector {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
@@ -300,6 +308,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddWCWithEmbeddedTwitchVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -336,6 +346,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddWCWithEmbeddedVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -366,6 +378,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAddYouTubeToWCViaItemSelector {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
@@ -451,6 +464,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanChangeViewsInItemSelector {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
@@ -905,6 +919,8 @@ definition {
 	@description = "This ensures that an external video in the WC content field can be rendered correctly after moving it to a folder."
 	@priority = 4
 	test CanViewVideoInWCAfterMovingToFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(

@@ -29,7 +29,7 @@ definition {
 	@description = "This is a test for LRQA-66585. This test validates the creation, edition and persistence of fields with Options on the Web Content Admin."
 	@priority = 5
 	test AddAndEditTranslatedFieldsWithOptions {
-		property custom.properties = "feature.flag.LPD-11228=true";
+		property custom.properties = "feature.flag.LPD-11228=true${line.separator}feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		NavItem.gotoStructures();
@@ -312,6 +312,7 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 4
 	test CheckDefaultWebContentTitleOnWebContentList {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		NavItem.gotoStructures();
@@ -346,6 +347,8 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 5
 	test CheckDuplicatedRepeatableStructureOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -472,6 +475,8 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 5
 	test CheckLanguageSelectorAndStructureTranslationsOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(
@@ -534,6 +539,8 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 5
 	test CheckLocalizationOfWebContentUponLanguageChange {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -598,6 +605,8 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 5
 	test CheckStructureTranslationsOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(
@@ -656,7 +665,7 @@ definition {
 	@description = "This is a test for LRQA-66639. This test validates the creation, edition, deletion and persistence of fields into Web Contents."
 	@priority = 5
 	test CreateEditAndDeleteLocalizedWebContent {
-		property custom.properties = "feature.flag.LPD-11228=true";
+		property custom.properties = "feature.flag.LPD-11228=true${line.separator}feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		NavItem.gotoStructures();
@@ -814,6 +823,8 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 4
 	test DefaultTitleDisplayedUponFirstlyTranslatingForAnotherLocale {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -864,6 +875,8 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 4
 	test DefaultTitlePersistsAfterTranslatingForAnotherLocale {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.gotoAddCP();
 
 		WebContent.addCP(webContentTitle = "Test");
@@ -896,6 +909,8 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 4
 	test DefaultValuesDisplayedForNonTranslatedWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -968,7 +983,7 @@ definition {
 	@description = "This is a test for LRQA-66585. This test validates the creation, edition, duplication and persistence of Grid field on the Web Content Admin."
 	@priority = 5
 	test DuplicateAndEditTranslatedFieldsWithOptions {
-		property custom.properties = "feature.flag.LPD-11228=true";
+		property custom.properties = "feature.flag.LPD-11228=true${line.separator}feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		NavItem.gotoStructures();
@@ -1199,6 +1214,8 @@ definition {
 	@description = "This is a test for LRQA-66639. This test validates the creation, edition, deletion and persistence of fields into Web Contents in different instance language."
 	@priority = 5
 	test LocalizedWebContentWithDifferentInstanceLanguage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		PortalSettings.openInstanceSettingsAdmin();
 
 		SystemSettings.gotoConfiguration(
@@ -1375,6 +1392,8 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 5
 	test TranslateWebContentWithAllFields {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		for (var n : list "1,2") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -1651,6 +1670,8 @@ definition {
 	@description = "This is a test for LPS-122317. As Content Creator, I want to leverage the structures' translations without nested fields or fieldsets when creating a new Web Content"
 	@priority = 5
 	test TranslationDoesNotChangeAnotherAndPersistsAfterEditingAnother {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(

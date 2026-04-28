@@ -131,6 +131,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanRestoreWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		JSONWebcontent.addWebContent(

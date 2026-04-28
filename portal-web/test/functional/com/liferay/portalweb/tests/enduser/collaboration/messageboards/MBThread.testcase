@@ -41,6 +41,7 @@ definition {
 	@description = "This is a test for LPS-136910. It checks that bold text can be added in the editor."
 	@priority = 3
 	test CanAddBoldText {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		MessageboardsThread.addPG(
@@ -66,6 +67,8 @@ definition {
 	@description = "This is a test for LPS-136911. It checks that an image can be added in the editor."
 	@priority = 4
 	test CanAddImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "Document_4.jpg",
@@ -157,6 +160,7 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanAddThreadWithUTF8Characters {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		Navigator.gotoPage(pageName = "Message Boards Page");
@@ -199,6 +203,7 @@ definition {
 	@description = "This is a test for LPS-136912. It checks that an urgent thread can be added."
 	@priority = 3
 	test CanAddUrgentThread {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		MessageboardsThread.addPG(
@@ -333,6 +338,8 @@ definition {
 	@description = "This is a test for LPS-136914. It checks that an attachment can be downloaded."
 	@priority = 4
 	test CanDownloadAttachment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		MessageboardsThread.addPG(
 			groupName = "Guest",
 			layoutName = "message-boards-page",
@@ -507,6 +514,7 @@ definition {
 	@description = "This test covers LPS-137634. It ensures that a user cannot publish a thread with a tag that contains Java Script."
 	@priority = 3
 	test CannotPublishThreadWithTagContainingJavaScript {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		MessageboardsThread.addPG(
@@ -524,6 +532,8 @@ definition {
 	@description = "This is a test for LPS-87376. It ensures that a user can publish a thread with a tag."
 	@priority = 4
 	test CanPublishThreadWithTag {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONAssettag.addTag(
 			groupName = "Guest",
 			tagName = "tagname");
@@ -654,6 +664,8 @@ definition {
 	@description = "This ensures that an image in the MB content field can be rendered correctly after it to a folder."
 	@priority = 4
 	test CanViewImageInThreadAfterMovingToFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document Title",
@@ -701,6 +713,7 @@ definition {
 	@description = "This ensures that an image in the MB content field can be rendered correctly when publication is enabled."
 	@priority = 4
 	test CanViewImageInThreadWithPublication {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property osgi.module.configuration.file.names = "com.liferay.change.tracking.configuration.CTSettingsConfiguration.config";
 		property osgi.module.configurations = "enabled=B\"true\"";
 
@@ -749,6 +762,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test JavascriptIsNotExecutedInBBCodeBody {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.gotoPage(pageName = "Message Boards Page");
 
 		MessageboardsThread.addPG(
@@ -774,7 +789,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test JavascriptIsNotExecutedInHTMLBody {
-		property custom.properties = "message.boards.message.formats.default=html";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}message.boards.message.formats.default=html";
 
 		MessageboardsThread.addPG(
 			groupName = "Guest",

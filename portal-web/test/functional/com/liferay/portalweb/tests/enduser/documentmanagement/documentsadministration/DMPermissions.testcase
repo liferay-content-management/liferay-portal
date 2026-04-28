@@ -1659,6 +1659,8 @@ definition {
 	@priority = 3
 	@refactordone
 	test ImageFromGlobalSiteCanBeSelectedWithPermissionsInWCD {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "global");
 
 		DMDocument.addCP(

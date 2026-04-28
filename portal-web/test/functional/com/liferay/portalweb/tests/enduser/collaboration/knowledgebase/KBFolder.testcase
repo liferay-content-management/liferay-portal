@@ -65,6 +65,8 @@ definition {
 	@description = "This test checks that articles can be sorted by the modified date."
 	@priority = 3
 	test AssetsCanBeSortedByModifiedDate {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONKnowledgeBase.addkBFolder(
 			groupName = "Guest",
 			kbFolderDescription = "KB Folder Description",

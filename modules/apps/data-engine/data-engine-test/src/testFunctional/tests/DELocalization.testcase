@@ -27,6 +27,7 @@ definition {
 	@description = "Verify that is possible to translate Web Content fields with different Instance language set"
 	@priority = 4
 	test CanBeTranslatedWithDifferentInstanceLanguages {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -458,6 +459,8 @@ definition {
 	@description = "Verify that the Date field mask is succesfully applied for languages which uses DD/MM/YYYY"
 	@priority = 5
 	test CanDateMaskBeAppliedForTranslations {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -514,6 +517,8 @@ definition {
 	@description = "Verify that for decimal Numeric fields the decimal separator is adequate to the current locale"
 	@priority = 4
 	test CanDecimalSeparatorBeAdequateWithDifferentLanguages {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -645,6 +650,8 @@ definition {
 	@description = "Verify that default language inputted data are displayed for untranslated languages"
 	@priority = 4
 	test CanDefaultDatabeShown {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1181,6 +1188,8 @@ definition {
 	@description = "Verify that is possible to translate input data on the Date Field"
 	@priority = 5
 	test CanInputtedDataBeTranslatedOnDateField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1241,6 +1250,8 @@ definition {
 	@description = "Verify that is possible to translate input data on the Numeric Field"
 	@priority = 5
 	test CanInputtedDataBeTranslatedOnNumericField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1301,6 +1312,8 @@ definition {
 	@description = "Verify that is possible to translate input data on the Rich Text Field"
 	@priority = 5
 	test CanInputtedDataBeTranslatedOnRichTextField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1364,6 +1377,8 @@ definition {
 	@description = "Verify that is possible to translate input data on the Text Field"
 	@priority = 5
 	test CanInputtedDataBeTranslatedOnTextField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1424,6 +1439,8 @@ definition {
 	@description = "Verify that translations for more than two different languages persists"
 	@priority = 5
 	test CanInputtedDataBeTranslatedToTwoLanguages {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1551,6 +1568,8 @@ definition {
 	@description = "Verify that translations for more than two different languages persists for fields inside a Fields Group"
 	@priority = 5
 	test CanInputtedDataBeTranslatedToTwoLanguagesOnFieldsGroup {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1681,6 +1700,8 @@ definition {
 	@description = "Verify that is not possible to translate a field that has Localizable set as off"
 	@priority = 4
 	test CanNotLocalizbleOffTranslate {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1746,6 +1767,8 @@ definition {
 	@description = "Verify that is not possible to translate a field that has Localizable set as off and is inside a Fields Group that has Localizable fields"
 	@priority = 3
 	test CanNotLocalizbleOffTranslateFieldsOnFieldsGroup {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1824,6 +1847,8 @@ definition {
 	@description = "Verify that is not possible to choose options of a field that has Localizable set as off"
 	@priority = 4
 	test CanNotLocalizbleOffTranslateOptionFields {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -3029,6 +3054,8 @@ definition {
 	@description = "Verify that is possible to translate a Web Content with all fields"
 	@priority = 5
 	test CanTranslateWebContentWithAllFields {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		for (var n : list "1,2") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -3532,6 +3559,8 @@ definition {
 	@description = "Verify that is possible to upload a different image on the Image Field for a translated language"
 	@priority = 5
 	test CanUploadedImageChangeWithTranslations {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -3695,6 +3724,8 @@ definition {
 	@description = "Verify that is possible to choose a different Web Content on the Web Content Field for a translated language"
 	@priority = 5
 	test CanUploadedWebContentChangeWithTranslations {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		for (var n : list "1,2") {
@@ -3776,6 +3807,8 @@ definition {
 	@description = "Create, edit and delete Web Content with translations"
 	@priority = 5
 	test CanWebContentWithTranslationsBeCreatedEditedAndDeleted {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			groupName = "Test Site Name",

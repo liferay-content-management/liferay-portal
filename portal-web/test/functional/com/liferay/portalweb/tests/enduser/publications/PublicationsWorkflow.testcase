@@ -89,7 +89,7 @@ definition {
 	@description = "This is a use case for LPS-173968. As a publications user, I should be able to configure if unapproved changes should be publishable."
 	@priority = 4
 	test CanConfigureUnapprovedChangesToBePublishable {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		Publications.enableAllowUnapprovedChanges();
 
@@ -201,6 +201,8 @@ definition {
 	@description = "This is a use case for LPS-198982."
 	@priority = 3
 	test CannotPublishDraftsOfWorkflowEnabledEntities {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Enable workflow for any change tracking enabled entity") {
 			Workflow.openWorkflowProcessBuilderConfiguration();
 
@@ -244,7 +246,7 @@ definition {
 	@description = "This is a use case for LPS-159649."
 	@priority = 4
 	test CannotPublishPublicationWithPendingAssetEntries {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -367,7 +369,7 @@ definition {
 	@description = "This is a use case for LPS-159649. Need to show proper notification message for changes in production while in a publication."
 	@priority = 4
 	test NotificationCanInformUserToSwitchToRelevantPublication {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

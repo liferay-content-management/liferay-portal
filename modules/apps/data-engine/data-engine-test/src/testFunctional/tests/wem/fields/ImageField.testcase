@@ -31,6 +31,7 @@ definition {
 	@description = "This test ensures that a user can clear the uploaded image from form by clicking on Clear button."
 	@priority = 4
 	test ClearUploadedImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		var structureTitle = "My Structure";
@@ -109,6 +110,8 @@ definition {
 	@description = "This test ensures that a user can duplicate the Image field on the builder."
 	@priority = 4
 	test DuplicateImageField {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentStructures.addCP(structureName = "WC Structure Name");
 
 		DataEngine.addField(
@@ -189,6 +192,8 @@ definition {
 	@description = "This test aims to verify if the user is required to define a description for an uploaded image."
 	@priority = 4
 	test PublishWebContentWithUploadedImageWithoutDescription {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		var structureTitle = "Image Field Structure";
 		var webContentName = "Web Content";
 		var fileName = "Document_1.jpg";
@@ -295,6 +300,7 @@ definition {
 	@description = "This test aims to verify if user can define a description for the uploaded image."
 	@priority = 4
 	test SetImageDescriptionOnWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		var structureTitle = "My Structure";
@@ -401,6 +407,7 @@ definition {
 	@description = "This test ensures that a user can upload an image from Liferay Documents and Media."
 	@priority = 5
 	test UploadImageFromDocumentsAndMedia {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		var structureTitle = "My Structure";

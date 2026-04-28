@@ -21,6 +21,7 @@ definition {
 
 	@priority = 5
 	test ViewSearchPortletsConfiguration {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.suite.search.engine = "elasticsearch8,solr";
 
 		User.firstLoginUI(

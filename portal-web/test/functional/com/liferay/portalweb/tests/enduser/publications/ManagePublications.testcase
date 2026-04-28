@@ -181,6 +181,8 @@ definition {
 
 	@priority = 4
 	test SwitchPublication {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Publications.createNewPublication(publicationName = "Publication Name");
 
 		Navigator.openURL();

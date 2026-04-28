@@ -109,6 +109,7 @@ definition {
 	@priority = 3
 	test ModelSpecificAntiSamyRulesShouldWorkForModel {
 		property antisamy.enabled = "true";
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -149,6 +150,8 @@ definition {
 	@description = "LRQA-42763 TC-1: Javascript injected into Web Content Display page should be sanitized by AntiSamy."
 	@priority = 3
 	test ScriptInWebContentDisplayPortletShouldBeSanitized {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add public widget page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Guest",

@@ -857,6 +857,8 @@ definition {
 
 	@priority = 3
 	test StagingPortletPublishContentCount {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name-staging");
 
 		WebContentNavigator.gotoAddCP();
@@ -888,6 +890,7 @@ definition {
 	@priority = 4
 	test StagingPublishLast {
 		property app.server.types = "jboss,tomcat,weblogic,wildfly";
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property database.types = "db2,hypersonic,mariadb,mysql,oracle,postgresql,sqlserver";
 		property environment.acceptance = "false";
 		property operating.system.types = "alpine,amazonlinux,centos,debian,fedora,orcllinux,osx,redhat,rockylinux,solaris,suse,ubuntu,windows";

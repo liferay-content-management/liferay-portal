@@ -59,6 +59,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanDeleteWCInlineImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "Document_2.jpg",
@@ -158,6 +160,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanEditFriendlyURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -263,6 +266,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanEditWCInlineImageInDepot {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		AssertTextEquals(
@@ -359,6 +364,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanPublishDeletedWCCustomization {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -443,6 +449,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanPublishEditedWCCustomization {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -538,6 +545,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanPublishWCFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -633,6 +641,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanPublishWCWithCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

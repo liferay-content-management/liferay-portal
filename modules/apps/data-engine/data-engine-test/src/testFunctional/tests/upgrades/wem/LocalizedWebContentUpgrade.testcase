@@ -22,6 +22,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test CreateNewWebContentUsingAnUpgradedStructureAfterUpgrade621021 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "6.2.10.21";
@@ -33,6 +34,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test CreateNewWebContentUsingAnUpgradedStructureWithFieldsetAfterUpgrade7310 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.3.10";
@@ -44,6 +46,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test CreateNewWebContentUsingAnUpgradedStructureWithFieldsetAfterUpgrade71103 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.1.10.3";
@@ -55,6 +58,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test CreateNewWebContentUsingAnUpgradedStructureWithFieldsetAfterUpgrade72101 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.2.10.1";
@@ -66,6 +70,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test CreateNewWebContentUsingAnUpgradedStructureWithFieldsetAfterUpgrade701014 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.0.10.14";
@@ -77,6 +82,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test EditAnUpgradedWebContentWithTranslationsAfterUpgrade7310 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.3.10";
@@ -88,6 +94,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test EditAnUpgradedWebContentWithTranslationsAfterUpgrade71103 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.1.10.3";
@@ -99,6 +106,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test EditAnUpgradedWebContentWithTranslationsAfterUpgrade72101 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.2.10.1";
@@ -110,6 +118,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test EditAnUpgradedWebContentWithTranslationsAfterUpgrade621021 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "6.2.10.21";
@@ -121,6 +130,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = 4
 	test EditAnUpgradedWebContentWithTranslationsAfterUpgrade701014 {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property data.archive.type = "data-archive-data-engine-web-content";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.0.10.14";

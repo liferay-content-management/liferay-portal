@@ -24,6 +24,7 @@ definition {
 	@description = "This ensures that AWS translation can be used to auto-translate a web content."
 	@priority = 5
 	test CanTranslateWC {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -66,6 +67,7 @@ definition {
 	@description = "This ensures that the web content title can be translated independently"
 	@priority = 5
 	test CanTranslateWCFieldIndependently {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

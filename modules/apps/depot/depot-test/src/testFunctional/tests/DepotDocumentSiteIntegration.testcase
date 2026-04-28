@@ -116,6 +116,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddImageViaWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "Document_2.jpeg",
@@ -526,6 +528,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewDocumentTypeInRelatedAssets {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
@@ -585,6 +589,8 @@ definition {
 	@description = "This ensures that a depot image in the KB content field can be rendered correctly on a connected site after moving it to a folder."
 	@priority = 4
 	test CanViewImageInKBAfterMovingToFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "Document_1",
@@ -635,6 +641,8 @@ definition {
 	@description = "This ensures that a depot image in the MB content field can be rendered correctly on a connected site after moving it to a folder."
 	@priority = 4
 	test CanViewImageInMBAfterMovingToFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document Title",
@@ -688,6 +696,7 @@ definition {
 	@description = "This ensures that a depot image in the MB content field can be rendered correctly on a connected site when publication is enabled."
 	@priority = 4
 	test CanViewImageInMBWithPublication {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property osgi.module.configuration.file.names = "com.liferay.change.tracking.configuration.CTSettingsConfiguration.config";
 		property osgi.module.configurations = "enabled=B\"true\"";
 
@@ -741,6 +750,8 @@ definition {
 	@description = "This ensures that a depot image in the WC content field can be rendered correctly on a connected site after moving it to a folder."
 	@priority = 4
 	test CanViewImageInWCAfterMovingToFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document Title",
@@ -808,6 +819,7 @@ definition {
 	@description = "This ensures that a depot image in the WC content field can be rendered correctly on a connected site when publication is enabled."
 	@priority = 4
 	test CanViewImageInWCWithPublication {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property osgi.module.configuration.file.names = "com.liferay.change.tracking.configuration.CTSettingsConfiguration.config";
 		property osgi.module.configurations = "enabled=B\"true\"";
 

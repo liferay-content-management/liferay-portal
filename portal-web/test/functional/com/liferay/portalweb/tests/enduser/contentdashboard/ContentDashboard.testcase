@@ -54,6 +54,8 @@ definition {
 	@description = "LPS-120417 When there is web content published by a user different than the admin user and the admin user visit the Content Dashboard, the content is visible"
 	@priority = 3
 	test AssetNotFilteredByMe {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Create an user via JSONWS") {
 			JSONUser.addUser(
 				userEmailAddress = "userea@liferay.com",
@@ -197,6 +199,8 @@ definition {
 	@description = "LPS-162826 Add the Compare to Action to the Version History for Web Content"
 	@priority = 3
 	test BackFromCompareToWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given the compare screen for Web Content") {
 			task ("Create a Web Content") {
 				JSONWebcontent.addWebContent(
@@ -2460,6 +2464,8 @@ definition {
 	@description = "LPS-162826 Add the Compare to Action to the Version History for Web Content"
 	@priority = 3
 	test CompareToLastVersionWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given the compare screen for Web Content") {
 			task ("Create a Web Content") {
 				JSONWebcontent.addWebContent(
@@ -2511,6 +2517,8 @@ definition {
 	@description = "LPS-162826 Add the Compare to Action to the Version History for Web Content"
 	@priority = 3
 	test CompareToVersionWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given the Versions tab in the Info panel of a Web Content") {
 			task ("Create a Web Content") {
 				JSONWebcontent.addWebContent(
@@ -4812,6 +4820,8 @@ definition {
 	@description = "LPS-124960 When there's a WebContent1 of type Subtype1 and WebContent2 of type Subtype2, and the user filters by Subtype1 and Subtype2, both web content are shown in the list"
 	@priority = 3
 	test FilterByTypes {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Create a basic web content via JSONWS") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -5225,6 +5235,7 @@ definition {
 	@description = "LPS-116987 When the user clicks on the eye icon in any of the translated into languages within the info panel, the user navigates to the VIEW version of the page in the matching language"
 	@priority = 5
 	test LanguageVersion {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Create a default Display Page Template") {
@@ -6240,6 +6251,7 @@ definition {
 	@description = "LPS-133181 When Filter by Author 'All', displays content from all users featured in the user's content dashboard view."
 	@priority = 5
 	test ShowAllContentCreatorUsers {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Create and configure second user") {
@@ -6317,7 +6329,7 @@ definition {
 	@description = "LPS-114985 When the user selects one or more authors in the item selector, the list of contents displays content where the selected users are the creators"
 	@priority = 5
 	test ShowAllContentsCreatedByUsers {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 		property portal.acceptance = "true";
 
 		task ("Create and configure second user") {
@@ -6394,7 +6406,7 @@ definition {
 	@description = "LPS-133181 When the user selects the option Filter by Author: Me in the 'Filter and Order' dropdown, the list of contents displays content where the user is the creator"
 	@priority = 5
 	test ShowOnlyContentCreatedByUser {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 		property portal.acceptance = "true";
 
 		task ("Create and configure second user") {
@@ -6719,6 +6731,7 @@ definition {
 	@description = "LPS-151911 Bug: Content Dashboard shows error when displaying details of article whose authors has been deleted"
 	@priority = 4
 	test ViewInfoPanelDeletedUser {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Create a new User") {
@@ -6837,6 +6850,8 @@ definition {
 	@description = "LPS-161544 Given the Version History page for Web Contents When the user clicks on back Then the Web Content is selected and the Info Panel is closed"
 	@priority = 4
 	test ViewMoreWCVersionsBackButton {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Create Web Content") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",
@@ -7009,6 +7024,8 @@ definition {
 	@description = "LPS-151065 Given a Web Content asset using a Web Content Structure When the user opens Info Panel at Content Dashboard Then Web Content Article - and structure's name text will be exhibit"
 	@priority = 3
 	test WebContentStructureTypeInInfoPanel {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Create a web content structure") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 

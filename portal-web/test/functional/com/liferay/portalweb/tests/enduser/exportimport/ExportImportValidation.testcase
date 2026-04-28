@@ -30,6 +30,7 @@ definition {
 	@description = "This is a use case for LPS-184978. TC-1 and TC-3: Custom URL can bypass validation if the custom URL match with URL Pattern in System Settings."
 	@priority = 5
 	test CustomURLCanBypassValidationIfMatchWithURLPatternInSystemSettings {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -126,6 +127,7 @@ definition {
 	@ignore = "true"
 	@priority = 5
 	test CustomURLCannotBypassValidationAfterResetDefaultValues {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -177,6 +179,8 @@ definition {
 	@description = "This is a use case for LPS-184978. TC-8: URL Pattern can be added with multiple custom URLs in Instance Settings."
 	@priority = 5
 	test MultipleURLPatternCanBeAddedInInstanceSettings {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("When: Add multiple URL Pattern in Instance Settings") {
 			StagingNavigator.openToConfigInInstanceSettings(portlet = "Export/Import, Staging");
 
@@ -203,6 +207,7 @@ definition {
 	@description = "This is a use case for LPS-184978. TC-2 and TC-4: Custom URLs cannot bypass validation if the custom URL doesn't match with URL Pattern in System Settings and URL Pattern can be added with multiple custom URLs in System Settings."
 	@priority = 5
 	test MultipleURLPatternCanBeAddedInSystemSettings {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -328,6 +333,7 @@ definition {
 	@description = "This is a use case for LPS-184978. TC-9: Verify the URL Pattern configuration could be loaded from OSGi configuration file on virtual instance."
 	@priority = 5
 	test VerifyURLPatternConfigurationCanBeLoadedFromOSGiFile {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -385,6 +391,7 @@ definition {
 	@description = "This is a use case for LPS-184978. TC-10: Verify the URL Pattern configuration can be set via OSGI config using company Web ID."
 	@priority = 4
 	test VerifyURLPatternCouldConfiguredByWebId {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

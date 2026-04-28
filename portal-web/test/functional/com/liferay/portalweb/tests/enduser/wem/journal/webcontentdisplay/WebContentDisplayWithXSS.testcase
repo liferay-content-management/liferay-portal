@@ -33,6 +33,8 @@ definition {
 	@priority = 4
 	@uitest
 	test SelectWebContentBasedOnTemplateNameWithXSS {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a web content template with a XSS name") {
 			var actualScript = '''<script>alert(123);</script>''';
 

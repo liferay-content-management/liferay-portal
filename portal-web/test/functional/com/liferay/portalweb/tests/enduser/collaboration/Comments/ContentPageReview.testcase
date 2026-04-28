@@ -59,6 +59,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAddComment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -86,6 +88,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddCommentWithEscapeCharacters {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -113,6 +117,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanDeleteComment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -158,6 +164,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanReopenResolvedComment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -203,6 +211,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanResolveComment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -240,6 +250,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewComment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -279,6 +291,8 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanViewCommentAfterDeactivatingStaging {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONStaging.enableLocalStaging(groupName = "Test Site Name");
 
 		JSONLayout.addPublicLayout(
@@ -332,6 +346,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewCommentAfterDiscardedDraft {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -385,7 +401,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewCommentAsNonCreator {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONUser.addUser(
 			userEmailAddress = "user1@liferay.com",
@@ -452,6 +468,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewCommentList {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -517,6 +535,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewCommentListNavigation {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -557,6 +577,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewCommentOnDifferentExperience {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
 		LexiconEntry.gotoAdd();
@@ -647,6 +669,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewCommentViaFragment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -685,6 +709,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewEditedComment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -725,6 +751,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewMultipleCommentsList {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -763,6 +791,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewMultipleReplies {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",

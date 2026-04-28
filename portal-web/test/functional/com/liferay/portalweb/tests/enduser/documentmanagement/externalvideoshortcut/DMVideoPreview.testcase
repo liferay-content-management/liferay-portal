@@ -106,6 +106,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAddKBArticleWithEmbeddedVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -135,6 +136,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAddWCWithEmbeddedVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -337,6 +339,7 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanImportExportedKBWithEmbeddedVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";

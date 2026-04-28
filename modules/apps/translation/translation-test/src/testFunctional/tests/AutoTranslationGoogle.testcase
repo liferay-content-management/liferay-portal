@@ -54,6 +54,7 @@ definition {
 	@description = "This ensures that the web content content can be translated independently"
 	@priority = 5
 	test CanTranslateContentFieldIndependently {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -96,6 +97,7 @@ definition {
 	@description = "This ensures that the web content description can be translated independently"
 	@priority = 5
 	test CanTranslateDescriptionFieldIndependently {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -138,6 +140,7 @@ definition {
 	@description = "This ensures that the numeric and decimal fields of a customized web content can be translated independently"
 	@priority = 5
 	test CanTranslateNumericAndDecimalFieldsIndependently {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -223,6 +226,7 @@ definition {
 	@description = "This ensures that the rich text field of a customized web content can be translated independently"
 	@priority = 5
 	test CanTranslateRichTextFieldIndependently {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -293,6 +297,7 @@ definition {
 	@description = "This ensures that the text box field of a customized web content can be translated independently"
 	@priority = 5
 	test CanTranslateTextBoxFieldIndependently {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -366,6 +371,7 @@ definition {
 	@description = "This ensures that the text field of a customized web content can be translated independently"
 	@priority = 5
 	test CanTranslateTextFieldIndependently {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -436,6 +442,7 @@ definition {
 	@description = "This ensures that the web content title can be translated independently"
 	@priority = 5
 	test CanTranslateTitleFieldIndependently {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

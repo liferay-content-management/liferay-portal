@@ -147,6 +147,8 @@ definition {
 	@description = "This is a test for LPS-107630. Make sure Fieldsets can be set as repeatable"
 	@priority = 4
 	test FieldsetSetAsRepeatable {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DataEngine.createNewFieldset(
 			fieldNameList = "Rich Text",
 			fieldsetName = "New Fieldset");
@@ -205,6 +207,8 @@ definition {
 	@description = "This is a test for LPS-107630. Make sure the content is not duplicated when activating repeatable option on a Web Content"
 	@priority = 4
 	test RepeatFieldsetWithoutDuplicatingContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DataEngine.addFieldsetToBuilder(fieldsetName = "Basic Web Content");
 
 		DataEngine.toggleFieldRepeatable(fieldsetLabel = "Basic Web Content");

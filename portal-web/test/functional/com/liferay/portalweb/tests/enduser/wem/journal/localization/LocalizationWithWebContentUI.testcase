@@ -38,6 +38,7 @@ definition {
 	@description = "The Web Content creator can add a localized web content via source editor."
 	@priority = 5
 	test AddLocalizedWebContentViaSourceEditor {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Given a site designer has a page with a Web Content Display and Language Selector widgets") {
@@ -135,6 +136,7 @@ definition {
 	@description = "This is a test for LPS-141232. The user can add a web content with Spanish translation on CKEditor."
 	@priority = 5
 	test AddWebContentWithSpanishTranslation {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Given the site designer has a page where a Web Content Display widget displays a translated web content") {
@@ -200,6 +202,8 @@ definition {
 	@description = "Validate translations in web content admin."
 	@priority = 4
 	test WebContentAdministrationLocalization {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given the site designer has a page where a Web Content Display widget displays a web content based on translated structure and template") {
 			task ("Add a Web Content Display and Language Selector widget to page") {
 				JSONLayout.addWidgetToPublicLayout(

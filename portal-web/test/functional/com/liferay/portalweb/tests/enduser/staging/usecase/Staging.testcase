@@ -124,6 +124,8 @@ definition {
 	@description = "This is a use case for LPS-94325."
 	@priority = 3
 	test ActivateStagingWithWCDOnFragment {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONFragment.addFragmentCollection(
 			groupName = "Site Name",
 			name = "Collection Name");
@@ -866,6 +868,7 @@ definition {
 	@description = "This is a use case for LPS-190064 (TC-3). The name of multiple published Web Contents are NOT displayed in the Publication Summary even when the actions are different."
 	@priority = 4
 	test DifferentlyModifiedWebContentTitlesAreNotDisplayedInPublicationSummary {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -934,6 +937,7 @@ definition {
 	@description = "This is a use case for LPS-190064 (TC-5). The name of a Drafted Web Content is NOT displayed in the Publication Summary."
 	@priority = 4
 	test DraftedWebContentTitleIsNotDisplayedInPublicationSummary {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -972,6 +976,8 @@ definition {
 	@description = "This is a use case for LPS-100807."
 	@priority = 3
 	test EditWikiPageInLiveSiteWhenWikiNotStaged {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Staging Test Page",
@@ -1056,6 +1062,8 @@ definition {
 
 	@priority = 3
 	test EnableStagingWithWebContentReferencedFromDeletedSite {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addWebContent(
 			content = "WC Content 1",
 			groupName = "Site Name",
@@ -1182,6 +1190,7 @@ definition {
 	@description = "This is a use case for LPS-190064 (TC-2). The name of multiple published Web Contents are NOT displayed in the Publication Summary."
 	@priority = 4
 	test MultipleWebContentTitlesAreNotDisplayedInPublicationSummary {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1297,7 +1306,7 @@ definition {
 	@priority = 3
 	test PublishChildSiteViaRemoteStagingWithParentStructure {
 		property app.server.bundles.size = "1";
-		property custom.properties = "auth.verifier.TunnelAuthVerifier.hosts.allowed=${line.separator}feature.flag.LPD-35013=true${line.separator}tunneling.servlet.shared.secret=1234567890123456";
+		property custom.properties = "auth.verifier.TunnelAuthVerifier.hosts.allowed=${line.separator}feature.flag.LPD-11235=true${line.separator}feature.flag.LPD-35013=true${line.separator}tunneling.servlet.shared.secret=1234567890123456";
 		property databases.size = "1";
 		property minimum.slave.ram = "24";
 		property test.liferay.virtual.instance = "false";
@@ -1377,6 +1386,8 @@ definition {
 	@description = "This is a use case for LPS-93695."
 	@priority = 3
 	test PublishContentPageWithCategory {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Search");
@@ -1573,6 +1584,8 @@ definition {
 	@description = "This is a use case for LPS-80492."
 	@priority = 3
 	test PublishRenamedTags {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Staging Test Page",
@@ -1902,6 +1915,7 @@ definition {
 	@description = "This is a use case for LPD-81248. The content is not included."
 	@priority = 3
 	test PublishViaPortletWithoutContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -2038,6 +2052,8 @@ definition {
 
 	@priority = 3
 	test PublishWCFriendlyURL {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
 
 		WebContentNavigator.gotoAddCP();
@@ -2084,6 +2100,7 @@ definition {
 	@description = "This is a use case for LPS-110701."
 	@priority = 3
 	test PublishWebContentWithUnchangedReferencedContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -2191,6 +2208,7 @@ definition {
 	@description = "This is a use case for LPS-190064 (TC-4). The name of a solely published Web Content that is inside of a Web Content Folder is displayed in the Publication Summary without the title of the folder."
 	@priority = 4
 	test SingleFolderedWebContentTitleIsProperlyDisplayedInPublicationSummary {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -2235,6 +2253,7 @@ definition {
 	@description = "This is a use case for LPS-190064 (TC-1). The name of a solely published Web Content is displayed in the Publication Summary without any UI break."
 	@priority = 4
 	test SingleWebContentTitleIsProperlyDisplayedInPublicationSummary {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -2306,6 +2325,8 @@ definition {
 
 	@priority = 3
 	test StagingKaleoWebContentLinkingUnapprovedContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		Navigator.openSiteURL(siteName = "Site Name");
 
 		ProductMenu.gotoPortlet(
@@ -2522,6 +2543,7 @@ definition {
 
 	@priority = 3
 	test StagingWithPublishTemplate {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -2673,6 +2695,7 @@ definition {
 	@description = "This is a use case for LPS-110838 and LPS-190360 TC-5."
 	@priority = 3
 	test StagingWithReplicateIndividualDeletionsByDefault {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -3207,6 +3230,7 @@ definition {
 	@description = "This is a use case for LPS-82688."
 	@priority = 3
 	test ViewPublishWCWithConfiguredCategoriesFilter {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -3314,6 +3338,7 @@ definition {
 	@description = "This is a use case for LPS-77935."
 	@priority = 3
 	test ViewSimplePublicationAfterDeleteDocumentInGlobal {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

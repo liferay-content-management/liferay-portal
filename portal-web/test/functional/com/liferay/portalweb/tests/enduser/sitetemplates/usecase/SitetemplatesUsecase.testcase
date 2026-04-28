@@ -395,7 +395,7 @@ definition {
 	@description = "LRQA-73456. Site template preferences and contents are inherited on User group sites."
 	@priority = 3
 	test SitesDynamicTemplateInheritance {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		var siteName = TestCase.getSiteName(siteName = ${siteName});
 

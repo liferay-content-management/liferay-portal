@@ -350,6 +350,8 @@ definition {
 	@description = "This ensures that user can import import translation with embedded bpt/ept tags."
 	@priority = 4
 	test CanImportTranslationWithEmeddedTags {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
 		WebContentNavigator.gotoAddCP();
@@ -675,6 +677,8 @@ definition {
 	@description = "This is a test for LPS-136980. It checks that a user can import translation with special characters."
 	@priority = 4
 	test CanImportWithSpecialCharacters {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openToAddBasicArticle(
 			groupName = "Guest",
 			siteURLKey = "guest");

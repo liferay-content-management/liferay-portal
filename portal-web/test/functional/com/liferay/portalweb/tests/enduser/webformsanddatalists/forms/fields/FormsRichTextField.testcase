@@ -188,6 +188,7 @@ definition {
 	@description = "Verify that a Rich Text Field can be required"
 	@priority = 5
 	test CanBeRequired {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		FormsAdmin.addForm();
@@ -222,6 +223,8 @@ definition {
 	@description = "Verify that a Rich Text Field can be set to repeatable"
 	@priority = 5
 	test CanBeSetToRepeatable {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
@@ -397,6 +400,7 @@ definition {
 	@description = "Verify that a Predefined Value can be set for the Rich Text Field"
 	@priority = 5
 	test PredefinedValueCanBeAdded {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		FormsAdmin.addForm();

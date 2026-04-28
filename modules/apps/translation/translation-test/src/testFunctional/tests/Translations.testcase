@@ -27,6 +27,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewOptionsWithAllLanguages {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
 		NavItem.gotoStructures();
@@ -121,6 +123,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewTranslatedFieldContentAfterEditing {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "quarantine";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");

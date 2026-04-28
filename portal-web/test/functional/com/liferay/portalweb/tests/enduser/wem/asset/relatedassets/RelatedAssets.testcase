@@ -228,6 +228,8 @@ definition {
 	@priority = 3
 	@uitest
 	test DontShowFolders {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add two widget pages with one widget each") {
 			JSONLayout.addPublicLayout(
 				groupName = "Site Name",

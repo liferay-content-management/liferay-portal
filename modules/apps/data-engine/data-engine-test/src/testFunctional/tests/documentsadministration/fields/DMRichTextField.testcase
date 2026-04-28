@@ -41,6 +41,7 @@ definition {
 	@description = "This is a test for LPS-98076. Verify if the user can write a text on the Rich Text Field (when uploading a Document Type)"
 	@priority = 5
 	test InsertTextOnRichTextOnUpload {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		PortletEntry.save();
@@ -242,6 +243,7 @@ definition {
 	@description = "This is a test for LPS-98076. Verify the Field set as 'Required' and that a user can upload a Document Type with rich text as a required field"
 	@priority = 4
 	test UploadWithRequiredRichText {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "false";
 
 		DataEngine.editFieldRequired(fieldFieldLabel = "Rich Text");

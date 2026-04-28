@@ -53,6 +53,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanPublishWCAfterEditingEmbeddedVideo {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -138,6 +139,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanRemoveVideoReferenceAfterRepublishingKBArticle {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";

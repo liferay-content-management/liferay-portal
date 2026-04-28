@@ -78,6 +78,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddQuestionViaSubTopic {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.release = "quarantine";
 
 		task ("Given a Questions category and subtopic with non-Latin characters") {
@@ -122,6 +123,8 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanAddQuestionWithMultipleTags {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a Questions category") {
 			JSONMBMessage.addCategory(
 				categoryDescription = "トピック記述",
@@ -154,6 +157,8 @@ definition {
 	@refactordone
 	@uitest
 	test CanAddQuestionWithNonLatinCharacters {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given a new root topic") {
 			Navigator.openURL();
 
@@ -528,6 +533,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test QuestionCanBeViewedViaTag {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Given a category and a question that has tags with non-Latin characters") {

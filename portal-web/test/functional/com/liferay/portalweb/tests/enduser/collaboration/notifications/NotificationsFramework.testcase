@@ -373,7 +373,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewEditedArticleNotificationInStagingEnvironment {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		HeadlessSite.addSite(siteName = "Subscribe Site");
 
@@ -446,7 +446,7 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewFolderArticleNotification {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		HeadlessSite.addSite(siteName = "Test Site Name");
 

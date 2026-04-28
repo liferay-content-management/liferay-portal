@@ -118,6 +118,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanApproveWCArticle {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -215,7 +216,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanApproveWCArticleByContentReviewer {
-		property custom.properties = "feature.flag.LPD-17564=false${line.separator}jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}feature.flag.LPD-17564=false${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONUser.addUser(
 			userEmailAddress = "user1@liferay.com",
@@ -306,6 +307,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanApproveWCInFolder {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -412,6 +414,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanRejectAndResubmitImage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -539,6 +542,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanRejectAndResubmitWC {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -652,7 +656,7 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanRejectWCArticleByContentReviewer {
-		property custom.properties = "feature.flag.LPD-17564=false${line.separator}jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}feature.flag.LPD-17564=false${line.separator}jsonws.web.service.paths.excludes=";
 
 		JSONUser.addUser(
 			userEmailAddress = "user1@liferay.com",
@@ -777,6 +781,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanRestoreWCFolderWorkflowToDefault {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		JSONWebcontent.addFolder(
 			folderName = "WC Folder Name",
 			groupName = "Test Depot Name",

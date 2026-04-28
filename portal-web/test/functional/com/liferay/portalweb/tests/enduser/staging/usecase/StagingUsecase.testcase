@@ -88,6 +88,7 @@ definition {
 	@description = "This is a use case for LPS-98170"
 	@priority = 3
 	test AssertAssetPriorityNotBeResetAfterPublication {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -662,6 +663,7 @@ definition {
 
 	@priority = 4
 	test EditPublishTemplate {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -934,6 +936,7 @@ definition {
 	@description = "This is a use case for LPS-167777 TC-2: Verify that the modified referred content(DM content) will present in the LAR when 'Include if modified' is enabled for Web Content."
 	@priority = 3
 	test ModifiedReferredContentCanPublishToLiveWhenEnableIncludeIfModifiedOption {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1157,6 +1160,7 @@ definition {
 	@description = "This is a use case for LPS-190360. TC-3: User can publish WC to live directly from the portlet and can see Staging recommendation."
 	@priority = 4
 	test PublishPortlet {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("When: User add a new WC on the staging site") {
@@ -1299,6 +1303,7 @@ definition {
 
 	@priority = 3
 	test PublishWebContentFriendlyURLEncoding {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1777,6 +1782,7 @@ definition {
 	@description = "This is a use case for LPS-91017, LPS-89646."
 	@priority = 3
 	test StagingPublishWCWithWebContentFieldViaAP {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1941,6 +1947,7 @@ definition {
 	@description = "This is a use case for LPS-123156 and LPS-185203 TC-1: The summary of the failed publishing processes can be viewed."
 	@priority = 3
 	test TrashEntryReferencePublishing {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "quarantine";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -2420,6 +2427,7 @@ definition {
 	@description = "This is a use case for LPS-96721."
 	@priority = 3
 	test ViewPublishedContentWithSpecialCharsInDocumentTitle {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -2540,6 +2548,7 @@ definition {
 	@description = "This is a use case for LPS-87280."
 	@priority = 3
 	test ViewPublishedWCWithApostropheInImageField {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

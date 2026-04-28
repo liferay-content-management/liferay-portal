@@ -522,6 +522,8 @@ definition {
 	@description = "This is a use case for LPS-71236 and LPS-71307. View web content."
 	@priority = 4
 	test NoXSSVulnerabilityInWebContent {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Given: A Web Content is created with a script in the title") {
 			JSONWebcontent.addWebContent(
 				content = "WC WebContent Content",

@@ -17,7 +17,7 @@ definition {
 
 	@priority = 5
 	test AddAndViewStructureAndTemplateWithPermissions {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 		property portal.acceptance = "true";
 
 		JSONLayout.addPublicLayout(
@@ -177,7 +177,7 @@ definition {
 	@description = "A new user with power user role can add a web content based on global structure with edited default values."
 	@priority = 3
 	test AddWebContentBasedOnGlobalStructureAndEditedDefaultValues {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		task ("Add a web content structure with a Text field in global site") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "global");
@@ -351,7 +351,7 @@ definition {
 	@description = "This is a test for LPS-145308. The site administrator could add a web content with image based on structure from parent site."
 	@priority = 4
 	test AddWebContentWithImageBasedOnStructureFromParentSite {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		task ("Given a web content creator has web content structure with image field on parent site") {
 			task ("Add a child site") {
@@ -452,7 +452,7 @@ definition {
 	@description = "A new user with web content administration role can edit a web content."
 	@priority = 4
 	test EditWebContentAsUserWithPermissions {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+		property custom.properties = "feature.flag.LPD-11235=true${line.separator}jsonws.web.service.paths.excludes=";
 
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(

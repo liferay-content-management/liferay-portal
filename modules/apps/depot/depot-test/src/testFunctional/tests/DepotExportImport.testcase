@@ -179,6 +179,8 @@ definition {
 	@priority = 4
 	@refactordone
 	test ExportedDepotWithCustomizeWCCanBeImportedToDepot {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		DepotNavigator.openDepotWebContentStructuresAdmin(depotName = "Test Depot Name");
 
 		WebContentStructures.addCP(

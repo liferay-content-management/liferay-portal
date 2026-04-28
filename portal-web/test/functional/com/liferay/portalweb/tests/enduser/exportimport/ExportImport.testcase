@@ -288,6 +288,7 @@ definition {
 	@description = "This is a use case for LPS-82752. Verify is possible export content and then publish."
 	@priority = 4
 	test ExportContentThenPublish {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property portal.acceptance = "true";
 
 		task ("Given: User add a new site and enable local staging") {
@@ -440,6 +441,7 @@ definition {
 	@description = "This is a use case for LPS-128533. Verify is possible export/import of Journal Article with link to layout."
 	@priority = 3
 	test ExportImportJournalArticleWithLinkToPage {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -581,6 +583,7 @@ definition {
 	@description = "This is a use case for LPS-88378. Verify is possible export/import layout circular reference."
 	@priority = 3
 	test ExportImportLayoutCircularReference {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1031,6 +1034,8 @@ definition {
 	@description = "This is a use case for LPS-142076. Verify is possible import site with the 'Copy as new' option in the Update data section."
 	@priority = 3
 	test ExportImportSiteWithCopyAsNew {
+		property custom.properties = "feature.flag.LPD-11235=true";
+
 		task ("Add a new site and add a widget page to site") {
 			HeadlessSite.addSite(siteName = "Test Site Name");
 
@@ -1123,6 +1128,7 @@ definition {
 	@description = "This is a use case for LPS-88331. Verify is possbile export/import a site with nested upload field."
 	@priority = 3
 	test ExportImportSiteWithNestedUploadField {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1416,6 +1422,7 @@ definition {
 	@description = "This is a use case for LPS-88743. Verify is possible export/import Web Content circular reference."
 	@priority = 3
 	test ExportImportWebContentCircularReference {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1681,6 +1688,7 @@ definition {
 	@description = "This is a use case for LPS-97544 and LPS-90886. Verify is possible import a staged site with circular reference."
 	@priority = 3
 	test ImportStagedSiteWithCircularReference {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -1850,6 +1858,7 @@ definition {
 	@description = "This is a use case for LPS-94738. Verify is possible import a WCD after activate staging."
 	@priority = 3
 	test ImportWCDReferenceAfterActivateStaging {
+		property custom.properties = "feature.flag.LPD-11235=true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
