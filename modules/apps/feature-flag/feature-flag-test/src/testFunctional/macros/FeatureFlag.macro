@@ -18,6 +18,21 @@ definition {
 			toggleState = "Enabled");
 	}
 
+	@summary = "Open Instance Settings and enable a deprecation-typed feature flag at Virtual Instance Scope."
+	macro enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = null) {
+		PortalSettings.openInstanceSettingsAdmin();
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Feature Flags",
+			configurationName = "Deprecation",
+			configurationScope = "Virtual Instance Scope");
+
+		FeatureFlag.enableFeatureFlag(
+			configurationScope = "Virtual Instance Scope",
+			featureFlag = ${featureFlag},
+			scope = "Deprecation");
+	}
+
 	@summary = "Default summary"
 	macro toggleFeatureFlag(toggleState = null, configurationScope = null, featureFlag = null, scope = null) {
 		if (!(isSet(toggleState))) {
