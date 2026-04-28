@@ -321,6 +321,10 @@ definition {
 
 	@priority = 4
 	test EditRevertCustomFieldWikiPage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var siteName = TestCase.getSiteName(siteName = ${siteName});
 
 		CustomFields.openCustomFieldAdmin();

@@ -158,6 +158,10 @@ definition {
 	test CanTranslateWCWithSpecificLanguagesPermissions {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			groupName = "Guest",

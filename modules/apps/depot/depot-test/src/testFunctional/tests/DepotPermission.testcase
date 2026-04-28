@@ -264,6 +264,10 @@ definition {
 	test CanAddWebContentPermissionWithinDepot {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name 2");

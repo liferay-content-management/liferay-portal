@@ -76,6 +76,10 @@ definition {
 	test ViewPreviewDraftViaURLFromNonAuthor {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a user and assign it to the created site") {
 			JSONUser.addUser(
 				userEmailAddress = "userea@liferay.com",

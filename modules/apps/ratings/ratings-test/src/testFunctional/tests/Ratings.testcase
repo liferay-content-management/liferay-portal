@@ -257,6 +257,10 @@ definition {
 	test CanRateAndEditWikiPageComment {
 		property custom.properties = "default.layout.template.id=1_column${line.separator}feature.flag.LPD-35013=true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Wiki Test Page");
@@ -634,6 +638,10 @@ definition {
 	@description = "This is a test for LPS-136949. It checks that Stacked stars can be added and removed from comments."
 	@priority = 5
 	test CanRevokeStackedStarsFromComments {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Ratings.configureRatingType(
 			applications = "MBDiscussion",
 			portlet = "Ratings",

@@ -59,6 +59,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanDeleteWCInlineImage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "Document_2.jpg",
@@ -160,6 +164,10 @@ definition {
 	test CanEditFriendlyURL {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		DepotNavigator.openDepotWebContentAdminStaging(depotName = "Test Depot Name");
 
@@ -263,6 +271,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanEditWCInlineImageInDepot {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 
 		AssertTextEquals(
@@ -362,6 +374,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DepotNavigator.openDepotAdmin();
 
 		Depot.configureDDMStructures(
@@ -445,6 +461,10 @@ definition {
 	test CanPublishEditedWCCustomization {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		DepotNavigator.openDepotAdmin();
 
@@ -541,6 +561,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DepotNavigator.openDepotWebContentAdminStaging(depotName = "Test Depot Name");
 
 		WebContentFolder.addCP(
@@ -635,6 +659,10 @@ definition {
 	test CanPublishWCWithCategory {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		DepotNavigator.openDepotCategoriesAdminStaging(depotName = "Test Depot Name");
 

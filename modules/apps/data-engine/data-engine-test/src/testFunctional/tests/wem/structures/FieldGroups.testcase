@@ -35,6 +35,10 @@ definition {
 	@description = "This is a test for LPS-179789. Verify it is not possible to mix repeatable fields with other repeatable fields groups"
 	@priority = 4
 	test CannotMixRepeatableFieldsGroups {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a a Structures that contains 2 field groups with repeatable fields") {
 			DataEngine.addField(
 				fieldFieldLabel = "Text",
@@ -163,6 +167,10 @@ definition {
 	@description = "This is a test for LPS-98077. Make sure data inserted on a Group Field persists"
 	@priority = 3
 	test CheckIfFieldGroupDataPersists {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DataEngine.addField(
 			fieldFieldLabel = "Text",
 			fieldName = "Text");
@@ -195,6 +203,10 @@ definition {
 	@priority = 5
 	test CreateEditAndDeleteFieldGroups {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		DataEngine.addField(
 			fieldFieldLabel = "Text",
@@ -583,6 +595,10 @@ definition {
 	test DuplicateTwoLevelFieldGroups {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DataEngine.addField(
 			fieldFieldLabel = "Text 1",
 			fieldName = "Text");
@@ -882,6 +898,10 @@ definition {
 	@description = "LPS-168179: It's possible to reorder Web Content with Structure of repeatable fields groups"
 	@priority = 5
 	test ReorderRepeatableFieldsGroupsByDragAndDrop {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a Web Content Structure that contains repeatable fields groups") {
 			DEBuilder.addField(
 				fieldLabel = "Text",
@@ -962,6 +982,10 @@ definition {
 	@description = "This is a test for LPS-98077. Set a FieldGroup as collapsible and perform this action in a WebContent"
 	@priority = 4
 	test SetFieldGroupAsCollapsibleAndExecuteOnAWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DataEngine.addField(
 			fieldFieldLabel = "Text",
 			fieldName = "Text");
@@ -998,6 +1022,10 @@ definition {
 	@priority = 4
 	test SetFieldGroupAsRepeatableAndExecuteOnAWebContent {
 		property ci.retries.disabled = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		DataEngine.addField(
 			fieldFieldLabel = "Text",

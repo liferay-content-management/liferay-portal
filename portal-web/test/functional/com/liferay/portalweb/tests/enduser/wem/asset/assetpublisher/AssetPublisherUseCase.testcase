@@ -151,6 +151,10 @@ definition {
 	test EditDisplayedWebContentInAssetPublisher {
 		property timeout.explicit.wait = "20";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a content page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -273,6 +277,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Change the RSS Feed Time on System Settings") {
 			ApplicationsMenu.gotoPortlet(
 				category = "Configuration",
@@ -380,6 +388,10 @@ definition {
 	@priority = 5
 	test FilterAndOrderAssetsByField {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a Language Selector to page") {
 			JSONLayout.addWidgetToPublicLayout(
@@ -1066,6 +1078,10 @@ definition {
 	@description = "View the global web content with custom structure in Asset Publisher."
 	@priority = 3
 	test ViewGlobalWebContentWithCustomStructureInAssetPublisher {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var structureName = StringUtil.randomString(8);
 		var title = StringUtil.randomString(8);
 
@@ -1119,6 +1135,10 @@ definition {
 	@description = "LPS-103624 - URLs are not well formed when changing language in classic Display Pages."
 	@priority = 4
 	test ViewInContextTranslatedWCWithFriendlyURL {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Asset Publisher Page",
@@ -1393,6 +1413,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a normal web content") {
 			JSONWebcontent.addWebContent(
 				content = "WC WebContent Content 1",
@@ -1615,6 +1639,10 @@ definition {
 	test ViewWebContentAuthor {
 		property custom.properties = "feature.flag.LPD-35013=true${line.separator}jsonws.web.service.paths.excludes=";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var userScreenName1 = StringUtil.randomString(8);
 		var userScreenName2 = StringUtil.randomString(8);
 		var randomRoleKey = StringUtil.randomString(8);
@@ -1712,6 +1740,10 @@ definition {
 	@description = "This is a test for LPS-129012. View web content in associated public content page."
 	@priority = 4
 	test ViewWebContentInAssociatedPublicContentPage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a content page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",

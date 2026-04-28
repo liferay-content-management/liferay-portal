@@ -32,6 +32,10 @@ definition {
 	@description = "This ensures that an image in the WC content field can be rendered correctly when publication is enabled."
 	@priority = 5
 	test CanViewImageInWC {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		JSONLayout.addPublicLayout(
@@ -85,6 +89,10 @@ definition {
 	@description = "This ensures that an external video in the WC content field can be rendered correctly when publication is enabled."
 	@priority = 5
 	test CanViewVideoInWC {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");

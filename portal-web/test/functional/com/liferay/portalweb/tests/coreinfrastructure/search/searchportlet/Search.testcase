@@ -993,6 +993,10 @@ definition {
 	@description = "LPS-182287 - A user can configure Custom Filter widgets with DDM fields"
 	@priority = 4
 	test FilterByDDMFields {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a text field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "guest");
 
@@ -3351,6 +3355,10 @@ definition {
 	@priority = 4
 	test ViewStagedAndLiveContentInSearchResults {
 		property portal.acceptance = "quarantine";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		HeadlessSite.addSite(siteName = "Site Name");
 

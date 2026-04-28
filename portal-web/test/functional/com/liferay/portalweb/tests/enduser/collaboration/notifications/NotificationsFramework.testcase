@@ -375,6 +375,10 @@ definition {
 	test CanViewEditedArticleNotificationInStagingEnvironment {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		HeadlessSite.addSite(siteName = "Subscribe Site");
 
 		JSONLayout.addPublicLayout(
@@ -447,6 +451,10 @@ definition {
 	@refactordone
 	test CanViewFolderArticleNotification {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		HeadlessSite.addSite(siteName = "Test Site Name");
 

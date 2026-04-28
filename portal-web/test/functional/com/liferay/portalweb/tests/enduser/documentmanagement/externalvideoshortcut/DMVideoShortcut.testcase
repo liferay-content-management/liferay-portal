@@ -107,6 +107,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddFacebookVideoToKBViaItemSelector {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -128,6 +132,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddKBArticleWithEmbeddedVideo {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -156,6 +164,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddKBArticleWithTwitchStream {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -202,6 +214,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddTwitchToWCViaItemSelector {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONDepot.addDepot(
 			depotDescription = "This is the description of a depot",
 			depotName = "Test Depot Name");
@@ -300,6 +316,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddWCWithEmbeddedTwitchVideo {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -336,6 +356,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddWCWithEmbeddedVideo {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -367,6 +391,10 @@ definition {
 	@refactordone
 	test CanAddYouTubeToWCViaItemSelector {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
@@ -452,6 +480,10 @@ definition {
 	@refactordone
 	test CanChangeViewsInItemSelector {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
@@ -905,6 +937,10 @@ definition {
 	@description = "This ensures that an external video in the WC content field can be rendered correctly after moving it to a folder."
 	@priority = 4
 	test CanViewVideoInWCAfterMovingToFolder {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(

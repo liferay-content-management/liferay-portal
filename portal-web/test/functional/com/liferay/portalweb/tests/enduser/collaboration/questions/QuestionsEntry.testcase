@@ -46,6 +46,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddQuestionWithDepotImage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a connected depot with an image") {
 			JSONDepot.addDepot(
 				depotDescription = "This is the description of a depot",
@@ -96,6 +100,10 @@ definition {
 	@uitest
 	test CanAddQuestionWithImage {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given an image exists in Document Library and a category is available") {
 			JSONDocument.addFileWithUploadedFile(
@@ -997,6 +1005,10 @@ definition {
 	test CanSubscribeAndUnsubscribeFromQuestion {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given there is a user, a category and a question created") {
 			JSONUser.addUser(
 				userEmailAddress = "userea@liferay.com",
@@ -1100,6 +1112,10 @@ definition {
 	@refactordone
 	test CanSubscribeAndUnsubscribeFromTopic {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given there is a created user") {
 			JSONUser.addUser(
@@ -1844,6 +1860,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewQuestionsWithConfiguredFilter {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given there are a category and questions created") {
 			JSONMBMessage.addCategory(
 				categoryDescription = "Description",
@@ -2335,6 +2355,10 @@ definition {
 	@description = "This test checks that the javascript in the user name will not be executed when viewing a question on page."
 	@priority = 3
 	test XSSIsNotExecutedWhenViewingUsernameInQuestion {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given there is a catergory created") {
 			JSONMBMessage.addCategory(
 				categoryDescription = "Description",

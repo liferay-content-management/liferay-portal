@@ -522,6 +522,10 @@ definition {
 	@description = "This is a use case for LPS-71236 and LPS-71307. View web content."
 	@priority = 4
 	test NoXSSVulnerabilityInWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given: A Web Content is created with a script in the title") {
 			JSONWebcontent.addWebContent(
 				content = "WC WebContent Content",

@@ -334,6 +334,10 @@ definition {
 	test AddWebContentSiteRoleDefinePermission {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Permissions.definePermissionsViaJSONAPI(
 			resourceNameActionList = "com.liferay.journal,ADD_ARTICLE,VIEW:com.liferay.portal.kernel.model.Group,VIEW_SITE_ADMINISTRATION:com_liferay_journal_web_portlet_JournalPortlet,ACCESS_IN_CONTROL_PANEL",
 			roleTitle = ${randomRoleKey},

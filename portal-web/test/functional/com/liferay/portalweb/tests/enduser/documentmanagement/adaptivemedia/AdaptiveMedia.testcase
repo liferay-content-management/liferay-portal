@@ -45,6 +45,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAdaptImageInWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "Adaptive Media Image Description",
 			dmDocumentTitle = "high_resolution_photo.jpg",
@@ -518,6 +522,10 @@ definition {
 	@priority = 4
 	test ImageVariantsAreGeneratedAfterEditingWebContentWithImage {
 		property portal.acceptance = "false";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		WebContentNavigator.openToAddBasicArticle(
 			groupName = "Guest",

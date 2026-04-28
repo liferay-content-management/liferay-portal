@@ -228,6 +228,10 @@ definition {
 	@priority = 3
 	@uitest
 	test DontShowFolders {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add two widget pages with one widget each") {
 			JSONLayout.addPublicLayout(
 				groupName = "Site Name",

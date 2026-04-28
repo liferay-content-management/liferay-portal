@@ -140,6 +140,10 @@ definition {
 	@description = "LPS-136380 - Add localization for translated titles and content."
 	@priority = 4
 	test CanReviewChangeForWebContentWithLocalization {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create new Publication, new site and new structure with localization") {
 			JSONPublications.addPublication(publicationName = "Publication Name");
 
@@ -302,6 +306,10 @@ definition {
 	@description = "This is use case for LPS-159561. Making the changes in the description doesn't yield a missing requirement conflict."
 	@priority = 3
 	test MakingChangesInDescriptionCannotYieldConflict {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "site-name");
@@ -414,6 +422,10 @@ definition {
 
 	@priority = 4
 	test PublishWebContentWithCategory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
 		JSONPublications.selectPublication(publicationName = "Publication Name");
@@ -501,6 +513,10 @@ definition {
 	@priority = 4
 	test PublishWebContentWithDMAndImageFields {
 		property test.assert.warning.exceptions = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
@@ -595,6 +611,10 @@ definition {
 
 	@priority = 4
 	test PublishWebContentWithFriendlyURL {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Enable dynamic and manual selection") {
 			AssetPublisherPortlet.enableDynamicAndManualSelection();
 		}
@@ -669,6 +689,10 @@ definition {
 
 	@priority = 3
 	test ReviewChangesCanProcessWebContentsWithThemeDisplayInTemplate {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
 		JSONPublications.selectPublication(publicationName = "Publication Name");
@@ -737,6 +761,10 @@ definition {
 	@description = "This is the use case for LPS-161841. The order of the versions is not reversed When resolving web content article version conflicts during publication."
 	@priority = 4
 	test WebContentArticleVersionCannotBeReversedWhenResolvingTheConflicts {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add new web content on new added site") {
 			HeadlessSite.addSite(siteName = "Site Name");
 

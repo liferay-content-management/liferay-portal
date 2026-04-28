@@ -194,6 +194,10 @@ definition {
 
 	@priority = 4
 	test SearchUsingCustomFacet {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONWebcontent.addWebContent(
 			content = "WC Content",
 			groupName = "Guest",

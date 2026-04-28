@@ -38,6 +38,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given: Uncheck the Validate Missing References box in System settings") {
 			ApplicationsMenu.gotoPortlet(
 				category = "Configuration",
@@ -589,6 +593,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given: User adds a new site") {
 			HeadlessSite.addSite(siteName = "Exported Site");
 
@@ -726,6 +734,10 @@ definition {
 	test ExportWebContentWithDeletedReference {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given: User adds a new site with a page") {
 			HeadlessSite.addSite(siteName = "Site Name");
@@ -917,6 +929,10 @@ definition {
 	test ViewDeleteApplicationDataPopUpInPortletImportProgressInVirtualInstance {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Export blank web content") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");

@@ -35,6 +35,10 @@ definition {
 	@description = "Verify that the user can assign a a different Workflow to a Subfolder"
 	@priority = 4
 	test CanAssignDifferentWorkflowToSubfolder {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentFolder.addCP(
 			folderDescription = "WC Folder Description",
 			folderName = "WC Folder Name");
@@ -94,6 +98,10 @@ definition {
 	@priority = 5
 	test CannotBypassWorkflowByduplicatingArticle {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		Workflow.configureWCWorkflowViaFolderInfo(workflowDefinition = "Single Approver");
 
@@ -233,6 +241,10 @@ definition {
 
 	@priority = 5
 	test EditWebContentInReviewProcess {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoNavItem(navItem = "Structures");
 
 		WebContentStructures.addCP(
@@ -347,6 +359,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Workflow.duplicateSingleApproverWorkflow(workflowName = "Copy of Single Approver");
 
 		Navigator.openURL();
@@ -436,6 +452,10 @@ definition {
 	@description = "Verify that the Subfolder can use the Workflow of the Parent Folder"
 	@priority = 4
 	test SubfolderCanUseWorkflowOfParentFolder {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentFolder.addCP(
 			folderDescription = "WC Folder Description",
 			folderName = "WC Folder Name");
@@ -484,6 +504,10 @@ definition {
 	@priority = 4
 	test ViewLargeImageAddedByNotification {
 		property portal.upstream = "quarantine";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given a Structure created with a JSON file") {
 			NavItem.gotoStructures();

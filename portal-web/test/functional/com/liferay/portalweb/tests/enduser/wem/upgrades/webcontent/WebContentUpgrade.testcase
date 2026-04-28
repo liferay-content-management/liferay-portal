@@ -107,6 +107,10 @@ definition {
 		property database.types = "mariadb,mysql,postgresql";
 		property portal.version = "7.0.4";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateWebContentUpgrade.EditWebContentAndViewInWCDandAssetPublisher();
 	}
 
@@ -116,6 +120,10 @@ definition {
 		property data.archive.type = "data-archive-web-content-with-fields";
 		property database.types = "mariadb,mysql,postgresql";
 		property portal.version = "7.1.3";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		ValidateWebContentUpgrade.EditWebContentAndViewInWCDandAssetPublisher();
 	}
@@ -127,6 +135,10 @@ definition {
 		property database.types = "mariadb,mysql,postgresql";
 		property portal.version = "7.2.1";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateWebContentUpgrade.EditWebContentAndViewInWCDandAssetPublisher();
 	}
 
@@ -136,6 +148,10 @@ definition {
 		property data.archive.type = "data-archive-web-content-with-fields";
 		property database.types = "mariadb,mysql,postgresql";
 		property portal.version = "7.3.5";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		ValidateWebContentUpgrade.EditWebContentAndViewInWCDandAssetPublisher();
 	}
@@ -147,6 +163,10 @@ definition {
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.3.10";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateWebContentUpgrade.EditWebContentAndViewInWCDandAssetPublisher();
 	}
 
@@ -156,6 +176,10 @@ definition {
 		property data.archive.type = "data-archive-web-content-with-fields";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.1.10.3";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		ValidateWebContentUpgrade.EditWebContentAndViewInWCDandAssetPublisher();
 	}
@@ -167,6 +191,10 @@ definition {
 		property database.types = "mariadb,mysql,postgresql";
 		property portal.version = "7.2.10.1";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateWebContentUpgrade.EditWebContentAndViewInWCDandAssetPublisher();
 	}
 
@@ -177,6 +205,10 @@ definition {
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "7.0.10.14";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateWebContentUpgrade.EditWebContentAndViewInWCDandAssetPublisher();
 	}
 
@@ -185,6 +217,10 @@ definition {
 		property data.archive.type = "data-archive-web-content-draft";
 		property database.types = "mariadb,mysql,postgresql";
 		property portal.version = "6.2.5";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		ValidateWebContentUpgrade.addWCStructureAndTemplate();
 
@@ -197,6 +233,10 @@ definition {
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "6.2.10.15";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateWebContentUpgrade.addWCStructureAndTemplate();
 
 		ValidateWebContentUpgrade.publishWCDraft();
@@ -207,6 +247,10 @@ definition {
 		property data.archive.type = "data-archive-web-content-draft";
 		property database.types = "db2,mariadb,mysql,oracle,postgresql";
 		property portal.version = "6.2.10.21";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		ValidateWebContentUpgrade.addWCStructureAndTemplate();
 

@@ -61,6 +61,10 @@ definition {
 	@description = "LPS-96038 - Global Categories do not appear as filters in Asset Publisher Configuration."
 	@priority = 4
 	test ConfigureAPPortletDisplaysGlobalCategoriesAsFilters {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Category.openCategoriesAdmin(siteURLKey = "global");
 
 		Category.addCP(
@@ -226,6 +230,10 @@ definition {
 	@description = "Order web contents by priority in Asset Publisher."
 	@priority = 4
 	test OrderWebContentsByPriority {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add three web contents with different priority") {
 			for (var i : list "1,5,3") {
 				WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");

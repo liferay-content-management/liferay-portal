@@ -60,6 +60,10 @@ definition {
 		property portal.acceptance = "false";
 		property test.smtp.server.enabled = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		MessageboardsPortlet.configureMessageFormat(
 			messageFormat = "HTML",
 			siteURLKey = "guest");
@@ -133,6 +137,10 @@ definition {
 		property portal.acceptance = "false";
 		property test.smtp.server.enabled = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		MessageboardsPortlet.configureMessageAddedEmail(
 			bodyContent = "[$MESSAGE_BODY$] este es un campo de tablero de mensajes",
 			siteURLKey = "guest");
@@ -169,6 +177,10 @@ definition {
 	test CanViewDefaultEmailFromConfigurationAndSubscriptionEmail {
 		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}message.boards.email.bulk=false";
 		property test.smtp.server.enabled = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		MessageboardsPortlet.viewDefaultEmailFromCP(
 			emailFromAddress = "testadmin@liferay.com",
@@ -334,6 +346,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test NoWebsiteNotificationAppearsForNewThreadInCategory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoNotifications();
 
 		Portlet.gotoPortletOptions(portletOption = "Configuration");
@@ -446,6 +462,10 @@ definition {
 		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}mail.session.mail.smtp.auth=true${line.separator}mail.session.mail.store.protocol=pop3${line.separator}mail.session.mail.transport.protocol=smtp${line.separator}message.boards.message.formats.default=html${line.separator}pop.server.notifications.enabled=true${line.separator}pop.server.subdomain=";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		var portalURL = PropsUtil.get("portal.url");
 		var siteName = TestCase.getSiteName(siteName = ${siteName});

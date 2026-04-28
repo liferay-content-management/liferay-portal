@@ -33,6 +33,10 @@ definition {
 	@description = "Assert Web Content created From Structure is published Via SAP"
 	@priority = 4
 	test AssertWebContentFromStructureNotBeDeletedOnLiveViaSAP {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create a basic web content") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",
@@ -267,6 +271,10 @@ definition {
 	test PublishInStagingWebContentFromStructure {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create a basic web content") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",
@@ -337,6 +345,10 @@ definition {
 	@description = "This is a test for LPS-192836. Assert can select feature image from Document and Media in web content creation in staging."
 	@priority = 3
 	test PublishWebContentWithFeaturedImageFromDocumentsAndMediaToLive {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var siteName = StringUtil.randomString(8);
 
 		var siteURLKey = StringUtil.toLowerCase(${siteName});
@@ -536,6 +548,10 @@ definition {
 	@description = "This is a use case for LPS-163499. Asserts a web content with an image field is displayed after publishing to live."
 	@priority = 3
 	test PublishWebContentWithImageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a user displayes a web content with image on a draft content page") {
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentTitle = "Document Title",
@@ -623,6 +639,10 @@ definition {
 	@priority = 5
 	test PublishWebContentWithImportedStructureDefaultValues {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Create a basic web content") {
 			JSONWebcontent.addWebContent(
@@ -739,6 +759,10 @@ definition {
 	test StagingDraftWebContent {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create a basic web content") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",
@@ -816,6 +840,10 @@ definition {
 	@priority = 5
 	test StagingEditWebContents {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Create three web contents") {
 			for (var webContentTitle : list "WC WebContent Title 1,WC WebContent Title 2,WC WebContent Title 3") {

@@ -33,6 +33,10 @@ definition {
 	@priority = 4
 	@uitest
 	test SelectWebContentBasedOnTemplateNameWithXSS {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content template with a XSS name") {
 			var actualScript = '''<script>alert(123);</script>''';
 

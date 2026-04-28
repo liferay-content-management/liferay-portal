@@ -367,6 +367,10 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test CanViewArticlesWithDifferentSiteScopes {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Enable Scope Configuration") {
 			Portlet.enableScopeConfiguration();
 		}
@@ -531,6 +535,10 @@ definition {
 	@priority = 4
 	@refactorneeded
 	test CanViewArticleViaUserDefinedFriendlyURL {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -681,6 +689,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewEditedKBArticleTitleHistory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "KB Article Content",
@@ -756,6 +768,10 @@ definition {
 	@priority = 3
 	@refactordone
 	test JavascriptIsEscapedFromArticleTitle {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(

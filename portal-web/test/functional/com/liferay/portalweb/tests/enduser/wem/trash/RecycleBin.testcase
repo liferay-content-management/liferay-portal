@@ -162,6 +162,10 @@ definition {
 	@description = "Restore MB attachment from recycle bin."
 	@priority = 3
 	test RecycleBinMBAttachment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a message and attachement to mb") {
 			JSONMBMessage.addMessage(
 				groupName = "Site Name",
@@ -611,6 +615,10 @@ definition {
 	@description = "This is a test for LPS-190757. The Home folder of web content should be visible on Warning modal."
 	@priority = 4
 	test RestoreWebContentToExistingFolder {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a site administrator has folders with web contents") {
 			for (var i : list "1,2") {
 				JSONWebcontent.addFolder(

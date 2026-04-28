@@ -36,6 +36,10 @@ definition {
 	@description = "Assert that is possible to add a Wiki Page within a publication and then publish it"
 	@priority = 3
 	test CanAddWikiPageWithinPublications {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
 		JSONPublications.selectPublication(publicationName = "Publication Name");
@@ -78,6 +82,10 @@ definition {
 	@description = "Assert that is possible to delete a Wiki Page within a publication and then publish it"
 	@priority = 3
 	test CanDeleteWikiPageWithinPublications {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		HeadlessSite.addSite(siteName = "Site Name");
 
 		WikiNavigator.openWikiAdmin(siteURLKey = "site-name");
@@ -364,6 +372,10 @@ definition {
 	@description = "Assert that the search results shows only wiki pages from the active publication"
 	@priority = 3
 	test ViewSearchResultsFromActivePublication {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 
 		WikiNode.addCP(wikiNodeName = "Wiki Node");

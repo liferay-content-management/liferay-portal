@@ -40,6 +40,10 @@ definition {
 	test AddLocalizedWebContentViaSourceEditor {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a site designer has a page with a Web Content Display and Language Selector widgets") {
 			JSONLayout.addWidgetToPublicLayout(
 				groupName = "Test Site Name",
@@ -137,6 +141,10 @@ definition {
 	test AddWebContentWithSpanishTranslation {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given the site designer has a page where a Web Content Display widget displays a translated web content") {
 			JSONLayout.addWidgetToPublicLayout(
 				groupName = "Test Site Name",
@@ -200,6 +208,10 @@ definition {
 	@description = "Validate translations in web content admin."
 	@priority = 4
 	test WebContentAdministrationLocalization {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given the site designer has a page where a Web Content Display widget displays a web content based on translated structure and template") {
 			task ("Add a Web Content Display and Language Selector widget to page") {
 				JSONLayout.addWidgetToPublicLayout(

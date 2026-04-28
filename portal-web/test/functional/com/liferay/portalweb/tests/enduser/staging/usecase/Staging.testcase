@@ -124,6 +124,10 @@ definition {
 	@description = "This is a use case for LPS-94325."
 	@priority = 3
 	test ActivateStagingWithWCDOnFragment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONFragment.addFragmentCollection(
 			groupName = "Site Name",
 			name = "Collection Name");
@@ -869,6 +873,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var randomSiteURLKey = "guest";
 		var randomSiteName = "Liferay DXP";
 
@@ -937,6 +945,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var randomSiteURLKey = "guest";
 		var randomSiteName = "Liferay DXP";
 
@@ -972,6 +984,10 @@ definition {
 	@description = "This is a use case for LPS-100807."
 	@priority = 3
 	test EditWikiPageInLiveSiteWhenWikiNotStaged {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Staging Test Page",
@@ -1056,6 +1072,10 @@ definition {
 
 	@priority = 3
 	test EnableStagingWithWebContentReferencedFromDeletedSite {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONWebcontent.addWebContent(
 			content = "WC Content 1",
 			groupName = "Site Name",
@@ -1185,6 +1205,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var randomSiteURLKey = "guest";
 		var randomSiteName = "Liferay DXP";
 
@@ -1303,6 +1327,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		HeadlessSite.addSite(
 			parentSiteName = "Site Name",
 			siteName = "Child SiteName");
@@ -1377,6 +1405,10 @@ definition {
 	@description = "This is a use case for LPS-93695."
 	@priority = 3
 	test PublishContentPageWithCategory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Search");
@@ -1573,6 +1605,10 @@ definition {
 	@description = "This is a use case for LPS-80492."
 	@priority = 3
 	test PublishRenamedTags {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Staging Test Page",
@@ -1905,6 +1941,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given: Enable local staging") {
 			JSONStaging.enableLocalStaging(groupName = "Site Name");
 		}
@@ -2038,6 +2078,10 @@ definition {
 
 	@priority = 3
 	test PublishWCFriendlyURL {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "site-name");
 
 		WebContentNavigator.gotoAddCP();
@@ -2086,6 +2130,10 @@ definition {
 	test PublishWebContentWithUnchangedReferencedContent {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
@@ -2194,6 +2242,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var randomSiteURLKey = "guest";
 		var randomSiteName = "Liferay DXP";
 
@@ -2237,6 +2289,10 @@ definition {
 	test SingleWebContentTitleIsProperlyDisplayedInPublicationSummary {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		var randomSiteURLKey = "guest";
 		var randomSiteName = "Liferay DXP";
@@ -2306,6 +2362,10 @@ definition {
 
 	@priority = 3
 	test StagingKaleoWebContentLinkingUnapprovedContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.openSiteURL(siteName = "Site Name");
 
 		ProductMenu.gotoPortlet(
@@ -2525,6 +2585,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Test Page 1");
@@ -2675,6 +2739,10 @@ definition {
 	test StagingWithReplicateIndividualDeletionsByDefault {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
@@ -3210,6 +3278,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Staging Test Page",
@@ -3316,6 +3388,10 @@ definition {
 	test ViewSimplePublicationAfterDeleteDocumentInGlobal {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "global");
 

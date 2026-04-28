@@ -358,6 +358,10 @@ definition {
 	test CanEditWebContentStructureFieldsToReqiredFields {
 		property portal.release = "quarantine";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Copy Article successfully") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 

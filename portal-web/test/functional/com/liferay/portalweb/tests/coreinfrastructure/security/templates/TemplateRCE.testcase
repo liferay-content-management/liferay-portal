@@ -71,6 +71,10 @@ definition {
 	test ViewInstanceManager {
 		property app.server.types = "tomcat";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Test Page 2");
@@ -160,6 +164,10 @@ ${Application['org.apache.catalina.resources'].getContext().getInstanceManager()
 		property app.server.types = "wildfly";
 		property test.assert.warning.exceptions = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -213,6 +221,10 @@ ${Application['org.apache.tomcat.InstanceManager'].newInstance('com.sun.org.apac
 		property ci.retries.disabled = "false";
 		property test.assert.warning.exceptions = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -264,6 +276,10 @@ ${Application['org.apache.tomcat.InstanceManager'].newInstance('com.sun.org.apac
 
 	@priority = 4
 	test ViewSpringBeans {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();

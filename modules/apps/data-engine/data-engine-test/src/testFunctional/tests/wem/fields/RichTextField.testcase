@@ -79,6 +79,10 @@ definition {
 	@description = "This test verifies if the user can repeat and exclude a Rich Text Field."
 	@priority = 5
 	test ExcludeRepeatedRichTextOnWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DataEngine.toggleFieldRepeatable(fieldFieldLabel = "Rich Text");
 
 		WebContentStructures.saveCP();
@@ -115,6 +119,10 @@ definition {
 	@description = "This test verifies if the user can write a text on the Rich Text Field."
 	@priority = 5
 	test InsertTextOnRichTextOnWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentStructures.saveCP();
 
 		Navigator.gotoNavTab(navTab = "Web Content");
@@ -182,6 +190,10 @@ definition {
 	test PublishWebContentWithEmptyRequiredRichText {
 		property portal.acceptance = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DataEngine.editFieldRequired(fieldFieldLabel = "Rich Text");
 
 		WebContentStructures.saveCP();
@@ -204,6 +216,10 @@ definition {
 	@description = "This test ensure is possible to repeat a rich text on a Web Content."
 	@priority = 5
 	test RepeatRichTextOnWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DataEngine.toggleFieldRepeatable(fieldFieldLabel = "Rich Text");
 
 		WebContentStructures.saveCP();
@@ -294,6 +310,10 @@ definition {
 	@description = "This test verifies that a user can set the field as Required or Not Required on Web Content."
 	@priority = 4
 	test VerifyRichTextIsSetAsRequiredOnWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DataEngine.editFieldRequired(fieldFieldLabel = "Rich Text");
 
 		AssertClick.assertPartialTextClickAt(

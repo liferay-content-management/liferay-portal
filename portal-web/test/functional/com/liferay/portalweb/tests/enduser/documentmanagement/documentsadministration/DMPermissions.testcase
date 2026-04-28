@@ -1659,6 +1659,10 @@ definition {
 	@priority = 3
 	@refactordone
 	test ImageFromGlobalSiteCanBeSelectedWithPermissionsInWCD {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "global");
 
 		DMDocument.addCP(

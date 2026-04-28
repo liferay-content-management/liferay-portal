@@ -368,6 +368,10 @@ definition {
 		property data.archive.type = "data-archive-web-content-with-custom-url";
 		property portal.version = "7.3.10.1";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("When: Not set URL pattern and edit web content") {
 			StagingNavigator.openToConfigInInstanceSettings(portlet = "Export/Import, Staging");
 

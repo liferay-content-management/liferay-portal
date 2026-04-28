@@ -53,6 +53,10 @@ definition {
 	@description = "This is a use case for LPS-127658. Verified that the last portlet configuration can be restorable after deleting portlet."
 	@priority = 3
 	test RollBackToPreviousConfigurationViaHistoryAfterDeletingPortlet {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content via Web Content Display") {
 			Navigator.gotoStagedSitePage(
 				pageName = "Test Page Name",

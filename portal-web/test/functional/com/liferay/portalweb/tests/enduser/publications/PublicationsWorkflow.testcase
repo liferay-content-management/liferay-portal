@@ -91,6 +91,10 @@ definition {
 	test CanConfigureUnapprovedChangesToBePublishable {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Publications.enableAllowUnapprovedChanges();
 
 		JSONUser.addUser(
@@ -201,6 +205,10 @@ definition {
 	@description = "This is a use case for LPS-198982."
 	@priority = 3
 	test CannotPublishDraftsOfWorkflowEnabledEntities {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Enable workflow for any change tracking enabled entity") {
 			Workflow.openWorkflowProcessBuilderConfiguration();
 
@@ -247,6 +255,10 @@ definition {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
@@ -370,6 +382,10 @@ definition {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",

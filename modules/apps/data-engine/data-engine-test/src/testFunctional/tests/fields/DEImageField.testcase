@@ -522,6 +522,10 @@ definition {
 	@description = "LPS-190801 - Verify if the image selector defaults to the Global site image library"
 	@priority = 3
 	test ViewDefaultImageSelector {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given that a user uploads an image to documents and media on a Global site") {
 			ApplicationsMenu.gotoSite(site = "Global");
 

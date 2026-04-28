@@ -230,6 +230,10 @@ definition {
 	@description = "The user can edit the default values for a structure with fieldsets"
 	@priority = 4
 	test EditStructureDefaultValuesBasedOnFieldset {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a Web Content admin has a structure based on a fieldset") {
 			WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -506,6 +510,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select different type pages in Link to Page field."
 	@priority = 4
 	test SelectContentPageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a page based on Blank") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -568,6 +576,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select embedded pages in Link to Page field."
 	@priority = 4
 	test SelectEmbeddedPageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a page based on Embedded") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
@@ -628,6 +640,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select full page application pages in Link to Page field."
 	@priority = 4
 	test SelectFullPageApplicationPageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a page based on Full Page Application") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
@@ -687,6 +703,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select a great grand child page in Link to Page field."
 	@priority = 4
 	test SelectGreatGrandChildPageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a parent page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -774,6 +794,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select the image from Documents and Media in Image field."
 	@priority = 4
 	test SelectImageFromDocumentsAndMediaInImageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a document with an image") {
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentTitle = "Document Title",
@@ -844,6 +868,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select link to a page of this site in Link to Page field."
 	@priority = 4
 	test SelectLinkToAPageOfThisSitePageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a page based on Link to a Page of This Site") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -914,6 +942,10 @@ definition {
 	@priority = 4
 	test SelectLinkToURLPageInLinkToPageField {
 		property custom.properties = "redirect.url.ips.allowed=";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a page based on Link to URL") {
 			JSONLayout.addPublicLayout(
@@ -991,6 +1023,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select page set in Link to Page field."
 	@priority = 4
 	test SelectPageSetPageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a page based on Page Set") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -1055,6 +1091,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select panel page in Link to Page field."
 	@priority = 4
 	test SelectPanelPageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a page based on Panel") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
@@ -1115,6 +1155,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select search page in Link to Page field."
 	@priority = 4
 	test SelectSearchPageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a page based on Search") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
@@ -1175,6 +1219,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Can select widget page in Link to Page field."
 	@priority = 4
 	test SelectWidgetPageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a widget page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",

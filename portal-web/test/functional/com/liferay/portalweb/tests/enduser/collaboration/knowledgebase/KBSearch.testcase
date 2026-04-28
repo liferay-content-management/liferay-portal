@@ -265,6 +265,10 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test SearchKBArticleWithSpecialCharactersViaSearchPortletPG {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(

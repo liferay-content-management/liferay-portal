@@ -23,6 +23,10 @@ definition {
 	test AddDisplayPageTemplateAndMarkItAsDefault {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Navigate to Display Page Template admin") {
 			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
 		}
@@ -90,6 +94,10 @@ definition {
 	@priority = 5
 	test SelectSpecificDisplayPageTemplateInCategoryEditor {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add the first display page template for Category") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
@@ -187,6 +195,10 @@ definition {
 	@priority = 5
 	test SelectSpecificDisplayPageTemplateInSubcategoryEditor {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add the first display page template for Category") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
@@ -293,6 +305,10 @@ definition {
 	test ViewInheritedAssociatedDisplayPageTemplateFromParentCategory {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a display page template for Category") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
 				contentType = "Category",
@@ -361,6 +377,10 @@ definition {
 	@priority = 5
 	test ViewMappedContentInCollectionDisplayWithItemsWithThisCategory {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a display page template for Category") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
@@ -468,6 +488,10 @@ definition {
 	@priority = 5
 	test ViewMappedContentInDisplayPageTemplate {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		var baseURL = PropsUtil.get("portal.url");
 

@@ -54,6 +54,10 @@ definition {
 	@description = "LPS-120417 When there is web content published by a user different than the admin user and the admin user visit the Content Dashboard, the content is visible"
 	@priority = 3
 	test AssetNotFilteredByMe {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create an user via JSONWS") {
 			JSONUser.addUser(
 				userEmailAddress = "userea@liferay.com",
@@ -197,6 +201,10 @@ definition {
 	@description = "LPS-162826 Add the Compare to Action to the Version History for Web Content"
 	@priority = 3
 	test BackFromCompareToWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given the compare screen for Web Content") {
 			task ("Create a Web Content") {
 				JSONWebcontent.addWebContent(
@@ -2460,6 +2468,10 @@ definition {
 	@description = "LPS-162826 Add the Compare to Action to the Version History for Web Content"
 	@priority = 3
 	test CompareToLastVersionWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given the compare screen for Web Content") {
 			task ("Create a Web Content") {
 				JSONWebcontent.addWebContent(
@@ -2511,6 +2523,10 @@ definition {
 	@description = "LPS-162826 Add the Compare to Action to the Version History for Web Content"
 	@priority = 3
 	test CompareToVersionWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given the Versions tab in the Info panel of a Web Content") {
 			task ("Create a Web Content") {
 				JSONWebcontent.addWebContent(
@@ -4812,6 +4828,10 @@ definition {
 	@description = "LPS-124960 When there's a WebContent1 of type Subtype1 and WebContent2 of type Subtype2, and the user filters by Subtype1 and Subtype2, both web content are shown in the list"
 	@priority = 3
 	test FilterByTypes {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create a basic web content via JSONWS") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -5226,6 +5246,10 @@ definition {
 	@priority = 5
 	test LanguageVersion {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Create a default Display Page Template") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
@@ -6242,6 +6266,10 @@ definition {
 	test ShowAllContentCreatorUsers {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create and configure second user") {
 			JSONUser.addUser(
 				userEmailAddress = "userea@liferay.com",
@@ -6320,6 +6348,10 @@ definition {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create and configure second user") {
 			JSONUser.addUser(
 				userEmailAddress = "userea@liferay.com",
@@ -6396,6 +6428,10 @@ definition {
 	test ShowOnlyContentCreatedByUser {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Create and configure second user") {
 			JSONUser.addUser(
@@ -6721,6 +6757,10 @@ definition {
 	test ViewInfoPanelDeletedUser {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create a new User") {
 			JSONUser.addUser(
 				userEmailAddress = "userea@liferay.com",
@@ -6837,6 +6877,10 @@ definition {
 	@description = "LPS-161544 Given the Version History page for Web Contents When the user clicks on back Then the Web Content is selected and the Info Panel is closed"
 	@priority = 4
 	test ViewMoreWCVersionsBackButton {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create Web Content") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",
@@ -7009,6 +7053,10 @@ definition {
 	@description = "LPS-151065 Given a Web Content asset using a Web Content Structure When the user opens Info Panel at Content Dashboard Then Web Content Article - and structure's name text will be exhibit"
 	@priority = 3
 	test WebContentStructureTypeInInfoPanel {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create a web content structure") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 

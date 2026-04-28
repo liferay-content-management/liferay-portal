@@ -43,6 +43,10 @@ definition {
 	test CanAddBoldText {
 		property portal.acceptance = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		MessageboardsThread.addPG(
 			bold = "true",
 			groupName = "Guest",
@@ -66,6 +70,10 @@ definition {
 	@description = "This is a test for LPS-136911. It checks that an image can be added in the editor."
 	@priority = 4
 	test CanAddImage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "Document_4.jpg",
@@ -159,6 +167,10 @@ definition {
 	test CanAddThreadWithUTF8Characters {
 		property portal.acceptance = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoPage(pageName = "Message Boards Page");
 
 		MessageboardsThread.addPG(
@@ -200,6 +212,10 @@ definition {
 	@priority = 3
 	test CanAddUrgentThread {
 		property portal.acceptance = "false";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		MessageboardsThread.addPG(
 			groupName = "Guest",
@@ -333,6 +349,10 @@ definition {
 	@description = "This is a test for LPS-136914. It checks that an attachment can be downloaded."
 	@priority = 4
 	test CanDownloadAttachment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		MessageboardsThread.addPG(
 			groupName = "Guest",
 			layoutName = "message-boards-page",
@@ -509,6 +529,10 @@ definition {
 	test CannotPublishThreadWithTagContainingJavaScript {
 		property portal.acceptance = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		MessageboardsThread.addPG(
 			groupName = "Guest",
 			invalidCharacters = "true",
@@ -524,6 +548,10 @@ definition {
 	@description = "This is a test for LPS-87376. It ensures that a user can publish a thread with a tag."
 	@priority = 4
 	test CanPublishThreadWithTag {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONAssettag.addTag(
 			groupName = "Guest",
 			tagName = "tagname");
@@ -654,6 +682,10 @@ definition {
 	@description = "This ensures that an image in the MB content field can be rendered correctly after it to a folder."
 	@priority = 4
 	test CanViewImageInThreadAfterMovingToFolder {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document Title",
@@ -704,6 +736,10 @@ definition {
 		property osgi.module.configuration.file.names = "com.liferay.change.tracking.configuration.CTSettingsConfiguration.config";
 		property osgi.module.configurations = "enabled=B\"true\"";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONPublications.addPublication(publicationName = "Publication Name");
 
 		JSONPublications.selectPublication(publicationName = "Publication Name");
@@ -749,6 +785,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test JavascriptIsNotExecutedInBBCodeBody {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoPage(pageName = "Message Boards Page");
 
 		MessageboardsThread.addPG(
@@ -775,6 +815,10 @@ definition {
 	@refactordone
 	test JavascriptIsNotExecutedInHTMLBody {
 		property custom.properties = "message.boards.message.formats.default=html";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		MessageboardsThread.addPG(
 			groupName = "Guest",

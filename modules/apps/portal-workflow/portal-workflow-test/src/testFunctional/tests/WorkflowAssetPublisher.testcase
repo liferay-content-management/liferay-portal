@@ -121,6 +121,10 @@ definition {
 	@description = "This is a test for LRQA-70157. Verify that an approved web content is displayed on Asset Publisher."
 	@priority = 4
 	test ApprovedWebContentIsDisplayed {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var siteName = TestCase.getSiteName(siteName = ${siteName});
 
 		Workflow.openWorkflowListView();
@@ -212,6 +216,10 @@ definition {
 
 	@priority = 4
 	test ApproveWebContentPG {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoPage(pageName = "Asset Publisher Page");
 
 		WebContent.addWithWorkflowPGViaAP(
@@ -327,6 +335,10 @@ definition {
 	@description = "This is a test for LRQA-69814. Verify that a Pending Web Content is not displayed on Asset Publisher."
 	@priority = 3
 	test PendingWebContentIsNotDisplayed {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var siteName = TestCase.getSiteName(siteName = ${siteName});
 
 		Workflow.openWorkflowListView();
@@ -409,6 +421,10 @@ definition {
 	@description = "This is a test for LRQA-69815. Verify that a rejected web content is not displayed on Asset Publisher."
 	@priority = 3
 	test RejectedWebContentIsNotDisplayed {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var siteName = TestCase.getSiteName(siteName = ${siteName});
 
 		Workflow.openWorkflowListView();

@@ -290,6 +290,10 @@ definition {
 	test ExportContentThenPublish {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given: User add a new site and enable local staging") {
 			HeadlessSite.addSite(siteName = "Site Name");
 
@@ -443,6 +447,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given: User adds a new site and 3 page to it") {
 			HeadlessSite.addSite(siteName = "Site A");
 
@@ -583,6 +591,10 @@ definition {
 	test ExportImportLayoutCircularReference {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given: User adds a new site and a page to it") {
 			HeadlessSite.addSite(siteName = "Site Name");
@@ -1031,6 +1043,10 @@ definition {
 	@description = "This is a use case for LPS-142076. Verify is possible import site with the 'Copy as new' option in the Update data section."
 	@priority = 3
 	test ExportImportSiteWithCopyAsNew {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a new site and add a widget page to site") {
 			HeadlessSite.addSite(siteName = "Test Site Name");
 
@@ -1125,6 +1141,10 @@ definition {
 	test ExportImportSiteWithNestedUploadField {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given: User adds a new site and a file to it") {
 			HeadlessSite.addSite(siteName = "Site A");
@@ -1419,6 +1439,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given: User adds a new site") {
 			HeadlessSite.addSite(siteName = "Site Name");
 
@@ -1684,6 +1708,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given: User adds a new site with 2 pages then activates local staging") {
 			HeadlessSite.addSite(siteName = "Site Name");
 
@@ -1852,6 +1880,10 @@ definition {
 	test ImportWCDReferenceAfterActivateStaging {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given: User adds a new site with a page then a WCD widget to it") {
 			HeadlessSite.addSite(siteName = "Site Name A");

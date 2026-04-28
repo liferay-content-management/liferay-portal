@@ -157,6 +157,10 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test ViewDraftWikiPageViaActivities {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Activities Page");

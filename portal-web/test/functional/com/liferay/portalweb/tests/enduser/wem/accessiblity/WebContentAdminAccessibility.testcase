@@ -145,6 +145,10 @@ definition {
 	@description = "This is a test for LPS-196819. The Highlighted Structures should comply with WCAG 2.1 AA standard."
 	@priority = 3
 	test ViewAccessibilityOfHighlightedStructures {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a site administrator has web contents") {
 			JSONWebcontent.addWebContent(
 				content = "EMEA Guild",

@@ -23,6 +23,10 @@ definition {
 	test SearchWikiPage {
 		property custom.properties = "feature.flag.LPD-35013=true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ProductMenu.gotoPortlet(
 			category = "Site Builder",
 			portlet = "Pages");

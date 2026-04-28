@@ -2278,6 +2278,10 @@ definition {
 	@description = "LPS-177877 - Verify that when reloading the widget page the scroll position still at the top"
 	@priority = 4
 	test ViewWidgetPageAtTheTop {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var portalURL = PropsUtil.get("portal.url");
 
 		task ("Enable dynamic and manual selection") {

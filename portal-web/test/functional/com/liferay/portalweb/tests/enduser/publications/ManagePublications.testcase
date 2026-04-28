@@ -181,6 +181,10 @@ definition {
 
 	@priority = 4
 	test SwitchPublication {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Publications.createNewPublication(publicationName = "Publication Name");
 
 		Navigator.openURL();

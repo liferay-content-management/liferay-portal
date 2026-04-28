@@ -45,6 +45,10 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanAddQuestionWithTheMaximumTags {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a Questions category") {
 			JSONMBMessage.addCategory(
 				categoryDescription = "Description",
@@ -71,6 +75,10 @@ definition {
 	@priority = 2
 	@refactordone
 	test CannotAddQuestionWithMoreThanTheMaximumTags {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a Questions category") {
 			JSONMBMessage.addCategory(
 				categoryDescription = "Description",
@@ -98,6 +106,10 @@ definition {
 	@description = "Validate that the user cannot post a question with a tag containing Java Script. It also covers LPS-137561 and LPS-137633."
 	@priority = 4
 	test CannotPostQuestionWithTagContainingJavaScript {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a Questions category with JavaScript that is displayed on a page") {
 			Navigator.openURL();
 
@@ -150,6 +162,10 @@ definition {
 	@priority = 4
 	test CanSubscribeFromTag {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given a new user with an Administrator role") {
 			JSONUser.addUser(

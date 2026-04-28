@@ -169,6 +169,10 @@ definition {
 		property portal.version = "7.3.10.1";
 		property test.assert.warning.exceptions = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateDepotUpgrade.publishDMsInStagingDepot();
 
 		ValidateDepotUpgrade.publishWCsInStagingDepot();

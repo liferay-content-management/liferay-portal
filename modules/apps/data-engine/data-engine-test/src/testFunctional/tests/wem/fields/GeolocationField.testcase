@@ -146,6 +146,10 @@ definition {
 	@description = "This test ensures a repeatable geolocation field can be duplicated on the Web Content."
 	@priority = 4
 	test VerifyDuplicatedGeolocationOnWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var key_fieldName = "Geolocation";
 
 		DataEngine.toggleFieldRepeatable(fieldFieldLabel = ${key_fieldName});

@@ -3588,6 +3588,10 @@ definition {
 	@description = "This is a test for LPS-145630. It checks that the DOCs linked in web articles content can be updated."
 	@priority = 4
 	test DocumentLinkedInWCCanBeUpdated {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentTitle = "Document_1.doc",
 			groupName = "Guest",

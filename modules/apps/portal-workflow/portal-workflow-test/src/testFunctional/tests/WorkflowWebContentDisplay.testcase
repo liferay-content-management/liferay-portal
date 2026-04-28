@@ -53,6 +53,10 @@ definition {
 
 	@priority = 4
 	test ApproveWebContentViaWebContentDisplayPG {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoPage(pageName = "Web Content Display Page");
 
 		WebContentDisplayPortlet.addWithWorkflow(
@@ -96,6 +100,10 @@ definition {
 
 	@priority = 4
 	test RejectWebContentViaWebContentDisplayPG {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoPage(pageName = "Web Content Display Page");
 
 		WebContentDisplayPortlet.addWithWorkflow(

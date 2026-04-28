@@ -33,6 +33,10 @@ definition {
 	test CanAddArticleAsDraft {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBArticle.addCP(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title",
@@ -51,6 +55,10 @@ definition {
 	@priority = 5
 	test CanAddArticleViaCenterPaneButton {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		KBArticle.openPageTreePanel(section = "Folders and Articles");
 
@@ -71,6 +79,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddArticleWithAttachment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBArticle.addCP(
 			kbArticleAttachment = "Document_1.txt",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -87,6 +99,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddArticleWithCategory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Category.openCategoriesAdmin(siteURLKey = "guest");
 
 		Vocabulary.addWithAssociatedAssetTypeCP(
@@ -119,6 +135,10 @@ definition {
 	test CanAddArticleWithCustomFriendlyURL {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
 
 		KBArticle.addCP(
@@ -142,6 +162,10 @@ definition {
 	@description = "This test ensures that users can add an article with the description."
 	@priority = 5
 	test CanAddArticleWithDescription {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBArticle.addCP(
 			kbArticleContent = "Knowledge Base Article Content",
 			kbArticleTitle = "Knowledge Base Article Title",
@@ -158,6 +182,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddArticleWithHTML {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBArticle.addCP(
 			kbArticleAddViaSource = "true",
 			kbArticleContentSource = '''<b>Knowledge Base&rsquo;s Article Content</b>''',
@@ -171,6 +199,10 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanAddArticleWithRelatedBlog {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
@@ -337,6 +369,10 @@ definition {
 	@priority = 5
 	test CanEditEntryFromNavigationPane {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
@@ -539,6 +575,10 @@ definition {
 	@priority = 4
 	@refactorneeded
 	test CannotAddArticleWithDuplicateURL {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -598,6 +638,10 @@ definition {
 	@priority = 3
 	@refactordone
 	test CannotAddArticleWithoutCategory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Category.openCategoriesAdmin(siteURLKey = "guest");
 
 		Vocabulary.addWithAssociatedAssetTypeCP(
@@ -622,6 +666,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CannotAddArticleWithoutContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBArticle.viewFieldRequiredAsterisk(fieldLabel = "Content");
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
@@ -750,6 +798,10 @@ definition {
 	@description = "This test ensures that users can replace the related asset for an article via the new configuration pane."
 	@priority = 4
 	test CanReplaceArticleRelatedAsset {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
@@ -828,6 +880,10 @@ definition {
 		property custom.properties = "company.default.time.zone=America/Los_Angeles";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		KBArticle.updateCheckInterval(fieldValue = 1);
 
@@ -1133,6 +1189,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBArticle.updateCheckInterval(fieldValue = 1);
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
@@ -1179,6 +1239,10 @@ definition {
 		property custom.properties = "company.default.time.zone=America/Los_Angeles";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		KBArticle.updateCheckInterval(fieldValue = 1);
 
@@ -1228,6 +1292,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanSaveEditedArticleAsDraft {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -1403,6 +1471,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewEmbeddedVideo {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		PortalSettings.openToConfigInInstanceSettings(portletId = "com.liferay.portal.security.iframe.sanitizer.configuration.IFrameConfiguration");
 
 		SystemSettings.configureSystemSetting(
@@ -1475,6 +1547,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		KBArticle.updateCheckInterval(fieldValue = 1);
 
 		KBAdmin.openKBAdmin(siteURLKey = "guest");
@@ -1537,6 +1613,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Workflow.openWorkflowAdmin(siteURLKey = "guest");
 
 		Workflow.configureWorkflow(
@@ -1597,6 +1677,10 @@ definition {
 	@description = "This ensures that an image in the KB content field can be rendered correctly after moving it to a folder."
 	@priority = 4
 	test CanViewImageInKBAfterMovingToFolder {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document Title",
@@ -1665,6 +1749,10 @@ definition {
 	@description = "This ensures that an external video in the KB content field can be rendered correctly after moving it to a folder."
 	@priority = 4
 	test CanViewVideoInKBAfterMovingToFolder {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
 		VideoShortcut.addCP(
@@ -1727,6 +1815,10 @@ definition {
 	@priority = 3
 	@refactorneeded
 	test EditKBArticleWithCustomField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		CustomFields.openCustomFieldAdmin();
 
 		CustomFields.addCP(
@@ -1817,6 +1909,10 @@ definition {
 	test ViewKBArticleGitHubSourceURL {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		Navigator.openURL();
 

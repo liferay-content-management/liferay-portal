@@ -46,6 +46,10 @@ definition {
 	@description = "Add a draft web content via web content display widget."
 	@priority = 4
 	test AddDraftWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a draft web content via Web Content Display") {
 			Navigator.gotoSitePage(
 				pageName = "Test Page Name",
@@ -70,6 +74,10 @@ definition {
 	test AddWebContent {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content via Web Content Display") {
 			Navigator.gotoSitePage(
 				pageName = "Test Page Name",
@@ -90,6 +98,10 @@ definition {
 	@description = "Add a web content and associate a page scope in Web Content Display widget."
 	@priority = 3
 	test AddWebContentUnderPageScope {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Enable Scope Configuration") {
 			Portlet.enableScopeConfiguration();
 		}
@@ -172,6 +184,10 @@ definition {
 	test AddWebContentWithPortletURL {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a Language Selector to page") {
 			JSONLayout.addWidgetToPublicLayout(
 				groupName = "Test Site Name",
@@ -221,6 +237,10 @@ definition {
 	@priority = 5
 	test AddWithStructure {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a web content structure with a single line Text field and a multiple lines Text field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
@@ -297,6 +317,10 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	@description = "Change a web content template via Web Content Display widget."
 	@priority = 4
 	test ChangeTemplate {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content template with three content fields") {
 			WebContentTemplates.openWebContentTemplatesAdmin(siteURLKey = "test-site-name");
 
@@ -400,6 +424,10 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	@description = "This is a test for LPS-129944. The user could configure WCD when selected web content based on template with embedded widget."
 	@priority = 4
 	test ConfigureWCDWhenSelectedWebContentBasedOnTemplateWithEmbeddedWidget {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -556,6 +584,10 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	test DisplayWebContentImage {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -655,6 +687,10 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	test EditDisplayedWebContentInWebContentDisplay {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a content page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -746,6 +782,10 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	@description = "The user can edit a web content via Web Content Display widget."
 	@priority = 4
 	test EditWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -1077,6 +1117,10 @@ Welcome to Liferay Community Edition Portal 7.4.0 CE GA1''';
 	test ValidateRemoteCodeViaTemplatesCannotCauseOutOfMemoryErrors {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a text field to web content structure") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -1137,6 +1181,10 @@ ${company.getKeyObj()}
 	@priority = 5
 	test ValidateTemplateRCEReturnsNoRuntimeClasses {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a text field to web content structure") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
@@ -1273,6 +1321,10 @@ ${runtimeInstance}
 	@description = "View all settings are shown in Web Content Display."
 	@priority = 4
 	test ViewAllSettingsEnabled {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add two web contents") {
 			for (var i : list "1,2") {
 				JSONWebcontent.addWebContent(
@@ -1600,6 +1652,10 @@ ${runtimeInstance}
 	@priority = 5
 	test ViewNoFileSystemAccessViaJournalTemplates {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a web content structure with a text field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");

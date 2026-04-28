@@ -19,6 +19,10 @@ definition {
 	test AddCategoryAsSiteRole {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a widget page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -340,6 +344,10 @@ definition {
 	@description = "Add a web content with a category from parent site."
 	@priority = 4
 	test AddWebContentWithCategoryFromParentSite {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a vocabulary") {
 			JSONCategory.addVocabulary(
 				groupName = "Test Site Name",
@@ -383,6 +391,10 @@ definition {
 	@description = "Add a web content with required category."
 	@priority = 3
 	test AddWebContentWithRequiredCategory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a vocabulary for Web Content Article") {
 			Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
@@ -431,6 +443,10 @@ definition {
 	@description = "Add a web content with a specific type category."
 	@priority = 3
 	test AddWebContentWithSpecificTypeCategory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a vocabulary for Web Content Article") {
 			Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
@@ -470,6 +486,10 @@ definition {
 	@description = "Cannot add multiple categories when disallow multiple categories."
 	@priority = 4
 	test CannotAddMultipleCategoriesWhenDisallowMultipleCategories {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a vocabulary disallow multiple categories") {
 			Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 
@@ -586,6 +606,10 @@ definition {
 	@description = "Copy a web content with a category."
 	@priority = 3
 	test CopyWebContentWithCategory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a vocabulary") {
 			JSONCategory.addVocabulary(
 				groupName = "Test Site Name",
@@ -1199,6 +1223,10 @@ definition {
 	@description = "View the vocabulary for asset subtype in web content editor."
 	@priority = 3
 	test ViewVocabularyForAssetSubtypeInWebContentEditor {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Text field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -1257,6 +1285,10 @@ definition {
 	@description = "This is a test for LPS-131984. View vocabulary for specific Asset Types in asset editor."
 	@priority = 4
 	test ViewVocabularyForSpecificAssetTypesInAssetEditor {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a vocabulary for specific assets types") {
 			Category.openCategoriesAdmin(siteURLKey = "test-site-name");
 

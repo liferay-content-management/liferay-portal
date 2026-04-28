@@ -37,6 +37,10 @@ definition {
 
 	@priority = 5
 	test ApproveInWCSubfolderWorkflow {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoNavItem(navItem = "Structures");
 
 		WebContentStructures.addCP(

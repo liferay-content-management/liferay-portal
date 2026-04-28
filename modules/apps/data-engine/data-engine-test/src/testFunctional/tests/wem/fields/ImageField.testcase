@@ -33,6 +33,10 @@ definition {
 	test ClearUploadedImage {
 		property portal.acceptance = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var structureTitle = "My Structure";
 		var webTitle = "WC Title";
 
@@ -109,6 +113,10 @@ definition {
 	@description = "This test ensures that a user can duplicate the Image field on the builder."
 	@priority = 4
 	test DuplicateImageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentStructures.addCP(structureName = "WC Structure Name");
 
 		DataEngine.addField(
@@ -189,6 +197,10 @@ definition {
 	@description = "This test aims to verify if the user is required to define a description for an uploaded image."
 	@priority = 4
 	test PublishWebContentWithUploadedImageWithoutDescription {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var structureTitle = "Image Field Structure";
 		var webContentName = "Web Content";
 		var fileName = "Document_1.jpg";
@@ -297,6 +309,10 @@ definition {
 	test SetImageDescriptionOnWebContent {
 		property portal.acceptance = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var structureTitle = "My Structure";
 		var webTitle = "WC Title";
 
@@ -402,6 +418,10 @@ definition {
 	@priority = 5
 	test UploadImageFromDocumentsAndMedia {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		var structureTitle = "My Structure";
 		var webTitle = "WC Title";

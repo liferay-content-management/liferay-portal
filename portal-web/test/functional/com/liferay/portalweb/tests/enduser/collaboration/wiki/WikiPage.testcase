@@ -99,6 +99,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAddChildPage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WikiNavigator.gotoWidgetSpecificTabByURL(
 			layoutURLKey = "wiki-test-page",
 			siteURLKey = "guest",
@@ -226,6 +230,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddPageWithHTMLFormat {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WikiNavigator.gotoWidgetSpecificTabByURL(
 			layoutURLKey = "wiki-test-page",
 			siteURLKey = "guest",
@@ -258,6 +266,10 @@ definition {
 	test CanAddPageWithImageViaURL {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
@@ -292,6 +304,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddPageWithInlineImage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONWiki.addWikiPage(
 			groupName = "Guest",
 			wikiNodeName = "Main",
@@ -329,6 +345,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddWikiPages {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoPage(pageName = "Wiki Test Page");
 
 		WikiNavigator.gotoAllPagesPG();
@@ -382,6 +402,10 @@ definition {
 	@refactordone
 	test CanCancelEditingAPage {
 		property portal.acceptance = "false";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		JSONWiki.addWikiPage(
 			groupName = "Guest",
@@ -530,6 +554,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanEditDraftPage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WikiNavigator.gotoWidgetSpecificTabByURL(
 			layoutURLKey = "wiki-test-page",
 			siteURLKey = "guest",
@@ -639,6 +667,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanLinkWikiPageToOtherWikiPage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WikiNavigator.openToWikiNode(
 			groupName = "Guest",
 			siteURLKey = "guest",
@@ -1000,6 +1032,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanSaveEditedPageAsDraft {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONWiki.addWikiPage(
 			groupName = "Guest",
 			wikiNodeName = "Main",
@@ -1070,6 +1106,10 @@ definition {
 	@priority = 3
 	test XSSIsNotExecutedWhenViewingUsernameInEntry {
 		property portal.acceptance = "false";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		Navigator.openURL();
 

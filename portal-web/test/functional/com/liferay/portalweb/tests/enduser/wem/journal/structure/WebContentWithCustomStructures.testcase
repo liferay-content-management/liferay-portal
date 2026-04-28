@@ -33,6 +33,10 @@ definition {
 	@description = "The user can add an embedded portlet in a freemarker template."
 	@priority = 3
 	test AddEmbeddedPortletFreemarkerTemplate {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a Web Content Display widget to page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -93,6 +97,10 @@ definition {
 	@description = "This is a test for LPS-102795. Can add translations to removable fields sets contents to null."
 	@priority = 4
 	test AddTranslationsToRemovableFields {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a Web Content Display widget to page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -223,6 +231,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Enable ancestor scopes by default in System Settings") {
 			SystemSettings.openSystemSettingsAdmin();
 
@@ -309,6 +321,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a web content creator has a structure with ampersand in its structure key") {
 			task ("Disable Autogenerate Structure Key in Instance Settings") {
 				PortalSettings.openInstanceSettingsAdmin();
@@ -375,6 +391,10 @@ definition {
 	@description = "The user can add a web content via Web Content Display widget based on global structure and local template."
 	@priority = 4
 	test AddWebContentViaWCDWithGlobalStructureAndLocalTemplate {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content global structure with a text field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "global");
 
@@ -433,6 +453,10 @@ definition {
 	@description = "The user can add a web content with color field."
 	@priority = 3
 	test AddWebContentWithColorField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Color field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -497,6 +521,10 @@ definition {
 	@description = "The user can add a web content with image field."
 	@priority = 4
 	test AddWebContentWithImageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content with an Image field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -569,6 +597,10 @@ definition {
 	@description = "Add a web content with custom structure that has nested fields."
 	@priority = 4
 	test AddWebContentWithNestedFields {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content strcuture with custom fields") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -647,6 +679,10 @@ definition {
 	@description = "This is a test for LPS-86223. A user can create web content without having a template, and web content without templates will display using an automatically defined template."
 	@priority = 4
 	test AddWebContentWithoutTemplate {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a structure with a text field without adding a template") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -724,6 +760,10 @@ definition {
 		property environment.acceptance = "false";
 		property operating.system.types = "alpine,amazonlinux,centos,debian,fedora,orcllinux,osx,redhat,rockylinux,solaris,suse,ubuntu,windows";
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a web content structure with a repeatable Rich Text field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
@@ -811,6 +851,10 @@ definition {
 	@description = "This is a use case for LPS-52248. View no error is thrown when add a web content with separator field in custom structure."
 	@priority = 4
 	test AddWebContentWithSeparatorField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a separator field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -859,6 +903,10 @@ definition {
 	@description = "Add a web content based on new structure with a text field."
 	@priority = 4
 	test AddWebContentWithTextField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a text field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -906,6 +954,10 @@ definition {
 	@priority = 5
 	test AddWebContentWithWebContentAndGeolocationFields {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a web content based on Basic Web Content") {
 			JSONWebcontent.addWebContent(
@@ -999,6 +1051,10 @@ definition {
 	@description = "The user cannot delete a web content structure and template that have a referenced web content."
 	@priority = 4
 	test CannotDeleteTemplateAndStructureWithReferencedWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a text field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -1057,6 +1113,10 @@ definition {
 	@description = "Can edit a global web content template via Web Content Display widget then view edited template is shown in web content admin"
 	@priority = 4
 	test EditGlobalWebContentTemplate {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a global web content structure with a text field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "global");
 
@@ -1136,6 +1196,10 @@ definition {
 	@description = "Can edit a web content from global structure in web content display widget."
 	@priority = 4
 	test EditWebContentBasedOnGlobalStructure {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Text field in global site") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "global");
 
@@ -1207,6 +1271,10 @@ definition {
 	@description = "Can edit a local web content template then view edited template is shown in web content admin"
 	@priority = 4
 	test EditWebContentTemplate {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a global web content structure with a text field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -1277,6 +1345,10 @@ definition {
 	test EditWebContentTitleWithEmptyFields {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with custom fields") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -1313,6 +1385,10 @@ definition {
 	@description = "This is a test for LPS-96545. Cancel reset and reset the default values when edit default values in imported web content structure."
 	@priority = 4
 	test ResetStructureDefaultValues {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a widget page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -1441,6 +1517,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with text field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
@@ -1487,6 +1567,10 @@ definition {
 	@description = "This is a test for LPS-162313. The user is able to select Hidden Pages for Web Content structure."
 	@priority = 4
 	test SelectHiddenPageInLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a user has a widget page hidden from Menu Display") {
 			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
@@ -1538,6 +1622,10 @@ definition {
 	@priority = 5
 	test ViewAndEditAsWellAsDeleteContentWithTitleAndAllFields {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add two widget pages") {
 			for (var i : list "1,2") {
@@ -1673,6 +1761,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. View structure field with predefined value."
 	@priority = 4
 	test ViewFieldWithPredefinedValue {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content article based on Basic Web Content") {
 			JSONWebcontent.addWebContent(
 				content = "Web Content Content",
@@ -1783,6 +1875,10 @@ definition {
 	@description = "This is a use case for LPS-102867. View Select From List cannot lose the selection after add repeatable fields."
 	@priority = 4
 	test ViewSelectedOptionsInRepeatableFields {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with custom fields") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -1850,6 +1946,10 @@ definition {
 	@priority = 4
 	test ViewSourceContainsNoGarbageData {
 		property timeout.explicit.wait = "20";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a web content structure with custom fields") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");

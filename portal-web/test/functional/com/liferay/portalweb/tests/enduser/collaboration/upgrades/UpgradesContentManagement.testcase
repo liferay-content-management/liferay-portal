@@ -28,6 +28,10 @@ definition {
 		property data.archive.type = "data-archive-collaboration";
 		property portal.version = "7.1.10.5";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateKnowledgeBaseUpgrade.viewAndAddKBArticle(portalVersion = "7.1.10.5");
 
 		ValidateKnowledgeBaseUpgrade.editAndDeleteKBArticle();
@@ -52,6 +56,10 @@ definition {
 		property data.archive.type = "data-archive-collaboration";
 		property portal.version = "7.2.10.4";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateBlogsUpgrade.viewAndAddBlogEntry(video = "true");
 
 		ValidateBlogsUpgrade.editAndDeleteBlogEntry(video = "true");
@@ -73,6 +81,10 @@ definition {
 		property database.types = "mariadb,mysql,postgresql,db2,oracle,sqlserver";
 		property portal.version = "7.2.10.7";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateKnowledgeBaseUpgrade.viewAndAddKBArticle();
 
 		ValidateKnowledgeBaseUpgrade.editAndDeleteKBArticle();
@@ -83,6 +95,10 @@ definition {
 		property data.archive.type = "data-archive-collaboration";
 		property portal.acceptance = "true";
 		property portal.version = "7.3.10.1";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		ValidateKnowledgeBaseUpgrade.viewAndAddKBArticle();
 
@@ -108,6 +124,10 @@ definition {
 		property data.archive.type = "data-archive-collaboration";
 		property portal.version = "7.0.10.15";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateBlogsUpgrade.viewAndAddBlogEntry();
 
 		ValidateBlogsUpgrade.editAndDeleteBlogEntry();
@@ -130,6 +150,10 @@ definition {
 		property database.types = "mariadb,mysql,postgresql";
 		property portal.version = "6.2.5";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateMessageBoardsUpgrade.addMessageBoards();
 
 		ValidateMessageBoardsUpgrade.viewMessageBoards();
@@ -140,6 +164,10 @@ definition {
 		property data.archive.type = "data-archive-message-boards";
 		property portal.version = "6.2.10.15";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		ValidateMessageBoardsUpgrade.addMessageBoards();
 
 		ValidateMessageBoardsUpgrade.viewMessageBoards();
@@ -149,6 +177,10 @@ definition {
 	test ViewMessageBoardsArchive621021 {
 		property data.archive.type = "data-archive-message-boards";
 		property portal.version = "6.2.10.21";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		ValidateMessageBoardsUpgrade.addMessageBoards();
 

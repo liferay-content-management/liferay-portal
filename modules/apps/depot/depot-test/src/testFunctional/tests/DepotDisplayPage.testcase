@@ -235,6 +235,10 @@ definition {
 	test CanViewCustomizeWCFromConnectedSite {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var portalURL = PropsUtil.get("portal.url");
 
 		DepotNavigator.openDepotWebContentStructuresAdmin(depotName = "Test Depot Name");
@@ -413,6 +417,10 @@ definition {
 	@description = "This test ensures that a site article created with a structure stored in an asset library can be displayed with the default display page template on a connected site."
 	@priority = 5
 	test CanViewSiteWCUsingDepotStructure {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Test Page Name");

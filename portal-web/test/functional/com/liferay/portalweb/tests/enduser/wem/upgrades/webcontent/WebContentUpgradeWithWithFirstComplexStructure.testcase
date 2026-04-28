@@ -371,6 +371,10 @@ definition {
 	@description = "This is a use case for LRQA-61632. Assert Images added in one field is not available in the next image field before article is submitted  With First Complex Structure"
 	@priority = 3
 	test ViewNoDocumentFromOtherImageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		WebContentNavigator.gotoAddWithStructureCP(structureName = "WC Structure Name");

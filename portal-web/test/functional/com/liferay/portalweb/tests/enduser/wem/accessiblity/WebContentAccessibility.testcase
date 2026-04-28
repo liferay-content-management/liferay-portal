@@ -99,6 +99,10 @@ definition {
 	@description = "This is a test for LPS-182417. No accessibility issue in web content with date-time field structure"
 	@priority = 4
 	test ViewAccessibilityInDateAndTimeField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a web content with a date and time field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = ${siteURLKey});
 

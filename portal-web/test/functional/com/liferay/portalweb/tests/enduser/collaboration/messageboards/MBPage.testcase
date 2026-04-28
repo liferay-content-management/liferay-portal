@@ -80,6 +80,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddMBThreadWithMultipleAttachments {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		MessageboardsThread.addPG(
 			groupName = "Guest",
 			layoutName = "message-boards-page",
@@ -146,6 +150,10 @@ definition {
 	@refactordone
 	test CanConfigureWidgetToAddThreadAsQuestionByDefault {
 		property portal.acceptance = "false";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		MessageboardsThread.viewMarkAsQuestionNotChecked(siteURLKey = "guest");
 
@@ -294,6 +302,10 @@ definition {
 	@refactordone
 	test CanReplyToThreadAsGuest {
 		property portal.acceptance = "quarantine";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		Navigator.gotoPage(pageName = "Message Boards Page");
 
@@ -742,6 +754,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewThreadInSubcategory {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONMBMessage.addCategory(
 			categoryDescription = "MB Category Description",
 			categoryName = "MB Category Name",
@@ -933,6 +949,10 @@ definition {
 	@priority = 3
 	test XSSIsNotExecutedWhenViewingUsernameInThread {
 		property portal.acceptance = "false";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		Navigator.openURL();
 

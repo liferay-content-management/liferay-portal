@@ -140,6 +140,10 @@ definition {
 	@description = "This is a test for LPS-67548. It ensures that the history can be viewed in wiki details."
 	@priority = 3
 	test CanViewHistoryInDetails {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONWiki.updateWikiPage(
 			groupName = "Guest",
 			wikiNodeName = "Main",

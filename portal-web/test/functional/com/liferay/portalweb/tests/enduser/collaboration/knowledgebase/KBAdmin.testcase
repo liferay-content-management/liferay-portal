@@ -68,6 +68,10 @@ definition {
 	test CanEditArticleAndAddAttachment {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONKnowledgeBase.addkBArticle(
 			groupName = "Guest",
 			kbArticleContent = "Knowledge Base Article Content",
@@ -95,6 +99,10 @@ definition {
 		property custom.properties = "company.default.time.zone=America/Los_Angeles";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given the Notification Date is changed to 2 weeks") {
 			KBNavigator.openToConfigInSystemSettings(portlet = "System Service");
@@ -286,6 +294,10 @@ definition {
 	@priority = 4
 	test ExpirationNotificationShowsWhenNotificationDateIsReached {
 		property custom.properties = "company.default.time.zone=America/Los_Angeles";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given the Knowledge Base article is created with the expiration date of 1 week and 2 minutes in the future") {
 			KBAdmin.openKBAdmin(siteURLKey = "guest");

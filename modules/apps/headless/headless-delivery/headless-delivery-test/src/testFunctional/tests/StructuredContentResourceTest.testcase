@@ -28,6 +28,10 @@ definition {
 	@description = "This is a test for LPS-190222. The user can get customized field reference value of options in GraphQL response."
 	@priority = 4
 	test GetCustomizedFieldReferenceValueInGraphQLResponse {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given the user has a structure with a select from list field using customized field reference value") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = ${siteURLKey});
 
@@ -72,6 +76,10 @@ definition {
 	@description = "This is a test for LPS-190222. The user can get default field reference value of options in GraphQL response."
 	@priority = 4
 	test GetDefaultFieldReferenceValueInGraphQLResponse {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given the user has a structure with a multiple selection field using default field reference value") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = ${siteURLKey});
 
@@ -144,6 +152,10 @@ definition {
 	@description = "This is a test for LPS-190222. The user can get field reference value of Grid’s options in GraphQL response."
 	@priority = 4
 	test GetFieldReferenceValueOfGridOptionsInGraphQLResponse {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given the user has a structure with a Grid field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = ${siteURLKey});
 
@@ -202,6 +214,10 @@ definition {
 	@description = "This is a test for LPS-190222. The user can get field reference value of Single Selection’s options in GraphQL response."
 	@priority = 4
 	test GetFieldReferenceValueOfSingleSelectionOptionInGraphQLResponse {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given the user has a structure with a single selection field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = ${siteURLKey});
 

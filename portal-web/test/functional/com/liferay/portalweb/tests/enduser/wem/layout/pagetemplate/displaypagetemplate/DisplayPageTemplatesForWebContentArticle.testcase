@@ -105,6 +105,10 @@ definition {
 	test PreviewDraftWebContent {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a Heading fragment to display page template") {
 			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
 
@@ -171,6 +175,10 @@ definition {
 	@priority = 5
 	test PreviewPendingWebContent {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Add a Heading fragment to display page template") {
 			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
@@ -240,6 +248,10 @@ definition {
 	@description = "This is a test for LPS-163800. Can preview web content with predefined values in structure in Asset Libraries through site' s display page template."
 	@priority = 3
 	test PreviewPredefinedValuesThroughTheDisplayPageOfSpecificSiteInAssetLibrary {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a site designer has display page templates for web content") {
 			JSONDepot.addDepot(depotName = "Test Depot Name");
 
@@ -373,6 +385,10 @@ definition {
 	test PreviewWebContentThroughTheDisplayPageOfCurrentSite {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a site designer has display page templates for web content") {
 			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
 				contentType = "Web Content Article",
@@ -473,6 +489,10 @@ definition {
 	@description = "This is a test for LPS-163800. Preview web content in Asset Libraries through sites' display page templates."
 	@priority = 4
 	test PreviewWebContentThroughTheDisplayPageOfSpecificSiteInAssetLibrary {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a site designer has display page templates for web content") {
 			var i = 1;
 
@@ -623,6 +643,10 @@ definition {
 	@description = "This is a test for LPS-163800. Preview web content in global site through site's display page templates."
 	@priority = 3
 	test PreviewWebContentThroughTheDisplayPageOfSpecificSiteInGlobalSite {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a site designer has display page templates for web content") {
 			var i = 1;
 

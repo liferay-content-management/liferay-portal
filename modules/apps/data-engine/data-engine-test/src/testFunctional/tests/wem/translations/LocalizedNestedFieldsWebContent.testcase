@@ -32,6 +32,10 @@ definition {
 		property custom.properties = "feature.flag.LPD-11228=true";
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -316,6 +320,10 @@ definition {
 	@description = "This test ensures translations persists for a repeatable duplicated field group."
 	@priority = 5
 	test CheckDuplicatedRepeatableStructureOnWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -507,6 +515,10 @@ definition {
 	@description = "This test ensures that the default values persists after translating the Web Content for another locale."
 	@priority = 4
 	test DefaultTitlePersistsUponFirstlyTranslatingForAnotherLocale {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -572,6 +584,10 @@ definition {
 	@description = "This test ensures that the default language values are carried to a new locale before translating it."
 	@priority = 4
 	test DefaultValuesAreCarriedToNewLocale {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -630,6 +646,10 @@ definition {
 	@description = "This test ensures translations persists for N languages and N field groups levels."
 	@priority = 5
 	test TranslateWebContentFromStructureWithNLevelNestedFieldsAndToNLanguages {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -868,6 +888,10 @@ definition {
 	@description = "This test ensures that the translations persists for all fields nested."
 	@priority = 5
 	test TranslateWebContentWithAllFieldsNested {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.importStructure(
@@ -923,6 +947,10 @@ definition {
 	@description = "This test ensures Web Content translations do not modify previously translated content."
 	@priority = 5
 	test TranslationDoesNotChangeAnother {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Title");
@@ -1004,6 +1032,10 @@ definition {
 	test TranslationsRemainsUponSavingWebContent {
 		property custom.properties = "feature.flag.LPD-11228=true";
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		NavItem.gotoStructures();
 

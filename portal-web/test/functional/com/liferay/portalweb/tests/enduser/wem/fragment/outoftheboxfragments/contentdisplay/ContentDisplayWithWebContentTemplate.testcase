@@ -216,6 +216,10 @@ definition {
 	@description = "This is a test for LPS-101248. Can select web content template from script file as a "Template" for Content Display fragment."
 	@priority = 2
 	test SelectWebContentTemplateFromScriptFile {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with Text and Numeric fields") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -395,6 +399,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Color field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithColorField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Color field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -458,6 +466,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Date field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithDateField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Date field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -521,6 +533,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Grid field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithGridField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Grid field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -586,6 +602,10 @@ definition {
 	test ViewSelectedWebContentWithImageField {
 		property timeout.explicit.wait = "20";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Image field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -650,6 +670,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Link to Page field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithLinkToPageField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a widget page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -718,6 +742,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Multiple Selection field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithMultipleSelectionField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Multiple Selection field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -779,6 +807,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Numeric field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithNumericField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Numeric field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -842,6 +874,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Rich Text field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithRichTextField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Rich Text field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -905,6 +941,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Select from List field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithSelectFromListField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Select from List field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -966,6 +1006,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Single Selection field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithSingleSelectionField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Single Selection field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -1027,6 +1071,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Text field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithTextField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Text field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -1090,6 +1138,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Upload field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithUploadField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content structure with a Upload field") {
 			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -1153,6 +1205,10 @@ definition {
 	@description = "This is a test for LPS-101248. Display web content with Web Content field in Content Display."
 	@priority = 3
 	test ViewSelectedWebContentWithWebContentField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(
 				content = "WC Content",

@@ -278,6 +278,10 @@ definition {
 	@description = "This ensures that an image in the WC content field can be rendered correctly after moving it to a folder."
 	@priority = 4
 	test CanViewImageInWCAfterMovingToFolder {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "Document_1",

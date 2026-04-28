@@ -130,6 +130,10 @@ definition {
 	test RepeatSeparatorOnWebContent {
 		property ci.retries.disabled = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DataEngine.toggleFieldRepeatable(fieldFieldLabel = "Separator");
 
 		WebContentStructures.saveCP();

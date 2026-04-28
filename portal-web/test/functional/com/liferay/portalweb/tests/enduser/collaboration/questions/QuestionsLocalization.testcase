@@ -80,6 +80,10 @@ definition {
 	test CanAddQuestionViaSubTopic {
 		property portal.release = "quarantine";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a Questions category and subtopic with non-Latin characters") {
 			JSONMBMessage.addCategory(
 				categoryDescription = "トピック記述",
@@ -122,6 +126,10 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanAddQuestionWithMultipleTags {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a Questions category") {
 			JSONMBMessage.addCategory(
 				categoryDescription = "トピック記述",
@@ -154,6 +162,10 @@ definition {
 	@refactordone
 	@uitest
 	test CanAddQuestionWithNonLatinCharacters {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given a new root topic") {
 			Navigator.openURL();
 
@@ -529,6 +541,10 @@ definition {
 	@refactordone
 	test QuestionCanBeViewedViaTag {
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		task ("Given a category and a question that has tags with non-Latin characters") {
 			JSONMBMessage.addCategory(

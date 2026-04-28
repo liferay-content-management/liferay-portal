@@ -65,6 +65,10 @@ definition {
 	@description = "This test checks that articles can be sorted by the modified date."
 	@priority = 3
 	test AssetsCanBeSortedByModifiedDate {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONKnowledgeBase.addkBFolder(
 			groupName = "Guest",
 			kbFolderDescription = "KB Folder Description",

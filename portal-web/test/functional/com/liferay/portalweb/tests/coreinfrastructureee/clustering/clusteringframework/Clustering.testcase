@@ -253,6 +253,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Clustering.viewClusterStatusInConsole();
 
 		Page.assertNodePortPG(nodePort = 8080);
@@ -424,6 +428,10 @@ definition {
 	test ValidatePublishOnTwoNodes {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "sequential";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		Clustering.viewClusterStatusInConsole();
 

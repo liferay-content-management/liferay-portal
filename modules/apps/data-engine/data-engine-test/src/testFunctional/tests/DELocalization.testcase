@@ -30,6 +30,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		PortalSettings.openInstanceSettingsAdmin();
 
 		SystemSettings.gotoConfiguration(
@@ -458,6 +462,10 @@ definition {
 	@description = "Verify that the Date field mask is succesfully applied for languages which uses DD/MM/YYYY"
 	@priority = 5
 	test CanDateMaskBeAppliedForTranslations {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -514,6 +522,10 @@ definition {
 	@description = "Verify that for decimal Numeric fields the decimal separator is adequate to the current locale"
 	@priority = 4
 	test CanDecimalSeparatorBeAdequateWithDifferentLanguages {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -645,6 +657,10 @@ definition {
 	@description = "Verify that default language inputted data are displayed for untranslated languages"
 	@priority = 4
 	test CanDefaultDatabeShown {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1181,6 +1197,10 @@ definition {
 	@description = "Verify that is possible to translate input data on the Date Field"
 	@priority = 5
 	test CanInputtedDataBeTranslatedOnDateField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1241,6 +1261,10 @@ definition {
 	@description = "Verify that is possible to translate input data on the Numeric Field"
 	@priority = 5
 	test CanInputtedDataBeTranslatedOnNumericField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1301,6 +1325,10 @@ definition {
 	@description = "Verify that is possible to translate input data on the Rich Text Field"
 	@priority = 5
 	test CanInputtedDataBeTranslatedOnRichTextField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1364,6 +1392,10 @@ definition {
 	@description = "Verify that is possible to translate input data on the Text Field"
 	@priority = 5
 	test CanInputtedDataBeTranslatedOnTextField {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1424,6 +1456,10 @@ definition {
 	@description = "Verify that translations for more than two different languages persists"
 	@priority = 5
 	test CanInputtedDataBeTranslatedToTwoLanguages {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1551,6 +1587,10 @@ definition {
 	@description = "Verify that translations for more than two different languages persists for fields inside a Fields Group"
 	@priority = 5
 	test CanInputtedDataBeTranslatedToTwoLanguagesOnFieldsGroup {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1681,6 +1721,10 @@ definition {
 	@description = "Verify that is not possible to translate a field that has Localizable set as off"
 	@priority = 4
 	test CanNotLocalizbleOffTranslate {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1746,6 +1790,10 @@ definition {
 	@description = "Verify that is not possible to translate a field that has Localizable set as off and is inside a Fields Group that has Localizable fields"
 	@priority = 3
 	test CanNotLocalizbleOffTranslateFieldsOnFieldsGroup {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -1824,6 +1872,10 @@ definition {
 	@description = "Verify that is not possible to choose options of a field that has Localizable set as off"
 	@priority = 4
 	test CanNotLocalizbleOffTranslateOptionFields {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -3029,6 +3081,10 @@ definition {
 	@description = "Verify that is possible to translate a Web Content with all fields"
 	@priority = 5
 	test CanTranslateWebContentWithAllFields {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		for (var n : list "1,2") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -3532,6 +3588,10 @@ definition {
 	@description = "Verify that is possible to upload a different image on the Image Field for a translated language"
 	@priority = 5
 	test CanUploadedImageChangeWithTranslations {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -3695,6 +3755,10 @@ definition {
 	@description = "Verify that is possible to choose a different Web Content on the Web Content Field for a translated language"
 	@priority = 5
 	test CanUploadedWebContentChangeWithTranslations {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		for (var n : list "1,2") {
@@ -3776,6 +3840,10 @@ definition {
 	@description = "Create, edit and delete Web Content with translations"
 	@priority = 5
 	test CanWebContentWithTranslationsBeCreatedEditedAndDeleted {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONWebcontent.addWebContent(
 			content = "WC WebContent Content",
 			groupName = "Test Site Name",

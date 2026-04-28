@@ -43,6 +43,10 @@ definition {
 	test InsertTextOnRichTextOnUpload {
 		property portal.acceptance = "false";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		PortletEntry.save();
 
 		Navigator.gotoNavTab(navTab = "Files");
@@ -243,6 +247,10 @@ definition {
 	@priority = 4
 	test UploadWithRequiredRichText {
 		property portal.acceptance = "false";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		DataEngine.editFieldRequired(fieldFieldLabel = "Rich Text");
 

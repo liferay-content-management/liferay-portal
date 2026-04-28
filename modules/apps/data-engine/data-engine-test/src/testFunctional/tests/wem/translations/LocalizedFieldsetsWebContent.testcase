@@ -168,6 +168,10 @@ definition {
 	@description = "This test validates the fieldset translations are displayed on the Web Content."
 	@priority = 5
 	test CheckStructureTranslationOnWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Name");
@@ -239,6 +243,10 @@ definition {
 	@description = "This is a test for LPS-123539. As Content Creator, I want to leverage the structures’ translations with fildset when creating a new Web Content"
 	@priority = 5
 	test CheckTranslationOfDuplicatedFieldsetOnWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Name");
@@ -313,6 +321,10 @@ definition {
 	test CreateEditAndDeleteLocalizedFieldset {
 		property custom.properties = "feature.flag.LPD-11228=true";
 		property portal.acceptance = "true";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		var newStructureName = "WC Structure Name";
 
@@ -540,6 +552,10 @@ definition {
 	@description = "This test checks when user translates the title, the default language title persists"
 	@priority = 4
 	test DefaultTitlePersistsAfterTranslatingForAnotherLocale {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
 		NavItem.gotoStructures();
@@ -643,6 +659,10 @@ definition {
 	@description = "This test ensures create, translate and edit with different instance language."
 	@priority = 5
 	test LocalizedFieldsetWithDifferentInstanceLanguage {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		PortalSettings.openInstanceSettingsAdmin();
 
 		SystemSettings.gotoConfiguration(
@@ -827,6 +847,10 @@ definition {
 	@description = "This test ensures is possible to translate a web content from a structure with a fieldset with a field group."
 	@priority = 5
 	test TranslateWebContentFromStructureWithFieldsetWithFieldGroup {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Name");
@@ -967,6 +991,10 @@ definition {
 	@description = "This test ensures translation of a web content from a structure with a fieldset persists after translating for another locale."
 	@priority = 5
 	test TranslationPersistsAfterEditingAnother {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Name");

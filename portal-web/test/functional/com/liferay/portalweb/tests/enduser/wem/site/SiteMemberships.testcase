@@ -435,6 +435,10 @@ definition {
 	test RolesSitesPermissionsInheritance {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		for (var userNumber : list "1,2,3") {
 			JSONUser.addUser(
 				userEmailAddress = "userea${userNumber}@liferay.com",

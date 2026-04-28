@@ -3560,6 +3560,10 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Configure samlidp as IdP and samlsp as SP") {
 			SAML.configureLiferaySAMLAsIdP(samlEntityId = "samlidp");
 

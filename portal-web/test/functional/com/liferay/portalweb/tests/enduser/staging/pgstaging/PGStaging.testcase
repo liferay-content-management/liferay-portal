@@ -180,6 +180,10 @@ definition {
 
 	@priority = 3
 	test AddDMDocumentWCArticleStagingLocalLive {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name",
 			layoutName = "Staging Test Page",
@@ -243,6 +247,10 @@ definition {
 
 	@priority = 3
 	test AssertEditWebContentStaging {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.gotoSitePage(
 			pageName = "Staging Test Page",
 			siteName = "Site Name");
@@ -617,6 +625,10 @@ definition {
 	@description = "This is a use case for LPS-80367."
 	@priority = 3
 	test PublishWCIncludingTextsAndImages {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -704,6 +716,10 @@ definition {
 	@description = "This is a use case for LPS-80295."
 	@priority = 3
 	test PublishWCWithFriendlyURL {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		var baseURL = PropsUtil.get("portal.url");
 		var friendlyURL = "link";
 
@@ -777,6 +793,10 @@ definition {
 		property minimum.slave.ram = "24";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		Staging.remoteStagingSetUp(
 			pageVersioningEnabled = "true",

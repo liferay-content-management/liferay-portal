@@ -178,6 +178,10 @@ definition {
 	@description = "This is a test for LPS-159158. Verify if the user is notified when a followed topic has a new question."
 	@priority = 3
 	test CanBeNotifiedByQuestion {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create a new User with an Admin Role") {
 			JSONUser.addUser(
 				userEmailAddress = "user@liferay.com",
@@ -236,6 +240,10 @@ definition {
 	@description = "This is a test for LPS-159138. Verify if the user is able to subscribe a tag if they want to."
 	@priority = 5
 	test CanSubscribeAQuestion {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Create a Question") {
 			Navigator.gotoPage(pageName = "Questions Page");
 
@@ -318,6 +326,10 @@ definition {
 	@description = "This is a test for LPS-159138. Verify if the user is able to unsubscribe a question if they want to."
 	@priority = 5
 	test CanUnsubscribeAQuestion {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Given there are a Topic and a question created") {
 			Questions.openToQuestionsTopic(
 				layoutName = "questions-page",

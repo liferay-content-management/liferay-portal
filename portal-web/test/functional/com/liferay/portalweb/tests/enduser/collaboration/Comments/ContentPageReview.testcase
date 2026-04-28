@@ -59,6 +59,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanAddComment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -86,6 +90,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanAddCommentWithEscapeCharacters {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -113,6 +121,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanDeleteComment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -158,6 +170,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanReopenResolvedComment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -203,6 +219,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanResolveComment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -240,6 +260,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewComment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -279,6 +303,10 @@ definition {
 	@priority = 3
 	@refactordone
 	test CanViewCommentAfterDeactivatingStaging {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONStaging.enableLocalStaging(groupName = "Test Site Name");
 
 		JSONLayout.addPublicLayout(
@@ -332,6 +360,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewCommentAfterDiscardedDraft {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -386,6 +418,10 @@ definition {
 	@refactordone
 	test CanViewCommentAsNonCreator {
 		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		JSONUser.addUser(
 			userEmailAddress = "user1@liferay.com",
@@ -452,6 +488,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewCommentList {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -517,6 +557,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewCommentListNavigation {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -557,6 +601,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewCommentOnDifferentExperience {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
 		LexiconEntry.gotoAdd();
@@ -647,6 +695,10 @@ definition {
 	@priority = 5
 	@refactordone
 	test CanViewCommentViaFragment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -685,6 +737,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewEditedComment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -725,6 +781,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewMultipleCommentsList {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",
@@ -763,6 +823,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewMultipleReplies {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		JSONLayout.addPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Content Page Name",

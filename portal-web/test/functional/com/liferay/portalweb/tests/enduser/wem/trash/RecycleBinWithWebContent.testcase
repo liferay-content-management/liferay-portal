@@ -171,6 +171,10 @@ definition {
 	@description = "Check the staging in recycle bin with and without staged content"
 	@priority = 3
 	test RecycleBinStaging {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a page and add WCD to the page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -255,6 +259,10 @@ definition {
 	@description = "Move a structured web content to recycle bin and restore it."
 	@priority = 3
 	test RecycleBinWebContent {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a structure with text field and save") {
 			WebContentStructures.openWebContentStructuresAdmin(siteURLKey = "test-site-name");
 
@@ -375,6 +383,10 @@ definition {
 	test RestoreWebcontent {
 		property portal.acceptance = "true";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a web content") {
 			JSONWebcontent.addWebContent(
 				content = "WC WebContent Content",
@@ -418,6 +430,10 @@ definition {
 	@description = "Can restore web content within WC folder in recycle bin."
 	@priority = 3
 	test RestoreWebContentFromFolderCP {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a WC folder and a web content to it") {
 			JSONWebcontent.addFolder(
 				folderName = "WC Folder Name",
@@ -462,6 +478,10 @@ definition {
 	@description = "Can restore web content with versions in recycle bin."
 	@priority = 3
 	test RestoreWebContentWithArticleVersions {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		task ("Add a WC folder and WC to the folder") {
 			JSONWebcontent.addFolder(
 				folderName = "WC Folder Name",

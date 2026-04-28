@@ -179,6 +179,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test ExportedDepotWithCustomizeWCCanBeImportedToDepot {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		DepotNavigator.openDepotWebContentStructuresAdmin(depotName = "Test Depot Name");
 
 		WebContentStructures.addCP(

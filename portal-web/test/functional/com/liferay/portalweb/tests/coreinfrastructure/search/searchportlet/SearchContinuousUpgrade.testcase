@@ -23,6 +23,10 @@ definition {
 	test ViewSearchPortletsConfiguration {
 		property portal.suite.search.engine = "elasticsearch8,solr";
 
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		User.firstLoginUI(
 			password = PropsUtil.get("default.admin.password"),
 			specificURL = "http://localhost:8080",

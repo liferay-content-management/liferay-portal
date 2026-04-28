@@ -74,6 +74,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanSearchOutPageByComment {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WikiNavigator.openWikiAdmin(siteURLKey = "guest");
 
 		JSONWiki.updateWikiPage(

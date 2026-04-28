@@ -27,6 +27,10 @@ definition {
 	@priority = 4
 	@refactordone
 	test CanViewOptionsWithAllLanguages {
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
+
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
 		NavItem.gotoStructures();
@@ -122,6 +126,10 @@ definition {
 	@refactordone
 	test CanViewTranslatedFieldContentAfterEditing {
 		property portal.acceptance = "quarantine";
+
+		task ("Enable CKEditor 4 deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Rich Text Editor");
+		}
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "guest");
 
