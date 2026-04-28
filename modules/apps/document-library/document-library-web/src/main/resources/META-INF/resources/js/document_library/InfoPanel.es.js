@@ -19,13 +19,9 @@ class InfoPanel extends PortletBase {
 	attached() {
 		this._destroyClipboard();
 
-		const selector = '.dm-infopanel-copy-clipboard';
-
-		const container = this.rootNode;
-
-		if (!container) {return;}
-
-		this._clipboard = new ClipboardJS(container.querySelectorAll(selector));
+		this._clipboard = new ClipboardJS(
+			this.all('.dm-infopanel-copy-clipboard')
+		);
 
 		this._clipboard.on('success', this._handleClipboardSuccess.bind(this));
 	}
