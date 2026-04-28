@@ -1,7 +1,6 @@
 @component-name = "portal-content-management"
 definition {
 
-	property custom.properties = "feature.flag.LPD-82301=true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Questions";
@@ -10,6 +9,10 @@ definition {
 		TestCase.setUpPortalInstance();
 
 		User.firstLoginPG();
+
+		task ("Enable Widget Questions deprecation feature flag") {
+			FeatureFlag.enableVirtualInstanceScopeDeprecationFeatureFlag(featureFlag = "Widget Questions");
+		}
 
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
