@@ -154,7 +154,7 @@ test(
 		await documentLibraryPage.orderBy('relevance');
 
 		await expect(
-			page.locator('dd.list-group-item[data-title="test"]')
+			page.locator('dd.card-page-item[data-title="test"]')
 		).toHaveAttribute('id', /_entries_1$/);
 	}
 );
