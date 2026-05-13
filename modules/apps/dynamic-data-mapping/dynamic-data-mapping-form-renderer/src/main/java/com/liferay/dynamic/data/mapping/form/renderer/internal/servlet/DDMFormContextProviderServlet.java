@@ -74,9 +74,18 @@ public class DDMFormContextProviderServlet extends HttpServlet {
 			 uploadException.isExceededLiferayFileItemSizeLimit() ||
 			 uploadException.isExceededUploadRequestSizeLimit())) {
 
-			httpServletResponse.sendError(
-				HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,
-				_language.get(httpServletRequest, "upload-size-is-too-large"));
+			httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
+			httpServletResponse.setStatus(
+				HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+
+			ServletResponseUtil.write(
+				httpServletResponse,
+				_jsonFactory.createJSONObject(
+				).put(
+					"error",
+					_language.get(
+						httpServletRequest, "upload-size-is-too-large")
+				).toString());
 
 			return;
 		}
