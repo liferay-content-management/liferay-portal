@@ -6,12 +6,19 @@
 package com.liferay.dynamic.data.mapping.internal.form.renderer.servlet.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.upload.UploadException;
+import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
@@ -56,9 +63,51 @@ public class DDMFormContextProviderServletTest {
 			mockHttpServletRequest.getAttribute(WebKeys.THEME_DISPLAY));
 	}
 
+	@Test
+	public void testUploadExceptionReturnsJSONErrorResponse() throws Exception {
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
+		mockHttpServletRequest.addPreferredLocale(LocaleUtil.US);
+
+		UploadException uploadException = new UploadException(
+			"Upload size exceeded");
+
+		uploadException.setExceededLiferayFileItemSizeLimit(true);
+
+		mockHttpServletRequest.setAttribute(
+			WebKeys.UPLOAD_EXCEPTION, uploadException);
+
+		MockHttpServletResponse mockHttpServletResponse =
+			new MockHttpServletResponse();
+
+		_ddmFormContextProviderServlet.service(
+			mockHttpServletRequest, mockHttpServletResponse);
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE,
+			mockHttpServletResponse.getStatus());
+		Assert.assertEquals(
+			ContentTypes.APPLICATION_JSON,
+			mockHttpServletResponse.getContentType());
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			mockHttpServletResponse.getContentAsString());
+
+		Assert.assertEquals(
+			_language.get(LocaleUtil.US, "upload-size-is-too-large"),
+			jsonObject.getString("error"));
+	}
+
 	@Inject(
 		filter = "osgi.http.whiteboard.servlet.name=com.liferay.dynamic.data.mapping.form.renderer.internal.servlet.DDMFormContextProviderServlet"
 	)
 	private Servlet _ddmFormContextProviderServlet;
+
+	@Inject
+	private JSONFactory _jsonFactory;
+
+	@Inject
+	private Language _language;
 
 }
