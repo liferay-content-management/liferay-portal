@@ -130,6 +130,8 @@ test('review comment is added to user notification', async ({
 
 	await page.waitForLoadState('networkidle');
 
+	const previousURL = page.url();
+
 	await userPersonalBarPage.notificationBadge.click();
 
 	await expect(
@@ -137,4 +139,24 @@ test('review comment is added to user notification', async ({
 			name: `Your submission was reviewed and the reviewer applied the following ${approvalComment}.`,
 		})
 	).toBeVisible();
+
+	const backLink = page.getByRole('link', {exact: true, name: 'Back'});
+
+	await expect(backLink).toBeVisible();
+
+	await backLink.click();
+
+	await expect(page).toHaveURL(previousURL);
+
+	await page.getByRole('button', {name: /User Profile$/}).click();
+
+	await page
+		.getByRole('menuitem', {exact: true, name: 'Notifications'})
+		.click();
+
+	await expect(backLink).toBeVisible();
+
+	await backLink.click();
+
+	await expect(page).toHaveURL(previousURL);
 });
