@@ -5,7 +5,7 @@
 
 import '../../../css/main.scss';
 
-import {openModal} from 'frontend-js-components-web';
+import {openModal, openToast} from 'frontend-js-components-web';
 import {fetch} from 'frontend-js-web';
 import React, {
 	useCallback,
@@ -22,6 +22,7 @@ import {INITIAL_CONFIG_STATE} from '../../core/config/initialConfigState.es';
 import {INITIAL_STATE} from '../../core/config/initialState.es';
 import {ConfigProvider, useConfig} from '../../core/hooks/useConfig.es';
 import {FormProvider, useForm, useFormState} from '../../core/hooks/useForm.es';
+import {enableSubmitButton} from '../../core/utils/submitButtonController.es';
 import {
 	activePageReducer,
 	fieldReducer,
@@ -117,7 +118,16 @@ const useFormSubmit = ({apiRef, containerRef}) => {
 					}
 				})
 				.catch((error) => {
-					console.error(error);
+					enableSubmitButton('ddm-form-submit');
+
+					openToast({
+						message:
+							error?.message ||
+							Liferay.Language.get(
+								'an-unexpected-error-occurred'
+							),
+						type: 'danger',
+					});
 
 					Liferay.fire('ddmFormError', {
 						error,
