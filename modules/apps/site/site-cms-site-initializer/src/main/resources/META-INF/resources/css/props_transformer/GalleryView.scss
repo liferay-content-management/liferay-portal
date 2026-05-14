@@ -3,6 +3,7 @@
 .fds-gallery-view {
 	&__preview {
 		height: 570px;
+		position: relative;
 
 		&-wrapper > * {
 			margin: 0;
@@ -12,6 +13,13 @@
 				padding: 0;
 			}
 		}
+	}
+
+	&__actions {
+		position: absolute;
+		right: $spacer;
+		top: $spacer;
+		z-index: 1;
 	}
 
 	.preview-file .preview-file-container.preview-file-max-height {
