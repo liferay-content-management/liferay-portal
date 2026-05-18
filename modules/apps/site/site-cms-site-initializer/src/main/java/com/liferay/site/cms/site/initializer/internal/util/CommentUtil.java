@@ -18,6 +18,8 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -38,6 +40,10 @@ public class CommentUtil {
 	public static JSONObject getCommentJSONObject(
 			Comment comment, HttpServletRequest httpServletRequest)
 		throws PortalException {
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 		Date createDate = comment.getCreateDate();
 
@@ -64,6 +70,12 @@ public class CommentUtil {
 			"dateDescription", modifiedDateDescription
 		).put(
 			"edited", !createDate.equals(modifiedDate)
+		).put(
+			"hasDeletePermission",
+			_hasPermission(comment, themeDisplay, ActionKeys.DELETE)
+		).put(
+			"hasUpdatePermission",
+			_hasPermission(comment, themeDisplay, ActionKeys.UPDATE_DISCUSSION)
 		).put(
 			"negativeVotes",
 			() -> {
@@ -172,6 +184,25 @@ public class CommentUtil {
 		).put(
 			"userId", commentUser.getUserId()
 		);
+	}
+
+	private static boolean _hasPermission(
+		Comment comment, ThemeDisplay themeDisplay, String actionId) {
+
+		if (comment == null) {
+			return false;
+		}
+
+		if (themeDisplay.getUserId() == comment.getUserId()) {
+			return true;
+		}
+
+		PermissionChecker permissionChecker =
+			themeDisplay.getPermissionChecker();
+
+		return permissionChecker.hasPermission(
+			comment.getGroupId(), comment.getClassName(), comment.getClassPK(),
+			actionId);
 	}
 
 }
