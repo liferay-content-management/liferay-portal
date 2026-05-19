@@ -159,10 +159,10 @@ public class ObjectUserNotificationsHandler
 			"notificationMessageKey");
 
 		if (Validator.isNotNull(notificationMessageKey)) {
-			return HtmlUtil.escape(
-				serviceContext.translate(
-					notificationMessageKey,
-					jsonObject.getString("notificationMessageArg")));
+			return serviceContext.translate(
+				notificationMessageKey,
+				HtmlUtil.escape(jsonObject.getString("notificationMessageArg")),
+				HtmlUtil.escape(jsonObject.getString("notificationLink")));
 		}
 
 		return HtmlUtil.escape(jsonObject.getString("notificationMessage"));

@@ -35,6 +35,8 @@ public class CMSObjectEntryReviewNotificationContributor
 				_portal.getPathFriendlyURLPublic(),
 				GroupConstants.CMS_FRIENDLY_URL, "/view-asset?objectEntryId=",
 				objectEntry.getObjectEntryId())
+		).put(
+			"notificationMessageKey", "x-has-reached-its-review-date-x"
 		);
 	}
 
