@@ -1,0 +1,3 @@
+Bundle-Name: Liferay Object Storage SharePoint API
+Bundle-SymbolicName: com.liferay.object.storage.sharepoint.api
+Bundle-Version: 1.0.0
