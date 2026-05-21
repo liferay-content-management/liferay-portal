@@ -5,6 +5,7 @@
 
 package com.liferay.headless.delivery.internal.graphql.query.v1_0;
 
+import com.liferay.headless.delivery.dto.v1_0.AssetListEntry;
 import com.liferay.headless.delivery.dto.v1_0.BlogPosting;
 import com.liferay.headless.delivery.dto.v1_0.BlogPostingImage;
 import com.liferay.headless.delivery.dto.v1_0.Comment;
@@ -34,6 +35,7 @@ import com.liferay.headless.delivery.dto.v1_0.StructuredContentFolder;
 import com.liferay.headless.delivery.dto.v1_0.WikiNode;
 import com.liferay.headless.delivery.dto.v1_0.WikiPage;
 import com.liferay.headless.delivery.dto.v1_0.WikiPageAttachment;
+import com.liferay.headless.delivery.resource.v1_0.AssetListEntryResource;
 import com.liferay.headless.delivery.resource.v1_0.BlogPostingImageResource;
 import com.liferay.headless.delivery.resource.v1_0.BlogPostingResource;
 import com.liferay.headless.delivery.resource.v1_0.CommentResource;
@@ -98,6 +100,14 @@ import org.osgi.service.component.ComponentServiceObjects;
  */
 @Generated("")
 public class Query {
+
+	public static void setAssetListEntryResourceComponentServiceObjects(
+		ComponentServiceObjects<AssetListEntryResource>
+			assetListEntryResourceComponentServiceObjects) {
+
+		_assetListEntryResourceComponentServiceObjects =
+			assetListEntryResourceComponentServiceObjects;
+	}
 
 	public static void setBlogPostingResourceComponentServiceObjects(
 		ComponentServiceObjects<BlogPostingResource>
@@ -316,6 +326,66 @@ public class Query {
 
 		_wikiPageAttachmentResourceComponentServiceObjects =
 			wikiPageAttachmentResourceComponentServiceObjects;
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {assetLibraryAssetListEntries(assetLibraryId: ___, filter: ___, page: ___, pageSize: ___, search: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField(
+		description = "Lists the asset library's persisted Content Sets (AssetListEntry). Results can be paginated, filtered, searched, and sorted."
+	)
+	public AssetListEntryPage assetLibraryAssetListEntries(
+			@GraphQLName("assetLibraryId") @NotEmpty String assetLibraryId,
+			@GraphQLName("search") String search,
+			@GraphQLName("filter") String filterString,
+			@GraphQLName("pageSize") int pageSize,
+			@GraphQLName("page") int page,
+			@GraphQLName("sort") String sortsString)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_assetListEntryResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			assetListEntryResource -> new AssetListEntryPage(
+				assetListEntryResource.getAssetLibraryAssetListEntriesPage(
+					Long.valueOf(assetLibraryId), search,
+					_filterBiFunction.apply(
+						assetListEntryResource, filterString),
+					Pagination.of(page, pageSize),
+					_sortsBiFunction.apply(
+						assetListEntryResource, sortsString))));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {assetListEntries(filter: ___, page: ___, pageSize: ___, search: ___, siteKey: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField(
+		description = "Lists the site's persisted Content Sets (AssetListEntry). Results can be paginated, filtered, searched, and sorted."
+	)
+	public AssetListEntryPage assetListEntries(
+			@GraphQLName("siteKey") @NotEmpty String siteKey,
+			@GraphQLName("search") String search,
+			@GraphQLName("filter") String filterString,
+			@GraphQLName("pageSize") int pageSize,
+			@GraphQLName("page") int page,
+			@GraphQLName("sort") String sortsString)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_assetListEntryResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			assetListEntryResource -> new AssetListEntryPage(
+				assetListEntryResource.getSiteAssetListEntriesPage(
+					Long.valueOf(siteKey), search,
+					_filterBiFunction.apply(
+						assetListEntryResource, filterString),
+					Pagination.of(page, pageSize),
+					_sortsBiFunction.apply(
+						assetListEntryResource, sortsString))));
 	}
 
 	/**
@@ -5758,6 +5828,44 @@ public class Query {
 
 	}
 
+	@GraphQLName("AssetListEntryPage")
+	public class AssetListEntryPage {
+
+		public AssetListEntryPage(Page assetListEntryPage) {
+			actions = assetListEntryPage.getActions();
+
+			facets = assetListEntryPage.getFacets();
+
+			items = assetListEntryPage.getItems();
+			lastPage = assetListEntryPage.getLastPage();
+			page = assetListEntryPage.getPage();
+			pageSize = assetListEntryPage.getPageSize();
+			totalCount = assetListEntryPage.getTotalCount();
+		}
+
+		@GraphQLField
+		protected Map<String, Map<String, String>> actions;
+
+		@GraphQLField
+		protected List<Facet> facets;
+
+		@GraphQLField
+		protected java.util.Collection<AssetListEntry> items;
+
+		@GraphQLField
+		protected long lastPage;
+
+		@GraphQLField
+		protected long page;
+
+		@GraphQLField
+		protected long pageSize;
+
+		@GraphQLField
+		protected long totalCount;
+
+	}
+
 	@GraphQLName("BlogPostingPage")
 	public class BlogPostingPage {
 
@@ -7031,6 +7139,26 @@ public class Query {
 	}
 
 	private void _populateResourceContext(
+			AssetListEntryResource assetListEntryResource)
+		throws Exception {
+
+		assetListEntryResource.setContextAcceptLanguage(_acceptLanguage);
+		assetListEntryResource.setContextCompany(_company);
+		assetListEntryResource.setContextHttpServletRequest(
+			_httpServletRequest);
+		assetListEntryResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		assetListEntryResource.setContextUriInfo(_uriInfo);
+		assetListEntryResource.setContextUser(_user);
+		assetListEntryResource.setGroupLocalService(_groupLocalService);
+		assetListEntryResource.setResourceActionLocalService(
+			_resourceActionLocalService);
+		assetListEntryResource.setResourcePermissionLocalService(
+			_resourcePermissionLocalService);
+		assetListEntryResource.setRoleLocalService(_roleLocalService);
+	}
+
+	private void _populateResourceContext(
 			BlogPostingResource blogPostingResource)
 		throws Exception {
 
@@ -7559,6 +7687,8 @@ public class Query {
 		wikiPageAttachmentResource.setRoleLocalService(_roleLocalService);
 	}
 
+	private static ComponentServiceObjects<AssetListEntryResource>
+		_assetListEntryResourceComponentServiceObjects;
 	private static ComponentServiceObjects<BlogPostingResource>
 		_blogPostingResourceComponentServiceObjects;
 	private static ComponentServiceObjects<BlogPostingImageResource>
@@ -7633,4 +7763,4 @@ public class Query {
 	private com.liferay.portal.kernel.model.User _user;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1704935486
+// LIFERAY-REST-BUILDER-HASH:232318986

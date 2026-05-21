@@ -28,6 +28,7 @@ import com.liferay.headless.delivery.dto.v1_0.StructuredContentFolder;
 import com.liferay.headless.delivery.dto.v1_0.WikiNode;
 import com.liferay.headless.delivery.dto.v1_0.WikiPage;
 import com.liferay.headless.delivery.dto.v1_0.WikiPageAttachment;
+import com.liferay.headless.delivery.resource.v1_0.AssetListEntryResource;
 import com.liferay.headless.delivery.resource.v1_0.BlogPostingImageResource;
 import com.liferay.headless.delivery.resource.v1_0.BlogPostingResource;
 import com.liferay.headless.delivery.resource.v1_0.CommentResource;
@@ -86,6 +87,14 @@ import org.osgi.service.component.ComponentServiceObjects;
  */
 @Generated("")
 public class Mutation {
+
+	public static void setAssetListEntryResourceComponentServiceObjects(
+		ComponentServiceObjects<AssetListEntryResource>
+			assetListEntryResourceComponentServiceObjects) {
+
+		_assetListEntryResourceComponentServiceObjects =
+			assetListEntryResourceComponentServiceObjects;
+	}
 
 	public static void setBlogPostingResourceComponentServiceObjects(
 		ComponentServiceObjects<BlogPostingResource>
@@ -296,6 +305,54 @@ public class Mutation {
 
 		_wikiPageAttachmentResourceComponentServiceObjects =
 			wikiPageAttachmentResourceComponentServiceObjects;
+	}
+
+	@GraphQLField
+	public Response createAssetLibraryAssetListEntriesPageExportBatch(
+			@GraphQLName("assetLibraryId") @NotEmpty String assetLibraryId,
+			@GraphQLName("search") String search,
+			@GraphQLName("filter") String filterString,
+			@GraphQLName("sort") String sortsString,
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("contentType") String contentType,
+			@GraphQLName("fieldNames") String fieldNames)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_assetListEntryResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			assetListEntryResource ->
+				assetListEntryResource.
+					postAssetLibraryAssetListEntriesPageExportBatch(
+						Long.valueOf(assetLibraryId), search,
+						_filterBiFunction.apply(
+							assetListEntryResource, filterString),
+						_sortsBiFunction.apply(
+							assetListEntryResource, sortsString),
+						callbackURL, contentType, fieldNames));
+	}
+
+	@GraphQLField
+	public Response createSiteAssetListEntriesPageExportBatch(
+			@GraphQLName("siteKey") @NotEmpty String siteKey,
+			@GraphQLName("search") String search,
+			@GraphQLName("filter") String filterString,
+			@GraphQLName("sort") String sortsString,
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("contentType") String contentType,
+			@GraphQLName("fieldNames") String fieldNames)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_assetListEntryResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			assetListEntryResource ->
+				assetListEntryResource.postSiteAssetListEntriesPageExportBatch(
+					Long.valueOf(siteKey), search,
+					_filterBiFunction.apply(
+						assetListEntryResource, filterString),
+					_sortsBiFunction.apply(assetListEntryResource, sortsString),
+					callbackURL, contentType, fieldNames));
 	}
 
 	@GraphQLField(
@@ -6274,6 +6331,28 @@ public class Mutation {
 	}
 
 	private void _populateResourceContext(
+			AssetListEntryResource assetListEntryResource)
+		throws Exception {
+
+		assetListEntryResource.setContextAcceptLanguage(_acceptLanguage);
+		assetListEntryResource.setContextCompany(_company);
+		assetListEntryResource.setContextHttpServletRequest(
+			_httpServletRequest);
+		assetListEntryResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		assetListEntryResource.setContextUriInfo(_uriInfo);
+		assetListEntryResource.setContextUser(_user);
+		assetListEntryResource.setGroupLocalService(_groupLocalService);
+		assetListEntryResource.setRoleLocalService(_roleLocalService);
+
+		assetListEntryResource.setVulcanBatchEngineExportTaskResource(
+			_vulcanBatchEngineExportTaskResource);
+
+		assetListEntryResource.setVulcanBatchEngineImportTaskResource(
+			_vulcanBatchEngineImportTaskResource);
+	}
+
+	private void _populateResourceContext(
 			BlogPostingResource blogPostingResource)
 		throws Exception {
 
@@ -6836,6 +6915,8 @@ public class Mutation {
 			_vulcanBatchEngineImportTaskResource);
 	}
 
+	private static ComponentServiceObjects<AssetListEntryResource>
+		_assetListEntryResourceComponentServiceObjects;
 	private static ComponentServiceObjects<BlogPostingResource>
 		_blogPostingResourceComponentServiceObjects;
 	private static ComponentServiceObjects<BlogPostingImageResource>
@@ -6908,4 +6989,4 @@ public class Mutation {
 		_vulcanBatchEngineImportTaskResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:505624026
+// LIFERAY-REST-BUILDER-HASH:-1538584947
