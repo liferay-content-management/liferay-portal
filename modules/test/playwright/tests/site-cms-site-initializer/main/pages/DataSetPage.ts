@@ -64,6 +64,22 @@ export class DataSetPage {
 		await dropdownMenuItemDelete.click();
 	}
 
+	async expectBulkItemActionHidden({action}: {action: string}) {
+		const actionsButton = this.page
+			.getByTestId('visualization-mode-table')
+			.getByLabel('Actions');
+
+		await actionsButton.click();
+
+		await expect(actionsButton).toHaveAttribute('aria-expanded', 'true');
+
+		await expect(
+			this.page.getByRole('menuitem', {exact: true, name: action})
+		).toBeHidden();
+
+		await this.page.keyboard.press('Escape');
+	}
+
 	async execItemAction({
 		action,
 		filter,
