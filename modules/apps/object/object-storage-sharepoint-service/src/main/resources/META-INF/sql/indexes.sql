@@ -1,0 +1,1 @@
+create unique index IX_63312F47 on OSSharepoint_TokenEntry (userId, groupId);
