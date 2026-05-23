@@ -1,7 +1,17 @@
 dependencies {
+	compileInclude group: "com.microsoft.azure", name: "msal4j", version: "1.16.2"
+	compileInclude group: "org.apache.httpcomponents", name: "httpasyncclient", version: "4.1.4"
+	compileInclude group: "org.apache.httpcomponents", name: "httpclient", version: "4.5.13"
+	compileInclude group: "org.apache.httpcomponents", name: "httpcore", version: "4.4.14"
+	compileInclude group: "org.apache.httpcomponents", name: "httpcore-nio", version: "4.4.14"
+	compileOnly group: "com.liferay.jakarta.portlet", name: "com.liferay.jakarta.portlet-api", version: "4.0.0"
 	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
+	compileOnly group: "jakarta.servlet", name: "jakarta.servlet-api", version: "6.0.0"
+	compileOnly group: "org.osgi", name: "org.osgi.service.cm", version: "1.6.0"
 	compileOnly group: "org.osgi", name: "org.osgi.service.component.annotations", version: "1.4.0"
 	compileOnly project(":apps:object:object-api")
 	compileOnly project(":apps:object:object-rest-api")
+	compileOnly project(":apps:object:object-storage-sharepoint-api")
+	compileOnly project(":apps:portal-configuration:portal-configuration-module-configuration-api")
 	compileOnly project(":apps:portal-vulcan:portal-vulcan-api")
 }

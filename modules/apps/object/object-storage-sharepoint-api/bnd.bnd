@@ -3,6 +3,7 @@ Bundle-SymbolicName: com.liferay.object.storage.sharepoint.api
 Bundle-Version: 1.0.0
 Export-Package:\
 	com.liferay.object.storage.sharepoint.configuration,\
+	com.liferay.object.storage.sharepoint.constants,\
 	com.liferay.object.storage.sharepoint.exception,\
 	com.liferay.object.storage.sharepoint.model,\
 	com.liferay.object.storage.sharepoint.service,\
