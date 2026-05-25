@@ -135,6 +135,20 @@ public class SettingsSerDes {
 			sb.append(settings.getSharingEnabled());
 		}
 
+		if (settings.getSpaceType() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"spaceType\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(settings.getSpaceType()));
+
+			sb.append("\"");
+		}
+
 		if (settings.getTrashEnabled() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -233,6 +247,13 @@ public class SettingsSerDes {
 				"sharingEnabled", String.valueOf(settings.getSharingEnabled()));
 		}
 
+		if (settings.getSpaceType() == null) {
+			map.put("spaceType", null);
+		}
+		else {
+			map.put("spaceType", String.valueOf(settings.getSpaceType()));
+		}
+
 		if (settings.getTrashEnabled() == null) {
 			map.put("trashEnabled", null);
 		}
@@ -293,6 +314,9 @@ public class SettingsSerDes {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "sharingEnabled")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "spaceType")) {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "trashEnabled")) {
@@ -360,6 +384,11 @@ public class SettingsSerDes {
 			else if (Objects.equals(jsonParserFieldName, "sharingEnabled")) {
 				if (jsonParserFieldValue != null) {
 					settings.setSharingEnabled((Boolean)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "spaceType")) {
+				if (jsonParserFieldValue != null) {
+					settings.setSpaceType((String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "trashEnabled")) {
@@ -464,4 +493,4 @@ public class SettingsSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:754836252
+// LIFERAY-REST-BUILDER-HASH:1492506425

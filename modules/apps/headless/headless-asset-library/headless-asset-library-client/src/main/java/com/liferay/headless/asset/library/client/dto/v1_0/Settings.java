@@ -153,6 +153,27 @@ public class Settings implements Cloneable, Serializable {
 
 	protected Boolean sharingEnabled;
 
+	public String getSpaceType() {
+		return spaceType;
+	}
+
+	public void setSpaceType(String spaceType) {
+		this.spaceType = spaceType;
+	}
+
+	public void setSpaceType(
+		UnsafeSupplier<String, Exception> spaceTypeUnsafeSupplier) {
+
+		try {
+			spaceType = spaceTypeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String spaceType;
+
 	public Boolean getTrashEnabled() {
 		return trashEnabled;
 	}
@@ -248,4 +269,4 @@ public class Settings implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-679471414
+// LIFERAY-REST-BUILDER-HASH:216019543

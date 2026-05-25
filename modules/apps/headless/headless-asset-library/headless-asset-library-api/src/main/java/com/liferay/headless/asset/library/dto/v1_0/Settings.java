@@ -301,6 +301,47 @@ public class Settings implements Serializable {
 	private Supplier<Boolean> _sharingEnabledSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
+	public String getSpaceType() {
+		if (_spaceTypeSupplier != null) {
+			spaceType = _spaceTypeSupplier.get();
+
+			_spaceTypeSupplier = null;
+		}
+
+		return spaceType;
+	}
+
+	public void setSpaceType(String spaceType) {
+		this.spaceType = spaceType;
+
+		_spaceTypeSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setSpaceType(
+		UnsafeSupplier<String, Exception> spaceTypeUnsafeSupplier) {
+
+		_spaceTypeSupplier = () -> {
+			try {
+				return spaceTypeUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String spaceType;
+
+	@JsonIgnore
+	private Supplier<String> _spaceTypeSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema
 	public Boolean getTrashEnabled() {
 		if (_trashEnabledSupplier != null) {
 			trashEnabled = _trashEnabledSupplier.get();
@@ -554,6 +595,22 @@ public class Settings implements Serializable {
 			sb.append(sharingEnabled);
 		}
 
+		String spaceType = getSpaceType();
+
+		if (spaceType != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"spaceType\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(spaceType));
+
+			sb.append("\"");
+		}
+
 		Boolean trashEnabled = getTrashEnabled();
 
 		if (trashEnabled != null) {
@@ -691,4 +748,4 @@ public class Settings implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:563786828
+// LIFERAY-REST-BUILDER-HASH:-225983600
