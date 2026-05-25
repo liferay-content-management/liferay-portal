@@ -641,6 +641,12 @@ public class AssetLibraryResourceImpl extends BaseAssetLibraryResourceImpl {
 				unicodeProperties.getProperty("sharingEnabled"),
 				settings.getSharingEnabled())
 		).put(
+			"spaceType",
+			GetterUtil.getString(
+				settings.getSpaceType(),
+				GetterUtil.getString(
+					unicodeProperties.getProperty("spaceType"), "default"))
+		).put(
 			"trashEnabled",
 			_getBooleanValue(
 				unicodeProperties.getProperty("trashEnabled"),
@@ -679,6 +685,9 @@ public class AssetLibraryResourceImpl extends BaseAssetLibraryResourceImpl {
 			GetterUtil.getBoolean(
 				settings.getSharingEnabled(),
 				SharingConfigurationConstants.SHARING_ENABLED_DEFAULT)
+		).put(
+			"spaceType",
+			GetterUtil.getString(settings.getSpaceType(), "default")
 		).put(
 			"trashEnabled",
 			GetterUtil.getBoolean(settings.getTrashEnabled(), true)

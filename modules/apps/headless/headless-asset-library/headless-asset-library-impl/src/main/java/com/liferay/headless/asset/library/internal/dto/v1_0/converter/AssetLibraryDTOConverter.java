@@ -220,6 +220,9 @@ public class AssetLibraryDTOConverter
 					() -> GetterUtil.getBoolean(
 						unicodeProperties.get("sharingEnabled"),
 						SharingConfigurationConstants.SHARING_ENABLED_DEFAULT));
+				setSpaceType(
+					() -> GetterUtil.getString(
+						unicodeProperties.get("spaceType"), "default"));
 				setTrashEnabled(
 					() -> GetterUtil.getBoolean(
 						unicodeProperties.get("trashEnabled"), true));
