@@ -299,6 +299,8 @@ components:
                 sharingEnabled:
                     default: false
                     type: boolean
+                spaceType:
+                    type: string
                 trashEnabled:
                     default: true
                     type: boolean
