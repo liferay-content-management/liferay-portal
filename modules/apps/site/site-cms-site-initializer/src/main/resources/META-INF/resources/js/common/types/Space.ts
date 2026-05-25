@@ -32,6 +32,7 @@ export type SpaceSettings = {
 	defaultLanguageId?: string;
 	logoColor?: LogoColor;
 	sharingEnabled?: boolean;
+	spaceType?: string;
 	trashEnabled?: boolean;
 	trashEntriesMaxAge?: number;
 	useCustomLanguages?: boolean;

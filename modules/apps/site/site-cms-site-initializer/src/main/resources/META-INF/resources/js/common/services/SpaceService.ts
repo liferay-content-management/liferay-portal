@@ -15,7 +15,7 @@ async function addSpace({
 }: {
 	description?: string;
 	name: string;
-	settings?: {logoColor: string};
+	settings?: {logoColor: string; spaceType?: string};
 }) {
 	return await ApiHelper.post<{id: number}>(
 		'/o/headless-asset-library/v1.0/asset-libraries',

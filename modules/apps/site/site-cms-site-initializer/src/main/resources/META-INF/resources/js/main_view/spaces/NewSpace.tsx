@@ -4,6 +4,7 @@
  */
 
 import ClayButton from '@clayui/button';
+import ClayForm, {ClayCheckbox} from '@clayui/form';
 import ClayLayout from '@clayui/layout';
 import ClayLink from '@clayui/link';
 import {useFormik} from 'formik';
@@ -56,14 +57,23 @@ const NewSpace = (props: NewSpaceProps) => {
 			description: '',
 			logoColor: 'outline-0' as LogoColor,
 			name: '',
+			sharepointSpace: false,
 		},
 		onSubmit: (values) => {
-			const {description, logoColor = 'outline-0', name} = values;
+			const {
+				description,
+				logoColor = 'outline-0',
+				name,
+				sharepointSpace,
+			} = values;
 
 			SpaceService.addSpace({
 				description,
 				name,
-				settings: {logoColor},
+				settings: {
+					logoColor,
+					...(sharepointSpace && {spaceType: 'sharepoint'}),
+				},
 			}).then((response) => {
 				if (response.data) {
 					navigate(
@@ -128,6 +138,16 @@ const NewSpace = (props: NewSpaceProps) => {
 						touched={touched}
 						values={values}
 					/>
+
+					<ClayForm.Group className="mt-4">
+						<ClayCheckbox
+							checked={values.sharepointSpace}
+							label={Liferay.Language.get('sharepoint-space')}
+							onChange={({target: {checked}}) =>
+								setFieldValue('sharepointSpace', checked)
+							}
+						/>
+					</ClayForm.Group>
 
 					<ClayButton.Group className="mb-0 mt-4 w-100" spaced>
 						<ClayLink
