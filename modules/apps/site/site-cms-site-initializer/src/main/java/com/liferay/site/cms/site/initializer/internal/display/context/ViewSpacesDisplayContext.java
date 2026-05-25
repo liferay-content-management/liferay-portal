@@ -6,9 +6,12 @@
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
 import com.liferay.depot.constants.DepotActionKeys;
+import com.liferay.depot.model.DepotEntry;
 import com.liferay.headless.asset.library.dto.v1_0.AssetLibrary;
+import com.liferay.headless.asset.library.dto.v1_0.Settings;
 import com.liferay.headless.asset.library.resource.v1_0.AssetLibraryResource;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -16,6 +19,7 @@ import com.liferay.portal.kernel.security.permission.resource.PortletResourcePer
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
@@ -29,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Roberto Díaz
@@ -74,8 +79,7 @@ public class ViewSpacesDisplayContext {
 					_jsonFactory.createJSONObject(
 						_jsonFactory.looseSerialize(assetLibrary.getSettings()))
 				).put(
-					"url",
-					ActionUtil.getSpaceURL(assetLibrary.getId(), _themeDisplay)
+					"url", _getSpaceURL(assetLibrary)
 				))
 		).put(
 			"assetLibrariesCount", page.getTotalCount()
@@ -148,6 +152,20 @@ public class ViewSpacesDisplayContext {
 				assetLibraryResource.getAssetLibrariesPinnedByMePage(
 					Pagination.of(1, 5))),
 			Pagination.of(1, 5), assetLibrariesPage.getTotalCount());
+	}
+
+	private String _getSpaceURL(AssetLibrary assetLibrary) {
+		Settings settings = assetLibrary.getSettings();
+
+		if (!Objects.equals(settings.getSpaceType(), "sharepoint")) {
+			return ActionUtil.getSpaceURL(assetLibrary.getId(), _themeDisplay);
+		}
+
+		return StringBundler.concat(
+			_themeDisplay.getPathFriendlyURLPublic(),
+			GroupConstants.CMS_FRIENDLY_URL, "/e/space-sharepoint/",
+			PortalUtil.getClassNameId(DepotEntry.class), StringPool.SLASH,
+			assetLibrary.getId());
 	}
 
 	private boolean _isAllSpacesActive(ThemeDisplay themeDisplay) {

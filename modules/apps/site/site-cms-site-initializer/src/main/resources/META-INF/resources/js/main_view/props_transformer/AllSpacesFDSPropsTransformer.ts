@@ -56,7 +56,11 @@ export default function AllSpacesFDSPropsTransformer({
 				{
 					component: ({itemData, value}) =>
 						SpaceRenderer({
-							href: additionalProps.baseSpaceURL + itemData.id,
+							href:
+								(itemData.settings?.spaceType === 'sharepoint'
+									? additionalProps.baseSharepointSpaceURL
+									: additionalProps.baseSpaceURL) +
+								itemData.id,
 							logoColor: itemData.settings.logoColor,
 							size: 'sm',
 							value,

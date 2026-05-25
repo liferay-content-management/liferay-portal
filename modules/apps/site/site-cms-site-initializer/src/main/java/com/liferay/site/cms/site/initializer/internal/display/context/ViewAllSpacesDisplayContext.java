@@ -79,6 +79,12 @@ public class ViewAllSpacesDisplayContext {
 
 	public Map<String, Object> getAdditionalProps() {
 		return HashMapBuilder.<String, Object>put(
+			"baseSharepointSpaceURL",
+			StringBundler.concat(
+				_themeDisplay.getPathFriendlyURLPublic(),
+				GroupConstants.CMS_FRIENDLY_URL, "/e/space-sharepoint/",
+				_portal.getClassNameId(DepotEntry.class), StringPool.SLASH)
+		).put(
 			"baseSpaceURL", ActionUtil.getBaseSpaceURL(_themeDisplay)
 		).put(
 			"defaultPermissionAdditionalProps",
