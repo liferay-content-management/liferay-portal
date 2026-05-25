@@ -1804,6 +1804,195 @@
 			},
 			"system": true,
 			"titleObjectFieldName": "title"
+		},
+		{
+			"className": "com.liferay.object.model.ObjectDefinition#S6P1",
+			"enableCategorization": false,
+			"enableComments": false,
+			"enableFriendlyURLCustomization": false,
+			"enableIndexSearch": false,
+			"enableLocalization": false,
+			"enableObjectEntryDraft": false,
+			"enableObjectEntryHistory": false,
+			"enableObjectEntrySchedule": false,
+			"enableObjectEntryVersioning": false,
+			"externalReferenceCode": "CMS_SHAREPOINT_DOCUMENT",
+			"label": {
+				"en_US": "SharePoint Document"
+			},
+			"name": "SharepointDocument",
+			"objectActions": [
+			],
+			"objectDefinitionSettings": [
+			],
+			"objectFields": [
+				{
+					"DBType": "String",
+					"businessType": "Text",
+					"externalReferenceCode": "SHAREPOINT_DOWNLOAD_URL",
+					"indexed": false,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Download URL"
+					},
+					"localized": false,
+					"name": "downloadUrl",
+					"objectFieldSettings": [
+					],
+					"readOnly": "true",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "String",
+					"unique": false
+				},
+				{
+					"DBType": "Date",
+					"businessType": "Date",
+					"externalReferenceCode": "SHAREPOINT_LAST_MODIFIED_BY_DISPLAY_NAME",
+					"indexed": false,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Last Modified By"
+					},
+					"localized": false,
+					"name": "lastModifiedByDisplayName",
+					"objectFieldSettings": [
+					],
+					"readOnly": "true",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "String",
+					"unique": false
+				},
+				{
+					"DBType": "Date",
+					"businessType": "Date",
+					"externalReferenceCode": "SHAREPOINT_LAST_MODIFIED_DATE_TIME",
+					"indexed": false,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Last Modified"
+					},
+					"localized": false,
+					"name": "lastModifiedDateTime",
+					"objectFieldSettings": [
+					],
+					"readOnly": "true",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "Date",
+					"unique": false
+				},
+				{
+					"DBType": "String",
+					"businessType": "Text",
+					"externalReferenceCode": "SHAREPOINT_MIME_TYPE",
+					"indexed": false,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "MIME Type"
+					},
+					"localized": false,
+					"name": "mimeType",
+					"objectFieldSettings": [
+					],
+					"readOnly": "true",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "String",
+					"unique": false
+				},
+				{
+					"DBType": "String",
+					"businessType": "Text",
+					"externalReferenceCode": "SHAREPOINT_NAME",
+					"indexed": true,
+					"indexedAsKeyword": true,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Name"
+					},
+					"localized": false,
+					"name": "name",
+					"objectFieldSettings": [
+					],
+					"readOnly": "true",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "String",
+					"unique": false
+				},
+				{
+					"DBType": "Long",
+					"businessType": "LongInteger",
+					"externalReferenceCode": "SHAREPOINT_SIZE",
+					"indexed": false,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Size"
+					},
+					"localized": false,
+					"name": "size",
+					"objectFieldSettings": [
+					],
+					"readOnly": "true",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "Long",
+					"unique": false
+				},
+				{
+					"DBType": "String",
+					"businessType": "Text",
+					"externalReferenceCode": "SHAREPOINT_WEB_URL",
+					"indexed": false,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Web URL"
+					},
+					"localized": false,
+					"name": "webUrl",
+					"objectFieldSettings": [
+					],
+					"readOnly": "true",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "String",
+					"unique": false
+				}
+			],
+			"objectFolderExternalReferenceCode": "L_CMS_FILE_TYPES",
+			"pluralLabel": {
+				"en_US": "SharePoint Documents"
+			},
+			"portlet": false,
+			"scope": "company",
+			"status": {
+				"code": 0
+			},
+			"storageType": "sharepoint",
+			"system": false,
+			"titleObjectFieldName": "name"
 		}
 	]
 }
