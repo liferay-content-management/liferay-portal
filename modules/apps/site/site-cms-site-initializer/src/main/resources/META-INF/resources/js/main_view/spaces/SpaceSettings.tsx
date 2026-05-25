@@ -12,6 +12,7 @@ import SpaceService from '../../common/services/SpaceService';
 import {LabelValueObject, Space} from '../../common/types/Space';
 import SpaceGeneralSettings from './SpaceGeneralSettings';
 import SpaceLanguageSettings from './SpaceLanguageSettings';
+import SpaceSharepointSettings from './SpaceSharepointSettings';
 
 interface SpaceSettingsProps {
 	backURL: string;
@@ -64,6 +65,16 @@ export default function SpaceSettings({
 			label: Liferay.Language.get('languages'),
 		},
 	];
+
+	if (space.settings?.spaceType === 'sharepoint') {
+		verticalNavItems.push({
+			component: (
+				<SpaceSharepointSettings backURL={backURL} groupId={groupId} />
+			),
+			id: 'sharepoint',
+			label: Liferay.Language.get('sharepoint'),
+		});
+	}
 
 	return (
 		<>
