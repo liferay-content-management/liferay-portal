@@ -52,7 +52,8 @@ public class ObjectDefinitionEntityModel implements EntityModel {
 				locale -> "objectFolderExternalReferenceCode"),
 			new StringEntityField(
 				"rootObjectDefinitionExternalReferenceCode",
-				locale -> "rootObjectDefinitionExternalReferenceCode"));
+				locale -> "rootObjectDefinitionExternalReferenceCode"),
+			new StringEntityField("storageType", locale -> "storageType"));
 	}
 
 	@Override

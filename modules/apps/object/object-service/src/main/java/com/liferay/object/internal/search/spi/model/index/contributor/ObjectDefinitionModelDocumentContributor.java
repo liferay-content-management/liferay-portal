@@ -50,6 +50,8 @@ public class ObjectDefinitionModelDocumentContributor
 			"rootObjectDefinitionExternalReferenceCode",
 			objectDefinition.getRootObjectDefinitionExternalReferenceCode(),
 			true);
+		document.addKeyword(
+			"storageType", objectDefinition.getStorageType(), true);
 
 		document.remove(Field.USER_NAME);
 	}
