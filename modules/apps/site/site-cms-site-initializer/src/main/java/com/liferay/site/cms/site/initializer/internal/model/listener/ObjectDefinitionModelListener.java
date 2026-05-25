@@ -107,6 +107,7 @@ public class ObjectDefinitionModelListener
 		ObjectDefinition objectDefinition) {
 
 		if (objectDefinition.isCMS() &&
+			objectDefinition.isDefaultStorageType() &&
 			!StringUtil.equals(
 				objectDefinition.getScope(),
 				ObjectDefinitionConstants.SCOPE_DEPOT)) {

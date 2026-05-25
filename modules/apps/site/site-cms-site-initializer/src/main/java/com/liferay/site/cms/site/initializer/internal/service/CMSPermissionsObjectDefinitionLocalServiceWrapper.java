@@ -91,13 +91,14 @@ public class CMSPermissionsObjectDefinitionLocalServiceWrapper
 		String objectFolderExternalReferenceCode =
 			objectDefinition.getObjectFolderExternalReferenceCode();
 
-		if (!Objects.equals(
+		if ((!Objects.equals(
 				objectFolderExternalReferenceCode,
 				ObjectFolderConstants.
 					EXTERNAL_REFERENCE_CODE_CONTENT_STRUCTURES) &&
-			!Objects.equals(
-				objectFolderExternalReferenceCode,
-				ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_FILE_TYPES)) {
+			 !Objects.equals(
+				 objectFolderExternalReferenceCode,
+				 ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_FILE_TYPES)) ||
+			!objectDefinition.isDefaultStorageType()) {
 
 			return objectDefinition;
 		}

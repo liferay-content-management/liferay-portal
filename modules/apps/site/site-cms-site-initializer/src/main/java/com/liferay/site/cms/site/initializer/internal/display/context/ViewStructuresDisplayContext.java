@@ -10,6 +10,7 @@ import com.liferay.frontend.data.set.model.FDSActionDropdownItemBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.constants.ObjectPortletKeys;
 import com.liferay.object.model.ObjectDefinition;
@@ -53,10 +54,12 @@ public class ViewStructuresDisplayContext {
 	public String getAPIURL() {
 		return StringBundler.concat(
 			"/o/object-admin/v1.0/object-definitions?filter=",
-			"(objectFolderExternalReferenceCode eq '",
+			"((objectFolderExternalReferenceCode eq '",
 			ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENT_STRUCTURES,
 			"' or objectFolderExternalReferenceCode eq '",
-			ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_FILE_TYPES, "')");
+			ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_FILE_TYPES,
+			"') and storageType eq '",
+			ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT, "')");
 	}
 
 	public Map<String, Object> getBreadcrumbProps() {
