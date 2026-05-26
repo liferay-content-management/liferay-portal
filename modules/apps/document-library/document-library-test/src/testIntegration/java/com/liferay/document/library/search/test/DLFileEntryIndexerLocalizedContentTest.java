@@ -101,6 +101,23 @@ public class DLFileEntryIndexerLocalizedContentTest {
 	}
 
 	@Test
+	public void testJapaneseFileNameMatch() throws Exception {
+		GroupTestUtil.updateDisplaySettings(
+			_group.getGroupId(), null, LocaleUtil.JAPAN);
+
+		FileEntry matchingFileEntry = addFileEntry(
+			"東京都公式.txt", _group.getGroupId());
+
+		addFileEntry("東京都公　式.txt", _group.getGroupId());
+
+		Document document = _search("公式", LocaleUtil.JAPAN);
+
+		Assert.assertEquals(
+			String.valueOf(matchingFileEntry.getFileEntryId()),
+			document.get(Field.ENTRY_CLASS_PK));
+	}
+
+	@Test
 	public void testSiteLocale() throws Exception {
 		Group testGroup = GroupTestUtil.addGroup();
 
