@@ -8,6 +8,8 @@ package com.liferay.asset.categories.internal.model.listener;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
+import com.liferay.friendly.url.model.FriendlyURLEntry;
+import com.liferay.friendly.url.model.FriendlyURLEntryLocalization;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -59,6 +61,52 @@ public class AssetCategoryFriendlyURLModelListener
 		}
 		catch (PortalException portalException) {
 			throw new ModelListenerException(portalException);
+		}
+	}
+
+	@Override
+	public void onAfterUpdate(
+			AssetCategory originalAssetCategory, AssetCategory assetCategory)
+		throws ModelListenerException {
+
+		if (!FeatureFlagManagerUtil.isEnabled(
+				assetCategory.getCompanyId(), "LPD-70396") ||
+			ExportImportThreadLocal.isImportInProcess() ||
+			ExportImportThreadLocal.isStagingInProcess()) {
+
+			return;
+		}
+
+		long originalParentClassPK = _getAssetCategoryParentClassPK(
+			originalAssetCategory);
+		long parentClassPK = _getAssetCategoryParentClassPK(assetCategory);
+
+		if (originalParentClassPK == parentClassPK) {
+			return;
+		}
+
+		FriendlyURLEntry friendlyURLEntry =
+			_friendlyURLEntryLocalService.fetchMainFriendlyURLEntry(
+				_classNameLocalService.getClassNameId(AssetCategory.class),
+				assetCategory.getCategoryId());
+
+		if (friendlyURLEntry == null) {
+			return;
+		}
+
+		friendlyURLEntry.setParentClassPK(parentClassPK);
+
+		friendlyURLEntry = _friendlyURLEntryLocalService.updateFriendlyURLEntry(
+			friendlyURLEntry);
+
+		for (FriendlyURLEntryLocalization friendlyURLEntryLocalization :
+				_friendlyURLEntryLocalService.getFriendlyURLEntryLocalizations(
+					friendlyURLEntry.getFriendlyURLEntryId())) {
+
+			friendlyURLEntryLocalization.setParentClassPK(parentClassPK);
+
+			_friendlyURLEntryLocalService.updateFriendlyURLLocalization(
+				friendlyURLEntryLocalization);
 		}
 	}
 
