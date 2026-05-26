@@ -63,8 +63,8 @@ public class TokenEntryModelImpl
 		{"mvccVersion", Types.BIGINT}, {"tokenEntryId", Types.BIGINT},
 		{"groupId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
-		{"createDate", Types.TIMESTAMP}, {"accessToken", Types.VARCHAR},
-		{"expirationDate", Types.TIMESTAMP}, {"refreshToken", Types.VARCHAR}
+		{"createDate", Types.TIMESTAMP}, {"accessToken", Types.CLOB},
+		{"expirationDate", Types.TIMESTAMP}, {"refreshToken", Types.CLOB}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -78,13 +78,13 @@ public class TokenEntryModelImpl
 		TABLE_COLUMNS_MAP.put("userId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("userName", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("createDate", Types.TIMESTAMP);
-		TABLE_COLUMNS_MAP.put("accessToken", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("accessToken", Types.CLOB);
 		TABLE_COLUMNS_MAP.put("expirationDate", Types.TIMESTAMP);
-		TABLE_COLUMNS_MAP.put("refreshToken", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("refreshToken", Types.CLOB);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table OSSharepoint_TokenEntry (mvccVersion LONG default 0 not null,tokenEntryId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,accessToken VARCHAR(75) null,expirationDate DATE null,refreshToken VARCHAR(75) null)";
+		"create table OSSharepoint_TokenEntry (mvccVersion LONG default 0 not null,tokenEntryId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,accessToken TEXT null,expirationDate DATE null,refreshToken TEXT null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table OSSharepoint_TokenEntry";
@@ -857,4 +857,4 @@ public class TokenEntryModelImpl
 	private TokenEntry _escapedModel;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:137815297
+// LIFERAY-SERVICE-BUILDER-HASH:-1119914299

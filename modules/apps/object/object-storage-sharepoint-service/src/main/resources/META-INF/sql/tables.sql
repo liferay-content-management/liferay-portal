@@ -6,7 +6,7 @@ create table OSSharepoint_TokenEntry (
 	userId LONG,
 	userName VARCHAR(75) null,
 	createDate DATE null,
-	accessToken VARCHAR(75) null,
+	accessToken TEXT null,
 	expirationDate DATE null,
-	refreshToken VARCHAR(75) null
+	refreshToken TEXT null
 );

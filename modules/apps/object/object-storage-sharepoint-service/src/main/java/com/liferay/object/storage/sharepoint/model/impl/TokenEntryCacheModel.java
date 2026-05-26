@@ -146,7 +146,9 @@ public class TokenEntryCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 
 		tokenEntryId = objectInput.readLong();
@@ -158,9 +160,9 @@ public class TokenEntryCacheModel
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
-		accessToken = objectInput.readUTF();
+		accessToken = (String)objectInput.readObject();
 		expirationDate = objectInput.readLong();
-		refreshToken = objectInput.readUTF();
+		refreshToken = (String)objectInput.readObject();
 	}
 
 	@Override
@@ -185,19 +187,19 @@ public class TokenEntryCacheModel
 		objectOutput.writeLong(createDate);
 
 		if (accessToken == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(accessToken);
+			objectOutput.writeObject(accessToken);
 		}
 
 		objectOutput.writeLong(expirationDate);
 
 		if (refreshToken == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(refreshToken);
+			objectOutput.writeObject(refreshToken);
 		}
 	}
 
@@ -213,4 +215,4 @@ public class TokenEntryCacheModel
 	public String refreshToken;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:506494944
+// LIFERAY-SERVICE-BUILDER-HASH:-1097787557

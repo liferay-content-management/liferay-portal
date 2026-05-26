@@ -209,8 +209,7 @@ public class TokenEntryPersistenceTest {
 		return OrderByComparatorFactoryUtil.create(
 			"OSSharepoint_TokenEntry", "mvccVersion", true, "tokenEntryId",
 			true, "groupId", true, "companyId", true, "userId", true,
-			"userName", true, "createDate", true, "accessToken", true,
-			"expirationDate", true, "refreshToken", true);
+			"userName", true, "createDate", true, "expirationDate", true);
 	}
 
 	@Test
@@ -518,4 +517,4 @@ public class TokenEntryPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-279243581
+// LIFERAY-SERVICE-BUILDER-HASH:1497981740

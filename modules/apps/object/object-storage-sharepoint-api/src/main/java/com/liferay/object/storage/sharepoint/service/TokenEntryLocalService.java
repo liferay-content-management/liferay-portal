@@ -266,4 +266,4 @@ public interface TokenEntryLocalService
 	public TokenEntry updateTokenEntry(TokenEntry tokenEntry);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:67309368
+// LIFERAY-SERVICE-BUILDER-HASH:1205209558

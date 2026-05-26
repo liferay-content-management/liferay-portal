@@ -8,6 +8,7 @@ package com.liferay.object.storage.sharepoint.model;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.base.BaseTable;
 
+import java.sql.Clob;
 import java.sql.Types;
 
 import java.util.Date;
@@ -37,16 +38,16 @@ public class TokenEntryTable extends BaseTable<TokenEntryTable> {
 		"userName", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<TokenEntryTable, Date> createDate = createColumn(
 		"createDate", Date.class, Types.TIMESTAMP, Column.FLAG_DEFAULT);
-	public final Column<TokenEntryTable, String> accessToken = createColumn(
-		"accessToken", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
+	public final Column<TokenEntryTable, Clob> accessToken = createColumn(
+		"accessToken", Clob.class, Types.CLOB, Column.FLAG_DEFAULT);
 	public final Column<TokenEntryTable, Date> expirationDate = createColumn(
 		"expirationDate", Date.class, Types.TIMESTAMP, Column.FLAG_DEFAULT);
-	public final Column<TokenEntryTable, String> refreshToken = createColumn(
-		"refreshToken", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
+	public final Column<TokenEntryTable, Clob> refreshToken = createColumn(
+		"refreshToken", Clob.class, Types.CLOB, Column.FLAG_DEFAULT);
 
 	private TokenEntryTable() {
 		super("OSSharepoint_TokenEntry", TokenEntryTable::new);
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:103927750
+// LIFERAY-SERVICE-BUILDER-HASH:-1235217656
