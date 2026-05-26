@@ -5,6 +5,7 @@ Export-Package:\
 	com.liferay.object.storage.sharepoint.configuration,\
 	com.liferay.object.storage.sharepoint.constants,\
 	com.liferay.object.storage.sharepoint.exception,\
+	com.liferay.object.storage.sharepoint.graph,\
 	com.liferay.object.storage.sharepoint.model,\
 	com.liferay.object.storage.sharepoint.service,\
 	com.liferay.object.storage.sharepoint.service.persistence
