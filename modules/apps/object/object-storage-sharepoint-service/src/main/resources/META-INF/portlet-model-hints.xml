@@ -9,8 +9,12 @@
 		<field name="userId" type="long" />
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
-		<field name="accessToken" type="String" />
+		<field name="accessToken" type="String">
+			<hint-collection name="CLOB" />
+		</field>
 		<field name="expirationDate" type="Date" />
-		<field name="refreshToken" type="String" />
+		<field name="refreshToken" type="String">
+			<hint-collection name="CLOB" />
+		</field>
 	</model>
 </model-hints>
