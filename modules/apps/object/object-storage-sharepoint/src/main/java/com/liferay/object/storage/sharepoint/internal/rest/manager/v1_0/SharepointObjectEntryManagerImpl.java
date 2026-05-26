@@ -118,10 +118,6 @@ public class SharepointObjectEntryManagerImpl
 			List<ObjectEntry> objectEntries = new ArrayList<>();
 
 			for (JSONObject driveItemJSONObject : driveItemJSONObjects) {
-				if (driveItemJSONObject.getJSONObject("file") == null) {
-					continue;
-				}
-
 				objectEntries.add(_toObjectEntry(driveItemJSONObject));
 			}
 
@@ -172,11 +168,19 @@ public class SharepointObjectEntryManagerImpl
 
 	private ObjectEntry _toObjectEntry(JSONObject driveItemJSONObject) {
 		JSONObject fileJSONObject = driveItemJSONObject.getJSONObject("file");
+		JSONObject folderJSONObject = driveItemJSONObject.getJSONObject(
+			"folder");
 
 		String mimeType = null;
 
 		if (fileJSONObject != null) {
 			mimeType = fileJSONObject.getString("mimeType");
+		}
+
+		String type = "file";
+
+		if (folderJSONObject != null) {
+			type = "folder";
 		}
 
 		String lastModifiedByDisplayName = "";
@@ -208,6 +212,8 @@ public class SharepointObjectEntryManagerImpl
 			"name", driveItemJSONObject.getString("name")
 		).put(
 			"size", driveItemJSONObject.getLong("size")
+		).put(
+			"type", type
 		).put(
 			"webUrl", driveItemJSONObject.getString("webUrl")
 		).build();
