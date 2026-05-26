@@ -27,6 +27,7 @@ import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
@@ -102,6 +103,16 @@ public class FriendlyURLEntryLocalServiceImpl
 
 		if ((friendlyURLEntry != null) &&
 			_containsAllURLTitles(existingUrlTitleMap, urlTitleMap)) {
+
+			if (FeatureFlagManagerUtil.isEnabled(
+					friendlyURLEntry.getCompanyId(), "LPD-70396") &&
+				(friendlyURLEntry.getParentClassPK() != parentClassPK)) {
+
+				friendlyURLEntry.setParentClassPK(parentClassPK);
+
+				friendlyURLEntry = friendlyURLEntryPersistence.update(
+					friendlyURLEntry);
+			}
 
 			_updateAssetEntry(friendlyURLEntry, serviceContext);
 
