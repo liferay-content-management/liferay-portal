@@ -8,7 +8,9 @@ package com.liferay.site.cms.site.initializer.internal.fragment.renderer;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.object.storage.sharepoint.service.TokenEntryLocalService;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.site.cms.site.initializer.internal.display.context.ViewSharepointEntriesSectionDisplayContext;
 import com.liferay.site.cms.site.initializer.internal.util.InfoItemUtil;
 
@@ -42,7 +44,7 @@ public class ViewSharepointEntriesJSPSectionFragmentRenderer
 		return new ViewSharepointEntriesSectionDisplayContext(
 			_depotEntryLocalService,
 			InfoItemUtil.getGroupId(httpServletRequest), _groupLocalService,
-			httpServletRequest, _tokenEntryLocalService);
+			_http, httpServletRequest, _jsonFactory, _tokenEntryLocalService);
 	}
 
 	@Override
@@ -55,6 +57,12 @@ public class ViewSharepointEntriesJSPSectionFragmentRenderer
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private Http _http;
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private TokenEntryLocalService _tokenEntryLocalService;

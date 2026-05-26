@@ -47,6 +47,29 @@ ViewSharepointEntriesSectionDisplayContext viewSharepointEntriesSectionDisplayCo
 			</thead>
 
 			<tbody>
+
+				<%
+				List<Map<String, String>> entries = viewSharepointEntriesSectionDisplayContext.getEntries();
+
+				for (Map<String, String> entry : entries) {
+				%>
+
+					<tr>
+						<td>
+							<a href="<%= HtmlUtil.escapeAttribute(entry.get("webUrl")) %>" target="_blank">
+								<%= HtmlUtil.escape(entry.get("name")) %>
+							</a>
+						</td>
+						<td><%= HtmlUtil.escape(entry.get("size")) %></td>
+						<td><%= HtmlUtil.escape(entry.get("mimeType")) %></td>
+						<td><%= HtmlUtil.escape(entry.get("lastModifiedDateTime")) %></td>
+						<td><%= HtmlUtil.escape(entry.get("lastModifiedByDisplayName")) %></td>
+					</tr>
+
+				<%
+				}
+				%>
+
 			</tbody>
 		</table>
 	</c:if>
