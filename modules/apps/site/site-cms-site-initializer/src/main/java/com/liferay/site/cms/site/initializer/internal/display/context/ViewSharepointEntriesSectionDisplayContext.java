@@ -88,10 +88,6 @@ public class ViewSharepointEntriesSectionDisplayContext {
 			List<Map<String, String>> entries = new ArrayList<>();
 
 			for (JSONObject driveItemJSONObject : driveItemJSONObjects) {
-				if (driveItemJSONObject.getJSONObject("file") == null) {
-					continue;
-				}
-
 				entries.add(_toEntry(driveItemJSONObject));
 			}
 
@@ -166,11 +162,19 @@ public class ViewSharepointEntriesSectionDisplayContext {
 
 	private Map<String, String> _toEntry(JSONObject driveItemJSONObject) {
 		JSONObject fileJSONObject = driveItemJSONObject.getJSONObject("file");
+		JSONObject folderJSONObject = driveItemJSONObject.getJSONObject(
+			"folder");
 
 		String mimeType = "";
 
 		if (fileJSONObject != null) {
 			mimeType = fileJSONObject.getString("mimeType");
+		}
+
+		String type = "file";
+
+		if (folderJSONObject != null) {
+			type = "folder";
 		}
 
 		String lastModifiedByDisplayName = "";
@@ -199,6 +203,8 @@ public class ViewSharepointEntriesSectionDisplayContext {
 			"name", driveItemJSONObject.getString("name")
 		).put(
 			"size", String.valueOf(driveItemJSONObject.getLong("size"))
+		).put(
+			"type", type
 		).put(
 			"webUrl", driveItemJSONObject.getString("webUrl")
 		).build();
