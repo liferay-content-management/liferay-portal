@@ -165,16 +165,22 @@ public class ViewSharepointEntriesSectionDisplayContext {
 		JSONObject folderJSONObject = driveItemJSONObject.getJSONObject(
 			"folder");
 
+		String iconColorClass = "text-muted";
+		String iconSymbol = "document-default";
+		String sizeLabel = String.valueOf(driveItemJSONObject.getLong("size"));
+		String type = "file";
+
+		if (folderJSONObject != null) {
+			iconColorClass = "text-warning";
+			iconSymbol = "folder";
+			sizeLabel = "--";
+			type = "folder";
+		}
+
 		String mimeType = "";
 
 		if (fileJSONObject != null) {
 			mimeType = fileJSONObject.getString("mimeType");
-		}
-
-		String type = "file";
-
-		if (folderJSONObject != null) {
-			type = "folder";
 		}
 
 		String lastModifiedByDisplayName = "";
@@ -193,6 +199,10 @@ public class ViewSharepointEntriesSectionDisplayContext {
 		}
 
 		return HashMapBuilder.put(
+			"iconColorClass", iconColorClass
+		).put(
+			"iconSymbol", iconSymbol
+		).put(
 			"lastModifiedByDisplayName", lastModifiedByDisplayName
 		).put(
 			"lastModifiedDateTime",
@@ -202,7 +212,7 @@ public class ViewSharepointEntriesSectionDisplayContext {
 		).put(
 			"name", driveItemJSONObject.getString("name")
 		).put(
-			"size", String.valueOf(driveItemJSONObject.getLong("size"))
+			"sizeLabel", sizeLabel
 		).put(
 			"type", type
 		).put(

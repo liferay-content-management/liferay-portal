@@ -56,11 +56,17 @@ ViewSharepointEntriesSectionDisplayContext viewSharepointEntriesSectionDisplayCo
 
 					<tr>
 						<td>
+							<span class="<%= HtmlUtil.escapeAttribute(entry.get("iconColorClass")) %> fs-4 me-2">
+								<clay:icon
+									symbol='<%= HtmlUtil.escapeAttribute(entry.get("iconSymbol")) %>'
+								/>
+							</span>
+
 							<a href="<%= HtmlUtil.escapeAttribute(entry.get("webUrl")) %>" target="_blank">
 								<%= HtmlUtil.escape(entry.get("name")) %>
 							</a>
 						</td>
-						<td><%= HtmlUtil.escape(entry.get("size")) %></td>
+						<td><%= HtmlUtil.escape(entry.get("sizeLabel")) %></td>
 						<td><%= HtmlUtil.escape(entry.get("mimeType")) %></td>
 						<td><%= HtmlUtil.escape(entry.get("lastModifiedDateTime")) %></td>
 						<td><%= HtmlUtil.escape(entry.get("lastModifiedByDisplayName")) %></td>
