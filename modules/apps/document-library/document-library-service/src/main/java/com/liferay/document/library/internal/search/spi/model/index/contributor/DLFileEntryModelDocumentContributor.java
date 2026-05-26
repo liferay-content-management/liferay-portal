@@ -135,7 +135,9 @@ public class DLFileEntryModelDocumentContributor
 				"fileEntryTypeId", dlFileEntry.getFileEntryTypeId());
 			document.addTextSortable(
 				"fileExtension", dlFileEntry.getExtension());
-			document.addText("fileName", dlFileEntry.getFileName());
+			document.addText(
+				Field.getLocalizedName(defaultLocale, "fileName"),
+				dlFileEntry.getFileName());
 			document.addTextSortable(
 				"mimeType",
 				StringUtil.replace(
