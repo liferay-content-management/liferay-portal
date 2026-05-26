@@ -68,15 +68,24 @@ public class DLFileEntryKeywordQueryContributor
 		if (Validator.isNotNull(keywords)) {
 			BooleanQuery fileNameBooleanQuery = new BooleanQuery();
 
-			_addKeywordsToFileNameBooleanQuery(fileNameBooleanQuery, keywords);
+			String[] localizedFieldNames =
+				_searchLocalizationHelper.getLocalizedFieldNames(
+					new String[] {"fileName"}, searchContext);
+
+			_addKeywordsToFileNameBooleanQuery(
+				fileNameBooleanQuery, keywords, localizedFieldNames);
 
 			booleanQuery.add(
 				_getMatchQuery(
 					"fileExtension", keywords, MatchQuery.Type.PHRASE_PREFIX),
 				BooleanClauseOccur.SHOULD);
-			fileNameBooleanQuery.add(
-				_getMatchQuery("fileName", keywords, MatchQuery.Type.PHRASE),
-				BooleanClauseOccur.SHOULD);
+
+			for (String localizedFieldName : localizedFieldNames) {
+				fileNameBooleanQuery.add(
+					_getMatchQuery(
+						localizedFieldName, keywords, MatchQuery.Type.PHRASE),
+					BooleanClauseOccur.SHOULD);
+			}
 
 			booleanQuery.add(fileNameBooleanQuery, BooleanClauseOccur.SHOULD);
 		}
@@ -86,20 +95,30 @@ public class DLFileEntryKeywordQueryContributor
 	}
 
 	private void _addKeywordsToFileNameBooleanQuery(
-		BooleanQuery fileNameBooleanQuery, String keywords) {
+		BooleanQuery fileNameBooleanQuery, String keywords,
+		String[] localizedFieldNames) {
 
 		String exactMatch = StringUtils.substringBetween(
 			keywords, StringPool.QUOTE);
 
 		if (Validator.isNull(exactMatch)) {
 			fileNameBooleanQuery.add(
-				_getShouldBooleanQuery(StringUtil.trim(keywords)),
+				_getShouldBooleanQuery(
+					StringUtil.trim(keywords), localizedFieldNames),
 				BooleanClauseOccur.MUST);
 		}
 		else {
+			BooleanQuery exactMatchBooleanQuery = new BooleanQuery();
+
+			for (String fileNameFieldName : localizedFieldNames) {
+				exactMatchBooleanQuery.add(
+					_getMatchQuery(
+						fileNameFieldName, exactMatch, MatchQuery.Type.PHRASE),
+					BooleanClauseOccur.SHOULD);
+			}
+
 			fileNameBooleanQuery.add(
-				_getMatchQuery("fileName", exactMatch, MatchQuery.Type.PHRASE),
-				BooleanClauseOccur.MUST);
+				exactMatchBooleanQuery, BooleanClauseOccur.MUST);
 
 			String remainingKeywords = keywords.replaceFirst(
 				Pattern.quote(StringPool.QUOTE + exactMatch + StringPool.QUOTE),
@@ -107,7 +126,8 @@ public class DLFileEntryKeywordQueryContributor
 
 			if (Validator.isNotNull(remainingKeywords)) {
 				_addKeywordsToFileNameBooleanQuery(
-					fileNameBooleanQuery, remainingKeywords);
+					fileNameBooleanQuery, remainingKeywords,
+					localizedFieldNames);
 			}
 		}
 	}
@@ -158,14 +178,20 @@ public class DLFileEntryKeywordQueryContributor
 		return matchPhraseQuery;
 	}
 
-	private BooleanQuery _getShouldBooleanQuery(String keyword) {
+	private BooleanQuery _getShouldBooleanQuery(
+		String keyword, String[] localizeFieldNames) {
+
 		BooleanQuery booleanQuery = new BooleanQuery();
 
-		booleanQuery.add(
-			new MatchQuery("fileName", keyword), BooleanClauseOccur.SHOULD);
-		booleanQuery.add(
-			_getMatchQuery("fileName", keyword, MatchQuery.Type.PHRASE_PREFIX),
-			BooleanClauseOccur.SHOULD);
+		for (String localizedFieldName : localizeFieldNames) {
+			booleanQuery.add(
+				new MatchQuery(localizedFieldName, keyword),
+				BooleanClauseOccur.SHOULD);
+			booleanQuery.add(
+				_getMatchQuery(
+					localizedFieldName, keyword, MatchQuery.Type.PHRASE_PREFIX),
+				BooleanClauseOccur.SHOULD);
+		}
 
 		return booleanQuery;
 	}
