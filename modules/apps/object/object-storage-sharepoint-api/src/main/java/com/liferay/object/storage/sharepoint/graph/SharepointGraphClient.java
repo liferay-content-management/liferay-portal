@@ -36,6 +36,27 @@ public class SharepointGraphClient {
 		_jsonFactory = jsonFactory;
 	}
 
+	public JSONObject createDriveItem(
+			String accessToken, String folderURL, String name)
+		throws SharepointAuthenticationRequiredException,
+			   SharepointGraphException {
+
+		FolderURLParts folderURLParts = _parseFolderURL(folderURL);
+
+		String driveId = _resolveDriveId(accessToken, folderURLParts);
+
+		JSONObject folderJSONObject = _getFolderByPathJSONObject(
+			accessToken, driveId, folderURLParts.getFolderRelativePath());
+
+		String folderId = folderJSONObject.getString("id");
+
+		return _put(
+			accessToken,
+			StringBundler.concat(
+				"https://graph.microsoft.com/v1.0/drives/", driveId, "/items/",
+				folderId, ":/", _encodePath(name), ":/content"));
+	}
+
 	public JSONObject getDriveItem(
 			String accessToken, String folderURL, String itemId)
 		throws SharepointAuthenticationRequiredException,
@@ -43,16 +64,7 @@ public class SharepointGraphClient {
 
 		FolderURLParts folderURLParts = _parseFolderURL(folderURL);
 
-		JSONObject siteJSONObject = _getSiteByPathJSONObject(
-			accessToken, folderURLParts.getHost(),
-			folderURLParts.getSitePath());
-
-		String siteId = siteJSONObject.getString("id");
-
-		JSONObject driveJSONObject = _getDefaultDriveJSONObject(
-			accessToken, siteId);
-
-		String driveId = driveJSONObject.getString("id");
+		String driveId = _resolveDriveId(accessToken, folderURLParts);
 
 		return _get(
 			accessToken,
@@ -67,16 +79,7 @@ public class SharepointGraphClient {
 
 		FolderURLParts folderURLParts = _parseFolderURL(folderURL);
 
-		JSONObject siteJSONObject = _getSiteByPathJSONObject(
-			accessToken, folderURLParts.getHost(),
-			folderURLParts.getSitePath());
-
-		String siteId = siteJSONObject.getString("id");
-
-		JSONObject driveJSONObject = _getDefaultDriveJSONObject(
-			accessToken, siteId);
-
-		String driveId = driveJSONObject.getString("id");
+		String driveId = _resolveDriveId(accessToken, folderURLParts);
 
 		JSONObject folderJSONObject = _getFolderByPathJSONObject(
 			accessToken, driveId, folderURLParts.getFolderRelativePath());
@@ -267,6 +270,65 @@ public class SharepointGraphClient {
 			throw new SharepointGraphException(
 				"Invalid folder URL: " + folderURL, uriSyntaxException);
 		}
+	}
+
+	private JSONObject _put(String accessToken, String url)
+		throws SharepointAuthenticationRequiredException,
+			   SharepointGraphException {
+
+		try {
+			Http.Options options = new Http.Options();
+
+			options.addHeader("Accept", "application/json");
+			options.addHeader("Authorization", "Bearer " + accessToken);
+			options.setBody("", "text/plain", "UTF-8");
+			options.setLocation(url);
+			options.setMethod(Http.Method.PUT);
+
+			String responseBody = _http.URLtoString(options);
+
+			Http.Response response = options.getResponse();
+
+			int responseCode = response.getResponseCode();
+
+			if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+				throw new SharepointAuthenticationRequiredException();
+			}
+
+			if ((responseCode < 200) || (responseCode >= 300)) {
+				throw new SharepointGraphException(
+					StringBundler.concat(
+						"Graph request failed (HTTP ", responseCode, "): ",
+						url));
+			}
+
+			return _jsonFactory.createJSONObject(responseBody);
+		}
+		catch (IOException ioException) {
+			throw new SharepointGraphException(
+				"Graph request failed: " + url, ioException);
+		}
+		catch (JSONException jsonException) {
+			throw new SharepointGraphException(
+				"Failed to parse Graph response: " + url, jsonException);
+		}
+	}
+
+	private String _resolveDriveId(
+			String accessToken, FolderURLParts folderURLParts)
+		throws SharepointAuthenticationRequiredException,
+			   SharepointGraphException {
+
+		JSONObject siteJSONObject = _getSiteByPathJSONObject(
+			accessToken, folderURLParts.getHost(),
+			folderURLParts.getSitePath());
+
+		String siteId = siteJSONObject.getString("id");
+
+		JSONObject driveJSONObject = _getDefaultDriveJSONObject(
+			accessToken, siteId);
+
+		return driveJSONObject.getString("id");
 	}
 
 	private final Http _http;

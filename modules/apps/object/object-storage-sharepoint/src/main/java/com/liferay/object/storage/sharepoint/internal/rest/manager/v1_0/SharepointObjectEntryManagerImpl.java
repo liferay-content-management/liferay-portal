@@ -56,7 +56,35 @@ public class SharepointObjectEntryManagerImpl
 			String scopeKey)
 		throws Exception {
 
-		throw new UnsupportedOperationException();
+		SharepointFolderAccess sharepointFolderAccess =
+			_getSharepointFolderAccess(
+				objectDefinition.getCompanyId(), dtoConverterContext, scopeKey);
+
+		if (sharepointFolderAccess == null) {
+			throw new SharepointGraphException(
+				"Unable to resolve the SharePoint folder for the object entry");
+		}
+
+		Map<String, Object> properties = objectEntry.getProperties();
+
+		String name = "Untitled";
+
+		if (properties != null) {
+			Object nameValue = properties.get("name");
+
+			if (nameValue != null) {
+				name = nameValue.toString();
+			}
+		}
+
+		SharepointGraphClient sharepointGraphClient = new SharepointGraphClient(
+			_http, _jsonFactory);
+
+		JSONObject driveItemJSONObject = sharepointGraphClient.createDriveItem(
+			sharepointFolderAccess.getAccessToken(),
+			sharepointFolderAccess.getFolderURL(), name);
+
+		return _toObjectEntry(driveItemJSONObject);
 	}
 
 	@Override
