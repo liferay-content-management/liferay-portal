@@ -2025,7 +2025,7 @@
 				"en_US": "SharePoint Documents"
 			},
 			"portlet": false,
-			"scope": "company",
+			"scope": "depot",
 			"status": {
 				"code": 0
 			},
