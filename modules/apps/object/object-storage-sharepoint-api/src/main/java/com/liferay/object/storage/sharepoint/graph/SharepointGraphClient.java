@@ -36,6 +36,31 @@ public class SharepointGraphClient {
 		_jsonFactory = jsonFactory;
 	}
 
+	public JSONObject getDriveItem(
+			String accessToken, String folderURL, String itemId)
+		throws SharepointAuthenticationRequiredException,
+			   SharepointGraphException {
+
+		FolderURLParts folderURLParts = _parseFolderURL(folderURL);
+
+		JSONObject siteJSONObject = _getSiteByPathJSONObject(
+			accessToken, folderURLParts.getHost(),
+			folderURLParts.getSitePath());
+
+		String siteId = siteJSONObject.getString("id");
+
+		JSONObject driveJSONObject = _getDefaultDriveJSONObject(
+			accessToken, siteId);
+
+		String driveId = driveJSONObject.getString("id");
+
+		return _get(
+			accessToken,
+			StringBundler.concat(
+				"https://graph.microsoft.com/v1.0/drives/", driveId, "/items/",
+				itemId));
+	}
+
 	public List<JSONObject> listChildren(String accessToken, String folderURL)
 		throws SharepointAuthenticationRequiredException,
 			   SharepointGraphException {

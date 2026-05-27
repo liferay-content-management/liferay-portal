@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.search.Sort;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -29,6 +28,7 @@ import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.vulcan.util.GroupUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,33 +77,11 @@ public class SharepointObjectEntryManagerImpl
 			Sort[] sorts)
 		throws Exception {
 
-		long groupId = GetterUtil.getLong(scopeKey);
+		SharepointFolderAccess sharepointFolderAccess =
+			_getSharepointFolderAccess(
+				companyId, dtoConverterContext, scopeKey);
 
-		if (groupId == 0) {
-			groupId = ParamUtil.getLong(
-				dtoConverterContext.getHttpServletRequest(), "spaceGroupId");
-		}
-
-		if (groupId == 0) {
-			return Page.of(Collections.emptyList());
-		}
-
-		Group group = groupLocalService.fetchGroup(groupId);
-
-		if (group == null) {
-			return Page.of(Collections.emptyList());
-		}
-
-		String folderURL = group.getTypeSettingsProperty("sharepointFolderUrl");
-
-		if (Validator.isNull(folderURL)) {
-			return Page.of(Collections.emptyList());
-		}
-
-		TokenEntry tokenEntry = _tokenEntryLocalService.fetchTokenEntry(
-			groupId, dtoConverterContext.getUserId());
-
-		if (tokenEntry == null) {
+		if (sharepointFolderAccess == null) {
 			return Page.of(Collections.emptyList());
 		}
 
@@ -113,7 +91,8 @@ public class SharepointObjectEntryManagerImpl
 		try {
 			List<JSONObject> driveItemJSONObjects =
 				sharepointGraphClient.listChildren(
-					tokenEntry.getAccessToken(), folderURL);
+					sharepointFolderAccess.getAccessToken(),
+					sharepointFolderAccess.getFolderURL());
 
 			List<ObjectEntry> objectEntries = new ArrayList<>();
 
@@ -128,7 +107,8 @@ public class SharepointObjectEntryManagerImpl
 
 			if (_log.isWarnEnabled()) {
 				_log.warn(
-					"Unable to list SharePoint entries for group " + groupId,
+					"Unable to list SharePoint entries for group " +
+						sharepointFolderAccess.getGroupId(),
 					exception);
 			}
 
@@ -143,7 +123,35 @@ public class SharepointObjectEntryManagerImpl
 			String scopeKey)
 		throws Exception {
 
-		throw new UnsupportedOperationException();
+		SharepointFolderAccess sharepointFolderAccess =
+			_getSharepointFolderAccess(
+				companyId, dtoConverterContext, scopeKey);
+
+		if (sharepointFolderAccess == null) {
+			return null;
+		}
+
+		SharepointGraphClient sharepointGraphClient = new SharepointGraphClient(
+			_http, _jsonFactory);
+
+		try {
+			JSONObject driveItemJSONObject = sharepointGraphClient.getDriveItem(
+				sharepointFolderAccess.getAccessToken(),
+				sharepointFolderAccess.getFolderURL(), externalReferenceCode);
+
+			return _toObjectEntry(driveItemJSONObject);
+		}
+		catch (SharepointAuthenticationRequiredException |
+			   SharepointGraphException exception) {
+
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get SharePoint entry " + externalReferenceCode,
+					exception);
+			}
+
+			return null;
+		}
 	}
 
 	@Override
@@ -164,6 +172,53 @@ public class SharepointObjectEntryManagerImpl
 		throws Exception {
 
 		throw new UnsupportedOperationException();
+	}
+
+	private SharepointFolderAccess _getSharepointFolderAccess(
+		long companyId, DTOConverterContext dtoConverterContext,
+		String scopeKey) {
+
+		long groupId = 0;
+
+		if (Validator.isNotNull(scopeKey)) {
+			Long scopeGroupId = GroupUtil.getGroupId(
+				companyId, scopeKey, groupLocalService);
+
+			if (scopeGroupId != null) {
+				groupId = scopeGroupId;
+			}
+		}
+
+		if (groupId == 0) {
+			groupId = ParamUtil.getLong(
+				dtoConverterContext.getHttpServletRequest(), "spaceGroupId");
+		}
+
+		if (groupId == 0) {
+			return null;
+		}
+
+		Group group = groupLocalService.fetchGroup(groupId);
+
+		if (group == null) {
+			return null;
+		}
+
+		String folderURL = group.getTypeSettingsProperty("sharepointFolderUrl");
+
+		if (Validator.isNull(folderURL)) {
+			return null;
+		}
+
+		TokenEntry tokenEntry = _tokenEntryLocalService.fetchTokenEntry(
+			groupId, dtoConverterContext.getUserId());
+
+		if (tokenEntry == null) {
+			return null;
+		}
+
+		return new SharepointFolderAccess(
+			tokenEntry.getAccessToken(), folderURL, groupId);
 	}
 
 	private ObjectEntry _toObjectEntry(JSONObject driveItemJSONObject) {
@@ -238,5 +293,33 @@ public class SharepointObjectEntryManagerImpl
 
 	@Reference
 	private TokenEntryLocalService _tokenEntryLocalService;
+
+	private static class SharepointFolderAccess {
+
+		public SharepointFolderAccess(
+			String accessToken, String folderURL, long groupId) {
+
+			_accessToken = accessToken;
+			_folderURL = folderURL;
+			_groupId = groupId;
+		}
+
+		public String getAccessToken() {
+			return _accessToken;
+		}
+
+		public String getFolderURL() {
+			return _folderURL;
+		}
+
+		public long getGroupId() {
+			return _groupId;
+		}
+
+		private final String _accessToken;
+		private final String _folderURL;
+		private final long _groupId;
+
+	}
 
 }
