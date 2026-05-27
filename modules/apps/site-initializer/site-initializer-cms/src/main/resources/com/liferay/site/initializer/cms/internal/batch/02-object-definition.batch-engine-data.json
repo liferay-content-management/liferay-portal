@@ -1849,6 +1849,45 @@
 					"unique": false
 				},
 				{
+					"DBType": "Long",
+					"businessType": "Attachment",
+					"defaultValue": "null",
+					"externalReferenceCode": "SHAREPOINT_FILE",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "en_US",
+					"label": {
+						"en_US": "File"
+					},
+					"localized": false,
+					"name": "file",
+					"objectFieldSettings": [
+						{
+							"name": "acceptedFileExtensions",
+							"value": "*"
+						},
+						{
+							"name": "maximumFileSize",
+							"value": 100
+						},
+						{
+							"name": "fileSource",
+							"value": "userComputerToCMSBasicDocument"
+						},
+						{
+							"name": "showFilesInLibrary",
+							"value": false
+						}
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "Long",
+					"unique": false
+				},
+				{
 					"DBType": "Date",
 					"businessType": "Date",
 					"externalReferenceCode": "SHAREPOINT_LAST_MODIFIED_BY_DISPLAY_NAME",
