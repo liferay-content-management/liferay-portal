@@ -7,8 +7,11 @@ package com.liferay.site.cms.site.initializer.test.util;
 
 import com.liferay.batch.engine.test.util.BatchEngineTestUtil;
 import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
@@ -17,9 +20,12 @@ import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUti
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.site.initializer.SiteInitializer;
 import com.liferay.site.initializer.SiteInitializerRegistry;
 
@@ -28,6 +34,20 @@ import com.liferay.site.initializer.SiteInitializerRegistry;
  * @author Stefano Motta
  */
 public class CMSTestUtil {
+
+	public static User addCMSAdminUser(Company company) throws Exception {
+		User user = UserTestUtil.addCompanyUser(
+			company, RoleConstants.CMS_ADMINISTRATOR);
+
+		String password = RandomTestUtil.randomString();
+
+		user = UserLocalServiceUtil.updatePassword(
+			user.getUserId(), password, password, false, true);
+
+		user.setPasswordUnencrypted(password);
+
+		return user;
+	}
 
 	public static Group getOrAddGroup(Class<?> clazz) throws Exception {
 		Group group = GroupLocalServiceUtil.fetchGroup(
