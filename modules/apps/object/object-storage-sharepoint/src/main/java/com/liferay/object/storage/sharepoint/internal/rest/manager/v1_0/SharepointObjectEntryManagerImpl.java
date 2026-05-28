@@ -7,6 +7,7 @@ package com.liferay.object.storage.sharepoint.internal.rest.manager.v1_0;
 
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
+import com.liferay.object.rest.dto.v1_0.Status;
 import com.liferay.object.rest.manager.v1_0.BaseObjectEntryManager;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.storage.sharepoint.exception.SharepointAuthenticationRequiredException;
@@ -202,6 +203,16 @@ public class SharepointObjectEntryManagerImpl
 		throw new UnsupportedOperationException();
 	}
 
+	private static Status _approvedStatus() {
+		return new Status() {
+			{
+				setCode(() -> 0);
+				setLabel(() -> "approved");
+				setLabel_i18n(() -> "Approved");
+			}
+		};
+	}
+
 	private SharepointFolderAccess _getSharepointFolderAccess(
 		long companyId, DTOConverterContext dtoConverterContext,
 		String scopeKey) {
@@ -250,6 +261,18 @@ public class SharepointObjectEntryManagerImpl
 	}
 
 	private ObjectEntry _toObjectEntry(JSONObject driveItemJSONObject) {
+		return new ObjectEntry() {
+			{
+				setActions(Collections::emptyMap);
+				setExternalReferenceCode(
+					() -> driveItemJSONObject.getString("id"));
+				setProperties(() -> _toProperties(driveItemJSONObject));
+				setStatus(SharepointObjectEntryManagerImpl::_approvedStatus);
+			}
+		};
+	}
+
+	private Map<String, Object> _toProperties(JSONObject driveItemJSONObject) {
 		JSONObject fileJSONObject = driveItemJSONObject.getJSONObject("file");
 		JSONObject folderJSONObject = driveItemJSONObject.getJSONObject(
 			"folder");
@@ -281,7 +304,7 @@ public class SharepointObjectEntryManagerImpl
 			}
 		}
 
-		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
+		return HashMapBuilder.<String, Object>put(
 			"downloadUrl",
 			driveItemJSONObject.getString("@microsoft.graph.downloadUrl")
 		).put(
@@ -300,14 +323,6 @@ public class SharepointObjectEntryManagerImpl
 		).put(
 			"webUrl", driveItemJSONObject.getString("webUrl")
 		).build();
-
-		return new ObjectEntry() {
-			{
-				setExternalReferenceCode(
-					() -> driveItemJSONObject.getString("id"));
-				setProperties(() -> properties);
-			}
-		};
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
