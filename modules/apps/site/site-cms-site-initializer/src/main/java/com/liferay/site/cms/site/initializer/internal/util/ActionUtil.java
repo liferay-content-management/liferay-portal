@@ -562,6 +562,13 @@ public class ActionUtil {
 			GroupConstants.CMS_FRIENDLY_URL, "/add-space-members");
 	}
 
+	public static String getBaseSharepointSpaceURL(ThemeDisplay themeDisplay) {
+		return StringBundler.concat(
+			themeDisplay.getPathFriendlyURLPublic(),
+			GroupConstants.CMS_FRIENDLY_URL, "/e/space-sharepoint/",
+			PortalUtil.getClassNameId(DepotEntry.class), StringPool.SLASH);
+	}
+
 	public static String getBaseSpaceSettingsURL(ThemeDisplay themeDisplay) {
 		return StringBundler.concat(
 			themeDisplay.getPathFriendlyURLPublic(),

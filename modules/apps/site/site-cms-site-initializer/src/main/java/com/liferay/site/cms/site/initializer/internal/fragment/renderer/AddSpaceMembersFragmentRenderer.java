@@ -22,6 +22,7 @@ import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -62,6 +63,7 @@ public class AddSpaceMembersFragmentRenderer
 			httpServletRequest, "assetLibraryId");
 
 		String assetLibraryName = StringPool.BLANK;
+		String baseAssetLibraryURL = ActionUtil.getBaseSpaceURL(themeDisplay);
 		long creatorUserId = 0;
 		String externalReferenceCode = StringPool.BLANK;
 		DepotEntry depotEntry = _depotEntryLocalService.fetchDepotEntry(
@@ -75,6 +77,13 @@ public class AddSpaceMembersFragmentRenderer
 				themeDisplay.getLocale());
 			creatorUserId = group.getCreatorUserId();
 			externalReferenceCode = group.getExternalReferenceCode();
+
+			if (Objects.equals(
+					group.getTypeSettingsProperty("spaceType"), "sharepoint")) {
+
+				baseAssetLibraryURL = ActionUtil.getBaseSharepointSpaceURL(
+					themeDisplay);
+			}
 		}
 
 		return HashMapBuilder.<String, Object>put(
@@ -84,7 +93,7 @@ public class AddSpaceMembersFragmentRenderer
 		).put(
 			"assetLibraryName", assetLibraryName
 		).put(
-			"baseAssetLibraryURL", ActionUtil.getBaseSpaceURL(themeDisplay)
+			"baseAssetLibraryURL", baseAssetLibraryURL
 		).put(
 			"externalReferenceCode", externalReferenceCode
 		).put(
