@@ -5,18 +5,14 @@
 
 import {expect, mergeTests} from '@playwright/test';
 
-import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../fixtures/loginTest';
-import {addCMSAdministrator} from '../../../utils/addCMSAdministrator';
-import {addSpaceUser} from '../../../utils/addSpaceUser';
-import getRandomString from '../../../utils/getRandomString';
-import {performUserSwitch} from '../../../utils/performLogin';
+import {performUserSwitchViaApi} from '../../../utils/performLogin';
+import {SITE_CMS_SPACE_NAME} from '../../setup/site-cms-site/constants/space';
 import {cmsPagesTest} from './fixtures/cmsPagesTest';
 
 const test = mergeTests(
 	cmsPagesTest,
-	dataApiHelpersTest,
 	featureFlagsTest({
 		'LPD-17564': {enabled: true},
 	}),
@@ -26,19 +22,10 @@ const test = mergeTests(
 test(
 	'CMS Administrator can edit the Friendly URL of any space',
 	{tag: '@LPD-88344'},
-	async ({apiHelpers, page, spaceSummaryPage}) => {
-		const spaceName = `Space ${getRandomString()}`;
+	async ({page, spaceSummaryPage}) => {
+		await performUserSwitchViaApi(page, 'cms.admin');
 
-		await apiHelpers.headlessAssetLibrary.createAssetLibrary({
-			name: spaceName,
-			type: 'Space',
-		});
-
-		const user = await addCMSAdministrator(apiHelpers);
-
-		await performUserSwitch(page, user.alternateName);
-
-		await spaceSummaryPage.goto(spaceName);
+		await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 		await page.getByRole('button', {name: 'More Actions'}).click();
 
@@ -53,23 +40,10 @@ test(
 test(
 	'Space Administrator can edit the Friendly URL of a space they administer',
 	{tag: '@LPD-88344'},
-	async ({apiHelpers, page, spaceSummaryPage}) => {
-		const spaceName = `Space ${getRandomString()}`;
+	async ({page, spaceSummaryPage}) => {
+		await performUserSwitchViaApi(page, 'cms.space.admin');
 
-		const space = await apiHelpers.headlessAssetLibrary.createAssetLibrary({
-			name: spaceName,
-			type: 'Space',
-		});
-
-		const user = await addSpaceUser(
-			apiHelpers,
-			space.externalReferenceCode,
-			'Asset Library Administrator'
-		);
-
-		await performUserSwitch(page, user.alternateName);
-
-		await spaceSummaryPage.goto(spaceName);
+		await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 		await page.getByRole('button', {name: 'More Actions'}).click();
 
@@ -84,23 +58,10 @@ test(
 test(
 	'Space Content Reviewer cannot access Space Settings',
 	{tag: '@LPD-88344'},
-	async ({apiHelpers, page, spaceSummaryPage}) => {
-		const spaceName = `Space ${getRandomString()}`;
+	async ({page, spaceSummaryPage}) => {
+		await performUserSwitchViaApi(page, 'cms.space.content.reviewer');
 
-		const space = await apiHelpers.headlessAssetLibrary.createAssetLibrary({
-			name: spaceName,
-			type: 'Space',
-		});
-
-		const user = await addSpaceUser(
-			apiHelpers,
-			space.externalReferenceCode,
-			'Asset Library Content Reviewer'
-		);
-
-		await performUserSwitch(page, user.alternateName);
-
-		await spaceSummaryPage.goto(spaceName);
+		await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 		await page.getByRole('button', {name: 'More Actions'}).click();
 
@@ -113,23 +74,10 @@ test(
 test(
 	'Space Member cannot access Space Settings',
 	{tag: '@LPD-88344'},
-	async ({apiHelpers, page, spaceSummaryPage}) => {
-		const spaceName = `Space ${getRandomString()}`;
+	async ({page, spaceSummaryPage}) => {
+		await performUserSwitchViaApi(page, 'cms.space.member');
 
-		const space = await apiHelpers.headlessAssetLibrary.createAssetLibrary({
-			name: spaceName,
-			type: 'Space',
-		});
-
-		const user = await addSpaceUser(
-			apiHelpers,
-			space.externalReferenceCode,
-			'Asset Library Member'
-		);
-
-		await performUserSwitch(page, user.alternateName);
-
-		await spaceSummaryPage.goto(spaceName);
+		await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 		await page.getByRole('button', {name: 'More Actions'}).click();
 
