@@ -274,6 +274,14 @@ export class HeadlessAdminUserApiHelper {
 		);
 	}
 
+	async deleteUserAccountByExternalReferenceCode(
+		userAccountExternalReferenceCode: string
+	) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/user-accounts/by-external-reference-code/${userAccountExternalReferenceCode}`
+		);
+	}
+
 	async deleteUserFromAccountByEmailAddress(
 		accountId: number,
 		emailAddress: string

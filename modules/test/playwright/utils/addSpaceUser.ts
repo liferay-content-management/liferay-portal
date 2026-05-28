@@ -3,24 +3,25 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {DataApiHelpers} from '../helpers/ApiHelpers';
+import {ApiHelpers} from '../helpers/ApiHelpers';
 import {userData} from './performLogin';
 
 export async function addSpaceUser(
-	apiHelpers: DataApiHelpers,
+	apiHelpers: ApiHelpers,
 	spaceExternalReferenceCode: string,
-	roleName: string
+	roleNames: string[],
+	userAccount?: TUserAccount
 ): Promise<TUserAccount> {
 	const user =
-		(await apiHelpers.headlessAdminUser.postUserAccount()) as TUserAccount & {
-			externalReferenceCode: string;
-		};
+		await apiHelpers.headlessAdminUser.postUserAccount(userAccount);
 
-	userData[user.alternateName] = {
-		name: user.givenName,
-		password: 'test',
-		surname: user.familyName,
-	};
+	if (!userAccount) {
+		userData[user.alternateName] = {
+			name: user.givenName,
+			password: 'test',
+			surname: user.familyName,
+		};
+	}
 
 	await apiHelpers.headlessAssetLibrary.putAssetLibraryUserAccount(
 		spaceExternalReferenceCode,
@@ -30,7 +31,7 @@ export async function addSpaceUser(
 	await apiHelpers.headlessAssetLibrary.putAssetLibraryUserAccountRoles(
 		spaceExternalReferenceCode,
 		user.externalReferenceCode,
-		[roleName]
+		roleNames
 	);
 
 	return user;
