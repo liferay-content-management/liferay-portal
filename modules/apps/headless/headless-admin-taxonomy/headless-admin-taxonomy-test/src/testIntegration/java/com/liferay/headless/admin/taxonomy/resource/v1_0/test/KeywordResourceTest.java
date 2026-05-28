@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
@@ -411,16 +410,14 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 
 		_testGetSiteKeywordsPageWithSpaceDepotEntry();
 
-		_cmsAdministratorUser = UserTestUtil.addCompanyUser(
-			testCompany, RoleConstants.CMS_ADMINISTRATOR);
-
-		_userLocalService.updatePassword(
-			_cmsAdministratorUser.getUserId(), "test", "test", false, true);
+		_cmsAdministratorUser = CMSTestUtil.addCMSAdminUser(testCompany);
 
 		_regularUser = UserTestUtil.addUser();
 
-		_userLocalService.updatePassword(
+		_regularUser = _userLocalService.updatePassword(
 			_regularUser.getUserId(), "test", "test", false, true);
+
+		_regularUser.setPasswordUnencrypted("test");
 
 		_testGetSiteKeywordsPageWithUser(_cmsAdministratorUser);
 		_testGetSiteKeywordsPageWithUser(_regularUser);
@@ -475,17 +472,14 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 
 		testGroup = CMSTestUtil.getOrAddGroup(KeywordResourceTest.class);
 
-		_cmsAdministratorUser = UserTestUtil.addCompanyUser(
-			testCompany, RoleConstants.CMS_ADMINISTRATOR);
-
-		_userLocalService.updatePassword(
-			_cmsAdministratorUser.getUserId(), "test", "test", false, true);
+		_cmsAdministratorUser = CMSTestUtil.addCMSAdminUser(testCompany);
 
 		Keyword randomKeyword = randomKeyword();
 
 		KeywordResource cmsAdminKeywordResource = KeywordResource.builder(
 		).authentication(
-			_cmsAdministratorUser.getEmailAddress(), "test"
+			_cmsAdministratorUser.getEmailAddress(),
+			_cmsAdministratorUser.getPasswordUnencrypted()
 		).endpoint(
 			testCompany.getVirtualHostname(),
 			PortalUtil.getPortalServerPort(false), "http"
@@ -859,7 +853,7 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 	private void _testGetSiteKeywordsPageWithUser(User user) throws Exception {
 		KeywordResource userKeywordResource = KeywordResource.builder(
 		).authentication(
-			user.getEmailAddress(), "test"
+			user.getEmailAddress(), user.getPasswordUnencrypted()
 		).endpoint(
 			testCompany.getVirtualHostname(),
 			PortalUtil.getPortalServerPort(false), "http"
