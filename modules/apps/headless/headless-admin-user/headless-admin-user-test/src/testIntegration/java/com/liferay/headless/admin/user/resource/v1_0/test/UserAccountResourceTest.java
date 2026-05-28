@@ -138,10 +138,12 @@ import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.mail.MailMessage;
 import com.liferay.portal.test.mail.MailServiceTestUtil;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.SynchronousMailTestRule;
 import com.liferay.portal.vulcan.jaxrs.exception.mapper.BaseExceptionMapper;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
+import com.liferay.site.cms.site.initializer.test.util.CMSTestUtil;
 
 import jakarta.portlet.PortletPreferences;
 
@@ -615,6 +617,7 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 		Assert.assertEquals(0, page.getTotalCount());
 	}
 
+	@FeatureFlag("LPD-17564")
 	@Override
 	@Test
 	public void testGetUserAccountsPage() throws Exception {
@@ -712,6 +715,7 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 			userAccount1, userAccount2, userAccount3, userAccount6);
 
 		_testGetUserAccountsPageWithBirthDateFilter();
+		_testGetUserAccountsPageWithCMSAdministratorRole();
 		_testGetUserAccountsPageWithCustomFields();
 		_testGetUserAccountsPageWithSortCustomField();
 		_testGetUserAccountsPageWithSortFullName();
@@ -2182,6 +2186,62 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 			StringBundler.concat(
 				"(birthDate eq ", dateFormat.format(calendar.getTime()), ")"),
 			userAccount1);
+	}
+
+	private void _testGetUserAccountsPageWithCMSAdministratorRole()
+		throws Exception {
+
+		Group originalTestGroup = testGroup;
+
+		testGroup = CMSTestUtil.getOrAddGroup(UserAccountResourceTest.class);
+
+		User cmsAdminUser = null;
+		UserAccount userAccount1 = null;
+		UserAccount userAccount2 = null;
+
+		try {
+			cmsAdminUser = CMSTestUtil.addCMSAdminUser(testCompany);
+
+			userAccount1 = testGetUserAccountsPage_addUserAccount(
+				randomUserAccount());
+			userAccount2 = testGetUserAccountsPage_addUserAccount(
+				randomUserAccount());
+
+			UserAccountResource cmsAdminUserAccountResource =
+				UserAccountResource.builder(
+				).authentication(
+					cmsAdminUser.getEmailAddress(),
+					cmsAdminUser.getPasswordUnencrypted()
+				).endpoint(
+					testCompany.getVirtualHostname(),
+					PortalUtil.getPortalServerPort(false), "http"
+				).locale(
+					LocaleUtil.getDefault()
+				).build();
+
+			Page<UserAccount> page =
+				cmsAdminUserAccountResource.getUserAccountsPage(
+					null, null, Pagination.of(1, 10), null);
+
+			assertContains(userAccount1, (List<UserAccount>)page.getItems());
+			assertContains(userAccount2, (List<UserAccount>)page.getItems());
+			assertValid(page);
+		}
+		finally {
+			if (userAccount1 != null) {
+				_userLocalService.deleteUser(userAccount1.getId());
+			}
+
+			if (userAccount2 != null) {
+				_userLocalService.deleteUser(userAccount2.getId());
+			}
+
+			if (cmsAdminUser != null) {
+				_userLocalService.deleteUser(cmsAdminUser);
+			}
+
+			testGroup = originalTestGroup;
+		}
 	}
 
 	private void _testGetUserAccountsPageWithCustomFields() throws Exception {

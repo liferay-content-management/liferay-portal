@@ -26,10 +26,12 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.HTTPTestUtil;
@@ -42,14 +44,17 @@ import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LoggerTestUtil;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LanguageIds;
+import com.liferay.site.cms.site.initializer.test.util.CMSTestUtil;
 import com.liferay.site.initializer.SiteInitializer;
 
 import java.io.File;
@@ -186,6 +191,7 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 		throws Exception {
 	}
 
+	@FeatureFlag("LPD-17564")
 	@Override
 	@Test
 	public void testGetSitesPage() throws Exception {
@@ -194,6 +200,7 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 		_testGetSitesPageWithActiveAndInactiveSites();
 		_testGetSitesPageWithActiveOrSiteGroups(false, true);
 		_testGetSitesPageWithActiveOrSiteGroups(true, false);
+		_testGetSitesPageWithCMSAdministratorRole();
 		_testGetSitesPageWithDepotEntry();
 		_testGetSitesPageWithInactiveSites();
 		_testGetSitesPageWithSearch();
@@ -438,6 +445,52 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 		List<Site> existingItems = (List<Site>)sitesPage.getItems();
 
 		Assert.assertEquals(originalItems, existingItems);
+	}
+
+	private void _testGetSitesPageWithCMSAdministratorRole() throws Exception {
+		CMSTestUtil.getOrAddGroup(SiteResourceTest.class);
+
+		User cmsAdminUser = null;
+		Site site1 = null;
+		Site site2 = null;
+
+		try {
+			cmsAdminUser = CMSTestUtil.addCMSAdminUser(testCompany);
+
+			site1 = testGetSitesPage_addSite(randomSite());
+			site2 = testGetSitesPage_addSite(randomSite());
+
+			SiteResource cmsAdminSiteResource = SiteResource.builder(
+			).authentication(
+				cmsAdminUser.getEmailAddress(),
+				cmsAdminUser.getPasswordUnencrypted()
+			).endpoint(
+				testCompany.getVirtualHostname(),
+				PortalUtil.getPortalServerPort(false), "http"
+			).locale(
+				LocaleUtil.getDefault()
+			).build();
+
+			Page<Site> page = cmsAdminSiteResource.getSitesPage(
+				null, null, Pagination.of(1, 10));
+
+			assertContains(site1, (List<Site>)page.getItems());
+			assertContains(site2, (List<Site>)page.getItems());
+			assertValid(page);
+		}
+		finally {
+			if (site1 != null) {
+				_groupLocalService.deleteGroup(site1.getId());
+			}
+
+			if (site2 != null) {
+				_groupLocalService.deleteGroup(site2.getId());
+			}
+
+			if (cmsAdminUser != null) {
+				_userLocalService.deleteUser(cmsAdminUser);
+			}
+		}
 	}
 
 	private void _testGetSitesPageWithDepotEntry() throws Exception {
@@ -1305,6 +1358,9 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 
 	private String _originalName;
 	private final List<Site> _sites = new ArrayList<>();
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 	private class TestSiteInitializer implements SiteInitializer {
 

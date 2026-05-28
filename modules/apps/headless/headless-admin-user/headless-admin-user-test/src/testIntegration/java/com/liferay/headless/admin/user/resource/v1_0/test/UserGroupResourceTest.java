@@ -40,11 +40,14 @@ import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.vulcan.permission.PermissionUtil;
+import com.liferay.site.cms.site.initializer.test.util.CMSTestUtil;
 
 import java.text.DateFormat;
 
@@ -129,11 +132,13 @@ public class UserGroupResourceTest extends BaseUserGroupResourceTestCase {
 		_testGetUserGroupWithoutPermissions();
 	}
 
+	@FeatureFlag("LPD-17564")
 	@Override
 	@Test
 	public void testGetUserGroupsPage() throws Exception {
 		super.testGetUserGroupsPage();
 
+		_testGetUserGroupsPageWithCMSAdministratorRole();
 		_testGetUserGroupsPageWithFilter();
 	}
 
@@ -360,6 +365,57 @@ public class UserGroupResourceTest extends BaseUserGroupResourceTestCase {
 
 	private UserGroup _postUserGroup(UserGroup userGroup) throws Exception {
 		return userGroupResource.postUserGroup(userGroup);
+	}
+
+	private void _testGetUserGroupsPageWithCMSAdministratorRole()
+		throws Exception {
+
+		CMSTestUtil.getOrAddGroup(UserGroupResourceTest.class);
+
+		User cmsAdminUser = null;
+		UserGroup userGroup1 = null;
+		UserGroup userGroup2 = null;
+
+		try {
+			cmsAdminUser = CMSTestUtil.addCMSAdminUser(testCompany);
+
+			userGroup1 = testGetUserUserGroups_addUserGroup(
+				cmsAdminUser.getUserId(), randomUserGroup());
+			userGroup2 = testGetUserUserGroups_addUserGroup(
+				cmsAdminUser.getUserId(), randomUserGroup());
+
+			UserGroupResource cmsAdminUserGroupResource =
+				UserGroupResource.builder(
+				).authentication(
+					cmsAdminUser.getEmailAddress(),
+					cmsAdminUser.getPasswordUnencrypted()
+				).endpoint(
+					testCompany.getVirtualHostname(),
+					PortalUtil.getPortalServerPort(false), "http"
+				).locale(
+					LocaleUtil.getDefault()
+				).build();
+
+			Page<UserGroup> page = cmsAdminUserGroupResource.getUserGroupsPage(
+				null, null, Pagination.of(1, 10), null);
+
+			assertContains(userGroup1, (List<UserGroup>)page.getItems());
+			assertContains(userGroup2, (List<UserGroup>)page.getItems());
+			assertValid(page);
+		}
+		finally {
+			if (cmsAdminUser != null) {
+				_userLocalService.deleteUser(cmsAdminUser);
+			}
+
+			if (userGroup1 != null) {
+				_userGroupLocalService.deleteUserGroup(userGroup1.getId());
+			}
+
+			if (userGroup2 != null) {
+				_userGroupLocalService.deleteUserGroup(userGroup2.getId());
+			}
+		}
 	}
 
 	private void _testGetUserGroupsPageWithFilter() throws Exception {
