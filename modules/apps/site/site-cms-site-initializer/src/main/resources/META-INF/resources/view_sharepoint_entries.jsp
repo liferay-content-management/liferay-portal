@@ -35,48 +35,17 @@ ViewSharepointEntriesSectionDisplayContext viewSharepointEntriesSectionDisplayCo
 	</c:if>
 
 	<c:if test="<%= viewSharepointEntriesSectionDisplayContext.isAuthenticated() %>">
-		<table class="table table-hover">
-			<thead>
-				<tr>
-					<th><liferay-ui:message key="name" /></th>
-					<th><liferay-ui:message key="size" /></th>
-					<th><liferay-ui:message key="type" /></th>
-					<th><liferay-ui:message key="modified-date" /></th>
-					<th><liferay-ui:message key="modified-by" /></th>
-				</tr>
-			</thead>
-
-			<tbody>
-
-				<%
-				List<Map<String, String>> entries = viewSharepointEntriesSectionDisplayContext.getEntries();
-
-				for (Map<String, String> entry : entries) {
-				%>
-
-					<tr>
-						<td>
-							<span class="<%= HtmlUtil.escapeAttribute(entry.get("iconColorClass")) %> fs-4 me-2">
-								<clay:icon
-									symbol='<%= HtmlUtil.escapeAttribute(entry.get("iconSymbol")) %>'
-								/>
-							</span>
-
-							<a href="<%= HtmlUtil.escapeAttribute(entry.get("webUrl")) %>" target="_blank">
-								<%= HtmlUtil.escape(entry.get("name")) %>
-							</a>
-						</td>
-						<td><%= HtmlUtil.escape(entry.get("sizeLabel")) %></td>
-						<td><%= HtmlUtil.escape(entry.get("mimeType")) %></td>
-						<td><%= HtmlUtil.escape(entry.get("lastModifiedDateTime")) %></td>
-						<td><%= HtmlUtil.escape(entry.get("lastModifiedByDisplayName")) %></td>
-					</tr>
-
-				<%
-				}
-				%>
-
-			</tbody>
-		</table>
+		<div class="cms-fds-fluid">
+			<frontend-data-set:headless-display
+				apiURL="<%= viewSharepointEntriesSectionDisplayContext.getAPIURL() %>"
+				formName="fm"
+				id="<%= CMSSiteInitializerFDSNames.SPACE_SHAREPOINT_ENTRIES_SECTION %>"
+				showManagementBar="<%= false %>"
+				showPagination="<%= false %>"
+				showSearch="<%= false %>"
+				showSelectAll="<%= false %>"
+				style="fluid"
+			/>
+		</div>
 	</c:if>
 </div>

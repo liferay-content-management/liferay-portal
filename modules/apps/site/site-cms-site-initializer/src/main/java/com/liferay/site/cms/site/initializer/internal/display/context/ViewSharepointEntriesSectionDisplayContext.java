@@ -58,6 +58,10 @@ public class ViewSharepointEntriesSectionDisplayContext {
 			WebKeys.THEME_DISPLAY);
 	}
 
+	public String getAPIURL() {
+		return "/o/c/sharepointdocuments/scopes/" + _groupId;
+	}
+
 	public String getConnectURL() {
 		return StringBundler.concat(
 			"/c/portal/object_storage_sharepoint_oauth2_initiate?groupId=",

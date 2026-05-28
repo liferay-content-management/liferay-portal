@@ -82,6 +82,10 @@ public class CMSSiteInitializerFDSNames {
 		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME +
 			"-spaceMembersUsersSummarySection";
 
+	public static final String SPACE_SHAREPOINT_ENTRIES_SECTION =
+		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME +
+			"-spaceSharepointEntriesSection";
+
 	public static final String SPACE_SITES_SUMMARY_SECTION =
 		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME +
 			"-spaceSitesSummarySection";
