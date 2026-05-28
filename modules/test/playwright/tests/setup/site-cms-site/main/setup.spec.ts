@@ -9,6 +9,9 @@ import {dataApiHelpersTest} from '../../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../../fixtures/loginTest';
 import {ApiHelpers} from '../../../../helpers/ApiHelpers';
+import {addCMSAdministrator} from '../../../../utils/addCMSAdministrator';
+import {addSpaceUser} from '../../../../utils/addSpaceUser';
+import {getUserAccount} from '../../../../utils/performLogin';
 import {cmsPagesTest} from '../../../site-cms-site-initializer/main/fixtures/cmsPagesTest';
 import {
 	SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE,
@@ -26,19 +29,62 @@ export const test = mergeTests(
 	loginTest()
 );
 
-test('Setup: Create a space for Site CMS tests', async ({backendPage}) => {
+test('Setup: Create objects for Site CMS tests', async ({backendPage}) => {
 	const apiHelpers = new ApiHelpers(backendPage);
 
-	const space = await apiHelpers.headlessAssetLibrary.createAssetLibrary({
-		externalReferenceCode: SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE,
-		name: SITE_CMS_SPACE_NAME,
-		settings: {},
-		type: 'Space',
+	await test.step('Create a space', async () => {
+		const space = await apiHelpers.headlessAssetLibrary.createAssetLibrary({
+			externalReferenceCode: SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE,
+			name: SITE_CMS_SPACE_NAME,
+			settings: {},
+			type: 'Space',
+		});
+
+		expect(space).toHaveProperty('name', SITE_CMS_SPACE_NAME);
+		expect(space).toHaveProperty(
+			'externalReferenceCode',
+			SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE
+		);
 	});
 
-	expect(space).toHaveProperty('name', SITE_CMS_SPACE_NAME);
-	expect(space).toHaveProperty(
-		'externalReferenceCode',
-		SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE
-	);
+	await test.step('Create users', async () => {
+		let userAccount = getUserAccount('cms.admin');
+
+		let user = await addCMSAdministrator(apiHelpers, userAccount);
+
+		expect(user).toMatchObject(userAccount);
+
+		userAccount = getUserAccount('cms.space.admin');
+
+		user = await addSpaceUser(
+			apiHelpers,
+			SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE,
+			['Asset Library Administrator', 'Asset Library Member'],
+			userAccount
+		);
+
+		expect(user).toMatchObject(userAccount);
+
+		userAccount = getUserAccount('cms.space.content.reviewer');
+
+		user = await addSpaceUser(
+			apiHelpers,
+			SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE,
+			['Asset Library Content Reviewer', 'Asset Library Member'],
+			userAccount
+		);
+
+		expect(user).toMatchObject(userAccount);
+
+		userAccount = getUserAccount('cms.space.member');
+
+		user = await addSpaceUser(
+			apiHelpers,
+			SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE,
+			['Asset Library Member'],
+			userAccount
+		);
+
+		expect(user).toMatchObject(userAccount);
+	});
 });

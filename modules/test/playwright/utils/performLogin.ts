@@ -10,12 +10,41 @@ import {liferayConfig} from '../liferay.config';
 import {faroConfig} from '../tests/osb-faro-web/main/faro.config';
 
 export type LoginScreenName =
+	| 'cms.admin'
+	| 'cms.space.admin'
+	| 'cms.space.content.reviewer'
+	| 'cms.space.member'
 	| 'demo.company.admin'
 	| 'demo.organization.owner'
 	| 'demo.unprivileged'
 	| 'test';
 
 export const userData = {
+	'cms.admin': {
+		externalReferenceCode: 'cms.admin-external.reference.code',
+		name: 'CMS',
+		password: 'test',
+		surname: 'Admin',
+	},
+	'cms.space.admin': {
+		externalReferenceCode: 'cms.space.admin-external.reference.code',
+		name: 'CMS',
+		password: 'test',
+		surname: 'Space Admin',
+	},
+	'cms.space.content.reviewer': {
+		externalReferenceCode:
+			'cms.space.content.reviewer-external.reference.code',
+		name: 'CMS',
+		password: 'test',
+		surname: 'Space Content Reviewer',
+	},
+	'cms.space.member': {
+		externalReferenceCode: 'cms.space.member-external.reference.code',
+		name: 'CMS',
+		password: 'test',
+		surname: 'Space Member',
+	},
 	'demo.company.admin': {
 		name: 'Demo',
 		password: 'demo',
@@ -44,6 +73,18 @@ interface LoginOptions {
 	page: Page;
 	rememberMe?: boolean;
 	screenName: LoginScreenName | string;
+}
+
+export function getUserAccount(alternateName: string): TUserAccount {
+	const entry = userData[alternateName];
+
+	return {
+		alternateName,
+		emailAddress: `${alternateName}@liferay.com`,
+		externalReferenceCode: entry.externalReferenceCode,
+		familyName: entry.surname,
+		givenName: entry.name,
+	};
 }
 
 async function performLogin(

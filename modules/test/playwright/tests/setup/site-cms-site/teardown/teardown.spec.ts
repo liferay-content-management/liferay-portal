@@ -9,8 +9,9 @@ import {dataApiHelpersTest} from '../../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../../fixtures/loginTest';
 import {ApiHelpers} from '../../../../helpers/ApiHelpers';
+import {userData} from '../../../../utils/performLogin';
 import {cmsPagesTest} from '../../../site-cms-site-initializer/main/fixtures/cmsPagesTest';
-import {SITE_CMS_SPACE_NAME} from '../constants/space';
+import {SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE} from '../constants/space';
 
 export const test = mergeTests(
 	cmsPagesTest,
@@ -23,19 +24,26 @@ export const test = mergeTests(
 	loginTest()
 );
 
-test('Teardown: Delete space for Site CMS tests', async ({backendPage}) => {
+test('Teardown: Delete objects for Site CMS tests', async ({backendPage}) => {
 	const apiHelpers = new ApiHelpers(backendPage);
 
-	const spaces =
-		await apiHelpers.headlessAssetLibrary.getAssetLibrariesPage(
-			`type eq 'Space'`
-		);
+	await apiHelpers.headlessAssetLibrary.deleteAssetLibrary(
+		SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE
+	);
 
-	const space = spaces.find(({name}) => name === SITE_CMS_SPACE_NAME);
+	await apiHelpers.headlessAdminUser.deleteUserAccountByExternalReferenceCode(
+		userData['cms.admin'].externalReferenceCode
+	);
 
-	if (space) {
-		await apiHelpers.headlessAssetLibrary.deleteAssetLibrary(
-			space.externalReferenceCode
-		);
-	}
+	await apiHelpers.headlessAdminUser.deleteUserAccountByExternalReferenceCode(
+		userData['cms.space.admin'].externalReferenceCode
+	);
+
+	await apiHelpers.headlessAdminUser.deleteUserAccountByExternalReferenceCode(
+		userData['cms.space.content.reviewer'].externalReferenceCode
+	);
+
+	await apiHelpers.headlessAdminUser.deleteUserAccountByExternalReferenceCode(
+		userData['cms.space.member'].externalReferenceCode
+	);
 });
