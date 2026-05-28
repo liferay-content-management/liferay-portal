@@ -40,6 +40,7 @@ ViewSharepointEntriesSectionDisplayContext viewSharepointEntriesSectionDisplayCo
 				apiURL="<%= viewSharepointEntriesSectionDisplayContext.getAPIURL() %>"
 				formName="fm"
 				id="<%= CMSSiteInitializerFDSNames.SPACE_SHAREPOINT_ENTRIES_SECTION %>"
+				propsTransformer="{SharepointEntriesFDSPropsTransformer} from site-cms-site-initializer"
 				showManagementBar="<%= false %>"
 				showPagination="<%= false %>"
 				showSearch="<%= false %>"

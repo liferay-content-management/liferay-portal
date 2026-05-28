@@ -32,13 +32,17 @@ public class SharepointEntriesSectionTableFDSView extends BaseTableFDSView {
 			_fdsTableSchemaBuilderFactory.create();
 
 		return fdsTableSchemaBuilder.add(
-			"name", "name"
+			"name", "name",
+			fdsTableSchemaField -> fdsTableSchemaField.setContentRenderer(
+				"sharepointNameRenderer")
 		).add(
-			"size", "size"
+			"size", "size",
+			fdsTableSchemaField -> fdsTableSchemaField.setContentRenderer(
+				"sharepointSizeRenderer")
 		).add(
-			"type", "type"
-		).add(
-			"lastModifiedDateTime", "modified-date"
+			"lastModifiedDateTime", "modified-date",
+			fdsTableSchemaField -> fdsTableSchemaField.setContentRenderer(
+				"dateTime")
 		).add(
 			"lastModifiedByDisplayName", "modified-by"
 		).build();

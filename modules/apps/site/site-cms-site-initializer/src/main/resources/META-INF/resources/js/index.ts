@@ -78,6 +78,7 @@ export {default as MembersFDSPropsTransformer} from './main_view/props_transform
 export {default as RecycleBinFDSPropsTransformer} from './main_view/props_transformer/RecycleBinFDSPropsTransformer';
 export {default as RelatedAssetsFDSPropsTransformer} from './main_view/props_transformer/RelatedAssetsFDSPropsTransformer';
 export {default as SharedWithMeFDSPropsTransformer} from './main_view/props_transformer/SharedWithMeFDSPropsTransformer';
+export {default as SharepointEntriesFDSPropsTransformer} from './main_view/props_transformer/SharepointEntriesFDSPropsTransformer';
 export {default as SitesFDSPropsTransformer} from './main_view/props_transformer/SitesFDSPropsTransformer';
 export {default as StructureUsagesFDSPropsTransformer} from './main_view/props_transformer/StructureUsagesFDSPropsTransformer';
 export {default as StructuresFDSPropsTransformer} from './main_view/props_transformer/StructuresFDSPropsTransformer';
