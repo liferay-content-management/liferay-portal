@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
@@ -189,6 +190,43 @@ public class FriendlyURLEntryLocalServiceTest {
 				urlTitle, _getServiceContext());
 
 		Assert.assertEquals(urlTitle, finalFriendlyURL.getUrlTitle());
+	}
+
+	@FeatureFlag("LPD-70396")
+	@Test
+	@TestInfo("LPD-90910")
+	public void testAddFriendlyURLEntryUpdatesParentClassPK() throws Exception {
+		long classNameId = _classNameLocalService.getClassNameId(User.class);
+		long classPK = TestPropsValues.getUserId();
+		String defaultLanguageId = LocaleUtil.toLanguageId(
+			LocaleUtil.getSiteDefault());
+		long originalParentClassPK = RandomTestUtil.nextLong();
+		long updatedParentClassPK = RandomTestUtil.nextLong();
+
+		String urlTitle = _getRandomURLTitle();
+
+		FriendlyURLEntry originalFriendlyURLEntry =
+			_friendlyURLEntryLocalService.addFriendlyURLEntry(
+				_group.getGroupId(), classNameId, originalParentClassPK,
+				classPK, defaultLanguageId,
+				Collections.singletonMap(defaultLanguageId, urlTitle),
+				_getServiceContext());
+
+		Assert.assertEquals(
+			originalParentClassPK, originalFriendlyURLEntry.getParentClassPK());
+
+		FriendlyURLEntry updatedFriendlyURLEntry =
+			_friendlyURLEntryLocalService.addFriendlyURLEntry(
+				_group.getGroupId(), classNameId, updatedParentClassPK, classPK,
+				defaultLanguageId,
+				Collections.singletonMap(defaultLanguageId, urlTitle),
+				_getServiceContext());
+
+		Assert.assertEquals(
+			originalFriendlyURLEntry.getFriendlyURLEntryId(),
+			updatedFriendlyURLEntry.getFriendlyURLEntryId());
+		Assert.assertEquals(
+			updatedParentClassPK, updatedFriendlyURLEntry.getParentClassPK());
 	}
 
 	@Test
