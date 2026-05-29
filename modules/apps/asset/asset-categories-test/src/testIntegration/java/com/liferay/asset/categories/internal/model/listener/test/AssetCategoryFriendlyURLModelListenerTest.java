@@ -56,6 +56,31 @@ public class AssetCategoryFriendlyURLModelListenerTest {
 	@FeatureFlag("LPD-70396")
 	@Test
 	@TestInfo("LPD-90910")
+	public void testOnAfterCreate() throws Exception {
+		AssetVocabulary assetVocabulary = AssetTestUtil.addVocabulary(
+			_group.getGroupId(),
+			StringUtil.toLowerCase(StringUtil.randomString()));
+
+		AssetCategory assetCategory = _addAssetCategory(
+			assetVocabulary.getVocabularyId(),
+			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID);
+
+		FriendlyURLEntry friendlyURLEntry =
+			_friendlyURLEntryLocalService.fetchMainFriendlyURLEntry(
+				_classNameLocalService.getClassNameId(AssetCategory.class),
+				assetCategory.getCategoryId());
+
+		Assert.assertNotNull(friendlyURLEntry);
+		Assert.assertEquals(
+			assetCategory.getCategoryId(), friendlyURLEntry.getClassPK());
+		Assert.assertEquals(
+			assetVocabulary.getVocabularyId(),
+			friendlyURLEntry.getParentClassPK());
+	}
+
+	@FeatureFlag("LPD-70396")
+	@Test
+	@TestInfo("LPD-90910")
 	public void testOnAfterUpdate() throws Exception {
 		_testOnAfterUpdateWhenMovedToDifferentParentCategory();
 		_testOnAfterUpdateWhenMovedToRoot();
@@ -97,6 +122,32 @@ public class AssetCategoryFriendlyURLModelListenerTest {
 			parentAssetCategory1.getCategoryId());
 
 		Assert.assertEquals(urlTitle, _getURLTitle(siblingAssetCategory));
+	}
+
+	@FeatureFlag("LPD-70396")
+	@Test
+	@TestInfo("LPD-90910")
+	public void testOnBeforeRemove() throws Exception {
+		AssetVocabulary assetVocabulary = AssetTestUtil.addVocabulary(
+			_group.getGroupId(),
+			StringUtil.toLowerCase(StringUtil.randomString()));
+
+		AssetCategory assetCategory = _addAssetCategory(
+			assetVocabulary.getVocabularyId(),
+			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID);
+
+		long classNameId = _classNameLocalService.getClassNameId(
+			AssetCategory.class);
+
+		Assert.assertNotNull(
+			_friendlyURLEntryLocalService.fetchMainFriendlyURLEntry(
+				classNameId, assetCategory.getCategoryId()));
+
+		_assetCategoryLocalService.deleteCategory(assetCategory);
+
+		Assert.assertNull(
+			_friendlyURLEntryLocalService.fetchMainFriendlyURLEntry(
+				classNameId, assetCategory.getCategoryId()));
 	}
 
 	private AssetCategory _addAssetCategory(
