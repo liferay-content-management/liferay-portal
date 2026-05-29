@@ -8,12 +8,12 @@ import {expect, mergeTests} from '@playwright/test';
 import {dataApiHelpersTest} from '../../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../../fixtures/loginTest';
-import {DataApiHelpers} from '../../../../helpers/ApiHelpers';
 import getRandomString from '../../../../utils/getRandomString';
+import {performUserSwitchViaApi} from '../../../../utils/performLogin';
 import {PORTLET_URLS} from '../../../../utils/portletUrls';
 import {waitForAlert} from '../../../../utils/waitForAlert';
+import {SITE_CMS_SPACE_NAME} from '../../../setup/site-cms-site/constants/space';
 import {cmsPagesTest} from '../fixtures/cmsPagesTest';
-import {addRoleMemberAndSwitch} from './helpers/roleMembership';
 
 const test = mergeTests(
 	cmsPagesTest,
@@ -25,14 +25,6 @@ const test = mergeTests(
 	loginTest()
 );
 
-function createSpace(apiHelpers: DataApiHelpers, spaceName: string) {
-	return apiHelpers.headlessAssetLibrary.createAssetLibrary({
-		name: spaceName,
-		settings: {},
-		type: 'Space',
-	});
-}
-
 test(
 	'A Space Admin can manage space content and settings',
 	{tag: '@LPD-85681'},
@@ -42,9 +34,6 @@ test(
 		const contentTitle = `Title ${getRandomString()}`;
 		const description = `Description ${getRandomString()}`;
 		const fileFolderName = `Folder ${getRandomString()}`;
-		const spaceName = `Space ${getRandomString()}`;
-
-		const space = await createSpace(apiHelpers, spaceName);
 
 		await apiHelpers.objectEntry.postObjectEntry(
 			{
@@ -52,18 +41,14 @@ test(
 				title: contentTitle,
 			},
 			applicationName,
-			space.name
+			SITE_CMS_SPACE_NAME
 		);
 
-		await addRoleMemberAndSwitch({
-			apiHelpers,
-			page,
-			role: 'Space Administrator',
-			spaceName,
-			spaceSummaryPage,
-		});
+		await performUserSwitchViaApi(page, 'cms.space.admin');
 
 		await test.step('Manage space members', async () => {
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
+
 			await spaceSummaryPage.viewAllMembersLink.click();
 
 			await page.getByRole('dialog').waitFor();
@@ -86,7 +71,7 @@ test(
 		});
 
 		await test.step('Delete a content folder', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.viewAllContentLink.click();
 
@@ -101,7 +86,7 @@ test(
 		});
 
 		await test.step('Create a file folder', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.createFileFolder(fileFolderName);
 
@@ -111,7 +96,7 @@ test(
 		});
 
 		await test.step('Delete a file folder', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.viewAllFilesLink.click();
 
@@ -128,7 +113,7 @@ test(
 		});
 
 		await test.step('Delete content', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.viewAllContentLink.click();
 
@@ -143,7 +128,7 @@ test(
 		});
 
 		await test.step('Change general settings', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await page.getByRole('button', {name: 'More Actions'}).click();
 			await page.getByRole('menuitem', {name: 'Settings'}).click();
@@ -158,7 +143,7 @@ test(
 
 			await waitForAlert(page, 'Success');
 
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await page.getByRole('button', {name: 'More Actions'}).click();
 			await page.getByRole('menuitem', {name: 'Settings'}).click();
@@ -170,7 +155,7 @@ test(
 			await page.goto(PORTLET_URLS.cmsAllSpaces);
 
 			await page
-				.getByRole('row', {name: spaceName})
+				.getByRole('row', {name: SITE_CMS_SPACE_NAME})
 				.getByRole('button', {name: 'Actions'})
 				.click();
 
@@ -202,9 +187,6 @@ test(
 		const fileApplicationName = 'cms/basic-documents';
 		const fileFolderName = `Folder ${getRandomString()}`;
 		const fileTitle = `File ${getRandomString()}`;
-		const spaceName = `Space ${getRandomString()}`;
-
-		const space = await createSpace(apiHelpers, spaceName);
 
 		await apiHelpers.objectEntry.postObjectEntry(
 			{
@@ -212,7 +194,7 @@ test(
 				title: contentTitle,
 			},
 			contentApplicationName,
-			space.name
+			SITE_CMS_SPACE_NAME
 		);
 
 		await apiHelpers.objectEntry.postObjectEntry(
@@ -225,18 +207,14 @@ test(
 				title: fileTitle,
 			},
 			fileApplicationName,
-			space.name
+			SITE_CMS_SPACE_NAME
 		);
 
-		await addRoleMemberAndSwitch({
-			apiHelpers,
-			page,
-			role: 'Space Content Reviewer',
-			spaceName,
-			spaceSummaryPage,
-		});
+		await performUserSwitchViaApi(page, 'cms.space.content.reviewer');
 
 		await test.step('Create a content folder', async () => {
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
+
 			await expect(spaceSummaryPage.addContentButton).toBeVisible();
 
 			await spaceSummaryPage.createContentFolder(contentFolderName);
@@ -247,7 +225,7 @@ test(
 		});
 
 		await test.step('Delete a content folder', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.viewAllContentLink.click();
 
@@ -262,7 +240,7 @@ test(
 		});
 
 		await test.step('Create a file folder', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.createFileFolder(fileFolderName);
 
@@ -272,7 +250,7 @@ test(
 		});
 
 		await test.step('Delete a file folder', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.viewAllFilesLink.click();
 
@@ -289,7 +267,7 @@ test(
 		});
 
 		await test.step('Edit content', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.viewAllContentLink.click();
 
@@ -302,7 +280,7 @@ test(
 		});
 
 		await test.step('Delete content', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.viewAllContentLink.click();
 
@@ -317,7 +295,7 @@ test(
 		});
 
 		await test.step('Delete a file', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.viewAllFilesLink.click();
 
@@ -338,18 +316,10 @@ test(
 test(
 	'A Space Content Reviewer cannot manage space members or change space general settings',
 	{tag: '@LPD-85681'},
-	async ({apiHelpers, page, spaceSummaryPage}) => {
-		const spaceName = `Space ${getRandomString()}`;
+	async ({page, spaceSummaryPage}) => {
+		await performUserSwitchViaApi(page, 'cms.space.content.reviewer');
 
-		await createSpace(apiHelpers, spaceName);
-
-		await addRoleMemberAndSwitch({
-			apiHelpers,
-			page,
-			role: 'Space Content Reviewer',
-			spaceName,
-			spaceSummaryPage,
-		});
+		await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 		await spaceSummaryPage.viewAllMembersLink.click();
 
@@ -377,17 +347,13 @@ test(
 		const contentTitle = `Title ${getRandomString()}`;
 		const fileApplicationName = 'cms/basic-documents';
 		const fileTitle = `File ${getRandomString()}`;
-		const spaceName = `Space ${getRandomString()}`;
-
-		const space = await createSpace(apiHelpers, spaceName);
-
 		await apiHelpers.objectEntry.postObjectEntry(
 			{
 				objectEntryFolderExternalReferenceCode: 'L_CONTENTS',
 				title: contentTitle,
 			},
 			contentApplicationName,
-			space.name
+			SITE_CMS_SPACE_NAME
 		);
 
 		await apiHelpers.objectEntry.postObjectEntry(
@@ -400,18 +366,14 @@ test(
 				title: fileTitle,
 			},
 			fileApplicationName,
-			space.name
+			SITE_CMS_SPACE_NAME
 		);
 
-		await addRoleMemberAndSwitch({
-			apiHelpers,
-			page,
-			role: null,
-			spaceName,
-			spaceSummaryPage,
-		});
+		await performUserSwitchViaApi(page, 'cms.space.member');
 
 		await test.step('Cannot see the Add Content or Add Files buttons', async () => {
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
+
 			await expect(spaceSummaryPage.addContentButton).not.toBeVisible();
 			await expect(spaceSummaryPage.addFileButton).not.toBeVisible();
 		});
@@ -436,7 +398,7 @@ test(
 		});
 
 		await test.step('Cannot delete a file', async () => {
-			await spaceSummaryPage.goto(spaceName);
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 			await spaceSummaryPage.viewAllFilesLink.click();
 
@@ -455,7 +417,7 @@ test(
 		await test.step('Sees a restricted set of actions in the All Spaces view', async () => {
 			await page.goto(PORTLET_URLS.cmsAllSpaces);
 
-			const spaceRow = page.getByRole('row', {name: spaceName});
+			const spaceRow = page.getByRole('row', {name: SITE_CMS_SPACE_NAME});
 
 			await spaceRow.getByRole('button', {name: 'Actions'}).click();
 
