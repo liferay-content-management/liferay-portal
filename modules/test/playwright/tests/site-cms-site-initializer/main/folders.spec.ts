@@ -18,7 +18,12 @@ import {
 	userData,
 } from '../../../utils/performLogin';
 import {waitForAlert} from '../../../utils/waitForAlert';
-import {SITE_CMS_SPACE_NAME} from '../../setup/site-cms-site/constants/space';
+import {
+	SITE_CMS_SPACE_NAME,
+	SITE_CMS_USER_NAMES,
+	SITE_CMS_USER_ADMIN_NAMES,
+	SITE_CMS_USER_EDIT_NAMES,
+} from '../../setup/site-cms-site/constants/space';
 import {cmsPagesTest} from './fixtures/cmsPagesTest';
 import {AssetsPage} from './pages/AssetsPage';
 
@@ -328,34 +333,9 @@ test(
 // fixture provisions a single Space ("Default") where the cms.space.* users
 // hold their roles, the expected outcome for a (use case, role) pair is the
 // same in every section; looping the sections verifies the UI enforces that
-// permission consistently at each entry point.
-
-const CMS_USERS = [
-	'cms.admin',
-	'cms.space.admin',
-	'cms.space.content.reviewer',
-	'cms.space.member',
-] as const;
-
-type CmsUser = (typeof CMS_USERS)[number];
-
-// A user that can manage content: everyone but the Space Member.
-
-const MANAGE: Record<CmsUser, boolean> = {
-	'cms.admin': true,
-	'cms.space.admin': true,
-	'cms.space.content.reviewer': true,
-	'cms.space.member': false,
-};
-
-// A user that can administer the Space: only the CMS and Space Admins.
-
-const ADMINISTER: Record<CmsUser, boolean> = {
-	'cms.admin': true,
-	'cms.space.admin': true,
-	'cms.space.content.reviewer': false,
-	'cms.space.member': false,
-};
+// permission consistently at each entry point. SITE_CMS_USERS_EDIT holds the
+// users that can manage content and SITE_CMS_USERS_ADMIN the users that can
+// administer the space.
 
 interface FolderRef {
 	externalReferenceCode: string;
@@ -486,7 +466,7 @@ async function createTargetsPerUserSection(
 ) {
 	const targets = new Map<string, FolderRef>();
 
-	for (const user of CMS_USERS) {
+	for (const user of SITE_CMS_USER_NAMES) {
 		for (const section of sections) {
 			targets.set(
 				`${user}|${section.label}`,
@@ -721,25 +701,23 @@ test(
 	'A folder can be added in every section only by users who can manage content',
 	{tag: '@LPD-85556'},
 	async ({apiHelpers, assetsPage, folderPage, page, spaceSummaryPage}) => {
-		const spaceName = SITE_CMS_SPACE_NAME;
-
-		const parents = await createParentFolders(apiHelpers, spaceName);
+		const parents = await createParentFolders(apiHelpers, SITE_CMS_SPACE_NAME);
 
 		const sections = makeFolderSections(parents);
 
-		for (const user of CMS_USERS) {
-			await performUserSwitchViaApi(page, user);
+		for (const userName of SITE_CMS_USER_NAMES) {
+			await performUserSwitchViaApi(page, userName);
 
-			const canManage = MANAGE[user];
+			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(userName);
 
 			for (const section of sections) {
-				await test.step(`${user} ${canManage ? 'can' : 'cannot'} add a folder in ${section.label}`, async () => {
-					await section.goto(assetsPage, spaceName);
+				await test.step(`${userName} ${canManage ? 'can' : 'cannot'} add a folder in ${section.label}`, async () => {
+					await section.goto(assetsPage, SITE_CMS_SPACE_NAME);
 
 					if (canManage) {
 						const folderName = `Folder ${getRandomString()}`;
 
-						await folderPage.createFolder(folderName, spaceName);
+						await folderPage.createFolder(folderName, SITE_CMS_SPACE_NAME);
 
 						await expect(
 							page.getByRole('link', {name: folderName})
@@ -751,15 +729,15 @@ test(
 				});
 			}
 
-			await test.step(`${user} ${canManage ? 'can' : 'cannot'} add a folder in Space > Summary`, async () => {
-				await spaceSummaryPage.goto(spaceName);
+			await test.step(`${userName} ${canManage ? 'can' : 'cannot'} add a folder in Space > Summary`, async () => {
+				await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 				if (canManage) {
 					await spaceSummaryPage.createContentFolder(
 						`Folder ${getRandomString()}`
 					);
 
-					await spaceSummaryPage.goto(spaceName);
+					await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
 					await spaceSummaryPage.createFileFolder(
 						`Folder ${getRandomString()}`
@@ -794,7 +772,7 @@ test(
 			sections
 		);
 
-		for (const user of CMS_USERS) {
+		for (const user of SITE_CMS_USER_NAMES) {
 			await performUserSwitchViaApi(page, user);
 
 			for (const section of sections) {
@@ -837,10 +815,10 @@ test(
 			sections
 		);
 
-		for (const user of CMS_USERS) {
+		for (const user of SITE_CMS_USER_NAMES) {
 			await performUserSwitchViaApi(page, user);
 
-			const canManage = MANAGE[user];
+			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
 
 			for (const section of sections) {
 				const folder = targets.get(`${user}|${section.label}`);
@@ -889,10 +867,10 @@ test(
 			sections
 		);
 
-		for (const user of CMS_USERS) {
+		for (const user of SITE_CMS_USER_NAMES) {
 			await performUserSwitchViaApi(page, user);
 
-			const canManage = MANAGE[user];
+			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
 
 			for (const section of sections) {
 				const folder = targets.get(`${user}|${section.label}`);
@@ -969,10 +947,10 @@ test(
 			sections
 		);
 
-		for (const user of CMS_USERS) {
+		for (const user of SITE_CMS_USER_NAMES) {
 			await performUserSwitchViaApi(page, user);
 
-			const canAdminister = ADMINISTER[user];
+			const canAdminister = SITE_CMS_USER_ADMIN_NAMES.includes(user);
 
 			for (const section of sections) {
 				const folder = targets.get(section.label);
@@ -1016,10 +994,10 @@ test(
 			sections
 		);
 
-		for (const user of CMS_USERS) {
+		for (const user of SITE_CMS_USER_NAMES) {
 			await performUserSwitchViaApi(page, user);
 
-			const canManage = MANAGE[user];
+			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
 
 			for (const section of sections) {
 				const folder = targets.get(section.label);
@@ -1076,7 +1054,7 @@ test(
 
 		const sources = new Map<string, FolderRef>();
 
-		for (const user of CMS_USERS) {
+		for (const user of SITE_CMS_USER_NAMES) {
 			for (const section of sections) {
 				const destinations = destinationsByType[section.type];
 
@@ -1094,10 +1072,10 @@ test(
 			}
 		}
 
-		for (const user of CMS_USERS) {
+		for (const user of SITE_CMS_USER_NAMES) {
 			await performUserSwitchViaApi(page, user);
 
-			const canManage = MANAGE[user];
+			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
 
 			for (const section of sections) {
 				const destinations = destinationsByType[section.type];
@@ -1164,7 +1142,7 @@ test(
 
 		const sources = new Map<string, FolderRef>();
 
-		for (const user of CMS_USERS) {
+		for (const user of SITE_CMS_USER_NAMES) {
 			for (const section of sections) {
 				const destinations = destinationsByType[section.type];
 
@@ -1182,10 +1160,10 @@ test(
 			}
 		}
 
-		for (const user of CMS_USERS) {
+		for (const user of SITE_CMS_USER_NAMES) {
 			await performUserSwitchViaApi(page, user);
 
-			const canManage = MANAGE[user];
+			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
 
 			for (const section of sections) {
 				const destinations = destinationsByType[section.type];

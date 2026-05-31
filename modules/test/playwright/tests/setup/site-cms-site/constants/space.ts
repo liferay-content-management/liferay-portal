@@ -6,3 +6,16 @@
 export const SITE_CMS_SPACE_NAME = 'Default';
 export const SITE_CMS_SPACE_EXTERNAL_REFERENCE_CODE =
 	'Default-External-Reference-Code';
+
+export const SITE_CMS_USER_NAMES = [
+	'cms.admin',
+	'cms.space.admin',
+	'cms.space.content.reviewer',
+	'cms.space.member',
+];
+export const SITE_CMS_USER_ADMIN_NAMES = ['cms.admin', 'cms.space.admin'];
+export const SITE_CMS_USER_EDIT_NAMES = [
+	'cms.admin',
+	'cms.space.admin',
+	'cms.space.content.reviewer',
+];
