@@ -462,14 +462,15 @@ async function createTargetsPerSection(
 async function createTargetsPerUserSection(
 	apiHelpers: ApiHelpers,
 	spaceName: string,
-	sections: FolderSection[]
+	sections: FolderSection[],
+	userNames: string[]
 ) {
 	const targets = new Map<string, FolderRef>();
 
-	for (const user of SITE_CMS_USER_NAMES) {
+	for (const userName of userNames) {
 		for (const section of sections) {
 			targets.set(
-				`${user}|${section.label}`,
+				`${userName}|${section.label}`,
 				await apiHelpers.objectFolder.createObjectEntryFolder({
 					parentObjectEntryFolderExternalReferenceCode:
 						section.parentExternalReferenceCode,
@@ -864,35 +865,57 @@ test(
 			sections
 		);
 
-		for (const user of SITE_CMS_USER_NAMES) {
-			await performUserSwitchViaApi(page, user);
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
 
-			for (const section of sections) {
-				await test.step(`${user} can navigate into a folder in ${section.label}`, async () => {
-					await section.goto(assetsPage, spaceName);
+		for (const userName of SITE_CMS_USER_NAMES) {
+			await performUserSwitchViaApi(page, userName);
 
-					const folder = targets.get(section.label);
+			const navigateIntoFolder = async (section: FolderSection) => {
+				await section.goto(assetsPage, spaceName);
 
-					await page
-						.getByRole('link', {
-							exact: true,
-							name: folder.title,
-						})
-						.click();
+				const folder = targets.get(section.label);
 
-					await expect(page).toHaveURL(/view-folder/);
+				await page
+					.getByRole('link', {exact: true, name: folder.title})
+					.click();
 
-					await expect(
-						page.getByTestId(`testId${folder.title}`)
-					).toBeVisible();
-				});
-			}
+				await expect(page).toHaveURL(/view-folder/);
+
+				await expect(
+					page.getByTestId(`testId${folder.title}`)
+				).toBeVisible();
+			};
+
+			await test.step(`${userName} can navigate into a folder in ${contentsSection.label}`, () =>
+				navigateIntoFolder(contentsSection));
+
+			await test.step(`${userName} can navigate into a folder in ${filesSection.label}`, () =>
+				navigateIntoFolder(filesSection));
+
+			await test.step(`${userName} can navigate into a folder in ${spaceContentsSection.label}`, () =>
+				navigateIntoFolder(spaceContentsSection));
+
+			await test.step(`${userName} can navigate into a folder in ${spaceFilesSection.label}`, () =>
+				navigateIntoFolder(spaceFilesSection));
+
+			await test.step(`${userName} can navigate into a folder in ${spaceContentsFolderSection.label}`, () =>
+				navigateIntoFolder(spaceContentsFolderSection));
+
+			await test.step(`${userName} can navigate into a folder in ${spaceFilesFolderSection.label}`, () =>
+				navigateIntoFolder(spaceFilesFolderSection));
 		}
 	}
 );
 
 test(
-	'A folder can be deleted in every section only by users who can manage content',
+	'A folder can be deleted in every section by users who can manage content',
 	{tag: '@LPD-85556'},
 	async ({apiHelpers, assetsPage, page}) => {
 		const spaceName = SITE_CMS_SPACE_NAME;
@@ -904,47 +927,122 @@ test(
 		const targets = await createTargetsPerUserSection(
 			apiHelpers,
 			spaceName,
-			sections
+			sections,
+			SITE_CMS_USER_EDIT_NAMES
 		);
 
-		for (const user of SITE_CMS_USER_NAMES) {
-			await performUserSwitchViaApi(page, user);
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
 
-			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
+		for (const userName of SITE_CMS_USER_EDIT_NAMES) {
+			await performUserSwitchViaApi(page, userName);
 
-			for (const section of sections) {
-				const folder = targets.get(`${user}|${section.label}`);
+			const deleteFolder = async (section: FolderSection) => {
+				await gotoTableListing(assetsPage, section, spaceName);
 
-				await test.step(`${user} ${canManage ? 'can' : 'cannot'} delete a folder in ${section.label}`, async () => {
-					await gotoTableListing(assetsPage, section, spaceName);
+				const folder = targets.get(`${userName}|${section.label}`);
 
-					if (canManage) {
-						await assetsPage.execItemAction({
-							action: 'Delete',
-							filter: folder.title,
-						});
-
-						await waitForAlert(page, `${folder.title} was moved`);
-
-						await expect(
-							page.getByText(folder.title)
-						).not.toBeVisible();
-					}
-					else {
-						await expectRowActionHidden(
-							page,
-							folder.title,
-							'Delete'
-						);
-					}
+				await assetsPage.execItemAction({
+					action: 'Delete',
+					filter: folder.title,
 				});
-			}
+
+				await waitForAlert(page, `${folder.title} was moved`);
+
+				await expect(page.getByText(folder.title)).not.toBeVisible();
+			};
+
+			await test.step(`${userName} can delete a folder in ${contentsSection.label}`, () =>
+				deleteFolder(contentsSection));
+
+			await test.step(`${userName} can delete a folder in ${filesSection.label}`, () =>
+				deleteFolder(filesSection));
+
+			await test.step(`${userName} can delete a folder in ${spaceContentsSection.label}`, () =>
+				deleteFolder(spaceContentsSection));
+
+			await test.step(`${userName} can delete a folder in ${spaceFilesSection.label}`, () =>
+				deleteFolder(spaceFilesSection));
+
+			await test.step(`${userName} can delete a folder in ${spaceContentsFolderSection.label}`, () =>
+				deleteFolder(spaceContentsFolderSection));
+
+			await test.step(`${userName} can delete a folder in ${spaceFilesFolderSection.label}`, () =>
+				deleteFolder(spaceFilesFolderSection));
 		}
 	}
 );
 
 test(
-	'A folder can be edited in every section only by users who can manage content',
+	'A folder cannot be deleted in any section by users who cannot manage content',
+	{tag: '@LPD-85556'},
+	async ({apiHelpers, assetsPage, page}) => {
+		const spaceName = SITE_CMS_SPACE_NAME;
+
+		const parents = await createParentFolders(apiHelpers, spaceName);
+
+		const sections = makeFolderSections(parents);
+
+		const nonManageUserNames = SITE_CMS_USER_NAMES.filter(
+			(userName) => !SITE_CMS_USER_EDIT_NAMES.includes(userName)
+		);
+
+		const targets = await createTargetsPerUserSection(
+			apiHelpers,
+			spaceName,
+			sections,
+			nonManageUserNames
+		);
+
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
+
+		for (const userName of nonManageUserNames) {
+			await performUserSwitchViaApi(page, userName);
+
+			const expectCannotDeleteFolder = async (section: FolderSection) => {
+				await gotoTableListing(assetsPage, section, spaceName);
+
+				const folder = targets.get(`${userName}|${section.label}`);
+
+				await expectRowActionHidden(page, folder.title, 'Delete');
+			};
+
+			await test.step(`${userName} cannot delete a folder in ${contentsSection.label}`, () =>
+				expectCannotDeleteFolder(contentsSection));
+
+			await test.step(`${userName} cannot delete a folder in ${filesSection.label}`, () =>
+				expectCannotDeleteFolder(filesSection));
+
+			await test.step(`${userName} cannot delete a folder in ${spaceContentsSection.label}`, () =>
+				expectCannotDeleteFolder(spaceContentsSection));
+
+			await test.step(`${userName} cannot delete a folder in ${spaceFilesSection.label}`, () =>
+				expectCannotDeleteFolder(spaceFilesSection));
+
+			await test.step(`${userName} cannot delete a folder in ${spaceContentsFolderSection.label}`, () =>
+				expectCannotDeleteFolder(spaceContentsFolderSection));
+
+			await test.step(`${userName} cannot delete a folder in ${spaceFilesFolderSection.label}`, () =>
+				expectCannotDeleteFolder(spaceFilesFolderSection));
+		}
+	}
+);
+
+test(
+	'A folder can be edited in every section by users who can manage content',
 	{tag: '@LPD-85556'},
 	async ({apiHelpers, assetsPage, page}) => {
 		const spaceName = SITE_CMS_SPACE_NAME;
@@ -956,75 +1054,155 @@ test(
 		const targets = await createTargetsPerUserSection(
 			apiHelpers,
 			spaceName,
-			sections
+			sections,
+			SITE_CMS_USER_EDIT_NAMES
 		);
 
-		for (const user of SITE_CMS_USER_NAMES) {
-			await performUserSwitchViaApi(page, user);
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
 
-			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
+		for (const userName of SITE_CMS_USER_EDIT_NAMES) {
+			await performUserSwitchViaApi(page, userName);
 
-			for (const section of sections) {
-				const folder = targets.get(`${user}|${section.label}`);
+			const editFolder = async (section: FolderSection) => {
+				await gotoTableListing(assetsPage, section, spaceName);
 
-				await test.step(`${user} ${canManage ? 'can' : 'cannot'} edit a folder in ${section.label}`, async () => {
-					await gotoTableListing(assetsPage, section, spaceName);
+				const folder = targets.get(`${userName}|${section.label}`);
 
-					if (canManage) {
-						await assetsPage.execItemAction({
-							action: 'Edit',
-							filter: folder.title,
-						});
-
-						const newTitle = `Folder ${getRandomString()}`;
-
-						const nameField = page.getByLabel('Name');
-
-						// Wait for the edit form to finish loading the current
-						// name before replacing it; otherwise the value can be
-						// overwritten as the form hydrates and the rename is
-						// lost.
-
-						await expect(nameField).toHaveValue(folder.title);
-
-						await nameField.fill(newTitle);
-
-						await page.getByRole('button', {name: 'Save'}).click();
-
-						// Verify the rename persisted by polling the folder
-						// by its external reference code. This is robust to
-						// the differing post-save behavior across sections
-						// (an in-place modal in some, a redirect in others).
-
-						await expect
-							.poll(
-								async () => {
-									const updatedFolder =
-										await apiHelpers.objectFolder.getObjectEntryFolderByExternalReferenceCode(
-											{
-												externalReferenceCode:
-													folder.externalReferenceCode,
-												scopeKey: spaceName,
-											}
-										);
-
-									return updatedFolder.title;
-								},
-								{timeout: 30000}
-							)
-							.toBe(newTitle);
-					}
-					else {
-						await expectRowActionHidden(page, folder.title, 'Edit');
-					}
+				await assetsPage.execItemAction({
+					action: 'Edit',
+					filter: folder.title,
 				});
-			}
+
+				const newTitle = `Folder ${getRandomString()}`;
+
+				const nameField = page.getByLabel('Name');
+
+				// Wait for the edit form to finish loading the current name
+				// before replacing it; otherwise the value can be overwritten as
+				// the form hydrates and the rename is lost.
+
+				await expect(nameField).toHaveValue(folder.title);
+
+				await nameField.fill(newTitle);
+
+				await page.getByRole('button', {name: 'Save'}).click();
+
+				// Verify the rename persisted by polling the folder by its
+				// external reference code. This is robust to the differing
+				// post-save behavior across sections (an in-place modal in some,
+				// a redirect in others).
+
+				await expect
+					.poll(
+						async () => {
+							const updatedFolder =
+								await apiHelpers.objectFolder.getObjectEntryFolderByExternalReferenceCode(
+									{
+										externalReferenceCode:
+											folder.externalReferenceCode,
+										scopeKey: spaceName,
+									}
+								);
+
+							return updatedFolder.title;
+						},
+						{timeout: 30000}
+					)
+					.toBe(newTitle);
+			};
+
+			await test.step(`${userName} can edit a folder in ${contentsSection.label}`, () =>
+				editFolder(contentsSection));
+
+			await test.step(`${userName} can edit a folder in ${filesSection.label}`, () =>
+				editFolder(filesSection));
+
+			await test.step(`${userName} can edit a folder in ${spaceContentsSection.label}`, () =>
+				editFolder(spaceContentsSection));
+
+			await test.step(`${userName} can edit a folder in ${spaceFilesSection.label}`, () =>
+				editFolder(spaceFilesSection));
+
+			await test.step(`${userName} can edit a folder in ${spaceContentsFolderSection.label}`, () =>
+				editFolder(spaceContentsFolderSection));
+
+			await test.step(`${userName} can edit a folder in ${spaceFilesFolderSection.label}`, () =>
+				editFolder(spaceFilesFolderSection));
 		}
 	}
 );
 
 test(
-	'Folder permissions can be defined in every section only by space administrators',
+	'A folder cannot be edited in any section by users who cannot manage content',
+	{tag: '@LPD-85556'},
+	async ({apiHelpers, assetsPage, page}) => {
+		const spaceName = SITE_CMS_SPACE_NAME;
+
+		const parents = await createParentFolders(apiHelpers, spaceName);
+
+		const sections = makeFolderSections(parents);
+
+		const nonManageUserNames = SITE_CMS_USER_NAMES.filter(
+			(userName) => !SITE_CMS_USER_EDIT_NAMES.includes(userName)
+		);
+
+		const targets = await createTargetsPerUserSection(
+			apiHelpers,
+			spaceName,
+			sections,
+			nonManageUserNames
+		);
+
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
+
+		for (const userName of nonManageUserNames) {
+			await performUserSwitchViaApi(page, userName);
+
+			const expectCannotEditFolder = async (section: FolderSection) => {
+				await gotoTableListing(assetsPage, section, spaceName);
+
+				const folder = targets.get(`${userName}|${section.label}`);
+
+				await expectRowActionHidden(page, folder.title, 'Edit');
+			};
+
+			await test.step(`${userName} cannot edit a folder in ${contentsSection.label}`, () =>
+				expectCannotEditFolder(contentsSection));
+
+			await test.step(`${userName} cannot edit a folder in ${filesSection.label}`, () =>
+				expectCannotEditFolder(filesSection));
+
+			await test.step(`${userName} cannot edit a folder in ${spaceContentsSection.label}`, () =>
+				expectCannotEditFolder(spaceContentsSection));
+
+			await test.step(`${userName} cannot edit a folder in ${spaceFilesSection.label}`, () =>
+				expectCannotEditFolder(spaceFilesSection));
+
+			await test.step(`${userName} cannot edit a folder in ${spaceContentsFolderSection.label}`, () =>
+				expectCannotEditFolder(spaceContentsFolderSection));
+
+			await test.step(`${userName} cannot edit a folder in ${spaceFilesFolderSection.label}`, () =>
+				expectCannotEditFolder(spaceFilesFolderSection));
+		}
+	}
+);
+
+test(
+	'Folder permissions can be defined in every section by space administrators',
 	{tag: '@LPD-85556'},
 	async ({apiHelpers, assetsPage, page}) => {
 		const spaceName = SITE_CMS_SPACE_NAME;
@@ -1039,39 +1217,57 @@ test(
 			sections
 		);
 
-		for (const user of SITE_CMS_USER_NAMES) {
-			await performUserSwitchViaApi(page, user);
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
 
-			const canAdminister = SITE_CMS_USER_ADMIN_NAMES.includes(user);
+		for (const userName of SITE_CMS_USER_ADMIN_NAMES) {
+			await performUserSwitchViaApi(page, userName);
 
-			for (const section of sections) {
+			const defineFolderPermissions = async (section: FolderSection) => {
+				await gotoTableListing(assetsPage, section, spaceName);
+
 				const folder = targets.get(section.label);
 
-				await test.step(`${user} ${canAdminister ? 'can' : 'cannot'} define folder permissions in ${section.label}`, async () => {
-					await gotoTableListing(assetsPage, section, spaceName);
+				await attemptOpenFolderPermissions(page, folder.title);
 
-					await attemptOpenFolderPermissions(page, folder.title);
-
-					const permissionsDialog = page
+				await expect(
+					page
 						.getByRole('dialog')
-						.getByRole('heading', {name: 'Permissions'});
+						.getByRole('heading', {name: 'Permissions'})
+				).toBeVisible();
 
-					if (canAdminister) {
-						await expect(permissionsDialog).toBeVisible();
-					}
-					else {
-						await expect(permissionsDialog).toBeHidden();
-					}
+				await page.keyboard.press('Escape');
+			};
 
-					await page.keyboard.press('Escape');
-				});
-			}
+			await test.step(`${userName} can define folder permissions in ${contentsSection.label}`, () =>
+				defineFolderPermissions(contentsSection));
+
+			await test.step(`${userName} can define folder permissions in ${filesSection.label}`, () =>
+				defineFolderPermissions(filesSection));
+
+			await test.step(`${userName} can define folder permissions in ${spaceContentsSection.label}`, () =>
+				defineFolderPermissions(spaceContentsSection));
+
+			await test.step(`${userName} can define folder permissions in ${spaceFilesSection.label}`, () =>
+				defineFolderPermissions(spaceFilesSection));
+
+			await test.step(`${userName} can define folder permissions in ${spaceContentsFolderSection.label}`, () =>
+				defineFolderPermissions(spaceContentsFolderSection));
+
+			await test.step(`${userName} can define folder permissions in ${spaceFilesFolderSection.label}`, () =>
+				defineFolderPermissions(spaceFilesFolderSection));
 		}
 	}
 );
 
 test(
-	'Content can be added inside a folder in every section only by users who can manage content',
+	'Folder permissions cannot be defined in any section by users who cannot administer the space',
 	{tag: '@LPD-85556'},
 	async ({apiHelpers, assetsPage, page}) => {
 		const spaceName = SITE_CMS_SPACE_NAME;
@@ -1086,42 +1282,196 @@ test(
 			sections
 		);
 
-		for (const user of SITE_CMS_USER_NAMES) {
-			await performUserSwitchViaApi(page, user);
+		const nonAdminUserNames = SITE_CMS_USER_NAMES.filter(
+			(userName) => !SITE_CMS_USER_ADMIN_NAMES.includes(userName)
+		);
 
-			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
 
-			for (const section of sections) {
+		for (const userName of nonAdminUserNames) {
+			await performUserSwitchViaApi(page, userName);
+
+			const expectCannotDefineFolderPermissions = async (
+				section: FolderSection
+			) => {
+				await gotoTableListing(assetsPage, section, spaceName);
+
 				const folder = targets.get(section.label);
+
+				await attemptOpenFolderPermissions(page, folder.title);
+
+				await expect(
+					page
+						.getByRole('dialog')
+						.getByRole('heading', {name: 'Permissions'})
+				).toBeHidden();
+
+				await page.keyboard.press('Escape');
+			};
+
+			await test.step(`${userName} cannot define folder permissions in ${contentsSection.label}`, () =>
+				expectCannotDefineFolderPermissions(contentsSection));
+
+			await test.step(`${userName} cannot define folder permissions in ${filesSection.label}`, () =>
+				expectCannotDefineFolderPermissions(filesSection));
+
+			await test.step(`${userName} cannot define folder permissions in ${spaceContentsSection.label}`, () =>
+				expectCannotDefineFolderPermissions(spaceContentsSection));
+
+			await test.step(`${userName} cannot define folder permissions in ${spaceFilesSection.label}`, () =>
+				expectCannotDefineFolderPermissions(spaceFilesSection));
+
+			await test.step(`${userName} cannot define folder permissions in ${spaceContentsFolderSection.label}`, () =>
+				expectCannotDefineFolderPermissions(
+					spaceContentsFolderSection
+				));
+
+			await test.step(`${userName} cannot define folder permissions in ${spaceFilesFolderSection.label}`, () =>
+				expectCannotDefineFolderPermissions(spaceFilesFolderSection));
+		}
+	}
+);
+
+test(
+	'Content can be added inside a folder in every section by users who can manage content',
+	{tag: '@LPD-85556'},
+	async ({apiHelpers, assetsPage, page}) => {
+		const spaceName = SITE_CMS_SPACE_NAME;
+
+		const parents = await createParentFolders(apiHelpers, spaceName);
+
+		const sections = makeFolderSections(parents);
+
+		const targets = await createTargetsPerSection(
+			apiHelpers,
+			spaceName,
+			sections
+		);
+
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
+
+		for (const userName of SITE_CMS_USER_EDIT_NAMES) {
+			await performUserSwitchViaApi(page, userName);
+
+			const addContentInsideFolder = async (section: FolderSection) => {
+				const folder = targets.get(section.label);
+
+				await assetsPage.gotoFolder(folder.id, folder.title);
+
+				await assetsPage.newButton.click();
 
 				const contentType =
 					section.type === 'content'
 						? 'Basic Web Content'
 						: 'Single File';
 
-				await test.step(`${user} ${canManage ? 'can' : 'cannot'} add content inside a folder in ${section.label}`, async () => {
-					await assetsPage.gotoFolder(folder.id, folder.title);
+				await expect(
+					page.getByRole('menuitem', {name: contentType})
+				).toBeVisible();
 
-					if (canManage) {
-						await assetsPage.newButton.click();
+				await page.keyboard.press('Escape');
+			};
 
-						await expect(
-							page.getByRole('menuitem', {name: contentType})
-						).toBeVisible();
+			await test.step(`${userName} can add content inside a folder in ${contentsSection.label}`, () =>
+				addContentInsideFolder(contentsSection));
 
-						await page.keyboard.press('Escape');
-					}
-					else {
-						await expect(assetsPage.newButton).toBeHidden();
-					}
-				});
-			}
+			await test.step(`${userName} can add content inside a folder in ${filesSection.label}`, () =>
+				addContentInsideFolder(filesSection));
+
+			await test.step(`${userName} can add content inside a folder in ${spaceContentsSection.label}`, () =>
+				addContentInsideFolder(spaceContentsSection));
+
+			await test.step(`${userName} can add content inside a folder in ${spaceFilesSection.label}`, () =>
+				addContentInsideFolder(spaceFilesSection));
+
+			await test.step(`${userName} can add content inside a folder in ${spaceContentsFolderSection.label}`, () =>
+				addContentInsideFolder(spaceContentsFolderSection));
+
+			await test.step(`${userName} can add content inside a folder in ${spaceFilesFolderSection.label}`, () =>
+				addContentInsideFolder(spaceFilesFolderSection));
 		}
 	}
 );
 
 test(
-	'A folder can be moved to another folder and another space only by users who can manage content',
+	'Content cannot be added inside a folder in any section by users who cannot manage content',
+	{tag: '@LPD-85556'},
+	async ({apiHelpers, assetsPage, page}) => {
+		const spaceName = SITE_CMS_SPACE_NAME;
+
+		const parents = await createParentFolders(apiHelpers, spaceName);
+
+		const sections = makeFolderSections(parents);
+
+		const targets = await createTargetsPerSection(
+			apiHelpers,
+			spaceName,
+			sections
+		);
+
+		const nonManageUserNames = SITE_CMS_USER_NAMES.filter(
+			(userName) => !SITE_CMS_USER_EDIT_NAMES.includes(userName)
+		);
+
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
+
+		for (const userName of nonManageUserNames) {
+			await performUserSwitchViaApi(page, userName);
+
+			const expectCannotAddContentInsideFolder = async (
+				section: FolderSection
+			) => {
+				const folder = targets.get(section.label);
+
+				await assetsPage.gotoFolder(folder.id, folder.title);
+
+				await expect(assetsPage.newButton).toBeHidden();
+			};
+
+			await test.step(`${userName} cannot add content inside a folder in ${contentsSection.label}`, () =>
+				expectCannotAddContentInsideFolder(contentsSection));
+
+			await test.step(`${userName} cannot add content inside a folder in ${filesSection.label}`, () =>
+				expectCannotAddContentInsideFolder(filesSection));
+
+			await test.step(`${userName} cannot add content inside a folder in ${spaceContentsSection.label}`, () =>
+				expectCannotAddContentInsideFolder(spaceContentsSection));
+
+			await test.step(`${userName} cannot add content inside a folder in ${spaceFilesSection.label}`, () =>
+				expectCannotAddContentInsideFolder(spaceFilesSection));
+
+			await test.step(`${userName} cannot add content inside a folder in ${spaceContentsFolderSection.label}`, () =>
+				expectCannotAddContentInsideFolder(spaceContentsFolderSection));
+
+			await test.step(`${userName} cannot add content inside a folder in ${spaceFilesFolderSection.label}`, () =>
+				expectCannotAddContentInsideFolder(spaceFilesFolderSection));
+		}
+	}
+);
+
+test(
+	'A folder can be moved to another folder and another space by users who can manage content',
 	{tag: '@LPD-85556'},
 	async ({apiHelpers, assetsPage, page}) => {
 
@@ -1146,13 +1496,13 @@ test(
 
 		const sources = new Map<string, FolderRef>();
 
-		for (const user of SITE_CMS_USER_NAMES) {
+		for (const userName of SITE_CMS_USER_EDIT_NAMES) {
 			for (const section of sections) {
 				const destinations = destinationsByType[section.type];
 
 				for (let index = 0; index < destinations.length; index++) {
 					sources.set(
-						`${user}|${section.label}|${index}`,
+						`${userName}|${section.label}|${index}`,
 						await apiHelpers.objectFolder.createObjectEntryFolder({
 							parentObjectEntryFolderExternalReferenceCode:
 								section.parentExternalReferenceCode,
@@ -1164,52 +1514,116 @@ test(
 			}
 		}
 
-		for (const user of SITE_CMS_USER_NAMES) {
-			await performUserSwitchViaApi(page, user);
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
 
-			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
+		for (const userName of SITE_CMS_USER_EDIT_NAMES) {
+			await performUserSwitchViaApi(page, userName);
 
-			for (const section of sections) {
+			const moveFolder = async (section: FolderSection) => {
 				const destinations = destinationsByType[section.type];
 
-				if (canManage) {
-					for (let index = 0; index < destinations.length; index++) {
-						const destination = destinations[index];
-						const source = sources.get(
-							`${user}|${section.label}|${index}`
-						);
+				for (let index = 0; index < destinations.length; index++) {
+					const destination = destinations[index];
+					const source = sources.get(
+						`${userName}|${section.label}|${index}`
+					);
 
-						await test.step(`${user} can move a folder in ${section.label} to ${destination.space}`, async () => {
-							await relocateFolderWithRetry(
-								assetsPage,
-								page,
-								section,
-								spaceName,
-								{
-									action: 'Move',
-									destination,
-									itemTitle: source.title,
-								}
-							);
-						});
-					}
+					await test.step(`${userName} can move a folder in ${section.label} to ${destination.space}`, () =>
+						relocateFolderWithRetry(
+							assetsPage,
+							page,
+							section,
+							spaceName,
+							{
+								action: 'Move',
+								destination,
+								itemTitle: source.title,
+							}
+						));
 				}
-				else {
-					const source = sources.get(`${user}|${section.label}|0`);
+			};
 
-					await test.step(`${user} cannot move a folder in ${section.label}`, async () => {
-						await gotoTableListing(assetsPage, section, spaceName);
-
-						await expectRowActionHidden(page, source.title, 'Move');
-					});
-				}
-			}
+			await moveFolder(contentsSection);
+			await moveFolder(filesSection);
+			await moveFolder(spaceContentsSection);
+			await moveFolder(spaceFilesSection);
+			await moveFolder(spaceContentsFolderSection);
+			await moveFolder(spaceFilesFolderSection);
 		}
 	}
 );
 
 test(
-	'A folder can be copied to another folder and another space only by users who can manage content',
+	'A folder cannot be moved in any section by users who cannot manage content',
+	{tag: '@LPD-85556'},
+	async ({apiHelpers, assetsPage, page}) => {
+		const spaceName = SITE_CMS_SPACE_NAME;
+
+		const parents = await createParentFolders(apiHelpers, spaceName);
+
+		const sections = makeFolderSections(parents);
+
+		const nonManageUserNames = SITE_CMS_USER_NAMES.filter(
+			(userName) => !SITE_CMS_USER_EDIT_NAMES.includes(userName)
+		);
+
+		const targets = await createTargetsPerUserSection(
+			apiHelpers,
+			spaceName,
+			sections,
+			nonManageUserNames
+		);
+
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
+
+		for (const userName of nonManageUserNames) {
+			await performUserSwitchViaApi(page, userName);
+
+			const expectCannotMoveFolder = async (section: FolderSection) => {
+				await gotoTableListing(assetsPage, section, spaceName);
+
+				const folder = targets.get(`${userName}|${section.label}`);
+
+				await expectRowActionHidden(page, folder.title, 'Move');
+			};
+
+			await test.step(`${userName} cannot move a folder in ${contentsSection.label}`, () =>
+				expectCannotMoveFolder(contentsSection));
+
+			await test.step(`${userName} cannot move a folder in ${filesSection.label}`, () =>
+				expectCannotMoveFolder(filesSection));
+
+			await test.step(`${userName} cannot move a folder in ${spaceContentsSection.label}`, () =>
+				expectCannotMoveFolder(spaceContentsSection));
+
+			await test.step(`${userName} cannot move a folder in ${spaceFilesSection.label}`, () =>
+				expectCannotMoveFolder(spaceFilesSection));
+
+			await test.step(`${userName} cannot move a folder in ${spaceContentsFolderSection.label}`, () =>
+				expectCannotMoveFolder(spaceContentsFolderSection));
+
+			await test.step(`${userName} cannot move a folder in ${spaceFilesFolderSection.label}`, () =>
+				expectCannotMoveFolder(spaceFilesFolderSection));
+		}
+	}
+);
+
+test(
+	'A folder can be copied to another folder and another space by users who can manage content',
 	{tag: '@LPD-85556'},
 	async ({apiHelpers, assetsPage, page}) => {
 
@@ -1234,13 +1648,13 @@ test(
 
 		const sources = new Map<string, FolderRef>();
 
-		for (const user of SITE_CMS_USER_NAMES) {
+		for (const userName of SITE_CMS_USER_EDIT_NAMES) {
 			for (const section of sections) {
 				const destinations = destinationsByType[section.type];
 
 				for (let index = 0; index < destinations.length; index++) {
 					sources.set(
-						`${user}|${section.label}|${index}`,
+						`${userName}|${section.label}|${index}`,
 						await apiHelpers.objectFolder.createObjectEntryFolder({
 							parentObjectEntryFolderExternalReferenceCode:
 								section.parentExternalReferenceCode,
@@ -1252,46 +1666,110 @@ test(
 			}
 		}
 
-		for (const user of SITE_CMS_USER_NAMES) {
-			await performUserSwitchViaApi(page, user);
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
 
-			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(user);
+		for (const userName of SITE_CMS_USER_EDIT_NAMES) {
+			await performUserSwitchViaApi(page, userName);
 
-			for (const section of sections) {
+			const copyFolder = async (section: FolderSection) => {
 				const destinations = destinationsByType[section.type];
 
-				if (canManage) {
-					for (let index = 0; index < destinations.length; index++) {
-						const destination = destinations[index];
-						const source = sources.get(
-							`${user}|${section.label}|${index}`
-						);
+				for (let index = 0; index < destinations.length; index++) {
+					const destination = destinations[index];
+					const source = sources.get(
+						`${userName}|${section.label}|${index}`
+					);
 
-						await test.step(`${user} can copy a folder in ${section.label} to ${destination.space}`, async () => {
-							await relocateFolderWithRetry(
-								assetsPage,
-								page,
-								section,
-								spaceName,
-								{
-									action: 'Copy',
-									destination,
-									itemTitle: source.title,
-								}
-							);
-						});
-					}
+					await test.step(`${userName} can copy a folder in ${section.label} to ${destination.space}`, () =>
+						relocateFolderWithRetry(
+							assetsPage,
+							page,
+							section,
+							spaceName,
+							{
+								action: 'Copy',
+								destination,
+								itemTitle: source.title,
+							}
+						));
 				}
-				else {
-					const source = sources.get(`${user}|${section.label}|0`);
+			};
 
-					await test.step(`${user} cannot copy a folder in ${section.label}`, async () => {
-						await gotoTableListing(assetsPage, section, spaceName);
+			await copyFolder(contentsSection);
+			await copyFolder(filesSection);
+			await copyFolder(spaceContentsSection);
+			await copyFolder(spaceFilesSection);
+			await copyFolder(spaceContentsFolderSection);
+			await copyFolder(spaceFilesFolderSection);
+		}
+	}
+);
 
-						await expectRowActionHidden(page, source.title, 'Copy');
-					});
-				}
-			}
+test(
+	'A folder cannot be copied in any section by users who cannot manage content',
+	{tag: '@LPD-85556'},
+	async ({apiHelpers, assetsPage, page}) => {
+		const spaceName = SITE_CMS_SPACE_NAME;
+
+		const parents = await createParentFolders(apiHelpers, spaceName);
+
+		const sections = makeFolderSections(parents);
+
+		const nonManageUserNames = SITE_CMS_USER_NAMES.filter(
+			(userName) => !SITE_CMS_USER_EDIT_NAMES.includes(userName)
+		);
+
+		const targets = await createTargetsPerUserSection(
+			apiHelpers,
+			spaceName,
+			sections,
+			nonManageUserNames
+		);
+
+		const [
+			contentsSection,
+			filesSection,
+			spaceContentsSection,
+			spaceFilesSection,
+			spaceContentsFolderSection,
+			spaceFilesFolderSection,
+		] = sections;
+
+		for (const userName of nonManageUserNames) {
+			await performUserSwitchViaApi(page, userName);
+
+			const expectCannotCopyFolder = async (section: FolderSection) => {
+				await gotoTableListing(assetsPage, section, spaceName);
+
+				const folder = targets.get(`${userName}|${section.label}`);
+
+				await expectRowActionHidden(page, folder.title, 'Copy');
+			};
+
+			await test.step(`${userName} cannot copy a folder in ${contentsSection.label}`, () =>
+				expectCannotCopyFolder(contentsSection));
+
+			await test.step(`${userName} cannot copy a folder in ${filesSection.label}`, () =>
+				expectCannotCopyFolder(filesSection));
+
+			await test.step(`${userName} cannot copy a folder in ${spaceContentsSection.label}`, () =>
+				expectCannotCopyFolder(spaceContentsSection));
+
+			await test.step(`${userName} cannot copy a folder in ${spaceFilesSection.label}`, () =>
+				expectCannotCopyFolder(spaceFilesSection));
+
+			await test.step(`${userName} cannot copy a folder in ${spaceContentsFolderSection.label}`, () =>
+				expectCannotCopyFolder(spaceContentsFolderSection));
+
+			await test.step(`${userName} cannot copy a folder in ${spaceFilesFolderSection.label}`, () =>
+				expectCannotCopyFolder(spaceFilesFolderSection));
 		}
 	}
 );
