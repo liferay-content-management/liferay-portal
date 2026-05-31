@@ -20,9 +20,9 @@ import {
 import {waitForAlert} from '../../../utils/waitForAlert';
 import {
 	SITE_CMS_SPACE_NAME,
-	SITE_CMS_USER_NAMES,
 	SITE_CMS_USER_ADMIN_NAMES,
 	SITE_CMS_USER_EDIT_NAMES,
+	SITE_CMS_USER_NAMES,
 } from '../../setup/site-cms-site/constants/space';
 import {cmsPagesTest} from './fixtures/cmsPagesTest';
 import {AssetsPage} from './pages/AssetsPage';
@@ -332,10 +332,10 @@ test(
 // every CMS user role across every section a folder can live in. Because the
 // fixture provisions a single Space ("Default") where the cms.space.* users
 // hold their roles, the expected outcome for a (use case, role) pair is the
-// same in every section; looping the sections verifies the UI enforces that
-// permission consistently at each entry point. SITE_CMS_USERS_EDIT holds the
-// users that can manage content and SITE_CMS_USERS_ADMIN the users that can
-// administer the space.
+// same in every section; verifying each section confirms the UI enforces that
+// permission consistently at each entry point. SITE_CMS_USER_EDIT_NAMES holds
+// the users that can manage content and SITE_CMS_USER_ADMIN_NAMES the users
+// that can administer the space.
 
 interface FolderRef {
 	externalReferenceCode: string;
@@ -701,56 +701,133 @@ test(
 	'A folder can be added in every section only by users who can manage content',
 	{tag: '@LPD-85556'},
 	async ({apiHelpers, assetsPage, folderPage, page, spaceSummaryPage}) => {
-		const parents = await createParentFolders(apiHelpers, SITE_CMS_SPACE_NAME);
+		const parents = await createParentFolders(
+			apiHelpers,
+			SITE_CMS_SPACE_NAME
+		);
 
-		const sections = makeFolderSections(parents);
+		const addFolder = async () => {
+			const folderName = `Folder ${getRandomString()}`;
 
-		for (const userName of SITE_CMS_USER_NAMES) {
+			await folderPage.createFolder(folderName, SITE_CMS_SPACE_NAME);
+
+			await expect(
+				page.getByRole('link', {name: folderName})
+			).toBeVisible();
+		};
+
+		for (const userName of SITE_CMS_USER_EDIT_NAMES) {
 			await performUserSwitchViaApi(page, userName);
 
-			const canManage = SITE_CMS_USER_EDIT_NAMES.includes(userName);
+			await test.step(`${userName} can add a folder in Contents`, async () => {
+				await assetsPage.gotoContents();
 
-			for (const section of sections) {
-				await test.step(`${userName} ${canManage ? 'can' : 'cannot'} add a folder in ${section.label}`, async () => {
-					await section.goto(assetsPage, SITE_CMS_SPACE_NAME);
+				await addFolder();
+			});
 
-					if (canManage) {
-						const folderName = `Folder ${getRandomString()}`;
+			await test.step(`${userName} can add a folder in Files`, async () => {
+				await assetsPage.gotoFiles();
 
-						await folderPage.createFolder(folderName, SITE_CMS_SPACE_NAME);
+				await addFolder();
+			});
 
-						await expect(
-							page.getByRole('link', {name: folderName})
-						).toBeVisible();
-					}
-					else {
-						await expect(assetsPage.newButton).toBeHidden();
-					}
-				});
-			}
+			await test.step(`${userName} can add a folder in Space > Contents`, async () => {
+				await assetsPage.gotoSpaceContents(SITE_CMS_SPACE_NAME);
 
-			await test.step(`${userName} ${canManage ? 'can' : 'cannot'} add a folder in Space > Summary`, async () => {
+				await addFolder();
+			});
+
+			await test.step(`${userName} can add a folder in Space > Files`, async () => {
+				await assetsPage.gotoSpaceFiles(SITE_CMS_SPACE_NAME);
+
+				await addFolder();
+			});
+
+			await test.step(`${userName} can add a folder in Space > Contents > Folder`, async () => {
+				await assetsPage.gotoFolder(
+					parents.contentFolder.id,
+					parents.contentFolder.title
+				);
+
+				await addFolder();
+			});
+
+			await test.step(`${userName} can add a folder in Space > Files > Folder`, async () => {
+				await assetsPage.gotoFolder(
+					parents.fileFolder.id,
+					parents.fileFolder.title
+				);
+
+				await addFolder();
+			});
+
+			await test.step(`${userName} can add a folder in Space > Summary`, async () => {
 				await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
-				if (canManage) {
-					await spaceSummaryPage.createContentFolder(
-						`Folder ${getRandomString()}`
-					);
+				await spaceSummaryPage.createContentFolder(
+					`Folder ${getRandomString()}`
+				);
 
-					await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
+				await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
-					await spaceSummaryPage.createFileFolder(
-						`Folder ${getRandomString()}`
-					);
-				}
-				else {
-					await expect(
-						spaceSummaryPage.addContentButton
-					).toBeHidden();
-					await expect(spaceSummaryPage.addFileButton).toBeHidden();
-				}
+				await spaceSummaryPage.createFileFolder(
+					`Folder ${getRandomString()}`
+				);
 			});
 		}
+
+		const userName = 'cms.space.member';
+
+		await performUserSwitchViaApi(page, userName);
+
+		await test.step(`${userName} cannot add a folder in Contents`, async () => {
+			await assetsPage.gotoContents();
+
+			await expect(assetsPage.newButton).toBeHidden();
+		});
+
+		await test.step(`${userName} cannot add a folder in Files`, async () => {
+			await assetsPage.gotoFiles();
+
+			await expect(assetsPage.newButton).toBeHidden();
+		});
+
+		await test.step(`${userName} cannot add a folder in Space > Contents`, async () => {
+			await assetsPage.gotoSpaceContents(SITE_CMS_SPACE_NAME);
+
+			await expect(assetsPage.newButton).toBeHidden();
+		});
+
+		await test.step(`${userName} cannot add a folder in Space > Files`, async () => {
+			await assetsPage.gotoSpaceFiles(SITE_CMS_SPACE_NAME);
+
+			await expect(assetsPage.newButton).toBeHidden();
+		});
+
+		await test.step(`${userName} cannot add a folder in Space > Contents > Folder`, async () => {
+			await assetsPage.gotoFolder(
+				parents.contentFolder.id,
+				parents.contentFolder.title
+			);
+
+			await expect(assetsPage.newButton).toBeHidden();
+		});
+
+		await test.step(`${userName} cannot add a folder in Space > Files > Folder`, async () => {
+			await assetsPage.gotoFolder(
+				parents.fileFolder.id,
+				parents.fileFolder.title
+			);
+
+			await expect(assetsPage.newButton).toBeHidden();
+		});
+
+		await test.step(`${userName} cannot add a folder in Space > Summary`, async () => {
+			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
+
+			await expect(spaceSummaryPage.addContentButton).toBeHidden();
+			await expect(spaceSummaryPage.addFileButton).toBeHidden();
+		});
 	}
 );
 
