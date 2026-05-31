@@ -698,7 +698,7 @@ async function createMoveCopyDestinations(
 }
 
 test(
-	'A folder can be added in every section only by users who can manage content',
+	'A folder can be added in every section by users who can manage content',
 	{tag: '@LPD-85556'},
 	async ({apiHelpers, assetsPage, folderPage, page, spaceSummaryPage}) => {
 		const parents = await createParentFolders(
@@ -775,59 +775,74 @@ test(
 				);
 			});
 		}
+	}
+);
 
-		const userName = 'cms.space.member';
+test(
+	'A folder cannot be added in any section by users who cannot manage content',
+	{tag: '@LPD-85556'},
+	async ({apiHelpers, assetsPage, page, spaceSummaryPage}) => {
+		const parents = await createParentFolders(
+			apiHelpers,
+			SITE_CMS_SPACE_NAME
+		);
 
-		await performUserSwitchViaApi(page, userName);
+		const nonManageUserNames = SITE_CMS_USER_NAMES.filter(
+			(userName) => !SITE_CMS_USER_EDIT_NAMES.includes(userName)
+		);
 
-		await test.step(`${userName} cannot add a folder in Contents`, async () => {
-			await assetsPage.gotoContents();
+		for (const userName of nonManageUserNames) {
+			await performUserSwitchViaApi(page, userName);
 
-			await expect(assetsPage.newButton).toBeHidden();
-		});
+			await test.step(`${userName} cannot add a folder in Contents`, async () => {
+				await assetsPage.gotoContents();
 
-		await test.step(`${userName} cannot add a folder in Files`, async () => {
-			await assetsPage.gotoFiles();
+				await expect(assetsPage.newButton).toBeHidden();
+			});
 
-			await expect(assetsPage.newButton).toBeHidden();
-		});
+			await test.step(`${userName} cannot add a folder in Files`, async () => {
+				await assetsPage.gotoFiles();
 
-		await test.step(`${userName} cannot add a folder in Space > Contents`, async () => {
-			await assetsPage.gotoSpaceContents(SITE_CMS_SPACE_NAME);
+				await expect(assetsPage.newButton).toBeHidden();
+			});
 
-			await expect(assetsPage.newButton).toBeHidden();
-		});
+			await test.step(`${userName} cannot add a folder in Space > Contents`, async () => {
+				await assetsPage.gotoSpaceContents(SITE_CMS_SPACE_NAME);
 
-		await test.step(`${userName} cannot add a folder in Space > Files`, async () => {
-			await assetsPage.gotoSpaceFiles(SITE_CMS_SPACE_NAME);
+				await expect(assetsPage.newButton).toBeHidden();
+			});
 
-			await expect(assetsPage.newButton).toBeHidden();
-		});
+			await test.step(`${userName} cannot add a folder in Space > Files`, async () => {
+				await assetsPage.gotoSpaceFiles(SITE_CMS_SPACE_NAME);
 
-		await test.step(`${userName} cannot add a folder in Space > Contents > Folder`, async () => {
-			await assetsPage.gotoFolder(
-				parents.contentFolder.id,
-				parents.contentFolder.title
-			);
+				await expect(assetsPage.newButton).toBeHidden();
+			});
 
-			await expect(assetsPage.newButton).toBeHidden();
-		});
+			await test.step(`${userName} cannot add a folder in Space > Contents > Folder`, async () => {
+				await assetsPage.gotoFolder(
+					parents.contentFolder.id,
+					parents.contentFolder.title
+				);
 
-		await test.step(`${userName} cannot add a folder in Space > Files > Folder`, async () => {
-			await assetsPage.gotoFolder(
-				parents.fileFolder.id,
-				parents.fileFolder.title
-			);
+				await expect(assetsPage.newButton).toBeHidden();
+			});
 
-			await expect(assetsPage.newButton).toBeHidden();
-		});
+			await test.step(`${userName} cannot add a folder in Space > Files > Folder`, async () => {
+				await assetsPage.gotoFolder(
+					parents.fileFolder.id,
+					parents.fileFolder.title
+				);
 
-		await test.step(`${userName} cannot add a folder in Space > Summary`, async () => {
-			await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
+				await expect(assetsPage.newButton).toBeHidden();
+			});
 
-			await expect(spaceSummaryPage.addContentButton).toBeHidden();
-			await expect(spaceSummaryPage.addFileButton).toBeHidden();
-		});
+			await test.step(`${userName} cannot add a folder in Space > Summary`, async () => {
+				await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
+
+				await expect(spaceSummaryPage.addContentButton).toBeHidden();
+				await expect(spaceSummaryPage.addFileButton).toBeHidden();
+			});
+		}
 	}
 );
 
