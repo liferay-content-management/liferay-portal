@@ -140,9 +140,19 @@ export class AssetsPage {
 		}
 	}
 
-	async gotoFiles() {
-		await this.page.goto(PORTLET_URLS.cmsFiles);
-		await this.page.getByRole('heading', {name: 'Files'}).waitFor();
+	async gotoFiles(spaceName?: string) {
+		if (spaceName) {
+			const rootFolder =
+				await this.apiHelpers.objectFolder.getObjectEntryFolderByExternalReferenceCode(
+					{externalReferenceCode: 'L_FILES', scopeKey: spaceName}
+				);
+
+			await this.gotoFolder(rootFolder.id, rootFolder.title);
+		}
+		else {
+			await this.page.goto(PORTLET_URLS.cmsFiles);
+			await this.page.getByRole('heading', {name: 'Files'}).waitFor();
+		}
 	}
 
 	async gotoFolder(folderId: string, folderTitle: string) {
