@@ -417,14 +417,14 @@ async function createParentFolders(apiHelpers: ApiHelpers, spaceName: string) {
 		{
 			parentObjectEntryFolderExternalReferenceCode: 'L_CONTENTS',
 			scopeKey: spaceName,
-			title: `Parent Content ${getRandomString()}`,
+			title: `Content Folder ${getRandomString()}`,
 		}
 	);
 
 	const fileFolder = await apiHelpers.objectFolder.createObjectEntryFolder({
 		parentObjectEntryFolderExternalReferenceCode: 'L_FILES',
 		scopeKey: spaceName,
-		title: `Parent File ${getRandomString()}`,
+		title: `File Folder ${getRandomString()}`,
 	});
 
 	return {contentFolder, fileFolder};
@@ -850,66 +850,87 @@ test(
 test(
 	'A folder can be navigated into by clicking its title by every user',
 	{tag: '@LPD-85556'},
-	async ({apiHelpers, assetsPage, page}) => {
+	async ({apiHelpers, assetsPage, page, spaceSummaryPage}) => {
 		const spaceName = SITE_CMS_SPACE_NAME;
 
-		const parents = await createParentFolders(apiHelpers, spaceName);
+		const {contentFolder, fileFolder} = await createParentFolders(apiHelpers, spaceName);
 
-		const sections = makeFolderSections(parents);
+		const contentSubFolder = await apiHelpers.objectFolder.createObjectEntryFolder({
+				parentObjectEntryFolderExternalReferenceCode:
+					contentFolder.externalReferenceCode,
+				scopeKey: spaceName,
+				title: `Folder ${getRandomString()}`,
+			})
 
-		// Create one target folder per section up front, as an admin.
+		const fileSubFolder = await apiHelpers.objectFolder.createObjectEntryFolder({
+				parentObjectEntryFolderExternalReferenceCode:
+					fileFolder.externalReferenceCode,
+				scopeKey: spaceName,
+				title: `Folder ${getRandomString()}`,
+			})
 
-		const targets = await createTargetsPerSection(
-			apiHelpers,
-			spaceName,
-			sections
-		);
+		const navigateIntoFolder = async (folderTitle: string) => {
+			await page
+				.getByRole('link', {exact: true, name: folderTitle})
+				.click();
 
-		const [
-			contentsSection,
-			filesSection,
-			spaceContentsSection,
-			spaceFilesSection,
-			spaceContentsFolderSection,
-			spaceFilesFolderSection,
-		] = sections;
+			await expect(page).toHaveURL(/view-folder/);
+
+			await expect(
+				page.getByTestId(`testId${folderTitle}`)
+			).toBeVisible();
+		};
 
 		for (const userName of SITE_CMS_USER_NAMES) {
 			await performUserSwitchViaApi(page, userName);
 
-			const navigateIntoFolder = async (section: FolderSection) => {
-				await section.goto(assetsPage, spaceName);
+			await test.step(`${userName} can navigate into a folder in Contents`, async () => {
+				await assetsPage.gotoContents();
+				await navigateIntoFolder(contentFolder.title);
+			});
 
-				const folder = targets.get(section.label);
+			await test.step(`${userName} can navigate into a folder in Files`, async () =>{
+				await assetsPage.gotoFiles();
+				await navigateIntoFolder(fileFolder.title);
+			});
 
-				await page
-					.getByRole('link', {exact: true, name: folder.title})
-					.click();
+			await test.step(`${userName} can navigate into a folder in Space > Contents`, async () =>{
+				await assetsPage.gotoSpaceContents(SITE_CMS_SPACE_NAME);
+				await navigateIntoFolder(contentFolder.title);
+			});
 
-				await expect(page).toHaveURL(/view-folder/);
+			await test.step(`${userName} can navigate into a folder in Space > Files`, async () =>{
+				await assetsPage.gotoSpaceFiles(SITE_CMS_SPACE_NAME);
+				await navigateIntoFolder(fileFolder.title);
+			});
 
-				await expect(
-					page.getByTestId(`testId${folder.title}`)
-				).toBeVisible();
-			};
+			await test.step(`${userName} can navigate into a folder in Space > Contents > Folder`, async () =>{
+				await assetsPage.gotoFolder(
+					contentFolder.id,
+					contentFolder.title
+				);
 
-			await test.step(`${userName} can navigate into a folder in ${contentsSection.label}`, () =>
-				navigateIntoFolder(contentsSection));
+				await navigateIntoFolder(contentSubFolder.title);
+			});
 
-			await test.step(`${userName} can navigate into a folder in ${filesSection.label}`, () =>
-				navigateIntoFolder(filesSection));
+			await test.step(`${userName} can navigate into a folder in Space > Files > Folder`, async () =>{
+				await assetsPage.gotoFolder(
+					fileFolder.id,
+					fileFolder.title
+				);
 
-			await test.step(`${userName} can navigate into a folder in ${spaceContentsSection.label}`, () =>
-				navigateIntoFolder(spaceContentsSection));
+				await navigateIntoFolder(fileSubFolder.title);
+			});
 
-			await test.step(`${userName} can navigate into a folder in ${spaceFilesSection.label}`, () =>
-				navigateIntoFolder(spaceFilesSection));
+			await test.step(`${userName} can navigate into a folder in Space > Summary`, async () => {
+				await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
 
-			await test.step(`${userName} can navigate into a folder in ${spaceContentsFolderSection.label}`, () =>
-				navigateIntoFolder(spaceContentsFolderSection));
+				await navigateIntoFolder(contentFolder.title);
 
-			await test.step(`${userName} can navigate into a folder in ${spaceFilesFolderSection.label}`, () =>
-				navigateIntoFolder(spaceFilesFolderSection));
+				await spaceSummaryPage.goto(SITE_CMS_SPACE_NAME);
+
+				await navigateIntoFolder(fileFolder.title);
+			});
 		}
 	}
 );
