@@ -5,7 +5,6 @@
 
 package com.liferay.dynamic.data.mapping.internal.upgrade.v5_6_1;
 
-import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.IndexMetadata;
 import com.liferay.portal.kernel.dao.db.IndexMetadataFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
@@ -17,15 +16,11 @@ public class DDMFieldAttributeIndexUpgradeProcess extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		DBInspector dbInspector = new DBInspector(connection);
-
 		IndexMetadata indexMetadata =
 			IndexMetadataFactoryUtil.createIndexMetadata(
 				false, "DDMFieldAttribute", "fieldId", "ctCollectionId");
 
-		if (!dbInspector.hasIndex(
-				"DDMFieldAttribute", indexMetadata.getIndexName())) {
-
+		if (!hasIndex("DDMFieldAttribute", indexMetadata.getIndexName())) {
 			runSQL(indexMetadata.getCreateSQL(null));
 		}
 	}
