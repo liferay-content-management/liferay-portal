@@ -651,7 +651,12 @@ public class DDMServiceUpgradeStepRegistrator
 			});
 
 		registry.register(
-			"5.6.0", "5.6.1",
+			"5.6.0", "5.6.0.step-1",
+			new com.liferay.dynamic.data.mapping.internal.upgrade.v5_6_1.
+				DDMFieldAttributeIndexUpgradeProcess());
+
+		registry.register(
+			"5.6.0.step-1", "5.6.1",
 			new com.liferay.dynamic.data.mapping.internal.upgrade.v5_6_1.
 				DDMFieldAttributeUpgradeProcess(
 					_classNameLocalService, _dlFileEntryLocalService,
