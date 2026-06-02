@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: (c) 2025 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
@@ -21,9 +21,9 @@ import com.liferay.portal.upgrade.test.util.UpgradeTestUtil;
 
 import java.sql.Connection;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,8 +40,8 @@ public class DDMFieldAttributeIndexUpgradeProcessTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new LiferayIntegrationTestRule();
 
-	@BeforeClass
-	public static void setUpClass() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		_connection = DataAccess.getConnection();
 		_db = DBManagerUtil.getDB();
 		_dbInspector = new DBInspector(_connection);
@@ -55,8 +55,8 @@ public class DDMFieldAttributeIndexUpgradeProcessTest {
 		}
 	}
 
-	@AfterClass
-	public static void tearDownClass() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		if (!_dbInspector.hasIndex(
 				"DDMFieldAttribute", _indexMetadata.getIndexName())) {
 
@@ -87,19 +87,17 @@ public class DDMFieldAttributeIndexUpgradeProcessTest {
 
 	private void _runUpgrade() throws Exception {
 		UpgradeProcess upgradeProcess = UpgradeTestUtil.getUpgradeStep(
-			_upgradeStepRegistrator, _CLASS_NAME);
+			_upgradeStepRegistrator,
+			"com.liferay.dynamic.data.mapping.internal.upgrade.v5_6_1." +
+				"DDMFieldAttributeIndexUpgradeProcess");
 
 		upgradeProcess.upgrade();
 	}
 
-	private static final String _CLASS_NAME =
-		"com.liferay.dynamic.data.mapping.internal.upgrade.v5_6_1." +
-			"DDMFieldAttributeIndexUpgradeProcess";
-
-	private static Connection _connection;
-	private static DB _db;
-	private static DBInspector _dbInspector;
-	private static IndexMetadata _indexMetadata;
+	private Connection _connection;
+	private DB _db;
+	private DBInspector _dbInspector;
+	private IndexMetadata _indexMetadata;
 
 	@Inject(
 		filter = "(&(component.name=com.liferay.dynamic.data.mapping.internal.upgrade.registry.DDMServiceUpgradeStepRegistrator))"
