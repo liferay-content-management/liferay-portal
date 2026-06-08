@@ -1534,11 +1534,15 @@ public class PortalImpl implements Portal {
 				String friendlyURL = layout.getFriendlyURL();
 
 				if (!friendlyURL.contains(urlSeparator)) {
+					String parametersURLString = completeURL.substring(index);
+
 					groupFriendlyURL = groupFriendlyURL.substring(0, index);
 
-					includeParametersURL = true;
+					if (!_isAssetPublisherFriendlyURL(parametersURLString)) {
+						includeParametersURL = true;
 
-					parametersURL = completeURL.substring(index);
+						parametersURL = parametersURLString;
+					}
 
 					break;
 				}
@@ -8086,6 +8090,22 @@ public class PortalImpl implements Portal {
 		return company.getVirtualHostname();
 	}
 
+	private boolean _isAssetPublisherFriendlyURL(String url) {
+		PortletFriendlyURLMapperMatch portletFriendlyURLMapperMatch =
+			PortletLocalServiceUtil.getPortletFriendlyURLMapperMatch(url);
+
+		if (portletFriendlyURLMapperMatch == null) {
+			return false;
+		}
+
+		FriendlyURLMapper friendlyURLMapper =
+			portletFriendlyURLMapperMatch.getFriendlyURLMapper();
+
+		return Objects.equals(
+			friendlyURLMapper.getMapping(),
+			_ASSET_PUBLISHER_FRIENDLY_URL_MAPPING);
+	}
+
 	private boolean _isSignedIn(HttpServletRequest httpServletRequest) {
 		PermissionChecker permissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
@@ -8153,6 +8173,9 @@ public class PortalImpl implements Portal {
 
 		return false;
 	}
+
+	private static final String _ASSET_PUBLISHER_FRIENDLY_URL_MAPPING =
+		"asset_publisher";
 
 	private static final String[] _CUSTOM_SQL_KEYS = {
 		"[$CLASS_NAME_ID_COM.LIFERAY.PORTAL.MODEL.GROUP$]",
