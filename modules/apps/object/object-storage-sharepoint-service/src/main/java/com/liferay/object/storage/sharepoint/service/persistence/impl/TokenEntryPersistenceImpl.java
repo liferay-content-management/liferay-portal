@@ -75,7 +75,7 @@ public class TokenEntryPersistenceImpl
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION =
 		FINDER_CLASS_NAME_ENTITY + ".List2";
 
-	private CollectionPersistenceFinder<TokenEntry>
+	private CollectionPersistenceFinder<TokenEntry, NoSuchTokenEntryException>
 		_collectionPersistenceFinderByUserId;
 
 	/**
@@ -116,15 +116,8 @@ public class TokenEntryPersistenceImpl
 			long userId, OrderByComparator<TokenEntry> orderByComparator)
 		throws NoSuchTokenEntryException {
 
-		TokenEntry tokenEntry = fetchByUserId_First(userId, orderByComparator);
-
-		if (tokenEntry != null) {
-			return tokenEntry;
-		}
-
-		throw new NoSuchTokenEntryException(
-			_collectionPersistenceFinderByUserId.buildNoSuchKeyMessage(
-				_NO_SUCH_ENTITY_WITH_KEY, new Object[] {userId}));
+		return _collectionPersistenceFinderByUserId.findFirst(
+			finderCache, new Object[] {userId}, orderByComparator);
 	}
 
 	/**
@@ -165,7 +158,8 @@ public class TokenEntryPersistenceImpl
 			finderCache, new Object[] {userId});
 	}
 
-	private UniquePersistenceFinder<TokenEntry> _uniquePersistenceFinderByG_U;
+	private UniquePersistenceFinder<TokenEntry, NoSuchTokenEntryException>
+		_uniquePersistenceFinderByG_U;
 
 	/**
 	 * Returns the token entry where groupId = &#63; and userId = &#63; or throws a <code>NoSuchTokenEntryException</code> if it could not be found.
@@ -179,21 +173,8 @@ public class TokenEntryPersistenceImpl
 	public TokenEntry findByG_U(long groupId, long userId)
 		throws NoSuchTokenEntryException {
 
-		TokenEntry tokenEntry = fetchByG_U(groupId, userId);
-
-		if (tokenEntry == null) {
-			String message =
-				_uniquePersistenceFinderByG_U.buildNoSuchKeyMessage(
-					_NO_SUCH_ENTITY_WITH_KEY, new Object[] {groupId, userId});
-
-			if (_log.isDebugEnabled()) {
-				_log.debug(message);
-			}
-
-			throw new NoSuchTokenEntryException(message);
-		}
-
-		return tokenEntry;
+		return _uniquePersistenceFinderByG_U.find(
+			finderCache, new Object[] {groupId, userId});
 	}
 
 	/**
@@ -535,4 +516,4 @@ public class TokenEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1721185089
+// LIFERAY-SERVICE-BUILDER-HASH:-999995482
