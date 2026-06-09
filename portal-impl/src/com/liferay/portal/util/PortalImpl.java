@@ -1535,10 +1535,11 @@ public class PortalImpl implements Portal {
 
 				if (!friendlyURL.contains(urlSeparator)) {
 					String parametersURLString = completeURL.substring(index);
+					String pathURLString = groupFriendlyURL.substring(index);
 
 					groupFriendlyURL = groupFriendlyURL.substring(0, index);
 
-					if (!_isAssetPublisherFriendlyURL(parametersURLString)) {
+					if (!_isAssetPublisherFriendlyURL(pathURLString)) {
 						includeParametersURL = true;
 
 						parametersURL = parametersURLString;
