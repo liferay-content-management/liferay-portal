@@ -13,6 +13,7 @@ import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.document.library.constants.DLFileVersionPreviewConstants;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
+import com.liferay.document.library.kernel.model.DLFileShortcut;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
@@ -40,12 +41,16 @@ import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.model.ClassName;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.SystemEvent;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.SystemEventLocalService;
+import com.liferay.portal.kernel.service.persistence.ResourcePermissionPersistence;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -258,6 +263,21 @@ public class DLFileEntryDataCleanupPreupgradeProcessTest
 	}
 
 	@Test
+	public void testUpgradeDLFileEntryResourcePermissionScopeCheck()
+		throws Exception {
+
+		_testUpgradeResourcePermissionScopeCheck(DLFileEntry.class.getName());
+	}
+
+	@Test
+	public void testUpgradeDLFileShortcutResourcePermissionScopeCheck()
+		throws Exception {
+
+		_testUpgradeResourcePermissionScopeCheck(
+			DLFileShortcut.class.getName());
+	}
+
+	@Test
 	public void testUpgradeWithFileEntryNoFileVersion() throws Exception {
 		FileEntry fileEntry = _dlAppService.addFileEntry(
 			null, TestPropsValues.getGroupId(),
@@ -326,6 +346,68 @@ public class DLFileEntryDataCleanupPreupgradeProcessTest
 		}
 	}
 
+	private void _testUpgradeResourcePermissionScopeCheck(String name)
+		throws Exception {
+
+		long companyId = TestPropsValues.getCompanyId();
+		long companyPermissionId = CounterLocalServiceUtil.increment();
+		long individualPermissionId = CounterLocalServiceUtil.increment();
+		long primKeyId = RandomTestUtil.nextLong();
+		long roleId = RandomTestUtil.nextLong();
+
+		ResourcePermission companyResourcePermission =
+			_resourcePermissionLocalService.createResourcePermission(
+				companyPermissionId);
+
+		companyResourcePermission.setCompanyId(companyId);
+		companyResourcePermission.setName(name);
+		companyResourcePermission.setScope(ResourceConstants.SCOPE_COMPANY);
+		companyResourcePermission.setPrimKey(String.valueOf(primKeyId));
+		companyResourcePermission.setPrimKeyId(primKeyId);
+		companyResourcePermission.setRoleId(roleId);
+		companyResourcePermission.setActionIds(RandomTestUtil.nextLong());
+
+		_resourcePermissionLocalService.addResourcePermission(
+			companyResourcePermission);
+
+		ResourcePermission individualResourcePermission =
+			_resourcePermissionLocalService.createResourcePermission(
+				individualPermissionId);
+
+		individualResourcePermission.setCompanyId(companyId);
+		individualResourcePermission.setName(name);
+		individualResourcePermission.setScope(
+			ResourceConstants.SCOPE_INDIVIDUAL);
+		individualResourcePermission.setPrimKey(String.valueOf(primKeyId));
+		individualResourcePermission.setPrimKeyId(primKeyId);
+		individualResourcePermission.setRoleId(roleId);
+		individualResourcePermission.setActionIds(RandomTestUtil.nextLong());
+
+		_resourcePermissionLocalService.addResourcePermission(
+			individualResourcePermission);
+
+		Assert.assertNotNull(
+			_resourcePermissionLocalService.fetchResourcePermission(
+				companyPermissionId));
+		Assert.assertNotNull(
+			_resourcePermissionLocalService.fetchResourcePermission(
+				individualPermissionId));
+
+		upgrade();
+
+		_resourcePermissionPersistence.clearCache();
+
+		Assert.assertNotNull(
+			_resourcePermissionLocalService.fetchResourcePermission(
+				companyPermissionId));
+		Assert.assertNull(
+			_resourcePermissionLocalService.fetchResourcePermission(
+				individualPermissionId));
+
+		_resourcePermissionLocalService.deleteResourcePermission(
+			companyPermissionId);
+	}
+
 	@Inject
 	private AssetEntryLocalService _assetEntryLocalService;
 
@@ -365,6 +447,12 @@ public class DLFileEntryDataCleanupPreupgradeProcessTest
 
 	@Inject
 	private DLFileVersionPreviewLocalService _dlFileVersionPreviewLocalService;
+
+	@Inject
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Inject
+	private ResourcePermissionPersistence _resourcePermissionPersistence;
 
 	@Inject
 	private SystemEventLocalService _systemEventLocalService;
