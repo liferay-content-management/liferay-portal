@@ -549,6 +549,87 @@ public class AssetVocabularyGroupRelUtil {
 	}
 
 	/**
+	 * Returns an ordered range of all the asset vocabulary group rels where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.portlet.asset.model.impl.AssetVocabularyGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @param start the lower bound of the range of asset vocabulary group rels
+	 * @param end the upper bound of the range of asset vocabulary group rels (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching asset vocabulary group rels
+	 */
+	public static List<AssetVocabularyGroupRel> findByV_D(
+		long vocabularyId, int depotEntryType, int start, int end,
+		OrderByComparator<AssetVocabularyGroupRel> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByV_D(
+			vocabularyId, depotEntryType, start, end, orderByComparator,
+			useFinderCache);
+	}
+
+	/**
+	 * Returns the first asset vocabulary group rel in the ordered set where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching asset vocabulary group rel
+	 * @throws NoSuchVocabularyGroupRelException if a matching asset vocabulary group rel could not be found
+	 */
+	public static AssetVocabularyGroupRel findByV_D_First(
+			long vocabularyId, int depotEntryType,
+			OrderByComparator<AssetVocabularyGroupRel> orderByComparator)
+		throws com.liferay.asset.kernel.exception.
+			NoSuchVocabularyGroupRelException {
+
+		return getPersistence().findByV_D_First(
+			vocabularyId, depotEntryType, orderByComparator);
+	}
+
+	/**
+	 * Returns the first asset vocabulary group rel in the ordered set where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching asset vocabulary group rel, or <code>null</code> if a matching asset vocabulary group rel could not be found
+	 */
+	public static AssetVocabularyGroupRel fetchByV_D_First(
+		long vocabularyId, int depotEntryType,
+		OrderByComparator<AssetVocabularyGroupRel> orderByComparator) {
+
+		return getPersistence().fetchByV_D_First(
+			vocabularyId, depotEntryType, orderByComparator);
+	}
+
+	/**
+	 * Removes all the asset vocabulary group rels where vocabularyId = &#63; and depotEntryType = &#63; from the database.
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 */
+	public static void removeByV_D(long vocabularyId, int depotEntryType) {
+		getPersistence().removeByV_D(vocabularyId, depotEntryType);
+	}
+
+	/**
+	 * Returns the number of asset vocabulary group rels where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @return the number of matching asset vocabulary group rels
+	 */
+	public static int countByV_D(long vocabularyId, int depotEntryType) {
+		return getPersistence().countByV_D(vocabularyId, depotEntryType);
+	}
+
+	/**
 	 * Creates a new asset vocabulary group rel with the primary key. Does not add the asset vocabulary group rel to the database.
 	 *
 	 * @param assetVocabularyGroupRelId the primary key for the new asset vocabulary group rel
@@ -835,6 +916,61 @@ public class AssetVocabularyGroupRelUtil {
 			vocabularyId, start, end, orderByComparator);
 	}
 
+	/**
+	 * Returns all the asset vocabulary group rels where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @return the matching asset vocabulary group rels
+	 */
+	public static List<AssetVocabularyGroupRel> findByV_D(
+		long vocabularyId, int depotEntryType) {
+
+		return getPersistence().findByV_D(vocabularyId, depotEntryType);
+	}
+
+	/**
+	 * Returns a range of all the asset vocabulary group rels where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.portlet.asset.model.impl.AssetVocabularyGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @param start the lower bound of the range of asset vocabulary group rels
+	 * @param end the upper bound of the range of asset vocabulary group rels (not inclusive)
+	 * @return the range of matching asset vocabulary group rels
+	 */
+	public static List<AssetVocabularyGroupRel> findByV_D(
+		long vocabularyId, int depotEntryType, int start, int end) {
+
+		return getPersistence().findByV_D(
+			vocabularyId, depotEntryType, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the asset vocabulary group rels where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.portlet.asset.model.impl.AssetVocabularyGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @param start the lower bound of the range of asset vocabulary group rels
+	 * @param end the upper bound of the range of asset vocabulary group rels (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching asset vocabulary group rels
+	 */
+	public static List<AssetVocabularyGroupRel> findByV_D(
+		long vocabularyId, int depotEntryType, int start, int end,
+		OrderByComparator<AssetVocabularyGroupRel> orderByComparator) {
+
+		return getPersistence().findByV_D(
+			vocabularyId, depotEntryType, start, end, orderByComparator);
+	}
+
 	public static AssetVocabularyGroupRelPersistence getPersistence() {
 		return _persistence;
 	}
@@ -848,4 +984,4 @@ public class AssetVocabularyGroupRelUtil {
 	private static volatile AssetVocabularyGroupRelPersistence _persistence;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-495397318
+// LIFERAY-SERVICE-BUILDER-HASH:-611566205

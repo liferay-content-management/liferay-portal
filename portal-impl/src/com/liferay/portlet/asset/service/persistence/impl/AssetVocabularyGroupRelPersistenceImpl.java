@@ -569,6 +569,102 @@ public class AssetVocabularyGroupRelPersistenceImpl
 			new Object[] {groupId, vocabularyId});
 	}
 
+	private CollectionPersistenceFinder
+		<AssetVocabularyGroupRel, NoSuchVocabularyGroupRelException>
+			_collectionPersistenceFinderByV_D;
+
+	/**
+	 * Returns an ordered range of all the asset vocabulary group rels where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AssetVocabularyGroupRelModelImpl</code>.
+	 * </p>
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @param start the lower bound of the range of asset vocabulary group rels
+	 * @param end the upper bound of the range of asset vocabulary group rels (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching asset vocabulary group rels
+	 */
+	@Override
+	public List<AssetVocabularyGroupRel> findByV_D(
+		long vocabularyId, int depotEntryType, int start, int end,
+		OrderByComparator<AssetVocabularyGroupRel> orderByComparator,
+		boolean useFinderCache) {
+
+		return _collectionPersistenceFinderByV_D.find(
+			FinderCacheUtil.getFinderCache(),
+			new Object[] {vocabularyId, depotEntryType}, start, end,
+			orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first asset vocabulary group rel in the ordered set where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching asset vocabulary group rel
+	 * @throws NoSuchVocabularyGroupRelException if a matching asset vocabulary group rel could not be found
+	 */
+	@Override
+	public AssetVocabularyGroupRel findByV_D_First(
+			long vocabularyId, int depotEntryType,
+			OrderByComparator<AssetVocabularyGroupRel> orderByComparator)
+		throws NoSuchVocabularyGroupRelException {
+
+		return _collectionPersistenceFinderByV_D.findFirst(
+			FinderCacheUtil.getFinderCache(),
+			new Object[] {vocabularyId, depotEntryType}, orderByComparator);
+	}
+
+	/**
+	 * Returns the first asset vocabulary group rel in the ordered set where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching asset vocabulary group rel, or <code>null</code> if a matching asset vocabulary group rel could not be found
+	 */
+	@Override
+	public AssetVocabularyGroupRel fetchByV_D_First(
+		long vocabularyId, int depotEntryType,
+		OrderByComparator<AssetVocabularyGroupRel> orderByComparator) {
+
+		return _collectionPersistenceFinderByV_D.fetchFirst(
+			FinderCacheUtil.getFinderCache(),
+			new Object[] {vocabularyId, depotEntryType}, orderByComparator);
+	}
+
+	/**
+	 * Removes all the asset vocabulary group rels where vocabularyId = &#63; and depotEntryType = &#63; from the database.
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 */
+	@Override
+	public void removeByV_D(long vocabularyId, int depotEntryType) {
+		_collectionPersistenceFinderByV_D.remove(
+			FinderCacheUtil.getFinderCache(),
+			new Object[] {vocabularyId, depotEntryType});
+	}
+
+	/**
+	 * Returns the number of asset vocabulary group rels where vocabularyId = &#63; and depotEntryType = &#63;.
+	 *
+	 * @param vocabularyId the vocabulary ID
+	 * @param depotEntryType the depot entry type
+	 * @return the number of matching asset vocabulary group rels
+	 */
+	@Override
+	public int countByV_D(long vocabularyId, int depotEntryType) {
+		return _collectionPersistenceFinderByV_D.count(
+			FinderCacheUtil.getFinderCache(),
+			new Object[] {vocabularyId, depotEntryType});
+	}
+
 	public AssetVocabularyGroupRelPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
@@ -828,6 +924,7 @@ public class AssetVocabularyGroupRelPersistenceImpl
 		ctStrictColumnNames.add("groupId");
 		ctStrictColumnNames.add("companyId");
 		ctMergeColumnNames.add("vocabularyId");
+		ctMergeColumnNames.add("depotEntryType");
 
 		_ctColumnNamesMap.put(
 			CTColumnResolutionType.CONTROL, ctControlColumnNames);
@@ -994,6 +1091,37 @@ public class AssetVocabularyGroupRelPersistenceImpl
 				FinderColumn.Type.LONG, "=", true, true,
 				AssetVocabularyGroupRel::getVocabularyId));
 
+		_collectionPersistenceFinderByV_D = new CollectionPersistenceFinder<>(
+			this,
+			new FinderPath(
+				FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByV_D",
+				new String[] {
+					Long.class.getName(), Integer.class.getName(),
+					Integer.class.getName(), Integer.class.getName(),
+					OrderByComparator.class.getName()
+				},
+				new String[] {"vocabularyId", "depotEntryType"}, true),
+			new FinderPath(
+				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByV_D",
+				new String[] {Long.class.getName(), Integer.class.getName()},
+				new String[] {"vocabularyId", "depotEntryType"}, true),
+			new FinderPath(
+				FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByV_D",
+				new String[] {Long.class.getName(), Integer.class.getName()},
+				new String[] {"vocabularyId", "depotEntryType"}, false),
+			_SQL_SELECT_ASSETVOCABULARYGROUPREL_WHERE,
+			_SQL_COUNT_ASSETVOCABULARYGROUPREL_WHERE,
+			AssetVocabularyGroupRelModelImpl.ORDER_BY_JPQL,
+			_ENTITY_ALIAS_PREFIX, "",
+			new FinderColumn<>(
+				"assetVocabularyGroupRel.", "vocabularyId",
+				FinderColumn.Type.LONG, "=", true, true,
+				AssetVocabularyGroupRel::getVocabularyId),
+			new FinderColumn<>(
+				"assetVocabularyGroupRel.", "depotEntryType",
+				FinderColumn.Type.INTEGER, "=", true, true,
+				AssetVocabularyGroupRel::getDepotEntryType));
+
 		AssetVocabularyGroupRelUtil.setPersistence(this);
 	}
 
@@ -1031,4 +1159,4 @@ public class AssetVocabularyGroupRelPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:324599439
+// LIFERAY-SERVICE-BUILDER-HASH:-1585273032
