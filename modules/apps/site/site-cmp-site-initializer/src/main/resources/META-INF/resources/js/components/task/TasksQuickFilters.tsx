@@ -101,9 +101,11 @@ export default function TasksQuickFilters({projectId}: {projectId?: string}) {
 	const [visible, setVisible] = useState(true);
 
 	const isQuickFilterChangeRef = useRef(false);
+	const activeQuickFilterIdsRef = useRef<string[] | null>(null);
 
 	const handleTotalTasksClick = useCallback(() => {
 		setActiveQuickFilter(TASK_QUICK_FILTER_TYPES.TOTAL);
+		activeQuickFilterIdsRef.current = null;
 
 		setTasksFDSState({
 			...tasksFDSState,
@@ -124,6 +126,7 @@ export default function TasksQuickFilters({projectId}: {projectId?: string}) {
 
 	const handleOverdueClick = useCallback(() => {
 		setActiveQuickFilter(TASK_QUICK_FILTER_TYPES.OVERDUE);
+		activeQuickFilterIdsRef.current = ['cmpState', 'cmpDueDate'];
 
 		setTasksFDSState({
 			...tasksFDSState,
@@ -180,6 +183,7 @@ export default function TasksQuickFilters({projectId}: {projectId?: string}) {
 
 	const handleBlockedClick = useCallback(() => {
 		setActiveQuickFilter(TASK_QUICK_FILTER_TYPES.BLOCKED);
+		activeQuickFilterIdsRef.current = ['cmpState'];
 
 		setTasksFDSState({
 			...tasksFDSState,
@@ -216,6 +220,7 @@ export default function TasksQuickFilters({projectId}: {projectId?: string}) {
 
 	const handleInProgressClick = useCallback(() => {
 		setActiveQuickFilter(TASK_QUICK_FILTER_TYPES.IN_PROGRESS);
+		activeQuickFilterIdsRef.current = ['cmpState'];
 
 		setTasksFDSState({
 			...tasksFDSState,
@@ -278,6 +283,8 @@ export default function TasksQuickFilters({projectId}: {projectId?: string}) {
 	 * Clear the active quick filter if the filters in the FDS changes.
 	 * `isQuickFilterChangeRef` is used to prevent the active quick filter from
 	 * immediately clearing when one of the quick filters are clicked.
+	 * `activeQuickFilterIdsRef` tracks which filter IDs the active quick filter
+	 * set, so unrelated filter changes (e.g. a text search) do not reset it.
 	 */
 	useEffect(() => {
 		if (isQuickFilterChangeRef.current) {
@@ -286,7 +293,27 @@ export default function TasksQuickFilters({projectId}: {projectId?: string}) {
 			return;
 		}
 
-		setActiveQuickFilter(null);
+		// null = TOTAL: valid while all quick-filter dimensions remain inactive
+
+		const quickFilterStillActive =
+			activeQuickFilterIdsRef.current === null
+				? ['cmpState', 'cmpDueDate'].every(
+						(filterId) =>
+							!tasksFDSState.filters.find(
+								(filter: IBaseFilterState) =>
+									filter.id === filterId && filter.active
+							)
+					)
+				: activeQuickFilterIdsRef.current.every((filterId) =>
+						tasksFDSState.filters.find(
+							(filter: IBaseFilterState) =>
+								filter.id === filterId && filter.active
+						)
+					);
+
+		if (!quickFilterStillActive) {
+			setActiveQuickFilter(null);
+		}
 	}, [tasksFDSState.filters]);
 
 	/**
