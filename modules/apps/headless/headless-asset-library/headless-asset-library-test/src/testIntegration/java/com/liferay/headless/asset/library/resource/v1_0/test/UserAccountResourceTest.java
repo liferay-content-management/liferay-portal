@@ -70,6 +70,9 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 
+		RoleTestUtil.addRole(
+			RoleConstants.CMS_ADMINISTRATOR, RoleConstants.TYPE_REGULAR);
+
 		_spaceDepotEntry = DepotEntryLocalServiceUtil.addDepotEntry(
 			Collections.singletonMap(
 				LocaleUtil.getDefault(), RandomTestUtil.randomString()),

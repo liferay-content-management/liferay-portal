@@ -79,6 +79,9 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 
+		RoleTestUtil.addRole(
+			RoleConstants.CMS_ADMINISTRATOR, RoleConstants.TYPE_REGULAR);
+
 		_userGroup = UserGroupTestUtil.addUserGroup();
 
 		_userGroupLocalService.addGroupUserGroup(
