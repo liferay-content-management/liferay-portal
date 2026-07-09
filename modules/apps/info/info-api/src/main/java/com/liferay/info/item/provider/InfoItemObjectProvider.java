@@ -23,4 +23,8 @@ public interface InfoItemObjectProvider<T> {
 		return getInfoItem(infoItemIdentifier);
 	}
 
+	public default String getInfoItemVersionForEditing() {
+		return null;
+	}
+
 }

@@ -53,6 +53,11 @@ public class ObjectEntryInfoItemObjectProvider
 	}
 
 	@Override
+	public String getInfoItemVersionForEditing() {
+		return InfoItemIdentifier.VERSION_LATEST;
+	}
+
+	@Override
 	protected ObjectEntry doGetInfoItem(
 			long groupId, InfoItemIdentifier infoItemIdentifier)
 		throws NoSuchInfoItemException {

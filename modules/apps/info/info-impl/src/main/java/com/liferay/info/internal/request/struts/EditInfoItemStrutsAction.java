@@ -233,6 +233,15 @@ public class EditInfoItemStrutsAction implements StrutsAction {
 						InfoItemObjectProvider.class, className,
 						infoItemIdentifier.getInfoItemServiceFilter());
 
+				if (infoItemObjectProvider != null) {
+					String version =
+						infoItemObjectProvider.getInfoItemVersionForEditing();
+
+					if (Validator.isNotNull(version)) {
+						infoItemIdentifier.setVersion(version);
+					}
+				}
+
 				InfoItemFieldValuesUpdater<Object> infoItemFieldValuesUpdater =
 					_infoItemServiceRegistry.getFirstInfoItemService(
 						InfoItemFieldValuesUpdater.class, className);
@@ -587,28 +596,21 @@ public class EditInfoItemStrutsAction implements StrutsAction {
 	private InfoItemIdentifier _getInfoItemIdentifier(
 		HttpServletRequest httpServletRequest) {
 
-		InfoItemIdentifier infoItemIdentifier = null;
-
 		long classPK = ParamUtil.getLong(httpServletRequest, "classPK");
 		String externalReferenceCode = ParamUtil.getString(
 			httpServletRequest, "externalReferenceCode");
 
 		if (classPK > 0) {
-			infoItemIdentifier = new ClassPKInfoItemIdentifier(classPK);
+			return new ClassPKInfoItemIdentifier(classPK);
 		}
 		else if (Validator.isNotNull(externalReferenceCode)) {
-			infoItemIdentifier = new ERCInfoItemIdentifier(
+			return new ERCInfoItemIdentifier(
 				externalReferenceCode,
 				ParamUtil.getString(
 					httpServletRequest, "scopeExternalReferenceCode", null));
 		}
-		else {
-			return null;
-		}
 
-		infoItemIdentifier.setVersion(InfoItemIdentifier.VERSION_LATEST);
-
-		return infoItemIdentifier;
+		return null;
 	}
 
 	private LayoutStructure _getLayoutStructure(
