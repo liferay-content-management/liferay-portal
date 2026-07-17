@@ -5,6 +5,8 @@
 
 package com.liferay.site.cms.site.initializer.internal.upgrade.registry;
 
+import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.rest.filter.factory.FilterFactory;
 import com.liferay.object.service.ObjectDefinitionLocalService;
@@ -16,12 +18,14 @@ import com.liferay.object.service.ObjectFolderLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
 import com.liferay.petra.sql.dsl.expression.Predicate;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v1_0_0.CMSDefaultPermissionsUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v1_0_0.CMSObjectRelationshipEdgeUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v2_0_0.CMSBulkActionTaskTaskResultUpgradeProcess;
+import com.liferay.site.cms.site.initializer.internal.upgrade.v4_0_0.CMSBasicDocumentFriendlyURLUpgradeProcess;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -57,15 +61,31 @@ public class SiteCMSSiteInitializerUpgradeStepRegistrator
 			new CMSBulkActionTaskTaskResultUpgradeProcess(
 				_companyLocalService, _objectDefinitionLocalService,
 				_objectFieldLocalService));
+
+		registry.register(
+			"3.0.0", "4.0.0",
+			new CMSBasicDocumentFriendlyURLUpgradeProcess(
+				_classNameLocalService, _companyLocalService,
+				_dlAppLocalService, _friendlyURLEntryLocalService,
+				_objectDefinitionLocalService, _objectEntryLocalService));
 	}
 
 	@Reference
+	private ClassNameLocalService _classNameLocalService;
+
+	@Reference
 	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private DLAppLocalService _dlAppLocalService;
 
 	@Reference(
 		target = "(filter.factory.key=" + ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT + ")"
 	)
 	private FilterFactory<Predicate> _filterFactory;
+
+	@Reference
+	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
