@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -51,6 +52,7 @@ import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.After;
@@ -93,12 +95,16 @@ public class CMSBasicDocumentFriendlyURLUpgradeProcessTest {
 	public void testUpgradeSyncsOutOfSyncFileEntryFriendlyURL()
 		throws Exception {
 
+		Locale defaultLocale = LocaleUtil.fromLanguageId(
+			UpgradeProcessUtil.getDefaultLanguageId(
+				TestPropsValues.getCompanyId()));
+
 		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
 			HashMapBuilder.put(
-				LocaleUtil.getDefault(), StringUtil.randomString()
+				defaultLocale, StringUtil.randomString()
 			).build(),
 			HashMapBuilder.put(
-				LocaleUtil.getDefault(), StringUtil.randomString()
+				defaultLocale, StringUtil.randomString()
 			).build(),
 			DepotConstants.TYPE_SPACE,
 			ServiceContextTestUtil.getServiceContext());
