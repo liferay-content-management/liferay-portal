@@ -178,7 +178,8 @@ public class CMSBasicDocumentFriendlyURLUpgradeProcessTest {
 			HashMapBuilder.put(
 				"en_US", staleUrlTitle
 			).build(),
-			_getFileEntryUrlTitleMap(fileEntryClassNameId, attachmentFileEntryId));
+			_getFileEntryUrlTitleMap(
+				fileEntryClassNameId, attachmentFileEntryId));
 
 		_runUpgrade();
 
@@ -186,7 +187,8 @@ public class CMSBasicDocumentFriendlyURLUpgradeProcessTest {
 			HashMapBuilder.put(
 				"en_US", urlTitle
 			).build(),
-			_getFileEntryUrlTitleMap(fileEntryClassNameId, attachmentFileEntryId));
+			_getFileEntryUrlTitleMap(
+				fileEntryClassNameId, attachmentFileEntryId));
 	}
 
 	private Map<String, String> _getFileEntryUrlTitleMap(
@@ -230,10 +232,10 @@ public class CMSBasicDocumentFriendlyURLUpgradeProcessTest {
 	private ClassNameLocalService _classNameLocalService;
 
 	@Inject
-	private DLAppLocalService _dlAppLocalService;
+	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Inject
-	private DepotEntryLocalService _depotEntryLocalService;
+	private DLAppLocalService _dlAppLocalService;
 
 	@Inject
 	private DLFileEntryLocalService _dlFileEntryLocalService;
