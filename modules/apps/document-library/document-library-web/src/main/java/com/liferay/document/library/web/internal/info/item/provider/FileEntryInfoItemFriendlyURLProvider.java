@@ -58,7 +58,7 @@ public class FileEntryInfoItemFriendlyURLProvider
 				fileEntry.getFileEntryId(), mainFriendlyURLEntry);
 		}
 
-		return mainFriendlyURLEntry.getCategorizedUrlTitle(languageId);
+		return mainFriendlyURLEntry.getUrlTitle();
 	}
 
 	@Override
