@@ -64,6 +64,65 @@ components:
         ResetAssetPermissionAction:
             allOf:
                 -   $ref: "#/components/schemas/AssetPermissionAction"
+        SimilarityCluster:
+            description:
+                A group of CMS content assets detected as near-duplicates of one another for a given similarity dimension.
+            properties:
+                similarityClusterAssets:
+                    items:
+                        $ref: "#/components/schemas/SimilarityClusterAsset"
+                    readOnly: true
+                    type: array
+                size:
+                    readOnly: true
+                    type: integer
+        SimilarityClusterAsset:
+            description:
+                A CMS content asset that belongs to a similarity cluster.
+            properties:
+                contentType:
+                    description:
+                        The localized label of the asset's content type (object definition), for display and iconography.
+                    readOnly: true
+                    type: string
+                dateModified:
+                    format: date-time
+                    readOnly: true
+                    type: string
+                id:
+                    format: int64
+                    readOnly: true
+                    type: integer
+                itemURL:
+                    readOnly: true
+                    type: string
+                similarityPercent:
+                    description:
+                        Estimated text similarity of this asset to the cluster's top asset, as a percentage from 0 to 100. Null when the asset is the top asset or has no indexed signature yet.
+                    format: double
+                    readOnly: true
+                    type: number
+                title:
+                    readOnly: true
+                    type: string
+                topAsset:
+                    description:
+                        Whether this asset is the cluster's representative (top) asset that the others are compared against.
+                    readOnly: true
+                    type: boolean
+        SimilarityClusterResult:
+            description:
+                Near-duplicate clusters for the selected space and similarity dimension. Feeds the Content Governance Dashboard's Duplication and Similarity widgets - totalCount backs the card, items back the modal.
+            properties:
+                similarityClusters:
+                    items:
+                        $ref: "#/components/schemas/SimilarityCluster"
+                    readOnly: true
+                    type: array
+                totalCount:
+                    format: int64
+                    readOnly: true
+                    type: integer
 info:
     license:
         name: Apache 2.0
@@ -154,3 +213,28 @@ paths:
                                     $ref: "#/components/schemas/AssetUsage"
                                 type: array
             tags: ["AssetUsage"]
+    "/similarity-clusters":
+        get:
+            description:
+                List near-duplicate clusters of CMS content in a space for a similarity dimension (currently TEXT - overlap in main text fields). Backs the Duplication and Similarity widgets. Omit assetLibraryId to span all accessible spaces.
+            operationId: getSimilarityCluster
+            parameters:
+                -   in: query
+                    name: assetLibraryId
+                    schema:
+                        format: int64
+                        type: integer
+                -   in: query
+                    name: dimension
+                    schema:
+                        type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/SimilarityClusterResult"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/SimilarityClusterResult"
+            tags: ["SimilarityClusterResult"]
