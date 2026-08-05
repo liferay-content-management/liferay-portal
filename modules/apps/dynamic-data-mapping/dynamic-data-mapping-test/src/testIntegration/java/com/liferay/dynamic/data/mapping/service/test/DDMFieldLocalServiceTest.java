@@ -6,6 +6,8 @@
 package com.liferay.dynamic.data.mapping.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.change.tracking.model.CTCollection;
+import com.liferay.change.tracking.service.CTCollectionLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMFieldAttribute;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
@@ -35,6 +37,10 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.transaction.TransactionConfig;
+import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.test.rule.Inject;
@@ -82,7 +88,7 @@ public class DDMFieldLocalServiceTest {
 	}
 
 	@Test
-	public void testGetDDMFormValues() throws Exception {
+	public void testGetDDMFormValues() throws Throwable {
 		DDMForm ddmForm = new DDMForm();
 
 		Locale locale = LocaleUtil.getSiteDefault();
@@ -111,39 +117,51 @@ public class DDMFieldLocalServiceTest {
 		_ddmFieldLocalService.updateDDMFormValues(
 			ddmStructure.getStructureId(), _STORAGE_ID, ddmFormValues);
 
-		long ctCollectionId = RandomTestUtil.randomLong();
+		_ctCollection = _ctCollectionLocalService.addCTCollection(
+			null, TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
+			0, RandomTestUtil.randomString(), null);
+
+		long ctCollectionId = _ctCollection.getCtCollectionId();
 
 		try (SafeCloseable safeCloseable =
 				CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
 					ctCollectionId)) {
 
-			for (DDMFieldAttribute ddmFieldAttribute :
-					_ddmFieldAttributePersistence.findByStorageId(
-						_STORAGE_ID)) {
+			TransactionInvokerUtil.invoke(
+				TransactionConfig.Factory.create(
+					Propagation.REQUIRED, new Class<?>[] {Exception.class}),
+				() -> {
+					for (DDMFieldAttribute ddmFieldAttribute :
+							_ddmFieldAttributePersistence.findByStorageId(
+								_STORAGE_ID)) {
 
-				DDMFieldAttribute publicationDDMFieldAttribute =
-					_ddmFieldAttributePersistence.create(
-						RandomTestUtil.randomLong());
+						DDMFieldAttribute publicationDDMFieldAttribute =
+							_ddmFieldAttributePersistence.create(
+								RandomTestUtil.randomLong());
 
-				publicationDDMFieldAttribute.setCtCollectionId(ctCollectionId);
-				publicationDDMFieldAttribute.setCompanyId(
-					ddmFieldAttribute.getCompanyId());
-				publicationDDMFieldAttribute.setFieldId(
-					ddmFieldAttribute.getFieldId());
-				publicationDDMFieldAttribute.setStorageId(
-					ddmFieldAttribute.getStorageId());
-				publicationDDMFieldAttribute.setAttributeName(
-					ddmFieldAttribute.getAttributeName());
-				publicationDDMFieldAttribute.setLanguageId(
-					ddmFieldAttribute.getLanguageId());
-				publicationDDMFieldAttribute.setLargeAttributeValue(
-					ddmFieldAttribute.getLargeAttributeValue());
-				publicationDDMFieldAttribute.setSmallAttributeValue(
-					ddmFieldAttribute.getSmallAttributeValue());
+						publicationDDMFieldAttribute.setCtCollectionId(
+							ctCollectionId);
+						publicationDDMFieldAttribute.setCompanyId(
+							ddmFieldAttribute.getCompanyId());
+						publicationDDMFieldAttribute.setFieldId(
+							ddmFieldAttribute.getFieldId());
+						publicationDDMFieldAttribute.setStorageId(
+							ddmFieldAttribute.getStorageId());
+						publicationDDMFieldAttribute.setAttributeName(
+							ddmFieldAttribute.getAttributeName());
+						publicationDDMFieldAttribute.setLanguageId(
+							ddmFieldAttribute.getLanguageId());
+						publicationDDMFieldAttribute.setLargeAttributeValue(
+							ddmFieldAttribute.getLargeAttributeValue());
+						publicationDDMFieldAttribute.setSmallAttributeValue(
+							ddmFieldAttribute.getSmallAttributeValue());
 
-				_ddmFieldAttributePersistence.update(
-					publicationDDMFieldAttribute);
-			}
+						_ddmFieldAttributePersistence.update(
+							publicationDDMFieldAttribute);
+					}
+
+					return null;
+				});
 		}
 
 		try (SafeCloseable safeCloseable =
@@ -740,6 +758,12 @@ public class DDMFieldLocalServiceTest {
 
 	@Inject
 	private ClassNameLocalService _classNameLocalService;
+
+	@DeleteAfterTestRun
+	private CTCollection _ctCollection;
+
+	@Inject
+	private CTCollectionLocalService _ctCollectionLocalService;
 
 	@Inject
 	private DDMFieldAttributePersistence _ddmFieldAttributePersistence;
