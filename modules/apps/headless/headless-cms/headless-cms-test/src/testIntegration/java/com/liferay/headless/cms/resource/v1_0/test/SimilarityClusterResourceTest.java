@@ -100,10 +100,10 @@ public class SimilarityClusterResourceTest
 		Assert.assertEquals(
 			similarityClusters.toString(), 0, similarityClusters.size());
 
-		ObjectEntry nearDuplicateObjectEntry1 = _addObjectEntry(
+		ObjectEntry duplicateObjectEntry1 = _addObjectEntry(
 			depotEntry, objectDefinition, _NEAR_DUPLICATE_TITLE,
 			_NEAR_DUPLICATE_CONTENT);
-		ObjectEntry nearDuplicateObjectEntry2 = _addObjectEntry(
+		ObjectEntry duplicateObjectEntry2 = _addObjectEntry(
 			depotEntry, objectDefinition, _NEAR_DUPLICATE_TITLE,
 			_NEAR_DUPLICATE_CONTENT +
 				" You can also contact support for help.");
@@ -148,11 +148,9 @@ public class SimilarityClusterResourceTest
 		}
 
 		Assert.assertTrue(
-			objectEntryIds.contains(
-				nearDuplicateObjectEntry1.getObjectEntryId()));
+			objectEntryIds.contains(duplicateObjectEntry1.getObjectEntryId()));
 		Assert.assertTrue(
-			objectEntryIds.contains(
-				nearDuplicateObjectEntry2.getObjectEntryId()));
+			objectEntryIds.contains(duplicateObjectEntry2.getObjectEntryId()));
 
 		_depotEntryLocalService.deleteDepotEntry(depotEntry.getDepotEntryId());
 
