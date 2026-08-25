@@ -6,6 +6,7 @@
 package com.liferay.site.cms.site.initializer.internal.display.context.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.fragment.renderer.DefaultFragmentRendererContext;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.object.model.ObjectDefinition;
@@ -107,7 +108,8 @@ public class ViewAllRelatedAssetsSectionDisplayContextTest
 			"OBJECT_RELATIONSHIP", _objectRelationship);
 
 		_fragmentRenderer.render(
-			null, httpServletRequest, new MockHttpServletResponse());
+			new DefaultFragmentRendererContext(null), httpServletRequest,
+			new MockHttpServletResponse());
 
 		return httpServletRequest.getAttribute(
 			"com.liferay.site.cms.site.initializer.internal.display.context." +

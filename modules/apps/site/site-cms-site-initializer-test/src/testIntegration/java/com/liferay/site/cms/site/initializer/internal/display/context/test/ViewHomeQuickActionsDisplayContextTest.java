@@ -10,6 +10,7 @@ import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.constants.DepotRolesConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.fragment.renderer.DefaultFragmentRendererContext;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectDefinitionSettingConstants;
@@ -141,7 +142,8 @@ public class ViewHomeQuickActionsDisplayContextTest
 		mockHttpServletRequest = getMockHttpServletRequest(user);
 
 		_fragmentRenderer.render(
-			null, mockHttpServletRequest, new MockHttpServletResponse());
+			new DefaultFragmentRendererContext(null), mockHttpServletRequest,
+			new MockHttpServletResponse());
 
 		Object displayContext = mockHttpServletRequest.getAttribute(
 			"com.liferay.site.cms.site.initializer.internal.display.context." +

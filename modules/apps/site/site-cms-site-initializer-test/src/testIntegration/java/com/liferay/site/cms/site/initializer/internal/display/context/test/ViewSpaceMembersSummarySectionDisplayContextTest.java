@@ -9,6 +9,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.fragment.renderer.DefaultFragmentRendererContext;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.petra.string.StringBundler;
@@ -99,7 +100,8 @@ public class ViewSpaceMembersSummarySectionDisplayContextTest
 
 	private Object _getSectionDisplayContext() throws Exception {
 		_fragmentRenderer.render(
-			null, mockHttpServletRequest, new MockHttpServletResponse());
+			new DefaultFragmentRendererContext(null), mockHttpServletRequest,
+			new MockHttpServletResponse());
 
 		return mockHttpServletRequest.getAttribute(
 			"com.liferay.site.cms.site.initializer.internal.display.context." +

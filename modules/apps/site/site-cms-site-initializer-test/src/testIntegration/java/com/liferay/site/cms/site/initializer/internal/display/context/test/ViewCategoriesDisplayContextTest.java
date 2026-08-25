@@ -10,6 +10,7 @@ import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
+import com.liferay.fragment.renderer.DefaultFragmentRendererContext;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -167,7 +168,8 @@ public class ViewCategoriesDisplayContextTest
 		throws Exception {
 
 		_viewCategoriesFragmentRenderer.render(
-			null, httpServletRequest, new MockHttpServletResponse());
+			new DefaultFragmentRendererContext(null), httpServletRequest,
+			new MockHttpServletResponse());
 
 		return httpServletRequest.getAttribute(
 			"com.liferay.site.cms.site.initializer.internal.display.context." +
