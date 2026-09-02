@@ -152,6 +152,17 @@ $productMenuWidth: 320px;
 			}
 		}
 
+		.component-tbar.tbar-article.tbar-structure {
+			@include media-breakpoint-up(sm) {
+				position: sticky;
+			}
+
+			body.open & {
+				left: 0;
+				width: 100%;
+			}
+		}
+
 		.article-content-content {
 			@include media-breakpoint-up(lg) {
 				margin-top: $toolbarDesktopHeight;
@@ -259,6 +270,12 @@ $productMenuWidth: 320px;
 					position: relative;
 					right: 0.5rem;
 				}
+			}
+		}
+
+		.journal-edit-structure-content {
+			.data-engine-form-builder {
+				margin-top: 0;
 			}
 		}
 
