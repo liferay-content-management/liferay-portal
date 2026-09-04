@@ -1,0 +1,106 @@
+@import '_atlas-custom-properties-variables';
+
+@mixin cms-compare-versions-formatted-mark {
+	border: 1px dotted $primary;
+	text-decoration: underline dotted;
+}
+
+@mixin cms-compare-versions-mark($background-color, $border-color) {
+	background-color: $background-color;
+	border: 1px dotted $border-color;
+}
+
+.cms-compare-versions {
+	&-additions,
+	&-removals {
+		.cms-compare-versions-diff {
+			height: auto;
+
+			img {
+				max-width: 100%;
+			}
+
+			.diff-html-added,
+			.diff-html-changed {
+				-webkit-box-decoration-break: clone;
+				box-decoration-break: clone;
+				padding: 1px 2px;
+			}
+
+			.diff-html-changed {
+				@include cms-compare-versions-formatted-mark;
+			}
+		}
+
+		.diff-html-removed {
+			display: none;
+		}
+
+		[data-field-name]:has(.cms-compare-versions-diff) .ck-editor,
+		[data-field-name]:has(.cms-compare-versions-diff)
+			.form-control:not(.cms-compare-versions-diff) {
+			display: none;
+		}
+
+		[data-field-name]:has(.cms-compare-versions-diff) .custom-control {
+			padding-left: 0;
+
+			.custom-control-input,
+			.custom-control-label::after,
+			.custom-control-label::before {
+				display: none;
+			}
+		}
+	}
+
+	&-additions {
+		.cms-compare-versions-diff .diff-html-added {
+			@include cms-compare-versions-mark($success-l2, $success);
+		}
+	}
+
+	&-key-added {
+		@include cms-compare-versions-mark($success-l2, $success);
+	}
+
+	&-key-deleted {
+		@include cms-compare-versions-mark($danger-l2, $danger);
+
+		text-decoration: line-through;
+	}
+
+	&-key-format-changes {
+		@include cms-compare-versions-formatted-mark;
+	}
+
+	&-pane {
+		flex: 1;
+		min-height: 0;
+		min-width: 0;
+
+		&-content {
+			min-height: 0;
+		}
+
+		& + & {
+			border-top: 1px solid $gray-300;
+
+			@include media-breakpoint-up(md) {
+				border-left: 1px solid $gray-300;
+				border-top: 0;
+			}
+		}
+	}
+
+	&-panes {
+		min-height: 0;
+	}
+
+	&-removals {
+		.cms-compare-versions-diff .diff-html-added {
+			@include cms-compare-versions-mark($danger-l2, $danger);
+
+			text-decoration: line-through;
+		}
+	}
+}

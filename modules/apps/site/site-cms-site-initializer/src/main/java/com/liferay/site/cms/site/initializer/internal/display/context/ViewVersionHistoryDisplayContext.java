@@ -16,6 +16,7 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectEntryVersionLocalServiceUtil;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -28,7 +29,9 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -110,6 +113,7 @@ public class ViewVersionHistoryDisplayContext {
 				StringPool.BLANK, "view", "view-file",
 				_language.get(_httpServletRequest, "view"), null, null, null),
 			_getAddToLaunchFDSActionDropdownItem(),
+			_getCompareFDSActionDropdownItem(),
 			new FDSActionDropdownItem(
 				"{actions.restore.href}", "restore", "restore",
 				_language.get(_httpServletRequest, "restore-version"), "put",
@@ -140,11 +144,20 @@ public class ViewVersionHistoryDisplayContext {
 
 	public Map<String, Object> getProps() throws PortalException {
 		return HashMapBuilder.<String, Object>put(
+			"availableLanguageIds",
+			TransformUtil.transformToArray(
+				_language.getAvailableLocales(_objectEntry.getGroupId()),
+				LocaleUtil::toLanguageId, String.class)
+		).put(
 			"backURL", ParamUtil.getString(_httpServletRequest, "backURL")
 		).put(
 			"className", ObjectEntry.class.getName()
 		).put(
 			"classPK", _objectEntry.getObjectEntryId()
+		).put(
+			"defaultLanguageId",
+			LocaleUtil.toLanguageId(
+				PortalUtil.getSiteDefaultLocale(_objectEntry.getGroupId()))
 		).put(
 			"entryClassName", _objectDefinition.getClassName()
 		).put(
@@ -177,6 +190,18 @@ public class ViewVersionHistoryDisplayContext {
 			"{actions.addToLaunch.href}", "rocket", "addToLaunch",
 			_language.get(_httpServletRequest, "add-to-launch"), "get",
 			"addToLaunch", null);
+	}
+
+	private FDSActionDropdownItem _getCompareFDSActionDropdownItem() {
+		if (!FeatureFlagManagerUtil.isEnabled(
+				_themeDisplay.getCompanyId(), "LPD-56634")) {
+
+			return null;
+		}
+
+		return new FDSActionDropdownItem(
+			StringPool.BLANK, "change-list", "compare",
+			_language.get(_httpServletRequest, "compare-to"), null, null, null);
 	}
 
 	private FDSSortItem _getFDSSortItem(
