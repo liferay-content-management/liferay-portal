@@ -5,15 +5,22 @@
 
 package com.liferay.headless.delivery.internal.resource.v1_0;
 
+import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
 import com.liferay.headless.delivery.dto.v1_0.KnowledgeBaseAttachment;
 import com.liferay.headless.delivery.dto.v1_0.util.ContentValueUtil;
 import com.liferay.headless.delivery.resource.v1_0.KnowledgeBaseAttachmentResource;
 import com.liferay.knowledge.base.constants.KBActionKeys;
 import com.liferay.knowledge.base.constants.KBConstants;
 import com.liferay.knowledge.base.model.KBArticle;
+import com.liferay.knowledge.base.service.KBArticleLocalService;
 import com.liferay.knowledge.base.service.KBArticleService;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.vulcan.multipart.BinaryFile;
@@ -42,6 +49,10 @@ public class KnowledgeBaseAttachmentResourceImpl
 	@Override
 	public void deleteKnowledgeBaseAttachment(Long knowledgeBaseAttachmentId)
 		throws Exception {
+
+		_kbArticleModelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			_getKBArticle(knowledgeBaseAttachmentId), ActionKeys.UPDATE);
 
 		_portletFileRepository.deletePortletFileEntry(
 			knowledgeBaseAttachmentId);
@@ -94,6 +105,10 @@ public class KnowledgeBaseAttachmentResourceImpl
 			Long knowledgeBaseAttachmentId)
 		throws Exception {
 
+		_kbArticleModelResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(),
+			_getKBArticle(knowledgeBaseAttachmentId), ActionKeys.VIEW);
+
 		return _toKnowledgeBaseAttachment(
 			_portletFileRepository.getPortletFileEntry(
 				knowledgeBaseAttachmentId));
@@ -140,6 +155,35 @@ public class KnowledgeBaseAttachmentResourceImpl
 				binaryFile.getContentType(), false));
 	}
 
+	private KBArticle _getKBArticle(Long knowledgeBaseAttachmentId)
+		throws Exception {
+
+		FileEntry fileEntry = _portletFileRepository.getPortletFileEntry(
+			knowledgeBaseAttachmentId);
+
+		Folder folder = fileEntry.getFolder();
+
+		if (folder == null) {
+			throw new NoSuchFileEntryException(
+				"No file entry exists with file entry ID " +
+					knowledgeBaseAttachmentId);
+		}
+
+		KBArticle kbArticle = _kbArticleLocalService.fetchLatestKBArticle(
+			GetterUtil.getLong(folder.getName()),
+			WorkflowConstants.STATUS_APPROVED);
+
+		if ((kbArticle == null) ||
+			(kbArticle.getAttachmentsFolderId() != fileEntry.getFolderId())) {
+
+			throw new NoSuchFileEntryException(
+				"No file entry exists with file entry ID " +
+					knowledgeBaseAttachmentId);
+		}
+
+		return kbArticle;
+	}
+
 	private String _getKnowledgeBaseAttachmentExternalReferenceCode(
 			MultipartBody multipartBody)
 		throws Exception {
@@ -177,6 +221,15 @@ public class KnowledgeBaseAttachmentResourceImpl
 			}
 		};
 	}
+
+	@Reference
+	private KBArticleLocalService _kbArticleLocalService;
+
+	@Reference(
+		target = "(model.class.name=com.liferay.knowledge.base.model.KBArticle)"
+	)
+	private ModelResourcePermission<KBArticle>
+		_kbArticleModelResourcePermission;
 
 	@Reference
 	private KBArticleService _kbArticleService;
