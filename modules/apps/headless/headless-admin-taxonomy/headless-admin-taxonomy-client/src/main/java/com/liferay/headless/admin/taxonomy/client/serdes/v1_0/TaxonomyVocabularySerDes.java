@@ -230,6 +230,21 @@ public class TaxonomyVocabularySerDes {
 			sb.append("\"");
 		}
 
+		if (taxonomyVocabulary.getGroupExternalReferenceCode() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"groupExternalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(
+				_escape(taxonomyVocabulary.getGroupExternalReferenceCode()));
+
+			sb.append("\"");
+		}
+
 		if (taxonomyVocabulary.getId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -520,6 +535,16 @@ public class TaxonomyVocabularySerDes {
 				String.valueOf(taxonomyVocabulary.getExternalReferenceCode()));
 		}
 
+		if (taxonomyVocabulary.getGroupExternalReferenceCode() == null) {
+			map.put("groupExternalReferenceCode", null);
+		}
+		else {
+			map.put(
+				"groupExternalReferenceCode",
+				String.valueOf(
+					taxonomyVocabulary.getGroupExternalReferenceCode()));
+		}
+
 		if (taxonomyVocabulary.getId() == null) {
 			map.put("id", null);
 		}
@@ -682,6 +707,11 @@ public class TaxonomyVocabularySerDes {
 
 				return false;
 			}
+			else if (Objects.equals(
+						jsonParserFieldName, "groupExternalReferenceCode")) {
+
+				return false;
+			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
 				return false;
 			}
@@ -821,6 +851,14 @@ public class TaxonomyVocabularySerDes {
 
 				if (jsonParserFieldValue != null) {
 					taxonomyVocabulary.setExternalReferenceCode(
+						(String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "groupExternalReferenceCode")) {
+
+				if (jsonParserFieldValue != null) {
+					taxonomyVocabulary.setGroupExternalReferenceCode(
 						(String)jsonParserFieldValue);
 				}
 			}
@@ -1010,4 +1048,4 @@ public class TaxonomyVocabularySerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:85600847
+// LIFERAY-REST-BUILDER-HASH:-991657468

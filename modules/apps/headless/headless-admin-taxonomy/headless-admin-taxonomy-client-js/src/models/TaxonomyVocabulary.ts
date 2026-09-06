@@ -29,6 +29,7 @@
 			"description"?: string;
 			"description_i18n"?: {[key: string]: string;};
 			"externalReferenceCode"?: string;
+			"groupExternalReferenceCode"?: string;
 			"id"?: number;
 			"multiValued"?: boolean;
 			"name"?: string;
@@ -103,6 +104,11 @@
 		{
 			baseName: "externalReferenceCode",
 			name: "externalReferenceCode",
+			type: "string",
+		},
+		{
+			baseName: "groupExternalReferenceCode",
+			name: "groupExternalReferenceCode",
 			type: "string",
 		},
 		{

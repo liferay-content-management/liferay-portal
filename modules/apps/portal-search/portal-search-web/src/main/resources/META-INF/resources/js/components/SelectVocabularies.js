@@ -271,7 +271,11 @@ function SelectVocabularies({
 										return true;
 									})
 									.map((item) => {
-										const externalReferenceCode = `${itemsFilteredForSites[index].externalReferenceCode}&&${item.externalReferenceCode}`;
+										const externalReferenceCode = `${
+											item.groupExternalReferenceCode ||
+											itemsFilteredForSites[index]
+												.externalReferenceCode
+										}&&${item.externalReferenceCode}`;
 
 										fetchedExternalReferenceCodes.push(
 											externalReferenceCode

@@ -463,6 +463,11 @@ components:
                     description:
                         The vocabulary's external reference code.
                     type: string
+                groupExternalReferenceCode:
+                    description:
+                        The external reference code of the group (site or asset library) that owns this vocabulary.
+                    readOnly: true
+                    type: string
                 id:
                     description:
                         The vocabulary's ID.

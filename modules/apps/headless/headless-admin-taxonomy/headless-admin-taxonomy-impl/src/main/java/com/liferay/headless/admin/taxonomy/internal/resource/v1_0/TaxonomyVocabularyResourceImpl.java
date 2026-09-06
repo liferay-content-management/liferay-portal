@@ -1090,6 +1090,14 @@ public class TaxonomyVocabularyResourceImpl
 						assetVocabulary.getDescriptionMap()));
 				setExternalReferenceCode(
 					assetVocabulary::getExternalReferenceCode);
+				setGroupExternalReferenceCode(
+					() -> {
+						if (group == null) {
+							return null;
+						}
+
+						return group.getExternalReferenceCode();
+					});
 				setId(assetVocabulary::getVocabularyId);
 				setMultiValued(assetVocabulary::isMultiValued);
 				setName(

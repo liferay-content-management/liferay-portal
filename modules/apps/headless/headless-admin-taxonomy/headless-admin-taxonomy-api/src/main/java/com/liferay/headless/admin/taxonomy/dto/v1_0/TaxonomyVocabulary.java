@@ -547,6 +547,55 @@ public class TaxonomyVocabulary implements Serializable {
 	private Supplier<String> _externalReferenceCodeSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The external reference code of the group (site or asset library) that owns this vocabulary."
+	)
+	public String getGroupExternalReferenceCode() {
+		if (_groupExternalReferenceCodeSupplier != null) {
+			groupExternalReferenceCode =
+				_groupExternalReferenceCodeSupplier.get();
+
+			_groupExternalReferenceCodeSupplier = null;
+		}
+
+		return groupExternalReferenceCode;
+	}
+
+	public void setGroupExternalReferenceCode(
+		String groupExternalReferenceCode) {
+
+		this.groupExternalReferenceCode = groupExternalReferenceCode;
+
+		_groupExternalReferenceCodeSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setGroupExternalReferenceCode(
+		UnsafeSupplier<String, Exception>
+			groupExternalReferenceCodeUnsafeSupplier) {
+
+		_groupExternalReferenceCodeSupplier = () -> {
+			try {
+				return groupExternalReferenceCodeUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The external reference code of the group (site or asset library) that owns this vocabulary."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected String groupExternalReferenceCode;
+
+	@JsonIgnore
+	private Supplier<String> _groupExternalReferenceCodeSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The vocabulary's ID."
 	)
 	public Long getId() {
@@ -1368,6 +1417,22 @@ public class TaxonomyVocabulary implements Serializable {
 			sb.append("\"");
 		}
 
+		String groupExternalReferenceCode = getGroupExternalReferenceCode();
+
+		if (groupExternalReferenceCode != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"groupExternalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(groupExternalReferenceCode));
+
+			sb.append("\"");
+		}
+
 		Long id = getId();
 
 		if (id != null) {
@@ -1738,4 +1803,4 @@ public class TaxonomyVocabulary implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1188691079
+// LIFERAY-REST-BUILDER-HASH:-1807231578

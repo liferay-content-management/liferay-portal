@@ -7,6 +7,7 @@ package com.liferay.portal.search.web.internal.category.facet.portlet;
 
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -113,8 +114,12 @@ public class CategoryFacetPortletPreferencesImpl
 					String.valueOf(assetVocabulary.getVocabularyId()));
 			}
 			catch (PortalException portalException) {
-				if (_log.isInfoEnabled()) {
-					_log.info(portalException);
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						StringBundler.concat(
+							"Unable to resolve vocabulary for external ",
+							"reference code \"", externalReferenceCode, "\""),
+						portalException);
 				}
 			}
 		}
