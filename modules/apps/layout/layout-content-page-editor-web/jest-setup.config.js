@@ -124,7 +124,7 @@ jest.mock(
 			layoutType: 'content',
 			portletNamespace: 'page-editor-portlet-namespace',
 			selectedViewportSize: 'desktop',
-			sidebarPanels: [['browser']],
+			sidebarPanels: [{label: 'Browser', sidebarPanelId: 'browser'}],
 			sidebarPanelsMap: {
 				browser: {label: 'Browser', sidebarPanelId: 'browser'},
 			},

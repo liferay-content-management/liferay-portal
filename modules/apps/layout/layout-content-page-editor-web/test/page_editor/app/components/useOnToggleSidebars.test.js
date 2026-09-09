@@ -12,12 +12,13 @@ import useOnToggleSidebars from '../../../../src/main/resources/META-INF/resourc
 import StoreMother from '../../../../src/main/resources/META-INF/resources/page_editor/test_utils/StoreMother';
 
 const INITIAL_STATE = {
+	permissions: {},
 	sidebar: {hidden: true},
 };
 
 const mockDispatch = jest.fn((a) => {
 	if (typeof a === 'function') {
-		return a(mockDispatch);
+		return a(mockDispatch, () => INITIAL_STATE);
 	}
 });
 

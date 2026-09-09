@@ -185,7 +185,7 @@ describe('ShortcutManager', () => {
 	it('triggers hide sidebar action when pressing cmd + shift + .', () => {
 		const mockDispatch = jest.fn((a) => {
 			if (typeof a === 'function') {
-				return a(mockDispatch);
+				return a(mockDispatch, () => DEFAULT_STATE);
 			}
 		});
 
@@ -207,7 +207,7 @@ describe('ShortcutManager', () => {
 	it('triggers show sidebar action when pressing cmd + shift + . and the sidebar is hidden', () => {
 		const mockDispatch = jest.fn((a) => {
 			if (typeof a === 'function') {
-				return a(mockDispatch);
+				return a(mockDispatch, () => DEFAULT_STATE);
 			}
 		});
 
