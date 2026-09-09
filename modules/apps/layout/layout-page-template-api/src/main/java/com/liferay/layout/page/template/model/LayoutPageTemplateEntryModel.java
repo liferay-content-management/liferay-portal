@@ -403,6 +403,27 @@ public interface LayoutPageTemplateEntryModel
 	public void setDefaultTemplate(boolean defaultTemplate);
 
 	/**
+	 * Returns the locked of this layout page template entry.
+	 *
+	 * @return the locked of this layout page template entry
+	 */
+	public boolean getLocked();
+
+	/**
+	 * Returns <code>true</code> if this layout page template entry is locked.
+	 *
+	 * @return <code>true</code> if this layout page template entry is locked; <code>false</code> otherwise
+	 */
+	public boolean isLocked();
+
+	/**
+	 * Sets whether this layout page template entry is locked.
+	 *
+	 * @param locked the locked of this layout page template entry
+	 */
+	public void setLocked(boolean locked);
+
+	/**
 	 * Returns the layout prototype ID of this layout page template entry.
 	 *
 	 * @return the layout prototype ID of this layout page template entry
@@ -599,4 +620,4 @@ public interface LayoutPageTemplateEntryModel
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1984578721
+// LIFERAY-SERVICE-BUILDER-HASH:-1040343626

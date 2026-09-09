@@ -53,6 +53,10 @@ import KeyboardMovementPreview from './keyboard_movement/KeyboardMovementPreview
 export default function App({state}) {
 	const initialState = reducer(state, {type: INIT});
 
+	if (initialState.permissions.LOCKED_PAGE_TEMPLATE) {
+		initialState.sidebar = {...initialState.sidebar, hidden: true};
+	}
+
 	return (
 		<ClayIconSpriteContext.Provider value={getControlPanelSpritemap()}>
 			<StoreContextProvider initialState={initialState} reducer={reducer}>

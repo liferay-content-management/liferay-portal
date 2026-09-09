@@ -8,6 +8,7 @@ package com.liferay.layout.page.template.service.impl;
 import com.liferay.layout.constants.LayoutTypeSettingsConstants;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateActionKeys;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
+import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryLockedException;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollectionTable;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
@@ -216,6 +217,7 @@ public class LayoutPageTemplateEntryServiceImpl
 			_layoutPageTemplateEntryModelResourcePermission.check(
 				getPermissionChecker(), layoutPageTemplateEntryId,
 				ActionKeys.DELETE);
+			_checkNotLocked(layoutPageTemplateEntryId);
 
 			layoutPageTemplateEntryLocalService.deleteLayoutPageTemplateEntry(
 				layoutPageTemplateEntryId);
@@ -230,6 +232,7 @@ public class LayoutPageTemplateEntryServiceImpl
 		_layoutPageTemplateEntryModelResourcePermission.check(
 			getPermissionChecker(), layoutPageTemplateEntryId,
 			ActionKeys.DELETE);
+		_checkNotLocked(layoutPageTemplateEntryId);
 
 		return layoutPageTemplateEntryLocalService.
 			deleteLayoutPageTemplateEntry(layoutPageTemplateEntryId);
@@ -248,6 +251,7 @@ public class LayoutPageTemplateEntryServiceImpl
 			getPermissionChecker(),
 			layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
 			ActionKeys.DELETE);
+		_checkNotLocked(layoutPageTemplateEntry);
 
 		return layoutPageTemplateEntryLocalService.
 			deleteLayoutPageTemplateEntry(layoutPageTemplateEntry);
@@ -1087,6 +1091,7 @@ public class LayoutPageTemplateEntryServiceImpl
 		_layoutPageTemplateEntryModelResourcePermission.check(
 			getPermissionChecker(), layoutPageTemplateEntryId,
 			ActionKeys.UPDATE);
+		_checkNotLocked(layoutPageTemplateEntryId);
 
 		return layoutPageTemplateEntryLocalService.moveLayoutPageTemplateEntry(
 			layoutPageTemplateEntryId, targetLayoutPageTemplateCollectionId);
@@ -1100,6 +1105,7 @@ public class LayoutPageTemplateEntryServiceImpl
 		_layoutPageTemplateEntryModelResourcePermission.check(
 			getPermissionChecker(), layoutPageTemplateEntryId,
 			ActionKeys.UPDATE);
+		_checkNotLocked(layoutPageTemplateEntryId);
 
 		return layoutPageTemplateEntryLocalService.
 			updateLayoutPageTemplateEntry(
@@ -1114,6 +1120,7 @@ public class LayoutPageTemplateEntryServiceImpl
 		_layoutPageTemplateEntryModelResourcePermission.check(
 			getPermissionChecker(), layoutPageTemplateEntryId,
 			ActionKeys.UPDATE);
+		_checkNotLocked(layoutPageTemplateEntryId);
 
 		return layoutPageTemplateEntryLocalService.
 			updateLayoutPageTemplateEntry(
@@ -1129,6 +1136,7 @@ public class LayoutPageTemplateEntryServiceImpl
 		_layoutPageTemplateEntryModelResourcePermission.check(
 			getPermissionChecker(), layoutPageTemplateEntryId,
 			ActionKeys.UPDATE);
+		_checkNotLocked(layoutPageTemplateEntryId);
 
 		return layoutPageTemplateEntryLocalService.
 			updateLayoutPageTemplateEntry(
@@ -1144,6 +1152,7 @@ public class LayoutPageTemplateEntryServiceImpl
 		_layoutPageTemplateEntryModelResourcePermission.check(
 			getPermissionChecker(), layoutPageTemplateEntryId,
 			ActionKeys.UPDATE);
+		_checkNotLocked(layoutPageTemplateEntryId);
 
 		return layoutPageTemplateEntryLocalService.
 			updateLayoutPageTemplateEntry(layoutPageTemplateEntryId, name);
@@ -1157,9 +1166,27 @@ public class LayoutPageTemplateEntryServiceImpl
 		_layoutPageTemplateEntryModelResourcePermission.check(
 			getPermissionChecker(), layoutPageTemplateEntryId,
 			ActionKeys.UPDATE);
+		_checkNotLocked(layoutPageTemplateEntryId);
 
 		return layoutPageTemplateEntryLocalService.updateStatus(
 			getUserId(), layoutPageTemplateEntryId, status);
+	}
+
+	private void _checkNotLocked(
+			LayoutPageTemplateEntry layoutPageTemplateEntry)
+		throws PortalException {
+
+		if (layoutPageTemplateEntry.isLocked()) {
+			throw new LayoutPageTemplateEntryLockedException();
+		}
+	}
+
+	private void _checkNotLocked(long layoutPageTemplateEntryId)
+		throws PortalException {
+
+		_checkNotLocked(
+			layoutPageTemplateEntryPersistence.findByPrimaryKey(
+				layoutPageTemplateEntryId));
 	}
 
 	private List<Object>

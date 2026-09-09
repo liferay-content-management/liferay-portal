@@ -9,6 +9,7 @@ import com.liferay.layout.constants.LayoutTypeSettingsConstants;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
+import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryLockedException;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
@@ -116,6 +117,16 @@ public class PublishLayoutPageTemplateEntryMVCActionCommand
 	private LayoutPageTemplateEntry _publishLayoutPageTemplateEntry(
 			Layout draftLayout, Layout layout, long userId)
 		throws Exception {
+
+		LayoutPageTemplateEntry existingLayoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByPlid(layout.getPlid());
+
+		if ((existingLayoutPageTemplateEntry != null) &&
+			existingLayoutPageTemplateEntry.isLocked()) {
+
+			throw new LayoutPageTemplateEntryLockedException();
+		}
 
 		Group group = _groupLocalService.getGroup(layout.getGroupId());
 

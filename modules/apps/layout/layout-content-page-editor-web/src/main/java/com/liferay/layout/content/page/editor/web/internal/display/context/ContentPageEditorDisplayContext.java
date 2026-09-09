@@ -885,6 +885,9 @@ public class ContentPageEditorDisplayContext {
 							MarketplacePortletKeys.FRAGMENTS,
 							MarketplaceActionKeys.INSTALL_FREE_BUNDLED_APPS)
 					).put(
+						ContentPageEditorActionKeys.LOCKED_PAGE_TEMPLATE,
+						isLockedLayoutPageTemplateEntry()
+					).put(
 						ContentPageEditorActionKeys.
 							PURCHASE_AND_INSTALL_PAID_APPS_MARKETPLACE,
 						() -> PortletPermissionUtil.contains(
@@ -1003,6 +1006,26 @@ public class ContentPageEditorDisplayContext {
 		}
 
 		return false;
+	}
+
+	public boolean isLockedLayoutPageTemplateEntry() {
+		Layout layout = themeDisplay.getLayout();
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByPlid(layout.getPlid());
+
+		if (layoutPageTemplateEntry == null) {
+			layoutPageTemplateEntry =
+				layoutPageTemplateEntryLocalService.
+					fetchLayoutPageTemplateEntryByPlid(layout.getClassPK());
+		}
+
+		if (layoutPageTemplateEntry == null) {
+			return false;
+		}
+
+		return layoutPageTemplateEntry.isLocked();
 	}
 
 	public boolean isMasterLayout() {

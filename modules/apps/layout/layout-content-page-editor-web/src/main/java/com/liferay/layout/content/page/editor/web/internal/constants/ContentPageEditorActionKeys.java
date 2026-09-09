@@ -17,6 +17,8 @@ public class ContentPageEditorActionKeys extends ActionKeys {
 	public static final String INSTALL_FREE_BUNDLED_APPS_MARKETPLACE =
 		"INSTALL_FREE_BUNDLED_APPS_MARKETPLACE";
 
+	public static final String LOCKED_PAGE_TEMPLATE = "LOCKED_PAGE_TEMPLATE";
+
 	public static final String LOCKED_SEGMENTS_EXPERIMENT =
 		"LOCKED_SEGMENTS_EXPERIMENT";
 

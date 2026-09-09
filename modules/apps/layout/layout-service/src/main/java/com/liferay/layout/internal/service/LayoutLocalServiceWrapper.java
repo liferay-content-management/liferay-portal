@@ -22,6 +22,7 @@ import com.liferay.layout.content.creator.LayoutContentVersionCreator;
 import com.liferay.layout.friendly.url.LayoutFriendlyURLEntryHelper;
 import com.liferay.layout.model.LayoutClassedModelUsage;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
+import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryLockedException;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRelElementVariation;
@@ -206,6 +207,8 @@ public class LayoutLocalServiceWrapper
 			String data, Layout layout, long segmentsExperienceId)
 		throws Exception {
 
+		_checkNotLocked(layout);
+
 		boolean copyLayout = CopyLayoutThreadLocal.isCopyLayout();
 
 		ServiceContext currentServiceContext =
@@ -268,6 +271,24 @@ public class LayoutLocalServiceWrapper
 			if (pushedServiceContext) {
 				ServiceContextThreadLocal.popServiceContext();
 			}
+		}
+	}
+
+	private void _checkNotLocked(Layout layout) throws Exception {
+		long livePlid = layout.getPlid();
+
+		if (layout.isDraftLayout()) {
+			livePlid = layout.getClassPK();
+		}
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByPlid(livePlid);
+
+		if ((layoutPageTemplateEntry != null) &&
+			layoutPageTemplateEntry.isLocked()) {
+
+			throw new LayoutPageTemplateEntryLockedException();
 		}
 	}
 

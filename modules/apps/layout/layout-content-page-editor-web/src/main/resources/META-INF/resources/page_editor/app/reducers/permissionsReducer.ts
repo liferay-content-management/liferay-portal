@@ -13,6 +13,7 @@ export type PermissionsState = Record<PermissionKey, boolean | undefined>;
 export const INITIAL_STATE: PermissionsState = {
 	EDIT_SEGMENTS_ENTRY: false,
 	INSTALL_FREE_BUNDLED_APPS_MARKETPLACE: false,
+	LOCKED_PAGE_TEMPLATE: false,
 	LOCKED_SEGMENTS_EXPERIMENT: false,
 	MANAGE_FRAGMENT_ENTRIES: undefined,
 	PURCHASE_AND_INSTALL_PAID_APPS_MARKETPLACE: false,

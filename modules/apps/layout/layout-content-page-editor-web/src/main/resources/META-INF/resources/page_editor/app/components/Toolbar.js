@@ -218,33 +218,39 @@ function ToolbarBody({className}) {
 					</ul>
 				</li>
 
-				<li className="d-lg-flex d-none nav-item">
-					<form
-						action={config.discardDraftURL}
-						method="POST"
-						ref={discardDraftFormRef}
-					>
-						<DiscardDraftButton />
-					</form>
-				</li>
+				{!store.permissions.LOCKED_PAGE_TEMPLATE && (
+					<li className="d-lg-flex d-none nav-item">
+						<form
+							action={config.discardDraftURL}
+							method="POST"
+							ref={discardDraftFormRef}
+						>
+							<DiscardDraftButton />
+						</form>
+					</li>
+				)}
 
-				<li className="d-lg-none nav-item">
-					<ToolbarActionsDropdown
-						discardDraftFormRef={discardDraftFormRef}
-					/>
-				</li>
+				{!store.permissions.LOCKED_PAGE_TEMPLATE && (
+					<li className="d-lg-none nav-item">
+						<ToolbarActionsDropdown
+							discardDraftFormRef={discardDraftFormRef}
+						/>
+					</li>
+				)}
 
-				<li className="nav-item">
-					<PublishButton
-						ariaLabel={ariaLabel}
-						canPublish={canPublish}
-						disabled={isCMSFreeTier}
-						formRef={formRef}
-						icon={icon}
-						label={publishButtonLabel}
-						onPublish={onPublish}
-					/>
-				</li>
+				{!store.permissions.LOCKED_PAGE_TEMPLATE && (
+					<li className="nav-item">
+						<PublishButton
+							ariaLabel={ariaLabel}
+							canPublish={canPublish}
+							disabled={isCMSFreeTier}
+							formRef={formRef}
+							icon={icon}
+							label={publishButtonLabel}
+							onPublish={onPublish}
+						/>
+					</li>
+				)}
 
 				{config.isCMS ? (
 					<li className="nav-item">

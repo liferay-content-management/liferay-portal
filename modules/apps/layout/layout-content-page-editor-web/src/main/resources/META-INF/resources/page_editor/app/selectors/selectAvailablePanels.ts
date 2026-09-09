@@ -16,6 +16,14 @@ export default function selectAvailablePanels(sidebarPanels: SidebarPanel[]) {
 		permissions: PermissionsState;
 		selectedViewportSize: ViewportSize;
 	}) {
+		if (permissions.LOCKED_PAGE_TEMPLATE) {
+			const lockedAvailablePanels = ['comments', 'page_content'];
+
+			return sidebarPanels.filter(({sidebarPanelId}) =>
+				lockedAvailablePanels.includes(sidebarPanelId)
+			);
+		}
+
 		const availablePanels = ['browser', 'comments', 'page_content'];
 
 		if (

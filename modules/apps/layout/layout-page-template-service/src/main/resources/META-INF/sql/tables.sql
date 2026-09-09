@@ -80,6 +80,7 @@ create table LayoutPageTemplateEntry (
 	type_ INTEGER,
 	previewFileEntryId LONG,
 	defaultTemplate BOOLEAN,
+	locked BOOLEAN,
 	layoutPrototypeId LONG,
 	plid LONG,
 	lastPublishDate DATE null,

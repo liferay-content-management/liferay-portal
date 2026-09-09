@@ -90,6 +90,16 @@ public class DisplayPageTemplateSerDes {
 			sb.append("\"");
 		}
 
+		if (displayPageTemplate.getLocked() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"locked\": ");
+
+			sb.append(displayPageTemplate.getLocked());
+		}
+
 		if (displayPageTemplate.getName() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -159,6 +169,13 @@ public class DisplayPageTemplateSerDes {
 			map.put("key", String.valueOf(displayPageTemplate.getKey()));
 		}
 
+		if (displayPageTemplate.getLocked() == null) {
+			map.put("locked", null);
+		}
+		else {
+			map.put("locked", String.valueOf(displayPageTemplate.getLocked()));
+		}
+
 		if (displayPageTemplate.getName() == null) {
 			map.put("name", null);
 		}
@@ -196,6 +213,9 @@ public class DisplayPageTemplateSerDes {
 			else if (Objects.equals(jsonParserFieldName, "key")) {
 				return false;
 			}
+			else if (Objects.equals(jsonParserFieldName, "locked")) {
+				return false;
+			}
 			else if (Objects.equals(jsonParserFieldName, "name")) {
 				return false;
 			}
@@ -230,6 +250,12 @@ public class DisplayPageTemplateSerDes {
 			else if (Objects.equals(jsonParserFieldName, "key")) {
 				if (jsonParserFieldValue != null) {
 					displayPageTemplate.setKey((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "locked")) {
+				if (jsonParserFieldValue != null) {
+					displayPageTemplate.setLocked(
+						(Boolean)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "name")) {
@@ -318,4 +344,4 @@ public class DisplayPageTemplateSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1845091422
+// LIFERAY-REST-BUILDER-HASH:-719119076

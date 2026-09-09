@@ -12,6 +12,7 @@ import com.liferay.layout.page.template.constants.LayoutPageTemplateActionKeys;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateCollectionTypeConstants;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateConstants;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
+import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryLockedException;
 import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryNameException;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
@@ -663,6 +664,20 @@ public class LayoutPageTemplateEntryServiceTest {
 		}
 	}
 
+	@Test(expected = LayoutPageTemplateEntryLockedException.class)
+	public void testDeleteLayoutPageTemplateEntryWhenLocked() throws Exception {
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			LayoutPageTemplateTestUtil.addLayoutPageTemplateEntry(
+				_layoutPageTemplateCollection.
+					getLayoutPageTemplateCollectionId());
+
+		_layoutPageTemplateEntryLocalService.updateLock(
+			layoutPageTemplateEntry.getLayoutPageTemplateEntryId(), true);
+
+		_layoutPageTemplateEntryService.deleteLayoutPageTemplateEntry(
+			layoutPageTemplateEntry.getLayoutPageTemplateEntryId());
+	}
+
 	@Test
 	public void testDeleteLayoutPageTemplateEntryWithLayoutPrototype()
 		throws Exception {
@@ -1294,6 +1309,45 @@ public class LayoutPageTemplateEntryServiceTest {
 		Assert.assertEquals(
 			WorkflowConstants.STATUS_PENDING,
 			persistedLayoutPageTemplateEntry.getStatus());
+	}
+
+	@Test(expected = LayoutPageTemplateEntryLockedException.class)
+	public void testUpdateLayoutPageTemplateEntryWhenLocked() throws Exception {
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			LayoutPageTemplateTestUtil.addLayoutPageTemplateEntry(
+				_layoutPageTemplateCollection.
+					getLayoutPageTemplateCollectionId(),
+				"tiger");
+
+		_layoutPageTemplateEntryLocalService.updateLock(
+			layoutPageTemplateEntry.getLayoutPageTemplateEntryId(), true);
+
+		_layoutPageTemplateEntryService.updateLayoutPageTemplateEntry(
+			layoutPageTemplateEntry.getLayoutPageTemplateEntryId(), "leopard");
+	}
+
+	@Test
+	public void testUpdateLayoutPageTemplateEntryWhenLockedThroughLocalService()
+		throws Exception {
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			LayoutPageTemplateTestUtil.addLayoutPageTemplateEntry(
+				_layoutPageTemplateCollection.
+					getLayoutPageTemplateCollectionId(),
+				"tiger");
+
+		_layoutPageTemplateEntryLocalService.updateLock(
+			layoutPageTemplateEntry.getLayoutPageTemplateEntryId(), true);
+
+		_layoutPageTemplateEntryLocalService.updateLayoutPageTemplateEntry(
+			layoutPageTemplateEntry.getLayoutPageTemplateEntryId(), "leopard");
+
+		LayoutPageTemplateEntry persistedLayoutPageTemplateEntry =
+			_layoutPageTemplateEntryPersistence.fetchByPrimaryKey(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId());
+
+		Assert.assertEquals(
+			"leopard", persistedLayoutPageTemplateEntry.getName());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

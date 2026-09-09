@@ -790,6 +790,15 @@ public class LayoutPageTemplateEntryLocalServiceWrapper
 	}
 
 	@Override
+	public LayoutPageTemplateEntry updateLock(
+			long layoutPageTemplateEntryId, boolean locked)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _layoutPageTemplateEntryLocalService.updateLock(
+			layoutPageTemplateEntryId, locked);
+	}
+
+	@Override
 	public LayoutPageTemplateEntry updateStatus(
 			long userId, long layoutPageTemplateEntryId, int status)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -841,4 +850,4 @@ public class LayoutPageTemplateEntryLocalServiceWrapper
 		_layoutPageTemplateEntryLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-774049713
+// LIFERAY-SERVICE-BUILDER-HASH:1180999286

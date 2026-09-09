@@ -36,13 +36,13 @@ export const MAX_SIDEBAR_WIDTH = 500;
 export const MIN_SIDEBAR_WIDTH = 280;
 export const SIDEBAR_WIDTH_RESIZE_STEP = 20;
 
-function getActiveSidebarPanel({
-	sidebarPanelId,
-	sidebarPanels,
-	sidebarPanelsMap,
-}) {
-	if (sidebarPanelsMap[sidebarPanelId]) {
-		return {sidebarPanel: sidebarPanelsMap[sidebarPanelId], sidebarPanelId};
+function getActiveSidebarPanel({sidebarPanelId, sidebarPanels}) {
+	const availablePanel = sidebarPanels.find(
+		(panel) => panel.sidebarPanelId === sidebarPanelId
+	);
+
+	if (availablePanel) {
+		return {sidebarPanel: availablePanel, sidebarPanelId};
 	}
 
 	const panel = sidebarPanels[0];
@@ -98,7 +98,6 @@ export default function Sidebar() {
 	const {sidebarPanel, sidebarPanelId} = getActiveSidebarPanel({
 		sidebarPanelId: sidebar.panelId,
 		sidebarPanels,
-		sidebarPanelsMap: config.sidebarPanelsMap,
 	});
 
 	useEffect(() => {

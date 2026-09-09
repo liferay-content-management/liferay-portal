@@ -20,10 +20,14 @@ export default function useProductMenuHandler() {
 	useEffect(() => {
 		hideProductMenuIfPresent({
 			onHide: () => {
+				if (sidebarHidden) {
+					return;
+				}
+
 				dispatch(switchSidebarPanel({sidebarOpen: true}));
 			},
 		});
-	}, [dispatch]);
+	}, [dispatch, sidebarHidden]);
 
 	useEffect(() => {
 		const sideNavigation = Liferay.SideNavigation?.instance(

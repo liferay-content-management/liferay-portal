@@ -11,9 +11,10 @@ export default function selectHasAnyUpdatePermission({
 	permissions: PermissionsState;
 }) {
 	return (
-		permissions.UPDATE ||
-		permissions.UPDATE_LAYOUT_BASIC ||
-		permissions.UPDATE_LAYOUT_CONTENT ||
-		permissions.UPDATE_LAYOUT_LIMITED
+		!permissions.LOCKED_PAGE_TEMPLATE &&
+		(permissions.UPDATE ||
+			permissions.UPDATE_LAYOUT_BASIC ||
+			permissions.UPDATE_LAYOUT_CONTENT ||
+			permissions.UPDATE_LAYOUT_LIMITED)
 	);
 }

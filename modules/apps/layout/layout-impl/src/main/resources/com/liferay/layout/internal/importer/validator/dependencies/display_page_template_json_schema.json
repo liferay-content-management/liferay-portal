@@ -38,6 +38,10 @@
 			"title": "The key Schema",
 			"type": "string"
 		},
+		"locked": {
+			"title": "The locked Schema",
+			"type": "boolean"
+		},
 		"name": {
 			"title": "The name Schema",
 			"type": "string"

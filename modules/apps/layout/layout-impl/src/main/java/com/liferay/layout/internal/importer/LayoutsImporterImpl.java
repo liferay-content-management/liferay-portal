@@ -1589,7 +1589,7 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 			LayoutsImportStrategy layoutsImportStrategy, String name,
 			PageDefinition pageDefinition, boolean preserveItemIds,
 			int layoutPageTemplateEntryType, long userId, Thumbnail thumbnail,
-			String zipPath)
+			String zipPath, boolean locked)
 		throws Exception {
 
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
@@ -1610,12 +1610,14 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 			}
 
 			boolean added = false;
+			boolean newLayoutPageTemplateEntry = false;
 
 			if (layoutPageTemplateEntry == null) {
 				layoutPageTemplateEntry = _addLayoutPageTemplateEntry(
 					groupId, layoutPageTemplateCollectionId, classNameId,
 					classTypeKey, name, layoutPageTemplateEntryType);
 				added = true;
+				newLayoutPageTemplateEntry = true;
 			}
 			else if (Objects.equals(
 						LayoutsImportStrategy.KEEP_BOTH,
@@ -1630,13 +1632,14 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 							layoutPageTemplateEntryType),
 					layoutPageTemplateEntryType);
 				added = true;
+				newLayoutPageTemplateEntry = true;
 			}
 			else if (Objects.equals(
 						LayoutsImportStrategy.OVERWRITE,
 						layoutsImportStrategy)) {
 
 				layoutPageTemplateEntry =
-					_layoutPageTemplateEntryService.
+					_layoutPageTemplateEntryLocalService.
 						updateLayoutPageTemplateEntry(
 							layoutPageTemplateEntry.
 								getLayoutPageTemplateEntryId(),
@@ -1646,6 +1649,17 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 			}
 
 			if (added) {
+				if (newLayoutPageTemplateEntry &&
+					((layoutPageTemplateEntryType ==
+						LayoutPageTemplateEntryTypeConstants.BASIC) ||
+					 (layoutPageTemplateEntryType ==
+						 LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE))) {
+
+					_layoutPageTemplateEntryLocalService.updateLock(
+						layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
+						locked);
+				}
+
 				Set<String> warningMessages = new HashSet<>();
 
 				_processPageDefinition(
@@ -1658,7 +1672,7 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 					groupId, thumbnail, userId);
 
 				layoutPageTemplateEntry =
-					_layoutPageTemplateEntryService.
+					_layoutPageTemplateEntryLocalService.
 						updateLayoutPageTemplateEntry(
 							layoutPageTemplateEntry.
 								getLayoutPageTemplateEntryId(),
@@ -2625,7 +2639,8 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 				pageTemplate.getName(), _pageTemplateEntry.getPageDefinition(),
 				_preserveItemIds, LayoutPageTemplateEntryTypeConstants.BASIC,
 				_userId, _pageTemplateEntry.getThumbnail(),
-				_pageTemplateEntry.getZipPath());
+				_pageTemplateEntry.getZipPath(),
+				GetterUtil.getBoolean(pageTemplate.getLocked()));
 
 			return null;
 		}
@@ -2672,7 +2687,8 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 					_displayPageTemplate.getName(), _pageDefinition,
 					_preserveItemIds,
 					LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, _userId,
-					_thumbnail, _zipPath);
+					_thumbnail, _zipPath,
+					GetterUtil.getBoolean(_displayPageTemplate.getLocked()));
 
 			boolean defaultTemplate = GetterUtil.getBoolean(
 				_displayPageTemplate.getDefaultTemplate());
@@ -2773,7 +2789,7 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 				_layoutsImporterResultEntries, _layoutsImportStrategy, _name,
 				_pageDefinition, _preserveItemIds,
 				LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT, _userId,
-				_thumbnail, _zipPath);
+				_thumbnail, _zipPath, false);
 
 			return null;
 		}

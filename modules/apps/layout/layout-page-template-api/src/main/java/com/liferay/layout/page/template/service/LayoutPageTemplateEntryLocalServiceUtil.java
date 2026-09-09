@@ -681,6 +681,13 @@ public class LayoutPageTemplateEntryLocalServiceUtil {
 			layoutPageTemplateEntryId, name);
 	}
 
+	public static LayoutPageTemplateEntry updateLock(
+			long layoutPageTemplateEntryId, boolean locked)
+		throws PortalException {
+
+		return getService().updateLock(layoutPageTemplateEntryId, locked);
+	}
+
 	public static LayoutPageTemplateEntry updateStatus(
 			long userId, long layoutPageTemplateEntryId, int status)
 		throws PortalException {
@@ -699,4 +706,4 @@ public class LayoutPageTemplateEntryLocalServiceUtil {
 			LayoutPageTemplateEntryLocalService.class);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1391057017
+// LIFERAY-SERVICE-BUILDER-HASH:1218760501

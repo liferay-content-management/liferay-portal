@@ -102,24 +102,27 @@ ContentPageEditorDisplayContext contentPageEditorDisplayContext = (ContentPageEd
 					title="view"
 				/>
 			</li>
-			<li class="d-lg-flex d-none nav-item">
-				<clay:button
-					disabled="<%= true %>"
-					displayType="secondary"
-					small="<%= true %>"
-				>
-					<liferay-ui:message key="discard-draft" />
-				</clay:button>
-			</li>
-			<li class="d-lg-none nav-item">
-				<clay:button
-					disabled="<%= true %>"
-					displayType="secondary"
-					icon="ellipsis-v"
-					monospaced="<%= true %>"
-					small="<%= true %>"
-				/>
-			</li>
+
+			<c:if test="<%= !contentPageEditorDisplayContext.isLockedLayoutPageTemplateEntry() %>">
+				<li class="d-lg-flex d-none nav-item">
+					<clay:button
+						disabled="<%= true %>"
+						displayType="secondary"
+						small="<%= true %>"
+					>
+						<liferay-ui:message key="discard-draft" />
+					</clay:button>
+				</li>
+				<li class="d-lg-none nav-item">
+					<clay:button
+						disabled="<%= true %>"
+						displayType="secondary"
+						icon="ellipsis-v"
+						monospaced="<%= true %>"
+						small="<%= true %>"
+					/>
+				</li>
+			</c:if>
 
 			<c:if test="<%= contentPageEditorDisplayContext.isSingleSegmentsExperienceMode() %>">
 				<li class="nav-item">
@@ -134,28 +137,31 @@ ContentPageEditorDisplayContext contentPageEditorDisplayContext = (ContentPageEd
 				</li>
 			</c:if>
 
-			<li class="nav-item">
-				<clay:button
-					disabled="<%= true %>"
-					displayType="primary"
-					small="<%= true %>"
-				>
-					<c:choose>
-						<c:when test="<%= contentPageEditorDisplayContext.isMasterLayout() %>">
-							<liferay-ui:message key="publish-master" />
-						</c:when>
-						<c:when test="<%= contentPageEditorDisplayContext.isSingleSegmentsExperienceMode() %>">
-							<liferay-ui:message key="save-variant" />
-						</c:when>
-						<c:when test="<%= contentPageEditorDisplayContext.isWorkflowEnabled() %>">
-							<liferay-ui:message key="submit-for-workflow" />
-						</c:when>
-						<c:otherwise>
-							<liferay-ui:message key="publish" />
-						</c:otherwise>
-					</c:choose>
-				</clay:button>
-			</li>
+			<c:if test="<%= !contentPageEditorDisplayContext.isLockedLayoutPageTemplateEntry() %>">
+				<li class="nav-item">
+					<clay:button
+						disabled="<%= true %>"
+						displayType="primary"
+						small="<%= true %>"
+					>
+						<c:choose>
+							<c:when test="<%= contentPageEditorDisplayContext.isMasterLayout() %>">
+								<liferay-ui:message key="publish-master" />
+							</c:when>
+							<c:when test="<%= contentPageEditorDisplayContext.isSingleSegmentsExperienceMode() %>">
+								<liferay-ui:message key="save-variant" />
+							</c:when>
+							<c:when test="<%= contentPageEditorDisplayContext.isWorkflowEnabled() %>">
+								<liferay-ui:message key="submit-for-workflow" />
+							</c:when>
+							<c:otherwise>
+								<liferay-ui:message key="publish" />
+							</c:otherwise>
+						</c:choose>
+					</clay:button>
+				</li>
+			</c:if>
+
 			<li class="d-md-none nav-item">
 				<clay:button
 					cssClass="text-secondary"

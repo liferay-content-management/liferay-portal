@@ -10,6 +10,9 @@ import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.layout.constants.LayoutTypeSettingsConstants;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
+import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryLockedException;
+import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
+import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutRevision;
@@ -71,6 +74,16 @@ public class PublishLayoutMVCActionCommand
 		}
 
 		Layout layout = _layoutLocalService.getLayout(draftLayout.getClassPK());
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByPlid(layout.getPlid());
+
+		if ((layoutPageTemplateEntry != null) &&
+			layoutPageTemplateEntry.isLocked()) {
+
+			throw new LayoutPageTemplateEntryLockedException();
+		}
 
 		LayoutPermissionUtil.checkLayoutUpdatePermission(
 			themeDisplay.getPermissionChecker(), draftLayout);
@@ -251,6 +264,10 @@ public class PublishLayoutMVCActionCommand
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private LayoutPageTemplateEntryLocalService
+		_layoutPageTemplateEntryLocalService;
 
 	@Reference
 	private LayoutRevisionLocalService _layoutRevisionLocalService;

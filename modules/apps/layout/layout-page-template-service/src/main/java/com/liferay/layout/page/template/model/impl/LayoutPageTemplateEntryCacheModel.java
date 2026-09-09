@@ -69,7 +69,7 @@ public class LayoutPageTemplateEntryCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(55);
+		StringBundler sb = new StringBundler(57);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -111,6 +111,8 @@ public class LayoutPageTemplateEntryCacheModel
 		sb.append(previewFileEntryId);
 		sb.append(", defaultTemplate=");
 		sb.append(defaultTemplate);
+		sb.append(", locked=");
+		sb.append(locked);
 		sb.append(", layoutPrototypeId=");
 		sb.append(layoutPrototypeId);
 		sb.append(", plid=");
@@ -211,6 +213,7 @@ public class LayoutPageTemplateEntryCacheModel
 		layoutPageTemplateEntryImpl.setType(type);
 		layoutPageTemplateEntryImpl.setPreviewFileEntryId(previewFileEntryId);
 		layoutPageTemplateEntryImpl.setDefaultTemplate(defaultTemplate);
+		layoutPageTemplateEntryImpl.setLocked(locked);
 		layoutPageTemplateEntryImpl.setLayoutPrototypeId(layoutPrototypeId);
 		layoutPageTemplateEntryImpl.setPlid(plid);
 
@@ -277,6 +280,8 @@ public class LayoutPageTemplateEntryCacheModel
 		previewFileEntryId = objectInput.readLong();
 
 		defaultTemplate = objectInput.readBoolean();
+
+		locked = objectInput.readBoolean();
 
 		layoutPrototypeId = objectInput.readLong();
 
@@ -361,6 +366,8 @@ public class LayoutPageTemplateEntryCacheModel
 
 		objectOutput.writeBoolean(defaultTemplate);
 
+		objectOutput.writeBoolean(locked);
+
 		objectOutput.writeLong(layoutPrototypeId);
 
 		objectOutput.writeLong(plid);
@@ -400,6 +407,7 @@ public class LayoutPageTemplateEntryCacheModel
 	public int type;
 	public long previewFileEntryId;
 	public boolean defaultTemplate;
+	public boolean locked;
 	public long layoutPrototypeId;
 	public long plid;
 	public long lastPublishDate;
@@ -409,4 +417,4 @@ public class LayoutPageTemplateEntryCacheModel
 	public long statusDate;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:480673767
+// LIFERAY-SERVICE-BUILDER-HASH:496600092

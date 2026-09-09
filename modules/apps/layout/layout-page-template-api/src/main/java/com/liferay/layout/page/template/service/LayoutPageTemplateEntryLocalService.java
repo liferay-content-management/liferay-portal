@@ -514,6 +514,10 @@ public interface LayoutPageTemplateEntryLocalService
 			long layoutPageTemplateEntryId, String name)
 		throws PortalException;
 
+	public LayoutPageTemplateEntry updateLock(
+			long layoutPageTemplateEntryId, boolean locked)
+		throws PortalException;
+
 	public LayoutPageTemplateEntry updateStatus(
 			long userId, long layoutPageTemplateEntryId, int status)
 		throws PortalException;
@@ -534,4 +538,4 @@ public interface LayoutPageTemplateEntryLocalService
 		throws E;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1796412744
+// LIFERAY-SERVICE-BUILDER-HASH:-788149259

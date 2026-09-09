@@ -1305,6 +1305,11 @@ components:
                     description:
                         The display page template's key.
                     type: string
+                locked:
+                    # @review
+                    description:
+                        Specifies if the page template should be locked (uneditable and undeletable) when imported by a site initializer. Defaults to false.
+                    type: boolean
                 name:
                     # @review
                     description:
@@ -4814,6 +4819,11 @@ components:
                     items:
                         type: string
                     type: array
+                locked:
+                    # @review
+                    description:
+                        Specifies if the page template should be locked (uneditable and undeletable) when imported by a site initializer. Defaults to false.
+                    type: boolean
                 name:
                     # @review
                     description:

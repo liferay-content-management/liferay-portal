@@ -15,6 +15,7 @@ export default function selectCanUpdatePageStructure({
 	selectedViewportSize: ViewportSize;
 }) {
 	return (
+		!permissions.LOCKED_PAGE_TEMPLATE &&
 		!permissions.LOCKED_SEGMENTS_EXPERIMENT &&
 		(permissions.UPDATE ||
 			permissions.UPDATE_LAYOUT_BASIC ||

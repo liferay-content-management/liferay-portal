@@ -129,6 +129,27 @@ public class PageTemplate implements Cloneable, Serializable {
 
 	protected String[] keywords;
 
+	public Boolean getLocked() {
+		return locked;
+	}
+
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+	}
+
+	public void setLocked(
+		UnsafeSupplier<Boolean, Exception> lockedUnsafeSupplier) {
+
+		try {
+			locked = lockedUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean locked;
+
 	public String getName() {
 		return name;
 	}
@@ -290,4 +311,4 @@ public class PageTemplate implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1673272305
+// LIFERAY-REST-BUILDER-HASH:1896407290

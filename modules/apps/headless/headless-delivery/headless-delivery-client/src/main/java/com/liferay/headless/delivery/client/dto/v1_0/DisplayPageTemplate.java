@@ -108,6 +108,27 @@ public class DisplayPageTemplate implements Cloneable, Serializable {
 
 	protected String key;
 
+	public Boolean getLocked() {
+		return locked;
+	}
+
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+	}
+
+	public void setLocked(
+		UnsafeSupplier<Boolean, Exception> lockedUnsafeSupplier) {
+
+		try {
+			locked = lockedUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean locked;
+
 	public String getName() {
 		return name;
 	}
@@ -159,4 +180,4 @@ public class DisplayPageTemplate implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1820336144
+// LIFERAY-REST-BUILDER-HASH:888949797

@@ -62,6 +62,7 @@ public class LayoutPageTemplateEntryWrapper
 		attributes.put("type", getType());
 		attributes.put("previewFileEntryId", getPreviewFileEntryId());
 		attributes.put("defaultTemplate", isDefaultTemplate());
+		attributes.put("locked", isLocked());
 		attributes.put("layoutPrototypeId", getLayoutPrototypeId());
 		attributes.put("plid", getPlid());
 		attributes.put("lastPublishDate", getLastPublishDate());
@@ -197,6 +198,12 @@ public class LayoutPageTemplateEntryWrapper
 
 		if (defaultTemplate != null) {
 			setDefaultTemplate(defaultTemplate);
+		}
+
+		Boolean locked = (Boolean)attributes.get("locked");
+
+		if (locked != null) {
+			setLocked(locked);
 		}
 
 		Long layoutPrototypeId = (Long)attributes.get("layoutPrototypeId");
@@ -402,6 +409,16 @@ public class LayoutPageTemplateEntryWrapper
 	@Override
 	public long getLayoutPrototypeId() {
 		return model.getLayoutPrototypeId();
+	}
+
+	/**
+	 * Returns the locked of this layout page template entry.
+	 *
+	 * @return the locked of this layout page template entry
+	 */
+	@Override
+	public boolean getLocked() {
+		return model.getLocked();
 	}
 
 	/**
@@ -635,6 +652,16 @@ public class LayoutPageTemplateEntryWrapper
 	}
 
 	/**
+	 * Returns <code>true</code> if this layout page template entry is locked.
+	 *
+	 * @return <code>true</code> if this layout page template entry is locked; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isLocked() {
+		return model.isLocked();
+	}
+
+	/**
 	 * Returns <code>true</code> if this layout page template entry is pending.
 	 *
 	 * @return <code>true</code> if this layout page template entry is pending; <code>false</code> otherwise
@@ -806,6 +833,16 @@ public class LayoutPageTemplateEntryWrapper
 	@Override
 	public void setLayoutPrototypeId(long layoutPrototypeId) {
 		model.setLayoutPrototypeId(layoutPrototypeId);
+	}
+
+	/**
+	 * Sets whether this layout page template entry is locked.
+	 *
+	 * @param locked the locked of this layout page template entry
+	 */
+	@Override
+	public void setLocked(boolean locked) {
+		model.setLocked(locked);
 	}
 
 	/**
@@ -1000,4 +1037,4 @@ public class LayoutPageTemplateEntryWrapper
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-953971290
+// LIFERAY-SERVICE-BUILDER-HASH:1993780235

@@ -231,6 +231,51 @@ public class DisplayPageTemplate implements Serializable {
 	private Supplier<String> _keySupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "Specifies if the page template should be locked (uneditable and undeletable) when imported by a site initializer. Defaults to false."
+	)
+	public Boolean getLocked() {
+		if (_lockedSupplier != null) {
+			locked = _lockedSupplier.get();
+
+			_lockedSupplier = null;
+		}
+
+		return locked;
+	}
+
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+
+		_lockedSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setLocked(
+		UnsafeSupplier<Boolean, Exception> lockedUnsafeSupplier) {
+
+		_lockedSupplier = () -> {
+			try {
+				return lockedUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "Specifies if the page template should be locked (uneditable and undeletable) when imported by a site initializer. Defaults to false."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean locked;
+
+	@JsonIgnore
+	private Supplier<Boolean> _lockedSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The display page template's name."
 	)
 	public String getName() {
@@ -350,6 +395,18 @@ public class DisplayPageTemplate implements Serializable {
 			sb.append("\"");
 		}
 
+		Boolean locked = getLocked();
+
+		if (locked != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"locked\": ");
+
+			sb.append(locked);
+		}
+
 		String name = getName();
 
 		if (name != null) {
@@ -467,4 +524,4 @@ public class DisplayPageTemplate implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1481799101
+// LIFERAY-REST-BUILDER-HASH:-787067595

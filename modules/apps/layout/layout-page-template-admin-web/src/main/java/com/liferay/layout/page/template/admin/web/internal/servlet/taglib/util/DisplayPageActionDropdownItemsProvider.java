@@ -98,6 +98,7 @@ public class DisplayPageActionDropdownItemsProvider {
 			LayoutPageTemplateEntryPermission.contains(
 				_themeDisplay.getPermissionChecker(), _layoutPageTemplateEntry,
 				ActionKeys.UPDATE);
+		boolean locked = _layoutPageTemplateEntry.isLocked();
 
 		int count =
 			AssetDisplayPageEntryServiceUtil.getAssetDisplayPageEntriesCount(
@@ -109,7 +110,7 @@ public class DisplayPageActionDropdownItemsProvider {
 			dropdownGroupItem -> {
 				dropdownGroupItem.setDropdownItems(
 					DropdownItemListBuilder.add(
-						() -> hasUpdatePermission,
+						() -> hasUpdatePermission && !locked,
 						_getEditDisplayPageActionUnsafeConsumer(count)
 					).build());
 				dropdownGroupItem.setSeparator(true);
@@ -121,30 +122,31 @@ public class DisplayPageActionDropdownItemsProvider {
 						() ->
 							(_allowedMappedContentType ||
 							 !_existsMappedContentType) &&
-							hasUpdatePermission,
+							hasUpdatePermission && !locked,
 						_getChangeContentTypeActionUnsafeConsumer(count)
 					).add(
-						() -> hasUpdatePermission,
+						() -> hasUpdatePermission && !locked,
 						_getUpdateLayoutPageTemplateEntryPreviewActionUnsafeConsumer()
 					).add(
 						() ->
-							hasUpdatePermission &&
+							hasUpdatePermission && !locked &&
 							(_layoutPageTemplateEntry.getPreviewFileEntryId() >
 								0),
 						_getDeleteLayoutPageTemplateEntryPreviewActionUnsafeConsumer()
 					).add(
 						() ->
-							hasUpdatePermission && _isShowDiscardDraftAction(),
+							hasUpdatePermission && !locked &&
+							_isShowDiscardDraftAction(),
 						_getDiscardDraftActionUnsafeConsumer()
 					).add(
 						() ->
 							_layoutPageTemplateEntry.isApproved() &&
 							Validator.isNotNull(
 								_layoutPageTemplateEntry.getClassName()) &&
-							hasUpdatePermission,
+							hasUpdatePermission && !locked,
 						_getMarkAsDefaultDisplayPageActionUnsafeConsumer()
 					).add(
-						() -> hasUpdatePermission,
+						() -> hasUpdatePermission && !locked,
 						_getRenameDisplayPageActionUnsafeConsumer()
 					).add(
 						_getViewUsagesDisplayPageActionUnsafeConsumer(count)
@@ -163,7 +165,7 @@ public class DisplayPageActionDropdownItemsProvider {
 								0,
 						_getExportDisplayPageActionUnsafeConsumer()
 					).add(
-						() -> hasUpdatePermission,
+						() -> hasUpdatePermission && !locked,
 						_getMoveDisplayPageActionUnsafeConsumer()
 					).build());
 				dropdownGroupItem.setSeparator(true);
@@ -172,7 +174,7 @@ public class DisplayPageActionDropdownItemsProvider {
 			dropdownGroupItem -> {
 				dropdownGroupItem.setDropdownItems(
 					DropdownItemListBuilder.add(
-						() -> hasUpdatePermission,
+						() -> hasUpdatePermission && !locked,
 						_getConfigureDisplayPageActionUnsafeConsumer()
 					).add(
 						() -> LayoutPageTemplateEntryPermission.contains(
@@ -186,9 +188,11 @@ public class DisplayPageActionDropdownItemsProvider {
 			dropdownGroupItem -> {
 				dropdownGroupItem.setDropdownItems(
 					DropdownItemListBuilder.add(
-						() -> LayoutPageTemplateEntryPermission.contains(
-							_themeDisplay.getPermissionChecker(),
-							_layoutPageTemplateEntry, ActionKeys.DELETE),
+						() ->
+							!locked &&
+							LayoutPageTemplateEntryPermission.contains(
+								_themeDisplay.getPermissionChecker(),
+								_layoutPageTemplateEntry, ActionKeys.DELETE),
 						_getDeleteDisplayPageActionUnsafeConsumer()
 					).build());
 				dropdownGroupItem.setSeparator(true);

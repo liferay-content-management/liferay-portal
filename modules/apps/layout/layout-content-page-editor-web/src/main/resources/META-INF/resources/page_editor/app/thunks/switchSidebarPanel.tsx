@@ -7,15 +7,21 @@ import {hideProductMenuIfPresent} from '@liferay/layout-js-components-web';
 
 import {switchSidebarPanel as switchSidebarPanelAction} from '../actions/index';
 
+import type {Dispatch, GetState} from '../contexts/StoreContext';
+
 interface Action {
 	hidden?: boolean;
 	itemConfigurationOpen?: boolean;
 }
 
 export default function switchSidebarPanel(action: Action) {
-	return (
-		dispatch: (action: ReturnType<typeof switchSidebarPanelAction>) => void
-	) => {
+	return (dispatch: Dispatch, getState: GetState) => {
+		const state = getState();
+
+		if (state.permissions.LOCKED_PAGE_TEMPLATE && action.hidden === false) {
+			return;
+		}
+
 		hideProductMenuIfPresent({
 			onHide: () => {
 				dispatch(switchSidebarPanelAction({...action}));

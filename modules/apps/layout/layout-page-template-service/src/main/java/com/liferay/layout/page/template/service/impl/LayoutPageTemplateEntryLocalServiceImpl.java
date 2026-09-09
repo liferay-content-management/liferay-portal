@@ -984,6 +984,21 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 		return layoutPageTemplateEntry;
 	}
 
+	public LayoutPageTemplateEntry updateLock(
+			long layoutPageTemplateEntryId, boolean locked)
+		throws PortalException {
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			layoutPageTemplateEntryPersistence.findByPrimaryKey(
+				layoutPageTemplateEntryId);
+
+		layoutPageTemplateEntry.setModifiedDate(new Date());
+		layoutPageTemplateEntry.setLocked(locked);
+
+		return layoutPageTemplateEntryLocalService.
+			updateLayoutPageTemplateEntry(layoutPageTemplateEntry);
+	}
+
 	@Override
 	public LayoutPageTemplateEntry updateStatus(
 			long userId, long layoutPageTemplateEntryId, int status)
