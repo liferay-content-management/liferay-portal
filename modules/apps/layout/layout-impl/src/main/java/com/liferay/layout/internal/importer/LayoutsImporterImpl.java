@@ -1588,8 +1588,8 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 			List<LayoutsImporterResultEntry> layoutsImporterResultEntries,
 			LayoutsImportStrategy layoutsImportStrategy, String name,
 			PageDefinition pageDefinition, boolean preserveItemIds,
-			int layoutPageTemplateEntryType, long userId, Thumbnail thumbnail,
-			String zipPath)
+			boolean readOnly, int layoutPageTemplateEntryType, long userId,
+			Thumbnail thumbnail, String zipPath)
 		throws Exception {
 
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
@@ -1663,6 +1663,15 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 							layoutPageTemplateEntry.
 								getLayoutPageTemplateEntryId(),
 							previewFileEntryId);
+
+				if (readOnly != layoutPageTemplateEntry.isReadOnly()) {
+					layoutPageTemplateEntry.setReadOnly(readOnly);
+
+					layoutPageTemplateEntry =
+						_layoutPageTemplateEntryLocalService.
+							updateLayoutPageTemplateEntry(
+								layoutPageTemplateEntry);
+				}
 
 				layoutsImporterResultEntries.add(
 					new LayoutsImporterResultEntry(
@@ -2623,8 +2632,10 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 				0, null, _groupId, _layoutPageTemplateCollectionId,
 				_layoutsImporterResultEntries, _layoutsImportStrategy,
 				pageTemplate.getName(), _pageTemplateEntry.getPageDefinition(),
-				_preserveItemIds, LayoutPageTemplateEntryTypeConstants.BASIC,
-				_userId, _pageTemplateEntry.getThumbnail(),
+				_preserveItemIds,
+				GetterUtil.getBoolean(pageTemplate.getReadOnly()),
+				LayoutPageTemplateEntryTypeConstants.BASIC, _userId,
+				_pageTemplateEntry.getThumbnail(),
 				_pageTemplateEntry.getZipPath());
 
 			return null;
@@ -2671,6 +2682,7 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 					_layoutsImporterResultEntries, _layoutsImportStrategy,
 					_displayPageTemplate.getName(), _pageDefinition,
 					_preserveItemIds,
+					GetterUtil.getBoolean(_displayPageTemplate.getReadOnly()),
 					LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, _userId,
 					_thumbnail, _zipPath);
 
@@ -2771,7 +2783,7 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 				LayoutPageTemplateConstants.
 					PARENT_LAYOUT_PAGE_TEMPLATE_COLLECTION_ID_DEFAULT,
 				_layoutsImporterResultEntries, _layoutsImportStrategy, _name,
-				_pageDefinition, _preserveItemIds,
+				_pageDefinition, _preserveItemIds, false,
 				LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT, _userId,
 				_thumbnail, _zipPath);
 
