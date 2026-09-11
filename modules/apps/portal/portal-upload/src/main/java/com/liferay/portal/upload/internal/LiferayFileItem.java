@@ -50,6 +50,15 @@ public class LiferayFileItem extends DiskFileItem implements FileItem {
 	}
 
 	@Override
+	public void delete() {
+		super.delete();
+
+		if (_tempFile != null) {
+			_tempFile.delete();
+		}
+	}
+
+	@Override
 	public String getContentType() {
 		try {
 			return MimeTypesUtil.getContentType(
@@ -164,13 +173,7 @@ public class LiferayFileItem extends DiskFileItem implements FileItem {
 			return _tempFile;
 		}
 
-		String tempFileName = "upload_" + _getUniqueId();
-
-		String extension = getFileNameExtension();
-
-		if (extension != null) {
-			tempFileName += "." + extension;
-		}
+		String tempFileName = "upload_" + _getUniqueId() + ".tmp";
 
 		_tempFile = new File(_tempDir, tempFileName);
 
