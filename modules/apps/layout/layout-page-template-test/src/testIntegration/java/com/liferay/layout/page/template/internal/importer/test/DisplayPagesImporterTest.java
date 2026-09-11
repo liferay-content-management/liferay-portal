@@ -6,6 +6,9 @@
 package com.liferay.layout.page.template.internal.importer.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.depot.constants.DepotConstants;
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
@@ -52,6 +55,7 @@ import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.FeatureFlagTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -63,6 +67,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.kernel.zip.ZipWriterFactory;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -395,7 +400,8 @@ public class DisplayPagesImporterTest {
 	@Test
 	public void testImportDisplayPage() throws Exception {
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
-			_importLayoutPageTemplateEntry("display-page-template-one");
+			_importLayoutPageTemplateEntry(
+				_group.getGroupId(), "display-page-template-one");
 
 		String className =
 			"com.liferay.portal.kernel.repository.model.FileEntry";
@@ -405,6 +411,7 @@ public class DisplayPagesImporterTest {
 		Assert.assertEquals(
 			"Display Page Template One", layoutPageTemplateEntry.getName());
 		Assert.assertEquals(0, layoutPageTemplateEntry.getClassTypeId());
+		Assert.assertFalse(layoutPageTemplateEntry.isReadOnly());
 
 		_validateLayoutPageTemplateStructure(
 			_layoutPageTemplateStructureLocalService.
@@ -415,7 +422,7 @@ public class DisplayPagesImporterTest {
 	@Test
 	public void testImportDisplayPageCollections() throws Exception {
 		_getLayoutsImporterResultEntries(
-			"display-page-templates-with-collections");
+			_group.getGroupId(), "display-page-templates-with-collections");
 
 		Assert.assertEquals(
 			4,
@@ -462,10 +469,10 @@ public class DisplayPagesImporterTest {
 	public void testImportDisplayPageExistingNameNoOvewrite() throws Exception {
 		String testCaseName = "display-page-template-one";
 
-		_importLayoutPageTemplateEntry(testCaseName);
+		_importLayoutPageTemplateEntry(_group.getGroupId(), testCaseName);
 
 		List<LayoutsImporterResultEntry> layoutsImporterResultEntries =
-			_getLayoutsImporterResultEntries(testCaseName);
+			_getLayoutsImporterResultEntries(_group.getGroupId(), testCaseName);
 
 		LayoutsImporterResultEntry layoutsImporterResultEntry =
 			layoutsImporterResultEntries.get(0);
@@ -485,6 +492,7 @@ public class DisplayPagesImporterTest {
 	public void testImportDisplayPageWithCollectionDisplay() throws Exception {
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
 			_importLayoutPageTemplateEntry(
+				_group.getGroupId(),
 				"display-page-template-with-collection-display");
 
 		Assert.assertEquals(
@@ -539,18 +547,75 @@ public class DisplayPagesImporterTest {
 	}
 
 	@Test
+	public void testImportDisplayPageWithReadOnly() throws Exception {
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_importLayoutPageTemplateEntry(
+				_group.getGroupId(), "display-page-template-read-only");
+
+		Assert.assertFalse(layoutPageTemplateEntry.isReadOnly());
+	}
+
+	@FeatureFlag("LPD-57283")
+	@Test
+	public void testImportDisplayPageWithReadOnlyAndWithOverwriteStrategy()
+		throws Exception {
+
+		FeatureFlagTestUtil.invokeFeatureFlagListeners(
+			TestPropsValues.getCompanyId(), true, "LPD-57283");
+
+		Group designLibraryGroup = _addDesignLibraryGroup();
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_importLayoutPageTemplateEntry(
+				designLibraryGroup.getGroupId(), "display-page-template-one");
+
+		Assert.assertFalse(layoutPageTemplateEntry.isReadOnly());
+
+		layoutPageTemplateEntry = _getLayoutPageTemplateEntry(
+			designLibraryGroup.getGroupId(),
+			_getLayoutsImporterResultEntries(
+				designLibraryGroup.getGroupId(),
+				LayoutsImportStrategy.OVERWRITE,
+				"display-page-template-read-only"),
+			0);
+
+		Assert.assertTrue(layoutPageTemplateEntry.isReadOnly());
+	}
+
+	@FeatureFlag("LPD-57283")
+	@Test
+	public void testImportDisplayPageWithReadOnlyInDesignLibrary()
+		throws Exception {
+
+		FeatureFlagTestUtil.invokeFeatureFlagListeners(
+			TestPropsValues.getCompanyId(), true, "LPD-57283");
+
+		Group designLibraryGroup = _addDesignLibraryGroup();
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_importLayoutPageTemplateEntry(
+				designLibraryGroup.getGroupId(),
+				"display-page-template-read-only");
+
+		Assert.assertTrue(layoutPageTemplateEntry.isReadOnly());
+	}
+
+	@Test
 	public void testImportDisplayPages() throws Exception {
 		List<LayoutsImporterResultEntry> layoutsImporterResultEntries =
-			_getLayoutsImporterResultEntries("display-page-template-multiple");
+			_getLayoutsImporterResultEntries(
+				_group.getGroupId(), "display-page-template-multiple");
 
 		Assert.assertEquals(
 			layoutsImporterResultEntries.toString(), 2,
 			layoutsImporterResultEntries.size());
 
 		LayoutPageTemplateEntry layoutPageTemplateEntry1 =
-			_getLayoutPageTemplateEntry(layoutsImporterResultEntries, 0);
+			_getLayoutPageTemplateEntry(
+				_group.getGroupId(), layoutsImporterResultEntries, 0);
 		LayoutPageTemplateEntry layoutPageTemplateEntry2 =
-			_getLayoutPageTemplateEntry(layoutsImporterResultEntries, 1);
+			_getLayoutPageTemplateEntry(
+				_group.getGroupId(), layoutsImporterResultEntries, 1);
 
 		List<String> actualLayoutPageTemplateEntryNames = ListUtil.sort(
 			new ArrayList() {
@@ -565,6 +630,18 @@ public class DisplayPagesImporterTest {
 				"Display Page Template One", "Display Page Template Two"
 			},
 			actualLayoutPageTemplateEntryNames.toArray(new String[0]));
+	}
+
+	private Group _addDesignLibraryGroup() throws Exception {
+		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
+			RandomTestUtil.randomLocaleStringMap(),
+			RandomTestUtil.randomLocaleStringMap(),
+			DepotConstants.TYPE_DESIGN_LIBRARY,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		_depotEntries.add(depotEntry);
+
+		return depotEntry.getGroup();
 	}
 
 	private void _assertLayoutPageTemplateCollections(
@@ -675,6 +752,7 @@ public class DisplayPagesImporterTest {
 	}
 
 	private LayoutPageTemplateEntry _getLayoutPageTemplateEntry(
+		long groupId,
 		List<LayoutsImporterResultEntry> layoutsImporterResultEntries,
 		int index) {
 
@@ -693,7 +771,7 @@ public class DisplayPagesImporterTest {
 
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.fetchLayoutPageTemplateEntry(
-				_group.getGroupId(), layoutPageTemplateEntryKey);
+				groupId, layoutPageTemplateEntryKey);
 
 		Assert.assertNotNull(layoutPageTemplateEntry);
 
@@ -701,6 +779,7 @@ public class DisplayPagesImporterTest {
 	}
 
 	private List<LayoutsImporterResultEntry> _getLayoutsImporterResultEntries(
+			long groupId, LayoutsImportStrategy layoutsImportStrategy,
 			String testCaseName)
 		throws Exception {
 
@@ -709,12 +788,12 @@ public class DisplayPagesImporterTest {
 		File file = _getFile(_BASE_PATH + testCaseName);
 
 		ServiceContextThreadLocal.pushServiceContext(
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+			ServiceContextTestUtil.getServiceContext(groupId));
 
 		try {
 			layoutsImporterResultEntries = _layoutsImporter.importFile(
-				TestPropsValues.getUserId(), _group.getGroupId(), 0, file,
-				LayoutsImportStrategy.DO_NOT_OVERWRITE, true);
+				TestPropsValues.getUserId(), groupId, 0, file,
+				layoutsImportStrategy, true);
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -725,18 +804,27 @@ public class DisplayPagesImporterTest {
 		return layoutsImporterResultEntries;
 	}
 
+	private List<LayoutsImporterResultEntry> _getLayoutsImporterResultEntries(
+			long groupId, String testCaseName)
+		throws Exception {
+
+		return _getLayoutsImporterResultEntries(
+			groupId, LayoutsImportStrategy.DO_NOT_OVERWRITE, testCaseName);
+	}
+
 	private LayoutPageTemplateEntry _importLayoutPageTemplateEntry(
-			String testCaseName)
+			long groupId, String testCaseName)
 		throws Exception {
 
 		List<LayoutsImporterResultEntry> layoutsImporterResultEntries =
-			_getLayoutsImporterResultEntries(testCaseName);
+			_getLayoutsImporterResultEntries(groupId, testCaseName);
 
 		Assert.assertEquals(
 			layoutsImporterResultEntries.toString(), 1,
 			layoutsImporterResultEntries.size());
 
-		return _getLayoutPageTemplateEntry(layoutsImporterResultEntries, 0);
+		return _getLayoutPageTemplateEntry(
+			groupId, layoutsImporterResultEntries, 0);
 	}
 
 	private void _validateLayoutPageTemplateStructure(
@@ -750,6 +838,12 @@ public class DisplayPagesImporterTest {
 
 	private static final String _BASE_PATH =
 		"com/liferay/layout/page/template/internal/importer/test/dependencies/";
+
+	@DeleteAfterTestRun
+	private final List<DepotEntry> _depotEntries = new ArrayList<>();
+
+	@Inject
+	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Inject
 	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
