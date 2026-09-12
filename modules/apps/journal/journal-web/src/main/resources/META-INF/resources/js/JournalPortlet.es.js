@@ -97,10 +97,6 @@ export default function _JournalPortlet({
 	const handleAutoSave = () => {
 		lockHolder.lock?.lock();
 
-		actionInput.value = articleId
-			? '/journal/update_article'
-			: '/journal/add_article';
-
 		handleDDMFormValid({
 			redirectOnSave: false,
 			showErrors: false,
@@ -168,6 +164,8 @@ export default function _JournalPortlet({
 			titleInputComponent?.getValue(defaultLanguageId) ||
 			editingDefaultValues
 		) {
+			const articleAlreadyCreated = Boolean(articleId);
+
 			if (!articleId) {
 				const newArticleIdInput = document.getElementById(
 					`${namespace}newArticleId`
@@ -181,6 +179,12 @@ export default function _JournalPortlet({
 			);
 
 			articleIdInput.value = articleId;
+
+			if (!editingDefaultValues) {
+				actionInput.value = articleAlreadyCreated
+					? '/journal/update_article'
+					: '/journal/add_article';
+			}
 
 			availableLocalesInput.value = availableLocales;
 
