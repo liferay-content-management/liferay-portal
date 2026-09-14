@@ -10,6 +10,8 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.model.DLFileEntryConstants;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
@@ -39,6 +41,7 @@ import jakarta.portlet.WindowState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Eudaldo Alonso
@@ -182,7 +185,10 @@ public class SearchUtil {
 				PortalUtil.getLiferayPortletResponse(renderResponse),
 				viewContentURL.toString());
 
-			if (Validator.isNull(viewURL)) {
+			if (Validator.isNull(viewURL) ||
+				(_isDocumentLibraryClassName(className) &&
+				 viewURL.contains("noSuchEntryRedirect="))) {
+
 				viewURL = viewContentURL.toString();
 			}
 
@@ -197,6 +203,16 @@ public class SearchUtil {
 
 			return StringPool.BLANK;
 		}
+	}
+
+	private static boolean _isDocumentLibraryClassName(String className) {
+		if (Objects.equals(className, DLFileEntryConstants.getClassName()) ||
+			Objects.equals(className, DLFolderConstants.getClassName())) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(SearchUtil.class);
