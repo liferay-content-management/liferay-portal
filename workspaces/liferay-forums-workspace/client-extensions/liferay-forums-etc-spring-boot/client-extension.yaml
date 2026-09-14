@@ -1,0 +1,55 @@
+assemble:
+    -   fromTask: bootJar
+liferay-forums-etc-spring-boot-oahs:
+    .serviceAddress: localhost:58082
+    .serviceScheme: http
+    name: Liferay Forums Etc Spring Boot OAuth Application Headless Server
+    scopes:
+        -   Liferay.Headless.Admin.Site.everything.read
+        -   Liferay.Headless.Admin.User.everything.read
+        -   Liferay.Object.Admin.REST.everything.read
+        -   c_c2m0forumban.everything.read
+        -   c_c2m0forummessage.everything
+        -   c_c2m0forumnotification.everything
+        -   c_c2m0forumsubscription.everything.read
+        -   c_c2m0forumthread.everything.read
+        -   c_c2m0forumuser.everything
+    type: oAuthApplicationHeadlessServer
+    userAccountScreenName: default-service-account
+liferay-forums-etc-spring-boot-oaua:
+    .serviceAddress: localhost:58082
+    .serviceScheme: http
+    name: Liferay Forums Etc Spring Boot OAuth Application User Agent
+    scopes:
+        -   c_c2m0forumthread.everything.read
+    type: oAuthApplicationUserAgent
+liferay-forums-etc-spring-boot-object-action-new-reply:
+    name: Liferay Forums Etc Spring Boot Object Action New Reply
+    oAuth2ApplicationExternalReferenceCode: liferay-forums-etc-spring-boot-oaua
+    resourcePath: /object/action/new/reply
+    type: objectAction
+liferay-forums-etc-spring-boot-object-action-record-author:
+    name: Liferay Forums Etc Spring Boot Object Action Record Author
+    oAuth2ApplicationExternalReferenceCode: liferay-forums-etc-spring-boot-oaua
+    resourcePath: /object/action/record/author
+    type: objectAction
+liferay-forums-etc-spring-boot-object-action-updated-reply:
+    name: Liferay Forums Etc Spring Boot Object Action Updated Reply
+    oAuth2ApplicationExternalReferenceCode: liferay-forums-etc-spring-boot-oaua
+    resourcePath: /object/action/updated/reply
+    type: objectAction
+liferay-forums-etc-spring-boot-object-validation-rule-ban:
+    allowedObjectDefinitionNames:
+        -   C_C2M0ForumMessage
+        -   C_C2M0ForumThread
+    name: Liferay Forums Etc Spring Boot Object Validation Rule Ban
+    oAuth2ApplicationExternalReferenceCode: liferay-forums-etc-spring-boot-oaua
+    resourcePath: /object/validation/rule/ban
+    type: objectValidationRule
+liferay-forums-etc-spring-boot-object-validation-rule-priority:
+    allowedObjectDefinitionNames:
+        -   C_C2M0ForumThread
+    name: Liferay Forums Etc Spring Boot Object Validation Rule Priority
+    oAuth2ApplicationExternalReferenceCode: liferay-forums-etc-spring-boot-oaua
+    resourcePath: /object/validation/rule/priority
+    type: objectValidationRule
