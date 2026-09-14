@@ -41,6 +41,7 @@ import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeCon
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionService;
+import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
@@ -523,10 +524,16 @@ public class DisplayPageTemplateResourceImpl
 						displayPageTemplate.getMarkedAsDefault()));
 		}
 
-		return _toDisplayPageTemplate(
+		layoutPageTemplateEntry =
 			_layoutPageTemplateEntryService.updateLayoutPageTemplateEntry(
 				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
-				displayPageTemplate.getName()));
+				displayPageTemplate.getName());
+
+		layoutPageTemplateEntry = _updateReadOnly(
+			layoutPageTemplateEntry,
+			GetterUtil.getBoolean(displayPageTemplate.getReadOnly()));
+
+		return _toDisplayPageTemplate(layoutPageTemplateEntry);
 	}
 
 	@Override
@@ -652,6 +659,10 @@ public class DisplayPageTemplateResourceImpl
 				PageSpecificationUtil.getPublishedStatus(
 					displayPageTemplate.getPageSpecifications()),
 				serviceContext);
+
+		layoutPageTemplateEntry = _updateReadOnly(
+			layoutPageTemplateEntry,
+			GetterUtil.getBoolean(displayPageTemplate.getReadOnly()));
 
 		return _toDisplayPageTemplate(layoutPageTemplateEntry);
 	}
@@ -836,6 +847,19 @@ public class DisplayPageTemplateResourceImpl
 			layoutPageTemplateEntry);
 	}
 
+	private LayoutPageTemplateEntry _updateReadOnly(
+		LayoutPageTemplateEntry layoutPageTemplateEntry, boolean readOnly) {
+
+		if (readOnly == layoutPageTemplateEntry.isReadOnly()) {
+			return layoutPageTemplateEntry;
+		}
+
+		layoutPageTemplateEntry.setReadOnly(readOnly);
+
+		return _layoutPageTemplateEntryLocalService.
+			updateLayoutPageTemplateEntry(layoutPageTemplateEntry);
+	}
+
 	private static final EntityModel _entityModel =
 		new DisplayPageTemplateEntityModel();
 
@@ -869,6 +893,10 @@ public class DisplayPageTemplateResourceImpl
 	@Reference
 	private LayoutPageTemplateCollectionService
 		_layoutPageTemplateCollectionService;
+
+	@Reference
+	private LayoutPageTemplateEntryLocalService
+		_layoutPageTemplateEntryLocalService;
 
 	@Reference
 	private LayoutPageTemplateEntryService _layoutPageTemplateEntryService;

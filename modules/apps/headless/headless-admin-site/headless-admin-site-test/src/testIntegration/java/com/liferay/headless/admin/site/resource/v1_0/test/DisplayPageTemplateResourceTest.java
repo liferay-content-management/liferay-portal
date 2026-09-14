@@ -1192,6 +1192,7 @@ public class DisplayPageTemplateResourceTest
 					StringUtil.toLowerCase(RandomTestUtil.randomString())
 			).build());
 		displayPageTemplate.setMarkedAsDefault(() -> markedAsDefault);
+		displayPageTemplate.setReadOnly((Boolean)null);
 
 		return displayPageTemplate;
 	}
