@@ -100,6 +100,7 @@ export function overlayBounds(overlay: Overlay): {
 		}
 
 		case 'circle':
+		case 'image':
 		case 'redact':
 		case 'shape':
 			return {
@@ -190,6 +191,9 @@ export function overlayLabel(overlay: Overlay): string {
 
 		case 'emoji':
 			return overlay.name;
+
+		case 'image':
+			return overlay.description;
 
 		case 'redact':
 			return Liferay.Language.get('redacted-area');
@@ -564,6 +568,22 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 					strokeLinejoin="round"
 					strokeWidth={overlay.width}
 					transform={`translate(${overlay.x} ${overlay.y})`}
+				/>
+			);
+
+		case 'image':
+			return (
+				<image
+					height={overlay.height}
+					href={overlay.src}
+
+					// The box is the geometry the user resized, so the
+					// picture fills it rather than letterboxing inside it.
+
+					preserveAspectRatio="none"
+					width={overlay.width}
+					x={overlay.x}
+					y={overlay.y}
 				/>
 			);
 
