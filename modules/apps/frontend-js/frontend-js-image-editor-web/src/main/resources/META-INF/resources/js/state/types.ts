@@ -167,9 +167,27 @@ interface HistoryEntry {
 	state: EditState;
 }
 
+export interface EmojiOverlay {
+	character: string;
+	id: string;
+	kind: 'emoji';
+
+	name: string;
+
+	opacity?: number;
+	rotation?: number;
+
+	size: number;
+
+	x: number;
+
+	y: number;
+}
+
 export type Overlay =
 	| ArrowOverlay
 	| CircleOverlay
+	| EmojiOverlay
 	| RedactOverlay
 	| ShapeOverlay
 	| StrokeOverlay
