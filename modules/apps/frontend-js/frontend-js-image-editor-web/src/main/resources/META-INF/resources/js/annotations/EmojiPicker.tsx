@@ -310,7 +310,7 @@ export function EmojiPicker({onChoose}: Props) {
 								Liferay.Language.get(
 									'common-emoji-search-to-reach-all-x'
 								),
-								catalog?.entries.length ?? 0
+								catalog.entries.length
 							)}
 				</div>
 			</div>
