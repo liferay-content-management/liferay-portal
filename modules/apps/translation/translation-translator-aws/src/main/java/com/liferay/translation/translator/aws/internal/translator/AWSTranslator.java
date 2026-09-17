@@ -21,6 +21,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.translate.TranslateClient;
@@ -58,12 +60,23 @@ public class AWSTranslator extends BaseTranslator {
 			return translatorPacket;
 		}
 
-		TranslateClient translateClient = TranslateClient.builder(
-		).credentialsProvider(
-			StaticCredentialsProvider.create(
+		AwsCredentialsProvider awsCredentialsProvider = null;
+
+		if (Validator.isNotNull(awsTranslatorConfiguration.accessKey()) &&
+			Validator.isNotNull(awsTranslatorConfiguration.secretKey())) {
+
+			awsCredentialsProvider = StaticCredentialsProvider.create(
 				AwsBasicCredentials.create(
 					awsTranslatorConfiguration.accessKey(),
-					awsTranslatorConfiguration.secretKey()))
+					awsTranslatorConfiguration.secretKey()));
+		}
+		else {
+			awsCredentialsProvider = DefaultCredentialsProvider.create();
+		}
+
+		TranslateClient translateClient = TranslateClient.builder(
+		).credentialsProvider(
+			awsCredentialsProvider
 		).region(
 			Region.of(awsTranslatorConfiguration.region())
 		).build();
