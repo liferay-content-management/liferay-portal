@@ -790,6 +790,15 @@ public class LayoutPageTemplateEntryLocalServiceWrapper
 	}
 
 	@Override
+	public LayoutPageTemplateEntry updateReadOnly(
+			long layoutPageTemplateEntryId, boolean readOnly)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _layoutPageTemplateEntryLocalService.updateReadOnly(
+			layoutPageTemplateEntryId, readOnly);
+	}
+
+	@Override
 	public LayoutPageTemplateEntry updateStatus(
 			long userId, long layoutPageTemplateEntryId, int status)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -841,4 +850,4 @@ public class LayoutPageTemplateEntryLocalServiceWrapper
 		_layoutPageTemplateEntryLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-774049713
+// LIFERAY-SERVICE-BUILDER-HASH:-7417130
