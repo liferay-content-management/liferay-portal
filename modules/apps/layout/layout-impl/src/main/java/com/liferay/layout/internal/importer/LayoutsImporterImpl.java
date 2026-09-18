@@ -78,6 +78,7 @@ import com.liferay.layout.page.template.constants.LayoutPageTemplateCollectionTy
 import com.liferay.layout.page.template.constants.LayoutPageTemplateConstants;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateExportImportConstants;
+import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryReadOnlyException;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
@@ -1664,13 +1665,24 @@ public class LayoutsImporterImpl implements LayoutsImporter {
 								getLayoutPageTemplateEntryId(),
 							previewFileEntryId);
 
-				if (readOnly != layoutPageTemplateEntry.isReadOnly()) {
-					layoutPageTemplateEntry.setReadOnly(readOnly);
-
+				try {
 					layoutPageTemplateEntry =
-						_layoutPageTemplateEntryLocalService.
-							updateLayoutPageTemplateEntry(
-								layoutPageTemplateEntry);
+						_layoutPageTemplateEntryLocalService.updateReadOnly(
+							layoutPageTemplateEntry.
+								getLayoutPageTemplateEntryId(),
+							readOnly);
+				}
+				catch (LayoutPageTemplateEntryReadOnlyException
+							layoutPageTemplateEntryReadOnlyException) {
+
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							StringBundler.concat(
+								"Unable to mark ", name,
+								" as read only because group ", groupId,
+								" is not a design library"),
+							layoutPageTemplateEntryReadOnlyException);
+					}
 				}
 
 				layoutsImporterResultEntries.add(
