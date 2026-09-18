@@ -364,6 +364,7 @@ describe('set-frame', () => {
 			color: '#ffffff',
 			kind: 'mat',
 			offset: 0,
+			overAnnotations: true,
 			size: 10,
 		});
 	});
@@ -435,5 +436,347 @@ describe('initialHistory with allowed ratios', () => {
 		expect(
 			initialHistory(1000, 600, {ratios: ['1:1', 'custom']}).present.ratio
 		).toBe('custom');
+	});
+});
+
+describe('overlays', () => {
+	const caption = {
+		color: '#ffffff',
+		fontFamily: 'sans-serif',
+		fontSize: 48,
+		id: 'text-1',
+		kind: 'text' as const,
+		text: 'Hello',
+		x: 100,
+		y: 100,
+	};
+
+	it('adds, updates and removes an annotation, one step each', () => {
+		let state = editorReducer(history(), {
+			overlay: caption,
+			type: 'add-overlay',
+		});
+
+		expect(state.present.overlays).toEqual([caption]);
+		expect(undoLabel(state)).toBe('annotation');
+
+		state = editorReducer(state, {
+			id: 'text-1',
+			patch: {x: 200},
+			type: 'update-overlay',
+		});
+
+		expect(state.present.overlays[0]).toMatchObject({id: 'text-1', x: 200});
+
+		state = editorReducer(state, {
+			ids: ['text-1'],
+			type: 'remove-overlays',
+		});
+
+		expect(state.present.overlays).toHaveLength(0);
+		expect(state.past).toHaveLength(3);
+	});
+
+	it('ignores an update that changes nothing or names no annotation', () => {
+		const state = editorReducer(history(), {
+			overlay: caption,
+			type: 'add-overlay',
+		});
+
+		expect(
+			editorReducer(state, {
+				id: 'text-1',
+				patch: {x: 100},
+				type: 'update-overlay',
+			})
+		).toBe(state);
+
+		expect(
+			editorReducer(state, {
+				id: 'text-9',
+				patch: {x: 300},
+				type: 'update-overlay',
+			})
+		).toBe(state);
+	});
+
+	it('collapses a drag into a single undo step', () => {
+		let state = editorReducer(history(), {
+			overlay: caption,
+			type: 'add-overlay',
+		});
+
+		state = editorReducer(state, {
+			id: 'text-1',
+			patch: {x: 120},
+			transient: true,
+			type: 'update-overlay',
+		});
+		state = editorReducer(state, {
+			id: 'text-1',
+			patch: {x: 140},
+			transient: true,
+			type: 'update-overlay',
+		});
+		state = editorReducer(state, {
+			id: 'text-1',
+			patch: {x: 140},
+			type: 'update-overlay',
+		});
+
+		expect(state.present.overlays[0]).toMatchObject({x: 140});
+		expect(state.past).toHaveLength(2);
+
+		state = editorReducer(state, {type: 'undo'});
+
+		expect(state.present.overlays[0]).toMatchObject({x: 100});
+	});
+
+	it('mirrors the annotations with the photograph', () => {
+		let state = editorReducer(history(), {
+			overlay: caption,
+			type: 'add-overlay',
+		});
+
+		state = editorReducer(state, {type: 'flip-horizontal'});
+
+		expect(state.present.overlays[0]).toMatchObject({
+			x: WIDTH - 100 - 5 * 48 * 0.6,
+			y: 100,
+		});
+
+		state = editorReducer(state, {type: 'flip-horizontal'});
+
+		expect(state.present.overlays[0]).toMatchObject({x: 100, y: 100});
+	});
+
+	it('turns the annotations with the photograph', () => {
+		let state = editorReducer(history(), {
+			overlay: caption,
+			type: 'add-overlay',
+		});
+
+		state = editorReducer(state, {type: 'rotate-90'});
+
+		const turned = state.present.overlays[0] as typeof caption & {
+			rotation?: number;
+		};
+
+		expect(turned.rotation).toBe(90);
+
+		const bounds = rotatedSize(state.present);
+
+		expect(bounds).toEqual({height: WIDTH, width: HEIGHT});
+		expect(turned.x + (5 * 48 * 0.6) / 2).toBeCloseTo(HEIGHT - 80.8, 0);
+		expect(turned.y - 0.4 * 48).toBeCloseTo(172, 0);
+
+		for (let turn = 0; turn < 3; turn++) {
+			state = editorReducer(state, {type: 'rotate-90'});
+		}
+
+		expect(state.present.overlays[0]).toMatchObject({
+			fontSize: 48,
+			rotation: undefined,
+			x: 100,
+			y: 100,
+		});
+	});
+});
+
+describe('layers', () => {
+	const caption = {
+		color: '#ffffff',
+		fontFamily: 'sans-serif',
+		fontSize: 48,
+		id: 'text-1',
+		kind: 'text' as const,
+		text: 'Hello',
+		x: 100,
+		y: 100,
+	};
+
+	const two = () => {
+		const state = editorReducer(history(), {
+			overlay: caption,
+			type: 'add-overlay',
+		});
+
+		return editorReducer(state, {
+			overlay: {...caption, id: 'text-2', text: 'World'},
+			type: 'add-overlay',
+		});
+	};
+
+	it('duplicates a layer right above the original with an offset', () => {
+		const state = editorReducer(two(), {
+			id: 'text-1',
+			newId: 'text-1-copy',
+			type: 'duplicate-overlay',
+		});
+
+		expect(state.present.overlays.map((item) => item.id)).toEqual([
+			'text-1',
+			'text-1-copy',
+			'text-2',
+		]);
+
+		expect(state.present.overlays[1]).toMatchObject({x: 120, y: 120});
+		expect(undoLabel(state)).toBe('annotation');
+	});
+
+	it('reorders a layer and stops at either end', () => {
+		const state = editorReducer(two(), {
+			direction: 1,
+			id: 'text-1',
+			type: 'move-overlay-layer',
+		});
+
+		expect(state.present.overlays.map((item) => item.id)).toEqual([
+			'text-2',
+			'text-1',
+		]);
+		expect(undoLabel(state)).toBe('layer-order');
+
+		expect(
+			editorReducer(state, {
+				direction: 1,
+				id: 'text-1',
+				type: 'move-overlay-layer',
+			})
+		).toBe(state);
+
+		expect(
+			editorReducer(state, {
+				direction: -1,
+				id: 'text-9',
+				type: 'move-overlay-layer',
+			})
+		).toBe(state);
+	});
+});
+
+describe('groups', () => {
+	const caption = {
+		color: '#ffffff',
+		fontFamily: 'sans-serif',
+		fontSize: 48,
+		id: 'text-1',
+		kind: 'text' as const,
+		text: 'Hello',
+		x: 100,
+		y: 100,
+	};
+
+	const three = () => {
+		let state = history();
+
+		for (const id of ['text-1', 'text-2', 'text-3']) {
+			state = editorReducer(state, {
+				overlay: {...caption, id},
+				type: 'add-overlay',
+			});
+		}
+
+		return state;
+	};
+
+	it('moves the named annotations together and leaves the rest', () => {
+		const state = editorReducer(three(), {
+			dx: 10,
+			dy: -5,
+			ids: ['text-1', 'text-3'],
+			type: 'move-overlays',
+		});
+
+		expect(state.present.overlays.map(({x, y}) => [x, y])).toEqual([
+			[110, 95],
+			[100, 100],
+			[110, 95],
+		]);
+		expect(undoLabel(state)).toBe('annotation');
+	});
+
+	it('collapses a group drag into one step and ignores an empty move', () => {
+		let state = editorReducer(three(), {
+			dx: 5,
+			dy: 0,
+			ids: ['text-1', 'text-2'],
+			transient: true,
+			type: 'move-overlays',
+		});
+
+		state = editorReducer(state, {
+			dx: 5,
+			dy: 0,
+			ids: ['text-1', 'text-2'],
+			transient: true,
+			type: 'move-overlays',
+		});
+
+		state = editorReducer(state, {
+			dx: 0,
+			dy: 0,
+			ids: ['text-1', 'text-2'],
+			type: 'move-overlays',
+		});
+
+		expect(state.present.overlays[0]).toMatchObject({x: 110});
+		expect(state.past).toHaveLength(4);
+
+		expect(
+			editorReducer(state, {
+				dx: 0,
+				dy: 0,
+				ids: ['text-1'],
+				type: 'move-overlays',
+			})
+		).toBe(state);
+
+		expect(
+			editorReducer(state, {dx: 9, dy: 9, ids: [], type: 'move-overlays'})
+		).toBe(state);
+	});
+
+	it('removes the named annotations as one step', () => {
+		const state = editorReducer(three(), {
+			ids: ['text-1', 'text-3'],
+			type: 'remove-overlays',
+		});
+
+		expect(state.present.overlays.map((item) => item.id)).toEqual([
+			'text-2',
+		]);
+
+		expect(editorReducer(state, {ids: [], type: 'remove-overlays'})).toBe(
+			state
+		);
+	});
+});
+
+describe('the frame placement', () => {
+	it('moves under the annotations when asked, and no more than that', () => {
+		let state = editorReducer(history(), {
+			frame: {kind: 'mat'},
+			type: 'set-frame',
+		});
+
+		expect(state.present.frame.overAnnotations).toBe(true);
+
+		state = editorReducer(state, {
+			frame: {overAnnotations: false},
+			type: 'set-frame',
+		});
+
+		expect(state.present.frame).toMatchObject({
+			kind: 'mat',
+			overAnnotations: false,
+		});
+
+		expect(
+			editorReducer(state, {
+				frame: {overAnnotations: false},
+				type: 'set-frame',
+			})
+		).toBe(state);
 	});
 });

@@ -36,6 +36,7 @@ const IMAGE: LoadedImage = {
 	blob: new Blob(),
 	fileName: 'test.jpg',
 	height: 800,
+	pixelUrls: {coarse: 'c.png', fine: 'f.png', medium: 'm.png', tiny: 't.png'},
 	previewUrl: 'test.jpg',
 	thumbUrl: 'thumb.jpg',
 	type: 'image/jpeg',
@@ -50,6 +51,10 @@ function EditorHarness() {
 
 	const [aspectLocked, setAspectLocked] = useState(false);
 
+	const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(
+		null
+	);
+
 	const zoomBy = (direction: -1 | 1) =>
 		setZoom((current) => current + direction * 0.25);
 
@@ -60,11 +65,18 @@ function EditorHarness() {
 					aspectLocked={aspectLocked}
 					dispatch={dispatch}
 					image={IMAGE}
+					multiSelectedIds={[]}
 					onAnnounce={() => {}}
 					onCenterCrop={() => {}}
+					onCopyOverlay={() => {}}
+					onMultiSelectToggle={() => {}}
+					onPasteOverlay={() => {}}
+					onSelectOverlay={setSelectedOverlayId}
 					onZoom={zoomBy}
 					onZoomActual={() => setZoom(1)}
 					onZoomFit={() => setZoom(0.5)}
+					proportional={false}
+					selectedOverlayId={selectedOverlayId}
 					showCrop
 					showRecenter
 					state={history.present}
@@ -104,6 +116,26 @@ function EditorHarness() {
 					onAnnounce={() => {}}
 					presets={FRAME_KINDS}
 				/>
+
+				<button
+					onClick={() =>
+						dispatch({
+							overlay: {
+								color: '#ffffff',
+								fontFamily: 'sans-serif',
+								fontSize: 48,
+								id: 'text-1',
+								kind: 'text',
+								text: 'Hello',
+								x: 100,
+								y: 700,
+							},
+							type: 'add-overlay',
+						})
+					}
+				>
+					add-caption
+				</button>
 
 				<BottomBar
 					canRedo={!!history.future.length}
@@ -597,5 +629,59 @@ describe('the controls agree with the state from the first render', () => {
 		expect(
 			Array.from(select.options).map((option) => option.value)
 		).toEqual(['custom', '16:9']);
+	});
+});
+
+describe('the frame and the annotations', () => {
+	const stageOrder = (container: HTMLElement) =>
+		[
+			...(container.querySelectorAll(
+				'.editor-stage > g > *'
+			) as NodeListOf<Element>),
+		].map((node) =>
+			node.querySelector('.overlay-hit')
+				? 'annotations'
+				: node.getAttribute('class') ?? node.tagName
+		);
+
+	it('offers the placement only once there is a frame', () => {
+		render(<EditorHarness />);
+
+		expect(screen.queryByLabelText('placement')).toBeNull();
+
+		fireEvent.click(screen.getByLabelText('mat'));
+
+		expect(screen.getByLabelText('placement')).toHaveValue('over');
+	});
+
+	it('paints the frame over the annotations by default, and under them on request', () => {
+		const {container} = render(<EditorHarness />);
+
+		fireEvent.click(screen.getByLabelText('mat'));
+
+		const dispatchAdd = () =>
+			fireEvent.click(screen.getByRole('button', {name: 'add-caption'}));
+
+		dispatchAdd();
+
+		let order = stageOrder(container);
+
+		expect(order.indexOf('editor-frame')).toBeGreaterThan(
+			order.indexOf('annotations')
+		);
+		expect(order.indexOf('crop-dim')).toBeGreaterThan(
+			order.indexOf('editor-frame')
+		);
+
+		fireEvent.change(screen.getByLabelText('placement'), {
+			target: {value: 'under'},
+		});
+
+		order = stageOrder(container);
+
+		expect(order.indexOf('editor-frame')).toBeLessThan(
+			order.indexOf('annotations')
+		);
+		expect(order.indexOf('editor-frame')).toBeGreaterThan(-1);
 	});
 });

@@ -15,6 +15,7 @@ export const DEFAULT_FRAME: Frame = {
 	color: '#ffffff',
 	kind: 'none',
 	offset: 0,
+	overAnnotations: true,
 	size: 4,
 };
 
@@ -33,12 +34,53 @@ export const RATIO_VALUES: Record<
 
 export type AdjustmentKey = keyof Adjustments;
 
+export type ArrowHead = 'filled' | 'open';
+
+export interface ArrowOverlay {
+	color: string;
+
+	dx: number;
+
+	dy: number;
+
+	head: ArrowHead;
+	id: string;
+	kind: 'arrow';
+	opacity?: number;
+
+	thickness: number;
+
+	x: number;
+	y: number;
+}
+
 export interface Adjustments {
 	brightness: number;
 	contrast: number;
 	highlights: number;
 	saturation: number;
 	shadows: number;
+}
+
+interface BoxOverlayBase {
+	borderColor?: string;
+	borderWidth?: number;
+	color: string;
+
+	height: number;
+	id: string;
+	opacity?: number;
+	rotation?: number;
+
+	sketchSeed?: number;
+
+	width: number;
+	x: number;
+	y: number;
+}
+
+export interface CircleOverlay extends BoxOverlayBase {
+	kind: 'circle';
 }
 
 export interface CropRect {
@@ -68,6 +110,7 @@ export interface EditState {
 
 	frame: Frame;
 
+	overlays: Overlay[];
 	ratio: RatioPreset;
 	rotation: Rotation;
 	sourceHeight: number;
@@ -102,6 +145,8 @@ export interface Frame {
 
 	offset: number;
 
+	overAnnotations: boolean;
+
 	size: number;
 }
 
@@ -122,6 +167,68 @@ interface HistoryEntry {
 	state: EditState;
 }
 
+export interface EmojiOverlay {
+	character: string;
+	id: string;
+	kind: 'emoji';
+
+	name: string;
+
+	opacity?: number;
+	rotation?: number;
+
+	size: number;
+
+	x: number;
+
+	y: number;
+}
+
+export interface ImageOverlay {
+	description: string;
+
+	height: number;
+	id: string;
+	kind: 'image';
+	opacity?: number;
+	rotation?: number;
+	src: string;
+	width: number;
+	x: number;
+	y: number;
+}
+
+export type Overlay =
+	| ArrowOverlay
+	| CircleOverlay
+	| EmojiOverlay
+	| ImageOverlay
+	| RedactOverlay
+	| ShapeOverlay
+	| StrokeOverlay
+	| TextOverlay;
+
+export type RedactLevel = 'coarse' | 'fine' | 'medium' | 'tiny';
+
+export interface RedactOverlay {
+	height: number;
+	id: string;
+	kind: 'redact';
+
+	level: RedactLevel;
+
+	opacity?: number;
+	rotation?: number;
+
+	style?: RedactStyle;
+
+	width: number;
+	x: number;
+	y: number;
+}
+
+export type RedactStyle = 'blur' | 'pixel';
+
 export type RatioPreset =
 	| '1:1'
 	| '16:9'
@@ -133,6 +240,41 @@ export type RatioPreset =
 
 type Rotation = 0 | 90 | 180 | 270;
 
+export interface ShapeOverlay extends BoxOverlayBase {
+	kind: 'shape';
+}
+
+export interface StrokeOverlay {
+	color: string;
+	id: string;
+	kind: 'stroke';
+	opacity?: number;
+
+	points: number[];
+
+	rotation?: number;
+
+	smooth: boolean;
+
+	width: number;
+
+	x: number;
+	y: number;
+}
+
+export interface TextOverlay {
+	color: string;
+	fontFamily: string;
+	fontSize: number;
+	id: string;
+	kind: 'text';
+	opacity?: number;
+	rotation?: number;
+	text: string;
+	x: number;
+	y: number;
+}
+
 export function rotatedSize(state: EditState): {
 	height: number;
 	width: number;
@@ -140,4 +282,15 @@ export function rotatedSize(state: EditState): {
 	return state.rotation % 180 === 0
 		? {height: state.sourceHeight, width: state.sourceWidth}
 		: {height: state.sourceWidth, width: state.sourceHeight};
+}
+
+export function isBoxOverlay(
+	overlay: Overlay
+): overlay is CircleOverlay | ImageOverlay | RedactOverlay | ShapeOverlay {
+	return (
+		overlay.kind === 'circle' ||
+		overlay.kind === 'image' ||
+		overlay.kind === 'redact' ||
+		overlay.kind === 'shape'
+	);
 }
