@@ -23,6 +23,7 @@ import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryGroupId
 import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryLayoutPageTemplateCollectionIdException;
 import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryLayoutPageTemplateEntryKeyException;
 import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryNameException;
+import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryReadOnlyException;
 import com.liferay.layout.page.template.exception.NoSuchPageTemplateEntryException;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
@@ -982,6 +983,33 @@ public class LayoutPageTemplateEntryLocalServiceImpl
 			layout.getMasterLayoutPageTemplateEntryERC(), serviceContext);
 
 		return layoutPageTemplateEntry;
+	}
+
+	@Override
+	public LayoutPageTemplateEntry updateReadOnly(
+			long layoutPageTemplateEntryId, boolean readOnly)
+		throws PortalException {
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			layoutPageTemplateEntryPersistence.findByPrimaryKey(
+				layoutPageTemplateEntryId);
+
+		if (readOnly &&
+			!DesignLibraryUtil.isDesignLibraryScope(
+				layoutPageTemplateEntry.getGroupId())) {
+
+			throw new LayoutPageTemplateEntryReadOnlyException();
+		}
+
+		if (readOnly == layoutPageTemplateEntry.isReadOnly()) {
+			return layoutPageTemplateEntry;
+		}
+
+		layoutPageTemplateEntry.setModifiedDate(new Date());
+		layoutPageTemplateEntry.setReadOnly(readOnly);
+
+		return layoutPageTemplateEntryLocalService.
+			updateLayoutPageTemplateEntry(layoutPageTemplateEntry);
 	}
 
 	@Override
