@@ -421,6 +421,7 @@
 		<exception>LayoutPageTemplateEntryLayoutPageTemplateCollectionId</exception>
 		<exception>LayoutPageTemplateEntryLayoutPageTemplateEntryKey</exception>
 		<exception>LayoutPageTemplateEntryName</exception>
+		<exception>LayoutPageTemplateEntryReadOnly</exception>
 		<exception>LayoutPageTemplateStructureRelElementVariationAudienceEntryERCs</exception>
 		<exception>LayoutPageTemplateStructureRelElementVariationName</exception>
 		<exception>LayoutPageTemplateStructureRelElementVariationTargetElement</exception>
