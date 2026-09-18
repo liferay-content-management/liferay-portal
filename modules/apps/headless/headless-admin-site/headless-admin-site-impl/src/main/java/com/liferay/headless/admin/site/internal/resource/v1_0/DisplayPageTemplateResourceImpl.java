@@ -529,9 +529,10 @@ public class DisplayPageTemplateResourceImpl
 				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
 				displayPageTemplate.getName());
 
-		layoutPageTemplateEntry = _updateReadOnly(
-			layoutPageTemplateEntry,
-			GetterUtil.getBoolean(displayPageTemplate.getReadOnly()));
+		layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.updateReadOnly(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
+				GetterUtil.getBoolean(displayPageTemplate.getReadOnly()));
 
 		return _toDisplayPageTemplate(layoutPageTemplateEntry);
 	}
@@ -660,9 +661,10 @@ public class DisplayPageTemplateResourceImpl
 					displayPageTemplate.getPageSpecifications()),
 				serviceContext);
 
-		layoutPageTemplateEntry = _updateReadOnly(
-			layoutPageTemplateEntry,
-			GetterUtil.getBoolean(displayPageTemplate.getReadOnly()));
+		layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.updateReadOnly(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
+				GetterUtil.getBoolean(displayPageTemplate.getReadOnly()));
 
 		return _toDisplayPageTemplate(layoutPageTemplateEntry);
 	}
@@ -845,19 +847,6 @@ public class DisplayPageTemplateResourceImpl
 				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
 				contextUriInfo, contextUser),
 			layoutPageTemplateEntry);
-	}
-
-	private LayoutPageTemplateEntry _updateReadOnly(
-		LayoutPageTemplateEntry layoutPageTemplateEntry, boolean readOnly) {
-
-		if (readOnly == layoutPageTemplateEntry.isReadOnly()) {
-			return layoutPageTemplateEntry;
-		}
-
-		layoutPageTemplateEntry.setReadOnly(readOnly);
-
-		return _layoutPageTemplateEntryLocalService.
-			updateLayoutPageTemplateEntry(layoutPageTemplateEntry);
 	}
 
 	private static final EntityModel _entityModel =

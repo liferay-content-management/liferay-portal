@@ -537,9 +537,10 @@ public class PageTemplateResourceImpl
 					contentPageTemplate.getPageSpecifications()),
 				serviceContext);
 
-		layoutPageTemplateEntry = _updateReadOnly(
-			layoutPageTemplateEntry,
-			GetterUtil.getBoolean(contentPageTemplate.getReadOnly()));
+		layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.updateReadOnly(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
+				GetterUtil.getBoolean(contentPageTemplate.getReadOnly()));
 
 		return _toPageTemplate(layoutPageTemplateEntry);
 	}
@@ -664,9 +665,10 @@ public class PageTemplateResourceImpl
 				widgetPageTemplate.getPageTemplateSettings()),
 			serviceContext, widgetPageSpecification);
 
-		layoutPageTemplateEntry = _updateReadOnly(
-			layoutPageTemplateEntry,
-			GetterUtil.getBoolean(widgetPageTemplate.getReadOnly()));
+		layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.updateReadOnly(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
+				GetterUtil.getBoolean(widgetPageTemplate.getReadOnly()));
 
 		return _toPageTemplate(layoutPageTemplateEntry);
 	}
@@ -908,9 +910,10 @@ public class PageTemplateResourceImpl
 					layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
 					contentPageTemplate.getName());
 
-			layoutPageTemplateEntry = _updateReadOnly(
-				layoutPageTemplateEntry,
-				GetterUtil.getBoolean(contentPageTemplate.getReadOnly()));
+			layoutPageTemplateEntry =
+				_layoutPageTemplateEntryLocalService.updateReadOnly(
+					layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
+					GetterUtil.getBoolean(contentPageTemplate.getReadOnly()));
 
 			return _toPageTemplate(layoutPageTemplateEntry);
 		}
@@ -973,24 +976,12 @@ public class PageTemplateResourceImpl
 			_layoutPageTemplateEntryService.getLayoutPageTemplateEntry(
 				layoutPageTemplateEntry.getLayoutPageTemplateEntryId());
 
-		layoutPageTemplateEntry = _updateReadOnly(
-			layoutPageTemplateEntry,
-			GetterUtil.getBoolean(widgetPageTemplate.getReadOnly()));
+		layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.updateReadOnly(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
+				GetterUtil.getBoolean(widgetPageTemplate.getReadOnly()));
 
 		return _toPageTemplate(layoutPageTemplateEntry);
-	}
-
-	private LayoutPageTemplateEntry _updateReadOnly(
-		LayoutPageTemplateEntry layoutPageTemplateEntry, boolean readOnly) {
-
-		if (readOnly == layoutPageTemplateEntry.isReadOnly()) {
-			return layoutPageTemplateEntry;
-		}
-
-		layoutPageTemplateEntry.setReadOnly(readOnly);
-
-		return _layoutPageTemplateEntryLocalService.
-			updateLayoutPageTemplateEntry(layoutPageTemplateEntry);
 	}
 
 	private static final EntityModel _entityModel =
