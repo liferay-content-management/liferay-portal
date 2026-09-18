@@ -12,23 +12,48 @@ import {FilterDefs, isIdentityFilter} from '../imaging/FilterDefs';
 import {FrameShape} from '../imaging/frameShapes';
 import {imageTransform} from '../imaging/geometry';
 import {LoadedImage} from '../imaging/loadImage';
+import {
+	DEFAULT_ANNOTATION_COLOR,
+	redactSourceFor,
+} from '../imaging/overlayShapes';
 import {EditorAction} from '../state/editorReducer';
 import {EditState, rotatedSize} from '../state/types';
 import {CropMarquee} from './CropMarquee';
+import {DrawResult, DrawSurface, strokeWidthFor} from './DrawSurface';
+import {OverlaysEditable} from './OverlaysEditable';
 
 interface Props {
 	aspectLocked: boolean;
 
 	dispatch: (action: EditorAction) => void;
+
+	drawing?: {guided: boolean} | null;
+
 	image: LoadedImage;
+
+	multiSelectedIds: string[];
 	onAnnounce: (message: string) => void;
 	onCenterCrop: () => void;
+
+	onCopyOverlay: (id: string) => void;
+
+	onFinishDrawing?: (result: DrawResult | null) => void;
+
+	onMultiSelectToggle: (id: string) => void;
+
+	onPasteOverlay: () => void;
+
+	onSelectOverlay: (id: string | null) => void;
 	onWorkspacePointerLeave?: () => void;
 	onWorkspacePointerMove?: (event: React.PointerEvent) => void;
 	onWorkspaceScroll?: () => void;
 	onZoom: (direction: -1 | 1) => void;
 	onZoomActual: () => void;
 	onZoomFit: () => void;
+
+	proportional: boolean;
+
+	selectedOverlayId: string | null;
 	showCrop: boolean;
 	showRecenter: boolean;
 	state: EditState;
@@ -39,15 +64,24 @@ interface Props {
 export function Workspace({
 	aspectLocked,
 	dispatch,
+	drawing,
 	image,
+	multiSelectedIds,
 	onAnnounce,
 	onCenterCrop,
+	onCopyOverlay,
+	onFinishDrawing,
+	onMultiSelectToggle,
+	onPasteOverlay,
+	onSelectOverlay,
 	onWorkspacePointerLeave,
 	onWorkspacePointerMove,
 	onWorkspaceScroll,
 	onZoom,
 	onZoomActual,
 	onZoomFit,
+	proportional,
+	selectedOverlayId,
 	showCrop,
 	showRecenter,
 	state,
@@ -80,6 +114,13 @@ export function Workspace({
 			event.preventDefault();
 			onCenterCrop();
 		}
+		else if (
+			(event.metaKey || event.ctrlKey) &&
+			event.key.toLowerCase() === 'v'
+		) {
+			event.preventDefault();
+			onPasteOverlay();
+		}
 	};
 
 	return (
@@ -88,6 +129,15 @@ export function Workspace({
 			aria-label={Liferay.Language.get('image-workspace')}
 			className="editor-workspace"
 			onKeyDown={handleKeyDown}
+			onPointerDown={(event) => {
+				if (
+					!(event.target as Element).closest(
+						'.overlay-hit, .object-handles, .overlay-text-editor'
+					)
+				) {
+					onSelectOverlay(null);
+				}
+			}}
 			onPointerLeave={onWorkspacePointerLeave}
 			onPointerMove={onWorkspacePointerMove}
 			onScroll={onWorkspaceScroll}
@@ -158,8 +208,6 @@ export function Workspace({
 					</g>
 				</g>
 
-				<FrameShape crop={crop} frame={state.frame} />
-
 				<CropMarquee
 					aspectLocked={aspectLocked}
 					bounds={bounds}
@@ -170,7 +218,62 @@ export function Workspace({
 					showCrop={showCrop}
 					showRecenter={showRecenter}
 					zoom={zoom}
-				/>
+				>
+
+					{/*
+					 * Under the annotations when asked: a mat that covers
+					 * the caption written along the bottom edge is a real
+					 * outcome, and which one is wanted is the user's call.
+					 */}
+
+					{!state.frame.overAnnotations && (
+						<FrameShape crop={crop} frame={state.frame} />
+					)}
+
+					<OverlaysEditable
+						dispatch={dispatch}
+						multiSelectedIds={multiSelectedIds}
+						onAnnounce={onAnnounce}
+						onCopy={onCopyOverlay}
+						onMultiSelectToggle={onMultiSelectToggle}
+						onSelect={onSelectOverlay}
+						overlays={state.overlays}
+						proportional={proportional}
+						redactSource={redactSourceFor(state, {
+							filterId: eid('preview-filter'),
+							imageUrl: image.previewUrl,
+							pixelUrls: image.pixelUrls,
+						})}
+						selectedId={selectedOverlayId}
+						zoom={zoom}
+					/>
+
+					{/*
+					 * Above the marquee is never right: the marquee is
+					 * chrome, the frame is picture.
+					 */}
+
+					{state.frame.overAnnotations && (
+						<FrameShape crop={crop} frame={state.frame} />
+					)}
+
+					{/*
+					 * The drawing surface rides above everything while it
+					 * lasts, because while drawing, drawing is the mode.
+					 */}
+
+					{drawing && onFinishDrawing && (
+						<DrawSurface
+							area={crop}
+							color={DEFAULT_ANNOTATION_COLOR}
+							guided={drawing.guided}
+							onAnnounce={onAnnounce}
+							onFinish={onFinishDrawing}
+							width={strokeWidthFor(crop)}
+							zoom={zoom}
+						/>
+					)}
+				</CropMarquee>
 			</svg>
 		</div>
 	);

@@ -3,6 +3,14 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {mirrorOverlay} from '../imaging/overlayShapes';
+import {
+	imageMatrix,
+	invert,
+	multiply,
+	transformOverlay,
+} from '../imaging/overlayTransform';
+import {patchOverlay} from './overlayPatch';
 import {
 	AdjustmentKey,
 	CropRect,
@@ -13,15 +21,27 @@ import {
 	FilterPreset,
 	Frame,
 	MIN_CROP_SIZE,
+	Overlay,
 	RATIO_VALUES,
 	RatioPreset,
 	rotatedSize,
 } from './types';
 
 export type EditorAction =
+	| {overlay: Overlay; type: 'add-overlay'}
 	| {type: 'cancel-gesture'}
+	| {id: string; newId: string; type: 'duplicate-overlay'}
 	| {type: 'flip-horizontal'}
+	| {direction: -1 | 1; id: string; type: 'move-overlay-layer'}
+	| {
+			dx: number;
+			dy: number;
+			ids: string[];
+			transient?: boolean;
+			type: 'move-overlays';
+	  }
 	| {type: 'redo'}
+	| {ids: string[]; type: 'remove-overlays'}
 	| {type: 'reset-adjustments'}
 	| {type: 'rotate-90'}
 	| {
@@ -35,13 +55,27 @@ export type EditorAction =
 	| {filter: FilterPreset; type: 'set-filter'}
 	| {frame: Partial<Frame>; transient?: boolean; type: 'set-frame'}
 	| {ratio: RatioPreset; type: 'set-ratio'}
-	| {type: 'undo'};
+	| {type: 'undo'}
+	| {
+			id: string;
+			patch: Partial<Overlay>;
+			transient?: boolean;
+			type: 'update-overlay';
+	  };
 
 export interface InitialStateOptions {
 	ratios?: RatioPreset[];
 }
 
 const HISTORY_LIMIT = 100;
+
+export function cloneOffset(
+	state: Pick<EditState, 'sourceHeight' | 'sourceWidth'>
+): number {
+	return Math.round(
+		Math.max(16, Math.min(state.sourceWidth, state.sourceHeight) * 0.02)
+	);
+}
 
 export function clampCrop(
 	crop: CropRect,
@@ -68,6 +102,155 @@ export function editorReducer(
 	const {present} = history;
 
 	switch (action.type) {
+		case 'add-overlay': {
+			return applyEdit(
+				history,
+				{...present, overlays: [...present.overlays, action.overlay]},
+				Liferay.Language.get('annotation')
+			);
+		}
+
+		case 'duplicate-overlay': {
+			const index = present.overlays.findIndex(
+				(overlay) => overlay.id === action.id
+			);
+
+			if (index < 0) {
+				return history;
+			}
+
+			const source = present.overlays[index];
+
+			const offset = cloneOffset(present);
+
+			const clone: Overlay = {
+				...source,
+				id: action.newId,
+				x: source.x + offset,
+				y: source.y + offset,
+			};
+
+			const overlays = [...present.overlays];
+
+			overlays.splice(index + 1, 0, clone);
+
+			return applyEdit(
+				history,
+				{...present, overlays},
+				Liferay.Language.get('annotation')
+			);
+		}
+
+		case 'move-overlay-layer': {
+			const index = present.overlays.findIndex(
+				(overlay) => overlay.id === action.id
+			);
+			const target = index + action.direction;
+
+			if (index < 0 || target < 0 || target >= present.overlays.length) {
+				return history;
+			}
+
+			const overlays = [...present.overlays];
+
+			[overlays[index], overlays[target]] = [
+				overlays[target],
+				overlays[index],
+			];
+
+			return applyEdit(
+				history,
+				{...present, overlays},
+				Liferay.Language.get('layer-order')
+			);
+		}
+
+		case 'move-overlays': {
+			const moving = new Set(action.ids);
+
+			if (!moving.size) {
+				return history;
+			}
+
+			if (
+				!action.transient &&
+				!history.pendingBase &&
+				!action.dx &&
+				!action.dy
+			) {
+				return history;
+			}
+
+			return applyEdit(
+				history,
+				{
+					...present,
+					overlays: present.overlays.map((overlay) =>
+						moving.has(overlay.id)
+							? {
+									...overlay,
+									x: overlay.x + action.dx,
+									y: overlay.y + action.dy,
+								}
+							: overlay
+					),
+				},
+				Liferay.Language.get('annotation'),
+				action.transient
+			);
+		}
+
+		case 'remove-overlays': {
+			const removing = new Set(action.ids);
+
+			if (!removing.size) {
+				return history;
+			}
+
+			return applyEdit(
+				history,
+				{
+					...present,
+					overlays: present.overlays.filter(
+						(overlay) => !removing.has(overlay.id)
+					),
+				},
+				Liferay.Language.get('annotation')
+			);
+		}
+
+		case 'update-overlay': {
+			const target = present.overlays.find(
+				(overlay) => overlay.id === action.id
+			);
+
+			if (!target) {
+				return history;
+			}
+
+			const patched = patchOverlay(target, action.patch);
+
+			if (
+				patched === target &&
+				!action.transient &&
+				!history.pendingBase
+			) {
+				return history;
+			}
+
+			return applyEdit(
+				history,
+				{
+					...present,
+					overlays: present.overlays.map((overlay) =>
+						overlay.id === action.id ? patched : overlay
+					),
+				},
+				Liferay.Language.get('annotation'),
+				action.transient
+			);
+		}
+
 		case 'set-adjustment': {
 			if (
 				!action.transient &&
@@ -108,9 +291,33 @@ export function editorReducer(
 				return history;
 			}
 
+			let overlays = present.overlays;
+
+			// Straightening moves the picture under the annotations. A
+			// caption stays where it was written on the frame, but a
+			// redaction hides content, so it travels with the pixels,
+			// once, from the angle the gesture started at.
+
+			if (!action.transient) {
+				const base = history.pendingBase?.state ?? present;
+
+				if (base.angle !== action.angle) {
+					const mapping = multiply(
+						imageMatrix({...base, angle: action.angle}),
+						invert(imageMatrix(base))
+					);
+
+					overlays = present.overlays.map((overlay) =>
+						overlay.kind === 'redact'
+							? transformOverlay(overlay, mapping)
+							: overlay
+					);
+				}
+			}
+
 			return applyEdit(
 				history,
-				{...present, angle: action.angle},
+				{...present, angle: action.angle, overlays},
 				Liferay.Language.get('straighten'),
 				action.transient
 			);
@@ -158,6 +365,7 @@ export function editorReducer(
 				frame.color === present.frame.color &&
 				frame.kind === present.frame.kind &&
 				frame.offset === present.frame.offset &&
+				frame.overAnnotations === present.frame.overAnnotations &&
 				frame.size === present.frame.size
 			) {
 				return history;
@@ -207,6 +415,9 @@ export function editorReducer(
 						x: bounds.width - present.crop.x - present.crop.width,
 					},
 					flipHorizontal: !present.flipHorizontal,
+					overlays: present.overlays.map((overlay) =>
+						mirrorOverlay(overlay, bounds.width)
+					),
 				},
 				Liferay.Language.get('flip')
 			);
@@ -221,6 +432,11 @@ export function editorReducer(
 
 			const bounds = rotatedSize(next);
 
+			const mapping = multiply(
+				imageMatrix(next),
+				invert(imageMatrix(present))
+			);
+
 			return applyEdit(
 				history,
 				{
@@ -231,6 +447,9 @@ export function editorReducer(
 						x: 0,
 						y: 0,
 					},
+					overlays: present.overlays.map((overlay) =>
+						transformOverlay(overlay, mapping)
+					),
 					ratio: 'original',
 				},
 				Liferay.Language.get('rotation')
@@ -312,6 +531,7 @@ export function initialEditState(
 		filter: 'none',
 		flipHorizontal: false,
 		frame: {...DEFAULT_FRAME},
+		overlays: [],
 		ratio,
 		rotation: 0,
 		sourceHeight,

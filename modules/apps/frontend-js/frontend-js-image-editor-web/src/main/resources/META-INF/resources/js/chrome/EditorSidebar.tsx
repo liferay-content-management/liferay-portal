@@ -7,6 +7,9 @@ import '../../css/Panels.scss';
 
 import React from 'react';
 
+import {AnnotatePanel} from '../annotations/AnnotatePanel';
+import {LayersPanel} from '../annotations/LayersPanel';
+import {AnnotateTool} from '../editorConfig';
 import {LoadedImage} from '../imaging/loadImage';
 import {AdjustPanel} from '../panels/AdjustPanel';
 import {CropPanel} from '../panels/CropPanel';
@@ -27,13 +30,27 @@ interface Props {
 	dispatch: (action: EditorAction) => void;
 	frames: FrameKind[];
 	image: LoadedImage;
+
+	multiSelectedIds: string[];
 	onAnnounce: (message: string) => void;
 	onAspectLockedChange: (locked: boolean) => void;
+	onProportionalChange: (proportional: boolean) => void;
+
+	onSelectOverlay: (id: string | null) => void;
+
+	onStartDrawing: (via: 'keyboard' | 'pointer') => void;
+
 	presets: FilterPreset[];
+
+	proportional: boolean;
+
+	selectedOverlayId: string | null;
 	showCrop: boolean;
 	showStraighten: boolean;
+	sidebarRef: React.Ref<HTMLElement>;
 	sliders: AdjustmentKey[];
 	state: EditState;
+	tools: AnnotateTool[];
 }
 
 export function EditorSidebar({
@@ -41,18 +58,27 @@ export function EditorSidebar({
 	dispatch,
 	frames,
 	image,
+	multiSelectedIds,
 	onAnnounce,
 	onAspectLockedChange,
+	onProportionalChange,
+	onSelectOverlay,
+	onStartDrawing,
 	presets,
+	proportional,
+	selectedOverlayId,
 	showCrop,
 	showStraighten,
+	sidebarRef,
 	sliders,
 	state,
+	tools,
 }: Props) {
 	return (
 		<aside
 			aria-label={Liferay.Language.get('edit-controls')}
 			className="editor-sidebar"
+			ref={sidebarRef}
 		>
 			{showCrop && (
 				<CropPanel
@@ -94,6 +120,29 @@ export function EditorSidebar({
 					onAnnounce={onAnnounce}
 					presets={frames}
 				/>
+			)}
+
+			{!!tools.length && (
+				<>
+					<AnnotatePanel
+						area={state.crop}
+						dispatch={dispatch}
+						onAnnounce={onAnnounce}
+						onStartDrawing={onStartDrawing}
+						tools={tools}
+					/>
+
+					<LayersPanel
+						dispatch={dispatch}
+						multiSelectedIds={multiSelectedIds}
+						onAnnounce={onAnnounce}
+						onProportionalChange={onProportionalChange}
+						onSelect={onSelectOverlay}
+						overlays={state.overlays}
+						proportional={proportional}
+						selectedId={selectedOverlayId}
+					/>
+				</>
 			)}
 		</aside>
 	);
