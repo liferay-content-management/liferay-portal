@@ -25,6 +25,7 @@ import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryDefault
 import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryGroupIdException;
 import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryLayoutPageTemplateCollectionIdException;
 import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryLayoutPageTemplateEntryKeyException;
+import com.liferay.layout.page.template.exception.LayoutPageTemplateEntryReadOnlyException;
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
@@ -705,6 +706,18 @@ public class LayoutPageTemplateEntryLocalServiceTest {
 		_testUpdateLayoutPageTemplateEntryClassNameId();
 	}
 
+	@FeatureFlag("LPD-57283")
+	@Test
+	@TestInfo("LPD-105507")
+	public void testUpdateReadOnly() throws Exception {
+		FeatureFlagTestUtil.invokeFeatureFlagListeners(
+			TestPropsValues.getCompanyId(), true, "LPD-57283");
+
+		_testUpdateReadOnlyInDesignLibrary();
+		_testUpdateReadOnlyOutsideDesignLibrary();
+		_testUpdateReadOnlyFalseOutsideDesignLibrary();
+	}
+
 	private Group _addDepotGroup(int depotType) throws PortalException {
 		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
 			RandomTestUtil.randomLocaleStringMap(),
@@ -1206,6 +1219,72 @@ public class LayoutPageTemplateEntryLocalServiceTest {
 
 		_assertDDMStructureLinks(
 			layoutPageTemplateEntry, ddmStructure2.getStructureId());
+	}
+
+	private void _testUpdateReadOnlyFalseOutsideDesignLibrary()
+		throws Exception {
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			LayoutPageTemplateTestUtil.addLayoutPageTemplateEntry(
+				_group.getGroupId(),
+				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE,
+				WorkflowConstants.STATUS_APPROVED);
+
+		layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.updateReadOnly(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(), false);
+
+		Assert.assertFalse(layoutPageTemplateEntry.isReadOnly());
+	}
+
+	private void _testUpdateReadOnlyInDesignLibrary() throws Exception {
+		Group depotGroup = _addDepotGroup(DepotConstants.TYPE_DESIGN_LIBRARY);
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			LayoutPageTemplateTestUtil.addLayoutPageTemplateEntry(
+				depotGroup.getGroupId(),
+				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE,
+				WorkflowConstants.STATUS_APPROVED);
+
+		Assert.assertFalse(layoutPageTemplateEntry.isReadOnly());
+
+		layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.updateReadOnly(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(), true);
+
+		Assert.assertTrue(layoutPageTemplateEntry.isReadOnly());
+
+		LayoutPageTemplateEntry persistedLayoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.getLayoutPageTemplateEntry(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId());
+
+		Assert.assertTrue(persistedLayoutPageTemplateEntry.isReadOnly());
+	}
+
+	private void _testUpdateReadOnlyOutsideDesignLibrary() throws Exception {
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			LayoutPageTemplateTestUtil.addLayoutPageTemplateEntry(
+				_group.getGroupId(),
+				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE,
+				WorkflowConstants.STATUS_APPROVED);
+
+		try {
+			_layoutPageTemplateEntryLocalService.updateReadOnly(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(), true);
+
+			Assert.fail();
+		}
+		catch (PortalException portalException) {
+			Assert.assertEquals(
+				LayoutPageTemplateEntryReadOnlyException.class,
+				portalException.getClass());
+		}
+
+		LayoutPageTemplateEntry persistedLayoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.getLayoutPageTemplateEntry(
+				layoutPageTemplateEntry.getLayoutPageTemplateEntryId());
+
+		Assert.assertFalse(persistedLayoutPageTemplateEntry.isReadOnly());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
