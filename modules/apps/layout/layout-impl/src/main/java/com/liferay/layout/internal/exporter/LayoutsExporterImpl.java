@@ -646,6 +646,14 @@ public class LayoutsExporterImpl implements LayoutsExporter {
 						}
 					});
 				setName(layoutPageTemplateEntry::getName);
+				setReadOnly(
+					() -> {
+						if (!layoutPageTemplateEntry.isReadOnly()) {
+							return null;
+						}
+
+						return true;
+					});
 			}
 		};
 	}

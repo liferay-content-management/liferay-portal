@@ -19,6 +19,14 @@ public class PageTemplateUtil {
 		return new PageTemplate() {
 			{
 				setName(layoutPageTemplateEntry::getName);
+				setReadOnly(
+					() -> {
+						if (!layoutPageTemplateEntry.isReadOnly()) {
+							return null;
+						}
+
+						return true;
+					});
 			}
 		};
 	}
