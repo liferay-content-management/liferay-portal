@@ -109,6 +109,34 @@ public class DisplayPageActionDropdownItemsProviderTest {
 	}
 
 	@Test
+	public void testGetActionDropdownItemsWithReadOnly() throws Exception {
+		_setUpLayoutPageTemplateEntryPermission(true);
+
+		Mockito.when(
+			_layoutPageTemplateEntry.isReadOnly()
+		).thenReturn(
+			true
+		);
+
+		DisplayPageActionDropdownItemsProvider
+			displayPageActionDropdownItemsProvider =
+				new DisplayPageActionDropdownItemsProvider(
+					false, false, _layoutPageTemplateEntry, _renderRequest,
+					_renderResponse);
+
+		List<DropdownItem> dropdownItems = _getActionDropdownItems(
+			displayPageActionDropdownItemsProvider.getActionDropdownItems());
+
+		Assert.assertEquals(dropdownItems.toString(), 5, dropdownItems.size());
+
+		_assertDropdownItems(
+			dropdownItems,
+			new String[] {
+				"edit", "view-usages", "make-a-copy", "export", "permissions"
+			});
+	}
+
+	@Test
 	public void testGetActionDropdownItemsWithUpdatePermission()
 		throws Exception {
 
