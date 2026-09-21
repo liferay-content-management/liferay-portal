@@ -6,6 +6,9 @@
 package com.liferay.layout.page.template.admin.web.internal.portlet.action.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.depot.constants.DepotConstants;
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
@@ -47,6 +50,7 @@ import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.FeatureFlagTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -59,6 +63,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -109,6 +114,45 @@ public class ExportImportDisplayPagesTest {
 			_portal.getClassNameId(
 				"com.liferay.asset.kernel.model.AssetCategory"),
 			StringPool.BLANK, null, 0, null);
+	}
+
+	@FeatureFlag("LPD-57283")
+	@Test
+	public void testExportImportDisplayPageWithReadOnly() throws Exception {
+		FeatureFlagTestUtil.invokeFeatureFlagListeners(
+			TestPropsValues.getCompanyId(), true, "LPD-57283");
+
+		Group designLibraryGroup1 = _addDesignLibraryGroup();
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				designLibraryGroup1, TestPropsValues.getUserId());
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry1 =
+			_layoutPageTemplateEntryLocalService.addLayoutPageTemplateEntry(
+				null, serviceContext.getUserId(),
+				serviceContext.getScopeGroupId(), 0, null,
+				_portal.getClassNameId(
+					"com.liferay.asset.kernel.model.AssetCategory"),
+				StringPool.BLANK, "Display Page Template One",
+				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, 0,
+				WorkflowConstants.STATUS_APPROVED, serviceContext);
+
+		_layoutPageTemplateEntryLocalService.updateReadOnly(
+			layoutPageTemplateEntry1.getLayoutPageTemplateEntryId(), true);
+
+		File file = ReflectionTestUtil.invoke(
+			_mvcResourceCommand, "getFile", new Class<?>[] {long[].class},
+			new long[] {
+				layoutPageTemplateEntry1.getLayoutPageTemplateEntryId()
+			});
+
+		Group designLibraryGroup2 = _addDesignLibraryGroup();
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry2 = _importDisplayPage(
+			designLibraryGroup2, file);
+
+		Assert.assertTrue(layoutPageTemplateEntry2.isReadOnly());
 	}
 
 	@Test
@@ -296,6 +340,18 @@ public class ExportImportDisplayPagesTest {
 			0, null);
 	}
 
+	private Group _addDesignLibraryGroup() throws Exception {
+		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
+			RandomTestUtil.randomLocaleStringMap(),
+			RandomTestUtil.randomLocaleStringMap(),
+			DepotConstants.TYPE_DESIGN_LIBRARY,
+			ServiceContextTestUtil.getServiceContext(_group1.getGroupId()));
+
+		_depotEntries.add(depotEntry);
+
+		return depotEntry.getGroup();
+	}
+
 	private void _assertExportImportDisplayPage(
 			long classNameId, String classTypeKey, String errorMessageKey,
 			long expectedClassTypeId, String expectedClassTypeKey)
@@ -474,6 +530,43 @@ public class ExportImportDisplayPagesTest {
 			infoItemFormVariation.getExternalReferenceCode());
 	}
 
+	private LayoutPageTemplateEntry _importDisplayPage(Group group, File file)
+		throws Exception {
+
+		ServiceContextThreadLocal.pushServiceContext(
+			ServiceContextTestUtil.getServiceContext(
+				group, TestPropsValues.getUserId()));
+
+		try {
+			List<LayoutsImporterResultEntry> layoutsImporterResultEntries =
+				_layoutsImporter.importFile(
+					TestPropsValues.getUserId(), group.getGroupId(), 0, file,
+					LayoutsImportStrategy.DO_NOT_OVERWRITE, true);
+
+			Assert.assertEquals(
+				layoutsImporterResultEntries.toString(), 1,
+				layoutsImporterResultEntries.size());
+
+			LayoutsImporterResultEntry layoutsImporterResultEntry =
+				layoutsImporterResultEntries.get(0);
+
+			Assert.assertEquals(
+				LayoutsImporterResultEntry.Status.IMPORTED,
+				layoutsImporterResultEntry.getStatus());
+
+			return _layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntry(
+					group.getGroupId(),
+					StringUtil.replace(
+						StringUtil.toLowerCase(
+							layoutsImporterResultEntry.getName()),
+						CharPool.SPACE, CharPool.DASH));
+		}
+		finally {
+			ServiceContextThreadLocal.popServiceContext();
+		}
+	}
+
 	private String _read(String fileName) throws Exception {
 		return new String(
 			FileUtil.getBytes(getClass(), "dependencies/" + fileName));
@@ -509,6 +602,12 @@ public class ExportImportDisplayPagesTest {
 
 	@Inject
 	private DDMStructureLocalService _ddmStructureLocalService;
+
+	@DeleteAfterTestRun
+	private final List<DepotEntry> _depotEntries = new ArrayList<>();
+
+	@Inject
+	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Inject
 	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;

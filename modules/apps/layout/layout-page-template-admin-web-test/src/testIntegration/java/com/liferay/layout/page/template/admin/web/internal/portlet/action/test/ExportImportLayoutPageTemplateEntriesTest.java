@@ -17,6 +17,9 @@ import com.liferay.asset.list.service.AssetListEntryLocalService;
 import com.liferay.client.extension.constants.ClientExtensionEntryConstants;
 import com.liferay.client.extension.model.ClientExtensionEntry;
 import com.liferay.client.extension.service.ClientExtensionEntryLocalService;
+import com.liferay.depot.constants.DepotConstants;
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.fragment.constants.FragmentConstants;
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
@@ -27,11 +30,13 @@ import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.layout.importer.LayoutsImportStrategy;
 import com.liferay.layout.importer.LayoutsImporter;
 import com.liferay.layout.importer.LayoutsImporterResultEntry;
+import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateExportImportConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.page.template.test.util.DisplayPageTemplateTestUtil;
+import com.liferay.layout.page.template.test.util.LayoutPageTemplateTestUtil;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.object.constants.ObjectActionExecutorConstants;
 import com.liferay.object.constants.ObjectActionTriggerConstants;
@@ -68,6 +73,7 @@ import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionResponse;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.FeatureFlagTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -86,6 +92,7 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.kernel.zip.ZipWriterFactory;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -100,6 +107,7 @@ import java.io.Serializable;
 
 import java.net.URL;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -1233,6 +1241,42 @@ public class ExportImportLayoutPageTemplateEntriesTest {
 		_validateImportExport(expectedFile, inputFile);
 	}
 
+	@FeatureFlag("LPD-57283")
+	@Test
+	public void testImportExportLayoutPageTemplateEntryReadOnly()
+		throws Exception {
+
+		FeatureFlagTestUtil.invokeFeatureFlagListeners(
+			TestPropsValues.getCompanyId(), true, "LPD-57283");
+
+		Group designLibraryGroup1 = _addDesignLibraryGroup();
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry1 =
+			LayoutPageTemplateTestUtil.addLayoutPageTemplateEntry(
+				designLibraryGroup1.getGroupId(),
+				LayoutPageTemplateEntryTypeConstants.BASIC,
+				WorkflowConstants.STATUS_APPROVED);
+
+		_layoutPageTemplateEntryLocalService.updateReadOnly(
+			layoutPageTemplateEntry1.getLayoutPageTemplateEntryId(), true);
+
+		File file = ReflectionTestUtil.invoke(
+			_mvcResourceCommand, "getFile", new Class<?>[] {long[].class},
+			new long[] {
+				layoutPageTemplateEntry1.getLayoutPageTemplateEntryId()
+			});
+
+		Group designLibraryGroup2 = _addDesignLibraryGroup();
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry2 =
+			_getImportLayoutPageTemplateEntry(
+				file, designLibraryGroup2.getGroupId(),
+				LayoutsImporterResultEntry.Status.IMPORTED,
+				LayoutsImportStrategy.DO_NOT_OVERWRITE);
+
+		Assert.assertTrue(layoutPageTemplateEntry2.isReadOnly());
+	}
+
 	@Test
 	public void testImportExportLayoutPageTemplateEntryRowContainer()
 		throws Exception {
@@ -1405,6 +1449,18 @@ public class ExportImportLayoutPageTemplateEntriesTest {
 		_addFragmentEntry(
 			_group1.getGroupId(), "test-date-fragment", "Test Date Fragment",
 			html);
+	}
+
+	private Group _addDesignLibraryGroup() throws Exception {
+		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
+			RandomTestUtil.randomLocaleStringMap(),
+			RandomTestUtil.randomLocaleStringMap(),
+			DepotConstants.TYPE_DESIGN_LIBRARY,
+			ServiceContextTestUtil.getServiceContext(_group1.getGroupId()));
+
+		_depotEntries.add(depotEntry);
+
+		return depotEntry.getGroup();
 	}
 
 	private void _addDisplayPageTemplate(JournalArticle journalArticle)
@@ -1873,6 +1929,12 @@ public class ExportImportLayoutPageTemplateEntriesTest {
 
 	@Inject
 	private CompanyLocalService _companyLocalService;
+
+	@DeleteAfterTestRun
+	private final List<DepotEntry> _depotEntries = new ArrayList<>();
+
+	@Inject
+	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Inject
 	private FragmentCollectionLocalService _fragmentCollectionLocalService;
