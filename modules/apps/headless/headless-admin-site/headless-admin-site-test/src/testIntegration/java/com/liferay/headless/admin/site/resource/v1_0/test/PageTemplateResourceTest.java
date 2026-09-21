@@ -397,6 +397,7 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 
 		_testPostSitePageTemplateWithPageSpecifications();
 		_testPostSitePageTemplateWithPageTemplateSet();
+		_testPostSitePageTemplateWithReadOnly();
 		_testPostSitePageTemplateWithThumbnail();
 		_testPostSitePageTemplateWithThumbnailURLReferenceExternalReferenceCodeAndFileBase64();
 		_testPostSitePageTemplateWithThumbnailURLReferenceExternalReferenceCodeEmptyAndFileBase64();
@@ -1911,6 +1912,28 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 				return pageTemplateResource.postSitePageTemplate(
 					testGroup.getExternalReferenceCode(), pageTemplate);
 			});
+	}
+
+	private void _testPostSitePageTemplateWithReadOnly() throws Exception {
+		ContentPageTemplate contentPageTemplate = _getContentPageTemplate(
+			testGroup);
+
+		contentPageTemplate.setReadOnly(Boolean.TRUE);
+
+		_assertProblemException(
+			"BAD_REQUEST", "Read only is only supported in a design library",
+			() -> pageTemplateResource.postSitePageTemplate(
+				testGroup.getExternalReferenceCode(), contentPageTemplate));
+
+		WidgetPageTemplate widgetPageTemplate = _getWidgetPageTemplate(
+			testGroup);
+
+		widgetPageTemplate.setReadOnly(Boolean.TRUE);
+
+		_assertProblemException(
+			"BAD_REQUEST", "Read only is only supported in a design library",
+			() -> pageTemplateResource.postSitePageTemplate(
+				testGroup.getExternalReferenceCode(), widgetPageTemplate));
 	}
 
 	private void _testPostSitePageTemplateWithThumbnail() throws Exception {

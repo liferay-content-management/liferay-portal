@@ -516,6 +516,25 @@ public class DisplayPageTemplateResourceTest
 				serviceContext, WorkflowConstants.STATUS_DRAFT));
 	}
 
+	@Test
+	@TestInfo("LPD-105507")
+	public void testPostSiteDisplayPageTemplateWithReadOnly() throws Exception {
+		DisplayPageTemplate displayPageTemplate = randomDisplayPageTemplate();
+
+		displayPageTemplate.setReadOnly(Boolean.TRUE);
+
+		_assertProblemException(
+			"BAD_REQUEST", "Read only is only supported in a design library",
+			() -> displayPageTemplateResource.postSiteDisplayPageTemplate(
+				testGroup.getExternalReferenceCode(), displayPageTemplate));
+
+		Assert.assertNull(
+			_layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByExternalReferenceCode(
+					displayPageTemplate.getExternalReferenceCode(),
+					testGroup.getGroupId()));
+	}
+
 	@Override
 	@Test
 	@TestInfo("LPD-92443")
