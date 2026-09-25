@@ -103,6 +103,30 @@ describe('FriendlyURLHistory', () => {
 		);
 	});
 
+	it('disables the button when the item has no history yet', () => {
+		const {getByRole} = renderComponent({...defaultProps, disabled: true});
+
+		expect(getByRole('button')).toBeDisabled();
+	});
+
+	it('keeps the button enabled when the friendly URL input is disabled', async () => {
+		const input = document.createElement('input');
+
+		input.id = defaultProps.elementId;
+
+		document.body.appendChild(input);
+
+		const {getByRole} = renderComponent(defaultProps);
+
+		await act(async () => {
+			input.setAttribute('disabled', 'disabled');
+		});
+
+		expect(getByRole('button')).toBeEnabled();
+
+		document.body.removeChild(input);
+	});
+
 	describe('FriendlyURLHistoryModal', () => {
 		let result;
 

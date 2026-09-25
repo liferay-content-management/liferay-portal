@@ -5,6 +5,8 @@
 
 package com.liferay.friendly.url.taglib.servlet.taglib;
 
+import com.liferay.friendly.url.model.FriendlyURLEntry;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalServiceUtil;
 import com.liferay.friendly.url.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -22,6 +24,8 @@ import com.liferay.taglib.util.IncludeTag;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.PageContext;
+
+import java.util.List;
 
 /**
  * @author Adolfo Pérez
@@ -99,7 +103,8 @@ public class HistoryTag extends IncludeTag {
 			"liferay-friendly-url:history:defaultLanguageId",
 			_getDefaultLanguageId(httpServletRequest));
 		httpServletRequest.setAttribute(
-			"liferay-friendly-url:history:disabled", isDisabled());
+			"liferay-friendly-url:history:disabled",
+			isDisabled() || !_hasFriendlyURLEntryHistory(httpServletRequest));
 		httpServletRequest.setAttribute(
 			"liferay-friendly-url:history:elementId", getElementId());
 		httpServletRequest.setAttribute(
@@ -150,6 +155,27 @@ public class HistoryTag extends IncludeTag {
 				WebKeys.THEME_DISPLAY);
 
 		return themeDisplay.getSiteGroupId();
+	}
+
+	private boolean _hasFriendlyURLEntryHistory(
+		HttpServletRequest httpServletRequest) {
+
+		long classPK = getClassPK();
+
+		if (classPK <= 0) {
+			return false;
+		}
+
+		List<FriendlyURLEntry> friendlyURLEntries =
+			FriendlyURLEntryLocalServiceUtil.getFriendlyURLEntries(
+				_getGroupId(httpServletRequest),
+				PortalUtil.getClassNameId(getClassName()), classPK);
+
+		if (friendlyURLEntries.size() > 1) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private static final String _PAGE = "/history/page.jsp";
