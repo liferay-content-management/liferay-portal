@@ -1631,7 +1631,8 @@ public class ActionUtil {
 
 			formRelationshipStyledLayoutStructureItem.setContentType(
 				infoFieldSet.getName());
-			formRelationshipStyledLayoutStructureItem.setRepeatable(editMode);
+			formRelationshipStyledLayoutStructureItem.setRepeatable(
+				editMode && !readOnly);
 
 			layoutStructureItem = formRelationshipStyledLayoutStructureItem;
 		}
