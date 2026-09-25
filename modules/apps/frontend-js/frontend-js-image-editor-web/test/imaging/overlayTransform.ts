@@ -19,6 +19,8 @@ import {
 import {
 	ArrowOverlay,
 	CircleOverlay,
+	EmojiOverlay,
+	ImageOverlay,
 	Overlay,
 	RedactOverlay,
 	ShapeOverlay,
@@ -91,7 +93,37 @@ const REDACT: RedactOverlay = {
 	y: 700,
 };
 
-const ALL: Overlay[] = [RECT, CIRCLE, TEXT, ARROW, STROKE, REDACT];
+const EMOJI: EmojiOverlay = {
+	character: '⭐',
+	id: 'emoji-1',
+	kind: 'emoji',
+	name: 'star',
+	size: 120,
+	x: 800,
+	y: 300,
+};
+
+const PICTURE: ImageOverlay = {
+	description: 'badge',
+	height: 100,
+	id: 'image-1',
+	kind: 'image',
+	src: 'data:image/png;base64,AAAA',
+	width: 100,
+	x: 200,
+	y: 200,
+};
+
+const ALL: Overlay[] = [
+	RECT,
+	CIRCLE,
+	TEXT,
+	ARROW,
+	STROKE,
+	REDACT,
+	EMOJI,
+	PICTURE,
+];
 
 function withOverlays(overlays: Overlay[]) {
 	let history = initialHistory(1600, 1000);
@@ -166,6 +198,31 @@ describe('rotate-90 carries the annotations', () => {
 			points: [0, 0, 100, 200],
 			x: 600,
 			y: 300,
+		});
+	});
+
+	it('turns a picture through its rotation field, not its box', () => {
+		const rotated = rotate(withOverlays([PICTURE]), 1).present
+			.overlays[0] as ImageOverlay;
+
+		expect(rotated).toMatchObject({
+			height: 100,
+			rotation: 90,
+			width: 100,
+			x: 700,
+			y: 200,
+		});
+	});
+
+	it('rotates an emoji about its centre', () => {
+		const rotated = rotate(withOverlays([EMOJI]), 1).present
+			.overlays[0] as EmojiOverlay;
+
+		expect(rotated).toMatchObject({
+			rotation: 90,
+			size: 120,
+			x: 700,
+			y: 800,
 		});
 	});
 

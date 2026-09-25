@@ -100,6 +100,7 @@ export function overlayBounds(overlay: Overlay): {
 		}
 
 		case 'circle':
+		case 'image':
 		case 'redact':
 		case 'shape':
 			return {
@@ -107,6 +108,14 @@ export function overlayBounds(overlay: Overlay): {
 				width: overlay.width,
 				x: overlay.x,
 				y: overlay.y,
+			};
+
+		case 'emoji':
+			return {
+				height: overlay.size,
+				width: overlay.size,
+				x: overlay.x - overlay.size / 2,
+				y: overlay.y - overlay.size / 2,
 			};
 
 		case 'stroke': {
@@ -179,6 +188,12 @@ export function overlayLabel(overlay: Overlay): string {
 
 		case 'circle':
 			return Liferay.Language.get('circle');
+
+		case 'emoji':
+			return overlay.name;
+
+		case 'image':
+			return overlay.description;
 
 		case 'redact':
 			return Liferay.Language.get('redacted-area');
@@ -509,6 +524,39 @@ function renderOverlayNode(overlay: Overlay, redactSource?: RedactSource) {
 				/>
 			);
 
+		case 'emoji':
+			return (
+				<text
+					fontSize={overlay.size}
+
+					// Centred horizontally by the anchor and vertically by
+					// the offset, rather than by `dominant-baseline`, which
+					// the export's rasteriser does not resolve reliably.
+
+					textAnchor="middle"
+					x={overlay.x}
+					y={overlay.y + overlay.size * 0.35}
+				>
+					{overlay.character}
+				</text>
+			);
+
+		case 'image':
+			return (
+				<image
+					height={overlay.height}
+					href={overlay.src}
+
+					// The box is the geometry the user resized, so the
+					// picture fills it rather than letterboxing inside it.
+
+					preserveAspectRatio="none"
+					width={overlay.width}
+					x={overlay.x}
+					y={overlay.y}
+				/>
+			);
+
 		case 'redact':
 			return <RedactBlock overlay={overlay} source={redactSource} />;
 
@@ -595,6 +643,10 @@ export function mirrorOverlay(overlay: Overlay, boundsWidth: number): Overlay {
 	}
 
 	const rotation = overlay.rotation ? -overlay.rotation : overlay.rotation;
+
+	if (overlay.kind === 'emoji') {
+		return {...overlay, rotation, x: boundsWidth - overlay.x};
+	}
 
 	if (overlay.kind === 'stroke') {
 

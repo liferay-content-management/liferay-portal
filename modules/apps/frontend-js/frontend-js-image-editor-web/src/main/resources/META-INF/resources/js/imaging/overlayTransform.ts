@@ -27,7 +27,23 @@ export function multiply(first: Matrix, second: Matrix): Matrix {
 }
 
 export function scaleAround(factor: number, x: number, y: number): Matrix {
-	return [factor, 0, 0, factor, x * (1 - factor), y * (1 - factor)];
+	return stretchAround(factor, factor, x, y);
+}
+
+export function stretchAround(
+	horizontal: number,
+	vertical: number,
+	x: number,
+	y: number
+): Matrix {
+	return [
+		horizontal,
+		0,
+		0,
+		vertical,
+		x * (1 - horizontal),
+		y * (1 - vertical),
+	];
 }
 
 export function invert(matrix: Matrix): Matrix {
@@ -227,6 +243,38 @@ export function transformOverlay(overlay: Overlay, matrix: Matrix): Overlay {
 				width: round(folded.width),
 				x: round(cx - folded.width / 2),
 				y: round(cy - folded.height / 2),
+			};
+		}
+
+		case 'emoji': {
+			const [cx, cy] = applyToPoint(matrix, overlay.x, overlay.y);
+
+			return {
+				...overlay,
+				rotation: foldRotation(overlay.rotation ?? 0, degrees),
+				size: round(overlay.size * scale),
+				x: round(cx),
+				y: round(cy),
+			};
+		}
+
+		case 'image': {
+			const [cx, cy] = applyToPoint(
+				matrix,
+				overlay.x + overlay.width / 2,
+				overlay.y + overlay.height / 2
+			);
+
+			const width = round(overlay.width * scale);
+			const height = round(overlay.height * scale);
+
+			return {
+				...overlay,
+				height,
+				rotation: foldRotation(overlay.rotation ?? 0, degrees),
+				width,
+				x: round(cx - width / 2),
+				y: round(cy - height / 2),
 			};
 		}
 

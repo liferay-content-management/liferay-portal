@@ -42,6 +42,21 @@ import {
 	Overlay,
 } from '../../src/main/resources/META-INF/resources/js/state/types';
 
+jest.mock(
+	'../../src/main/resources/META-INF/resources/js/imaging/loadImage',
+	() => ({
+		...jest.requireActual<object>(
+			'../../src/main/resources/META-INF/resources/js/imaging/loadImage'
+		),
+		loadOverlayImage: () =>
+			Promise.resolve({
+				height: 8,
+				src: 'data:image/png;base64,',
+				width: 8,
+			}),
+	})
+);
+
 const IMAGE: LoadedImage = {
 	blob: new Blob(),
 	fileName: 'test.jpg',
@@ -95,7 +110,7 @@ function AnnotationHarness({
 		selectedOverlayId,
 		setLayerProportional,
 		toggleMultiSelect,
-	} = useOverlaySelection(() => {});
+	} = useOverlaySelection(history.present.overlays, () => {});
 
 	const [clipboard, setClipboard] = useState<Overlay | null>(null);
 
@@ -385,6 +400,30 @@ describe('text annotations', () => {
 		);
 	});
 });
+
+const EMOJI_CATALOG = [
+	{c: '⭐', g: 7, n: 'star'},
+	{c: '🎉', g: 6, n: 'party popper'},
+	{c: '🇪🇸', g: 8, n: 'flag: Spain'},
+];
+
+// The shared jest setup replaces the global fetch with jest-fetch-mock,
+// whose own methods are not on the DOM type.
+
+const fetchMock = fetch as unknown as jest.Mock & {
+	mockResponse: (body: string) => void;
+};
+
+async function addEmoji(name: string) {
+	fireEvent.click(screen.getByRole('button', {name: 'add-emoji'}));
+
+	fireEvent.click(
+		within(await screen.findByRole('grid', {name: 'add-emoji'})).getByRole(
+			'button',
+			{name}
+		)
+	);
+}
 
 function addShape(shape: string) {
 	fireEvent.click(screen.getByRole('button', {name: 'add-shape'}));
@@ -1349,7 +1388,42 @@ describe('drawing', () => {
 
 		expect(screen.getByLabelText('thickness')).toBeInTheDocument();
 		expect(screen.getByLabelText('line-style')).toHaveValue('smooth');
-		expect(screen.queryByLabelText('width')).toBeNull();
+	});
+
+	it('resizes a stroke from its size fields, keeping it drawable by keyboard alone', async () => {
+		render(<AnnotationHarness />);
+
+		const surface = await startDrawing(0);
+
+		press(surface, 'ArrowRight', 4, true);
+		press(surface, 'Enter');
+		press(surface, 'ArrowDown', 3, true);
+		press(surface, 'Enter');
+
+		const width = screen.getByLabelText('width') as HTMLInputElement;
+		const height = screen.getByLabelText('height') as HTMLInputElement;
+		const thickness = screen.getByLabelText('thickness');
+
+		expect(width).toHaveValue(80);
+		expect(height).toHaveValue(60);
+
+		fireEvent.change(width, {target: {value: '160'}});
+		fireEvent.keyDown(width, {key: 'Enter'});
+
+		expect(width).toHaveValue(160);
+		expect(height).toHaveValue(60);
+		expect(thickness).toHaveValue(6);
+
+		fireEvent.click(
+			screen.getByRole('button', {name: 'lock-aspect-ratio'})
+		);
+
+		fireEvent.change(height, {target: {value: '120'}});
+		fireEvent.keyDown(height, {key: 'Enter'});
+
+		expect(width).toHaveValue(320);
+		expect(height).toHaveValue(120);
+		expect(thickness).toHaveValue(12);
 	});
 
 	it('refuses to set a line with no length', async () => {
@@ -1547,6 +1621,127 @@ describe('a redaction', () => {
 
 		expect(container.querySelectorAll('.object-handle')).toHaveLength(9);
 		expect(screen.getByLabelText('width')).toBeInTheDocument();
+	});
+});
+
+describe('an emoji annotation', () => {
+	beforeEach(() => {
+
+		// The catalog is a resource of the module, asked for the first
+		// time the picker opens.
+
+		fetchMock.mockResponse(JSON.stringify(EMOJI_CATALOG));
+	});
+
+	it('asks the module for the catalog, once however often it opens', async () => {
+		render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'add-emoji'}));
+
+		await screen.findByRole('grid', {name: 'add-emoji'});
+
+		expect(fetchMock.mock.calls[0][0]).toBe(
+			'/o/frontend-js-image-editor-web/emoji.json'
+		);
+
+		const calls = fetchMock.mock.calls.length;
+
+		fireEvent.click(screen.getByRole('button', {name: 'add-emoji'}));
+		fireEvent.click(screen.getByRole('button', {name: 'add-emoji'}));
+
+		await screen.findByRole('grid', {name: 'add-emoji'});
+
+		expect(fetchMock.mock.calls).toHaveLength(calls);
+	});
+
+	it('adds an emoji as a layer of its own, sized but never coloured', async () => {
+		const {container} = render(<AnnotationHarness />);
+
+		await addEmoji('star');
+
+		expect(hit(container)).toHaveAttribute('aria-label', 'star');
+
+		expect(
+			container.querySelector('.editor-layer-glyph')?.textContent
+		).toBe('⭐');
+
+		expect(screen.getByLabelText('size')).toBeInTheDocument();
+		expect(screen.queryByLabelText('color')).toBeNull();
+		expect(screen.queryByLabelText('font-family')).toBeNull();
+	});
+
+	it('finds an emoji whatever the capitalisation of its name', async () => {
+		render(<AnnotationHarness />);
+
+		fireEvent.click(screen.getByRole('button', {name: 'add-emoji'}));
+
+		fireEvent.change(await screen.findByLabelText('search-emoji'), {
+			target: {value: 'spain'},
+		});
+
+		expect(
+			within(screen.getByRole('grid', {name: 'add-emoji'})).getByRole(
+				'button',
+				{name: 'flag: Spain'}
+			)
+		).toBeInTheDocument();
+	});
+
+	it('moves with the keyboard like every other annotation', async () => {
+		const {container} = render(<AnnotationHarness />);
+
+		await addEmoji('star');
+
+		const initialX = Number(hit(container).getAttribute('x'));
+
+		fireEvent.keyDown(hit(container), {key: 'ArrowRight', shiftKey: true});
+		fireEvent.keyUp(hit(container), {key: 'ArrowRight', shiftKey: true});
+
+		expect(Number(hit(container).getAttribute('x'))).toBe(initialX + 10);
+	});
+
+	it('is centered on the crop, not on the image', async () => {
+		const {container} = render(<AnnotationHarness start={cropped} />);
+
+		await addEmoji('star');
+
+		const target = hit(container);
+
+		const centerX =
+			Number(target.getAttribute('x')) +
+			Number(target.getAttribute('width')) / 2;
+		const centerY =
+			Number(target.getAttribute('y')) +
+			Number(target.getAttribute('height')) / 2;
+
+		expect(Math.round(centerX)).toBe(900);
+		expect(Math.round(centerY)).toBe(600);
+	});
+});
+
+describe('an image annotation', () => {
+	it('takes the name of its file and is renamed from its properties', async () => {
+		render(<AnnotationHarness />);
+
+		fireEvent.change(
+			document.querySelector(
+				'.editor-annotate-actions input[type="file"]'
+			) as HTMLInputElement,
+			{
+				target: {
+					files: [new File([''], 'badge.png', {type: 'image/png'})],
+				},
+			}
+		);
+
+		const imageName = await screen.findByLabelText('image-name');
+
+		expect(imageName).toHaveValue('badge');
+
+		fireEvent.change(imageName, {target: {value: 'Company Logo'}});
+		fireEvent.keyDown(imageName, {key: 'Enter'});
+
+		expect(layerNames()).toContain('Company Logo');
 	});
 });
 

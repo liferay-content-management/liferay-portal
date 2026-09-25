@@ -5,7 +5,12 @@
 
 import {useEffect, useRef, useState} from 'react';
 
-export function useOverlaySelection(announce: (message: string) => void) {
+import {Overlay} from '../state/types';
+
+export function useOverlaySelection(
+	overlays: Overlay[],
+	announce: (message: string) => void
+) {
 	const [multiSelectedIds, setMultiSelectedIds] = useState<string[]>([]);
 
 	const [layerProportional, setLayerProportional] = useState(false);
@@ -53,6 +58,10 @@ export function useOverlaySelection(announce: (message: string) => void) {
 		setSelectedOverlayId(id);
 	};
 
+	const selectedKind = overlays.find(
+		(candidate) => candidate.id === selectedOverlayId
+	)?.kind;
+
 	const previousSelectedIdRef = useRef<string | null>(null);
 
 	useEffect(() => {
@@ -62,8 +71,11 @@ export function useOverlaySelection(announce: (message: string) => void) {
 
 		previousSelectedIdRef.current = selectedOverlayId;
 
-		setLayerProportional(false);
-	}, [selectedOverlayId]);
+		// A picture is the one kind nobody means to stretch, so selecting
+		// one locks its proportions.
+
+		setLayerProportional(selectedKind === 'image');
+	}, [selectedKind, selectedOverlayId]);
 
 	return {
 		layerProportional,
