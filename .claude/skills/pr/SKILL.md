@@ -126,6 +126,17 @@ gh pr create \
 rm "${body_file}"
 ```
 
+After the pull request is open, confirm the webhook recorded the run rather than assuming it did. The marker is invisible once rendered, so a description missing it or carrying a stale SHA looks identical to a good one, and the omission only surfaces later when a reviewer's `ci:forward` is refused for having no `pr-check` result. Poll the new pull request until the `pr-check` context appears, giving the webhook up to a minute:
+
+```bash
+gh pr view \
+	--jq '[.statusCheckRollup[] | select(.context == "pr-check") | .state] | join(",")' \
+	--json statusCheckRollup \
+	"<pr-url>"
+```
+
+When the context is still absent after that, record the run with the `pr-check-publish` skill, which posts the marker as a comment. Do not edit the description to repair it, since the webhook reads it only when it processes the `pull_request` event.
+
 ### Transitioned Jira Tickets
 
 Apply the steps below to **every ticket in the ticket set**, recording the outcome per ticket and continuing on failure.

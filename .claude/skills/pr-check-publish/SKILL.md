@@ -53,11 +53,26 @@ gh pr comment \
 rm "${comment_file}"
 ```
 
-When the comment fails to post, surface the error — without it the webhook has nothing to parse, so the status and label will not appear.
+When the comment fails to post, surface the error. Without it the webhook has nothing to parse, so the status and label will not appear.
+
+### Applied Status
+
+A comment that renders correctly is not evidence that the status was applied. The marker is invisible once rendered, so a body missing it, carrying malformed JSON, or naming a SHA that is no longer the head looks identical to a good one, and the run stays silently unrecorded until a reviewer asks why `pr-check` has no result. Always confirm the outcome rather than the posting.
+
+Poll the tested SHA until the `pr-check` context appears, giving the webhook up to a minute:
+
+```bash
+gh pr view \
+	--jq '[.statusCheckRollup[] | select(.context == "pr-check") | .state] | join(",")' \
+	--json statusCheckRollup \
+	"<pr-url>"
+```
+
+When the context is still absent after that, report the run as unrecorded and say so plainly. Do not edit the comment to repair it, since the webhook parses a comment only on creation, leaving an edited body that reads perfectly while no status is ever applied. Post a corrected comment instead.
 
 ### Summary
 
 Report back to the user with:
 
 - The comment URL and the tested SHA the marker records.
-- That the `pr-check` commit status and `pr-check - <state>` label are applied by the webhook once it processes the comment, and so may lag the comment by a moment.
+- The `pr-check` commit status observed on that SHA, or that it never appeared.
