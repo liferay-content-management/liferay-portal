@@ -28,6 +28,7 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
+import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -454,6 +455,54 @@ public class DDMFieldLocalServiceTest {
 	}
 
 	@Test
+	public void testUpdateDDMFormValuesWithInstanceIdsDifferingInCase()
+		throws Exception {
+
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm("field1", "field2");
+
+		DDMStructure ddmStructure = _ddmStructureTestHelper.addStructure(
+			ddmForm, StorageType.DEFAULT.toString());
+
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		ddmFormValues.setAvailableLocales(
+			Collections.singleton(LocaleUtil.ENGLISH));
+		ddmFormValues.setDefaultLocale(LocaleUtil.ENGLISH);
+
+		DDMFormFieldValue ddmFormFieldValue1 = _createDDMFormFieldValue(
+			LocaleUtil.ENGLISH, "field1", "value1");
+
+		ddmFormFieldValue1.setInstanceId("abcd");
+
+		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue1);
+
+		DDMFormFieldValue ddmFormFieldValue2 = _createDDMFormFieldValue(
+			LocaleUtil.ENGLISH, "field2", "value2");
+
+		ddmFormFieldValue2.setInstanceId("ABCD");
+
+		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue2);
+
+		_ddmFieldLocalService.updateDDMFormValues(
+			ddmStructure.getStructureId(), _STORAGE_ID, ddmFormValues);
+
+		DDMFormValues deserializedDDMFormValues =
+			_ddmFieldLocalService.getDDMFormValues(ddmForm, _STORAGE_ID);
+
+		DDMFormFieldValue deserializedDDMFormFieldValue2 =
+			deserializedDDMFormValues.getDDMFormFieldValue("field2", false);
+
+		Assert.assertFalse(
+			StringUtil.equalsIgnoreCase(
+				"abcd", deserializedDDMFormFieldValue2.getInstanceId()));
+
+		ddmFormFieldValue2.setInstanceId(
+			deserializedDDMFormFieldValue2.getInstanceId());
+
+		Assert.assertEquals(ddmFormValues, deserializedDDMFormValues);
+	}
+
+	@Test
 	public void testUpdateDDMFormValuesWithLegacyDDMFormField()
 		throws Exception {
 
@@ -510,6 +559,44 @@ public class DDMFieldLocalServiceTest {
 
 		deserializedDDMFormValues = _ddmFieldLocalService.getDDMFormValues(
 			ddmForm, _STORAGE_ID);
+
+		Assert.assertEquals(ddmFormValues, deserializedDDMFormValues);
+	}
+
+	@Test
+	public void testUpdateDDMFormValuesWithNullInstanceId() throws Exception {
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm("field1");
+
+		DDMStructure ddmStructure = _ddmStructureTestHelper.addStructure(
+			ddmForm, StorageType.DEFAULT.toString());
+
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		ddmFormValues.setAvailableLocales(
+			Collections.singleton(LocaleUtil.ENGLISH));
+		ddmFormValues.setDefaultLocale(LocaleUtil.ENGLISH);
+
+		DDMFormFieldValue ddmFormFieldValue = _createDDMFormFieldValue(
+			LocaleUtil.ENGLISH, "field1", "value1");
+
+		ddmFormFieldValue.setInstanceId(null);
+
+		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue);
+
+		_ddmFieldLocalService.updateDDMFormValues(
+			ddmStructure.getStructureId(), _STORAGE_ID, ddmFormValues);
+
+		DDMFormValues deserializedDDMFormValues =
+			_ddmFieldLocalService.getDDMFormValues(ddmForm, _STORAGE_ID);
+
+		DDMFormFieldValue deserializedDDMFormFieldValue =
+			deserializedDDMFormValues.getDDMFormFieldValue("field1", false);
+
+		Assert.assertNotEquals(
+			StringPool.BLANK, deserializedDDMFormFieldValue.getInstanceId());
+
+		ddmFormFieldValue.setInstanceId(
+			deserializedDDMFormFieldValue.getInstanceId());
 
 		Assert.assertEquals(ddmFormValues, deserializedDDMFormValues);
 	}
