@@ -646,9 +646,13 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 				continue;
 			}
 
-			String instanceId = ddmFormFieldValue.getInstanceId();
+			String instanceId = GetterUtil.getString(
+				ddmFormFieldValue.getInstanceId());
 
-			while (ddmFieldInfosMap.containsKey(instanceId)) {
+			while (ddmFieldInfosMap.containsKey(
+						com.liferay.portal.kernel.util.StringUtil.toLowerCase(
+							instanceId))) {
+
 				instanceId =
 					com.liferay.portal.kernel.util.StringUtil.randomString();
 			}
@@ -657,7 +661,10 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 				ddmFormFieldValue.getName(), instanceId,
 				ddmFormField.isLocalizable(), parentInstanceId);
 
-			ddmFieldInfosMap.put(instanceId, ddmFieldInfo);
+			ddmFieldInfosMap.put(
+				com.liferay.portal.kernel.util.StringUtil.toLowerCase(
+					instanceId),
+				ddmFieldInfo);
 
 			Value value = ddmFormFieldValue.getValue();
 
@@ -1131,7 +1138,9 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 					new DDMFieldAttributeInfo(
 						ddmFieldAttribute.getAttributeName(),
 						ddmFieldAttribute.getAttributeValue(),
-						ddmFieldInfosMap.get(ddmField.getInstanceId()),
+						ddmFieldInfosMap.get(
+							com.liferay.portal.kernel.util.StringUtil.
+								toLowerCase(ddmField.getInstanceId())),
 						ddmFieldAttribute.getLanguageId())));
 		}
 
