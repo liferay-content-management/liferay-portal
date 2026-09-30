@@ -13,7 +13,14 @@ import ClayModal from '@clayui/modal';
 import ClayPopover from '@clayui/popover';
 import {isNullOrUndefined} from '@liferay/layout-js-components-web';
 import {dateUtils, sub} from 'frontend-js-web';
-import React, {Key, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	Key,
+	RefObject,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 
 import '../../../css/components/CompareVersionsModal.scss';
 import StatusLabel from '../../common/components/StatusLabel';
@@ -21,6 +28,7 @@ import {IAssetObjectEntry} from '../../common/types/AssetType';
 import {getImage} from '../../common/utils/getImage';
 import VersionService from '../info_panel/services/VersionService';
 import {VIEW_CONTENT_VERSION_URL} from '../info_panel/util/constants';
+import {alignFieldsOnFocus} from './alignFieldsOnFocus';
 import {
 	DiffType,
 	Diffs,
@@ -105,6 +113,9 @@ export default function CompareVersionsModalContent({
 	const [versionsState, setVersionsState] = useState<VersionsState>({
 		status: 'loading',
 	});
+
+	const sourceIframeRef = useRef<HTMLIFrameElement>(null);
+	const targetIframeRef = useRef<HTMLIFrameElement>(null);
 
 	const locales = useMemo(
 		() =>
@@ -209,6 +220,8 @@ export default function CompareVersionsModalContent({
 							diffType="removals"
 							diffs={diffs?.source ?? null}
 							excludedVersion={targetVersion}
+							iframeRef={sourceIframeRef}
+							iframeToScrollRef={targetIframeRef}
 							languageId={languageId}
 							objectEntryId={objectEntryId}
 							onVersionChange={setSourceVersion}
@@ -221,6 +234,8 @@ export default function CompareVersionsModalContent({
 							diffType="additions"
 							diffs={diffs?.target ?? null}
 							excludedVersion={sourceVersion}
+							iframeRef={targetIframeRef}
+							iframeToScrollRef={sourceIframeRef}
 							languageId={languageId}
 							objectEntryId={objectEntryId}
 							onVersionChange={setTargetVersion}
@@ -284,6 +299,8 @@ function CompareVersionPane({
 	diffType,
 	diffs,
 	excludedVersion,
+	iframeRef,
+	iframeToScrollRef,
 	languageId,
 	objectEntryId,
 	onVersionChange,
@@ -294,14 +311,14 @@ function CompareVersionPane({
 	diffType: DiffType;
 	diffs: Diffs | null;
 	excludedVersion: number | null;
+	iframeRef: RefObject<HTMLIFrameElement>;
+	iframeToScrollRef: RefObject<HTMLIFrameElement>;
 	languageId: string;
 	objectEntryId: number;
 	onVersionChange: (version: number) => void;
 	selectedVersion: number | null;
 	versions: VersionItem[];
 }) {
-	const iframeRef = useRef<HTMLIFrameElement>(null);
-
 	const [iframeStatus, setIframeStatus] = useState<'loaded' | 'loading'>(
 		'loading'
 	);
@@ -320,9 +337,18 @@ function CompareVersionPane({
 
 	useEffect(() => {
 		if (iframeStatus === 'loaded' && iframeRef.current) {
+			return alignFieldsOnFocus(
+				iframeRef.current,
+				() => iframeToScrollRef.current
+			);
+		}
+	}, [iframeRef, iframeStatus, iframeToScrollRef]);
+
+	useEffect(() => {
+		if (iframeStatus === 'loaded' && iframeRef.current) {
 			injectContentDiffs(diffs, diffType, iframeRef.current);
 		}
-	}, [diffs, diffType, iframeStatus]);
+	}, [diffs, diffType, iframeRef, iframeStatus]);
 
 	useEffect(() => {
 		if (iframeStatus !== 'loaded') {
@@ -332,7 +358,7 @@ function CompareVersionPane({
 		const iframeLiferay = getIframeLiferay(iframeRef.current);
 
 		iframeLiferay?.fire('localizationSelect:localeChanged', {languageId});
-	}, [iframeStatus, languageId]);
+	}, [iframeRef, iframeStatus, languageId]);
 
 	if (selectedVersion === null) {
 		const emptyStateImage = getImage('compare_versions_empty_state.svg');

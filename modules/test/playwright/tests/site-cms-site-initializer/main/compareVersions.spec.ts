@@ -329,6 +329,58 @@ test(
 			}
 		});
 
+		await test.step('Clicking a field scrolls the other version to the same field', async () => {
+			const leftField = leftFrame.locator(
+				'[data-field-name="ObjectField_flag"]'
+			);
+			const rightField = rightFrame.locator(
+				'[data-field-name="ObjectField_flag"]'
+			);
+
+			await leftField.evaluate((field) => field.scrollIntoView());
+
+			await getDiffBox(leftFrame, 'flag').click();
+
+			await expect(async () => {
+				const leftBox = await leftField.boundingBox();
+				const rightBox = await rightField.boundingBox();
+
+				expect(Math.abs(leftBox!.y - rightBox!.y)).toBeLessThan(1);
+			}).toPass({timeout: 10000});
+		});
+
+		await test.step('Moving the focus with the keyboard also aligns the other version', async () => {
+			await getDiffBox(rightFrame, 'moment').click();
+
+			await leftFrame
+				.locator('[data-field-name="ObjectField_title"]')
+				.evaluate((field) => field.scrollIntoView());
+
+			await page.keyboard.press('Tab');
+
+			const fieldName = await rightFrame
+				.locator(':focus')
+				.evaluate(
+					(element) =>
+						element.closest<HTMLElement>('[data-field-name]')
+							?.dataset.fieldName
+				);
+
+			expect(fieldName).toBeTruthy();
+			expect(fieldName).not.toBe('ObjectField_moment');
+
+			await expect(async () => {
+				const leftBox = await leftFrame
+					.locator(`[data-field-name="${fieldName}"]`)
+					.boundingBox();
+				const rightBox = await rightFrame
+					.locator(`[data-field-name="${fieldName}"]`)
+					.boundingBox();
+
+				expect(Math.abs(leftBox!.y - rightBox!.y)).toBeLessThan(1);
+			}).toPass({timeout: 10000});
+		});
+
 		await test.step('Each pane marks its own value of every changed field', async () => {
 			const cases: [string, string, string][] = [
 				['title', revisedTitle, contentTitle],
@@ -1029,5 +1081,133 @@ test(
 			'cms/basic-documents',
 			String(objectEntry.id)
 		);
+	}
+);
+
+test(
+	'Aligns the same repeatable item in the other version',
+	{tag: '@LPD-106618'},
+	async ({
+		apiHelpers,
+		assetsPage,
+		contentsPage,
+		page,
+		structureBuilderPage,
+	}) => {
+		const structureLabel = `Repeatable${getRandomInt()}`;
+		const contentTitle = `repeatable content ${getRandomString()}`;
+		const spaceName = `Space ${getRandomString()}`;
+
+		await test.step('Create a space and a structure with a repeatable group', async () => {
+			await apiHelpers.headlessAssetLibrary.createAssetLibrary({
+				name: spaceName,
+				settings: {},
+				type: 'Space',
+			});
+
+			await structureBuilderPage.createStructureFromData({
+				label: structureLabel,
+				name: structureLabel,
+				page: structureBuilderPage,
+				publish: false,
+			});
+
+			await structureBuilderPage.addField('Long Text');
+
+			await structureBuilderPage.changeFieldSettings({label: 'Intro'});
+
+			await structureBuilderPage.addField('Text');
+
+			await structureBuilderPage.changeFieldSettings({label: 'Note'});
+
+			await structureBuilderPage.createRepeatableGroup({
+				fields: [{label: 'Note'}],
+				label: 'Items',
+			});
+
+			await structureBuilderPage.publishStructure();
+		});
+
+		await test.step('Publish a second version with a shorter intro', async () => {
+			const objectDefinition =
+				await apiHelpers.objectAdmin.getObjectDefinitionByName(
+					structureLabel
+				);
+
+			const applicationName = objectDefinition.restContextPath.replace(
+				'/o/',
+				''
+			);
+			const items = Array.from({length: 6}, (_, index) => ({
+				externalReferenceCode: `note-${index}`,
+				note: `Note ${index}`,
+			}));
+			const relationshipName = objectDefinition.objectRelationships[0].name;
+
+			const objectEntry = await apiHelpers.objectEntry.postObjectEntry(
+				{
+					intro: Array.from(
+						{length: 30},
+						(_, index) => `Intro line ${index}.`
+					).join('\n'),
+					objectEntryFolderExternalReferenceCode: 'L_CONTENTS',
+					[relationshipName]: items,
+					title: contentTitle,
+				},
+				applicationName,
+				spaceName
+			);
+
+			await apiHelpers.objectEntry.patchObjectEntry(
+				{intro: 'Short intro.', [relationshipName]: items},
+				applicationName,
+				objectEntry.id
+			);
+		});
+
+		await test.step('Open the comparison of both versions', async () => {
+			await contentsPage.goto();
+
+			await assetsPage.execItemAction({
+				action: 'View History',
+				filter: contentTitle,
+			});
+
+			await page
+				.getByRole('button', {name: `${contentTitle} Actions`})
+				.first()
+				.click();
+
+			await page.getByRole('menuitem', {name: 'Compare to...'}).click();
+
+			await page
+				.getByRole('combobox', {
+					name: 'Select a Version for Comparison',
+				})
+				.click();
+
+			await page.getByRole('option', {name: 'Version 1'}).click();
+		});
+
+		await test.step('Clicking a repeatable item scrolls the other version to the same item', async () => {
+			const getLastNote = (version: number) =>
+				page
+					.frameLocator(`iframe[title="Version ${version}"]`)
+					.locator('[data-field-name$="_note"]')
+					.nth(5);
+
+			await expect(getLastNote(1)).toBeAttached({timeout: 90000});
+
+			await getLastNote(2).locator('.form-control').first().click();
+
+			await expect(async () => {
+				const leftBox = await getLastNote(2).boundingBox();
+				const rightBox = await getLastNote(1).boundingBox();
+
+				expect(
+					Math.abs((leftBox?.y ?? 0) - (rightBox?.y ?? Infinity))
+				).toBeLessThan(2);
+			}).toPass({timeout: 10000});
+		});
 	}
 );
