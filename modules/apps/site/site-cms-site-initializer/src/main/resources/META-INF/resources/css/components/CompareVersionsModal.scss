@@ -19,6 +19,17 @@
 			border-color: map-get($input-readonly, border-color);
 			height: auto;
 
+			&:focus {
+				border-color: map-get(
+					map-get($input-readonly, focus),
+					border-color
+				);
+
+				&:not(:focus-visible) {
+					box-shadow: none;
+				}
+			}
+
 			img {
 				max-width: 100%;
 			}
@@ -37,6 +48,17 @@
 
 		.diff-html-removed {
 			display: none;
+		}
+
+		.input-group-item-focusable:focus-within:has(
+				.form-control[readonly]:focus
+			) {
+			background-color: transparent;
+			box-shadow: none;
+
+			.input-group-inset-item {
+				background-color: transparent;
+			}
 		}
 
 		[data-field-name]:has(.cms-compare-versions-diff) .ck-editor,

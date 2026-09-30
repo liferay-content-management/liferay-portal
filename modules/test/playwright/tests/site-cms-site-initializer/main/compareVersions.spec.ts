@@ -668,6 +668,10 @@ test(
 
 			await structureBuilderPage.changeFieldSettings({label: 'Ratio'});
 
+			await structureBuilderPage.addField('Date');
+
+			await structureBuilderPage.changeFieldSettings({label: 'Day'});
+
 			await structureBuilderPage.addReferencedStructures([
 				referencedStructureLabel,
 			]);
@@ -683,6 +687,7 @@ test(
 			await contentsPage.fillData([
 				{label: 'Title', value: contentTitle},
 				{label: 'Ratio', value: '1.5'},
+				{label: 'Day', type: 'Date', value: '08/28/2026'},
 			]);
 
 			await page
@@ -753,6 +758,29 @@ test(
 
 				await expect(frame.getByText('Add New')).toHaveCount(0);
 			}
+		});
+
+		await test.step('An unchanged date keeps the read-only focus style', async () => {
+			const field = leftFrame.locator('[data-field-name="ObjectField_day"]');
+
+			const dateInput = field.locator('input.form-control');
+			const inputGroupItem = field.locator('.input-group-item-focusable');
+
+			const getStyle = () =>
+				inputGroupItem.evaluate((element) => {
+					const {backgroundColor, boxShadow} =
+						getComputedStyle(element);
+
+					return {backgroundColor, boxShadow};
+				});
+
+			const style = await getStyle();
+
+			await dateInput.click();
+
+			await expect(dateInput).toBeFocused();
+
+			expect(await getStyle()).toEqual(style);
 		});
 
 		await test.step('A changed field keeps the read-only input style', async () => {
