@@ -348,6 +348,15 @@ test(
 			}
 		});
 
+		await test.step('Each diff box is a read-only text box named after its field', async () => {
+			for (const label of ['Day', 'Flag', 'Story', 'Words']) {
+				const textbox = leftFrame.getByRole('textbox', {name: label});
+
+				await expect(textbox).toHaveAttribute('aria-readonly', 'true');
+				await expect(textbox).toHaveClass(/cms-compare-versions-diff/);
+			}
+		});
+
 		await test.step('A changed atomic value is marked as one unit', async () => {
 			const leftDay = getDiffBox(leftFrame, 'day').locator(
 				'.diff-html-added'

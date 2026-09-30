@@ -118,6 +118,30 @@ function applyFieldDiffs(
 		container.className = `${
 			control?.className ?? 'form-control'
 		} cms-compare-versions-diff`;
+		container.tabIndex = 0;
+
+		container.setAttribute('aria-readonly', 'true');
+		container.setAttribute('role', 'textbox');
+
+		if (field.querySelector('textarea, .ck-editor')) {
+			container.setAttribute('aria-multiline', 'true');
+		}
+
+		const label = field.querySelector('label');
+
+		if (label) {
+			if (!label.id) {
+				label.id = `${fieldName}_compareVersionsLabel`;
+			}
+
+			container.setAttribute('aria-labelledby', label.id);
+		}
+		else {
+			container.setAttribute(
+				'aria-label',
+				control?.getAttribute('aria-label') ?? fieldName
+			);
+		}
 
 		// XSS: diffHTML is escaped by
 		// ObjectEntryVersionFieldValueResolver.toDisplayValue, except rich
