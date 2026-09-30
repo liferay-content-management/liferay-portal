@@ -10,6 +10,7 @@ import com.liferay.document.library.helper.DLURLHelper;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
+import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectEntryLocalService;
@@ -150,6 +151,16 @@ public class CompareObjectEntryVersionsCMSServlet extends BaseCMSServlet {
 						targetFieldValues.get(fieldName));
 
 				if (sourceDisplayValue.equals(targetDisplayValue)) {
+					if ((objectField != null) &&
+						ObjectFieldConstants.BUSINESS_TYPE_BOOLEAN.equals(
+							objectField.getBusinessType())) {
+
+						sourceDiffsJSONObject.put(
+							fieldName, sourceDisplayValue);
+						targetDiffsJSONObject.put(
+							fieldName, targetDisplayValue);
+					}
+
 					continue;
 				}
 

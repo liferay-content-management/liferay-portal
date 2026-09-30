@@ -294,7 +294,17 @@ test(
 			}
 
 			await page.keyboard.press('Escape');
+		});
 
+		await test.step('A single version shows its boolean as text', async () => {
+			await expectDiffBoxToShow(
+				page.frameLocator('iframe[title="Version 2"]'),
+				'flag',
+				'Yes'
+			);
+		});
+
+		await test.step('Select the previous version as the target', async () => {
 			await page
 				.getByRole('combobox', {
 					name: 'Select a Version for Comparison',

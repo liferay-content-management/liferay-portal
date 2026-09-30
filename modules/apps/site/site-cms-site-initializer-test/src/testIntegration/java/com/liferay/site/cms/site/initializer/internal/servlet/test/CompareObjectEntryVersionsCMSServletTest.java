@@ -101,6 +101,7 @@ public class CompareObjectEntryVersionsCMSServletTest
 
 	@Test
 	public void testCompareObjectEntryVersions() throws Exception {
+		_testCompareObjectEntryVersionsWithBooleanObjectField();
 		_testCompareObjectEntryVersionsWithDateObjectField();
 		_testCompareObjectEntryVersionsWithInvalidContent();
 		_testCompareObjectEntryVersionsWithRichTextObjectField();
@@ -223,6 +224,83 @@ public class CompareObjectEntryVersionsCMSServletTest
 		).toString();
 
 		return _service(content.getBytes(), user);
+	}
+
+	private void _testCompareObjectEntryVersionsWithBooleanObjectField()
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			ObjectDefinitionTestUtil.publishObjectDefinition(
+				true, false, true, ObjectDefinitionTestUtil.getRandomName(),
+				ListUtil.fromArray(
+					ObjectFieldUtil.createObjectField(
+						ObjectFieldConstants.BUSINESS_TYPE_BOOLEAN,
+						ObjectFieldConstants.DB_TYPE_BOOLEAN, false, false,
+						null, "Alpha", "alpha", false),
+					ObjectFieldUtil.createObjectField(
+						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+						ObjectFieldConstants.DB_TYPE_STRING, false, false, null,
+						"Beta", "beta", false)),
+				0, ObjectDefinitionConstants.SCOPE_COMPANY,
+				TestPropsValues.getUserId());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		ObjectEntry objectEntry = _objectEntryLocalService.addObjectEntry(
+			0, TestPropsValues.getUserId(),
+			objectDefinition.getObjectDefinitionId(), 0, "en_US",
+			HashMapBuilder.<String, Serializable>put(
+				"alpha", true
+			).put(
+				"beta", RandomTestUtil.randomString()
+			).build(),
+			serviceContext);
+
+		objectEntry = _objectEntryLocalService.updateObjectEntry(
+			TestPropsValues.getUserId(), objectEntry.getObjectEntryId(), 0,
+			HashMapBuilder.<String, Serializable>put(
+				"alpha", true
+			).put(
+				"beta", RandomTestUtil.randomString()
+			).build(),
+			serviceContext);
+
+		Assert.assertEquals(2, objectEntry.getVersion());
+
+		JSONObject diffsJSONObject = _toDiffsJSONObject(
+			_service(
+				objectEntry.getObjectEntryId(), 1, 2,
+				TestPropsValues.getUser()));
+
+		JSONObject sourceJSONObject = diffsJSONObject.getJSONObject("source");
+		JSONObject targetJSONObject = diffsJSONObject.getJSONObject("target");
+
+		Assert.assertEquals("Yes", sourceJSONObject.getString("alpha"));
+		Assert.assertEquals("Yes", targetJSONObject.getString("alpha"));
+
+		objectEntry = _objectEntryLocalService.updateObjectEntry(
+			TestPropsValues.getUserId(), objectEntry.getObjectEntryId(), 0,
+			HashMapBuilder.<String, Serializable>put(
+				"alpha", false
+			).build(),
+			serviceContext);
+
+		Assert.assertEquals(3, objectEntry.getVersion());
+
+		diffsJSONObject = _toDiffsJSONObject(
+			_service(
+				objectEntry.getObjectEntryId(), 2, 3,
+				TestPropsValues.getUser()));
+
+		sourceJSONObject = diffsJSONObject.getJSONObject("source");
+		targetJSONObject = diffsJSONObject.getJSONObject("target");
+
+		_assertDiffHtml("Yes", sourceJSONObject.getString("alpha"), "No");
+		_assertDiffHtml("No", targetJSONObject.getString("alpha"), "Yes");
+
+		_objectDefinitionLocalService.deleteObjectDefinition(
+			objectDefinition.getObjectDefinitionId());
 	}
 
 	private void _testCompareObjectEntryVersionsWithDateObjectField()

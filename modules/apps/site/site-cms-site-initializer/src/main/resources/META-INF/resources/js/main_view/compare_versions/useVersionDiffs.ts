@@ -31,7 +31,7 @@ export function useVersionDiffs({
 	useEffect(() => {
 		setDiffs(null);
 
-		if (sourceVersion === null || targetVersion === null) {
+		if (sourceVersion === null && targetVersion === null) {
 			return;
 		}
 
@@ -43,8 +43,8 @@ export function useVersionDiffs({
 			}>(COMPARE_VERSIONS_URL, {
 				languageId,
 				objectEntryId,
-				sourceVersion,
-				targetVersion,
+				sourceVersion: sourceVersion ?? targetVersion,
+				targetVersion: targetVersion ?? sourceVersion,
 			});
 
 			if (stale) {

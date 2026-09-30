@@ -313,15 +313,35 @@ describe('useVersionDiffs', () => {
 		jest.clearAllMocks();
 	});
 
-	it('does not request anything while either version is unselected', () => {
+	it('does not request anything while both versions are unselected', () => {
 		renderHook(() =>
-			useVersionDiffs({...DEFAULT_INPUT, sourceVersion: null})
+			useVersionDiffs({
+				...DEFAULT_INPUT,
+				sourceVersion: null,
+				targetVersion: null,
+			})
 		);
+
+		expect(mockFetch).not.toHaveBeenCalled();
+	});
+
+	it('compares the selected version with itself while the other one is unselected', async () => {
+		mockDiffsResponse({source: {}, target: {}});
+
 		renderHook(() =>
 			useVersionDiffs({...DEFAULT_INPUT, targetVersion: null})
 		);
 
-		expect(mockFetch).not.toHaveBeenCalled();
+		await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
+
+		const [, options] = mockFetch.mock.calls[0];
+
+		expect(JSON.parse(options.body)).toEqual({
+			languageId: 'en_US',
+			objectEntryId: 42,
+			sourceVersion: 2,
+			targetVersion: 2,
+		});
 	});
 
 	it('clears the previous diffs while the next comparison is in flight', async () => {
