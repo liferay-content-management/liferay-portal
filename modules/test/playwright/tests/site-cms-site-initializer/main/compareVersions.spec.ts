@@ -577,7 +577,7 @@ test(
 );
 
 test(
-	'Keeps both versions read only and aligned in a single scroll',
+	'Keeps both versions read only',
 	{tag: '@LPD-106618'},
 	async ({
 		apiHelpers,
@@ -587,8 +587,8 @@ test(
 		structureBuilderPage,
 	}) => {
 		const referencedStructureLabel = `Nested${getRandomInt()}`;
-		const structureLabel = `Scroll${getRandomInt()}`;
-		const contentTitle = `scroll content ${getRandomString()}`;
+		const structureLabel = `ReadOnly${getRandomInt()}`;
+		const contentTitle = `read only content ${getRandomString()}`;
 		const spaceName = `Space ${getRandomString()}`;
 
 		await test.step('Create a space and a structure with a repeatable group', async () => {
@@ -612,10 +612,6 @@ test(
 				publish: false,
 			});
 
-			await structureBuilderPage.addField('Long Text');
-
-			await structureBuilderPage.changeFieldSettings({label: 'Essay'});
-
 			await structureBuilderPage.addField('Decimal');
 
 			await structureBuilderPage.changeFieldSettings({label: 'Ratio'});
@@ -627,20 +623,13 @@ test(
 			await structureBuilderPage.publishStructure();
 		});
 
-		await test.step('Publish two versions with a long text', async () => {
+		await test.step('Publish two versions', async () => {
 			await contentsPage.goto();
 
 			await contentsPage.createContent(structureLabel, spaceName);
 
 			await contentsPage.fillData([
 				{label: 'Title', value: contentTitle},
-				{
-					label: 'Essay',
-					value: Array.from(
-						{length: 30},
-						(_, index) => `Line ${index + 1}.`
-					).join('\n'),
-				},
 				{label: 'Ratio', value: '1.5'},
 			]);
 
@@ -697,33 +686,9 @@ test(
 			await page.mouse.move(0, 0);
 		});
 
-		await test.step('Both versions scroll together in a single scroll', async () => {
+		await test.step('Each pane shows its own value of the changed field', async () => {
 			await expectDiffBoxToShow(leftFrame, 'ratio', '3.75');
 			await expectDiffBoxToShow(rightFrame, 'ratio', '1.5');
-
-			for (const frame of [leftFrame, rightFrame]) {
-				await expect(async () => {
-					const {clientHeight, scrollHeight} = await frame
-						.locator('#main-content')
-						.evaluate((element) => ({
-							clientHeight: element.clientHeight,
-							scrollHeight: element.scrollHeight,
-						}));
-
-					expect(scrollHeight).toBeLessThanOrEqual(clientHeight + 1);
-				}).toPass();
-			}
-
-			const panes = page.locator('.cms-compare-versions-panes');
-
-			const {clientHeight, scrollHeight} = await panes.evaluate(
-				(element) => ({
-					clientHeight: element.clientHeight,
-					scrollHeight: element.scrollHeight,
-				})
-			);
-
-			expect(scrollHeight).toBeGreaterThan(clientHeight);
 		});
 
 		await test.step('The repeatable group is read only', async () => {

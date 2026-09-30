@@ -44,26 +44,6 @@ type VersionsState =
 	| {status: 'error' | 'loading'}
 	| {items: VersionItem[]; status: 'loaded'};
 
-function fitIframeToContent(iframe: HTMLIFrameElement) {
-	const mainContent = iframe.contentDocument?.getElementById('main-content');
-
-	if (!mainContent) {
-		return;
-	}
-
-	mainContent.ownerDocument.body.classList.add(
-		'cms-compare-versions-content'
-	);
-
-	const resizeObserver = new ResizeObserver(() => {
-		iframe.style.height = `${mainContent.offsetHeight}px`;
-	});
-
-	resizeObserver.observe(mainContent);
-
-	return () => resizeObserver.disconnect();
-}
-
 function getVersionLabel(version: number) {
 	return sub(Liferay.Language.get('version-x'), [version]);
 }
@@ -223,32 +203,30 @@ export default function CompareVersionsModalContent({
 				) : null}
 
 				{versionsState.status === 'loaded' ? (
-					<div className="cms-compare-versions-panes flex-grow-1 overflow-auto">
-						<div className="cms-compare-versions-panes-row d-flex flex-column flex-md-row">
-							<CompareVersionPane
-								defaultLanguageId={defaultLanguageId}
-								diffType="removals"
-								diffs={diffs?.source ?? null}
-								excludedVersion={targetVersion}
-								languageId={languageId}
-								objectEntryId={objectEntryId}
-								onVersionChange={setSourceVersion}
-								selectedVersion={sourceVersion}
-								versions={versionsState.items}
-							/>
+					<div className="cms-compare-versions-panes d-flex flex-column flex-grow-1 flex-md-row">
+						<CompareVersionPane
+							defaultLanguageId={defaultLanguageId}
+							diffType="removals"
+							diffs={diffs?.source ?? null}
+							excludedVersion={targetVersion}
+							languageId={languageId}
+							objectEntryId={objectEntryId}
+							onVersionChange={setSourceVersion}
+							selectedVersion={sourceVersion}
+							versions={versionsState.items}
+						/>
 
-							<CompareVersionPane
-								defaultLanguageId={defaultLanguageId}
-								diffType="additions"
-								diffs={diffs?.target ?? null}
-								excludedVersion={sourceVersion}
-								languageId={languageId}
-								objectEntryId={objectEntryId}
-								onVersionChange={setTargetVersion}
-								selectedVersion={targetVersion}
-								versions={versionsState.items}
-							/>
-						</div>
+						<CompareVersionPane
+							defaultLanguageId={defaultLanguageId}
+							diffType="additions"
+							diffs={diffs?.target ?? null}
+							excludedVersion={sourceVersion}
+							languageId={languageId}
+							objectEntryId={objectEntryId}
+							onVersionChange={setTargetVersion}
+							selectedVersion={targetVersion}
+							versions={versionsState.items}
+						/>
 					</div>
 				) : null}
 			</ClayModal.Body>
@@ -342,12 +320,6 @@ function CompareVersionPane({
 
 	useEffect(() => {
 		if (iframeStatus === 'loaded' && iframeRef.current) {
-			return fitIframeToContent(iframeRef.current);
-		}
-	}, [iframeStatus]);
-
-	useEffect(() => {
-		if (iframeStatus === 'loaded' && iframeRef.current) {
 			injectContentDiffs(diffs, diffType, iframeRef.current);
 		}
 	}, [diffs, diffType, iframeStatus]);
@@ -367,7 +339,7 @@ function CompareVersionPane({
 
 		return (
 			<div className="cms-compare-versions-pane d-flex flex-column">
-				<div className="align-items-center cms-compare-versions-pane-empty-state d-flex flex-column pt-8 text-center">
+				<div className="align-items-center d-flex flex-column flex-grow-1 justify-content-center mt-n8 text-center">
 					<ClayEmptyState
 						description={Liferay.Language.get(
 							'choose-a-target-version-to-start-the-comparison'
@@ -395,7 +367,7 @@ function CompareVersionPane({
 
 	return (
 		<div className="cms-compare-versions-pane d-flex flex-column">
-			<div className="align-items-center bg-white c-gap-3 cms-compare-versions-pane-header d-flex p-3">
+			<div className="align-items-center c-gap-3 d-flex p-3">
 				<VersionPicker
 					excludedVersion={excludedVersion}
 					onVersionChange={(version) => {
@@ -425,7 +397,7 @@ function CompareVersionPane({
 			</div>
 
 			{hasTranslation ? (
-				<div className="d-flex flex-column flex-grow-1 mx-2">
+				<div className="cms-compare-versions-pane-content d-flex flex-column flex-grow-1 mx-2">
 					{iframeStatus === 'loading' ? (
 						<ClayLoadingIndicator className="my-5" />
 					) : null}
