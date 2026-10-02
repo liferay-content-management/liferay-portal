@@ -408,9 +408,11 @@ export default function ContentEditorToolbar({
 						data-title-set-as-html
 						form={formId}
 						onClick={(event) => {
-							handlePublishClick();
-
 							Liferay.fire(EVENT_VALIDATE_FORM, {event});
+
+							if (!event.isDefaultPrevented()) {
+								handlePublishClick();
+							}
 						}}
 						size="sm"
 						type="submit"
