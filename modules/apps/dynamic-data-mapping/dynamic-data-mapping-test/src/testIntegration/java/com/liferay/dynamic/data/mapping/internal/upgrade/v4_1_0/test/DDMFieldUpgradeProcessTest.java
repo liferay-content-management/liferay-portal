@@ -19,7 +19,7 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestHelper;
-import com.liferay.petra.string.StringUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -33,11 +33,16 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.portal.upgrade.test.util.UpgradeTestUtil;
+
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -124,38 +129,53 @@ public class DDMFieldUpgradeProcessTest {
 			ddmStructureVersion.getStructureVersionId(), serviceContext);
 
 		UpgradeProcess upgradeProcess = UpgradeTestUtil.getUpgradeStep(
-			_upgradeStepRegistrator,
-			"com.liferay.dynamic.data.mapping.internal.upgrade.v4_1_0." +
-				"DDMFieldUpgradeProcess");
+			_upgradeStepRegistrator, _CLASS_NAME);
 
-		upgradeProcess.upgrade();
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				_CLASS_NAME, LoggerTestUtil.WARN)) {
 
-		_entityCache.clearCache();
-		_multiVMPool.clear();
+			upgradeProcess.upgrade();
 
-		DDMFormValues ddmFormValues = _ddmFieldLocalService.getDDMFormValues(
-			ddmForm, _contentId);
+			_entityCache.clearCache();
+			_multiVMPool.clear();
 
-		DDMFormFieldValue ddmFormFieldValue1 =
-			ddmFormValues.getDDMFormFieldValue("field1", false);
+			DDMFormValues ddmFormValues =
+				_ddmFieldLocalService.getDDMFormValues(ddmForm, _contentId);
 
-		Assert.assertEquals("abcd", ddmFormFieldValue1.getInstanceId());
+			DDMFormFieldValue ddmFormFieldValue1 =
+				ddmFormValues.getDDMFormFieldValue("field1", false);
 
-		Value value1 = ddmFormFieldValue1.getValue();
+			Assert.assertEquals("abcd", ddmFormFieldValue1.getInstanceId());
 
-		Assert.assertEquals("value1", value1.getString(LocaleUtil.US));
+			Value value1 = ddmFormFieldValue1.getValue();
 
-		DDMFormFieldValue ddmFormFieldValue2 =
-			ddmFormValues.getDDMFormFieldValue("field2", false);
+			Assert.assertEquals("value1", value1.getString(LocaleUtil.US));
 
-		Assert.assertFalse(
-			StringUtil.equalsIgnoreCase(
-				"abcd", ddmFormFieldValue2.getInstanceId()));
+			DDMFormFieldValue ddmFormFieldValue2 =
+				ddmFormValues.getDDMFormFieldValue("field2", false);
 
-		Value value2 = ddmFormFieldValue2.getValue();
+			Value value2 = ddmFormFieldValue2.getValue();
 
-		Assert.assertEquals("value2", value2.getString(LocaleUtil.US));
+			Assert.assertEquals("value2", value2.getString(LocaleUtil.US));
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(
+				StringBundler.concat(
+					"Replaced duplicate instance ID \"ABCD\" of field ",
+					"\"field2\" in storage ", _contentId, " with \"",
+					ddmFormFieldValue2.getInstanceId(), "\""),
+				logEntry.getMessage());
+		}
 	}
+
+	private static final String _CLASS_NAME =
+		"com.liferay.dynamic.data.mapping.internal.upgrade.v4_1_0." +
+			"DDMFieldUpgradeProcess";
 
 	private long _contentId;
 

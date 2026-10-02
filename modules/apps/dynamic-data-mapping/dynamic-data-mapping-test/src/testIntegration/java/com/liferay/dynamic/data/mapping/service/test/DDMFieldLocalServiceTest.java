@@ -27,8 +27,8 @@ import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -43,6 +43,9 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -483,23 +486,38 @@ public class DDMFieldLocalServiceTest {
 
 		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue2);
 
-		_ddmFieldLocalService.updateDDMFormValues(
-			ddmStructure.getStructureId(), _STORAGE_ID, ddmFormValues);
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.dynamic.data.mapping.service.impl." +
+					"DDMFieldLocalServiceImpl",
+				LoggerTestUtil.WARN)) {
 
-		DDMFormValues deserializedDDMFormValues =
-			_ddmFieldLocalService.getDDMFormValues(ddmForm, _STORAGE_ID);
+			_ddmFieldLocalService.updateDDMFormValues(
+				ddmStructure.getStructureId(), _STORAGE_ID, ddmFormValues);
 
-		DDMFormFieldValue deserializedDDMFormFieldValue2 =
-			deserializedDDMFormValues.getDDMFormFieldValue("field2", false);
+			DDMFormValues deserializedDDMFormValues =
+				_ddmFieldLocalService.getDDMFormValues(ddmForm, _STORAGE_ID);
 
-		Assert.assertFalse(
-			StringUtil.equalsIgnoreCase(
-				"abcd", deserializedDDMFormFieldValue2.getInstanceId()));
+			DDMFormFieldValue deserializedDDMFormFieldValue2 =
+				deserializedDDMFormValues.getDDMFormFieldValue("field2", false);
 
-		ddmFormFieldValue2.setInstanceId(
-			deserializedDDMFormFieldValue2.getInstanceId());
+			List<LogEntry> logEntries = logCapture.getLogEntries();
 
-		Assert.assertEquals(ddmFormValues, deserializedDDMFormValues);
+			Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+			LogEntry logEntry = logEntries.get(0);
+
+			Assert.assertEquals(
+				StringBundler.concat(
+					"Replaced duplicate instance ID \"ABCD\" of field ",
+					"\"field2\" in storage ", _STORAGE_ID, " with \"",
+					deserializedDDMFormFieldValue2.getInstanceId(), "\""),
+				logEntry.getMessage());
+
+			ddmFormFieldValue2.setInstanceId(
+				deserializedDDMFormFieldValue2.getInstanceId());
+
+			Assert.assertEquals(ddmFormValues, deserializedDDMFormValues);
+		}
 	}
 
 	@Test
