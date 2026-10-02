@@ -241,6 +241,17 @@ public class DDMFieldUpgradeProcess extends UpgradeProcess {
 
 				instanceId =
 					com.liferay.portal.kernel.util.StringUtil.randomString(8);
+
+				if (Validator.isNotNull(ddmFormFieldValue.getInstanceId()) &&
+					_log.isWarnEnabled()) {
+
+					_log.warn(
+						StringBundler.concat(
+							"Replaced duplicate instance ID \"",
+							ddmFormFieldValue.getInstanceId(), "\" of field \"",
+							ddmFormFieldValue.getName(), "\" in storage ",
+							contentId, " with \"", instanceId, "\""));
+				}
 			}
 
 			DDMFieldInfo ddmFieldInfo = new DDMFieldInfo(

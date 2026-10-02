@@ -8,5 +8,6 @@
 		<Logger level="WARN" name="com.liferay.dynamic.data.mapping.internal.upgrade.v5_4_0.DDMFieldUpgradeProcess" />
 		<Logger level="WARN" name="com.liferay.dynamic.data.mapping.internal.util" />
 		<Logger level="WARN" name="com.liferay.dynamic.data.mapping.internal.verify.DDMServiceVerifyProcess" />
+		<Logger level="WARN" name="com.liferay.dynamic.data.mapping.service.impl.DDMFieldLocalServiceImpl" />
 	</Loggers>
 </Configuration>
