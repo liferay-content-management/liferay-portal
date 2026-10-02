@@ -84,6 +84,7 @@ export default function ContentEditorToolbar({
 	);
 	const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
 
+	const invalidFileUploadButtonRef = useRef<HTMLButtonElement | null>(null);
 	const localizationLanguageId = useLocalizationLanguageId(defaultLanguageId);
 	const previewButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -182,6 +183,12 @@ export default function ContentEditorToolbar({
 					event.key === 'Enter' &&
 					isCtrlOrMeta(event)
 				) {
+					Liferay.fire(EVENT_VALIDATE_FORM, {event});
+
+					if (event.defaultPrevented) {
+						return;
+					}
+
 					handlePublishClick();
 
 					form.submit();
@@ -194,6 +201,42 @@ export default function ContentEditorToolbar({
 				window.removeEventListener('keydown', handlePublishShortcut);
 		}
 	}, [getForm, handlePublishClick]);
+
+	useEffect(() => {
+		const validateFileUploadFields = ({event}: {event: Event}) => {
+			const formGroup = getForm()?.querySelector(
+				'.form-group[data-file-size-error]'
+			);
+
+			if (formGroup) {
+				event.preventDefault();
+
+				const button = formGroup.querySelector<HTMLButtonElement>(
+					'[id$="-file-upload-button-label"]'
+				);
+
+				if (showModal) {
+					invalidFileUploadButtonRef.current = button;
+				}
+				else {
+					button?.focus();
+				}
+			}
+		};
+
+		Liferay.on(EVENT_VALIDATE_FORM, validateFileUploadFields);
+
+		return () =>
+			Liferay.detach(EVENT_VALIDATE_FORM, validateFileUploadFields);
+	}, [getForm, showModal]);
+
+	useEffect(() => {
+		if (!showModal && invalidFileUploadButtonRef.current) {
+			invalidFileUploadButtonRef.current.focus();
+
+			invalidFileUploadButtonRef.current = null;
+		}
+	}, [showModal]);
 
 	useEffect(() => {
 		const closePreview = () => {
