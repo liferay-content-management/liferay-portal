@@ -20,6 +20,7 @@ import {flushSync} from 'react-dom';
 
 import Toolbar from '../../common/components/Toolbar';
 import {AI_ASSISTANT_TOOLBAR_TRIGGER_ID} from '../../common/utils/constants';
+import focusInvalidElement from '../../common/utils/focusInvalidElement';
 import applyFieldValues from '../utils/applyFieldValues';
 import getFieldValues from '../utils/getFieldValues';
 import {toMomentDate} from './ScheduleField';
@@ -76,6 +77,7 @@ export default function ContentEditorToolbar({
 }) {
 	const [displayDate, setDisplayDate] = useState<string>('');
 	const [formId, setFormId] = useState<string | undefined>();
+	const [hasFileSizeError, setHasFileSizeError] = useState<boolean>(false);
 	const [redirect, setRedirect] = useState<string>(backURL);
 	const [showModal, setShowModal] = useState<boolean>(false);
 	const [showPreview, setShowPreview] = useSessionState<boolean>(
@@ -84,7 +86,6 @@ export default function ContentEditorToolbar({
 	);
 	const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
 
-	const invalidFileUploadButtonRef = useRef<HTMLButtonElement | null>(null);
 	const localizationLanguageId = useLocalizationLanguageId(defaultLanguageId);
 	const previewButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -204,23 +205,10 @@ export default function ContentEditorToolbar({
 
 	useEffect(() => {
 		const validateFileUploadFields = ({event}: {event: Event}) => {
-			const formGroup = getForm()?.querySelector(
-				'.form-group[data-file-size-error]'
-			);
-
-			if (formGroup) {
+			if (getForm()?.querySelector('.form-group[data-file-size-error]')) {
 				event.preventDefault();
 
-				const button = formGroup.querySelector<HTMLButtonElement>(
-					'[id$="-file-upload-button-label"]'
-				);
-
-				if (showModal) {
-					invalidFileUploadButtonRef.current = button;
-				}
-				else {
-					button?.focus();
-				}
+				setHasFileSizeError(true);
 			}
 		};
 
@@ -228,15 +216,15 @@ export default function ContentEditorToolbar({
 
 		return () =>
 			Liferay.detach(EVENT_VALIDATE_FORM, validateFileUploadFields);
-	}, [getForm, showModal]);
+	}, [getForm]);
 
 	useEffect(() => {
-		if (!showModal && invalidFileUploadButtonRef.current) {
-			invalidFileUploadButtonRef.current.focus();
+		if (hasFileSizeError && !showModal) {
+			focusInvalidElement();
 
-			invalidFileUploadButtonRef.current = null;
+			setHasFileSizeError(false);
 		}
-	}, [showModal]);
+	}, [hasFileSizeError, showModal]);
 
 	useEffect(() => {
 		const closePreview = () => {
