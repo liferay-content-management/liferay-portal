@@ -27,6 +27,7 @@ import {
 	OBJECT_ENTRY_CLASS_NAME,
 	OBJECT_ENTRY_FOLDER_CLASS_NAME,
 } from '../../common/utils/constants';
+import {getAssetTitle} from '../../common/utils/getAssetTitle';
 import {getFormattedLabel} from '../../common/utils/getFormattedText';
 import {getScopeExternalReferenceCode} from '../../common/utils/getScopeExternalReferenceCode';
 import {openBulkActionConfirmationModal} from '../../common/utils/openBulkActionConfirmationModal';
@@ -270,7 +271,7 @@ export default function AssetsFDSPropsTransformer({
 					type: 'internal',
 				} as IInternalRenderer,
 				{
-					component: ({actions, itemData, options, value}) => {
+					component: ({actions, itemData, options}) => {
 						const simpleActionLink = (
 							<SimpleActionLinkRenderer
 								actions={actions}
@@ -304,7 +305,7 @@ export default function AssetsFDSPropsTransformer({
 										/>
 									)
 								}
-								value={value}
+								value={getAssetTitle(itemData)}
 							/>
 						);
 
@@ -665,7 +666,7 @@ export default function AssetsFDSPropsTransformer({
 					creator: itemData.embedded.creator,
 					entryClassName: itemData.entryClassName,
 					itemId: itemData.embedded.id,
-					title: itemData.embedded.title,
+					title: getAssetTitle(itemData),
 				});
 			}
 			else if (
