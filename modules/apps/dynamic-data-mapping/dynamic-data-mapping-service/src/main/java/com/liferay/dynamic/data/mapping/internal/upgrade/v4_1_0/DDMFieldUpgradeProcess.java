@@ -235,15 +235,32 @@ public class DDMFieldUpgradeProcess extends UpgradeProcess {
 
 			String instanceId = ddmFormFieldValue.getInstanceId();
 
-			if (ddmFieldInfosMap.containsKey(instanceId)) {
+			if (ddmFieldInfosMap.containsKey(
+					com.liferay.portal.kernel.util.StringUtil.toLowerCase(
+						instanceId))) {
+
 				instanceId =
 					com.liferay.portal.kernel.util.StringUtil.randomString(8);
+
+				if (Validator.isNotNull(ddmFormFieldValue.getInstanceId()) &&
+					_log.isWarnEnabled()) {
+
+					_log.warn(
+						StringBundler.concat(
+							"Replaced duplicate instance ID \"",
+							ddmFormFieldValue.getInstanceId(), "\" of field \"",
+							ddmFormFieldValue.getName(), "\" in storage ",
+							contentId, " with \"", instanceId, "\""));
+				}
 			}
 
 			DDMFieldInfo ddmFieldInfo = new DDMFieldInfo(
 				ddmFormFieldValue.getName(), instanceId, parentInstanceId);
 
-			ddmFieldInfosMap.put(ddmFieldInfo._instanceId, ddmFieldInfo);
+			ddmFieldInfosMap.put(
+				com.liferay.portal.kernel.util.StringUtil.toLowerCase(
+					instanceId),
+				ddmFieldInfo);
 
 			Value value = ddmFormFieldValue.getValue();
 

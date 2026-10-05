@@ -33,6 +33,7 @@ import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.petra.sql.dsl.query.JoinStep;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.aop.AopService;
@@ -502,7 +503,7 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 
 		_collectDDMFieldInfos(
 			ddmFieldInfosMap, ddmFormFieldsMap,
-			ddmFormValues.getDDMFormFieldValues(), null);
+			ddmFormValues.getDDMFormFieldValues(), null, storageId);
 
 		DDMFormUpdateContext ddmFormUpdateContext = _getDDMFormUpdateContext(
 			ddmFieldInfosMap, ddmFormFieldsMap, storageId);
@@ -636,7 +637,8 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 	private void _collectDDMFieldInfos(
 		Map<String, DDMFieldInfo> ddmFieldInfosMap,
 		Map<String, DDMFormField> ddmFormFieldMap,
-		List<DDMFormFieldValue> ddmFormValues, String parentInstanceId) {
+		List<DDMFormFieldValue> ddmFormValues, String parentInstanceId,
+		long storageId) {
 
 		for (DDMFormFieldValue ddmFormFieldValue : ddmFormValues) {
 			DDMFormField ddmFormField = ddmFormFieldMap.get(
@@ -646,18 +648,37 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 				continue;
 			}
 
-			String instanceId = ddmFormFieldValue.getInstanceId();
+			String instanceId = GetterUtil.getString(
+				ddmFormFieldValue.getInstanceId());
 
-			while (ddmFieldInfosMap.containsKey(instanceId)) {
+			while (ddmFieldInfosMap.containsKey(
+						com.liferay.portal.kernel.util.StringUtil.toLowerCase(
+							instanceId))) {
+
 				instanceId =
 					com.liferay.portal.kernel.util.StringUtil.randomString();
+			}
+
+			if (Validator.isNotNull(ddmFormFieldValue.getInstanceId()) &&
+				!instanceId.equals(ddmFormFieldValue.getInstanceId()) &&
+				_log.isWarnEnabled()) {
+
+				_log.warn(
+					StringBundler.concat(
+						"Replaced duplicate instance ID \"",
+						ddmFormFieldValue.getInstanceId(), "\" of field \"",
+						ddmFormFieldValue.getName(), "\" in storage ",
+						storageId, " with \"", instanceId, "\""));
 			}
 
 			DDMFieldInfo ddmFieldInfo = new DDMFieldInfo(
 				ddmFormFieldValue.getName(), instanceId,
 				ddmFormField.isLocalizable(), parentInstanceId);
 
-			ddmFieldInfosMap.put(instanceId, ddmFieldInfo);
+			ddmFieldInfosMap.put(
+				com.liferay.portal.kernel.util.StringUtil.toLowerCase(
+					instanceId),
+				ddmFieldInfo);
 
 			Value value = ddmFormFieldValue.getValue();
 
@@ -676,7 +697,8 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 
 			_collectDDMFieldInfos(
 				ddmFieldInfosMap, ddmFormFieldMap,
-				ddmFormFieldValue.getNestedDDMFormFieldValues(), instanceId);
+				ddmFormFieldValue.getNestedDDMFormFieldValues(), instanceId,
+				storageId);
 		}
 	}
 
@@ -1131,7 +1153,9 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 					new DDMFieldAttributeInfo(
 						ddmFieldAttribute.getAttributeName(),
 						ddmFieldAttribute.getAttributeValue(),
-						ddmFieldInfosMap.get(ddmField.getInstanceId()),
+						ddmFieldInfosMap.get(
+							com.liferay.portal.kernel.util.StringUtil.
+								toLowerCase(ddmField.getInstanceId())),
 						ddmFieldAttribute.getLanguageId())));
 		}
 
