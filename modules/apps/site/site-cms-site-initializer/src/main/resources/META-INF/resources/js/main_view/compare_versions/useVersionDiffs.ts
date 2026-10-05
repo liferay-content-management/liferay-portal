@@ -75,6 +75,8 @@ export function injectContentDiffs(
 		return;
 	}
 
+	iframeDocument.body.classList.add('cms-compare-versions-content');
+
 	removePreviousContentDiffs(iframeDocument);
 
 	if (!diffs) {

@@ -50,17 +50,6 @@
 			display: none;
 		}
 
-		.input-group-item-focusable:focus-within:has(
-				.form-control[readonly]:focus
-			) {
-			background-color: transparent;
-			box-shadow: none;
-
-			.input-group-inset-item {
-				background-color: transparent;
-			}
-		}
-
 		[data-field-name]:has(.cms-compare-versions-diff) .ck-editor,
 		[data-field-name]:has(.cms-compare-versions-diff) .date-picker,
 		[data-field-name]:has(.cms-compare-versions-diff)
@@ -83,6 +72,19 @@
 	&-additions {
 		.cms-compare-versions-diff .diff-html-added {
 			@include cms-compare-versions-mark($success-l2, $success);
+		}
+	}
+
+	&-content {
+		.input-group-item-focusable:focus-within:has(
+				.form-control[readonly]:focus
+			) {
+			background-color: transparent;
+			box-shadow: none;
+
+			.input-group-inset-item {
+				background-color: transparent;
+			}
 		}
 	}
 
