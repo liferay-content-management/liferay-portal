@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Jan Brychta
  */
 @Component(service = ProblemMapper.class)
-public class SharingEntryExpirationDateExceptionProblemMapper
+public class CollaboratorExpirationDateExceptionProblemMapper
 	implements ProblemMapper<InvalidSharingEntryExpirationDateException> {
 
 	@Override
