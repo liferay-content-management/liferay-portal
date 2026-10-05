@@ -771,7 +771,13 @@ test(
 			const inputGroupItem = field.locator('.input-group-item-focusable');
 
 			const getStyle = () =>
-				inputGroupItem.evaluate((element) => {
+				inputGroupItem.evaluate(async (element) => {
+					await Promise.all(
+						element
+							.getAnimations()
+							.map((animation) => animation.finished)
+					);
+
 					const {backgroundColor, boxShadow} =
 						getComputedStyle(element);
 
