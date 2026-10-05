@@ -21,7 +21,9 @@ export function alignFieldsOnFocus(
 			?.closest<HTMLElement>('[data-field-name]');
 
 		if (field) {
-			scrollToMatchField(field, getIframeToScroll());
+			requestAnimationFrame(() =>
+				scrollToMatchField(field, getIframeToScroll())
+			);
 		}
 	};
 
