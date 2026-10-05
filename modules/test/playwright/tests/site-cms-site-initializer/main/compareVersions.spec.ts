@@ -765,7 +765,9 @@ test(
 		});
 
 		await test.step('An unchanged date keeps the read-only focus style', async () => {
-			const field = leftFrame.locator('[data-field-name="ObjectField_day"]');
+			const field = leftFrame.locator(
+				'[data-field-name="ObjectField_day"]'
+			);
 
 			const dateInput = field.locator('input.form-control');
 			const inputGroupItem = field.locator('.input-group-item-focusable');
@@ -1205,9 +1207,7 @@ test(
 					new RegExp(`/documents/.*${fileName}`),
 					{timeout: 90000}
 				);
-				await expect(image).not.toHaveClass(
-					/border-(danger|success)/
-				);
+				await expect(image).not.toHaveClass(/border-(danger|success)/);
 			}
 		});
 
@@ -1276,7 +1276,8 @@ test(
 				externalReferenceCode: `note-${index}`,
 				note: `Note ${index}`,
 			}));
-			const relationshipName = objectDefinition.objectRelationships[0].name;
+			const relationshipName =
+				objectDefinition.objectRelationships[0].name;
 
 			const objectEntry = await apiHelpers.objectEntry.postObjectEntry(
 				{
