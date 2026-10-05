@@ -21,7 +21,7 @@ export function alignFieldsOnFocus(
 			?.closest<HTMLElement>('[data-field-name]');
 
 		if (field) {
-			scrollToMatchField(field, iframe, getIframeToScroll());
+			scrollToMatchField(field, getIframeToScroll());
 		}
 	};
 
@@ -58,7 +58,6 @@ function getScrollContainer(element: HTMLElement): HTMLElement | Window {
 
 function scrollToMatchField(
 	field: HTMLElement,
-	iframe: HTMLIFrameElement,
 	iframeToScroll: HTMLIFrameElement | null
 ) {
 	const selector = `[data-field-name="${CSS.escape(
@@ -78,13 +77,9 @@ function scrollToMatchField(
 		return;
 	}
 
-	const fieldTop =
-		iframe.getBoundingClientRect().top + field.getBoundingClientRect().top;
-	const fieldToScrollTop =
-		iframeToScroll.getBoundingClientRect().top +
-		fieldToScroll.getBoundingClientRect().top;
-
 	getScrollContainer(fieldToScroll).scrollBy({
-		top: fieldToScrollTop - fieldTop,
+		top:
+			fieldToScroll.getBoundingClientRect().top -
+			field.getBoundingClientRect().top,
 	});
 }
