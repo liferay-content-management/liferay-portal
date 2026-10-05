@@ -1113,6 +1113,102 @@ test(
 );
 
 test(
+	'Shows an unchanged file entry image in both versions',
+	{tag: '@LPD-106618'},
+	async ({apiHelpers, assetsPage, page}) => {
+		const title = `file compare ${getRandomString()}`;
+
+		const fileName = `compare_${getRandomString()}.jpg`;
+
+		const objectEntry =
+			await test.step('Publish a second version keeping the same file', async () => {
+				const entry = await apiHelpers.objectEntry.postObjectEntry(
+					{
+						file: {
+							fileBase64: fs
+								.readFileSync(
+									path.join(
+										__dirname,
+										'dependencies',
+										'file_upload_image_1.jpg'
+									)
+								)
+								.toString('base64'),
+							name: fileName,
+						},
+						objectEntryFolderExternalReferenceCode: 'L_FILES',
+						title,
+					},
+					'cms/basic-documents',
+					'Default'
+				);
+
+				await apiHelpers.objectEntry.patchObjectEntry(
+					{title: `${title} revised`},
+					'cms/basic-documents',
+					entry.id
+				);
+
+				return entry;
+			});
+
+		await test.step('Compare both versions from the version history', async () => {
+			await assetsPage.gotoFiles();
+
+			await assetsPage.execCardItemAction({
+				action: 'View History',
+				filter: title,
+			});
+
+			await page
+				.getByRole('button', {name: `${title} Actions`})
+				.first()
+				.click();
+
+			await page.getByRole('menuitem', {name: 'Compare to...'}).click();
+
+			await expect(
+				page
+					.frameLocator('iframe[title="Version 2"]')
+					.locator('.cms-compare-versions-attachment:visible')
+			).toHaveAttribute('src', new RegExp(`/documents/.*${fileName}`), {
+				timeout: 90000,
+			});
+
+			await page
+				.getByRole('combobox', {
+					name: 'Select a Version for Comparison',
+				})
+				.click();
+
+			await page.getByRole('option', {name: 'Version 1'}).click();
+		});
+
+		await test.step('Both versions show the image without a diff border', async () => {
+			for (const version of [1, 2]) {
+				const image = page
+					.frameLocator(`iframe[title="Version ${version}"]`)
+					.locator('.cms-compare-versions-attachment:visible');
+
+				await expect(image).toHaveAttribute(
+					'src',
+					new RegExp(`/documents/.*${fileName}`),
+					{timeout: 90000}
+				);
+				await expect(image).not.toHaveClass(
+					/border-(danger|success)/
+				);
+			}
+		});
+
+		await apiHelpers.objectEntry.deleteObjectEntry(
+			'cms/basic-documents',
+			String(objectEntry.id)
+		);
+	}
+);
+
+test(
 	'Aligns the same repeatable item in the other version',
 	{tag: '@LPD-106618'},
 	async ({

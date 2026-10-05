@@ -160,9 +160,11 @@ function applyFieldDiffs(
 					return;
 				}
 
-				image.classList.add(borderColorCssClass);
-
 				const mark = image.closest('[class*="diff-html"]');
+
+				if (mark) {
+					image.classList.add(borderColorCssClass);
+				}
 
 				formGroup.insertBefore(image, container);
 
