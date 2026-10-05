@@ -31,7 +31,7 @@ export function useVersionDiffs({
 	useEffect(() => {
 		setDiffs(null);
 
-		if (sourceVersion === null || targetVersion === null) {
+		if (sourceVersion === null && targetVersion === null) {
 			return;
 		}
 
@@ -43,8 +43,8 @@ export function useVersionDiffs({
 			}>(COMPARE_VERSIONS_URL, {
 				languageId,
 				objectEntryId,
-				sourceVersion,
-				targetVersion,
+				sourceVersion: sourceVersion ?? targetVersion,
+				targetVersion: targetVersion ?? sourceVersion,
 			});
 
 			if (stale) {
@@ -74,6 +74,8 @@ export function injectContentDiffs(
 	if (!iframeDocument) {
 		return;
 	}
+
+	iframeDocument.body.classList.add('cms-compare-versions-content');
 
 	removePreviousContentDiffs(iframeDocument);
 
@@ -118,6 +120,30 @@ function applyFieldDiffs(
 		container.className = `${
 			control?.className ?? 'form-control'
 		} cms-compare-versions-diff`;
+		container.tabIndex = 0;
+
+		container.setAttribute('aria-readonly', 'true');
+		container.setAttribute('role', 'textbox');
+
+		if (field.querySelector('textarea, .ck-editor')) {
+			container.setAttribute('aria-multiline', 'true');
+		}
+
+		const label = field.querySelector('label');
+
+		if (label) {
+			if (!label.id) {
+				label.id = `${fieldName}_compareVersionsLabel`;
+			}
+
+			container.setAttribute('aria-labelledby', label.id);
+		}
+		else {
+			container.setAttribute(
+				'aria-label',
+				control?.getAttribute('aria-label') ?? fieldName
+			);
+		}
 
 		// XSS: diffHTML is escaped by
 		// ObjectEntryVersionFieldValueResolver.toDisplayValue, except rich
@@ -136,9 +162,11 @@ function applyFieldDiffs(
 					return;
 				}
 
-				image.classList.add(borderColorCssClass);
-
 				const mark = image.closest('[class*="diff-html"]');
+
+				if (mark) {
+					image.classList.add(borderColorCssClass);
+				}
 
 				formGroup.insertBefore(image, container);
 

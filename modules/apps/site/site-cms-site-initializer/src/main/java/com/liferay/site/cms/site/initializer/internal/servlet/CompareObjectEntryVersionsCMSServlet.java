@@ -10,6 +10,7 @@ import com.liferay.document.library.helper.DLURLHelper;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
+import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectEntryLocalService;
@@ -31,6 +32,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.site.cms.site.initializer.internal.comparison.ObjectEntryVersionFieldValueResolver;
 
 import jakarta.servlet.Servlet;
@@ -150,6 +152,13 @@ public class CompareObjectEntryVersionsCMSServlet extends BaseCMSServlet {
 						targetFieldValues.get(fieldName));
 
 				if (sourceDisplayValue.equals(targetDisplayValue)) {
+					if (_isShownUnchanged(objectField, sourceDisplayValue)) {
+						sourceDiffsJSONObject.put(
+							fieldName, sourceDisplayValue);
+						targetDiffsJSONObject.put(
+							fieldName, targetDisplayValue);
+					}
+
 					continue;
 				}
 
@@ -191,6 +200,23 @@ public class CompareObjectEntryVersionsCMSServlet extends BaseCMSServlet {
 				_log.warn(exception);
 			}
 		}
+	}
+
+	private boolean _isShownUnchanged(
+		ObjectField objectField, String displayValue) {
+
+		if (objectField == null) {
+			return false;
+		}
+
+		if (ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT.equals(
+				objectField.getBusinessType())) {
+
+			return Validator.isNotNull(displayValue);
+		}
+
+		return ObjectFieldConstants.BUSINESS_TYPE_BOOLEAN.equals(
+			objectField.getBusinessType());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

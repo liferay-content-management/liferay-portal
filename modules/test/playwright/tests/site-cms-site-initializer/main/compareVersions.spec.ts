@@ -294,7 +294,17 @@ test(
 			}
 
 			await page.keyboard.press('Escape');
+		});
 
+		await test.step('A single version shows its boolean as text', async () => {
+			await expectDiffBoxToShow(
+				page.frameLocator('iframe[title="Version 2"]'),
+				'flag',
+				'Yes'
+			);
+		});
+
+		await test.step('Select the previous version as the target', async () => {
 			await page
 				.getByRole('combobox', {
 					name: 'Select a Version for Comparison',
@@ -319,6 +329,62 @@ test(
 			}
 		});
 
+		await test.step('Clicking a field scrolls the other version to the same field', async () => {
+			const leftField = leftFrame.locator(
+				'[data-field-name="ObjectField_flag"]'
+			);
+			const rightField = rightFrame.locator(
+				'[data-field-name="ObjectField_flag"]'
+			);
+
+			await leftField.evaluate((field) => field.scrollIntoView());
+
+			await getDiffBox(leftFrame, 'flag').click();
+
+			await expect(async () => {
+				const leftBox = await leftField.boundingBox();
+				const rightBox = await rightField.boundingBox();
+
+				expect(Math.abs(leftBox!.y - rightBox!.y)).toBeLessThan(1);
+			}).toPass({timeout: 10000});
+		});
+
+		await test.step('Moving the focus with the keyboard also aligns the other version', async () => {
+			await getDiffBox(rightFrame, 'words').click();
+
+			await rightFrame
+				.locator('[data-field-name="ObjectField_attachment"]')
+				.evaluate((field) => field.scrollIntoView());
+
+			await leftFrame
+				.locator('[data-field-name="ObjectField_title"]')
+				.evaluate((field) => field.scrollIntoView());
+
+			await page.keyboard.press('Tab');
+
+			const fieldName = await rightFrame
+				.locator(':focus')
+				.evaluate(
+					(element) =>
+						element.closest<HTMLElement>('[data-field-name]')
+							?.dataset.fieldName
+				);
+
+			expect(fieldName).toBeTruthy();
+			expect(fieldName).not.toBe('ObjectField_words');
+
+			await expect(async () => {
+				const leftBox = await leftFrame
+					.locator(`[data-field-name="${fieldName}"]`)
+					.boundingBox();
+				const rightBox = await rightFrame
+					.locator(`[data-field-name="${fieldName}"]`)
+					.boundingBox();
+
+				expect(Math.abs(leftBox!.y - rightBox!.y)).toBeLessThan(1);
+			}).toPass({timeout: 10000});
+		});
+
 		await test.step('Each pane marks its own value of every changed field', async () => {
 			const cases: [string, string, string][] = [
 				['title', revisedTitle, contentTitle],
@@ -335,6 +401,15 @@ test(
 			for (const [fieldName, leftValue, rightValue] of cases) {
 				await expectDiffBoxToShow(leftFrame, fieldName, leftValue);
 				await expectDiffBoxToShow(rightFrame, fieldName, rightValue);
+			}
+		});
+
+		await test.step('Each diff box is a read-only text box named after its field', async () => {
+			for (const label of ['Day', 'Flag', 'Story', 'Words']) {
+				const textbox = leftFrame.getByRole('textbox', {name: label});
+
+				await expect(textbox).toHaveAttribute('aria-readonly', 'true');
+				await expect(textbox).toHaveClass(/cms-compare-versions-diff/);
 			}
 		});
 
@@ -558,7 +633,7 @@ test(
 );
 
 test(
-	'Keeps both versions read only and aligned in a single scroll',
+	'Keeps both versions read only',
 	{tag: '@LPD-106618'},
 	async ({
 		apiHelpers,
@@ -568,8 +643,8 @@ test(
 		structureBuilderPage,
 	}) => {
 		const referencedStructureLabel = `Nested${getRandomInt()}`;
-		const structureLabel = `Scroll${getRandomInt()}`;
-		const contentTitle = `scroll content ${getRandomString()}`;
+		const structureLabel = `ReadOnly${getRandomInt()}`;
+		const contentTitle = `read only content ${getRandomString()}`;
 		const spaceName = `Space ${getRandomString()}`;
 
 		await test.step('Create a space and a structure with a repeatable group', async () => {
@@ -593,13 +668,13 @@ test(
 				publish: false,
 			});
 
-			await structureBuilderPage.addField('Long Text');
-
-			await structureBuilderPage.changeFieldSettings({label: 'Essay'});
-
 			await structureBuilderPage.addField('Decimal');
 
 			await structureBuilderPage.changeFieldSettings({label: 'Ratio'});
+
+			await structureBuilderPage.addField('Date');
+
+			await structureBuilderPage.changeFieldSettings({label: 'Day'});
 
 			await structureBuilderPage.addReferencedStructures([
 				referencedStructureLabel,
@@ -608,21 +683,15 @@ test(
 			await structureBuilderPage.publishStructure();
 		});
 
-		await test.step('Publish two versions with a long text', async () => {
+		await test.step('Publish two versions', async () => {
 			await contentsPage.goto();
 
 			await contentsPage.createContent(structureLabel, spaceName);
 
 			await contentsPage.fillData([
 				{label: 'Title', value: contentTitle},
-				{
-					label: 'Essay',
-					value: Array.from(
-						{length: 30},
-						(_, index) => `Line ${index + 1}.`
-					).join('\n'),
-				},
 				{label: 'Ratio', value: '1.5'},
+				{label: 'Day', type: 'Date', value: '08/28/2026'},
 			]);
 
 			await page
@@ -678,33 +747,9 @@ test(
 			await page.mouse.move(0, 0);
 		});
 
-		await test.step('Both versions scroll together in a single scroll', async () => {
+		await test.step('Each pane shows its own value of the changed field', async () => {
 			await expectDiffBoxToShow(leftFrame, 'ratio', '3.75');
 			await expectDiffBoxToShow(rightFrame, 'ratio', '1.5');
-
-			for (const frame of [leftFrame, rightFrame]) {
-				await expect(async () => {
-					const {clientHeight, scrollHeight} = await frame
-						.locator('#main-content')
-						.evaluate((element) => ({
-							clientHeight: element.clientHeight,
-							scrollHeight: element.scrollHeight,
-						}));
-
-					expect(scrollHeight).toBeLessThanOrEqual(clientHeight + 1);
-				}).toPass();
-			}
-
-			const panes = page.locator('.cms-compare-versions-panes');
-
-			const {clientHeight, scrollHeight} = await panes.evaluate(
-				(element) => ({
-					clientHeight: element.clientHeight,
-					scrollHeight: element.scrollHeight,
-				})
-			);
-
-			expect(scrollHeight).toBeGreaterThan(clientHeight);
 		});
 
 		await test.step('The repeatable group is read only', async () => {
@@ -717,6 +762,37 @@ test(
 
 				await expect(frame.getByText('Add New')).toHaveCount(0);
 			}
+		});
+
+		await test.step('An unchanged date keeps the read-only focus style', async () => {
+			const field = leftFrame.locator(
+				'[data-field-name="ObjectField_day"]'
+			);
+
+			const dateInput = field.locator('input.form-control');
+			const inputGroupItem = field.locator('.input-group-item-focusable');
+
+			const getStyle = () =>
+				inputGroupItem.evaluate(async (element) => {
+					await Promise.all(
+						element
+							.getAnimations()
+							.map((animation) => animation.finished)
+					);
+
+					const {backgroundColor, boxShadow} =
+						getComputedStyle(element);
+
+					return {backgroundColor, boxShadow};
+				});
+
+			const style = await getStyle();
+
+			await dateInput.click();
+
+			await expect(dateInput).toBeFocused();
+
+			expect(await getStyle()).toEqual(style);
 		});
 
 		await test.step('A changed field keeps the read-only input style', async () => {
@@ -1045,5 +1121,228 @@ test(
 			'cms/basic-documents',
 			String(objectEntry.id)
 		);
+	}
+);
+
+test(
+	'Shows an unchanged file entry image in both versions',
+	{tag: '@LPD-106618'},
+	async ({apiHelpers, assetsPage, page}) => {
+		const title = `file compare ${getRandomString()}`;
+
+		const fileName = `compare_${getRandomString()}.jpg`;
+
+		const objectEntry =
+			await test.step('Publish a second version keeping the same file', async () => {
+				const entry = await apiHelpers.objectEntry.postObjectEntry(
+					{
+						file: {
+							fileBase64: fs
+								.readFileSync(
+									path.join(
+										__dirname,
+										'dependencies',
+										'file_upload_image_1.jpg'
+									)
+								)
+								.toString('base64'),
+							name: fileName,
+						},
+						objectEntryFolderExternalReferenceCode: 'L_FILES',
+						title,
+					},
+					'cms/basic-documents',
+					'Default'
+				);
+
+				await apiHelpers.objectEntry.patchObjectEntry(
+					{title: `${title} revised`},
+					'cms/basic-documents',
+					entry.id
+				);
+
+				return entry;
+			});
+
+		await test.step('Compare both versions from the version history', async () => {
+			await assetsPage.gotoFiles();
+
+			await assetsPage.execCardItemAction({
+				action: 'View History',
+				filter: title,
+			});
+
+			await page
+				.getByRole('button', {name: `${title} Actions`})
+				.first()
+				.click();
+
+			await page.getByRole('menuitem', {name: 'Compare to...'}).click();
+
+			await expect(
+				page
+					.frameLocator('iframe[title="Version 2"]')
+					.locator('.cms-compare-versions-attachment:visible')
+			).toHaveAttribute('src', new RegExp(`/documents/.*${fileName}`), {
+				timeout: 90000,
+			});
+
+			await page
+				.getByRole('combobox', {
+					name: 'Select a Version for Comparison',
+				})
+				.click();
+
+			await page.getByRole('option', {name: 'Version 1'}).click();
+		});
+
+		await test.step('Both versions show the image without a diff border', async () => {
+			for (const version of [1, 2]) {
+				const image = page
+					.frameLocator(`iframe[title="Version ${version}"]`)
+					.locator('.cms-compare-versions-attachment:visible');
+
+				await expect(image).toHaveAttribute(
+					'src',
+					new RegExp(`/documents/.*${fileName}`),
+					{timeout: 90000}
+				);
+				await expect(image).not.toHaveClass(/border-(danger|success)/);
+			}
+		});
+
+		await apiHelpers.objectEntry.deleteObjectEntry(
+			'cms/basic-documents',
+			String(objectEntry.id)
+		);
+	}
+);
+
+test(
+	'Aligns the same repeatable item in the other version',
+	{tag: '@LPD-106618'},
+	async ({
+		apiHelpers,
+		assetsPage,
+		contentsPage,
+		page,
+		structureBuilderPage,
+	}) => {
+		const structureLabel = `Repeatable${getRandomInt()}`;
+		const contentTitle = `repeatable content ${getRandomString()}`;
+		const spaceName = `Space ${getRandomString()}`;
+
+		await test.step('Create a space and a structure with a repeatable group', async () => {
+			await apiHelpers.headlessAssetLibrary.createAssetLibrary({
+				name: spaceName,
+				settings: {},
+				type: 'Space',
+			});
+
+			await structureBuilderPage.createStructureFromData({
+				label: structureLabel,
+				name: structureLabel,
+				page: structureBuilderPage,
+				publish: false,
+			});
+
+			await structureBuilderPage.addField('Long Text');
+
+			await structureBuilderPage.changeFieldSettings({label: 'Intro'});
+
+			await structureBuilderPage.addField('Text');
+
+			await structureBuilderPage.changeFieldSettings({label: 'Note'});
+
+			await structureBuilderPage.createRepeatableGroup({
+				fields: [{label: 'Note'}],
+				label: 'Items',
+			});
+
+			await structureBuilderPage.publishStructure();
+		});
+
+		await test.step('Publish a second version with a shorter intro', async () => {
+			const objectDefinition =
+				await apiHelpers.objectAdmin.getObjectDefinitionByName(
+					structureLabel
+				);
+
+			const applicationName = objectDefinition.restContextPath.replace(
+				'/o/',
+				''
+			);
+			const items = Array.from({length: 6}, (_, index) => ({
+				externalReferenceCode: `note-${index}`,
+				note: `Note ${index}`,
+			}));
+			const relationshipName =
+				objectDefinition.objectRelationships[0].name;
+
+			const objectEntry = await apiHelpers.objectEntry.postObjectEntry(
+				{
+					intro: Array.from(
+						{length: 30},
+						(_, index) => `Intro line ${index}.`
+					).join('\n'),
+					objectEntryFolderExternalReferenceCode: 'L_CONTENTS',
+					[relationshipName]: items,
+					title: contentTitle,
+				},
+				applicationName,
+				spaceName
+			);
+
+			await apiHelpers.objectEntry.patchObjectEntry(
+				{intro: 'Short intro.', [relationshipName]: items},
+				applicationName,
+				objectEntry.id
+			);
+		});
+
+		await test.step('Open the comparison of both versions', async () => {
+			await contentsPage.goto();
+
+			await assetsPage.execItemAction({
+				action: 'View History',
+				filter: contentTitle,
+			});
+
+			await page
+				.getByRole('button', {name: `${contentTitle} Actions`})
+				.first()
+				.click();
+
+			await page.getByRole('menuitem', {name: 'Compare to...'}).click();
+
+			await page
+				.getByRole('combobox', {
+					name: 'Select a Version for Comparison',
+				})
+				.click();
+
+			await page.getByRole('option', {name: 'Version 1'}).click();
+		});
+
+		await test.step('Clicking a repeatable item scrolls the other version to the same item', async () => {
+			const getLastNote = (version: number) =>
+				page
+					.frameLocator(`iframe[title="Version ${version}"]`)
+					.locator('[data-field-name$="_note"]')
+					.nth(5);
+
+			await expect(getLastNote(1)).toBeAttached({timeout: 90000});
+
+			await getLastNote(2).locator('.form-control').first().click();
+
+			await expect(async () => {
+				const leftBox = await getLastNote(2).boundingBox();
+				const rightBox = await getLastNote(1).boundingBox();
+
+				expect(
+					Math.abs((leftBox?.y ?? 0) - (rightBox?.y ?? Infinity))
+				).toBeLessThan(2);
+			}).toPass({timeout: 10000});
+		});
 	}
 );
