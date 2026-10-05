@@ -37,6 +37,14 @@ components:
                     format: int64
                     readOnly: true
                     type: integer
+                longStandingDraftCount:
+                    format: int64
+                    readOnly: true
+                    type: integer
+                overdueWorkflowTaskCount:
+                    format: int64
+                    readOnly: true
+                    type: integer
                 pendingCount:
                     format: int64
                     readOnly: true
@@ -54,6 +62,10 @@ components:
                     readOnly: true
                     type: integer
                 upcomingReviewCount:
+                    format: int64
+                    readOnly: true
+                    type: integer
+                workflowTaskCount:
                     format: int64
                     readOnly: true
                     type: integer

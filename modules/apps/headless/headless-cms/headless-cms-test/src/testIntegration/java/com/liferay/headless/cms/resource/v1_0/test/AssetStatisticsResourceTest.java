@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -46,11 +47,14 @@ import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
+import com.liferay.portal.workflow.kaleo.service.KaleoTaskInstanceTokenLocalService;
 
 import java.io.Serializable;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -127,7 +131,7 @@ public class AssetStatisticsResourceTest
 			irrelevantObjectEntry.getObjectEntryId(),
 			WorkflowConstants.STATUS_DRAFT, serviceContext);
 
-		_assertAssetStatistics(groupId, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		_assertAssetStatistics(groupId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 		ObjectDefinition objectDefinition =
 			_getBasicWebContentObjectDefinition();
@@ -144,7 +148,7 @@ public class AssetStatisticsResourceTest
 
 		_objectEntryLocalService.updateObjectEntry(objectEntry1);
 
-		_assertAssetStatistics(groupId, 1, 0, 0, 0, 0, 0, 0, 1, 0);
+		_assertAssetStatistics(groupId, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0);
 
 		// Add object entry with future review date
 
@@ -155,7 +159,7 @@ public class AssetStatisticsResourceTest
 
 		_objectEntryLocalService.updateObjectEntry(objectEntry2);
 
-		_assertAssetStatistics(groupId, 2, 0, 0, 0, 0, 0, 0, 2, 1);
+		_assertAssetStatistics(groupId, 2, 0, 0, 0, 0, 0, 0, 0, 2, 1);
 
 		// Add object entry with imminent expiration date
 
@@ -167,7 +171,7 @@ public class AssetStatisticsResourceTest
 
 		_objectEntryLocalService.updateObjectEntry(objectEntry3);
 
-		_assertAssetStatistics(groupId, 3, 0, 1, 0, 0, 0, 0, 3, 1);
+		_assertAssetStatistics(groupId, 3, 0, 1, 0, 0, 0, 0, 0, 3, 1);
 
 		// Add object entry with already passed expiration date
 
@@ -179,7 +183,7 @@ public class AssetStatisticsResourceTest
 
 		_objectEntryLocalService.updateObjectEntry(objectEntry4);
 
-		_assertAssetStatistics(groupId, 4, 0, 2, 0, 0, 0, 0, 4, 1);
+		_assertAssetStatistics(groupId, 4, 0, 2, 0, 0, 0, 0, 0, 4, 1);
 
 		// Add object entry with overdue review date
 
@@ -190,7 +194,7 @@ public class AssetStatisticsResourceTest
 
 		_objectEntryLocalService.updateObjectEntry(objectEntry5);
 
-		_assertAssetStatistics(groupId, 5, 0, 2, 0, 0, 1, 0, 5, 1);
+		_assertAssetStatistics(groupId, 5, 0, 2, 0, 0, 0, 1, 0, 5, 1);
 
 		// Add object entry with status draft
 
@@ -201,7 +205,7 @@ public class AssetStatisticsResourceTest
 			TestPropsValues.getUserId(), objectEntry6.getObjectEntryId(),
 			WorkflowConstants.STATUS_DRAFT, serviceContext);
 
-		_assertAssetStatistics(groupId, 5, 0, 2, 1, 0, 1, 0, 6, 1);
+		_assertAssetStatistics(groupId, 5, 0, 2, 1, 0, 0, 1, 0, 6, 1);
 
 		// Add object entry with status expired
 
@@ -212,7 +216,7 @@ public class AssetStatisticsResourceTest
 			TestPropsValues.getUserId(), objectEntry7.getObjectEntryId(),
 			WorkflowConstants.STATUS_EXPIRED, serviceContext);
 
-		_assertAssetStatistics(groupId, 5, 1, 2, 1, 0, 1, 0, 7, 1);
+		_assertAssetStatistics(groupId, 5, 1, 2, 1, 0, 0, 1, 0, 7, 1);
 
 		// Add object entry in a status that is not visible in the All view
 
@@ -223,7 +227,36 @@ public class AssetStatisticsResourceTest
 			TestPropsValues.getUserId(), objectEntry8.getObjectEntryId(),
 			WorkflowConstants.STATUS_DENIED, serviceContext);
 
-		_assertAssetStatistics(groupId, 5, 1, 2, 1, 0, 1, 0, 7, 1);
+		_assertAssetStatistics(groupId, 5, 1, 2, 1, 0, 0, 1, 0, 7, 1);
+
+		// Add object entry with status draft not modified for more than 30 days
+
+		ObjectEntry objectEntry9 = _addObjectEntry(
+			depotEntry, objectDefinition);
+
+		objectEntry9 = _objectEntryLocalService.updateStatus(
+			TestPropsValues.getUserId(), objectEntry9.getObjectEntryId(),
+			WorkflowConstants.STATUS_DRAFT, serviceContext);
+
+		objectEntry9.setModifiedDate(
+			new Date(date.getTime() - (31 * Time.DAY)));
+
+		_objectEntryLocalService.updateObjectEntry(objectEntry9);
+
+		_assertAssetStatistics(groupId, 5, 1, 2, 2, 1, 0, 1, 0, 8, 1);
+
+		// Add object entry with status approved not modified for more than 30
+		// days
+
+		ObjectEntry objectEntry10 = _addObjectEntry(
+			depotEntry, objectDefinition);
+
+		objectEntry10.setModifiedDate(
+			new Date(date.getTime() - (31 * Time.DAY)));
+
+		_objectEntryLocalService.updateObjectEntry(objectEntry10);
+
+		_assertAssetStatistics(groupId, 6, 1, 2, 2, 1, 0, 1, 0, 9, 1);
 
 		_objectDefinitionLocalService.deleteObjectDefinition(
 			irrelevantObjectDefinition);
@@ -233,6 +266,7 @@ public class AssetStatisticsResourceTest
 		_testGetAssetStatisticsBrokenLinksCount();
 		_testGetAssetStatisticsByAssetLibrary();
 		_testGetAssetStatisticsWithFreeTier();
+		_testGetAssetStatisticsWorkflowTaskCounts();
 	}
 
 	@Override
@@ -305,9 +339,10 @@ public class AssetStatisticsResourceTest
 	private void _assertAssetStatistics(
 			Long assetLibraryId, long expectedApprovedCount,
 			long expectedExpiredCount, long expectedExpiringSoonCount,
-			long expectedInDraftCount, long expectedPendingCount,
-			long expectedReviewDateOverdueCount, long expectedScheduledCount,
-			long expectedTotalCount, long expectedUpcomingReviewCount)
+			long expectedInDraftCount, long expectedLongStandingDraftCount,
+			long expectedPendingCount, long expectedReviewDateOverdueCount,
+			long expectedScheduledCount, long expectedTotalCount,
+			long expectedUpcomingReviewCount)
 		throws Exception {
 
 		for (AssetStatisticsResource assetStatisticsResource :
@@ -328,6 +363,10 @@ public class AssetStatisticsResourceTest
 			Assert.assertEquals(
 				expectedInDraftCount,
 				GetterUtil.getLong(assetStatistics.getInDraftCount()));
+			Assert.assertEquals(
+				expectedLongStandingDraftCount,
+				GetterUtil.getLong(
+					assetStatistics.getLongStandingDraftCount()));
 			Assert.assertEquals(
 				expectedPendingCount,
 				GetterUtil.getLong(assetStatistics.getPendingCount()));
@@ -360,6 +399,27 @@ public class AssetStatisticsResourceTest
 			Assert.assertEquals(
 				expectedBrokenLinksCount,
 				GetterUtil.getLong(assetStatistics.getBrokenLinksCount()));
+		}
+	}
+
+	private void _assertWorkflowTaskCounts(
+			Long assetLibraryId, long expectedOverdueWorkflowTaskCount,
+			long expectedWorkflowTaskCount)
+		throws Exception {
+
+		for (AssetStatisticsResource assetStatisticsResource :
+				_assetStatisticsResources) {
+
+			AssetStatistics assetStatistics =
+				assetStatisticsResource.getAssetStatistics(assetLibraryId);
+
+			Assert.assertEquals(
+				expectedOverdueWorkflowTaskCount,
+				GetterUtil.getLong(
+					assetStatistics.getOverdueWorkflowTaskCount()));
+			Assert.assertEquals(
+				expectedWorkflowTaskCount,
+				GetterUtil.getLong(assetStatistics.getWorkflowTaskCount()));
 		}
 	}
 
@@ -478,15 +538,29 @@ public class AssetStatisticsResourceTest
 			TestPropsValues.getUserId(), pendingObjectEntry.getObjectEntryId(),
 			WorkflowConstants.STATUS_PENDING, serviceContext);
 
-		_assertAssetStatistics(
-			depotEntry1.getGroupId(), 2, 0, 0, 0, 0, 0, 0, 2, 1);
-		_assertAssetStatistics(
-			depotEntry1.getDepotEntryId(), 2, 0, 0, 0, 0, 0, 0, 2, 1);
+		ObjectEntry longStandingDraftObjectEntry = _addObjectEntry(
+			depotEntry2, objectDefinition);
+
+		longStandingDraftObjectEntry = _objectEntryLocalService.updateStatus(
+			TestPropsValues.getUserId(),
+			longStandingDraftObjectEntry.getObjectEntryId(),
+			WorkflowConstants.STATUS_DRAFT, serviceContext);
+
+		longStandingDraftObjectEntry.setModifiedDate(
+			new Date(date.getTime() - (31 * Time.DAY)));
+
+		_objectEntryLocalService.updateObjectEntry(
+			longStandingDraftObjectEntry);
 
 		_assertAssetStatistics(
-			depotEntry2.getGroupId(), 1, 0, 0, 0, 1, 0, 0, 2, 0);
+			depotEntry1.getGroupId(), 2, 0, 0, 0, 0, 0, 0, 0, 2, 1);
 		_assertAssetStatistics(
-			depotEntry2.getDepotEntryId(), 1, 0, 0, 0, 1, 0, 0, 2, 0);
+			depotEntry1.getDepotEntryId(), 2, 0, 0, 0, 0, 0, 0, 0, 2, 1);
+
+		_assertAssetStatistics(
+			depotEntry2.getGroupId(), 1, 0, 0, 1, 1, 1, 0, 0, 3, 0);
+		_assertAssetStatistics(
+			depotEntry2.getDepotEntryId(), 1, 0, 0, 1, 1, 1, 0, 0, 3, 0);
 
 		_depotEntryLocalService.deleteDepotEntry(depotEntry1.getDepotEntryId());
 		_depotEntryLocalService.deleteDepotEntry(depotEntry2.getDepotEntryId());
@@ -500,12 +574,103 @@ public class AssetStatisticsResourceTest
 		}
 	}
 
+	private void _testGetAssetStatisticsWorkflowTaskCounts() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		DepotEntry depotEntry1 = _addSpaceDepotEntry(serviceContext);
+		DepotEntry depotEntry2 = _addSpaceDepotEntry(serviceContext);
+
+		ObjectDefinition objectDefinition =
+			_getBasicWebContentObjectDefinition();
+
+		for (DepotEntry depotEntry :
+				new DepotEntry[] {depotEntry1, depotEntry2}) {
+
+			_workflowDefinitionLinkLocalService.updateWorkflowDefinitionLink(
+				TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
+				depotEntry.getGroupId(), objectDefinition.getClassName(), 0, 0,
+				"Single Approver", 1);
+		}
+
+		Date date = new Date();
+
+		// Add object entry with overdue workflow task
+
+		_updateKaleoTaskInstanceToken(
+			false, new Date(date.getTime() - Time.DAY), objectDefinition,
+			_addObjectEntry(depotEntry1, objectDefinition));
+
+		_assertWorkflowTaskCounts(depotEntry1.getGroupId(), 1, 1);
+
+		// Add object entry with workflow task due in the future
+
+		_updateKaleoTaskInstanceToken(
+			false, new Date(date.getTime() + Time.DAY), objectDefinition,
+			_addObjectEntry(depotEntry1, objectDefinition));
+
+		_assertWorkflowTaskCounts(depotEntry1.getGroupId(), 1, 2);
+
+		// Add object entry with workflow task without due date
+
+		_addObjectEntry(depotEntry1, objectDefinition);
+
+		_assertWorkflowTaskCounts(depotEntry1.getGroupId(), 1, 3);
+
+		// Add object entry with completed workflow task past its due date
+
+		_updateKaleoTaskInstanceToken(
+			true, new Date(date.getTime() - Time.DAY), objectDefinition,
+			_addObjectEntry(depotEntry1, objectDefinition));
+
+		_assertWorkflowTaskCounts(depotEntry1.getGroupId(), 1, 4);
+
+		// Add object entry with overdue workflow task on another space
+
+		_updateKaleoTaskInstanceToken(
+			false, new Date(date.getTime() - Time.DAY), objectDefinition,
+			_addObjectEntry(depotEntry2, objectDefinition));
+
+		_assertWorkflowTaskCounts(depotEntry1.getGroupId(), 1, 4);
+		_assertWorkflowTaskCounts(depotEntry1.getDepotEntryId(), 1, 4);
+
+		_assertWorkflowTaskCounts(depotEntry2.getGroupId(), 1, 1);
+		_assertWorkflowTaskCounts(depotEntry2.getDepotEntryId(), 1, 1);
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry1.getDepotEntryId());
+		_depotEntryLocalService.deleteDepotEntry(depotEntry2.getDepotEntryId());
+	}
+
+	private void _updateKaleoTaskInstanceToken(
+			boolean completed, Date dueDate, ObjectDefinition objectDefinition,
+			ObjectEntry objectEntry)
+		throws Exception {
+
+		List<KaleoTaskInstanceToken> kaleoTaskInstanceTokens =
+			_kaleoTaskInstanceTokenLocalService.getKaleoTaskInstanceTokens(
+				objectDefinition.getClassName(),
+				objectEntry.getObjectEntryId());
+
+		KaleoTaskInstanceToken kaleoTaskInstanceToken =
+			kaleoTaskInstanceTokens.get(0);
+
+		kaleoTaskInstanceToken.setCompleted(completed);
+		kaleoTaskInstanceToken.setDueDate(dueDate);
+
+		_kaleoTaskInstanceTokenLocalService.updateKaleoTaskInstanceToken(
+			kaleoTaskInstanceToken);
+	}
+
 	private AssetStatisticsResource[] _assetStatisticsResources;
 	private User _cmsAdministratorUser;
 	private User _companyAdminUser;
 
 	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;
+
+	@Inject
+	private KaleoTaskInstanceTokenLocalService
+		_kaleoTaskInstanceTokenLocalService;
 
 	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
@@ -521,5 +686,9 @@ public class AssetStatisticsResourceTest
 
 	@Inject
 	private UserLocalService _userLocalService;
+
+	@Inject
+	private WorkflowDefinitionLinkLocalService
+		_workflowDefinitionLinkLocalService;
 
 }
