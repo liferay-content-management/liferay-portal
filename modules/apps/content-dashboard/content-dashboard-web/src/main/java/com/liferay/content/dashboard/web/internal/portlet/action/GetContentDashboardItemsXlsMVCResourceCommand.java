@@ -363,7 +363,7 @@ public class GetContentDashboardItemsXlsMVCResourceCommand
 
 	private String _toString(ThemeDisplay themeDisplay, Object value) {
 		if (value instanceof Date) {
-			return _toString(themeDisplay, (Date)value);
+			return _toString((Date)value, themeDisplay);
 		}
 
 		if (value == null) {
