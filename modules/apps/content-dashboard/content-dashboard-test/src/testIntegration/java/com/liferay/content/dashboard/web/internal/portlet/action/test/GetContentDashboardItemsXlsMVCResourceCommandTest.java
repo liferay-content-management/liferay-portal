@@ -9,6 +9,10 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.content.dashboard.web.test.util.ContentDashboardTestUtil;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.journal.constants.JournalFolderConstants;
+import com.liferay.journal.model.JournalArticle;
+import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
@@ -24,6 +28,8 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LoggerTestUtil;
@@ -38,6 +44,7 @@ import java.text.Format;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -87,12 +94,6 @@ public class GetContentDashboardItemsXlsMVCResourceCommandTest {
 			"application/pdf", new byte[0], createDate, null, createDate,
 			serviceContext);
 
-		List<String> expectedWorkbookHeaders = ListUtil.fromArray(
-			"ID", "Title", "Author", "Type", "Subtype", "Site or Asset Library",
-			"Status", "Categories", "Tags", "Modified Date", "Review Date",
-			"Description", "Extension", "File Name", "Size", "Display Date",
-			"Creation Date", "Languages Translated Into");
-
 		List<String> expectedWorkbookValues = ListUtil.fromArray(
 			String.valueOf(fileEntry.getFileEntryId()), "fileName.pdf",
 			"Test Test", "Document", "Basic Document (Vectorial)",
@@ -104,13 +105,42 @@ public class GetContentDashboardItemsXlsMVCResourceCommandTest {
 			FileEntry.class.getName(), _group.getGroupId());
 
 		_assertWorkbook(
-			expectedWorkbookHeaders, expectedWorkbookValues,
+			expectedWorkbookValues,
+			new HSSFWorkbook(
+				new ByteArrayInputStream(byteArrayOutputStream.toByteArray())));
+	}
+
+	@Test
+	public void testServeResourceWithJournalArticle() throws Exception {
+		JournalArticle journalArticle = JournalTestUtil.addArticle(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		Locale locale = LocaleUtil.getSiteDefault();
+
+		DDMStructure ddmStructure = journalArticle.getDDMStructure();
+
+		List<String> expectedWorkbookValues = ListUtil.fromArray(
+			String.valueOf(journalArticle.getResourcePrimKey()),
+			journalArticle.getTitle(locale), "Test Test", "Web Content Article",
+			ddmStructure.getName(locale), _group.getName(locale), "Approved",
+			"", "", _toString(journalArticle.getModifiedDate()),
+			StringPool.DASH, journalArticle.getDescription(locale), "", "", "",
+			_toString(journalArticle.getDisplayDate()),
+			_toString(journalArticle.getCreateDate()),
+			StringUtil.merge(
+				journalArticle.getAvailableLanguageIds(), StringPool.COMMA));
+
+		ByteArrayOutputStream byteArrayOutputStream = _serveResource(
+			JournalArticle.class.getName(), _group.getGroupId());
+
+		_assertWorkbook(
+			expectedWorkbookValues,
 			new HSSFWorkbook(
 				new ByteArrayInputStream(byteArrayOutputStream.toByteArray())));
 	}
 
 	private void _assertWorkbook(
-		List<String> expectedWorkbookHeaders,
 		List<String> expectedWorkbookValues, Workbook actualWorkbook) {
 
 		Assert.assertEquals(1, actualWorkbook.getNumberOfSheets());
@@ -119,7 +149,7 @@ public class GetContentDashboardItemsXlsMVCResourceCommandTest {
 
 		Assert.assertEquals(1, actualWorkbookSheet.getLastRowNum());
 		_assertWorkbookRow(
-			expectedWorkbookHeaders, actualWorkbookSheet.getRow(0));
+			_expectedWorkbookHeaders, actualWorkbookSheet.getRow(0));
 		_assertWorkbookRow(
 			expectedWorkbookValues, actualWorkbookSheet.getRow(1));
 	}
@@ -192,6 +222,13 @@ public class GetContentDashboardItemsXlsMVCResourceCommandTest {
 
 		return format.format(date);
 	}
+
+	private static final List<String> _expectedWorkbookHeaders =
+		ListUtil.fromArray(
+			"ID", "Title", "Author", "Type", "Subtype", "Site or Asset Library",
+			"Status", "Categories", "Tags", "Modified Date", "Review Date",
+			"Description", "Extension", "File Name", "Size", "Display Date",
+			"Creation Date", "Languages Translated Into");
 
 	@DeleteAfterTestRun
 	private Group _group;
