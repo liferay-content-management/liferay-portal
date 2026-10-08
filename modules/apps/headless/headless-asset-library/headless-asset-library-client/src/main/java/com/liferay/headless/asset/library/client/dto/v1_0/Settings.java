@@ -89,6 +89,27 @@ public class Settings implements Cloneable, Serializable {
 
 	protected String defaultLanguageId;
 
+	public String getGoogleMapsAPIKey() {
+		return googleMapsAPIKey;
+	}
+
+	public void setGoogleMapsAPIKey(String googleMapsAPIKey) {
+		this.googleMapsAPIKey = googleMapsAPIKey;
+	}
+
+	public void setGoogleMapsAPIKey(
+		UnsafeSupplier<String, Exception> googleMapsAPIKeyUnsafeSupplier) {
+
+		try {
+			googleMapsAPIKey = googleMapsAPIKeyUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String googleMapsAPIKey;
+
 	public String getLogoColor() {
 		return logoColor;
 	}
@@ -109,6 +130,36 @@ public class Settings implements Cloneable, Serializable {
 	}
 
 	protected String logoColor;
+
+	public MapProviderKey getMapProviderKey() {
+		return mapProviderKey;
+	}
+
+	public String getMapProviderKeyAsString() {
+		if (mapProviderKey == null) {
+			return null;
+		}
+
+		return mapProviderKey.toString();
+	}
+
+	public void setMapProviderKey(MapProviderKey mapProviderKey) {
+		this.mapProviderKey = mapProviderKey;
+	}
+
+	public void setMapProviderKey(
+		UnsafeSupplier<MapProviderKey, Exception>
+			mapProviderKeyUnsafeSupplier) {
+
+		try {
+			mapProviderKey = mapProviderKeyUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected MapProviderKey mapProviderKey;
 
 	public MimeTypeLimit[] getMimeTypeLimits() {
 		return mimeTypeLimits;
@@ -247,5 +298,38 @@ public class Settings implements Cloneable, Serializable {
 		return SettingsSerDes.toJSON(this);
 	}
 
+	public static enum MapProviderKey {
+
+		GOOGLE_MAPS("GoogleMaps"), OPEN_STREET_MAP("OpenStreetMap");
+
+		public static MapProviderKey create(String value) {
+			for (MapProviderKey mapProviderKey : values()) {
+				if (Objects.equals(mapProviderKey.getValue(), value) ||
+					Objects.equals(mapProviderKey.name(), value)) {
+
+					return mapProviderKey;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private MapProviderKey(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
+
 }
-// LIFERAY-REST-BUILDER-HASH:-679471414
+// LIFERAY-REST-BUILDER-HASH:-528503783
