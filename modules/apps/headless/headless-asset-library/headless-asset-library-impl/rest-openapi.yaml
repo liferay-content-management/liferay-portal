@@ -290,7 +290,14 @@ components:
                     type: array
                 defaultLanguageId:
                     type: string
+                googleMapsAPIKey:
+                    type: string
                 logoColor:
+                    type: string
+                mapProviderKey:
+                    description:
+                        Sets the maps API provider to use when displaying geolocalized assets.
+                    enum: [GoogleMaps, OpenStreetMap]
                     type: string
                 mimeTypeLimits:
                     items:

@@ -17,7 +17,9 @@ import com.liferay.headless.asset.library.dto.v1_0.Settings;
 import com.liferay.headless.asset.library.internal.resource.v1_0.BaseAssetLibraryResourceImpl;
 import com.liferay.headless.asset.library.internal.util.AssetLibraryUtil;
 import com.liferay.headless.asset.library.internal.util.CreatorUtil;
+import com.liferay.map.constants.MapProviderWebKeys;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -217,9 +219,32 @@ public class AssetLibraryDTOConverter
 				setDefaultLanguageId(
 					() -> GetterUtil.getString(
 						unicodeProperties.get("languageId")));
+				setGoogleMapsAPIKey(
+					() -> {
+						if (!FeatureFlagManagerUtil.isEnabled(
+								group.getCompanyId(), "LPD-11388")) {
+
+							return null;
+						}
+
+						return GetterUtil.getString(
+							unicodeProperties.getProperty("googleMapsAPIKey"));
+					});
 				setLogoColor(
 					() -> GetterUtil.get(
 						unicodeProperties.get("logoColor"), "outline-0"));
+				setMapProviderKey(
+					() -> {
+						if (!FeatureFlagManagerUtil.isEnabled(
+								group.getCompanyId(), "LPD-11388")) {
+
+							return null;
+						}
+
+						return Settings.MapProviderKey.create(
+							unicodeProperties.getProperty(
+								MapProviderWebKeys.MAP_PROVIDER_KEY));
+					});
 				setMimeTypeLimits(() -> _getMimeTypeLimits(group.getGroupId()));
 				setSharingEnabled(
 					() -> GetterUtil.getBoolean(
