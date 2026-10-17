@@ -9,6 +9,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.document.library.kernel.exception.FileEntryLockException;
+import com.liferay.document.library.kernel.exception.NoSuchFileVersionException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.document.library.kernel.model.DLFileVersion;
@@ -16,6 +17,7 @@ import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
 import com.liferay.document.library.kernel.service.DLAppServiceUtil;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileVersionLocalServiceUtil;
 import com.liferay.document.library.kernel.store.DLStoreRequest;
 import com.liferay.document.library.kernel.store.DLStoreUtil;
 import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
@@ -34,6 +36,8 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.test.AssertUtils;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -437,6 +441,55 @@ public class DLCheckInCheckOutTest {
 		Assert.assertEquals("PWC", fileVersion.getVersion());
 
 		getAssetEntry(fileVersion.getFileVersionId(), true);
+	}
+
+	@Test
+	@TestInfo("LPD-110125")
+	public void testCheckOutWithExistingDLFileVersionIdFromAnotherFileEntry()
+		throws Exception {
+
+		FileEntry otherFileEntry = null;
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				_overriderUser)) {
+
+			otherFileEntry = createFileEntry(StringUtil.randomString());
+		}
+
+		DLFileEntry otherDLFileEntry =
+			DLFileEntryLocalServiceUtil.getDLFileEntry(
+				otherFileEntry.getFileEntryId());
+
+		DLFileVersion originalOtherDLFileVersion =
+			otherDLFileEntry.getFileVersion();
+
+		long otherFileVersionId = originalOtherDLFileVersion.getFileVersionId();
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId(), 0);
+
+		serviceContext.setAttribute(
+			"existingDLFileVersionId", otherFileVersionId);
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				_authorUser)) {
+
+			FileEntry fileEntry = createFileEntry(StringUtil.randomString());
+
+			AssertUtils.assertFailure(
+				NoSuchFileVersionException.class,
+				"No DLFileVersion exists with the primary key " +
+					otherFileVersionId,
+				() -> DLAppServiceUtil.checkOutFileEntry(
+					fileEntry.getFileEntryId(), serviceContext));
+		}
+
+		DLFileVersion otherDLFileVersion =
+			DLFileVersionLocalServiceUtil.getDLFileVersion(otherFileVersionId);
+
+		Assert.assertEquals("1.0", otherDLFileVersion.getVersion());
+		Assert.assertEquals(
+			_overriderUser.getUserId(), otherDLFileVersion.getUserId());
 	}
 
 	@Test
