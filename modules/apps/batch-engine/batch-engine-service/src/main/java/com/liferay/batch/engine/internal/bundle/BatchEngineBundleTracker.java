@@ -48,6 +48,10 @@ public class BatchEngineBundleTracker {
 
 		InitialRequestSyncUtil.registerSyncCallable(
 			() -> {
+				if (_deactivated) {
+					return null;
+				}
+
 				ServiceLatch serviceLatch = new ServiceLatch(bundleContext);
 
 				serviceLatch.waitFor(
@@ -64,7 +68,11 @@ public class BatchEngineBundleTracker {
 						_multiCompanyBatchEngineUnitProcessor =
 							multiCompanyBatchEngineUnitProcessor
 				).openOn(
-					_bundleTracker::open
+					() -> {
+						if (!_deactivated) {
+							_bundleTracker.open();
+						}
+					}
 				);
 
 				return null;
@@ -73,6 +81,8 @@ public class BatchEngineBundleTracker {
 
 	@Deactivate
 	protected void deactivate() {
+		_deactivated = true;
+
 		_bundleTracker.close();
 	}
 
@@ -82,6 +92,7 @@ public class BatchEngineBundleTracker {
 	private BatchEngineUnitProcessor _batchEngineUnitProcessor;
 	private BatchEngineUnitReader _batchEngineUnitReader;
 	private BundleTracker<Bundle> _bundleTracker;
+	private volatile boolean _deactivated;
 	private MultiCompanyBatchEngineUnitProcessor
 		_multiCompanyBatchEngineUnitProcessor;
 
