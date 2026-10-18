@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {CKEditor5BalloonEditor} from 'frontend-editor-ckeditor-web';
-import React from 'react';
+import {CKEditor5BalloonEditor, TEditor} from 'frontend-editor-ckeditor-web';
+import React, {useEffect, useRef} from 'react';
 
 import {config} from '../../../app/config/index';
 import getCKEditorConfig, {
@@ -18,6 +18,16 @@ export default function CKEditor({
 	initialData: string;
 	onChange: (value: string) => void;
 }) {
+	const editorRef = useRef<TEditor | null>(null);
+
+	useEffect(() => {
+		const editor = editorRef.current;
+
+		if (!initialData && editor?.getData()) {
+			editor.setData('');
+		}
+	}, [initialData]);
+
 	const {editorConfig: initialConfig} =
 		config.defaultEditorConfigurations['comment'];
 
@@ -35,6 +45,9 @@ export default function CKEditor({
 				initialData,
 			})}
 			onChange={(event, editor) => onChange(editor.getData())}
+			onReady={(editor) => {
+				editorRef.current = editor;
+			}}
 		/>
 	);
 }
