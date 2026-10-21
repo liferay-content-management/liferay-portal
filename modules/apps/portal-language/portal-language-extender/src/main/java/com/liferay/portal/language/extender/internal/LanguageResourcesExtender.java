@@ -90,6 +90,10 @@ public class LanguageResourcesExtender
 
 		DependencyManagerSyncUtil.registerSyncCallable(
 			() -> {
+				if (_deactivated) {
+					return null;
+				}
+
 				bundleContext.addServiceListener(
 					_serviceListener,
 					StringBundler.concat(
@@ -104,6 +108,8 @@ public class LanguageResourcesExtender
 
 	@Deactivate
 	protected void deactivate() {
+		_deactivated = true;
+
 		_bundleContext.removeServiceListener(_serviceListener);
 
 		_bundleTracker.close();
@@ -111,6 +117,7 @@ public class LanguageResourcesExtender
 
 	private BundleContext _bundleContext;
 	private BundleTracker<?> _bundleTracker;
+	private volatile boolean _deactivated;
 	private final ServiceListener _serviceListener =
 		serviceEvent -> CacheResourceBundleLoader.clearCache();
 
