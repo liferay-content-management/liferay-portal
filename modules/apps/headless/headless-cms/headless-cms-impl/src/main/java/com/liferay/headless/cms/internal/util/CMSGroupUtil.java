@@ -8,7 +8,13 @@ package com.liferay.headless.cms.internal.util;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.depot.service.DepotEntryService;
+import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.vulcan.util.GroupUtil;
 
@@ -40,12 +46,27 @@ public class CMSGroupUtil {
 	}
 
 	public static Long[] getSpaceGroupIds(
-		long companyId, DepotEntryService depotEntryService, long userId) {
+			long companyId, DepotEntryService depotEntryService, long userId)
+		throws PortalException {
 
-		List<Long> depotEntryGroupIds = depotEntryService.getDepotEntryGroupIds(
-			companyId, userId, DepotConstants.TYPE_SPACE);
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
 
-		return depotEntryGroupIds.toArray(new Long[0]);
+		List<Long> spaceGroupIds = TransformUtil.unsafeTransform(
+			depotEntryService.getDepotEntryGroupIds(
+				companyId, userId, DepotConstants.TYPE_SPACE),
+			groupId -> {
+				if (!GroupPermissionUtil.contains(
+						permissionChecker, groupId,
+						ActionKeys.VIEW_SITE_ADMINISTRATION)) {
+
+					return null;
+				}
+
+				return groupId;
+			});
+
+		return spaceGroupIds.toArray(new Long[0]);
 	}
 
 }
