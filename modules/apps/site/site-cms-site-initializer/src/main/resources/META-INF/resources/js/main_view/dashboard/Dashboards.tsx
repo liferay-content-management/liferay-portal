@@ -34,7 +34,10 @@ const ORDERED_TAB_IDS: TabId[] = ['governance', 'inventory', 'performance'];
 
 function isTabEnabled(tabId: TabId, administeredSpaceIds: string[]) {
 	if (tabId === 'governance') {
-		return Boolean(Liferay.FeatureFlags['LPD-82226']);
+		return (
+			Boolean(Liferay.FeatureFlags['LPD-82226']) &&
+			Boolean(administeredSpaceIds.length)
+		);
 	}
 
 	if (tabId === 'performance') {
@@ -47,6 +50,7 @@ function isTabEnabled(tabId: TabId, administeredSpaceIds: string[]) {
 function Wrapper({
 	additionalProps,
 	admin,
+	administeredSpaceGroupIds,
 	administeredSpaceIds,
 	analyticsEnabled,
 	constants,
@@ -55,6 +59,7 @@ function Wrapper({
 }: {
 	additionalProps: DashboardAdditionalProps & GovernanceAdditionalProps;
 	admin: boolean;
+	administeredSpaceGroupIds: string[];
 	administeredSpaceIds: string[];
 	analyticsEnabled: boolean;
 	constants: {[key: string]: string};
@@ -73,6 +78,7 @@ function Wrapper({
 				<Dashboards
 					additionalProps={additionalProps}
 					admin={admin}
+					administeredSpaceGroupIds={administeredSpaceGroupIds}
 					administeredSpaceIds={administeredSpaceIds}
 					analyticsEnabled={analyticsEnabled}
 					constants={constants}
@@ -87,6 +93,7 @@ function Wrapper({
 function Dashboards({
 	additionalProps,
 	admin,
+	administeredSpaceGroupIds,
 	administeredSpaceIds,
 	analyticsEnabled,
 	constants,
@@ -95,6 +102,7 @@ function Dashboards({
 }: {
 	additionalProps: DashboardAdditionalProps & GovernanceAdditionalProps;
 	admin: boolean;
+	administeredSpaceGroupIds: string[];
 	administeredSpaceIds: string[];
 	analyticsEnabled: boolean;
 	constants: {[key: string]: string};
@@ -133,7 +141,11 @@ function Dashboards({
 
 			<ClayLayout.Container className="px-4" fluid>
 				{tabId === 'governance' ? (
-					<GovernanceDashboard additionalProps={additionalProps} />
+					<GovernanceDashboard
+						additionalProps={additionalProps}
+						spaceGroupIds={administeredSpaceGroupIds}
+						spaceIds={administeredSpaceIds}
+					/>
 				) : null}
 
 				{tabId === 'inventory' ? (

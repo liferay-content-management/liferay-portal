@@ -26,11 +26,9 @@ const ALWAYS_VISIBLE_SECTIONS = [
 	'Recycle Bin',
 ];
 
-const CMS_ADMIN_ONLY_SECTIONS = [
-	'Dashboard',
-	'Content Structures',
-	'Categorization',
-];
+const CMS_ADMIN_ONLY_SECTIONS = ['Content Structures', 'Categorization'];
+
+const SPACE_ADMIN_SECTIONS = ['Dashboard'];
 
 function createSpace(apiHelpers: DataApiHelpers, spaceName: string) {
 	return apiHelpers.headlessAssetLibrary.createAssetLibrary({
@@ -134,7 +132,11 @@ test(
 
 		await expectSectionsVisibility(page, {
 			hidden: [],
-			visible: [...ALWAYS_VISIBLE_SECTIONS, ...CMS_ADMIN_ONLY_SECTIONS],
+			visible: [
+				...ALWAYS_VISIBLE_SECTIONS,
+				...SPACE_ADMIN_SECTIONS,
+				...CMS_ADMIN_ONLY_SECTIONS,
+			],
 		});
 	}
 );
@@ -150,7 +152,7 @@ test(
 		await test.step('A Space Member sees only the allowed CMS sections', () =>
 			expectAllowedSectionsForRole({
 				apiHelpers,
-				hidden: CMS_ADMIN_ONLY_SECTIONS,
+				hidden: [...SPACE_ADMIN_SECTIONS, ...CMS_ADMIN_ONLY_SECTIONS],
 				page,
 				role: null,
 				spaceName,
@@ -161,7 +163,7 @@ test(
 		await test.step('A Content Reviewer sees only the allowed CMS sections', () =>
 			expectAllowedSectionsForRole({
 				apiHelpers,
-				hidden: CMS_ADMIN_ONLY_SECTIONS,
+				hidden: [...SPACE_ADMIN_SECTIONS, ...CMS_ADMIN_ONLY_SECTIONS],
 				page,
 				role: 'Space Content Reviewer',
 				spaceName,
@@ -177,7 +179,7 @@ test(
 				role: 'Space Administrator',
 				spaceName,
 				spaceSummaryPage,
-				visible: ALWAYS_VISIBLE_SECTIONS,
+				visible: [...ALWAYS_VISIBLE_SECTIONS, ...SPACE_ADMIN_SECTIONS],
 			}));
 	}
 );

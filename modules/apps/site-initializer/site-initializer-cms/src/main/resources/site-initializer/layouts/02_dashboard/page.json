@@ -52,6 +52,13 @@
 			"actionIds": [
 				"VIEW"
 			],
+			"roleName": "Asset Library Administrator",
+			"scope": 4
+		},
+		{
+			"actionIds": [
+				"VIEW"
+			],
 			"roleName": "CMS Administrator",
 			"scope": 4
 		},

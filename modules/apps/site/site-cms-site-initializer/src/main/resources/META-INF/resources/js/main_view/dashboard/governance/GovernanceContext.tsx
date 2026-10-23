@@ -15,23 +15,35 @@ import {SpaceOption, initialSpace} from '../common/SpacePicker';
 import GovernanceService, {AssetStatistics} from './GovernanceService';
 
 type State = {
+	groupIds: number[];
 	loadingStatistics: boolean;
 	reloadStatistics: () => void;
 	setSpace: (space: SpaceOption) => void;
 	space: SpaceOption;
+	spaceIds: string[];
 	statistics?: AssetStatistics;
 };
 
 const GovernanceContext = createContext<State>({
+	groupIds: [],
 	loadingStatistics: true,
 	reloadStatistics: () => {},
 	setSpace: () => {},
 	space: initialSpace,
+	spaceIds: [],
 });
 
 GovernanceContext.displayName = 'GovernanceContext';
 
-function GovernanceContextProvider({children}: {children: React.ReactNode}) {
+function GovernanceContextProvider({
+	children,
+	spaceGroupIds,
+	spaceIds,
+}: {
+	children: React.ReactNode;
+	spaceGroupIds: string[];
+	spaceIds: string[];
+}) {
 	const [space, setSpace] = useState<SpaceOption>(initialSpace);
 	const [statistics, setStatistics] = useState<AssetStatistics>();
 	const [loadingStatistics, setLoadingStatistics] = useState(true);
@@ -66,15 +78,32 @@ function GovernanceContextProvider({children}: {children: React.ReactNode}) {
 		[]
 	);
 
+	const groupIds = useMemo(() => {
+		if (space.value === initialSpace.value) {
+			return spaceGroupIds.map(Number);
+		}
+
+		return space.siteId ? [space.siteId] : [];
+	}, [space, spaceGroupIds]);
+
 	const value = useMemo(
 		() => ({
+			groupIds,
 			loadingStatistics,
 			reloadStatistics,
 			setSpace,
 			space,
+			spaceIds,
 			statistics,
 		}),
-		[loadingStatistics, reloadStatistics, space, statistics]
+		[
+			groupIds,
+			loadingStatistics,
+			reloadStatistics,
+			space,
+			spaceIds,
+			statistics,
+		]
 	);
 
 	return (
