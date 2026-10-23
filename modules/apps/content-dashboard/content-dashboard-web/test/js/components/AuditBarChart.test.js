@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {cleanup, render} from '@testing-library/react';
+import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -20,7 +20,7 @@ jest.mock('recharts', () => {
 	return {
 		...OriginalModule,
 		ResponsiveContainer: ({children}) => (
-			<OriginalModule.ResponsiveContainer aspect={1} width={100}>
+			<OriginalModule.ResponsiveContainer aspect={1} width={1000}>
 				{children}
 			</OriginalModule.ResponsiveContainer>
 		),
@@ -225,6 +225,22 @@ const mockTwoVocabulariesWithNoneCategory = [
 	},
 ];
 
+const mockTwoVocabulariesWithThreeStages = [
+	'Subaudience_1',
+	'Subaudience_2',
+	'Subaudience_3',
+].map((name, index) => ({
+	categories: ['Substage_1', 'Substage_2', 'Substage_3'].map((stageName) => ({
+		key: stageName.toLowerCase(),
+		name: stageName,
+		value: index + 1,
+		vocabularyName: 'Stage',
+	})),
+	key: name.toLowerCase(),
+	name,
+	vocabularyName: 'Audience',
+}));
+
 describe('AuditBarChart', () => {
 	const {ResizeObserver} = window;
 
@@ -239,6 +255,7 @@ describe('AuditBarChart', () => {
 
 	afterEach(() => {
 		jest.clearAllMocks();
+		jest.useRealTimers();
 	});
 
 	afterAll(() => {
@@ -342,6 +359,68 @@ describe('AuditBarChart', () => {
 			'recharts-layer recharts-bar-rectangle'
 		);
 		expect(bars.length).toBe(6);
+	});
+
+	it('hides the bars of an unchecked category from the legend and keeps the colors of the other categories', () => {
+		jest.useFakeTimers();
+
+		const {container} = render(
+			<AuditBarChart
+				namespace="demo_namespace"
+				rtl={false}
+				vocabularies={mockTwoVocabulariesWithThreeStages}
+			/>
+		);
+
+		const bars = container.getElementsByClassName(
+			'recharts-layer recharts-bar-rectangle'
+		);
+
+		expect(bars.length).toBe(9);
+
+		const getLegendColorStyle = () =>
+			Array.from(document.head.querySelectorAll('style'))
+				.map((style) => style.textContent)
+				.join('');
+
+		const legendColorStyle = getLegendColorStyle();
+
+		[
+			['substage_1', '#4B9FFF'],
+			['substage_2', '#FFB46E'],
+			['substage_3', '#FF5F5F'],
+		].forEach(([dataKey, color]) => {
+			expect(legendColorStyle).toMatch(
+				new RegExp(
+					`custom-control-color-${dataKey}\\.custom-control-input:checked ~\\s*\\.custom-control-label::before \\{\\s*background-color: ${color};`
+				)
+			);
+		});
+
+		fireEvent.click(screen.getByRole('checkbox', {name: 'Substage_2'}));
+
+		act(() => {
+			jest.runAllTimers();
+		});
+
+		expect(
+			screen.getByRole('checkbox', {name: 'Substage_2'})
+		).not.toBeChecked();
+		expect(
+			screen.getByRole('checkbox', {name: 'Substage_1'})
+		).toBeChecked();
+		expect(
+			screen.getByRole('checkbox', {name: 'Substage_3'})
+		).toBeChecked();
+		expect(bars.length).toBe(6);
+		expect(
+			new Set(
+				Array.from(bars, (bar) =>
+					bar.querySelector('path').getAttribute('fill')
+				)
+			)
+		).toEqual(new Set(['#4B9FFF', '#FF5F5F']));
+		expect(getLegendColorStyle()).toBe(legendColorStyle);
 	});
 
 	it.skip('renders audit bar chart only from checked categories from legend', () => {
