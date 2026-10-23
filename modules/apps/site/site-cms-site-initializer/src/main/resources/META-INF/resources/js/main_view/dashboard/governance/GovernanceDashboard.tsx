@@ -17,11 +17,18 @@ import '../../../../css/dashboard/GovernanceDashboard.scss';
 
 export default function GovernanceDashboard({
 	additionalProps,
+	spaceGroupIds,
+	spaceIds,
 }: {
 	additionalProps: GovernanceAdditionalProps;
+	spaceGroupIds: string[];
+	spaceIds: string[];
 }) {
 	return (
-		<GovernanceContextProvider>
+		<GovernanceContextProvider
+			spaceGroupIds={spaceGroupIds}
+			spaceIds={spaceIds}
+		>
 			<Filters />
 
 			<GovernanceHealth />

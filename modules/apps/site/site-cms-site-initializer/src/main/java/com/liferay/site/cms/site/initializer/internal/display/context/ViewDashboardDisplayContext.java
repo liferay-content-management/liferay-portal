@@ -104,7 +104,15 @@ public class ViewDashboardDisplayContext {
 		).put(
 			"admin", () -> _hasUserRole(RoleConstants.ADMINISTRATOR)
 		).put(
-			"administeredSpaceIds", () -> _getAvailableDepotEntryIds()
+			"administeredSpaceGroupIds",
+			() -> TransformUtil.transform(
+				_getAdministeredDepotEntries(),
+				depotEntry -> String.valueOf(depotEntry.getGroupId()))
+		).put(
+			"administeredSpaceIds",
+			() -> TransformUtil.transform(
+				_getAdministeredDepotEntries(),
+				depotEntry -> String.valueOf(depotEntry.getDepotEntryId()))
 		).put(
 			"analyticsEnabled",
 			() -> {
@@ -275,7 +283,9 @@ public class ViewDashboardDisplayContext {
 		).build();
 	}
 
-	private List<String> _getAvailableDepotEntryIds() throws PortalException {
+	private List<DepotEntry> _getAdministeredDepotEntries()
+		throws PortalException {
+
 		return TransformUtil.transform(
 			_depotEntryService.getDepotEntryGroupIds(
 				_themeDisplay.getCompanyId(), _themeDisplay.getUserId(),
@@ -290,7 +300,7 @@ public class ViewDashboardDisplayContext {
 						depotEntry.getGroupId(),
 						ActionKeys.VIEW_SITE_ADMINISTRATION)) {
 
-					return String.valueOf(depotEntry.getDepotEntryId());
+					return depotEntry;
 				}
 
 				return null;
