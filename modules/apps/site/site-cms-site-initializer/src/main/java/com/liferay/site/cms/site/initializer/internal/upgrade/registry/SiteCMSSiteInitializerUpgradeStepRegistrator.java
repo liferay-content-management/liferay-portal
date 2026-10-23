@@ -33,6 +33,7 @@ import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_1.CMSObjectFo
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_2.CMSAdministratorRoleUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_3.CMSFileTypeDisplayPageUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_4.CMSFileTypeFriendlyURLUpgradeProcess;
+import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_5.CMSDashboardLayoutPermissionsUpgradeProcess;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -94,6 +95,12 @@ public class SiteCMSSiteInitializerUpgradeStepRegistrator
 			new CMSFileTypeFriendlyURLUpgradeProcess(
 				_companyLocalService, _objectDefinitionLocalService,
 				_objectEntryLocalService, _objectFolderLocalService));
+
+		registry.register(
+			"3.0.4", "3.0.5",
+			new CMSDashboardLayoutPermissionsUpgradeProcess(
+				_companyLocalService, _groupLocalService, _layoutLocalService,
+				_resourcePermissionLocalService, _roleLocalService));
 	}
 
 	@Reference
