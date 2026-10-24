@@ -51,6 +51,7 @@ const mockConnectedSites: Site[] = [
 		logo: 'logo1.png',
 		name: 'Guest',
 		searchable: true,
+		type: 'Site',
 	},
 	{
 		descriptiveName: 'Connected Site 2',
@@ -59,6 +60,7 @@ const mockConnectedSites: Site[] = [
 		logo: 'logo2.png',
 		name: 'Connected Site 2',
 		searchable: false,
+		type: 'Site',
 	},
 ];
 
@@ -69,6 +71,7 @@ const mockUnconnectedSite: Site = {
 	logo: 'logo3.png',
 	name: 'Unconnected Site 3',
 	searchable: true,
+	type: 'Site',
 };
 
 const mockConnectedSiteTemplate: Site = {
@@ -185,6 +188,7 @@ describe('SpaceConnectedSitesModal', () => {
 					logo: mockUnconnectedSite.logo,
 					name: mockUnconnectedSite.name,
 					searchable: body?.searchable ?? false,
+					type: 'Site',
 				},
 				error: null,
 			})
@@ -216,7 +220,7 @@ describe('SpaceConnectedSitesModal', () => {
 	it('renders the modal header and the description', async () => {
 		renderComponent();
 
-		expect(screen.getByText('all-sites')).toBeInTheDocument();
+		expect(screen.getByText('connections')).toBeInTheDocument();
 		expect(
 			screen.getByText('connect-sites-and-site-templates-to-this-space')
 		).toBeInTheDocument();
@@ -240,7 +244,7 @@ describe('SpaceConnectedSitesModal', () => {
 		renderComponent();
 
 		expect(
-			await screen.findByText('no-sites-are-connected-yet')
+			await screen.findByText('nothing-is-connected-yet')
 		).toBeInTheDocument();
 	});
 

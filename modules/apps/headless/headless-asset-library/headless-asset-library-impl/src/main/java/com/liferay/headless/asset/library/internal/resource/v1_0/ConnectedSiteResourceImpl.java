@@ -5,15 +5,19 @@
 
 package com.liferay.headless.asset.library.internal.resource.v1_0;
 
+import com.liferay.depot.constants.DepotConstants;
+import com.liferay.depot.exception.DepotEntryGroupRelToGroupException;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.model.DepotEntryGroupRel;
 import com.liferay.depot.service.DepotEntryGroupRelService;
+import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.depot.service.DepotEntryService;
 import com.liferay.headless.asset.library.dto.v1_0.ConnectedSite;
 import com.liferay.headless.asset.library.resource.v1_0.ConnectedSiteResource;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
@@ -130,6 +134,8 @@ public class ConnectedSiteResourceImpl extends BaseConnectedSiteResourceImpl {
 		DepotEntry depotEntry = _depotEntryService.getGroupDepotEntry(
 			assetLibraryGroup.getGroupId());
 
+		_validateConnectedSiteGroup(connectedSiteGroup, depotEntry);
+
 		DepotEntryGroupRel depotEntryGroupRel =
 			_depotEntryGroupRelService.addDepotEntryGroupRel(
 				depotEntry.getDepotEntryId(), connectedSiteGroup.getGroupId());
@@ -172,6 +178,32 @@ public class ConnectedSiteResourceImpl extends BaseConnectedSiteResourceImpl {
 				contextUser));
 	}
 
+	private void _validateConnectedSiteGroup(
+			Group connectedSiteGroup, DepotEntry depotEntry)
+		throws Exception {
+
+		DepotEntry connectedSiteDepotEntry =
+			_depotEntryLocalService.fetchGroupDepotEntry(
+				connectedSiteGroup.getGroupId());
+
+		if (connectedSiteDepotEntry == null) {
+			return;
+		}
+
+		if ((connectedSiteDepotEntry.getType() !=
+				DepotConstants.TYPE_DESIGN_LIBRARY) ||
+			!ArrayUtil.contains(
+				new int[] {
+					DepotConstants.TYPE_ASSET_LIBRARY, DepotConstants.TYPE_SPACE
+				},
+				depotEntry.getType())) {
+
+			throw new DepotEntryGroupRelToGroupException.
+				MustAcceptDepotEntryType(
+					depotEntry.getType(), connectedSiteGroup.getGroupId());
+		}
+	}
+
 	@Reference(
 		target = "(component.name=com.liferay.headless.asset.library.internal.dto.v1_0.converter.ConnectedSiteDTOConverter)"
 	)
@@ -180,6 +212,9 @@ public class ConnectedSiteResourceImpl extends BaseConnectedSiteResourceImpl {
 
 	@Reference
 	private DepotEntryGroupRelService _depotEntryGroupRelService;
+
+	@Reference
+	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Reference
 	private DepotEntryService _depotEntryService;
