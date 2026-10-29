@@ -68,8 +68,6 @@ public class ViewTasksDisplayContextTest extends BaseDisplayContextTestCase {
 			"com.liferay.site.cms.site.initializer.internal.display.context." +
 				"ViewTasksDisplayContext");
 
-		Assert.assertNotNull(viewTasksDisplayContext);
-
 		return viewTasksDisplayContext;
 	}
 

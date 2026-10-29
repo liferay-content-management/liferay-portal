@@ -81,10 +81,10 @@ public class ViewTasksDisplayContext {
 						ActionRequest.RENDER_PHASE)
 				).setMVCPath(
 					"/edit_workflow_task.jsp"
-				).setRedirect(
-					_themeDisplay.getURLCurrent()
 				).setParameter(
 					"workflowTaskId", "{embedded.id}"
+				).setRedirect(
+					_themeDisplay.getURLCurrent()
 				).buildString()
 			).setIcon(
 				"view"
