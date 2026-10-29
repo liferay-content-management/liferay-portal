@@ -34,6 +34,15 @@ import java.util.Map;
  */
 public class ViewTasksDisplayContext {
 
+	public static final String ALL_TASKS = "allTasks";
+
+	public static final String PROJECT_TASKS = "projectTasks";
+
+	public static final String WORKFLOW_TASKS = "workflowTasks";
+
+	public static final String WORKFLOW_TASKS_OVERVIEW =
+		"workflowTasksOverview";
+
 	public ViewTasksDisplayContext(HttpServletRequest httpServletRequest) {
 		_httpServletRequest = httpServletRequest;
 
@@ -47,6 +56,10 @@ public class ViewTasksDisplayContext {
 			KaleoTaskInstanceToken.class.getName(),
 			"&nestedFields=embedded,embedded.objectReviewed",
 			"&nestedFieldsDepth=2");
+	}
+
+	public String getAllTasksHTML() {
+		return _cmpTasksHTML.get(ALL_TASKS);
 	}
 
 	public Map<String, Object> getBreadcrumbProps() {
@@ -156,10 +169,30 @@ public class ViewTasksDisplayContext {
 			));
 	}
 
+	public String getProjectTasksHTML() {
+		return _cmpTasksHTML.get(PROJECT_TASKS);
+	}
+
 	public Map<String, Object> getTasksQuickFiltersProps() {
 		return HashMapBuilder.<String, Object>put(
 			"apiURL", getAPIURL()
 		).build();
+	}
+
+	public String getWorkflowTasksHTML() {
+		return _cmpTasksHTML.get(WORKFLOW_TASKS);
+	}
+
+	public String getWorkflowTasksOverviewHTML() {
+		return _cmpTasksHTML.get(WORKFLOW_TASKS_OVERVIEW);
+	}
+
+	public boolean isCMPEnabled() {
+		if (_cmpTasksHTML != null) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public boolean isCMPMarketplaceBannerVisible() {
@@ -167,6 +200,10 @@ public class ViewTasksDisplayContext {
 			SessionClicks.get(
 				_httpServletRequest, _CMP_MARKETPLACE_BANNER_DISMISSED_KEY,
 				null));
+	}
+
+	public void setCMPTasksHTML(Map<String, String> cmpTasksHTML) {
+		_cmpTasksHTML = cmpTasksHTML;
 	}
 
 	private String _getLayoutName() {
@@ -182,6 +219,7 @@ public class ViewTasksDisplayContext {
 	private static final String _CMP_MARKETPLACE_BANNER_DISMISSED_KEY =
 		"com_liferay_site_cms_site_initializer_cmpMarketplaceBannerDismissed";
 
+	private Map<String, String> _cmpTasksHTML;
 	private final HttpServletRequest _httpServletRequest;
 	private final ThemeDisplay _themeDisplay;
 
