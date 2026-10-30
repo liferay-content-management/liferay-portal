@@ -6,6 +6,7 @@
 package com.liferay.trash.web.internal.portlet;
 
 import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.AssetEntryService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.TrashPermissionException;
@@ -358,11 +359,34 @@ public class TrashPortlet extends MVCPortlet {
 		TrashEntry trashEntry = _trashEntryLocalService.getTrashEntry(
 			trashEntryId);
 
-		AssetEntry assetEntry = _assetEntryService.getEntry(
-			trashEntry.getClassName(), trashEntry.getClassPK());
-
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
+			trashEntry.getClassName(), trashEntry.getClassPK());
+
+		if (assetEntry == null) {
+			TrashHandler trashHandler =
+				TrashHandlerRegistryUtil.getTrashHandler(
+					trashEntry.getClassName());
+
+			if ((trashEntry.getGroupId() != themeDisplay.getScopeGroupId()) ||
+				(trashHandler == null) ||
+				!trashHandler.hasTrashPermission(
+					themeDisplay.getPermissionChecker(),
+					trashEntry.getGroupId(), trashEntry.getClassPK(),
+					ActionKeys.VIEW)) {
+
+				throw new PrincipalException.MustHavePermission(
+					themeDisplay.getUserId(), trashEntry.getClassName(),
+					trashEntry.getClassPK(), ActionKeys.VIEW);
+			}
+
+			return;
+		}
+
+		assetEntry = _assetEntryService.getEntry(
+			trashEntry.getClassName(), trashEntry.getClassPK());
 
 		if (assetEntry.getGroupId() != themeDisplay.getScopeGroupId()) {
 			throw new PrincipalException.MustHavePermission(
@@ -370,6 +394,9 @@ public class TrashPortlet extends MVCPortlet {
 				trashEntry.getClassPK(), ActionKeys.VIEW);
 		}
 	}
+
+	@Reference
+	private AssetEntryLocalService _assetEntryLocalService;
 
 	@Reference
 	private AssetEntryService _assetEntryService;
