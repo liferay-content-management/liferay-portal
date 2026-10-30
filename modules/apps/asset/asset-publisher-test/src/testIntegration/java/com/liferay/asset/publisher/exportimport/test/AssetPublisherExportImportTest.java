@@ -35,6 +35,7 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMTemplateTestUtil;
+import com.liferay.dynamic.data.mapping.util.DDMIndexer;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationParameterMapFactoryUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
@@ -767,6 +768,53 @@ public class AssetPublisherExportImportTest extends BaseExportImportTestCase {
 	}
 
 	@Test
+	@TestInfo("LPD-110540")
+	public void testExportImportClassNameIdsWithRemoteStaging()
+		throws Exception {
+
+		String journalArticleClassNameId = String.valueOf(
+			_portal.getClassNameId(JournalArticle.class));
+
+		Map<String, String[]> preferenceMap = HashMapBuilder.put(
+			"anyAssetType", new String[] {journalArticleClassNameId}
+		).put(
+			"classNameIds", new String[] {journalArticleClassNameId}
+		).build();
+
+		String portletId = LayoutTestUtil.addPortletToLayout(
+			TestPropsValues.getUserId(), layout, getPortletId(), "column-1",
+			preferenceMap);
+
+		ExportImportThreadLocal.setPortletStagingInProcess(true);
+
+		try {
+			Map<String, Object> portletConfiguration =
+				_portletPreferencesPortletConfigurationExporter.
+					getPortletConfiguration(layout.getPlid(), portletId);
+
+			Assert.assertArrayEquals(
+				new String[] {JournalArticle.class.getName()},
+				_getValues(portletConfiguration, "anyAssetType"));
+			Assert.assertArrayEquals(
+				new String[] {JournalArticle.class.getName()},
+				_getValues(portletConfiguration, "classNameIds"));
+		}
+		finally {
+			ExportImportThreadLocal.setPortletStagingInProcess(false);
+		}
+
+		PortletPreferences importedPortletPreferences =
+			_getRemoteStagingImportedPortletPreferences(preferenceMap);
+
+		Assert.assertEquals(
+			journalArticleClassNameId,
+			importedPortletPreferences.getValue("anyAssetType", null));
+		Assert.assertArrayEquals(
+			new String[] {journalArticleClassNameId},
+			importedPortletPreferences.getValues("classNameIds", null));
+	}
+
+	@Test
 	@TestInfo("LPD-105711")
 	public void testExportImportClassTypeIdsWithRemoteStaging()
 		throws Exception {
@@ -1011,6 +1059,37 @@ public class AssetPublisherExportImportTest extends BaseExportImportTestCase {
 	}
 
 	@Test
+	@TestInfo("LPD-110540")
+	public void testExportImportOrderByColumnWithRemoteStaging()
+		throws Exception {
+
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			group.getGroupId(), JournalArticle.class.getName());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		serviceContext.setUuid(ddmStructure.getUuid());
+
+		DDMStructure remoteDDMStructure = DDMStructureTestUtil.addStructure(
+			importedGroup.getGroupId(), JournalArticle.class.getName(), 0,
+			ddmStructure.getDDMForm(), LocaleUtil.getDefault(), serviceContext);
+
+		PortletPreferences importedPortletPreferences =
+			_getRemoteStagingImportedPortletPreferences(
+				HashMapBuilder.put(
+					"orderByColumn1",
+					new String[] {
+						_getOrderByColumn(ddmStructure.getStructureId())
+					}
+				).build());
+
+		Assert.assertEquals(
+			_getOrderByColumn(remoteDDMStructure.getStructureId()),
+			importedPortletPreferences.getValue("orderByColumn1", null));
+	}
+
+	@Test
 	@TestInfo("LPD-81813")
 	public void testExportImportScopeIdsWithLocalStaging() throws Exception {
 		DepotEntry depotEntry = _addDepotEntry();
@@ -1189,6 +1268,49 @@ public class AssetPublisherExportImportTest extends BaseExportImportTestCase {
 				companyGroup.getGroupId(),
 			portletPreferences.getValue("scopeIds", null));
 		Assert.assertEquals(null, portletPreferences.getValue("scopeId", null));
+	}
+
+	@Test
+	@TestInfo("LPD-110540")
+	public void testImportNumericClassNameIdsWithRemoteStaging()
+		throws Exception {
+
+		String portletId = LayoutTestUtil.addPortletToLayout(
+			TestPropsValues.getUserId(), layout, getPortletId(), "column-1",
+			new HashMap<>());
+
+		importedLayout = LayoutTestUtil.addTypePortletLayout(importedGroup);
+
+		String journalArticleClassNameId = String.valueOf(
+			_portal.getClassNameId(JournalArticle.class));
+
+		ExportImportThreadLocal.setPortletStagingInProcess(true);
+
+		try {
+			_portletPreferencesPortletConfigurationImporter.
+				importPortletConfiguration(
+					importedLayout.getPlid(), portletId,
+					HashMapBuilder.<String, Object>put(
+						"anyAssetType",
+						Collections.singletonList(journalArticleClassNameId)
+					).put(
+						"classNameIds",
+						Collections.singletonList(journalArticleClassNameId)
+					).build());
+		}
+		finally {
+			ExportImportThreadLocal.setPortletStagingInProcess(false);
+		}
+
+		PortletPreferences importedPortletPreferences =
+			LayoutTestUtil.getPortletPreferences(importedLayout, portletId);
+
+		Assert.assertEquals(
+			journalArticleClassNameId,
+			importedPortletPreferences.getValue("anyAssetType", null));
+		Assert.assertArrayEquals(
+			new String[] {journalArticleClassNameId},
+			importedPortletPreferences.getValues("classNameIds", null));
 	}
 
 	@Ignore
@@ -1883,6 +2005,13 @@ public class AssetPublisherExportImportTest extends BaseExportImportTestCase {
 		return depotEntry;
 	}
 
+	private String _getOrderByColumn(long ddmStructureId) {
+		return StringBundler.concat(
+			DDMIndexer.DDM_FIELD_PREFIX, "keyword",
+			DDMIndexer.DDM_FIELD_SEPARATOR, ddmStructureId,
+			DDMIndexer.DDM_FIELD_SEPARATOR, "text_en_US");
+	}
+
 	private Map<String, String[]> _getPreferenceMap(
 		String assetListEntryExternalReferenceCode,
 		String assetListEntryGroupExternalReferenceCode) {
@@ -1960,6 +2089,18 @@ public class AssetPublisherExportImportTest extends BaseExportImportTestCase {
 		ExportImportThreadLocal.setPortletStagingInProcess(false);
 
 		return LayoutTestUtil.getPortletPreferences(importedLayout, portletId);
+	}
+
+	private String[] _getValues(
+		Map<String, Object> portletConfiguration, String key) {
+
+		Object value = portletConfiguration.get(key);
+
+		if (value instanceof String[]) {
+			return (String[])value;
+		}
+
+		return new String[] {GetterUtil.getString(value)};
 	}
 
 	private void _publishLayouts(Group stagingGroup) throws Exception {
