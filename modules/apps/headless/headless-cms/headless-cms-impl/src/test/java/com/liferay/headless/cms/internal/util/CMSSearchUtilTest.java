@@ -6,11 +6,17 @@
 package com.liferay.headless.cms.internal.util;
 
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.search.aggregation.Aggregations;
 import com.liferay.portal.search.aggregation.bucket.Bucket;
 import com.liferay.portal.search.aggregation.bucket.IncludeExcludeClause;
+import com.liferay.portal.search.aggregation.bucket.TermsAggregation;
 import com.liferay.portal.search.aggregation.bucket.TermsAggregationResult;
+import com.liferay.portal.search.searcher.SearchRequestBuilder;
+import com.liferay.portal.search.searcher.SearchResponse;
+import com.liferay.portal.search.searcher.Searcher;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.util.ArrayList;
@@ -60,6 +66,104 @@ public class CMSSearchUtilTest {
 
 		Assert.assertEquals(
 			includeExcludeClauses.toString(), 8, includeExcludeClauses.size());
+	}
+
+	@Test
+	@TestInfo("LPD-105769")
+	public void testGetEntryClassPKs() {
+		List<String> entryClassPKs = new ArrayList<>();
+
+		for (int i = 0; i < 200; i++) {
+			entryClassPKs.add(String.valueOf(RandomTestUtil.randomLong()));
+		}
+
+		List<IncludeExcludeClause> includeExcludeClauses = new ArrayList<>();
+
+		Assert.assertEquals(
+			new TreeSet<>(entryClassPKs),
+			new TreeSet<>(
+				CMSSearchUtil.getEntryClassPKs(
+					_getAggregations(includeExcludeClauses),
+					_getSearcher(1000000, entryClassPKs, includeExcludeClauses),
+					() -> Mockito.mock(
+						SearchRequestBuilder.class, Mockito.RETURNS_SELF))));
+		Assert.assertEquals(
+			includeExcludeClauses.toString(), 25, includeExcludeClauses.size());
+	}
+
+	private Aggregations _getAggregations(
+		List<IncludeExcludeClause> includeExcludeClauses) {
+
+		Aggregations aggregations = Mockito.mock(Aggregations.class);
+
+		Mockito.when(
+			aggregations.terms(Mockito.anyString(), Mockito.anyString())
+		).thenAnswer(
+			invocation -> {
+				TermsAggregation termsAggregation = Mockito.mock(
+					TermsAggregation.class);
+
+				Mockito.doAnswer(
+					setIncludeExcludeClauseInvocation -> {
+						includeExcludeClauses.add(
+							setIncludeExcludeClauseInvocation.getArgument(0));
+
+						return null;
+					}
+				).when(
+					termsAggregation
+				).setIncludeExcludeClause(
+					Mockito.any()
+				);
+
+				return termsAggregation;
+			}
+		);
+
+		return aggregations;
+	}
+
+	private Searcher _getSearcher(
+		long count, List<String> entryClassPKs,
+		List<IncludeExcludeClause> includeExcludeClauses) {
+
+		Searcher searcher = Mockito.mock(Searcher.class);
+
+		SearchResponse searchResponse = Mockito.mock(SearchResponse.class);
+
+		Mockito.when(
+			searchResponse.getCount()
+		).thenReturn(
+			count
+		);
+
+		Mockito.when(
+			searcher.search(Mockito.any())
+		).thenReturn(
+			searchResponse
+		).thenAnswer(
+			invocation -> {
+				TermsAggregationResult termsAggregationResult =
+					_getTermsAggregationResult(
+						includeExcludeClauses.get(
+							includeExcludeClauses.size() - 1),
+						entryClassPKs, entryClassPKs.size());
+
+				SearchResponse aggregationSearchResponse = Mockito.mock(
+					SearchResponse.class);
+
+				Mockito.when(
+					aggregationSearchResponse.getAggregationResult(
+						Field.ENTRY_CLASS_PK)
+				).thenReturn(
+					termsAggregationResult
+				);
+
+				return aggregationSearchResponse;
+			}
+		);
+
+		return searcher;
 	}
 
 	private TermsAggregationResult _getTermsAggregationResult(

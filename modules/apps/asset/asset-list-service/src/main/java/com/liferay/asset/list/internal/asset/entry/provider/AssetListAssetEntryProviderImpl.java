@@ -129,6 +129,48 @@ public class AssetListAssetEntryProviderImpl
 			_getFirstSegmentsEntryId(assetListEntry, segmentsEntryIds), userId);
 	}
 
+	@Override
+	public BooleanQuery getBooleanQuery(
+			AssetListEntry assetListEntry, long[] segmentsEntryIds,
+			String userId)
+		throws Exception {
+
+		if (Objects.equals(
+				assetListEntry.getType(),
+				AssetListEntryTypeConstants.TYPE_MANUAL)) {
+
+			Map<AssetListEntryAssetEntryRel, Long> groupIds = _getGroupIds(
+				assetListEntry, segmentsEntryIds);
+
+			if (MapUtil.isEmpty(groupIds)) {
+				return null;
+			}
+
+			return _assetHelper.getBooleanQuery(
+				_getManualSearchContext(
+					null,
+					ListUtil.toList(
+						ListUtil.fromMapKeys(groupIds),
+						AssetListEntryAssetEntryRelModel::getAssetEntryId),
+					null, assetListEntry.getCompanyId(), null),
+				_getManualAssetEntryQuery(
+					assetListEntry, ArrayUtil.toLongArray(groupIds.values())));
+		}
+
+		AssetEntryQuery assetEntryQuery = getAssetEntryQuery(
+			assetListEntry, segmentsEntryIds, userId);
+
+		if (ArrayUtil.isEmpty(assetEntryQuery.getClassNameIds())) {
+			return null;
+		}
+
+		return _assetHelper.getBooleanQuery(
+			_getDynamicSearchContext(
+				assetListEntry.getCompanyId(), null, assetEntryQuery, null,
+				null),
+			assetEntryQuery);
+	}
+
 	@Activate
 	@Modified
 	protected void activate(
