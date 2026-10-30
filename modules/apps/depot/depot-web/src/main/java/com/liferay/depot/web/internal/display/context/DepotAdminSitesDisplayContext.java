@@ -5,9 +5,12 @@
 
 package com.liferay.depot.web.internal.display.context;
 
+import com.liferay.depot.constants.DepotConstants;
+import com.liferay.depot.item.selector.DepotGroupItemSelectorCriterion;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.model.DepotEntryGroupRel;
 import com.liferay.depot.service.DepotEntryGroupRelLocalServiceUtil;
+import com.liferay.depot.service.DepotEntryLocalServiceUtil;
 import com.liferay.depot.web.internal.constants.DepotAdminWebKeys;
 import com.liferay.depot.web.internal.util.DepotEntryURLUtil;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemList;
@@ -16,6 +19,7 @@ import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.criteria.URLItemSelectorReturnType;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -26,6 +30,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupServiceUtil;
 import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -63,6 +68,7 @@ public class DepotAdminSitesDisplayContext {
 		return DropdownItemListBuilder.add(
 			dropdownItem -> {
 				dropdownItem.setDisabled(
+					_isDesignLibrary(depotEntryGroupRel) ||
 					_isLayoutSetPrototype(depotEntryGroupRel));
 				dropdownItem.setHref(
 					String.valueOf(
@@ -155,10 +161,27 @@ public class DepotAdminSitesDisplayContext {
 		siteItemSelectorCriterion.setIncludeLayoutSetPrototypes(
 			!group.isStaged());
 
+		if (!_isDesignLibraryConnectable(depotEntry)) {
+			return itemSelector.getItemSelectorURL(
+				RequestBackedPortletURLFactoryUtil.create(
+					_liferayPortletRequest),
+				_liferayPortletResponse.getNamespace() + "selectSite",
+				siteItemSelectorCriterion);
+		}
+
+		DepotGroupItemSelectorCriterion depotGroupItemSelectorCriterion =
+			new DepotGroupItemSelectorCriterion();
+
+		depotGroupItemSelectorCriterion.setDepotEntryType(
+			DepotConstants.TYPE_DESIGN_LIBRARY);
+		depotGroupItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
+			new URLItemSelectorReturnType());
+		depotGroupItemSelectorCriterion.setIncludeAllVisibleGroups(true);
+
 		return itemSelector.getItemSelectorURL(
 			RequestBackedPortletURLFactoryUtil.create(_liferayPortletRequest),
 			_liferayPortletResponse.getNamespace() + "selectSite",
-			siteItemSelectorCriterion);
+			siteItemSelectorCriterion, depotGroupItemSelectorCriterion);
 	}
 
 	public String getSiteName(DepotEntryGroupRel depotEntryGroupRel)
@@ -176,6 +199,9 @@ public class DepotAdminSitesDisplayContext {
 
 		if (_isLayoutSetPrototype(depotEntryGroupRel)) {
 			_appendSuffix(sb, "site-template");
+		}
+		else if (_isDesignLibrary(depotEntryGroupRel)) {
+			_appendSuffix(sb, "design-library");
 		}
 		else if (group.isStaged() && !group.isStagedRemotely() &&
 				 group.isStagingGroup()) {
@@ -227,6 +253,38 @@ public class DepotAdminSitesDisplayContext {
 		}
 
 		return "make-searchable";
+	}
+
+	private boolean _isDesignLibrary(DepotEntryGroupRel depotEntryGroupRel) {
+		DepotEntry depotEntry = DepotEntryLocalServiceUtil.fetchGroupDepotEntry(
+			depotEntryGroupRel.getToGroupId());
+
+		if ((depotEntry != null) &&
+			(depotEntry.getType() == DepotConstants.TYPE_DESIGN_LIBRARY)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean _isDesignLibraryConnectable(DepotEntry depotEntry)
+		throws PortalException {
+
+		Group group = depotEntry.getGroup();
+
+		if (group.isStaged() ||
+			!FeatureFlagManagerUtil.isEnabled(
+				_themeDisplay.getCompanyId(), "LPD-57283")) {
+
+			return false;
+		}
+
+		return ArrayUtil.contains(
+			new int[] {
+				DepotConstants.TYPE_ASSET_LIBRARY, DepotConstants.TYPE_SPACE
+			},
+			depotEntry.getType());
 	}
 
 	private boolean _isLayoutSetPrototype(DepotEntryGroupRel depotEntryGroupRel)
