@@ -120,6 +120,11 @@ public class AssetStatisticsResourceImpl
 					() -> _getBrokenLinksCount(
 						objectDefinitionIds, selectedSpaceGroupIds,
 						spaceGroupIds));
+				setCompletedWorkflowTasksCount(
+					() -> _getWorkflowTasksCount(
+						classNames, selectedSpaceGroupIds,
+						KaleoTaskInstanceTokenTable.INSTANCE.completed.eq(
+							true)));
 				setExpiredCount(
 					() -> _getCount(
 						selectedSpaceGroupIds, objectDefinitionIds,
@@ -428,6 +433,7 @@ public class AssetStatisticsResourceImpl
 			{
 				setApprovedCount(() -> 0L);
 				setBrokenLinksCount(() -> 0L);
+				setCompletedWorkflowTasksCount(() -> 0L);
 				setExpiredCount(() -> 0L);
 				setExpiringSoonCount(() -> 0L);
 				setInDraftCount(() -> 0L);
