@@ -13,6 +13,7 @@ import com.liferay.depot.service.DepotEntryGroupRelLocalService;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.depot.test.util.DepotTestUtil;
 import com.liferay.item.selector.criteria.group.criterion.GroupItemSelectorCriterion;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ResourceConstants;
@@ -21,6 +22,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderResponse;
@@ -46,7 +48,9 @@ import jakarta.portlet.PortletURL;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -106,6 +110,59 @@ public class DepotEntryAdminSearchProviderTest {
 				mockLiferayPortletActionRequest,
 				new MockLiferayPortletRenderResponse(),
 				new MockLiferayPortletURL()));
+	}
+
+	@Test
+	@TestInfo("LPD-109885")
+	public void testGetDepotEntrySearchWithDescriptionKeywords()
+		throws Exception {
+
+		Set<Long> depotEntryIds = new HashSet<>();
+		String keywords = RandomTestUtil.randomString();
+
+		for (int i = 0; i < 2; i++) {
+			DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
+				Collections.singletonMap(
+					LocaleUtil.getDefault(), RandomTestUtil.randomString()),
+				Collections.singletonMap(
+					LocaleUtil.getDefault(), keywords + StringPool.SPACE + i),
+				DepotConstants.TYPE_ASSET_LIBRARY,
+				ServiceContextTestUtil.getServiceContext());
+
+			_initialDepotEntries.add(depotEntry);
+
+			depotEntryIds.add(depotEntry.getDepotEntryId());
+		}
+
+		GroupItemSelectorCriterion groupItemSelectorCriterion =
+			new GroupItemSelectorCriterion();
+
+		groupItemSelectorCriterion.setIncludeAllVisibleGroups(false);
+
+		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
+			new MockLiferayPortletActionRequest();
+
+		mockLiferayPortletActionRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, _getThemeDisplay());
+
+		mockLiferayPortletActionRequest.setParameter("keywords", keywords);
+
+		DepotEntrySearch depotEntrySearch = ReflectionTestUtil.invoke(
+			_depotEntryAdminSearchProvider, "getDepotEntrySearch",
+			new Class<?>[] {
+				GroupItemSelectorCriterion.class, PortletRequest.class,
+				PortletResponse.class, PortletURL.class
+			},
+			groupItemSelectorCriterion, mockLiferayPortletActionRequest,
+			new MockLiferayPortletRenderResponse(),
+			new MockLiferayPortletURL());
+
+		Assert.assertEquals(
+			depotEntryIds,
+			new HashSet<>(
+				ListUtil.toList(
+					depotEntrySearch.getResults(),
+					DepotEntry::getDepotEntryId)));
 	}
 
 	@Test
