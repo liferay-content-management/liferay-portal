@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RepositoryLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.portlet.MockActionRequest;
 import com.liferay.portal.kernel.test.portlet.MockActionResponse;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -29,6 +30,7 @@ import jakarta.portlet.ActionResponse;
 import jakarta.portlet.PortletRequest;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -100,6 +102,52 @@ public class CopyDLObjectsMVCActionCommandTest {
 	}
 
 	@Test
+	@TestInfo("LPD-109885")
+	public void testCheckDestinationGroupFromDepotToConnectedSite()
+		throws Exception {
+
+		long depotGroupId = RandomTestUtil.randomLong();
+
+		_setUpDepotGroup(depotGroupId);
+
+		long siteGroupId = RandomTestUtil.randomLong();
+
+		ReflectionTestUtil.invoke(
+			_copyDLObjectsMVCActionCommand, "_checkDestinationGroup",
+			new Class<?>[] {Group.class, long[].class, long.class},
+			Mockito.mock(Group.class), new long[] {siteGroupId, depotGroupId},
+			depotGroupId);
+	}
+
+	@Test
+	@TestInfo("LPD-109885")
+	public void testCheckDestinationGroupFromDepotToUnconnectedSite()
+		throws Exception {
+
+		long depotGroupId = RandomTestUtil.randomLong();
+
+		_setUpDepotGroup(depotGroupId);
+
+		long siteGroupId = RandomTestUtil.randomLong();
+
+		try {
+			ReflectionTestUtil.invoke(
+				_copyDLObjectsMVCActionCommand, "_checkDestinationGroup",
+				new Class<?>[] {Group.class, long[].class, long.class},
+				Mockito.mock(Group.class), new long[] {siteGroupId},
+				depotGroupId);
+
+			Assert.fail();
+		}
+		catch (Exception exception) {
+			Assert.assertEquals(
+				"the-item-is-not-copied-because-the-site-and-asset-library-" +
+					"are-not-connected",
+				exception.getMessage());
+		}
+	}
+
+	@Test
 	public void testRepositoryGroupIsUsed() throws Exception {
 		long destinationGroupId = RandomTestUtil.randomLong();
 		long destinationRepositoryId = RandomTestUtil.randomLong();
@@ -149,6 +197,22 @@ public class CopyDLObjectsMVCActionCommandTest {
 			"sourceRepositoryId", String.valueOf(sourceRepositoryId));
 
 		return mockActionRequest;
+	}
+
+	private void _setUpDepotGroup(long groupId) throws Exception {
+		Group group = Mockito.mock(Group.class);
+
+		Mockito.when(
+			group.isDepot()
+		).thenReturn(
+			true
+		);
+
+		Mockito.when(
+			_groupLocalService.getGroup(groupId)
+		).thenReturn(
+			group
+		);
 	}
 
 	private void _setUpRepository(long groupId, long repositoryId)
