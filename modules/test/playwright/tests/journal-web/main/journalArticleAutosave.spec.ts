@@ -972,14 +972,18 @@ autoSaveTest(
 					journalEditArticlePage.changesSavedIndicator
 				).toHaveText('Saved');
 
-				await expect(page.getByText('Version: 1.0 Draft')).toBeVisible();
+				await expect(
+					page.getByText('Version: 1.0 Draft')
+				).toBeVisible();
 
 				await journalEditArticlePage.publishArticle();
 
 				await journalPage.goto(site.friendlyUrlPath);
 
 				await expect(
-					page.getByTestId('row').getByRole('link', {name: articleTitle})
+					page
+						.getByTestId('row')
+						.getByRole('link', {name: articleTitle})
 				).toHaveCount(1);
 			}
 		);
