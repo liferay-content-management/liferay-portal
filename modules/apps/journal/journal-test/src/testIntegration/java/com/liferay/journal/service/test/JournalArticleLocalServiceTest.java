@@ -1468,8 +1468,8 @@ public class JournalArticleLocalServiceTest {
 
 		Tuple tuple = _addDepotEntryJournalArticle();
 
-		JournalArticle journalArticle = (JournalArticle)tuple.getObject(1);
 		DDMTemplate ddmTemplate = (DDMTemplate)tuple.getObject(2);
+		JournalArticle journalArticle = (JournalArticle)tuple.getObject(1);
 
 		String languageId = LocaleUtil.toLanguageId(
 			LocaleUtil.getSiteDefault());
@@ -1999,15 +1999,7 @@ public class JournalArticleLocalServiceTest {
 	public void testGetArticleDisplayWithContentFromDepotEntryWithDDMTemplate()
 		throws Exception {
 
-		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			DepotConstants.TYPE_ASSET_LIBRARY,
-			ServiceContextTestUtil.getServiceContext());
+		DepotEntry depotEntry = _addDepotEntry();
 
 		DepotEntryGroupRel depotEntryGroupRel =
 			_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
@@ -2103,15 +2095,7 @@ public class JournalArticleLocalServiceTest {
 	public void testGetArticleDisplayWithJournalArticleFieldFromDepotEntry()
 		throws Exception {
 
-		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			DepotConstants.TYPE_ASSET_LIBRARY,
-			ServiceContextTestUtil.getServiceContext());
+		DepotEntry depotEntry = _addDepotEntry();
 
 		_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
 			depotEntry.getDepotEntryId(), _group.getGroupId());
@@ -2985,8 +2969,8 @@ public class JournalArticleLocalServiceTest {
 			"Predefined Value", field.getValue(unavailableLocale));
 	}
 
-	private Tuple _addDepotEntryJournalArticle() throws Exception {
-		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
+	private DepotEntry _addDepotEntry() throws Exception {
+		return _depotEntryLocalService.addDepotEntry(
 			HashMapBuilder.put(
 				LocaleUtil.getDefault(), RandomTestUtil.randomString()
 			).build(),
@@ -2995,6 +2979,10 @@ public class JournalArticleLocalServiceTest {
 			).build(),
 			DepotConstants.TYPE_ASSET_LIBRARY,
 			ServiceContextTestUtil.getServiceContext());
+	}
+
+	private Tuple _addDepotEntryJournalArticle() throws Exception {
+		DepotEntry depotEntry = _addDepotEntry();
 
 		DepotEntryGroupRel depotEntryGroupRel =
 			_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
