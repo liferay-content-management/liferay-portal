@@ -494,6 +494,9 @@ export default function _JournalPortlet({
 			},
 		}),
 
+		Liferay.on('asyncFormSubmission', (event) => {
+			articleId = event.articleId;
+		}),
 		Liferay.on('ddmFormError', handleDDMFormError),
 		Liferay.on('ddmFormValid', () =>
 			handleDDMFormValid({
