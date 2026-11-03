@@ -155,7 +155,6 @@ public class DLURLHelperTest {
 			StringPool.BLANK, false, false);
 
 		Assert.assertTrue(
-			downloadURL,
 			downloadURL.contains(StringUtil.toLowerCase(urlTitle)));
 	}
 
@@ -187,11 +186,10 @@ public class DLURLHelperTest {
 	@Test
 	@TestInfo("LPD-112412")
 	public void testGetDownloadURLNotAppendVersionUpdated() throws Exception {
-		String urlTitle = RandomTestUtil.randomString();
-
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
 				_group.getGroupId(), _user.getUserId());
+		String urlTitle = RandomTestUtil.randomString();
 
 		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
 			null, _user.getUserId(), _group.getGroupId(),
@@ -205,17 +203,16 @@ public class DLURLHelperTest {
 		fileEntry = _dlAppLocalService.updateFileEntry(
 			_user.getUserId(), fileEntry.getFileEntryId(), StringPool.BLANK,
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(), urlTitle,
-			StringPool.BLANK, null, DLVersionNumberIncrease.MAJOR,
-			(byte[])null, null, null, null, serviceContext);
+			StringPool.BLANK, null, DLVersionNumberIncrease.MAJOR, (byte[])null,
+			null, null, null, serviceContext);
 
 		FileVersion fileVersion = fileEntry.getFileVersion();
 
 		String downloadURL = _dlURLHelper.getDownloadURL(
-			fileEntry, fileVersion, _getThemeDisplay(), StringPool.BLANK,
-			false, false);
+			fileEntry, fileVersion, _getThemeDisplay(), StringPool.BLANK, false,
+			false);
 
 		Assert.assertTrue(
-			downloadURL,
 			downloadURL.contains(StringUtil.toLowerCase(urlTitle)));
 
 		Date modifiedDate = fileVersion.getModifiedDate();
