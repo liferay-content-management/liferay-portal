@@ -1605,3 +1605,41 @@ test(
 		});
 	}
 );
+
+test(
+	'Downloads the current file after the document is updated',
+	{tag: '@LPD-112412'},
+	async ({apiHelpers, documentLibraryPage, page, site}) => {
+		const title = getRandomString();
+
+		const document = await apiHelpers.headlessDelivery.postDocument(
+			site.id,
+			createReadStream(path.join(__dirname, '/dependencies/image1.jpeg')),
+			{fileName: 'FileName.jpeg', title}
+		);
+
+		const download = async () => {
+			await documentLibraryPage.goto(site.friendlyUrlPath);
+
+			await page.getByRole('link', {exact: true, name: title}).click();
+
+			const downloadPromise = page.waitForEvent('download');
+
+			await page
+				.locator('.tbar-item')
+				.getByRole('link', {name: 'Download'})
+				.click();
+
+			return (await downloadPromise).suggestedFilename();
+		};
+
+		expect(await download()).toBe('FileName.jpeg');
+
+		await apiHelpers.headlessDelivery.patchDocument({
+			document: {fileName: 'FileNameEdit.jpeg'},
+			documentId: document.id,
+		});
+
+		expect(await download()).toBe('FileNameEdit.jpeg');
+	}
+);
