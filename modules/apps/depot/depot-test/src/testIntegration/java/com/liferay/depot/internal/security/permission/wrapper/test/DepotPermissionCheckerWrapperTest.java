@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.FeatureFlagTestUtil;
@@ -153,6 +154,30 @@ public class DepotPermissionCheckerWrapperTest {
 		_testHasPermissionWithDepotGroup(ActionKeys.VIEW);
 		_testHasPermissionWithDepotGroup(ActionKeys.VIEW_MEMBERS);
 		_testHasPermissionWithDepotGroup(ActionKeys.VIEW_SITE_ADMINISTRATION);
+	}
+
+	@Test
+	@TestInfo("LPD-110567")
+	public void testHasPermissionWithOwnerRoleAndAssetLibraryAdministrator()
+		throws Exception {
+
+		DepotEntry depotEntry = _addDepotEntry(TestPropsValues.getUserId());
+
+		DepotTestUtil.withAssetLibraryAdministrator(
+			depotEntry,
+			user -> {
+				PermissionChecker permissionChecker =
+					_permissionCheckerFactory.create(user);
+
+				Role role = _roleLocalService.getRole(
+					TestPropsValues.getCompanyId(),
+					DepotRolesConstants.ASSET_LIBRARY_OWNER);
+
+				Assert.assertFalse(
+					permissionChecker.hasPermission(
+						depotEntry.getGroupId(), Role.class.getName(),
+						role.getRoleId(), ActionKeys.ASSIGN_MEMBERS));
+			});
 	}
 
 	@Test
