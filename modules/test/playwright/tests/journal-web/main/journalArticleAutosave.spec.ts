@@ -919,11 +919,17 @@ autoSaveTest(
 );
 
 autoSaveTest(
-	'Preview button is disabled until first autosave',
+	'Preview saves a single draft before the first autosave',
 	{
-		tag: '@LPD-72082',
+		tag: ['@LPD-72082', '@LPD-104360'],
 	},
-	async ({displayPageTemplatesPage, journalEditArticlePage, page, site}) => {
+	async ({
+		displayPageTemplatesPage,
+		journalEditArticlePage,
+		journalPage,
+		page,
+		site,
+	}) => {
 		const articleTitle = getRandomString();
 		const displayPageTemplateName = getRandomString();
 
@@ -942,35 +948,40 @@ autoSaveTest(
 			await journalEditArticlePage.selectSpecificDisplayPage(
 				displayPageTemplateName
 			);
-
-			expect(journalEditArticlePage.previewButton).toBeDisabled();
+			await journalEditArticlePage.fillTitle(articleTitle);
 		});
 
 		await autoSaveTest.step(
-			'Wait for autosave and click Preview',
+			'Preview twice before the first autosave',
 			async () => {
-				await journalEditArticlePage.fillTitle(articleTitle);
+				for (let i = 0; i < 2; i++) {
+					await journalEditArticlePage.previewButton.click();
+					await expect(
+						page.getByRole('heading', {name: 'Preview'})
+					).toBeVisible();
+					await page.getByLabel('Close', {exact: true}).click();
+				}
+			}
+		);
+
+		await autoSaveTest.step(
+			'Autosave and publish keep a single article',
+			async () => {
+				await journalEditArticlePage.fillContent(getRandomString());
 				await expect(
 					journalEditArticlePage.changesSavedIndicator
 				).toHaveText('Saved');
 
-				await journalEditArticlePage.previewButton.click();
+				await expect(page.getByText('Version: 1.0 Draft')).toBeVisible();
+
+				await journalEditArticlePage.publishArticle();
+
+				await journalPage.goto(site.friendlyUrlPath);
+
 				await expect(
-					page.getByRole('heading', {name: 'Preview'})
-				).toBeVisible();
-				await page.getByLabel('Close', {exact: true}).click();
+					page.getByTestId('row').getByRole('link', {name: articleTitle})
+				).toHaveCount(1);
 			}
 		);
-
-		await autoSaveTest.step('Publish WC and Edit', async () => {
-			await journalEditArticlePage.publishArticle();
-
-			await page
-				.getByTestId('row')
-				.getByRole('link', {name: articleTitle})
-				.click();
-
-			await expect(journalEditArticlePage.previewButton).toBeEnabled();
-		});
 	}
 );
