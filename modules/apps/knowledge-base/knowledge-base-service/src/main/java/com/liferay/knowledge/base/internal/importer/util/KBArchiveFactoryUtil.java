@@ -76,7 +76,10 @@ public class KBArchiveFactoryUtil {
 
 			String entryFileName = String.valueOf(entryPath.getFileName());
 
-			if (entryFileName.endsWith(markdownImporterArticleIntro)) {
+			if (_isIntroFile(
+					articleExtensions, entryFileName,
+					markdownImporterArticleIntro)) {
+
 				kbArchiveState.setCurrentFolderIntroFile(entryPath);
 			}
 			else {
@@ -85,6 +88,31 @@ public class KBArchiveFactoryUtil {
 		}
 
 		return new KBArchiveImpl(kbArchiveState.getFolders());
+	}
+
+	private static boolean _isIntroFile(
+		String[] articleExtensions, String fileName,
+		String markdownImporterArticleIntro) {
+
+		if (fileName.endsWith(markdownImporterArticleIntro)) {
+			return true;
+		}
+
+		String introFileName = markdownImporterArticleIntro;
+
+		int index = introFileName.lastIndexOf(CharPool.PERIOD);
+
+		if (index > 0) {
+			introFileName = introFileName.substring(0, index);
+		}
+
+		for (String articleExtension : articleExtensions) {
+			if (fileName.endsWith(introFileName + articleExtension)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private static final class FileImpl implements KBArchive.File {
