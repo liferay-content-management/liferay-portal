@@ -83,11 +83,20 @@ public class DLURLHelperImpl implements DLURLHelper {
 			return url;
 		}
 
-		return HttpComponentsUtil.addParameter(
-			getPreviewURL(
-				fileEntry, fileVersion, themeDisplay, queryString,
-				appendVersion, absoluteURL),
-			"download", true);
+		String previewURL = getPreviewURL(
+			fileEntry, fileVersion, themeDisplay, queryString, appendVersion,
+			absoluteURL);
+
+		if (Validator.isNull(
+				HttpComponentsUtil.getParameter(previewURL, "t", false))) {
+
+			Date modifiedDate = fileVersion.getModifiedDate();
+
+			previewURL = HttpComponentsUtil.addParameter(
+				previewURL, "t", modifiedDate.getTime());
+		}
+
+		return HttpComponentsUtil.addParameter(previewURL, "download", true);
 	}
 
 	@Override
