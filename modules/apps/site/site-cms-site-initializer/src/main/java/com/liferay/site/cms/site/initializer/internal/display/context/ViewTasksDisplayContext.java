@@ -97,6 +97,12 @@ public class ViewTasksDisplayContext {
 			));
 	}
 
+	public Map<String, Object> getTasksQuickFiltersProps() {
+		return HashMapBuilder.<String, Object>put(
+			"apiURL", getAPIURL()
+		).build();
+	}
+
 	private String _getLayoutName() {
 		Layout layout = _themeDisplay.getLayout();
 

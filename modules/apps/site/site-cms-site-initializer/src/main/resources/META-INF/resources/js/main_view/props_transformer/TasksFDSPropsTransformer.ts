@@ -5,6 +5,7 @@
 
 import {IInternalRenderer} from '@liferay/frontend-data-set-web';
 
+import {tasksFDSAtom} from '../tasks/atoms';
 import AssetTitleActionLinkRenderer from './cell_renderers/AssetTitleActionLinkRenderer';
 import AuthorRenderer from './cell_renderers/AuthorRenderer';
 import TaskStatusRenderer from './cell_renderers/TaskStatusRenderer';
@@ -17,6 +18,7 @@ export default function TasksFDSPropsTransformer({
 }) {
 	return {
 		...otherProps,
+		atom: tasksFDSAtom,
 		customRenderers: {
 			tableCell: [
 				{
