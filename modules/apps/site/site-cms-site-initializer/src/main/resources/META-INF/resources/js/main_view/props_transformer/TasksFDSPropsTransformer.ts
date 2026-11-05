@@ -7,7 +7,6 @@ import {IInternalRenderer} from '@liferay/frontend-data-set-web';
 
 import AssetTitleActionLinkRenderer from './cell_renderers/AssetTitleActionLinkRenderer';
 import AuthorRenderer from './cell_renderers/AuthorRenderer';
-import DueDateRenderer from './cell_renderers/DueDateRenderer';
 import TaskStatusRenderer from './cell_renderers/TaskStatusRenderer';
 
 export default function TasksFDSPropsTransformer({
@@ -28,11 +27,6 @@ export default function TasksFDSPropsTransformer({
 				{
 					component: AuthorRenderer,
 					name: 'authorTableCellRenderer',
-					type: 'internal',
-				} as IInternalRenderer,
-				{
-					component: DueDateRenderer,
-					name: 'dueDateTableCellRenderer',
 					type: 'internal',
 				} as IInternalRenderer,
 				{
