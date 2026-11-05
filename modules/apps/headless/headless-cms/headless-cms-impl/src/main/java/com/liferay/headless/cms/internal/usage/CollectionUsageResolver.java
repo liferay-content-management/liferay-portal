@@ -36,9 +36,9 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletPreferences;
-import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -211,21 +211,19 @@ public class CollectionUsageResolver {
 				continue;
 			}
 
-			BooleanQuery booleanQuery =
-				_assetListAssetEntryProvider.getBooleanQuery(
-					assetListEntry, segmentsEntryId);
-
-			if (booleanQuery == null) {
-				continue;
-			}
-
 			AssetEntryQuery assetEntryQuery =
 				_assetListAssetEntryProvider.getAssetEntryQuery(
 					assetListEntry, new long[] {segmentsEntryId},
 					StringPool.BLANK);
 
+			if (ArrayUtil.isEmpty(assetEntryQuery.getClassNameIds())) {
+				continue;
+			}
+
 			collectionUsages.addBooleanQuery(
-				booleanQuery, assetEntryQuery.getGroupIds(), booleanQueryKey);
+				_assetListAssetEntryProvider.getBooleanQuery(
+					assetEntryQuery, assetListEntry, segmentsEntryId),
+				assetEntryQuery.getGroupIds(), booleanQueryKey);
 		}
 	}
 
