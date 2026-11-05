@@ -64,7 +64,7 @@ if (layout instanceof VirtualLayout) {
 	group = sourceLayout.getGroup();
 }
 else {
-	group = layout.getGroup();
+	group = themeDisplay.getLayoutGroup(layout);
 }
 
 long portletItemId = ParamUtil.getLong(request, "p_p_i_id");
@@ -156,11 +156,17 @@ if (responseContentType.equals(ContentTypes.XHTML_MP) && portlet.hasMultipleMime
 	supportsMimeType = GetterUtil.getBoolean(setupPortletPreferences.getValue("portletSetupSupportedClientsMobileDevices_" + portletMode, String.valueOf(supportsMimeType)));
 }
 
+long portletScopeGroupId = 0;
+
 if (Validator.isNotNull(portletResource)) {
-	themeDisplay.setScopeGroupId(PortalUtil.getScopeGroupId(request, portletResourcePortlet.getPortletId()));
+	portletScopeGroupId = PortalUtil.getScopeGroupId(request, portletResourcePortlet.getPortletId());
 }
 else {
-	themeDisplay.setScopeGroupId(PortalUtil.getScopeGroupId(request, portletId));
+	portletScopeGroupId = PortalUtil.getScopeGroupId(request, portletId);
+}
+
+if (portletScopeGroupId != themeDisplay.getScopeGroupId()) {
+	themeDisplay.setScopeGroupId(portletScopeGroupId);
 }
 
 Group siteGroup = themeDisplay.getSiteGroup();

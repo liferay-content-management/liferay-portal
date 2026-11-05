@@ -223,7 +223,7 @@ public class SegmentsExperimentLocalServiceImpl
 		long groupId, String segmentsExperienceKey, long plid) {
 
 		SegmentsExperience segmentsExperience =
-			_segmentsExperienceLocalService.fetchSegmentsExperience(
+			_segmentsExperiencePersistence.fetchByG_SEK_P(
 				groupId, segmentsExperienceKey, _getPublishedLayoutPlid(plid));
 
 		if (segmentsExperience == null) {
@@ -494,6 +494,8 @@ public class SegmentsExperimentLocalServiceImpl
 
 		if ((serviceContext == null) ||
 			(serviceContext.getUserId() == segmentsExperiment.getUserId()) ||
+			(_userLocalService.fetchUser(segmentsExperiment.getUserId()) ==
+				null) ||
 			!UserNotificationManagerUtil.isDeliver(
 				segmentsExperiment.getUserId(),
 				SegmentsPortletKeys.SEGMENTS_EXPERIMENT, 0,

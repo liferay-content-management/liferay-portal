@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.client.utils.URIBuilder;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -81,10 +83,14 @@ public class JobReport {
 		_topLevelBuildReports = new ArrayList<>();
 
 		try {
+			URIBuilder uriBuilder = JenkinsResultsParserUtil.newURIBuilder(
+				getJobURL() + "/api/json");
+
+			uriBuilder.addParameter(
+				"tree", "builds[actions[parameters[name,value]],*]");
+
 			JSONObject jsonObject = JenkinsResultsParserUtil.toJSONObject(
-				JenkinsResultsParserUtil.combine(
-					String.valueOf(getJobURL()), "/api/json?tree=",
-					"builds[actions[parameters[name,value]],*]"));
+				uriBuilder.toString());
 
 			if (jsonObject == null) {
 				return _topLevelBuildReports;

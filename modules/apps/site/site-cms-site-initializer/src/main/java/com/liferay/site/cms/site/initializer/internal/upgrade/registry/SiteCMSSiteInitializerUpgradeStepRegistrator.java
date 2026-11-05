@@ -35,7 +35,8 @@ import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_1.CMSObjectFo
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_2.CMSAdministratorRoleUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_3.CMSFileTypeDisplayPageUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_4.CMSFileTypeFriendlyURLUpgradeProcess;
-import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_5.CMSPlanningAndTasksPagesUpgradeProcess;
+import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_5.CMSSpaceAdministratorRoleUpgradeProcess;
+import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_6.CMSPlanningAndTasksPagesUpgradeProcess;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -100,6 +101,13 @@ public class SiteCMSSiteInitializerUpgradeStepRegistrator
 
 		registry.register(
 			"3.0.4", "3.0.5",
+			new CMSSpaceAdministratorRoleUpgradeProcess(
+				_companyLocalService, _groupLocalService, _layoutLocalService,
+				_resourcePermissionLocalService, _roleLocalService,
+				_userLocalService));
+
+		registry.register(
+			"3.0.5", "3.0.6",
 			new CMSPlanningAndTasksPagesUpgradeProcess(
 				_companyLocalService, _groupLocalService, _layoutLocalService,
 				_layoutPageTemplateEntryLocalService,

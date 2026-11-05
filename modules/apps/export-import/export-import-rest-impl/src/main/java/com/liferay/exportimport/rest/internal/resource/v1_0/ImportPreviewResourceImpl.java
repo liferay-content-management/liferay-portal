@@ -7,15 +7,18 @@ package com.liferay.exportimport.rest.internal.resource.v1_0;
 
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactoryUtil;
 import com.liferay.exportimport.kernel.configuration.constants.ExportImportConfigurationConstants;
+import com.liferay.exportimport.kernel.lar.ExportImportGroup;
 import com.liferay.exportimport.kernel.lar.ExportImportHelper;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
 import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalService;
 import com.liferay.exportimport.kernel.service.ExportImportLocalService;
 import com.liferay.exportimport.kernel.staging.Staging;
+import com.liferay.exportimport.rest.dto.v1_0.AssetLibrary;
 import com.liferay.exportimport.rest.dto.v1_0.ImportPreview;
 import com.liferay.exportimport.rest.dto.v1_0.PortletDataHandler;
 import com.liferay.exportimport.rest.dto.v1_0.Site;
+import com.liferay.exportimport.rest.internal.util.AssetLibraryUtil;
 import com.liferay.exportimport.rest.internal.util.GroupUtil;
 import com.liferay.exportimport.rest.internal.util.LayoutUtil;
 import com.liferay.exportimport.rest.internal.util.PermissionUtil;
@@ -38,6 +41,7 @@ import com.liferay.portal.vulcan.multipart.MultipartBody;
 
 import jakarta.ws.rs.BadRequestException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -142,6 +146,46 @@ public class ImportPreviewResourceImpl extends BaseImportPreviewResourceImpl {
 			binaryFile.getInputStream(), binaryFile.getContentType());
 	}
 
+	private AssetLibrary[] _getAssetLibraries(
+		List<ExportImportGroup> exportImportGroups) {
+
+		if (!FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPD-41307")) {
+
+			return new AssetLibrary[0];
+		}
+
+		return transformToArray(
+			ListUtil.filter(exportImportGroups, ExportImportGroup::isDepot),
+			exportImportGroup -> new AssetLibrary() {
+				{
+					setDescriptiveName(exportImportGroup::getDescriptiveName);
+					setExistsInInstance(
+						() -> _hasMatchingGroup(exportImportGroup));
+					setExternalReferenceCode(
+						exportImportGroup::getExternalReferenceCode);
+					setType(
+						() -> AssetLibraryUtil.toAssetLibraryType(
+							exportImportGroup.getDepotType()));
+				}
+			},
+			AssetLibrary.class);
+	}
+
+	private List<ExportImportGroup> _getExportImportGroups(FileEntry fileEntry)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPD-41307") &&
+			!FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPD-85946")) {
+
+			return Collections.emptyList();
+		}
+
+		return _exportImportHelper.getExportImportGroups(fileEntry);
+	}
+
 	private ImportPreview _getImportPreview(
 			Group group, MultipartBody multipartBody, String portletId,
 			String sitePageExternalReferenceCode)
@@ -181,11 +225,15 @@ public class ImportPreviewResourceImpl extends BaseImportPreviewResourceImpl {
 				true, scopeGroup, contextAcceptLanguage.getPreferredLocale(),
 				manifestSummary, portlets, portletScoped);
 
+		List<ExportImportGroup> exportImportGroups = _getExportImportGroups(
+			fileEntry);
+
 		return new ImportPreview() {
 			{
 				setAdditionCount(
 					() -> PortletDataHandlerUtil.getAdditionCount(
 						importPortletDataHandlers));
+				setAssetLibraries(() -> _getAssetLibraries(exportImportGroups));
 				setAuthor(fileEntry::getUserName);
 				setDeletionCount(
 					() -> PortletDataHandlerUtil.getDeletionCount(
@@ -194,12 +242,12 @@ public class ImportPreviewResourceImpl extends BaseImportPreviewResourceImpl {
 				setFileName(fileEntry::getFileName);
 				setFileSize(fileEntry::getSize);
 				setPortletDataHandlers(() -> importPortletDataHandlers);
-				setSites(() -> _getSites(fileEntry));
+				setSites(() -> _getSites(exportImportGroups));
 			}
 		};
 	}
 
-	private Site[] _getSites(FileEntry fileEntry) throws Exception {
+	private Site[] _getSites(List<ExportImportGroup> exportImportGroups) {
 		if (!FeatureFlagManagerUtil.isEnabled(
 				contextCompany.getCompanyId(), "LPD-85946")) {
 
@@ -207,28 +255,35 @@ public class ImportPreviewResourceImpl extends BaseImportPreviewResourceImpl {
 		}
 
 		return transformToArray(
-			_exportImportHelper.getExportImportGroups(fileEntry),
+			ListUtil.filter(
+				exportImportGroups,
+				exportImportGroup -> !exportImportGroup.isDepot()),
 			exportImportGroup -> new Site() {
 				{
 					setChildSitesCount(exportImportGroup::getChildGroupsCount);
 					setDescriptiveName(exportImportGroup::getDescriptiveName);
 					setExistsInInstance(
-						() -> {
-							Group group =
-								groupLocalService.
-									fetchGroupByExternalReferenceCode(
-										exportImportGroup.
-											getExternalReferenceCode(),
-										contextCompany.getCompanyId());
-
-							return group != null;
-						});
+						() -> _hasMatchingGroup(exportImportGroup));
 					setExternalReferenceCode(
 						exportImportGroup::getExternalReferenceCode);
 					setPath(exportImportGroup::getPath);
 				}
 			},
 			Site.class);
+	}
+
+	private boolean _hasMatchingGroup(ExportImportGroup exportImportGroup) {
+		Group group = groupLocalService.fetchGroupByExternalReferenceCode(
+			exportImportGroup.getExternalReferenceCode(),
+			contextCompany.getCompanyId());
+
+		if ((group != null) &&
+			_exportImportHelper.isGroupMatching(exportImportGroup, group)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private void _validateImportFile(

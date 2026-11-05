@@ -12,6 +12,7 @@ import com.liferay.commerce.product.service.base.CommerceChannelAccountEntryRelS
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.util.List;
@@ -57,9 +58,8 @@ public class CommerceChannelAccountEntryRelServiceImpl
 		throws PortalException {
 
 		CommerceChannelAccountEntryRel commerceChannelAccountEntryRel =
-			commerceChannelAccountEntryRelLocalService.
-				getCommerceChannelAccountEntryRel(
-					commerceChannelAccountEntryRelId);
+			commerceChannelAccountEntryRelPersistence.findByPrimaryKey(
+				commerceChannelAccountEntryRelId);
 
 		_accountEntryModelResourcePermission.check(
 			getPermissionChecker(),
@@ -77,9 +77,8 @@ public class CommerceChannelAccountEntryRelServiceImpl
 		throws PortalException {
 
 		CommerceChannelAccountEntryRel commerceChannelAccountEntryRel =
-			commerceChannelAccountEntryRelLocalService.
-				fetchCommerceChannelAccountEntryRel(
-					commerceChannelAccountEntryRelId);
+			commerceChannelAccountEntryRelPersistence.fetchByPrimaryKey(
+				commerceChannelAccountEntryRelId);
 
 		if (commerceChannelAccountEntryRel != null) {
 			_accountEntryModelResourcePermission.check(
@@ -117,9 +116,8 @@ public class CommerceChannelAccountEntryRelServiceImpl
 		throws PortalException {
 
 		CommerceChannelAccountEntryRel commerceChannelAccountEntryRel =
-			commerceChannelAccountEntryRelLocalService.
-				getCommerceChannelAccountEntryRel(
-					commerceChannelAccountEntryRelId);
+			commerceChannelAccountEntryRelPersistence.findByPrimaryKey(
+				commerceChannelAccountEntryRelId);
 
 		_accountEntryModelResourcePermission.check(
 			getPermissionChecker(),
@@ -161,9 +159,9 @@ public class CommerceChannelAccountEntryRelServiceImpl
 		getCommerceChannelAccountEntryRels(
 			String className, long classPK, long commerceChannelId, int type) {
 
-		return commerceChannelAccountEntryRelLocalService.
-			getCommerceChannelAccountEntryRels(
-				className, classPK, commerceChannelId, type);
+		return commerceChannelAccountEntryRelPersistence.findByC_C_C_T(
+			_classNameLocalService.getClassNameId(className), classPK,
+			commerceChannelId, type);
 	}
 
 	@Override
@@ -175,8 +173,8 @@ public class CommerceChannelAccountEntryRelServiceImpl
 			getPermissionChecker(), accountEntryId,
 			CommerceAccountActionKeys.VIEW_CHANNEL_DEFAULTS);
 
-		return commerceChannelAccountEntryRelLocalService.
-			getCommerceChannelAccountEntryRelsCount(accountEntryId, type);
+		return commerceChannelAccountEntryRelPersistence.countByA_T(
+			accountEntryId, type);
 	}
 
 	@Override
@@ -195,9 +193,8 @@ public class CommerceChannelAccountEntryRelServiceImpl
 		throws PortalException {
 
 		CommerceChannelAccountEntryRel commerceChannelAccountEntryRel =
-			commerceChannelAccountEntryRelLocalService.
-				getCommerceChannelAccountEntryRel(
-					commerceChannelAccountEntryRelId);
+			commerceChannelAccountEntryRelPersistence.findByPrimaryKey(
+				commerceChannelAccountEntryRelId);
 
 		_accountEntryModelResourcePermission.check(
 			getPermissionChecker(),
@@ -218,5 +215,8 @@ public class CommerceChannelAccountEntryRelServiceImpl
 	)
 	private volatile ModelResourcePermission<CommerceCatalog>
 		_accountEntryModelResourcePermission;
+
+	@Reference
+	private ClassNameLocalService _classNameLocalService;
 
 }

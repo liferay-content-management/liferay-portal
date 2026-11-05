@@ -33,6 +33,7 @@ import com.liferay.site.pim.site.initializer.connector.PIMConnector;
 import com.liferay.site.pim.site.initializer.constants.PIMObjectDefinitionConstants;
 import com.liferay.site.pim.site.initializer.exception.PIMConnectorException;
 import com.liferay.site.pim.site.initializer.internal.link.VariantPIMLinkType;
+import com.liferay.site.pim.site.initializer.internal.util.PIMConnectorConfigurationUtil;
 import com.liferay.site.pim.site.initializer.internal.util.PIMConnectorFieldMappingsUtil;
 
 import java.io.Serializable;
@@ -53,9 +54,28 @@ import org.osgi.service.component.annotations.Reference;
 public abstract class BasePIMConnector implements PIMConnector {
 
 	@Override
+	public String execute(ObjectEntry pimConnectorObjectEntry)
+		throws Exception {
+
+		return doExecute(
+			_getPIMConnectorConfigurationValues(pimConnectorObjectEntry),
+			pimConnectorObjectEntry,
+			getPIMFieldMappingObjectEntriesMap(pimConnectorObjectEntry),
+			getPIMProductObjectEntriesMap(
+				pimConnectorObjectEntry.getCompanyId()));
+	}
+
+	@Override
 	public String getName(Locale locale) {
 		return language.get(locale, getKey());
 	}
+
+	protected abstract String doExecute(
+			Map<String, Serializable> pimConnectorConfigurationValues,
+			ObjectEntry pimConnectorObjectEntry,
+			Map<String, List<ObjectEntry>> pimFieldMappingObjectEntriesMap,
+			Map<String, List<ObjectEntry>> pimProductObjectEntriesMap)
+		throws Exception;
 
 	protected Map<String, List<ObjectEntry>> getPIMFieldMappingObjectEntriesMap(
 			ObjectEntry pimConnectorObjectEntry)
@@ -158,6 +178,21 @@ public abstract class BasePIMConnector implements PIMConnector {
 
 	@Reference
 	protected Sorts sorts;
+
+	private Map<String, Serializable> _getPIMConnectorConfigurationValues(
+		ObjectEntry pimConnectorObjectEntry) {
+
+		ObjectEntry pimConnectorConfigurationObjectEntry =
+			PIMConnectorConfigurationUtil.
+				fetchPIMConnectorConfigurationObjectEntry(
+					this, pimConnectorObjectEntry);
+
+		if (pimConnectorConfigurationObjectEntry == null) {
+			return Collections.emptyMap();
+		}
+
+		return pimConnectorConfigurationObjectEntry.getValues();
+	}
 
 	private List<ObjectEntry> _getPIMProductObjectEntries(long companyId) {
 		List<ObjectEntry> objectEntries = new ArrayList<>();

@@ -43,6 +43,28 @@ AICreatorOpenAICompanyConfigurationDisplayContext aiCreatorOpenAICompanyConfigur
 	</clay:content-col>
 </clay:content-row>
 
+<clay:content-row
+	cssClass="c-mb-4"
+>
+	<clay:content-col
+		expand="<%= true %>"
+	>
+		<aui:input helpMessage="image-model-help" label="image-model" name="imageModel" type="text" value="<%= aiCreatorOpenAICompanyConfigurationDisplayContext.getImageModel() %>" />
+	</clay:content-col>
+</clay:content-row>
+
+<clay:content-row
+	cssClass="c-mb-4"
+>
+	<clay:content-col
+		expand="<%= true %>"
+	>
+		<liferay-ui:error key="imageSizesInvalid" message='<%= LanguageUtil.format(request, "each-image-size-must-be-a-width-and-height-in-pixels,-separated-by-x-(e.g.-x)", new Object[] {"x", "1536x1024"}, false) %>' />
+
+		<aui:input helpMessage='<%= StringBundler.concat(LanguageUtil.get(request, "image-sizes-help"), StringPool.SPACE, LanguageUtil.format(request, "each-image-size-must-be-a-width-and-height-in-pixels,-separated-by-x-(e.g.-x)", new Object[] {"x", "1536x1024"}, false)) %>' label="image-sizes" name="imageSizes" type="text" value="<%= aiCreatorOpenAICompanyConfigurationDisplayContext.getImageSizes() %>" />
+	</clay:content-col>
+</clay:content-row>
+
 <c:if test='<%= FeatureFlagManagerUtil.isEnabled(themeDisplay.getCompanyId(), "LPD-93786") %>'>
 	<clay:content-row>
 		<clay:content-col
@@ -66,10 +88,10 @@ AICreatorOpenAICompanyConfigurationDisplayContext aiCreatorOpenAICompanyConfigur
 		expand="<%= true %>"
 	>
 		<clay:checkbox
-			checked="<%= aiCreatorOpenAICompanyConfigurationDisplayContext.isDALLEEnabled() %>"
-			id='<%= liferayPortletResponse.getNamespace() + "enableDALLE" %>'
-			label='<%= LanguageUtil.get(request, "enable-dalle-to-create-images") %>'
-			name='<%= liferayPortletResponse.getNamespace() + "enableDALLE" %>'
+			checked="<%= aiCreatorOpenAICompanyConfigurationDisplayContext.isOpenAIImageGenerationEnabled() %>"
+			id='<%= liferayPortletResponse.getNamespace() + "enableOpenAIImageGeneration" %>'
+			label='<%= LanguageUtil.get(request, "enable-openai-image-generation") %>'
+			name='<%= liferayPortletResponse.getNamespace() + "enableOpenAIImageGeneration" %>'
 		/>
 	</clay:content-col>
 </clay:content-row>

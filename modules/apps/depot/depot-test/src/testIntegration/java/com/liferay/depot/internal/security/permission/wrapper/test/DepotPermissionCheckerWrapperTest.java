@@ -100,46 +100,6 @@ public class DepotPermissionCheckerWrapperTest {
 	}
 
 	@Test
-	public void testHasPermissionForADepotGroupDelegatesToDepot()
-		throws Exception {
-
-		DepotEntry depotEntry = _addDepotEntry(TestPropsValues.getUserId());
-
-		DepotTestUtil.withRegularUser(
-			(user, role) -> {
-				PermissionChecker permissionChecker =
-					_permissionCheckerFactory.create(user);
-
-				Assert.assertFalse(
-					permissionChecker.hasPermission(
-						depotEntry.getGroup(), Group.class.getName(),
-						depotEntry.getGroupId(), ActionKeys.VIEW));
-
-				RoleTestUtil.addResourcePermission(
-					role, Group.class.getName(),
-					ResourceConstants.SCOPE_COMPANY,
-					String.valueOf(TestPropsValues.getCompanyId()),
-					ActionKeys.VIEW);
-
-				Assert.assertFalse(
-					permissionChecker.hasPermission(
-						depotEntry.getGroup(), Group.class.getName(),
-						depotEntry.getGroupId(), ActionKeys.VIEW));
-
-				RoleTestUtil.addResourcePermission(
-					role, DepotEntry.class.getName(),
-					ResourceConstants.SCOPE_COMPANY,
-					String.valueOf(TestPropsValues.getCompanyId()),
-					ActionKeys.VIEW);
-
-				Assert.assertTrue(
-					permissionChecker.hasPermission(
-						depotEntry.getGroup(), Group.class.getName(),
-						depotEntry.getGroupId(), ActionKeys.VIEW));
-			});
-	}
-
-	@Test
 	public void testHasPermissionForADepotGroupDoesNotDelegateToDepotForUnsupportedPermissions()
 		throws Exception {
 
@@ -184,6 +144,15 @@ public class DepotPermissionCheckerWrapperTest {
 						depotEntry.getGroup(), DLFileEntry.class.getName(),
 						DLFileEntry.class.getName(), ActionKeys.UPDATE));
 			});
+	}
+
+	@Test
+	public void testHasPermissionWithDepotGroup() throws Exception {
+		_testHasPermissionWithDepotGroup(ActionKeys.ASSIGN_MEMBERS);
+		_testHasPermissionWithDepotGroup(ActionKeys.ASSIGN_USER_ROLES);
+		_testHasPermissionWithDepotGroup(ActionKeys.VIEW);
+		_testHasPermissionWithDepotGroup(ActionKeys.VIEW_MEMBERS);
+		_testHasPermissionWithDepotGroup(ActionKeys.VIEW_SITE_ADMINISTRATION);
 	}
 
 	@Test
@@ -1107,6 +1076,43 @@ public class DepotPermissionCheckerWrapperTest {
 		_depotEntries.add(depotEntry);
 
 		return depotEntry;
+	}
+
+	private void _testHasPermissionWithDepotGroup(String actionId)
+		throws Exception {
+
+		DepotEntry depotEntry = _addDepotEntry(TestPropsValues.getUserId());
+
+		DepotTestUtil.withRegularUser(
+			(user, role) -> {
+				PermissionChecker permissionChecker =
+					_permissionCheckerFactory.create(user);
+
+				Assert.assertFalse(
+					permissionChecker.hasPermission(
+						depotEntry.getGroup(), Group.class.getName(),
+						depotEntry.getGroupId(), actionId));
+
+				RoleTestUtil.addResourcePermission(
+					role, Group.class.getName(),
+					ResourceConstants.SCOPE_COMPANY,
+					String.valueOf(TestPropsValues.getCompanyId()), actionId);
+
+				Assert.assertFalse(
+					permissionChecker.hasPermission(
+						depotEntry.getGroup(), Group.class.getName(),
+						depotEntry.getGroupId(), actionId));
+
+				RoleTestUtil.addResourcePermission(
+					role, DepotEntry.class.getName(),
+					ResourceConstants.SCOPE_COMPANY,
+					String.valueOf(TestPropsValues.getCompanyId()), actionId);
+
+				Assert.assertTrue(
+					permissionChecker.hasPermission(
+						depotEntry.getGroup(), Group.class.getName(),
+						depotEntry.getGroupId(), actionId));
+			});
 	}
 
 	@DeleteAfterTestRun

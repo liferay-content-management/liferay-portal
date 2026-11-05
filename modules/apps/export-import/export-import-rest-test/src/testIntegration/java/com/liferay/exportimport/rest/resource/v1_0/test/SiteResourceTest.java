@@ -6,12 +6,20 @@
 package com.liferay.exportimport.rest.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.depot.constants.DepotConstants;
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.exportimport.rest.client.dto.v1_0.Site;
 import com.liferay.exportimport.rest.client.pagination.Page;
 import com.liferay.exportimport.rest.client.pagination.Pagination;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
@@ -27,7 +35,8 @@ import org.junit.runner.RunWith;
  */
 @FeatureFlags(
 	featureFlags = {
-		@FeatureFlag(value = "LPD-57655"), @FeatureFlag("LPD-85946")
+		@FeatureFlag(value = "LPD-41307"), @FeatureFlag("LPD-57655"),
+		@FeatureFlag("LPD-85946")
 	}
 )
 @RunWith(Arquillian.class)
@@ -41,6 +50,7 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 		_testGetExportPreviewSitesPage();
 		_testGetExportPreviewSitesPageWithInactiveSite();
 		_testGetExportPreviewSitesPageWithSearch();
+		_testGetExportPreviewSitesPageWithSpace();
 	}
 
 	@Override
@@ -126,6 +136,29 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 		Assert.assertEquals(
 			group.getExternalReferenceCode(), site.getExternalReferenceCode());
 	}
+
+	private void _testGetExportPreviewSitesPageWithSpace() throws Exception {
+		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()
+			).build(),
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()
+			).build(),
+			DepotConstants.TYPE_SPACE,
+			ServiceContextTestUtil.getServiceContext());
+
+		_depotGroup = depotEntry.getGroup();
+
+		Assert.assertNull(
+			_getExportPreviewSite(_depotGroup.getExternalReferenceCode()));
+	}
+
+	@Inject
+	private DepotEntryLocalService _depotEntryLocalService;
+
+	@DeleteAfterTestRun
+	private Group _depotGroup;
 
 	@Inject
 	private GroupLocalService _groupLocalService;

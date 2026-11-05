@@ -3,18 +3,19 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {delegate, getOpener, sub} from 'frontend-js-web';
+import {openItemSelectorModal} from '@liferay/frontend-js-item-selector-web';
+import {getProductsItemSelectorProps} from 'commerce-frontend-js';
+import {openSelectionModal} from 'frontend-js-components-web';
+import {delegate, escapeHTML} from 'frontend-js-web';
 
 export default function ({
+	commerceChannelId,
 	layoutItemSelectorUrl,
 	layoutPageTemplateEntryItemSelectorUrl,
 	portletNamespace,
-	productItemSelectorUrl,
 	removeIcon,
 	searchContainerId,
 }) {
-	const openerWindow = getOpener();
-
 	const initProductSelection = (searchContainer) => {
 		const selectProductButton = document.getElementById(
 			`${portletNamespace}selectProduct`
@@ -27,9 +28,15 @@ export default function ({
 		selectProductButton.addEventListener('click', (event) => {
 			event.preventDefault();
 
-			openerWindow.Liferay.Util.openSelectionModal({
-				onSelect: (selectedItem) => {
-					if (!selectedItem) {
+			openItemSelectorModal({
+				...getProductsItemSelectorProps({
+					channelId: commerceChannelId,
+					multiSelect: false,
+					portletNamespace,
+				}),
+				items: [],
+				onItemsChange: ([selectedProduct]) => {
+					if (!selectedProduct) {
 						return;
 					}
 
@@ -49,9 +56,18 @@ export default function ({
 
 					const rowColumns = [];
 
-					rowColumns.push(selectedItem.name);
 					rowColumns.push(
-						`<a class="float-right modify-link" data-rowId="${selectedItem.id}" href="javascript:void(0);">${removeIcon}</a>`
+						escapeHTML(
+							selectedProduct.name[
+								Liferay.ThemeDisplay.getLanguageId()
+							] ||
+								selectedProduct.name[
+									Liferay.ThemeDisplay.getDefaultLanguageId()
+								]
+						)
+					);
+					rowColumns.push(
+						`<a class="float-right modify-link" data-rowId="${selectedProduct.id}" href="javascript:void(0);">${removeIcon}</a>`
 					);
 
 					const classPKInput = document.getElementById(
@@ -59,19 +75,13 @@ export default function ({
 					);
 
 					if (classPKInput) {
-						classPKInput.value = selectedItem.id;
+						classPKInput.value = selectedProduct.id;
 					}
 
-					searchContainer.addRow(rowColumns, selectedItem.id);
+					searchContainer.addRow(rowColumns, selectedProduct.id);
 
 					searchContainer.updateDataStore();
 				},
-				selectEventName: 'productDefinitionsSelectItem',
-				title: sub(
-					Liferay.Language.get('select-x'),
-					Liferay.Language.get('product')
-				),
-				url: productItemSelectorUrl,
 			});
 		});
 
@@ -133,7 +143,7 @@ export default function ({
 
 		if (chooseLayoutButton) {
 			chooseLayoutButton.addEventListener('click', () => {
-				openerWindow.Liferay.Util.openSelectionModal({
+				openSelectionModal({
 					buttonAddLabel: Liferay.Language.get('done'),
 					multiple: true,
 					onSelect: (selectedItem) => {
@@ -158,7 +168,7 @@ export default function ({
 			chooseLayoutPageTemplateEntryButton.addEventListener(
 				'click',
 				() => {
-					openerWindow.Liferay.Util.openSelectionModal({
+					openSelectionModal({
 						buttonAddLabel: Liferay.Language.get('done'),
 						onSelect: (selectedItem) => {
 							if (!selectedItem) {

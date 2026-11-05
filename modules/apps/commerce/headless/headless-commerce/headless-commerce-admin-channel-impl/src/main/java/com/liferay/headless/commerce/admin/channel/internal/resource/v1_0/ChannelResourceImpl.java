@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
@@ -172,7 +173,8 @@ public class ChannelResourceImpl extends BaseChannelResourceImpl {
 				channelId,
 				_getAccountEntryId(
 					channel, commerceChannel.getAccountEntryId()),
-				commerceChannel.getSiteGroupId(),
+				GetterUtil.getLong(
+					channel.getSiteGroupId(), commerceChannel.getSiteGroupId()),
 				GetterUtil.getString(
 					channel.getName(), commerceChannel.getName()),
 				GetterUtil.getString(
@@ -220,7 +222,8 @@ public class ChannelResourceImpl extends BaseChannelResourceImpl {
 				commerceChannel.getCommerceChannelId(),
 				_getAccountEntryId(
 					channel, commerceChannel.getAccountEntryId()),
-				commerceChannel.getSiteGroupId(),
+				GetterUtil.getLong(
+					channel.getSiteGroupId(), commerceChannel.getSiteGroupId()),
 				GetterUtil.getString(
 					channel.getName(), commerceChannel.getName()),
 				GetterUtil.getString(
@@ -244,7 +247,7 @@ public class ChannelResourceImpl extends BaseChannelResourceImpl {
 				channel.getExternalReferenceCode(),
 				_getAccountEntryId(
 					channel, AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT),
-				GetterUtil.get(channel.getSiteGroupId(), 0), channel.getName(),
+				GetterUtil.getLong(channel.getSiteGroupId()), channel.getName(),
 				channel.getType(), null, commerceCurrency.getCode(),
 				_serviceContextHelper.getServiceContext(contextUser)));
 	}
@@ -271,8 +274,12 @@ public class ChannelResourceImpl extends BaseChannelResourceImpl {
 				channelId,
 				_getAccountEntryId(
 					channel, AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT),
-				channel.getSiteGroupId(), channel.getName(), channel.getType(),
-				null, commerceCurrency.getCode(), null, false));
+				GetterUtil.getLong(channel.getSiteGroupId()), channel.getName(),
+				channel.getType(),
+				commerceChannel.getTypeSettingsUnicodeProperties(),
+				commerceCurrency.getCode(),
+				commerceChannel.getPriceDisplayType(),
+				commerceChannel.isDiscountsTargetNetPrice()));
 	}
 
 	@Override
@@ -286,13 +293,25 @@ public class ChannelResourceImpl extends BaseChannelResourceImpl {
 				channel.getCurrencyExternalReferenceCode(),
 				GetterUtil.getLong(channel.getCurrencyId()));
 
+		CommerceChannel commerceChannel =
+			_commerceChannelService.fetchCommerceChannelByExternalReferenceCode(
+				externalReferenceCode, contextCompany.getCompanyId());
+
+		UnicodeProperties typeSettingsUnicodeProperties = null;
+
+		if (commerceChannel != null) {
+			typeSettingsUnicodeProperties =
+				commerceChannel.getTypeSettingsUnicodeProperties();
+		}
+
 		return _toChannel(
 			_commerceChannelService.addOrUpdateCommerceChannel(
 				externalReferenceCode,
 				_getAccountEntryId(
 					channel, AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT),
 				GetterUtil.getLong(channel.getSiteGroupId()), channel.getName(),
-				channel.getType(), null, commerceCurrency.getCode(),
+				channel.getType(), typeSettingsUnicodeProperties,
+				commerceCurrency.getCode(),
 				_serviceContextHelper.getServiceContext()));
 	}
 

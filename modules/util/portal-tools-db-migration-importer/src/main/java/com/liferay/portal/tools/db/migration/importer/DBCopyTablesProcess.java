@@ -5,7 +5,6 @@
 
 package com.liferay.portal.tools.db.migration.importer;
 
-import com.liferay.petra.io.unsync.UnsyncBufferedReader;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -21,12 +20,9 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.db.migration.importer.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.tools.db.migration.importer.jdbc.ConnectionConfigUtil;
 
-import java.io.Reader;
-
 import java.math.BigDecimal;
 
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -36,6 +32,8 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import java.text.DateFormat;
+
+import java.time.LocalTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -357,8 +355,14 @@ public class DBCopyTablesProcess {
 
 			valueString = value ? "1" : "0";
 		}
-		else if (sourceType == Types.CLOB) {
-			Clob value = resultSet.getClob(columnName);
+		else if ((sourceType == Types.CHAR) ||
+				 (sourceType == Types.LONGNVARCHAR) ||
+				 (sourceType == Types.LONGVARCHAR) ||
+				 (sourceType == Types.NCHAR) || (sourceType == Types.NCLOB) ||
+				 (sourceType == Types.NVARCHAR) || (sourceType == Types.TIME) ||
+				 (sourceType == Types.VARCHAR)) {
+
+			String value = resultSet.getString(columnName);
 
 			if (value == null) {
 				preparedStatement.setNull(index, targetType);
@@ -366,25 +370,50 @@ public class DBCopyTablesProcess {
 				return;
 			}
 
-			try (Reader reader = value.getCharacterStream();
+			if ((targetType == Types.LONGNVARCHAR) ||
+				(targetType == Types.VARCHAR)) {
 
-				UnsyncBufferedReader unsyncBufferedReader =
-					new UnsyncBufferedReader(reader)) {
+				preparedStatement.setString(index, _getSanitizedString(value));
 
-				StringBundler sb = new StringBundler();
-
-				String line = null;
-
-				while ((line = unsyncBufferedReader.readLine()) != null) {
-					if (sb.length() != 0) {
-						sb.append("\n");
-					}
-
-					sb.append(line);
-				}
-
-				valueString = sb.toString();
+				return;
 			}
+
+			valueString = value;
+		}
+		else if (sourceType == Types.CLOB) {
+			String value = resultSet.getString(columnName);
+
+			if (value == null) {
+				preparedStatement.setNull(index, targetType);
+
+				return;
+			}
+
+			valueString = value;
+		}
+		else if ((sourceType == Types.DATE) ||
+				 (sourceType == Types.TIMESTAMP) ||
+				 (sourceType == Types.TIMESTAMP_WITH_TIMEZONE) ||
+				 (sourceType ==
+					 _SQL_TYPE_ORACLE_TIMESTAMP_WITH_LOCAL_TIME_ZONE) ||
+				 (sourceType == _SQL_TYPE_ORACLE_TIMESTAMP_WITH_TIME_ZONE) ||
+				 (sourceType == _SQL_TYPE_SQL_SERVER_DATETIMEOFFSET)) {
+
+			Timestamp value = resultSet.getTimestamp(columnName);
+
+			if (value == null) {
+				preparedStatement.setNull(index, targetType);
+
+				return;
+			}
+
+			if (targetType == Types.TIMESTAMP) {
+				preparedStatement.setTimestamp(index, value);
+
+				return;
+			}
+
+			valueString = value.toString();
 		}
 		else if ((sourceType == Types.DECIMAL) ||
 				 (sourceType == Types.NUMERIC)) {
@@ -459,44 +488,18 @@ public class DBCopyTablesProcess {
 
 			valueString = String.valueOf(value);
 		}
-		else if ((sourceType == Types.LONGVARCHAR) ||
-				 (sourceType == Types.NVARCHAR) ||
-				 (sourceType == Types.VARCHAR)) {
+		else if ((sourceType == Types.REAL) ||
+				 (sourceType == _SQL_TYPE_ORACLE_BINARY_FLOAT)) {
 
-			String value = resultSet.getString(columnName);
+			float value = resultSet.getFloat(columnName);
 
-			if (value == null) {
+			if ((value == 0.0F) && resultSet.wasNull()) {
 				preparedStatement.setNull(index, targetType);
 
 				return;
 			}
 
-			if ((targetType == Types.LONGNVARCHAR) ||
-				(targetType == Types.VARCHAR)) {
-
-				preparedStatement.setString(index, _getSanitizedString(value));
-
-				return;
-			}
-
-			valueString = value;
-		}
-		else if (sourceType == Types.TIMESTAMP) {
-			Timestamp value = resultSet.getTimestamp(columnName);
-
-			if (value == null) {
-				preparedStatement.setNull(index, targetType);
-
-				return;
-			}
-
-			if (targetType == Types.TIMESTAMP) {
-				preparedStatement.setTimestamp(index, value);
-
-				return;
-			}
-
-			valueString = value.toString();
+			valueString = String.valueOf(value);
 		}
 		else if ((sourceType == Types.TINYINT) ||
 				 (sourceType == Types.SMALLINT)) {
@@ -552,6 +555,18 @@ public class DBCopyTablesProcess {
 			return "oid";
 		}
 
+		if (((dataType == Types.CHAR) || (dataType == Types.NCHAR) ||
+			 (dataType == Types.NVARCHAR) || (dataType == Types.VARCHAR)) &&
+			(columnSize > 0) &&
+			(columnSize < DB.SQL_VARCHAR_MAX_SIZE_THRESHOLD)) {
+
+			return "varchar(" + columnSize + ")";
+		}
+
+		if ((dataType == Types.DATE) || (dataType == Types.TIMESTAMP)) {
+			return "timestamp";
+		}
+
 		if ((dataType == Types.DECIMAL) || (dataType == Types.NUMERIC)) {
 			if ((columnSize <= 0) || (decimalDigits < 0)) {
 				return "numeric";
@@ -568,7 +583,9 @@ public class DBCopyTablesProcess {
 		}
 
 		if ((dataType == Types.DOUBLE) || (dataType == Types.FLOAT) ||
-			(dataType == _SQL_TYPE_ORACLE_BINARY_DOUBLE)) {
+			(dataType == Types.REAL) ||
+			(dataType == _SQL_TYPE_ORACLE_BINARY_DOUBLE) ||
+			(dataType == _SQL_TYPE_ORACLE_BINARY_FLOAT)) {
 
 			return "double precision";
 		}
@@ -579,14 +596,16 @@ public class DBCopyTablesProcess {
 			return "integer";
 		}
 
-		if (((dataType == Types.NVARCHAR) || (dataType == Types.VARCHAR)) &&
-			(columnSize < DB.SQL_VARCHAR_MAX_SIZE_THRESHOLD)) {
-
-			return "varchar(" + columnSize + ")";
+		if (dataType == Types.TIME) {
+			return "time";
 		}
 
-		if (dataType == Types.TIMESTAMP) {
-			return "timestamp";
+		if ((dataType == Types.TIMESTAMP_WITH_TIMEZONE) ||
+			(dataType == _SQL_TYPE_ORACLE_TIMESTAMP_WITH_LOCAL_TIME_ZONE) ||
+			(dataType == _SQL_TYPE_ORACLE_TIMESTAMP_WITH_TIME_ZONE) ||
+			(dataType == _SQL_TYPE_SQL_SERVER_DATETIMEOFFSET)) {
+
+			return "timestamp with time zone";
 		}
 
 		return "text";
@@ -693,6 +712,9 @@ public class DBCopyTablesProcess {
 			preparedStatement.setBigDecimal(
 				index, (BigDecimal)GetterUtil.get(value, BigDecimal.ZERO));
 		}
+		else if (targetType == Types.TIME) {
+			preparedStatement.setObject(index, LocalTime.parse(value));
+		}
 		else if (targetType == Types.TIMESTAMP) {
 			DateFormat dateFormat = DateUtil.getISOFormat();
 
@@ -748,6 +770,15 @@ public class DBCopyTablesProcess {
 	}
 
 	private static final int _SQL_TYPE_ORACLE_BINARY_DOUBLE = 101;
+
+	private static final int _SQL_TYPE_ORACLE_BINARY_FLOAT = 100;
+
+	private static final int _SQL_TYPE_ORACLE_TIMESTAMP_WITH_LOCAL_TIME_ZONE =
+		-102;
+
+	private static final int _SQL_TYPE_ORACLE_TIMESTAMP_WITH_TIME_ZONE = -101;
+
+	private static final int _SQL_TYPE_SQL_SERVER_DATETIMEOFFSET = -155;
 
 	private final String _partitionMessage;
 	private final Map<String, List<String>> _sourceColumnNamesMap =

@@ -25,6 +25,28 @@ public class InstanceImportProcessRequest implements Cloneable, Serializable {
 		return InstanceImportProcessRequestSerDes.toDTO(json);
 	}
 
+	public AssetLibrary[] getAssetLibraries() {
+		return assetLibraries;
+	}
+
+	public void setAssetLibraries(AssetLibrary[] assetLibraries) {
+		this.assetLibraries = assetLibraries;
+	}
+
+	public void setAssetLibraries(
+		UnsafeSupplier<AssetLibrary[], Exception>
+			assetLibrariesUnsafeSupplier) {
+
+		try {
+			assetLibraries = assetLibrariesUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected AssetLibrary[] assetLibraries;
+
 	public Boolean getComments() {
 		return comments;
 	}
@@ -336,4 +358,4 @@ public class InstanceImportProcessRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-2018327541
+// LIFERAY-REST-BUILDER-HASH:738372405

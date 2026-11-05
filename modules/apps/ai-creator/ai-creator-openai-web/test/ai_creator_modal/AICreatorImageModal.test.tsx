@@ -24,6 +24,14 @@ jest.mock('frontend-js-web', () => ({
 
 const mockedFetch = fetch as any;
 
+function getGeneration(index: number) {
+	return {
+		expirationTime: 1000 + index,
+		signature: `signature-${index}`,
+		url: `data:image/png;base64,${btoa(`image-${index}`)}`,
+	};
+}
+
 async function renderModalWithRequest() {
 	render(
 
@@ -31,6 +39,7 @@ async function renderModalWithRequest() {
 
 		<AICreatorImageModal
 			getGenerationsURL="/sample-url"
+			imageSizes={['1024x1024', '1536x1024']}
 			portletNamespace="namespace"
 			uploadGenerationsURL="/upload-url"
 		/>
@@ -40,7 +49,7 @@ async function renderModalWithRequest() {
 		screen.getByLabelText('description'),
 		'Sample image description'
 	);
-	userEvent.selectOptions(screen.getByLabelText('image-size'), '256x256');
+	userEvent.selectOptions(screen.getByLabelText('image-size'), '1536x1024');
 	userEvent.type(screen.getByLabelText('number-of-images-to-generate'), '4');
 
 	await act(async () => {
@@ -63,7 +72,7 @@ describe('AICreatorImageModal', () => {
 		expect(url).toBe('/sample-url');
 
 		expect(body.get('namespaceprompt')).toBe('Sample image description');
-		expect(body.get('namespacesize')).toBe('256x256');
+		expect(body.get('namespacesize')).toBe('1536x1024');
 		expect(body.get('namespacenumberOfImages')).toBe('4');
 	});
 
@@ -91,12 +100,7 @@ describe('AICreatorImageModal', () => {
 				new Response(
 					JSON.stringify({
 						generations: {
-							content: [
-								'/generated-image-url-1.png',
-								'/generated-image-url-2.png',
-								'/generated-image-url-3.png',
-								'/generated-image-url-4.png',
-							],
+							content: [1, 2, 3, 4].map(getGeneration),
 						},
 					})
 				)
@@ -119,11 +123,7 @@ describe('AICreatorImageModal', () => {
 				new Response(
 					JSON.stringify({
 						generations: {
-							content: [
-								'/generated-image-url-1.png',
-								'/generated-image-url-2.png',
-								'/generated-image-url-3.png',
-							],
+							content: [1, 2, 3].map(getGeneration),
 						},
 					})
 				)
@@ -160,9 +160,30 @@ describe('AICreatorImageModal', () => {
 
 		expect(mockedFetch).toHaveBeenCalledTimes(3);
 
-		const [url] = mockedFetch.mock.calls[1];
+		const [url, {body}] = mockedFetch.mock.calls[1];
 
 		expect(url).toBe('/upload-url');
+
+		expect(body.get('namespaceexpirationTime')).toBe('1001');
+		expect(body.get('namespacesignature')).toBe('signature-1');
+		expect(body.get('namespaceurlPath')).toBeNull();
+
+		const image = body.get('namespaceimage');
+
+		expect(image.type).toBe('image/png');
+		expect(
+			await new Promise((resolve) => {
+				const fileReader = new FileReader();
+
+				fileReader.onload = () => resolve(fileReader.result);
+
+				fileReader.readAsText(image);
+			})
+		).toBe('image-1');
+
+		const [, {body: secondBody}] = mockedFetch.mock.calls[2];
+
+		expect(secondBody.get('namespacesignature')).toBe('signature-2');
 	});
 
 	it('shows unexpected error messages if any while generating images', async () => {

@@ -6,7 +6,7 @@
 import {IFrontendDataSetProps} from '@liferay/frontend-data-set-web';
 
 import {openEditURL} from '../../utils/urlUtil';
-import {baseFDSProps} from './baseFDSProps';
+import {baseFDSProps, getEmptyState} from './baseFDSProps';
 import {getAPIApplicationsFDSFilters} from './fdsFilters';
 import {itemStatusRenderer, itemURLRenderer} from './fdsRenderers';
 
@@ -22,11 +22,9 @@ export function getAPIApplicationsFDSProps(
 			itemStatusRenderer,
 			itemURLRenderer,
 		},
-		emptyState: {
-			description: '',
-			image: '/states/empty_state.svg',
-			title: Liferay.Language.get('no-api-application-found'),
-		},
+		emptyState: getEmptyState(
+			Liferay.Language.get('no-api-application-found')
+		),
 		filters: getAPIApplicationsFDSFilters(),
 		id: portletId,
 		itemsActions: [

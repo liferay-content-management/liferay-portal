@@ -11,6 +11,7 @@ import {
 	fireEvent,
 	render,
 	screen,
+	waitFor,
 	within,
 } from '@testing-library/react';
 import {ILifecycleDetail} from 'shared/api/lifecycle';
@@ -44,12 +45,13 @@ const STAGE = {
 	externalReferenceCode: 'stage',
 	id: 'stage',
 	maxDuration: null,
-	priority: 1,
-	stageName: 'Aware',
+	name: 'Aware',
+	position: 1,
 };
 
 const LIFECYCLES: ILifecycleDetail[] = [
 	{
+		accountLifecycleStages: [STAGE, {...STAGE, id: 'stage-2'}],
 		authorName: 'Anneta Smith',
 		defaultAccountLifecycle: true,
 		description: 'Unifies acquisition and expansion.',
@@ -57,7 +59,6 @@ const LIFECYCLES: ILifecycleDetail[] = [
 		id: '1',
 		modifiedDate: Date.UTC(2026, 9, 2, 17, 53),
 		name: 'Growth and Retention Hub',
-		stages: [STAGE, {...STAGE, id: 'stage-2'}],
 	},
 	{
 		defaultAccountLifecycle: false,
@@ -67,22 +68,24 @@ const LIFECYCLES: ILifecycleDetail[] = [
 		name: 'Partner Lifecycle',
 	},
 	{
+		accountLifecycleStages: [STAGE],
 		authorName: 'Marcus Reed',
 		defaultAccountLifecycle: false,
 		externalReferenceCode: 'erc-3',
 		id: '3',
 		name: 'Expansion Lifecycle',
-		stages: [STAGE],
 	},
 ];
 
 const Panel = ({
 	initialView = {type: 'switch'},
 	onDefaultChange = jest.fn(),
+	onDefaultDelete,
 	openLifecycle = LIFECYCLES[0],
 }: {
 	initialView?: LifecyclePanelView | null;
 	onDefaultChange?: (lifecycleId: string) => void;
+	onDefaultDelete?: () => void;
 	openLifecycle?: ILifecycleDetail;
 }) => {
 	const [view, setView] = useState<LifecyclePanelView | null>(initialView);
@@ -94,6 +97,7 @@ const Panel = ({
 			<LifecycleSwitchPanel
 				defaultChangeCount={0}
 				onDefaultChange={onDefaultChange}
+				onDefaultDelete={onDefaultDelete}
 				onViewChange={setView}
 				openLifecycle={openLifecycle}
 				view={view}
@@ -120,7 +124,9 @@ const mockLifecyclesPage = (items: ILifecycleDetail[], totalCount = 3) =>
 							pageSize: 20,
 							totalCount,
 						}
-					: LIFECYCLES.find(({id}) => id === variables.lifecycleId),
+					: [...items, ...LIFECYCLES].find(
+							({id}) => id === variables.lifecycleId
+						),
 			error: false,
 			loading: false,
 			refetch: jest.fn(),
@@ -464,5 +470,167 @@ describe('LifecycleSwitchPanel', () => {
 		expect(screen.getByTestId('view')).toHaveTextContent(
 			JSON.stringify({type: 'switch'})
 		);
+	});
+
+	describe('the Delete action', () => {
+		const deleteRow = async (name: string) => {
+			openRowMenu(name);
+
+			fireEvent.click(screen.getByRole('menuitem', {name: /^delete$/i}));
+
+			fireEvent.click(
+				await within(screen.getByRole('dialog')).findByRole('button', {
+					name: /^delete$/i,
+				})
+			);
+		};
+
+		it('comes last in the row menu', () => {
+			renderPanel();
+
+			openRowMenu('Partner Lifecycle');
+
+			const items = screen.getAllByRole('menuitem');
+
+			expect(items[items.length - 1]).toHaveTextContent(/^delete$/i);
+		});
+
+		it('shows on the default lifecycle', () => {
+			renderPanel();
+
+			openRowMenu('Growth and Retention Hub');
+
+			expect(
+				screen.getByRole('menuitem', {name: /^delete$/i})
+			).toBeInTheDocument();
+		});
+
+		const PARTNER_DEFAULT = LIFECYCLES.map((lifecycle) => ({
+			...lifecycle,
+			defaultAccountLifecycle: lifecycle.id === '2',
+		}));
+
+		it('reports a deleted default so the new default is shown', async () => {
+			const onDefaultDelete = jest.fn();
+
+			mockLifecyclesPage(PARTNER_DEFAULT);
+
+			renderPanel({onDefaultDelete});
+
+			await deleteRow('Partner Lifecycle');
+
+			await waitFor(() => expect(onDefaultDelete).toHaveBeenCalled());
+
+			await waitFor(() =>
+				expect(getPageRequests().pop()).toEqual(
+					expect.objectContaining({refreshCount: 1})
+				)
+			);
+		});
+
+		it('does not report a deleted lifecycle that was not the default', async () => {
+			const onDefaultDelete = jest.fn();
+
+			renderPanel({onDefaultDelete});
+
+			await deleteRow('Expansion Lifecycle');
+
+			await waitFor(() =>
+				expect(getPageRequests().pop()).toEqual(
+					expect.objectContaining({refreshCount: 1})
+				)
+			);
+
+			expect(onDefaultDelete).not.toHaveBeenCalled();
+		});
+
+		it('reloads the current page and stays open after a delete', async () => {
+			mockLifecyclesPage(LIFECYCLES, 45);
+
+			renderPanel();
+
+			fireEvent.click(screen.getByText('2', {selector: '.page-link'}));
+
+			await deleteRow('Partner Lifecycle');
+
+			await waitFor(() =>
+				expect(getPageRequests().pop()).toEqual(
+					expect.objectContaining({page: 2, refreshCount: 1})
+				)
+			);
+
+			expect(screen.getByTestId('view')).toHaveTextContent(
+				JSON.stringify({type: 'switch'})
+			);
+		});
+
+		it('goes back a page when the deleted row was alone on its page', async () => {
+			mockLifecyclesPage([LIFECYCLES[1]], 21);
+
+			renderPanel();
+
+			fireEvent.click(screen.getByText('2', {selector: '.page-link'}));
+
+			await deleteRow('Partner Lifecycle');
+
+			await waitFor(() =>
+				expect(getPageRequests().pop()).toEqual(
+					expect.objectContaining({page: 1, refreshCount: 0})
+				)
+			);
+		});
+
+		it('reports a default deleted from its details', async () => {
+			const onDefaultDelete = jest.fn();
+
+			mockLifecyclesPage(PARTNER_DEFAULT);
+
+			renderPanel({
+				initialView: {
+					lifecycleId: '2',
+					parent: 'switch',
+					type: 'details',
+				},
+				onDefaultDelete,
+			});
+
+			fireEvent.click(screen.getByRole('button', {name: /^menu$/i}));
+
+			fireEvent.click(screen.getByRole('menuitem', {name: /^delete$/i}));
+
+			fireEvent.click(
+				await within(screen.getByRole('dialog')).findByRole('button', {
+					name: /^delete$/i,
+				})
+			);
+
+			await waitFor(() => expect(onDefaultDelete).toHaveBeenCalled());
+		});
+
+		it('returns to the list after a delete from the details', async () => {
+			renderPanel({
+				initialView: {
+					lifecycleId: '2',
+					parent: 'switch',
+					type: 'details',
+				},
+			});
+
+			fireEvent.click(screen.getByRole('button', {name: /^menu$/i}));
+
+			fireEvent.click(screen.getByRole('menuitem', {name: /^delete$/i}));
+
+			fireEvent.click(
+				await within(screen.getByRole('dialog')).findByRole('button', {
+					name: /^delete$/i,
+				})
+			);
+
+			await waitFor(() =>
+				expect(screen.getByTestId('view')).toHaveTextContent(
+					JSON.stringify({type: 'switch'})
+				)
+			);
+		});
 	});
 });

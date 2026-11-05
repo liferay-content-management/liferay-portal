@@ -28,6 +28,7 @@ const SEARCH_DEBOUNCE_DELAY = 250;
 interface ILifecycleRowActionsProps {
 	lifecycle: ILifecycle;
 	onDefaultChange: () => void;
+	onDelete: (lifecycle: ILifecycle) => void;
 	onShowDetails: () => void;
 	onView?: () => void;
 }
@@ -35,15 +36,18 @@ interface ILifecycleRowActionsProps {
 const LifecycleRowActions: React.FC<ILifecycleRowActionsProps> = ({
 	lifecycle,
 	onDefaultChange,
+	onDelete,
 	onShowDetails,
 	onView,
 }) => {
-	const {actions, manageNotificationsModal} = useLifecycleActions({
-		lifecycle,
-		onDefaultChange,
-		onShowDetails,
-		onView,
-	});
+	const {actions, deleteLifecycleModal, manageNotificationsModal} =
+		useLifecycleActions({
+			lifecycle,
+			onDefaultChange,
+			onDelete,
+			onShowDetails,
+			onView,
+		});
 
 	return (
 		<>
@@ -56,6 +60,8 @@ const LifecycleRowActions: React.FC<ILifecycleRowActionsProps> = ({
 					]) as string
 				}
 			/>
+
+			{deleteLifecycleModal}
 
 			{manageNotificationsModal}
 		</>
@@ -84,6 +90,7 @@ const getMeta = (
 interface ILifecycleSwitchListProps {
 	defaultChangeCount: number;
 	onDefaultChange: (lifecycleId: string) => void;
+	onDefaultDelete?: () => void;
 	onNavigate: () => void;
 	onShowDetails: (lifecycleId: string) => void;
 	openLifecycleERC?: string;
@@ -92,6 +99,7 @@ interface ILifecycleSwitchListProps {
 const LifecycleSwitchList: React.FC<ILifecycleSwitchListProps> = ({
 	defaultChangeCount,
 	onDefaultChange,
+	onDefaultDelete,
 	onNavigate,
 	onShowDetails,
 	openLifecycleERC,
@@ -128,6 +136,19 @@ const LifecycleSwitchList: React.FC<ILifecycleSwitchListProps> = ({
 	const refresh = () => setRefreshCount((count) => count + 1);
 
 	const lifecycles = data?.items ?? [];
+
+	const reloadAfterDelete = ({defaultAccountLifecycle}: ILifecycle) => {
+		if (lifecycles.length === 1 && page > 1) {
+			setPageState({page: page - 1, search});
+		}
+		else {
+			refresh();
+		}
+
+		if (defaultAccountLifecycle) {
+			onDefaultDelete?.();
+		}
+	};
 
 	const totalCount = data?.totalCount ?? 0;
 
@@ -196,7 +217,7 @@ const LifecycleSwitchList: React.FC<ILifecycleSwitchListProps> = ({
 									</ClayList.ItemText>
 								)}
 
-								{!!lifecycle.stages?.length && (
+								{!!lifecycle.accountLifecycleStages?.length && (
 									<div className="mt-2">
 										<ClayLabel
 											displayType="info"
@@ -205,7 +226,9 @@ const LifecycleSwitchList: React.FC<ILifecycleSwitchListProps> = ({
 										>
 											<strong>
 												{getStageCountLabel(
-													lifecycle.stages.length
+													lifecycle
+														.accountLifecycleStages
+														.length
 												)}
 											</strong>
 										</ClayLabel>
@@ -219,6 +242,7 @@ const LifecycleSwitchList: React.FC<ILifecycleSwitchListProps> = ({
 									onDefaultChange={() =>
 										onDefaultChange(lifecycle.id)
 									}
+									onDelete={reloadAfterDelete}
 									onShowDetails={() =>
 										onShowDetails(lifecycle.id)
 									}

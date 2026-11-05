@@ -41,6 +41,42 @@ public class AICreatorOpenAIConfigurationManagerImpl
 	}
 
 	@Override
+	public String getAICreatorOpenAICompanyImageModel(long companyId)
+		throws ConfigurationException {
+
+		AICreatorOpenAICompanyConfiguration
+			aiCreatorOpenAICompanyConfiguration =
+				_configurationProvider.getCompanyConfiguration(
+					AICreatorOpenAICompanyConfiguration.class, companyId);
+
+		String imageModel = aiCreatorOpenAICompanyConfiguration.imageModel();
+
+		if (Validator.isNull(imageModel)) {
+			return "gpt-image-2";
+		}
+
+		return imageModel;
+	}
+
+	@Override
+	public String getAICreatorOpenAICompanyImageSizes(long companyId)
+		throws ConfigurationException {
+
+		AICreatorOpenAICompanyConfiguration
+			aiCreatorOpenAICompanyConfiguration =
+				_configurationProvider.getCompanyConfiguration(
+					AICreatorOpenAICompanyConfiguration.class, companyId);
+
+		String imageSizes = aiCreatorOpenAICompanyConfiguration.imageSizes();
+
+		if (Validator.isNull(imageSizes)) {
+			return "1024x1024,1536x1024,1024x1536";
+		}
+
+		return imageSizes;
+	}
+
+	@Override
 	public String getAICreatorOpenAIGroupAPIKey(long groupId)
 		throws ConfigurationException {
 
@@ -79,6 +115,70 @@ public class AICreatorOpenAIConfigurationManagerImpl
 	}
 
 	@Override
+	public String getAICreatorOpenAIGroupImageModel(long groupId)
+		throws ConfigurationException {
+
+		Group group = _groupLocalService.fetchGroup(groupId);
+
+		AICreatorOpenAIGroupConfiguration aiCreatorOpenAIGroupConfiguration =
+			_configurationProvider.getGroupConfiguration(
+				AICreatorOpenAIGroupConfiguration.class, group.getCompanyId(),
+				groupId);
+
+		return aiCreatorOpenAIGroupConfiguration.imageModel();
+	}
+
+	@Override
+	public String getAICreatorOpenAIGroupImageModel(
+			long companyId, long groupId)
+		throws ConfigurationException {
+
+		AICreatorOpenAIGroupConfiguration aiCreatorOpenAIGroupConfiguration =
+			_configurationProvider.getGroupConfiguration(
+				AICreatorOpenAIGroupConfiguration.class, companyId, groupId);
+
+		String imageModel = aiCreatorOpenAIGroupConfiguration.imageModel();
+
+		if (Validator.isNotNull(imageModel)) {
+			return imageModel;
+		}
+
+		return getAICreatorOpenAICompanyImageModel(companyId);
+	}
+
+	@Override
+	public String getAICreatorOpenAIGroupImageSizes(long groupId)
+		throws ConfigurationException {
+
+		Group group = _groupLocalService.fetchGroup(groupId);
+
+		AICreatorOpenAIGroupConfiguration aiCreatorOpenAIGroupConfiguration =
+			_configurationProvider.getGroupConfiguration(
+				AICreatorOpenAIGroupConfiguration.class, group.getCompanyId(),
+				groupId);
+
+		return aiCreatorOpenAIGroupConfiguration.imageSizes();
+	}
+
+	@Override
+	public String getAICreatorOpenAIGroupImageSizes(
+			long companyId, long groupId)
+		throws ConfigurationException {
+
+		AICreatorOpenAIGroupConfiguration aiCreatorOpenAIGroupConfiguration =
+			_configurationProvider.getGroupConfiguration(
+				AICreatorOpenAIGroupConfiguration.class, companyId, groupId);
+
+		String imageSizes = aiCreatorOpenAIGroupConfiguration.imageSizes();
+
+		if (Validator.isNotNull(imageSizes)) {
+			return imageSizes;
+		}
+
+		return getAICreatorOpenAICompanyImageSizes(companyId);
+	}
+
+	@Override
 	public boolean isAICreatorChatGPTCompanyEnabled(long companyId)
 		throws ConfigurationException {
 
@@ -111,7 +211,8 @@ public class AICreatorOpenAIConfigurationManagerImpl
 	}
 
 	@Override
-	public boolean isAICreatorDALLECompanyEnabled(long companyId)
+	public boolean isAICreatorOpenAIImageGenerationCompanyEnabled(
+			long companyId)
 		throws ConfigurationException {
 
 		AICreatorOpenAICompanyConfiguration
@@ -119,14 +220,16 @@ public class AICreatorOpenAIConfigurationManagerImpl
 				_configurationProvider.getCompanyConfiguration(
 					AICreatorOpenAICompanyConfiguration.class, companyId);
 
-		return aiCreatorOpenAICompanyConfiguration.enableDALLEToCreateImages();
+		return aiCreatorOpenAICompanyConfiguration.
+			enableOpenAIImageGeneration();
 	}
 
 	@Override
-	public boolean isAICreatorDALLEGroupEnabled(long companyId, long groupId)
+	public boolean isAICreatorOpenAIImageGenerationGroupEnabled(
+			long companyId, long groupId)
 		throws ConfigurationException {
 
-		if (!isAICreatorDALLECompanyEnabled(companyId)) {
+		if (!isAICreatorOpenAIImageGenerationCompanyEnabled(companyId)) {
 			return false;
 		}
 
@@ -134,13 +237,14 @@ public class AICreatorOpenAIConfigurationManagerImpl
 			_configurationProvider.getGroupConfiguration(
 				AICreatorOpenAIGroupConfiguration.class, companyId, groupId);
 
-		return aiCreatorOpenAIGroupConfiguration.enableDALLEToCreateImages();
+		return aiCreatorOpenAIGroupConfiguration.enableOpenAIImageGeneration();
 	}
 
 	@Override
 	public void saveAICreatorOpenAICompanyConfiguration(
-			long companyId, String apiKey, boolean enableChatGPT,
-			boolean enableDALLE)
+			String apiKey, long companyId, boolean enableChatGPT,
+			boolean enableOpenAIImageGeneration, String imageModel,
+			String imageSizes)
 		throws ConfigurationException {
 
 		_configurationProvider.saveCompanyConfiguration(
@@ -150,14 +254,19 @@ public class AICreatorOpenAIConfigurationManagerImpl
 			).put(
 				"enableChatGPTToCreateContent", enableChatGPT
 			).put(
-				"enableDALLEToCreateImages", enableDALLE
+				"enableOpenAIImageGeneration", enableOpenAIImageGeneration
+			).put(
+				"imageModel", imageModel
+			).put(
+				"imageSizes", imageSizes
 			).build());
 	}
 
 	@Override
 	public void saveAICreatorOpenAIGroupConfiguration(
-			long groupId, String apiKey, boolean enableChatGPT,
-			boolean enableDALLE)
+			String apiKey, long groupId, boolean enableChatGPT,
+			boolean enableOpenAIImageGeneration, String imageModel,
+			String imageSizes)
 		throws ConfigurationException {
 
 		Group group = _groupLocalService.fetchGroup(groupId);
@@ -170,7 +279,11 @@ public class AICreatorOpenAIConfigurationManagerImpl
 			).put(
 				"enableChatGPTToCreateContent", enableChatGPT
 			).put(
-				"enableDALLEToCreateImages", enableDALLE
+				"enableOpenAIImageGeneration", enableOpenAIImageGeneration
+			).put(
+				"imageModel", imageModel
+			).put(
+				"imageSizes", imageSizes
 			).build());
 	}
 

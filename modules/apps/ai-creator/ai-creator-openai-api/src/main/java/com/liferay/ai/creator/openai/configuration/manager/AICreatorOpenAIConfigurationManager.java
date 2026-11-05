@@ -15,10 +15,30 @@ public interface AICreatorOpenAIConfigurationManager {
 	public String getAICreatorOpenAICompanyAPIKey(long companyId)
 		throws ConfigurationException;
 
+	public String getAICreatorOpenAICompanyImageModel(long companyId)
+		throws ConfigurationException;
+
+	public String getAICreatorOpenAICompanyImageSizes(long companyId)
+		throws ConfigurationException;
+
 	public String getAICreatorOpenAIGroupAPIKey(long groupId)
 		throws ConfigurationException;
 
 	public String getAICreatorOpenAIGroupAPIKey(long companyId, long groupId)
+		throws ConfigurationException;
+
+	public String getAICreatorOpenAIGroupImageModel(long groupId)
+		throws ConfigurationException;
+
+	public String getAICreatorOpenAIGroupImageModel(
+			long companyId, long groupId)
+		throws ConfigurationException;
+
+	public String getAICreatorOpenAIGroupImageSizes(long groupId)
+		throws ConfigurationException;
+
+	public String getAICreatorOpenAIGroupImageSizes(
+			long companyId, long groupId)
 		throws ConfigurationException;
 
 	public boolean isAICreatorChatGPTCompanyEnabled(long companyId)
@@ -27,20 +47,24 @@ public interface AICreatorOpenAIConfigurationManager {
 	public boolean isAICreatorChatGPTGroupEnabled(long companyId, long groupId)
 		throws ConfigurationException;
 
-	public boolean isAICreatorDALLECompanyEnabled(long companyId)
+	public boolean isAICreatorOpenAIImageGenerationCompanyEnabled(
+			long companyId)
 		throws ConfigurationException;
 
-	public boolean isAICreatorDALLEGroupEnabled(long companyId, long groupId)
+	public boolean isAICreatorOpenAIImageGenerationGroupEnabled(
+			long companyId, long groupId)
 		throws ConfigurationException;
 
 	public void saveAICreatorOpenAICompanyConfiguration(
-			long companyId, String apiKey, boolean enableChatGPT,
-			boolean enableDALLE)
+			String apiKey, long companyId, boolean enableChatGPT,
+			boolean enableOpenAIImageGeneration, String imageModel,
+			String imageSizes)
 		throws ConfigurationException;
 
 	public void saveAICreatorOpenAIGroupConfiguration(
-			long groupId, String apiKey, boolean enableChatGPT,
-			boolean enableDALLE)
+			String apiKey, long groupId, boolean enableChatGPT,
+			boolean enableOpenAIImageGeneration, String imageModel,
+			String imageSizes)
 		throws ConfigurationException;
 
 }

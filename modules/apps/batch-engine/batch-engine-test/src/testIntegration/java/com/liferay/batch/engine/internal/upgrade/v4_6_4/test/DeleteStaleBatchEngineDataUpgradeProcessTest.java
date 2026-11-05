@@ -10,12 +10,15 @@ import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
 import com.liferay.batch.engine.BatchEngineTaskOperation;
 import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.engine.model.BatchEngineExportTask;
+import com.liferay.batch.engine.model.BatchEngineExportTaskTable;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.model.BatchEngineImportTaskError;
+import com.liferay.batch.engine.model.BatchEngineImportTaskTable;
 import com.liferay.batch.engine.service.BatchEngineExportTaskLocalService;
 import com.liferay.batch.engine.service.BatchEngineImportTaskErrorLocalService;
 import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
 import com.liferay.batch.engine.service.persistence.BatchEngineImportTaskPersistence;
+import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -88,14 +91,18 @@ public class DeleteStaleBatchEngineDataUpgradeProcessTest {
 
 		_runUpgrade();
 
+		Assert.assertEquals(
+			0,
+			_batchEngineExportTaskLocalService.dslQueryCount(
+				DSLQueryFactoryUtil.count(
+				).from(
+					BatchEngineExportTaskTable.INSTANCE
+				).where(
+					BatchEngineExportTaskTable.INSTANCE.companyId.eq(companyId)
+				)));
 		Assert.assertNull(
 			_batchEngineExportTaskLocalService.fetchBatchEngineExportTask(
 				batchEngineExportTask.getBatchEngineExportTaskId()));
-		Assert.assertEquals(
-			0,
-			_batchEngineExportTaskLocalService.getBatchEngineExportTasksCount(
-				companyId));
-
 		Assert.assertNull(
 			_batchEngineImportTaskErrorLocalService.
 				fetchBatchEngineImportTaskError(
@@ -106,14 +113,18 @@ public class DeleteStaleBatchEngineDataUpgradeProcessTest {
 			_batchEngineImportTaskErrorLocalService.
 				getBatchEngineImportTaskErrorsCount(
 					batchEngineImportTask.getBatchEngineImportTaskId()));
-
+		Assert.assertEquals(
+			0,
+			_batchEngineImportTaskLocalService.dslQueryCount(
+				DSLQueryFactoryUtil.count(
+				).from(
+					BatchEngineImportTaskTable.INSTANCE
+				).where(
+					BatchEngineImportTaskTable.INSTANCE.companyId.eq(companyId)
+				)));
 		Assert.assertNull(
 			_batchEngineImportTaskLocalService.fetchBatchEngineImportTask(
 				batchEngineImportTask.getBatchEngineImportTaskId()));
-		Assert.assertEquals(
-			0,
-			_batchEngineImportTaskLocalService.getBatchEngineImportTasksCount(
-				companyId));
 	}
 
 	private void _runUpgrade() throws Exception {

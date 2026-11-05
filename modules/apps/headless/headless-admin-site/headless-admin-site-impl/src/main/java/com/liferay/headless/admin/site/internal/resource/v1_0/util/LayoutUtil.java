@@ -45,6 +45,7 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServiceUtil;
 import com.liferay.layout.util.LayoutServiceContextHelperUtil;
 import com.liferay.layout.util.UpdateLayoutModifiedDateThreadLocal;
+import com.liferay.layout.util.UpdateLayoutStatusThreadLocal;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
@@ -562,18 +563,33 @@ public class LayoutUtil {
 		typeSettingsUnicodeProperties.putAll(
 			_getLastImportSettingsMap(serviceContext.getUserId()));
 
-		if (!Objects.equals(
-				typeSettingsUnicodeProperties,
-				layout.getTypeSettingsProperties())) {
-
-			layout = LayoutServiceUtil.updateTypeSettings(
-				layout.getGroupId(), layout.isPrivateLayout(),
-				layout.getLayoutId(), typeSettingsUnicodeProperties.toString());
-		}
-
-		return _updateLayout(
+		layout = _updateLayout(
 			layout, nameMap, null, null, null, null, null, null, null, null,
 			null, friendlyURLMap, serviceContext);
+
+		UnicodeProperties layoutTypeSettingsUnicodeProperties =
+			layout.getTypeSettingsProperties();
+
+		for (String key : new String[] {"layoutUpdateable", "privateLayout"}) {
+			String value = layoutTypeSettingsUnicodeProperties.getProperty(key);
+
+			if (value == null) {
+				continue;
+			}
+
+			typeSettingsUnicodeProperties.setProperty(key, value);
+		}
+
+		if (Objects.equals(
+				typeSettingsUnicodeProperties,
+				layoutTypeSettingsUnicodeProperties)) {
+
+			return layout;
+		}
+
+		return LayoutServiceUtil.updateTypeSettings(
+			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
+			typeSettingsUnicodeProperties.toString());
 	}
 
 	public static Layout updatePortletLayout(
@@ -1280,7 +1296,10 @@ public class LayoutUtil {
 		try (AutoCloseable autoCloseable =
 				LayoutServiceContextHelperUtil.getServiceContextAutoCloseable(
 					layout,
-					UserLocalServiceUtil.getUser(serviceContext.getUserId()))) {
+					UserLocalServiceUtil.getUser(serviceContext.getUserId()));
+			SafeCloseable safeCloseable =
+				UpdateLayoutStatusThreadLocal.
+					setUpdateLayoutStatusWithSafeCloseable(false)) {
 
 			Map<String, SegmentsExperience> actualSegmentsExperiencesMap =
 				new HashMap<>();

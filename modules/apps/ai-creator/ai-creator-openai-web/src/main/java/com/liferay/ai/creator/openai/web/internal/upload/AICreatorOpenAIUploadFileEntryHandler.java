@@ -5,9 +5,10 @@
 
 package com.liferay.ai.creator.openai.web.internal.upload;
 
-import com.liferay.ai.creator.openai.web.internal.constants.AICreatorOpenAIWebKeys;
+import com.liferay.ai.creator.openai.web.internal.util.AICreatorOpenAIGenerationUtil;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppService;
+import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -15,24 +16,27 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.upload.UploadFileEntryHandler;
 
 import jakarta.portlet.PortletRequest;
-import jakarta.portlet.PortletSession;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.net.URL;
 import java.net.URLConnection;
+
+import java.nio.file.Files;
+
+import java.security.GeneralSecurityException;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -52,30 +56,39 @@ public class AICreatorOpenAIUploadFileEntryHandler
 	public FileEntry upload(UploadPortletRequest uploadPortletRequest)
 		throws IOException, PortalException {
 
-		PortletRequest portletRequest =
-			uploadPortletRequest.getPortletRequest();
+		File imageFile = uploadPortletRequest.getFile("image");
 
-		String urlPath = ParamUtil.getString(portletRequest, "urlPath");
-
-		if (Validator.isNull(urlPath)) {
+		if (imageFile == null) {
 			return null;
 		}
 
-		PortletSession portletSession = portletRequest.getPortletSession();
+		byte[] bytes = Files.readAllBytes(imageFile.toPath());
 
-		Set<String> generations = (Set<String>)portletSession.getAttribute(
-			AICreatorOpenAIWebKeys.AI_CREATOR_OPENAI_GENERATIONS);
+		PortletRequest portletRequest =
+			uploadPortletRequest.getPortletRequest();
 
-		if ((generations == null) || !generations.contains(urlPath)) {
-			throw new PrincipalException("URL path is not a generated image");
+		try {
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)portletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
+
+			if (!AICreatorOpenAIGenerationUtil.isValidSignature(
+					bytes, themeDisplay.getCompany(),
+					ParamUtil.getLong(portletRequest, "expirationTime"),
+					ParamUtil.getString(portletRequest, "signature"),
+					themeDisplay.getUserId())) {
+
+				throw new PrincipalException("Image is not a generated image");
+			}
 		}
-
-		URL url = new URL(urlPath);
+		catch (GeneralSecurityException generalSecurityException) {
+			throw new PortalException(generalSecurityException);
+		}
 
 		File file = null;
 
 		try (InputStream inputStream = new BufferedInputStream(
-				url.openStream())) {
+				new UnsyncByteArrayInputStream(bytes))) {
 
 			long repositoryId = GetterUtil.getLong(
 				ParamUtil.getLong(portletRequest, "repositoryId"));

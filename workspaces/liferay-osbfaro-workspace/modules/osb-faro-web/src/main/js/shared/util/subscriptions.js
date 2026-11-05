@@ -1,6 +1,6 @@
 import Constants, {SubscriptionStatuses} from 'shared/util/constants';
+import {formatDataValue} from 'shared/util/data-value';
 import {fromJS, List, Map} from 'immutable';
-import {getLocale} from 'shared/util/locale';
 import {isNil} from 'lodash';
 import {Metric, Plan} from 'shared/util/records';
 
@@ -237,9 +237,7 @@ export function getPlanAddOns(currentPlan) {
 
 			return {
 				...acc,
-				[name]: totalLimit
-					? totalLimit.toLocaleString(getLocale())
-					: '-',
+				[name]: formatDataValue(totalLimit, 'number'),
 			};
 		}, {});
 }
@@ -402,6 +400,12 @@ export function getPropLabel(name) {
 	}
 }
 
+export function formatLimit(limit) {
+	return isUnlimitedLimit(limit)
+		? Liferay.Language.get('unlimited')
+		: formatDataValue(limit, 'number');
+}
+
 export function formatPlanData(subscriptionIMap) {
 	if (isNil(subscriptionIMap)) {
 		subscriptionIMap = new Map();
@@ -465,4 +469,8 @@ export function isBasicPlan(currentPlan) {
 
 export function isLDPPlan(subscriptionName) {
 	return subscriptionName?.includes('Data Platform') ?? false;
+}
+
+export function isUnlimitedLimit(limit) {
+	return limit < 0;
 }

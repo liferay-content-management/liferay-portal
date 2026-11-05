@@ -77,6 +77,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.math.BigDecimal;
 
+import java.util.AbstractList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -148,26 +149,16 @@ public class ObjectFieldInfoFieldConverter {
 		boolean editable, String namespace, ObjectField objectField) {
 
 		return _addAttributes(
-			InfoField.builder(
-			).infoFieldType(
-				ObjectFieldInfoFieldTypeUtil.getInfoFieldType(objectField)
-			).namespace(
-				namespace
-			).name(
-				objectField.getName()
-			).editable(
-				editable
-			).labelInfoLocalizedValue(
-				new LazyInfoLocalizedValue(
-					() -> _getLabelInfoLocalizedValue(objectField))
-			).localizable(
-				objectField.isLocalized()
-			).readOnly(
-				_isReadOnly(objectField)
-			).required(
-				objectField.isRequired()
-			),
-			objectField);
+			_getFinalStep(editable, namespace, objectField), objectField);
+	}
+
+	public InfoField<?> getInfoField(
+		boolean editable, String namespace, ObjectField objectField,
+		ObjectRelationship objectRelationship) {
+
+		return addRelationshipInfoFieldAttributes(
+			_getFinalStep(editable, namespace, objectField),
+			objectRelationship);
 	}
 
 	private InfoField<?> _addAttributes(
@@ -286,9 +277,13 @@ public class ObjectFieldInfoFieldConverter {
 					objectField.getBusinessType(),
 					ObjectFieldConstants.BUSINESS_TYPE_PICKLIST)) {
 
+			ObjectEntry objectEntry = _getObjectEntry(
+				ServiceContextThreadLocal.getServiceContext());
+
 			finalStep.attribute(
 				SelectInfoFieldType.OPTIONS,
-				_getOptionInfoFieldTypes(objectField));
+				new LazyList(
+					() -> _getOptionInfoFieldTypes(objectEntry, objectField)));
 		}
 		else if (Objects.equals(
 					objectField.getBusinessType(),
@@ -406,6 +401,30 @@ public class ObjectFieldInfoFieldConverter {
 		return null;
 	}
 
+	private InfoField.FinalStep _getFinalStep(
+		boolean editable, String namespace, ObjectField objectField) {
+
+		return InfoField.builder(
+		).infoFieldType(
+			ObjectFieldInfoFieldTypeUtil.getInfoFieldType(objectField)
+		).namespace(
+			namespace
+		).name(
+			objectField.getName()
+		).editable(
+			editable
+		).labelInfoLocalizedValue(
+			new LazyInfoLocalizedValue(
+				() -> _getLabelInfoLocalizedValue(objectField))
+		).localizable(
+			objectField.isLocalized()
+		).readOnly(
+			_isReadOnly(objectField)
+		).required(
+			objectField.isRequired()
+		);
+	}
+
 	private Group _getGroup(ServiceContext serviceContext) {
 		try {
 			return serviceContext.getScopeGroup();
@@ -483,10 +502,7 @@ public class ObjectFieldInfoFieldConverter {
 		return maximumFileSize;
 	}
 
-	private ObjectEntry _getObjectEntry() {
-		ServiceContext serviceContext =
-			ServiceContextThreadLocal.getServiceContext();
-
+	private ObjectEntry _getObjectEntry(ServiceContext serviceContext) {
 		if (serviceContext == null) {
 			return null;
 		}
@@ -531,7 +547,7 @@ public class ObjectFieldInfoFieldConverter {
 	}
 
 	private List<OptionInfoFieldType> _getOptionInfoFieldTypes(
-		ObjectField objectField) {
+		ObjectEntry objectEntry, ObjectField objectField) {
 
 		String defaultValue = String.valueOf(
 			ObjectFieldSettingUtil.getDefaultValue(null, objectField, null));
@@ -544,8 +560,6 @@ public class ObjectFieldInfoFieldConverter {
 		}
 
 		String listTypeEntryKey = defaultValue;
-
-		ObjectEntry objectEntry = _getObjectEntry();
 
 		if (objectEntry != null) {
 			listTypeEntryKey = MapUtil.getString(
@@ -719,8 +733,11 @@ public class ObjectFieldInfoFieldConverter {
 	}
 
 	private boolean _isReadOnly(ObjectField objectField) {
-		ObjectEntry objectEntry = _getObjectEntry();
-		User user = ObjectEntryInfoItemUtil.getUser();
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		ObjectEntry objectEntry = _getObjectEntry(serviceContext);
+		User user = ObjectEntryInfoItemUtil.getUser(serviceContext);
 
 		try {
 			if (ObjectFieldUtil.isReadOnly(
@@ -841,6 +858,36 @@ public class ObjectFieldInfoFieldConverter {
 
 		private final UnsafeSupplierValue
 			<InfoLocalizedValue<String>, RuntimeException> _unsafeSupplierValue;
+
+	}
+
+	private static class LazyList extends AbstractList<OptionInfoFieldType> {
+
+		@Override
+		public OptionInfoFieldType get(int index) {
+			List<OptionInfoFieldType> optionInfoFieldTypes =
+				_unsafeSupplierValue.getValue();
+
+			return optionInfoFieldTypes.get(index);
+		}
+
+		@Override
+		public int size() {
+			List<OptionInfoFieldType> optionInfoFieldTypes =
+				_unsafeSupplierValue.getValue();
+
+			return optionInfoFieldTypes.size();
+		}
+
+		private LazyList(
+			UnsafeSupplier<List<OptionInfoFieldType>, RuntimeException>
+				unsafeSupplier) {
+
+			_unsafeSupplierValue = new UnsafeSupplierValue<>(unsafeSupplier);
+		}
+
+		private final UnsafeSupplierValue
+			<List<OptionInfoFieldType>, RuntimeException> _unsafeSupplierValue;
 
 	}
 

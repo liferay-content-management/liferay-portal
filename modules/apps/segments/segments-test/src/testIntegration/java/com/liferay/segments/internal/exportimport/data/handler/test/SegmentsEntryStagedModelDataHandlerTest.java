@@ -115,18 +115,24 @@ public class SegmentsEntryStagedModelDataHandlerTest
 	}
 
 	@Test
+	@TestInfo("LPD-112773")
 	public void testExportImportSegmentsEntryWithEntityFieldCustomField()
 		throws Exception {
 
 		_testExportImportSegmentsEntryWithEntityFieldCustomField(
 			"(customField/%s eq '%s')");
-	}
-
-	@Test
-	@TestInfo("LPD-112773")
-	public void testExportImportSegmentsEntryWithEntityFieldCustomFieldContains()
-		throws Exception {
-
+		_testExportImportSegmentsEntryWithEntityFieldCustomField(
+			"(customField/%s ge '%s')");
+		_testExportImportSegmentsEntryWithEntityFieldCustomField(
+			"(customField/%s gt '%s')");
+		_testExportImportSegmentsEntryWithEntityFieldCustomField(
+			"(customField/%s le '%s')");
+		_testExportImportSegmentsEntryWithEntityFieldCustomField(
+			"(customField/%s lt '%s')");
+		_testExportImportSegmentsEntryWithEntityFieldCustomField(
+			"(not (contains(customField/%s, '%s')))");
+		_testExportImportSegmentsEntryWithEntityFieldCustomField(
+			"(not (customField/%s eq '%s'))");
 		_testExportImportSegmentsEntryWithEntityFieldCustomField(
 			"contains(customField/%s, '%s')");
 	}

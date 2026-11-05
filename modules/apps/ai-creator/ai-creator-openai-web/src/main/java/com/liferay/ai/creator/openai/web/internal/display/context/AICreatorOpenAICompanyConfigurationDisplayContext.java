@@ -38,6 +38,22 @@ public class AICreatorOpenAICompanyConfigurationDisplayContext
 	}
 
 	@Override
+	protected String getAICreatorOpenAIImageModel()
+		throws ConfigurationException {
+
+		return _aiCreatorOpenAIConfigurationManager.
+			getAICreatorOpenAICompanyImageModel(_themeDisplay.getCompanyId());
+	}
+
+	@Override
+	protected String getAICreatorOpenAIImageSizes()
+		throws ConfigurationException {
+
+		return _aiCreatorOpenAIConfigurationManager.
+			getAICreatorOpenAICompanyImageSizes(_themeDisplay.getCompanyId());
+	}
+
+	@Override
 	protected boolean isAICreatorChatGPTEnabled()
 		throws ConfigurationException {
 
@@ -46,9 +62,12 @@ public class AICreatorOpenAICompanyConfigurationDisplayContext
 	}
 
 	@Override
-	protected boolean isAICreatorDALLEEnabled() throws ConfigurationException {
+	protected boolean isAICreatorOpenAIImageGenerationEnabled()
+		throws ConfigurationException {
+
 		return _aiCreatorOpenAIConfigurationManager.
-			isAICreatorDALLECompanyEnabled(_themeDisplay.getCompanyId());
+			isAICreatorOpenAIImageGenerationCompanyEnabled(
+				_themeDisplay.getCompanyId());
 	}
 
 	private final AICreatorOpenAIConfigurationManager

@@ -5,6 +5,7 @@
 
 import {test} from '@playwright/test';
 
+import {CommerceAccountAddressEligibilityPage} from '../pages/commerce/commerce-account-web/commerceAccountAddressEligibilityPage';
 import {CommerceAccountManagementPage} from '../pages/commerce/commerce-account-web/commerceAccountManagementPage';
 import {CommerceChannelDefaultsPage} from '../pages/commerce/commerce-account-web/commerceChannelDefaultsPage';
 import {CommerceCartPage} from '../pages/commerce/commerce-cart-content-web/commerceCartPage';
@@ -15,6 +16,7 @@ import {CommerceAdminChannelDetailsCategoryDisplayPagesPage} from '../pages/comm
 import {CommerceAdminChannelDetailsCountriesPage} from '../pages/commerce/commerce-channel-web/commerceAdminChannelDetailsCountriesPage';
 import {CommerceAdminChannelDetailsCurrenciesPage} from '../pages/commerce/commerce-channel-web/commerceAdminChannelDetailsCurrenciesPage';
 import {CommerceAdminChannelDetailsPage} from '../pages/commerce/commerce-channel-web/commerceAdminChannelDetailsPage';
+import {CommerceAdminChannelDetailsProductDisplayPagesPage} from '../pages/commerce/commerce-channel-web/commerceAdminChannelDetailsProductDisplayPagesPage';
 import {CommerceAdminChannelDetailsTypePage} from '../pages/commerce/commerce-channel-web/commerceAdminChannelDetailsTypePage';
 import {CommerceAdminChannelsPage} from '../pages/commerce/commerce-channel-web/commerceAdminChannelsPage';
 import {CheckoutPage} from '../pages/commerce/commerce-checkout-web/checkoutPage';
@@ -89,6 +91,7 @@ import {CommercePricingSystemSettingsPage} from '../pages/commerce/commercePrici
 const commercePagesTest = test.extend<{
 	attachmentsPage: AttachmentsPage;
 	checkoutPage: CheckoutPage;
+	commerceAccountAddressEligibilityPage: CommerceAccountAddressEligibilityPage;
 	commerceAccountManagementPage: CommerceAccountManagementPage;
 	commerceAdminCatalogDetailsPage: CommerceAdminCatalogDetailsPage;
 	commerceAdminCatalogsPage: CommerceAdminCatalogsPage;
@@ -96,6 +99,7 @@ const commercePagesTest = test.extend<{
 	commerceAdminChannelDetailsCountriesPage: CommerceAdminChannelDetailsCountriesPage;
 	commerceAdminChannelDetailsCurrenciesPage: CommerceAdminChannelDetailsCurrenciesPage;
 	commerceAdminChannelDetailsPage: CommerceAdminChannelDetailsPage;
+	commerceAdminChannelDetailsProductDisplayPagesPage: CommerceAdminChannelDetailsProductDisplayPagesPage;
 	commerceAdminChannelDetailsTypePage: CommerceAdminChannelDetailsTypePage;
 	commerceAdminChannelsPage: CommerceAdminChannelsPage;
 	commerceAdminCurrenciesPage: CommerceAdminCurrenciesPage;
@@ -174,6 +178,9 @@ const commercePagesTest = test.extend<{
 	checkoutPage: async ({page}, use) => {
 		await use(new CheckoutPage(page));
 	},
+	commerceAccountAddressEligibilityPage: async ({page}, use) => {
+		await use(new CommerceAccountAddressEligibilityPage(page));
+	},
 	commerceAccountManagementPage: async ({page}, use) => {
 		await use(new CommerceAccountManagementPage(page));
 	},
@@ -199,6 +206,9 @@ const commercePagesTest = test.extend<{
 	},
 	commerceAdminChannelDetailsPage: async ({page}, use) => {
 		await use(new CommerceAdminChannelDetailsPage(page));
+	},
+	commerceAdminChannelDetailsProductDisplayPagesPage: async ({page}, use) => {
+		await use(new CommerceAdminChannelDetailsProductDisplayPagesPage(page));
 	},
 	commerceAdminChannelDetailsTypePage: async ({page}, use) => {
 		await use(new CommerceAdminChannelDetailsTypePage(page));

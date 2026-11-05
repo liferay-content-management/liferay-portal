@@ -205,6 +205,8 @@ public class ObjectEntryInfoItemValuesProviderUtil {
 					objectRelationship, relatedSystemObjectDefinition,
 					serviceBuilderRelatedObjectEntry);
 
+			String namespace = ObjectEntryInfoItemUtil.getInfoFieldNamespace(
+				parentObjectDefinition, objectRelationship);
 			ObjectEntry objectEntry = ObjectEntryInfoItemUtil.getObjectEntry(
 				parentObjectDefinition, objectEntryManagerRegistry,
 				objectScopeProviderRegistry, serviceBuilderRelatedObjectEntry,
@@ -229,10 +231,6 @@ public class ObjectEntryInfoItemValuesProviderUtil {
 					continue;
 				}
 
-				String namespace =
-					ObjectEntryInfoItemUtil.getInfoFieldNamespace(
-						parentObjectDefinition, objectRelationship);
-
 				value = properties.get(relatedObjectField.getName());
 
 				if (relatedObjectField.isLocalized()) {
@@ -248,26 +246,26 @@ public class ObjectEntryInfoItemValuesProviderUtil {
 					objectFieldInfoFieldConverter, namespace,
 					objectRelationshipLocalService,
 					serviceBuilderRelatedObjectEntry, themeDisplay, value);
-
-				infoFieldValues.add(
-					new InfoFieldValue<>(
-						ObjectEntryInfoItemFields.getFriendlyURLInfoField(
-							parentObjectDefinition.
-								isEnableFriendlyURLCustomization(),
-							objectRelationship.getName(), namespace),
-						() -> {
-							if (objectEntry == null) {
-								return null;
-							}
-
-							return getFriendlyURLInfoFieldValue(
-								portal.getClassNameId(
-									parentObjectDefinition.getClassName()),
-								friendlyURLEntryLocalService,
-								GetterUtil.getLong(
-									values.get(objectField.getName())));
-						}));
 			}
+
+			infoFieldValues.add(
+				new InfoFieldValue<>(
+					ObjectEntryInfoItemFields.getFriendlyURLInfoField(
+						parentObjectDefinition.
+							isEnableFriendlyURLCustomization(),
+						objectRelationship.getName(), namespace),
+					() -> {
+						if (objectEntry == null) {
+							return null;
+						}
+
+						return getFriendlyURLInfoFieldValue(
+							portal.getClassNameId(
+								parentObjectDefinition.getClassName()),
+							friendlyURLEntryLocalService,
+							GetterUtil.getLong(
+								values.get(objectField.getName())));
+					}));
 		}
 
 		if (!objectDefinition.isDefaultStorageType()) {
@@ -377,9 +375,12 @@ public class ObjectEntryInfoItemValuesProviderUtil {
 
 		Object infoFieldValue = null;
 
-		Locale locale = LocaleUtil.getSiteDefault();
+		Locale locale = null;
 
-		if (themeDisplay != null) {
+		if (themeDisplay == null) {
+			locale = LocaleUtil.getSiteDefault();
+		}
+		else {
 			locale = themeDisplay.getLocale();
 		}
 
@@ -705,7 +706,8 @@ public class ObjectEntryInfoItemValuesProviderUtil {
 			infoFieldValues.add(
 				new InfoFieldValue<>(
 					objectFieldInfoFieldConverter.getInfoField(
-						false, objectFieldNamespace, objectField),
+						false, objectFieldNamespace, objectField,
+						objectRelationship),
 					StringPool.BLANK));
 
 			return;
@@ -727,7 +729,8 @@ public class ObjectEntryInfoItemValuesProviderUtil {
 		infoFieldValues.add(
 			new InfoFieldValue<>(
 				objectFieldInfoFieldConverter.getInfoField(
-					false, objectFieldNamespace, objectField),
+					false, objectFieldNamespace, objectField,
+					objectRelationship),
 				unsafeSupplierValue::getValue));
 	}
 

@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -1477,19 +1478,19 @@ public abstract class BaseJob implements Job {
 			return null;
 		}
 
-		StringBuffer sb = new StringBuffer();
-
-		sb.append(
-			JenkinsResultsParserUtil.getLocalURL(getJobURL(jenkinsMaster)));
-		sb.append("/api/json?pretty");
-
-		if (tree != null) {
-			sb.append("&tree=");
-			sb.append(tree);
-		}
-
 		try {
-			return JenkinsResultsParserUtil.toJSONObject(sb.toString(), false);
+			URIBuilder uriBuilder = JenkinsResultsParserUtil.newURIBuilder(
+				JenkinsResultsParserUtil.getLocalURL(getJobURL(jenkinsMaster)) +
+					"/api/json");
+
+			uriBuilder.addParameter("pretty", null);
+
+			if (tree != null) {
+				uriBuilder.addParameter("tree", tree);
+			}
+
+			return JenkinsResultsParserUtil.toJSONObject(
+				uriBuilder.toString(), false);
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException("Unable to get job JSON", ioException);

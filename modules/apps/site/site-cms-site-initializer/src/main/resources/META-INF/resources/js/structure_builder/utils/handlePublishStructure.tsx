@@ -11,9 +11,7 @@ import {addParams, navigate, sub} from 'frontend-js-web';
 import React, {Dispatch} from 'react';
 
 import SpaceService from '../../common/services/SpaceService';
-import StructureService, {
-	StructureServiceError,
-} from '../../common/services/StructureService';
+import StructureService from '../../common/services/StructureService';
 import {ObjectDefinitions} from '../../common/types/ObjectDefinition';
 import {Space} from '../../common/types/Space';
 import {config} from '../config';
@@ -37,6 +35,7 @@ import selectStructureUuid from '../selectors/selectStructureUuid';
 import selectStructureWorkflows from '../selectors/selectStructureWorkflows';
 import DisplayPageService from '../services/DisplayPageService';
 import buildStructureErrorAction from './buildStructureErrorAction';
+import {ServerError} from './validation';
 
 type Props = {
 	dispatch: Dispatch<Action>;
@@ -267,66 +266,42 @@ export default async function handlePublishStructure({
 		});
 	};
 
-	const onError = (error: StructureServiceError) =>
+	const onError = (error: ServerError) =>
 		dispatch(buildStructureErrorAction({error, uuid}));
 
 	dispatch({operation: 'publishing', type: 'start-operation'});
 
-	if (status === 'new') {
-		const {data, error} = await StructureService.createStructure({
-			children,
-			erc,
-			label,
-			name,
-			publishedChildren,
-			settings,
-			slug,
-			spaces,
-			status: 'published',
-			titleFieldName,
-			workflows,
-		});
+	const {data, error} = await StructureService.saveStructure({
+		children,
+		erc,
+		history,
+		id,
+		label,
+		name,
+		publishedChildren,
+		settings,
+		slug,
+		spaces,
+		status: 'published',
+		titleFieldName,
+		workflows,
+	});
 
-		dispatch({type: 'end-operation'});
+	dispatch({type: 'end-operation'});
 
-		if (error) {
-			onError(error);
+	if (error) {
+		onError(error);
 
-			return;
-		}
-		else if (data) {
-			structureId = data.id;
-
-			dispatch({id: data.id, type: 'publish-structure'});
-		}
+		return;
 	}
-	else if (status === 'draft' || status === 'published') {
-		const {error} = await StructureService.updateStructure({
-			children,
-			erc,
-			history,
-			id,
-			label,
-			name,
-			publishedChildren,
-			settings,
-			slug,
-			spaces,
-			status: 'published',
-			titleFieldName,
-			workflows,
-		});
 
-		dispatch({type: 'end-operation'});
+	if (status === 'new') {
+		structureId = data.id;
 
-		if (error) {
-			onError(error);
-
-			return;
-		}
-		else {
-			dispatch({type: 'publish-structure'});
-		}
+		dispatch({id: data.id, type: 'publish-structure'});
+	}
+	else {
+		dispatch({type: 'publish-structure'});
 	}
 
 	if (status === 'published') {

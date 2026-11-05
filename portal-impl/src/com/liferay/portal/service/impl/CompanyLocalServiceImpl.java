@@ -60,6 +60,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.GroupTable;
 import com.liferay.portal.kernel.model.LayoutPrototype;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
+import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.OrganizationConstants;
 import com.liferay.portal.kernel.model.PasswordPolicy;
@@ -230,6 +231,10 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		if ((companyId == null) || (companyId == 0)) {
 			companyId = _getNextCompanyId();
 		}
+		else if (companyPersistence.fetchByPrimaryKey(companyId) != null) {
+			throw new IllegalArgumentException(
+				"Company ID " + companyId + " already exists");
+		}
 
 		Company company = companyPersistence.create(companyId);
 
@@ -374,8 +379,10 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 				"Company ID " + companyId + " is the default company ID");
 		}
 
-		String lowerCaseVirtualHostname = StringUtil.toLowerCase(
-			StringUtil.trim(virtualHostname));
+		String lowerCaseVirtualHostname = _normalizeVirtualHostname(
+			StringUtil.toLowerCase(StringUtil.trim(virtualHostname)));
+
+		_validateMaxLengths(name, lowerCaseVirtualHostname, webId);
 
 		if (Validator.isNotNull(webId)) {
 			validateWebId(webId);
@@ -399,49 +406,48 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			DBPartitionUtil.importDBPartition(
 				companyId, lowerCaseVirtualHostname, webId);
 
-			try (SafeCloseable safeCloseable2 =
-					CompanyThreadLocal.setCompanyIdWithSafeCloseable(
-						companyId)) {
-
+			try {
 				Company dbPartitionCompany = TransactionInvokerUtil.invoke(
 					_transactionConfig,
 					() -> {
-						companyPersistence.clearCache();
-						_virtualHostPersistence.clearCache();
+						try (SafeCloseable safeCloseable2 =
+								CompanyThreadLocal.
+									setCompanyIdWithSafeCloseable(companyId)) {
 
-						Company company = companyPersistence.findByPrimaryKey(
-							companyId);
+							companyPersistence.clearCache();
+							_virtualHostPersistence.clearCache();
 
-						if (Validator.isNotNull(name) &&
-							!StringUtil.equals(company.getName(), name)) {
+							Company company =
+								companyPersistence.findByPrimaryKey(companyId);
 
-							validateName(companyId, name);
+							if (Validator.isNotNull(name) &&
+								!StringUtil.equals(company.getName(), name)) {
 
-							company.setName(name);
+								validateName(companyId, name);
 
-							CompanyInfo companyInfo = company.getCompanyInfo();
+								company.setName(name);
 
-							company = companyPersistence.update(company);
+								CompanyInfo companyInfo =
+									company.getCompanyInfo();
 
-							_companyInfoPersistence.update(companyInfo);
+								company = companyPersistence.update(company);
+
+								_companyInfoPersistence.update(companyInfo);
+							}
+
+							return _addDBPartitionCompany(company);
 						}
-
-						if (Validator.isNotNull(lowerCaseVirtualHostname) &&
-							!StringUtil.equals(
-								company.getVirtualHostname(),
-								lowerCaseVirtualHostname)) {
-
-							company = updateVirtualHostname(
-								companyId, lowerCaseVirtualHostname);
-						}
-
-						return _addDBPartitionCompany(company);
 					});
 
-				companyPersistence.clearCache();
-				_virtualHostPersistence.clearCache();
+				try (SafeCloseable safeCloseable2 =
+						CompanyThreadLocal.setCompanyIdWithSafeCloseable(
+							companyId)) {
 
-				return _registerDBPartitionCompany(dbPartitionCompany);
+					companyPersistence.clearCache();
+					_virtualHostPersistence.clearCache();
+
+					return _registerDBPartitionCompany(dbPartitionCompany);
+				}
 			}
 			catch (Throwable throwable1) {
 				try {
@@ -625,6 +631,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		String lowerCaseVirtualHostname = StringUtil.toLowerCase(
 			StringUtil.trim(virtualHostname));
 
+		_validateMaxLengths(name, lowerCaseVirtualHostname, webId);
+
 		validateVirtualHost(webId, lowerCaseVirtualHostname);
 
 		validateWebId(webId);
@@ -637,33 +645,42 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 			long companyId = toCompanyId;
 
-			try (SafeCloseable safeCloseable2 =
-					CompanyThreadLocal.setCompanyIdWithSafeCloseable(
-						toCompanyId)) {
-
+			try {
 				Company dbPartitionCompany = TransactionInvokerUtil.invoke(
 					_transactionConfig,
 					() -> {
-						Company company = fromCompany.cloneWithOriginalValues();
+						try (SafeCloseable safeCloseable2 =
+								CompanyThreadLocal.
+									setCompanyIdWithSafeCloseable(companyId)) {
 
-						company.setCompanyId(companyId);
-						company.setWebId(webId);
-						company.setName(name);
-						company.setNew(true);
+							Company company =
+								fromCompany.cloneWithOriginalValues();
 
-						CompanyInfo companyInfo = company.getCompanyInfo();
+							company.setCompanyId(companyId);
+							company.setWebId(webId);
+							company.setName(name);
+							company.setNew(true);
 
-						company = companyPersistence.update(company);
+							CompanyInfo companyInfo = company.getCompanyInfo();
 
-						company = updateVirtualHostname(
-							company.getCompanyId(), lowerCaseVirtualHostname);
+							company = companyPersistence.update(company);
 
-						_companyInfoPersistence.update(companyInfo);
+							company = updateVirtualHostname(
+								company.getCompanyId(),
+								lowerCaseVirtualHostname);
 
-						return _addDBPartitionCompany(company);
+							_companyInfoPersistence.update(companyInfo);
+
+							return _addDBPartitionCompany(company);
+						}
 					});
 
-				return _registerDBPartitionCompany(dbPartitionCompany);
+				try (SafeCloseable safeCloseable2 =
+						CompanyThreadLocal.setCompanyIdWithSafeCloseable(
+							companyId)) {
+
+					return _registerDBPartitionCompany(dbPartitionCompany);
+				}
 			}
 			catch (Throwable throwable1) {
 				try {
@@ -1889,22 +1906,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		throws CompanyVirtualHostException {
 
 		if (Validator.isNotNull(virtualHostname)) {
-			try {
-				if (Validator.isIPv6Address(virtualHostname)) {
-					Inet6Address address = (Inet6Address)InetAddress.getByName(
-						virtualHostname);
-
-					virtualHostname = address.getHostAddress();
-				}
-			}
-			catch (UnknownHostException unknownHostException) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(unknownHostException);
-				}
-
-				throw new CompanyVirtualHostException(
-					"Virtual hostname is not a valid IPv6 address");
-			}
+			virtualHostname = _normalizeVirtualHostname(virtualHostname);
 
 			VirtualHost virtualHost = _virtualHostPersistence.fetchByHostname(
 				virtualHostname);
@@ -2476,6 +2478,29 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		return nextLong;
 	}
 
+	private String _normalizeVirtualHostname(String virtualHostname)
+		throws CompanyVirtualHostException {
+
+		if (!Validator.isIPv6Address(virtualHostname)) {
+			return virtualHostname;
+		}
+
+		try {
+			Inet6Address address = (Inet6Address)InetAddress.getByName(
+				virtualHostname);
+
+			return address.getHostAddress();
+		}
+		catch (UnknownHostException unknownHostException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(unknownHostException);
+			}
+
+			throw new CompanyVirtualHostException(
+				"Virtual hostname is not a valid IPv6 address");
+		}
+	}
+
 	private Company _registerDBPartitionCompany(Company company) {
 		registerCompany(company);
 
@@ -2616,6 +2641,37 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			PropsKeys.LOCALES, newLanguageIds);
 
 		_groupLocalService.updateGroup(group);
+	}
+
+	private void _validateMaxLengths(
+		String name, String virtualHostname, String webId) {
+
+		int maxLength = ModelHintsUtil.getMaxLength(
+			CompanyInfo.class.getName(), "name");
+
+		if (Validator.isNotNull(name) && (name.length() > maxLength)) {
+			throw new IllegalArgumentException(
+				"Name must not exceed " + maxLength + " characters");
+		}
+
+		maxLength = ModelHintsUtil.getMaxLength(
+			VirtualHost.class.getName(), "hostname");
+
+		if (Validator.isNotNull(virtualHostname) &&
+			(virtualHostname.length() > maxLength)) {
+
+			throw new IllegalArgumentException(
+				"Virtual hostname must not exceed " + maxLength +
+					" characters");
+		}
+
+		maxLength = ModelHintsUtil.getMaxLength(
+			Company.class.getName(), "webId");
+
+		if (Validator.isNotNull(webId) && (webId.length() > maxLength)) {
+			throw new IllegalArgumentException(
+				"Web ID must not exceed " + maxLength + " characters");
+		}
 	}
 
 	private static final String _DEFAULT_VIRTUAL_HOST = "localhost";

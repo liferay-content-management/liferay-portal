@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 
@@ -95,6 +96,8 @@ public class ChannelResourceTest extends BaseChannelResourceTestCase {
 		super.testPutChannel();
 
 		_testPutChannelWithAccountExternalReferenceCode();
+		_testPutChannelWithCommerceChannelSettings();
+		_testPutChannelWithoutSiteGroupId();
 	}
 
 	@Override
@@ -103,11 +106,12 @@ public class ChannelResourceTest extends BaseChannelResourceTestCase {
 		super.testPutChannelByExternalReferenceCode();
 
 		_testPutChannelByExternalReferenceCodeWithAccountExternalReferenceCode();
+		_testPutChannelByExternalReferenceCodeWithCommerceChannelSettings();
 	}
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
-		return new String[] {"currencyCode", "name", "type"};
+		return new String[] {"currencyCode", "name", "siteGroupId", "type"};
 	}
 
 	@Override
@@ -142,6 +146,7 @@ public class ChannelResourceTest extends BaseChannelResourceTestCase {
 					RandomTestUtil.randomString());
 				id = RandomTestUtil.randomLong();
 				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
+				siteGroupId = RandomTestUtil.randomLong();
 				type = CommerceChannelConstants.CHANNEL_TYPE_SITE;
 			}
 		};
@@ -492,6 +497,43 @@ public class ChannelResourceTest extends BaseChannelResourceTestCase {
 			putChannel.getExternalReferenceCode());
 	}
 
+	private void _testPutChannelByExternalReferenceCodeWithCommerceChannelSettings()
+		throws Exception {
+
+		Channel postChannel =
+			testPutChannelByExternalReferenceCode_addChannel();
+
+		CommerceChannel commerceChannel =
+			_commerceChannelLocalService.getCommerceChannel(
+				postChannel.getId());
+
+		commerceChannel = _commerceChannelLocalService.updateCommerceChannel(
+			commerceChannel.getCommerceChannelId(),
+			commerceChannel.getAccountEntryId(),
+			commerceChannel.getSiteGroupId(), commerceChannel.getName(),
+			commerceChannel.getType(),
+			UnicodePropertiesBuilder.put(
+				RandomTestUtil.randomString(), RandomTestUtil.randomString()
+			).build(),
+			commerceChannel.getCommerceCurrencyCode(),
+			RandomTestUtil.randomString(), true);
+
+		channelResource.putChannelByExternalReferenceCode(
+			postChannel.getExternalReferenceCode(), randomChannel());
+
+		CommerceChannel putCommerceChannel =
+			_commerceChannelLocalService.getCommerceChannel(
+				postChannel.getId());
+
+		Assert.assertTrue(putCommerceChannel.isDiscountsTargetNetPrice());
+		Assert.assertEquals(
+			commerceChannel.getPriceDisplayType(),
+			putCommerceChannel.getPriceDisplayType());
+		Assert.assertEquals(
+			commerceChannel.getTypeSettings(),
+			putCommerceChannel.getTypeSettings());
+	}
+
 	private void _testPutChannelWithAccountExternalReferenceCode()
 		throws Exception {
 
@@ -530,6 +572,52 @@ public class ChannelResourceTest extends BaseChannelResourceTestCase {
 		Assert.assertEquals(
 			accountEntry.getExternalReferenceCode(),
 			getChannel.getAccountExternalReferenceCode());
+	}
+
+	private void _testPutChannelWithCommerceChannelSettings() throws Exception {
+		Channel postChannel = testPutChannel_addChannel();
+
+		CommerceChannel commerceChannel =
+			_commerceChannelLocalService.getCommerceChannel(
+				postChannel.getId());
+
+		commerceChannel = _commerceChannelLocalService.updateCommerceChannel(
+			commerceChannel.getCommerceChannelId(),
+			commerceChannel.getAccountEntryId(),
+			commerceChannel.getSiteGroupId(), commerceChannel.getName(),
+			commerceChannel.getType(),
+			UnicodePropertiesBuilder.put(
+				RandomTestUtil.randomString(), RandomTestUtil.randomString()
+			).build(),
+			commerceChannel.getCommerceCurrencyCode(),
+			RandomTestUtil.randomString(), true);
+
+		channelResource.putChannel(postChannel.getId(), randomChannel());
+
+		CommerceChannel putCommerceChannel =
+			_commerceChannelLocalService.getCommerceChannel(
+				postChannel.getId());
+
+		Assert.assertTrue(putCommerceChannel.isDiscountsTargetNetPrice());
+		Assert.assertEquals(
+			commerceChannel.getPriceDisplayType(),
+			putCommerceChannel.getPriceDisplayType());
+		Assert.assertEquals(
+			commerceChannel.getTypeSettings(),
+			putCommerceChannel.getTypeSettings());
+	}
+
+	private void _testPutChannelWithoutSiteGroupId() throws Exception {
+		Channel postChannel = testPutChannel_addChannel();
+
+		Channel randomChannel = randomChannel();
+
+		randomChannel.setSiteGroupId((Long)null);
+
+		Channel putChannel = channelResource.putChannel(
+			postChannel.getId(), randomChannel);
+
+		Assert.assertEquals(0, GetterUtil.getLong(putChannel.getSiteGroupId()));
 	}
 
 	private Channel _toChannel(CommerceChannel commerceChannel) {

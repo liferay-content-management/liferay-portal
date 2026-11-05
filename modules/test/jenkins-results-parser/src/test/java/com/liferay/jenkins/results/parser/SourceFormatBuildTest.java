@@ -6,6 +6,11 @@
 package com.liferay.jenkins.results.parser;
 
 import java.io.File;
+import java.io.IOException;
+
+import java.util.Properties;
+
+import org.json.JSONObject;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -82,93 +87,22 @@ public class SourceFormatBuildTest
 
 	@Test
 	public void testGetWorkspace() throws Exception {
-		String gitHubURL = RandomTestUtil.randomString();
-		String ownerUsername = RandomTestUtil.randomString();
-
-		PullRequest pullRequest = Mockito.mock(PullRequest.class);
-
-		Mockito.doReturn(
-			RandomTestUtil.randomString()
-		).when(
-			pullRequest
-		).getGitRepositoryName();
-
-		Mockito.doReturn(
-			gitHubURL
-		).when(
-			pullRequest
-		).getHtmlURL();
-
-		Mockito.doReturn(
-			ownerUsername
-		).when(
-			pullRequest
-		).getOwnerUsername();
-
-		Mockito.doReturn(
-			RandomTestUtil.randomString()
-		).when(
-			pullRequest
-		).getUpstreamRemoteGitBranchName();
-
-		SourceFormatBuild sourceFormatBuild = Mockito.mock(
-			SourceFormatBuild.class);
-
-		Mockito.doReturn(
-			RandomTestUtil.randomString()
-		).when(
-			sourceFormatBuild
-		).getJobName();
-
-		Mockito.doReturn(
-			pullRequest
-		).when(
-			sourceFormatBuild
-		).getPullRequest();
-
-		Mockito.doCallRealMethod(
-		).when(
-			sourceFormatBuild
-		).getWorkspace();
-
-		WorkspaceGitRepository workspaceGitRepository = Mockito.mock(
-			WorkspaceGitRepository.class);
-
-		Workspace workspace = Mockito.mock(Workspace.class);
-
-		Mockito.doReturn(
-			workspaceGitRepository
-		).when(
-			workspace
-		).getPrimaryWorkspaceGitRepository();
-
-		try (MockedStatic<WorkspaceFactory> workspaceFactoryMockedStatic =
-				Mockito.mockStatic(WorkspaceFactory.class)) {
-
-			workspaceFactoryMockedStatic.when(
-				() -> WorkspaceFactory.newWorkspace(
-					Mockito.anyString(), Mockito.anyString(),
-					Mockito.anyString())
-			).thenReturn(
-				workspace
-			);
-
-			sourceFormatBuild.getWorkspace();
-		}
-
-		InOrder inOrder = Mockito.inOrder(workspaceGitRepository);
-
-		inOrder.verify(
-			workspaceGitRepository
-		).setBaseBranchUsername(
-			ownerUsername
-		);
-
-		inOrder.verify(
-			workspaceGitRepository
-		).setGitHubURL(
-			gitHubURL
-		);
+		_testGetWorkspace(false, _newCompareJSON(1), false, true, "{}");
+		_testGetWorkspace(
+			false, _newCompareJSON(1), false, true, _newCompareJSON(0));
+		_testGetWorkspace(false, _newCompareJSON(1), false, true, null);
+		_testGetWorkspace(
+			false, _newCompareJSON(3), false, false, _newCompareJSON(3));
+		_testGetWorkspace(
+			false, _newCompareJSON(5), false, true, _newCompareJSON(1));
+		_testGetWorkspace(false, null, false, true, _newCompareJSON(5));
+		_testGetWorkspace(
+			true, _newCompareJSON(0), false, true, _newCompareJSON(5));
+		_testGetWorkspace(
+			true, _newCompareJSON(1), false, false, _newCompareJSON(5));
+		_testGetWorkspace(
+			true, _newCompareJSON(2), false, true, _newCompareJSON(3));
+		_testGetWorkspace(true, null, true, false, null);
 	}
 
 	@Rule
@@ -218,6 +152,230 @@ public class SourceFormatBuildTest
 		);
 
 		return _getSourceFormatterVersion(sourceFormatBuild);
+	}
+
+	private String _newCompareJSON(int aheadBy) {
+		JSONObject compareJSONObject = new JSONObject();
+
+		compareJSONObject.put("ahead_by", aheadBy);
+
+		return compareJSONObject.toString();
+	}
+
+	private void _setCompareJSON(String compareJSON, String url)
+		throws Exception {
+
+		if (compareJSON == null) {
+			setURLReaderException(
+				new IOException(RandomTestUtil.randomString()), url);
+
+			return;
+		}
+
+		setURLReaderOutput(compareJSON, url);
+	}
+
+	private void _testGetWorkspace(
+			boolean expectedOwnerBase, String ownerCompareJSON,
+			boolean ownerUpstream, boolean senderBranchSHAParameter,
+			String upstreamCompareJSON)
+		throws Exception {
+
+		mockURLReaders();
+
+		String ownerUsername = RandomTestUtil.randomString();
+		String upstreamUsername = RandomTestUtil.randomString();
+
+		if (ownerUpstream) {
+			upstreamUsername = ownerUsername;
+		}
+
+		String upstreamRemoteGitBranchName = RandomTestUtil.randomString();
+
+		Properties buildProperties = new Properties();
+
+		buildProperties.setProperty(
+			"portal.upstream.username", RandomTestUtil.randomString());
+		buildProperties.setProperty(
+			JenkinsResultsParserUtil.combine(
+				"portal.upstream.username[", upstreamRemoteGitBranchName, "]"),
+			upstreamUsername);
+
+		JenkinsResultsParserUtil.setBuildProperties(buildProperties);
+
+		BuildDatabaseUtil.setBuildDatabase(
+			new DefaultBuildDatabase(BuildDatabaseTestUtil.newBuildDir()));
+
+		String senderBranchSHA = null;
+
+		if (senderBranchSHAParameter) {
+			senderBranchSHA = RandomTestUtil.randomSHA();
+		}
+
+		String pullRequestSenderSHA = RandomTestUtil.randomSHA();
+
+		String compareSHA = pullRequestSenderSHA;
+
+		if (senderBranchSHAParameter) {
+			compareSHA = senderBranchSHA;
+		}
+
+		String gitRepositoryName = JenkinsResultsParserUtil.combine(
+			"liferay-portal-", RandomTestUtil.randomString());
+
+		String ownerCompareURL = JenkinsResultsParserUtil.combine(
+			"https://api.github.com/repos/", ownerUsername, "/",
+			gitRepositoryName, "/compare/", ownerUsername, ":",
+			upstreamRemoteGitBranchName, "...", compareSHA);
+		String upstreamCompareURL = JenkinsResultsParserUtil.combine(
+			"https://api.github.com/repos/", ownerUsername, "/",
+			gitRepositoryName, "/compare/", upstreamUsername, ":",
+			upstreamRemoteGitBranchName, "...", compareSHA);
+
+		if (!ownerUpstream) {
+			_setCompareJSON(ownerCompareJSON, ownerCompareURL);
+			_setCompareJSON(upstreamCompareJSON, upstreamCompareURL);
+		}
+
+		String gitHubURL = RandomTestUtil.randomString();
+
+		PullRequest pullRequest = Mockito.mock(PullRequest.class);
+
+		Mockito.doReturn(
+			gitRepositoryName
+		).when(
+			pullRequest
+		).getGitRepositoryName();
+
+		Mockito.doReturn(
+			gitHubURL
+		).when(
+			pullRequest
+		).getHtmlURL();
+
+		Mockito.doReturn(
+			ownerUsername
+		).when(
+			pullRequest
+		).getOwnerUsername();
+
+		Mockito.doReturn(
+			pullRequestSenderSHA
+		).when(
+			pullRequest
+		).getSenderSHA();
+
+		Mockito.doReturn(
+			upstreamRemoteGitBranchName
+		).when(
+			pullRequest
+		).getUpstreamRemoteGitBranchName();
+
+		SourceFormatBuild sourceFormatBuild = Mockito.mock(
+			SourceFormatBuild.class);
+
+		Mockito.doReturn(
+			RandomTestUtil.randomString()
+		).when(
+			sourceFormatBuild
+		).getJobName();
+
+		Mockito.doReturn(
+			senderBranchSHA
+		).when(
+			sourceFormatBuild
+		).getParameterValue(
+			"GITHUB_SENDER_BRANCH_SHA"
+		);
+
+		Mockito.doReturn(
+			pullRequest
+		).when(
+			sourceFormatBuild
+		).getPullRequest();
+
+		Mockito.doCallRealMethod(
+		).when(
+			sourceFormatBuild
+		).getWorkspace();
+
+		WorkspaceGitRepository workspaceGitRepository = Mockito.mock(
+			WorkspaceGitRepository.class);
+
+		Workspace workspace = Mockito.mock(Workspace.class);
+
+		Mockito.doReturn(
+			workspaceGitRepository
+		).when(
+			workspace
+		).getPrimaryWorkspaceGitRepository();
+
+		try (MockedStatic<WorkspaceFactory> workspaceFactoryMockedStatic =
+				Mockito.mockStatic(WorkspaceFactory.class)) {
+
+			workspaceFactoryMockedStatic.when(
+				() -> WorkspaceFactory.newWorkspace(
+					Mockito.anyString(), Mockito.anyString(),
+					Mockito.anyString())
+			).thenReturn(
+				workspace
+			);
+
+			sourceFormatBuild.getWorkspace();
+
+			if (ownerUpstream) {
+				verifyURLReaderAttemptsCount(0, "/compare");
+			}
+			else {
+				_setCompareJSON(ownerCompareJSON, upstreamCompareURL);
+				_setCompareJSON(upstreamCompareJSON, ownerCompareURL);
+			}
+
+			JenkinsResultsParserUtil.clearCache();
+
+			sourceFormatBuild.getWorkspace();
+		}
+
+		String expectedBaseBranchUsername = upstreamUsername;
+
+		if (expectedOwnerBase) {
+			expectedBaseBranchUsername = ownerUsername;
+		}
+
+		Mockito.verify(
+			workspaceGitRepository, Mockito.times(2)
+		).setBaseBranchUsername(
+			expectedBaseBranchUsername
+		);
+
+		InOrder inOrder = Mockito.inOrder(workspaceGitRepository);
+
+		inOrder.verify(
+			workspaceGitRepository
+		).setBaseBranchUsername(
+			expectedBaseBranchUsername
+		);
+
+		inOrder.verify(
+			workspaceGitRepository
+		).setGitHubURL(
+			gitHubURL
+		);
+
+		if (senderBranchSHAParameter) {
+			Mockito.verify(
+				workspaceGitRepository, Mockito.times(2)
+			).setSenderBranchSHA(
+				senderBranchSHA
+			);
+		}
+		else {
+			Mockito.verify(
+				workspaceGitRepository, Mockito.never()
+			).setSenderBranchSHA(
+				Mockito.anyString()
+			);
+		}
 	}
 
 	private void _writeIvyXML(String version) throws Exception {

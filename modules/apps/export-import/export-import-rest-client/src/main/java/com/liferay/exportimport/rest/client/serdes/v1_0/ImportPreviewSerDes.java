@@ -5,6 +5,7 @@
 
 package com.liferay.exportimport.rest.client.serdes.v1_0;
 
+import com.liferay.exportimport.rest.client.dto.v1_0.AssetLibrary;
 import com.liferay.exportimport.rest.client.dto.v1_0.ImportPreview;
 import com.liferay.exportimport.rest.client.dto.v1_0.PortletDataHandler;
 import com.liferay.exportimport.rest.client.dto.v1_0.Site;
@@ -63,6 +64,26 @@ public class ImportPreviewSerDes {
 			sb.append("\"additionCount\": ");
 
 			sb.append(importPreview.getAdditionCount());
+		}
+
+		if (importPreview.getAssetLibraries() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetLibraries\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < importPreview.getAssetLibraries().length; i++) {
+				sb.append(String.valueOf(importPreview.getAssetLibraries()[i]));
+
+				if ((i + 1) < importPreview.getAssetLibraries().length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		if (importPreview.getAuthor() != null) {
@@ -202,6 +223,15 @@ public class ImportPreviewSerDes {
 				String.valueOf(importPreview.getAdditionCount()));
 		}
 
+		if (importPreview.getAssetLibraries() == null) {
+			map.put("assetLibraries", null);
+		}
+		else {
+			map.put(
+				"assetLibraries",
+				String.valueOf(importPreview.getAssetLibraries()));
+		}
+
 		if (importPreview.getAuthor() == null) {
 			map.put("author", null);
 		}
@@ -278,6 +308,9 @@ public class ImportPreviewSerDes {
 			if (Objects.equals(jsonParserFieldName, "additionCount")) {
 				return false;
 			}
+			else if (Objects.equals(jsonParserFieldName, "assetLibraries")) {
+				return false;
+			}
 			else if (Objects.equals(jsonParserFieldName, "author")) {
 				return false;
 			}
@@ -314,6 +347,22 @@ public class ImportPreviewSerDes {
 				if (jsonParserFieldValue != null) {
 					importPreview.setAdditionCount(
 						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "assetLibraries")) {
+				if (jsonParserFieldValue != null) {
+					Object[] jsonParserFieldValues =
+						(Object[])jsonParserFieldValue;
+
+					AssetLibrary[] assetLibrariesArray =
+						new AssetLibrary[jsonParserFieldValues.length];
+
+					for (int i = 0; i < assetLibrariesArray.length; i++) {
+						assetLibrariesArray[i] = AssetLibrarySerDes.toDTO(
+							(String)jsonParserFieldValues[i]);
+					}
+
+					importPreview.setAssetLibraries(assetLibrariesArray);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "author")) {
@@ -466,4 +515,4 @@ public class ImportPreviewSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1312778682
+// LIFERAY-REST-BUILDER-HASH:1337216621

@@ -12,11 +12,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.encryptor.EncryptorException;
+import com.liferay.portal.kernel.encryptor.EncryptorUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.Base64;
+import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.jackson.databind.ObjectMapperProviderUtil;
@@ -27,13 +32,35 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import java.security.Key;
+
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author Adolfo Pérez
  */
 public class PasswordFieldUtil {
+
+	public static String decrypt(String value) throws EncryptorException {
+		if (value.isEmpty()) {
+			return value;
+		}
+
+		return EncryptorUtil.decryptAuthenticated(_getKey(), value);
+	}
+
+	public static String encrypt(String value) throws EncryptorException {
+		if (value.isEmpty()) {
+			return value;
+		}
+
+		return EncryptorUtil.encryptAuthenticated(_getKey(), value);
+	}
 
 	public static Set<String> getPasswordFieldNames(Class<?> clazz) {
 		Set<String> passwordFieldNames = new HashSet<>();
@@ -44,12 +71,36 @@ public class PasswordFieldUtil {
 		return passwordFieldNames;
 	}
 
-	public static void removePasswordFields(
-		JsonNode jsonNode, Set<String> passwordFieldNames) {
+	public static <E extends Exception> void replacePasswordField(
+			ObjectNode objectNode, String name,
+			UnsafeFunction<String, String, E> unsafeFunction)
+		throws E {
+
+		JsonNode jsonNode = objectNode.get(name);
+
+		if ((jsonNode == null) || jsonNode.isNull()) {
+			return;
+		}
+
+		String value = unsafeFunction.apply(jsonNode.asText());
+
+		if (value == null) {
+			objectNode.remove(name);
+		}
+		else {
+			objectNode.put(name, value);
+		}
+	}
+
+	public static <E extends Exception> void replacePasswordFields(
+			JsonNode jsonNode, Set<String> passwordFieldNames,
+			UnsafeFunction<String, String, E> unsafeFunction)
+		throws E {
 
 		if (jsonNode.isArray()) {
 			for (JsonNode elementJsonNode : jsonNode) {
-				removePasswordFields(elementJsonNode, passwordFieldNames);
+				replacePasswordFields(
+					elementJsonNode, passwordFieldNames, unsafeFunction);
 			}
 
 			return;
@@ -65,7 +116,8 @@ public class PasswordFieldUtil {
 			int index = passwordFieldName.indexOf(CharPool.PERIOD);
 
 			if (index == -1) {
-				objectNode.remove(passwordFieldName);
+				replacePasswordField(
+					objectNode, passwordFieldName, unsafeFunction);
 
 				continue;
 			}
@@ -77,9 +129,44 @@ public class PasswordFieldUtil {
 				continue;
 			}
 
-			removePasswordFields(
-				childJsonNode, Set.of(passwordFieldName.substring(index + 1)));
+			replacePasswordFields(
+				childJsonNode, Set.of(passwordFieldName.substring(index + 1)),
+				unsafeFunction);
 		}
+	}
+
+	public static <E extends Exception> Map<String, Object>
+			replacePasswordFields(
+				Map<String, Object> map, Set<String> passwordFieldNames,
+				UnsafeFunction<String, String, E> unsafeFunction)
+		throws E {
+
+		for (String passwordFieldName : passwordFieldNames) {
+			Object value = map.get(passwordFieldName);
+
+			if (value instanceof String) {
+				String passwordFieldValue = unsafeFunction.apply((String)value);
+
+				if (passwordFieldValue == null) {
+					map.remove(passwordFieldName);
+				}
+				else {
+					map.put(passwordFieldName, passwordFieldValue);
+				}
+			}
+
+			int index = passwordFieldName.indexOf(CharPool.PERIOD);
+
+			if (index == -1) {
+				continue;
+			}
+
+			_replacePasswordFields(
+				map.get(passwordFieldName.substring(0, index)),
+				Set.of(passwordFieldName.substring(index + 1)), unsafeFunction);
+		}
+
+		return map;
 	}
 
 	public static String toString(Object object) {
@@ -98,7 +185,7 @@ public class PasswordFieldUtil {
 
 			JsonNode jsonNode = objectMapper.readTree(string);
 
-			removePasswordFields(jsonNode, passwordFieldNames);
+			replacePasswordFields(jsonNode, passwordFieldNames, value -> null);
 
 			return objectMapper.writeValueAsString(jsonNode);
 		}
@@ -124,6 +211,11 @@ public class PasswordFieldUtil {
 		}
 
 		return field.getName();
+	}
+
+	private static Key _getKey() {
+		return new SecretKeySpec(
+			Base64.decode(PropsValues.BATCH_ENGINE_ENCRYPTION_KEY), "AES");
 	}
 
 	private static boolean _hasSchemaAnnotation(Class<?> clazz) {
@@ -211,6 +303,30 @@ public class PasswordFieldUtil {
 		}
 
 		classes.remove(clazz);
+	}
+
+	private static <E extends Exception> void _replacePasswordFields(
+			Object object, Set<String> passwordFieldNames,
+			UnsafeFunction<String, String, E> unsafeFunction)
+		throws E {
+
+		if (object instanceof Collection) {
+			for (Object element : (Collection<?>)object) {
+				_replacePasswordFields(
+					element, passwordFieldNames, unsafeFunction);
+			}
+		}
+		else if (object instanceof Map) {
+			replacePasswordFields(
+				(Map<String, Object>)object, passwordFieldNames,
+				unsafeFunction);
+		}
+		else if (object instanceof Object[]) {
+			for (Object element : (Object[])object) {
+				_replacePasswordFields(
+					element, passwordFieldNames, unsafeFunction);
+			}
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

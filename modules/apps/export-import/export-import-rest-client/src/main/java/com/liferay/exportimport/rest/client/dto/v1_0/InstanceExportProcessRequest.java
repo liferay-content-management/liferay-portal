@@ -25,6 +25,28 @@ public class InstanceExportProcessRequest implements Cloneable, Serializable {
 		return InstanceExportProcessRequestSerDes.toDTO(json);
 	}
 
+	public AssetLibrary[] getAssetLibraries() {
+		return assetLibraries;
+	}
+
+	public void setAssetLibraries(AssetLibrary[] assetLibraries) {
+		this.assetLibraries = assetLibraries;
+	}
+
+	public void setAssetLibraries(
+		UnsafeSupplier<AssetLibrary[], Exception>
+			assetLibrariesUnsafeSupplier) {
+
+		try {
+			assetLibraries = assetLibrariesUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected AssetLibrary[] assetLibraries;
+
 	public Boolean getComments() {
 		return comments;
 	}
@@ -230,4 +252,4 @@ public class InstanceExportProcessRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:336107454
+// LIFERAY-REST-BUILDER-HASH:2120672212

@@ -6,9 +6,7 @@
 import {openToast} from 'frontend-js-components-web';
 import {Dispatch} from 'react';
 
-import StructureService, {
-	StructureServiceError,
-} from '../../common/services/StructureService';
+import StructureService from '../../common/services/StructureService';
 import {Action, State} from '../contexts/StateContext';
 import selectHistory from '../selectors/selectHistory';
 import selectPublishedChildren from '../selectors/selectPublishedChildren';
@@ -26,6 +24,7 @@ import selectStructureTitleFieldName from '../selectors/selectStructureTitleFiel
 import selectStructureUuid from '../selectors/selectStructureUuid';
 import selectStructureWorkflows from '../selectors/selectStructureWorkflows';
 import buildStructureErrorAction from './buildStructureErrorAction';
+import {ServerError} from './validation';
 
 type Props = {
 	dispatch: Dispatch<Action>;
@@ -60,65 +59,41 @@ export default async function handleSaveStructure({
 	const workflows = selectStructureWorkflows(state);
 	const uuid = selectStructureUuid(state);
 
-	const onError = (error: StructureServiceError) =>
+	const onError = (error: ServerError) =>
 		dispatch(buildStructureErrorAction({error, uuid}));
 
 	dispatch({operation: 'saving', type: 'start-operation'});
 
+	const {data, error} = await StructureService.saveStructure({
+		children,
+		erc,
+		history,
+		id,
+		label,
+		name,
+		publishedChildren,
+		settings,
+		slug,
+		spaces,
+		status: 'draft',
+		titleFieldName,
+		workflows,
+	});
+
+	dispatch({type: 'end-operation'});
+
+	if (error) {
+		onError(error);
+
+		return;
+	}
+
 	if (status === 'new') {
-		const {data, error} = await StructureService.createStructure({
-			children,
-			erc,
-			label,
-			name,
-			publishedChildren,
-			settings,
-			slug,
-			spaces,
-			status: 'draft',
-			titleFieldName,
-			workflows,
-		});
-
-		dispatch({type: 'end-operation'});
-
-		if (error) {
-			onError(error);
-
-			return;
-		}
-		else if (data) {
-			dispatch({id: data.id, type: 'create-structure'});
-		}
+		dispatch({id: data.id, type: 'create-structure'});
 	}
 	else {
-		const {error} = await StructureService.updateStructure({
-			children,
-			erc,
-			history,
-			id,
-			label,
-			name,
-			publishedChildren,
-			settings,
-			slug,
-			spaces,
-			status: 'draft',
-			titleFieldName,
-			workflows,
-		});
-
-		dispatch({type: 'end-operation'});
-
-		if (error) {
-			onError(error);
-
-			return;
-		}
-		else {
-			dispatch({type: 'save-structure'});
-			dispatch({type: 'clear-errors'});
-		}
+		dispatch({type: 'save-structure'});
+		dispatch({type: 'clear-errors'});
 	}
 
 	openToast({

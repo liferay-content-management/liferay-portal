@@ -1,4 +1,5 @@
 import * as API from 'shared/api';
+import ConfirmationModal from 'shared/components/ConfirmationModal';
 import ManageLifecycleNotificationsModal from 'shared/components/modals/ManageLifecycleNotificationsModal';
 import React from 'react';
 import {addAlert} from 'shared/actions/alerts';
@@ -6,6 +7,7 @@ import {Alert} from 'shared/types';
 import {getLifecycleSaveErrorMessage} from 'lifecycle/utils/lifecycleErrors';
 import {ILifecycle} from 'shared/api/lifecycle';
 import {Routes, toRoute} from 'shared/util/router';
+import {sub} from 'shared/util/lang';
 import {useCurrentUser} from 'shared/hooks/useCurrentUser';
 import {useDispatch} from 'react-redux';
 import {useHistoryAdapter} from 'shared/hooks/useHistoryAdapter';
@@ -13,6 +15,7 @@ import {useModal} from '@clayui/modal';
 import {useParams} from 'react-router-dom';
 
 interface ILifecycleAction {
+	className?: string;
 	icon: {symbol: string};
 	label: string;
 	onClick: () => void;
@@ -20,12 +23,14 @@ interface ILifecycleAction {
 
 interface IUseLifecycleActionsResult {
 	actions: ILifecycleAction[];
+	deleteLifecycleModal: React.ReactNode;
 	manageNotificationsModal: React.ReactNode;
 }
 
 interface IUseLifecycleActionsOptions {
 	lifecycle?: ILifecycle | null;
 	onDefaultChange?: () => void;
+	onDelete?: (lifecycle: ILifecycle) => void;
 	onShowDetails?: () => void;
 	onView?: () => void;
 }
@@ -33,10 +38,13 @@ interface IUseLifecycleActionsOptions {
 export const useLifecycleActions = ({
 	lifecycle,
 	onDefaultChange,
+	onDelete,
 	onShowDetails,
 	onView,
 }: IUseLifecycleActionsOptions): IUseLifecycleActionsResult => {
 	const currentUser = useCurrentUser();
+
+	const deleteModal = useModal();
 
 	const notificationsModal = useModal();
 
@@ -44,15 +52,25 @@ export const useLifecycleActions = ({
 
 	const history = useHistoryAdapter();
 
-	const {channelId, groupId} = useParams();
+	const {channelId, groupId, lifecycleId: openLifecycleId} = useParams();
 
 	if (!lifecycle) {
-		return {actions: [], manageNotificationsModal: null};
+		return {
+			actions: [],
+			deleteLifecycleModal: null,
+			manageNotificationsModal: null,
+		};
 	}
 
 	const lifecycleId = lifecycle.id;
 
 	const lifecycleERC = lifecycle.externalReferenceCode;
+
+	const lifecycleName = lifecycle.name || lifecycleId;
+
+	const isDefault = lifecycle.defaultAccountLifecycle;
+
+	const authorized = currentUser.isAdmin();
 
 	const setDefault = () =>
 		API.lifecycle
@@ -78,6 +96,41 @@ export const useLifecycleActions = ({
 				)
 			);
 
+	const removeLifecycle = () =>
+		API.lifecycle
+			.deleteLifecycle({channelId, groupId: groupId!, lifecycleId})
+			.then(
+				() => {
+					dispatch(
+						addAlert({
+							alertType: Alert.Types.Success,
+							message: sub(
+								Liferay.Language.get('x-was-deleted'),
+								[lifecycleName]
+							) as string,
+						})
+					);
+
+					if (lifecycleERC === openLifecycleId) {
+						history.replace(
+							toRoute(Routes.LIFECYCLE, {channelId, groupId})
+						);
+					}
+					else {
+						onDelete?.(lifecycle);
+					}
+				},
+				() =>
+					dispatch(
+						addAlert({
+							alertType: Alert.Types.Error,
+							message: Liferay.Language.get(
+								'the-delete-process-failed-to-complete.-try-again-later'
+							),
+						})
+					)
+			);
+
 	const actions = [
 		...(onView
 			? [
@@ -98,7 +151,7 @@ export const useLifecycleActions = ({
 					},
 				]
 			: []),
-		...(currentUser.isAdmin()
+		...(authorized
 			? [
 					{
 						icon: {symbol: 'pencil'},
@@ -119,7 +172,7 @@ export const useLifecycleActions = ({
 			label: Liferay.Language.get('manage-notifications'),
 			onClick: () => notificationsModal.onOpenChange(true),
 		},
-		...(lifecycle.defaultAccountLifecycle === false
+		...(isDefault === false
 			? [
 					{
 						icon: {symbol: 'pin'},
@@ -137,10 +190,39 @@ export const useLifecycleActions = ({
 					},
 				]
 			: []),
+		...(authorized
+			? [
+					{
+						className: 'text-danger',
+						icon: {symbol: 'trash'},
+						label: Liferay.Language.get('delete'),
+						onClick: () => deleteModal.onOpenChange(true),
+					},
+				]
+			: []),
 	];
 
 	return {
 		actions,
+		deleteLifecycleModal: deleteModal.open ? (
+			<ConfirmationModal
+				message={sub(
+					Liferay.Language.get(
+						'you-are-about-to-delete-the-lifecycle-x,-but-its-underlying-account-data-will-not-be-removed-from-the-workspace.-this-action-is-permanent-and-cannot-be-undone.-are-you-sure-you-want-to-proceed'
+					),
+					[lifecycleName]
+				)}
+				observer={deleteModal.observer}
+				onClose={() => deleteModal.onOpenChange(false)}
+				onSubmit={removeLifecycle}
+				submitButtonDisplay="danger"
+				submitMessage={Liferay.Language.get('delete')}
+				title={sub(Liferay.Language.get('delete-lifecycle-x?'), [
+					lifecycleName,
+				])}
+				type="danger"
+			/>
+		) : null,
 		manageNotificationsModal: notificationsModal.open ? (
 			<ManageLifecycleNotificationsModal
 				groupId={groupId!}

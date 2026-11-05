@@ -8,12 +8,14 @@ import ClayButton from '@clayui/button';
 import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {Form, FormikProvider, useFormik} from 'formik';
-import {navigate} from 'frontend-js-web';
-import React, {useEffect, useState} from 'react';
+import {navigate, sub} from 'frontend-js-web';
+import React, {useEffect, useRef} from 'react';
 
 import {FormField} from '../../../components/forms/FormField';
 import {FormSection} from '../../../components/forms/FormSection';
 import {FormToggle} from '../../../components/forms/FormToggle';
+import useFocusFirstInvalidField from '../../../hooks/useFocusFirstInvalidField';
+import useRequest from '../../../hooks/useRequest';
 import ProfileService from '../../../services/ProfileService';
 import {
 	Profile,
@@ -35,42 +37,21 @@ export default function EditProfileInfo({
 	portletNamespace,
 	profileERC,
 }: EditProfileInfoProps) {
-	const [loading, setLoading] = useState(Boolean(profileERC));
-	const [profile, setProfile] = useState<Profile | null>(null);
+	const {
+		data: profile,
+		error,
+		loading,
+	} = useRequest(ProfileService.getProfile, profileERC || null);
 
 	useEffect(() => {
-		if (!profileERC) {
-			return;
+		if (error) {
+			openErrorToast(error);
+
+			navigate(backURL);
 		}
+	}, [backURL, error]);
 
-		let isMounted = true;
-
-		ProfileService.getProfile(profileERC).then(({data, error}) => {
-			if (!isMounted) {
-				return;
-			}
-
-			if (error || !data) {
-				openErrorToast(
-					error ||
-						Liferay.Language.get('an-unexpected-error-occurred')
-				);
-
-				navigate(backURL);
-
-				return;
-			}
-
-			setProfile(data);
-			setLoading(false);
-		});
-
-		return () => {
-			isMounted = false;
-		};
-	}, [backURL, profileERC]);
-
-	if (loading) {
+	if (loading || error) {
 		return (
 			<div className="align-items-center d-flex justify-content-center mt-4">
 				<ClayLoadingIndicator />
@@ -103,6 +84,8 @@ function ProfileForm({
 }: ProfileFormProps) {
 	const isNew = !profile?.externalReferenceCode;
 
+	const formRef = useRef<HTMLFormElement>(null);
+
 	const formik = useFormik<ProfileFormValues>({
 		initialValues: {
 			active: profile?.profileStatus?.key === 'active',
@@ -131,7 +114,7 @@ function ProfileForm({
 
 			if (saved) {
 				openSuccessToast(
-					Liferay.Util.sub(
+					sub(
 						Liferay.Language.get('x-was-saved-successfully'),
 						saved.name
 					)
@@ -154,21 +137,11 @@ function ProfileForm({
 		},
 	});
 
-	useEffect(() => {
-		if (!formik.submitCount) {
-			return;
-		}
-
-		document
-			.querySelector<HTMLElement>(
-				'.profile-form .form-group.has-error input:not([type="hidden"]), .profile-form .form-group.has-error textarea'
-			)
-			?.focus();
-	}, [formik.submitCount]);
+	useFocusFirstInvalidField(formRef, formik);
 
 	return (
 		<FormikProvider value={formik}>
-			<Form className="profile-form" noValidate>
+			<Form className="profile-form" noValidate ref={formRef}>
 				{isNew && (
 					<ClayAlert
 						displayType="info"

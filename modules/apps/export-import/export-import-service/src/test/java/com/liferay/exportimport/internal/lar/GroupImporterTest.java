@@ -97,6 +97,12 @@ public class GroupImporterTest {
 		);
 
 		Mockito.when(
+			_exportImportHelper.isGroupMatching(Mockito.any(), Mockito.any())
+		).thenReturn(
+			true
+		);
+
+		Mockito.when(
 			_portletDataContext.getGroupId()
 		).thenReturn(
 			_GROUP_ID
@@ -249,6 +255,34 @@ public class GroupImporterTest {
 		}
 
 		Mockito.verifyNoInteractions(_exportImportReportEntryLocalService);
+	}
+
+	@Test
+	public void testImportGroupsWhenGroupIsNotMatching() throws Exception {
+		_setUpExportImportGroups(_createExportImportGroup("group", null));
+
+		Group group = _setUpGroup("group");
+
+		Mockito.when(
+			_exportImportHelper.isGroupMatching(
+				Mockito.any(), Mockito.eq(group))
+		).thenReturn(
+			false
+		);
+
+		Mockito.when(
+			group.getExternalReferenceCode()
+		).thenReturn(
+			"group"
+		);
+
+		List<String> groupExternalReferenceCodes = _importGroups("group");
+
+		Assert.assertTrue(groupExternalReferenceCodes.isEmpty());
+
+		_verifyReportEntry(
+			"group", ExportImportReportEntryConstants.TYPE_ERROR,
+			"is of a different type");
 	}
 
 	@Test
@@ -608,7 +642,7 @@ public class GroupImporterTest {
 		String externalReferenceCode, String parentExternalReferenceCode) {
 
 		return new ExportImportGroup(
-			0, RandomTestUtil.randomString(), externalReferenceCode,
+			0, false, 0, RandomTestUtil.randomString(), externalReferenceCode,
 			_SOURCE_GROUP_ID, parentExternalReferenceCode,
 			RandomTestUtil.randomString());
 	}

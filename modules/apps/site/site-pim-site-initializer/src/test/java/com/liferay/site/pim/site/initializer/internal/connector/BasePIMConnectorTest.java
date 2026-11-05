@@ -11,6 +11,7 @@ import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.filter.factory.FilterFactory;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectEntryLocalServiceUtil;
 import com.liferay.object.service.ObjectRelationshipLocalServiceUtil;
@@ -141,6 +142,12 @@ public class BasePIMConnectorTest {
 		);
 
 		Mockito.when(
+			_pimConnectorObjectEntry.getExternalReferenceCode()
+		).thenReturn(
+			_PIM_CONNECTOR_EXTERNAL_REFERENCE_CODE
+		);
+
+		Mockito.when(
 			_pimConnectorObjectEntry.getGroupId()
 		).thenReturn(
 			_GROUP_ID
@@ -173,9 +180,40 @@ public class BasePIMConnectorTest {
 
 	@After
 	public void tearDown() {
+		_objectDefinitionLocalServiceUtilMockedStatic.close();
 		_objectEntryLocalServiceUtilMockedStatic.close();
 		_objectRelationshipLocalServiceUtilMockedStatic.close();
 		_queriesUtilMockedStatic.close();
+	}
+
+	@Test
+	public void testExecute() throws Exception {
+		ObjectEntry fieldMappingObjectEntry = _mockFieldMapping(
+			"name", 1, "name", StringPool.BLANK);
+
+		_mockPIMFieldMappingObjectEntries(
+			ListUtil.fromArray(fieldMappingObjectEntry));
+
+		_mockSearchResponse(Collections.emptyList());
+
+		Map<String, Serializable> values =
+			HashMapBuilder.<String, Serializable>put(
+				"url", RandomTestUtil.randomString()
+			).build();
+
+		_mockPIMConnectorConfigurationObjectEntry(values);
+
+		_pimConnector.execute(_pimConnectorObjectEntry);
+
+		Mockito.verify(
+			_pimConnector
+		).doExecute(
+			values, _pimConnectorObjectEntry,
+			HashMapBuilder.put(
+				"name", Collections.singletonList(fieldMappingObjectEntry)
+			).build(),
+			Collections.emptyMap()
+		);
 	}
 
 	@Test
@@ -266,6 +304,45 @@ public class BasePIMConnectorTest {
 		);
 
 		return objectEntry;
+	}
+
+	private void _mockPIMConnectorConfigurationObjectEntry(
+		Map<String, Serializable> values) {
+
+		ObjectDefinition objectDefinition = Mockito.mock(
+			ObjectDefinition.class);
+
+		Mockito.when(
+			objectDefinition.getObjectDefinitionId()
+		).thenReturn(
+			_PIM_CONNECTOR_CONFIGURATION_OBJECT_DEFINITION_ID
+		);
+
+		_objectDefinitionLocalServiceUtilMockedStatic.when(
+			() ->
+				ObjectDefinitionLocalServiceUtil.
+					fetchObjectDefinitionByExternalReferenceCode(
+						_PIM_CONNECTOR_CONFIGURATION_OBJECT_DEFINITION_EXTERNAL_REFERENCE_CODE,
+						_COMPANY_ID)
+		).thenReturn(
+			objectDefinition
+		);
+
+		ObjectEntry objectEntry = Mockito.mock(ObjectEntry.class);
+
+		Mockito.when(
+			objectEntry.getValues()
+		).thenReturn(
+			values
+		);
+
+		_objectEntryLocalServiceUtilMockedStatic.when(
+			() -> ObjectEntryLocalServiceUtil.fetchObjectEntry(
+				_PIM_CONNECTOR_EXTERNAL_REFERENCE_CODE, 0,
+				_PIM_CONNECTOR_CONFIGURATION_OBJECT_DEFINITION_ID)
+		).thenReturn(
+			objectEntry
+		);
 	}
 
 	private void _mockPIMFieldMappingObjectEntries(
@@ -544,6 +621,17 @@ public class BasePIMConnectorTest {
 			"tags", true, "tags", false,
 			ObjectFieldConstants.BUSINESS_TYPE_TEXT);
 
+	private static final String
+		_PIM_CONNECTOR_CONFIGURATION_OBJECT_DEFINITION_EXTERNAL_REFERENCE_CODE =
+			RandomTestUtil.randomString();
+
+	private static final long
+		_PIM_CONNECTOR_CONFIGURATION_OBJECT_DEFINITION_ID =
+			RandomTestUtil.randomLong();
+
+	private static final String _PIM_CONNECTOR_EXTERNAL_REFERENCE_CODE =
+		RandomTestUtil.randomString();
+
 	private static final int _SEARCH_SIZE = 1000;
 
 	private final ComplexQueryPartBuilder _complexQueryPartBuilder =
@@ -556,6 +644,9 @@ public class BasePIMConnectorTest {
 	private final Language _language = Mockito.mock(Language.class);
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService =
 		Mockito.mock(ObjectDefinitionLocalService.class);
+	private final MockedStatic<ObjectDefinitionLocalServiceUtil>
+		_objectDefinitionLocalServiceUtilMockedStatic = Mockito.mockStatic(
+			ObjectDefinitionLocalServiceUtil.class);
 	private final ObjectEntryLocalService _objectEntryLocalService =
 		Mockito.mock(ObjectEntryLocalService.class);
 	private final MockedStatic<ObjectEntryLocalServiceUtil>
@@ -566,7 +657,8 @@ public class BasePIMConnectorTest {
 	private final MockedStatic<ObjectRelationshipLocalServiceUtil>
 		_objectRelationshipLocalServiceUtilMockedStatic = Mockito.mockStatic(
 			ObjectRelationshipLocalServiceUtil.class);
-	private final BasePIMConnector _pimConnector = new TestPIMConnector();
+	private final TestPIMConnector _pimConnector = Mockito.spy(
+		new TestPIMConnector());
 	private final ObjectEntry _pimConnectorObjectEntry = Mockito.mock(
 		ObjectEntry.class);
 	private final MockedStatic<QueriesUtil> _queriesUtilMockedStatic =
@@ -585,11 +677,6 @@ public class BasePIMConnectorTest {
 	private class TestPIMConnector extends BasePIMConnector {
 
 		@Override
-		public String execute(ObjectEntry pimConnectorObjectEntry) {
-			return StringPool.BLANK;
-		}
-
-		@Override
 		public String getKey() {
 			return _KEY;
 		}
@@ -602,8 +689,25 @@ public class BasePIMConnectorTest {
 		}
 
 		@Override
+		public String
+			getPIMConnectorConfigurationObjectDefinitionExternalReferenceCode() {
+
+			return _PIM_CONNECTOR_CONFIGURATION_OBJECT_DEFINITION_EXTERNAL_REFERENCE_CODE;
+		}
+
+		@Override
 		public boolean isActive(long companyId) {
 			return true;
+		}
+
+		@Override
+		protected String doExecute(
+			Map<String, Serializable> pimConnectorConfigurationValues,
+			ObjectEntry pimConnectorObjectEntry,
+			Map<String, List<ObjectEntry>> pimFieldMappingObjectEntriesMap,
+			Map<String, List<ObjectEntry>> pimProductObjectEntriesMap) {
+
+			return RandomTestUtil.randomString();
 		}
 
 	}

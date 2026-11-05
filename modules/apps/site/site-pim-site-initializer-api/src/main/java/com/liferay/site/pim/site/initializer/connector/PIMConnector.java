@@ -27,6 +27,9 @@ public interface PIMConnector {
 
 	public List<PIMConnectorChannelField> getPIMConnectorChannelFields();
 
+	public String
+		getPIMConnectorConfigurationObjectDefinitionExternalReferenceCode();
+
 	public boolean isActive(long companyId);
 
 }

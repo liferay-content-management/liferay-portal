@@ -77,6 +77,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -471,17 +472,16 @@ public class CPDefinitionOptionRelLocalServiceImpl
 
 		Map<Long, List<Long>>
 			cpDefinitionOptionRelIdCPDefinitionOptionValueRelIds =
-				new HashMap<>();
+				new LinkedHashMap<>();
 
 		for (int i = 0; i < skuOptionJSONArray.length(); i++) {
 			JSONObject skuOptionJSONObject = skuOptionJSONArray.getJSONObject(
 				i);
 
 			CPDefinitionOptionRel cpDefinitionOptionRel =
-				cpDefinitionOptionRelLocalService.
-					fetchCPDefinitionOptionRelByKey(
-						cpDefinitionId,
-						skuOptionJSONObject.getString("skuOptionKey"));
+				cpDefinitionOptionRelPersistence.fetchByC_K(
+					cpDefinitionId,
+					skuOptionJSONObject.getString("skuOptionKey"));
 
 			if ((cpDefinitionOptionRel == null) ||
 				(skuContributorsOnly &&
@@ -535,7 +535,7 @@ public class CPDefinitionOptionRelLocalServiceImpl
 
 		Map<Long, List<Long>>
 			cpDefinitionOptionRelIdCPDefinitionOptionValueRelIds =
-				new HashMap<>();
+				new LinkedHashMap<>();
 
 		JSONArray jsonArray = _jsonFactory.createJSONArray();
 
@@ -550,16 +550,13 @@ public class CPDefinitionOptionRelLocalServiceImpl
 			JSONObject jsonObject = jsonArray.getJSONObject(i);
 
 			CPDefinitionOptionRel cpDefinitionOptionRel =
-				cpDefinitionOptionRelLocalService.
-					fetchCPDefinitionOptionRelByKey(
-						cpDefinitionId, jsonObject.getString("key"));
+				cpDefinitionOptionRelPersistence.fetchByC_K(
+					cpDefinitionId, jsonObject.getString("key"));
 
 			if (cpDefinitionOptionRel == null) {
 				cpDefinitionOptionRel =
-					cpDefinitionOptionRelLocalService.
-						fetchCPDefinitionOptionRelByKey(
-							cpDefinitionId,
-							jsonObject.getString("skuOptionKey"));
+					cpDefinitionOptionRelPersistence.fetchByC_K(
+						cpDefinitionId, jsonObject.getString("skuOptionKey"));
 			}
 
 			if ((cpDefinitionOptionRel == null) ||

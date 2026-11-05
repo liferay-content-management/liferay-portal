@@ -151,22 +151,8 @@ public class StyleBookEntryServiceImpl extends StyleBookEntryServiceBaseImpl {
 			getPermissionChecker(), groupId,
 			StyleBookActionKeys.MANAGE_STYLE_BOOK_ENTRIES);
 
-		return styleBookEntryLocalService.
-			fetchStyleBookEntryByExternalReferenceCode(
-				externalReferenceCode, groupId);
-	}
-
-	@Override
-	public StyleBookEntry getOrAddEmptyStyleBookEntry(
-			String externalReferenceCode, long groupId, String themeId)
-		throws Exception {
-
-		_portletResourcePermission.check(
-			getPermissionChecker(), groupId,
-			StyleBookActionKeys.MANAGE_STYLE_BOOK_ENTRIES);
-
-		return styleBookEntryLocalService.getOrAddEmptyStyleBookEntry(
-			externalReferenceCode, getUserId(), groupId, themeId);
+		return styleBookEntryPersistence.fetchByERC_G_Head(
+			externalReferenceCode, groupId, true);
 	}
 
 	@Override
@@ -243,9 +229,8 @@ public class StyleBookEntryServiceImpl extends StyleBookEntryServiceBaseImpl {
 			getPermissionChecker(), groupId,
 			StyleBookActionKeys.MANAGE_STYLE_BOOK_ENTRIES);
 
-		return styleBookEntryLocalService.
-			getStyleBookEntryByExternalReferenceCode(
-				externalReferenceCode, groupId);
+		return styleBookEntryPersistence.findByERC_G_Head(
+			externalReferenceCode, groupId, true);
 	}
 
 	@Override

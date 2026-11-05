@@ -1,3 +1,4 @@
+import DataValue from 'shared/components/DataValue';
 import getCN from 'classnames';
 import React from 'react';
 import TextTruncate from 'shared/components/TextTruncate';
@@ -15,10 +16,33 @@ interface INameProps {
 	maxWidth?: number;
 	nameKey?: string;
 	renderIcon?: Function;
-	renderSecondaryInfo?: Function;
+	renderSecondaryInfo?: (data: INameProps['data']) => React.ReactNode;
 	routeFn?: Function;
 	tooltip?: boolean;
 }
+
+interface ISecondaryInfoProps {
+	data: INameProps['data'];
+	renderSecondaryInfo?: INameProps['renderSecondaryInfo'];
+}
+
+const SecondaryInfo: React.FC<ISecondaryInfoProps> = ({
+	data,
+	renderSecondaryInfo,
+}) => {
+	if (!renderSecondaryInfo) {
+		return null;
+	}
+
+	return (
+		<div className="secondary-info text-truncate">
+			<DataValue
+				format={(secondaryInfo) => secondaryInfo}
+				value={renderSecondaryInfo(data)}
+			/>
+		</div>
+	);
+};
 
 const Name: React.FC<INameProps> = ({
 	className,
@@ -31,21 +55,17 @@ const Name: React.FC<INameProps> = ({
 	routeFn = noop,
 	tooltip = false,
 }) => {
-	const getSecondaryInfo = () =>
-		!!renderSecondaryInfo && (
-			<div className="secondary-info text-truncate">
-				{renderSecondaryInfo(data) || '-'}
-			</div>
-		);
-
-	const displayName = data[nameKey] || '-';
+	const name = data[nameKey];
 
 	const url = routeFn({data});
 
-	const titleContent = tooltip ? (
-		<TextTruncate title={displayName} />
-	) : (
-		displayName
+	const titleContent = (
+		<DataValue
+			format={(value) =>
+				tooltip ? <TextTruncate title={value} /> : value
+			}
+			value={name}
+		/>
 	);
 
 	return (
@@ -69,7 +89,10 @@ const Name: React.FC<INameProps> = ({
 						)}
 					</div>
 
-					{getSecondaryInfo()}
+					<SecondaryInfo
+						data={data}
+						renderSecondaryInfo={renderSecondaryInfo}
+					/>
 				</div>
 			</div>
 		</td>

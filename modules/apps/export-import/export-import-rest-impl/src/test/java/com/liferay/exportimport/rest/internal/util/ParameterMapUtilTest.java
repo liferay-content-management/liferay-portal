@@ -55,29 +55,33 @@ public class ParameterMapUtilTest {
 		LiferayUnitTestRule.INSTANCE;
 
 	@Test
-	public void testPutSiteExternalReferenceCodes() {
-		_testPutSiteExternalReferenceCodes(
-			new String[] {_SITE_EXTERNAL_REFERENCE_CODE_1},
-			new String[] {_SITE_EXTERNAL_REFERENCE_CODE_1, null});
-		_testPutSiteExternalReferenceCodes(
+	public void testPutGroupExternalReferenceCodes() {
+		_testPutGroupExternalReferenceCodes(
+			new String[] {_GROUP_EXTERNAL_REFERENCE_CODE_1},
+			new String[] {_GROUP_EXTERNAL_REFERENCE_CODE_1, null});
+		_testPutGroupExternalReferenceCodes(
 			new String[] {
-				_SITE_EXTERNAL_REFERENCE_CODE_1, _SITE_EXTERNAL_REFERENCE_CODE_2
+				_GROUP_EXTERNAL_REFERENCE_CODE_1,
+				_GROUP_EXTERNAL_REFERENCE_CODE_2
 			},
 			new String[] {
-				_SITE_EXTERNAL_REFERENCE_CODE_1, _SITE_EXTERNAL_REFERENCE_CODE_2
+				_GROUP_EXTERNAL_REFERENCE_CODE_1,
+				_GROUP_EXTERNAL_REFERENCE_CODE_2
 			});
-		_testPutSiteExternalReferenceCodes(
+		_testPutGroupExternalReferenceCodes(
 			new String[] {
-				_SITE_EXTERNAL_REFERENCE_CODE_1, _SITE_EXTERNAL_REFERENCE_CODE_2
+				_GROUP_EXTERNAL_REFERENCE_CODE_1,
+				_GROUP_EXTERNAL_REFERENCE_CODE_2
 			},
 			new String[] {
-				_SITE_EXTERNAL_REFERENCE_CODE_1,
-				_SITE_EXTERNAL_REFERENCE_CODE_2, _SITE_EXTERNAL_REFERENCE_CODE_1
+				_GROUP_EXTERNAL_REFERENCE_CODE_1,
+				_GROUP_EXTERNAL_REFERENCE_CODE_2,
+				_GROUP_EXTERNAL_REFERENCE_CODE_1
 			});
-		_testPutSiteExternalReferenceCodes(null, new String[0]);
-		_testPutSiteExternalReferenceCodes(
+		_testPutGroupExternalReferenceCodes(null, new String[0]);
+		_testPutGroupExternalReferenceCodes(
 			null, new String[] {StringPool.BLANK, StringPool.THREE_SPACES});
-		_testPutSiteExternalReferenceCodes(null, null);
+		_testPutGroupExternalReferenceCodes(null, null);
 	}
 
 	@Test
@@ -463,17 +467,17 @@ public class ParameterMapUtilTest {
 		};
 	}
 
-	private void _testPutSiteExternalReferenceCodes(
-		String[] expectedSiteExternalReferenceCodes,
-		String[] siteExternalReferenceCodes) {
+	private void _testPutGroupExternalReferenceCodes(
+		String[] expectedGroupExternalReferenceCodes,
+		String[] groupExternalReferenceCodes) {
 
 		Map<String, String[]> parameterMap = new HashMap<>();
 
-		ParameterMapUtil.putSiteExternalReferenceCodes(
-			parameterMap, siteExternalReferenceCodes);
+		ParameterMapUtil.putGroupExternalReferenceCodes(
+			parameterMap, groupExternalReferenceCodes);
 
 		Assert.assertArrayEquals(
-			expectedSiteExternalReferenceCodes,
+			expectedGroupExternalReferenceCodes,
 			parameterMap.get(
 				PortletDataHandlerKeys.GROUP_EXTERNAL_REFERENCE_CODES));
 	}
@@ -614,13 +618,13 @@ public class ParameterMapUtilTest {
 	private static final String _CONTROL_NAME_VISIBILITY =
 		"_" + RandomTestUtil.randomString() + "_visibility";
 
+	private static final String _GROUP_EXTERNAL_REFERENCE_CODE_1 =
+		RandomTestUtil.randomString();
+
+	private static final String _GROUP_EXTERNAL_REFERENCE_CODE_2 =
+		RandomTestUtil.randomString();
+
 	private static final String _PORTLET_DATA_HANDLER_NAME =
 		"PORTLET_DATA_" + RandomTestUtil.randomString();
-
-	private static final String _SITE_EXTERNAL_REFERENCE_CODE_1 =
-		RandomTestUtil.randomString();
-
-	private static final String _SITE_EXTERNAL_REFERENCE_CODE_2 =
-		RandomTestUtil.randomString();
 
 }

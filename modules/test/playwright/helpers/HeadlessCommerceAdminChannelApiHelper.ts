@@ -6,6 +6,23 @@
 import {getRandomInt} from '../utils/getRandomInt';
 import {ApiHelpers, DataApiHelpers} from './ApiHelpers';
 
+type TAccountAddressChannel = {
+	accountAddressChannelId?: number;
+	addressChannelId?: number;
+	addressId?: number;
+};
+
+type TDefaultProductDisplayPage = {
+	pageUuid: string;
+};
+
+type TProductDisplayPage = {
+	id?: number;
+	pageTemplateUuid?: string;
+	pageUuid?: string;
+	productId: number;
+};
+
 type TChannel = {
 	accountId?: number;
 	currencyCode?: string;
@@ -22,6 +39,12 @@ export class HeadlessCommerceAdminChannelApiHelper {
 	constructor(apiHelpers: ApiHelpers | DataApiHelpers) {
 		this.apiHelpers = apiHelpers;
 		this.basePath = 'headless-commerce-admin-channel/v1.0/';
+	}
+
+	async deleteAccountAddressChannel(accountAddressChannelId: number) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/account-address-channels/${accountAddressChannelId}`
+		);
 	}
 
 	async deleteChannel(channelId: number) {
@@ -57,6 +80,21 @@ export class HeadlessCommerceAdminChannelApiHelper {
 		);
 	}
 
+	async postAccountAddressChannel(
+		addressId: number,
+		channelId: number
+	): Promise<TAccountAddressChannel> {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/account-addresses/${addressId}/account-address-channels`,
+			{
+				data: {
+					addressChannelId: channelId,
+					addressId,
+				},
+			}
+		);
+	}
+
 	async postChannel(channel: TChannel): Promise<TChannel> {
 		channel = await this.apiHelpers.post(
 			`${this.apiHelpers.baseUrl}${this.basePath}/channels`,
@@ -77,6 +115,26 @@ export class HeadlessCommerceAdminChannelApiHelper {
 		}
 
 		return channel;
+	}
+
+	async postDefaultProductDisplayPage(
+		channelId: number,
+		defaultProductDisplayPage: TDefaultProductDisplayPage
+	): Promise<TDefaultProductDisplayPage> {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/channels/${channelId}/default-product-display-pages`,
+			{data: defaultProductDisplayPage}
+		);
+	}
+
+	async postProductDisplayPage(
+		channelId: number,
+		productDisplayPage: TProductDisplayPage
+	): Promise<TProductDisplayPage> {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/channels/${channelId}/product-display-pages`,
+			{data: productDisplayPage}
+		);
 	}
 
 	async putChannel(channelId: number, channel: TChannel) {

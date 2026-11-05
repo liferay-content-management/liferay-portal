@@ -216,6 +216,8 @@ public class DLAppHelperLocalServiceImpl
 		actionableDynamicQuery.setPerformActionMethod(
 			(DLFileEntry dlFileEntry) -> _deleteFileEntry(
 				dlFileEntry.getFileEntryId()));
+
+		actionableDynamicQuery.performActions();
 	}
 
 	@Override
@@ -252,22 +254,6 @@ public class DLAppHelperLocalServiceImpl
 				DLFileShortcutConstants.getClassName(),
 				fileShortcut.getFileShortcutId(), 1);
 		}
-	}
-
-	@Override
-	public List<DLFileShortcut> getFileShortcuts(
-		long groupId, long folderId, boolean active, int status) {
-
-		return _dlFileShortcutPersistence.findByG_F_A_S(
-			groupId, folderId, active, status);
-	}
-
-	@Override
-	public int getFileShortcutsCount(
-		long groupId, long folderId, boolean active, int status) {
-
-		return _dlFileShortcutPersistence.countByG_F_A_S(
-			groupId, folderId, active, status);
 	}
 
 	@Override

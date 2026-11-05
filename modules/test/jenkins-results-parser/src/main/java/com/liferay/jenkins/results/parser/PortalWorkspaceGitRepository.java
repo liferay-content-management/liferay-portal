@@ -95,6 +95,10 @@ public class PortalWorkspaceGitRepository extends BaseWorkspaceGitRepository {
 		return _appServerProperties;
 	}
 
+	public PortalWorkspaceGitRepository getBasePortalWorkspaceGitRepository() {
+		return _basePortalWorkspaceGitRepository;
+	}
+
 	public String getLiferayFacesAlloyURL() {
 		return _getLiferayFacesURL(
 			"liferay-faces-alloy", "liferay.faces.alloy.branch");
@@ -142,6 +146,12 @@ public class PortalWorkspaceGitRepository extends BaseWorkspaceGitRepository {
 		PortalWorkspaceGitRepository basePortalWorkspaceGitRepository) {
 
 		_basePortalWorkspaceGitRepository = basePortalWorkspaceGitRepository;
+	}
+
+	public void setPrimaryPortalBranchPrivate(
+		boolean primaryPortalBranchPrivate) {
+
+		_primaryPortalBranchPrivate = primaryPortalBranchPrivate;
 	}
 
 	public void setUpPortalProfile() {
@@ -386,7 +396,7 @@ public class PortalWorkspaceGitRepository extends BaseWorkspaceGitRepository {
 
 	@Override
 	protected void setUpAdditionalCaches() throws IOException {
-		_configurePortalPublicWorkspaceGitRepository();
+		_configureBasePortalWorkspaceGitRepository();
 
 		_setUpBasePortalCache();
 
@@ -617,14 +627,10 @@ public class PortalWorkspaceGitRepository extends BaseWorkspaceGitRepository {
 		}
 	}
 
-	private void _configurePortalPublicWorkspaceGitRepository() {
-		if (_basePortalWorkspaceGitRepository == null) {
-			return;
-		}
+	private void _configureBasePortalWorkspaceGitRepository() {
+		if ((_basePortalWorkspaceGitRepository == null) ||
+			!_primaryPortalBranchPrivate) {
 
-		String upstreamBranchName = getUpstreamBranchName();
-
-		if (!upstreamBranchName.endsWith("-private")) {
 			return;
 		}
 
@@ -952,6 +958,7 @@ public class PortalWorkspaceGitRepository extends BaseWorkspaceGitRepository {
 
 	private Properties _appServerProperties;
 	private PortalWorkspaceGitRepository _basePortalWorkspaceGitRepository;
+	private boolean _primaryPortalBranchPrivate;
 	private boolean _setUpBasePortalCache;
 	private boolean _setUpBinariesCache;
 	private boolean _setUpYarn;

@@ -25,7 +25,7 @@ describe('buildStructureErrorAction', () => {
 
 	it('routes a name collision to the name field', () => {
 		const action = buildStructureErrorAction({
-			error: 'in-use',
+			error: 'name-in-use',
 			uuid: UUID,
 		});
 

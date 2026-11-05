@@ -103,6 +103,53 @@ public class ImportPreview implements Serializable {
 	private Supplier<Long> _additionCountSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The asset libraries the file contains, when it was exported from an instance."
+	)
+	@Valid
+	public AssetLibrary[] getAssetLibraries() {
+		if (_assetLibrariesSupplier != null) {
+			assetLibraries = _assetLibrariesSupplier.get();
+
+			_assetLibrariesSupplier = null;
+		}
+
+		return assetLibraries;
+	}
+
+	public void setAssetLibraries(AssetLibrary[] assetLibraries) {
+		this.assetLibraries = assetLibraries;
+
+		_assetLibrariesSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setAssetLibraries(
+		UnsafeSupplier<AssetLibrary[], Exception>
+			assetLibrariesUnsafeSupplier) {
+
+		_assetLibrariesSupplier = () -> {
+			try {
+				return assetLibrariesUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The asset libraries the file contains, when it was exported from an instance."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected AssetLibrary[] assetLibraries;
+
+	@JsonIgnore
+	private Supplier<AssetLibrary[]> _assetLibrariesSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The name of the user who exported the file."
 	)
 	public String getAuthor() {
@@ -444,6 +491,28 @@ public class ImportPreview implements Serializable {
 			sb.append(additionCount);
 		}
 
+		AssetLibrary[] assetLibraries = getAssetLibraries();
+
+		if (assetLibraries != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetLibraries\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < assetLibraries.length; i++) {
+				sb.append(String.valueOf(assetLibraries[i]));
+
+				if ((i + 1) < assetLibraries.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		String author = getAuthor();
 
 		if (author != null) {
@@ -682,4 +751,4 @@ public class ImportPreview implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1576045759
+// LIFERAY-REST-BUILDER-HASH:-1266624263

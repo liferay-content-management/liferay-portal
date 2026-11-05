@@ -64,8 +64,6 @@ jobs:
                         working_directory: ./cloud/helm/dxp-operator
                     -   chart_name: liferay-gcp
                         working_directory: ./cloud/helm/gcp
-                    -   chart_name: liferay-gcp-infrastructure
-                        working_directory: ./cloud/helm/gcp-infrastructure
                     -   chart_name: liferay-gcp-infrastructure-provider
                         working_directory: ./cloud/helm/gcp-infrastructure-provider
                     -   chart_name: liferay-infrastructure
@@ -76,6 +74,8 @@ jobs:
                         working_directory: ./cloud/helm/platform-components
                     -   chart_name: observability
                         working_directory: ./cloud/helm/observability
+                    -   chart_name: observability-paas
+                        working_directory: ./cloud/helm/observability-paas
         uses: ./.github/workflows/ci-reusable-push-helm-chart.yaml
         with:
             chart_name: ${{matrix.chart_name}}

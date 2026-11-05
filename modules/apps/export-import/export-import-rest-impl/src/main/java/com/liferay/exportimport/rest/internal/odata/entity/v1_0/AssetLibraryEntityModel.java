@@ -1,0 +1,40 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+package com.liferay.exportimport.rest.internal.odata.entity.v1_0;
+
+import com.liferay.exportimport.rest.internal.util.AssetLibraryUtil;
+import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.odata.entity.EntityField;
+import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.odata.entity.StringEntityField;
+
+import java.util.Map;
+
+/**
+ * @author Jürgen Kappler
+ */
+public class AssetLibraryEntityModel implements EntityModel {
+
+	public AssetLibraryEntityModel() {
+		_entityFieldsMap = EntityModel.toEntityFieldsMap(
+			new EntityField(
+				"type", EntityField.Type.STRING, locale -> Field.TYPE,
+				locale -> Field.TYPE,
+				value -> String.valueOf(
+					AssetLibraryUtil.toDepotEntryType((String)value))),
+			new StringEntityField(
+				"descriptiveName",
+				locale -> Field.getSortableFieldName(Field.NAME)));
+	}
+
+	@Override
+	public Map<String, EntityField> getEntityFieldsMap() {
+		return _entityFieldsMap;
+	}
+
+	private final Map<String, EntityField> _entityFieldsMap;
+
+}

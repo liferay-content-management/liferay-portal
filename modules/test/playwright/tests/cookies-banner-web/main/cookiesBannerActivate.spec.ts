@@ -354,6 +354,47 @@ test(
 );
 
 test(
+	'Consent Manager menu items keep their order',
+	{tag: '@LPS-156903'},
+	async ({page, site, siteSettingsPage}) => {
+		await siteSettingsPage.goToSiteSetting(
+			'Privacy',
+			'Consent Manager',
+			site.friendlyUrlPath
+		);
+
+		await page
+			.getByRole('checkbox', {exact: true, name: 'Enabled'})
+			.check();
+
+		await siteSettingsPage.saveConfiguration();
+
+		await siteSettingsPage.goToSiteSetting(
+			'Privacy',
+			undefined,
+			site.friendlyUrlPath
+		);
+
+		const menuItemNames = (
+			await page
+				.locator('#main-content')
+				.getByRole('menuitem')
+				.allInnerTexts()
+		).map((menuItemText) => menuItemText.trim());
+
+		const consentManagerIndex = menuItemNames.indexOf('Consent Manager');
+
+		expect(consentManagerIndex).toBeGreaterThanOrEqual(0);
+		expect(menuItemNames.indexOf('Cookie Banner')).toBe(
+			consentManagerIndex + 1
+		);
+		expect(menuItemNames.indexOf('Cookie Panel')).toBe(
+			consentManagerIndex + 2
+		);
+	}
+);
+
+test(
 	'Enabling alone does not render the Cookies Banner',
 	{tag: '@LPD-87281'},
 	async ({

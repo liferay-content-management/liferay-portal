@@ -27,6 +27,8 @@ jobs:
                         local helm_lint_args=()
                         local render_values_file="cloud/scripts/tests/render-values/${{matrix.chart}}.yaml"
 
+                        cloud/scripts/update_helm_dependencies.sh "cloud/helm/${{matrix.chart}}"
+
                         if [[ -f ${render_values_file} ]]
                         then
                             helm_lint_args=("--values" "${render_values_file}")
@@ -67,10 +69,10 @@ jobs:
                     -   default
                     -   dxp-operator
                     -   gcp
-                    -   gcp-infrastructure
                     -   gcp-infrastructure-provider
                     -   infrastructure
                     -   observability
+                    -   observability-paas
                     -   platform
                     -   platform-components
 on:

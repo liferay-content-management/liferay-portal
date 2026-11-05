@@ -1,0 +1,296 @@
+{{- $backup := $xr.spec.backup }}
+{{- if $backup.enabled }}
+{{- $backupRestorePrincipal := printf "principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/%s/sa/backup-restore-service-account" $env.projectNumber $env.projectId $namespace }}
+apiVersion: cloudplatform.gcp.m.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-restore-cloudsql-admin
+spec:
+    forProvider:
+        member: {{ $backupRestorePrincipal | quote }}
+        project: {{ $env.projectId }}
+        role: roles/cloudsql.admin
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: cloudplatform.gcp.m.upbound.io/v1beta1
+kind: ProjectIAMMember
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-restore-sts-admin
+spec:
+    forProvider:
+        member: {{ $backupRestorePrincipal | quote }}
+        project: {{ $env.projectId }}
+        role: roles/storagetransfer.admin
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-cleanup-cron-workflow
+    name: backup-cleanup-cron-workflow
+spec:
+    forProvider:
+        manifest:
+            apiVersion: argoproj.io/v1alpha1
+            kind: CronWorkflow
+            metadata:
+                name: backup-cleanup-cron-workflow
+                namespace: {{ $namespace }}
+            spec:
+                concurrencyPolicy: Forbid
+                schedules:
+                    -   0 2 * * *
+                startingDeadlineSeconds: 300
+                workflowSpec:
+                    arguments:
+                        parameters:
+                            -   name: retention-days
+                                value: {{ $backup.retentionDays | quote }}
+                    ttlStrategy:
+                        secondsAfterCompletion: 86400
+                    workflowTemplateRef:
+                        clusterScope: true
+                        name: backup-cleanup-cluster-workflow-template
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-cleanup-role-binding
+    name: backup-cleanup-role-binding
+spec:
+    forProvider:
+        manifest:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: RoleBinding
+            metadata:
+                name: backup-cleanup-role-binding
+                namespace: {{ $namespace }}
+            roleRef:
+                apiGroup: rbac.authorization.k8s.io
+                kind: ClusterRole
+                name: backup-cleanup-cluster-role
+            subjects:
+                -   kind: ServiceAccount
+                    name: backup-cleanup-service-account
+                    namespace: {{ $namespace }}
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-cleanup-service-account
+    name: backup-cleanup-service-account
+spec:
+    forProvider:
+        manifest:
+            apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+                name: backup-cleanup-service-account
+                namespace: {{ $namespace }}
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-create-role-binding
+    name: backup-create-role-binding
+spec:
+    forProvider:
+        manifest:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: RoleBinding
+            metadata:
+                name: backup-create-role-binding
+                namespace: {{ $namespace }}
+            roleRef:
+                apiGroup: rbac.authorization.k8s.io
+                kind: ClusterRole
+                name: backup-create-cluster-role
+            subjects:
+                -   kind: ServiceAccount
+                    name: backup-create-service-account
+                    namespace: {{ $namespace }}
+    managementPolicies: {{ $managementPolicies }}
+---
+{{- $timeOfDayParts := splitList ":" $backup.timeOfDay }}
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-create-scheduler-cron-workflow
+    name: backup-create-scheduler-cron-workflow
+spec:
+    forProvider:
+        manifest:
+            apiVersion: argoproj.io/v1alpha1
+            kind: CronWorkflow
+            metadata:
+                name: backup-create-scheduler-cron-workflow
+                namespace: {{ $namespace }}
+            spec:
+                concurrencyPolicy: Forbid
+                schedules:
+                    -   {{ printf "%s %s * * %s" (index $timeOfDayParts 1) (index $timeOfDayParts 0) (eq $backup.frequency "Weekly" | ternary (upper (trunc 3 $backup.dayOfWeek)) "*") | quote }}
+                startingDeadlineSeconds: 300
+                timezone: {{ $backup.timeZone | quote }}
+                workflowSpec:
+                    ttlStrategy:
+                        secondsAfterCompletion: 86400
+                    workflowTemplateRef:
+                        clusterScope: true
+                        name: backup-create-cluster-workflow-template
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-create-service-account
+    name: backup-create-service-account
+spec:
+    forProvider:
+        manifest:
+            apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+                name: backup-create-service-account
+                namespace: {{ $namespace }}
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-restore-backup-reader-cluster-role-binding
+    name: backup-restore-backup-reader-cluster-role-binding-{{ $baseName }}
+spec:
+    forProvider:
+        manifest:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRoleBinding
+            metadata:
+                name: backup-restore-backup-reader-cluster-role-binding-{{ $baseName }}
+            roleRef:
+                apiGroup: rbac.authorization.k8s.io
+                kind: ClusterRole
+                name: backup-restore-backup-reader-cluster-role
+            subjects:
+                -   kind: ServiceAccount
+                    name: backup-restore-service-account
+                    namespace: {{ $namespace }}
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-restore-role-binding
+    name: backup-restore-role-binding
+spec:
+    forProvider:
+        manifest:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: RoleBinding
+            metadata:
+                name: backup-restore-role-binding
+                namespace: {{ $namespace }}
+            roleRef:
+                apiGroup: rbac.authorization.k8s.io
+                kind: ClusterRole
+                name: backup-restore-env-cluster-role
+            subjects:
+                -   kind: ServiceAccount
+                    name: backup-restore-service-account
+                    namespace: {{ $namespace }}
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-restore-service-account
+    name: backup-restore-service-account
+spec:
+    forProvider:
+        manifest:
+            apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+                name: backup-restore-service-account
+                namespace: {{ $namespace }}
+    managementPolicies: {{ $managementPolicies }}
+---
+apiVersion: kubernetes.m.crossplane.io/v1alpha1
+kind: Object
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-restore-service-account-token
+    name: backup-restore-service-account-token
+spec:
+    forProvider:
+        manifest:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+                annotations:
+                    kubernetes.io/service-account.name: backup-restore-service-account
+                name: backup-restore-service-account.service-account-token
+                namespace: {{ $namespace }}
+            type: kubernetes.io/service-account-token
+    managementPolicies: {{ $xr.spec.orphanOnDelete | ternary (list "Create" "Observe") (list "Create" "Delete" "Observe") | toJson }}
+{{- if $isCMKKeyReady }}
+---
+apiVersion: storage.gcp.m.upbound.io/v1beta1
+kind: Bucket
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: {{ $baseName }}-vault
+    name: {{ $baseName }}-vault
+spec:
+    forProvider:
+        {{- if $cmkEnabled }}
+        encryption:
+            defaultKmsKeyName: {{ $cmkKeyId | quote }}
+        {{- end }}
+        forceDestroy: {{ $forceDestroy }}
+        labels:
+            {{- merge (dict "is-backup-vault" "true") $labels $backup.vaultTags | toYaml | nindent 12 }}
+        lifecycleRule:
+            -   action:
+                    type: Delete
+                condition:
+                    age: {{ add $backup.retentionDays 2 }}
+        location: {{ $region }}
+        storageClass: NEARLINE
+        uniformBucketLevelAccess: true
+    managementPolicies: {{ $managementPolicies }}
+{{- end }}
+{{- range $dataPlane := $dataPlanes }}
+---
+apiVersion: storage.gcp.m.upbound.io/v1beta1
+kind: BucketIAMMember
+metadata:
+    annotations:
+        gotemplating.fn.crossplane.io/composition-resource-name: backup-restore-dl-writer-{{ $dataPlane }}
+    labels:
+        dataPlane: {{ $dataPlane }}
+spec:
+    forProvider:
+        bucketSelector:
+            matchLabels:
+                app: liferay
+                component: document-library
+                dataPlane: {{ $dataPlane }}
+        member: {{ $backupRestorePrincipal | quote }}
+        role: roles/storage.objectUser
+    managementPolicies: {{ $managementPolicies }}
+{{- end }}
+{{- end }}

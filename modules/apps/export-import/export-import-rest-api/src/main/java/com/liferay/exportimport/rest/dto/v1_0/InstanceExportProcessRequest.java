@@ -40,11 +40,11 @@ import java.util.function.Supplier;
  */
 @Generated("")
 @GraphQLName(
-	description = "Represents an export of the instance, which can include whole sites.",
+	description = "Represents an export of the instance, which can include whole sites and asset libraries.",
 	value = "InstanceExportProcessRequest"
 )
 @io.swagger.v3.oas.annotations.media.Schema(
-	description = "Represents an export of the instance, which can include whole sites.",
+	description = "Represents an export of the instance, which can include whole sites and asset libraries.",
 	requiredProperties = {"name"}
 )
 @JsonFilter("Liferay.Vulcan")
@@ -60,6 +60,53 @@ public class InstanceExportProcessRequest implements Serializable {
 		return ObjectMapperUtil.unsafeReadValue(
 			InstanceExportProcessRequest.class, json);
 	}
+
+	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The asset libraries to export in full, from the export preview's asset libraries."
+	)
+	@Valid
+	public AssetLibrary[] getAssetLibraries() {
+		if (_assetLibrariesSupplier != null) {
+			assetLibraries = _assetLibrariesSupplier.get();
+
+			_assetLibrariesSupplier = null;
+		}
+
+		return assetLibraries;
+	}
+
+	public void setAssetLibraries(AssetLibrary[] assetLibraries) {
+		this.assetLibraries = assetLibraries;
+
+		_assetLibrariesSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setAssetLibraries(
+		UnsafeSupplier<AssetLibrary[], Exception>
+			assetLibrariesUnsafeSupplier) {
+
+		_assetLibrariesSupplier = () -> {
+			try {
+				return assetLibrariesUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The asset libraries to export in full, from the export preview's asset libraries."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected AssetLibrary[] assetLibraries;
+
+	@JsonIgnore
+	private Supplier<AssetLibrary[]> _assetLibrariesSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema
 	public Boolean getComments() {
@@ -439,6 +486,28 @@ public class InstanceExportProcessRequest implements Serializable {
 
 		sb.append("{");
 
+		AssetLibrary[] assetLibraries = getAssetLibraries();
+
+		if (assetLibraries != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"assetLibraries\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < assetLibraries.length; i++) {
+				sb.append(String.valueOf(assetLibraries[i]));
+
+				if ((i + 1) < assetLibraries.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		Boolean comments = getComments();
 
 		if (comments != null) {
@@ -681,4 +750,4 @@ public class InstanceExportProcessRequest implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-2037752996
+// LIFERAY-REST-BUILDER-HASH:-557440523

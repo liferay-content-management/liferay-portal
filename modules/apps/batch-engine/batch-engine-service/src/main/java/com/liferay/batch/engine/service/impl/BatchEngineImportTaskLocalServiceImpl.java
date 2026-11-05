@@ -16,6 +16,8 @@ import com.liferay.batch.engine.internal.util.PasswordFieldUtil;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.service.base.BatchEngineImportTaskLocalServiceBaseImpl;
 import com.liferay.batch.engine.service.persistence.BatchEngineImportTaskErrorPersistence;
+import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.io.AutoDeleteFileInputStream;
 import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.petra.string.StringBundler;
@@ -30,12 +32,13 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
@@ -121,9 +124,6 @@ public class BatchEngineImportTaskLocalServiceImpl
 		batchEngineImportTask.setBatchSize(batchSize);
 		batchEngineImportTask.setCallbackURL(callbackURL);
 		batchEngineImportTask.setClassName(className);
-		batchEngineImportTask.setContent(
-			new OutputBlob(
-				new UnsyncByteArrayInputStream(content), content.length));
 		batchEngineImportTask.setContentType(contentType);
 		batchEngineImportTask.setExecuteStatus(executeStatus);
 
@@ -136,7 +136,8 @@ public class BatchEngineImportTaskLocalServiceImpl
 		batchEngineImportTask.setParameters(parameters);
 		batchEngineImportTask.setTaskItemDelegateName(taskItemDelegateName);
 
-		return batchEngineImportTaskPersistence.update(batchEngineImportTask);
+		return _updateBatchEngineImportTask(
+			batchEngineImportTask, _getBlob(batchEngineImportTask, content));
 	}
 
 	@Override
@@ -152,32 +153,10 @@ public class BatchEngineImportTaskLocalServiceImpl
 
 	@Override
 	public List<BatchEngineImportTask> getBatchEngineImportTasks(
-		long companyId, int start, int end) {
-
-		return batchEngineImportTaskPersistence.findByCompanyId(
-			companyId, start, end);
-	}
-
-	@Override
-	public List<BatchEngineImportTask> getBatchEngineImportTasks(
-		long companyId, int start, int end,
-		OrderByComparator<BatchEngineImportTask> orderByComparator) {
-
-		return batchEngineImportTaskPersistence.findByCompanyId(
-			companyId, start, end, orderByComparator);
-	}
-
-	@Override
-	public List<BatchEngineImportTask> getBatchEngineImportTasks(
 		String executeStatus) {
 
 		return batchEngineImportTaskPersistence.findByExecuteStatus(
 			executeStatus);
-	}
-
-	@Override
-	public int getBatchEngineImportTasksCount(long companyId) {
-		return batchEngineImportTaskPersistence.countByCompanyId(companyId);
 	}
 
 	@Override
@@ -199,7 +178,13 @@ public class BatchEngineImportTaskLocalServiceImpl
 
 		try {
 			blob = _getBatchEngineImportTaskSanitizedContentBlob(
-				batchEngineImportTask);
+				batchEngineImportTask,
+				() -> {
+					Blob contentBlob = batchEngineImportTask.getContent();
+
+					return contentBlob.getBinaryStream();
+				},
+				value -> null);
 		}
 		catch (Exception exception) {
 			Class<?> clazz = exception.getClass();
@@ -218,23 +203,14 @@ public class BatchEngineImportTaskLocalServiceImpl
 			return super.updateBatchEngineImportTask(batchEngineImportTask);
 		}
 
-		try {
-			batchEngineImportTask.setContent(blob);
-
-			return super.updateBatchEngineImportTask(batchEngineImportTask);
-		}
-		finally {
-			try {
-				blob.free();
-			}
-			catch (SQLException sqlException) {
-				_log.error(sqlException);
-			}
-		}
+		return _updateBatchEngineImportTask(batchEngineImportTask, blob);
 	}
 
 	private Blob _getBatchEngineImportTaskSanitizedContentBlob(
-			BatchEngineImportTask batchEngineImportTask)
+			BatchEngineImportTask batchEngineImportTask,
+			UnsafeSupplier<InputStream, Exception> inputStreamUnsafeSupplier,
+			UnsafeFunction<String, String, Exception>
+				passwordFieldValueUnsafeFunction)
 		throws Exception {
 
 		Set<String> passwordFieldNames =
@@ -248,16 +224,15 @@ public class BatchEngineImportTaskLocalServiceImpl
 
 		File file = FileUtil.createTempFile();
 
-		try (OutputStream outputStream = new FileOutputStream(file)) {
+		try (InputStream inputStream = inputStreamUnsafeSupplier.get();
+			OutputStream outputStream = new FileOutputStream(file)) {
+
 			BatchEngineTaskContentSanitizer batchEngineTaskContentSanitizer =
 				new BatchEngineTaskContentSanitizer(
 					batchEngineImportTask, _configurationProvider,
-					passwordFieldNames);
+					passwordFieldNames, passwordFieldValueUnsafeFunction);
 
-			Blob blob = batchEngineImportTask.getContent();
-
-			batchEngineTaskContentSanitizer.sanitize(
-				blob.getBinaryStream(), outputStream);
+			batchEngineTaskContentSanitizer.sanitize(inputStream, outputStream);
 
 			return new OutputBlob(
 				new AutoDeleteFileInputStream(file), file.length());
@@ -266,6 +241,55 @@ public class BatchEngineImportTaskLocalServiceImpl
 			FileUtil.delete(file);
 
 			throw exception;
+		}
+	}
+
+	private Blob _getBlob(
+			BatchEngineImportTask batchEngineImportTask, byte[] content)
+		throws PortalException {
+
+		if (Validator.isNull(PropsValues.BATCH_ENGINE_ENCRYPTION_KEY)) {
+			return new OutputBlob(
+				new UnsyncByteArrayInputStream(content), content.length);
+		}
+
+		try {
+			Blob blob = _getBatchEngineImportTaskSanitizedContentBlob(
+				batchEngineImportTask,
+				() -> new UnsyncByteArrayInputStream(content),
+				PasswordFieldUtil::encrypt);
+
+			if (blob == null) {
+				return new OutputBlob(
+					new UnsyncByteArrayInputStream(content), content.length);
+			}
+
+			return blob;
+		}
+		catch (Exception exception) {
+			throw new PortalException(
+				"Unable to encrypt password fields of the batch engine " +
+					"import task",
+				exception);
+		}
+	}
+
+	private BatchEngineImportTask _updateBatchEngineImportTask(
+		BatchEngineImportTask batchEngineImportTask, Blob blob) {
+
+		try {
+			batchEngineImportTask.setContent(blob);
+
+			return batchEngineImportTaskPersistence.update(
+				batchEngineImportTask);
+		}
+		finally {
+			try {
+				blob.free();
+			}
+			catch (SQLException sqlException) {
+				_log.error(sqlException);
+			}
 		}
 	}
 

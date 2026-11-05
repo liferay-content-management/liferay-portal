@@ -6,7 +6,7 @@
 import {IFrontendDataSetProps} from '@liferay/frontend-data-set-web';
 import {Dispatch, SetStateAction} from 'react';
 
-import {baseFDSProps} from './baseFDSProps';
+import {baseFDSProps, getEmptyState} from './baseFDSProps';
 import {itemMethodRenderer, itemPathRenderer} from './fdsRenderers';
 
 export function getAPIEndpointsFDSProps(
@@ -22,11 +22,9 @@ export function getAPIEndpointsFDSProps(
 			itemPathRenderer: (fdsItem: FDSItem<APIEndpointItem>) =>
 				itemPathRenderer({fdsItem, setMainEndpointNav}),
 		},
-		emptyState: {
-			description: '',
-			image: '/states/empty_state.svg',
-			title: Liferay.Language.get('no-api-endpoint-found'),
-		},
+		emptyState: getEmptyState(
+			Liferay.Language.get('no-api-endpoint-found')
+		),
 		id: portletId,
 		itemsActions: [
 			{

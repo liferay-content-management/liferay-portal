@@ -32,6 +32,28 @@ public abstract class BaseAICreatorOpenAIConfigurationDisplayContext {
 		return getAICreatorOpenAIAPIKey();
 	}
 
+	public String getImageModel() throws ConfigurationException {
+		String imageModel = ParamUtil.getString(
+			httpServletRequest, "imageModel", null);
+
+		if (imageModel != null) {
+			return imageModel;
+		}
+
+		return getAICreatorOpenAIImageModel();
+	}
+
+	public String getImageSizes() throws ConfigurationException {
+		String imageSizes = ParamUtil.getString(
+			httpServletRequest, "imageSizes", null);
+
+		if (imageSizes != null) {
+			return imageSizes;
+		}
+
+		return getAICreatorOpenAIImageSizes();
+	}
+
 	public boolean isChatGPTEnabled() throws ConfigurationException {
 		String enabled = ParamUtil.getString(
 			httpServletRequest, "enableChatGPT", null);
@@ -43,24 +65,32 @@ public abstract class BaseAICreatorOpenAIConfigurationDisplayContext {
 		return isAICreatorChatGPTEnabled();
 	}
 
-	public boolean isDALLEEnabled() throws ConfigurationException {
+	public boolean isOpenAIImageGenerationEnabled()
+		throws ConfigurationException {
+
 		String enabled = ParamUtil.getString(
-			httpServletRequest, "enableDALLE", null);
+			httpServletRequest, "enableOpenAIImageGeneration", null);
 
 		if (enabled != null) {
 			return GetterUtil.getBoolean(enabled);
 		}
 
-		return isAICreatorDALLEEnabled();
+		return isAICreatorOpenAIImageGenerationEnabled();
 	}
 
 	protected abstract String getAICreatorOpenAIAPIKey()
 		throws ConfigurationException;
 
+	protected abstract String getAICreatorOpenAIImageModel()
+		throws ConfigurationException;
+
+	protected abstract String getAICreatorOpenAIImageSizes()
+		throws ConfigurationException;
+
 	protected abstract boolean isAICreatorChatGPTEnabled()
 		throws ConfigurationException;
 
-	protected abstract boolean isAICreatorDALLEEnabled()
+	protected abstract boolean isAICreatorOpenAIImageGenerationEnabled()
 		throws ConfigurationException;
 
 	protected final HttpServletRequest httpServletRequest;

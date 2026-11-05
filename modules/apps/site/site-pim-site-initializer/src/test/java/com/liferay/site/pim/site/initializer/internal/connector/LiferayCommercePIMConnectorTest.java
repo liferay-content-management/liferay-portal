@@ -206,6 +206,14 @@ public class LiferayCommercePIMConnectorTest {
 				}));
 	}
 
+	@Test
+	public void testGetPIMConnectorConfigurationObjectDefinitionExternalReferenceCode() {
+		Assert.assertEquals(
+			"L_PIM_CONNECTOR_CONFIGURATION_LIFERAY_COMMERCE",
+			_liferayCommercePIMConnector.
+				getPIMConnectorConfigurationObjectDefinitionExternalReferenceCode());
+	}
+
 	private JSONObject _execute(
 			String externalReferenceCode,
 			List<ObjectEntry> pimFieldMappingObjectEntries,
@@ -222,26 +230,14 @@ public class LiferayCommercePIMConnectorTest {
 			objectEntries.add(objectEntry);
 		}
 
-		Mockito.doReturn(
-			objectEntriesMap
-		).when(
-			_liferayCommercePIMConnector
-		).getPIMFieldMappingObjectEntriesMap(
-			_pimConnectorObjectEntry
-		);
-
-		Mockito.doReturn(
-			HashMapBuilder.put(
-				externalReferenceCode, Arrays.asList(pimProductObjectEntries)
-			).build()
-		).when(
-			_liferayCommercePIMConnector
-		).getPIMProductObjectEntriesMap(
-			Mockito.anyLong()
-		);
-
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
-			_liferayCommercePIMConnector.execute(_pimConnectorObjectEntry));
+			_liferayCommercePIMConnector.doExecute(
+				Collections.emptyMap(), _pimConnectorObjectEntry,
+				objectEntriesMap,
+				HashMapBuilder.put(
+					externalReferenceCode,
+					Arrays.asList(pimProductObjectEntries)
+				).build()));
 
 		Assert.assertEquals(jsonArray.toString(), 1, jsonArray.length());
 

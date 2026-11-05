@@ -76,13 +76,12 @@ public class AssetStatisticsResourceImpl
 
 		LicenseManagerUtil.checkFreeTier();
 
-		Long[] spaceGroupIds = CMSGroupUtil.getSpaceGroupIds(
-			contextCompany.getCompanyId(), _depotEntryService,
-			contextUser.getUserId());
-
 		Long[] selectedSpaceGroupIds = CMSGroupUtil.getSelectedSpaceGroupIds(
 			assetLibraryId, contextCompany.getCompanyId(),
-			_depotEntryLocalService, groupLocalService, spaceGroupIds);
+			_depotEntryLocalService, groupLocalService,
+			CMSGroupUtil.getAdministeredSpaceGroupIds(
+				contextCompany.getCompanyId(), _depotEntryService,
+				contextUser.getUserId()));
 
 		if (ArrayUtil.isEmpty(selectedSpaceGroupIds)) {
 			return _toAssetStatistics();
@@ -108,6 +107,9 @@ public class AssetStatisticsResourceImpl
 		String[] classNames = transformToArray(
 			objectDefinitions, ObjectDefinition::getClassName, String.class);
 		Date date = new Date();
+		Long[] spaceGroupIds = CMSGroupUtil.getSpaceGroupIds(
+			contextCompany.getCompanyId(), _depotEntryService,
+			contextUser.getUserId());
 
 		return new AssetStatistics() {
 			{

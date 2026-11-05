@@ -7,6 +7,7 @@ package com.liferay.object.internal.upgrade.registry;
 
 import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.friendly.url.configuration.manager.FriendlyURLSeparatorConfigurationManager;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.notification.service.NotificationTemplateLocalService;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
@@ -23,6 +24,8 @@ import com.liferay.object.internal.upgrade.v10_8_1.ObjectEntryAssetEntryTitleUpg
 import com.liferay.object.internal.upgrade.v10_9_0.util.ObjectEntryVersionTable;
 import com.liferay.object.internal.upgrade.v10_9_1.ClassNameUpgradeProcess;
 import com.liferay.object.internal.upgrade.v13_12_0.ObjectActionDescriptionUpgradeProcess;
+import com.liferay.object.internal.upgrade.v13_13_2.ObjectEntryExtensionTableUpgradeProcess;
+import com.liferay.object.internal.upgrade.v13_13_3.ObjectEntryGroupIdUpgradeProcess;
 import com.liferay.object.internal.upgrade.v13_3_0.AttachmentObjectFieldDownloadPermissionUpgradeProcess;
 import com.liferay.object.internal.upgrade.v13_8_0.LayoutPageTemplateEntryClassNameIdUpgradeProcess;
 import com.liferay.object.internal.upgrade.v1_2_0.util.ObjectViewColumnTable;
@@ -719,8 +722,10 @@ public class ObjectServiceUpgradeStepRegistrator
 
 		registry.register("12.0.3", "12.0.4", new DummyUpgradeStep());
 
+		registry.register("12.0.4", "12.0.5", new DummyUpgradeStep());
+
 		registry.register(
-			"12.0.4", "12.1.0",
+			"12.0.5", "12.1.0",
 			new com.liferay.object.internal.upgrade.v12_1_0.
 				ObjectDefinitionSettingUpgradeProcess());
 
@@ -748,8 +753,10 @@ public class ObjectServiceUpgradeStepRegistrator
 
 		registry.register("13.2.2", "13.2.3", new DummyUpgradeStep());
 
+		registry.register("13.2.3", "13.2.4", new DummyUpgradeStep());
+
 		registry.register(
-			"13.2.3", "13.3.0",
+			"13.2.4", "13.3.0",
 			new com.liferay.object.internal.upgrade.v13_2_0.
 				ObjectDefinitionExternalReferenceCodeUpgradeProcess(
 					_systemObjectDefinitionManagerRegistry));
@@ -830,6 +837,25 @@ public class ObjectServiceUpgradeStepRegistrator
 					PanelCategoryKeys.CONTROL_PANEL_OBJECT,
 					"' where panelCategoryKey = ",
 					"'control_panel.configuration'")));
+
+		registry.register(
+			"13.13.0", "13.13.1",
+			UpgradeProcessFactory.alterColumnType(
+				"ObjectDefinition", "label", "TEXT null"),
+			UpgradeProcessFactory.alterColumnType(
+				"ObjectDefinition", "pluralLabel", "TEXT null"),
+			UpgradeProcessFactory.alterColumnType(
+				"ObjectField", "label", "TEXT null"));
+
+		registry.register(
+			"13.13.1", "13.13.2",
+			new ObjectEntryExtensionTableUpgradeProcess());
+
+		registry.register(
+			"13.13.2", "13.13.3",
+			new ObjectEntryGroupIdUpgradeProcess(
+				_classNameLocalService, _companyLocalService,
+				_friendlyURLEntryLocalService));
 	}
 
 	private static final String[] _REMOVED_PANEL_CATEGORY_KEYS = {
@@ -849,6 +875,9 @@ public class ObjectServiceUpgradeStepRegistrator
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private FriendlyURLEntryLocalService _friendlyURLEntryLocalService;
 
 	@Reference
 	private FriendlyURLSeparatorConfigurationManager

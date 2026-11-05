@@ -40,6 +40,7 @@ StringCastCheck | .java, .jsp, .jspf, .jspx, .tag, .tpl, or .vm | Finds cases wh
 SubstringCheck | .java, .jsp, .jspf, .jspx, .tag, .tpl, or .vm | Finds cases like `s.substring(1, s.length())` (use `s.substring(1)` instead). |
 TestClassStaticVariableCheck | .java | Finds unnecessary static modifiers in test classes. |
 ThreadLocalUtilCheck | .java | Finds new instances of `java.lang.Thread` (use `ThreadLocalUtil.create` instead). |
+[ToSQLCallCheck](check/to_sql_call_check.md#tosqlcallcheck) | .java | Finds `toSQL(ASTNodeListener)` calls whose SQL string is unused, which should pass a consumer that ignores the text to `toSQL(Consumer, ASTNodeListener)` instead. |
 TryWithResourcesCheck | .java | Ensures using Try-With-Resources statement to properly close the resource. |
 [UnnecessaryAssignCheck](check/unnecessary_assign_check.md#unnecessaryassigncheck) | .java | Finds unnecessary assign statements (when it is either reassigned or returned right after). |
 UnnecessaryTypeCastCheck | .java, .jsp, .jspf, .jspx, .tag, .tpl, or .vm | Finds unnecessary Type Casting. |

@@ -97,7 +97,7 @@ export const getFormattedMedianLabel = (metric: MetricName) =>
 		: `${getMetricName(metric)} ${Liferay.Language.get('median')}`;
 
 export const getFormattedProbabilityToWin = (value: number): string => {
-	if (value < 0.1) {
+	if (value > 0 && value < 0.1) {
 		return '< 0.1%';
 	}
 	else if (value > 99.9) {
@@ -128,9 +128,9 @@ export const mergedVariants: MergedVariantsFn = (variants, variantMetrics) =>
 		return {
 			...variant,
 			confidenceInterval: metric?.confidenceInterval ?? [],
-			improvement: metric?.improvement ?? 0,
-			median: metric?.median ?? 0,
-			probabilityToWin: metric?.probabilityToWin ?? 0,
+			improvement: metric?.improvement,
+			median: metric?.median,
+			probabilityToWin: metric?.probabilityToWin,
 		};
 	});
 
@@ -268,12 +268,14 @@ export const getBestVariant = ({
 
 	if (goal?.metric === 'BOUNCE_RATE') {
 		return mergedVariants(dxpVariants, variantMetrics).reduce(
-			(prev, current) => (prev.median < current.median ? prev : current)
+			(prev, current) =>
+				(prev.median ?? 0) < (current.median ?? 0) ? prev : current
 		);
 	}
 
 	return mergedVariants(dxpVariants, variantMetrics).reduce(
-		(prev, current) => (prev.median > current.median ? prev : current)
+		(prev, current) =>
+			(prev.median ?? 0) > (current.median ?? 0) ? prev : current
 	);
 };
 
@@ -377,7 +379,7 @@ export const getMedianGraphData = ({
 		progress: [
 			{
 				color: control ? CONTROL_COLOR : COLORS.shift(),
-				value: median,
+				value: median ?? 0,
 			},
 		],
 	}));

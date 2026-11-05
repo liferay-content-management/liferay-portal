@@ -13,7 +13,11 @@ import {
 	getStageCountLabel,
 } from 'lifecycle/utils/lifecycleLabels';
 import {getStageTrigger} from 'lifecycle/utils/stageTrigger';
-import {ILifecycleDetail, ILifecycleStage} from 'shared/api/lifecycle';
+import {
+	ILifecycle,
+	ILifecycleDetail,
+	ILifecycleStage,
+} from 'shared/api/lifecycle';
 import {PageActions} from 'shared/components/base-page/Header';
 import {SidePanel, Text} from '@clayui/core';
 import {useLifecycleActions} from 'lifecycle/hooks/useLifecycleActions';
@@ -82,7 +86,7 @@ const StageCard: React.FC<{stage: ILifecycleStage}> = ({stage}) => {
 					fields={[
 						{
 							label: Liferay.Language.get('name'),
-							value: stage.stageName,
+							value: stage.name,
 						},
 						{
 							label: Liferay.Language.get('description'),
@@ -108,7 +112,7 @@ const StageCard: React.FC<{stage: ILifecycleStage}> = ({stage}) => {
 
 const StagesTab: React.FC<{stages: ILifecycleStage[]}> = ({stages}) => (
 	<>
-		{sortBy(stages, 'priority').map((stage) => (
+		{sortBy(stages, 'position').map((stage) => (
 			<StageCard key={stage.id} stage={stage} />
 		))}
 	</>
@@ -119,6 +123,7 @@ interface ILifecycleDetailsPanelProps {
 	lifecycleId: string;
 	onBack?: () => void;
 	onDefaultChange?: (lifecycleId: string) => void;
+	onDelete?: (lifecycle: ILifecycle) => void;
 	onView?: () => void;
 }
 
@@ -127,6 +132,7 @@ const LifecycleDetailsPanel: React.FC<ILifecycleDetailsPanelProps> = ({
 	lifecycleId,
 	onBack,
 	onDefaultChange,
+	onDelete,
 	onView,
 }) => {
 	const {groupId} = useParams();
@@ -143,17 +149,19 @@ const LifecycleDetailsPanel: React.FC<ILifecycleDetailsPanelProps> = ({
 
 	const lifecycle = openLifecycle ?? data;
 
-	const {actions, manageNotificationsModal} = useLifecycleActions({
-		lifecycle,
-		onDefaultChange: () => {
-			if (!openLifecycle) {
-				refetch();
-			}
+	const {actions, deleteLifecycleModal, manageNotificationsModal} =
+		useLifecycleActions({
+			lifecycle,
+			onDefaultChange: () => {
+				if (!openLifecycle) {
+					refetch();
+				}
 
-			onDefaultChange?.(lifecycleId);
-		},
-		onView,
-	});
+				onDefaultChange?.(lifecycleId);
+			},
+			onDelete,
+			onView,
+		});
 
 	const renderBody = () => {
 		if (!openLifecycle && loading) {
@@ -209,9 +217,10 @@ const LifecycleDetailsPanel: React.FC<ILifecycleDetailsPanelProps> = ({
 								{
 									label: Liferay.Language.get('stages'),
 									value:
-										lifecycle.stages &&
+										lifecycle.accountLifecycleStages &&
 										getStageCountLabel(
-											lifecycle.stages.length
+											lifecycle.accountLifecycleStages
+												.length
 										),
 								},
 							]}
@@ -219,7 +228,9 @@ const LifecycleDetailsPanel: React.FC<ILifecycleDetailsPanelProps> = ({
 					</ClayTabs.TabPane>
 
 					<ClayTabs.TabPane className="p-0">
-						<StagesTab stages={lifecycle.stages ?? []} />
+						<StagesTab
+							stages={lifecycle.accountLifecycleStages ?? []}
+						/>
 					</ClayTabs.TabPane>
 				</ClayTabs.Content>
 			</>
@@ -255,6 +266,8 @@ const LifecycleDetailsPanel: React.FC<ILifecycleDetailsPanelProps> = ({
 			</SidePanel.Header>
 
 			<SidePanel.Body className="p-0">{renderBody()}</SidePanel.Body>
+
+			{deleteLifecycleModal}
 
 			{manageNotificationsModal}
 		</>

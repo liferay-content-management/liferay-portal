@@ -36,8 +36,21 @@ public interface AICreatorOpenAICompanyConfiguration {
 	public boolean enableChatGPTToCreateContent();
 
 	@Meta.AD(
-		deflt = "true", name = "enable-dalle-to-create-images", required = false
+		deflt = "true", name = "enable-openai-image-generation",
+		required = false
 	)
-	public boolean enableDALLEToCreateImages();
+	public boolean enableOpenAIImageGeneration();
+
+	@Meta.AD(
+		deflt = "gpt-image-2", description = "image-model-help",
+		name = "image-model", required = false
+	)
+	public String imageModel();
+
+	@Meta.AD(
+		deflt = "1024x1024,1536x1024,1024x1536",
+		description = "image-sizes-help", name = "image-sizes", required = false
+	)
+	public String imageSizes();
 
 }

@@ -22,7 +22,14 @@ import com.liferay.headless.admin.user.client.pagination.Pagination;
 import com.liferay.headless.admin.user.client.permission.Permission;
 import com.liferay.headless.admin.user.client.problem.Problem;
 import com.liferay.headless.admin.user.client.resource.v1_0.RoleResource;
+import com.liferay.object.constants.ObjectActionKeys;
+import com.liferay.object.constants.ObjectConstants;
+import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.constants.ObjectPortletKeys;
+import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.petra.function.UnsafeRunnable;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -109,6 +116,7 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 
 		_testGetRoleVisibility();
 		_testGetRoleWithNestedFields();
+		_testGetRoleWithObjectDefinitionRolePermissions();
 		_testGetRoleWithRolePermissions();
 	}
 
@@ -433,6 +441,7 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 	public void testPutRole() throws Exception {
 		super.testPutRole();
 
+		_testPutRoleWithObjectDefinitionRolePermissions();
 		_testPutRoleWithPermissions();
 		_testPutRoleWithRolePermissions();
 	}
@@ -817,6 +826,29 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 		return user;
 	}
 
+	private void _assertObjectDefinitionRolePermissions(
+			ObjectDefinition objectDefinition, long roleId)
+		throws Exception {
+
+		Assert.assertTrue(
+			_hasResourcePermission(
+				ActionKeys.VIEW, objectDefinition.getClassName(),
+				String.valueOf(testCompany.getCompanyId()), roleId,
+				ResourceConstants.SCOPE_COMPANY));
+		Assert.assertTrue(
+			_hasResourcePermission(
+				ActionKeys.ACCESS_IN_CONTROL_PANEL,
+				objectDefinition.getPortletId(),
+				String.valueOf(testCompany.getCompanyId()), roleId,
+				ResourceConstants.SCOPE_COMPANY));
+		Assert.assertTrue(
+			_hasResourcePermission(
+				ObjectActionKeys.ADD_OBJECT_ENTRY,
+				objectDefinition.getResourceName(),
+				String.valueOf(testCompany.getCompanyId()), roleId,
+				ResourceConstants.SCOPE_COMPANY));
+	}
+
 	private void _assertProblemException(
 			UnsafeRunnable<Exception> unsafeRunnable)
 		throws Exception {
@@ -937,6 +969,62 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 					Objects.equals(permission.getRoleName(), role.getName()) &&
 					(permission.getActionIds().length == 1) &&
 					Objects.equals(permission.getActionIds()[0], "DELETE")));
+	}
+
+	private void _testGetRoleWithObjectDefinitionRolePermissions()
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			ObjectDefinitionTestUtil.publishObjectDefinition();
+		com.liferay.portal.kernel.model.Role serviceBuilderRole =
+			RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
+
+		_resourcePermissionLocalService.addResourcePermission(
+			testCompany.getCompanyId(), objectDefinition.getClassName(),
+			ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(testCompany.getCompanyId()),
+			serviceBuilderRole.getRoleId(), ActionKeys.VIEW);
+		_resourcePermissionLocalService.addResourcePermission(
+			testCompany.getCompanyId(), objectDefinition.getPortletId(),
+			ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(testCompany.getCompanyId()),
+			serviceBuilderRole.getRoleId(), ActionKeys.ACCESS_IN_CONTROL_PANEL);
+		_resourcePermissionLocalService.addResourcePermission(
+			testCompany.getCompanyId(), objectDefinition.getResourceName(),
+			ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(testCompany.getCompanyId()),
+			serviceBuilderRole.getRoleId(), ObjectActionKeys.ADD_OBJECT_ENTRY);
+
+		RoleResource roleResource = _getRoleResource(
+			_PASSWORD,
+			_addUser(
+				serviceBuilderRole, ActionKeys.DEFINE_PERMISSIONS,
+				ActionKeys.VIEW));
+
+		Role role = roleResource.getRole(serviceBuilderRole.getRoleId());
+
+		List<String> resourceNames = TransformUtil.transformToList(
+			role.getRolePermissions(), RolePermission::getResourceName);
+
+		Assert.assertTrue(
+			resourceNames.contains(
+				ObjectDefinitionConstants.
+					CLASS_NAME_PREFIX_CUSTOM_OBJECT_DEFINITION +
+						objectDefinition.getExternalReferenceCode()));
+		Assert.assertFalse(
+			resourceNames.contains(objectDefinition.getClassName()));
+		Assert.assertTrue(
+			resourceNames.contains(
+				_OBJECT_DEFINITION_PORTLET_ID_PREFIX +
+					objectDefinition.getExternalReferenceCode()));
+		Assert.assertFalse(
+			resourceNames.contains(objectDefinition.getPortletId()));
+		Assert.assertTrue(
+			resourceNames.contains(
+				_OBJECT_DEFINITION_RESOURCE_NAME_PREFIX +
+					objectDefinition.getExternalReferenceCode()));
+		Assert.assertFalse(
+			resourceNames.contains(objectDefinition.getResourceName()));
 	}
 
 	private void _testGetRoleWithRolePermissions() throws Exception {
@@ -1308,7 +1396,10 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 
 		Role role = _toRole(serviceBuilderRole.getName(), serviceBuilderRole);
 
-		role.setRolePermissions(new RolePermission[] {_toRolePermission()});
+		role.setRolePermissions(
+			new RolePermission[] {
+				_toRolePermission(ActionKeys.VIEW, Layout.class.getName())
+			});
 
 		_assertProblemException(
 			() -> roleResource1.patchRole(
@@ -1547,7 +1638,10 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 
 		Role role1 = randomRole();
 
-		role1.setRolePermissions(new RolePermission[] {_toRolePermission()});
+		role1.setRolePermissions(
+			new RolePermission[] {
+				_toRolePermission(ActionKeys.VIEW, Layout.class.getName())
+			});
 
 		_assertProblemException(() -> roleResource1.postRole(role1));
 
@@ -1601,6 +1695,89 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 
 		assertEquals(randomRole, postRole);
 		assertValid(postRole);
+	}
+
+	private void _testPutRoleWithObjectDefinitionRolePermissions()
+		throws Exception {
+
+		com.liferay.portal.kernel.model.Role serviceBuilderRole1 =
+			RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
+
+		RoleResource roleResource1 = _getRoleResource(
+			_PASSWORD,
+			_addUser(
+				serviceBuilderRole1, ActionKeys.PERMISSIONS, ActionKeys.UPDATE,
+				ActionKeys.VIEW));
+
+		Role role1 = _toRole(
+			serviceBuilderRole1.getName(), serviceBuilderRole1);
+
+		role1.setRolePermissions(
+			new RolePermission[] {
+				_toRolePermission(
+					ObjectActionKeys.ADD_OBJECT_ENTRY,
+					_OBJECT_DEFINITION_RESOURCE_NAME_PREFIX +
+						RandomTestUtil.randomString())
+			});
+
+		assertHttpResponseStatusCode(
+			404,
+			roleResource1.putRoleHttpResponse(
+				serviceBuilderRole1.getRoleId(), role1));
+
+		ObjectDefinition objectDefinition =
+			ObjectDefinitionTestUtil.publishObjectDefinition();
+
+		role1.setRolePermissions(
+			new RolePermission[] {
+				_toRolePermission(
+					ActionKeys.ACCESS_IN_CONTROL_PANEL,
+					_OBJECT_DEFINITION_PORTLET_ID_PREFIX +
+						objectDefinition.getExternalReferenceCode()),
+				_toRolePermission(
+					ActionKeys.VIEW,
+					ObjectDefinitionConstants.
+						CLASS_NAME_PREFIX_CUSTOM_OBJECT_DEFINITION +
+							objectDefinition.getExternalReferenceCode()),
+				_toRolePermission(
+					ObjectActionKeys.ADD_OBJECT_ENTRY,
+					_OBJECT_DEFINITION_RESOURCE_NAME_PREFIX +
+						objectDefinition.getExternalReferenceCode())
+			});
+
+		roleResource1.putRole(serviceBuilderRole1.getRoleId(), role1);
+
+		_assertObjectDefinitionRolePermissions(
+			objectDefinition, serviceBuilderRole1.getRoleId());
+
+		com.liferay.portal.kernel.model.Role serviceBuilderRole2 =
+			RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
+
+		RoleResource roleResource2 = _getRoleResource(
+			_PASSWORD,
+			_addUser(
+				serviceBuilderRole2, ActionKeys.PERMISSIONS, ActionKeys.UPDATE,
+				ActionKeys.VIEW));
+
+		Role role2 = _toRole(
+			serviceBuilderRole2.getName(), serviceBuilderRole2);
+
+		role2.setRolePermissions(
+			new RolePermission[] {
+				_toRolePermission(
+					ActionKeys.ACCESS_IN_CONTROL_PANEL,
+					objectDefinition.getPortletId()),
+				_toRolePermission(
+					ActionKeys.VIEW, objectDefinition.getClassName()),
+				_toRolePermission(
+					ObjectActionKeys.ADD_OBJECT_ENTRY,
+					objectDefinition.getResourceName())
+			});
+
+		roleResource2.putRole(serviceBuilderRole2.getRoleId(), role2);
+
+		_assertObjectDefinitionRolePermissions(
+			objectDefinition, serviceBuilderRole2.getRoleId());
 	}
 
 	private void _testPutRoleWithPermissions() throws Exception {
@@ -1673,7 +1850,10 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 
 		Role role = _toRole(serviceBuilderRole.getName(), serviceBuilderRole);
 
-		role.setRolePermissions(new RolePermission[] {_toRolePermission()});
+		role.setRolePermissions(
+			new RolePermission[] {
+				_toRolePermission(ActionKeys.VIEW, Layout.class.getName())
+			});
 
 		_assertProblemException(
 			() -> roleResource1.putRole(serviceBuilderRole.getRoleId(), role));
@@ -1744,11 +1924,11 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 		};
 	}
 
-	private RolePermission _toRolePermission() {
+	private RolePermission _toRolePermission(String actionId, String name) {
 		return new RolePermission() {
 			{
-				actionIds = new String[] {ActionKeys.VIEW};
-				resourceName = Layout.class.getName();
+				actionIds = new String[] {actionId};
+				resourceName = name;
 				scope = Long.valueOf(ResourceConstants.SCOPE_COMPANY);
 			}
 		};
@@ -1757,6 +1937,12 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 	private static final String _CLASS_NAME_EXCEPTION_MAPPER =
 		"com.liferay.portal.vulcan.internal.jaxrs.exception.mapper." +
 			"ExceptionMapper";
+
+	private static final String _OBJECT_DEFINITION_PORTLET_ID_PREFIX =
+		ObjectPortletKeys.OBJECT_DEFINITIONS + StringPool.UNDERLINE;
+
+	private static final String _OBJECT_DEFINITION_RESOURCE_NAME_PREFIX =
+		ObjectConstants.RESOURCE_NAME + StringPool.POUND;
 
 	private static final String _PASSWORD = RandomTestUtil.randomString();
 

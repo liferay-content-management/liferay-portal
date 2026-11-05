@@ -168,17 +168,17 @@ public class ParameterMapUtil {
 		return parameterMap;
 	}
 
-	public static void putSiteExternalReferenceCodes(
+	public static void putGroupExternalReferenceCodes(
 		Map<String, String[]> parameterMap,
-		String[] siteExternalReferenceCodes) {
+		String[] groupExternalReferenceCodes) {
 
-		siteExternalReferenceCodes = ArrayUtil.filter(
-			siteExternalReferenceCodes, Validator::isNotNull);
+		groupExternalReferenceCodes = ArrayUtil.filter(
+			groupExternalReferenceCodes, Validator::isNotNull);
 
-		if (ArrayUtil.isNotEmpty(siteExternalReferenceCodes)) {
+		if (ArrayUtil.isNotEmpty(groupExternalReferenceCodes)) {
 			parameterMap.put(
 				PortletDataHandlerKeys.GROUP_EXTERNAL_REFERENCE_CODES,
-				ArrayUtil.unique(siteExternalReferenceCodes));
+				ArrayUtil.unique(groupExternalReferenceCodes));
 		}
 	}
 

@@ -6,12 +6,15 @@
 import ClayAlert from '@clayui/alert';
 import ClayButton from '@clayui/button';
 import ClayLayout from '@clayui/layout';
+import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {Form, FormikProvider, useFormik, useFormikContext} from 'formik';
-import {navigate} from 'frontend-js-web';
-import React, {useEffect, useState} from 'react';
+import {navigate, sub} from 'frontend-js-web';
+import React, {useEffect, useRef} from 'react';
 
 import {FormField} from '../../components/forms/FormField';
 import {FormSection} from '../../components/forms/FormSection';
+import useFocusFirstInvalidField from '../../hooks/useFocusFirstInvalidField';
+import useRequest from '../../hooks/useRequest';
 import DataMaskService from '../../services/DataMaskService';
 import {
 	DataMask,
@@ -28,43 +31,29 @@ interface EditDataMaskProps {
 }
 
 export default function EditDataMask({backURL, dataMaskId}: EditDataMaskProps) {
-	const [dataMask, setDataMask] = useState<DataMask | null>(null);
-	const [loading, setLoading] = useState(dataMaskId > 0);
+	const {
+		data: dataMask,
+		error,
+		loading,
+	} = useRequest(
+		DataMaskService.getDataMask,
+		dataMaskId > 0 ? dataMaskId : null
+	);
 
 	useEffect(() => {
-		if (!dataMaskId || Number(dataMaskId) <= 0) {
-			return;
+		if (error) {
+			openErrorToast(error);
+
+			navigate(backURL);
 		}
+	}, [backURL, error]);
 
-		let active = true;
-
-		DataMaskService.getDataMask(dataMaskId).then(({data, error}) => {
-			if (!active) {
-				return;
-			}
-
-			if (error || !data) {
-				openErrorToast(
-					error ||
-						Liferay.Language.get('an-unexpected-error-occurred')
-				);
-
-				navigate(backURL);
-
-				return;
-			}
-
-			setDataMask(data);
-			setLoading(false);
-		});
-
-		return () => {
-			active = false;
-		};
-	}, [backURL, dataMaskId]);
-
-	if (loading) {
-		return null;
+	if (loading || error) {
+		return (
+			<div className="align-items-center d-flex justify-content-center mt-4">
+				<ClayLoadingIndicator />
+			</div>
+		);
 	}
 
 	return <EditDataMaskView backURL={backURL} dataMask={dataMask} />;
@@ -77,6 +66,8 @@ interface EditDataMaskViewProps {
 
 function EditDataMaskView({backURL, dataMask}: EditDataMaskViewProps) {
 	const readOnly = isSystemMask(dataMask);
+
+	const formRef = useRef<HTMLFormElement>(null);
 
 	const formik = useFormik<DataMaskFormValues>({
 		initialValues: {
@@ -108,7 +99,7 @@ function EditDataMaskView({backURL, dataMask}: EditDataMaskViewProps) {
 
 			if (saved) {
 				openSuccessToast(
-					Liferay.Util.sub(
+					sub(
 						Liferay.Language.get('x-was-saved-successfully'),
 						saved.name
 					)
@@ -119,9 +110,11 @@ function EditDataMaskView({backURL, dataMask}: EditDataMaskViewProps) {
 		},
 	});
 
+	useFocusFirstInvalidField(formRef, formik);
+
 	return (
 		<FormikProvider value={formik}>
-			<Form className="data-mask-form" noValidate>
+			<Form className="data-mask-form" noValidate ref={formRef}>
 				{readOnly && (
 					<ClayAlert
 						displayType="info"

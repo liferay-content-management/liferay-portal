@@ -7,8 +7,11 @@ package com.liferay.site.cms.site.initializer.internal.struts.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition;
+import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectRelationship;
+import com.liferay.object.admin.rest.dto.v1_0.Status;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
@@ -39,10 +42,13 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
+
+import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -136,7 +142,7 @@ public class UpdateStructureStrutsActionTest {
 		JSONObject jsonObject = _jsonFactory.createJSONObject(
 			mockHttpServletResponse.getContentAsString());
 
-		Assert.assertEquals(jsonObject.toString(), 0, jsonObject.length());
+		Assert.assertFalse(jsonObject.has("error"));
 
 		Assert.assertNull(
 			_objectRelationshipLocalService.fetchObjectRelationship(
@@ -146,6 +152,144 @@ public class UpdateStructureStrutsActionTest {
 			serviceBuilderObjectDefinition1.getObjectDefinitionId());
 		_objectDefinitionLocalService.deleteObjectDefinition(
 			serviceBuilderObjectDefinition2.getObjectDefinitionId());
+	}
+
+	@Test
+	@TestInfo("LPD-106947")
+	public void testExecuteAddsObjectDefinition() throws Exception {
+		MockHttpServletRequest mockHttpServletRequest =
+			_getMockHttpServletRequest(TestPropsValues.getUser());
+
+		ObjectDefinition objectDefinition = _createObjectDefinition();
+
+		mockHttpServletRequest.setParameter(
+			"objectDefinition", objectDefinition.toString());
+
+		MockHttpServletResponse mockHttpServletResponse =
+			new MockHttpServletResponse();
+
+		_updateStructureStrutsAction.execute(
+			mockHttpServletRequest, mockHttpServletResponse);
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			mockHttpServletResponse.getContentAsString());
+
+		com.liferay.object.model.ObjectDefinition
+			serviceBuilderObjectDefinition =
+				_objectDefinitionLocalService.
+					fetchObjectDefinitionByExternalReferenceCode(
+						objectDefinition.getExternalReferenceCode(),
+						TestPropsValues.getCompanyId());
+
+		Assert.assertEquals(
+			jsonObject.toString(),
+			serviceBuilderObjectDefinition.getObjectDefinitionId(),
+			jsonObject.getLong("id"));
+	}
+
+	@Test
+	@TestInfo("LPD-106947")
+	public void testExecuteDeletesAddedObjectDefinitions() throws Exception {
+		ObjectDefinition objectDefinition1 = _createObjectDefinition();
+		ObjectDefinition objectDefinition2 = _createObjectDefinition();
+
+		objectDefinition1.setObjectRelationships(
+			new ObjectRelationship[] {
+				new ObjectRelationship() {
+					{
+						deletionType = DeletionType.CASCADE;
+						edge = true;
+						label = Collections.singletonMap(
+							"en_US", RandomTestUtil.randomString());
+						name = StringUtil.randomId();
+						objectDefinitionExternalReferenceCode1 =
+							objectDefinition1.getExternalReferenceCode();
+						objectDefinitionExternalReferenceCode2 =
+							objectDefinition2.getExternalReferenceCode();
+						type = Type.ONE_TO_MANY;
+					}
+				}
+			});
+
+		MockHttpServletRequest mockHttpServletRequest =
+			_getMockHttpServletRequest(TestPropsValues.getUser());
+
+		mockHttpServletRequest.setParameter(
+			"objectDefinition", objectDefinition1.toString());
+		mockHttpServletRequest.setParameter(
+			"objectRelationships",
+			_getObjectRelationshipsJSON(
+				objectDefinition1.getExternalReferenceCode()));
+		mockHttpServletRequest.setParameter(
+			"repeatableGroupObjectDefinitions",
+			JSONUtil.putAll(
+				_jsonFactory.createJSONObject(objectDefinition2.toString())
+			).toString());
+
+		MockHttpServletResponse mockHttpServletResponse =
+			new MockHttpServletResponse();
+
+		_updateStructureStrutsAction.execute(
+			mockHttpServletRequest, mockHttpServletResponse);
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			mockHttpServletResponse.getContentAsString());
+
+		Assert.assertTrue(jsonObject.has("error"));
+
+		Assert.assertNull(
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					objectDefinition1.getExternalReferenceCode(),
+					TestPropsValues.getCompanyId()));
+		Assert.assertNull(
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					objectDefinition2.getExternalReferenceCode(),
+					TestPropsValues.getCompanyId()));
+	}
+
+	@Test
+	@TestInfo("LPD-106947")
+	public void testExecuteDeletesAddedRepeatableGroupObjectDefinitions()
+		throws Exception {
+
+		_serviceBuilderObjectDefinition1 =
+			ObjectDefinitionTestUtil.publishObjectDefinition();
+
+		MockHttpServletRequest mockHttpServletRequest =
+			_getMockHttpServletRequest(
+				_serviceBuilderObjectDefinition1, TestPropsValues.getUser());
+
+		mockHttpServletRequest.setParameter(
+			"objectRelationships",
+			_getObjectRelationshipsJSON(
+				_serviceBuilderObjectDefinition1.getExternalReferenceCode()));
+
+		ObjectDefinition objectDefinition = _createObjectDefinition();
+
+		mockHttpServletRequest.setParameter(
+			"repeatableGroupObjectDefinitions",
+			JSONUtil.putAll(
+				_jsonFactory.createJSONObject(objectDefinition.toString())
+			).toString());
+
+		MockHttpServletResponse mockHttpServletResponse =
+			new MockHttpServletResponse();
+
+		_updateStructureStrutsAction.execute(
+			mockHttpServletRequest, mockHttpServletResponse);
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			mockHttpServletResponse.getContentAsString());
+
+		Assert.assertTrue(jsonObject.has("error"));
+
+		Assert.assertNull(
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					objectDefinition.getExternalReferenceCode(),
+					TestPropsValues.getCompanyId()));
 	}
 
 	@Test
@@ -223,7 +367,7 @@ public class UpdateStructureStrutsActionTest {
 		JSONObject jsonObject = _jsonFactory.createJSONObject(
 			mockHttpServletResponse.getContentAsString());
 
-		Assert.assertEquals(jsonObject.toString(), 0, jsonObject.length());
+		Assert.assertFalse(jsonObject.has("error"));
 
 		Assert.assertNull(
 			_objectRelationshipLocalService.fetchObjectRelationship(
@@ -314,7 +458,7 @@ public class UpdateStructureStrutsActionTest {
 		JSONObject jsonObject = _jsonFactory.createJSONObject(
 			mockHttpServletResponse.getContentAsString());
 
-		Assert.assertEquals(jsonObject.toString(), 0, jsonObject.length());
+		Assert.assertFalse(jsonObject.has("error"));
 
 		com.liferay.object.model.ObjectRelationship
 			serviceBuilderObjectRelationship =
@@ -355,7 +499,7 @@ public class UpdateStructureStrutsActionTest {
 		JSONObject jsonObject = _jsonFactory.createJSONObject(
 			mockHttpServletResponse.getContentAsString());
 
-		Assert.assertEquals(jsonObject.toString(), 0, jsonObject.length());
+		Assert.assertFalse(jsonObject.has("error"));
 
 		Assert.assertNotNull(
 			_objectFieldLocalService.fetchObjectField(
@@ -437,6 +581,43 @@ public class UpdateStructureStrutsActionTest {
 		_deleteEdgeObjectRelationship(serviceBuilderObjectRelationship);
 	}
 
+	@Test
+	@TestInfo("LPD-106947")
+	public void testExecuteSkipsMissingObjectDefinitionsOrObjectRelationships()
+		throws Exception {
+
+		_serviceBuilderObjectDefinition1 =
+			ObjectDefinitionTestUtil.publishObjectDefinition();
+
+		MockHttpServletRequest mockHttpServletRequest =
+			_getMockHttpServletRequest(
+				_serviceBuilderObjectDefinition1, TestPropsValues.getUser());
+
+		mockHttpServletRequest.setParameter(
+			"deletedGroupERCs", RandomTestUtil.randomString());
+		mockHttpServletRequest.setParameter(
+			"deletedObjectRelationships",
+			JSONUtil.putAll(
+				JSONUtil.put(
+					"objectDefinitionERC",
+					_serviceBuilderObjectDefinition1.getExternalReferenceCode()
+				).put(
+					"objectRelationshipERC", RandomTestUtil.randomString()
+				)
+			).toString());
+
+		MockHttpServletResponse mockHttpServletResponse =
+			new MockHttpServletResponse();
+
+		_updateStructureStrutsAction.execute(
+			mockHttpServletRequest, mockHttpServletResponse);
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			mockHttpServletResponse.getContentAsString());
+
+		Assert.assertFalse(jsonObject.has("error"));
+	}
+
 	private com.liferay.object.model.ObjectRelationship
 			_addEdgeObjectRelationship(
 				com.liferay.object.model.ObjectDefinition
@@ -461,6 +642,35 @@ public class UpdateStructureStrutsActionTest {
 		Assert.assertTrue(serviceBuilderObjectRelationship.isEdge());
 
 		return serviceBuilderObjectRelationship;
+	}
+
+	private ObjectDefinition _createObjectDefinition() {
+		return new ObjectDefinition() {
+			{
+				externalReferenceCode = RandomTestUtil.randomString();
+				label = Collections.singletonMap(
+					"en_US", RandomTestUtil.randomString());
+				name = ObjectDefinitionTestUtil.getRandomName();
+				objectFields = new ObjectField[] {
+					new ObjectField() {
+						{
+							businessType = BusinessType.TEXT;
+							label = Collections.singletonMap(
+								"en_US", RandomTestUtil.randomString());
+							name = "a" + RandomTestUtil.randomString();
+						}
+					}
+				};
+				pluralLabel = Collections.singletonMap(
+					"en_US", RandomTestUtil.randomString());
+				scope = ObjectDefinitionConstants.SCOPE_COMPANY;
+				status = new Status() {
+					{
+						code = WorkflowConstants.STATUS_APPROVED;
+					}
+				};
+			}
+		};
 	}
 
 	private void _deleteEdgeObjectRelationship(
@@ -490,6 +700,20 @@ public class UpdateStructureStrutsActionTest {
 		throws Exception {
 
 		MockHttpServletRequest mockHttpServletRequest =
+			_getMockHttpServletRequest(user);
+
+		mockHttpServletRequest.setParameter(
+			"objectDefinition",
+			_getObjectDefinitionJSON(
+				serviceBuilderObjectDefinition.getObjectDefinitionId()));
+
+		return mockHttpServletRequest;
+	}
+
+	private MockHttpServletRequest _getMockHttpServletRequest(User user)
+		throws Exception {
+
+		MockHttpServletRequest mockHttpServletRequest =
 			new MockHttpServletRequest();
 
 		ThemeDisplay themeDisplay = new ThemeDisplay();
@@ -501,11 +725,6 @@ public class UpdateStructureStrutsActionTest {
 
 		mockHttpServletRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, themeDisplay);
-
-		mockHttpServletRequest.setParameter(
-			"objectDefinition",
-			_getObjectDefinitionJSON(
-				serviceBuilderObjectDefinition.getObjectDefinitionId()));
 
 		return mockHttpServletRequest;
 	}
@@ -545,6 +764,27 @@ public class UpdateStructureStrutsActionTest {
 		jsonObject.put("objectRelationships", _jsonFactory.createJSONArray());
 
 		return jsonObject.toString();
+	}
+
+	private String _getObjectRelationshipsJSON(
+		String objectDefinitionExternalReferenceCode2) {
+
+		return JSONUtil.putAll(
+			JSONUtil.put(
+				"deletionType",
+				ObjectRelationshipConstants.DELETION_TYPE_DISASSOCIATE
+			).put(
+				"name", StringUtil.randomId()
+			).put(
+				"objectDefinitionExternalReferenceCode1",
+				RandomTestUtil.randomString()
+			).put(
+				"objectDefinitionExternalReferenceCode2",
+				objectDefinitionExternalReferenceCode2
+			).put(
+				"type", ObjectRelationshipConstants.TYPE_ONE_TO_MANY
+			)
+		).toString();
 	}
 
 	@Inject

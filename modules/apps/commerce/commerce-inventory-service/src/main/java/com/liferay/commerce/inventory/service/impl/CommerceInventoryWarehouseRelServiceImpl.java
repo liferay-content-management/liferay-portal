@@ -12,6 +12,7 @@ import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.util.List;
@@ -52,9 +53,8 @@ public class CommerceInventoryWarehouseRelServiceImpl
 		throws PortalException {
 
 		CommerceInventoryWarehouseRel commerceInventoryWarehouseRel =
-			commerceInventoryWarehouseRelLocalService.
-				getCommerceInventoryWarehouseRel(
-					commerceInventoryWarehouseRelId);
+			commerceInventoryWarehouseRelPersistence.findByPrimaryKey(
+				commerceInventoryWarehouseRelId);
 
 		_commerceInventoryWarehouseModelResourcePermission.check(
 			getPermissionChecker(),
@@ -102,9 +102,9 @@ public class CommerceInventoryWarehouseRelServiceImpl
 			getPermissionChecker(), commerceInventoryWarehouseId,
 			ActionKeys.VIEW);
 
-		return commerceInventoryWarehouseRelLocalService.
-			fetchCommerceInventoryWarehouseRel(
-				className, classPK, commerceInventoryWarehouseId);
+		return commerceInventoryWarehouseRelPersistence.fetchByC_C_CIWI(
+			_classNameLocalService.getClassNameId(className), classPK,
+			commerceInventoryWarehouseId);
 	}
 
 	@Override
@@ -173,9 +173,8 @@ public class CommerceInventoryWarehouseRelServiceImpl
 		throws PortalException {
 
 		CommerceInventoryWarehouseRel commerceInventoryWarehouseRel =
-			commerceInventoryWarehouseRelLocalService.
-				getCommerceInventoryWarehouseRel(
-					commerceInventoryWarehouseRelId);
+			commerceInventoryWarehouseRelPersistence.findByPrimaryKey(
+				commerceInventoryWarehouseRelId);
 
 		_commerceInventoryWarehouseModelResourcePermission.check(
 			getPermissionChecker(),
@@ -194,8 +193,8 @@ public class CommerceInventoryWarehouseRelServiceImpl
 			getPermissionChecker(), commerceInventoryWarehouseId,
 			ActionKeys.VIEW);
 
-		return commerceInventoryWarehouseRelLocalService.
-			getCommerceInventoryWarehouseRels(commerceInventoryWarehouseId);
+		return commerceInventoryWarehouseRelPersistence.
+			findByCommerceInventoryWarehouseId(commerceInventoryWarehouseId);
 	}
 
 	@Override
@@ -210,8 +209,8 @@ public class CommerceInventoryWarehouseRelServiceImpl
 			getPermissionChecker(), commerceInventoryWarehouseId,
 			ActionKeys.VIEW);
 
-		return commerceInventoryWarehouseRelLocalService.
-			getCommerceInventoryWarehouseRels(
+		return commerceInventoryWarehouseRelPersistence.
+			findByCommerceInventoryWarehouseId(
 				commerceInventoryWarehouseId, start, end, orderByComparator);
 	}
 
@@ -243,10 +242,9 @@ public class CommerceInventoryWarehouseRelServiceImpl
 			getPermissionChecker(), commerceInventoryWarehouseId,
 			ActionKeys.VIEW);
 
-		return commerceInventoryWarehouseRelLocalService.
-			getCommerceInventoryWarehouseRels(
-				className, commerceInventoryWarehouseId, start, end,
-				orderByComparator);
+		return commerceInventoryWarehouseRelPersistence.findByC_C(
+			_classNameLocalService.getClassNameId(className),
+			commerceInventoryWarehouseId, start, end, orderByComparator);
 	}
 
 	@Override
@@ -258,9 +256,8 @@ public class CommerceInventoryWarehouseRelServiceImpl
 			getPermissionChecker(), commerceInventoryWarehouseId,
 			ActionKeys.VIEW);
 
-		return commerceInventoryWarehouseRelLocalService.
-			getCommerceInventoryWarehouseRelsCount(
-				commerceInventoryWarehouseId);
+		return commerceInventoryWarehouseRelPersistence.
+			countByCommerceInventoryWarehouseId(commerceInventoryWarehouseId);
 	}
 
 	@Override
@@ -272,9 +269,9 @@ public class CommerceInventoryWarehouseRelServiceImpl
 			getPermissionChecker(), commerceInventoryWarehouseId,
 			ActionKeys.VIEW);
 
-		return commerceInventoryWarehouseRelLocalService.
-			getCommerceInventoryWarehouseRelsCount(
-				className, commerceInventoryWarehouseId);
+		return commerceInventoryWarehouseRelPersistence.countByC_C(
+			_classNameLocalService.getClassNameId(className),
+			commerceInventoryWarehouseId);
 	}
 
 	@Override
@@ -306,6 +303,9 @@ public class CommerceInventoryWarehouseRelServiceImpl
 			getCommerceOrderTypeCommerceInventoryWarehouseRelsCount(
 				commerceInventoryWarehouseId, keywords);
 	}
+
+	@Reference
+	private ClassNameLocalService _classNameLocalService;
 
 	@Reference(
 		target = "(model.class.name=com.liferay.commerce.inventory.model.CommerceInventoryWarehouse)"

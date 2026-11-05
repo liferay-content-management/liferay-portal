@@ -5,7 +5,7 @@
 
 import {IFrontendDataSetProps} from '@liferay/frontend-data-set-web';
 
-import {baseFDSProps} from './baseFDSProps';
+import {baseFDSProps, getEmptyState} from './baseFDSProps';
 
 export function getAPISchemasFDSProps(
 	urlPath: string,
@@ -15,11 +15,7 @@ export function getAPISchemasFDSProps(
 	return {
 		...baseFDSProps,
 		apiURL: urlPath,
-		emptyState: {
-			description: '',
-			image: '/states/empty_state.svg',
-			title: Liferay.Language.get('no-api-schema-found'),
-		},
+		emptyState: getEmptyState(Liferay.Language.get('no-api-schema-found')),
 		id: portletId,
 		itemsActions: [
 			{

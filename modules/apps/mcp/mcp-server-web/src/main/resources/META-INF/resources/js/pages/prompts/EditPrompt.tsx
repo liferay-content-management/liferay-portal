@@ -7,12 +7,14 @@ import ClayButton from '@clayui/button';
 import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {Form, FormikProvider, useFormik} from 'formik';
-import {navigate} from 'frontend-js-web';
-import React, {useEffect, useState} from 'react';
+import {navigate, sub} from 'frontend-js-web';
+import React, {useEffect, useRef, useState} from 'react';
 
 import {FormField} from '../../components/forms/FormField';
 import {FormSection} from '../../components/forms/FormSection';
 import {FormToggle} from '../../components/forms/FormToggle';
+import useFocusFirstInvalidField from '../../hooks/useFocusFirstInvalidField';
+import useRequest from '../../hooks/useRequest';
 import PromptService from '../../services/PromptService';
 import {Prompt, PromptFormValues, PromptPayload} from '../../types/Prompt';
 import required from '../../utils/required';
@@ -25,42 +27,21 @@ interface EditPromptProps {
 }
 
 export default function EditPrompt({backURL, promptId}: EditPromptProps) {
-	const [loading, setLoading] = useState(promptId > 0);
-	const [prompt, setPrompt] = useState<Prompt | null>(null);
+	const {
+		data: prompt,
+		error,
+		loading,
+	} = useRequest(PromptService.getPrompt, promptId > 0 ? promptId : null);
 
 	useEffect(() => {
-		if (!promptId || Number(promptId) <= 0) {
-			return;
+		if (error) {
+			openErrorToast(error);
+
+			navigate(backURL);
 		}
+	}, [backURL, error]);
 
-		let isMounted = true;
-
-		PromptService.getPrompt(promptId).then(({data, error}) => {
-			if (!isMounted) {
-				return;
-			}
-
-			if (error || !data) {
-				openErrorToast(
-					error ||
-						Liferay.Language.get('an-unexpected-error-occurred')
-				);
-
-				navigate(backURL);
-
-				return;
-			}
-
-			setPrompt(data);
-			setLoading(false);
-		});
-
-		return () => {
-			isMounted = false;
-		};
-	}, [backURL, promptId]);
-
-	if (loading) {
+	if (loading || error) {
 		return (
 			<div className="align-items-center d-flex justify-content-center mt-4">
 				<ClayLoadingIndicator />
@@ -93,6 +74,8 @@ function validateIdentifier(value: string): string | undefined {
 function EditPromptView({backURL, prompt}: EditPromptViewProps) {
 	const [identifierChanged, setIdentifierChanged] = useState(false);
 
+	const formRef = useRef<HTMLFormElement>(null);
+
 	const formik = useFormik<PromptFormValues>({
 		initialValues: {
 			active: prompt?.promptStatus?.key === 'active',
@@ -122,7 +105,7 @@ function EditPromptView({backURL, prompt}: EditPromptViewProps) {
 
 			if (saved) {
 				openSuccessToast(
-					Liferay.Util.sub(
+					sub(
 						Liferay.Language.get('x-was-saved-successfully'),
 						saved.name
 					)
@@ -132,6 +115,8 @@ function EditPromptView({backURL, prompt}: EditPromptViewProps) {
 			}
 		},
 	});
+
+	useFocusFirstInvalidField(formRef, formik);
 
 	const {setFieldValue, values} = formik;
 
@@ -143,7 +128,7 @@ function EditPromptView({backURL, prompt}: EditPromptViewProps) {
 
 	return (
 		<FormikProvider value={formik}>
-			<Form className="prompt-form" noValidate>
+			<Form className="prompt-form" noValidate ref={formRef}>
 				<FormSection title={Liferay.Language.get('prompt-status')}>
 					<div className="align-items-center d-flex justify-content-between">
 						<span className="text-secondary">

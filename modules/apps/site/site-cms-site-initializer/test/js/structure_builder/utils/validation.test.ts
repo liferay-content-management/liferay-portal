@@ -12,7 +12,11 @@ import {
 } from '../../../../src/main/resources/META-INF/resources/js/structure_builder/types/Structure';
 import {getDefaultField} from '../../../../src/main/resources/META-INF/resources/js/structure_builder/utils/field';
 import getUuid from '../../../../src/main/resources/META-INF/resources/js/structure_builder/utils/getUuid';
-import {validateGroup} from '../../../../src/main/resources/META-INF/resources/js/structure_builder/utils/validation';
+import {
+	getErrorMessage,
+	validateGroup,
+	validateStructure,
+} from '../../../../src/main/resources/META-INF/resources/js/structure_builder/utils/validation';
 
 const ROOT_UUID = getUuid();
 const GROUP_UUID = getUuid();
@@ -145,5 +149,55 @@ describe('validateGroup', () => {
 		});
 
 		expect(errors.get('global')).toBe('no-fields');
+	});
+});
+
+describe('getErrorMessage', () => {
+	it('explains a missing permission', () => {
+		expect(getErrorMessage('global', 'permission', {})).toBe(
+			'you-do-not-have-permission-to-access-the-requested-resource'
+		);
+	});
+
+	it('explains an external reference code collision', () => {
+		expect(getErrorMessage('erc', 'in-use', {})).toBe(
+			'this-external-reference-code-is-already-in-use'
+		);
+	});
+});
+
+describe('validateStructure', () => {
+	it.each([
+		['-', 'invalid-character'],
+		['123', 'number'],
+		['a'.repeat(254), 'max-length'],
+		['fruit/-/apple', 'invalid-character'],
+	])('flags the friendly URL %s', (slug, error) => {
+		expect(validateStructure({data: {slug}}).get('slug')).toBe(error);
+	});
+
+	it.each(['', 'a', 'fruit', 'fruit-2026'])(
+		'accepts the friendly URL "%s"',
+		(slug) => {
+			expect(validateStructure({data: {slug}}).has('slug')).toBe(false);
+		}
+	);
+
+	it('flags an external reference code used by another structure', () => {
+		expect(
+			validateStructure({
+				data: {erc: 'fruit', id: 1},
+				objectDefinitions: {fruit: {id: 2} as any},
+			}).get('erc')
+		).toBe('in-use');
+	});
+
+	it('accepts the external reference code of the structure itself', () => {
+		expect(
+			validateStructure({
+				data: {erc: 'fruit', id: 1},
+				objectDefinitions: {fruit: {id: 1} as any},
+			}).has('erc')
+		).toBe(false);
 	});
 });

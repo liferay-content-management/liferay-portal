@@ -65,32 +65,32 @@ public class AddressCommerceCheckoutStepDisplayContext {
 			(CommerceContext)actionRequest.getAttribute(
 				CommerceWebKeys.COMMERCE_CONTEXT);
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
 		CommerceOrder commerceOrder = _getCommerceOrder(
 			actionRequest, commerceContext.getCommerceChannelGroupId());
 
-		boolean newAddress = ParamUtil.getBoolean(actionRequest, "newAddress");
-
-		long commerceAddressId = ParamUtil.getLong(actionRequest, paramName);
-
-		if (newAddress) {
-			CommerceAddress commerceAddress = _addCommerceAddress(
-				commerceOrder, actionRequest);
-
-			commerceAddressId = commerceAddress.getCommerceAddressId();
-		}
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
 
 		_commerceOrderModelResourcePermission.check(
 			themeDisplay.getPermissionChecker(), commerceOrder,
 			CommerceOrderActionKeys.CHECKOUT_COMMERCE_ORDER);
 
+		CommerceAddress commerceAddress = _getCommerceAddress(
+			commerceOrder, actionRequest, paramName);
+
+		long commerceAddressId = commerceAddress.getCommerceAddressId();
+
+		if (Objects.equals(
+				CommerceCheckoutWebKeys.BILLING_ADDRESS_PARAM_NAME,
+				paramName)) {
+
+			return _updateCommerceOrderAddress(
+				commerceOrder, commerceAddressId,
+				commerceOrder.getShippingAddressId());
+		}
+
 		boolean useAsBilling = ParamUtil.getBoolean(
 			actionRequest, "use-as-billing");
-
-		CommerceAddress commerceAddress =
-			_commerceAddressService.getCommerceAddress(commerceAddressId);
 
 		if (useAsBilling) {
 			Country country = commerceAddress.getCountry();
@@ -101,87 +101,43 @@ public class AddressCommerceCheckoutStepDisplayContext {
 
 			_commerceAddressType =
 				CommerceAddressConstants.ADDRESS_TYPE_BILLING_AND_SHIPPING;
+
+			_commerceAddressService.updateCommerceAddress(
+				commerceAddress.getExternalReferenceCode(), commerceAddressId,
+				commerceAddress.getCountryId(), commerceAddress.getRegionId(),
+				commerceAddress.getCity(), commerceAddress.getDescription(),
+				commerceAddress.getName(), commerceAddress.getPhoneNumber(),
+				commerceAddress.getStreet1(), commerceAddress.getStreet2(),
+				commerceAddress.getStreet3(),
+				ParamUtil.getString(
+					actionRequest, "subtype", commerceAddress.getSubtype()),
+				_commerceAddressType, commerceAddress.getZip(), null);
+
+			commerceOrder = _commerceOrderService.getCommerceOrder(
+				commerceOrder.getCommerceOrderId());
+
+			commerceOrder = _updateCommerceOrderAddress(
+				commerceOrder, commerceAddressId, commerceAddressId);
 		}
+		else {
+			if (Objects.equals(
+					commerceOrder.getShippingAddressId(),
+					commerceOrder.getBillingAddressId())) {
 
-		if (Objects.equals(
-				CommerceCheckoutWebKeys.SHIPPING_ADDRESS_PARAM_NAME,
-				paramName)) {
-
-			if (commerceAddressId < 1) {
-				throw new CommerceOrderShippingAddressException();
-			}
-
-			if (useAsBilling) {
-				_commerceAddressService.updateCommerceAddress(
-					commerceAddress.getExternalReferenceCode(),
-					commerceAddressId, commerceAddress.getCountryId(),
-					commerceAddress.getRegionId(), commerceAddress.getCity(),
-					commerceAddress.getDescription(), commerceAddress.getName(),
-					commerceAddress.getPhoneNumber(),
-					commerceAddress.getStreet1(), commerceAddress.getStreet2(),
-					commerceAddress.getStreet3(),
-					ParamUtil.getString(
-						actionRequest, "subtype", commerceAddress.getSubtype()),
-					_commerceAddressType, commerceAddress.getZip(), null);
-
-				commerceOrder.setBillingAddressId(commerceAddressId);
-
-				commerceOrder = updateCommerceOrderAddress(
-					commerceOrder, commerceAddressId, commerceAddressId,
-					commerceContext);
+				commerceOrder = _updateCommerceOrderAddress(
+					commerceOrder, 0, commerceAddressId);
 			}
 			else {
-				if (Objects.equals(
-						commerceOrder.getShippingAddressId(),
-						commerceOrder.getBillingAddressId())) {
-
-					commerceOrder = updateCommerceOrderAddress(
-						commerceOrder, 0, commerceAddressId, commerceContext);
-				}
-				else {
-					commerceOrder = updateCommerceOrderAddress(
-						commerceOrder, commerceOrder.getBillingAddressId(),
-						commerceAddressId, commerceContext);
-				}
+				commerceOrder = _updateCommerceOrderAddress(
+					commerceOrder, commerceOrder.getBillingAddressId(),
+					commerceAddressId);
 			}
-
-			actionRequest.setAttribute(
-				CommerceCheckoutWebKeys.COMMERCE_ORDER, commerceOrder);
-
-			return commerceOrder;
 		}
 
-		if (Objects.equals(
-				CommerceCheckoutWebKeys.BILLING_ADDRESS_PARAM_NAME,
-				paramName)) {
-
-			if (commerceAddressId < 1) {
-				throw new CommerceOrderBillingAddressException();
-			}
-
-			return updateCommerceOrderAddress(
-				commerceOrder, commerceAddressId,
-				commerceOrder.getShippingAddressId(), commerceContext);
-		}
+		actionRequest.setAttribute(
+			CommerceCheckoutWebKeys.COMMERCE_ORDER, commerceOrder);
 
 		return commerceOrder;
-	}
-
-	protected CommerceOrder updateCommerceOrderAddress(
-			CommerceOrder commerceOrder, long billingAddressId,
-			long shippingAddressId, CommerceContext commerceContext)
-		throws Exception {
-
-		return _commerceOrderService.updateCommerceOrder(
-			commerceOrder.getExternalReferenceCode(),
-			commerceOrder.getCommerceOrderId(), billingAddressId,
-			commerceOrder.getCommerceShippingMethodId(), shippingAddressId,
-			commerceOrder.getAdvanceStatus(),
-			commerceOrder.getCommercePaymentMethodKey(), null,
-			commerceOrder.getPurchaseOrderNumber(),
-			commerceOrder.getShippingAmount(),
-			commerceOrder.getShippingOptionName(), commerceOrder.getSubtotal(),
-			commerceOrder.getTotal());
 	}
 
 	private CommerceAddress _addCommerceAddress(
@@ -243,6 +199,31 @@ public class AddressCommerceCheckoutStepDisplayContext {
 			ParamUtil.getString(actionRequest, "zip"), serviceContext);
 	}
 
+	private CommerceAddress _getCommerceAddress(
+			CommerceOrder commerceOrder, ActionRequest actionRequest,
+			String paramName)
+		throws Exception {
+
+		if (ParamUtil.getBoolean(actionRequest, "newAddress")) {
+			return _addCommerceAddress(commerceOrder, actionRequest);
+		}
+
+		long commerceAddressId = ParamUtil.getLong(actionRequest, paramName);
+
+		if (commerceAddressId < 1) {
+			if (Objects.equals(
+					CommerceCheckoutWebKeys.BILLING_ADDRESS_PARAM_NAME,
+					paramName)) {
+
+				throw new CommerceOrderBillingAddressException();
+			}
+
+			throw new CommerceOrderShippingAddressException();
+		}
+
+		return _commerceAddressService.getCommerceAddress(commerceAddressId);
+	}
+
 	private CommerceOrder _getCommerceOrder(
 			ActionRequest actionRequest, long groupId)
 		throws Exception {
@@ -261,6 +242,23 @@ public class AddressCommerceCheckoutStepDisplayContext {
 			CommerceCheckoutWebKeys.COMMERCE_ORDER, commerceOrder);
 
 		return commerceOrder;
+	}
+
+	private CommerceOrder _updateCommerceOrderAddress(
+			CommerceOrder commerceOrder, long billingAddressId,
+			long shippingAddressId)
+		throws Exception {
+
+		return _commerceOrderService.updateCommerceOrder(
+			commerceOrder.getExternalReferenceCode(),
+			commerceOrder.getCommerceOrderId(), billingAddressId,
+			commerceOrder.getCommerceShippingMethodId(), shippingAddressId,
+			commerceOrder.getAdvanceStatus(),
+			commerceOrder.getCommercePaymentMethodKey(), null,
+			commerceOrder.getPurchaseOrderNumber(),
+			commerceOrder.getShippingAmount(),
+			commerceOrder.getShippingOptionName(), commerceOrder.getSubtotal(),
+			commerceOrder.getTotal());
 	}
 
 	private final AccountEntryLocalService _accountEntryLocalService;

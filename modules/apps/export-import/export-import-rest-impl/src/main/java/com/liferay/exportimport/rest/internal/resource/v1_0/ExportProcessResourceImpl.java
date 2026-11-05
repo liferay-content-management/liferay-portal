@@ -20,7 +20,6 @@ import com.liferay.exportimport.rest.dto.v1_0.ExportProcessRequest;
 import com.liferay.exportimport.rest.dto.v1_0.FromLastPublishDateFilter;
 import com.liferay.exportimport.rest.dto.v1_0.InstanceExportProcessRequest;
 import com.liferay.exportimport.rest.dto.v1_0.ProcessProgress;
-import com.liferay.exportimport.rest.dto.v1_0.Site;
 import com.liferay.exportimport.rest.dto.v1_0.Status;
 import com.liferay.exportimport.rest.internal.util.BackgroundTaskUtil;
 import com.liferay.exportimport.rest.internal.util.GroupUtil;
@@ -241,9 +240,10 @@ public class ExportProcessResourceImpl extends BaseExportProcessResourceImpl {
 		return _postExportProcess(
 			_toExportProcessRequest(instanceExportProcessRequest),
 			GroupUtil.getCompanyGroup(contextCompany.getCompanyId()), portletId,
-			transform(
-				instanceExportProcessRequest.getSites(),
-				Site::getExternalReferenceCode, String.class),
+			GroupUtil.getGroupExternalReferenceCodes(
+				contextCompany.getCompanyId(),
+				instanceExportProcessRequest.getAssetLibraries(),
+				instanceExportProcessRequest.getSites()),
 			null);
 	}
 
@@ -407,7 +407,7 @@ public class ExportProcessResourceImpl extends BaseExportProcessResourceImpl {
 
 	private ExportProcess _postExportProcess(
 			ExportProcessRequest exportProcessRequest, Group group,
-			String portletId, String[] siteExternalReferenceCodes,
+			String portletId, String[] groupExternalReferenceCodes,
 			String sitePageExternalReferenceCode)
 		throws Exception {
 
@@ -416,7 +416,7 @@ public class ExportProcessResourceImpl extends BaseExportProcessResourceImpl {
 
 		if (layout == null) {
 			return _postLayoutExportProcess(
-				exportProcessRequest, group, siteExternalReferenceCodes);
+				exportProcessRequest, group, groupExternalReferenceCodes);
 		}
 
 		return _postPortletExportProcess(
@@ -427,7 +427,7 @@ public class ExportProcessResourceImpl extends BaseExportProcessResourceImpl {
 
 	private ExportProcess _postLayoutExportProcess(
 			ExportProcessRequest exportProcessRequest, Group group,
-			String[] siteExternalReferenceCodes)
+			String[] groupExternalReferenceCodes)
 		throws Exception {
 
 		long groupId = group.getGroupId();
@@ -450,8 +450,8 @@ public class ExportProcessResourceImpl extends BaseExportProcessResourceImpl {
 					false),
 				contextUser);
 
-		ParameterMapUtil.putSiteExternalReferenceCodes(
-			parameterMap, siteExternalReferenceCodes);
+		ParameterMapUtil.putGroupExternalReferenceCodes(
+			parameterMap, groupExternalReferenceCodes);
 
 		boolean privateLayout = LayoutUtil.isPrivateLayout(parameterMap);
 

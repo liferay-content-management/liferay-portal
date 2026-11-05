@@ -15,6 +15,7 @@ import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.exportimport.kernel.lar.BasePortletDataHandler;
 import com.liferay.exportimport.kernel.lar.DataLevel;
+import com.liferay.exportimport.kernel.lar.ExportImportGroup;
 import com.liferay.exportimport.kernel.lar.ExportImportHelperUtil;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.MissingReference;
@@ -52,6 +53,7 @@ import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.FeatureFlagTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -61,6 +63,7 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -70,6 +73,8 @@ import com.liferay.portal.kernel.zip.ZipReaderFactory;
 import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.kernel.zip.ZipWriterFactory;
 import com.liferay.portal.model.impl.PortletImpl;
+import com.liferay.portal.test.rule.FeatureFlag;
+import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -121,6 +126,11 @@ public class ExportImportHelperUtilTest {
 		_stagingGroup = GroupTestUtil.addGroup();
 	}
 
+	@FeatureFlags(
+		featureFlags = {
+			@FeatureFlag(value = "LPD-57655"), @FeatureFlag("LPD-85946")
+		}
+	)
 	@Test
 	public void testGetChildGroupsCount() throws Exception {
 		UserTestUtil.setUser(TestPropsValues.getUser());
@@ -486,7 +496,7 @@ public class ExportImportHelperUtilTest {
 
 		BundleContext bundleContext = bundle.getBundleContext();
 
-		_depotEntry = _addDepotEntry();
+		_depotEntry = _addDepotEntry(DepotConstants.TYPE_ASSET_LIBRARY);
 
 		String portletId1 = RandomTestUtil.randomString();
 		String portletId2 = RandomTestUtil.randomString();
@@ -547,7 +557,7 @@ public class ExportImportHelperUtilTest {
 	public void testGetExportablePortletsWithAssetCategoriesAndAssetTags()
 		throws Exception {
 
-		_depotEntry = _addDepotEntry();
+		_depotEntry = _addDepotEntry(DepotConstants.TYPE_ASSET_LIBRARY);
 
 		_assertRootPortletIds(
 			List.of(
@@ -567,6 +577,50 @@ public class ExportImportHelperUtilTest {
 			ExportImportHelperUtil.getExportablePortlets(
 				TestPropsValues.getCompanyId(), false,
 				_liveGroup.getGroupId()));
+	}
+
+	@FeatureFlags(
+		featureFlags = {
+			@FeatureFlag(value = "LPD-41307"), @FeatureFlag("LPD-57655"),
+			@FeatureFlag("LPD-85946")
+		}
+	)
+	@Test
+	public void testGetExportablePortletsWithDepotGroup() throws Exception {
+		DepotEntry assetLibraryDepotEntry = _addDepotEntry(
+			DepotConstants.TYPE_ASSET_LIBRARY);
+
+		_depotGroups.add(assetLibraryDepotEntry.getGroup());
+
+		Assert.assertTrue(
+			ListUtil.exists(
+				ExportImportHelperUtil.getExportablePortlets(
+					assetLibraryDepotEntry.getCompanyId(), false,
+					assetLibraryDepotEntry.getGroupId()),
+				portlet -> {
+					PortletDataHandler portletDataHandler =
+						portlet.getPortletDataHandlerInstance();
+
+					return !portletDataHandler.isBatch();
+				}));
+
+		DepotEntry spaceDepotEntry = _addDepotEntry(DepotConstants.TYPE_SPACE);
+
+		_depotGroups.add(spaceDepotEntry.getGroup());
+
+		List<Portlet> exportablePortlets =
+			ExportImportHelperUtil.getExportablePortlets(
+				spaceDepotEntry.getCompanyId(), false,
+				spaceDepotEntry.getGroupId());
+
+		Assert.assertFalse(exportablePortlets.isEmpty());
+
+		for (Portlet portlet : exportablePortlets) {
+			PortletDataHandler portletDataHandler =
+				portlet.getPortletDataHandlerInstance();
+
+			Assert.assertTrue(portletDataHandler.isBatch());
+		}
 	}
 
 	@Test
@@ -593,7 +647,7 @@ public class ExportImportHelperUtilTest {
 				TestPropsValues.getCompanyId(), false,
 				companyGroup.getGroupId()));
 
-		_depotEntry = _addDepotEntry();
+		_depotEntry = _addDepotEntry(DepotConstants.TYPE_ASSET_LIBRARY);
 
 		_assertRootPortletIds(
 			List.of(depotObjectDefinition.getPortletId()),
@@ -1149,17 +1203,41 @@ public class ExportImportHelperUtilTest {
 	}
 
 	@Test
-	public void testGetSupportedGroups() throws Exception {
-		UserTestUtil.setUser(TestPropsValues.getUser());
+	public void testIsGroupMatching() throws Exception {
+		Assert.assertTrue(
+			ExportImportHelperUtil.isGroupMatching(
+				_createExportImportGroup(false, 0), _liveGroup));
+		Assert.assertFalse(
+			ExportImportHelperUtil.isGroupMatching(
+				_createExportImportGroup(true, DepotConstants.TYPE_SPACE),
+				_liveGroup));
 
-		List<Group> groups = ExportImportHelperUtil.getSupportedGroups(
-			_liveGroup.getCompanyId(),
-			_liveGroup.getName(LocaleUtil.getDefault()), null);
+		DepotEntry depotEntry = _addDepotEntry(DepotConstants.TYPE_SPACE);
 
-		Assert.assertEquals(groups.toString(), 1, groups.size());
-		Assert.assertEquals(_liveGroup, groups.get(0));
+		Group depotGroup = depotEntry.getGroup();
+
+		_depotGroups.add(depotGroup);
+
+		Assert.assertFalse(
+			ExportImportHelperUtil.isGroupMatching(
+				_createExportImportGroup(false, 0), depotGroup));
+		Assert.assertFalse(
+			ExportImportHelperUtil.isGroupMatching(
+				_createExportImportGroup(
+					true, DepotConstants.TYPE_ASSET_LIBRARY),
+				depotGroup));
+		Assert.assertTrue(
+			ExportImportHelperUtil.isGroupMatching(
+				_createExportImportGroup(true, DepotConstants.TYPE_SPACE),
+				depotGroup));
 	}
 
+	@FeatureFlags(
+		featureFlags = {
+			@FeatureFlag(value = "LPD-41307"), @FeatureFlag("LPD-57655"),
+			@FeatureFlag("LPD-85946")
+		}
+	)
 	@Test
 	public void testIsGroupSupported() throws Exception {
 		Assert.assertTrue(ExportImportHelperUtil.isGroupSupported(_liveGroup));
@@ -1170,6 +1248,58 @@ public class ExportImportHelperUtilTest {
 		Assert.assertFalse(
 			ExportImportHelperUtil.isGroupSupported(
 				_deactivateGroup(_liveGroup)));
+
+		DepotEntry depotEntry = _addDepotEntry(
+			DepotConstants.TYPE_ASSET_LIBRARY);
+
+		_depotGroups.add(depotEntry.getGroup());
+
+		Assert.assertTrue(
+			ExportImportHelperUtil.isGroupSupported(depotEntry.getGroup()));
+
+		depotEntry = _addDepotEntry(DepotConstants.TYPE_SPACE);
+
+		_depotGroups.add(depotEntry.getGroup());
+
+		Assert.assertTrue(
+			ExportImportHelperUtil.isGroupSupported(depotEntry.getGroup()));
+	}
+
+	@FeatureFlags(
+		featureFlags = {
+			@FeatureFlag(value = "LPD-41307"), @FeatureFlag("LPD-57655"),
+			@FeatureFlag("LPD-85946")
+		}
+	)
+	@Test
+	public void testIsGroupSupportedWhenFeatureFlagIsDisabled()
+		throws Exception {
+
+		DepotEntry depotEntry = _addDepotEntry(DepotConstants.TYPE_SPACE);
+
+		Group depotGroup = depotEntry.getGroup();
+
+		_depotGroups.add(depotGroup);
+
+		try (SafeCloseable safeCloseable =
+				FeatureFlagTestUtil.setFeatureFlagsWithSafeCloseable(
+					false, "LPD-41307")) {
+
+			Assert.assertFalse(
+				ExportImportHelperUtil.isGroupSupported(depotGroup));
+			Assert.assertTrue(
+				ExportImportHelperUtil.isGroupSupported(_liveGroup));
+		}
+
+		try (SafeCloseable safeCloseable =
+				FeatureFlagTestUtil.setFeatureFlagsWithSafeCloseable(
+					false, "LPD-85946")) {
+
+			Assert.assertTrue(
+				ExportImportHelperUtil.isGroupSupported(depotGroup));
+			Assert.assertFalse(
+				ExportImportHelperUtil.isGroupSupported(_liveGroup));
+		}
 	}
 
 	@Test
@@ -1217,7 +1347,7 @@ public class ExportImportHelperUtilTest {
 			});
 	}
 
-	private DepotEntry _addDepotEntry() throws Exception {
+	private DepotEntry _addDepotEntry(int type) throws Exception {
 		return _depotEntryLocalService.addDepotEntry(
 			HashMapBuilder.put(
 				LocaleUtil.getDefault(), RandomTestUtil.randomString()
@@ -1225,8 +1355,7 @@ public class ExportImportHelperUtilTest {
 			HashMapBuilder.put(
 				LocaleUtil.getDefault(), RandomTestUtil.randomString()
 			).build(),
-			DepotConstants.TYPE_ASSET_LIBRARY,
-			ServiceContextTestUtil.getServiceContext());
+			type, ServiceContextTestUtil.getServiceContext());
 	}
 
 	private void _assertPortletControlsMap(
@@ -1276,6 +1405,15 @@ public class ExportImportHelperUtilTest {
 				rootPortletIds.toString(),
 				rootPortletIds.contains(unexpectedRootPortletId));
 		}
+	}
+
+	private ExportImportGroup _createExportImportGroup(
+		boolean depot, int depotType) {
+
+		return new ExportImportGroup(
+			0, depot, depotType, RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), RandomTestUtil.randomLong(), null,
+			RandomTestUtil.randomString());
 	}
 
 	private Group _deactivateGroup(Group group) throws Exception {
@@ -1446,6 +1584,9 @@ public class ExportImportHelperUtilTest {
 
 	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;
+
+	@DeleteAfterTestRun
+	private final List<Group> _depotGroups = new ArrayList<>();
 
 	@Inject
 	private GroupLocalService _groupLocalService;

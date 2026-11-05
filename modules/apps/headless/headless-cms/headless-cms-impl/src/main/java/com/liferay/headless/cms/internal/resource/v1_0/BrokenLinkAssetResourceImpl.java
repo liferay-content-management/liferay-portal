@@ -73,13 +73,12 @@ public class BrokenLinkAssetResourceImpl
 
 		LicenseManagerUtil.checkFreeTier();
 
-		Long[] spaceGroupIds = CMSGroupUtil.getSpaceGroupIds(
-			contextCompany.getCompanyId(), _depotEntryService,
-			contextUser.getUserId());
-
 		Long[] selectedSpaceGroupIds = CMSGroupUtil.getSelectedSpaceGroupIds(
 			assetLibraryId, contextCompany.getCompanyId(),
-			_depotEntryLocalService, groupLocalService, spaceGroupIds);
+			_depotEntryLocalService, groupLocalService,
+			CMSGroupUtil.getAdministeredSpaceGroupIds(
+				contextCompany.getCompanyId(), _depotEntryService,
+				contextUser.getUserId()));
 
 		if (ArrayUtil.isEmpty(selectedSpaceGroupIds)) {
 			return Page.of(Collections.emptyList());
@@ -110,7 +109,10 @@ public class BrokenLinkAssetResourceImpl
 		Map<String, BrokenLinkTarget> brokenLinkTargetsMap =
 			brokenLinkAssetSearcher.getBrokenLinkTargetsMap(
 				contextCompany.getCompanyId(), objectDefinitionIds,
-				selectedSpaceGroupIds, spaceGroupIds);
+				selectedSpaceGroupIds,
+				CMSGroupUtil.getSpaceGroupIds(
+					contextCompany.getCompanyId(), _depotEntryService,
+					contextUser.getUserId()));
 
 		if (brokenLinkTargetsMap.isEmpty()) {
 			return Page.of(Collections.emptyList());
