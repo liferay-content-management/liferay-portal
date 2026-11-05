@@ -6,6 +6,7 @@
 package com.liferay.site.cms.site.initializer.internal.upgrade.registry;
 
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
+import com.liferay.layout.importer.LayoutsImporter;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
@@ -24,6 +25,7 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v1_0_0.CMSDefaultPermissionsUpgradeProcess;
@@ -33,6 +35,7 @@ import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_1.CMSObjectFo
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_2.CMSAdministratorRoleUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_3.CMSFileTypeDisplayPageUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_4.CMSFileTypeFriendlyURLUpgradeProcess;
+import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_5.CMSPlanningAndTasksPagesUpgradeProcess;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -94,6 +97,15 @@ public class SiteCMSSiteInitializerUpgradeStepRegistrator
 			new CMSFileTypeFriendlyURLUpgradeProcess(
 				_companyLocalService, _objectDefinitionLocalService,
 				_objectEntryLocalService, _objectFolderLocalService));
+
+		registry.register(
+			"3.0.4", "3.0.5",
+			new CMSPlanningAndTasksPagesUpgradeProcess(
+				_companyLocalService, _groupLocalService, _layoutLocalService,
+				_layoutPageTemplateEntryLocalService,
+				_layoutPageTemplateStructureLocalService, _layoutsImporter,
+				_resourcePermissionLocalService, _roleLocalService,
+				_segmentsExperienceLocalService, _userLocalService));
 	}
 
 	@Reference
@@ -125,6 +137,9 @@ public class SiteCMSSiteInitializerUpgradeStepRegistrator
 		_layoutPageTemplateStructureLocalService;
 
 	@Reference
+	private LayoutsImporter _layoutsImporter;
+
+	@Reference
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	@Reference
@@ -153,5 +168,8 @@ public class SiteCMSSiteInitializerUpgradeStepRegistrator
 
 	@Reference
 	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }
