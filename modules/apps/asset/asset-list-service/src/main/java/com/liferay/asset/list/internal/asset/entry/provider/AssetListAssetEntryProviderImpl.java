@@ -178,6 +178,45 @@ public class AssetListAssetEntryProviderImpl
 			_getFirstSegmentsEntryId(assetListEntry, segmentsEntryIds), userId);
 	}
 
+	@Override
+	public BooleanQuery getBooleanQuery(
+			AssetEntryQuery assetEntryQuery, AssetListEntry assetListEntry,
+			long segmentsEntryId)
+		throws Exception {
+
+		if (Objects.equals(
+				assetListEntry.getType(),
+				AssetListEntryTypeConstants.TYPE_MANUAL)) {
+
+			Map<AssetListEntryAssetEntryRel, Long> groupIds = _getGroupIds(
+				_assetListEntryAssetEntryRelLocalService.
+					getAssetListEntryAssetEntryRels(
+						assetListEntry.getAssetListEntryId(),
+						new long[] {segmentsEntryId}, QueryUtil.ALL_POS,
+						QueryUtil.ALL_POS));
+
+			if (MapUtil.isEmpty(groupIds)) {
+				return null;
+			}
+
+			return _assetHelper.getBooleanQuery(
+				_getManualSearchContext(
+					null,
+					ListUtil.toList(
+						ListUtil.fromMapKeys(groupIds),
+						AssetListEntryAssetEntryRelModel::getAssetEntryId),
+					null, assetListEntry.getCompanyId(), null),
+				_getManualAssetEntryQuery(
+					assetListEntry, ArrayUtil.toLongArray(groupIds.values())));
+		}
+
+		return _assetHelper.getBooleanQuery(
+			_getDynamicSearchContext(
+				null, assetEntryQuery, null, assetListEntry.getCompanyId(),
+				null),
+			assetEntryQuery);
+	}
+
 	@Activate
 	@Modified
 	protected void activate(
