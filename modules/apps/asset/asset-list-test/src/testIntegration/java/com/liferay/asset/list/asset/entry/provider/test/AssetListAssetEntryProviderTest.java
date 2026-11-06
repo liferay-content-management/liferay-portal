@@ -49,7 +49,11 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Hits;
+import com.liferay.portal.kernel.search.IndexSearcherHelperUtil;
+import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserGroupLocalService;
@@ -64,12 +68,14 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
@@ -86,6 +92,7 @@ import com.liferay.segments.test.util.SegmentsTestUtil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -622,6 +629,108 @@ public class AssetListAssetEntryProviderTest {
 			LocaleThreadLocal.setThemeDisplayLocale(originalThemeDisplayLocale);
 			GroupTestUtil.deleteGroup(group);
 		}
+	}
+
+	@Test
+	@TestInfo("LPD-105769")
+	public void testGetBooleanQueryOfDynamicCollection() throws Exception {
+		_blogsEntryLocalService.addEntry(
+			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(),
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId()));
+
+		JournalArticle journalArticle = JournalTestUtil.addArticle(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		AssetListEntry assetListEntry1 =
+			_assetListEntryLocalService.addAssetListEntry(
+				RandomTestUtil.randomString(), TestPropsValues.getUserId(),
+				_group.getGroupId(), RandomTestUtil.randomString(),
+				AssetListEntryTypeConstants.TYPE_DYNAMIC,
+				UnicodePropertiesBuilder.create(
+					true
+				).put(
+					"anyAssetType", false
+				).put(
+					"classNameIds",
+					String.valueOf(
+						_portal.getClassNameId(BlogsEntry.class.getName()))
+				).put(
+					"groupIds", String.valueOf(_group.getGroupId())
+				).buildString(),
+				_serviceContext);
+		AssetListEntry assetListEntry2 =
+			_assetListEntryLocalService.addAssetListEntry(
+				RandomTestUtil.randomString(), TestPropsValues.getUserId(),
+				_group.getGroupId(), RandomTestUtil.randomString(),
+				AssetListEntryTypeConstants.TYPE_DYNAMIC,
+				UnicodePropertiesBuilder.create(
+					true
+				).put(
+					"anyAssetType", false
+				).put(
+					"classNameIds",
+					String.valueOf(
+						_portal.getClassNameId(JournalArticle.class.getName()))
+				).put(
+					"groupIds", String.valueOf(_group.getGroupId())
+				).buildString(),
+				_serviceContext);
+
+		Assert.assertEquals(
+			SetUtil.fromArray(new long[] {journalArticle.getResourcePrimKey()}),
+			_getEntryClassPKs(
+				_assetListAssetEntryProvider.getBooleanQuery(
+					_assetListAssetEntryProvider.getAssetEntryQuery(
+						assetListEntry2,
+						new long[] {SegmentsEntryConstants.ID_DEFAULT},
+						StringPool.BLANK),
+					assetListEntry1, SegmentsEntryConstants.ID_DEFAULT)));
+	}
+
+	@Test
+	@TestInfo("LPD-105769")
+	public void testGetBooleanQueryOfManualCollection() throws Exception {
+		JournalArticle journalArticle1 = JournalTestUtil.addArticle(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, _serviceContext);
+		JournalArticle journalArticle2 = JournalTestUtil.addArticle(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, _serviceContext);
+
+		JournalTestUtil.addArticle(
+			_group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, _serviceContext);
+
+		AssetListEntry assetListEntry =
+			_assetListEntryLocalService.addAssetListEntry(
+				RandomTestUtil.randomString(), TestPropsValues.getUserId(),
+				_group.getGroupId(), RandomTestUtil.randomString(),
+				AssetListEntryTypeConstants.TYPE_MANUAL, _serviceContext);
+
+		AssetEntry assetEntry1 = _getAssetEntry(journalArticle1);
+		AssetEntry assetEntry2 = _getAssetEntry(journalArticle2);
+
+		_assetListEntryLocalService.addAssetEntrySelections(
+			assetListEntry.getAssetListEntryId(),
+			new long[] {assetEntry1.getEntryId(), assetEntry2.getEntryId()},
+			SegmentsEntryConstants.ID_DEFAULT, _serviceContext);
+
+		Assert.assertEquals(
+			SetUtil.fromArray(
+				new long[] {
+					journalArticle1.getResourcePrimKey(),
+					journalArticle2.getResourcePrimKey()
+				}),
+			_getEntryClassPKs(
+				_assetListAssetEntryProvider.getBooleanQuery(
+					_assetListAssetEntryProvider.getAssetEntryQuery(
+						assetListEntry,
+						new long[] {SegmentsEntryConstants.ID_DEFAULT},
+						StringPool.BLANK),
+					assetListEntry, SegmentsEntryConstants.ID_DEFAULT)));
 	}
 
 	@Test
@@ -2311,6 +2420,22 @@ public class AssetListAssetEntryProviderTest {
 
 		return assetListEntrySegmentsEntryRel.
 			getAssetListEntrySegmentsEntryRelId();
+	}
+
+	private Set<Long> _getEntryClassPKs(BooleanQuery booleanQuery)
+		throws Exception {
+
+		SearchContext searchContext = new SearchContext();
+
+		searchContext.setCompanyId(_group.getCompanyId());
+
+		Hits hits = IndexSearcherHelperUtil.search(searchContext, booleanQuery);
+
+		return SetUtil.fromList(
+			ListUtil.toList(
+				hits.toList(),
+				document -> GetterUtil.getLong(
+					document.get(Field.ENTRY_CLASS_PK))));
 	}
 
 	private String _getTypeSettings(JSONObject... filterJSONObjects) {
