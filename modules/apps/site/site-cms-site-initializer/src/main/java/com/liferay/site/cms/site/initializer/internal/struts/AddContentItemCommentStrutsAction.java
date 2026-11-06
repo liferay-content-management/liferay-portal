@@ -13,7 +13,6 @@ import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextFunction;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -70,9 +69,11 @@ public class AddContentItemCommentStrutsAction implements StrutsAction {
 		User user = themeDisplay.getUser();
 
 		Function<String, ServiceContext> serviceContextFunction =
-			new ServiceContextFunction(httpServletRequest);
+			CommentUtil.getServiceContextFunction(classPK, httpServletRequest);
 
-		String body = ParamUtil.getString(httpServletRequest, "body");
+		String body = CommentUtil.getSanitizedBody(
+			ParamUtil.getString(httpServletRequest, "body"), className1,
+			classPK, _discussionPermission, themeDisplay);
 		long parentCommentId = ParamUtil.getLong(
 			httpServletRequest, "parentCommentId");
 
