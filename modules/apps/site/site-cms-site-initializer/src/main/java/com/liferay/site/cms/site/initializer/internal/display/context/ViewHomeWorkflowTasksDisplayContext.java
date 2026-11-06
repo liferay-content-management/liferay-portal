@@ -57,11 +57,11 @@ public class ViewHomeWorkflowTasksDisplayContext {
 		return HashMapBuilder.<String, Object>put(
 			"id", CMSSiteInitializerFDSNames.HOME_MY_WORKFLOW_TASKS_SECTION
 		).put(
-			"myRolesWorkflowTasksURL", tasksURL
-		).put(
 			"myWorkflowTasksURL", tasksURL
 		).put(
 			"objectDefinitions", _getObjectDefinitionsJSONArray()
+		).put(
+			"tasksURL", tasksURL
 		).build();
 	}
 

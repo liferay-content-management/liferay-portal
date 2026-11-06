@@ -23,10 +23,10 @@ describe('[CMS Dashboard] Components: ViewWorkflowTasks', () => {
 
 	const defaultProps = {
 		id: 'myWorkflowTasksSection',
-		myRolesWorkflowTasksURL: 'http://www.test.com/myRolesWorkflowTasks',
 		myWorkflowTasksURL:
 			'http://www.test.com/myWorkflowTasks?p_p_id=com_liferay_portal_workflow_task_web_portlet_MyWorkflowTaskPortlet',
 		objectDefinitions: [],
+		tasksURL: 'http://www.test.com/tasks',
 	};
 
 	it('renders correctly', () => {
@@ -46,13 +46,13 @@ describe('[CMS Dashboard] Components: ViewWorkflowTasks', () => {
 		expect(screen.getByLabelText('open-x')).toBeInTheDocument();
 	});
 
-	it('opens expected link after picking "Assigned to My Roles"', () => {
+	it('opens the Tasks page for both filters', () => {
 		render(<ViewWorkflowTasks {...defaultProps} />);
 
 		fireEvent.click(screen.getByLabelText('open-x'));
 
 		expect(window.open).toHaveBeenCalledWith(
-			defaultProps.myWorkflowTasksURL,
+			defaultProps.tasksURL,
 			'_blank'
 		);
 
@@ -69,7 +69,7 @@ describe('[CMS Dashboard] Components: ViewWorkflowTasks', () => {
 		fireEvent.click(screen.getByLabelText('open-x'));
 
 		expect(window.open).toHaveBeenCalledWith(
-			defaultProps.myRolesWorkflowTasksURL,
+			defaultProps.tasksURL,
 			'_blank'
 		);
 	});
