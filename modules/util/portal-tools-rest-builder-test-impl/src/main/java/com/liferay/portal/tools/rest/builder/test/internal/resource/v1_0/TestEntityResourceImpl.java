@@ -5,6 +5,7 @@
 
 package com.liferay.portal.tools.rest.builder.test.internal.resource.v1_0;
 
+import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.search.filter.Filter;
@@ -19,10 +20,14 @@ import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 
+import java.io.Serializable;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
@@ -34,9 +39,28 @@ import org.osgi.service.component.annotations.ServiceScope;
  */
 @Component(
 	properties = "OSGI-INF/liferay/rest/v1_0/test-entity.properties",
+	property = "export.import.vulcan.batch.engine.task.item.delegate=true",
 	scope = ServiceScope.PROTOTYPE, service = TestEntityResource.class
 )
-public class TestEntityResourceImpl extends BaseTestEntityResourceImpl {
+public class TestEntityResourceImpl
+	extends BaseTestEntityResourceImpl
+	implements ExportImportVulcanBatchEngineTaskItemDelegate<TestEntity> {
+
+	@Override
+	public void delete(
+		Collection<TestEntity> testEntities,
+		Map<String, Serializable> parameters) {
+
+		for (TestEntity testEntity : testEntities) {
+			_testEntities.removeIf(
+				currentTestEntity ->
+					Objects.equals(
+						currentTestEntity.getClass(), testEntity.getClass()) &&
+					Objects.equals(
+						currentTestEntity.getExternalReferenceCode(),
+						testEntity.getExternalReferenceCode()));
+		}
+	}
 
 	@Override
 	public Response deleteTestEntity(Long testEntityId, Boolean permanent)
@@ -62,6 +86,44 @@ public class TestEntityResourceImpl extends BaseTestEntityResourceImpl {
 	@Override
 	public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
 		return new TestEntityEntityModel();
+	}
+
+	@Override
+	public ExportImportDescriptor getExportImportDescriptor() {
+		return new ExportImportDescriptor() {
+
+			@Override
+			public String getKey() {
+				return "TestEntityKey";
+			}
+
+			@Override
+			public String getLabelLanguageKey() {
+				return "test-entity";
+			}
+
+			@Override
+			public Class getModelClass() {
+				return null;
+			}
+
+			@Override
+			public String getModelClassName() {
+				return TestEntity.class.getName();
+			}
+
+			@Override
+			public String getPortletId() {
+				return "com_liferay_portal_tools_rest_builder_test_portlet_" +
+					"BatchTestEntityPortlet";
+			}
+
+			@Override
+			public Scope getScope() {
+				return Scope.COMPANY;
+			}
+
+		};
 	}
 
 	@Override

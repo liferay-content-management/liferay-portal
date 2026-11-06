@@ -18,6 +18,7 @@ import PageTreeModal, {
 } from '../../components/PageTreeModal';
 import SectionHeader from '../../components/SectionHeader';
 import Setup from '../../components/Setup';
+import {navigateToProcesses} from '../../utils/navigateToProcesses';
 
 type Language = {
 	label: string;
@@ -58,7 +59,7 @@ export function NewStaticSiteExport({
 	return (
 		<Formik
 			initialValues={initialFormValues}
-			onSubmit={async (values) => {
+			onSubmit={async (values, {setStatus}) => {
 				const response = await fetch(exportProcessAPIURL, {
 					body: objectToFormData({
 						[`${portletNamespace}languageIds`]: values.languageIds,
@@ -81,7 +82,11 @@ export function NewStaticSiteExport({
 					return;
 				}
 
-				Liferay.Util.navigate(backURL);
+				navigateToProcesses(
+					setStatus,
+					Liferay.Language.get('the-process-has-started'),
+					backURL
+				);
 			}}
 			validate={(values) => {
 				const errors: Partial<
@@ -226,23 +231,8 @@ export function NewStaticSiteExport({
 					)}
 
 					<Footer
-						actionButton={
-							<ClayButton
-								disabled={
-									formik.isSubmitting || !formik.isValid
-								}
-								type="submit"
-							>
-								<span className="inline-item inline-item-before">
-									<ClayIcon
-										className="mr-1"
-										symbol="export"
-									/>
-								</span>
-
-								{Liferay.Language.get('export')}
-							</ClayButton>
-						}
+						actionButtonLabel={Liferay.Language.get('export')}
+						actionButtonSymbol="export"
 						backURL={backURL}
 					/>
 				</Form>

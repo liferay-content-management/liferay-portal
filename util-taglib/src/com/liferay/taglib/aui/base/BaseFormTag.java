@@ -5,6 +5,8 @@
 
 package com.liferay.taglib.aui.base;
 
+import com.liferay.taglib.util.IncludeTag;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspException;
 
@@ -13,9 +15,8 @@ import jakarta.servlet.jsp.JspException;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
- * @generated
  */
-public abstract class BaseFormTag extends com.liferay.taglib.util.IncludeTag {
+public abstract class BaseFormTag extends IncludeTag {
 
 	@Override
 	public int doStartTag() throws JspException {
@@ -24,11 +25,11 @@ public abstract class BaseFormTag extends com.liferay.taglib.util.IncludeTag {
 		return super.doStartTag();
 	}
 
-	public java.lang.String getAction() {
+	public String getAction() {
 		return _action;
 	}
 
-	public java.lang.String getCssClass() {
+	public String getCssClass() {
 		return _cssClass;
 	}
 
@@ -40,19 +41,19 @@ public abstract class BaseFormTag extends com.liferay.taglib.util.IncludeTag {
 		return _inlineLabels;
 	}
 
-	public java.lang.String getMethod() {
+	public String getMethod() {
 		return _method;
 	}
 
-	public java.lang.String getName() {
+	public String getName() {
 		return _name;
 	}
 
-	public java.lang.String getOnSubmit() {
+	public String getOnSubmit() {
 		return _onSubmit;
 	}
 
-	public java.lang.String getPortletNamespace() {
+	public String getPortletNamespace() {
 		return _portletNamespace;
 	}
 
@@ -64,11 +65,11 @@ public abstract class BaseFormTag extends com.liferay.taglib.util.IncludeTag {
 		return _validateOnBlur;
 	}
 
-	public void setAction(java.lang.String action) {
+	public void setAction(String action) {
 		_action = action;
 	}
 
-	public void setCssClass(java.lang.String cssClass) {
+	public void setCssClass(String cssClass) {
 		_cssClass = cssClass;
 	}
 
@@ -80,19 +81,19 @@ public abstract class BaseFormTag extends com.liferay.taglib.util.IncludeTag {
 		_inlineLabels = inlineLabels;
 	}
 
-	public void setMethod(java.lang.String method) {
+	public void setMethod(String method) {
 		_method = method;
 	}
 
-	public void setName(java.lang.String name) {
+	public void setName(String name) {
 		_name = name;
 	}
 
-	public void setOnSubmit(java.lang.String onSubmit) {
+	public void setOnSubmit(String onSubmit) {
 		_onSubmit = onSubmit;
 	}
 
-	public void setPortletNamespace(java.lang.String portletNamespace) {
+	public void setPortletNamespace(String portletNamespace) {
 		_portletNamespace = portletNamespace;
 	}
 
@@ -131,35 +132,37 @@ public abstract class BaseFormTag extends com.liferay.taglib.util.IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "action", _action);
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "escapeXml", _escapeXml);
-		setNamespacedAttribute(request, "inlineLabels", _inlineLabels);
-		setNamespacedAttribute(request, "method", _method);
-		setNamespacedAttribute(request, "name", _name);
-		setNamespacedAttribute(request, "onSubmit", _onSubmit);
-		setNamespacedAttribute(request, "portletNamespace", _portletNamespace);
-		setNamespacedAttribute(request, "useNamespace", _useNamespace);
-		setNamespacedAttribute(request, "validateOnBlur", _validateOnBlur);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		setNamespacedAttribute(httpServletRequest, "action", _action);
+		setNamespacedAttribute(httpServletRequest, "cssClass", _cssClass);
+		setNamespacedAttribute(httpServletRequest, "escapeXml", _escapeXml);
+		setNamespacedAttribute(
+			httpServletRequest, "inlineLabels", _inlineLabels);
+		setNamespacedAttribute(httpServletRequest, "method", _method);
+		setNamespacedAttribute(httpServletRequest, "name", _name);
+		setNamespacedAttribute(httpServletRequest, "onSubmit", _onSubmit);
+		setNamespacedAttribute(
+			httpServletRequest, "portletNamespace", _portletNamespace);
+		setNamespacedAttribute(
+			httpServletRequest, "useNamespace", _useNamespace);
+		setNamespacedAttribute(
+			httpServletRequest, "validateOnBlur", _validateOnBlur);
 	}
 
-	protected static final String _ATTRIBUTE_NAMESPACE = "aui:form:";
+	private static final String _ATTRIBUTE_NAMESPACE = "aui:form:";
 
-	private static final String _END_PAGE =
-		"/html/taglib/aui/form/end.jsp";
+	private static final String _END_PAGE = "/html/taglib/aui/form/end.jsp";
 
-	private static final String _START_PAGE =
-		"/html/taglib/aui/form/start.jsp";
+	private static final String _START_PAGE = "/html/taglib/aui/form/start.jsp";
 
-	private java.lang.String _action = null;
-	private java.lang.String _cssClass = null;
+	private String _action;
+	private String _cssClass;
 	private boolean _escapeXml = true;
-	private boolean _inlineLabels = false;
-	private java.lang.String _method = "post";
-	private java.lang.String _name = "fm";
-	private java.lang.String _onSubmit = null;
-	private java.lang.String _portletNamespace = null;
+	private boolean _inlineLabels;
+	private String _method = "post";
+	private String _name = "fm";
+	private String _onSubmit;
+	private String _portletNamespace;
 	private boolean _useNamespace = true;
 	private boolean _validateOnBlur = true;
 

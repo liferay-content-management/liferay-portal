@@ -3549,6 +3549,11 @@ components:
                     description:
                         Whether to allow subsites to display content from this site.
                     type: boolean
+                creator:
+                    $ref: ../../headless-admin-user/headless-admin-user-impl/rest-openapi.yaml#Creator
+                    description:
+                        The site's creator.
+                    readOnly: true
                 defaultLanguageId:
                     example: en_US
                     type: string
@@ -10667,7 +10672,6 @@ paths:
                                     $ref: "#/components/schemas/StyleBook"
                                 type: array
             tags: ["StyleBook"]
-            x-feature-flag: LPD-57283
         post:
             # @review
             description:
@@ -10698,7 +10702,6 @@ paths:
                                 $ref: "#/components/schemas/StyleBook"
             # @review
             tags: ["StyleBook"]
-            x-feature-flag: LPD-57283
     "/sites/{siteExternalReferenceCode}/style-books/{styleBookExternalReferenceCode}":
         delete:
             # @review
@@ -10722,7 +10725,6 @@ paths:
                         application/json: {}
                         application/xml: {}
             tags: ["StyleBook"]
-            x-feature-flag: LPD-57283
         get:
             # @review
             description:
@@ -10761,7 +10763,6 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/StyleBook"
             tags: ["StyleBook"]
-            x-feature-flag: LPD-57283
         patch:
             # @review
             description:
@@ -10808,7 +10809,6 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/StyleBook"
             tags: ["StyleBook"]
-            x-feature-flag: LPD-57283
         put:
             # @review
             description:
@@ -10855,7 +10855,6 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/StyleBook"
             tags: ["StyleBook"]
-            x-feature-flag: LPD-57283
     "/sites/{siteExternalReferenceCode}/utility-pages":
         get:
             # @review

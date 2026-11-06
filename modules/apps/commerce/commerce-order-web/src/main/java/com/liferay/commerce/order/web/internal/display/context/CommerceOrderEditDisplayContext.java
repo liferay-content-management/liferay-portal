@@ -21,7 +21,6 @@ import com.liferay.commerce.model.CommerceOrder;
 import com.liferay.commerce.model.CommerceOrderItem;
 import com.liferay.commerce.model.CommerceOrderNote;
 import com.liferay.commerce.model.CommerceOrderType;
-import com.liferay.commerce.model.CommerceShipment;
 import com.liferay.commerce.notification.model.CommerceNotificationQueueEntry;
 import com.liferay.commerce.notification.service.CommerceNotificationQueueEntryLocalService;
 import com.liferay.commerce.order.engine.CommerceOrderEngine;
@@ -39,7 +38,6 @@ import com.liferay.commerce.service.CommerceOrderItemService;
 import com.liferay.commerce.service.CommerceOrderNoteService;
 import com.liferay.commerce.service.CommerceOrderService;
 import com.liferay.commerce.service.CommerceOrderTypeService;
-import com.liferay.commerce.service.CommerceShipmentService;
 import com.liferay.commerce.term.constants.CommerceTermEntryConstants;
 import com.liferay.commerce.term.model.CommerceTermEntry;
 import com.liferay.commerce.term.service.CommerceTermEntryLocalService;
@@ -110,7 +108,6 @@ public class CommerceOrderEditDisplayContext {
 			CommercePaymentMethodGroupRelLocalService
 				commercePaymentMethodGroupRelLocalService,
 			CommercePriceFormatter commercePriceFormatter,
-			CommerceShipmentService commerceShipmentService,
 			CommerceTermEntryLocalService commerceTermEntryLocalService,
 			CPMeasurementUnitService cpMeasurementUnitService,
 			ModelResourcePermission<CommerceOrder> modelResourcePermission,
@@ -137,7 +134,6 @@ public class CommerceOrderEditDisplayContext {
 		_commercePaymentMethodGroupRelLocalService =
 			commercePaymentMethodGroupRelLocalService;
 		_commercePriceFormatter = commercePriceFormatter;
-		_commerceShipmentService = commerceShipmentService;
 		_commerceTermEntryLocalService = commerceTermEntryLocalService;
 		_cpMeasurementUnitService = cpMeasurementUnitService;
 		_modelResourcePermission = modelResourcePermission;
@@ -437,22 +433,6 @@ public class CommerceOrderEditDisplayContext {
 			getCommercePaymentMethodGroupRel(
 				_commerceOrder.getGroupId(),
 				_commerceOrder.getCommercePaymentMethodKey());
-	}
-
-	public CommerceShipment getCommerceShipment() throws PortalException {
-		if (_commerceShipment != null) {
-			return _commerceShipment;
-		}
-
-		long commerceShipmentId = ParamUtil.getLong(
-			_commerceOrderRequestHelper.getRequest(), "commerceShipmentId");
-
-		if (commerceShipmentId > 0) {
-			_commerceShipment = _commerceShipmentService.getCommerceShipment(
-				commerceShipmentId);
-		}
-
-		return _commerceShipment;
 	}
 
 	public PortletURL getCommerceShipmentsPortletURL() {
@@ -882,8 +862,6 @@ public class CommerceOrderEditDisplayContext {
 	private final CommercePaymentMethodGroupRelLocalService
 		_commercePaymentMethodGroupRelLocalService;
 	private final CommercePriceFormatter _commercePriceFormatter;
-	private CommerceShipment _commerceShipment;
-	private final CommerceShipmentService _commerceShipmentService;
 	private final CommerceTermEntryLocalService _commerceTermEntryLocalService;
 	private final CPMeasurementUnitService _cpMeasurementUnitService;
 	private final ModelResourcePermission<CommerceOrder>

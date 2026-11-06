@@ -103,8 +103,8 @@ export {
 	Translations,
 } from './translation_manager/TranslationAdminContent';
 export {default as TranslationAdminItem} from './translation_manager/TranslationAdminItem';
-export {default as TranslationAdminModal} from './translation_manager/TranslationAdminModal';
 
+export {default as TranslationAdminModal} from './translation_manager/TranslationAdminModal';
 export {
 	default as TranslationAdminSelector,
 	TranslationProgress,
@@ -113,4 +113,12 @@ export {
 	activeLanguageIdsAtom,
 	selectedLanguageIdAtom,
 } from './translation_manager/state';
+
 export {default as Treeview} from './treeview/Treeview';
+export {default as UnifiedSidebar} from './unified_sidebar/UnifiedSidebar';
+export type {
+	HeaderMessages as UnifiedSidebarHeaderMessages,
+	UnifiedSidebarProps,
+} from './unified_sidebar/UnifiedSidebar';
+export {default as UnifiedSidebarColorSchemeButton} from './unified_sidebar/UnifiedSidebarColorSchemeButton';
+export {default as UnifiedSidebarSiteSelector} from './unified_sidebar/UnifiedSidebarSiteSelector';

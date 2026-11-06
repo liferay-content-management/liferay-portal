@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-@generated
 --%>
 
 <%@ include file="/html/taglib/taglib-init.jsp" %>
@@ -19,8 +18,6 @@ java.lang.String buttonIconOff = GetterUtil.getString((java.lang.String)request.
 java.lang.String buttonIconOn = GetterUtil.getString((java.lang.String)request.getAttribute("aui:input:buttonIconOn"));
 boolean changesContext = GetterUtil.getBoolean(String.valueOf(request.getAttribute("aui:input:changesContext")));
 boolean checked = GetterUtil.getBoolean(String.valueOf(request.getAttribute("aui:input:checked")));
-long classPK = GetterUtil.getLong(String.valueOf(request.getAttribute("aui:input:classPK")));
-long classTypePK = GetterUtil.getLong(String.valueOf(request.getAttribute("aui:input:classTypePK")), -1);
 java.lang.String cssClass = GetterUtil.getString((java.lang.String)request.getAttribute("aui:input:cssClass"));
 java.util.Map data = (java.util.Map)request.getAttribute("aui:input:data");
 java.lang.String dateTogglerCheckboxLabel = GetterUtil.getString((java.lang.String)request.getAttribute("aui:input:dateTogglerCheckboxLabel"));

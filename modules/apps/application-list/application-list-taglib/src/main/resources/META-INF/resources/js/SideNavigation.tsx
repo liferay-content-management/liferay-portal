@@ -3,22 +3,21 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {SidePanel} from '@clayui/core';
 import ClayEmptyState from '@clayui/empty-state';
 import {ClayVerticalNav} from '@clayui/nav';
-import ClaySticker from '@clayui/sticker';
 import {SearchResultsMessage} from '@liferay/layout-js-components-web';
 import classNames from 'classnames';
-import {useId} from 'frontend-js-components-web';
-import {sub} from 'frontend-js-web';
+import {
+	UnifiedSidebar,
+	UnifiedSidebarSiteSelector,
+	useId,
+} from 'frontend-js-components-web';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
-import SideNavigationColorSchemeButton from './SideNavigationColorSchemeButton';
 import SideNavigationItemContent from './SideNavigationItemContent';
 import SideNavigationResultsSkeleton from './SideNavigationResultsSkeleton';
 import SideNavigationScopeItem from './SideNavigationScopeItem';
 import SideNavigationSearchInput from './SideNavigationSearchInput';
-import SideNavigationSiteSelector from './SideNavigationSiteSelector';
 import {SideNavigationItem} from './types/SideNavigation';
 import {useSideNavigationFilter} from './useSideNavigationFilter';
 import {useSideNavigationItems} from './useSideNavigationItems';
@@ -174,82 +173,40 @@ function SideNavigation({
 	const stuck = useSideNavigationStuck(scrollRef, items);
 
 	return (
-		<SidePanel
-			aria-label={sub(Liferay.Language.get('x-menu'), label)}
-			closeOnEscape={false}
+		<UnifiedSidebar
+			canonicalName={canonicalName}
+			categoryImageUrl={categoryImageUrl}
+			colorScheme={colorScheme}
+			colorSchemeSessionKey={colorSchemeSessionKey}
 			containerRef={containerRef}
-			data-canonical-name={canonicalName}
-			data-qa-id="sideNavigation"
-			data-testid="sideNavigation"
-			defaultOpen={initialVisible}
-			direction="left"
-			id="com_liferay_application_list_taglib_side_navigation"
-			onOpenChange={updateVisible}
-			open={visible}
-			panelWidth={320}
-			position="fixed"
-		>
-			<SidePanel.Header
-				className="c-mt-2 c-mx-1 c-px-2 side-navigation-header"
-				closeButtonProps={
-					Liferay.FeatureFlags['LPD-57922']
-						? {
-								className:
-									'btn btn-monospaced btn-outline-borderless btn-outline-secondary btn-sm side-navigation-close-button',
-							}
-						: undefined
-				}
-				data-qa-id="sideNavigationHeader"
-				messages={{
-					backAriaLabel: Liferay.Language.get('go-back'),
-					closeAriaLabel: Liferay.Language.get('close-product-menu'),
-				}}
-			>
-				<SidePanel.Title className="align-items-center c-my-0 d-flex">
-					<ClaySticker
-						borderless
-						className="c-mr-1"
-						displayType="outline"
-					>
-						<img
-							alt=""
-							className="c-mx-1"
-							data-qa-id="sideNavigationProductIcon"
-							src={categoryImageUrl}
-						/>
-					</ClaySticker>
-
-					<span
-						className="c-ml-2 text-5"
-						data-qa-id="sideNavigationLabel"
-					>
-						{label}
-					</span>
-
-					<SideNavigationSiteSelector
+			headerActions={
+				siteAdministrationItemSelectedEventName &&
+				siteAdministrationItemSelectorUrl ? (
+					<UnifiedSidebarSiteSelector
 						eventName={siteAdministrationItemSelectedEventName}
 						url={siteAdministrationItemSelectorUrl}
 					/>
+				) : undefined
+			}
+			label={label}
+			navigationId="com_liferay_application_list_taglib_side_navigation"
+			onOpenChange={updateVisible}
+			open={visible}
+			testId="sideNavigation"
+		>
+			<UnifiedSidebar.Top>
+				<SideNavigationSearchInput
+					onChange={setQuery}
+					onFocus={prefetchFilterOnlyItems}
+				/>
 
-					{Liferay.FeatureFlags['LPD-57922'] && (
-						<SideNavigationColorSchemeButton
-							className="c-ml-2"
-							colorScheme={colorScheme}
-							colorSchemeSessionKey={colorSchemeSessionKey}
-						/>
-					)}
-				</SidePanel.Title>
-			</SidePanel.Header>
-
-			<SideNavigationSearchInput
-				onChange={setQuery}
-				onFocus={prefetchFilterOnlyItems}
-			/>
-
-			<SearchResultsMessage
-				numberOfResults={showResultsSkeleton ? null : numberOfResults}
-				resultType={Liferay.Language.get('navigation-items')}
-			/>
+				<SearchResultsMessage
+					numberOfResults={
+						showResultsSkeleton ? null : numberOfResults
+					}
+					resultType={Liferay.Language.get('navigation-items')}
+				/>
+			</UnifiedSidebar.Top>
 
 			<div
 				className={classNames('side-navigation-scroll', {
@@ -257,7 +214,7 @@ function SideNavigation({
 				})}
 				ref={scrollRef}
 			>
-				<SidePanel.Body className="c-px-0">
+				<UnifiedSidebar.Body className="c-px-0">
 					{showResultsSkeleton ? (
 						<SideNavigationResultsSkeleton />
 					) : numberOfResults ? (
@@ -327,11 +284,11 @@ function SideNavigation({
 							title={Liferay.Language.get('no-matching-items')}
 						/>
 					)}
-				</SidePanel.Body>
+				</UnifiedSidebar.Body>
 
 				<div className="side-navigation-scroll-shadow" />
 			</div>
-		</SidePanel>
+		</UnifiedSidebar>
 	);
 }
 

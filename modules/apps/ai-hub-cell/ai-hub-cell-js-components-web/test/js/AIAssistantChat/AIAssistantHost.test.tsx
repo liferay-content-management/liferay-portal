@@ -1384,6 +1384,42 @@ describe('AIAssistantHost', () => {
 			expect(mockPostChat).toHaveBeenCalledTimes(1);
 		});
 
+		it('keeps the greeting of the first command when a later command omits newSession', async () => {
+			const fakeEventSource = createFakeEventSource();
+
+			mockCreateEventSource.mockResolvedValue(fakeEventSource as never);
+
+			await act(async () => {
+				renderHost();
+			});
+
+			await act(async () => {
+				open({
+					instructionDefinitionScope: 'test-scope',
+					triggerId: 'trigger-1',
+				});
+			});
+
+			await act(async () => {
+				fakeEventSource.emit('Subscribe', 'ref-1');
+			});
+
+			await act(async () => {
+				open({
+					initialMessage: 'second message',
+					instructionDefinitionScope: 'test-scope',
+					triggerId: 'trigger-2',
+				});
+			});
+
+			expect(
+				screen.getByText(
+					'hi-i-can-help-you-generate-content-titles-tags-or-translate-your-work'
+				)
+			).toBeInTheDocument();
+			expect(mockPostChat).not.toHaveBeenCalled();
+		});
+
 		it('resets the conversation when a later command sets newSession', async () => {
 			const fakeEventSource1 = createFakeEventSource();
 			const fakeEventSource2 = createFakeEventSource();
@@ -1440,6 +1476,28 @@ describe('AIAssistantHost', () => {
 			expect(mockPostChat).toHaveBeenLastCalledWith(
 				expect.objectContaining({message: 'second message'})
 			);
+		});
+
+		it('shows the greeting of the first command', async () => {
+			mockCreateEventSource.mockResolvedValue(
+				createFakeEventSource() as never
+			);
+
+			await act(async () => {
+				renderHost();
+			});
+
+			await act(async () => {
+				open({
+					greeting: 'Hi! Describe the fragment you need.',
+					instructionDefinitionScope: 'test-scope',
+					triggerId: 'trigger-1',
+				});
+			});
+
+			expect(
+				screen.getByText('Hi! Describe the fragment you need.')
+			).toBeInTheDocument();
 		});
 
 		it('starts the new session with only the new command context', async () => {

@@ -23,6 +23,9 @@ $side-navigation-scope-item-height: 2.5rem;
 }
 
 .side-navigation-container {
+	--c-slideout-sidebar-width: 280px;
+	--c-slideout-transition-in: all 0.14s ease-out;
+	--c-slideout-transition-out: all 0.14s ease-out;
 	--menubar-primary-nav-link-active-class-background-color: #{$blue-l5};
 	--menubar-primary-nav-link-active-class-highlight-background-color: #{$blue-d1};
 	--menubar-primary-nav-link-padding: 0.5rem 1rem;
@@ -218,25 +221,6 @@ $side-navigation-scope-item-height: 2.5rem;
 		font-size: 0.75rem;
 		line-height: 0.75rem;
 		margin-top: 4px;
-	}
-}
-
-html#{$cadmin-selector} {
-	.side-navigation-header {
-		.side-navigation-close-button {
-			margin-bottom: auto;
-			margin-top: auto;
-
-			@include media-breakpoint-up(lg) {
-				@include sr-only();
-				@include sr-only-focusable();
-
-				&:active,
-				&:focus {
-					position: absolute;
-				}
-			}
-		}
 	}
 }
 

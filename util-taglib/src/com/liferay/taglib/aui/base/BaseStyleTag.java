@@ -1,18 +1,11 @@
 /**
- * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
- *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
 package com.liferay.taglib.aui.base;
+
+import com.liferay.taglib.util.PositionTagSupport;
 
 import jakarta.servlet.jsp.JspException;
 
@@ -21,31 +14,33 @@ import jakarta.servlet.jsp.JspException;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
- * @generated
  */
-public abstract class BaseStyleTag extends com.liferay.taglib.util.PositionTagSupport {
+public abstract class BaseStyleTag extends PositionTagSupport {
 
 	public int doStartTag() throws JspException {
 		return super.doStartTag();
 	}
 
-	public java.lang.String getSenna() {
+	public String getSenna() {
 		return _senna;
 	}
 
-	public void setSenna(java.lang.String senna) {
-		_senna = senna;
-	}
-
-	public java.lang.String getType() {
+	public String getType() {
 		return _type;
 	}
 
-	public void setType(java.lang.String type) {
+	public void setSenna(String senna) {
+		_senna = senna;
+	}
+
+	public void setType(String type) {
 		_type = type;
 	}
 
+	@Override
 	protected void cleanUp() {
+		super.cleanUp();
+
 		_senna = null;
 		_type = null;
 	}
@@ -54,10 +49,9 @@ public abstract class BaseStyleTag extends com.liferay.taglib.util.PositionTagSu
 		return _PAGE;
 	}
 
-	private static final String _PAGE =
-		"/html/taglib/aui/style/page.jsp";
+	private static final String _PAGE = "/html/taglib/aui/style/page.jsp";
 
-	private java.lang.String _senna = null;
-	private java.lang.String _type = null;
+	private String _senna;
+	private String _type;
 
 }

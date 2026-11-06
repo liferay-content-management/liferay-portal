@@ -5,10 +5,13 @@
 
 package com.liferay.exportimport.internal.data.handler;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.liferay.batch.engine.BatchEngineExportTaskExecutor;
 import com.liferay.batch.engine.BatchEngineImportTaskExecutor;
 import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
 import com.liferay.batch.engine.BatchEngineTaskOperation;
+import com.liferay.batch.engine.ItemClassRegistry;
 import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
 import com.liferay.batch.engine.model.BatchEngineExportTask;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
@@ -30,7 +33,6 @@ import com.liferay.exportimport.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerControl;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
-import com.liferay.object.constants.ObjectPortletKeys;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.io.unsync.UnsyncByteArrayOutputStream;
@@ -98,6 +100,7 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		ClassNameLocalService classNameLocalService,
 		ExportImportHelper exportImportHelper,
 		GroupLocalService groupLocalService,
+		ItemClassRegistry itemClassRegistry,
 		StagingGroupHelper stagingGroupHelper) {
 
 		_batchEngineExportTaskExecutor = batchEngineExportTaskExecutor;
@@ -108,6 +111,7 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		_classNameLocalService = classNameLocalService;
 		_exportImportHelper = exportImportHelper;
 		_groupLocalService = groupLocalService;
+		_itemClassRegistry = itemClassRegistry;
 		_stagingGroupHelper = stagingGroupHelper;
 	}
 
@@ -119,6 +123,7 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		List<Registration> activeRegistrations = _getActiveRegistrations(
 			portletDataContext);
 
+		Map<String, String> jsonTypeInfoPropertyValuesMap = new HashMap<>();
 		Map<String, List<String>> typedExternalReferenceCodesMap =
 			new HashMap<>();
 		List<String> untypedExternalReferenceCodes = new ArrayList<>();
@@ -133,6 +138,14 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
 				systemEvent.getExtraData());
+
+			String jsonTypeInfoPropertyValue = jsonObject.getString(
+				"jsonTypeInfoPropertyValue");
+
+			if (Validator.isNotNull(jsonTypeInfoPropertyValue)) {
+				jsonTypeInfoPropertyValuesMap.put(
+					externalReferenceCode, jsonTypeInfoPropertyValue);
+			}
 
 			String type = jsonObject.getString("type");
 
@@ -181,8 +194,29 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 					portletDataContext.getScopeGroupId()),
 				JSONUtil.toJSONArray(
 					externalReferenceCodes,
-					externalReferenceCode -> JSONUtil.put(
-						"externalReferenceCode", externalReferenceCode)
+					externalReferenceCode -> {
+						JSONObject jsonObject = JSONUtil.put(
+							"externalReferenceCode", externalReferenceCode);
+
+						String jsonTypeInfoPropertyValue =
+							jsonTypeInfoPropertyValuesMap.get(
+								externalReferenceCode);
+
+						if (Validator.isNotNull(jsonTypeInfoPropertyValue)) {
+							Class<?> itemClass =
+								_itemClassRegistry.getItemClass(
+									registration.getBatchEngineClassName());
+
+							JsonTypeInfo jsonTypeInfo = itemClass.getAnnotation(
+								JsonTypeInfo.class);
+
+							jsonObject.put(
+								jsonTypeInfo.property(),
+								jsonTypeInfoPropertyValue);
+						}
+
+						return jsonObject;
+					}
 				).toString());
 
 			manifestSummary.addModelDeletionCount(
@@ -340,8 +374,17 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 
 	@Override
 	public boolean isStaged() {
-		return !StringUtil.startsWith(
-			getPortletId(), ObjectPortletKeys.OBJECT_DEFINITIONS);
+		for (Registration registration : _registrations) {
+			ExportImportVulcanBatchEngineTaskItemDelegate.ExportImportDescriptor
+				exportImportDescriptor =
+					registration.getExportImportDescriptor();
+
+			if (exportImportDescriptor.isStagingSupported()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public void registerExportImportVulcanBatchEngineTaskItemDelegate(
@@ -653,6 +696,9 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 			PortletPreferences portletPreferences)
 		throws PortalException {
 
+		boolean portletExportInProcess =
+			ExportImportThreadLocal.isPortletExportInProcess();
+
 		try (SafeCloseable safeCloseable =
 				PortletDataContextThreadLocal.
 					setPortletDataContextWithSafeCloseable(
@@ -725,7 +771,8 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 			}
 		}
 		finally {
-			ExportImportThreadLocal.setPortletExportInProcess(false);
+			ExportImportThreadLocal.setPortletExportInProcess(
+				portletExportInProcess);
 		}
 	}
 
@@ -878,6 +925,33 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		return function.apply(registration.getExportImportDescriptor());
 	}
 
+	private String _getSystemEventJSONTypeInfoPropertyValue(
+		BaseModel<?> baseModel) {
+
+		for (Registration registration : _registrations) {
+			ExportImportVulcanBatchEngineTaskItemDelegate.ExportImportDescriptor
+				exportImportDescriptor =
+					registration.getExportImportDescriptor();
+
+			Function<BaseModel<?>, Boolean> applicableModelFunction =
+				exportImportDescriptor.getApplicableModelFunction();
+			Function<BaseModel<?>, String> jsonTypeInfoPropertyValueFunction =
+				exportImportDescriptor.getJSONTypeInfoPropertyValueFunction();
+
+			if ((jsonTypeInfoPropertyValueFunction != null) &&
+				StringUtil.equals(
+					baseModel.getModelClassName(),
+					exportImportDescriptor.getModelClassName()) &&
+				((applicableModelFunction == null) ||
+				 applicableModelFunction.apply(baseModel))) {
+
+				return jsonTypeInfoPropertyValueFunction.apply(baseModel);
+			}
+		}
+
+		return null;
+	}
+
 	private String _getSystemEventType(
 		BaseModel<?> baseModel, Set<String> sharedClassNames) {
 
@@ -943,6 +1017,28 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		return false;
 	}
 
+	private boolean _isSystemEventExtraDataContributorRequired(
+		Set<String> sharedClassNames) {
+
+		if ((_registrations.size() > 1) && !sharedClassNames.isEmpty()) {
+			return true;
+		}
+
+		for (Registration registration : _registrations) {
+			ExportImportVulcanBatchEngineTaskItemDelegate.ExportImportDescriptor
+				exportImportDescriptor =
+					registration.getExportImportDescriptor();
+
+			if (exportImportDescriptor.getJSONTypeInfoPropertyValueFunction() !=
+					null) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private String _normalize(String fileName, long groupId) {
 		return StringBundler.concat(
 			StringPool.FORWARD_SLASH, ExportImportPathUtil.PATH_PREFIX_GROUP,
@@ -982,7 +1078,7 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		Set<String> sharedClassNames = _getSharedClassNames();
 
 		if (_serviceRegistration == null) {
-			if ((_registrations.size() > 1) && !sharedClassNames.isEmpty()) {
+			if (_isSystemEventExtraDataContributorRequired(sharedClassNames)) {
 				SystemEventExtraDataContributor
 					systemEventExtraDataContributor =
 						(baseModel, extraData) -> {
@@ -990,19 +1086,32 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 								return extraData;
 							}
 
+							String jsonTypeInfoPropertyValue =
+								_getSystemEventJSONTypeInfoPropertyValue(
+									baseModel);
 							String type = _getSystemEventType(
 								baseModel, _getSharedClassNames());
 
-							if (type != null) {
-								JSONObject jsonObject =
-									JSONFactoryUtil.createJSONObject(extraData);
+							if ((jsonTypeInfoPropertyValue == null) &&
+								(type == null)) {
 
-								jsonObject.put("type", type);
-
-								return jsonObject.toString();
+								return extraData;
 							}
 
-							return extraData;
+							JSONObject jsonObject =
+								JSONFactoryUtil.createJSONObject(extraData);
+
+							if (jsonTypeInfoPropertyValue != null) {
+								jsonObject.put(
+									"jsonTypeInfoPropertyValue",
+									jsonTypeInfoPropertyValue);
+							}
+
+							if (type != null) {
+								jsonObject.put("type", type);
+							}
+
+							return jsonObject.toString();
 						};
 
 				_serviceRegistration = bundleContext.registerService(
@@ -1015,7 +1124,9 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 					).build());
 			}
 		}
-		else if ((_registrations.size() <= 1) || sharedClassNames.isEmpty()) {
+		else if (!_isSystemEventExtraDataContributorRequired(
+					sharedClassNames)) {
+
 			try {
 				_serviceRegistration.unregister();
 			}
@@ -1037,6 +1148,7 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 	private final ClassNameLocalService _classNameLocalService;
 	private final ExportImportHelper _exportImportHelper;
 	private final GroupLocalService _groupLocalService;
+	private final ItemClassRegistry _itemClassRegistry;
 	private final List<Registration> _registrations = new ArrayList<>();
 	private ServiceRegistration<?> _serviceRegistration;
 	private final StagingGroupHelper _stagingGroupHelper;

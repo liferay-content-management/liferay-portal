@@ -190,13 +190,7 @@ describe('SideNavigation', () => {
 	it('renders the side navigation header', () => {
 		renderComponent();
 
-		const title = screen.getByText('Applications');
-
-		expect(title).toBeInTheDocument();
-
-		const icon = screen.getByTestId('sideNavigationProductIcon');
-
-		expect(icon).toHaveAttribute('src', 'categoryImageUrl');
+		expect(screen.getByText('Applications')).toBeInTheDocument();
 	});
 
 	it('renders each navigation item', () => {

@@ -14,6 +14,8 @@ import com.liferay.headless.admin.configuration.test.configuration.TestFactoryCo
 import com.liferay.headless.admin.configuration.test.util.ConfigurationTestUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.settings.SettingsLocatorHelper;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
@@ -28,6 +30,7 @@ import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +40,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * @author Thiago Buarque
@@ -102,15 +108,9 @@ public class SiteConfigurationResourceTest
 	public void testPostSiteSiteConfiguration() throws Exception {
 		super.testPostSiteSiteConfiguration();
 
-		SiteConfiguration randomSiteConfiguration =
-			_randomSiteConfigurationFromConfigurationScreen();
-
-		SiteConfiguration postSiteConfiguration =
-			testPostSiteSiteConfiguration_addSiteConfiguration(
-				randomSiteConfiguration);
-
-		assertEquals(randomSiteConfiguration, postSiteConfiguration);
-		assertValid(postSiteConfiguration);
+		_testPostSiteSiteConfigurationFromConfigurationScreen();
+		_testPostSiteSiteConfigurationWithMissingExternalReferenceCode();
+		_testPostSiteSiteConfigurationWithMissingFactoryExternalReferenceCode();
 	}
 
 	@Override
@@ -293,6 +293,132 @@ public class SiteConfigurationResourceTest
 		}
 	}
 
+	private void _testPostSiteSiteConfigurationFromConfigurationScreen()
+		throws Exception {
+
+		SiteConfiguration randomSiteConfiguration =
+			_randomSiteConfigurationFromConfigurationScreen();
+
+		SiteConfiguration postSiteConfiguration =
+			testPostSiteSiteConfiguration_addSiteConfiguration(
+				randomSiteConfiguration);
+
+		assertEquals(randomSiteConfiguration, postSiteConfiguration);
+		assertValid(postSiteConfiguration);
+	}
+
+	private void _testPostSiteSiteConfigurationWithMissingExternalReferenceCode()
+		throws Exception {
+
+		SiteConfiguration siteConfiguration =
+			testGetSiteSiteConfiguration_addSiteConfiguration();
+
+		Configuration configuration = _configurationAdmin.getConfiguration(
+			siteConfiguration.getExternalReferenceCode(), StringPool.QUESTION);
+
+		configuration.delete();
+
+		SiteConfiguration postSiteConfiguration1 =
+			siteConfigurationResource.postSiteSiteConfiguration(
+				testGroup.getExternalReferenceCode(), siteConfiguration);
+
+		Assert.assertNotEquals(
+			siteConfiguration.getExternalReferenceCode(),
+			postSiteConfiguration1.getExternalReferenceCode());
+
+		Map<String, Object> postProperties1 =
+			postSiteConfiguration1.getProperties();
+
+		Map<String, Object> properties = siteConfiguration.getProperties();
+
+		Assert.assertArrayEquals(
+			(Object[])properties.get("arrayKey"),
+			(Object[])postProperties1.get("arrayKey"));
+		Assert.assertEquals(
+			properties.get("requiredBooleanKey"),
+			postProperties1.get("requiredBooleanKey"));
+
+		SiteConfiguration postSiteConfiguration2 =
+			siteConfigurationResource.postSiteSiteConfiguration(
+				testGroup.getExternalReferenceCode(), siteConfiguration);
+
+		Assert.assertEquals(
+			postSiteConfiguration1.getExternalReferenceCode(),
+			postSiteConfiguration2.getExternalReferenceCode());
+	}
+
+	private void _testPostSiteSiteConfigurationWithMissingFactoryExternalReferenceCode()
+		throws Exception {
+
+		SiteConfiguration siteConfiguration = randomSiteConfiguration();
+
+		siteConfiguration.setExternalReferenceCode(
+			StringBundler.concat(
+				ConfigurationTestUtil.TEST_FACTORY_CONFIGURATION_PID, "~",
+				RandomTestUtil.randomString()));
+
+		SiteConfiguration postSiteConfiguration1 =
+			siteConfigurationResource.postSiteSiteConfiguration(
+				testGroup.getExternalReferenceCode(), siteConfiguration);
+
+		assertEquals(siteConfiguration, postSiteConfiguration1);
+		Assert.assertEquals(
+			siteConfiguration.getExternalReferenceCode(),
+			postSiteConfiguration1.getExternalReferenceCode());
+
+		SiteConfiguration postSiteConfiguration2 =
+			siteConfigurationResource.postSiteSiteConfiguration(
+				testGroup.getExternalReferenceCode(), siteConfiguration);
+
+		Assert.assertEquals(
+			siteConfiguration.getExternalReferenceCode(),
+			postSiteConfiguration2.getExternalReferenceCode());
+
+		siteConfiguration = siteConfigurationResource.postSiteSiteConfiguration(
+			testGroup.getExternalReferenceCode(), randomSiteConfiguration());
+
+		Configuration configuration = _configurationAdmin.getConfiguration(
+			siteConfiguration.getExternalReferenceCode(), StringPool.QUESTION);
+
+		configuration.delete();
+
+		SiteConfiguration postSiteConfiguration3 =
+			siteConfigurationResource.postSiteSiteConfiguration(
+				testGroup.getExternalReferenceCode(), siteConfiguration);
+
+		assertEquals(siteConfiguration, postSiteConfiguration3);
+		Assert.assertEquals(
+			siteConfiguration.getExternalReferenceCode(),
+			postSiteConfiguration3.getExternalReferenceCode());
+
+		SiteConfiguration postSiteConfiguration4 =
+			siteConfigurationResource.postSiteSiteConfiguration(
+				testGroup.getExternalReferenceCode(), siteConfiguration);
+
+		Assert.assertEquals(
+			siteConfiguration.getExternalReferenceCode(),
+			postSiteConfiguration4.getExternalReferenceCode());
+
+		configuration = _configurationAdmin.getConfiguration(
+			siteConfiguration.getExternalReferenceCode(), StringPool.QUESTION);
+
+		Dictionary<String, Object> properties = configuration.getProperties();
+
+		properties.put(
+			ExtendedObjectClassDefinition.Scope.GROUP.getPropertyKey(),
+			irrelevantGroup.getGroupId());
+
+		configuration.update(properties);
+
+		SiteConfiguration postSiteConfiguration5 =
+			siteConfigurationResource.postSiteSiteConfiguration(
+				testGroup.getExternalReferenceCode(), siteConfiguration);
+
+		Assert.assertNotEquals(
+			siteConfiguration.getExternalReferenceCode(),
+			postSiteConfiguration5.getExternalReferenceCode());
+	}
+
 	private void _testPutSiteSiteConfigurationWithoutPermission()
 		throws Exception {
 
@@ -318,6 +444,9 @@ public class SiteConfigurationResourceTest
 
 	@Inject
 	private static SettingsLocatorHelper _settingsLocatorHelper;
+
+	@Inject
+	private ConfigurationAdmin _configurationAdmin;
 
 	private SiteConfigurationResource _userSiteConfigurationResource;
 

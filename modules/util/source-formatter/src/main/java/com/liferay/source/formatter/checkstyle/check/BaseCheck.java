@@ -150,10 +150,22 @@ public abstract class BaseCheck extends AbstractCheck {
 	protected String getAbsolutePath() {
 		FileContents fileContents = getFileContents();
 
-		String fileName = StringUtil.replace(
-			fileContents.getFileName(), CharPool.BACK_SLASH, CharPool.SLASH);
+		String fileName = fileContents.getFileName();
 
-		return SourceUtil.getAbsolutePath(fileName);
+		String[] cachedAbsolutePathPair = _cachedAbsolutePathPair;
+
+		if ((cachedAbsolutePathPair != null) &&
+			fileName.equals(cachedAbsolutePathPair[0])) {
+
+			return cachedAbsolutePathPair[1];
+		}
+
+		String absolutePath = SourceUtil.getAbsolutePath(
+			StringUtil.replace(fileName, CharPool.BACK_SLASH, CharPool.SLASH));
+
+		_cachedAbsolutePathPair = new String[] {fileName, absolutePath};
+
+		return absolutePath;
 	}
 
 	protected List<DetailAST> getAllChildTokens(
@@ -1820,6 +1832,7 @@ public abstract class BaseCheck extends AbstractCheck {
 		new ConcurrentHashMap<>();
 	private JSONObject _attributesJSONObject = new JSONObjectImpl();
 	private Map<String, String> _bundleSymbolicNamesMap;
+	private volatile String[] _cachedAbsolutePathPair;
 	private JSONObject _excludesJSONObject = new JSONObjectImpl();
 	private final Map<String, List<String>> _excludesValuesMap =
 		new ConcurrentHashMap<>();

@@ -52,10 +52,16 @@ function main {
 	_check_bootstrap "azure" "${azure_bootstrap_sources[@]}"
 
 	local gcp_bootstrap_sources=(
+		"${ROOT_CLOUD_DIR}/scripts/_common.sh"
+		"${ROOT_CLOUD_DIR}/scripts/_gcp_common.sh"
+		"${ROOT_CLOUD_DIR}/scripts/_gcp_platform_values.jq"
+		"${ROOT_CLOUD_DIR}/scripts/_platform_values.jq"
+		"${ROOT_CLOUD_DIR}/scripts/config.json.defaults"
 		"${ROOT_CLOUD_DIR}/scripts/setup_gcp.sh"
+		"${ROOT_CLOUD_DIR}/scripts/teardown_gcp.sh"
 		"${ROOT_CLOUD_DIR}/terraform/gcp/gke"
-		"${ROOT_CLOUD_DIR}/terraform/gcp/gitops/platform"
-		"${ROOT_CLOUD_DIR}/terraform/gcp/gitops/resources"
+		"${ROOT_CLOUD_DIR}/terraform/gcp/platform"
+		"${ROOT_CLOUD_DIR}/terraform/modules/argocd"
 	)
 
 	_check_bootstrap "gcp" "${gcp_bootstrap_sources[@]}"
@@ -228,24 +234,6 @@ function _has_modified_bootstraps {
 	return 0
 }
 
-function _record_bootstrap_file_update {
-	local bootstrap_name=${1}
-	local file=${2}
-
-	shift 2
-
-	local previous_checksum
-
-	previous_checksum=$(get_file_checksum "${file}")
-
-	"${@}"
-
-	if [ "${previous_checksum}" != "$(get_file_checksum "${file}")" ]
-	then
-		_record_modified_bootstrap "${bootstrap_name}"
-	fi
-}
-
 function _record_modified_bootstrap {
 	local bootstrap_name=${1}
 
@@ -302,6 +290,7 @@ function _update_artifact {
 	then
 		_record_modified_bootstrap "aws"
 		_record_modified_bootstrap "azure"
+		_record_modified_bootstrap "gcp"
 	fi
 }
 
@@ -320,13 +309,7 @@ function _update_default_chart_version {
 
 	version=$(yq '.version' "${helm_chart_yaml}")
 
-	if [[ ${helm_chart_name} == gcp ]]
-	then
-		_update_resources_tfvars "${helm_chart_name}" "liferay_helm_chart_version" "${version}"
-	elif [[ ${helm_chart_name} == gcp-infrastructure-provider ]]
-	then
-		_update_resources_tfvars "${helm_chart_name%%-*}" "infrastructure_provider_helm_chart_version" "${version}"
-	elif [[ ${helm_chart_name} == aws ]] || [[ ${helm_chart_name} == aws-infrastructure-provider ]] || [[ ${helm_chart_name} == aws-marketplace ]] || [[ ${helm_chart_name} == azure ]] || [[ ${helm_chart_name} == azure-infrastructure-provider ]] || [[ ${helm_chart_name} == infrastructure ]] || [[ ${helm_chart_name} == platform ]]
+	if [[ ${helm_chart_name} == aws ]] || [[ ${helm_chart_name} == aws-infrastructure-provider ]] || [[ ${helm_chart_name} == aws-marketplace ]] || [[ ${helm_chart_name} == azure ]] || [[ ${helm_chart_name} == azure-infrastructure-provider ]] || [[ ${helm_chart_name} == gcp ]] || [[ ${helm_chart_name} == gcp-infrastructure-provider ]] || [[ ${helm_chart_name} == infrastructure ]] || [[ ${helm_chart_name} == platform ]]
 	then
 		_update_artifact "${chart_name}" "charts" "${version}"
 	elif [[ ${helm_chart_name} == dxp-operator ]]
@@ -339,8 +322,6 @@ function _update_default_chart_version {
 		_update_artifact "${chart_name}" "charts" "${version}"
 
 		_update_platform_components_target_revision "observability" "${version}"
-
-		_update_resources_tfvars "gcp" "observability_helm_chart_version" "${version}"
 	elif [[ ${helm_chart_name} == platform-components ]]
 	then
 		_update_artifact "${chart_name}" "charts" "${version}"
@@ -399,22 +380,6 @@ function _update_platform_target_revision {
 			--expression "s/^\(    targetRevision: \).*/\1${version}/" \
 			--in-place \
 			"${platform_values_yaml}"
-}
-
-function _update_resources_tfvars {
-	local cloud=${1}
-	local variable_name=${2}
-	local version=${3}
-
-	local resources_tfvars_file="${ROOT_CLOUD_DIR}/terraform/${cloud}/gitops/resources/terraform.tfvars"
-
-	_record_bootstrap_file_update \
-		"${cloud}" \
-		"${resources_tfvars_file}" \
-		sed \
-			--expression "s/\(${variable_name} *= *\)\".*\"/\1\"${version}\"/" \
-			--in-place \
-			"${resources_tfvars_file}"
 }
 
 function _write_json_file {

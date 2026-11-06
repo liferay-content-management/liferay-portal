@@ -5,6 +5,8 @@
 
 package com.liferay.taglib.aui.base;
 
+import com.liferay.taglib.util.IncludeTag;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspException;
 
@@ -13,9 +15,8 @@ import jakarta.servlet.jsp.JspException;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
- * @generated
  */
-public abstract class BaseFieldsetTag extends com.liferay.taglib.util.IncludeTag {
+public abstract class BaseFieldsetTag extends IncludeTag {
 
 	@Override
 	public int doStartTag() throws JspException {
@@ -36,19 +37,19 @@ public abstract class BaseFieldsetTag extends com.liferay.taglib.util.IncludeTag
 		return _column;
 	}
 
-	public java.lang.String getCssClass() {
+	public String getCssClass() {
 		return _cssClass;
 	}
 
-	public java.lang.String getHelpMessage() {
+	public String getHelpMessage() {
 		return _helpMessage;
 	}
 
-	public java.lang.String getId() {
+	public String getId() {
 		return _id;
 	}
 
-	public java.lang.String getLabel() {
+	public String getLabel() {
 		return _label;
 	}
 
@@ -56,11 +57,11 @@ public abstract class BaseFieldsetTag extends com.liferay.taglib.util.IncludeTag
 		return _localizeLabel;
 	}
 
-	public java.lang.String getMarkupView() {
+	public String getMarkupView() {
 		return _markupView;
 	}
 
-	public java.lang.String getPanelHeaderLinkCssClass() {
+	public String getPanelHeaderLinkCssClass() {
 		return _panelHeaderLinkCssClass;
 	}
 
@@ -76,19 +77,19 @@ public abstract class BaseFieldsetTag extends com.liferay.taglib.util.IncludeTag
 		_column = column;
 	}
 
-	public void setCssClass(java.lang.String cssClass) {
+	public void setCssClass(String cssClass) {
 		_cssClass = cssClass;
 	}
 
-	public void setHelpMessage(java.lang.String helpMessage) {
+	public void setHelpMessage(String helpMessage) {
 		_helpMessage = helpMessage;
 	}
 
-	public void setId(java.lang.String id) {
+	public void setId(String id) {
 		_id = id;
 	}
 
-	public void setLabel(java.lang.String label) {
+	public void setLabel(String label) {
 		_label = label;
 	}
 
@@ -96,11 +97,11 @@ public abstract class BaseFieldsetTag extends com.liferay.taglib.util.IncludeTag
 		_localizeLabel = localizeLabel;
 	}
 
-	public void setMarkupView(java.lang.String markupView) {
+	public void setMarkupView(String markupView) {
 		_markupView = markupView;
 	}
 
-	public void setPanelHeaderLinkCssClass(java.lang.String panelHeaderLinkCssClass) {
+	public void setPanelHeaderLinkCssClass(String panelHeaderLinkCssClass) {
 		_panelHeaderLinkCssClass = panelHeaderLinkCssClass;
 	}
 
@@ -131,36 +132,38 @@ public abstract class BaseFieldsetTag extends com.liferay.taglib.util.IncludeTag
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "collapsed", _collapsed);
-		setNamespacedAttribute(request, "collapsible", _collapsible);
-		setNamespacedAttribute(request, "column", _column);
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "helpMessage", _helpMessage);
-		setNamespacedAttribute(request, "id", _id);
-		setNamespacedAttribute(request, "label", _label);
-		setNamespacedAttribute(request, "localizeLabel", _localizeLabel);
-		setNamespacedAttribute(request, "markupView", _markupView);
-		setNamespacedAttribute(request, "panelHeaderLinkCssClass", _panelHeaderLinkCssClass);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		setNamespacedAttribute(httpServletRequest, "collapsed", _collapsed);
+		setNamespacedAttribute(httpServletRequest, "collapsible", _collapsible);
+		setNamespacedAttribute(httpServletRequest, "column", _column);
+		setNamespacedAttribute(httpServletRequest, "cssClass", _cssClass);
+		setNamespacedAttribute(httpServletRequest, "helpMessage", _helpMessage);
+		setNamespacedAttribute(httpServletRequest, "id", _id);
+		setNamespacedAttribute(httpServletRequest, "label", _label);
+		setNamespacedAttribute(
+			httpServletRequest, "localizeLabel", _localizeLabel);
+		setNamespacedAttribute(httpServletRequest, "markupView", _markupView);
+		setNamespacedAttribute(
+			httpServletRequest, "panelHeaderLinkCssClass",
+			_panelHeaderLinkCssClass);
 	}
 
-	protected static final String _ATTRIBUTE_NAMESPACE = "aui:fieldset:";
+	private static final String _ATTRIBUTE_NAMESPACE = "aui:fieldset:";
 
-	private static final String _END_PAGE =
-		"/html/taglib/aui/fieldset/end.jsp";
+	private static final String _END_PAGE = "/html/taglib/aui/fieldset/end.jsp";
 
 	private static final String _START_PAGE =
 		"/html/taglib/aui/fieldset/start.jsp";
 
-	private boolean _collapsed = false;
-	private boolean _collapsible = false;
-	private boolean _column = false;
-	private java.lang.String _cssClass = null;
-	private java.lang.String _helpMessage = null;
-	private java.lang.String _id = null;
-	private java.lang.String _label = null;
+	private boolean _collapsed;
+	private boolean _collapsible;
+	private boolean _column;
+	private String _cssClass;
+	private String _helpMessage;
+	private String _id;
+	private String _label;
 	private boolean _localizeLabel = true;
-	private java.lang.String _markupView = null;
-	private java.lang.String _panelHeaderLinkCssClass = null;
+	private String _markupView;
+	private String _panelHeaderLinkCssClass;
 
 }

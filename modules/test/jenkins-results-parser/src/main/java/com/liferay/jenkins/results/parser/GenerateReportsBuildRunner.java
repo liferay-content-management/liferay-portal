@@ -643,7 +643,7 @@ public class GenerateReportsBuildRunner extends BaseBuildRunner<BuildData> {
 					"ci-notifications",
 					"Unable to generate " + reportName + " report");
 
-				continue;
+				throw new RuntimeException(exception);
 			}
 
 			sb.append("<a href=\"");

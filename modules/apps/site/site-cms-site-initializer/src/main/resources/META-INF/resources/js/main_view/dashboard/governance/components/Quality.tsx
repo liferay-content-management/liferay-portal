@@ -9,14 +9,8 @@ import {
 	IInternalRenderer,
 	IItemsActions,
 } from '@liferay/frontend-data-set-web';
-import {openToast} from 'frontend-js-components-web';
-import {escapeHTML} from 'frontend-js-web';
 import React, {useContext, useMemo, useState} from 'react';
 
-import ApiHelper from '../../../../common/services/ApiHelper';
-import {ISearchAssetObjectEntry} from '../../../../common/types/AssetType';
-import {openCMSModal} from '../../../../common/utils/openCMSModal';
-import AssetNavigationModalContent from '../../../modal/asset_navigation_view/AssetNavigationModalContent';
 import {
 	IBrokenLinkAsset,
 	getBrokenLinksFDSProps,
@@ -27,8 +21,17 @@ import {
 	getMissingRequiredFieldsFDSProps,
 	renderMissingRequiredFields,
 } from '../../../props_transformer/MissingRequiredFieldsFDSPropsTransformer';
+import {
+	IUnlinkedAsset,
+	getUnlinkedContentFDSProps,
+	renderUnlinkedContent,
+} from '../../../props_transformer/UnlinkedContentFDSPropsTransformer';
 import AssetRenderer from '../../../props_transformer/cell_renderers/AssetRenderer';
-import {AssetListFDSProps} from '../../../props_transformer/utils/createAssetListFDSPropsBuilder';
+import {
+	AssetListFDSProps,
+	IAssetListItem,
+	openAssetViewModal,
+} from '../../../props_transformer/utils/createAssetListFDSPropsBuilder';
 import {SectionHeader} from '../../common/SectionHeader';
 import InteractiveCard, {
 	MetricColor,
@@ -44,16 +47,12 @@ import {
 } from './GovernanceAssetList';
 import {PercentageOfTotal} from './PercentageOfTotal';
 
-interface IQualityAsset {
-	id?: number;
-	title?: string;
-}
-
-interface QualityCard<T extends IQualityAsset> {
+interface QualityCard<T extends IAssetListItem> {
+	alertMessage?: string;
 	color: MetricColor;
 	countKey: keyof Pick<
 		AssetStatistics,
-		'brokenLinksCount' | 'missingRequiredFieldsCount'
+		'brokenLinksCount' | 'missingRequiredFieldsCount' | 'unlinkedCount'
 	>;
 	description: string;
 	emptyStateDescription: string;
@@ -70,7 +69,8 @@ interface QualityCard<T extends IQualityAsset> {
 
 type AnyQualityCard =
 	| QualityCard<IBrokenLinkAsset>
-	| QualityCard<IMissingRequiredFieldsAsset>;
+	| QualityCard<IMissingRequiredFieldsAsset>
+	| QualityCard<IUnlinkedAsset>;
 
 function getQualityCards(
 	additionalProps: GovernanceAdditionalProps
@@ -115,68 +115,32 @@ function getQualityCards(
 			sectionPath: 'missing-required-data',
 			title: Liferay.Language.get('missing-required-data'),
 		},
+		{
+			alertMessage: Liferay.Language.get(
+				'unlinked-content-may-still-be-in-use.-some-uses-are-not-detected,-such-as-default-display-pages,-api-requests-or-external-links.-review-it-before-deleting-it'
+			),
+			color: 'purple',
+			countKey: 'unlinkedCount',
+			description: Liferay.Language.get(
+				'these-are-assets-not-used-in-any-content-or-page-across-the-selected-spaces'
+			),
+			emptyStateDescription: Liferay.Language.get(
+				'there-is-no-unlinked-content'
+			),
+			emptyStateTitle: Liferay.Language.get('no-unlinked-content'),
+			getAPIURL: GovernanceService.getUnlinkedAssetsURL,
+			getFDSProps: getUnlinkedContentFDSProps,
+			icon: 'link',
+			id: 'unlinkedContent',
+			itemsActions: additionalProps.unlinkedContentFDSActionDropdownItems,
+			renderSubtitle: renderUnlinkedContent,
+			sectionPath: 'unlinked-content',
+			title: Liferay.Language.get('unlinked-content'),
+		},
 	];
 }
 
-async function openViewModal(
-	additionalProps: GovernanceAdditionalProps,
-	itemData: IQualityAsset,
-	items: IQualityAsset[]
-) {
-	const {data, error} = await ApiHelper.get<{
-		items: ISearchAssetObjectEntry[];
-	}>(GovernanceService.getAssetsByIdsURL(items.flatMap(({id}) => id ?? [])));
-
-	const searchAssetObjectEntries = items.flatMap(
-		({id}) => data?.items.find(({embedded}) => embedded?.id === id) ?? []
-	);
-
-	if (!searchAssetObjectEntries.length) {
-		openToast({
-			message: error
-				? escapeHTML(error)
-				: Liferay.Language.get('an-unexpected-error-occurred'),
-			type: 'danger',
-		});
-
-		return;
-	}
-
-	openCMSModal({
-		contentComponent: () =>
-			AssetNavigationModalContent({
-				additionalProps,
-				contentViewURL: additionalProps.contentViewURL,
-				currentIndex: Math.max(
-					searchAssetObjectEntries.findIndex(
-						({embedded}) => embedded?.id === itemData.id
-					),
-					0
-				),
-				items: searchAssetObjectEntries,
-			}),
-		size: 'full-screen',
-	});
-}
-
-function getViewItemAction(
-	additionalProps: GovernanceAdditionalProps
-): IItemsActions {
-	return {
-		data: {id: 'view'},
-		icon: 'view',
-		label: Liferay.Language.get('view'),
-		onClick: ({
-			itemData,
-			items,
-		}: {
-			itemData: IQualityAsset;
-			items: IQualityAsset[];
-		}) => openViewModal(additionalProps, itemData, items),
-	};
-}
-
-function QualityAssetList<T extends IQualityAsset>({
+function QualityAssetList<T extends IAssetListItem>({
 	additionalProps,
 	card,
 }: {
@@ -193,10 +157,7 @@ function QualityAssetList<T extends IQualityAsset>({
 					space.value === 'all' ? undefined : space.value
 				),
 				id: card.id,
-				itemsActions: [
-					...card.itemsActions,
-					getViewItemAction(additionalProps),
-				],
+				itemsActions: card.itemsActions,
 				searchAsYouType: false,
 				searchSuggestionsEnabled: false,
 			}),
@@ -209,7 +170,9 @@ function QualityAssetList<T extends IQualityAsset>({
 								additionalProps={additionalProps}
 								itemData={itemData}
 								onViewClick={(item) =>
-									openViewModal(additionalProps, item, [item])
+									openAssetViewModal(additionalProps, item, [
+										item,
+									])
 								}
 								options={options}
 								renderSubtitle={card.renderSubtitle}
@@ -231,6 +194,7 @@ function QualityAssetList<T extends IQualityAsset>({
 
 	return (
 		<GovernanceListPanel
+			alertMessage={card.alertMessage}
 			count={statistics?.[card.countKey] ?? 0}
 			description={card.description}
 			emptyStateDescription={card.emptyStateDescription}

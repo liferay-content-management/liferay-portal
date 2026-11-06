@@ -23,9 +23,9 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.configuration.DefaultSearchResultPermissionFilterConfiguration;
 import com.liferay.portal.search.internal.facet.FacetPostProcessorImpl;
+import com.liferay.portal.search.internal.legacy.searcher.SearchRequestBuilderFactoryImpl;
 import com.liferay.portal.search.internal.permission.DefaultSearchResultPermissionFilter;
 import com.liferay.portal.search.legacy.searcher.SearchRequestBuilderFactory;
-import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 import com.liferay.portal.search.test.util.IdempotentRetryAssert;
 import com.liferay.portal.search.test.util.indexing.BaseIndexingTestCase;
@@ -173,6 +173,22 @@ public abstract class BasePermissionFilteredPaginationTestCase
 	}
 
 	@Test
+	public void testPaginateThroughSearchRequest() throws Exception {
+		index(9, filtering(3, 6, 9));
+
+		List<List<Integer>> paginatedEntries = new ArrayList<>();
+
+		for (int page = 0; page < 2; page++) {
+			paginatedEntries.add(
+				getEntries(_searchThroughSearchRequest(page * 3, 3)));
+		}
+
+		String actual = paginatedEntries.toString();
+
+		Assert.assertEquals(actual, "[[1, 2, 4], [5, 7, 8]]", actual);
+	}
+
+	@Test
 	public void testPastLast() throws Exception {
 		index(9, filtering());
 
@@ -285,16 +301,13 @@ public abstract class BasePermissionFilteredPaginationTestCase
 			indexerRegistry, permissionChecker,
 			defaultSearchResultPermissionFilterConfiguration);
 
-		SearchRequestBuilderFactory searchRequestBuilderFactory =
-			_getSearchRequestBuilderFactory();
 		ServiceTrackerMap<String, ModelResourcePermission<?>>
 			serviceTrackerMap = Mockito.mock(ServiceTrackerMap.class);
 
 		return new DefaultSearchResultPermissionFilter(
 			defaultSearchResultPermissionFilterConfiguration,
 			new FacetPostProcessorImpl(), indexerRegistry, permissionChecker,
-			relatedEntryIndexerRegistry, this::doSearch,
-			searchRequestBuilderFactory, serviceTrackerMap);
+			relatedEntryIndexerRegistry, this::doSearch, serviceTrackerMap);
 	}
 
 	protected void doAssertPagination(
@@ -489,40 +502,27 @@ public abstract class BasePermissionFilteredPaginationTestCase
 	protected int permissionFilteredSearchResultAccurateCountThreshold;
 	protected int searchQueryResultWindowLimit;
 
-	private SearchRequestBuilderFactory _getSearchRequestBuilderFactory() {
-		SearchRequestBuilderFactory searchRequestBuilderFactory = Mockito.mock(
-			SearchRequestBuilderFactory.class);
+	private Hits _searchThroughSearchRequest(int from, int size)
+		throws Exception {
 
-		SearchRequestBuilder searchRequestBuilder = Mockito.mock(
-			SearchRequestBuilder.class);
+		SearchContext searchContext = createSearchContext();
 
-		Mockito.when(
-			searchRequestBuilderFactory.builder(Mockito.any())
-		).thenReturn(
-			searchRequestBuilder
-		);
+		searchContext.setSorts(
+			new Sort(Field.PRIORITY, Sort.DOUBLE_TYPE, false));
 
-		SearchRequest searchRequest = Mockito.mock(SearchRequest.class);
+		SearchRequestBuilderFactory searchRequestBuilderFactory =
+			new SearchRequestBuilderFactoryImpl();
 
-		Mockito.when(
-			searchRequestBuilder.build()
-		).thenReturn(
-			searchRequest
-		);
+		SearchRequestBuilder searchRequestBuilder =
+			searchRequestBuilderFactory.builder(searchContext);
 
-		Mockito.when(
-			searchRequest.getFrom()
-		).thenReturn(
-			0
-		);
+		searchRequestBuilder.from(from);
+		searchRequestBuilder.size(size);
 
-		Mockito.when(
-			searchRequest.getSize()
-		).thenReturn(
-			10
-		);
+		SearchResultPermissionFilter searchResultPermissionFilter =
+			createSearchResultPermissionFilter();
 
-		return searchRequestBuilderFactory;
+		return searchResultPermissionFilter.search(searchContext);
 	}
 
 	private static final long _FILTERED_ENTRY_IDENTIFIER = 1000000;

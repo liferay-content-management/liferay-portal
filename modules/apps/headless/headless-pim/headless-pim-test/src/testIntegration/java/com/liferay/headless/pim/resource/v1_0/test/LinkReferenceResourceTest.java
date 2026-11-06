@@ -12,9 +12,13 @@ import com.liferay.headless.pim.client.dto.v1_0.Status;
 import com.liferay.headless.pim.client.pagination.Page;
 import com.liferay.headless.pim.client.pagination.Pagination;
 import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -174,6 +178,8 @@ public class LinkReferenceResourceTest
 		Assert.assertNull(actions.get("setPrimary"));
 
 		Assert.assertTrue(linkReference.getPrimary());
+
+		_testGetScopeScopeKeyLinksPageWithTrashedObjectEntry();
 	}
 
 	@Override
@@ -242,6 +248,17 @@ public class LinkReferenceResourceTest
 
 		Assert.assertFalse(linkReference.getPrimary());
 
+		Map<String, String> updateAction = actions.get("update");
+
+		href = updateAction.get("href");
+
+		Assert.assertTrue(
+			href.endsWith(
+				"/by-external-reference-code/" +
+					objectEntry.getExternalReferenceCode()));
+
+		Assert.assertEquals("PATCH", updateAction.get("method"));
+
 		Status status = linkReference.getStatus();
 
 		Assert.assertEquals("approved", status.getLabel());
@@ -279,7 +296,47 @@ public class LinkReferenceResourceTest
 			objectEntry.getExternalReferenceCode(), search, pagination);
 	}
 
+	private void _testGetScopeScopeKeyLinksPageWithTrashedObjectEntry()
+		throws Exception {
+
+		DepotEntry depotEntry = PIMTestUtil.addSpaceDepotEntry();
+
+		ObjectEntry sourceObjectEntry =
+			PIMBasicProductTestUtil.addPIMBasicProductObjectEntry(
+				depotEntry.getGroupId());
+		ObjectEntry targetObjectEntry =
+			PIMBasicProductTestUtil.addPIMBasicProductObjectEntry(
+				depotEntry.getGroupId());
+
+		_pimLinkEngine.addPIMLinks(
+			sourceObjectEntry, Arrays.asList(targetObjectEntry), _TYPE);
+
+		_objectEntryLocalService.moveObjectEntryToTrash(
+			TestPropsValues.getUserId(), targetObjectEntry,
+			ServiceContextTestUtil.getServiceContext(depotEntry.getGroupId()));
+
+		Page<LinkReference> page = _getLinkReferencesPage(
+			sourceObjectEntry, Pagination.of(1, 20));
+
+		LinkReference linkReference = _getLinkReference(
+			(List<LinkReference>)page.getItems(), targetObjectEntry);
+
+		Map<String, Map<String, String>> actions = linkReference.getActions();
+
+		Assert.assertNotNull(actions.get("get"));
+		Assert.assertNull(actions.get("update"));
+
+		Status status = linkReference.getStatus();
+
+		Assert.assertEquals(
+			Integer.valueOf(WorkflowConstants.STATUS_IN_TRASH),
+			status.getCode());
+	}
+
 	private static final String _TYPE = "variant";
+
+	@Inject
+	private ObjectEntryLocalService _objectEntryLocalService;
 
 	@Inject
 	private PIMLinkEngine _pimLinkEngine;

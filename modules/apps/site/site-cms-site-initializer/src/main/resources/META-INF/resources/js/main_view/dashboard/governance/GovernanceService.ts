@@ -31,6 +31,7 @@ export type AssetStatistics = {
 	scheduledCount: number;
 	slaBreachedWorkflowTasksCount: number;
 	totalCount: number;
+	unlinkedCount?: number;
 	upcomingReviewCount: number;
 	workflowTasksCount: number;
 };
@@ -71,7 +72,7 @@ const CONTENT_AGE_RANGES: ContentAgeRange[] = [
 
 const CONTRIBUTORS_AGGREGATION_NAME = 'contributors';
 
-const LONG_STANDING_DRAFT_DAYS = 30;
+export const LONG_STANDING_DRAFT_DAYS = 30;
 
 export const GOVERNANCE_ASSET_LIST_PAGE_SIZE = 8;
 
@@ -315,17 +316,6 @@ function getAssetListURL(filter: string, sort: string, groupIds: number[]) {
 	return `${SEARCH_URL}?${searchParams}`;
 }
 
-function getAssetsByIdsURL(ids: number[]) {
-	const searchParams = new URLSearchParams({
-		emptySearch: 'true',
-		filter: ids.map((id) => `entryClassPK eq ${id}`).join(' or '),
-		nestedFields: NESTED_FIELDS,
-		pageSize: String(ids.length),
-	});
-
-	return `${SEARCH_URL}?${searchParams}`;
-}
-
 function getQualityAssetsURL(path: string, assetLibraryId?: string) {
 	const searchParams = new URLSearchParams({
 		pageSize: String(GOVERNANCE_ASSET_LIST_PAGE_SIZE),
@@ -348,6 +338,10 @@ function getMissingRequiredFieldsAssetsURL(assetLibraryId?: string) {
 		'missing-required-fields-assets',
 		assetLibraryId
 	);
+}
+
+function getUnlinkedAssetsURL(assetLibraryId?: string) {
+	return getQualityAssetsURL('unlinked-assets', assetLibraryId);
 }
 
 function getDateInDays(days: number) {
@@ -374,7 +368,6 @@ function getLongStandingDraftsURL(filter: string, groupIds: number[]) {
 
 export default {
 	getAssetStatistics,
-	getAssetsByIdsURL,
 	getBrokenLinkAssetsURL,
 	getContentAgeDistribution,
 	getContentProgress,
@@ -383,4 +376,5 @@ export default {
 	getLongStandingDraftsThresholdDate,
 	getLongStandingDraftsURL,
 	getMissingRequiredFieldsAssetsURL,
+	getUnlinkedAssetsURL,
 };

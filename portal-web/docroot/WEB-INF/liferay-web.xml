@@ -369,10 +369,6 @@
 		<dispatcher>FORWARD</dispatcher>
 	</filter-mapping>
 	<filter-mapping>
-		<filter-name>Char Buffer Pool Filter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
 		<filter-name>Session Id Filter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
@@ -523,12 +519,6 @@
 	<filter-mapping>
 		<filter-name>Header Filter - No Cache</filter-name>
 		<url-pattern>/c/portal/logout</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>ETag Filter</filter-name>
-		<url-pattern>^(/c/document_library/get_file|/c/message_boards/get_message_attachment|/c/wiki/get_page_attachment)(\?.*)?$</url-pattern>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>REQUEST</dispatcher>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>ETag Filter</filter-name>

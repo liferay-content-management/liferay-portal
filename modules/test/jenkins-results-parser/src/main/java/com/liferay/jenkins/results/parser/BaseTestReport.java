@@ -58,7 +58,9 @@ public class BaseTestReport implements TestReport {
 	public String getTestClassName() {
 		String testClassName = _jsonObject.optString("testClassName");
 
-		if (!JenkinsResultsParserUtil.isNullOrEmpty(testClassName)) {
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(testClassName) &&
+			!testClassName.equals("com.liferay.poshi.runner.PoshiRunner")) {
+
 			return testClassName;
 		}
 

@@ -5,6 +5,8 @@
 
 package com.liferay.taglib.aui.base;
 
+import com.liferay.taglib.util.PositionTagSupport;
+
 import jakarta.servlet.jsp.JspException;
 
 /**
@@ -12,9 +14,8 @@ import jakarta.servlet.jsp.JspException;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
- * @generated
  */
-public abstract class BaseScriptTag extends com.liferay.taglib.util.PositionTagSupport {
+public abstract class BaseScriptTag extends PositionTagSupport {
 
 	public int doStartTag() throws JspException {
 		return super.doStartTag();
@@ -24,11 +25,11 @@ public abstract class BaseScriptTag extends com.liferay.taglib.util.PositionTagS
 		return _async;
 	}
 
-	public java.lang.String getBlocking() {
+	public String getBlocking() {
 		return _blocking;
 	}
 
-	public java.lang.String getCrossOrigin() {
+	public String getCrossOrigin() {
 		return _crossOrigin;
 	}
 
@@ -36,7 +37,7 @@ public abstract class BaseScriptTag extends com.liferay.taglib.util.PositionTagS
 		return _defer;
 	}
 
-	public java.lang.String getFetchPriority() {
+	public String getFetchPriority() {
 		return _fetchPriority;
 	}
 
@@ -44,23 +45,19 @@ public abstract class BaseScriptTag extends com.liferay.taglib.util.PositionTagS
 		return _hashedFile;
 	}
 
-	public void setHashedFile(boolean hashedFile) {
-		_hashedFile = hashedFile;
-	}
-
-	public java.lang.String getId() {
+	public String getId() {
 		return _id;
 	}
 
-	public java.lang.String getIntegrity() {
+	public String getIntegrity() {
 		return _integrity;
 	}
 
-	public java.lang.String getReferrerPolicy() {
+	public String getReferrerPolicy() {
 		return _referrerPolicy;
 	}
 
-	public java.lang.String getRequire() {
+	public String getRequire() {
 		return _require;
 	}
 
@@ -68,19 +65,19 @@ public abstract class BaseScriptTag extends com.liferay.taglib.util.PositionTagS
 		return _sandbox;
 	}
 
-	public java.lang.String getSenna() {
+	public String getSenna() {
 		return _senna;
 	}
 
-	public java.lang.String getSrc() {
+	public String getSrc() {
 		return _src;
 	}
 
-	public java.lang.String getType() {
+	public String getType() {
 		return _type;
 	}
 
-	public java.lang.String getUse() {
+	public String getUse() {
 		return _use;
 	}
 
@@ -88,11 +85,11 @@ public abstract class BaseScriptTag extends com.liferay.taglib.util.PositionTagS
 		_async = async;
 	}
 
-	public void setBlocking(java.lang.String blocking) {
+	public void setBlocking(String blocking) {
 		_blocking = blocking;
 	}
 
-	public void setCrossOrigin(java.lang.String crossOrigin) {
+	public void setCrossOrigin(String crossOrigin) {
 		_crossOrigin = crossOrigin;
 	}
 
@@ -100,23 +97,27 @@ public abstract class BaseScriptTag extends com.liferay.taglib.util.PositionTagS
 		_defer = defer;
 	}
 
-	public void setFetchPriority(java.lang.String fetchPriority) {
+	public void setFetchPriority(String fetchPriority) {
 		_fetchPriority = fetchPriority;
 	}
 
-	public void setId(java.lang.String id) {
+	public void setHashedFile(boolean hashedFile) {
+		_hashedFile = hashedFile;
+	}
+
+	public void setId(String id) {
 		_id = id;
 	}
 
-	public void setIntegrity(java.lang.String integrity) {
+	public void setIntegrity(String integrity) {
 		_integrity = integrity;
 	}
 
-	public void setReferrerPolicy(java.lang.String referrerPolicy) {
+	public void setReferrerPolicy(String referrerPolicy) {
 		_referrerPolicy = referrerPolicy;
 	}
 
-	public void setRequire(java.lang.String require) {
+	public void setRequire(String require) {
 		_require = require;
 	}
 
@@ -124,23 +125,26 @@ public abstract class BaseScriptTag extends com.liferay.taglib.util.PositionTagS
 		_sandbox = sandbox;
 	}
 
-	public void setSenna(java.lang.String senna) {
+	public void setSenna(String senna) {
 		_senna = senna;
 	}
 
-	public void setSrc(java.lang.String src) {
+	public void setSrc(String src) {
 		_src = src;
 	}
 
-	public void setType(java.lang.String type) {
+	public void setType(String type) {
 		_type = type;
 	}
 
-	public void setUse(java.lang.String use) {
+	public void setUse(String use) {
 		_use = use;
 	}
 
+	@Override
 	protected void cleanUp() {
+		super.cleanUp();
+
 		_async = false;
 		_blocking = null;
 		_crossOrigin = null;
@@ -162,23 +166,22 @@ public abstract class BaseScriptTag extends com.liferay.taglib.util.PositionTagS
 		return _PAGE;
 	}
 
-	private static final String _PAGE =
-		"/html/taglib/aui/script/page.jsp";
+	private static final String _PAGE = "/html/taglib/aui/script/page.jsp";
 
-	private boolean _async = false;
-	private java.lang.String _blocking = null;
-	private java.lang.String _crossOrigin = null;
-	private boolean _defer = false;
-	private java.lang.String _fetchPriority = null;
+	private boolean _async;
+	private String _blocking;
+	private String _crossOrigin;
+	private boolean _defer;
+	private String _fetchPriority;
 	private boolean _hashedFile;
-	private java.lang.String _id = null;
-	private java.lang.String _integrity = null;
-	private java.lang.String _referrerPolicy = null;
-	private java.lang.String _require = null;
-	private boolean _sandbox = false;
-	private java.lang.String _senna = null;
-	private java.lang.String _src = null;
-	private java.lang.String _type = null;
-	private java.lang.String _use = null;
+	private String _id;
+	private String _integrity;
+	private String _referrerPolicy;
+	private String _require;
+	private boolean _sandbox;
+	private String _senna;
+	private String _src;
+	private String _type;
+	private String _use;
 
 }

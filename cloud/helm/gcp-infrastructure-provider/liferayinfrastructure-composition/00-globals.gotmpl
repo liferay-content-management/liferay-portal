@@ -13,6 +13,9 @@
 
 {{- $cmkEnabled := $xr.spec.cmk.enabled -}}
 {{- $cmkKeyId := dig "liferay-cryptokey" "resource" "status" "atProvider" "id" "" $observedResources -}}
+{{- $databaseBootstrapEmail := dig "database-bootstrap-gsa" "resource" "status" "atProvider" "email" "" $observedResources -}}
+{{- $databaseBootstrapMember := dig "database-bootstrap-gsa" "resource" "status" "atProvider" "member" "" $observedResources -}}
+{{- $databaseInstanceNamePrefix := printf "%s-db-instance-" $xr.metadata.name -}}
 {{- $environmentId := $xr.spec.environmentId -}}
 {{- $forceDestroy := $xr.spec.forceDestroy -}}
 {{- $gsaEmail := dig "liferay-gsa" "resource" "status" "atProvider" "email" "" $observedResources -}}
@@ -26,6 +29,7 @@
 {{- $targetActiveDataPlane := $xr.spec.targetActiveDataPlane -}}
 
 {{- $activeDataPlane := $targetActiveDataPlane -}}
+{{- $databaseBootstrapIamUser := trimSuffix ".gserviceaccount.com" $databaseBootstrapEmail -}}
 {{- $databaseIamUser := trimSuffix ".gserviceaccount.com" $gsaEmail -}}
 {{- $dataPlanes := list $targetActiveDataPlane -}}
 {{- $isCMKKeyReady := or (not $cmkEnabled) $cmkKeyId -}}

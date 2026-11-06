@@ -5,6 +5,8 @@
 
 package com.liferay.taglib.aui.base;
 
+import com.liferay.taglib.util.IncludeTag;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspException;
 
@@ -13,9 +15,8 @@ import jakarta.servlet.jsp.JspException;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
- * @generated
  */
-public abstract class BaseAlertTag extends com.liferay.taglib.util.IncludeTag {
+public abstract class BaseAlertTag extends IncludeTag {
 
 	@Override
 	public int doStartTag() throws JspException {
@@ -32,7 +33,7 @@ public abstract class BaseAlertTag extends com.liferay.taglib.util.IncludeTag {
 		return _closeable;
 	}
 
-	public java.lang.String getCssClass() {
+	public String getCssClass() {
 		return _cssClass;
 	}
 
@@ -40,15 +41,15 @@ public abstract class BaseAlertTag extends com.liferay.taglib.util.IncludeTag {
 		return _destroyOnHide;
 	}
 
-	public java.lang.Object getDuration() {
+	public Object getDuration() {
 		return _duration;
 	}
 
-	public java.lang.String getId() {
+	public String getId() {
 		return _id;
 	}
 
-	public java.lang.String getType() {
+	public String getType() {
 		return _type;
 	}
 
@@ -60,7 +61,7 @@ public abstract class BaseAlertTag extends com.liferay.taglib.util.IncludeTag {
 		_closeable = closeable;
 	}
 
-	public void setCssClass(java.lang.String cssClass) {
+	public void setCssClass(String cssClass) {
 		_cssClass = cssClass;
 	}
 
@@ -68,15 +69,15 @@ public abstract class BaseAlertTag extends com.liferay.taglib.util.IncludeTag {
 		_destroyOnHide = destroyOnHide;
 	}
 
-	public void setDuration(java.lang.Object duration) {
+	public void setDuration(Object duration) {
 		_duration = duration;
 	}
 
-	public void setId(java.lang.String id) {
+	public void setId(String id) {
 		_id = id;
 	}
 
-	public void setType(java.lang.String type) {
+	public void setType(String type) {
 		_type = type;
 	}
 
@@ -104,30 +105,30 @@ public abstract class BaseAlertTag extends com.liferay.taglib.util.IncludeTag {
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "animated", _animated);
-		setNamespacedAttribute(request, "closeable", _closeable);
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "destroyOnHide", _destroyOnHide);
-		setNamespacedAttribute(request, "duration", _duration);
-		setNamespacedAttribute(request, "id", _id);
-		setNamespacedAttribute(request, "type", _type);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		setNamespacedAttribute(httpServletRequest, "animated", _animated);
+		setNamespacedAttribute(httpServletRequest, "closeable", _closeable);
+		setNamespacedAttribute(httpServletRequest, "cssClass", _cssClass);
+		setNamespacedAttribute(
+			httpServletRequest, "destroyOnHide", _destroyOnHide);
+		setNamespacedAttribute(httpServletRequest, "duration", _duration);
+		setNamespacedAttribute(httpServletRequest, "id", _id);
+		setNamespacedAttribute(httpServletRequest, "type", _type);
 	}
 
-	protected static final String _ATTRIBUTE_NAMESPACE = "aui:alert:";
+	private static final String _ATTRIBUTE_NAMESPACE = "aui:alert:";
 
-	private static final String _END_PAGE =
-		"/html/taglib/aui/alert/end.jsp";
+	private static final String _END_PAGE = "/html/taglib/aui/alert/end.jsp";
 
 	private static final String _START_PAGE =
 		"/html/taglib/aui/alert/start.jsp";
 
-	private boolean _animated = false;
+	private boolean _animated;
 	private boolean _closeable = true;
-	private java.lang.String _cssClass = null;
-	private boolean _destroyOnHide = false;
-	private java.lang.Object _duration = 0.15;
-	private java.lang.String _id = null;
-	private java.lang.String _type = "info";
+	private String _cssClass;
+	private boolean _destroyOnHide;
+	private Object _duration = 0.15;
+	private String _id;
+	private String _type = "info";
 
 }

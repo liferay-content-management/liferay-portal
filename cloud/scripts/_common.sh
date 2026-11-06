@@ -78,6 +78,10 @@ function is_confirmed {
 	[[ ${reply} == yes ]]
 }
 
+function log_tfstate_setup {
+	echo "[Tfstate storage configuration] ${1}"
+}
+
 function prepare_terraform_stacks {
 	local cloud="${1}"
 	local cluster_terraform_stack="${2}"
@@ -142,7 +146,7 @@ function set_up {
 
 	echo "Liferay platform setup complete."
 
-	_install_liferay_platform_chart "${cloud}" "${configuration_json_file}"
+	_install_liferay_platform_chart "${cloud}" "${cluster_name}" "${configuration_json_file}"
 }
 
 function tear_down {
@@ -303,7 +307,8 @@ function _init_terraform {
 
 function _install_liferay_platform_chart {
 	local cloud="${1}"
-	local configuration_json_file="${2}"
+	local cluster_name="${2}"
+	local configuration_json_file="${3}"
 
 	local platform_repo_url
 
@@ -315,7 +320,7 @@ function _install_liferay_platform_chart {
 
 	local platform_values
 
-	platform_values=$(run_terraform "${cloud}" "platform" output -json | jq --from-file "${SCRIPTS_DIR}/_${cloud}_platform_values.jq" --slurpfile configuration "${configuration_json_file}")
+	platform_values=$(run_terraform "${cloud}" "platform" output -json | jq --arg cluster_name "${cluster_name}" --from-file "${SCRIPTS_DIR}/_${cloud}_platform_values.jq" --slurpfile configuration "${configuration_json_file}")
 
 	echo "Applying the Liferay platform root application."
 

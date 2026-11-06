@@ -55,6 +55,35 @@ public class ParameterMapUtilTest {
 		LiferayUnitTestRule.INSTANCE;
 
 	@Test
+	public void testPutDateRangeParametersWhenDateFilterIsInvalid() {
+		long time = (System.currentTimeMillis() / Time.SECOND) * Time.SECOND;
+
+		_assertBadRequest(
+			new Date(time + (2 * Time.HOUR)),
+			"The start date must not be in the future",
+			new Date(time + Time.HOUR));
+		_assertBadRequest(
+			new Date(time + Time.HOUR),
+			"The end date must not be in the future",
+			new Date(time - Time.HOUR));
+		_assertBadRequest(
+			new Date(time - Time.HOUR + 300),
+			"The start date must be before the end date",
+			new Date(time - Time.HOUR + 100));
+		_assertBadRequest(
+			null, "The start date must not be in the future",
+			new Date(time + Time.HOUR));
+	}
+
+	@Test
+	public void testPutDateRangeParametersWhenDateFilterIsValid() {
+		long time = (System.currentTimeMillis() / Time.SECOND) * Time.SECOND;
+
+		_assertDateRange(new Date(time + 999), new Date(time - Time.SECOND));
+		_assertDateRange(new Date(time), new Date(time - Time.SECOND + 999));
+	}
+
+	@Test
 	public void testPutGroupExternalReferenceCodes() {
 		_testPutGroupExternalReferenceCodes(
 			new String[] {_GROUP_EXTERNAL_REFERENCE_CODE_1},
@@ -279,8 +308,8 @@ public class ParameterMapUtilTest {
 
 		long time = System.currentTimeMillis() / Time.SECOND * Time.SECOND;
 
-		dateRangeDateFilter.setEndDate(new Date(time + Time.DAY));
-		dateRangeDateFilter.setStartDate(new Date(time));
+		dateRangeDateFilter.setEndDate(new Date(time));
+		dateRangeDateFilter.setStartDate(new Date(time - Time.DAY));
 
 		dateRangeDateFilter.setType(DateFilter.Type.DATE_RANGE);
 
@@ -308,20 +337,6 @@ public class ParameterMapUtilTest {
 		PortletDataHandler[] availablePortletDataHandlers =
 			_getAvailablePortletDataHandlers();
 
-		User user = Mockito.mock(User.class);
-
-		Mockito.when(
-			user.getLocale()
-		).thenReturn(
-			LocaleUtil.US
-		);
-
-		Mockito.when(
-			user.getTimeZone()
-		).thenReturn(
-			TimeZoneUtil.GMT
-		);
-
 		PublishProcessRequest reversedPublishProcessRequest =
 			ParameterMapUtil.toPublishProcessRequest(
 				availablePortletDataHandlers, LocaleUtil.US,
@@ -329,7 +344,7 @@ public class ParameterMapUtilTest {
 					dateRangeDateFilter,
 					ParameterMapUtil.toParameterMap(
 						publishProcessRequest, availablePortletDataHandlers),
-					user),
+					_toUser()),
 				TimeZoneUtil.GMT);
 
 		Assert.assertEquals(
@@ -442,6 +457,16 @@ public class ParameterMapUtilTest {
 	}
 
 	private void _assertBadRequest(
+		Date endDate, String message, Date startDate) {
+
+		AssertUtils.assertFailure(
+			BadRequestException.class, message,
+			() -> ParameterMapUtil.putDateRangeParameters(
+				_toDateRangeDateFilter(endDate, startDate), new HashMap<>(),
+				null));
+	}
+
+	private void _assertBadRequest(
 		String message, PortletDataHandler portletDataHandler) {
 
 		AssertUtils.assertFailure(
@@ -449,6 +474,17 @@ public class ParameterMapUtilTest {
 			() -> ParameterMapUtil.toParameterMap(
 				_toExportProcessRequest(portletDataHandler),
 				_getAvailablePortletDataHandlers(), false));
+	}
+
+	private void _assertDateRange(Date endDate, Date startDate) {
+		Map<String, String[]> parameterMap =
+			ParameterMapUtil.putDateRangeParameters(
+				_toDateRangeDateFilter(endDate, startDate), new HashMap<>(),
+				_toUser());
+
+		Assert.assertArrayEquals(
+			new String[] {ExportImportDateUtil.RANGE_DATE_RANGE},
+			parameterMap.get(ExportImportDateUtil.RANGE));
 	}
 
 	private PortletDataHandler[] _getAvailablePortletDataHandlers() {
@@ -517,6 +553,18 @@ public class ParameterMapUtilTest {
 		choice.setName(name);
 
 		return choice;
+	}
+
+	private DateRangeDateFilter _toDateRangeDateFilter(
+		Date endDate, Date startDate) {
+
+		DateRangeDateFilter dateRangeDateFilter = new DateRangeDateFilter();
+
+		dateRangeDateFilter.setEndDate(endDate);
+		dateRangeDateFilter.setStartDate(startDate);
+		dateRangeDateFilter.setType(DateFilter.Type.DATE_RANGE);
+
+		return dateRangeDateFilter;
 	}
 
 	private ExportProcessRequest _toExportProcessRequest(
@@ -601,6 +649,24 @@ public class ParameterMapUtilTest {
 			PortletDataHandlerControl.Type.TREE_SELECTION);
 
 		return portletDataHandlerTreeSelection;
+	}
+
+	private User _toUser() {
+		User user = Mockito.mock(User.class);
+
+		Mockito.when(
+			user.getLocale()
+		).thenReturn(
+			LocaleUtil.US
+		);
+
+		Mockito.when(
+			user.getTimeZone()
+		).thenReturn(
+			TimeZoneUtil.GMT
+		);
+
+		return user;
 	}
 
 	private static final String _CONTROL_NAME_BOOLEAN =

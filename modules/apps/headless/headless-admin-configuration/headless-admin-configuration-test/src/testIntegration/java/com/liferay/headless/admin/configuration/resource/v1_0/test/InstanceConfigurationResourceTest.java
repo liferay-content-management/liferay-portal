@@ -15,6 +15,9 @@ import com.liferay.headless.admin.configuration.test.configuration.TestConfigura
 import com.liferay.headless.admin.configuration.test.configuration.TestFactoryConfiguration;
 import com.liferay.headless.admin.configuration.test.util.ConfigurationTestUtil;
 import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.settings.SettingsLocatorHelper;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
@@ -29,6 +32,7 @@ import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +42,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * @author Thiago Buarque
@@ -135,15 +142,9 @@ public class InstanceConfigurationResourceTest
 	public void testPostInstanceConfiguration() throws Exception {
 		super.testPostInstanceConfiguration();
 
-		InstanceConfiguration randomInstanceConfiguration =
-			_randomInstanceConfigurationFromConfigurationScreen();
-
-		InstanceConfiguration postInstanceConfiguration =
-			testPostInstanceConfiguration_addInstanceConfiguration(
-				randomInstanceConfiguration);
-
-		assertEquals(randomInstanceConfiguration, postInstanceConfiguration);
-		assertValid(postInstanceConfiguration);
+		_testPostInstanceConfigurationFromConfigurationScreen();
+		_testPostInstanceConfigurationWithMissingExternalReferenceCode();
+		_testPostInstanceConfigurationWithMissingFactoryExternalReferenceCode();
 	}
 
 	@Override
@@ -332,6 +333,137 @@ public class InstanceConfigurationResourceTest
 		}
 	}
 
+	private void _testPostInstanceConfigurationFromConfigurationScreen()
+		throws Exception {
+
+		InstanceConfiguration randomInstanceConfiguration =
+			_randomInstanceConfigurationFromConfigurationScreen();
+
+		InstanceConfiguration postInstanceConfiguration =
+			testPostInstanceConfiguration_addInstanceConfiguration(
+				randomInstanceConfiguration);
+
+		assertEquals(randomInstanceConfiguration, postInstanceConfiguration);
+		assertValid(postInstanceConfiguration);
+	}
+
+	private void _testPostInstanceConfigurationWithMissingExternalReferenceCode()
+		throws Exception {
+
+		InstanceConfiguration instanceConfiguration =
+			testGetInstanceConfiguration_addInstanceConfiguration();
+
+		Configuration configuration = _configurationAdmin.getConfiguration(
+			instanceConfiguration.getExternalReferenceCode(),
+			StringPool.QUESTION);
+
+		configuration.delete();
+
+		InstanceConfiguration postInstanceConfiguration1 =
+			instanceConfigurationResource.postInstanceConfiguration(
+				instanceConfiguration);
+
+		Assert.assertNotEquals(
+			instanceConfiguration.getExternalReferenceCode(),
+			postInstanceConfiguration1.getExternalReferenceCode());
+
+		Map<String, Object> postProperties1 =
+			postInstanceConfiguration1.getProperties();
+
+		Map<String, Object> properties = instanceConfiguration.getProperties();
+
+		Assert.assertArrayEquals(
+			(Object[])properties.get("arrayKey"),
+			(Object[])postProperties1.get("arrayKey"));
+		Assert.assertEquals(
+			properties.get("requiredBooleanKey"),
+			postProperties1.get("requiredBooleanKey"));
+
+		InstanceConfiguration postInstanceConfiguration2 =
+			instanceConfigurationResource.postInstanceConfiguration(
+				instanceConfiguration);
+
+		Assert.assertEquals(
+			postInstanceConfiguration1.getExternalReferenceCode(),
+			postInstanceConfiguration2.getExternalReferenceCode());
+	}
+
+	private void _testPostInstanceConfigurationWithMissingFactoryExternalReferenceCode()
+		throws Exception {
+
+		InstanceConfiguration instanceConfiguration =
+			randomInstanceConfiguration();
+
+		instanceConfiguration.setExternalReferenceCode(
+			StringBundler.concat(
+				ConfigurationTestUtil.TEST_FACTORY_CONFIGURATION_PID, "~",
+				RandomTestUtil.randomString()));
+
+		InstanceConfiguration postInstanceConfiguration1 =
+			instanceConfigurationResource.postInstanceConfiguration(
+				instanceConfiguration);
+
+		assertEquals(instanceConfiguration, postInstanceConfiguration1);
+		Assert.assertEquals(
+			instanceConfiguration.getExternalReferenceCode(),
+			postInstanceConfiguration1.getExternalReferenceCode());
+
+		InstanceConfiguration postInstanceConfiguration2 =
+			instanceConfigurationResource.postInstanceConfiguration(
+				instanceConfiguration);
+
+		Assert.assertEquals(
+			instanceConfiguration.getExternalReferenceCode(),
+			postInstanceConfiguration2.getExternalReferenceCode());
+
+		instanceConfiguration =
+			instanceConfigurationResource.postInstanceConfiguration(
+				randomInstanceConfiguration());
+
+		Configuration configuration = _configurationAdmin.getConfiguration(
+			instanceConfiguration.getExternalReferenceCode(),
+			StringPool.QUESTION);
+
+		configuration.delete();
+
+		InstanceConfiguration postInstanceConfiguration3 =
+			instanceConfigurationResource.postInstanceConfiguration(
+				instanceConfiguration);
+
+		assertEquals(instanceConfiguration, postInstanceConfiguration3);
+		Assert.assertEquals(
+			instanceConfiguration.getExternalReferenceCode(),
+			postInstanceConfiguration3.getExternalReferenceCode());
+
+		InstanceConfiguration postInstanceConfiguration4 =
+			instanceConfigurationResource.postInstanceConfiguration(
+				instanceConfiguration);
+
+		Assert.assertEquals(
+			instanceConfiguration.getExternalReferenceCode(),
+			postInstanceConfiguration4.getExternalReferenceCode());
+
+		configuration = _configurationAdmin.getConfiguration(
+			instanceConfiguration.getExternalReferenceCode(),
+			StringPool.QUESTION);
+
+		Dictionary<String, Object> properties = configuration.getProperties();
+
+		properties.put(
+			ExtendedObjectClassDefinition.Scope.GROUP.getPropertyKey(),
+			testGroup.getGroupId());
+
+		configuration.update(properties);
+
+		InstanceConfiguration postInstanceConfiguration5 =
+			instanceConfigurationResource.postInstanceConfiguration(
+				instanceConfiguration);
+
+		Assert.assertNotEquals(
+			instanceConfiguration.getExternalReferenceCode(),
+			postInstanceConfiguration5.getExternalReferenceCode());
+	}
+
 	private void _testPutInstanceConfigurationWithoutPermission()
 		throws Exception {
 
@@ -357,6 +489,9 @@ public class InstanceConfigurationResourceTest
 
 	@Inject
 	private static SettingsLocatorHelper _settingsLocatorHelper;
+
+	@Inject
+	private ConfigurationAdmin _configurationAdmin;
 
 	private InstanceConfigurationResource _userInstanceConfigurationResource;
 

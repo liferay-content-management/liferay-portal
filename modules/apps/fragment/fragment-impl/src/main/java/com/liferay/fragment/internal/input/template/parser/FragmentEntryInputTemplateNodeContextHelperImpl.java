@@ -669,10 +669,11 @@ public class FragmentEntryInputTemplateNodeContextHelperImpl
 		String unlocalizedFieldsMessage = StringPool.BLANK;
 
 		if (jsonObject != null) {
-			unlocalizedFieldsMessage = jsonObject.getString(
-				_language.getLanguageId(locale),
+			unlocalizedFieldsMessage = HtmlUtil.escape(
 				jsonObject.getString(
-					_language.getLanguageId(LocaleUtil.getSiteDefault())));
+					_language.getLanguageId(locale),
+					jsonObject.getString(
+						_language.getLanguageId(LocaleUtil.getSiteDefault()))));
 		}
 
 		if (Validator.isNull(unlocalizedFieldsMessage)) {
@@ -770,7 +771,8 @@ public class FragmentEntryInputTemplateNodeContextHelperImpl
 			infoField.getAttribute(RelationshipInfoFieldType.VALUE_FIELD_NAME));
 
 		if (Validator.isNotNull(label)) {
-			inputTemplateNode.addAttribute("selectedOptionLabel", label);
+			inputTemplateNode.addAttribute(
+				"selectedOptionLabel", HtmlUtil.escape(label));
 		}
 
 		if (Validator.isNotNull(value)) {
@@ -805,7 +807,8 @@ public class FragmentEntryInputTemplateNodeContextHelperImpl
 			}
 
 			inputTemplateNode.addAttribute(
-				"selectedOptionLabel", optionInfoFieldType.getLabel(locale));
+				"selectedOptionLabel",
+				HtmlUtil.escape(optionInfoFieldType.getLabel(locale)));
 			inputTemplateNode.addAttribute("selectedOptionValue", value);
 		}
 

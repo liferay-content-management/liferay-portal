@@ -75,10 +75,12 @@ public class UnlinkedAssetSearcher {
 			siteNavigationMenuItemLocalService;
 	}
 
-	public long getCount(long companyId, Long[] groupIds) {
+	public long getCount(
+		CollectionUsages collectionUsages, long companyId, Long[] groupIds) {
+
 		SearchResponse searchResponse = _searcher.search(
 			_getSearchRequestBuilder(
-				companyId, groupIds
+				collectionUsages, companyId, groupIds
 			).size(
 				0
 			).build());
@@ -87,11 +89,11 @@ public class UnlinkedAssetSearcher {
 	}
 
 	public SearchResponse search(
-		long companyId, Long[] groupIds, String languageId,
-		Pagination pagination, String search, Sort[] sorts) {
+		CollectionUsages collectionUsages, long companyId, Long[] groupIds,
+		String languageId, Pagination pagination, String search, Sort[] sorts) {
 
 		SearchRequestBuilder searchRequestBuilder = _getSearchRequestBuilder(
-			companyId, groupIds);
+			collectionUsages, companyId, groupIds);
 
 		searchRequestBuilder.addSelectedFieldNames(
 			Field.ENTRY_CLASS_PK, "objectDefinitionId", "objectEntryTitle",
@@ -223,17 +225,18 @@ public class UnlinkedAssetSearcher {
 						DynamicObjectRelationshipMappingTableFactory.create(
 							objectRelationship);
 
-				List<Object[]> rows = _objectEntryLocalService.dslQuery(
-					DSLQueryFactoryUtil.select(
-						dynamicObjectRelationshipMappingTable.
-							getPrimaryKeyColumn1(),
-						dynamicObjectRelationshipMappingTable.
-							getPrimaryKeyColumn2()
-					).from(
-						dynamicObjectRelationshipMappingTable
-					));
+				List<Object[]> objectRelationshipMappingObjectsList =
+					_objectEntryLocalService.dslQuery(
+						DSLQueryFactoryUtil.select(
+							dynamicObjectRelationshipMappingTable.
+								getPrimaryKeyColumn1(),
+							dynamicObjectRelationshipMappingTable.
+								getPrimaryKeyColumn2()
+						).from(
+							dynamicObjectRelationshipMappingTable
+						));
 
-				for (Object[] row : rows) {
+				for (Object[] row : objectRelationshipMappingObjectsList) {
 					objectEntryIds.add(String.valueOf(row[0]));
 					objectEntryIds.add(String.valueOf(row[1]));
 				}
@@ -322,11 +325,12 @@ public class UnlinkedAssetSearcher {
 	}
 
 	private SearchRequestBuilder _getSearchRequestBuilder(
-		long companyId, Long[] groupIds) {
+		CollectionUsages collectionUsages, long companyId, Long[] groupIds) {
 
 		BooleanQuery booleanQuery = _getBaseBooleanQuery();
 
-		Set<String> objectEntryIds = new HashSet<>();
+		Set<String> objectEntryIds = new HashSet<>(
+			collectionUsages.getObjectEntryIds());
 
 		_addAssetLinkObjectEntryIds(companyId, objectEntryIds);
 		_addLayoutObjectEntryIds(companyId, objectEntryIds);

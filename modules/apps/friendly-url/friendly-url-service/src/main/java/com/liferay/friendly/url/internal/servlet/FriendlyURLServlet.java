@@ -1111,6 +1111,9 @@ public class FriendlyURLServlet extends HttpServlet {
 			if ((x != -1) && ((x + 1) != path.length())) {
 				layoutFriendlyURL = path.substring(x);
 			}
+			else {
+				layoutFriendlyURL = layout.getFriendlyURL(locale);
+			}
 
 			int y = layoutFriendlyURL.indexOf(
 				VirtualLayoutConstants.CANONICAL_URL_SEPARATOR);
@@ -1379,14 +1382,14 @@ public class FriendlyURLServlet extends HttpServlet {
 
 		LayoutFriendlyURL layoutFriendlyURL = layoutFriendlyURLs.get(0);
 
+		if (!LanguageUtil.isAvailableLocale(
+				layout.getGroupId(), layoutFriendlyURL.getLanguageId())) {
+
+			return null;
+		}
+
 		Locale locale = LocaleUtil.fromLanguageId(
 			layoutFriendlyURL.getLanguageId());
-
-		if (!LanguageUtil.isAvailableLocale(layout.getGroupId(), locale)) {
-			return LocaleUtil.fromLanguageId(
-				(String)httpServletRequest.getAttribute(
-					WebKeys.I18N_LANGUAGE_ID));
-		}
 
 		Locale groupLocale = locale;
 

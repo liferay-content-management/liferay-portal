@@ -5,6 +5,8 @@
 
 package com.liferay.taglib.aui.base;
 
+import com.liferay.taglib.util.IncludeTag;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspException;
 
@@ -13,9 +15,8 @@ import jakarta.servlet.jsp.JspException;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
- * @generated
  */
-public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.IncludeTag {
+public abstract class BaseFieldWrapperTag extends IncludeTag {
 
 	@Override
 	public int doStartTag() throws JspException {
@@ -24,11 +25,11 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 		return super.doStartTag();
 	}
 
-	public java.lang.String getCssClass() {
+	public String getCssClass() {
 		return _cssClass;
 	}
 
-	public java.lang.Object getData() {
+	public Object getData() {
 		return _data;
 	}
 
@@ -40,7 +41,7 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 		return _first;
 	}
 
-	public java.lang.String getHelpMessage() {
+	public String getHelpMessage() {
 		return _helpMessage;
 	}
 
@@ -48,11 +49,11 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 		return _inlineField;
 	}
 
-	public java.lang.String getInlineLabel() {
+	public String getInlineLabel() {
 		return _inlineLabel;
 	}
 
-	public java.lang.String getLabel() {
+	public String getLabel() {
 		return _label;
 	}
 
@@ -64,7 +65,7 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 		return _localizeLabel;
 	}
 
-	public java.lang.String getName() {
+	public String getName() {
 		return _name;
 	}
 
@@ -72,11 +73,11 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 		return _required;
 	}
 
-	public void setCssClass(java.lang.String cssClass) {
+	public void setCssClass(String cssClass) {
 		_cssClass = cssClass;
 	}
 
-	public void setData(java.lang.Object data) {
+	public void setData(Object data) {
 		_data = data;
 	}
 
@@ -88,7 +89,7 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 		_first = first;
 	}
 
-	public void setHelpMessage(java.lang.String helpMessage) {
+	public void setHelpMessage(String helpMessage) {
 		_helpMessage = helpMessage;
 	}
 
@@ -96,11 +97,11 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 		_inlineField = inlineField;
 	}
 
-	public void setInlineLabel(java.lang.String inlineLabel) {
+	public void setInlineLabel(String inlineLabel) {
 		_inlineLabel = inlineLabel;
 	}
 
-	public void setLabel(java.lang.String label) {
+	public void setLabel(String label) {
 		_label = label;
 	}
 
@@ -112,7 +113,7 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 		_localizeLabel = localizeLabel;
 	}
 
-	public void setName(java.lang.String name) {
+	public void setName(String name) {
 		_name = name;
 	}
 
@@ -149,22 +150,23 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "data", _data);
-		setNamespacedAttribute(request, "disabled", _disabled);
-		setNamespacedAttribute(request, "first", _first);
-		setNamespacedAttribute(request, "helpMessage", _helpMessage);
-		setNamespacedAttribute(request, "inlineField", _inlineField);
-		setNamespacedAttribute(request, "inlineLabel", _inlineLabel);
-		setNamespacedAttribute(request, "label", _label);
-		setNamespacedAttribute(request, "last", _last);
-		setNamespacedAttribute(request, "localizeLabel", _localizeLabel);
-		setNamespacedAttribute(request, "name", _name);
-		setNamespacedAttribute(request, "required", _required);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		setNamespacedAttribute(httpServletRequest, "cssClass", _cssClass);
+		setNamespacedAttribute(httpServletRequest, "data", _data);
+		setNamespacedAttribute(httpServletRequest, "disabled", _disabled);
+		setNamespacedAttribute(httpServletRequest, "first", _first);
+		setNamespacedAttribute(httpServletRequest, "helpMessage", _helpMessage);
+		setNamespacedAttribute(httpServletRequest, "inlineField", _inlineField);
+		setNamespacedAttribute(httpServletRequest, "inlineLabel", _inlineLabel);
+		setNamespacedAttribute(httpServletRequest, "label", _label);
+		setNamespacedAttribute(httpServletRequest, "last", _last);
+		setNamespacedAttribute(
+			httpServletRequest, "localizeLabel", _localizeLabel);
+		setNamespacedAttribute(httpServletRequest, "name", _name);
+		setNamespacedAttribute(httpServletRequest, "required", _required);
 	}
 
-	protected static final String _ATTRIBUTE_NAMESPACE = "aui:field-wrapper:";
+	private static final String _ATTRIBUTE_NAMESPACE = "aui:field-wrapper:";
 
 	private static final String _END_PAGE =
 		"/html/taglib/aui/field_wrapper/end.jsp";
@@ -172,17 +174,17 @@ public abstract class BaseFieldWrapperTag extends com.liferay.taglib.util.Includ
 	private static final String _START_PAGE =
 		"/html/taglib/aui/field_wrapper/start.jsp";
 
-	private java.lang.String _cssClass = null;
-	private java.lang.Object _data = null;
-	private boolean _disabled = false;
-	private boolean _first = false;
-	private java.lang.String _helpMessage = null;
-	private boolean _inlineField = false;
-	private java.lang.String _inlineLabel = null;
-	private java.lang.String _label = null;
-	private boolean _last = false;
+	private String _cssClass;
+	private Object _data;
+	private boolean _disabled;
+	private boolean _first;
+	private String _helpMessage;
+	private boolean _inlineField;
+	private String _inlineLabel;
+	private String _label;
+	private boolean _last;
 	private boolean _localizeLabel = true;
-	private java.lang.String _name = null;
-	private boolean _required = false;
+	private String _name;
+	private boolean _required;
 
 }

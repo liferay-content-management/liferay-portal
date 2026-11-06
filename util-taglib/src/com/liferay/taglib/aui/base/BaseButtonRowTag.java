@@ -5,6 +5,8 @@
 
 package com.liferay.taglib.aui.base;
 
+import com.liferay.taglib.util.IncludeTag;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.jsp.JspException;
 
@@ -13,9 +15,8 @@ import jakarta.servlet.jsp.JspException;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
- * @generated
  */
-public abstract class BaseButtonRowTag extends com.liferay.taglib.util.IncludeTag {
+public abstract class BaseButtonRowTag extends IncludeTag {
 
 	@Override
 	public int doStartTag() throws JspException {
@@ -24,19 +25,19 @@ public abstract class BaseButtonRowTag extends com.liferay.taglib.util.IncludeTa
 		return super.doStartTag();
 	}
 
-	public java.lang.String getCssClass() {
+	public String getCssClass() {
 		return _cssClass;
 	}
 
-	public java.lang.String getId() {
+	public String getId() {
 		return _id;
 	}
 
-	public void setCssClass(java.lang.String cssClass) {
+	public void setCssClass(String cssClass) {
 		_cssClass = cssClass;
 	}
 
-	public void setId(java.lang.String id) {
+	public void setId(String id) {
 		_id = id;
 	}
 
@@ -54,17 +55,17 @@ public abstract class BaseButtonRowTag extends com.liferay.taglib.util.IncludeTa
 	}
 
 	@Override
-	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "id", _id);
+	protected void setAttributes(HttpServletRequest httpServletRequest) {
+		setNamespacedAttribute(httpServletRequest, "cssClass", _cssClass);
+		setNamespacedAttribute(httpServletRequest, "id", _id);
 	}
 
-	protected static final String _ATTRIBUTE_NAMESPACE = "aui:button-row:";
+	private static final String _ATTRIBUTE_NAMESPACE = "aui:button-row:";
 
 	private static final String _START_PAGE =
 		"/html/taglib/aui/button_row/start.jsp";
 
-	private java.lang.String _cssClass = null;
-	private java.lang.String _id = null;
+	private String _cssClass;
+	private String _id;
 
 }

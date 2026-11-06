@@ -16,6 +16,7 @@ import com.liferay.info.filter.TagsInfoFilter;
 import com.liferay.info.pagination.Pagination;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
@@ -99,6 +100,16 @@ public abstract class SXPBlueprintInfoCollectionProvider<T>
 	protected SearchRequestBuilder getSearchRequestBuilder(
 		CollectionQuery collectionQuery, Pagination pagination) {
 
+		Integer from = null;
+		Integer size = null;
+
+		if ((pagination.getEnd() != QueryUtil.ALL_POS) &&
+			(pagination.getStart() != QueryUtil.ALL_POS)) {
+
+			from = pagination.getStart();
+			size = pagination.getEnd() - pagination.getStart();
+		}
+
 		ServiceContext serviceContext =
 			ServiceContextThreadLocal.getServiceContext();
 
@@ -110,11 +121,11 @@ public abstract class SXPBlueprintInfoCollectionProvider<T>
 		).fields(
 			new String[0]
 		).from(
-			pagination.getStart()
+			from
 		).emptySearchEnabled(
 			true
 		).size(
-			pagination.getEnd() - pagination.getStart()
+			size
 		).withSearchContext(
 			searchContext -> {
 				CategoriesInfoFilter categoriesInfoFilter =

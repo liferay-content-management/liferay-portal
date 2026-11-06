@@ -1,18 +1,11 @@
 /**
- * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
- *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
 package com.liferay.taglib.aui.base;
+
+import com.liferay.taglib.util.PositionTagSupport;
 
 import jakarta.servlet.jsp.JspException;
 
@@ -21,89 +14,91 @@ import jakarta.servlet.jsp.JspException;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
- * @generated
  */
-public abstract class BaseLinkTag extends com.liferay.taglib.util.PositionTagSupport {
+public abstract class BaseLinkTag extends PositionTagSupport {
 
 	public int doStartTag() throws JspException {
 		return super.doStartTag();
-	}
-
-	public String getCssClass() {
-		return _cssClass;
-	}
-
-	public void setCssClass(String cssClass) {
-		_cssClass = cssClass;
 	}
 
 	public String getCrossOrigin() {
 		return _crossOrigin;
 	}
 
-	public void setCrossOrigin(String crossOrigin) {
-		_crossOrigin = crossOrigin;
+	public String getCssClass() {
+		return _cssClass;
 	}
 
 	public boolean getHashedFile() {
 		return _hashedFile;
 	}
 
-	public void setHashedFile(boolean hashedFile) {
-		_hashedFile = hashedFile;
-	}
-
 	public String getHref() {
 		return _href;
-	}
-
-	public void setHref(String href) {
-		_href = href;
 	}
 
 	public String getId() {
 		return _id;
 	}
 
-	public void setId(String id) {
-		_id = id;
-	}
-
 	public String getIntegrity() {
 		return _integrity;
-	}
-
-	public void setIntegrity(String integrity) {
-		_integrity = integrity;
 	}
 
 	public String getRel() {
 		return _rel;
 	}
 
-	public void setRel(String rel) {
-		_rel = rel;
-	}
-
 	public String getSenna() {
 		return _senna;
-	}
-
-	public void setSenna(String senna) {
-		_senna = senna;
 	}
 
 	public String getType() {
 		return _type;
 	}
 
+	public void setCrossOrigin(String crossOrigin) {
+		_crossOrigin = crossOrigin;
+	}
+
+	public void setCssClass(String cssClass) {
+		_cssClass = cssClass;
+	}
+
+	public void setHashedFile(boolean hashedFile) {
+		_hashedFile = hashedFile;
+	}
+
+	public void setHref(String href) {
+		_href = href;
+	}
+
+	public void setId(String id) {
+		_id = id;
+	}
+
+	public void setIntegrity(String integrity) {
+		_integrity = integrity;
+	}
+
+	public void setRel(String rel) {
+		_rel = rel;
+	}
+
+	public void setSenna(String senna) {
+		_senna = senna;
+	}
+
 	public void setType(String type) {
 		_type = type;
 	}
 
+	@Override
 	protected void cleanUp() {
-		_cssClass = null;
+		super.cleanUp();
+
 		_crossOrigin = null;
+		_cssClass = null;
 		_hashedFile = false;
 		_href = null;
 		_id = null;
@@ -117,17 +112,16 @@ public abstract class BaseLinkTag extends com.liferay.taglib.util.PositionTagSup
 		return _PAGE;
 	}
 
-	private static final String _PAGE =
-		"/html/taglib/aui/style/page.jsp";
+	private static final String _PAGE = "/html/taglib/aui/style/page.jsp";
 
-	private String _cssClass = null;
-	private String _crossOrigin = null;
+	private String _crossOrigin;
+	private String _cssClass;
 	private boolean _hashedFile;
-	private String _href = null;
-	private String _id = null;
-	private String _integrity = null;
-	private String _rel = null;
-	private String _senna = null;
-	private String _type = null;
+	private String _href;
+	private String _id;
+	private String _integrity;
+	private String _rel;
+	private String _senna;
+	private String _type;
 
 }

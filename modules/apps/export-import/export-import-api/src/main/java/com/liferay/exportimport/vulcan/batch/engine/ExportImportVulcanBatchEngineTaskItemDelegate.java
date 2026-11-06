@@ -37,6 +37,12 @@ public interface ExportImportVulcanBatchEngineTaskItemDelegate<T>
 			return null;
 		}
 
+		public default Function<T, String>
+			getJSONTypeInfoPropertyValueFunction() {
+
+			return null;
+		}
+
 		public String getKey();
 
 		public String getLabelLanguageKey();
