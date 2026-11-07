@@ -13,18 +13,17 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.portlet.LiferayPortletURL;
-import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.product.navigation.personal.menu.util.PersonalApplicationURLUtil;
 import com.liferay.site.cms.site.initializer.internal.constants.CMSSiteInitializerFDSNames;
 
-import jakarta.portlet.PortletRequest;
+import jakarta.portlet.ActionRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -52,34 +51,28 @@ public class ViewHomeWorkflowTasksDisplayContext {
 	}
 
 	public Map<String, Object> getReactData() throws Exception {
-		LiferayPortletURL liferayPortletURL = PortletURLFactoryUtil.create(
-			_httpServletRequest, PortletKeys.MY_WORKFLOW_TASK,
-			PersonalApplicationURLUtil.
-				getOrAddEmbeddedPersonalApplicationLayout(
-					_themeDisplay.getGuestUser(), _themeDisplay.getScopeGroup(),
-					false),
-			PortletRequest.RENDER_PHASE);
+		String tasksURL = PortalUtil.getLayoutFullURL(
+			LayoutLocalServiceUtil.getLayoutByFriendlyURL(
+				_themeDisplay.getScopeGroupId(), false, "/tasks"),
+			_themeDisplay);
 
 		return HashMapBuilder.<String, Object>put(
 			"id", CMSSiteInitializerFDSNames.HOME_MY_WORKFLOW_TASKS_SECTION
 		).put(
-			"myRolesWorkflowTasksURL",
-			PortletURLBuilder.create(
-				liferayPortletURL
-			).setRedirect(
-				_themeDisplay.getURLCurrent()
-			).setTabs1(
-				"assigned-to-my-roles"
-			).buildString()
+			"myRolesWorkflowTasksURL", tasksURL
 		).put(
-			"myWorkflowTasksURL",
-			PortletURLBuilder.create(
-				liferayPortletURL
-			).setRedirect(
-				_themeDisplay.getURLCurrent()
-			).buildString()
+			"myWorkflowTasksURL", tasksURL
 		).put(
 			"objectDefinitions", _getObjectDefinitionsJSONArray()
+		).put(
+			"workflowTaskURL",
+			PortletURLBuilder.create(
+				PortalUtil.getControlPanelPortletURL(
+					_httpServletRequest, PortletKeys.MY_WORKFLOW_TASK,
+					ActionRequest.RENDER_PHASE)
+			).setRedirect(
+				_themeDisplay.getURLCurrent()
+			).buildString()
 		).build();
 	}
 
