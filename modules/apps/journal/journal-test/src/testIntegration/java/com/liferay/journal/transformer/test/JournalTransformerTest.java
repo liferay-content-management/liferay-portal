@@ -9,6 +9,8 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
 import com.liferay.data.engine.rest.test.util.DataDefinitionTestUtil;
+import com.liferay.document.library.kernel.util.DLUtil;
+import com.liferay.document.library.test.util.DLAppTestUtil;
 import com.liferay.dynamic.data.mapping.form.field.type.constants.DDMFormFieldTypeConstants;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
@@ -41,6 +43,7 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.PortletRequestModel;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
@@ -56,6 +59,7 @@ import com.liferay.portal.kernel.template.TemplateVariableGroup;
 import com.liferay.portal.kernel.templateparser.TemplateNode;
 import com.liferay.portal.kernel.templateparser.TransformerListener;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -577,6 +581,105 @@ public class JournalTransformerTest {
 	}
 
 	@Test
+	@TestInfo("LPD-113664")
+	public void testTransformImageDDMFormFieldType() throws Exception {
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", _dataDefinitionResourceFactory, _group.getGroupId(),
+				_read("data_definition_with_image_field.json"),
+				TestPropsValues.getUser());
+
+		FileEntry fileEntry = DLAppTestUtil.addFileEntry(_group.getGroupId());
+
+		JournalArticle journalArticle =
+			JournalTestUtil.addArticleWithXMLContent(
+				_group.getGroupId(),
+				StringUtil.replace(
+					_read("journal_article_content_with_image_field.xml"),
+					new String[] {
+						"[$FILE_ENTRY_ID$]", "[$GROUP_ID$]", "[$TITLE$]",
+						"[$UUID$]"
+					},
+					new String[] {
+						String.valueOf(fileEntry.getFileEntryId()),
+						String.valueOf(fileEntry.getGroupId()),
+						fileEntry.getTitle(), fileEntry.getUuid()
+					}),
+				dataDefinition.getDataDefinitionKey(), null);
+
+		ThemeDisplay themeDisplay = _getThemeDisplay(
+			LayoutTestUtil.addTypePortletLayout(_group));
+
+		Assert.assertEquals(
+			DLUtil.getPreviewURL(
+				fileEntry, fileEntry.getFileVersion(), themeDisplay,
+				StringPool.BLANK, false, false),
+			_transformMethod.invoke(
+				_journalTransformer, journalArticle, null, _journalHelper,
+				LocaleUtil.toLanguageId(LocaleUtil.US),
+				_layoutDisplayPageProviderRegistry,
+				ListUtil.filter(
+					_serviceTrackerList.toList(),
+					TransformerListener::isEnabled),
+				null, false, "${Image27403159.getData()}", themeDisplay,
+				Constants.VIEW));
+	}
+
+	@Test
+	@TestInfo("LPD-113664")
+	public void testTransformLinkToLayoutDDMFormFieldType() throws Exception {
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", _dataDefinitionResourceFactory, _group.getGroupId(),
+				_read("data_definition_with_link_to_layout_field.json"),
+				TestPropsValues.getUser());
+
+		Layout layout = LayoutTestUtil.addTypePortletLayout(_group);
+
+		ThemeDisplay themeDisplay = _getThemeDisplay(layout);
+
+		_assertTransformLinkToLayout(
+			dataDefinition, layout, _getLayoutRelativeURL(layout),
+			themeDisplay);
+
+		Layout nodeLayout = LayoutTestUtil.addTypeNodeLayout(
+			_group.getGroupId(), false);
+
+		Layout childLayout = LayoutTestUtil.addTypePortletLayout(
+			_group, layout.getPlid());
+
+		Layout grandchildLayout = LayoutTestUtil.addTypePortletLayout(
+			_group, childLayout.getPlid());
+
+		for (Layout curLayout :
+				new Layout[] {
+					LayoutTestUtil.addTypeContentLayout(_group),
+					LayoutTestUtil.addTypeEmbeddedLayout(_group.getGroupId()),
+					LayoutTestUtil.addTypeFullPageApplicationLayout(
+						_group.getGroupId()),
+					LayoutTestUtil.addTypeLinkToLayoutLayout(
+						_group.getGroupId(), layout.getLayoutId()),
+					LayoutTestUtil.addTypePanelLayout(_group.getGroupId()),
+					LayoutTestUtil.addTypePortletLayout(
+						_group, nodeLayout.getPlid()),
+					LayoutTestUtil.addTypePortletLayout(
+						_group, grandchildLayout.getPlid())
+				}) {
+
+			_assertTransformLinkToLayout(
+				dataDefinition, curLayout, _getLayoutRelativeURL(curLayout),
+				themeDisplay);
+		}
+
+		String url = "https://www.liferay.com/" + RandomTestUtil.randomString();
+
+		_assertTransformLinkToLayout(
+			dataDefinition,
+			LayoutTestUtil.addTypeLinkToURLLayout(_group.getGroupId(), url),
+			url, themeDisplay);
+	}
+
+	@Test
 	public void testTransformRecursionGuard() throws Exception {
 		_testTransformSameArticleWithDefaultDDMTemplate();
 		_testTransformSameArticleWithDifferentDDMTemplate();
@@ -761,6 +864,71 @@ public class JournalTransformerTest {
 				"${.vars[\"" + templateVariableDefinition.getName() +
 					"\"].data}",
 				null, Constants.VIEW));
+	}
+
+	private void _assertTransformLinkToLayout(
+			DataDefinition dataDefinition, Layout layout, String expectedURL,
+			ThemeDisplay themeDisplay)
+		throws Exception {
+
+		String content = StringUtil.replace(
+			_read("journal_article_content_with_link_to_layout_field.xml"),
+			new String[] {"[$GROUP_ID$]", "[$LAYOUT_ID$]"},
+			new String[] {
+				String.valueOf(layout.getGroupId()),
+				String.valueOf(layout.getLayoutId())
+			});
+
+		JournalArticle journalArticle =
+			JournalTestUtil.addArticleWithXMLContent(
+				_group.getGroupId(), content,
+				dataDefinition.getDataDefinitionKey(), null);
+
+		Assert.assertEquals(
+			expectedURL,
+			_transformMethod.invoke(
+				_journalTransformer, journalArticle, null, _journalHelper,
+				LocaleUtil.toLanguageId(LocaleUtil.US),
+				_layoutDisplayPageProviderRegistry,
+				ListUtil.filter(
+					_serviceTrackerList.toList(),
+					TransformerListener::isEnabled),
+				null, false, "${LinkToPage38292648.getFriendlyUrl()}",
+				themeDisplay, Constants.VIEW));
+	}
+
+	private String _getLayoutRelativeURL(Layout layout) {
+		return _portal.getPathFriendlyURLPublic() + _group.getFriendlyURL() +
+			layout.getFriendlyURL();
+	}
+
+	private ThemeDisplay _getThemeDisplay(Layout layout) throws Exception {
+		ThemeDisplay themeDisplay = new ThemeDisplay();
+
+		themeDisplay.setCompany(
+			_companyLocalService.getCompany(_group.getCompanyId()));
+		themeDisplay.setI18nLanguageId(StringPool.BLANK);
+		themeDisplay.setLayout(layout);
+		themeDisplay.setLayoutSet(layout.getLayoutSet());
+		themeDisplay.setLocale(LocaleUtil.US);
+
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
+		mockHttpServletRequest.setAttribute(WebKeys.LAYOUT, layout);
+		mockHttpServletRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, themeDisplay);
+
+		themeDisplay.setRequest(mockHttpServletRequest);
+
+		themeDisplay.setResponse(new MockHttpServletResponse());
+		themeDisplay.setScopeGroupId(_group.getGroupId());
+		themeDisplay.setServerName("localhost");
+		themeDisplay.setServerPort(_portal.getPortalServerPort(false));
+		themeDisplay.setSiteGroupId(_group.getGroupId());
+		themeDisplay.setUser(TestPropsValues.getUser());
+
+		return themeDisplay;
 	}
 
 	private String _read(String fileName) throws Exception {
