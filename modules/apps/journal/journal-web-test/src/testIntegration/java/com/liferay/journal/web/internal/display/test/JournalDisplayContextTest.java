@@ -6,6 +6,9 @@
 package com.liferay.journal.web.internal.display.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
+import com.liferay.journal.configuration.JournalServiceConfiguration;
 import com.liferay.journal.constants.JournalArticleConstants;
 import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalArticle;
@@ -14,13 +17,16 @@ import com.liferay.journal.service.JournalFolderLocalService;
 import com.liferay.journal.test.util.JournalFolderFixture;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.comment.CommentManager;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.portlet.bridges.mvc.constants.MVCRenderConstants;
 import com.liferay.portal.kernel.search.Field;
@@ -29,6 +35,9 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFunction;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.TestInfo;
+import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionRequest;
+import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionResponse;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderResponse;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletURL;
@@ -41,6 +50,8 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -53,6 +64,10 @@ import com.liferay.portlet.test.MockLiferayPortletContext;
 import jakarta.portlet.Portlet;
 import jakarta.portlet.PortletURL;
 
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -94,6 +109,95 @@ public class JournalDisplayContextTest {
 	}
 
 	@Test
+	@TestInfo("LPD-113664")
+	public void testGetAddMenuFavItems() throws Exception {
+		DDMStructure ddmStructure1 = DDMStructureTestUtil.addStructure(
+			_group.getGroupId(), JournalArticle.class.getName());
+		DDMStructure ddmStructure2 = DDMStructureTestUtil.addStructure(
+			_group.getGroupId(), JournalArticle.class.getName());
+
+		Object journalDisplayContext = _getJournalDisplayContext();
+
+		List<DDMStructure> ddmStructures = ReflectionTestUtil.invoke(
+			journalDisplayContext, "getDDMStructures", new Class<?>[0]);
+
+		Assert.assertTrue(ddmStructures.contains(ddmStructure1));
+		Assert.assertTrue(ddmStructures.contains(ddmStructure2));
+
+		Assert.assertArrayEquals(
+			new long[0],
+			ReflectionTestUtil.invoke(
+				journalDisplayContext, "getAddMenuFavItems", new Class<?>[0]));
+
+		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
+			new MockLiferayPortletActionRequest();
+
+		mockLiferayPortletActionRequest.addParameter(
+			"ddmStructureId", String.valueOf(ddmStructure2.getStructureId()));
+		mockLiferayPortletActionRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, _getThemeDisplay());
+
+		_addMenuFavItemMVCActionCommand.processAction(
+			mockLiferayPortletActionRequest,
+			new MockLiferayPortletActionResponse());
+
+		Assert.assertArrayEquals(
+			new long[] {ddmStructure2.getStructureId()},
+			ReflectionTestUtil.invoke(
+				_getJournalDisplayContext(), "getAddMenuFavItems",
+				new Class<?>[0]));
+	}
+
+	@Test
+	@TestInfo("LPD-113777")
+	public void testGetArticleActionDropdownItems() throws Exception {
+		_user = UserTestUtil.addGroupAdminUser(_group);
+
+		_serviceContext.setUserId(_user.getUserId());
+
+		JournalArticle journalArticle = _addJournalArticle(
+			RandomTestUtil.randomString());
+
+		_assertArticleActionDropdownItemLabels(
+			journalArticle, "Edit", "Preview", "Translate", "Expire",
+			"Subscribe", "View History", "View Usages", "Make a Copy",
+			"Export for Translation", "Import Translation", "Move",
+			"Permissions", "Delete");
+
+		JournalTestUtil.updateArticle(
+			journalArticle, RandomTestUtil.randomString());
+
+		_assertArticleActionDropdownItemLabels(
+			journalArticle, "Edit Latest Version", "Preview", "Translate",
+			"Expire", "Subscribe", "View History", "View Usages", "Make a Copy",
+			"Export for Translation", "Import Translation", "Move",
+			"Permissions", "Delete");
+
+		_assertArticleActionDropdownItemLabels(
+			JournalTestUtil.addArticle(
+				_group.getGroupId(),
+				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				JournalArticleConstants.CLASS_NAME_ID_DEFAULT, StringPool.BLANK,
+				true, _getLocaleStringMap(RandomTestUtil.randomString()),
+				_getLocaleStringMap(RandomTestUtil.randomString()),
+				_getLocaleStringMap(RandomTestUtil.randomString()), null,
+				LocaleUtil.getDefault(), null, true, false, _serviceContext),
+			"Edit", "Preview Draft", "Translate", "Subscribe", "View History",
+			"View Usages", "Make a Copy", "Export for Translation",
+			"Import Translation", "Move", "Permissions", "Delete");
+
+		journalArticle = _addJournalArticle(RandomTestUtil.randomString());
+
+		_assertArticleActionDropdownItemLabels(
+			JournalTestUtil.expireArticle(
+				_group.getGroupId(), journalArticle,
+				journalArticle.getVersion()),
+			"Edit", "Preview", "Translate", "Subscribe", "View History",
+			"View Usages", "Make a Copy", "Export for Translation",
+			"Import Translation", "Move", "Permissions", "Delete");
+	}
+
+	@Test
 	public void testGetPortletURLWithHighlightedDDMStructureIdParameter()
 		throws Exception {
 
@@ -118,6 +222,42 @@ public class JournalDisplayContextTest {
 		SearchContainer<Object> searchContainer = _getSearchContainer();
 
 		Assert.assertEquals(count, searchContainer.getTotal());
+	}
+
+	@Test
+	@TestInfo("LPD-113777")
+	public void testGetSearchContainerWhenIndexAllArticleVersionsIsDisabled()
+		throws Exception {
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						JournalServiceConfiguration.class.getName(),
+						HashMapDictionaryBuilder.<String, Object>put(
+							"indexAllArticleVersionsEnabled", false
+						).build())) {
+
+			JournalFolderFixture journalFolderFixture =
+				new JournalFolderFixture(_journalFolderLocalService);
+
+			JournalFolder journalFolder = journalFolderFixture.addFolder(
+				_group.getGroupId(), RandomTestUtil.randomString());
+
+			JournalArticle journalArticle = _addJournalArticleVersions();
+
+			Assert.assertFalse(
+				ReflectionTestUtil.invoke(
+					_getJournalDisplayContext(), "isIndexAllArticleVersions",
+					new Class<?>[0]));
+
+			SearchContainer<Object> searchContainer = _getSearchContainer(
+				"versions");
+
+			Assert.assertEquals(
+				Arrays.asList(journalFolder, journalArticle),
+				searchContainer.getResults());
+		}
 	}
 
 	@Test
@@ -176,6 +316,37 @@ public class JournalDisplayContextTest {
 
 		_assertSearchContainer(2, "all", true, 0);
 		_assertSearchContainer(3, "all", false, 0);
+	}
+
+	@Test
+	@TestInfo("LPD-113777")
+	public void testGetSearchContainerWithTypeParameter() throws Exception {
+		JournalFolderFixture journalFolderFixture = new JournalFolderFixture(
+			_journalFolderLocalService);
+
+		JournalFolder journalFolder = journalFolderFixture.addFolder(
+			_group.getGroupId(), RandomTestUtil.randomString());
+
+		JournalArticle journalArticle = _addJournalArticleVersions();
+
+		SearchContainer<Object> searchContainer = _getSearchContainer(
+			"versions");
+
+		Assert.assertEquals(
+			Arrays.asList(1.2, 1.1, 1.0),
+			TransformUtil.transform(
+				searchContainer.getResults(),
+				result -> {
+					JournalArticle article = (JournalArticle)result;
+
+					return article.getVersion();
+				}));
+
+		searchContainer = _getSearchContainer("web-content");
+
+		Assert.assertEquals(
+			Arrays.asList(journalFolder, journalArticle),
+			searchContainer.getResults());
 	}
 
 	@Test
@@ -250,6 +421,58 @@ public class JournalDisplayContextTest {
 			null, LocaleUtil.getDefault(), null, false, false, _serviceContext);
 	}
 
+	private JournalArticle _addJournalArticleVersions() throws Exception {
+		JournalArticle journalArticle = _addJournalArticle(
+			RandomTestUtil.randomString());
+
+		for (int i = 0; i < 2; i++) {
+			journalArticle = JournalTestUtil.updateArticle(
+				journalArticle, RandomTestUtil.randomString());
+		}
+
+		return journalArticle;
+	}
+
+	private void _assertArticleActionDropdownItemLabels(
+			JournalArticle journalArticle, String... expectedLabels)
+		throws Exception {
+
+		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
+			_renderPortlet();
+
+		HttpServletRequest httpServletRequest =
+			mockLiferayPortletRenderRequest.getHttpServletRequest();
+
+		httpServletRequest.removeAttribute(
+			JavaConstants.JAKARTA_PORTLET_CONFIG);
+		httpServletRequest.setAttribute(
+			JavaConstants.JAKARTA_PORTLET_REQUEST,
+			mockLiferayPortletRenderRequest);
+
+		List<Map<String, Object>> articleActionDropdownItems =
+			ReflectionTestUtil.invoke(
+				mockLiferayPortletRenderRequest.getAttribute(
+					"com.liferay.journal.web.internal.display.context." +
+						"JournalDisplayContext"),
+				"getArticleActionDropdownItems",
+				new Class<?>[] {JournalArticle.class}, journalArticle);
+
+		List<String> labels = new ArrayList<>();
+
+		for (Map<String, Object> dropdownGroupItem :
+				articleActionDropdownItems) {
+
+			List<Map<String, Object>> dropdownItems =
+				(List<Map<String, Object>>)dropdownGroupItem.get("items");
+
+			for (Map<String, Object> dropdownItem : dropdownItems) {
+				labels.add((String)dropdownItem.get("label"));
+			}
+		}
+
+		Assert.assertEquals(Arrays.asList(expectedLabels), labels);
+	}
+
 	private void _assertSearchContainer(
 			int expectedSize, String navigation, Boolean navigationRecent,
 			long highlightedDDMStructureId)
@@ -263,6 +486,15 @@ public class JournalDisplayContextTest {
 		List<Object> results = searchContainer.getResults();
 
 		Assert.assertEquals(results.toString(), expectedSize, results.size());
+	}
+
+	private Object _getJournalDisplayContext() throws Exception {
+		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
+			_renderPortlet();
+
+		return mockLiferayPortletRenderRequest.getAttribute(
+			"com.liferay.journal.web.internal.display.context." +
+				"JournalDisplayContext");
 	}
 
 	private Map<Locale, String> _getLocaleStringMap(String value) {
@@ -362,6 +594,21 @@ public class JournalDisplayContextTest {
 			"getSearchContainer", new Class<?>[0]);
 	}
 
+	private SearchContainer<Object> _getSearchContainer(String type)
+		throws Exception {
+
+		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
+			_renderPortlet();
+
+		mockLiferayPortletRenderRequest.setParameter("type", type);
+
+		return ReflectionTestUtil.invoke(
+			mockLiferayPortletRenderRequest.getAttribute(
+				"com.liferay.journal.web.internal.display.context." +
+					"JournalDisplayContext"),
+			"getSearchContainer", new Class<?>[0]);
+	}
+
 	private Map<String, Object> _getSearchProps(
 			MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest)
 		throws Exception {
@@ -381,6 +628,7 @@ public class JournalDisplayContextTest {
 		themeDisplay.setPermissionChecker(
 			PermissionCheckerFactoryUtil.create(_user));
 		themeDisplay.setScopeGroupId(_group.getGroupId());
+		themeDisplay.setSignedIn(true);
 		themeDisplay.setSiteGroupId(_group.getGroupId());
 		themeDisplay.setUser(_user);
 
@@ -454,6 +702,9 @@ public class JournalDisplayContextTest {
 			unsafeFunction.apply(
 				_getSearchProps(mockLiferayPortletRenderRequest)));
 	}
+
+	@Inject(filter = "mvc.command.name=/journal/add_menu_fav_item")
+	private MVCActionCommand _addMenuFavItemMVCActionCommand;
 
 	@Inject
 	private CommentManager _commentManager;
