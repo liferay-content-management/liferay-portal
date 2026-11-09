@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.repository.model.FileVersion;
+import com.liferay.portal.kernel.transaction.TransactionCallbackUtil;
 
 import java.util.Objects;
 
@@ -43,29 +44,35 @@ public class DLFileVersionModelListener
 	public void onAfterRemove(DLFileVersion dlFileVersion)
 		throws ModelListenerException {
 
-		try {
-			DLFileEntry dlFileEntry = _dlFileEntryLocalService.fetchDLFileEntry(
-				dlFileVersion.getFileEntryId());
+		DLFileEntry dlFileEntry = _dlFileEntryLocalService.fetchDLFileEntry(
+			dlFileVersion.getFileEntryId());
 
-			if (dlFileEntry != null) {
-				DLStoreUtil.deleteFile(
-					dlFileEntry.getCompanyId(),
-					dlFileEntry.getDataRepositoryId(), dlFileEntry.getName(),
-					dlFileVersion.getStoreFileName());
-			}
+		if (dlFileEntry != null) {
+			TransactionCallbackUtil.registerCommitCallback(
+				() -> {
+					try {
+						DLStoreUtil.deleteFile(
+							dlFileEntry.getCompanyId(),
+							dlFileEntry.getDataRepositoryId(),
+							dlFileEntry.getName(),
+							dlFileVersion.getStoreFileName());
+					}
+					catch (PortalException portalException) {
+						_log.error(portalException);
+					}
 
-			DLFileVersionPreview dlFileVersionPreview =
-				_dlFileVersionPreviewLocalService.fetchDLFileVersionPreview(
-					dlFileVersion.getFileEntryId(),
-					dlFileVersion.getFileVersionId());
-
-			if (dlFileVersionPreview != null) {
-				_dlFileVersionPreviewLocalService.deleteDLFileVersionPreview(
-					dlFileVersionPreview);
-			}
+					return null;
+				});
 		}
-		catch (PortalException portalException) {
-			_log.error(portalException);
+
+		DLFileVersionPreview dlFileVersionPreview =
+			_dlFileVersionPreviewLocalService.fetchDLFileVersionPreview(
+				dlFileVersion.getFileEntryId(),
+				dlFileVersion.getFileVersionId());
+
+		if (dlFileVersionPreview != null) {
+			_dlFileVersionPreviewLocalService.deleteDLFileVersionPreview(
+				dlFileVersionPreview);
 		}
 	}
 

@@ -848,16 +848,22 @@ public class DLFileEntryLocalServiceImpl
 
 		// File
 
-		try {
-			DLStoreUtil.deleteFile(
-				dlFileEntry.getCompanyId(), dlFileEntry.getDataRepositoryId(),
-				dlFileEntry.getName());
-		}
-		catch (Exception exception) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(exception);
-			}
-		}
+		TransactionCallbackUtil.registerCommitCallback(
+			() -> {
+				try {
+					DLStoreUtil.deleteFile(
+						dlFileEntry.getCompanyId(),
+						dlFileEntry.getDataRepositoryId(),
+						dlFileEntry.getName());
+				}
+				catch (Exception exception) {
+					if (_log.isWarnEnabled()) {
+						_log.warn(exception);
+					}
+				}
+
+				return null;
+			});
 
 		return dlFileEntry;
 	}
