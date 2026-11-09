@@ -86,6 +86,9 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.transaction.TransactionConfig;
+import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -1296,6 +1299,44 @@ public class DLFileEntryLocalServiceTest {
 			20,
 			DLFileEntryLocalServiceUtil.getFileEntriesCount(
 				_group.getGroupId(), folder.getFolderId()));
+	}
+
+	@Test
+	public void testDeleteFileEntry() throws Exception {
+		DLFileEntry dlFileEntry = addAndApproveFileEntry(
+			DLTestUtil.addDLFolder(_group.getGroupId()), Collections.emptyMap(),
+			new ByteArrayInputStream(new byte[0]),
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		Exception exception = new Exception();
+
+		Assert.assertSame(
+			exception,
+			Assert.assertThrows(
+				Exception.class,
+				() -> TransactionInvokerUtil.invoke(
+					TransactionConfig.Factory.create(
+						Propagation.REQUIRED, new Class<?>[] {Exception.class}),
+					() -> {
+						_dlFileEntryLocalService.deleteFileEntry(
+							dlFileEntry.getFileEntryId());
+
+						throw exception;
+					})));
+
+		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
+
+		Assert.assertTrue(
+			DLStoreUtil.hasFile(
+				dlFileEntry.getCompanyId(), dlFileEntry.getDataRepositoryId(),
+				dlFileEntry.getName(), dlFileVersion.getStoreFileName()));
+
+		_dlFileEntryLocalService.deleteFileEntry(dlFileEntry.getFileEntryId());
+
+		Assert.assertFalse(
+			DLStoreUtil.hasFile(
+				dlFileEntry.getCompanyId(), dlFileEntry.getDataRepositoryId(),
+				dlFileEntry.getName(), dlFileVersion.getStoreFileName()));
 	}
 
 	@Test
