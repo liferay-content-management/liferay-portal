@@ -18,15 +18,21 @@ public class ProjectUsageMetricDisplay {
 
 	public ProjectUsageMetricDisplay(
 			String corpProjectName, String corpProjectUuid,
-			String lastAccessDateString, String lastAnniversaryDateString,
-			boolean offline, String salesforceAccountId,
-			List<UsageMetric> usageMetrics, String weDeployKey)
+			boolean dataPlatform, String lastAccessDateString,
+			String lastAnniversaryDateString, boolean offline,
+			String productEntryId, String productName,
+			String salesforceAccountId, List<UsageMetric> usageMetrics,
+			String weDeployKey)
 		throws Exception {
 
 		_corpProjectName = corpProjectName;
 		_corpProjectUuid = corpProjectUuid;
+		_dataPlatform = dataPlatform;
 		_lastAccessDateString = lastAccessDateString;
 		_lastAnniversaryDateString = lastAnniversaryDateString;
+		_offline = offline;
+		_productEntryId = productEntryId;
+		_productName = productName;
 		_salesforceAccountId = salesforceAccountId;
 		_usageMetrics = usageMetrics;
 		_weDeployKey = weDeployKey;
@@ -52,6 +58,14 @@ public class ProjectUsageMetricDisplay {
 		return isOffline();
 	}
 
+	public String getProductEntryId() {
+		return _productEntryId;
+	}
+
+	public String getProductName() {
+		return _productName;
+	}
+
 	public String getSalesforceAccountId() {
 		return _salesforceAccountId;
 	}
@@ -64,15 +78,22 @@ public class ProjectUsageMetricDisplay {
 		return _weDeployKey;
 	}
 
+	public boolean isDataPlatform() {
+		return _dataPlatform;
+	}
+
 	public boolean isOffline() {
 		return _offline;
 	}
 
 	private String _corpProjectName;
 	private String _corpProjectUuid;
+	private boolean _dataPlatform;
 	private String _lastAccessDateString;
 	private String _lastAnniversaryDateString;
 	private boolean _offline;
+	private String _productEntryId;
+	private String _productName;
 	private String _salesforceAccountId;
 	private List<UsageMetric> _usageMetrics;
 	private String _weDeployKey;

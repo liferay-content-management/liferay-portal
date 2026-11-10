@@ -32,14 +32,23 @@ import com.liferay.portal.configuration.test.util.ConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.increment.BufferedIncrementThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.AssertUtils;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.constants.ServiceTestConstants;
+import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
@@ -56,6 +65,7 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.security.permission.DoAsUserThread;
 import com.liferay.portlet.asset.util.AssetVocabularySettingsHelper;
+import com.liferay.portlet.documentlibrary.constants.DLConstants;
 
 import java.io.File;
 import java.io.InputStream;
@@ -460,6 +470,33 @@ public class DLAppServiceWhenAddingAFileEntryTest extends BaseDLAppTestCase {
 			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 	}
 
+	@Test
+	@TestInfo("LPD-113625")
+	public void testShouldSucceedIfUserHasAddDocumentPermission()
+		throws Exception {
+
+		User user = UserTestUtil.addUser();
+
+		_assertAddFileEntry(false, user);
+
+		Role regularRole = RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
+
+		RoleTestUtil.addResourcePermission(
+			regularRole, DLConstants.RESOURCE_NAME,
+			ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(TestPropsValues.getCompanyId()),
+			ActionKeys.ADD_DOCUMENT);
+
+		_userLocalService.addRoleUser(regularRole.getRoleId(), user);
+
+		_assertAddFileEntry(true, user);
+
+		User siteMemberUser = UserTestUtil.addGroupUser(
+			group, RoleConstants.SITE_MEMBER);
+
+		_assertAddFileEntry(true, siteMemberUser);
+	}
+
 	@Ignore
 	@Test
 	public void testShouldSucceedWithConcurrentAccess() throws Exception {
@@ -536,6 +573,28 @@ public class DLAppServiceWhenAddingAFileEntryTest extends BaseDLAppTestCase {
 			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
 	}
 
+	private void _assertAddFileEntry(boolean expected, User user)
+		throws Exception {
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				user)) {
+
+			dlAppService.addFileEntry(
+				null, group.getGroupId(),
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				RandomTestUtil.randomString(),
+				ContentTypes.APPLICATION_OCTET_STREAM,
+				RandomTestUtil.randomString(), null, StringPool.BLANK,
+				StringPool.BLANK, (byte[])null, null, null, null,
+				ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+
+			Assert.assertTrue(expected);
+		}
+		catch (PrincipalException principalException) {
+			Assert.assertFalse(expected);
+		}
+	}
+
 	private static final String _TEST_GPX =
 		"/com/liferay/document/library/dependencies/test.gpx";
 
@@ -552,6 +611,9 @@ public class DLAppServiceWhenAddingAFileEntryTest extends BaseDLAppTestCase {
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
 
 	private long[] _fileEntryIds;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 	@DeleteAfterTestRun
 	private User[] _users;

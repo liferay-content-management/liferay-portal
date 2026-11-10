@@ -6,6 +6,7 @@
 package com.liferay.portal.tools.db.migration.importer;
 
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.dao.jdbc.postgresql.PostgreSQLJDBCUtil;
@@ -22,11 +23,14 @@ import com.liferay.portal.tools.db.migration.importer.jdbc.ConnectionConfigUtil;
 
 import java.math.BigDecimal;
 
+import java.nio.charset.StandardCharsets;
+
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -82,12 +86,12 @@ public class DBCopyTablesProcess {
 	public void run() throws Exception {
 		_loadColumnsMetadata();
 
-		_addCustomColumns();
+		_addCustomColumnsAndTables();
 
 		_copyTables();
 	}
 
-	private void _addCustomColumns() throws Exception {
+	private void _addCustomColumnsAndTables() throws Exception {
 		try (Connection sourceConnection = _sourceDataSource.getConnection();
 
 			Connection targetConnection = _targetDataSource.getConnection();
@@ -95,6 +99,11 @@ public class DBCopyTablesProcess {
 			Statement statement = targetConnection.createStatement()) {
 
 			DatabaseMetaData databaseMetaData = sourceConnection.getMetaData();
+
+			Map<String, List<String>> columnDefinitionsMap = new TreeMap<>(
+				String.CASE_INSENSITIVE_ORDER);
+			Set<String> longNameTableNames = new TreeSet<>(
+				String.CASE_INSENSITIVE_ORDER);
 
 			try (ResultSet resultSet = databaseMetaData.getColumns(
 					sourceConnection.getCatalog(), sourceConnection.getSchema(),
@@ -107,14 +116,35 @@ public class DBCopyTablesProcess {
 						continue;
 					}
 
+					String columnName = resultSet.getString("COLUMN_NAME");
+
 					List<String> targetColumnNames = _targetColumnNamesMap.get(
 						tableName);
 
 					if (targetColumnNames == null) {
+						if (_isLongName(columnName) || _isLongName(tableName)) {
+							longNameTableNames.add(tableName);
+
+							continue;
+						}
+
+						String columnDefinition = _getColumnDefinition(
+							columnName, resultSet);
+
+						if (resultSet.getInt("NULLABLE") ==
+								DatabaseMetaData.columnNoNulls) {
+
+							columnDefinition += " not null";
+						}
+
+						List<String> columnDefinitions =
+							columnDefinitionsMap.computeIfAbsent(
+								tableName, newTableName -> new ArrayList<>());
+
+						columnDefinitions.add(columnDefinition);
+
 						continue;
 					}
-
-					String columnName = resultSet.getString("COLUMN_NAME");
 
 					if (ListUtil.exists(
 							targetColumnNames,
@@ -124,14 +154,45 @@ public class DBCopyTablesProcess {
 						continue;
 					}
 
+					if (_isLongName(columnName)) {
+						System.out.println(
+							StringBundler.concat(
+								"Unable to add column ", columnName,
+								" to table ", tableName, _partitionMessage,
+								" because its name is longer than ",
+								_POSTGRESQL_NAME_MAX_LENGTH, " bytes"));
+
+						continue;
+					}
+
 					statement.executeUpdate(
 						StringBundler.concat(
-							"alter table ", tableName, " add ", columnName, " ",
-							_getPostgreSQLColumnType(
-								resultSet.getInt("COLUMN_SIZE"),
-								resultSet.getInt("DATA_TYPE"),
-								resultSet.getInt("DECIMAL_DIGITS"))));
+							"alter table ",
+							_getQuotedName(StringUtil.toLowerCase(tableName)),
+							" add ",
+							_getColumnDefinition(columnName, resultSet)));
 				}
+			}
+
+			for (String longNameTableName : longNameTableNames) {
+				columnDefinitionsMap.remove(longNameTableName);
+
+				System.out.println(
+					StringBundler.concat(
+						"Unable to create table ", longNameTableName,
+						_partitionMessage, " because its name or the name of ",
+						"one of its columns is longer than ",
+						_POSTGRESQL_NAME_MAX_LENGTH, " bytes"));
+			}
+
+			for (Map.Entry<String, List<String>> entry :
+					columnDefinitionsMap.entrySet()) {
+
+				statement.executeUpdate(
+					StringBundler.concat(
+						"create table ",
+						_getQuotedName(StringUtil.toLowerCase(entry.getKey())),
+						" (", StringUtil.merge(entry.getValue()), ")"));
 			}
 		}
 
@@ -165,8 +226,10 @@ public class DBCopyTablesProcess {
 			"select ", StringUtil.merge(sourceColumnNames), " from ",
 			sourceTableName);
 		String insertSQL = StringBundler.concat(
-			"insert into ", targetTableName, "(",
-			StringUtil.merge(targetColumnNames), ") values (",
+			"insert into ", _getQuotedName(targetTableName), " (",
+			StringUtil.merge(
+				ListUtil.toList(targetColumnNames, this::_getQuotedName), ", "),
+			") values (",
 			StringUtil.merge(
 				Collections.nCopies(targetColumnNames.size(), "?")),
 			")");
@@ -534,6 +597,16 @@ public class DBCopyTablesProcess {
 		_setColumn(index, preparedStatement, targetType, valueString);
 	}
 
+	private String _getColumnDefinition(String columnName, ResultSet resultSet)
+		throws SQLException {
+
+		return StringBundler.concat(
+			_getQuotedName(StringUtil.toLowerCase(columnName)), " ",
+			_getPostgreSQLColumnType(
+				resultSet.getInt("COLUMN_SIZE"), resultSet.getInt("DATA_TYPE"),
+				resultSet.getInt("DECIMAL_DIGITS")));
+	}
+
 	private String _getPostgreSQLColumnType(
 		int columnSize, int dataType, int decimalDigits) {
 
@@ -611,6 +684,13 @@ public class DBCopyTablesProcess {
 		return "text";
 	}
 
+	private String _getQuotedName(String name) {
+		return StringBundler.concat(
+			StringPool.QUOTE,
+			StringUtil.replace(name, CharPool.QUOTE, StringPool.DOUBLE_QUOTE),
+			StringPool.QUOTE);
+	}
+
 	private String _getSanitizedString(String value) {
 		return StringUtil.removeSubstring(value, StringPool.NULL_CHAR);
 	}
@@ -632,6 +712,16 @@ public class DBCopyTablesProcess {
 		}
 
 		return views;
+	}
+
+	private boolean _isLongName(String name) {
+		byte[] bytes = name.getBytes(StandardCharsets.UTF_8);
+
+		if (bytes.length > _POSTGRESQL_NAME_MAX_LENGTH) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private void _loadColumnNamesMap(
@@ -677,6 +767,60 @@ public class DBCopyTablesProcess {
 	private void _loadColumnsMetadata() throws Exception {
 		_loadColumnNamesMap(
 			_sourceColumnNamesMap, _sourceColumnsType, _sourceDataSource);
+
+		Set<String> toolTableNames = new HashSet<>();
+
+		try (Connection connection = _sourceDataSource.getConnection()) {
+			DatabaseMetaData databaseMetaData = connection.getMetaData();
+
+			String databaseProductName =
+				databaseMetaData.getDatabaseProductName();
+
+			String sql = null;
+
+			if (databaseProductName.startsWith("DB2")) {
+				Collections.addAll(
+					toolTableNames, "ADVISE_INDEX", "ADVISE_INSTANCE",
+					"ADVISE_MQT", "ADVISE_PARTITION", "ADVISE_TABLE",
+					"ADVISE_WORKLOAD", "EXPLAIN_ACTUALS", "EXPLAIN_ARGUMENT",
+					"EXPLAIN_DIAGNOSTIC", "EXPLAIN_DIAGNOSTIC_DATA",
+					"EXPLAIN_INSTANCE", "EXPLAIN_OBJECT", "EXPLAIN_OPERATOR",
+					"EXPLAIN_PREDICATE", "EXPLAIN_STATEMENT", "EXPLAIN_STREAM",
+					"OBJECT_METRICS");
+			}
+			else if (databaseProductName.equals("Microsoft SQL Server")) {
+				sql = "select name from sys.tables where is_ms_shipped = 1";
+			}
+			else if (databaseProductName.equals("Oracle")) {
+				sql =
+					"select job_name from user_datapump_jobs union select " +
+						"log_table from user_mview_logs";
+			}
+
+			if (sql != null) {
+				try (PreparedStatement preparedStatement =
+						connection.prepareStatement(sql);
+
+					ResultSet resultSet = preparedStatement.executeQuery()) {
+
+					while (resultSet.next()) {
+						toolTableNames.add(resultSet.getString(1));
+					}
+				}
+			}
+		}
+
+		for (String toolTableName : toolTableNames) {
+			if (_sourceColumnNamesMap.remove(toolTableName) == null) {
+				continue;
+			}
+
+			System.out.println(
+				StringBundler.concat(
+					"Skipping table ", toolTableName, _partitionMessage,
+					" because it belongs to a database tool"));
+		}
+
 		_loadColumnNamesMap(
 			_targetColumnNamesMap, _targetColumnsType, _targetDataSource);
 	}
@@ -768,6 +912,8 @@ public class DBCopyTablesProcess {
 			throw new IllegalArgumentException(sb.toString());
 		}
 	}
+
+	private static final int _POSTGRESQL_NAME_MAX_LENGTH = 63;
 
 	private static final int _SQL_TYPE_ORACLE_BINARY_DOUBLE = 101;
 

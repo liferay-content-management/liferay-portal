@@ -34,17 +34,24 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.PortletConfigFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.PortletLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionResponse;
 import com.liferay.portal.kernel.test.portlet.MockPortletSession;
@@ -318,6 +325,49 @@ public class EditFileEntryMVCActionCommandTest {
 	}
 
 	@Test
+	@TestInfo("LPD-113625")
+	public void testProcessActionAddMultipleFileEntriesViewableByOwner()
+		throws Exception {
+
+		FileEntry tempFileEntry1 = TempFileEntryUtil.addTempFileEntry(
+			_group.getGroupId(), TestPropsValues.getUserId(), _TEMP_FOLDER_NAME,
+			TempFileEntryUtil.getTempFileName("test.jpg"), _getInputStream(),
+			ContentTypes.IMAGE_JPEG);
+		FileEntry tempFileEntry2 = TempFileEntryUtil.addTempFileEntry(
+			_group.getGroupId(), TestPropsValues.getUserId(), _TEMP_FOLDER_NAME,
+			TempFileEntryUtil.getTempFileName("test.gif"), _getInputStream(),
+			ContentTypes.IMAGE_GIF);
+
+		_processAction(
+			_getMockLiferayPortletActionRequest(
+				HashMapBuilder.putAll(
+					_getParameters(
+						Constants.ADD_MULTIPLE, tempFileEntry1.getFolderId(),
+						tempFileEntry1.getRepositoryId(),
+						new String[] {
+							tempFileEntry1.getFileName(),
+							tempFileEntry2.getFileName()
+						})
+				).put(
+					"inputPermissionsViewRole",
+					new String[] {RoleConstants.OWNER}
+				).build()),
+			new MockLiferayPortletActionResponse());
+
+		FileEntry gifFileEntry = _dlAppLocalService.getFileEntryByFileName(
+			_group.getGroupId(), tempFileEntry1.getFolderId(), "test.gif");
+
+		_assertNoViewPermission(gifFileEntry, RoleConstants.GUEST);
+		_assertNoViewPermission(gifFileEntry, RoleConstants.SITE_MEMBER);
+
+		FileEntry jpgFileEntry = _dlAppLocalService.getFileEntryByFileName(
+			_group.getGroupId(), tempFileEntry1.getFolderId(), "test.jpg");
+
+		_assertNoViewPermission(jpgFileEntry, RoleConstants.GUEST);
+		_assertNoViewPermission(jpgFileEntry, RoleConstants.SITE_MEMBER);
+	}
+
+	@Test
 	public void testProcessActionAddMultipleFileEntriesWithFileEntryType()
 		throws Exception {
 
@@ -573,6 +623,19 @@ public class EditFileEntryMVCActionCommandTest {
 				LocaleUtil.US, RandomTestUtil.randomString()),
 			ServiceContextTestUtil.getServiceContext(
 				_group, TestPropsValues.getUserId()));
+	}
+
+	private void _assertNoViewPermission(FileEntry fileEntry, String roleName)
+		throws Exception {
+
+		Role role = _roleLocalService.getRole(_group.getCompanyId(), roleName);
+
+		Assert.assertFalse(
+			_resourcePermissionLocalService.hasResourcePermission(
+				_group.getCompanyId(), DLFileEntry.class.getName(),
+				ResourceConstants.SCOPE_INDIVIDUAL,
+				String.valueOf(fileEntry.getFileEntryId()), role.getRoleId(),
+				ActionKeys.VIEW));
 	}
 
 	private MockMultipartHttpServletRequest
@@ -855,5 +918,11 @@ public class EditFileEntryMVCActionCommandTest {
 
 	@Inject
 	private PortletLocalService _portletLocalService;
+
+	@Inject
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Inject
+	private RoleLocalService _roleLocalService;
 
 }

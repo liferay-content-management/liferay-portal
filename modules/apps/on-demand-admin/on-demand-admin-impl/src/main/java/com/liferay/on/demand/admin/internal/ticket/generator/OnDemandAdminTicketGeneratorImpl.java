@@ -5,9 +5,10 @@
 
 package com.liferay.on.demand.admin.internal.ticket.generator;
 
+import com.liferay.on.demand.admin.constants.OnDemandAdminActionKeys;
 import com.liferay.on.demand.admin.constants.OnDemandAdminConstants;
+import com.liferay.on.demand.admin.constants.OnDemandAdminPortletKeys;
 import com.liferay.on.demand.admin.internal.configuration.OnDemandAdminConfiguration;
-import com.liferay.on.demand.admin.internal.helper.OnDemandAdminHelper;
 import com.liferay.on.demand.admin.ticket.generator.OnDemandAdminTicketGenerator;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
@@ -16,8 +17,11 @@ import com.liferay.portal.configuration.module.configuration.ConfigurationProvid
 import com.liferay.portal.kernel.audit.AuditMessage;
 import com.liferay.portal.kernel.audit.AuditRouter;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.instance.PortalInstancePool;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.Ticket;
 import com.liferay.portal.kernel.model.TicketConstants;
@@ -25,10 +29,13 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.TicketLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.util.PwdGenerator;
 import com.liferay.portal.security.audit.event.generators.util.AuditMessageBuilder;
 
@@ -61,8 +68,8 @@ public class OnDemandAdminTicketGeneratorImpl
 			Company company, String justification, User requestorUser)
 		throws PortalException {
 
-		_onDemandAdminHelper.checkRequestAdministratorAccessPermission(
-			company.getCompanyId(), requestorUser.getUserId());
+		_checkRequestAdministratorAccessPermission(
+			company.getCompanyId(), requestorUser);
 
 		User user = _addOnDemandAdminUser(
 			requestorUser.getUserId(), company.getCompanyId(), company.getMx(),
@@ -147,6 +154,33 @@ public class OnDemandAdminTicketGeneratorImpl
 		}
 	}
 
+	private void _checkRequestAdministratorAccessPermission(
+			long companyId, User user)
+		throws PortalException {
+
+		if (companyId == PortalInstancePool.getDefaultCompanyId()) {
+			throw new PrincipalException(
+				"Target company must not be the default company");
+		}
+
+		if (user.getCompanyId() != PortalInstancePool.getDefaultCompanyId()) {
+			throw new PrincipalException(
+				"Request can only be made from the default company");
+		}
+
+		if (!PortletPermissionUtil.contains(
+				PermissionCheckerFactoryUtil.create(user),
+				GroupConstants.DEFAULT_LIVE_GROUP_ID,
+				LayoutConstants.DEFAULT_PLID,
+				OnDemandAdminPortletKeys.ON_DEMAND_ADMIN,
+				OnDemandAdminActionKeys.REQUEST_ADMINISTRATOR_ACCESS, true)) {
+
+			throw new PrincipalException.MustHavePermission(
+				user.getUserId(),
+				OnDemandAdminActionKeys.REQUEST_ADMINISTRATOR_ACCESS);
+		}
+	}
+
 	private String _getScreenName(long requestorUserId, long userId)
 		throws PortalException {
 
@@ -161,9 +195,6 @@ public class OnDemandAdminTicketGeneratorImpl
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;
-
-	@Reference
-	private OnDemandAdminHelper _onDemandAdminHelper;
 
 	@Reference
 	private RoleLocalService _roleLocalService;

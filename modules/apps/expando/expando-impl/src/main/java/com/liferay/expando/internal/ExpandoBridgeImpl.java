@@ -14,7 +14,7 @@ import com.liferay.expando.kernel.service.ExpandoColumnLocalServiceUtil;
 import com.liferay.expando.kernel.service.ExpandoColumnServiceUtil;
 import com.liferay.expando.kernel.service.ExpandoTableLocalServiceUtil;
 import com.liferay.expando.kernel.service.ExpandoValueLocalServiceUtil;
-import com.liferay.expando.kernel.service.ExpandoValueServiceUtil;
+import com.liferay.expando.kernel.service.permission.ExpandoColumnPermissionUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.petra.function.transform.TransformUtil;
@@ -26,6 +26,9 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.security.auth.GuestOrUserUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.CopyLayoutThreadLocal;
 import com.liferay.portal.kernel.util.PropsValues;
@@ -64,17 +67,8 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 	@Override
 	public void addAttribute(String name) throws PortalException {
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_WRITE_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isImportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		addAttribute(name, ExpandoColumnConstants.STRING, null, secure);
+		addAttribute(
+			name, ExpandoColumnConstants.STRING, null, _isSecure(true));
 	}
 
 	@Override
@@ -86,17 +80,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 	@Override
 	public void addAttribute(String name, int type) throws PortalException {
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_WRITE_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isImportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		addAttribute(name, type, null, secure);
+		addAttribute(name, type, null, _isSecure(true));
 	}
 
 	@Override
@@ -110,17 +94,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 	public void addAttribute(String name, int type, Serializable defaultValue)
 		throws PortalException {
 
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_WRITE_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isImportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		addAttribute(name, type, defaultValue, secure);
+		addAttribute(name, type, defaultValue, _isSecure(true));
 	}
 
 	@Override
@@ -193,17 +167,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 	@Override
 	public Serializable getAttribute(String name) {
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_READ_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isExportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		return getAttribute(name, secure);
+		return getAttribute(name, _isSecure(false));
 	}
 
 	@Override
@@ -212,15 +176,22 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 		try {
 			if (secure) {
-				data = ExpandoValueServiceUtil.getData(
+				ExpandoColumn column = ExpandoColumnLocalServiceUtil.getColumn(
 					_companyId, _className,
-					ExpandoTableConstants.DEFAULT_TABLE_NAME, name, _classPK);
+					ExpandoTableConstants.DEFAULT_TABLE_NAME, name);
+
+				if ((column == null) ||
+					!ExpandoColumnPermissionUtil.contains(
+						GuestOrUserUtil.getPermissionChecker(), column,
+						ActionKeys.VIEW)) {
+
+					return null;
+				}
 			}
-			else {
-				data = ExpandoValueLocalServiceUtil.getData(
-					_companyId, _className,
-					ExpandoTableConstants.DEFAULT_TABLE_NAME, name, _classPK);
-			}
+
+			data = ExpandoValueLocalServiceUtil.getData(
+				_companyId, _className,
+				ExpandoTableConstants.DEFAULT_TABLE_NAME, name, _classPK);
 		}
 		catch (Exception exception) {
 			ReflectionUtil.throwException(exception);
@@ -265,17 +236,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 	@Override
 	public Map<String, Serializable> getAttributes() {
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_READ_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isExportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		return getAttributes(secure);
+		return getAttributes(_isSecure(false));
 	}
 
 	@Override
@@ -292,17 +253,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 	@Override
 	public Map<String, Serializable> getAttributes(Collection<String> names) {
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_READ_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isExportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		return getAttributes(names, secure);
+		return getAttributes(names, _isSecure(false));
 	}
 
 	@Override
@@ -312,15 +263,25 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 		Map<String, Serializable> attributeValues = null;
 
 		try {
+			attributeValues = ExpandoValueLocalServiceUtil.getData(
+				_companyId, _className,
+				ExpandoTableConstants.DEFAULT_TABLE_NAME, names, _classPK);
+
 			if (secure) {
-				attributeValues = ExpandoValueServiceUtil.getData(
-					_companyId, _className,
-					ExpandoTableConstants.DEFAULT_TABLE_NAME, names, _classPK);
-			}
-			else {
-				attributeValues = ExpandoValueLocalServiceUtil.getData(
-					_companyId, _className,
-					ExpandoTableConstants.DEFAULT_TABLE_NAME, names, _classPK);
+				PermissionChecker permissionChecker =
+					GuestOrUserUtil.getPermissionChecker();
+
+				for (String name : names) {
+					if (ExpandoColumnPermissionUtil.contains(
+							permissionChecker, _companyId, _className,
+							ExpandoTableConstants.DEFAULT_TABLE_NAME, name,
+							ActionKeys.VIEW)) {
+
+						continue;
+					}
+
+					attributeValues.remove(name);
+				}
 			}
 		}
 		catch (Exception exception) {
@@ -391,17 +352,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 	@Override
 	public void setAttribute(String name, Serializable value) {
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_WRITE_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isImportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		setAttribute(name, value, secure);
+		setAttribute(name, value, _isSecure(true));
 	}
 
 	@Override
@@ -413,17 +364,16 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 		try {
 			if (secure) {
-				ExpandoValueServiceUtil.addValue(
-					_companyId, _className,
-					ExpandoTableConstants.DEFAULT_TABLE_NAME, name, _classPK,
-					value);
+				ExpandoColumnPermissionUtil.check(
+					GuestOrUserUtil.getPermissionChecker(), _companyId,
+					_className, ExpandoTableConstants.DEFAULT_TABLE_NAME, name,
+					ActionKeys.UPDATE);
 			}
-			else {
-				ExpandoValueLocalServiceUtil.addValue(
-					_companyId, _className,
-					ExpandoTableConstants.DEFAULT_TABLE_NAME, name, _classPK,
-					value);
-			}
+
+			ExpandoValueLocalServiceUtil.addValue(
+				_companyId, _className,
+				ExpandoTableConstants.DEFAULT_TABLE_NAME, name, _classPK,
+				value);
 		}
 		catch (Exception exception) {
 			ReflectionUtil.throwException(exception);
@@ -450,17 +400,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 	public void setAttributeProperties(
 		String name, UnicodeProperties unicodeProperties) {
 
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_WRITE_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isImportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		setAttributeProperties(name, unicodeProperties, secure);
+		setAttributeProperties(name, unicodeProperties, _isSecure(true));
 	}
 
 	@Override
@@ -488,17 +428,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 	@Override
 	public void setAttributes(Map<String, Serializable> attributes) {
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_WRITE_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isImportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		setAttributes(attributes, secure);
+		setAttributes(attributes, _isSecure(true));
 	}
 
 	@Override
@@ -516,17 +446,20 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 		try {
 			if (secure) {
-				ExpandoValueServiceUtil.addValues(
-					_companyId, _className,
-					ExpandoTableConstants.DEFAULT_TABLE_NAME, _classPK,
-					attributes);
+				PermissionChecker permissionChecker =
+					GuestOrUserUtil.getPermissionChecker();
+
+				for (String name : attributes.keySet()) {
+					ExpandoColumnPermissionUtil.check(
+						permissionChecker, _companyId, _className,
+						ExpandoTableConstants.DEFAULT_TABLE_NAME, name,
+						ActionKeys.UPDATE);
+				}
 			}
-			else {
-				ExpandoValueLocalServiceUtil.addValues(
-					_companyId, _className,
-					ExpandoTableConstants.DEFAULT_TABLE_NAME, _classPK,
-					attributes);
-			}
+
+			ExpandoValueLocalServiceUtil.addValues(
+				_companyId, _className,
+				ExpandoTableConstants.DEFAULT_TABLE_NAME, _classPK, attributes);
 		}
 		catch (Exception exception) {
 			ReflectionUtil.throwException(exception);
@@ -535,17 +468,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 
 	@Override
 	public void setAttributes(ServiceContext serviceContext) {
-		boolean secure =
-			PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_WRITE_CHECK_BY_DEFAULT;
-
-		if (CopyLayoutThreadLocal.isCopyLayout() ||
-			ExportImportThreadLocal.isImportInProcess() ||
-			MergeLayoutPrototypesThreadLocal.isInProgress()) {
-
-			secure = false;
-		}
-
-		setAttributes(serviceContext, secure);
+		setAttributes(serviceContext, _isSecure(true));
 	}
 
 	@Override
@@ -648,6 +571,29 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 		}
 
 		return table;
+	}
+
+	private boolean _isSecure(boolean write) {
+		if (CopyLayoutThreadLocal.isCopyLayout() ||
+			MergeLayoutPrototypesThreadLocal.isInProgress()) {
+
+			return false;
+		}
+
+		if (write) {
+			if (ExportImportThreadLocal.isImportInProcess()) {
+				return false;
+			}
+
+			return PropsValues.
+				PERMISSIONS_CUSTOM_ATTRIBUTE_WRITE_CHECK_BY_DEFAULT;
+		}
+
+		if (ExportImportThreadLocal.isExportInProcess()) {
+			return false;
+		}
+
+		return PropsValues.PERMISSIONS_CUSTOM_ATTRIBUTE_READ_CHECK_BY_DEFAULT;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

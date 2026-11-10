@@ -13,6 +13,7 @@ import com.liferay.blogs.service.BlogsEntryService;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
@@ -29,6 +30,8 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -46,6 +49,7 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -151,6 +155,22 @@ public class BlogsEntryServiceTest {
 				_groupUser, _permissionChecker)) {
 
 			_addEntry2();
+		}
+	}
+
+	@Test
+	@TestInfo("LPD-113649")
+	public void testAddEntryWithoutAddEntryPermissionAsGuest()
+		throws Exception {
+
+		User guestUser = _userLocalService.getGuestUser(_group.getCompanyId());
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				guestUser, PermissionCheckerFactoryUtil.create(guestUser))) {
+
+			Assert.assertThrows(
+				PrincipalException.MustHavePermission.class,
+				() -> _addEntry2(_group, guestUser));
 		}
 	}
 
@@ -676,6 +696,26 @@ public class BlogsEntryServiceTest {
 	}
 
 	@Test
+	@TestInfo("LPD-113649")
+	public void testGetEntryWithDraftStatus() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group, TestPropsValues.getUserId());
+
+		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_SAVE_DRAFT);
+
+		BlogsEntry entry = _addEntry(new Date(), serviceContext);
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				_groupUser, _permissionChecker)) {
+
+			Assert.assertThrows(
+				PrincipalException.MustHavePermission.class,
+				() -> _blogsEntryService.getEntry(entry.getEntryId()));
+		}
+	}
+
+	@Test
 	public void testGetEntryWithViewPermission() throws Exception {
 		BlogsEntry entry = _addEntry();
 
@@ -804,6 +844,48 @@ public class BlogsEntryServiceTest {
 
 			Assert.assertTrue(blogsEntries.contains(entry3));
 			Assert.assertTrue(blogsEntries.contains(entry2));
+		}
+	}
+
+	@Test
+	@TestInfo("LPD-113649")
+	public void testGetGroupEntriesWithoutGuestViewPermission()
+		throws Exception {
+
+		BlogsEntry entry1 = _addEntry();
+		BlogsEntry entry2 = _addEntry();
+
+		Role guestRole = _roleLocalService.getRole(
+			TestPropsValues.getCompanyId(), RoleConstants.GUEST);
+
+		_resourcePermissionLocalService.removeResourcePermission(
+			TestPropsValues.getCompanyId(), _CLASS_NAME_BLOGS_ENTRY,
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(entry2.getEntryId()), guestRole.getRoleId(),
+			ActionKeys.VIEW);
+
+		User guestUser = _userLocalService.getGuestUser(_group.getCompanyId());
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				guestUser, PermissionCheckerFactoryUtil.create(guestUser))) {
+
+			Assert.assertEquals(
+				Collections.singletonList(entry1),
+				_blogsEntryService.getGroupEntries(
+					_group.getGroupId(), new Date(),
+					WorkflowConstants.STATUS_APPROVED, 100));
+		}
+
+		_user = UserTestUtil.addUser();
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				_user, PermissionCheckerFactoryUtil.create(_user))) {
+
+			Assert.assertEquals(
+				Collections.singletonList(entry1),
+				_blogsEntryService.getGroupEntries(
+					_group.getGroupId(), WorkflowConstants.STATUS_ANY,
+					QueryUtil.ALL_POS, QueryUtil.ALL_POS, null));
 		}
 	}
 
@@ -949,6 +1031,40 @@ public class BlogsEntryServiceTest {
 	}
 
 	@Test
+	@TestInfo("LPD-113649")
+	public void testMoveEntryToTrashWithoutDeletePermissionAsGuest()
+		throws Exception {
+
+		BlogsEntry entry = _addEntry();
+
+		User guestUser = _userLocalService.getGuestUser(_group.getCompanyId());
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				guestUser, PermissionCheckerFactoryUtil.create(guestUser))) {
+
+			Assert.assertThrows(
+				PrincipalException.MustHavePermission.class,
+				() -> _blogsEntryService.moveEntryToTrash(entry.getEntryId()));
+		}
+	}
+
+	@Test
+	@TestInfo("LPD-113649")
+	public void testMoveEntryToTrashWithoutOwnerPermission() throws Exception {
+		BlogsEntry entry = _addEntry(_groupUser);
+
+		_removeOwnerResourcePermission(ActionKeys.DELETE, entry);
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				_groupUser, PermissionCheckerFactoryUtil.create(_groupUser))) {
+
+			Assert.assertThrows(
+				PrincipalException.MustHavePermission.class,
+				() -> _blogsEntryService.moveEntryToTrash(entry.getEntryId()));
+		}
+	}
+
+	@Test
 	public void testOwnerCanDeleteEntry() throws Exception {
 		BlogsEntry entry = _addEntry(_groupUser);
 
@@ -1052,6 +1168,22 @@ public class BlogsEntryServiceTest {
 	}
 
 	@Test
+	@TestInfo("LPD-113649")
+	public void testSubscribeEntryWithoutSubscribePermissionAsGuest()
+		throws Exception {
+
+		User guestUser = _userLocalService.getGuestUser(_group.getCompanyId());
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				guestUser, PermissionCheckerFactoryUtil.create(guestUser))) {
+
+			Assert.assertThrows(
+				PrincipalException.MustHavePermission.class,
+				() -> _blogsEntryService.subscribe(_group.getGroupId()));
+		}
+	}
+
+	@Test
 	public void testUnsubscribeEntryWithSubscribePermission() throws Exception {
 		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
 				_groupUser, _permissionChecker)) {
@@ -1097,6 +1229,22 @@ public class BlogsEntryServiceTest {
 				_groupUser, _permissionChecker)) {
 
 			_updateEntry(entry.getEntryId());
+		}
+	}
+
+	@Test
+	@TestInfo("LPD-113649")
+	public void testUpdateEntryWithoutOwnerPermission() throws Exception {
+		BlogsEntry entry = _addEntry(_groupUser);
+
+		_removeOwnerResourcePermission(ActionKeys.UPDATE, entry);
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				_groupUser, PermissionCheckerFactoryUtil.create(_groupUser))) {
+
+			Assert.assertThrows(
+				PrincipalException.MustHavePermission.class,
+				() -> _updateEntry(entry.getEntryId()));
 		}
 	}
 
@@ -1167,14 +1315,17 @@ public class BlogsEntryServiceTest {
 	}
 
 	private void _addEntry2() throws PortalException {
+		_addEntry2(_group, _groupUser);
+	}
+
+	private void _addEntry2(Group group, User user) throws PortalException {
 		_blogsEntryService.addEntry(
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(), 1, 1,
 			1990, 1, 1, true, false, new String[0],
 			RandomTestUtil.randomString(), null, null,
-			ServiceContextTestUtil.getServiceContext(
-				_group, _groupUser.getUserId()));
+			ServiceContextTestUtil.getServiceContext(group, user.getUserId()));
 	}
 
 	private void _addResourcePermission(String actionId, String name)
@@ -1186,6 +1337,20 @@ public class BlogsEntryServiceTest {
 		_resourcePermissionLocalService.addResourcePermission(
 			TestPropsValues.getCompanyId(), name, ResourceConstants.SCOPE_GROUP,
 			String.valueOf(_group.getGroupId()), siteMemberRole.getRoleId(),
+			actionId);
+	}
+
+	private void _removeOwnerResourcePermission(
+			String actionId, BlogsEntry entry)
+		throws Exception {
+
+		Role ownerRole = _roleLocalService.getRole(
+			TestPropsValues.getCompanyId(), RoleConstants.OWNER);
+
+		_resourcePermissionLocalService.removeResourcePermission(
+			TestPropsValues.getCompanyId(), _CLASS_NAME_BLOGS_ENTRY,
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(entry.getEntryId()), ownerRole.getRoleId(),
 			actionId);
 	}
 
@@ -1260,5 +1425,11 @@ public class BlogsEntryServiceTest {
 
 	@Inject
 	private RoleLocalService _roleLocalService;
+
+	@DeleteAfterTestRun
+	private User _user;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 }

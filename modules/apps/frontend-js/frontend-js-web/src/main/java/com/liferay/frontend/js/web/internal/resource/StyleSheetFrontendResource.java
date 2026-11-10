@@ -5,7 +5,9 @@
 
 package com.liferay.frontend.js.web.internal.resource;
 
+import com.liferay.frontend.js.web.internal.util.FrontendResourceUtil;
 import com.liferay.petra.io.StreamUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -36,6 +38,28 @@ public class StyleSheetFrontendResource implements FrontendResource {
 		_sendNoCache = sendNoCache;
 		_tokens = tokens;
 		_url = url;
+	}
+
+	@Override
+	public String getCacheKey() {
+		String cacheKey = FrontendResourceUtil.getCacheKey(_url);
+
+		if ((cacheKey == null) || (_tokens == null)) {
+			return cacheKey;
+		}
+
+		StringBundler sb = new StringBundler();
+
+		sb.append(cacheKey);
+
+		for (Map.Entry<String, String> entry : _tokens.entrySet()) {
+			sb.append(StringPool.POUND);
+			sb.append(entry.getKey());
+			sb.append(StringPool.EQUAL);
+			sb.append(entry.getValue());
+		}
+
+		return sb.toString();
 	}
 
 	@Override

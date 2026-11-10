@@ -30,6 +30,7 @@ import com.liferay.depot.service.DepotEntryGroupRelLocalService;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.dynamic.data.mapping.exception.RequiredStructureException;
 import com.liferay.dynamic.data.mapping.form.field.type.constants.DDMFormFieldTypeConstants;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
@@ -39,6 +40,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLinkLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.Field;
@@ -108,6 +110,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.template.TemplateConstants;
+import com.liferay.portal.kernel.test.AssertUtils;
 import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -1440,6 +1443,91 @@ public class JournalArticleLocalServiceTest {
 	}
 
 	@Test
+	@TestInfo("LPD-112512")
+	public void testDeleteArticleWithDDMStructureFromDepotEntry()
+		throws Exception {
+
+		Tuple tuple = _addDepotEntryJournalArticle();
+
+		JournalArticle journalArticle = (JournalArticle)tuple.getObject(1);
+
+		AssertUtils.assertFailure(
+			RequiredStructureException.
+				MustNotDeleteStructureReferencedByStructureLinks.class,
+			String.format(
+				"Structure %s cannot be deleted because it is referenced by " +
+					"one or more structure links",
+				journalArticle.getDDMStructureId()),
+			() -> _ddmStructureLocalService.deleteStructure(
+				journalArticle.getDDMStructureId()));
+
+		_journalArticleLocalService.deleteArticle(journalArticle);
+
+		DDMTemplate ddmTemplate = (DDMTemplate)tuple.getObject(2);
+
+		_ddmTemplateLocalService.deleteTemplate(ddmTemplate.getTemplateId());
+
+		_ddmStructureLocalService.deleteStructure(
+			journalArticle.getDDMStructureId());
+
+		Assert.assertNull(
+			_ddmStructureLocalService.fetchStructure(
+				journalArticle.getDDMStructureId()));
+	}
+
+	@Test
+	@TestInfo({"LPD-112512", "LPS-117068"})
+	public void testDeleteArticleWithDDMStructureFromDisconnectedDepotEntry()
+		throws Exception {
+
+		Tuple tuple = _addDepotEntryJournalArticle();
+
+		DDMTemplate ddmTemplate = (DDMTemplate)tuple.getObject(2);
+		JournalArticle journalArticle = (JournalArticle)tuple.getObject(1);
+
+		String languageId = LocaleUtil.toLanguageId(
+			LocaleUtil.getSiteDefault());
+
+		JournalArticleDisplay journalArticleDisplay =
+			_journalArticleLocalService.getArticleDisplay(
+				journalArticle, ddmTemplate.getTemplateKey(), Constants.VIEW,
+				languageId, 1, null, _themeDisplay);
+
+		Assert.assertEquals(
+			ddmTemplate.getScript(), journalArticleDisplay.getContent());
+
+		DepotEntryGroupRel depotEntryGroupRel =
+			(DepotEntryGroupRel)tuple.getObject(0);
+
+		_depotEntryGroupRelLocalService.updateDDMStructuresAvailable(
+			depotEntryGroupRel.getDepotEntryGroupRelId(), false);
+
+		_depotEntryGroupRelLocalService.deleteDepotEntryGroupRel(
+			depotEntryGroupRel);
+
+		journalArticleDisplay = _journalArticleLocalService.getArticleDisplay(
+			journalArticle, ddmTemplate.getTemplateKey(), Constants.VIEW,
+			languageId, 1, null, _themeDisplay);
+
+		Assert.assertNotNull(journalArticleDisplay.getContent());
+
+		journalArticle = _journalArticleLocalService.moveArticleToTrash(
+			TestPropsValues.getUserId(), journalArticle);
+
+		Assert.assertTrue(journalArticle.isInTrash());
+
+		journalArticle = _journalArticleLocalService.restoreArticleFromTrash(
+			TestPropsValues.getUserId(), journalArticle);
+
+		Assert.assertFalse(journalArticle.isInTrash());
+
+		_journalArticleLocalService.deleteArticle(journalArticle);
+
+		Assert.assertNull(
+			_journalArticleLocalService.fetchArticle(journalArticle.getId()));
+	}
+
+	@Test
 	public void testDeleteDDMStructurePredefinedValues() throws Exception {
 		Tuple tuple = _createJournalArticleWithPredefinedValues(
 			_group.getGroupId());
@@ -1476,9 +1564,14 @@ public class JournalArticleLocalServiceTest {
 		ServiceContextThreadLocal.pushServiceContext(
 			ServiceContextTestUtil.getServiceContext());
 
-		_journalArticleLocalService.deleteArticleDefaultValues(
-			journalArticle.getGroupId(), journalArticle.getArticleId(),
-			journalArticle.getDDMStructureId());
+		try {
+			_journalArticleLocalService.deleteArticleDefaultValues(
+				journalArticle.getGroupId(), journalArticle.getArticleId(),
+				journalArticle.getDDMStructureId());
+		}
+		finally {
+			ServiceContextThreadLocal.popServiceContext();
+		}
 
 		Assert.assertNull(
 			_journalArticleLocalService.fetchLatestArticle(
@@ -1925,15 +2018,7 @@ public class JournalArticleLocalServiceTest {
 	public void testGetArticleDisplayWithContentFromDepotEntryWithDDMTemplate()
 		throws Exception {
 
-		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			HashMapBuilder.put(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()
-			).build(),
-			DepotConstants.TYPE_ASSET_LIBRARY,
-			ServiceContextTestUtil.getServiceContext());
+		DepotEntry depotEntry = _addDepotEntry();
 
 		DepotEntryGroupRel depotEntryGroupRel =
 			_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
@@ -2022,6 +2107,82 @@ public class JournalArticleLocalServiceTest {
 
 		Assert.assertEquals(
 			ddmTemplateScript2, journalArticleDisplay.getContent());
+	}
+
+	@Test
+	@TestInfo("LPD-112512")
+	public void testGetArticleDisplayWithJournalArticleFieldFromDepotEntry()
+		throws Exception {
+
+		DepotEntry depotEntry = _addDepotEntry();
+
+		_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
+			depotEntry.getDepotEntryId(), _group.getGroupId());
+
+		JournalArticle depotJournalArticle = JournalTestUtil.addArticle(
+			depotEntry.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		DataDefinition dataDefinition =
+			DataDefinitionTestUtil.addDataDefinition(
+				"journal", _dataDefinitionResourceFactory, _group.getGroupId(),
+				_readFileToString("ddm_form_with_journal_article.json"),
+				TestPropsValues.getUser());
+
+		AssetEntry assetEntry = _assetEntryLocalService.getEntry(
+			JournalArticle.class.getName(),
+			depotJournalArticle.getResourcePrimKey());
+
+		JournalArticle journalArticle =
+			JournalTestUtil.addArticleWithXMLContent(
+				_group.getGroupId(),
+				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				JournalArticleConstants.CLASS_NAME_ID_DEFAULT,
+				StringUtil.replace(
+					_readFileToString(
+						"journal_article_content_with_journal_article.xml"),
+					"[$JOURNAL_ARTICLE_JSON$]",
+					JSONUtil.put(
+						"assetEntryId", assetEntry.getEntryId()
+					).put(
+						"className", JournalArticle.class.getName()
+					).put(
+						"classNameId",
+						PortalUtil.getClassNameId(JournalArticle.class)
+					).put(
+						"classPK", depotJournalArticle.getResourcePrimKey()
+					).put(
+						"title", depotJournalArticle.getTitle(LocaleUtil.US)
+					).put(
+						"type", "Web Content Article"
+					).toString()),
+				dataDefinition.getDataDefinitionKey(), null, LocaleUtil.US);
+
+		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
+			_group.getGroupId(), journalArticle.getDDMStructureId(),
+			PortalUtil.getClassNameId(JournalArticle.class),
+			TemplateConstants.LANG_TYPE_FTL,
+			"<#assign webContentData = jsonFactoryUtil.createJSONObject(" +
+				"WebContent31406873.getData()) />${webContentData.title}",
+			LocaleUtil.US);
+
+		ServiceContextThreadLocal.pushServiceContext(
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		try {
+			JournalArticleDisplay journalArticleDisplay =
+				_journalArticleLocalService.getArticleDisplay(
+					journalArticle, ddmTemplate.getTemplateKey(),
+					Constants.VIEW, LocaleUtil.toLanguageId(LocaleUtil.US), 1,
+					null, _themeDisplay);
+
+			Assert.assertEquals(
+				depotJournalArticle.getTitle(LocaleUtil.US),
+				StringUtil.trim(journalArticleDisplay.getContent()));
+		}
+		finally {
+			ServiceContextThreadLocal.popServiceContext();
+		}
 	}
 
 	@Test
@@ -2836,6 +2997,54 @@ public class JournalArticleLocalServiceTest {
 			"Predefined Value", field.getValue(unavailableLocale));
 	}
 
+	private DepotEntry _addDepotEntry() throws Exception {
+		return _depotEntryLocalService.addDepotEntry(
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()
+			).build(),
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()
+			).build(),
+			DepotConstants.TYPE_ASSET_LIBRARY,
+			ServiceContextTestUtil.getServiceContext());
+	}
+
+	private Tuple _addDepotEntryJournalArticle() throws Exception {
+		DepotEntry depotEntry = _addDepotEntry();
+
+		DepotEntryGroupRel depotEntryGroupRel =
+			_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
+				depotEntry.getDepotEntryId(), _group.getGroupId());
+
+		_depotEntryGroupRelLocalService.updateDDMStructuresAvailable(
+			depotEntryGroupRel.getDepotEntryGroupRelId(), true);
+
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			depotEntry.getGroupId(), JournalArticle.class.getName());
+
+		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
+			depotEntry.getGroupId(), ddmStructure.getStructureId(),
+			PortalUtil.getClassNameId(JournalArticle.class),
+			TemplateConstants.LANG_TYPE_VM, RandomTestUtil.randomString(),
+			LocaleUtil.getSiteDefault());
+
+		JournalArticle journalArticle = _journalArticleLocalService.addArticle(
+			null, TestPropsValues.getUserId(), _group.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			JournalArticleConstants.CLASS_NAME_ID_DEFAULT, 0, StringPool.BLANK,
+			true, JournalArticleConstants.VERSION_DEFAULT,
+			RandomTestUtil.randomLocaleStringMap(),
+			RandomTestUtil.randomLocaleStringMap(),
+			RandomTestUtil.randomLocaleStringMap(),
+			DDMStructureTestUtil.getSampleStructuredContent(),
+			ddmStructure.getStructureId(), ddmTemplate.getTemplateKey(), null,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true, 0, 0, 0, 0, 0, true, true,
+			false, 0, 0, null, null, null, null,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		return new Tuple(depotEntryGroupRel, journalArticle, ddmTemplate);
+	}
+
 	private JSONObject _addDocumentLibraryFieldValue(JSONObject valueJSONObject)
 		throws Exception {
 
@@ -3377,6 +3586,9 @@ public class JournalArticleLocalServiceTest {
 
 	@Inject
 	private DDMTemplateLinkLocalService _ddmTemplateLinkLocalService;
+
+	@Inject
+	private DDMTemplateLocalService _ddmTemplateLocalService;
 
 	@Inject
 	private DepotEntryGroupRelLocalService _depotEntryGroupRelLocalService;

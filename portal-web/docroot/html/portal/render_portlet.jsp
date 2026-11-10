@@ -619,8 +619,6 @@ if (!portletDisplay.isRestoreCurrentView()) {
 
 LiferayPortletURL urlMax = PortletURLFactoryUtil.create(request, portlet, lifecycle);
 
-urlMax.setEscapeXml(false);
-
 if (portletDisplay.isStateMax()) {
 	urlMax.setWindowState(WindowState.NORMAL);
 }
@@ -628,7 +626,21 @@ else {
 	urlMax.setWindowState(WindowState.MAXIMIZED);
 }
 
-urlMax.setWindowStateRestoreCurrentView(true);
+if (urlMax instanceof LiferayPortletURL) {
+	LiferayPortletURL liferayPortletURL = (LiferayPortletURL)urlMax;
+
+	liferayPortletURL.setWindowStateRestoreCurrentView(true);
+}
+else {
+	try {
+		BeanPropertiesUtil.setProperty(urlMax, "windowStateRestoreCurrentView", true);
+	}
+	catch (Exception e) {
+		_log.error(ClassUtil.getClassName(urlMax) + " must implement the method setWindowStateRestoreCurrentView(boolean)", e);
+	}
+}
+
+urlMax.setEscapeXml(false);
 
 if (lifecycle.equals(PortletRequest.RENDER_PHASE)) {
 	Map<String, String[]> renderParameters = RenderParametersPool.get(request, plid, portletDisplay.getId());

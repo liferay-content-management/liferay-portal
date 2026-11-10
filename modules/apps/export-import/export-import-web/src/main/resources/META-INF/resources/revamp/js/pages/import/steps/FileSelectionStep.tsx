@@ -45,6 +45,8 @@ export default function FileSelectionStep({
 			setFieldTouched('contentSelection', false, false);
 			setFieldValue('siteExternalReferenceCodes', []);
 			setFieldTouched('siteExternalReferenceCodes', false, false);
+			setFieldValue('spaceExternalReferenceCodes', []);
+			setFieldTouched('spaceExternalReferenceCodes', false, false);
 			setImportPreview(undefined);
 		}
 	}, [

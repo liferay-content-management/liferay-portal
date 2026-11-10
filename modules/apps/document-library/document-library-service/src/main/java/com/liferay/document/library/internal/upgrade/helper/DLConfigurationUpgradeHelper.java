@@ -13,6 +13,7 @@ import com.liferay.document.library.internal.constants.LegacyDLKeys;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.PrefsProps;
@@ -23,13 +24,10 @@ import java.util.Dictionary;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Alicia García
  */
-@Component(service = DLConfigurationUpgradeHelper.class)
 public class DLConfigurationUpgradeHelper {
 
 	public static final String CLASS_NAME_DL_FILE_ENTRY_CONFIGURATION =
@@ -38,6 +36,17 @@ public class DLConfigurationUpgradeHelper {
 	public static final String CLASS_NAME_PDF_PREVIEW_CONFIGURATION =
 		"com.liferay.document.library.preview.pdf.internal.configuration." +
 			"PDFPreviewConfiguration";
+
+	public DLConfigurationUpgradeHelper(
+		CompanyLocalService companyLocalService,
+		ConfigurationAdmin configurationAdmin,
+		ConfigurationProvider configurationProvider, PrefsProps prefsProps) {
+
+		_companyLocalService = companyLocalService;
+		_configurationAdmin = configurationAdmin;
+		_configurationProvider = configurationProvider;
+		_prefsProps = prefsProps;
+	}
 
 	public void deleteConfigurations(String className) throws Exception {
 		Configuration[] configurations = _configurationAdmin.listConfigurations(
@@ -201,7 +210,9 @@ public class DLConfigurationUpgradeHelper {
 				configuration,
 				ExtendedObjectClassDefinition.Scope.GROUP.getPropertyKey(), 0L);
 
-			if ((companyId != 0) && (groupId == 0)) {
+			if ((groupId == 0) &&
+				(_companyLocalService.fetchCompany(companyId) != null)) {
+
 				_configurationProvider.saveCompanyConfiguration(
 					DLFileEntryConfiguration.class, companyId, dictionary);
 
@@ -304,13 +315,9 @@ public class DLConfigurationUpgradeHelper {
 			).build());
 	}
 
-	@Reference
-	private ConfigurationAdmin _configurationAdmin;
-
-	@Reference
-	private ConfigurationProvider _configurationProvider;
-
-	@Reference
-	private PrefsProps _prefsProps;
+	private final CompanyLocalService _companyLocalService;
+	private final ConfigurationAdmin _configurationAdmin;
+	private final ConfigurationProvider _configurationProvider;
+	private final PrefsProps _prefsProps;
 
 }

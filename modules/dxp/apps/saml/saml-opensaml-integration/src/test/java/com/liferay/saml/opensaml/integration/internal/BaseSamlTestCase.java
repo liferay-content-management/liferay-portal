@@ -31,7 +31,6 @@ import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.security.key.secret.SecretResolver;
 import com.liferay.portal.security.key.secret.SecretResolverUtil;
 import com.liferay.saml.constants.SamlProviderConfigurationKeys;
-import com.liferay.saml.opensaml.integration.internal.binding.SamlBindingProvider;
 import com.liferay.saml.opensaml.integration.internal.credential.FileSystemKeyStoreManagerImpl;
 import com.liferay.saml.opensaml.integration.internal.credential.KeyStoreCredentialResolver;
 import com.liferay.saml.opensaml.integration.internal.identifier.IdentifierGeneratorStrategyFactory;
@@ -105,7 +104,7 @@ public abstract class BaseSamlTestCase {
 
 		_setUpMetadata();
 
-		_setUpSamlBindings();
+		_setUpHttpClientFactory();
 
 		_setUpSamlPeerBindingsLocalService();
 	}
@@ -323,12 +322,12 @@ public abstract class BaseSamlTestCase {
 	protected FileSystemKeyStoreManagerImpl fileSystemKeyStoreManagerImpl;
 	protected GroupLocalService groupLocalService;
 	protected HttpClient httpClient;
+	protected HttpClientFactory httpClientFactory;
 	protected IdentifierGenerationStrategy identifierGenerationStrategy;
 	protected List<String> identifiers = new ArrayList<>();
 	protected KeyStoreLocalEntityManager keyStoreLocalEntityManager;
 	protected ParserPool parserPool;
 	protected Portal portal;
-	protected SamlBindingProvider samlBindingProvider;
 	protected IdentifierGenerationStrategy samlIdentifierGenerator;
 	protected SamlPeerBindingLocalService samlPeerBindingLocalService;
 	protected SamlProviderConfiguration samlProviderConfiguration;
@@ -575,6 +574,17 @@ public abstract class BaseSamlTestCase {
 		);
 	}
 
+	private void _setUpHttpClientFactory() {
+		httpClientFactory = new HttpClientFactory() {
+
+			@Override
+			public HttpClient getHttpClient() {
+				return httpClient;
+			}
+
+		};
+	}
+
 	private void _setUpIdentifiers() {
 		samlIdentifierGenerator = IdentifierGeneratorStrategyFactory.create(16);
 
@@ -745,21 +755,6 @@ public abstract class BaseSamlTestCase {
 
 		userLocalService = getMockPortalService(
 			UserLocalServiceUtil.class, UserLocalService.class);
-	}
-
-	private void _setUpSamlBindings() {
-		samlBindingProvider = new SamlBindingProvider();
-
-		ReflectionTestUtil.setFieldValue(
-			samlBindingProvider, "_httpClientFactory",
-			new HttpClientFactory() {
-
-				@Override
-				public HttpClient getHttpClient() {
-					return httpClient;
-				}
-
-			});
 	}
 
 	private void _setUpSamlPeerBindingsLocalService() throws Exception {

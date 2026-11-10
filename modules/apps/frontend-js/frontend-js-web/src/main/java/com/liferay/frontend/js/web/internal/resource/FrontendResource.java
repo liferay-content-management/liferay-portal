@@ -13,6 +13,8 @@ import java.io.InputStream;
  */
 public interface FrontendResource {
 
+	public String getCacheKey();
+
 	/**
 	 * The content type as defined in HTTP specification.
 	 *

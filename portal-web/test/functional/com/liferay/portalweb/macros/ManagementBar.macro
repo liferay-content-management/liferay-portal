@@ -143,24 +143,6 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro viewItemsDisabled(textList = null) {
-		for (var text : list ${textList}) {
-			AssertElementPresent(
-				key_text = ${text},
-				locator1 = "Icon#ANY_DISABLED");
-		}
-	}
-
-	@summary = "Default summary"
-	macro viewNoItems(textList = null) {
-		for (var text : list ${textList}) {
-			AssertElementNotPresent(
-				key_text = ${text},
-				locator1 = "Icon#ANY");
-		}
-	}
-
-	@summary = "Default summary"
 	macro viewNumberOfSelectedItems(text = null) {
 		AssertTextEquals(
 			locator1 = "ManagementBar#NAVBAR_TEXT",

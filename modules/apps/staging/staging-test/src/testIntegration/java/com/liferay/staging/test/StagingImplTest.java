@@ -42,6 +42,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProviderUtil;
+import com.liferay.portal.image.ImageToolUtil;
 import com.liferay.portal.kernel.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -50,10 +51,13 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutBranch;
 import com.liferay.portal.kernel.model.LayoutRevision;
+import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
 import com.liferay.portal.kernel.model.LayoutSetBranchConstants;
+import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutRevisionLocalService;
 import com.liferay.portal.kernel.service.LayoutService;
@@ -75,6 +79,7 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -96,12 +101,15 @@ import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.site.navigation.constants.SiteNavigationMenuPortletKeys;
 import com.liferay.staging.configuration.StagingConfiguration;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.test.util.WikiTestUtil;
 
 import jakarta.portlet.PortletPreferences;
+
+import java.awt.image.BufferedImage;
 
 import java.io.File;
 import java.io.Serializable;
@@ -504,6 +512,26 @@ public class StagingImplTest {
 	}
 
 	@Test
+	public void testLocalStagingLayoutIconImage() throws Exception {
+		_testLocalStagingLayoutIconImage(false);
+	}
+
+	@Test
+	public void testLocalStagingLayoutSetLogo() throws Exception {
+		_testLocalStagingLayoutSetLogo(false);
+	}
+
+	@Test
+	public void testLocalStagingLayoutTheme() throws Exception {
+		_testLocalStagingLayoutTheme(false);
+	}
+
+	@Test
+	public void testLocalStagingPortletTitle() throws Exception {
+		_testLocalStagingPortletTitle(false);
+	}
+
+	@Test
 	public void testLocalStagingUpdateLastPublishDate() throws Exception {
 		enableLocalStagingWithContent(true, false);
 
@@ -560,14 +588,13 @@ public class StagingImplTest {
 
 		enableLocalStaging(true);
 
-		Group stagingGroup = _group.getStagingGroup();
-
-		LayoutSetBranch layoutSetBranch =
-			_layoutSetBranchLocalService.getMasterLayoutSetBranch(
-				stagingGroup.getGroupId(), false);
+		LayoutSetBranch layoutSetBranch = _getMasterLayoutSetBranch();
 
 		_testLocalStagingWithLayoutVersioningLastImportSettings(
 			layout, layoutSetBranch);
+
+		Group stagingGroup = _group.getStagingGroup();
+
 		_testLocalStagingWithLayoutVersioningLastImportSettings(
 			layout,
 			_layoutSetBranchLocalService.addLayoutSetBranch(
@@ -586,32 +613,13 @@ public class StagingImplTest {
 
 		enableLocalStaging(true);
 
-		Group stagingGroup = _group.getStagingGroup();
-
-		LayoutSetBranch layoutSetBranch =
-			_layoutSetBranchLocalService.getMasterLayoutSetBranch(
-				stagingGroup.getGroupId(), false);
-
-		Map<String, String[]> parameterMap =
-			ExportImportConfigurationParameterMapFactoryUtil.
-				buildParameterMap();
-
-		parameterMap.put(
-			Constants.CMD, new String[] {Constants.PUBLISH_TO_LIVE});
-		parameterMap.put(
-			"layoutSetBranchId",
-			new String[] {
-				String.valueOf(layoutSetBranch.getLayoutSetBranchId())
-			});
-		parameterMap.put(
-			"layoutSetBranchName", new String[] {layoutSetBranch.getName()});
-
 		PropsUtil.set("feature.flag.LPD-105778", "false");
 
 		try {
-			_staging.publishLayouts(
-				TestPropsValues.getUserId(), stagingGroup.getGroupId(),
-				_group.getGroupId(), false, parameterMap);
+			_publishLayouts(
+				_getMasterLayoutSetBranch(),
+				ExportImportConfigurationParameterMapFactoryUtil.
+					buildParameterMap());
 		}
 		finally {
 			PropsUtil.set("feature.flag.LPD-105778", "true");
@@ -642,6 +650,34 @@ public class StagingImplTest {
 		Assert.assertNull(
 			typeSettingsUnicodeProperties.getProperty(
 				"last-import-layout-set-branch-name"));
+	}
+
+	@Test
+	public void testLocalStagingWithLayoutVersioningLayoutIconImage()
+		throws Exception {
+
+		_testLocalStagingLayoutIconImage(true);
+	}
+
+	@Test
+	public void testLocalStagingWithLayoutVersioningLayoutSetLogo()
+		throws Exception {
+
+		_testLocalStagingLayoutSetLogo(true);
+	}
+
+	@Test
+	public void testLocalStagingWithLayoutVersioningLayoutTheme()
+		throws Exception {
+
+		_testLocalStagingLayoutTheme(true);
+	}
+
+	@Test
+	public void testLocalStagingWithLayoutVersioningPortletTitle()
+		throws Exception {
+
+		_testLocalStagingPortletTitle(true);
 	}
 
 	@Test
@@ -1205,6 +1241,61 @@ public class StagingImplTest {
 		}
 	}
 
+	private byte[] _getImageBytes() throws Exception {
+		return ImageToolUtil.getBytes(
+			new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), "png");
+	}
+
+	private LayoutSetBranch _getMasterLayoutSetBranch() throws Exception {
+		Group stagingGroup = _group.getStagingGroup();
+
+		return _layoutSetBranchLocalService.getMasterLayoutSetBranch(
+			stagingGroup.getGroupId(), false);
+	}
+
+	private Layout _getStagingLayout(Layout layout) throws Exception {
+		Group stagingGroup = _group.getStagingGroup();
+
+		return _layoutLocalService.getLayoutByExternalReferenceCode(
+			layout.getExternalReferenceCode(), stagingGroup.getGroupId());
+	}
+
+	private ServiceContext _getStagingServiceContext() throws Exception {
+		Group stagingGroup = _group.getStagingGroup();
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(stagingGroup.getGroupId());
+
+		serviceContext.setSignedIn(true);
+
+		return serviceContext;
+	}
+
+	private void _publishLayouts(
+			LayoutSetBranch layoutSetBranch, Map<String, String[]> parameterMap)
+		throws Exception {
+
+		parameterMap.put(
+			Constants.CMD, new String[] {Constants.PUBLISH_TO_LIVE});
+
+		if (layoutSetBranch != null) {
+			parameterMap.put(
+				"layoutSetBranchId",
+				new String[] {
+					String.valueOf(layoutSetBranch.getLayoutSetBranchId())
+				});
+			parameterMap.put(
+				"layoutSetBranchName",
+				new String[] {layoutSetBranch.getName()});
+		}
+
+		Group stagingGroup = _group.getStagingGroup();
+
+		_staging.publishLayouts(
+			TestPropsValues.getUserId(), stagingGroup.getGroupId(),
+			_group.getGroupId(), false, parameterMap);
+	}
+
 	private void _setLiveGroupUnicodePropertiesIncorrectGroupId() {
 		UnicodeProperties typeSettingsUnicodeProperties =
 			_remoteLiveGroup.getTypeSettingsProperties();
@@ -1221,38 +1312,285 @@ public class StagingImplTest {
 			"stagedRemotely", Boolean.TRUE.toString());
 	}
 
-	private void _testLocalStagingWithLayoutVersioningLastImportSettings(
-			Layout layout, LayoutSetBranch layoutSetBranch)
+	private void _testLocalStagingLayoutIconImage(boolean branching)
 		throws Exception {
+
+		Layout layout = LayoutTestUtil.addTypePortletLayout(_group);
+
+		enableLocalStaging(branching);
+
+		ServiceContext serviceContext = _getStagingServiceContext();
+
+		ServiceContextThreadLocal.pushServiceContext(serviceContext);
+
+		Layout stagingLayout = _getStagingLayout(layout);
+
+		_layoutLocalService.updateLayout(
+			stagingLayout.getGroupId(), stagingLayout.isPrivateLayout(),
+			stagingLayout.getLayoutId(), stagingLayout.getParentLayoutId(),
+			stagingLayout.getNameMap(), stagingLayout.getTitleMap(),
+			stagingLayout.getDescriptionMap(), stagingLayout.getKeywordsMap(),
+			stagingLayout.getRobotsMap(), stagingLayout.getType(),
+			stagingLayout.isHidden(), stagingLayout.getFriendlyURLMap(), true,
+			_getImageBytes(), stagingLayout.getStyleBookEntryERC(),
+			stagingLayout.getStyleBookEntryScopeERC(),
+			stagingLayout.getFaviconFileEntryERC(),
+			stagingLayout.getFaviconFileEntryScopeERC(),
+			stagingLayout.getMasterLayoutPageTemplateEntryERC(),
+			serviceContext);
+
+		ServiceContextThreadLocal.popServiceContext();
+
+		LayoutSetBranch layoutSetBranch = null;
+
+		if (branching) {
+			layoutSetBranch = _getMasterLayoutSetBranch();
+
+			LayoutRevision layoutRevision =
+				_layoutRevisionLocalService.fetchLastLayoutRevision(
+					stagingLayout.getPlid(), true);
+
+			Assert.assertTrue(layoutRevision.isIconImage());
+		}
+
+		Layout liveLayout = _layoutLocalService.getLayout(layout.getPlid());
+
+		Assert.assertFalse(liveLayout.isIconImage());
+
+		_publishLayouts(
+			layoutSetBranch,
+			ExportImportConfigurationParameterMapFactoryUtil.
+				buildParameterMap());
+
+		liveLayout = _layoutLocalService.getLayout(layout.getPlid());
+
+		Assert.assertTrue(liveLayout.isIconImage());
+		Assert.assertNotNull(
+			_imageLocalService.fetchImage(liveLayout.getIconImageId()));
+	}
+
+	private void _testLocalStagingLayoutSetLogo(boolean branching)
+		throws Exception {
+
+		LayoutTestUtil.addTypePortletLayout(_group);
+
+		enableLocalStaging(branching);
+
+		ServiceContextThreadLocal.pushServiceContext(
+			_getStagingServiceContext());
 
 		Group stagingGroup = _group.getStagingGroup();
 
-		Layout stagingLayout =
-			_layoutLocalService.fetchLayoutByExternalReferenceCode(
-				layout.getExternalReferenceCode(), stagingGroup.getGroupId());
+		_layoutSetLocalService.updateLogo(
+			stagingGroup.getGroupId(), false, true, _getImageBytes());
 
-		LayoutRevision layoutRevision =
-			_layoutRevisionLocalService.fetchLatestLayoutRevision(
-				layoutSetBranch.getLayoutSetBranchId(),
-				stagingLayout.getPlid());
+		ServiceContextThreadLocal.popServiceContext();
+
+		LayoutSetBranch layoutSetBranch = null;
+
+		if (branching) {
+			layoutSetBranch = _getMasterLayoutSetBranch();
+
+			Assert.assertTrue(layoutSetBranch.isLogo());
+		}
+
+		LayoutSet liveLayoutSet = _layoutSetLocalService.getLayoutSet(
+			_group.getGroupId(), false);
+
+		Assert.assertFalse(liveLayoutSet.isLogo());
 
 		Map<String, String[]> parameterMap =
 			ExportImportConfigurationParameterMapFactoryUtil.
 				buildParameterMap();
 
 		parameterMap.put(
-			Constants.CMD, new String[] {Constants.PUBLISH_TO_LIVE});
-		parameterMap.put(
-			"layoutSetBranchId",
-			new String[] {
-				String.valueOf(layoutSetBranch.getLayoutSetBranchId())
-			});
-		parameterMap.put(
-			"layoutSetBranchName", new String[] {layoutSetBranch.getName()});
+			PortletDataHandlerKeys.LOGO,
+			new String[] {Boolean.FALSE.toString()});
 
-		_staging.publishLayouts(
-			TestPropsValues.getUserId(), stagingGroup.getGroupId(),
-			_group.getGroupId(), false, parameterMap);
+		_publishLayouts(layoutSetBranch, parameterMap);
+
+		liveLayoutSet = _layoutSetLocalService.getLayoutSet(
+			_group.getGroupId(), false);
+
+		Assert.assertFalse(liveLayoutSet.isLogo());
+
+		_publishLayouts(
+			layoutSetBranch,
+			ExportImportConfigurationParameterMapFactoryUtil.
+				buildParameterMap());
+
+		liveLayoutSet = _layoutSetLocalService.getLayoutSet(
+			_group.getGroupId(), false);
+
+		Assert.assertTrue(liveLayoutSet.isLogo());
+		Assert.assertNotNull(
+			_imageLocalService.fetchImage(liveLayoutSet.getLogoId()));
+	}
+
+	private void _testLocalStagingLayoutTheme(boolean branching)
+		throws Exception {
+
+		Layout layout = LayoutTestUtil.addTypePortletLayout(_group);
+
+		enableLocalStaging(branching);
+
+		ServiceContextThreadLocal.pushServiceContext(
+			_getStagingServiceContext());
+
+		Layout stagingLayout = _getStagingLayout(layout);
+
+		_layoutLocalService.updateLookAndFeel(
+			stagingLayout.getGroupId(), stagingLayout.isPrivateLayout(),
+			stagingLayout.getLayoutId(), "cms_WAR_cmstheme", StringPool.BLANK,
+			StringPool.BLANK);
+
+		ServiceContextThreadLocal.popServiceContext();
+
+		LayoutSetBranch layoutSetBranch = null;
+
+		if (branching) {
+			layoutSetBranch = _getMasterLayoutSetBranch();
+
+			LayoutRevision layoutRevision =
+				_layoutRevisionLocalService.fetchLastLayoutRevision(
+					stagingLayout.getPlid(), true);
+
+			Assert.assertEquals(
+				"cms_WAR_cmstheme", layoutRevision.getThemeId());
+		}
+
+		Layout liveLayout = _layoutLocalService.getLayout(layout.getPlid());
+
+		Assert.assertNotEquals("cms_WAR_cmstheme", liveLayout.getThemeId());
+
+		_publishLayouts(
+			layoutSetBranch,
+			ExportImportConfigurationParameterMapFactoryUtil.
+				buildParameterMap());
+
+		liveLayout = _layoutLocalService.getLayout(layout.getPlid());
+
+		Assert.assertEquals("cms_WAR_cmstheme", liveLayout.getThemeId());
+	}
+
+	private void _testLocalStagingPortletTitle(boolean branching)
+		throws Exception {
+
+		Layout layout = LayoutTestUtil.addTypePortletLayout(_group);
+
+		enableLocalStaging(branching);
+
+		LayoutSetBranch layoutSetBranch = null;
+		LayoutSetBranch masterLayoutSetBranch = null;
+
+		if (branching) {
+			masterLayoutSetBranch = _getMasterLayoutSetBranch();
+
+			Group stagingGroup = _group.getStagingGroup();
+
+			layoutSetBranch = _layoutSetBranchLocalService.addLayoutSetBranch(
+				TestPropsValues.getUserId(), stagingGroup.getGroupId(), false,
+				RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+				false, masterLayoutSetBranch.getLayoutSetBranchId(),
+				ServiceContextTestUtil.getServiceContext(
+					stagingGroup.getGroupId()));
+		}
+
+		ServiceContextThreadLocal.pushServiceContext(
+			_getStagingServiceContext());
+
+		Layout stagingLayout = _getStagingLayout(layout);
+
+		String portletId = LayoutTestUtil.addPortletToLayout(
+			stagingLayout, SiteNavigationMenuPortletKeys.SITE_NAVIGATION_MENU);
+
+		String languageId = LocaleUtil.toLanguageId(
+			LocaleUtil.getSiteDefault());
+		String title = RandomTestUtil.randomString();
+
+		LayoutTestUtil.updateLayoutPortletPreferences(
+			stagingLayout, portletId,
+			HashMapBuilder.put(
+				"portletSetupTitle_" + languageId, title
+			).put(
+				"portletSetupUseCustomTitle", Boolean.TRUE.toString()
+			).build());
+
+		ServiceContextThreadLocal.popServiceContext();
+
+		Layout liveLayout = _layoutLocalService.getLayout(layout.getPlid());
+
+		LayoutTypePortlet layoutTypePortlet =
+			(LayoutTypePortlet)liveLayout.getLayoutType();
+
+		Assert.assertFalse(layoutTypePortlet.hasPortletId(portletId));
+
+		if (branching) {
+			LayoutRevision layoutRevision =
+				_layoutRevisionLocalService.fetchLatestLayoutRevision(
+					layoutSetBranch.getLayoutSetBranchId(),
+					stagingLayout.getPlid());
+
+			String typeSettings = layoutRevision.getTypeSettings();
+
+			Assert.assertTrue(typeSettings.contains(portletId));
+
+			layoutRevision =
+				_layoutRevisionLocalService.fetchLatestLayoutRevision(
+					masterLayoutSetBranch.getLayoutSetBranchId(),
+					stagingLayout.getPlid());
+
+			typeSettings = layoutRevision.getTypeSettings();
+
+			Assert.assertFalse(typeSettings.contains(portletId));
+
+			_publishLayouts(
+				masterLayoutSetBranch,
+				ExportImportConfigurationParameterMapFactoryUtil.
+					buildParameterMap());
+
+			liveLayout = _layoutLocalService.getLayout(layout.getPlid());
+
+			layoutTypePortlet = (LayoutTypePortlet)liveLayout.getLayoutType();
+
+			Assert.assertFalse(layoutTypePortlet.hasPortletId(portletId));
+		}
+
+		_publishLayouts(
+			layoutSetBranch,
+			ExportImportConfigurationParameterMapFactoryUtil.
+				buildParameterMap());
+
+		liveLayout = _layoutLocalService.getLayout(layout.getPlid());
+
+		layoutTypePortlet = (LayoutTypePortlet)liveLayout.getLayoutType();
+
+		Assert.assertTrue(layoutTypePortlet.hasPortletId(portletId));
+
+		PortletPreferences portletPreferences =
+			LayoutTestUtil.getPortletPreferences(liveLayout, portletId);
+
+		Assert.assertEquals(
+			title,
+			portletPreferences.getValue(
+				"portletSetupTitle_" + languageId, null));
+	}
+
+	private void _testLocalStagingWithLayoutVersioningLastImportSettings(
+			Layout layout, LayoutSetBranch layoutSetBranch)
+		throws Exception {
+
+		Layout stagingLayout = _getStagingLayout(layout);
+
+		LayoutRevision layoutRevision =
+			_layoutRevisionLocalService.fetchLatestLayoutRevision(
+				layoutSetBranch.getLayoutSetBranchId(),
+				stagingLayout.getPlid());
+
+		_publishLayouts(
+			layoutSetBranch,
+			ExportImportConfigurationParameterMapFactoryUtil.
+				buildParameterMap());
 
 		Layout liveLayout = _layoutLocalService.getLayout(layout.getPlid());
 
@@ -1321,6 +1659,9 @@ public class StagingImplTest {
 
 	@DeleteAfterTestRun
 	private Group _group;
+
+	@Inject
+	private ImageLocalService _imageLocalService;
 
 	@Inject
 	private JournalArticleLocalService _journalArticleLocalService;

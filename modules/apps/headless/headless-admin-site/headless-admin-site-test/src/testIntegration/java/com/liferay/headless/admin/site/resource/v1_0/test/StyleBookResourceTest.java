@@ -8,11 +8,13 @@ package com.liferay.headless.admin.site.resource.v1_0.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.depot.service.DepotEntryGroupRelLocalService;
 import com.liferay.headless.admin.site.client.dto.v1_0.StyleBook;
+import com.liferay.headless.admin.site.client.dto.v1_0.ThumbnailURLReference;
 import com.liferay.headless.admin.site.client.pagination.Page;
 import com.liferay.headless.admin.site.client.pagination.Pagination;
 import com.liferay.headless.admin.site.client.resource.v1_0.StyleBookResource;
 import com.liferay.headless.admin.site.client.scope.Scope;
 import com.liferay.headless.admin.site.resource.v1_0.test.util.DesignLibraryTestUtil;
+import com.liferay.headless.admin.site.resource.v1_0.test.util.FileEntryTestUtil;
 import com.liferay.headless.admin.site.resource.v1_0.test.util.LayoutPageTemplateEntryTestUtil;
 import com.liferay.headless.admin.site.resource.v1_0.test.util.LayoutUtilityPageEntryTestUtil;
 import com.liferay.headless.admin.site.resource.v1_0.test.util.ProblemExceptionTestUtil;
@@ -31,6 +33,9 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -41,6 +46,8 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.kernel.util.Base64;
+import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsValues;
@@ -90,6 +97,7 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		_testDeleteSiteStyleBookForNonexistingStyleBook();
 		_testDeleteSiteStyleBookWithDesignLibraryExternalReferenceCode();
 		_testDeleteSiteStyleBookWithStagedSite();
+		_testDeleteSiteStyleBookWithThumbnailURLReference();
 	}
 
 	@Override
@@ -122,6 +130,7 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		super.testGetSiteStyleBook();
 
 		_testGetSiteStyleBookForNonexistingStyleBook();
+		_testGetSiteStyleBookWithDeletedPreviewFileEntry();
 		_testGetSiteStyleBookWithDesignLibraryExternalReferenceCode();
 		_testGetSiteStyleBookWithStagedSite();
 	}
@@ -143,6 +152,7 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 	public void testPatchDesignLibraryStyleBook() throws Exception {
 		_testPatchDesignLibraryStyleBook();
 		_testPatchDesignLibraryStyleBookForNonexistingStyleBook();
+		_testPatchDesignLibraryStyleBookWithThumbnailURLReference();
 		_testPatchDesignLibraryStyleBookWithoutFrontendTokenDefinition();
 	}
 
@@ -151,7 +161,16 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 	public void testPatchSiteStyleBook() throws Exception {
 		_testPatchSiteStyleBook();
 		_testPatchSiteStyleBookForNonexistingStyleBook();
+		_testPatchSiteStyleBookWithThumbnailURLReference();
 		_testPatchSiteStyleBookWithoutFrontendTokenDefinition();
+	}
+
+	@Override
+	@Test
+	public void testPostDesignLibraryStyleBook() throws Exception {
+		super.testPostDesignLibraryStyleBook();
+
+		_testPostDesignLibraryStyleBookWithThumbnailURLReference();
 	}
 
 	@Override
@@ -171,6 +190,8 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		_testPostSiteStyleBookWithMalformedFrontendTokensValues();
 		_testPostSiteStyleBookWithNullDefaultStyleBook();
 		_testPostSiteStyleBookWithStagedSite();
+		_testPostSiteStyleBookWithThumbnailURLReference();
+		_testPostSiteStyleBookWithUnavailableThumbnailURLReference();
 	}
 
 	@Override
@@ -179,6 +200,7 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		super.testPutDesignLibraryStyleBook();
 
 		_testPutDesignLibraryStyleBookWithFrontendTokenDefinition();
+		_testPutDesignLibraryStyleBookWithThumbnailURLReference();
 		_testPutDesignLibraryStyleBookWithoutFrontendTokenDefinition();
 	}
 
@@ -192,6 +214,7 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		_testPutSiteStyleBookWithInvalidFrontendTokenDefinition();
 		_testPutSiteStyleBookWithNullDefaultStyleBook();
 		_testPutSiteStyleBookWithStagedSite();
+		_testPutSiteStyleBookWithThumbnailURLReference();
 		_testPutSiteStyleBookWithoutFrontendTokenDefinition();
 	}
 
@@ -413,6 +436,31 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		Assert.assertEquals(expectedNames, actualNames);
 	}
 
+	private void _assertThumbnailURLReference(
+			String expectedExternalReferenceCode, long groupId,
+			StyleBook styleBook)
+		throws Exception {
+
+		ThumbnailURLReference thumbnailURLReference =
+			styleBook.getThumbnailURLReference();
+
+		Assert.assertEquals(
+			expectedExternalReferenceCode,
+			thumbnailURLReference.getExternalReferenceCode());
+
+		FileEntry fileEntry =
+			PortletFileRepositoryUtil.
+				getPortletFileEntryByExternalReferenceCode(
+					expectedExternalReferenceCode, groupId);
+		StyleBookEntry styleBookEntry =
+			_styleBookEntryLocalService.
+				getStyleBookEntryByExternalReferenceCode(
+					styleBook.getExternalReferenceCode(), groupId);
+
+		Assert.assertEquals(
+			fileEntry.getFileEntryId(), styleBookEntry.getPreviewFileEntryId());
+	}
+
 	private void _assertTotalCount(
 		String externalReferenceCode, Page<StyleBook> page, long totalCount) {
 
@@ -458,6 +506,37 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		return theme.getThemeId();
 	}
 
+	private StyleBookResource _getStyleBookResource() throws Exception {
+		User user = UserTestUtil.getAdminUser(testCompany.getCompanyId());
+
+		return StyleBookResource.builder(
+		).authentication(
+			user.getEmailAddress(), PropsValues.DEFAULT_ADMIN_PASSWORD
+		).endpoint(
+			testCompany.getVirtualHostname(),
+			PortalUtil.getPortalServerPort(false), "http"
+		).locale(
+			LocaleUtil.getDefault()
+		).parameters(
+			"nestedFields", "thumbnailURLReference"
+		).build();
+	}
+
+	private ThumbnailURLReference _randomThumbnailURLReference()
+		throws Exception {
+
+		ThumbnailURLReference thumbnailURLReference =
+			new ThumbnailURLReference();
+
+		thumbnailURLReference.setExternalReferenceCode(
+			RandomTestUtil.randomString());
+		thumbnailURLReference.setFileBase64(
+			Base64.encode(
+				FileUtil.getBytes(getClass(), "dependencies/thumbnail_1.png")));
+
+		return thumbnailURLReference;
+	}
+
 	private void _testDeleteSiteStyleBookForNonexistingStyleBook()
 		throws Exception {
 
@@ -501,6 +580,30 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 			_styleBookEntryLocalService.
 				fetchStyleBookEntryByExternalReferenceCode(
 					styleBook.getExternalReferenceCode(), group.getGroupId()));
+	}
+
+	private void _testDeleteSiteStyleBookWithThumbnailURLReference()
+		throws Exception {
+
+		StyleBook randomStyleBook = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference =
+			_randomThumbnailURLReference();
+
+		randomStyleBook.setThumbnailURLReference(thumbnailURLReference);
+
+		StyleBook styleBook = styleBookResource.postSiteStyleBook(
+			testGroup.getExternalReferenceCode(), randomStyleBook);
+
+		styleBookResource.deleteSiteStyleBook(
+			testGroup.getExternalReferenceCode(),
+			styleBook.getExternalReferenceCode());
+
+		Assert.assertNull(
+			PortletFileRepositoryUtil.
+				fetchPortletFileEntryByExternalReferenceCode(
+					thumbnailURLReference.getExternalReferenceCode(),
+					testGroup.getGroupId()));
 	}
 
 	private void _testGetDesignLibraryStyleBooksPageWithSiteExternalReferenceCode()
@@ -813,6 +916,33 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 				RandomTestUtil.randomString()));
 	}
 
+	private void _testGetSiteStyleBookWithDeletedPreviewFileEntry()
+		throws Exception {
+
+		StyleBook randomStyleBook = randomStyleBook();
+
+		randomStyleBook.setThumbnailURLReference(
+			_randomThumbnailURLReference());
+
+		StyleBookResource styleBookResource = _getStyleBookResource();
+
+		StyleBook postStyleBook = styleBookResource.postSiteStyleBook(
+			testGroup.getExternalReferenceCode(), randomStyleBook);
+
+		StyleBookEntry styleBookEntry =
+			_styleBookEntryLocalService.getStyleBookEntry(
+				postStyleBook.getId());
+
+		PortletFileRepositoryUtil.deletePortletFileEntry(
+			styleBookEntry.getPreviewFileEntryId());
+
+		StyleBook getStyleBook = styleBookResource.getSiteStyleBook(
+			testGroup.getExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode());
+
+		Assert.assertNull(getStyleBook.getThumbnailURLReference());
+	}
+
 	private void _testGetSiteStyleBookWithDesignLibraryExternalReferenceCode()
 		throws Exception {
 
@@ -979,6 +1109,53 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 				RandomTestUtil.randomString(), randomPatchStyleBook()));
 	}
 
+	private void _testPatchDesignLibraryStyleBookWithThumbnailURLReference()
+		throws Exception {
+
+		StyleBook randomStyleBook = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference1 =
+			_randomThumbnailURLReference();
+
+		randomStyleBook.setThumbnailURLReference(thumbnailURLReference1);
+
+		StyleBookResource styleBookResource = _getStyleBookResource();
+
+		StyleBook postStyleBook = styleBookResource.postDesignLibraryStyleBook(
+			_getDesignLibraryExternalReferenceCode(), randomStyleBook);
+
+		StyleBook patchStyleBook =
+			styleBookResource.patchDesignLibraryStyleBook(
+				_getDesignLibraryExternalReferenceCode(),
+				postStyleBook.getExternalReferenceCode(),
+				randomPatchStyleBook());
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference1.getExternalReferenceCode(),
+			_designLibraryGroup.getGroupId(), patchStyleBook);
+
+		StyleBook randomPatchStyleBook = randomPatchStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference2 =
+			_randomThumbnailURLReference();
+
+		randomPatchStyleBook.setThumbnailURLReference(thumbnailURLReference2);
+
+		patchStyleBook = styleBookResource.patchDesignLibraryStyleBook(
+			_getDesignLibraryExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode(), randomPatchStyleBook);
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference2.getExternalReferenceCode(),
+			_designLibraryGroup.getGroupId(), patchStyleBook);
+
+		Assert.assertNull(
+			PortletFileRepositoryUtil.
+				fetchPortletFileEntryByExternalReferenceCode(
+					thumbnailURLReference1.getExternalReferenceCode(),
+					_designLibraryGroup.getGroupId()));
+	}
+
 	private void _testPatchDesignLibraryStyleBookWithoutFrontendTokenDefinition()
 		throws Exception {
 
@@ -1031,6 +1208,51 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 				RandomTestUtil.randomString(), randomPatchStyleBook()));
 	}
 
+	private void _testPatchSiteStyleBookWithThumbnailURLReference()
+		throws Exception {
+
+		StyleBook randomStyleBook = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference1 =
+			_randomThumbnailURLReference();
+
+		randomStyleBook.setThumbnailURLReference(thumbnailURLReference1);
+
+		StyleBookResource styleBookResource = _getStyleBookResource();
+
+		StyleBook postStyleBook = styleBookResource.postSiteStyleBook(
+			testGroup.getExternalReferenceCode(), randomStyleBook);
+
+		StyleBook patchStyleBook = styleBookResource.patchSiteStyleBook(
+			testGroup.getExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode(), randomPatchStyleBook());
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference1.getExternalReferenceCode(),
+			testGroup.getGroupId(), patchStyleBook);
+
+		StyleBook randomPatchStyleBook = randomPatchStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference2 =
+			_randomThumbnailURLReference();
+
+		randomPatchStyleBook.setThumbnailURLReference(thumbnailURLReference2);
+
+		patchStyleBook = styleBookResource.patchSiteStyleBook(
+			testGroup.getExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode(), randomPatchStyleBook);
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference2.getExternalReferenceCode(),
+			testGroup.getGroupId(), patchStyleBook);
+
+		Assert.assertNull(
+			PortletFileRepositoryUtil.
+				fetchPortletFileEntryByExternalReferenceCode(
+					thumbnailURLReference1.getExternalReferenceCode(),
+					testGroup.getGroupId()));
+	}
+
 	private void _testPatchSiteStyleBookWithoutFrontendTokenDefinition()
 		throws Exception {
 
@@ -1048,6 +1270,32 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		Assert.assertEquals(
 			postStyleBook.getFrontendTokenDefinition(),
 			patchStyleBook.getFrontendTokenDefinition());
+	}
+
+	private void _testPostDesignLibraryStyleBookWithThumbnailURLReference()
+		throws Exception {
+
+		StyleBook randomStyleBook = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference =
+			_randomThumbnailURLReference();
+
+		randomStyleBook.setThumbnailURLReference(thumbnailURLReference);
+
+		StyleBookResource styleBookResource = _getStyleBookResource();
+
+		StyleBook postStyleBook = styleBookResource.postDesignLibraryStyleBook(
+			_getDesignLibraryExternalReferenceCode(), randomStyleBook);
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference.getExternalReferenceCode(),
+			_designLibraryGroup.getGroupId(), postStyleBook);
+		_assertThumbnailURLReference(
+			thumbnailURLReference.getExternalReferenceCode(),
+			_designLibraryGroup.getGroupId(),
+			styleBookResource.getDesignLibraryStyleBook(
+				_getDesignLibraryExternalReferenceCode(),
+				postStyleBook.getExternalReferenceCode()));
 	}
 
 	private void _testPostSiteStyleBookWithBlankThemeId() throws Exception {
@@ -1261,6 +1509,81 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 				stagingGroup.getGroupId()));
 	}
 
+	private void _testPostSiteStyleBookWithThumbnailURLReference()
+		throws Exception {
+
+		StyleBook randomStyleBook = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference =
+			_randomThumbnailURLReference();
+
+		randomStyleBook.setThumbnailURLReference(thumbnailURLReference);
+
+		StyleBookResource styleBookResource = _getStyleBookResource();
+
+		StyleBook postStyleBook = styleBookResource.postSiteStyleBook(
+			testGroup.getExternalReferenceCode(), randomStyleBook);
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference.getExternalReferenceCode(),
+			testGroup.getGroupId(), postStyleBook);
+		_assertThumbnailURLReference(
+			thumbnailURLReference.getExternalReferenceCode(),
+			testGroup.getGroupId(),
+			styleBookResource.getSiteStyleBook(
+				testGroup.getExternalReferenceCode(),
+				postStyleBook.getExternalReferenceCode()));
+	}
+
+	private void _testPostSiteStyleBookWithUnavailableThumbnailURLReference()
+		throws Exception {
+
+		FileEntry fileEntry = FileEntryTestUtil.addPreviewFileEntry(
+			testGroup, _portletFileRepository, getClass());
+
+		StyleBook randomStyleBook1 = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference1 =
+			new ThumbnailURLReference();
+
+		thumbnailURLReference1.setExternalReferenceCode(
+			fileEntry.getExternalReferenceCode());
+
+		randomStyleBook1.setThumbnailURLReference(thumbnailURLReference1);
+
+		ProblemExceptionTestUtil.assertProblemException(
+			"BAD_REQUEST",
+			"Unable to use file " + fileEntry.getExternalReferenceCode() +
+				" as a style book preview",
+			() -> testPostSiteStyleBook_addStyleBook(randomStyleBook1));
+
+		StyleBook randomStyleBook2 = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference2 =
+			_randomThumbnailURLReference();
+
+		randomStyleBook2.setThumbnailURLReference(thumbnailURLReference2);
+
+		testPostSiteStyleBook_addStyleBook(randomStyleBook2);
+
+		StyleBook randomStyleBook3 = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference3 =
+			new ThumbnailURLReference();
+
+		thumbnailURLReference3.setExternalReferenceCode(
+			thumbnailURLReference2.getExternalReferenceCode());
+
+		randomStyleBook3.setThumbnailURLReference(thumbnailURLReference3);
+
+		ProblemExceptionTestUtil.assertProblemException(
+			"BAD_REQUEST",
+			"Unable to use file " +
+				thumbnailURLReference2.getExternalReferenceCode() +
+					" as a style book preview",
+			() -> testPostSiteStyleBook_addStyleBook(randomStyleBook3));
+	}
+
 	private void _testPutDesignLibraryStyleBookWithFrontendTokenDefinition()
 		throws Exception {
 
@@ -1279,6 +1602,67 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 				_getDesignLibraryExternalReferenceCode(),
 				putStyleBook.getExternalReferenceCode()),
 			randomStyleBook);
+	}
+
+	private void _testPutDesignLibraryStyleBookWithThumbnailURLReference()
+		throws Exception {
+
+		StyleBook randomStyleBook1 = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference1 =
+			_randomThumbnailURLReference();
+
+		randomStyleBook1.setThumbnailURLReference(thumbnailURLReference1);
+
+		StyleBookResource styleBookResource = _getStyleBookResource();
+
+		StyleBook postStyleBook = styleBookResource.postDesignLibraryStyleBook(
+			_getDesignLibraryExternalReferenceCode(), randomStyleBook1);
+
+		StyleBook putStyleBook = styleBookResource.putDesignLibraryStyleBook(
+			_getDesignLibraryExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode(), randomStyleBook());
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference1.getExternalReferenceCode(),
+			_designLibraryGroup.getGroupId(), putStyleBook);
+
+		StyleBook randomStyleBook2 = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference2 =
+			_randomThumbnailURLReference();
+
+		randomStyleBook2.setThumbnailURLReference(thumbnailURLReference2);
+
+		putStyleBook = styleBookResource.putDesignLibraryStyleBook(
+			_getDesignLibraryExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode(), randomStyleBook2);
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference2.getExternalReferenceCode(),
+			_designLibraryGroup.getGroupId(), putStyleBook);
+
+		Assert.assertNull(
+			PortletFileRepositoryUtil.
+				fetchPortletFileEntryByExternalReferenceCode(
+					thumbnailURLReference1.getExternalReferenceCode(),
+					_designLibraryGroup.getGroupId()));
+
+		StyleBook randomStyleBook3 = randomStyleBook();
+
+		randomStyleBook3.setThumbnailURLReference(new ThumbnailURLReference());
+
+		putStyleBook = styleBookResource.putDesignLibraryStyleBook(
+			_getDesignLibraryExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode(), randomStyleBook3);
+
+		Assert.assertNull(putStyleBook.getThumbnailURLReference());
+
+		Assert.assertNull(
+			PortletFileRepositoryUtil.
+				fetchPortletFileEntryByExternalReferenceCode(
+					thumbnailURLReference2.getExternalReferenceCode(),
+					_designLibraryGroup.getGroupId()));
 	}
 
 	private void _testPutDesignLibraryStyleBookWithoutFrontendTokenDefinition()
@@ -1394,6 +1778,67 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 		Assert.assertEquals(styleBook.getName(), styleBookEntry.getName());
 	}
 
+	private void _testPutSiteStyleBookWithThumbnailURLReference()
+		throws Exception {
+
+		StyleBook randomStyleBook1 = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference1 =
+			_randomThumbnailURLReference();
+
+		randomStyleBook1.setThumbnailURLReference(thumbnailURLReference1);
+
+		StyleBookResource styleBookResource = _getStyleBookResource();
+
+		StyleBook postStyleBook = styleBookResource.postSiteStyleBook(
+			testGroup.getExternalReferenceCode(), randomStyleBook1);
+
+		StyleBook putStyleBook = styleBookResource.putSiteStyleBook(
+			testGroup.getExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode(), randomStyleBook());
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference1.getExternalReferenceCode(),
+			testGroup.getGroupId(), putStyleBook);
+
+		StyleBook randomStyleBook2 = randomStyleBook();
+
+		ThumbnailURLReference thumbnailURLReference2 =
+			_randomThumbnailURLReference();
+
+		randomStyleBook2.setThumbnailURLReference(thumbnailURLReference2);
+
+		putStyleBook = styleBookResource.putSiteStyleBook(
+			testGroup.getExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode(), randomStyleBook2);
+
+		_assertThumbnailURLReference(
+			thumbnailURLReference2.getExternalReferenceCode(),
+			testGroup.getGroupId(), putStyleBook);
+
+		Assert.assertNull(
+			PortletFileRepositoryUtil.
+				fetchPortletFileEntryByExternalReferenceCode(
+					thumbnailURLReference1.getExternalReferenceCode(),
+					testGroup.getGroupId()));
+
+		StyleBook randomStyleBook3 = randomStyleBook();
+
+		randomStyleBook3.setThumbnailURLReference(new ThumbnailURLReference());
+
+		putStyleBook = styleBookResource.putSiteStyleBook(
+			testGroup.getExternalReferenceCode(),
+			postStyleBook.getExternalReferenceCode(), randomStyleBook3);
+
+		Assert.assertNull(putStyleBook.getThumbnailURLReference());
+
+		Assert.assertNull(
+			PortletFileRepositoryUtil.
+				fetchPortletFileEntryByExternalReferenceCode(
+					thumbnailURLReference2.getExternalReferenceCode(),
+					testGroup.getGroupId()));
+	}
+
 	private void _testPutSiteStyleBookWithoutFrontendTokenDefinition()
 		throws Exception {
 
@@ -1422,6 +1867,9 @@ public class StyleBookResourceTest extends BaseStyleBookResourceTestCase {
 	private Language _language;
 
 	private Layout _pageSpecificationLayout;
+
+	@Inject
+	private PortletFileRepository _portletFileRepository;
 
 	@Inject
 	private StyleBookEntryLocalService _styleBookEntryLocalService;

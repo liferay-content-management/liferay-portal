@@ -10,7 +10,7 @@ import com.liferay.batch.engine.BatchEngineTaskExecuteStatus;
 import com.liferay.batch.engine.BatchEngineTaskItemDelegate;
 import com.liferay.batch.engine.BatchEngineTaskOperation;
 import com.liferay.batch.engine.constants.BatchEngineImportTaskConstants;
-import com.liferay.batch.engine.internal.writer.BatchEngineTaskItemDelegateProvider;
+import com.liferay.batch.engine.internal.util.BatchEngineTaskItemDelegateUtil;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
 import com.liferay.batch.engine.unit.BatchEngineUnit;
@@ -21,6 +21,7 @@ import com.liferay.batch.engine.unit.BatchEngineUnitThreadLocal;
 import com.liferay.batch.engine.unit.BundleBatchEngineUnit;
 import com.liferay.petra.concurrent.BaseFutureListener;
 import com.liferay.petra.concurrent.DefaultNoticeableFuture;
+import com.liferay.petra.executor.PortalExecutorManager;
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.petra.lang.SafeCloseable;
@@ -46,6 +47,7 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegateAdaptorFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,6 +73,7 @@ import org.osgi.framework.ServiceObjects;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -160,6 +163,15 @@ public class BatchEngineUnitProcessorImpl implements BatchEngineUnitProcessor {
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
+
+		_featureFlagBatchEngineUnitProcessor =
+			new FeatureFlagBatchEngineUnitProcessor(
+				bundleContext, _portalExecutorManager);
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		_featureFlagBatchEngineUnitProcessor.destroy();
 	}
 
 	private void _execute(
@@ -180,8 +192,8 @@ public class BatchEngineUnitProcessorImpl implements BatchEngineUnitProcessor {
 		}
 
 		BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate =
-			_batchEngineTaskItemDelegateProvider.toBatchEngineTaskItemDelegate(
-				service);
+			BatchEngineTaskItemDelegateUtil.toBatchEngineTaskItemDelegate(
+				service, _vulcanBatchEngineTaskItemDelegateAdaptorFactory);
 
 		String name = PrincipalThreadLocal.getName();
 
@@ -705,16 +717,11 @@ public class BatchEngineUnitProcessorImpl implements BatchEngineUnitProcessor {
 	private BatchEngineImportTaskLocalService
 		_batchEngineImportTaskLocalService;
 
-	@Reference
-	private BatchEngineTaskItemDelegateProvider
-		_batchEngineTaskItemDelegateProvider;
-
 	private BundleContext _bundleContext;
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
 
-	@Reference
 	private FeatureFlagBatchEngineUnitProcessor
 		_featureFlagBatchEngineUnitProcessor;
 
@@ -722,10 +729,17 @@ public class BatchEngineUnitProcessorImpl implements BatchEngineUnitProcessor {
 	private File _file;
 
 	@Reference
+	private PortalExecutorManager _portalExecutorManager;
+
+	@Reference
 	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;
+
+	@Reference
+	private VulcanBatchEngineTaskItemDelegateAdaptorFactory
+		_vulcanBatchEngineTaskItemDelegateAdaptorFactory;
 
 	private static class BatchEngineUnitData {
 

@@ -14,6 +14,7 @@ import com.liferay.depot.service.DepotEntryGroupRelLocalService;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.depot.test.util.DepotTestUtil;
 import com.liferay.item.selector.criteria.group.criterion.GroupItemSelectorCriterion;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ResourceConstants;
@@ -22,6 +23,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderResponse;
@@ -35,6 +37,7 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -47,6 +50,7 @@ import jakarta.portlet.PortletURL;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.junit.Assert;
@@ -107,6 +111,67 @@ public class DepotEntryAdminSearchProviderTest {
 				mockLiferayPortletActionRequest,
 				new MockLiferayPortletRenderResponse(),
 				new MockLiferayPortletURL()));
+	}
+
+	@Test
+	@TestInfo("LPD-109885")
+	public void testGetDepotEntrySearchWithDescriptionKeywords()
+		throws Exception {
+
+		String keywords = RandomTestUtil.randomString();
+
+		DepotEntry depotEntry1 = _depotEntryLocalService.addDepotEntry(
+			Collections.singletonMap(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()),
+			Collections.singletonMap(
+				LocaleUtil.getDefault(),
+				keywords + StringPool.SPACE + RandomTestUtil.randomString()),
+			DepotConstants.TYPE_ASSET_LIBRARY,
+			ServiceContextTestUtil.getServiceContext());
+
+		_initialDepotEntries.add(depotEntry1);
+
+		DepotEntry depotEntry2 = _depotEntryLocalService.addDepotEntry(
+			Collections.singletonMap(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()),
+			Collections.singletonMap(
+				LocaleUtil.getDefault(),
+				RandomTestUtil.randomString() + StringPool.SPACE + keywords),
+			DepotConstants.TYPE_ASSET_LIBRARY,
+			ServiceContextTestUtil.getServiceContext());
+
+		_initialDepotEntries.add(depotEntry2);
+
+		GroupItemSelectorCriterion groupItemSelectorCriterion =
+			new GroupItemSelectorCriterion();
+
+		groupItemSelectorCriterion.setIncludeAllVisibleGroups(false);
+
+		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
+			new MockLiferayPortletActionRequest();
+
+		mockLiferayPortletActionRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, _getThemeDisplay());
+
+		mockLiferayPortletActionRequest.setParameter("keywords", keywords);
+
+		DepotEntrySearch depotEntrySearch = ReflectionTestUtil.invoke(
+			_depotEntryAdminSearchProvider, "getDepotEntrySearch",
+			new Class<?>[] {
+				GroupItemSelectorCriterion.class, PortletRequest.class,
+				PortletResponse.class, PortletURL.class
+			},
+			groupItemSelectorCriterion, mockLiferayPortletActionRequest,
+			new MockLiferayPortletRenderResponse(),
+			new MockLiferayPortletURL());
+
+		Assert.assertEquals(
+			SetUtil.fromArray(
+				depotEntry1.getDepotEntryId(), depotEntry2.getDepotEntryId()),
+			new HashSet<>(
+				ListUtil.toList(
+					depotEntrySearch.getResults(),
+					DepotEntry::getDepotEntryId)));
 	}
 
 	@Test

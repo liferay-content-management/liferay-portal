@@ -78,7 +78,7 @@ public class PortalReleasePortalTopLevelBuildTest
 
 		String tomcatURLString = JenkinsResultsParserUtil.combine(
 			"https://", RandomTestUtil.randomString(),
-			"/liferay-dxp-tomcat-7.4.13-u154-cms-standalone-1791273379.7z");
+			"/liferay-cms-tomcat-7.4.13-u154-1791273379.7z");
 
 		Mockito.doReturn(
 			tomcatURLString
@@ -131,7 +131,7 @@ public class PortalReleasePortalTopLevelBuildTest
 		};
 		String tomcatURLString = JenkinsResultsParserUtil.combine(
 			"https://", RandomTestUtil.randomString(),
-			"/liferay-dxp-tomcat-7.4.13-u154-cms-standalone-1791273379.7z");
+			"/liferay-cms-tomcat-7.4.13-u154-1791273379.7z");
 
 		_testGetPortalReleaseStandaloneFailure(
 			JenkinsResultsParserUtil.combine(
@@ -159,18 +159,33 @@ public class PortalReleasePortalTopLevelBuildTest
 				"TEST_PORTAL_RELEASE_STANDALONE is true",
 			null);
 
-		String regularTomcatURLString = JenkinsResultsParserUtil.combine(
+		String osgiURLString = JenkinsResultsParserUtil.combine(
 			"https://", RandomTestUtil.randomString(),
-			"/liferay-dxp-tomcat-7.4.13-u154-1791054167.7z");
+			"/liferay-cms-osgi-7.4.13-u154-1791054167.zip");
 
 		_testGetPortalReleaseStandaloneFailure(
 			JenkinsResultsParserUtil.combine(
-				"Invalid standalone bundle URL ", regularTomcatURLString,
+				"Invalid standalone bundle URL ", osgiURLString,
 				". The file name must match ",
-				"\"liferay-<product>-tomcat-<version>-<build ",
-				"profile>-<timestamp>.(7z|tar.gz|zip)\", where the ",
-				"build profile ends in \"-standalone\"."),
-			regularTomcatURLString);
+				"\"liferay-<product>-tomcat-<version>-<timestamp>.",
+				"(7z|tar.gz|zip)\", where the product is not \"dxp\" or ",
+				"\"portal\". Set \"TEST_PORTAL_RELEASE_STANDALONE\" to ",
+				"\"false\" to test a regular release."),
+			osgiURLString);
+
+		String portalURLString = JenkinsResultsParserUtil.combine(
+			"https://", RandomTestUtil.randomString(),
+			"/liferay-portal-tomcat-7.4.3.132-ga132-1791054167.7z");
+
+		_testGetPortalReleaseStandaloneFailure(
+			JenkinsResultsParserUtil.combine(
+				"Invalid standalone bundle URL ", portalURLString,
+				". The file name must match ",
+				"\"liferay-<product>-tomcat-<version>-<timestamp>.",
+				"(7z|tar.gz|zip)\", where the product is not \"dxp\" or ",
+				"\"portal\". Set \"TEST_PORTAL_RELEASE_STANDALONE\" to ",
+				"\"false\" to test a regular release."),
+			portalURLString);
 	}
 
 	private PortalReleasePortalTopLevelBuild

@@ -213,15 +213,6 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro viewDisabledRatings(ratingTypes = null) {
-		for (var text : list ${ratingTypes}) {
-			AssertElementPresent(
-				key_text = ${text},
-				locator1 = "Ratings#ANY_DISABLED");
-		}
-	}
-
-	@summary = "Default summary"
 	macro viewNoRateStackedStar(averageStarCount = null) {
 		for (var ratingStarCount : list "1,2,3,4,5") {
 			AssertElementNotPresent(

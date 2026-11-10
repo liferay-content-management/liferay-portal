@@ -32,6 +32,7 @@ import com.liferay.object.service.ObjectViewLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -210,7 +211,15 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 					businessType,
 					ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
 
-				stringFDSTableSchemaField.setContentRenderer("link");
+				if (FeatureFlagManagerUtil.isEnabled(
+						_objectDefinition.getCompanyId(), "LPD-100522")) {
+
+					stringFDSTableSchemaField.setContentRenderer(
+						"attachmentDataRenderer");
+				}
+				else {
+					stringFDSTableSchemaField.setContentRenderer("link");
+				}
 			}
 			else if (Objects.equals(
 						businessType,
@@ -496,7 +505,9 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 		}
 
 		if (Objects.equals(
-				businessType, ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
+				businessType, ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT) &&
+			!FeatureFlagManagerUtil.isEnabled(
+				_objectDefinition.getCompanyId(), "LPD-100522")) {
 
 			return fieldName + ".link";
 		}

@@ -13,6 +13,7 @@ import com.liferay.list.type.service.ListTypeDefinitionLocalService;
 import com.liferay.list.type.service.ListTypeDefinitionService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
@@ -32,7 +33,9 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.Collections;
+import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -222,6 +225,80 @@ public class ListTypeDefinitionServiceTest {
 	}
 
 	@Test
+	public void testGetListTypeDefinitions() throws Exception {
+		ListTypeDefinition adminUserListTypeDefinition = _addListTypeDefinition(
+			_adminUser);
+		ListTypeDefinition userListTypeDefinition = _addListTypeDefinition(
+			_user);
+
+		List<ListTypeDefinition> listTypeDefinitions = _getListTypeDefinitions(
+			_adminUser);
+
+		Assert.assertTrue(
+			listTypeDefinitions.contains(adminUserListTypeDefinition));
+		Assert.assertTrue(listTypeDefinitions.contains(userListTypeDefinition));
+
+		listTypeDefinitions = _getListTypeDefinitions(_user);
+
+		Assert.assertFalse(
+			listTypeDefinitions.contains(adminUserListTypeDefinition));
+		Assert.assertTrue(listTypeDefinitions.contains(userListTypeDefinition));
+
+		_setResourcePermissions(
+			ListTypeDefinition.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(
+				adminUserListTypeDefinition.getListTypeDefinitionId()),
+			RoleConstants.USER, new String[] {ActionKeys.VIEW});
+
+		listTypeDefinitions = _getListTypeDefinitions(_user);
+
+		Assert.assertTrue(
+			listTypeDefinitions.contains(adminUserListTypeDefinition));
+
+		_setResourcePermissions(
+			ListTypeDefinition.class.getName(), ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(TestPropsValues.getCompanyId()), RoleConstants.USER,
+			new String[] {ActionKeys.VIEW});
+
+		Assert.assertEquals(
+			_getListTypeDefinitions(_adminUser),
+			_getListTypeDefinitions(_user));
+
+		_removeResourcePermission(
+			ListTypeDefinition.class.getName(), ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(TestPropsValues.getCompanyId()), RoleConstants.USER,
+			ActionKeys.VIEW);
+	}
+
+	@Test
+	public void testGetListTypeDefinitionsCount() throws Exception {
+		int listTypeDefinitionsCount = _getListTypeDefinitionsCount(_user);
+
+		_addListTypeDefinition(_adminUser);
+
+		Assert.assertEquals(
+			listTypeDefinitionsCount, _getListTypeDefinitionsCount(_user));
+
+		_addListTypeDefinition(_user);
+
+		Assert.assertEquals(
+			listTypeDefinitionsCount + 1, _getListTypeDefinitionsCount(_user));
+
+		ListTypeDefinition listTypeDefinition = _addListTypeDefinition(
+			_adminUser);
+
+		_setResourcePermissions(
+			ListTypeDefinition.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(listTypeDefinition.getListTypeDefinitionId()),
+			RoleConstants.USER, new String[] {ActionKeys.VIEW});
+
+		Assert.assertEquals(
+			listTypeDefinitionsCount + 2, _getListTypeDefinitionsCount(_user));
+	}
+
+	@Test
 	public void testUpdateListTypeDefinition() throws Exception {
 
 		// Can update list type definition with individual model permission
@@ -296,6 +373,25 @@ public class ListTypeDefinitionServiceTest {
 		return _listTypeDefinitionLocalService.addListTypeDefinition(
 			null, user.getUserId(), RandomTestUtil.randomLocaleStringMap(),
 			false, Collections.emptyList(), new ServiceContext());
+	}
+
+	private List<ListTypeDefinition> _getListTypeDefinitions(User user)
+		throws Exception {
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				user)) {
+
+			return _listTypeDefinitionService.getListTypeDefinitions(
+				QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+		}
+	}
+
+	private int _getListTypeDefinitionsCount(User user) throws Exception {
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				user)) {
+
+			return _listTypeDefinitionService.getListTypeDefinitionsCount();
+		}
 	}
 
 	private long _getRoleId(String roleName) throws Exception {

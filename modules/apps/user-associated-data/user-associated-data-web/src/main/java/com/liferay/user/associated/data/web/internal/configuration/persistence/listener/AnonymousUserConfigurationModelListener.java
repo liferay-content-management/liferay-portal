@@ -12,12 +12,13 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.user.associated.data.web.internal.configuration.AnonymousUserConfiguration;
-import com.liferay.user.associated.data.web.internal.configuration.AnonymousUserConfigurationRetriever;
+import com.liferay.user.associated.data.web.internal.util.AnonymousUserConfigurationUtil;
 
 import java.util.Dictionary;
 import java.util.ResourceBundle;
 
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -55,8 +56,8 @@ public class AnonymousUserConfigurationModelListener
 	private void _validateUniqueConfiguration(String pid, long companyId)
 		throws Exception {
 
-		Configuration configuration = _anonymousUserConfigurationRetriever.get(
-			companyId);
+		Configuration configuration = AnonymousUserConfigurationUtil.get(
+			companyId, _configurationAdmin);
 
 		if ((configuration == null) || pid.equals(configuration.getPid())) {
 			return;
@@ -74,11 +75,10 @@ public class AnonymousUserConfigurationModelListener
 	}
 
 	@Reference
-	private AnonymousUserConfigurationRetriever
-		_anonymousUserConfigurationRetriever;
+	private CompanyLocalService _companyLocalService;
 
 	@Reference
-	private CompanyLocalService _companyLocalService;
+	private ConfigurationAdmin _configurationAdmin;
 
 	@Reference
 	private UserLocalService _userLocalService;

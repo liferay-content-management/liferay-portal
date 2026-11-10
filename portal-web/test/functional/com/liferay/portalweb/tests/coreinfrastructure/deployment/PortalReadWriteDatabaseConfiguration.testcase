@@ -4,7 +4,7 @@ definition {
 	property app.server.types = "tomcat";
 	property ci.retries.disabled = "true";
 	property configure.read.write.database = "jdbc";
-	property database.types = "mysql";
+	property database.types = "mysql,postgresql";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property test.assert.warning.exceptions = "true";
@@ -35,8 +35,8 @@ definition {
 
 		MenuItem.click(menuItem = "Checkout");
 
-		SQL.assertTextInMySQLStatementResult(
-			mysqlStatement = "SELECT COUNT(*) FROM lportal.Lock_ WHERE className LIKE '%com.liferay.document.library.kernel.model.DLFileEntry%'",
+		SQL.assertTextInSQLStatementResult(
+			sqlStatement = "SELECT COUNT(*) FROM Lock_ WHERE className LIKE '%com.liferay.document.library.kernel.model.DLFileEntry%'",
 			text = 1);
 
 		Refresh();
@@ -47,8 +47,8 @@ definition {
 
 		Click(locator1 = "Button#SAVE");
 
-		SQL.assertTextInMySQLStatementResult(
-			mysqlStatement = "SELECT COUNT(*) FROM lportal.Lock_ WHERE className LIKE '%com.liferay.document.library.kernel.model.DLFileEntry%'",
+		SQL.assertTextInSQLStatementResult(
+			sqlStatement = "SELECT COUNT(*) FROM Lock_ WHERE className LIKE '%com.liferay.document.library.kernel.model.DLFileEntry%'",
 			text = 0);
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
@@ -61,8 +61,8 @@ definition {
 			Refresh();
 		}
 
-		SQL.assertTextInMySQLStatementResult(
-			mysqlStatement = "SELECT COUNT(*) FROM lportal.Lock_ WHERE className LIKE '%com.liferay.document.library.kernel.model.DLFileEntry%'",
+		SQL.assertTextInSQLStatementResult(
+			sqlStatement = "SELECT COUNT(*) FROM Lock_ WHERE className LIKE '%com.liferay.document.library.kernel.model.DLFileEntry%'",
 			text = 0);
 
 		JSONMBMessage.addMessage(
@@ -78,16 +78,16 @@ definition {
 
 		MenuItem.click(menuItem = "Lock");
 
-		SQL.assertTextInMySQLStatementResult(
-			mysqlStatement = "SELECT COUNT(*) FROM lportal.Lock_ WHERE className LIKE '%com.liferay.message.boards.model.MBThread%'",
+		SQL.assertTextInSQLStatementResult(
+			sqlStatement = "SELECT COUNT(*) FROM Lock_ WHERE className LIKE '%com.liferay.message.boards.model.MBThread%'",
 			text = 1);
 
 		Click(locator1 = "MessageBoards#VERTICAL_ELLIPSIS");
 
 		MenuItem.click(menuItem = "Unlock");
 
-		SQL.assertTextInMySQLStatementResult(
-			mysqlStatement = "SELECT COUNT(*) FROM lportal.Lock_ WHERE className LIKE '%com.liferay.message.boards.model.MBThread%'",
+		SQL.assertTextInSQLStatementResult(
+			sqlStatement = "SELECT COUNT(*) FROM Lock_ WHERE className LIKE '%com.liferay.message.boards.model.MBThread%'",
 			text = 0);
 	}
 
@@ -99,6 +99,8 @@ definition {
 		property remote.elasticsearch.enabled = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		PagesAdmin.enableWidgetPages();
 
 		Clustering.viewClusterStatusInConsole();
 
@@ -149,6 +151,8 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		PagesAdmin.enableWidgetPages();
+
 		Smoke.viewWelcomeContentPage();
 
 		ServerAdministration.openServerAdmin();
@@ -170,6 +174,8 @@ definition {
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
+		PagesAdmin.enableWidgetPages();
+
 		Smoke.viewWelcomeContentPage();
 
 		ServerAdministration.openServerAdmin();
@@ -190,6 +196,8 @@ definition {
 		property configure.read.write.database = "jndi";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+
+		PagesAdmin.enableWidgetPages();
 
 		Smoke.viewWelcomeContentPage();
 

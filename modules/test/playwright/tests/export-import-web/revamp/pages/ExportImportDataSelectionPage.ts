@@ -7,28 +7,28 @@ import {Locator, Page, expect} from '@playwright/test';
 
 import {clickAndExpectToBeVisible} from '../../../../utils/clickAndExpectToBeVisible';
 
+type GroupSelectorLabel = 'Select Sites' | 'Select Spaces';
+
 export class ExportImportDataSelectionPage {
 	readonly collapseSectionButton: (name: string) => Locator;
 	readonly expandSectionButton: (name: string) => Locator;
+	readonly groupSelectorDialog: (label: GroupSelectorLabel) => Locator;
 	readonly page: Page;
 	readonly section: Locator;
-	readonly selectSitesButton: Locator;
-	readonly siteSelectorDialog: Locator;
+	readonly selectGroupsButton: (label: GroupSelectorLabel) => Locator;
 
 	constructor(page: Page) {
 		this.page = page;
 		this.section = page.locator('[data-testid="data-selection-section"]');
-		this.selectSitesButton = page.getByRole('button', {
-			name: 'Select Sites',
-		});
-		this.siteSelectorDialog = page.getByRole('dialog', {
-			name: 'Select Sites',
-		});
 
 		this.collapseSectionButton = (name) =>
 			page.getByRole('button', {exact: true, name: `Collapse ${name}`});
 		this.expandSectionButton = (name) =>
 			page.getByRole('button', {exact: true, name: `Expand ${name}`});
+		this.groupSelectorDialog = (label) =>
+			page.getByRole('dialog', {name: label});
+		this.selectGroupsButton = (label) =>
+			page.getByRole('button', {name: label});
 	}
 
 	async expandSection(name: string) {
@@ -83,32 +83,6 @@ export class ExportImportDataSelectionPage {
 			.uncheck();
 	}
 
-	async selectGroup(groupName: string) {
-		await this.selectSitesButton.click();
-
-		const searchbox = this.siteSelectorDialog.getByRole('searchbox', {
-			name: 'Search',
-		});
-
-		await searchbox.fill(groupName);
-		await searchbox.press('Enter');
-
-		await this.siteSelectorDialog
-			.getByRole('row', {name: groupName})
-			.getByRole('checkbox')
-			.check();
-
-		await this.siteSelectorDialog
-			.getByRole('button', {exact: true, name: 'Select'})
-			.click();
-
-		await expect(this.siteSelectorDialog).toBeHidden();
-
-		await expect(
-			this.page.getByText(`Selected ${groupName}`)
-		).toBeVisible();
-	}
-
 	async selectOnlyObjectDefinition(label: string) {
 		await this.uncheckAllItems();
 
@@ -117,7 +91,34 @@ export class ExportImportDataSelectionPage {
 		await this.section.getByRole('checkbox', {name: label}).check();
 	}
 
+	async selectSite(siteName: string) {
+		await this.selectGroup('Select Sites', siteName);
+	}
+
+	async selectSpace(spaceName: string) {
+		await this.selectGroup('Select Spaces', spaceName);
+	}
+
 	async waitForContent() {
 		await this.section.getByRole('checkbox').first().waitFor();
+	}
+
+	private async selectGroup(label: GroupSelectorLabel, name: string) {
+		await this.selectGroupsButton(label).click();
+
+		const dialog = this.groupSelectorDialog(label);
+
+		const searchbox = dialog.getByRole('searchbox', {name: 'Search'});
+
+		await searchbox.fill(name);
+		await searchbox.press('Enter');
+
+		await dialog.getByRole('row', {name}).getByRole('checkbox').check();
+
+		await dialog.getByRole('button', {exact: true, name: 'Select'}).click();
+
+		await expect(dialog).toBeHidden();
+
+		await expect(this.page.getByText(`Selected ${name}`)).toBeVisible();
 	}
 }

@@ -15,6 +15,7 @@ import com.liferay.depot.service.DepotEntryGroupRelLocalService;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -74,7 +75,8 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 		}
 
 		Boolean hasPermission = _hasPermission(
-			_getGroupId(group), name, primKey, actionId);
+			BeanPropertiesUtil.getLong(group, "groupId"), name, primKey,
+			actionId);
 
 		if (hasPermission != null) {
 			return hasPermission;
@@ -92,7 +94,8 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 		}
 
 		Boolean hasPermission = _hasPermission(
-			_getGroupId(group), name, GetterUtil.getLong(primKey), actionId);
+			BeanPropertiesUtil.getLong(group, "groupId"), name,
+			GetterUtil.getLong(primKey), actionId);
 
 		if (hasPermission != null) {
 			return hasPermission;
@@ -251,14 +254,6 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 		}
 	}
 
-	private long _getGroupId(Group group) {
-		if (group == null) {
-			return 0;
-		}
-
-		return group.getGroupId();
-	}
-
 	private String _getSubtype(Group group) {
 		if (group == null) {
 			return null;
@@ -337,17 +332,9 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 					}
 
 					if (_isDepotGroupAdmin(groupId)) {
-						String subtype = _getSubtype(
-							_groupLocalService.fetchGroup(groupId));
-
 						if (StringUtil.equals(
 								actionId, ActionKeys.ASSIGN_MEMBERS) &&
-							!Objects.equals(
-								subtype, DepotRolesConstants.SUBTYPE_PROJECT) &&
-							Objects.equals(
-								DepotRoleNameUtil.getAdministratorRoleName(
-									getCompanyId(), subtype),
-								role.getName())) {
+							_isAdministratorOrOwnerRoleName(groupId, role)) {
 
 							return null;
 						}
@@ -391,6 +378,24 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 		Role role = _roleLocalService.getRole(companyId, roleName);
 
 		if (Arrays.binarySearch(roleIds, role.getRoleId()) >= 0) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean _isAdministratorOrOwnerRoleName(long groupId, Role role) {
+		String subtype = _getSubtype(_groupLocalService.fetchGroup(groupId));
+
+		if ((!Objects.equals(subtype, DepotRolesConstants.SUBTYPE_PROJECT) &&
+			 Objects.equals(
+				 DepotRoleNameUtil.getAdministratorRoleName(
+					 getCompanyId(), subtype),
+				 role.getName())) ||
+			Objects.equals(
+				DepotRoleNameUtil.getOwnerRoleName(getCompanyId(), subtype),
+				role.getName())) {
+
 			return true;
 		}
 

@@ -10,20 +10,23 @@ import SectionHeader from '../../../components/SectionHeader';
 import {
 	FormikFieldCheckbox,
 	FormikFieldContentSelector,
+	FormikFieldGroups,
 } from '../../../components/forms/formik';
 import {ImportPreview} from '../../../types/exportImportPreview';
 import {toPortletDataHandlerSections} from '../../../utils/contentSelection';
+import {getScopeSubtitle} from '../../../utils/getScopeSubtitle';
 import FileSummary from './FileSummary';
-import SiteSelection from './SiteSelection';
 
 export default function DataSelectionStep({
 	commentsAndRatingsEnabled = false,
 	importPreview,
 	siteSelectionEnabled = false,
+	spaceSelectionEnabled = false,
 }: {
 	commentsAndRatingsEnabled?: boolean;
 	importPreview?: ImportPreview;
 	siteSelectionEnabled?: boolean;
+	spaceSelectionEnabled?: boolean;
 }) {
 	const labelId = useId();
 
@@ -31,17 +34,50 @@ export default function DataSelectionStep({
 		return null;
 	}
 
+	const sites =
+		siteSelectionEnabled && importPreview.sites?.length
+			? importPreview.sites
+			: undefined;
+
+	const previewSpaces = importPreview.assetLibraries?.filter(
+		({type}) => type === 'Space'
+	);
+
+	const spaces =
+		spaceSelectionEnabled && previewSpaces?.length
+			? previewSpaces
+			: undefined;
+
 	return (
 		<>
 			<FileSummary importPreview={importPreview} />
 
-			{siteSelectionEnabled && !!importPreview.sites?.length && (
+			{(sites || spaces) && (
 				<ScopeSection
-					subtitle={Liferay.Language.get(
-						'import-complete-sites-from-your-file,-including-all-their-pages,-content,-and-settings'
-					)}
+					subtitle={getScopeSubtitle('import', {
+						siteSelectionEnabled: !!sites,
+						spaceSelectionEnabled: !!spaces,
+					})}
 				>
-					<SiteSelection sites={importPreview.sites} />
+					{sites && (
+						<FormikFieldGroups
+							groups={sites}
+							name="siteExternalReferenceCodes"
+							process="import"
+							totalCount={sites.length}
+							type="site"
+						/>
+					)}
+
+					{spaces && (
+						<FormikFieldGroups
+							groups={spaces}
+							name="spaceExternalReferenceCodes"
+							process="import"
+							totalCount={spaces.length}
+							type="space"
+						/>
+					)}
 				</ScopeSection>
 			)}
 

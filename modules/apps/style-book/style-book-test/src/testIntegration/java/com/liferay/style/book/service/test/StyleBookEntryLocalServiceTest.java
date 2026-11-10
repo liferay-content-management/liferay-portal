@@ -7,6 +7,7 @@ package com.liferay.style.book.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -276,6 +277,25 @@ public class StyleBookEntryLocalServiceTest {
 	}
 
 	@Test
+	public void testDeleteStyleBookEntryWithForeignPreviewFileEntry()
+		throws Exception {
+
+		StyleBookEntry styleBookEntry = _addStyleBookEntry(false, _THEME_ID);
+
+		FileEntry fileEntry = _addPreviewFileEntry(
+			RandomTestUtil.randomString(), styleBookEntry);
+
+		styleBookEntry = _styleBookEntryLocalService.updatePreviewFileEntryId(
+			styleBookEntry.getStyleBookEntryId(), fileEntry.getFileEntryId(),
+			_serviceContext);
+
+		_styleBookEntryLocalService.deleteStyleBookEntry(styleBookEntry);
+
+		Assert.assertNotNull(
+			_dlAppLocalService.fetchFileEntry(fileEntry.getFileEntryId()));
+	}
+
+	@Test
 	public void testGenerateStyleBookEntryName() throws Exception {
 		String name = RandomTestUtil.randomString();
 
@@ -359,11 +379,28 @@ public class StyleBookEntryLocalServiceTest {
 		_testUpdateStyleBookEntryWithDraftStyleBookEntry();
 		_testUpdateStyleBookEntryWithDraftStyleBookEntryId();
 		_testUpdateStyleBookEntryWithDuplicateStyleBookEntryKey();
+		_testUpdateStyleBookEntryWithForeignPreviewFileEntryId();
 		_testUpdateStyleBookEntryWithFrontendTokens();
 		_testUpdateStyleBookEntryWithFrontendTokensAndDraftStyleBookEntry();
 		_testUpdateStyleBookEntryWithFrontendTokensAndDraftStyleBookEntryId();
 		_testUpdateStyleBookEntryWithFrontendTokensAndFrontendTokenDefinition();
+		_testUpdateStyleBookEntryWithPreviewFileEntryId();
 		_testUpdateStyleBookEntryWithUser();
+	}
+
+	private FileEntry _addPreviewFileEntry(
+			String portletId, StyleBookEntry styleBookEntry)
+		throws Exception {
+
+		Repository repository = PortletFileRepositoryUtil.addPortletRepository(
+			_group.getGroupId(), portletId, _serviceContext);
+
+		return PortletFileRepositoryUtil.addPortletFileEntry(
+			_group.getGroupId(), TestPropsValues.getUserId(),
+			StyleBookEntry.class.getName(),
+			styleBookEntry.getStyleBookEntryId(), portletId,
+			repository.getDlFolderId(), RandomTestUtil.randomBytes(),
+			RandomTestUtil.randomString(), ContentTypes.IMAGE_PNG, false);
 	}
 
 	private StyleBookEntry _addStyleBookEntry(
@@ -783,6 +820,26 @@ public class StyleBookEntryLocalServiceTest {
 		}
 	}
 
+	private void _testUpdateStyleBookEntryWithForeignPreviewFileEntryId()
+		throws Exception {
+
+		StyleBookEntry styleBookEntry = _addStyleBookEntry(false, _THEME_ID);
+
+		FileEntry fileEntry = _addPreviewFileEntry(
+			RandomTestUtil.randomString(), styleBookEntry);
+
+		styleBookEntry = _styleBookEntryLocalService.updatePreviewFileEntryId(
+			styleBookEntry.getStyleBookEntryId(), fileEntry.getFileEntryId(),
+			_serviceContext);
+
+		styleBookEntry = _updateStyleBookEntry(0, styleBookEntry);
+
+		Assert.assertEquals(0, styleBookEntry.getPreviewFileEntryId());
+
+		Assert.assertNotNull(
+			_dlAppLocalService.fetchFileEntry(fileEntry.getFileEntryId()));
+	}
+
 	private void _testUpdateStyleBookEntryWithFrontendTokens()
 		throws Exception {
 
@@ -901,6 +958,45 @@ public class StyleBookEntryLocalServiceTest {
 					StringPool.COLON + frontendTokenName));
 	}
 
+	private void _testUpdateStyleBookEntryWithPreviewFileEntryId()
+		throws Exception {
+
+		StyleBookEntry styleBookEntry = _addStyleBookEntry(false, _THEME_ID);
+
+		FileEntry fileEntry1 = _addPreviewFileEntry(
+			StyleBookPortletKeys.STYLE_BOOK, styleBookEntry);
+
+		styleBookEntry = _styleBookEntryLocalService.updatePreviewFileEntryId(
+			styleBookEntry.getStyleBookEntryId(), fileEntry1.getFileEntryId(),
+			_serviceContext);
+
+		styleBookEntry = _updateStyleBookEntry(
+			fileEntry1.getFileEntryId(), styleBookEntry);
+
+		Assert.assertNotNull(
+			_dlAppLocalService.fetchFileEntry(fileEntry1.getFileEntryId()));
+
+		FileEntry fileEntry2 = _addPreviewFileEntry(
+			StyleBookPortletKeys.STYLE_BOOK, styleBookEntry);
+
+		styleBookEntry = _updateStyleBookEntry(
+			fileEntry2.getFileEntryId(), styleBookEntry);
+
+		Assert.assertEquals(
+			fileEntry2.getFileEntryId(),
+			styleBookEntry.getPreviewFileEntryId());
+
+		Assert.assertNull(
+			_dlAppLocalService.fetchFileEntry(fileEntry1.getFileEntryId()));
+
+		styleBookEntry = _updateStyleBookEntry(0, styleBookEntry);
+
+		Assert.assertEquals(0, styleBookEntry.getPreviewFileEntryId());
+
+		Assert.assertNull(
+			_dlAppLocalService.fetchFileEntry(fileEntry2.getFileEntryId()));
+	}
+
 	private void _testUpdateStyleBookEntryWithUser() throws Exception {
 		StyleBookEntry styleBookEntry = _addStyleBookEntry(false, _THEME_ID);
 
@@ -951,6 +1047,19 @@ public class StyleBookEntryLocalServiceTest {
 	}
 
 	private StyleBookEntry _updateStyleBookEntry(
+			long previewFileEntryId, StyleBookEntry styleBookEntry)
+		throws Exception {
+
+		return _styleBookEntryLocalService.updateStyleBookEntry(
+			TestPropsValues.getUserId(), styleBookEntry.getStyleBookEntryId(),
+			styleBookEntry.isDefaultStyleBookEntry(),
+			styleBookEntry.getFrontendTokenDefinition(),
+			styleBookEntry.getFrontendTokensValues(), styleBookEntry.getName(),
+			styleBookEntry.getStyleBookEntryKey(), previewFileEntryId,
+			styleBookEntry.getThemeId(), _serviceContext);
+	}
+
+	private StyleBookEntry _updateStyleBookEntry(
 			String frontendTokenDefinition, String frontendTokenName,
 			String name, long styleBookEntryId)
 		throws Exception {
@@ -971,6 +1080,9 @@ public class StyleBookEntryLocalServiceTest {
 	}
 
 	private static final String _THEME_ID = RandomTestUtil.randomString();
+
+	@Inject
+	private DLAppLocalService _dlAppLocalService;
 
 	@DeleteAfterTestRun
 	private Group _group;

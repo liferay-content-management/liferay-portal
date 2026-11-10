@@ -32,6 +32,8 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.scope.Scope;
+import com.liferay.staging.StagingGroupHelper;
+import com.liferay.staging.StagingGroupHelperUtil;
 
 import java.util.Locale;
 import java.util.Map;
@@ -59,13 +61,36 @@ public class FragmentLinkUtilTest extends BaseUtilTestCase {
 
 	@BeforeClass
 	public static void setUpClass() {
-		_mockDTOConverterContextAttributes();
+		Mockito.when(
+			_dtoConverterContext.getAttribute(Mockito.anyString())
+		).thenAnswer(
+			invocationOnMock -> {
+				String name = invocationOnMock.getArgument(0, String.class);
+
+				if (Objects.equals(name, "layoutPlid")) {
+					return RandomTestUtil.randomLong();
+				}
+
+				if (Objects.equals(LayoutStructure.class.getName(), name)) {
+					return Mockito.mock(LayoutStructure.class);
+				}
+
+				return null;
+			}
+		);
+
+		_stagingGroupHelperUtilMockedStatic.when(
+			StagingGroupHelperUtil::getStagingGroupHelper
+		).thenReturn(
+			Mockito.mock(StagingGroupHelper.class)
+		);
 	}
 
 	@AfterClass
 	public static void tearDownClass() {
 		_layoutLocalServiceUtilMockedStatic.close();
 		_localizedValueUtilMockedStatic.close();
+		_stagingGroupHelperUtilMockedStatic.close();
 	}
 
 	@Test
@@ -987,26 +1012,6 @@ public class FragmentLinkUtilTest extends BaseUtilTestCase {
 			).toString());
 	}
 
-	private static void _mockDTOConverterContextAttributes() {
-		Mockito.when(
-			_dtoConverterContext.getAttribute(Mockito.anyString())
-		).thenAnswer(
-			invocationOnMock -> {
-				String name = invocationOnMock.getArgument(0, String.class);
-
-				if (Objects.equals(name, "layoutPlid")) {
-					return RandomTestUtil.randomLong();
-				}
-
-				if (Objects.equals(LayoutStructure.class.getName(), name)) {
-					return Mockito.mock(LayoutStructure.class);
-				}
-
-				return null;
-			}
-		);
-	}
-
 	private FragmentLink _getFragmentLink(
 		String className, String externalReferenceCode, String fieldKey,
 		Map<String, String> localizedValues, Scope scope) {
@@ -1103,5 +1108,8 @@ public class FragmentLinkUtilTest extends BaseUtilTestCase {
 	private static final MockedStatic<LocalizedValueUtil>
 		_localizedValueUtilMockedStatic = Mockito.mockStatic(
 			LocalizedValueUtil.class);
+	private static final MockedStatic<StagingGroupHelperUtil>
+		_stagingGroupHelperUtilMockedStatic = Mockito.mockStatic(
+			StagingGroupHelperUtil.class);
 
 }

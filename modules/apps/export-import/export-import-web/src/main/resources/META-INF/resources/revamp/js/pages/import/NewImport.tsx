@@ -16,6 +16,7 @@ import {
 	toProcessRequestFlags,
 } from '../../utils/contentSelection';
 import {navigateToProcesses} from '../../utils/navigateToProcesses';
+import {toGroupReferences} from '../../utils/toGroupReferences';
 import {toPortletDataHandlers} from '../../utils/toPortletDataHandlers';
 import DataSelectionStep from './steps/DataSelectionStep';
 import FileSelectionStep from './steps/FileSelectionStep';
@@ -28,6 +29,7 @@ export function NewImport({
 	importProcessAPIURL,
 	scope,
 	siteSelectionEnabled = false,
+	spaceSelectionEnabled = false,
 }: {
 	backURL: string;
 	commentsAndRatingsEnabled?: boolean;
@@ -35,6 +37,7 @@ export function NewImport({
 	importProcessAPIURL: string;
 	scope: Scope;
 	siteSelectionEnabled?: boolean;
+	spaceSelectionEnabled?: boolean;
 }) {
 	const [importPreview, setImportPreview] = useState<
 		ImportPreview | undefined
@@ -66,10 +69,12 @@ export function NewImport({
 					deletions: false,
 					permissions: false,
 					siteExternalReferenceCodes: [],
+					spaceExternalReferenceCodes: [],
 				}}
 				isStepValid={(values) =>
 					!!values.contentSelection ||
-					!!values.siteExternalReferenceCodes?.length
+					!!values.siteExternalReferenceCodes?.length ||
+					!!values.spaceExternalReferenceCodes?.length
 				}
 				title={Liferay.Language.get('data-selection')}
 			>
@@ -77,6 +82,7 @@ export function NewImport({
 					commentsAndRatingsEnabled={commentsAndRatingsEnabled}
 					importPreview={importPreview}
 					siteSelectionEnabled={siteSelectionEnabled}
+					spaceSelectionEnabled={spaceSelectionEnabled}
 				/>
 			</WizardStep>
 
@@ -103,6 +109,11 @@ export function NewImport({
 					const result = await postImportProcess({
 						importProcessRequest: {
 							...toProcessRequestFlags(contentSelection),
+							...(spaceSelectionEnabled && {
+								assetLibraries: toGroupReferences(
+									values.spaceExternalReferenceCodes as string[]
+								),
+							}),
 							dataStrategy: values.dataStrategy as DataStrategy,
 							deletions: !!values.deletions,
 							name: values.name,
@@ -114,11 +125,9 @@ export function NewImport({
 								contentSelection
 							),
 							...(siteSelectionEnabled && {
-								sites: (
+								sites: toGroupReferences(
 									values.siteExternalReferenceCodes as string[]
-								).map((externalReferenceCode) => ({
-									externalReferenceCode,
-								})),
+								),
 							}),
 							userIdStrategy:
 								values.userIdStrategy as UserIdStrategy,

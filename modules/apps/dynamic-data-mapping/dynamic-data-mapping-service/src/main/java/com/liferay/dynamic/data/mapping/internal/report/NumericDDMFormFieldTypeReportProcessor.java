@@ -6,33 +6,20 @@
 package com.liferay.dynamic.data.mapping.internal.report;
 
 import com.liferay.dynamic.data.mapping.constants.DDMFormInstanceReportConstants;
+import com.liferay.dynamic.data.mapping.internal.report.util.NumericDDMFormFieldTypeReportUtil;
+import com.liferay.dynamic.data.mapping.internal.util.DDMFormInstanceRecordThreadLocal;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
-import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.report.DDMFormFieldTypeReportProcessor;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
-import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.Validator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -63,7 +50,9 @@ public class NumericDDMFormFieldTypeReportProcessor
 			ddmFormFieldValue, fieldJSONObject, formInstanceRecordId,
 			ddmFormInstanceReportEvent);
 
-		BigDecimal valueBigDecimal = getValueBigDecimal(ddmFormFieldValue);
+		BigDecimal valueBigDecimal =
+			NumericDDMFormFieldTypeReportUtil.getValueBigDecimal(
+				ddmFormFieldValue);
 
 		if (valueBigDecimal == null) {
 			return jsonObject;
@@ -91,7 +80,15 @@ public class NumericDDMFormFieldTypeReportProcessor
 			if ((maxValueBigDecimal == null) ||
 				(valueBigDecimal.compareTo(maxValueBigDecimal) == 1)) {
 
-				summaryJSONObject.put("max", valueBigDecimal.toString());
+				summaryJSONObject.put(
+					"max", valueBigDecimal.toString()
+				).put(
+					"maxCount", 1
+				);
+			}
+			else if (valueBigDecimal.compareTo(maxValueBigDecimal) == 0) {
+				summaryJSONObject.put(
+					"maxCount", summaryJSONObject.getInt("maxCount") + 1);
 			}
 
 			BigDecimal minValueBigDecimal = null;
@@ -104,7 +101,15 @@ public class NumericDDMFormFieldTypeReportProcessor
 			if ((minValueBigDecimal == null) ||
 				(valueBigDecimal.compareTo(minValueBigDecimal) == -1)) {
 
-				summaryJSONObject.put("min", valueBigDecimal.toString());
+				summaryJSONObject.put(
+					"min", valueBigDecimal.toString()
+				).put(
+					"minCount", 1
+				);
+			}
+			else if (valueBigDecimal.compareTo(minValueBigDecimal) == 0) {
+				summaryJSONObject.put(
+					"minCount", summaryJSONObject.getInt("minCount") + 1);
 			}
 
 			sumBigDecimal = sumBigDecimal.add(valueBigDecimal);
@@ -113,48 +118,48 @@ public class NumericDDMFormFieldTypeReportProcessor
 					DDMFormInstanceReportConstants.
 						EVENT_DELETE_RECORD_VERSION)) {
 
-			DDMFormInstanceRecord ddmFormInstanceRecord =
-				ddmFormInstanceRecordLocalService.getFormInstanceRecord(
-					formInstanceRecordId);
+			boolean lastMaxValueDeleted = _isLastValue(
+				"max", summaryJSONObject, valueBigDecimal);
+			boolean lastMinValueDeleted = _isLastValue(
+				"min", summaryJSONObject, valueBigDecimal);
 
-			DDMFormInstance ddmFormInstance =
-				ddmFormInstanceRecord.getFormInstance();
+			_decrementCount("max", summaryJSONObject, valueBigDecimal);
+			_decrementCount("min", summaryJSONObject, valueBigDecimal);
 
-			List<DDMFormInstanceRecord> ddmFormInstanceRecords =
-				TransformUtil.transform(
-					ddmFormInstance.getFormInstanceRecords(),
-					currentDDMFormInstanceRecord -> {
-						if (formInstanceRecordId ==
-								currentDDMFormInstanceRecord.
-									getFormInstanceRecordId()) {
+			if ((lastMaxValueDeleted || lastMinValueDeleted) &&
+				!DDMFormInstanceRecordThreadLocal.isDeleteInProcess()) {
 
-							return null;
-						}
+				jsonObject.put("summary", summaryJSONObject);
 
-						return currentDDMFormInstanceRecord;
-					});
+				DDMFormInstanceRecord ddmFormInstanceRecord =
+					ddmFormInstanceRecordLocalService.getFormInstanceRecord(
+						formInstanceRecordId);
 
-			if (ddmFormInstanceRecords.isEmpty()) {
-				jsonObject.remove("summary");
+				DDMFormInstance ddmFormInstance =
+					ddmFormInstanceRecord.getFormInstance();
 
-				return jsonObject;
+				NumericDDMFormFieldTypeReportUtil.updateMaxAndMin(
+					ddmFormFieldValue.getName(),
+					NumericDDMFormFieldTypeReportUtil.
+						getLatestApprovedDDMFormValuesList(
+							TransformUtil.transform(
+								ddmFormInstance.getFormInstanceRecords(),
+								currentDDMFormInstanceRecord -> {
+									if (formInstanceRecordId ==
+											currentDDMFormInstanceRecord.
+												getFormInstanceRecordId()) {
+
+										return null;
+									}
+
+									return currentDDMFormInstanceRecord;
+								})),
+					jsonObject);
+
+				if (!jsonObject.has("summary")) {
+					return jsonObject;
+				}
 			}
-
-			List<BigDecimal> valueBigDecimals = _getValueBigDecimals(
-				ddmFormFieldValue.getName(), ddmFormInstanceRecords);
-
-			BigDecimal maxValueBigDecimal = Collections.max(
-				valueBigDecimals,
-				Comparator.comparingDouble(Number::doubleValue));
-			BigDecimal minValueBigDecimal = Collections.min(
-				valueBigDecimals,
-				Comparator.comparingDouble(Number::doubleValue));
-
-			summaryJSONObject.put(
-				"max", maxValueBigDecimal.toString()
-			).put(
-				"min", minValueBigDecimal.toString()
-			);
 
 			sumBigDecimal = sumBigDecimal.subtract(valueBigDecimal);
 		}
@@ -209,72 +214,44 @@ public class NumericDDMFormFieldTypeReportProcessor
 		return sb.toString();
 	}
 
-	protected BigDecimal getValueBigDecimal(
-		DDMFormFieldValue ddmFormFieldValue) {
+	private void _decrementCount(
+		String key, JSONObject summaryJSONObject, BigDecimal valueBigDecimal) {
 
-		try {
-			Value value = ddmFormFieldValue.getValue();
-
-			Locale defaultLocale = value.getDefaultLocale();
-
-			String valueString = value.getString(defaultLocale);
-
-			if (Validator.isNull(valueString)) {
-				return null;
-			}
-
-			DecimalFormat decimalFormat =
-				(DecimalFormat)NumberFormat.getNumberInstance(defaultLocale);
-
-			decimalFormat.setParseBigDecimal(true);
-
-			return new BigDecimal(
-				String.valueOf(decimalFormat.parse(valueString)));
+		if (!summaryJSONObject.has(key)) {
+			return;
 		}
-		catch (Exception exception) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(exception);
-			}
 
-			return null;
+		BigDecimal bigDecimal = new BigDecimal(
+			summaryJSONObject.getString(key));
+
+		if (valueBigDecimal.compareTo(bigDecimal) != 0) {
+			return;
+		}
+
+		int count = summaryJSONObject.getInt(key + "Count");
+
+		if (count > 1) {
+			summaryJSONObject.put(key + "Count", count - 1);
 		}
 	}
 
-	private List<BigDecimal> _getValueBigDecimals(
-		String ddmFormFieldValueName,
-		List<DDMFormInstanceRecord> ddmFormInstanceRecords) {
+	private boolean _isLastValue(
+		String key, JSONObject summaryJSONObject, BigDecimal valueBigDecimal) {
 
-		return TransformUtil.transform(
-			ddmFormInstanceRecords,
-			ddmFormInstanceRecord -> {
-				try {
-					DDMFormValues ddmFormValues =
-						ddmFormInstanceRecord.getDDMFormValues();
+		if (!summaryJSONObject.has(key)) {
+			return true;
+		}
 
-					Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
-						ddmFormValues.getDDMFormFieldValuesMap(true);
+		BigDecimal bigDecimal = new BigDecimal(
+			summaryJSONObject.getString(key));
 
-					List<DDMFormFieldValue> ddmFormFieldValues =
-						ddmFormFieldValuesMap.get(ddmFormFieldValueName);
+		if ((valueBigDecimal.compareTo(bigDecimal) == 0) &&
+			(summaryJSONObject.getInt(key + "Count") <= 1)) {
 
-					BigDecimal value = getValueBigDecimal(
-						ddmFormFieldValues.get(0));
+			return true;
+		}
 
-					if (value != null) {
-						return value;
-					}
-				}
-				catch (PortalException portalException) {
-					if (_log.isWarnEnabled()) {
-						_log.warn(portalException);
-					}
-				}
-
-				return null;
-			});
+		return false;
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		NumericDDMFormFieldTypeReportProcessor.class);
 
 }

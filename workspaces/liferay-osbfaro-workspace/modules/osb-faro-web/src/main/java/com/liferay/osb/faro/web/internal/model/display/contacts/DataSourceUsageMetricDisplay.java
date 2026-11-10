@@ -16,10 +16,11 @@ public class DataSourceUsageMetricDisplay {
 		List<ApiUsageMetricDisplay> apiUsageMetricDisplays,
 		long batchSegmentsCount, long connectedDataSourcesCount,
 		long connectorsConnectedCount, String corpProjectName,
-		String corpProjectUuid, List<DataSourceUsage> dataSourceUsages,
-		String lastAccessDateString, String lastAnniversaryDateString,
-		boolean offline, long realTimeSegmentsCount, String salesforceAccountId,
-		String weDeployKey) {
+		String corpProjectUuid, boolean dataPlatform,
+		List<DataSourceUsage> dataSourceUsages, String lastAccessDateString,
+		String lastAnniversaryDateString, boolean offline,
+		String productEntryId, String productName, long realTimeSegmentsCount,
+		String salesforceAccountId, String weDeployKey) {
 
 		_apiUsageMetricDisplays = apiUsageMetricDisplays;
 		_batchSegmentsCount = batchSegmentsCount;
@@ -27,10 +28,13 @@ public class DataSourceUsageMetricDisplay {
 		_connectorsConnectedCount = connectorsConnectedCount;
 		_corpProjectName = corpProjectName;
 		_corpProjectUuid = corpProjectUuid;
+		_dataPlatform = dataPlatform;
 		_dataSourceUsages = dataSourceUsages;
 		_lastAccessDateString = lastAccessDateString;
 		_lastAnniversaryDateString = lastAnniversaryDateString;
 		_offline = offline;
+		_productEntryId = productEntryId;
+		_productName = productName;
 		_realTimeSegmentsCount = realTimeSegmentsCount;
 		_salesforceAccountId = salesforceAccountId;
 		_weDeployKey = weDeployKey;
@@ -72,6 +76,14 @@ public class DataSourceUsageMetricDisplay {
 		return _lastAnniversaryDateString;
 	}
 
+	public String getProductEntryId() {
+		return _productEntryId;
+	}
+
+	public String getProductName() {
+		return _productName;
+	}
+
 	public long getRealTimeSegmentsCount() {
 		return _realTimeSegmentsCount;
 	}
@@ -84,6 +96,10 @@ public class DataSourceUsageMetricDisplay {
 		return _weDeployKey;
 	}
 
+	public boolean isDataPlatform() {
+		return _dataPlatform;
+	}
+
 	public boolean isOffline() {
 		return _offline;
 	}
@@ -94,10 +110,13 @@ public class DataSourceUsageMetricDisplay {
 	private final long _connectorsConnectedCount;
 	private final String _corpProjectName;
 	private final String _corpProjectUuid;
+	private final boolean _dataPlatform;
 	private final List<DataSourceUsage> _dataSourceUsages;
 	private final String _lastAccessDateString;
 	private final String _lastAnniversaryDateString;
 	private final boolean _offline;
+	private final String _productEntryId;
+	private final String _productName;
 	private final long _realTimeSegmentsCount;
 	private final String _salesforceAccountId;
 	private final String _weDeployKey;

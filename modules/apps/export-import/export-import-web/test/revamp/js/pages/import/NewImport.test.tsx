@@ -19,6 +19,7 @@ import React from 'react';
 
 import {NewImport} from '../../../../../src/main/resources/META-INF/resources/revamp/js/pages/import/NewImport';
 import {postImportPreview} from '../../../../../src/main/resources/META-INF/resources/revamp/js/services/postImportPreview';
+import {ImportPreview} from '../../../../../src/main/resources/META-INF/resources/revamp/js/types/exportImportPreview';
 import {SCOPES} from '../../../../../src/main/resources/META-INF/resources/revamp/js/types/scope';
 import formatDate from '../../../../../src/main/resources/META-INF/resources/revamp/js/utils/formatDate';
 import {mockImportPreview} from '../../mocks/mockImportPreview';
@@ -37,9 +38,11 @@ jest.mock(
 const renderComponent = ({
 	commentsAndRatingsEnabled,
 	siteSelectionEnabled,
+	spaceSelectionEnabled,
 }: {
 	commentsAndRatingsEnabled?: boolean;
 	siteSelectionEnabled?: boolean;
+	spaceSelectionEnabled?: boolean;
 } = {}) =>
 	render(
 		<NewImport
@@ -49,6 +52,7 @@ const renderComponent = ({
 			importProcessAPIURL="/o/export-import/v1.0/import-processes"
 			scope={SCOPES.SITE}
 			siteSelectionEnabled={siteSelectionEnabled}
+			spaceSelectionEnabled={spaceSelectionEnabled}
 		/>
 	);
 
@@ -79,6 +83,7 @@ const goToDataSelectionStep = async (
 	options: {
 		commentsAndRatingsEnabled?: boolean;
 		siteSelectionEnabled?: boolean;
+		spaceSelectionEnabled?: boolean;
 	} = {}
 ) => {
 	const result = renderComponent(options);
@@ -96,6 +101,31 @@ const goToDataSelectionStep = async (
 	return result;
 };
 
+const mockPreviewWith = (overrides: Partial<ImportPreview>) =>
+	(postImportPreview as jest.Mock).mockImplementationOnce(() =>
+		Promise.resolve({
+			data: {...mockImportPreview, ...overrides},
+			error: null,
+		})
+	);
+
+const clearSections = async () => {
+	for (const name of ['Design', 'Site Builder', 'Content & Data']) {
+		await user.click(screen.getByRole('checkbox', {name}));
+	}
+};
+
+const pickGroup = async (label: string, title: string) => {
+	await user.click(screen.getByRole('button', {name: label}));
+
+	const row = await screen.findByText(title);
+
+	await user.click(
+		within(row.closest('tr') as HTMLElement).getByRole('checkbox')
+	);
+	await user.click(screen.getByRole('button', {name: 'select'}));
+};
+
 describe('NewImport', () => {
 	beforeAll(() => {
 		(Liferay.Language.get as jest.Mock).mockImplementation(
@@ -108,6 +138,12 @@ describe('NewImport', () => {
 					'selected-x': 'Selected {0}',
 					'show-all-x': 'Show All {0}',
 				})[key] ?? key
+		);
+	});
+
+	afterAll(() => {
+		(Liferay.Language.get as jest.Mock).mockImplementation(
+			(key: string) => key
 		);
 	});
 
@@ -290,12 +326,7 @@ describe('NewImport', () => {
 	});
 
 	it('shows the file summary and the lar contents on the Data Selection step after uploading a file and clicking Continue', async () => {
-		(postImportPreview as jest.Mock).mockImplementationOnce(() =>
-			Promise.resolve({
-				data: {...mockImportPreview, deletionCount: 0},
-				error: null,
-			})
-		);
+		mockPreviewWith({deletionCount: 0});
 
 		const {container} = await goToDataSelectionStep();
 
@@ -406,31 +437,13 @@ describe('NewImport', () => {
 	});
 
 	it('filters deletions-only sections based on the deletions toggle', async () => {
-		(postImportPreview as jest.Mock).mockImplementationOnce(() =>
-			Promise.resolve({
-				data: {
-					...mockImportPreview,
-					portletDataHandlers: toMockPortletDataHandlers(
-						mockPortletDataHandlerSectionsForFilterTest
-					),
-				},
-				error: null,
-			})
-		);
-
-		renderComponent();
-
-		await user.type(screen.getByLabelText(/^name/i), 'My import');
-
-		await uploadFile('site.lar');
-
-		await waitFor(() => {
-			expect(
-				screen.getByRole('button', {name: /continue/i})
-			).toBeEnabled();
+		mockPreviewWith({
+			portletDataHandlers: toMockPortletDataHandlers(
+				mockPortletDataHandlerSectionsForFilterTest
+			),
 		});
 
-		await user.click(screen.getByRole('button', {name: /continue/i}));
+		await goToDataSelectionStep();
 
 		expect(screen.getByText('Additions Only')).toBeInTheDocument();
 		expect(screen.queryByText('Deletions Only')).not.toBeInTheDocument();
@@ -445,37 +458,22 @@ describe('NewImport', () => {
 	});
 
 	it('keeps the entity types deselected when going back after selecting only sites', async () => {
-		(postImportPreview as jest.Mock).mockImplementationOnce(() =>
-			Promise.resolve({
-				data: {
-					...mockImportPreview,
-					sites: [
-						{
-							descriptiveName: 'Support',
-							existsInInstance: true,
-							externalReferenceCode: 'erc-support',
-							path: 'Global / Support',
-						},
-					],
+		mockPreviewWith({
+			sites: [
+				{
+					descriptiveName: 'Support',
+					existsInInstance: true,
+					externalReferenceCode: 'erc-support',
+					path: 'Global / Support',
 				},
-				error: null,
-			})
-		);
+			],
+		});
 
 		await goToDataSelectionStep({siteSelectionEnabled: true});
 
-		for (const name of ['Design', 'Site Builder', 'Content & Data']) {
-			await user.click(screen.getByRole('checkbox', {name}));
-		}
+		await clearSections();
 
-		await user.click(screen.getByRole('button', {name: 'select-sites'}));
-
-		const row = await screen.findByText('Support');
-
-		await user.click(
-			within(row.closest('tr') as HTMLElement).getByRole('checkbox')
-		);
-		await user.click(screen.getByRole('button', {name: 'select'}));
+		await pickGroup('select-sites', 'Support');
 
 		await waitFor(() => {
 			expect(
@@ -496,6 +494,100 @@ describe('NewImport', () => {
 		expect(
 			screen.getByRole('checkbox', {name: 'Content & Data'})
 		).not.toBeChecked();
+	});
+
+	it('hides the spaces section when the file has no spaces', async () => {
+		await goToDataSelectionStep({spaceSelectionEnabled: true});
+
+		await screen.findByRole('checkbox', {name: 'Design'});
+
+		expect(
+			screen.queryByRole('button', {name: 'select-spaces'})
+		).not.toBeInTheDocument();
+	});
+
+	it('offers only the spaces among the asset libraries of the file', async () => {
+		mockPreviewWith({
+			assetLibraries: [
+				{
+					descriptiveName: 'Book',
+					existsInInstance: false,
+					externalReferenceCode: 'erc-book',
+					type: 'Space',
+				},
+				{
+					descriptiveName: 'Pictures',
+					existsInInstance: true,
+					externalReferenceCode: 'erc-pictures',
+					type: 'AssetLibrary',
+				},
+			],
+		});
+
+		await goToDataSelectionStep({spaceSelectionEnabled: true});
+
+		expect(
+			await screen.findByText(
+				'import-complete-spaces-from-your-file,-including-all-their-content'
+			)
+		).toBeInTheDocument();
+
+		await user.click(screen.getByRole('button', {name: 'select-spaces'}));
+
+		expect(await screen.findByText('Book')).toBeInTheDocument();
+		expect(screen.queryByText('Pictures')).not.toBeInTheDocument();
+	});
+
+	it('imports only the spaces selected in the spaces section', async () => {
+		mockPreviewWith({
+			assetLibraries: [
+				{
+					descriptiveName: 'Book',
+					existsInInstance: false,
+					externalReferenceCode: 'erc-book',
+					type: 'Space',
+				},
+			],
+		});
+
+		fetch.mockResponse(JSON.stringify({id: 1}));
+
+		await goToDataSelectionStep({
+			siteSelectionEnabled: true,
+			spaceSelectionEnabled: true,
+		});
+
+		await clearSections();
+
+		await pickGroup('select-spaces', 'Book');
+
+		await waitFor(() => {
+			expect(
+				screen.getByRole('button', {name: /continue/i})
+			).toBeEnabled();
+		});
+
+		await user.click(screen.getByRole('button', {name: /continue/i}));
+
+		await user.click(await screen.findByRole('button', {name: /^import$/}));
+
+		await waitFor(() =>
+			expect(
+				fetch.mock.calls.find(([url]) =>
+					String(url).includes('import-processes')
+				)
+			).toBeDefined()
+		);
+
+		const [, init] = fetch.mock.calls.find(([url]) =>
+			String(url).includes('import-processes')
+		)!;
+
+		expect(JSON.parse(String(init?.body))).toMatchObject({
+			assetLibraries: [{externalReferenceCode: 'erc-book'}],
+			portletDataHandlers: [],
+			sites: [],
+		});
 	});
 
 	it('renders the Comments and Ratings block inside the Site Content section when commentsAndRatingsEnabled is true', async () => {

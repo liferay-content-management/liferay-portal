@@ -65,7 +65,7 @@ public class JsonWebServiceTest extends BaseClientTestCase {
 				"portal_web.docroot.errors.code_jsp", LoggerTestUtil.WARN)) {
 
 			Assert.assertEquals(
-				403,
+				404,
 				invocationBuilder.post(
 					Entity.form(formData)
 				).getStatus());
@@ -94,6 +94,8 @@ public class JsonWebServiceTest extends BaseClientTestCase {
 
 		formData.putSingle("active", "true");
 		formData.putSingle("countryId", "0");
+		formData.putSingle(
+			"externalReferenceCode", RandomTestUtil.randomString());
 		formData.putSingle("name", "'aName'");
 		formData.putSingle("position", "0");
 		formData.putSingle("regionCode", "'aRegionCode'");
@@ -103,7 +105,7 @@ public class JsonWebServiceTest extends BaseClientTestCase {
 
 			response = invocationBuilder.post(Entity.form(formData));
 
-			Assert.assertEquals(403, response.getStatus());
+			Assert.assertEquals(404, response.getStatus());
 		}
 
 		String token = getToken(
@@ -131,7 +133,7 @@ public class JsonWebServiceTest extends BaseClientTestCase {
 				"portal_web.docroot.errors.code_jsp", LoggerTestUtil.WARN)) {
 
 			Assert.assertEquals(
-				403,
+				404,
 				invocationBuilder.post(
 					Entity.form(formData)
 				).getStatus());

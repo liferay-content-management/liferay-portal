@@ -97,7 +97,6 @@ import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -1454,7 +1453,7 @@ public class CompanyLocalServiceTest {
 					}
 
 				},
-				new HashMapDictionary<>()));
+				null));
 		_serviceRegistrations.add(
 			bundleContext.registerService(
 				ModelListener.class,
@@ -1468,7 +1467,7 @@ public class CompanyLocalServiceTest {
 					}
 
 				},
-				new HashMapDictionary<>()));
+				null));
 
 		return modelListeners;
 	}
@@ -1817,19 +1816,27 @@ public class CompanyLocalServiceTest {
 
 		_testUpdateCompanyVirtualHostnames(new String[] {hostname}, false);
 
-		Group group = GroupTestUtil.addGroupToCompany(_company.getCompanyId());
+		try (SafeCloseable safeCloseable =
+				CompanyThreadLocal.setCompanyIdWithSafeCloseable(
+					_company.getCompanyId())) {
 
-		try {
-			_layoutSetLocalService.updateVirtualHosts(
-				group.getGroupId(), false,
-				TreeMapBuilder.put(
-					ascii ? unicodeHostname : asciiHostname, StringPool.BLANK
-				).build());
+			Group group = GroupTestUtil.addGroupToCompany(
+				_company.getCompanyId());
 
-			_testUpdateCompanyVirtualHostnames(new String[] {hostname}, true);
-		}
-		finally {
-			_groupLocalService.deleteGroup(group);
+			try {
+				_layoutSetLocalService.updateVirtualHosts(
+					group.getGroupId(), false,
+					TreeMapBuilder.put(
+						ascii ? unicodeHostname : asciiHostname,
+						StringPool.BLANK
+					).build());
+
+				_testUpdateCompanyVirtualHostnames(
+					new String[] {hostname}, true);
+			}
+			finally {
+				_groupLocalService.deleteGroup(group);
+			}
 		}
 	}
 

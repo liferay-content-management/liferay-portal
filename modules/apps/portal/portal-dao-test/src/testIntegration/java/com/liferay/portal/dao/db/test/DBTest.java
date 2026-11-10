@@ -111,20 +111,52 @@ public class DBTest {
 	@Test
 	public void testAlterColumnNameNoNullableChange() throws Exception {
 		db.alterColumnName(
-			connection, TABLE_NAME_1, "nilColumn",
-			"nilColumnTest VARCHAR(75) null");
+			connection, TABLE_NAME_1, "nilColumn", "nilColumnTest");
 
 		Assert.assertTrue(
 			dbInspector.hasColumnType(
 				TABLE_NAME_1, "nilColumnTest", "VARCHAR(75) null"));
 
 		db.alterColumnName(
-			connection, TABLE_NAME_1, "notNilColumn",
-			"notNilColumnTest VARCHAR(75) not null");
+			connection, TABLE_NAME_1, "notNilColumn", "notNilColumnTest");
 
 		Assert.assertTrue(
 			dbInspector.hasColumnType(
 				TABLE_NAME_1, "notNilColumnTest", "VARCHAR(75) not null"));
+	}
+
+	@Test
+	public void testAlterColumnNameWithType() throws Exception {
+		addIndex(new String[] {"typeVarchar", "typeBoolean"});
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portal.dao.db.BaseDB", LoggerTestUtil.WARN)) {
+
+			db.alterColumnName(
+				connection, TABLE_NAME_1, "typeVarchar",
+				"typeVarcharTest VARCHAR(75) null");
+
+			List<String> messages = logCapture.getMessages();
+
+			Assert.assertEquals(messages.toString(), 1, messages.size());
+
+			Assert.assertEquals(
+				StringBundler.concat(
+					"Ignoring column definition \"typeVarcharTest VARCHAR(75) ",
+					"null\" passed as the new name of ", TABLE_NAME_1,
+					".typeVarchar"),
+				messages.get(0));
+		}
+
+		Assert.assertTrue(
+			dbInspector.hasColumnType(
+				TABLE_NAME_1, "typeVarcharTest", "VARCHAR(75) null"));
+
+		_validateIndex(
+			new String[] {
+				dbInspector.normalizeName("typeVarcharTest"),
+				dbInspector.normalizeName("typeBoolean")
+			});
 	}
 
 	@Test
@@ -308,8 +340,7 @@ public class DBTest {
 		addIndex(new String[] {"typeVarchar", "typeBoolean"});
 
 		db.alterColumnName(
-			connection, TABLE_NAME_1, "typeVarchar",
-			"typeVarcharTest VARCHAR(75) null");
+			connection, TABLE_NAME_1, "typeVarchar", "typeVarcharTest");
 
 		Assert.assertTrue(
 			dbInspector.hasColumn(TABLE_NAME_1, "typeVarcharTest"));
@@ -341,8 +372,7 @@ public class DBTest {
 
 	@Test
 	public void testAlterPrimaryKeyName() throws Exception {
-		db.alterColumnName(
-			connection, TABLE_NAME_1, "id", "idTest LONG not null");
+		db.alterColumnName(connection, TABLE_NAME_1, "id", "idTest");
 
 		Assert.assertTrue(
 			ArrayUtil.contains(

@@ -11,12 +11,14 @@ import com.liferay.portal.kernel.captcha.CaptchaTextException;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.util.Map;
 
 import nl.captcha.noise.NoiseProducer;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -42,9 +44,18 @@ public class SimpleCaptchaImplTest {
 
 	@Before
 	public void setUp() {
+		_captchaEnforceDisabled = PropsUtil.get("captcha.enforce.disabled");
+
+		PropsUtil.set("captcha.enforce.disabled", Boolean.FALSE.toString());
+
 		ReflectionTestUtil.setFieldValue(
 			_simpleCaptchaImpl, "captchaProvider", _mockCaptchaProvider());
 		ReflectionTestUtil.setFieldValue(_simpleCaptchaImpl, "portal", _portal);
+	}
+
+	@After
+	public void tearDown() {
+		PropsUtil.set("captcha.enforce.disabled", _captchaEnforceDisabled);
 	}
 
 	@Test
@@ -267,10 +278,14 @@ public class SimpleCaptchaImplTest {
 
 		Map<String, String> captchaTexts = _getCaptchaTexts(mockHttpSession);
 
-		Assert.assertFalse(captchaTexts.containsKey(captchaId));
+		String captchaText = captchaTexts.get(captchaId);
+
 		Assert.assertTrue(
-			_validateChallenge(
-				captchaId, captchaTexts.get(captchaId), mockHttpSession));
+			_validateChallenge(captchaId, captchaText, mockHttpSession));
+
+		Assert.assertThrows(
+			CaptchaTextException.class,
+			() -> _validateChallenge(captchaId, captchaText, mockHttpSession));
 	}
 
 	private void _testValidateChallengeWithWrongCaptchaText() throws Exception {
@@ -311,6 +326,7 @@ public class SimpleCaptchaImplTest {
 	}
 
 	private CaptchaConfiguration _captchaConfiguration;
+	private String _captchaEnforceDisabled;
 	private final Portal _portal = Mockito.mock(Portal.class);
 	private final SimpleCaptchaImpl _simpleCaptchaImpl =
 		new SimpleCaptchaImpl();

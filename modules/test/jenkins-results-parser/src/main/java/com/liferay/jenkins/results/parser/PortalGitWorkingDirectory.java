@@ -16,9 +16,10 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -79,20 +80,11 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 	public File createYarnCache(String fileName) {
 		setUpYarn();
 
-		StringBuilder sb = new StringBuilder();
-
-		for (String excludeRegex : _BINARIES_CACHE_EXCLUDE_REGEXES) {
-			sb.append(" | grep -v '");
-			sb.append(excludeRegex);
-			sb.append("'");
-		}
-
 		GitUtil.ExecutionResult executionResult = executeBashCommands(
 			3, GitUtil.MILLIS_RETRY_DELAY, 1000 * 60 * 10,
 			JenkinsResultsParserUtil.combine(
-				"zip -q -r -y ", fileName,
-				" $(git ls-files --directory --no-empty-directory --others ",
-				sb.toString(), ") modules/yarn.lock"));
+				"zip -q -r -y ", fileName, " ",
+				JenkinsResultsParserUtil.join(" ", getYarnCacheFilePaths())));
 
 		if (executionResult.getExitValue() != 0) {
 			throw new GitWorkingDirectoryRuntimeException(
@@ -121,32 +113,16 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 			return _jsUnitFiles;
 		}
 
-		_jsUnitFiles = new ArrayList<>(
-			findFiles(null, _FILE_CONTENT_SNIPPET_JS_UNIT));
+		List<File> jsUnitFiles = new ArrayList<>(
+			_getJSUnitFiles(getWorkingDirectory()));
 
 		File portalPrivateDir = getPortalPrivateDir();
 
 		if (portalPrivateDir != null) {
-			String standardOut = null;
-
-			try {
-				Process process = JenkinsResultsParserUtil.executeBashCommands(
-					false, portalPrivateDir, 60 * 1000,
-					"git grep " + _FILE_CONTENT_SNIPPET_JS_UNIT);
-
-				standardOut = JenkinsResultsParserUtil.readInputStream(
-					process.getInputStream());
-			}
-			catch (IOException | TimeoutException exception) {
-				throw new GitWorkingDirectoryRuntimeException(
-					this, "Unable to run: git grep in " + portalPrivateDir,
-					exception);
-			}
-
-			for (String filePath : getJSUnitFilePaths(standardOut)) {
-				_jsUnitFiles.add(new File(portalPrivateDir, filePath));
-			}
+			jsUnitFiles.addAll(_getJSUnitFiles(portalPrivateDir));
 		}
+
+		_jsUnitFiles = jsUnitFiles;
 
 		return _jsUnitFiles;
 	}
@@ -631,18 +607,6 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 
 	}
 
-	protected static List<String> getJSUnitFilePaths(String standardOut) {
-		Set<String> filePaths = new LinkedHashSet<>();
-
-		Matcher matcher = _jsUnitFilePathPattern.matcher(standardOut);
-
-		while (matcher.find()) {
-			filePaths.add(matcher.group("filePath"));
-		}
-
-		return new ArrayList<>(filePaths);
-	}
-
 	protected PortalGitWorkingDirectory(
 			String upstreamBranchName, String workingDirectoryPath)
 		throws IOException {
@@ -692,6 +656,157 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 		}
 
 		return filteredEnv;
+	}
+
+	protected List<String> getYarnCacheFilePaths() {
+		final List<String> yarnCacheFilePaths = new ArrayList<>();
+		final File workingDirectory = getWorkingDirectory();
+
+		for (String baseDirName : _JS_BASE_DIR_NAMES) {
+			File baseDir = new File(workingDirectory, baseDirName);
+
+			if (!baseDir.exists()) {
+				continue;
+			}
+
+			try {
+				Files.walkFileTree(
+					baseDir.toPath(),
+					new SimpleFileVisitor<Path>() {
+
+						@Override
+						public FileVisitResult preVisitDirectory(
+							Path filePath,
+							BasicFileAttributes basicFileAttributes) {
+
+							String fileName = String.valueOf(
+								filePath.getFileName());
+
+							if (fileName.startsWith(".")) {
+								return FileVisitResult.SKIP_SUBTREE;
+							}
+
+							if (!fileName.equals("node_modules")) {
+								return FileVisitResult.CONTINUE;
+							}
+
+							yarnCacheFilePaths.add(
+								JenkinsResultsParserUtil.getPathRelativeTo(
+									filePath.toFile(), workingDirectory));
+
+							return FileVisitResult.SKIP_SUBTREE;
+						}
+
+					});
+			}
+			catch (IOException ioException) {
+				throw new GitWorkingDirectoryRuntimeException(
+					this, "Unable to find \"node_modules\" in " + baseDir,
+					ioException);
+			}
+		}
+
+		Collections.sort(yarnCacheFilePaths);
+
+		for (String yarnCacheFilePath : _YARN_CACHE_FILE_PATHS) {
+			File yarnCacheFile = new File(workingDirectory, yarnCacheFilePath);
+
+			if (!yarnCacheFile.exists()) {
+				continue;
+			}
+
+			yarnCacheFilePaths.add(yarnCacheFilePath);
+		}
+
+		File toolsDir = new File(workingDirectory, "tools");
+
+		if (toolsDir.exists()) {
+			for (File gradleZipFile :
+					toolsDir.listFiles(
+						JenkinsResultsParserUtil.newFilenameFilter(
+							"gradle-.*-bin\\.zip"))) {
+
+				yarnCacheFilePaths.add("tools/" + gradleZipFile.getName());
+			}
+		}
+
+		return yarnCacheFilePaths;
+	}
+
+	private List<File> _getJSUnitFiles(File portalDir) {
+		List<File> jsUnitFiles = new ArrayList<>();
+
+		for (String baseDirName : _JS_BASE_DIR_NAMES) {
+			jsUnitFiles.addAll(_getJSUnitFiles(portalDir, baseDirName));
+		}
+
+		return jsUnitFiles;
+	}
+
+	private List<File> _getJSUnitFiles(File portalDir, String baseDirName) {
+		final List<File> jsUnitFiles = new ArrayList<>();
+
+		File baseDir = new File(portalDir, baseDirName);
+
+		if (!baseDir.exists()) {
+			return jsUnitFiles;
+		}
+
+		try {
+			Files.walkFileTree(
+				baseDir.toPath(),
+				new SimpleFileVisitor<Path>() {
+
+					@Override
+					public FileVisitResult preVisitDirectory(
+						Path filePath,
+						BasicFileAttributes basicFileAttributes) {
+
+						String fileName = String.valueOf(
+							filePath.getFileName());
+
+						if (fileName.startsWith(".") ||
+							_jsUnitSkippedDirNames.contains(fileName)) {
+
+							return FileVisitResult.SKIP_SUBTREE;
+						}
+
+						return FileVisitResult.CONTINUE;
+					}
+
+					@Override
+					public FileVisitResult visitFile(
+							Path filePath,
+							BasicFileAttributes basicFileAttributes)
+						throws IOException {
+
+						Matcher matcher = _jsUnitFileNamePattern.matcher(
+							String.valueOf(filePath.getFileName()));
+
+						if (!matcher.matches()) {
+							return FileVisitResult.CONTINUE;
+						}
+
+						File file = filePath.toFile();
+
+						String content = JenkinsResultsParserUtil.read(file);
+
+						if (content.contains("describe(")) {
+							jsUnitFiles.add(file);
+						}
+
+						return FileVisitResult.CONTINUE;
+					}
+
+				});
+		}
+		catch (IOException ioException) {
+			throw new GitWorkingDirectoryRuntimeException(
+				this, "Unable to find JS unit files in " + baseDir,
+				ioException);
+		}
+
+		return jsUnitFiles;
 	}
 
 	private boolean _isGitArchiveYarnCacheEnabled() {
@@ -757,17 +872,24 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 		return false;
 	}
 
-	private static final String[] _BINARIES_CACHE_EXCLUDE_REGEXES = {
-		"\\.gradle/", "\\.yarn/", "modules/\\.tsc/", "node_modules_cache"
+	private static final String[] _JS_BASE_DIR_NAMES = {
+		"modules", "workspaces"
 	};
 
-	private static final String _FILE_CONTENT_SNIPPET_JS_UNIT =
-		"describe\\( -- '*.js' '*.jsx' '*.ts' '*.tsx'";
+	private static final String[] _YARN_CACHE_FILE_PATHS = {
+		"build/node", "modules/frontend-sdk/prettier-plugin/dist",
+		"modules/yarn.lock"
+	};
 
 	private static final Pattern _esBuildFileNamePattern = Pattern.compile(
 		"@esbuild-(linux-.*?)-.*");
-	private static final Pattern _jsUnitFilePathPattern = Pattern.compile(
-		"(?<filePath>[^\\n:]+):.+");
+	private static final Pattern _jsUnitFileNamePattern = Pattern.compile(
+		".+\\.(js|jsx|ts|tsx)");
+	private static final Set<String> _jsUnitSkippedDirNames = new HashSet<>(
+		Arrays.asList(
+			"bin", "build", "classes", "dist", "lib", "node_modules",
+			"node_modules_cache", "test-classes", "test-coverage",
+			"test-results", "tmp"));
 
 	private Properties _appServerProperties;
 	private List<File> _jsUnitFiles;

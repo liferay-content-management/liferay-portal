@@ -259,7 +259,9 @@ test(
 
 			await page.keyboard.press('Enter');
 
-			await expect(page.getByText('NUMBER')).toBeVisible();
+			await expect(
+				page.getByRole('row', {name: 'temp'}).getByText('NUMBER')
+			).toBeVisible();
 
 			await page.getByRole('link', {name: 'temp'}).click();
 
@@ -290,7 +292,9 @@ test(
 
 			await page.keyboard.press('Enter');
 
-			await expect(page.getByText('DATE')).toBeVisible();
+			await expect(
+				page.getByRole('row', {name: 'temp'}).getByText('DATE')
+			).toBeVisible();
 		});
 
 		await test.step('test', async () => {
@@ -3653,7 +3657,7 @@ test(
 				await row.getByRole('button', {name: 'Set to Hide'}).click();
 
 				await page
-					.locator('.confirmation-modal-root')
+					.getByRole('dialog')
 					.getByRole('button', {exact: true, name: 'Hide'})
 					.click();
 
@@ -3862,7 +3866,7 @@ test(
 			.click();
 
 		await page
-			.locator('.confirmation-modal-root')
+			.getByRole('dialog')
 			.getByRole('button', {exact: true, name: 'Hide'})
 			.click();
 

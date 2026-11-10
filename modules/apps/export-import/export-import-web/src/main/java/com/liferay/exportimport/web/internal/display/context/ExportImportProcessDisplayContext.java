@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.portlet.url.builder.ResourceURLBuilder;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -175,6 +176,22 @@ public class ExportImportProcessDisplayContext {
 		return _exportPreviewSitesAPIURL;
 	}
 
+	public String getExportPreviewSpacesAPIURL() {
+		if (!isSpaceSelectionEnabled()) {
+			return null;
+		}
+
+		if (_exportPreviewSpacesAPIURL != null) {
+			return _exportPreviewSpacesAPIURL;
+		}
+
+		_exportPreviewSpacesAPIURL = HttpComponentsUtil.addParameter(
+			_getResourceAPIURL("/export-preview/asset-libraries"), "filter",
+			"type eq 'Space'");
+
+		return _exportPreviewSpacesAPIURL;
+	}
+
 	public String getExportProcessAPIURL() {
 		if (_exportProcessAPIURL != null) {
 			return _exportProcessAPIURL;
@@ -264,6 +281,17 @@ public class ExportImportProcessDisplayContext {
 		if ((getScope() == Scope.COMPANY) &&
 			FeatureFlagManagerUtil.isEnabled(
 				_group.getCompanyId(), "LPD-85946")) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isSpaceSelectionEnabled() {
+		if ((getScope() == Scope.COMPANY) &&
+			FeatureFlagManagerUtil.isEnabled(
+				_group.getCompanyId(), "LPD-41307")) {
 
 			return true;
 		}
@@ -366,6 +394,7 @@ public class ExportImportProcessDisplayContext {
 	private JSONObject _exportPreviewJSONObject;
 	private final ExportPreviewResource.Factory _exportPreviewResourceFactory;
 	private String _exportPreviewSitesAPIURL;
+	private String _exportPreviewSpacesAPIURL;
 	private String _exportProcessAPIURL;
 	private final Group _group;
 	private final long _groupId;

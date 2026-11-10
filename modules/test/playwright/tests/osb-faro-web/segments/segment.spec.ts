@@ -54,6 +54,8 @@ import {
 	includeAnonymousToggle,
 	saveSegment,
 	selectAsset,
+	selectBehaviorAsset,
+	selectBehaviorPage,
 	selectOperator,
 	setSegmentName,
 	viewSegmentCriteriaCard,
@@ -1953,12 +1955,12 @@ test(
 		});
 
 		await addSegmentField({
-			criterionName: 'Viewed Page',
+			criterionName: 'View',
 			criterionType: 'Events',
 			page,
 		});
 
-		await selectAsset({assetName: pageTitle, page});
+		await selectBehaviorPage({page, pageName: pageTitle});
 
 		await includeAnonymousToggle({enable: true, page});
 
@@ -2327,7 +2329,7 @@ test(
 
 			await page.keyboard.press('Escape');
 
-			await page.locator('button[type="submit"]').click();
+			await page.getByRole('button', {name: 'Save Segment'}).click();
 
 			await waitForAlert(page, 'This segment name is currently in use', {
 				autoClose: false,
@@ -2392,7 +2394,7 @@ test(
 				segmentName: secondSegmentName,
 			});
 
-			await page.locator('button[type="submit"]').click();
+			await page.getByRole('button', {name: 'Save Segment'}).click();
 
 			await waitForAlert(page, 'This segment name is currently in use', {
 				autoClose: false,
@@ -2488,12 +2490,16 @@ test(
 		await setSegmentName({page, segmentName});
 
 		await addSegmentField({
-			criterionName: 'Viewed Blog',
+			criterionName: 'View',
 			criterionType: 'Events',
 			page,
 		});
 
-		await selectAsset({assetName: assetTitle, page});
+		await selectBehaviorAsset({
+			assetName: assetTitle,
+			assetType: 'Blogs',
+			page,
+		});
 
 		await page.locator('input[type="number"]').fill('4');
 
@@ -2611,12 +2617,16 @@ test(
 		await setSegmentName({page, segmentName});
 
 		await addSegmentField({
-			criterionName: 'Viewed Document & Media',
+			criterionName: 'View',
 			criterionType: 'Events',
 			page,
 		});
 
-		await selectAsset({assetName: 'DM AC Title', page});
+		await selectBehaviorAsset({
+			assetName: 'DM AC Title',
+			assetType: 'Documents and Media',
+			page,
+		});
 
 		await saveSegment(page);
 
@@ -2678,12 +2688,16 @@ test(
 		await setSegmentName({page, segmentName});
 
 		await addSegmentField({
-			criterionName: 'Viewed Web Content',
+			criterionName: 'View',
 			criterionType: 'Events',
 			page,
 		});
 
-		await selectAsset({assetName: assetTitle, page});
+		await selectBehaviorAsset({
+			assetName: assetTitle,
+			assetType: 'Web Content',
+			page,
+		});
 
 		// Switch the time period dropdown to Last 7 days
 
@@ -2746,12 +2760,16 @@ test(
 		await setSegmentName({page, segmentName});
 
 		await addSegmentField({
-			criterionName: 'Viewed Blog',
+			criterionName: 'View',
 			criterionType: 'Events',
 			page,
 		});
 
-		await selectAsset({assetName: assetTitle, page});
+		await selectBehaviorAsset({
+			assetName: assetTitle,
+			assetType: 'Blogs',
+			page,
+		});
 
 		// Switch the "has" operator to "has not"
 

@@ -184,6 +184,15 @@ public class DepotPermissionCheckerWrapperTest {
 					permissionChecker.hasPermission(
 						0, Role.class.getName(), role.getRoleId(),
 						ActionKeys.UPDATE));
+
+				Role ownerRole = _roleLocalService.getRole(
+					TestPropsValues.getCompanyId(),
+					DepotRolesConstants.ASSET_LIBRARY_OWNER);
+
+				Assert.assertFalse(
+					permissionChecker.hasPermission(
+						depotEntry.getGroupId(), Role.class.getName(),
+						ownerRole.getRoleId(), ActionKeys.ASSIGN_MEMBERS));
 			});
 	}
 
@@ -927,6 +936,30 @@ public class DepotPermissionCheckerWrapperTest {
 								DLFileEntry.class.getName(),
 								fileEntry.getFileEntryId(), ActionKeys.UPDATE));
 					})));
+	}
+
+	@Test
+	public void testProjectManagerDoesNotHaveAssignMembersPermissionOnAssetLibraryOwnerRole()
+		throws Exception {
+
+		DepotEntry depotEntry = _addProjectDepotEntry(
+			TestPropsValues.getUserId());
+
+		DepotTestUtil.withProjectManager(
+			depotEntry,
+			user -> {
+				PermissionChecker permissionChecker =
+					_permissionCheckerFactory.create(user);
+
+				Role role = _roleLocalService.getRole(
+					TestPropsValues.getCompanyId(),
+					DepotRolesConstants.ASSET_LIBRARY_OWNER);
+
+				Assert.assertFalse(
+					permissionChecker.hasPermission(
+						depotEntry.getGroupId(), Role.class.getName(),
+						role.getRoleId(), ActionKeys.ASSIGN_MEMBERS));
+			});
 	}
 
 	@Test

@@ -39,7 +39,21 @@ export default function FileContainer({
 							}
 						}}
 					>
-						{attachment.title}
+						{Liferay.FeatureFlags['LPD-100522'] ? (
+							<>
+								<span className="font-weight-semi-bold small">
+									{attachment.title}
+								</span>
+
+								{attachment.formattedSize && (
+									<span className="d-block small text-secondary">
+										{attachment.formattedSize}
+									</span>
+								)}
+							</>
+						) : (
+							attachment.title
+						)}
 					</ClayButton>
 
 					{Liferay.ThemeDisplay.isSignedIn() &&

@@ -50,15 +50,6 @@ public class PIMConnectorFieldMappingsUtil {
 
 	public static final String TYPE_FIXED_VALUE = "fixedValue";
 
-	public static ObjectRelationship fetchObjectRelationship(
-		long objectDefinitionId) {
-
-		return ObjectRelationshipLocalServiceUtil.
-			fetchObjectRelationshipByExternalReferenceCode(
-				"L_PIM_CONNECTOR_TO_PIM_CONNECTOR_FIELD_MAPPINGS",
-				objectDefinitionId);
-	}
-
 	public static List<ObjectEntry> filterObjectEntries(
 		ObjectDefinition objectDefinition,
 		List<ObjectEntry> pimFieldMappingObjectEntries) {
@@ -100,16 +91,28 @@ public class PIMConnectorFieldMappingsUtil {
 
 	public static Object getChannelFieldValue(
 		ObjectDefinition objectDefinition,
-		Map<String, List<ObjectEntry>> objectEntriesMap,
 		PIMConnectorChannelField pimConnectorChannelField,
+		Map<String, List<ObjectEntry>> pimFieldMappingObjectEntriesMap,
+		Map<String, ObjectEntry> pimFieldMappingRuleObjectEntriesMap,
 		Map<String, Serializable> values) {
+
+		ObjectEntry pimFieldMappingRuleObjectEntry =
+			pimFieldMappingRuleObjectEntriesMap.get(
+				pimConnectorChannelField.getName());
 
 		List<String> channelFieldValues = TransformUtil.transform(
 			filterObjectEntries(
 				objectDefinition,
-				objectEntriesMap.get(pimConnectorChannelField.getName())),
-			objectEntry -> {
-				String value = getValue(objectDefinition, objectEntry, values);
+				pimFieldMappingObjectEntriesMap.get(
+					pimConnectorChannelField.getName())),
+			pimFieldMappingObjectEntry -> {
+				String value = getValue(
+					objectDefinition, pimFieldMappingObjectEntry, values);
+
+				if (pimConnectorChannelField.isMultiple()) {
+					value = PIMConnectorFieldMappingRulesUtil.applyRules(
+						pimFieldMappingRuleObjectEntry, value);
+				}
 
 				if (Validator.isNull(value)) {
 					return null;
@@ -134,7 +137,24 @@ public class PIMConnectorFieldMappingsUtil {
 		}
 
 		if (Objects.equals(type, ObjectFieldConstants.BUSINESS_TYPE_TEXT)) {
-			return StringUtil.merge(channelFieldValues, StringPool.SPACE);
+			String value = channelFieldValues.get(0);
+
+			if ((pimFieldMappingRuleObjectEntry == null) ||
+				!MapUtil.getBoolean(
+					pimFieldMappingRuleObjectEntry.getValues(),
+					"useFirstNonemptySource")) {
+
+				value = StringUtil.merge(channelFieldValues, StringPool.SPACE);
+			}
+
+			value = PIMConnectorFieldMappingRulesUtil.applyRules(
+				pimFieldMappingRuleObjectEntry, value);
+
+			if (Validator.isNull(value)) {
+				return null;
+			}
+
+			return value;
 		}
 
 		return _toObject(pimConnectorChannelField, channelFieldValues.get(0));
@@ -157,8 +177,11 @@ public class PIMConnectorFieldMappingsUtil {
 	public static List<ObjectEntry> getObjectEntries(ObjectEntry objectEntry)
 		throws PortalException {
 
-		ObjectRelationship objectRelationship = fetchObjectRelationship(
-			objectEntry.getObjectDefinitionId());
+		ObjectRelationship objectRelationship =
+			ObjectRelationshipLocalServiceUtil.
+				fetchObjectRelationshipByExternalReferenceCode(
+					"L_PIM_CONNECTOR_TO_PIM_CONNECTOR_FIELD_MAPPINGS",
+					objectEntry.getObjectDefinitionId());
 
 		if (objectRelationship == null) {
 			return Collections.emptyList();

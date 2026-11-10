@@ -5721,7 +5721,7 @@ public class BatchEnginePortletDataHandlerTest {
 		for (ListTypeEntry listTypeEntry : listTypeEntries) {
 			ListTypeEntry importedListTypeEntry =
 				_listTypeEntryLocalService.
-					getListTypeEntryByExternalReferenceCode(
+					fetchListTypeEntryByExternalReferenceCode(
 						listTypeEntry.getExternalReferenceCode(),
 						listTypeEntry.getCompanyId(),
 						importedListTypeDefinition.getListTypeDefinitionId());
@@ -6491,8 +6491,7 @@ public class BatchEnginePortletDataHandlerTest {
 		String portletId =
 			testExportImportVulcanBatchEngineTaskItemDelegate._portletId;
 
-		SafeCloseable safeCloseable1 = () -> {
-		};
+		SafeCloseable safeCloseable1 = SafeCloseable.EMPTY;
 
 		if (ArrayUtil.isEmpty(
 				_bundleContext.getServiceReferences(

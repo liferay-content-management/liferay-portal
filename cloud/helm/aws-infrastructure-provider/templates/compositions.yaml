@@ -27,6 +27,9 @@ spec:
                 spec:
                     environmentConfigs:
                         -   ref:
+                                name: database-scripts
+                            type: Reference
+                        -   ref:
                                 name: environment-config
                             type: Reference
             step: environment-configs

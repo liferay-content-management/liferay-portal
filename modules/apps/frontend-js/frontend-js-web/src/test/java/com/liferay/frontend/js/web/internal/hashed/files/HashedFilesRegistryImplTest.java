@@ -5,10 +5,13 @@
 
 package com.liferay.frontend.js.web.internal.hashed.files;
 
+import com.liferay.frontend.js.web.internal.configuration.FrontendCachingConfiguration;
 import com.liferay.frontend.js.web.internal.util.FrontendJSWebUtil;
 import com.liferay.frontend.js.web.test.util.FrontendJSWebTestUtil;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.frontend.hashed.files.CachingStrategy;
 import com.liferay.portal.kernel.frontend.hashed.files.HashedFilesUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.FIPSModeTestUtil;
@@ -32,6 +35,8 @@ import org.junit.Test;
 
 import org.mockito.Mockito;
 
+import org.springframework.mock.web.MockHttpServletRequest;
+
 /**
  * @author Iván Zaera Avellón
  */
@@ -43,6 +48,17 @@ public class HashedFilesRegistryImplTest {
 	@Before
 	public void setUp() {
 		FrontendJSWebUtil.clearCache();
+	}
+
+	@Test
+	public void testGetCachingStrategy() throws Exception {
+		for (CachingStrategy cachingStrategy : CachingStrategy.values()) {
+			Assert.assertEquals(
+				cachingStrategy,
+				_getCachingStrategy(cachingStrategy.getValue()));
+		}
+
+		_testGetCachingStrategyWhenValueIsInvalid();
 	}
 
 	@Test
@@ -98,6 +114,41 @@ public class HashedFilesRegistryImplTest {
 			() -> ReflectionTestUtil.invoke(
 				new HashedFilesRegistryImpl(), "_getServletContextHash",
 				new Class<?>[] {Map.class}, hashedFileURIs));
+	}
+
+	private CachingStrategy _getCachingStrategy(String value) throws Exception {
+		HashedFilesRegistryImpl hashedFilesRegistryImpl =
+			new HashedFilesRegistryImpl();
+
+		ConfigurationProvider configurationProvider = Mockito.mock(
+			ConfigurationProvider.class);
+
+		FrontendCachingConfiguration frontendCachingConfiguration =
+			Mockito.mock(FrontendCachingConfiguration.class);
+
+		Mockito.when(
+			frontendCachingConfiguration.cachingStrategy()
+		).thenReturn(
+			value
+		);
+
+		Mockito.when(
+			configurationProvider.getCompanyConfiguration(
+				Mockito.eq(FrontendCachingConfiguration.class),
+				Mockito.anyLong())
+		).thenReturn(
+			frontendCachingConfiguration
+		);
+
+		ReflectionTestUtil.setFieldValue(
+			hashedFilesRegistryImpl, "_configurationProvider",
+			configurationProvider);
+
+		ReflectionTestUtil.setFieldValue(
+			hashedFilesRegistryImpl, "_portal", Mockito.mock(Portal.class));
+
+		return hashedFilesRegistryImpl.getCachingStrategy(
+			new MockHttpServletRequest());
 	}
 
 	private Portal _mockPortal(String contextPath, String proxyPath)
@@ -172,6 +223,17 @@ public class HashedFilesRegistryImplTest {
 			_mockServiceTrackerMap(servletContextPath));
 
 		return hashedFilesRegistryImpl;
+	}
+
+	private void _testGetCachingStrategyWhenValueIsInvalid() throws Exception {
+		for (String value :
+				new String[] {
+					null, StringPool.BLANK, RandomTestUtil.randomString()
+				}) {
+
+			Assert.assertEquals(
+				CachingStrategy.DO_NOT_USE_HASHES, _getCachingStrategy(value));
+		}
 	}
 
 }

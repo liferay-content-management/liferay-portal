@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RepositoryLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.portlet.MockActionRequest;
 import com.liferay.portal.kernel.test.portlet.MockActionResponse;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -29,6 +30,7 @@ import jakarta.portlet.ActionResponse;
 import jakarta.portlet.PortletRequest;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -100,6 +102,55 @@ public class CopyDLObjectsMVCActionCommandTest {
 	}
 
 	@Test
+	@TestInfo({"LPD-109885", "LPD-113295"})
+	public void testCheckDestinationGroup() throws Exception {
+		long depotGroupId = RandomTestUtil.randomLong();
+
+		Group depotGroup = _setUpDepotGroup(depotGroupId);
+
+		long siteGroupId1 = RandomTestUtil.randomLong();
+
+		_setUpSiteGroup(siteGroupId1, new long[] {siteGroupId1, depotGroupId});
+
+		_checkDestinationGroup(
+			Mockito.mock(Group.class), new long[] {siteGroupId1, depotGroupId},
+			depotGroupId);
+		_checkDestinationGroup(
+			depotGroup, new long[] {depotGroupId}, siteGroupId1);
+
+		long siteGroupId2 = RandomTestUtil.randomLong();
+
+		_setUpSiteGroup(siteGroupId2, new long[] {siteGroupId2});
+
+		try {
+			_checkDestinationGroup(
+				depotGroup, new long[] {depotGroupId}, siteGroupId2);
+
+			Assert.fail();
+		}
+		catch (Exception exception) {
+			Assert.assertEquals(
+				"the-item-is-not-copied-because-the-site-and-asset-library-" +
+					"are-not-connected",
+				exception.getMessage());
+		}
+
+		try {
+			_checkDestinationGroup(
+				Mockito.mock(Group.class), new long[] {siteGroupId2},
+				depotGroupId);
+
+			Assert.fail();
+		}
+		catch (Exception exception) {
+			Assert.assertEquals(
+				"the-item-is-not-copied-because-the-site-and-asset-library-" +
+					"are-not-connected",
+				exception.getMessage());
+		}
+	}
+
+	@Test
 	public void testRepositoryGroupIsUsed() throws Exception {
 		long destinationGroupId = RandomTestUtil.randomLong();
 		long destinationRepositoryId = RandomTestUtil.randomLong();
@@ -135,6 +186,15 @@ public class CopyDLObjectsMVCActionCommandTest {
 		);
 	}
 
+	private void _checkDestinationGroup(
+		Group group, long[] groupIds, long sourceGroupId) {
+
+		ReflectionTestUtil.invoke(
+			_copyDLObjectsMVCActionCommand, "_checkDestinationGroup",
+			new Class<?>[] {Group.class, long[].class, long.class}, group,
+			groupIds, sourceGroupId);
+	}
+
 	private MockActionRequest _getMockActionRequest(
 		long destinationRepositoryId, long sourceRepositoryId) {
 
@@ -149,6 +209,30 @@ public class CopyDLObjectsMVCActionCommandTest {
 			"sourceRepositoryId", String.valueOf(sourceRepositoryId));
 
 		return mockActionRequest;
+	}
+
+	private Group _setUpDepotGroup(long groupId) throws Exception {
+		Group group = Mockito.mock(Group.class);
+
+		Mockito.when(
+			group.getGroupId()
+		).thenReturn(
+			groupId
+		);
+
+		Mockito.when(
+			group.isDepot()
+		).thenReturn(
+			true
+		);
+
+		Mockito.when(
+			_groupLocalService.getGroup(groupId)
+		).thenReturn(
+			group
+		);
+
+		return group;
 	}
 
 	private void _setUpRepository(long groupId, long repositoryId)
@@ -197,6 +281,32 @@ public class CopyDLObjectsMVCActionCommandTest {
 			_repositoryLocalService.getRepository(repositoryId)
 		).thenReturn(
 			repository
+		);
+	}
+
+	private void _setUpSiteGroup(
+			long groupId, long[] currentAndAncestorSiteAndDepotGroupIds)
+		throws Exception {
+
+		Group group = Mockito.mock(Group.class);
+
+		Mockito.when(
+			group.getGroupId()
+		).thenReturn(
+			groupId
+		);
+
+		Mockito.when(
+			_groupLocalService.getGroup(groupId)
+		).thenReturn(
+			group
+		);
+
+		Mockito.when(
+			_siteConnectedGroupGroupProvider.
+				getCurrentAndAncestorSiteAndDepotGroupIds(groupId)
+		).thenReturn(
+			currentAndAncestorSiteAndDepotGroupIds
 		);
 	}
 

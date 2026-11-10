@@ -250,6 +250,10 @@ public class AttachmentDDMFormFieldTemplateContextContributor
 						_getPermissionChecker(themeDisplay), themeDisplay);
 				}
 			).put(
+				"formattedSize",
+				_language.formatStorageSize(
+					fileEntry.getSize(), themeDisplay.getLocale())
+			).put(
 				"title", fileEntry.getFileName()
 			).build();
 		}

@@ -179,14 +179,20 @@ export class DepotStagingPage {
 	}
 
 	async selectCollection(assetLibraryName: string, collectionName: string) {
-		await this.configurationFrame
-			.getByRole('radio', {name: 'Collection'})
-			.click();
+		const collectionRadio = this.configurationFrame.getByRole('radio', {
+			name: 'Collection',
+		});
 
-		await waitForAlert(
-			this.configurationFrame,
-			'Success:You have successfully updated the setup.'
-		);
+		await expect(collectionRadio).toBeVisible();
+
+		if (!(await collectionRadio.isChecked())) {
+			await collectionRadio.click();
+
+			await waitForAlert(
+				this.configurationFrame,
+				'Success:You have successfully updated the setup.'
+			);
+		}
 
 		const selectCollectionButton = this.configurationFrame.locator(
 			'button[aria-label="Select Collection"]'
@@ -268,6 +274,9 @@ export class DepotStagingPage {
 
 		await scopeFrame.getByPlaceholder('Search for').fill(assetLibraryName);
 		await scopeFrame.getByPlaceholder('Search for').press('Enter');
+
+		await expect(scopeFrame.getByText(/Results? Found for/)).toBeVisible();
+
 		await scopeFrame
 			.getByRole('link', {exact: true, name: assetLibraryName})
 			.click();

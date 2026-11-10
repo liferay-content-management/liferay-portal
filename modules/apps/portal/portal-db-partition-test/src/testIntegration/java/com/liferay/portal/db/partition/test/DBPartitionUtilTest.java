@@ -10,6 +10,7 @@ import com.liferay.petra.function.UnsafeRunnable;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.db.partition.db.DBPartitionDB;
 import com.liferay.portal.db.partition.test.util.BaseDBPartitionTestCase;
 import com.liferay.portal.db.partition.util.DBPartitionUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
@@ -28,6 +29,7 @@ import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.AssumeTestRule;
@@ -55,7 +57,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
 
@@ -226,6 +235,83 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 	}
 
 	@Test
+	@TestInfo("LPD-110022")
+	public void testAddDBPartitionWhenCallsAreConcurrent() throws Exception {
+		dropSchemas();
+		addDBPartitions();
+
+		long companyId = RandomTestUtil.randomLong();
+		CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
+		ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+		try (AutoCloseable autoCloseable =
+				ReflectionTestUtil.setFieldValueWithAutoCloseable(
+					DBPartitionUtil.class, "_dbPartitionDB",
+					ProxyUtil.newProxyInstance(
+						DBPartitionDB.class.getClassLoader(),
+						new Class<?>[] {DBPartitionDB.class},
+						(proxy, method, args) -> {
+							if (Objects.equals(
+									method.getName(),
+									"getCreatePartitionSQL")) {
+
+								cyclicBarrier.await(
+									30, java.util.concurrent.TimeUnit.SECONDS);
+							}
+
+							return method.invoke(dbPartitionDB, args);
+						}))) {
+
+			Callable<Boolean> callable = () -> DBPartitionUtil.addDBPartition(
+				companyId);
+
+			List<Boolean> results = new ArrayList<>();
+			List<Throwable> throwables = new ArrayList<>();
+
+			for (Future<Boolean> future :
+					executorService.invokeAll(List.of(callable, callable))) {
+
+				try {
+					results.add(future.get());
+				}
+				catch (ExecutionException executionException) {
+					throwables.add(executionException.getCause());
+				}
+			}
+
+			Assert.assertEquals(List.of(true), results);
+			Assert.assertEquals(throwables.toString(), 1, throwables.size());
+
+			Throwable throwable = throwables.get(0);
+
+			Assert.assertTrue(throwable instanceof PortalException);
+
+			throwable = throwable.getCause();
+
+			Assert.assertTrue(throwable instanceof IllegalArgumentException);
+
+			String partitionName = getPartitionName(companyId);
+
+			Assert.assertEquals(
+				"Database partition " + partitionName + " already exists",
+				throwable.getMessage());
+
+			Assert.assertTrue(
+				dbPartitionDB.existsPartition(connection, partitionName));
+			Assert.assertEquals(
+				_getTablesCount(getPartitionName(COMPANY_IDS[0])),
+				_getTablesCount(partitionName));
+		}
+		finally {
+			executorService.shutdownNow();
+
+			removeDBPartitions(new long[] {companyId});
+
+			removeDBPartitions();
+		}
+	}
+
+	@Test
 	@TestInfo("LPS-108239")
 	public void testAddDefaultDBPartition() throws PortalException {
 		Assert.assertFalse(
@@ -312,6 +398,41 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 
 			deletePartitionRequiredData();
 
+			removeDBPartitions();
+		}
+	}
+
+	@Test
+	@TestInfo("LPD-110022")
+	public void testCopyDBPartitionWhenDBPartitionExists() throws Exception {
+		dropSchemas();
+		addDBPartitions();
+
+		try {
+			String partitionName = getPartitionName(COMPANY_IDS[1]);
+
+			int tablesCount = _getTablesCount(partitionName);
+
+			try {
+				DBPartitionUtil.copyDBPartition(COMPANY_IDS[0], COMPANY_IDS[1]);
+
+				Assert.fail();
+			}
+			catch (PortalException portalException) {
+				Throwable throwable = portalException.getCause();
+
+				Assert.assertTrue(
+					throwable instanceof IllegalArgumentException);
+				Assert.assertEquals(
+					"Database partition " + partitionName + " already exists",
+					throwable.getMessage());
+			}
+
+			Assert.assertTrue(
+				dbPartitionDB.existsPartition(connection, partitionName));
+			Assert.assertEquals(tablesCount, _getTablesCount(partitionName));
+		}
+		finally {
 			removeDBPartitions();
 		}
 	}

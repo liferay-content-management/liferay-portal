@@ -33,6 +33,17 @@ const expandSection = async (label: string) => {
 	await userEvent.click(button);
 };
 
+const fillNameAndClearSections = async () => {
+	await userEvent.type(
+		await screen.findByRole('textbox', {name: /^name/i}),
+		'test-file'
+	);
+
+	for (const name of ['Design', 'Site Builder', 'Content & Data']) {
+		await userEvent.click(screen.getByRole('checkbox', {name}));
+	}
+};
+
 const getExportCall = () =>
 	fetch.mock.calls.find(
 		([url, init]) =>
@@ -59,6 +70,38 @@ const INSTANCE_PROPS = {
 	exportPreviewSitesAPIURL: '/o/export-import/v1.0/export-preview/sites',
 	siteSelectionEnabled: true,
 };
+
+const SPACES_PROPS = {
+	exportPreviewSpacesAPIURL:
+		"/o/export-import/v1.0/export-preview/asset-libraries?filter=type+eq+'Space'",
+	spaceSelectionEnabled: true,
+};
+
+const toPage = (items: object[]) =>
+	JSON.stringify({
+		items,
+		lastPage: 1,
+		page: 1,
+		pageSize: 20,
+		totalCount: items.length,
+	});
+
+const SITES_PAGE = toPage([
+	{
+		childSitesCount: 0,
+		descriptiveName: 'Support',
+		externalReferenceCode: 'erc-support',
+		path: 'Global / Support',
+	},
+]);
+
+const SPACES_PAGE = toPage([
+	{
+		descriptiveName: 'Book',
+		externalReferenceCode: 'erc-book',
+		type: 'Space',
+	},
+]);
 
 const renderComponent = (
 	props: Partial<React.ComponentProps<typeof NewExport>> = {}
@@ -232,22 +275,11 @@ describe('NewExport', () => {
 	it('shows and clears the selection error as contentSelection toggles', async () => {
 		renderComponent();
 
-		const nameInput = await screen.findByRole('textbox', {
-			name: /^name/i,
-		});
-		await userEvent.type(nameInput, 'test-file');
+		await fillNameAndClearSections();
 
 		const dataSelectionGroup = screen.getByRole('group', {
 			name: 'data-selection',
 		});
-
-		await userEvent.click(screen.getByRole('checkbox', {name: 'Design'}));
-		await userEvent.click(
-			screen.getByRole('checkbox', {name: 'Site Builder'})
-		);
-		await userEvent.click(
-			screen.getByRole('checkbox', {name: 'Content & Data'})
-		);
 
 		await screen.findByText(
 			'please-select-at-least-one-entity-type-to-continue'
@@ -266,21 +298,37 @@ describe('NewExport', () => {
 		expect(dataSelectionGroup).not.toHaveAttribute('aria-invalid');
 	});
 
-	it('asks for an entity type or a site below both, where sites are on offer', async () => {
+	it.each([
+		[
+			'sites',
+			INSTANCE_PROPS,
+			'please-select-at-least-one-entity-type-or-site-to-continue',
+		],
+		[
+			'spaces',
+			SPACES_PROPS,
+			'please-select-at-least-one-entity-type-or-space-to-continue',
+		],
+		[
+			'sites and spaces',
+			{...INSTANCE_PROPS, ...SPACES_PROPS},
+			'please-select-at-least-one-entity-type,-site,-or-space-to-continue',
+		],
+	])(
+		'asks for an entity type or a group where %s are on offer',
+		async (_offer, props, message) => {
+			renderComponent(props);
+
+			await fillNameAndClearSections();
+
+			expect(await screen.findByText(message)).toBeInTheDocument();
+		}
+	);
+
+	it('places the selection alert below the scope and the data selection', async () => {
 		renderComponent(INSTANCE_PROPS);
 
-		const nameInput = await screen.findByRole('textbox', {
-			name: /^name/i,
-		});
-		await userEvent.type(nameInput, 'test-file');
-
-		await userEvent.click(screen.getByRole('checkbox', {name: 'Design'}));
-		await userEvent.click(
-			screen.getByRole('checkbox', {name: 'Site Builder'})
-		);
-		await userEvent.click(
-			screen.getByRole('checkbox', {name: 'Content & Data'})
-		);
+		await fillNameAndClearSections();
 
 		const alert = await screen.findByText(
 			'please-select-at-least-one-entity-type-or-site-to-continue'
@@ -306,20 +354,7 @@ describe('NewExport', () => {
 	it('keeps the entity types deselected after exporting only sites', async () => {
 		fetch.mockResponse(async (request) => {
 			if (request.url.includes('/export-preview/sites')) {
-				return JSON.stringify({
-					items: [
-						{
-							childSitesCount: 0,
-							descriptiveName: 'Support',
-							externalReferenceCode: 'erc-support',
-							path: 'Global / Support',
-						},
-					],
-					lastPage: 1,
-					page: 1,
-					pageSize: 20,
-					totalCount: 1,
-				});
+				return SITES_PAGE;
 			}
 
 			if (request.method === 'POST') {
@@ -331,14 +366,7 @@ describe('NewExport', () => {
 
 		renderComponent(INSTANCE_PROPS);
 
-		await userEvent.type(
-			await screen.findByRole('textbox', {name: /^name/i}),
-			'test-file'
-		);
-
-		for (const name of ['Design', 'Site Builder', 'Content & Data']) {
-			await userEvent.click(screen.getByRole('checkbox', {name}));
-		}
+		await fillNameAndClearSections();
 
 		await userEvent.click(
 			screen.getByRole('button', {name: 'select-sites'})
@@ -369,9 +397,96 @@ describe('NewExport', () => {
 			screen.getByRole('checkbox', {name: 'Content & Data'})
 		).not.toBeChecked();
 
-		expect(JSON.parse(String(getExportCall()?.[1]?.body))).toMatchObject({
+		const body = JSON.parse(String(getExportCall()?.[1]?.body));
+
+		expect(body).toMatchObject({
 			portletDataHandlers: [],
 			sites: [{externalReferenceCode: 'erc-support'}],
+		});
+		expect(body).not.toHaveProperty('assetLibraries');
+	});
+
+	it('describes the scope after what is on offer', async () => {
+		const {rerender} = renderComponent(INSTANCE_PROPS);
+
+		expect(
+			await screen.findByText(
+				'export-complete-sites,-including-all-their-pages,-content,-and-settings'
+			)
+		).toBeInTheDocument();
+
+		rerender(<NewExport {...DEFAULT_PROPS} {...SPACES_PROPS} />);
+
+		expect(
+			screen.getByText(
+				'export-complete-spaces,-including-all-their-content'
+			)
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole('button', {name: 'select-sites'})
+		).not.toBeInTheDocument();
+
+		rerender(
+			<NewExport
+				{...DEFAULT_PROPS}
+				{...INSTANCE_PROPS}
+				{...SPACES_PROPS}
+			/>
+		);
+
+		expect(
+			screen.getByText(
+				'export-complete-sites-and-spaces,-including-all-their-pages,-content,-and-settings'
+			)
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole('button', {name: 'select-sites'})
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole('button', {name: 'select-spaces'})
+		).toBeInTheDocument();
+	});
+
+	it('exports the picked spaces as asset libraries', async () => {
+		fetch.mockResponse(async (request) => {
+			if (request.url.includes('/export-preview/asset-libraries')) {
+				return SPACES_PAGE;
+			}
+
+			if (request.method === 'POST') {
+				return JSON.stringify({exportImportConfigurationId: 1});
+			}
+
+			return JSON.stringify(mockPreview);
+		});
+
+		renderComponent({...INSTANCE_PROPS, ...SPACES_PROPS});
+
+		await fillNameAndClearSections();
+
+		await userEvent.click(
+			screen.getByRole('button', {name: 'select-spaces'})
+		);
+
+		const row = await screen.findByText('Book');
+
+		await userEvent.click(
+			within(row.closest('tr') as HTMLElement).getByRole('checkbox')
+		);
+		await userEvent.click(screen.getByRole('button', {name: 'select'}));
+
+		const exportButton = screen.getByRole('button', {name: /^export$/i});
+
+		await waitFor(() => expect(exportButton).toBeEnabled());
+
+		await userEvent.click(exportButton);
+
+		await waitFor(() => expect(getExportCall()).toBeDefined());
+
+		expect(JSON.parse(String(getExportCall()?.[1]?.body))).toMatchObject({
+			assetLibraries: [{externalReferenceCode: 'erc-book'}],
+			portletDataHandlers: [],
+			sites: [],
 		});
 	});
 

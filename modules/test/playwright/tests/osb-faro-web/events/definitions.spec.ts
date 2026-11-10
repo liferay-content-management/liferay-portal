@@ -864,16 +864,15 @@ test(
 			.getByRole('textbox', {name: 'Display Name'})
 			.fill(existingEventName);
 
-		const [response] = await Promise.all([
-			page.waitForResponse((response) =>
-				response.url().includes('opname=UpdateEventDefinition')
-			),
-			page.getByRole('button', {name: 'Save'}).click(),
-		]);
+		await page.getByRole('button', {name: 'Save'}).click();
 
-		expect(await response.text()).toContain(
-			`Display name ${existingEventName} is already used`
-		);
+		await expect(
+			page.getByText(
+				'An event already exists with that display name. Please enter a different display name.'
+			)
+		).toBeVisible();
+
+		await expect(page.getByRole('button', {name: 'Save'})).toBeDisabled();
 	}
 );
 
@@ -963,7 +962,7 @@ test(
 			.click();
 
 		await page
-			.locator('.confirmation-modal-root')
+			.getByRole('dialog')
 			.getByRole('button', {name: 'Block'})
 			.click();
 
@@ -1003,7 +1002,7 @@ test(
 		await page.getByRole('button', {name: 'Block Events'}).click();
 
 		await page
-			.locator('.confirmation-modal-root')
+			.getByRole('dialog')
 			.getByRole('button', {name: 'Block'})
 			.click();
 
@@ -1126,7 +1125,7 @@ test(
 				.click();
 
 			await page
-				.locator('.confirmation-modal-root')
+				.getByRole('dialog')
 				.getByRole('button', {name: 'Block'})
 				.click();
 		}
@@ -1177,7 +1176,7 @@ test(
 			.click();
 
 		await page
-			.locator('.confirmation-modal-root')
+			.getByRole('dialog')
 			.getByRole('button', {exact: true, name: 'Hide'})
 			.click();
 

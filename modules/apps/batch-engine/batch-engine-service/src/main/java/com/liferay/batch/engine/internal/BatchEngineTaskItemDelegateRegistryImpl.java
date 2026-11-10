@@ -8,13 +8,14 @@ package com.liferay.batch.engine.internal;
 import com.liferay.batch.engine.BatchEngineTaskItemDelegate;
 import com.liferay.batch.engine.BatchEngineTaskItemDelegateRegistry;
 import com.liferay.batch.engine.BatchEngineTaskItemDelegateRegistry.BatchEngineTaskItemDelegateSafeCloseable;
-import com.liferay.batch.engine.internal.writer.BatchEngineTaskItemDelegateProvider;
+import com.liferay.batch.engine.internal.util.BatchEngineTaskItemDelegateUtil;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegateAdaptorFactory;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -54,8 +55,8 @@ public class BatchEngineTaskItemDelegateRegistryImpl
 		Object service = serviceObjects.getService();
 
 		BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate =
-			_batchEngineTaskItemDelegateProvider.toBatchEngineTaskItemDelegate(
-				service);
+			BatchEngineTaskItemDelegateUtil.toBatchEngineTaskItemDelegate(
+				service, _vulcanBatchEngineTaskItemDelegateAdaptorFactory);
 
 		return new BatchEngineTaskItemDelegateSafeCloseable() {
 
@@ -147,8 +148,9 @@ public class BatchEngineTaskItemDelegateRegistryImpl
 		BundleContext bundleContext, ServiceReference<?> serviceReference) {
 
 		BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate =
-			_batchEngineTaskItemDelegateProvider.toBatchEngineTaskItemDelegate(
-				bundleContext.getService(serviceReference));
+			BatchEngineTaskItemDelegateUtil.toBatchEngineTaskItemDelegate(
+				bundleContext.getService(serviceReference),
+				_vulcanBatchEngineTaskItemDelegateAdaptorFactory);
 
 		Class<?> itemClass = batchEngineTaskItemDelegate.getItemClass();
 
@@ -232,11 +234,11 @@ public class BatchEngineTaskItemDelegateRegistryImpl
 		return null;
 	}
 
-	@Reference
-	private BatchEngineTaskItemDelegateProvider
-		_batchEngineTaskItemDelegateProvider;
-
 	private ServiceTrackerMap<String, ServiceObjects<Object>>
 		_serviceTrackerMap;
+
+	@Reference
+	private VulcanBatchEngineTaskItemDelegateAdaptorFactory
+		_vulcanBatchEngineTaskItemDelegateAdaptorFactory;
 
 }
