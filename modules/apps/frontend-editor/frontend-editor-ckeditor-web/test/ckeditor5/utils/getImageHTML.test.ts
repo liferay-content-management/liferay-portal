@@ -25,7 +25,10 @@ describe('getImageHTML', () => {
 
 	it('returns a plain image for a URL value', () => {
 		expect(
-			getImageHTML('https://www.liferay.com/image.png', 'data-fileentryid')
+			getImageHTML(
+				'https://www.liferay.com/image.png',
+				'data-fileentryid'
+			)
 		).toBe('<img src="https://www.liferay.com/image.png">');
 	});
 

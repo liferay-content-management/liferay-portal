@@ -100,7 +100,9 @@ class ItemSelector extends Plugin {
 
 							const imageHTML = getImageHTML(
 								value,
-								config.get('adaptiveMediaFileEntryAttributeName')
+								config.get(
+									'adaptiveMediaFileEntryAttributeName'
+								)
 							);
 
 							if (!imageHTML) {
