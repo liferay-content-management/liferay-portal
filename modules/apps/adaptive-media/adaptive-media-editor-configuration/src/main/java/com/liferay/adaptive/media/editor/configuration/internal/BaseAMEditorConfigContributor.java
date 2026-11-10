@@ -37,10 +37,10 @@ public abstract class BaseAMEditorConfigContributor
 		ThemeDisplay themeDisplay,
 		RequestBackedPortletURLFactory requestBackedPortletURLFactory) {
 
+		String allowedContent = jsonObject.getString("allowedContent");
+
 		boolean ckEditor5 = Objects.equals(
 			jsonObject.getString("editorType"), "ckeditor5");
-
-		String allowedContent = jsonObject.getString("allowedContent");
 
 		if (!ckEditor5 && Validator.isNotNull(allowedContent) &&
 			!allowedContent.equals(Boolean.TRUE.toString()) &&
