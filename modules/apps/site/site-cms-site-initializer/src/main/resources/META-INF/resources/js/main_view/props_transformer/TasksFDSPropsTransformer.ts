@@ -8,7 +8,7 @@ import {IInternalRenderer} from '@liferay/frontend-data-set-web';
 import {tasksFDSAtom} from '../tasks/atoms';
 import AssetTitleActionLinkRenderer from './cell_renderers/AssetTitleActionLinkRenderer';
 import AuthorRenderer from './cell_renderers/AuthorRenderer';
-import TaskStatusRenderer from './cell_renderers/TaskStatusRenderer';
+import WorkflowStateRenderer from './cell_renderers/WorkflowStateRenderer';
 
 export default function TasksFDSPropsTransformer({
 	...otherProps
@@ -32,8 +32,8 @@ export default function TasksFDSPropsTransformer({
 					type: 'internal',
 				} as IInternalRenderer,
 				{
-					component: TaskStatusRenderer,
-					name: 'taskStatusTableCellRenderer',
+					component: WorkflowStateRenderer,
+					name: 'workflowStateTableCellRenderer',
 					type: 'internal',
 				} as IInternalRenderer,
 			],
