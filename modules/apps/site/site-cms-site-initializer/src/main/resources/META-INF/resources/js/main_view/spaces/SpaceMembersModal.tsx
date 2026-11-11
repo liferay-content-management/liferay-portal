@@ -31,7 +31,12 @@ export default function SpaceMembersModal({
 			hasAssignMembersPermission={hasAssignMembersPermission}
 			headerTitle={Liferay.Language.get('all-members')}
 			ownerId={assetLibraryCreatorUserId}
-			renderAddMembersInput={(api) => <AddMembersInput {...api} />}
+			renderAddMembersInput={(api) => (
+				<AddMembersInput
+					{...api}
+					userAccountsAPIURL={`${location.origin}/o/headless-asset-library/v1.0/asset-libraries/${externalReferenceCode}/assignable-user-accounts`}
+				/>
+			)}
 		/>
 	);
 }

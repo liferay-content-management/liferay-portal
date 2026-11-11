@@ -69,7 +69,10 @@ export function AddSpaceMembers({
 						onHasSelectedMembersChange={setHasSelectedMembers}
 						ownerId={assetLibraryCreatorUserId}
 						renderAddMembersInput={(api) => (
-							<AddMembersInput {...api} />
+							<AddMembersInput
+								{...api}
+								userAccountsAPIURL={`${location.origin}/o/headless-asset-library/v1.0/asset-libraries/${externalReferenceCode}/assignable-user-accounts`}
+							/>
 						)}
 					/>
 

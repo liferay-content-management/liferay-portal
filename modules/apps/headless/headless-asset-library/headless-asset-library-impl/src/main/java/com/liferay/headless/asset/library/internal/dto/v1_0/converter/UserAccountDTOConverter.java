@@ -48,6 +48,7 @@ public class UserAccountDTOConverter
 
 		return new UserAccount() {
 			{
+				setEmailAddress(user::getEmailAddress);
 				setExternalReferenceCode(user::getExternalReferenceCode);
 				setId(user::getUserId);
 				setImage(

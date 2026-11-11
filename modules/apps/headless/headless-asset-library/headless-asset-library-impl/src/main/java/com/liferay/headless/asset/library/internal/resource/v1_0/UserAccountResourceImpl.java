@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
@@ -35,6 +36,7 @@ import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,7 +60,7 @@ public class UserAccountResourceImpl extends BaseUserAccountResourceImpl {
 		throws Exception {
 
 		Group group = _getGroup(assetLibraryExternalReferenceCode);
-		User user = _userService.getUserByExternalReferenceCode(
+		User user = _userLocalService.getUserByExternalReferenceCode(
 			userAccountExternalReferenceCode, contextCompany.getCompanyId());
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
@@ -66,6 +68,44 @@ public class UserAccountResourceImpl extends BaseUserAccountResourceImpl {
 
 		_userService.unsetGroupUsers(
 			group.getGroupId(), new long[] {user.getUserId()}, serviceContext);
+	}
+
+	@Override
+	public Page<UserAccount> getAssetLibraryAssignableUserAccountsPage(
+			String assetLibraryExternalReferenceCode, String search,
+			Pagination pagination)
+		throws Exception {
+
+		Group group = _getGroup(assetLibraryExternalReferenceCode);
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		_groupModelResourcePermission.check(
+			permissionChecker, group.getGroupId(), ActionKeys.ASSIGN_MEMBERS);
+
+		List<User> users = null;
+		int count = 0;
+
+		try {
+			PermissionThreadLocal.setPermissionChecker(null);
+
+			users = _userLocalService.search(
+				contextCompany.getCompanyId(), search,
+				WorkflowConstants.STATUS_APPROVED, new LinkedHashMap<>(),
+				pagination.getStartPosition(), pagination.getEndPosition(),
+				(OrderByComparator<User>)null);
+			count = _userLocalService.searchCount(
+				contextCompany.getCompanyId(), search,
+				WorkflowConstants.STATUS_APPROVED, new LinkedHashMap<>());
+		}
+		finally {
+			PermissionThreadLocal.setPermissionChecker(permissionChecker);
+		}
+
+		return Page.of(
+			transform(users, user -> _toUserAccount(group.getGroupId(), user)),
+			pagination, count);
 	}
 
 	@Override
