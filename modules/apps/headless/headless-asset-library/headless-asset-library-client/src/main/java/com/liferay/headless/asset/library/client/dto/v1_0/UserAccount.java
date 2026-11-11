@@ -25,6 +25,27 @@ public class UserAccount implements Cloneable, Serializable {
 		return UserAccountSerDes.toDTO(json);
 	}
 
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
+	}
+
+	public void setEmailAddress(
+		UnsafeSupplier<String, Exception> emailAddressUnsafeSupplier) {
+
+		try {
+			emailAddress = emailAddressUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String emailAddress;
+
 	public String getExternalReferenceCode() {
 		return externalReferenceCode;
 	}
@@ -158,4 +179,4 @@ public class UserAccount implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1675198449
+// LIFERAY-REST-BUILDER-HASH:1706508976

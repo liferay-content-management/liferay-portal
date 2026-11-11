@@ -51,6 +51,11 @@ public interface UserAccountResource {
 			String userAccountExternalReferenceCode)
 		throws Exception;
 
+	public Page<UserAccount> getAssetLibraryAssignableUserAccountsPage(
+			String assetLibraryExternalReferenceCode, String search,
+			Pagination pagination)
+		throws Exception;
+
 	public UserAccount getAssetLibraryUserAccount(
 			String assetLibraryExternalReferenceCode,
 			String userAccountExternalReferenceCode)
@@ -169,4 +174,4 @@ public interface UserAccountResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1951199011
+// LIFERAY-REST-BUILDER-HASH:351474749

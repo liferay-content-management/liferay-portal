@@ -219,6 +219,7 @@ public abstract class BaseUserAccountResourceTestCase {
 
 		UserAccount userAccount = randomUserAccount();
 
+		userAccount.setEmailAddress(regex);
 		userAccount.setExternalReferenceCode(regex);
 		userAccount.setImage(regex);
 		userAccount.setName(regex);
@@ -229,6 +230,7 @@ public abstract class BaseUserAccountResourceTestCase {
 
 		userAccount = UserAccountSerDes.toDTO(json);
 
+		Assert.assertEquals(regex, userAccount.getEmailAddress());
 		Assert.assertEquals(regex, userAccount.getExternalReferenceCode());
 		Assert.assertEquals(regex, userAccount.getImage());
 		Assert.assertEquals(regex, userAccount.getName());
@@ -270,6 +272,194 @@ public abstract class BaseUserAccountResourceTestCase {
 		throws Exception {
 
 		return testDepotEntryGroup.getExternalReferenceCode();
+	}
+
+	@Test
+	public void testGetAssetLibraryAssignableUserAccountsPage()
+		throws Exception {
+
+		String assetLibraryExternalReferenceCode =
+			testGetAssetLibraryAssignableUserAccountsPage_getAssetLibraryExternalReferenceCode();
+		String irrelevantAssetLibraryExternalReferenceCode =
+			testGetAssetLibraryAssignableUserAccountsPage_getIrrelevantAssetLibraryExternalReferenceCode();
+
+		Page<UserAccount> page =
+			userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+				assetLibraryExternalReferenceCode, null, Pagination.of(1, 10));
+
+		long totalCount = page.getTotalCount();
+
+		if (irrelevantAssetLibraryExternalReferenceCode != null) {
+			UserAccount irrelevantUserAccount =
+				testGetAssetLibraryAssignableUserAccountsPage_addUserAccount(
+					irrelevantAssetLibraryExternalReferenceCode,
+					randomIrrelevantUserAccount());
+
+			page =
+				userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+					irrelevantAssetLibraryExternalReferenceCode, null,
+					Pagination.of(1, (int)totalCount + 1));
+
+			Assert.assertEquals(totalCount + 1, page.getTotalCount());
+
+			assertContains(
+				irrelevantUserAccount, (List<UserAccount>)page.getItems());
+			assertValid(
+				page,
+				testGetAssetLibraryAssignableUserAccountsPage_getExpectedActions(
+					irrelevantAssetLibraryExternalReferenceCode));
+		}
+
+		UserAccount userAccount1 =
+			testGetAssetLibraryAssignableUserAccountsPage_addUserAccount(
+				assetLibraryExternalReferenceCode, randomUserAccount());
+
+		UserAccount userAccount2 =
+			testGetAssetLibraryAssignableUserAccountsPage_addUserAccount(
+				assetLibraryExternalReferenceCode, randomUserAccount());
+
+		page = userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+			assetLibraryExternalReferenceCode, null,
+			Pagination.of(1, (int)totalCount + 2));
+
+		Assert.assertEquals(totalCount + 2, page.getTotalCount());
+
+		assertContains(userAccount1, (List<UserAccount>)page.getItems());
+		assertContains(userAccount2, (List<UserAccount>)page.getItems());
+		assertValid(
+			page,
+			testGetAssetLibraryAssignableUserAccountsPage_getExpectedActions(
+				assetLibraryExternalReferenceCode));
+	}
+
+	protected Map<String, Map<String, String>>
+			testGetAssetLibraryAssignableUserAccountsPage_getExpectedActions(
+				String assetLibraryExternalReferenceCode)
+		throws Exception {
+
+		Map<String, Map<String, String>> expectedActions = new HashMap<>();
+
+		return expectedActions;
+	}
+
+	@Test
+	public void testGetAssetLibraryAssignableUserAccountsPageWithPagination()
+		throws Exception {
+
+		String assetLibraryExternalReferenceCode =
+			testGetAssetLibraryAssignableUserAccountsPage_getAssetLibraryExternalReferenceCode();
+
+		Page<UserAccount> userAccountsPage =
+			userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+				assetLibraryExternalReferenceCode, null, null);
+
+		int totalCount = GetterUtil.getInteger(
+			userAccountsPage.getTotalCount());
+
+		UserAccount userAccount1 =
+			testGetAssetLibraryAssignableUserAccountsPage_addUserAccount(
+				assetLibraryExternalReferenceCode, randomUserAccount());
+
+		UserAccount userAccount2 =
+			testGetAssetLibraryAssignableUserAccountsPage_addUserAccount(
+				assetLibraryExternalReferenceCode, randomUserAccount());
+
+		UserAccount userAccount3 =
+			testGetAssetLibraryAssignableUserAccountsPage_addUserAccount(
+				assetLibraryExternalReferenceCode, randomUserAccount());
+
+		// See com.liferay.portal.vulcan.internal.configuration.HeadlessAPICompanyConfiguration#pageSizeLimit
+
+		int pageSizeLimit = 500;
+
+		if (totalCount >= (pageSizeLimit - 2)) {
+			Page<UserAccount> page1 =
+				userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+					assetLibraryExternalReferenceCode, null,
+					Pagination.of(
+						(int)Math.ceil((totalCount + 1.0) / pageSizeLimit),
+						pageSizeLimit));
+
+			Assert.assertEquals(totalCount + 3, page1.getTotalCount());
+
+			assertContains(userAccount1, (List<UserAccount>)page1.getItems());
+
+			Page<UserAccount> page2 =
+				userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+					assetLibraryExternalReferenceCode, null,
+					Pagination.of(
+						(int)Math.ceil((totalCount + 2.0) / pageSizeLimit),
+						pageSizeLimit));
+
+			assertContains(userAccount2, (List<UserAccount>)page2.getItems());
+
+			Page<UserAccount> page3 =
+				userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+					assetLibraryExternalReferenceCode, null,
+					Pagination.of(
+						(int)Math.ceil((totalCount + 3.0) / pageSizeLimit),
+						pageSizeLimit));
+
+			assertContains(userAccount3, (List<UserAccount>)page3.getItems());
+		}
+		else {
+			Page<UserAccount> page1 =
+				userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+					assetLibraryExternalReferenceCode, null,
+					Pagination.of(1, totalCount + 2));
+
+			List<UserAccount> userAccounts1 =
+				(List<UserAccount>)page1.getItems();
+
+			Assert.assertEquals(
+				userAccounts1.toString(), totalCount + 2, userAccounts1.size());
+
+			Page<UserAccount> page2 =
+				userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+					assetLibraryExternalReferenceCode, null,
+					Pagination.of(2, totalCount + 2));
+
+			Assert.assertEquals(totalCount + 3, page2.getTotalCount());
+
+			List<UserAccount> userAccounts2 =
+				(List<UserAccount>)page2.getItems();
+
+			Assert.assertEquals(
+				userAccounts2.toString(), 1, userAccounts2.size());
+
+			Page<UserAccount> page3 =
+				userAccountResource.getAssetLibraryAssignableUserAccountsPage(
+					assetLibraryExternalReferenceCode, null,
+					Pagination.of(1, (int)totalCount + 3));
+
+			assertContains(userAccount1, (List<UserAccount>)page3.getItems());
+			assertContains(userAccount2, (List<UserAccount>)page3.getItems());
+			assertContains(userAccount3, (List<UserAccount>)page3.getItems());
+		}
+	}
+
+	protected UserAccount
+			testGetAssetLibraryAssignableUserAccountsPage_addUserAccount(
+				String assetLibraryExternalReferenceCode,
+				UserAccount userAccount)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected String
+			testGetAssetLibraryAssignableUserAccountsPage_getAssetLibraryExternalReferenceCode()
+		throws Exception {
+
+		return testDepotEntryGroup.getExternalReferenceCode();
+	}
+
+	protected String
+			testGetAssetLibraryAssignableUserAccountsPage_getIrrelevantAssetLibraryExternalReferenceCode()
+		throws Exception {
+
+		return irrelevantDepotEntryGroup.getExternalReferenceCode();
 	}
 
 	@Test
@@ -815,6 +1005,14 @@ public abstract class BaseUserAccountResourceTestCase {
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
 
+			if (Objects.equals("emailAddress", additionalAssertFieldName)) {
+				if (userAccount.getEmailAddress() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals(
 					"externalReferenceCode", additionalAssertFieldName)) {
 
@@ -971,6 +1169,17 @@ public abstract class BaseUserAccountResourceTestCase {
 
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals("emailAddress", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						userAccount1.getEmailAddress(),
+						userAccount2.getEmailAddress())) {
+
+					return false;
+				}
+
+				continue;
+			}
 
 			if (Objects.equals(
 					"externalReferenceCode", additionalAssertFieldName)) {
@@ -1131,6 +1340,52 @@ public abstract class BaseUserAccountResourceTestCase {
 		sb.append(" ");
 		sb.append(operator);
 		sb.append(" ");
+
+		if (entityFieldName.equals("emailAddress")) {
+			Object object = userAccount.getEmailAddress();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
 
 		if (entityFieldName.equals("externalReferenceCode")) {
 			Object object = userAccount.getExternalReferenceCode();
@@ -1327,6 +1582,9 @@ public abstract class BaseUserAccountResourceTestCase {
 	protected UserAccount randomUserAccount() throws Exception {
 		return new UserAccount() {
 			{
+				emailAddress =
+					StringUtil.toLowerCase(RandomTestUtil.randomString()) +
+						"@liferay.com";
 				externalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				id = RandomTestUtil.randomLong();
@@ -1583,4 +1841,4 @@ public abstract class BaseUserAccountResourceTestCase {
 		_userAccountResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1987242996
+// LIFERAY-REST-BUILDER-HASH:-23483509

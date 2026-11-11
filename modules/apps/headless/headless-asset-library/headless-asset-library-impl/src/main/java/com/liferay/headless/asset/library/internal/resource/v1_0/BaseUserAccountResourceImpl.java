@@ -113,6 +113,57 @@ public abstract class BaseUserAccountResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/headless-asset-library/v1.0/asset-libraries/{assetLibraryExternalReferenceCode}/assignable-user-accounts'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Operation(
+		description = "Get the user accounts that can be assigned as members of the asset library with the provided external reference code. Results can be paginated and searched."
+	)
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "assetLibraryExternalReferenceCode", required = true
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "page"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "search"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "UserAccount")}
+	)
+	@jakarta.ws.rs.GET
+	@jakarta.ws.rs.Path(
+		"/asset-libraries/{assetLibraryExternalReferenceCode}/assignable-user-accounts"
+	)
+	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public Page<UserAccount> getAssetLibraryAssignableUserAccountsPage(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam("assetLibraryExternalReferenceCode")
+			String assetLibraryExternalReferenceCode,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.ws.rs.QueryParam("search")
+			String search,
+			@jakarta.ws.rs.core.Context Pagination pagination)
+		throws Exception {
+
+		return Page.of(Collections.emptyList());
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -X 'GET' 'http://localhost:8080/o/headless-asset-library/v1.0/asset-libraries/{assetLibraryExternalReferenceCode}/user-accounts/{userAccountExternalReferenceCode}'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
@@ -1098,4 +1149,4 @@ public abstract class BaseUserAccountResourceImpl
 		LogFactoryUtil.getLog(BaseUserAccountResourceImpl.class);
 
 }
-// LIFERAY-REST-BUILDER-HASH:504561058
+// LIFERAY-REST-BUILDER-HASH:1649457645

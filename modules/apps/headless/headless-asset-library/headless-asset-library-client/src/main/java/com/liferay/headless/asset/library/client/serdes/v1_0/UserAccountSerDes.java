@@ -48,6 +48,20 @@ public class UserAccountSerDes {
 
 		sb.append("{");
 
+		if (userAccount.getEmailAddress() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"emailAddress\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(userAccount.getEmailAddress()));
+
+			sb.append("\"");
+		}
+
 		if (userAccount.getExternalReferenceCode() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -139,6 +153,14 @@ public class UserAccountSerDes {
 
 		Map<String, String> map = new TreeMap<>();
 
+		if (userAccount.getEmailAddress() == null) {
+			map.put("emailAddress", null);
+		}
+		else {
+			map.put(
+				"emailAddress", String.valueOf(userAccount.getEmailAddress()));
+		}
+
 		if (userAccount.getExternalReferenceCode() == null) {
 			map.put("externalReferenceCode", null);
 		}
@@ -194,7 +216,12 @@ public class UserAccountSerDes {
 
 		@Override
 		protected boolean parseMaps(String jsonParserFieldName) {
-			if (Objects.equals(jsonParserFieldName, "externalReferenceCode")) {
+			if (Objects.equals(jsonParserFieldName, "emailAddress")) {
+				return false;
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "externalReferenceCode")) {
+
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
@@ -218,7 +245,14 @@ public class UserAccountSerDes {
 			UserAccount userAccount, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "externalReferenceCode")) {
+			if (Objects.equals(jsonParserFieldName, "emailAddress")) {
+				if (jsonParserFieldValue != null) {
+					userAccount.setEmailAddress((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "externalReferenceCode")) {
+
 				if (jsonParserFieldValue != null) {
 					userAccount.setExternalReferenceCode(
 						(String)jsonParserFieldValue);
@@ -342,4 +376,4 @@ public class UserAccountSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:701666917
+// LIFERAY-REST-BUILDER-HASH:-1527860301
