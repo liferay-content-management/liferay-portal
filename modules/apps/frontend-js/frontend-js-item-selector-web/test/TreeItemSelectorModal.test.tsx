@@ -91,11 +91,13 @@ const Wrapper = ({
 	multiSelect = false,
 	onItemsChange,
 	selectedItems = [],
+	showAddCategoryButton,
 	title,
 }: {
 	multiSelect?: boolean;
 	onItemsChange: (items: ITaxonomyCategory[]) => void;
 	selectedItems?: ITaxonomyCategory[];
+	showAddCategoryButton?: boolean;
 	title?: string;
 }) => {
 	const {observer, onOpenChange, open} = useModal({defaultOpen: true});
@@ -108,6 +110,7 @@ const Wrapper = ({
 			onOpenChange={onOpenChange}
 			open={open}
 			selectedItems={selectedItems}
+			showAddCategoryButton={showAddCategoryButton}
 			title={title}
 			vocabularyIds={[VOCABULARY_ID]}
 		/>
@@ -380,5 +383,68 @@ describe('TreeItemSelectorModal', () => {
 
 		expect(alphaCheckbox).not.toBeNull();
 		expect(alphaCheckbox).toBeChecked();
+	});
+
+	it('adds a category to the vocabulary and shows it in the tree', async () => {
+		const categories = [ROOT_PARENT, CHILD_ALPHA, CHILD_BETA, ROOT_LEAF];
+
+		mockedFetch.mockImplementation((url: string, init?: RequestInit) => {
+			if (init?.method === 'POST') {
+				const category = {
+					id: 5,
+					name: JSON.parse(init.body as string).name,
+				};
+
+				categories.push(category);
+
+				return Promise.resolve({
+					json: () => Promise.resolve(category),
+					ok: true,
+					status: 200,
+				});
+			}
+
+			return pageOf(categories);
+		});
+
+		const user = userEvent.setup();
+
+		const {findByRole} = render(
+			<Wrapper onItemsChange={jest.fn()} showAddCategoryButton={true} />
+		);
+
+		const modal = await findByRole('dialog');
+
+		await within(modal).findByText('Solo');
+
+		await user.click(
+			within(modal).getByRole('button', {name: 'add-category'})
+		);
+
+		await user.type(within(modal).getByLabelText('name'), 'Gamma');
+
+		await user.click(within(modal).getByRole('button', {name: 'save'}));
+
+		expect(await within(modal).findByText('Gamma')).toBeInTheDocument();
+
+		expect(mockedFetch).toHaveBeenCalledWith(
+			`/o/headless-admin-taxonomy/v1.0/taxonomy-vocabularies/${VOCABULARY_ID}/taxonomy-categories`,
+			expect.objectContaining({
+				body: JSON.stringify({name: 'Gamma'}),
+				method: 'POST',
+			})
+		);
+	});
+
+	it('hides the add category button unless it is enabled', async () => {
+		const {findByRole} = render(<Wrapper onItemsChange={jest.fn()} />);
+
+		const modal = await findByRole('dialog');
+
+		await within(modal).findByText('Solo');
+
+		expect(
+			within(modal).queryByRole('button', {name: 'add-category'})
+		).not.toBeInTheDocument();
 	});
 });
