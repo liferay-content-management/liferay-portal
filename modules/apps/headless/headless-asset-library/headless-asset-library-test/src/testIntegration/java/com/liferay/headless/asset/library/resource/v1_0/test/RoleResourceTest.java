@@ -102,6 +102,14 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 		_testGetAssetLibraryRolesPageWithSubtype();
 	}
 
+	@Override
+	@Test
+	public void testGetAssetLibraryUserAccountRolesPage() throws Exception {
+		super.testGetAssetLibraryUserAccountRolesPage();
+
+		_testGetAssetLibraryUserAccountRolesPageWithoutRoleViewPermission();
+	}
+
 	@FeatureFlags(
 		featureFlags = {@FeatureFlag("LPD-58677"), @FeatureFlag("LPD-96750")}
 	)
@@ -498,6 +506,44 @@ public class RoleResourceTest extends BaseRoleResourceTestCase {
 				roles,
 				role -> Objects.equals(
 					serviceBuilderRole2.getName(), role.getName())));
+	}
+
+	private void _testGetAssetLibraryUserAccountRolesPageWithoutRoleViewPermission()
+		throws Exception {
+
+		User user = UserTestUtil.addUser(testDepotEntry.getGroupId());
+
+		com.liferay.portal.kernel.model.Role
+			assetLibraryContentReviewerServiceBuilderRole =
+				_getServiceBuilderRole(
+					DepotRolesConstants.ASSET_LIBRARY_CONTENT_REVIEWER);
+		com.liferay.portal.kernel.model.Role
+			assetLibraryMemberServiceBuilderRole = _getServiceBuilderRole(
+				DepotRolesConstants.ASSET_LIBRARY_MEMBER);
+
+		_userGroupRoleService.addUserGroupRoles(
+			user.getUserId(), testDepotEntry.getGroupId(),
+			new long[] {
+				assetLibraryContentReviewerServiceBuilderRole.getRoleId(),
+				assetLibraryMemberServiceBuilderRole.getRoleId()
+			});
+
+		RoleResource viewMembersRoleResource = _getDepotEntryRoleResource(
+			ActionKeys.VIEW_MEMBERS,
+			assetLibraryContentReviewerServiceBuilderRole);
+
+		Page<Role> rolesPage =
+			viewMembersRoleResource.getAssetLibraryUserAccountRolesPage(
+				testDepotEntryGroup.getExternalReferenceCode(),
+				user.getExternalReferenceCode());
+
+		List<String> roleNames = TransformUtil.transform(
+			rolesPage.getItems(), Role::getName);
+
+		Assert.assertEquals(
+			Collections.singletonList(
+				DepotRolesConstants.ASSET_LIBRARY_CONTENT_REVIEWER),
+			roleNames);
 	}
 
 	private void _testPutAssetLibraryUserAccountRolesPageWithAssignMembersPermission()
