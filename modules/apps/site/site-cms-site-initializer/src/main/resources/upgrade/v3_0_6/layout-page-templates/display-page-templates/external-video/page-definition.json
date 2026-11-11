@@ -1,0 +1,158 @@
+{
+	"pageElement": {
+		"id": "f458e8c0-78eb-5945-5d51-841ee9690c55",
+		"pageElements": [
+			{
+				"definition": {
+					"fragmentStyle": {
+						"paddingBottom": "40px",
+						"paddingLeft": "12px",
+						"paddingRight": "12px",
+						"paddingTop": "40px"
+					},
+					"indexed": true,
+					"layout": {
+						"paddingBottom": 6,
+						"paddingTop": 6
+					}
+				},
+				"id": "c70c703e-a066-181d-0994-d3b1303ae4cc",
+				"pageElements": [
+					{
+						"definition": {
+							"indexed": true,
+							"layout": {
+								"widthType": "Fixed"
+							}
+						},
+						"id": "7c919f1e-00a3-04ce-8657-133f459f750c",
+						"pageElements": [
+							{
+								"definition": {
+									"fragment": {
+										"key": "localization-select"
+									},
+									"fragmentConfig": {
+										"allowLocalizationManagement": true,
+										"hideLanguageLabel": false,
+										"size": "small"
+									},
+									"fragmentFields": [
+									],
+									"fragmentStyle": {
+										"marginBottom": "5"
+									},
+									"indexed": true
+								},
+								"id": "95600022-d74b-bbde-b131-cfb05466dac3",
+								"type": "Fragment"
+							},
+							{
+								"definition": {
+									"formConfig": {
+										"formReference": {
+											"contextSource": "DisplayPageItem"
+										},
+										"formType": "simple",
+										"numberOfSteps": 0
+									},
+									"indexed": true,
+									"layout": {
+									}
+								},
+								"id": "8af8371e-48f9-6e48-89ba-5844c46adf6a",
+								"pageElements": [
+									{
+										"definition": {
+											"fragment": {
+												"key": "INPUTS-inline-text-input"
+											},
+											"fragmentConfig": {
+												"inputFieldId": "ObjectField_title",
+												"placeholder": {
+													"en_US": "New External Video"
+												},
+												"showCharactersCount": false
+											},
+											"fragmentFields": [
+											],
+											"fragmentStyle": {
+												"marginBottom": "5"
+											},
+											"indexed": true
+										},
+										"id": "efe5de0d-3648-65db-24bb-cf71fbd0baef",
+										"type": "Fragment"
+									},
+									{
+										"definition": {
+											"fragment": {
+												"key": "com.liferay.site.cms.site.initializer.internal.fragment.renderer.SpacesComponentSectionFragmentRenderer"
+											},
+											"fragmentConfig": {
+											},
+											"fragmentFields": [
+											],
+											"fragmentStyle": {
+												"marginBottom": "3"
+											},
+											"indexed": true
+										},
+										"id": "a1c3f2b7-4d29-65db-89a1-9e3f8c02e4dd",
+										"type": "Fragment"
+									},
+									{
+										"definition": {
+											"fragment": {
+												"key": "INPUTS-friendly-url-input"
+											},
+											"fragmentConfig": {
+												"inputFieldId": "ObjectEntry_objectEntryFriendlyURL"
+											},
+											"fragmentFields": [
+											],
+											"fragmentStyle": {
+												"marginBottom": "5"
+											},
+											"indexed": true
+										},
+										"id": "eae2d9ca-a716-fa32-2e30-de3adea8dba2",
+										"type": "Fragment"
+									},
+									{
+										"definition": {
+											"fragment": {
+												"key": "INPUTS-video-previewer-input"
+											},
+											"fragmentConfig": {
+												"inputFieldId": "ObjectField_videoURL"
+											},
+											"fragmentFields": [
+											],
+											"fragmentStyle": {
+												"marginBottom": "3"
+											},
+											"indexed": true
+										},
+										"id": "9f47b6c2-3f85-4e99-8c1a-9b6fcd2a4b7f",
+										"type": "Fragment"
+									}
+								],
+								"type": "Form"
+							}
+						],
+						"type": "Section"
+					}
+				],
+				"type": "Section"
+			}
+		],
+		"type": "Root"
+	},
+	"settings": {
+		"masterPage": {
+			"key": "content-editor-master"
+		}
+	},
+	"version": 1.1
+}

@@ -1,0 +1,199 @@
+{
+	"pageElement": {
+		"id": "b40ac947-880f-4759-31ce-e14005ab0049",
+		"pageElements": [
+			{
+				"definition": {
+					"gutters": true,
+					"indexed": true,
+					"modulesPerRow": 2,
+					"numberOfColumns": 4,
+					"reverseOrder": false,
+					"rowViewports": [
+						{
+							"id": "landscapeMobile",
+							"rowViewportDefinition": {
+								"modulesPerRow": 1
+							}
+						},
+						{
+							"id": "portraitMobile",
+							"rowViewportDefinition": {
+							}
+						},
+						{
+							"id": "tablet",
+							"rowViewportDefinition": {
+							}
+						}
+					],
+					"verticalAlignment": "top"
+				},
+				"id": "a4b366e3-10f1-81db-dc9d-be6ba61e8556",
+				"pageElements": [
+					{
+						"definition": {
+							"columnViewports": [
+								{
+									"columnViewportDefinition": {
+										"size": 12
+									},
+									"id": "landscapeMobile"
+								},
+								{
+									"columnViewportDefinition": {
+									},
+									"id": "portraitMobile"
+								},
+								{
+									"columnViewportDefinition": {
+									},
+									"id": "tablet"
+								}
+							],
+							"size": 6
+						},
+						"id": "3f7d39a8-de9a-920a-7720-66915aab6be9",
+						"pageElements": [
+							{
+								"definition": {
+									"fragment": {
+										"key": "com.liferay.site.cms.site.initializer.internal.fragment.renderer.ViewSpaceContentsSummaryJSPSectionFragmentRenderer"
+									},
+									"fragmentConfig": {
+									},
+									"fragmentFields": [
+									],
+									"fragmentStyle": {
+										"borderColor": "rgb(205, 206, 217)",
+										"borderRadius": "10px",
+										"borderWidth": "0.05rem",
+										"marginBottom": "4",
+										"marginLeft": "3",
+										"paddingLeft": "3",
+										"paddingRight": "3",
+										"paddingTop": "3"
+									},
+									"indexed": true
+								},
+								"id": "b56a878b-6b3f-e87a-7364-b4943fba1684",
+								"type": "Fragment"
+							},
+							{
+								"definition": {
+									"fragment": {
+										"key": "com.liferay.site.cms.site.initializer.internal.fragment.renderer.ViewSpaceFilesSummaryJSPSectionFragmentRenderer"
+									},
+									"fragmentConfig": {
+									},
+									"fragmentFields": [
+									],
+									"fragmentStyle": {
+										"borderColor": "rgb(205, 206, 217)",
+										"borderRadius": "10px",
+										"borderWidth": "0.05rem",
+										"marginLeft": "3",
+										"marginTop": "4",
+										"paddingBottom": "3",
+										"paddingLeft": "3",
+										"paddingRight": "3",
+										"paddingTop": "3"
+									},
+									"indexed": true
+								},
+								"id": "2c7d371c-2b8f-eb30-fddc-457b7e3c2048",
+								"type": "Fragment"
+							}
+						],
+						"type": "Column"
+					},
+					{
+						"definition": {
+							"columnViewports": [
+								{
+									"columnViewportDefinition": {
+										"size": 12
+									},
+									"id": "landscapeMobile"
+								},
+								{
+									"columnViewportDefinition": {
+									},
+									"id": "portraitMobile"
+								},
+								{
+									"columnViewportDefinition": {
+									},
+									"id": "tablet"
+								}
+							],
+							"size": 6
+						},
+						"id": "f4ac2e9d-2162-ed71-b4c9-3dac99f1dcb6",
+						"pageElements": [
+							{
+								"definition": {
+									"fragment": {
+										"key": "com.liferay.site.cms.site.initializer.internal.fragment.renderer.ViewSpaceMembersSummaryJSPSectionFragmentRenderer"
+									},
+									"fragmentConfig": {
+									},
+									"fragmentFields": [
+									],
+									"fragmentStyle": {
+										"borderColor": "rgb(205, 206, 217)",
+										"borderRadius": "10px",
+										"borderWidth": "0.05rem",
+										"marginBottom": "4",
+										"marginRight": "3",
+										"paddingLeft": "3",
+										"paddingRight": "3",
+										"paddingTop": "3"
+									},
+									"indexed": true
+								},
+								"id": "1ca914a8-b7b5-c8f6-ed98-2f8588ff212d",
+								"type": "Fragment"
+							},
+							{
+								"definition": {
+									"fragment": {
+										"key": "com.liferay.site.cms.site.initializer.internal.fragment.renderer.ViewSpaceSitesSummaryJSPSectionFragmentRenderer"
+									},
+									"fragmentConfig": {
+									},
+									"fragmentFields": [
+									],
+									"fragmentStyle": {
+										"borderColor": "rgb(205, 206, 217)",
+										"borderRadius": "10px",
+										"borderWidth": "0.05rem",
+										"marginRight": "3",
+										"marginTop": "4",
+										"paddingLeft": "3",
+										"paddingRight": "3",
+										"paddingTop": "3"
+									},
+									"indexed": true
+								},
+								"id": "005a5946-a89c-8c17-5407-5e5a0a86f9b5",
+								"type": "Fragment"
+							}
+						],
+						"type": "Column"
+					}
+				],
+				"type": "Row"
+			}
+		],
+		"type": "Root"
+	},
+	"settings": {
+		"colorSchemeName": "01",
+		"masterPage": {
+			"key": "cms-space-master"
+		},
+		"themeName": "CMS"
+	},
+	"version": 1.1
+}

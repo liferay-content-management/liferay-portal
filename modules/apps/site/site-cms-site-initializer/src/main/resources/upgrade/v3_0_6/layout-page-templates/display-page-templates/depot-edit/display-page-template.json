@@ -1,0 +1,7 @@
+{
+	"contentType": {
+		"className": "com.liferay.depot.model.DepotEntry"
+	},
+	"defaultTemplate": false,
+	"name": "Space Settings"
+}
