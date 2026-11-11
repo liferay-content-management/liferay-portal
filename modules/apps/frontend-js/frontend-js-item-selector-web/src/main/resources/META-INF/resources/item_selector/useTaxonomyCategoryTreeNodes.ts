@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {useEffect, useMemo, useState} from 'react';
+import {DEFAULT_FETCH_HEADERS} from '@liferay/frontend-data-set-web';
+import {fetch} from 'frontend-js-web';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 
 import fetchAllPages from './fetchAllPages';
 
@@ -107,10 +109,35 @@ async function loadVocabularyTree(
 	return buildTree(categories, vocabularyId);
 }
 
+export async function addTaxonomyCategory(
+	vocabularyId: string | number,
+	name: string
+): Promise<ITaxonomyCategory> {
+	const response = await fetch(
+		`${HEADLESS_TAXONOMY_BASE}/taxonomy-vocabularies/${vocabularyId}/taxonomy-categories`,
+		{
+			body: JSON.stringify({name}),
+			headers: DEFAULT_FETCH_HEADERS,
+			method: 'POST',
+		}
+	);
+
+	const json = await response.json();
+
+	if (!response.ok) {
+		throw new Error(
+			json.title ?? Liferay.Language.get('an-unexpected-error-occurred')
+		);
+	}
+
+	return json as ITaxonomyCategory;
+}
+
 export interface IUseTaxonomyCategoryTreeNodesResult {
 	error: Error | null;
 	loading: boolean;
 	nodes: ITaxonomyCategoryTreeNode[];
+	reload: () => void;
 }
 
 export default function useTaxonomyCategoryTreeNodes(
@@ -119,6 +146,7 @@ export default function useTaxonomyCategoryTreeNodes(
 	const [nodes, setNodes] = useState<ITaxonomyCategoryTreeNode[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<Error | null>(null);
+	const [reloadCount, setReloadCount] = useState(0);
 
 	const idsKey = useMemo(() => {
 		return vocabularyIds
@@ -165,7 +193,9 @@ export default function useTaxonomyCategoryTreeNodes(
 		return () => {
 			controller.abort();
 		};
-	}, [idsKey]);
+	}, [idsKey, reloadCount]);
 
-	return {error, loading, nodes};
+	const reload = useCallback(() => setReloadCount((count) => count + 1), []);
+
+	return {error, loading, nodes, reload};
 }

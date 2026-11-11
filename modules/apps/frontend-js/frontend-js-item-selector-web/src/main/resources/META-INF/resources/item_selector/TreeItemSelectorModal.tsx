@@ -6,29 +6,24 @@
 import ClayButton from '@clayui/button';
 import {TreeView as ClayTreeView} from '@clayui/core';
 import ClayEmptyState from '@clayui/empty-state';
-import {ClayCheckbox} from '@clayui/form';
+import ClayForm, {ClayCheckbox, ClayInput} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import ClayModal from '@clayui/modal';
 import {SearchResultsMessage} from '@liferay/layout-js-components-web';
 import {openToast} from 'frontend-js-components-web';
-import {navigate, sub} from 'frontend-js-web';
+import {escapeHTML, sub} from 'frontend-js-web';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 
 import useTaxonomyCategoryTreeNodes, {
 	ITaxonomyCategory,
 	ITaxonomyCategoryTreeNode,
+	addTaxonomyCategory,
 } from './useTaxonomyCategoryTreeNodes';
 
 import '../css/TreeItemSelectorModal.scss';
 
 export interface ITreeItemSelectorModalProps {
-
-	/**
-	 * URL navigated to when the user clicks the inline "+" button next to the
-	 * search field. Renders the button only when set.
-	 */
-	createItemURL?: string;
 
 	/**
 	 * Multi-select mode. When false, selecting a category immediately confirms
@@ -65,6 +60,12 @@ export interface ITreeItemSelectorModalProps {
 	 * Pre-selected categories. Their IDs are checked when the modal opens.
 	 */
 	selectedItems?: ITaxonomyCategory[];
+
+	/**
+	 * Renders a "+" button next to the search field that adds a category to
+	 * the first vocabulary.
+	 */
+	showAddCategoryButton?: boolean;
 
 	/**
 	 * Modal title. Defaults to "Select Category".
@@ -190,7 +191,6 @@ function buildParentMap(
 }
 
 function TreeItemSelectorModal({
-	createItemURL,
 	multiSelect = false,
 	observer,
 	onCancel,
@@ -198,10 +198,16 @@ function TreeItemSelectorModal({
 	onOpenChange,
 	open,
 	selectedItems: externalSelectedItems = [],
+	showAddCategoryButton = false,
 	title,
 	vocabularyIds,
 }: ITreeItemSelectorModalProps) {
-	const {error, loading, nodes} = useTaxonomyCategoryTreeNodes(vocabularyIds);
+	const {error, loading, nodes, reload} =
+		useTaxonomyCategoryTreeNodes(vocabularyIds);
+
+	const [addingCategory, setAddingCategory] = useState(false);
+
+	const [categoryName, setCategoryName] = useState('');
 
 	const [filterQuery, setFilterQuery] = useState('');
 
@@ -293,6 +299,28 @@ function TreeItemSelectorModal({
 	const handleCancel = () => {
 		onCancel?.();
 		onOpenChange(false);
+	};
+
+	const handleCancelAddCategory = () => {
+		setAddingCategory(false);
+		setCategoryName('');
+	};
+
+	const handleSaveCategory = async () => {
+		try {
+			await addTaxonomyCategory(vocabularyIds[0], categoryName.trim());
+
+			handleCancelAddCategory();
+
+			reload();
+		}
+		catch (error) {
+			openToast({
+				message: escapeHTML((error as Error).message),
+				title: Liferay.Language.get('error'),
+				type: 'danger',
+			});
+		}
 	};
 
 	const handleSelectionChange = (keys: Set<React.Key>) => {
@@ -416,16 +444,36 @@ function TreeItemSelectorModal({
 						</div>
 					</div>
 
-					{createItemURL && (
+					{showAddCategoryButton && (
 						<ClayButton
+							aria-label={Liferay.Language.get('add-category')}
 							className="btn-monospaced ml-3 nav-btn nav-btn-monospaced"
 							displayType="primary"
-							onClick={() => navigate(createItemURL)}
+							onClick={() => setAddingCategory(true)}
+							title={Liferay.Language.get('add-category')}
 						>
 							<ClayIcon symbol="plus" />
 						</ClayButton>
 					)}
 				</form>
+
+				{addingCategory && (
+					<ClayForm.Group className="px-3">
+						<label htmlFor="treeItemSelectorModalCategoryName">
+							{Liferay.Language.get('name')}
+						</label>
+
+						<ClayInput
+							autoFocus
+							id="treeItemSelectorModalCategoryName"
+							onChange={(event) =>
+								setCategoryName(event.target.value)
+							}
+							type="text"
+							value={categoryName}
+						/>
+					</ClayForm.Group>
+				)}
 
 				{showSelectionBanner && (
 					<div className="align-items-center category-tree-count-feedback d-flex justify-content-between px-3 py-2">
@@ -631,12 +679,25 @@ function TreeItemSelectorModal({
 						<ClayButton
 							className="btn-cancel"
 							displayType="secondary"
-							onClick={handleCancel}
+							onClick={
+								addingCategory
+									? handleCancelAddCategory
+									: handleCancel
+							}
 						>
 							{Liferay.Language.get('cancel')}
 						</ClayButton>
 
-						{multiSelect && (
+						{addingCategory && (
+							<ClayButton
+								disabled={!categoryName.trim()}
+								onClick={handleSaveCategory}
+							>
+								{Liferay.Language.get('save')}
+							</ClayButton>
+						)}
+
+						{!addingCategory && multiSelect && (
 							<ClayButton
 								disabled={selectedKeys.size === 0}
 								onClick={() => handleConfirm(selectedItems)}

@@ -25,6 +25,7 @@ function AssetVocabulariesCategoriesSelector({
 	onSelectedItemsChange = () => {},
 	required,
 	selectedItems = [],
+	showAddCategoryButton,
 	showVocabularyLabel = true,
 	singleSelect,
 	sourceItemsVocabularyIds = [],
@@ -153,6 +154,7 @@ function AssetVocabulariesCategoriesSelector({
 				id: Number(item.value),
 				name: item.label,
 			})),
+			showAddCategoryButton,
 			title: label
 				? sub(Liferay.Language.get('select-x'), label)
 				: Liferay.Language.get('select-categories'),
@@ -293,6 +295,7 @@ AssetVocabulariesCategoriesSelector.propTypes = {
 	onSelectedItemsChange: PropTypes.func,
 	required: PropTypes.bool,
 	selectedItems: PropTypes.array,
+	showAddCategoryButton: PropTypes.bool,
 	singleSelect: PropTypes.bool,
 	sourceItemsVocabularyIds: PropTypes.array,
 	useDataCategoriesAttribute: PropTypes.bool,
