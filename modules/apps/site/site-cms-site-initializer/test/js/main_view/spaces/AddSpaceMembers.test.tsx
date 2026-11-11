@@ -48,6 +48,23 @@ describe('AddSpaceMembers', () => {
 		jest.clearAllMocks();
 	});
 
+	it('lists the assignable user accounts of the space in the add-members input', () => {
+		render(<AddSpaceMembers {...props} />);
+
+		const {renderAddMembersInput} = mockManageMembersList.mock.calls[0][0];
+
+		const addMembersInput = renderAddMembersInput({
+			excludeMembers: [],
+			onAutocompleteItemSelected: jest.fn(),
+			onSelectChange: jest.fn(),
+			selectValue: 'users',
+		});
+
+		expect(addMembersInput.props.userAccountsAPIURL).toBe(
+			'http://localhost/o/headless-asset-library/v1.0/asset-libraries/ERC/assignable-user-accounts'
+		);
+	});
+
 	it('renders the section title, description and continue button', () => {
 		render(<AddSpaceMembers {...props} />);
 

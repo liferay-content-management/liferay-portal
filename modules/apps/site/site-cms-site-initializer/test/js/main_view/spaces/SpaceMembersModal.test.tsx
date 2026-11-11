@@ -24,6 +24,29 @@ describe('SpaceMembersModal', () => {
 		jest.clearAllMocks();
 	});
 
+	it('lists the assignable user accounts of the space in the add-members input', () => {
+		render(
+			<SpaceMembersModal
+				assetLibraryCreatorUserId="1"
+				externalReferenceCode="ERC"
+				hasAssignMembersPermission={true}
+			/>
+		);
+
+		const {renderAddMembersInput} = mockManageMembersModal.mock.calls[0][0];
+
+		const addMembersInput = renderAddMembersInput({
+			excludeMembers: [],
+			onAutocompleteItemSelected: jest.fn(),
+			onSelectChange: jest.fn(),
+			selectValue: 'users',
+		});
+
+		expect(addMembersInput.props.userAccountsAPIURL).toBe(
+			'http://localhost/o/headless-asset-library/v1.0/asset-libraries/ERC/assignable-user-accounts'
+		);
+	});
+
 	it('renders the shared ManageMembersModal with the space configuration', () => {
 		render(
 			<SpaceMembersModal
