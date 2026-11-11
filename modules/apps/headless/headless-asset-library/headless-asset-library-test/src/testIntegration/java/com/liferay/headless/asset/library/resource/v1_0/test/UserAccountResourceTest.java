@@ -103,6 +103,52 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 
 	@Override
 	@Test
+	public void testGetAssetLibraryAssignableUserAccountsPage()
+		throws Exception {
+
+		super.testGetAssetLibraryAssignableUserAccountsPage();
+
+		UserAccountResource cmsAdministratorUserAccountResource =
+			_getCMSAdministratorUserAccountResource();
+
+		assertHttpResponseStatusCode(
+			404,
+			cmsAdministratorUserAccountResource.
+				getAssetLibraryAssignableUserAccountsPageHttpResponse(
+					testDepotEntryGroup.getExternalReferenceCode(), null,
+					Pagination.of(1, 10)));
+
+		_testGetAssetLibraryAssignableUserAccountsPage(
+			_spaceDepotEntry.getGroup(), cmsAdministratorUserAccountResource);
+
+		UserAccountResource assetLibraryMemberUserAccountResource =
+			_getAssetLibraryMemberUserAccountResource("");
+
+		assertHttpResponseStatusCode(
+			404,
+			assetLibraryMemberUserAccountResource.
+				getAssetLibraryAssignableUserAccountsPageHttpResponse(
+					testDepotEntryGroup.getExternalReferenceCode(), null,
+					Pagination.of(1, 10)));
+
+		List<String> actionIds = _resourceActions.getModelResourceActions(
+			DepotEntry.class.getName());
+
+		actionIds.remove(ActionKeys.ASSIGN_MEMBERS);
+
+		UserAccountResource withoutAssignMembersUserAccountResource =
+			_getDepotEntryUserAccountResource(actionIds);
+
+		assertHttpResponseStatusCode(
+			404,
+			withoutAssignMembersUserAccountResource.
+				getAssetLibraryAssignableUserAccountsPageHttpResponse(
+					testDepotEntryGroup.getExternalReferenceCode(), null,
+					Pagination.of(1, 10)));
+	}
+
+	@Override
+	@Test
 	public void testGetAssetLibraryUserAccount() throws Exception {
 		super.testGetAssetLibraryUserAccount();
 
@@ -175,6 +221,7 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 
 		return new UserAccount() {
 			{
+				emailAddress = user.getEmailAddress();
 				externalReferenceCode = user.getExternalReferenceCode();
 				id = user.getUserId();
 				name = user.getFullName();
@@ -195,6 +242,24 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 		throws Exception {
 
 		return _getGroupExternalReferenceCode();
+	}
+
+	@Override
+	protected UserAccount
+			testGetAssetLibraryAssignableUserAccountsPage_addUserAccount(
+				String assetLibraryExternalReferenceCode,
+				UserAccount userAccount)
+		throws Exception {
+
+		return userAccount;
+	}
+
+	@Override
+	protected String
+			testGetAssetLibraryAssignableUserAccountsPage_getIrrelevantAssetLibraryExternalReferenceCode()
+		throws Exception {
+
+		return null;
 	}
 
 	@Override
@@ -397,6 +462,40 @@ public class UserAccountResourceTest extends BaseUserAccountResourceTestCase {
 			userAccountResource.getAssetLibraryUserAccountHttpResponse(
 				testDepotEntryGroup.getExternalReferenceCode(),
 				userAccount.getExternalReferenceCode()));
+	}
+
+	private void _testGetAssetLibraryAssignableUserAccountsPage(
+			Group group, UserAccountResource getUserAccountResource)
+		throws Exception {
+
+		Page<UserAccount> page =
+			getUserAccountResource.getAssetLibraryAssignableUserAccountsPage(
+				group.getExternalReferenceCode(), null, Pagination.of(1, 10));
+
+		long totalCount = page.getTotalCount();
+
+		UserAccount userAccount = randomUserAccount();
+
+		page = getUserAccountResource.getAssetLibraryAssignableUserAccountsPage(
+			group.getExternalReferenceCode(), userAccount.getEmailAddress(),
+			Pagination.of(1, 10));
+
+		Assert.assertEquals(1, page.getTotalCount());
+
+		List<UserAccount> userAccounts = (List<UserAccount>)page.getItems();
+
+		UserAccount searchUserAccount = userAccounts.get(0);
+
+		Assert.assertEquals(
+			userAccount.getEmailAddress(), searchUserAccount.getEmailAddress());
+		Assert.assertEquals(
+			userAccount.getExternalReferenceCode(),
+			searchUserAccount.getExternalReferenceCode());
+
+		page = getUserAccountResource.getAssetLibraryAssignableUserAccountsPage(
+			group.getExternalReferenceCode(), null, Pagination.of(1, 10));
+
+		Assert.assertEquals(totalCount + 1, page.getTotalCount());
 	}
 
 	private void _testGetAssetLibraryUserAccount(
