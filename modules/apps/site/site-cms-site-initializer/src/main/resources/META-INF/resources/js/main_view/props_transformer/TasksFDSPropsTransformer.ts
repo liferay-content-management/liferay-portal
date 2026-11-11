@@ -7,7 +7,7 @@ import {IInternalRenderer} from '@liferay/frontend-data-set-web';
 
 import {tasksFDSAtom} from '../tasks/atoms';
 import AssetTitleActionLinkRenderer from './cell_renderers/AssetTitleActionLinkRenderer';
-import AuthorRenderer from './cell_renderers/AuthorRenderer';
+import AssigneeRenderer from './cell_renderers/AssigneeRenderer';
 import DueDateRenderer from './cell_renderers/DueDateRenderer';
 import WorkflowStateRenderer from './cell_renderers/WorkflowStateRenderer';
 
@@ -28,8 +28,8 @@ export default function TasksFDSPropsTransformer({
 					type: 'internal',
 				} as IInternalRenderer,
 				{
-					component: AuthorRenderer,
-					name: 'authorTableCellRenderer',
+					component: AssigneeRenderer,
+					name: 'assigneeTableCellRenderer',
 					type: 'internal',
 				} as IInternalRenderer,
 				{
