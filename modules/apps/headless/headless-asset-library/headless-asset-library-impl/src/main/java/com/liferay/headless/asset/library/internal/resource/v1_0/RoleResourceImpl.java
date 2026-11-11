@@ -33,7 +33,8 @@ import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.portal.kernel.service.UserGroupRoleService;
 import com.liferay.portal.kernel.service.UserGroupService;
-import com.liferay.portal.kernel.service.UserService;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.permission.RolePermissionUtil;
 import com.liferay.portal.kernel.service.permission.UserGroupRolePermissionUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -106,7 +107,7 @@ public class RoleResourceImpl extends BaseRoleResourceImpl {
 		throws Exception {
 
 		Group group = _getGroup(assetLibraryExternalReferenceCode);
-		User user = _userService.getUserByExternalReferenceCode(
+		User user = _userLocalService.getUserByExternalReferenceCode(
 			userAccountExternalReferenceCode, contextCompany.getCompanyId());
 
 		if (!_groupService.hasUserGroup(user.getUserId(), group.getGroupId())) {
@@ -118,8 +119,9 @@ public class RoleResourceImpl extends BaseRoleResourceImpl {
 
 		return Page.of(
 			transform(
-				_roleService.getUserGroupRoles(
-					user.getUserId(), group.getGroupId()),
+				_filterRoles(
+					_roleLocalService.getUserGroupRoles(
+						user.getUserId(), group.getGroupId())),
 				this::_toRole));
 	}
 
@@ -156,7 +158,7 @@ public class RoleResourceImpl extends BaseRoleResourceImpl {
 		throws Exception {
 
 		Group group = _getGroup(assetLibraryExternalReferenceCode);
-		User user = _userService.getUserByExternalReferenceCode(
+		User user = _userLocalService.getUserByExternalReferenceCode(
 			userAccountExternalReferenceCode, contextCompany.getCompanyId());
 
 		if (!_groupService.hasUserGroup(user.getUserId(), group.getGroupId())) {
@@ -206,8 +208,9 @@ public class RoleResourceImpl extends BaseRoleResourceImpl {
 			_userGroupRoleService.addUserGroupRoles(
 				user.getUserId(), group.getGroupId(), roleIds);
 
-			updatedServiceBuilderRoles = _roleService.getUserGroupRoles(
-				user.getUserId(), group.getGroupId());
+			updatedServiceBuilderRoles = _filterRoles(
+				_roleLocalService.getUserGroupRoles(
+					user.getUserId(), group.getGroupId()));
 		}
 
 		return Page.of(transform(updatedServiceBuilderRoles, this::_toRole));
@@ -277,6 +280,26 @@ public class RoleResourceImpl extends BaseRoleResourceImpl {
 			throw new PrincipalException.MustHavePermission(
 				contextUser.getUserId(), ActionKeys.ASSIGN_MEMBERS);
 		}
+	}
+
+	private List<com.liferay.portal.kernel.model.Role> _filterRoles(
+		List<com.liferay.portal.kernel.model.Role> serviceBuilderRoles) {
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		return transform(
+			serviceBuilderRoles,
+			serviceBuilderRole -> {
+				if (RolePermissionUtil.contains(
+						permissionChecker, serviceBuilderRole.getRoleId(),
+						ActionKeys.VIEW)) {
+
+					return serviceBuilderRole;
+				}
+
+				return null;
+			});
 	}
 
 	private Group _getGroup(String externalReferenceCode) throws Exception {
@@ -388,6 +411,6 @@ public class RoleResourceImpl extends BaseRoleResourceImpl {
 	private UserGroupService _userGroupService;
 
 	@Reference
-	private UserService _userService;
+	private UserLocalService _userLocalService;
 
 }
