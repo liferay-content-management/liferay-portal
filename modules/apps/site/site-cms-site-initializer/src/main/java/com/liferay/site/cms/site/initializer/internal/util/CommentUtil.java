@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.ratings.kernel.model.RatingsStats;
 import com.liferay.ratings.kernel.service.RatingsStatsLocalServiceUtil;
@@ -206,7 +207,8 @@ public class CommentUtil {
 	}
 
 	public static Function<String, ServiceContext> getServiceContextFunction(
-		String className, long classPK, HttpServletRequest httpServletRequest) {
+		String className, long classPK, String previousBody,
+		HttpServletRequest httpServletRequest) {
 
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(
@@ -230,9 +232,12 @@ public class CommentUtil {
 		return serviceContextFunction.andThen(
 			serviceContext -> {
 				serviceContext.setAttribute("contentURL", contentURL);
-				serviceContext.setAttribute("discussionClassName", className);
+				serviceContext.setAttribute(
+					"discussionClassNameId",
+					PortalUtil.getClassNameId(className));
 				serviceContext.setAttribute("discussionClassPK", classPK);
 				serviceContext.setAttribute("namespace", StringPool.BLANK);
+				serviceContext.setAttribute("previousBody", previousBody);
 
 				return serviceContext;
 			});
