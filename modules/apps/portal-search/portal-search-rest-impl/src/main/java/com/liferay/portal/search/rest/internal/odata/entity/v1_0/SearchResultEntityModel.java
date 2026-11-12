@@ -26,6 +26,8 @@ public class SearchResultEntityModel implements EntityModel {
 
 	public SearchResultEntityModel() {
 		_entityFieldsMap = EntityModel.toEntityFieldsMap(
+			new BooleanEntityField("cmpAsset", locale -> "cmpAsset"),
+			new BooleanEntityField("cmsAsset", locale -> "cmsAsset"),
 			new BooleanEntityField("cmsRoot", locale -> "cms_root"),
 			new BooleanEntityField("completed", locale -> "completed"),
 			new BooleanEntityField(
