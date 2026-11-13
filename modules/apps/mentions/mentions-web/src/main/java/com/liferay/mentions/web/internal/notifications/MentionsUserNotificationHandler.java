@@ -14,17 +14,26 @@ import com.liferay.message.boards.service.MBMessageLocalService;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.UserNotificationEvent;
 import com.liferay.portal.kernel.notifications.BaseModelUserNotificationHandler;
 import com.liferay.portal.kernel.notifications.UserNotificationHandler;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.trash.TrashHandler;
+import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ResourceBundle;
 
@@ -47,7 +56,56 @@ public class MentionsUserNotificationHandler
 	}
 
 	@Override
+	public boolean isApplicable(
+		UserNotificationEvent userNotificationEvent,
+		ServiceContext serviceContext) {
+
+		try {
+			JSONObject jsonObject = _jsonFactory.createJSONObject(
+				userNotificationEvent.getPayload());
+
+			String discussionClassName = jsonObject.getString(
+				"discussionClassName");
+
+			if (Validator.isNull(discussionClassName)) {
+				return true;
+			}
+
+			long discussionClassPK = jsonObject.getLong("discussionClassPK");
+
+			if (_isInTrash(discussionClassName, discussionClassPK)) {
+				return false;
+			}
+
+			AssetRenderer<?> assetRenderer = getAssetRenderer(
+				discussionClassName, discussionClassPK);
+
+			if ((assetRenderer == null) ||
+				!assetRenderer.hasViewPermission(
+					PermissionThreadLocal.getPermissionChecker())) {
+
+				return false;
+			}
+
+			return true;
+		}
+		catch (PortalException portalException) {
+			_log.error(portalException);
+
+			return false;
+		}
+	}
+
+	@Override
 	protected AssetRenderer<?> getAssetRenderer(JSONObject jsonObject) {
+		String discussionClassName = jsonObject.getString(
+			"discussionClassName");
+
+		if (Validator.isNotNull(discussionClassName)) {
+			return getAssetRenderer(
+				discussionClassName, jsonObject.getLong("discussionClassPK"));
+		}
+
 		MBMessage mbMessage = _mbMessageLocalService.fetchMBMessage(
 			jsonObject.getLong("classPK"));
 
@@ -62,10 +120,7 @@ public class MentionsUserNotificationHandler
 
 	@Override
 	protected String getBodyContent(JSONObject jsonObject) {
-		MBMessage mbMessage = _mbMessageLocalService.fetchMBMessage(
-			jsonObject.getLong("classPK"));
-
-		if (_isCMSDiscussion(mbMessage)) {
+		if (_isCMSDiscussion(jsonObject)) {
 			return StringPool.BLANK;
 		}
 
@@ -78,13 +133,10 @@ public class MentionsUserNotificationHandler
 		UserNotificationEvent userNotificationEvent,
 		ServiceContext serviceContext) {
 
-		MBMessage mbMessage = _mbMessageLocalService.fetchMBMessage(
-			jsonObject.getLong("classPK"));
-
 		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
 			"content.Language", serviceContext.getLocale(), getClass());
 
-		if (_isCMSDiscussion(mbMessage)) {
+		if (_isCMSDiscussion(jsonObject)) {
 			return _language.format(
 				resourceBundle, "x-mentioned-you-in-a-comment-on-x",
 				new String[] {
@@ -103,6 +155,9 @@ public class MentionsUserNotificationHandler
 
 		String typeName = assetRendererFactory.getTypeName(
 			serviceContext.getLocale());
+
+		MBMessage mbMessage = _mbMessageLocalService.fetchMBMessage(
+			jsonObject.getLong("classPK"));
 
 		if ((mbMessage != null) && mbMessage.isDiscussion()) {
 			return _language.format(
@@ -127,17 +182,30 @@ public class MentionsUserNotificationHandler
 			false);
 	}
 
-	private boolean _isCMSDiscussion(MBMessage mbMessage) {
-		if ((mbMessage == null) || !mbMessage.isDiscussion() ||
-			!FeatureFlagManagerUtil.isEnabled(
-				mbMessage.getCompanyId(), "LPD-104086")) {
+	private boolean _isCMSDiscussion(JSONObject jsonObject) {
+		if (!FeatureFlagManagerUtil.isEnabled(
+				CompanyThreadLocal.getCompanyId(), "LPD-104086")) {
 
 			return false;
 		}
 
+		String discussionClassName = jsonObject.getString(
+			"discussionClassName");
+
+		if (Validator.isNull(discussionClassName)) {
+			MBMessage mbMessage = _mbMessageLocalService.fetchMBMessage(
+				jsonObject.getLong("classPK"));
+
+			if ((mbMessage == null) || !mbMessage.isDiscussion()) {
+				return false;
+			}
+
+			discussionClassName = mbMessage.getClassName();
+		}
+
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.fetchObjectDefinitionByClassName(
-				mbMessage.getCompanyId(), mbMessage.getClassName());
+				CompanyThreadLocal.getCompanyId(), discussionClassName);
 
 		if ((objectDefinition != null) && objectDefinition.isCMS()) {
 			return true;
@@ -145,6 +213,25 @@ public class MentionsUserNotificationHandler
 
 		return false;
 	}
+
+	private boolean _isInTrash(String className, long classPK)
+		throws PortalException {
+
+		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
+			className);
+
+		if (trashHandler == null) {
+			return false;
+		}
+
+		return trashHandler.isInTrash(classPK);
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		MentionsUserNotificationHandler.class);
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;

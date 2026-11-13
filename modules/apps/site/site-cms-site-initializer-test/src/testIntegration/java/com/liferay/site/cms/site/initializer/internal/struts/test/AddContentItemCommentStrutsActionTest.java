@@ -94,6 +94,7 @@ public class AddContentItemCommentStrutsActionTest {
 		_testExecuteWithMentionedAuthor();
 		_testExecuteWithMentionedUser();
 		_testExecuteWithMentionedUserWithoutViewPermission();
+		_testExecuteWithMentionedUsers();
 	}
 
 	private DepotEntry _addDepotEntry() throws Exception {
@@ -336,6 +337,29 @@ public class AddContentItemCommentStrutsActionTest {
 					author.getFullName(), " mentioned you in a comment on ",
 					title, ".")));
 
+		payloadJSONObject.remove("discussionClassName");
+		payloadJSONObject.remove("discussionClassPK");
+
+		userNotificationEvent =
+			_userNotificationEventLocalService.addUserNotificationEvent(
+				user1.getUserId(), userNotificationEvent.getType(),
+				System.currentTimeMillis(),
+				userNotificationEvent.getDeliveryType(), 0,
+				payloadJSONObject.toString(), false,
+				ServiceContextTestUtil.getServiceContext());
+
+		userNotificationFeedEntry = UserNotificationManagerUtil.interpret(
+			StringPool.BLANK, userNotificationEvent,
+			ServiceContextTestUtil.getServiceContext());
+
+		body = userNotificationFeedEntry.getBody();
+
+		Assert.assertTrue(
+			body.contains(
+				StringBundler.concat(
+					author.getFullName(), " mentioned you in a comment on ",
+					title, ".")));
+
 		Assert.assertEquals(
 			0,
 			_userNotificationEventLocalService.getUserNotificationEventsCount(
@@ -384,6 +408,49 @@ public class AddContentItemCommentStrutsActionTest {
 		_layoutLocalService.deleteLayout(layout);
 		_objectEntryLocalService.deleteObjectEntry(objectEntry);
 		_userLocalService.deleteUser(user);
+	}
+
+	private void _testExecuteWithMentionedUsers() throws Exception {
+		DepotEntry depotEntry = _addDepotEntry();
+
+		ObjectEntry objectEntry = _addObjectEntry(
+			depotEntry, RandomTestUtil.randomString());
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		User user1 = UserTestUtil.addUser();
+
+		Role role1 = _addViewRole(objectEntry, user1);
+
+		User user2 = UserTestUtil.addUser();
+
+		Role role2 = _addViewRole(objectEntry, user2);
+
+		_execute(
+			StringBundler.concat(
+				"<p>", RandomTestUtil.randomString(), StringPool.SPACE,
+				_getMentionHTML(user1), StringPool.SPACE,
+				_getMentionHTML(user2), "</p>"),
+			layout, objectEntry, TestPropsValues.getUser());
+
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user1.getUserId()));
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user2.getUserId()));
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry);
+		_layoutLocalService.deleteLayout(layout);
+		_objectEntryLocalService.deleteObjectEntry(objectEntry);
+		_roleLocalService.deleteRole(role1);
+		_roleLocalService.deleteRole(role2);
+		_userLocalService.deleteUser(user1);
+		_userLocalService.deleteUser(user2);
 	}
 
 	@Inject(filter = "path=/cms/add_content_item_comment")

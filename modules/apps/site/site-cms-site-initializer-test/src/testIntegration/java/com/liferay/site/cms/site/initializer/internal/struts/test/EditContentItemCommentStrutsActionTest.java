@@ -12,6 +12,7 @@ import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.layout.test.util.ContentLayoutTestUtil;
 import com.liferay.layout.test.util.LayoutTestUtil;
+import com.liferay.message.boards.model.MBDiscussion;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryFolder;
@@ -30,6 +31,8 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserNotificationEvent;
+import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
@@ -40,6 +43,8 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
+import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -50,8 +55,13 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.workflow.WorkflowInstance;
+import com.liferay.portal.kernel.workflow.WorkflowInstanceManager;
+import com.liferay.portal.kernel.workflow.WorkflowTask;
+import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -59,6 +69,8 @@ import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.test.rule.SynchronousMailTestRule;
 
 import java.io.Serializable;
+
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -86,57 +98,10 @@ public class EditContentItemCommentStrutsActionTest {
 
 	@Test
 	public void testExecute() throws Exception {
-		DepotEntry depotEntry = _addDepotEntry();
-
-		ObjectEntry objectEntry = _addObjectEntry(depotEntry);
-
-		Layout layout = LayoutTestUtil.addTypeContentLayout(
-			_groupLocalService.getGroup(
-				TestPropsValues.getCompanyId(), GroupConstants.CMS));
-
-		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.getObjectDefinition(
-				objectEntry.getObjectDefinitionId());
-
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext();
-
-		long commentId = _commentManager.addComment(
-			null, TestPropsValues.getUserId(), layout.getGroupId(),
-			objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
-			StringPool.BLANK, null, RandomTestUtil.randomString(),
-			className -> serviceContext);
-
-		User user1 = UserTestUtil.addUser();
-
-		Role role = _addViewRole(objectEntry, user1);
-
-		User user2 = UserTestUtil.addUser();
-
-		String text = RandomTestUtil.randomString();
-
-		JSONObject jsonObject = _execute(
-			StringBundler.concat(
-				"<p>", text, StringPool.SPACE, _getMentionHTML(user1),
-				StringPool.SPACE, _getMentionHTML(user2), "</p>"),
-			commentId, layout, objectEntry, TestPropsValues.getUser());
-
-		String expectedBody = StringBundler.concat(
-			"<p>", text, StringPool.SPACE, _getMentionHTML(user1), " @",
-			user2.getFullName(), "</p>");
-
-		Assert.assertEquals(expectedBody, jsonObject.getString("body"));
-
-		Comment comment = _commentManager.fetchComment(commentId);
-
-		Assert.assertEquals(expectedBody, comment.getBody());
-
-		_depotEntryLocalService.deleteDepotEntry(depotEntry);
-		_layoutLocalService.deleteLayout(layout);
-		_objectEntryLocalService.deleteObjectEntry(objectEntry);
-		_roleLocalService.deleteRole(role);
-		_userLocalService.deleteUser(user1);
-		_userLocalService.deleteUser(user2);
+		_testExecuteWithAnotherObjectEntry();
+		_testExecuteWithMentionedUserWithoutViewPermission();
+		_testExecuteWithMentionedUsers();
+		_testExecuteWithWorkflow();
 	}
 
 	private DepotEntry _addDepotEntry() throws Exception {
@@ -213,6 +178,32 @@ public class EditContentItemCommentStrutsActionTest {
 		return role;
 	}
 
+	private void _approveWorkflowTask(long commentId) throws Exception {
+		List<WorkflowInstance> workflowInstances =
+			_workflowInstanceManager.getWorkflowInstances(
+				TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
+				MBDiscussion.class.getName(), commentId, false, -1, -1, null);
+
+		WorkflowInstance workflowInstance = workflowInstances.get(0);
+
+		List<WorkflowTask> workflowTasks =
+			_workflowTaskManager.getWorkflowTasksByWorkflowInstance(
+				TestPropsValues.getCompanyId(), null,
+				workflowInstance.getWorkflowInstanceId(), false, 0, 1, null);
+
+		WorkflowTask workflowTask = workflowTasks.get(0);
+
+		_workflowTaskManager.assignWorkflowTaskToUser(
+			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
+			workflowTask.getWorkflowTaskId(), TestPropsValues.getUserId(), null,
+			null, workflowInstance.getWorkflowContext());
+
+		_workflowTaskManager.completeWorkflowTask(
+			TestPropsValues.getCompanyId(), TestPropsValues.getUserId(),
+			workflowTask.getWorkflowTaskId(), "approve", null,
+			workflowInstance.getWorkflowContext());
+	}
+
 	private JSONObject _execute(
 			String body, long commentId, Layout layout, ObjectEntry objectEntry,
 			User user)
@@ -283,6 +274,364 @@ public class EditContentItemCommentStrutsActionTest {
 			new String[0]);
 	}
 
+	private void _testExecuteWithAnotherObjectEntry() throws Exception {
+		DepotEntry depotEntry = _addDepotEntry();
+
+		ObjectEntry objectEntry1 = _addObjectEntry(depotEntry);
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectEntry1.getObjectDefinitionId());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		long commentId = _commentManager.addComment(
+			null, TestPropsValues.getUserId(), layout.getGroupId(),
+			objectDefinition.getClassName(), objectEntry1.getObjectEntryId(),
+			StringPool.BLANK, null, RandomTestUtil.randomString(),
+			className -> serviceContext);
+
+		User user = UserTestUtil.addUser();
+
+		Role role = _addViewRole(objectEntry1, user);
+
+		ObjectEntry objectEntry2 = _addObjectEntry(depotEntry);
+
+		String mentionHTML = _getMentionHTML(user);
+
+		JSONObject jsonObject = _execute(
+			StringBundler.concat(
+				"<p>", RandomTestUtil.randomString(), StringPool.SPACE,
+				mentionHTML, "</p>"),
+			commentId, layout, objectEntry2, TestPropsValues.getUser());
+
+		Assert.assertTrue(
+			jsonObject.getString(
+				"body"
+			).contains(
+				mentionHTML
+			));
+
+		Comment comment = _commentManager.fetchComment(commentId);
+
+		Assert.assertEquals(
+			objectEntry1.getObjectEntryId(), comment.getClassPK());
+
+		List<UserNotificationEvent> userNotificationEvents =
+			_userNotificationEventLocalService.getUserNotificationEvents(
+				user.getUserId());
+
+		Assert.assertEquals(
+			userNotificationEvents.toString(), 1,
+			userNotificationEvents.size());
+
+		UserNotificationEvent userNotificationEvent =
+			userNotificationEvents.get(0);
+
+		JSONObject payloadJSONObject = _jsonFactory.createJSONObject(
+			userNotificationEvent.getPayload());
+
+		Assert.assertEquals(
+			objectDefinition.getClassName(),
+			payloadJSONObject.getString("discussionClassName"));
+		Assert.assertEquals(
+			objectEntry1.getObjectEntryId(),
+			payloadJSONObject.getLong("discussionClassPK"));
+		Assert.assertEquals(
+			String.valueOf(objectEntry1.getObjectEntryId()),
+			HttpComponentsUtil.getParameter(
+				payloadJSONObject.getString("entryURL"), "objectEntryId",
+				false));
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry);
+		_layoutLocalService.deleteLayout(layout);
+		_objectEntryLocalService.deleteObjectEntry(objectEntry1);
+		_objectEntryLocalService.deleteObjectEntry(objectEntry2);
+		_roleLocalService.deleteRole(role);
+		_userLocalService.deleteUser(user);
+	}
+
+	private void _testExecuteWithMentionedUserWithoutViewPermission()
+		throws Exception {
+
+		DepotEntry depotEntry = _addDepotEntry();
+
+		ObjectEntry objectEntry = _addObjectEntry(depotEntry);
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectEntry.getObjectDefinitionId());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		long commentId = _commentManager.addComment(
+			null, TestPropsValues.getUserId(), layout.getGroupId(),
+			objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
+			StringPool.BLANK, null, RandomTestUtil.randomString(),
+			className -> serviceContext);
+
+		User user1 = UserTestUtil.addUser();
+
+		Role role = _addViewRole(objectEntry, user1);
+
+		User user2 = UserTestUtil.addUser();
+
+		String text = RandomTestUtil.randomString();
+
+		JSONObject jsonObject = _execute(
+			StringBundler.concat(
+				"<p>", text, StringPool.SPACE, _getMentionHTML(user1),
+				StringPool.SPACE, _getMentionHTML(user2), "</p>"),
+			commentId, layout, objectEntry, TestPropsValues.getUser());
+
+		String expectedBody = StringBundler.concat(
+			"<p>", text, StringPool.SPACE, _getMentionHTML(user1), " @",
+			user2.getFullName(), "</p>");
+
+		Assert.assertEquals(expectedBody, jsonObject.getString("body"));
+
+		Comment comment = _commentManager.fetchComment(commentId);
+
+		Assert.assertEquals(expectedBody, comment.getBody());
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry);
+		_layoutLocalService.deleteLayout(layout);
+		_objectEntryLocalService.deleteObjectEntry(objectEntry);
+		_roleLocalService.deleteRole(role);
+		_userLocalService.deleteUser(user1);
+		_userLocalService.deleteUser(user2);
+	}
+
+	private void _testExecuteWithMentionedUsers() throws Exception {
+		DepotEntry depotEntry = _addDepotEntry();
+
+		ObjectEntry objectEntry = _addObjectEntry(depotEntry);
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectEntry.getObjectDefinitionId());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		long commentId = _commentManager.addComment(
+			null, TestPropsValues.getUserId(), layout.getGroupId(),
+			objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
+			StringPool.BLANK, null, RandomTestUtil.randomString(),
+			className -> serviceContext);
+
+		User user1 = UserTestUtil.addUser();
+
+		Role role = _addViewRole(objectEntry, user1);
+
+		_execute(
+			StringBundler.concat(
+				"<p>", RandomTestUtil.randomString(), StringPool.SPACE,
+				_getMentionHTML(user1), "</p>"),
+			commentId, layout, objectEntry, TestPropsValues.getUser());
+
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user1.getUserId()));
+
+		User user2 = UserTestUtil.addUser();
+
+		_userLocalService.addRoleUser(role.getRoleId(), user2);
+
+		_execute(
+			StringBundler.concat(
+				"<p>", RandomTestUtil.randomString(), StringPool.SPACE,
+				_getMentionHTML(user1), StringPool.SPACE,
+				_getMentionHTML(user2), "</p>"),
+			commentId, layout, objectEntry, TestPropsValues.getUser());
+
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user1.getUserId()));
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user2.getUserId()));
+
+		_execute(
+			StringBundler.concat(
+				"<p>", RandomTestUtil.randomString(), StringPool.SPACE,
+				_getMentionHTML(user1), "</p>"),
+			commentId, layout, objectEntry, TestPropsValues.getUser());
+
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user1.getUserId()));
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user2.getUserId()));
+
+		_execute(
+			StringBundler.concat(
+				"<p>", RandomTestUtil.randomString(), StringPool.SPACE,
+				_getMentionHTML(user1), StringPool.SPACE,
+				_getMentionHTML(user2), "</p>"),
+			commentId, layout, objectEntry, TestPropsValues.getUser());
+
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user1.getUserId()));
+		Assert.assertEquals(
+			2,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user2.getUserId()));
+
+		_userLocalService.deleteRoleUser(role.getRoleId(), user1);
+
+		String text = RandomTestUtil.randomString();
+
+		JSONObject jsonObject = _execute(
+			StringBundler.concat(
+				"<p>", text, StringPool.SPACE, _getMentionHTML(user1),
+				StringPool.SPACE, _getMentionHTML(user2), "</p>"),
+			commentId, layout, objectEntry, TestPropsValues.getUser());
+
+		Assert.assertEquals(
+			StringBundler.concat(
+				"<p>", text, " @", user1.getFullName(), StringPool.SPACE,
+				_getMentionHTML(user2), "</p>"),
+			jsonObject.getString("body"));
+
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user1.getUserId()));
+		Assert.assertEquals(
+			2,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user2.getUserId()));
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry);
+		_layoutLocalService.deleteLayout(layout);
+		_objectEntryLocalService.deleteObjectEntry(objectEntry);
+		_roleLocalService.deleteRole(role);
+		_userLocalService.deleteUser(user1);
+		_userLocalService.deleteUser(user2);
+	}
+
+	private void _testExecuteWithWorkflow() throws Exception {
+		WorkflowDefinitionLink workflowDefinitionLink =
+			_workflowDefinitionLinkLocalService.updateWorkflowDefinitionLink(
+				TestPropsValues.getUserId(), TestPropsValues.getCompanyId(), 0,
+				MBDiscussion.class.getName(), 0, 0, "Single Approver", 1);
+
+		DepotEntry depotEntry = _addDepotEntry();
+
+		ObjectEntry objectEntry = _addObjectEntry(depotEntry);
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectEntry.getObjectDefinitionId());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		long commentId = _commentManager.addComment(
+			null, TestPropsValues.getUserId(), layout.getGroupId(),
+			objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
+			StringPool.BLANK, null, RandomTestUtil.randomString(),
+			className -> serviceContext);
+
+		_approveWorkflowTask(commentId);
+
+		User user1 = UserTestUtil.addUser();
+
+		Role role = _addViewRole(objectEntry, user1);
+
+		_execute(
+			StringBundler.concat(
+				"<p>", RandomTestUtil.randomString(), StringPool.SPACE,
+				_getMentionHTML(user1), "</p>"),
+			commentId, layout, objectEntry, TestPropsValues.getUser());
+
+		Assert.assertEquals(
+			0,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user1.getUserId()));
+
+		_approveWorkflowTask(commentId);
+
+		List<UserNotificationEvent> userNotificationEvents =
+			_userNotificationEventLocalService.getUserNotificationEvents(
+				user1.getUserId());
+
+		Assert.assertEquals(
+			userNotificationEvents.toString(), 1,
+			userNotificationEvents.size());
+
+		UserNotificationEvent userNotificationEvent =
+			userNotificationEvents.get(0);
+
+		JSONObject payloadJSONObject = _jsonFactory.createJSONObject(
+			userNotificationEvent.getPayload());
+
+		Assert.assertEquals(
+			objectDefinition.getClassName(),
+			payloadJSONObject.getString("discussionClassName"));
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(),
+			payloadJSONObject.getLong("discussionClassPK"));
+
+		User user2 = UserTestUtil.addUser();
+
+		_userLocalService.addRoleUser(role.getRoleId(), user2);
+
+		_execute(
+			StringBundler.concat(
+				"<p>", RandomTestUtil.randomString(), StringPool.SPACE,
+				_getMentionHTML(user1), StringPool.SPACE,
+				_getMentionHTML(user2), "</p>"),
+			commentId, layout, objectEntry, TestPropsValues.getUser());
+
+		_approveWorkflowTask(commentId);
+
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user1.getUserId()));
+		Assert.assertEquals(
+			1,
+			_userNotificationEventLocalService.getUserNotificationEventsCount(
+				user2.getUserId()));
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry);
+		_layoutLocalService.deleteLayout(layout);
+		_objectEntryLocalService.deleteObjectEntry(objectEntry);
+		_roleLocalService.deleteRole(role);
+		_userLocalService.deleteUser(user1);
+		_userLocalService.deleteUser(user2);
+		_workflowDefinitionLinkLocalService.deleteWorkflowDefinitionLink(
+			workflowDefinitionLink);
+	}
+
 	@Inject
 	private CommentManager _commentManager;
 
@@ -321,5 +670,19 @@ public class EditContentItemCommentStrutsActionTest {
 
 	@Inject
 	private UserLocalService _userLocalService;
+
+	@Inject
+	private UserNotificationEventLocalService
+		_userNotificationEventLocalService;
+
+	@Inject
+	private WorkflowDefinitionLinkLocalService
+		_workflowDefinitionLinkLocalService;
+
+	@Inject
+	private WorkflowInstanceManager _workflowInstanceManager;
+
+	@Inject
+	private WorkflowTaskManager _workflowTaskManager;
 
 }
