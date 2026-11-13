@@ -462,15 +462,15 @@ function CommentNode({
 								) : null}
 
 								<Ratings
-									className={comment.className}
+									className={comment.ratingsClassName}
 									classPK={comment.commentId}
 									enabled
 									initialNegativeVotes={comment.negativeVotes}
 									initialPositiveVotes={comment.positiveVotes}
 									signedIn
 									size="xs"
-									thumbDown={comment.negativeVotes > 0}
-									thumbUp={comment.positiveVotes > 0}
+									thumbDown={comment.thumbDown}
+									thumbUp={comment.thumbUp}
 									type="thumbs"
 								/>
 							</div>

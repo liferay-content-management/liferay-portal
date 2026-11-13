@@ -35,6 +35,7 @@ import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_2.CMSAdminist
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_3.CMSFileTypeDisplayPageUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_4.CMSFileTypeFriendlyURLUpgradeProcess;
 import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_5.CMSSpaceAdministratorRoleUpgradeProcess;
+import com.liferay.site.cms.site.initializer.internal.upgrade.v3_0_6.CMSCommentRatingsUpgradeProcess;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -103,6 +104,12 @@ public class SiteCMSSiteInitializerUpgradeStepRegistrator
 				_companyLocalService, _groupLocalService, _layoutLocalService,
 				_resourcePermissionLocalService, _roleLocalService,
 				_userLocalService));
+
+		registry.register(
+			"3.0.5", "3.0.6",
+			new CMSCommentRatingsUpgradeProcess(
+				_classNameLocalService, _companyLocalService,
+				_objectDefinitionLocalService, _objectFolderLocalService));
 	}
 
 	@Reference

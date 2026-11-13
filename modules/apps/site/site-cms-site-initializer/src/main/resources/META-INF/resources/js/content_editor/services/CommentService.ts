@@ -25,7 +25,10 @@ export type Comment = {
 	hasUpdatePermission: boolean;
 	negativeVotes: number;
 	positiveVotes: number;
+	ratingsClassName: string;
 	rootComment: boolean;
+	thumbDown: boolean;
+	thumbUp: boolean;
 };
 
 async function addComment({

@@ -5,6 +5,7 @@
 
 package com.liferay.site.cms.site.initializer.internal.util;
 
+import com.liferay.comment.constants.CommentConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.comment.Comment;
@@ -28,7 +29,9 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.ratings.kernel.model.RatingsEntry;
 import com.liferay.ratings.kernel.model.RatingsStats;
+import com.liferay.ratings.kernel.service.RatingsEntryLocalServiceUtil;
 import com.liferay.ratings.kernel.service.RatingsStatsLocalServiceUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -64,8 +67,11 @@ public class CommentUtil {
 				httpServletRequest,
 				System.currentTimeMillis() - modifiedDate.getTime(), true));
 
+		RatingsEntry ratingsEntry = RatingsEntryLocalServiceUtil.fetchEntry(
+			themeDisplay.getUserId(), CommentConstants.getDiscussionClassName(),
+			comment.getCommentId());
 		RatingsStats ratingsStats = RatingsStatsLocalServiceUtil.fetchStats(
-			comment.getClassName(), comment.getCommentId());
+			CommentConstants.getDiscussionClassName(), comment.getCommentId());
 
 		return JSONUtil.put(
 			"author", _getAuthorJSONObject(comment, httpServletRequest)
@@ -107,12 +113,32 @@ public class CommentUtil {
 				return 0;
 			}
 		).put(
+			"ratingsClassName", CommentConstants.getDiscussionClassName()
+		).put(
 			"rootComment",
 			() -> {
 				Comment parentComment = CommentManagerUtil.fetchComment(
 					comment.getParentCommentId());
 
 				return parentComment.isRoot();
+			}
+		).put(
+			"thumbDown",
+			() -> {
+				if (ratingsEntry != null) {
+					return ratingsEntry.getScore() < 0.5;
+				}
+
+				return false;
+			}
+		).put(
+			"thumbUp",
+			() -> {
+				if (ratingsEntry != null) {
+					return ratingsEntry.getScore() >= 0.5;
+				}
+
+				return false;
 			}
 		);
 	}
