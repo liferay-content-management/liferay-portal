@@ -6,8 +6,7 @@
 package com.liferay.object.internal.search.spi.model.index.contributor;
 
 import com.liferay.object.model.ObjectDefinition;
-import com.liferay.object.model.ObjectEntry;
-import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -35,12 +34,10 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 	public void setUp() {
 		ReflectionTestUtil.setFieldValue(
 			_kaleoTaskInstanceTokenModelDocumentContributor,
-			"_objectEntryLocalService", _objectEntryLocalService);
+			"_objectDefinitionLocalService", _objectDefinitionLocalService);
 
 		_setUpKaleoTaskInstanceToken();
-		_setUpObjectDefinition();
-		_setUpObjectEntry();
-		_setUpObjectEntryLocalService();
+		_setUpObjectDefinitionLocalService();
 	}
 
 	@Test
@@ -60,6 +57,38 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 			document
 		).addKeyword(
 			"cmpAsset", true
+		);
+	}
+
+	@Test
+	public void testContributeWhenObjectDefinitionIsCMPAndCMS() {
+		Mockito.when(
+			_objectDefinition.isCMP()
+		).thenReturn(
+			true
+		);
+
+		Mockito.when(
+			_objectDefinition.isCMS()
+		).thenReturn(
+			true
+		);
+
+		Document document = Mockito.mock(Document.class);
+
+		_kaleoTaskInstanceTokenModelDocumentContributor.contribute(
+			document, _kaleoTaskInstanceToken);
+
+		Mockito.verify(
+			document
+		).addKeyword(
+			"cmpAsset", true
+		);
+
+		Mockito.verify(
+			document
+		).addKeyword(
+			"cmsAsset", true
 		);
 	}
 
@@ -84,39 +113,7 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 	}
 
 	@Test
-	public void testContributeWhenObjectDefinitionIsCMSAndCMP() {
-		Mockito.when(
-			_objectDefinition.isCMP()
-		).thenReturn(
-			true
-		);
-
-		Mockito.when(
-			_objectDefinition.isCMS()
-		).thenReturn(
-			true
-		);
-
-		Document document = Mockito.mock(Document.class);
-
-		_kaleoTaskInstanceTokenModelDocumentContributor.contribute(
-			document, _kaleoTaskInstanceToken);
-
-		Mockito.verify(
-			document
-		).addKeyword(
-			"cmpAsset", true
-		);
-
-		Mockito.verify(
-			document
-		).addKeyword(
-			"cmsAsset", true
-		);
-	}
-
-	@Test
-	public void testContributeWhenObjectDefinitionIsNeitherCMSNorCMP() {
+	public void testContributeWhenObjectDefinitionIsNotCMPOrCMS() {
 		Document document = Mockito.mock(Document.class);
 
 		_kaleoTaskInstanceTokenModelDocumentContributor.contribute(
@@ -128,23 +125,8 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 	@Test
 	public void testContributeWhenObjectDefinitionIsNull() {
 		Mockito.when(
-			_objectEntry.getObjectDefinition()
-		).thenReturn(
-			null
-		);
-
-		Document document = Mockito.mock(Document.class);
-
-		_kaleoTaskInstanceTokenModelDocumentContributor.contribute(
-			document, _kaleoTaskInstanceToken);
-
-		Mockito.verifyNoInteractions(document);
-	}
-
-	@Test
-	public void testContributeWhenObjectEntryIsNull() {
-		Mockito.when(
-			_objectEntryLocalService.fetchObjectEntry(Mockito.anyLong())
+			_objectDefinitionLocalService.fetchObjectDefinitionByClassName(
+				Mockito.anyLong(), Mockito.anyString())
 		).thenReturn(
 			null
 		);
@@ -159,39 +141,24 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 
 	private void _setUpKaleoTaskInstanceToken() {
 		Mockito.when(
-			_kaleoTaskInstanceToken.getClassPK()
+			_kaleoTaskInstanceToken.getCompanyId()
 		).thenReturn(
 			RandomTestUtil.randomLong()
 		);
-	}
-
-	private void _setUpObjectDefinition() {
-		Mockito.when(
-			_objectDefinition.isCMP()
-		).thenReturn(
-			false
-		);
 
 		Mockito.when(
-			_objectDefinition.isCMS()
+			_kaleoTaskInstanceToken.getClassName()
 		).thenReturn(
-			false
+			RandomTestUtil.randomString()
 		);
 	}
 
-	private void _setUpObjectEntry() {
+	private void _setUpObjectDefinitionLocalService() {
 		Mockito.when(
-			_objectEntry.getObjectDefinition()
+			_objectDefinitionLocalService.fetchObjectDefinitionByClassName(
+				Mockito.anyLong(), Mockito.anyString())
 		).thenReturn(
 			_objectDefinition
-		);
-	}
-
-	private void _setUpObjectEntryLocalService() {
-		Mockito.when(
-			_objectEntryLocalService.fetchObjectEntry(Mockito.anyLong())
-		).thenReturn(
-			_objectEntry
 		);
 	}
 
@@ -202,8 +169,7 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 			new KaleoTaskInstanceTokenModelDocumentContributor();
 	private final ObjectDefinition _objectDefinition = Mockito.mock(
 		ObjectDefinition.class);
-	private final ObjectEntry _objectEntry = Mockito.mock(ObjectEntry.class);
-	private final ObjectEntryLocalService _objectEntryLocalService =
-		Mockito.mock(ObjectEntryLocalService.class);
+	private final ObjectDefinitionLocalService _objectDefinitionLocalService =
+		Mockito.mock(ObjectDefinitionLocalService.class);
 
 }
