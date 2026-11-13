@@ -462,7 +462,7 @@ function CommentNode({
 								) : null}
 
 								<Ratings
-									className={comment.className}
+									className={comment.ratingsClassName}
 									classPK={comment.commentId}
 									enabled
 									initialNegativeVotes={comment.negativeVotes}
