@@ -77,7 +77,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  */
 @FeatureFlag("LPD-104086")
 @RunWith(Arquillian.class)
-public class GetContentItemMentionUsersStrutsActionTest {
+public class GetContentItemMentionsStrutsActionTest {
 
 	@ClassRule
 	@Rule
@@ -224,7 +224,7 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
 				user, permissionChecker)) {
 
-			_getContentItemMentionUsersStrutsAction.execute(
+			_getContentItemMentionsStrutsAction.execute(
 				mockHttpServletRequest, mockHttpServletResponse);
 		}
 
@@ -561,8 +561,8 @@ public class GetContentItemMentionUsersStrutsActionTest {
 	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;
 
-	@Inject(filter = "path=/cms/get_content_item_mention_users")
-	private StrutsAction _getContentItemMentionUsersStrutsAction;
+	@Inject(filter = "path=/cms/get_content_item_mentions")
+	private StrutsAction _getContentItemMentionsStrutsAction;
 
 	@Inject
 	private GroupLocalService _groupLocalService;

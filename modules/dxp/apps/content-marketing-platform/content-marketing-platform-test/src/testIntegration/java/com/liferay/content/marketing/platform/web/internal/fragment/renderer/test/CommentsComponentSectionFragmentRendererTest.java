@@ -52,7 +52,7 @@ public class CommentsComponentSectionFragmentRendererTest
 			_getURL("/edit_content_item_comment"), props.get("editCommentURL"));
 		Assert.assertEquals(
 			_getURL("/get_asset_comments"), props.get("getCommentsURL"));
-		Assert.assertNull(props.get("getMentionUsersURL"));
+		Assert.assertNull(props.get("getMentionsURL"));
 	}
 
 	@FeatureFlag("LPD-104086")
@@ -61,8 +61,7 @@ public class CommentsComponentSectionFragmentRendererTest
 		Map<String, Object> props = getProps();
 
 		Assert.assertEquals(
-			_getURL("/get_content_item_mention_users"),
-			props.get("getMentionUsersURL"));
+			_getURL("/get_content_item_mentions"), props.get("getMentionsURL"));
 	}
 
 	@Override

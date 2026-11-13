@@ -160,7 +160,7 @@ public class CommentUtil {
 				themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
 				GroupConstants.CMS_FRIENDLY_URL, "/get_asset_comments")
 		).put(
-			"getMentionUsersURL",
+			"getMentionsURL",
 			() -> {
 				if (FeatureFlagManagerUtil.isEnabled(
 						themeDisplay.getCompanyId(), "LPD-104086")) {
@@ -168,7 +168,7 @@ public class CommentUtil {
 					return StringBundler.concat(
 						themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
 						GroupConstants.CMS_FRIENDLY_URL,
-						"/get_content_item_mention_users");
+						"/get_content_item_mentions");
 				}
 
 				return null;

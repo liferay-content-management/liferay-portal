@@ -51,10 +51,10 @@ import org.osgi.service.component.annotations.Reference;
  * @author Mikel Lorza
  */
 @Component(
-	property = "path=/cms/get_content_item_mention_users",
+	property = "path=/cms/get_content_item_mentions",
 	service = StrutsAction.class
 )
-public class GetContentItemMentionUsersStrutsAction implements StrutsAction {
+public class GetContentItemMentionsStrutsAction implements StrutsAction {
 
 	@Override
 	public String execute(
