@@ -58,6 +58,8 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 		).addKeyword(
 			"cmpTask", true
 		);
+
+		Mockito.verifyNoMoreInteractions(document);
 	}
 
 	@Test
@@ -110,6 +112,8 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 		).addKeyword(
 			"cmsTask", true
 		);
+
+		Mockito.verifyNoMoreInteractions(document);
 	}
 
 	@Test
