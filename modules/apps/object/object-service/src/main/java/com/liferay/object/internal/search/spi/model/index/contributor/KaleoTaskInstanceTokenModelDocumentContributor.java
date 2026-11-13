@@ -6,8 +6,7 @@
 package com.liferay.object.internal.search.spi.model.index.contributor;
 
 import com.liferay.object.model.ObjectDefinition;
-import com.liferay.object.model.ObjectEntry;
-import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
@@ -29,14 +28,10 @@ public class KaleoTaskInstanceTokenModelDocumentContributor
 	public void contribute(
 		Document document, KaleoTaskInstanceToken kaleoTaskInstanceToken) {
 
-		ObjectEntry objectEntry = _objectEntryLocalService.fetchObjectEntry(
-			kaleoTaskInstanceToken.getClassPK());
-
-		if (objectEntry == null) {
-			return;
-		}
-
-		ObjectDefinition objectDefinition = objectEntry.getObjectDefinition();
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.fetchObjectDefinitionByClassName(
+				kaleoTaskInstanceToken.getCompanyId(),
+				kaleoTaskInstanceToken.getClassName());
 
 		if (objectDefinition == null) {
 			return;
@@ -52,6 +47,6 @@ public class KaleoTaskInstanceTokenModelDocumentContributor
 	}
 
 	@Reference
-	private ObjectEntryLocalService _objectEntryLocalService;
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 }
