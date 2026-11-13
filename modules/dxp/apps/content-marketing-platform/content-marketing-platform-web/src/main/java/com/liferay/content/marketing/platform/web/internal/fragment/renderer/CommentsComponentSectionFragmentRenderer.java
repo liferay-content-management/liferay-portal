@@ -114,13 +114,13 @@ public class CommentsComponentSectionFragmentRenderer
 				"/get_asset_comments", objectDefinition, objectEntry,
 				themeDisplay)
 		).put(
-			"getMentionUsersURL",
+			"getMentionsURL",
 			() -> {
 				if (FeatureFlagManagerUtil.isEnabled(
 						themeDisplay.getCompanyId(), "LPD-104086")) {
 
 					return _getURL(
-						"/get_content_item_mention_users", objectDefinition,
+						"/get_content_item_mentions", objectDefinition,
 						objectEntry, themeDisplay);
 				}
 

@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -38,6 +39,7 @@ import com.liferay.portal.kernel.service.IdentityServiceContextFunction;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
@@ -46,6 +48,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserGroupTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -53,6 +56,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -77,7 +81,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  */
 @FeatureFlag("LPD-104086")
 @RunWith(Arquillian.class)
-public class GetContentItemMentionUsersStrutsActionTest {
+public class GetContentItemMentionsStrutsActionTest {
 
 	@ClassRule
 	@Rule
@@ -91,7 +95,9 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		_testExecute();
 		_testExecuteWithClassNameId();
 		_testExecuteWithKeywords();
+		_testExecuteWithManyUserGroups();
 		_testExecuteWithManyUsers();
+		_testExecuteWithUserGroups();
 		_testExecuteWithoutAddDiscussionPermission();
 	}
 
@@ -205,7 +211,7 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		return role;
 	}
 
-	private JSONArray _execute(
+	private JSONObject _execute(
 			MockHttpServletRequest mockHttpServletRequest, User user)
 		throws Exception {
 
@@ -224,17 +230,15 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
 				user, permissionChecker)) {
 
-			_getContentItemMentionUsersStrutsAction.execute(
+			_getContentItemMentionsStrutsAction.execute(
 				mockHttpServletRequest, mockHttpServletResponse);
 		}
 
-		JSONObject jsonObject = _jsonFactory.createJSONObject(
+		return _jsonFactory.createJSONObject(
 			mockHttpServletResponse.getContentAsString());
-
-		return jsonObject.getJSONArray("users");
 	}
 
-	private JSONArray _execute(
+	private JSONObject _execute(
 			String keywords, Layout layout, ObjectEntry objectEntry, User user)
 		throws Exception {
 
@@ -306,8 +310,10 @@ public class GetContentItemMentionUsersStrutsActionTest {
 			_groupLocalService.getGroup(
 				TestPropsValues.getCompanyId(), GroupConstants.CMS));
 
-		JSONArray usersJSONArray = _execute(
+		JSONObject jsonObject = _execute(
 			null, layout, objectEntry, TestPropsValues.getUser());
+
+		JSONArray usersJSONArray = jsonObject.getJSONArray("users");
 
 		Assert.assertEquals(
 			usersJSONArray.toString(), 2, usersJSONArray.length());
@@ -367,8 +373,10 @@ public class GetContentItemMentionUsersStrutsActionTest {
 			String.valueOf(
 				PortalUtil.getClassNameId(objectDefinition.getClassName())));
 
-		JSONArray usersJSONArray = _execute(
+		JSONObject jsonObject = _execute(
 			mockHttpServletRequest, TestPropsValues.getUser());
+
+		JSONArray usersJSONArray = jsonObject.getJSONArray("users");
 
 		Assert.assertEquals(
 			usersJSONArray.toString(), 1, usersJSONArray.length());
@@ -412,9 +420,11 @@ public class GetContentItemMentionUsersStrutsActionTest {
 			_groupLocalService.getGroup(
 				TestPropsValues.getCompanyId(), GroupConstants.CMS));
 
-		JSONArray usersJSONArray = _execute(
+		JSONObject jsonObject = _execute(
 			user1.getFirstName(), layout, objectEntry,
 			TestPropsValues.getUser());
+
+		JSONArray usersJSONArray = jsonObject.getJSONArray("users");
 
 		Assert.assertEquals(
 			usersJSONArray.toString(), 1, usersJSONArray.length());
@@ -424,9 +434,11 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		Assert.assertEquals(
 			user1.getExternalReferenceCode(), userJSONObject1.getString("id"));
 
-		usersJSONArray = _execute(
+		jsonObject = _execute(
 			user2.getScreenName(), layout, objectEntry,
 			TestPropsValues.getUser());
+
+		usersJSONArray = jsonObject.getJSONArray("users");
 
 		Assert.assertEquals(
 			usersJSONArray.toString(), 1, usersJSONArray.length());
@@ -441,6 +453,45 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		_userLocalService.deleteUser(user3);
 
 		_roleLocalService.deleteRole(role);
+
+		_layoutLocalService.deleteLayout(layout);
+
+		_objectEntryLocalService.deleteObjectEntry(objectEntry);
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry);
+	}
+
+	private void _testExecuteWithManyUserGroups() throws Exception {
+		DepotEntry depotEntry = _addDepotEntry();
+
+		ObjectEntry objectEntry = _addObjectEntry(depotEntry);
+
+		List<UserGroup> userGroups = new ArrayList<>();
+
+		for (int i = 0; i < 21; i++) {
+			UserGroup userGroup = UserGroupTestUtil.addUserGroup();
+
+			_userGroupLocalService.addGroupUserGroup(
+				depotEntry.getGroupId(), userGroup);
+
+			userGroups.add(userGroup);
+		}
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		JSONObject jsonObject = _execute(
+			null, layout, objectEntry, TestPropsValues.getUser());
+
+		JSONArray userGroupsJSONArray = jsonObject.getJSONArray("userGroups");
+
+		Assert.assertEquals(
+			userGroupsJSONArray.toString(), 20, userGroupsJSONArray.length());
+
+		for (UserGroup userGroup : userGroups) {
+			_userGroupLocalService.deleteUserGroup(userGroup);
+		}
 
 		_layoutLocalService.deleteLayout(layout);
 
@@ -485,14 +536,18 @@ public class GetContentItemMentionUsersStrutsActionTest {
 			_groupLocalService.getGroup(
 				TestPropsValues.getCompanyId(), GroupConstants.CMS));
 
-		JSONArray usersJSONArray = _execute(
+		JSONObject jsonObject = _execute(
 			null, layout, objectEntry, TestPropsValues.getUser());
+
+		JSONArray usersJSONArray = jsonObject.getJSONArray("users");
 
 		Assert.assertEquals(
 			usersJSONArray.toString(), 0, usersJSONArray.length());
 
-		usersJSONArray = _execute(
+		jsonObject = _execute(
 			lastName, layout, objectEntry, TestPropsValues.getUser());
+
+		usersJSONArray = jsonObject.getJSONArray("users");
 
 		Assert.assertEquals(
 			usersJSONArray.toString(), 20, usersJSONArray.length());
@@ -506,6 +561,98 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		}
 
 		_roleLocalService.deleteRole(role);
+
+		_layoutLocalService.deleteLayout(layout);
+
+		_objectEntryLocalService.deleteObjectEntry(objectEntry);
+
+		_depotEntryLocalService.deleteDepotEntry(depotEntry);
+	}
+
+	private void _testExecuteWithUserGroups() throws Exception {
+		DepotEntry depotEntry = _addDepotEntry();
+
+		ObjectEntry objectEntry = _addObjectEntry(depotEntry);
+
+		UserGroup userGroup1 = _userGroupLocalService.addUserGroup(
+			null, TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
+			"a" + RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			ServiceContextTestUtil.getServiceContext());
+
+		_userGroupLocalService.addGroupUserGroup(
+			depotEntry.getGroupId(), userGroup1);
+
+		User user1 = UserTestUtil.addUser();
+		User user2 = UserTestUtil.addUser();
+
+		_userLocalService.addUserGroupUser(
+			userGroup1.getUserGroupId(), user1.getUserId());
+		_userLocalService.addUserGroupUser(
+			userGroup1.getUserGroupId(), user2.getUserId());
+
+		_userLocalService.updateStatus(
+			user2.getUserId(), WorkflowConstants.STATUS_INACTIVE,
+			ServiceContextTestUtil.getServiceContext());
+
+		UserGroup userGroup2 = _userGroupLocalService.addUserGroup(
+			null, TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
+			"b" + RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			ServiceContextTestUtil.getServiceContext());
+
+		_userGroupLocalService.addGroupUserGroup(
+			depotEntry.getGroupId(), userGroup2);
+
+		UserGroup userGroup3 = UserGroupTestUtil.addUserGroup();
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		JSONObject jsonObject = _execute(
+			null, layout, objectEntry, TestPropsValues.getUser());
+
+		JSONArray userGroupsJSONArray = jsonObject.getJSONArray("userGroups");
+
+		Assert.assertEquals(
+			userGroupsJSONArray.toString(), 2, userGroupsJSONArray.length());
+
+		JSONObject userGroupJSONObject1 = userGroupsJSONArray.getJSONObject(0);
+
+		Assert.assertEquals(
+			userGroup1.getExternalReferenceCode(),
+			userGroupJSONObject1.getString("id"));
+		Assert.assertEquals(1, userGroupJSONObject1.getInt("membersCount"));
+		Assert.assertEquals(
+			userGroup1.getName(), userGroupJSONObject1.getString("name"));
+
+		JSONObject userGroupJSONObject2 = userGroupsJSONArray.getJSONObject(1);
+
+		Assert.assertEquals(
+			userGroup2.getExternalReferenceCode(),
+			userGroupJSONObject2.getString("id"));
+		Assert.assertEquals(0, userGroupJSONObject2.getInt("membersCount"));
+
+		jsonObject = _execute(
+			userGroup2.getName(), layout, objectEntry,
+			TestPropsValues.getUser());
+
+		userGroupsJSONArray = jsonObject.getJSONArray("userGroups");
+
+		Assert.assertEquals(
+			userGroupsJSONArray.toString(), 1, userGroupsJSONArray.length());
+
+		userGroupJSONObject2 = userGroupsJSONArray.getJSONObject(0);
+
+		Assert.assertEquals(
+			userGroup2.getExternalReferenceCode(),
+			userGroupJSONObject2.getString("id"));
+
+		_userLocalService.deleteUser(user1);
+		_userLocalService.deleteUser(user2);
+
+		_userGroupLocalService.deleteUserGroup(userGroup1);
+		_userGroupLocalService.deleteUserGroup(userGroup2);
+		_userGroupLocalService.deleteUserGroup(userGroup3);
 
 		_layoutLocalService.deleteLayout(layout);
 
@@ -561,8 +708,8 @@ public class GetContentItemMentionUsersStrutsActionTest {
 	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;
 
-	@Inject(filter = "path=/cms/get_content_item_mention_users")
-	private StrutsAction _getContentItemMentionUsersStrutsAction;
+	@Inject(filter = "path=/cms/get_content_item_mentions")
+	private StrutsAction _getContentItemMentionsStrutsAction;
 
 	@Inject
 	private GroupLocalService _groupLocalService;
@@ -587,6 +734,9 @@ public class GetContentItemMentionUsersStrutsActionTest {
 
 	@Inject
 	private RoleLocalService _roleLocalService;
+
+	@Inject
+	private UserGroupLocalService _userGroupLocalService;
 
 	@Inject
 	private UserLocalService _userLocalService;
