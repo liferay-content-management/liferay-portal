@@ -38,11 +38,11 @@ public class KaleoTaskInstanceTokenModelDocumentContributor
 		}
 
 		if (objectDefinition.isCMP()) {
-			document.addKeyword("cmpAsset", true);
+			document.addKeyword("cmpTask", true);
 		}
 
 		if (objectDefinition.isCMS()) {
-			document.addKeyword("cmsAsset", true);
+			document.addKeyword("cmsTask", true);
 		}
 	}
 
