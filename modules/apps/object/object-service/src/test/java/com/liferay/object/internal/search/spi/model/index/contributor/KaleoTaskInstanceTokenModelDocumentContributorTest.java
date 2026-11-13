@@ -56,7 +56,7 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 		Mockito.verify(
 			document
 		).addKeyword(
-			"cmpAsset", true
+			"cmpTask", true
 		);
 	}
 
@@ -82,13 +82,13 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 		Mockito.verify(
 			document
 		).addKeyword(
-			"cmpAsset", true
+			"cmpTask", true
 		);
 
 		Mockito.verify(
 			document
 		).addKeyword(
-			"cmsAsset", true
+			"cmsTask", true
 		);
 	}
 
@@ -108,7 +108,7 @@ public class KaleoTaskInstanceTokenModelDocumentContributorTest {
 		Mockito.verify(
 			document
 		).addKeyword(
-			"cmsAsset", true
+			"cmsTask", true
 		);
 	}
 
