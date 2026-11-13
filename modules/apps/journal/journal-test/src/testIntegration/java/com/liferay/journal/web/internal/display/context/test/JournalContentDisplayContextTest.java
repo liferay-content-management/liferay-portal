@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.constants.MVCRenderConstant
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderRequest;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletRenderResponse;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -137,6 +138,29 @@ public class JournalContentDisplayContextTest {
 			selectedJournalArticle.getArticleId());
 	}
 
+	@Test
+	@TestInfo("LPD-115170")
+	public void testIsEnabledConversion() throws Exception {
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					"com.liferay.document.library.document.conversion." +
+						"internal.configuration.OpenOfficeConfiguration",
+					HashMapDictionaryBuilder.<String, Object>put(
+						"serverEnabled", true
+					).build())) {
+
+			Assert.assertTrue(_isEnabledConversion("doc"));
+			Assert.assertTrue(_isEnabledConversion("odt"));
+			Assert.assertTrue(_isEnabledConversion("pdf"));
+			Assert.assertTrue(_isEnabledConversion("txt"));
+		}
+
+		Assert.assertFalse(_isEnabledConversion("doc"));
+		Assert.assertFalse(_isEnabledConversion("odt"));
+		Assert.assertFalse(_isEnabledConversion("pdf"));
+		Assert.assertFalse(_isEnabledConversion("txt"));
+	}
+
 	private JournalArticle _getArticle(RenderRequest renderRequest)
 		throws Exception {
 
@@ -213,6 +237,22 @@ public class JournalContentDisplayContextTest {
 		return ReflectionTestUtil.invoke(
 			renderRequest.getAttribute("JOURNAL_CONTENT_DISPLAY_CONTEXT#"),
 			"getSelectedArticle", new Class<?>[0]);
+	}
+
+	private boolean _isEnabledConversion(String extension) throws Exception {
+		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
+			_getMockLiferayPortletRenderRequest();
+
+		MVCPortlet mvcPortlet = (MVCPortlet)_portlet;
+
+		mvcPortlet.render(
+			mockLiferayPortletRenderRequest,
+			new MockLiferayPortletRenderResponse());
+
+		return ReflectionTestUtil.invoke(
+			mockLiferayPortletRenderRequest.getAttribute(
+				"JOURNAL_CONTENT_DISPLAY_CONTEXT#"),
+			"isEnabledConversion", new Class<?>[] {String.class}, extension);
 	}
 
 	private void _testGetArticleGroupIdFromPortletPreferencesRenderParameter()
