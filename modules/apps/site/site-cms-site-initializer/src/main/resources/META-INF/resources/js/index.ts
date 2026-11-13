@@ -9,6 +9,7 @@ export {default as EnterpriseOnlyPlaceholder} from './common/components/Enterpri
 export {default as EnterpriseProductMenuBanner} from './common/components/EnterpriseProductMenuBanner';
 export {default as SpaceSelector} from './common/components/SpaceSelector';
 export {default as SpaceSticker} from './common/components/SpaceSticker';
+export {default as StateLabel} from './common/components/StateLabel';
 export {default as StatusLabel} from './common/components/StatusLabel';
 export {default as Toolbar} from './common/components/Toolbar';
 export {default as VerticalNavLayout} from './common/components/VerticalNavLayout';
@@ -28,6 +29,7 @@ export {ObjectField, StateFlowValue} from './common/types/ObjectDefinition';
 export {type Space} from './common/types/Space';
 export {getFormattedLabel} from './common/utils/getFormattedText';
 export {getScopeExternalReferenceCode} from './common/utils/getScopeExternalReferenceCode';
+export {default as isOverdue} from './common/utils/isOverdue';
 export {
 	displayCreateSuccessToast,
 	displayCreateTaskErrorToast,
@@ -93,6 +95,7 @@ export {default as SitesFDSPropsTransformer} from './main_view/props_transformer
 export {default as StructureUsagesFDSPropsTransformer} from './main_view/props_transformer/StructureUsagesFDSPropsTransformer';
 export {default as StructuresFDSPropsTransformer} from './main_view/props_transformer/StructuresFDSPropsTransformer';
 export {default as TagUsagesFDSPropsTransformer} from './main_view/props_transformer/TagUsagesFDSPropsTransformer';
+export {default as TasksFDSPropsTransformer} from './main_view/props_transformer/TasksFDSPropsTransformer';
 export {default as UnlinkedContentFDSPropsTransformer} from './main_view/props_transformer/UnlinkedContentFDSPropsTransformer';
 export {default as ViewVersionHistoryFDSPropsTransformer} from './main_view/props_transformer/ViewVersionHistoryFDSPropsTransformer';
 export {default as VocabularyFDSPropsTransformer} from './main_view/props_transformer/VocabularyFDSPropsTransformer';
@@ -108,6 +111,7 @@ export {triggerAssetBulkAction} from './main_view/props_transformer/actions/trig
 export {default as AuthorRenderer} from './main_view/props_transformer/cell_renderers/AuthorRenderer';
 export {default as SimpleActionLinkRenderer} from './main_view/props_transformer/cell_renderers/SimpleActionLinkRenderer';
 export {default as SpaceRendererWithCache} from './main_view/props_transformer/cell_renderers/SpaceRendererWithCache';
+export {default as WorkflowStateRenderer} from './main_view/props_transformer/cell_renderers/WorkflowStateRenderer';
 export {default as addOnClickToCreationMenuItems} from './main_view/props_transformer/utils/addOnClickToCreationMenuItems';
 export {default as styleDeleteAction} from './main_view/props_transformer/utils/styleDeleteAction';
 export {default as transformFDSBulkActions} from './main_view/props_transformer/utils/transformFDSBulkActions';
@@ -118,6 +122,8 @@ export {default as NewSpace} from './main_view/spaces/NewSpace';
 export {default as SpaceSettings} from './main_view/spaces/SpaceSettings';
 export {default as SpaceSummaryHeader} from './main_view/spaces/SpaceSummaryHeader';
 export {default as SpacesNavigation} from './main_view/spaces_navigation/SpacesNavigation';
+export {default as CMPMarketplaceBanner} from './main_view/tasks/CMPMarketplaceBanner';
+export {default as TasksQuickFilters} from './main_view/tasks/TasksQuickFilters';
 export {default as VersionHistoryToolbar} from './main_view/version_history/VersionHistoryToolbar';
 export {default as ViewAsset} from './main_view/view_asset/ViewAsset';
 
