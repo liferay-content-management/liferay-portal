@@ -18,10 +18,13 @@ import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.test.util.ObjectDefinitionTestUtil;
+import com.liferay.object.test.util.ObjectEntryTestUtil;
 import com.liferay.portal.kernel.comment.CommentManager;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.ResourceConstants;
@@ -35,13 +38,13 @@ import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUti
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.IdentityServiceContextFunction;
-import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -90,6 +93,7 @@ public class GetContentItemMentionUsersStrutsActionTest {
 	public void testExecute() throws Exception {
 		_testExecute();
 		_testExecuteWithClassNameId();
+		_testExecuteWithCompanyScopedObjectDefinition();
 		_testExecuteWithKeywords();
 		_testExecuteWithManyUsers();
 		_testExecuteWithoutAddDiscussionPermission();
@@ -110,12 +114,6 @@ public class GetContentItemMentionUsersStrutsActionTest {
 			UnsupportedOperationException.class,
 			() -> _execute(
 				null, layout, objectEntry, TestPropsValues.getUser()));
-
-		_layoutLocalService.deleteLayout(layout);
-
-		_objectEntryLocalService.deleteObjectEntry(objectEntry);
-
-		_depotEntryLocalService.deleteDepotEntry(depotEntry);
 	}
 
 	private void _addComment(ObjectEntry objectEntry, User user)
@@ -183,7 +181,7 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		return objectEntry;
 	}
 
-	private Role _addViewRole(ObjectEntry objectEntry, User... users)
+	private void _addViewRole(ObjectEntry objectEntry, User... users)
 		throws Exception {
 
 		Role role = RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
@@ -201,8 +199,6 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		for (User user : users) {
 			_userLocalService.addRoleUser(role.getRoleId(), user);
 		}
-
-		return role;
 	}
 
 	private JSONArray _execute(
@@ -295,7 +291,7 @@ public class GetContentItemMentionUsersStrutsActionTest {
 
 		User user4 = UserTestUtil.addUser();
 
-		Role role = _addViewRole(objectEntry, user1, user2, user4);
+		_addViewRole(objectEntry, user1, user2, user4);
 
 		_addComment(objectEntry, TestPropsValues.getUser());
 		_addComment(objectEntry, user2);
@@ -327,19 +323,6 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		Assert.assertEquals(
 			user1.getExternalReferenceCode(), userJSONObject2.getString("id"));
 		Assert.assertFalse(userJSONObject2.getBoolean("recent"));
-
-		_userLocalService.deleteUser(user1);
-		_userLocalService.deleteUser(user2);
-		_userLocalService.deleteUser(user3);
-		_userLocalService.deleteUser(user4);
-
-		_roleLocalService.deleteRole(role);
-
-		_layoutLocalService.deleteLayout(layout);
-
-		_objectEntryLocalService.deleteObjectEntry(objectEntry);
-
-		_depotEntryLocalService.deleteDepotEntry(depotEntry);
 	}
 
 	private void _testExecuteWithClassNameId() throws Exception {
@@ -353,7 +336,7 @@ public class GetContentItemMentionUsersStrutsActionTest {
 
 		User user = UserTestUtil.addUser(depotEntry.getGroupId());
 
-		Role role = _addViewRole(objectEntry, user);
+		_addViewRole(objectEntry, user);
 
 		MockHttpServletRequest mockHttpServletRequest =
 			_getMockHttpServletRequest(layout, objectEntry);
@@ -377,16 +360,44 @@ public class GetContentItemMentionUsersStrutsActionTest {
 
 		Assert.assertEquals(
 			user.getExternalReferenceCode(), userJSONObject.getString("id"));
+	}
 
-		_userLocalService.deleteUser(user);
+	private void _testExecuteWithCompanyScopedObjectDefinition()
+		throws Exception {
 
-		_roleLocalService.deleteRole(role);
+		ObjectDefinition objectDefinition =
+			ObjectDefinitionTestUtil.publishObjectDefinition();
 
-		_layoutLocalService.deleteLayout(layout);
+		ObjectEntry objectEntry = ObjectEntryTestUtil.addObjectEntry(
+			objectDefinition);
 
-		_objectEntryLocalService.deleteObjectEntry(objectEntry);
+		Group group = GroupTestUtil.addGroup();
 
-		_depotEntryLocalService.deleteDepotEntry(depotEntry);
+		group.setClassNameId(
+			PortalUtil.getClassNameId(objectDefinition.getClassName()));
+		group.setClassPK(objectEntry.getObjectEntryId());
+
+		group = _groupLocalService.updateGroup(group);
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		User user1 = UserTestUtil.addUser(group.getGroupId());
+		User user2 = UserTestUtil.addUser();
+
+		_addViewRole(objectEntry, user1, user2);
+
+		JSONArray usersJSONArray = _execute(
+			null, layout, objectEntry, TestPropsValues.getUser());
+
+		Assert.assertEquals(
+			usersJSONArray.toString(), 1, usersJSONArray.length());
+
+		JSONObject userJSONObject = usersJSONArray.getJSONObject(0);
+
+		Assert.assertEquals(
+			user1.getExternalReferenceCode(), userJSONObject.getString("id"));
 	}
 
 	private void _testExecuteWithKeywords() throws Exception {
@@ -404,7 +415,7 @@ public class GetContentItemMentionUsersStrutsActionTest {
 			depotEntry.getGroupId());
 		User user3 = UserTestUtil.addUser(depotEntry.getGroupId());
 
-		Role role = _addViewRole(objectEntry, user1, user2, user3);
+		_addViewRole(objectEntry, user1, user2, user3);
 
 		_addComment(objectEntry, user3);
 
@@ -435,18 +446,6 @@ public class GetContentItemMentionUsersStrutsActionTest {
 
 		Assert.assertEquals(
 			user2.getExternalReferenceCode(), userJSONObject2.getString("id"));
-
-		_userLocalService.deleteUser(user1);
-		_userLocalService.deleteUser(user2);
-		_userLocalService.deleteUser(user3);
-
-		_roleLocalService.deleteRole(role);
-
-		_layoutLocalService.deleteLayout(layout);
-
-		_objectEntryLocalService.deleteObjectEntry(objectEntry);
-
-		_depotEntryLocalService.deleteDepotEntry(depotEntry);
 	}
 
 	private void _testExecuteWithManyUsers() throws Exception {
@@ -479,7 +478,7 @@ public class GetContentItemMentionUsersStrutsActionTest {
 					new long[] {depotEntry.getGroupId()}));
 		}
 
-		Role role = _addViewRole(objectEntry, users2.toArray(new User[0]));
+		_addViewRole(objectEntry, users2.toArray(new User[0]));
 
 		Layout layout = LayoutTestUtil.addTypeContentLayout(
 			_groupLocalService.getGroup(
@@ -496,22 +495,6 @@ public class GetContentItemMentionUsersStrutsActionTest {
 
 		Assert.assertEquals(
 			usersJSONArray.toString(), 20, usersJSONArray.length());
-
-		for (User user : users1) {
-			_userLocalService.deleteUser(user);
-		}
-
-		for (User user : users2) {
-			_userLocalService.deleteUser(user);
-		}
-
-		_roleLocalService.deleteRole(role);
-
-		_layoutLocalService.deleteLayout(layout);
-
-		_objectEntryLocalService.deleteObjectEntry(objectEntry);
-
-		_depotEntryLocalService.deleteDepotEntry(depotEntry);
 	}
 
 	private void _testExecuteWithoutAddDiscussionPermission() throws Exception {
@@ -542,14 +525,6 @@ public class GetContentItemMentionUsersStrutsActionTest {
 
 		Assert.assertEquals(
 			objectDefinition.getClassName(), mustHavePermission.resourceName);
-
-		_userLocalService.deleteUser(user);
-
-		_layoutLocalService.deleteLayout(layout);
-
-		_objectEntryLocalService.deleteObjectEntry(objectEntry);
-
-		_depotEntryLocalService.deleteDepotEntry(depotEntry);
 	}
 
 	@Inject
@@ -569,9 +544,6 @@ public class GetContentItemMentionUsersStrutsActionTest {
 
 	@Inject
 	private JSONFactory _jsonFactory;
-
-	@Inject
-	private LayoutLocalService _layoutLocalService;
 
 	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
