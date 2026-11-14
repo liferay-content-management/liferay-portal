@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.AssertUtils;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -64,6 +65,7 @@ import com.liferay.wiki.exception.DuplicatePageException;
 import com.liferay.wiki.exception.DuplicateWikiPageExternalReferenceCodeException;
 import com.liferay.wiki.exception.NoSuchPageResourceException;
 import com.liferay.wiki.exception.PageTitleException;
+import com.liferay.wiki.exception.PageVersionException;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.service.WikiPageLocalService;
@@ -1109,6 +1111,32 @@ public class WikiPageLocalServiceTest {
 	}
 
 	@Test
+	@TestInfo({"LPD-115329", "LPS-67282"})
+	public void testRenamePageWithDraftVersion() throws Exception {
+		WikiPage page = WikiTestUtil.addPage(
+			_group.getGroupId(), _node.getNodeId(), true);
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		WikiTestUtil.updatePage(
+			page, TestPropsValues.getUserId(), page.getTitle(),
+			RandomTestUtil.randomString(), false, serviceContext);
+
+		Assert.assertThrows(
+			PageVersionException.class,
+			() -> _wikiPageLocalService.renamePage(
+				TestPropsValues.getUserId(), _node.getNodeId(), page.getTitle(),
+				"New Title", true, serviceContext));
+
+		Assert.assertNotNull(
+			_wikiPageLocalService.fetchPage(
+				_node.getNodeId(), page.getTitle()));
+		Assert.assertNull(
+			_wikiPageLocalService.fetchPage(_node.getNodeId(), "New Title"));
+	}
+
+	@Test
 	public void testRenamePageWithExpando() throws Exception {
 		WikiPage page = WikiTestUtil.addPage(
 			_group.getGroupId(), _node.getNodeId(), true);
@@ -1190,6 +1218,36 @@ public class WikiPageLocalServiceTest {
 	@Test
 	public void testRevertPage() throws Exception {
 		testRevertPage(false);
+	}
+
+	@Test
+	@TestInfo("LPD-115329")
+	public void testRevertPageWithChangedParent() throws Exception {
+		WikiPage page = WikiTestUtil.addPage(
+			_group.getGroupId(), _node.getNodeId(), true);
+		WikiPage parentPage = WikiTestUtil.addPage(
+			_group.getGroupId(), _node.getNodeId(), true);
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		WikiPage changedParentPage = _wikiPageLocalService.changeParent(
+			TestPropsValues.getUserId(), _node.getNodeId(), page.getTitle(),
+			parentPage.getTitle(), serviceContext);
+
+		Assert.assertEquals(
+			parentPage.getTitle(), changedParentPage.getParentTitle());
+		Assert.assertEquals(
+			"Changed parent from <em></em>.", changedParentPage.getSummary());
+
+		WikiPage revertedPage = _wikiPageLocalService.revertPage(
+			TestPropsValues.getUserId(), _node.getNodeId(), page.getTitle(),
+			page.getVersion(), serviceContext);
+
+		Assert.assertEquals(page.getContent(), revertedPage.getContent());
+		Assert.assertEquals(
+			parentPage.getTitle(), revertedPage.getParentTitle());
+		Assert.assertEquals("Reverted to 1.0", revertedPage.getSummary());
 	}
 
 	@Test
