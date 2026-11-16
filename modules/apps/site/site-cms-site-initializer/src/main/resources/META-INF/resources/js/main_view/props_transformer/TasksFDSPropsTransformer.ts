@@ -5,10 +5,8 @@
 
 import {IInternalRenderer} from '@liferay/frontend-data-set-web';
 
-import {openCMSModal} from '../../common/utils/openCMSModal';
-import AssignToModalContent from '../home/modal/AssignToModalContent';
-import UpdateDueDateModalContent from '../home/modal/UpdateDueDateModalContent';
 import {tasksFDSAtom} from '../tasks/atoms';
+import {onWorkflowTaskActionClick} from '../tasks/onWorkflowTaskActionClick';
 import AuthorRenderer from './cell_renderers/AuthorRenderer';
 import SimpleActionLinkRenderer from './cell_renderers/SimpleActionLinkRenderer';
 import TaskStatusRenderer from './cell_renderers/TaskStatusRenderer';
@@ -46,65 +44,6 @@ export default function TasksFDSPropsTransformer({
 			],
 		},
 		hideManagementBarInEmptyState: true,
-		async onActionDropdownItemClick({
-			action,
-			itemData,
-			loadData,
-		}: {
-			action: {data?: {id?: string}};
-			itemData: {embedded?: {dateDue?: string; id?: string}};
-			loadData: () => Promise<void>;
-		}) {
-			const workflowTaskId = Number(itemData.embedded?.id);
-
-			if (action?.data?.id === 'assignToMeWorkflowTask') {
-				openCMSModal({
-					contentComponent: ({
-						closeModal,
-					}: {
-						closeModal: () => void;
-					}) =>
-						AssignToModalContent({
-							assignable: false,
-							closeModal,
-							loadData,
-							workflowTaskId,
-						}),
-					size: 'md',
-				});
-			}
-			else if (action?.data?.id === 'assignToWorkflowTask') {
-				openCMSModal({
-					contentComponent: ({
-						closeModal,
-					}: {
-						closeModal: () => void;
-					}) =>
-						AssignToModalContent({
-							assignable: true,
-							closeModal,
-							loadData,
-							workflowTaskId,
-						}),
-					size: 'md',
-				});
-			}
-			else if (action?.data?.id === 'updateDueDateWorkflowTask') {
-				openCMSModal({
-					contentComponent: ({
-						closeModal,
-					}: {
-						closeModal: () => void;
-					}) =>
-						UpdateDueDateModalContent({
-							closeModal,
-							dueDate: itemData.embedded?.dateDue as string,
-							loadData,
-							workflowTaskId,
-						}),
-					size: 'md',
-				});
-			}
-		},
+		onActionDropdownItemClick: onWorkflowTaskActionClick,
 	};
 }
