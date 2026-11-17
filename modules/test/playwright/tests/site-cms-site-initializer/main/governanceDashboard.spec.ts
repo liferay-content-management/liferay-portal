@@ -1252,8 +1252,6 @@ test.describe('Operations section', () => {
 
 			await performUserSwitchViaApi(page, 'test');
 
-			const space = await apiHelpers.headlessAssetLibrary.createSpace();
-
 			const objectDefinition =
 				await apiHelpers.objectAdmin.getObjectDefinitionByName(
 					'CMSBasicWebContent'
@@ -1264,60 +1262,73 @@ test.describe('Operations section', () => {
 					'Single Approver'
 				);
 
-			await apiHelpers.headlessAdminWorkflow.postWorkflowDefinitionLink(
-				objectDefinition.className,
-				space.siteId,
-				workflowDefinition.id,
-				workflowDefinition.name,
-				Number(workflowDefinition.version)
-			);
-
-			const overdueTitle = `Overdue ${getRandomString()}`;
-			const pendingTitle = `Pending ${getRandomString()}`;
-
-			await apiHelpers.objectEntry.postObjectEntry(
-				{
-					objectEntryFolderExternalReferenceCode: 'L_CONTENTS',
-					title: pendingTitle,
-				},
-				APPLICATION_NAME,
-				space.name
-			);
-
-			const overdueObjectEntry =
-				await apiHelpers.objectEntry.postObjectEntry(
-					{
-						objectEntryFolderExternalReferenceCode: 'L_CONTENTS',
-						title: overdueTitle,
-					},
-					APPLICATION_NAME,
-					space.name
-				);
-
-			let overdueWorkflowTask;
-
-			await expect(async () => {
-				overdueWorkflowTask =
-					await apiHelpers.headlessAdminWorkflow.getWorkflowTaskByAsset(
-						objectDefinition.className,
-						String(overdueObjectEntry.id)
-					);
-
-				expect(overdueWorkflowTask).toBeTruthy();
-			}).toPass();
-
 			const userAccount =
 				await apiHelpers.headlessAdminUser.getMyUserAccount();
 
-			await apiHelpers.headlessAdminWorkflow.postAssignTaskToUser(
-				overdueWorkflowTask.id,
-				userAccount.id
-			);
+			const addSpaceWithWorkflow = async () => {
+				const space =
+					await apiHelpers.headlessAssetLibrary.createSpace();
 
-			await apiHelpers.headlessAdminWorkflow.postWorkflowTaskUpdateDueDate(
-				overdueWorkflowTask.id,
-				new Date(Date.parse(overdueWorkflowTask.dateCreated) + 1000)
-			);
+				await apiHelpers.headlessAdminWorkflow.postWorkflowDefinitionLink(
+					objectDefinition.className,
+					space.siteId,
+					workflowDefinition.id,
+					workflowDefinition.name,
+					Number(workflowDefinition.version)
+				);
+
+				return space;
+			};
+
+			const addContent = (spaceName: string, title: string) =>
+				apiHelpers.objectEntry.postObjectEntry(
+					{
+						objectEntryFolderExternalReferenceCode: 'L_CONTENTS',
+						title,
+					},
+					APPLICATION_NAME,
+					spaceName
+				);
+
+			const addOverdueContent = async (
+				spaceName: string,
+				title: string
+			) => {
+				const objectEntry = await addContent(spaceName, title);
+
+				let workflowTask;
+
+				await expect(async () => {
+					workflowTask =
+						await apiHelpers.headlessAdminWorkflow.getWorkflowTaskByAsset(
+							objectDefinition.className,
+							String(objectEntry.id)
+						);
+
+					expect(workflowTask).toBeTruthy();
+				}).toPass();
+
+				await apiHelpers.headlessAdminWorkflow.postAssignTaskToUser(
+					workflowTask.id,
+					userAccount.id
+				);
+
+				await apiHelpers.headlessAdminWorkflow.postWorkflowTaskUpdateDueDate(
+					workflowTask.id,
+					new Date(Date.parse(workflowTask.dateCreated) + 1000)
+				);
+			};
+
+			const space = await addSpaceWithWorkflow();
+			const otherSpace = await addSpaceWithWorkflow();
+
+			const otherSpaceOverdueTitle = `Overdue ${getRandomString()}`;
+			const overdueTitle = `Overdue ${getRandomString()}`;
+			const pendingTitle = `Pending ${getRandomString()}`;
+
+			await addContent(space.name, pendingTitle);
+			await addOverdueContent(space.name, overdueTitle);
+			await addOverdueContent(otherSpace.name, otherSpaceOverdueTitle);
 
 			await page.clock.install({time: Date.now() + 2 * 60 * 1000});
 
@@ -1356,6 +1367,9 @@ test.describe('Operations section', () => {
 				await expect(
 					overdueTasksList.getByText(pendingTitle)
 				).toBeHidden();
+				await expect(
+					overdueTasksList.getByText(otherSpaceOverdueTitle)
+				).toBeHidden();
 			});
 
 			await test.step('Show the same actions as the Tasks page', async () => {
@@ -1384,14 +1398,18 @@ test.describe('Operations section', () => {
 				await page.keyboard.press('Escape');
 			});
 
-			await test.step('Open the Tasks page filtered by overdue', async () => {
+			await test.step('Open the Tasks page filtered by overdue in the space', async () => {
 				await page
 					.getByRole('link', {name: 'View All Overdue Tasks'})
 					.click();
 
 				await expect(page).toHaveURL(
-					/cms\/tasks\?.*tasksSection_fdsConfig=.*dueDate/
+					/cms\/tasks\?.*tasksSection_fdsConfig=.*dueDate.*scopeGroupId/
 				);
+
+				await expect(
+					page.getByText(`Space: ${space.name}`)
+				).toBeVisible();
 
 				await expect(
 					page.getByRole('button', {name: /^\d+\s*Overdue$/})
@@ -1402,6 +1420,11 @@ test.describe('Operations section', () => {
 				).toBeVisible();
 				await expect(
 					page.getByRole('row').filter({hasText: pendingTitle})
+				).toBeHidden();
+				await expect(
+					page
+						.getByRole('row')
+						.filter({hasText: otherSpaceOverdueTitle})
 				).toBeHidden();
 			});
 		}
