@@ -10,9 +10,9 @@ import com.liferay.feature.flag.web.internal.model.DependencyAwareFeatureFlag;
 import com.liferay.feature.flag.web.internal.model.FeatureFlagImpl;
 import com.liferay.feature.flag.web.internal.model.LanguageAwareFeatureFlag;
 import com.liferay.feature.flag.web.internal.model.PreferenceAwareFeatureFlag;
-import com.liferay.osgi.service.tracker.collections.EagerServiceTrackerCustomizer;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapListener;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
@@ -66,6 +66,13 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = FeatureFlagsBagProvider.class)
 public class FeatureFlagsBagProviderImpl
 	implements FeatureFlagsBagProvider, IdentifiableOSGiService {
+
+	@Override
+	public void activateFeatureFlagListeners() {
+		_featureFlagListenersActivated = true;
+
+		_serviceTrackerMap.keySet();
+	}
 
 	@Override
 	public void clearCache() {
@@ -163,8 +170,7 @@ public class FeatureFlagsBagProviderImpl
 					emitter.emit(key);
 				}
 			},
-			new FeatureFlagListenerEagerServiceTrackerCustomizer(
-				bundleContext));
+			new FeatureFlagListenerServiceTrackerMapListener());
 	}
 
 	@Deactivate
@@ -380,6 +386,10 @@ public class FeatureFlagsBagProviderImpl
 
 		featureFlagsBag.setEnabled(key, enabled);
 
+		if (!_featureFlagListenersActivated) {
+			return;
+		}
+
 		List<FeatureFlagListener> featureFlagListeners =
 			_serviceTrackerMap.getService(key);
 
@@ -415,6 +425,7 @@ public class FeatureFlagsBagProviderImpl
 	@Reference
 	private CompanyLocalService _companyLocalService;
 
+	private volatile boolean _featureFlagListenersActivated;
 	private FeatureFlagPreferencesManager _featureFlagPreferencesManager;
 	private final Properties _featureFlagProperties = PropsUtil.getProperties(
 		FeatureFlagConstants.PORTAL_PROPERTY_KEY_FEATURE_FLAG +
@@ -437,23 +448,20 @@ public class FeatureFlagsBagProviderImpl
 		_serviceTrackerMap;
 	private final Set<String> _systemFeatureFlags = new HashSet<>();
 
-	private class FeatureFlagListenerEagerServiceTrackerCustomizer
-		implements EagerServiceTrackerCustomizer
-			<FeatureFlagListener, FeatureFlagListener> {
+	private class FeatureFlagListenerServiceTrackerMapListener
+		implements ServiceTrackerMapListener
+			<String, FeatureFlagListener, List<FeatureFlagListener>> {
 
 		@Override
-		public FeatureFlagListener addingService(
-			ServiceReference<FeatureFlagListener> serviceReference) {
+		public void keyEmitted(
+			ServiceTrackerMap<String, List<FeatureFlagListener>>
+				serviceTrackerMap,
+			String key, FeatureFlagListener featureFlagListener,
+			List<FeatureFlagListener> featureFlagListeners) {
 
-			FeatureFlagListener featureFlagListener = _bundleContext.getService(
-				serviceReference);
-
-			List<String> featureFlagKeys = _getFeatureFlagKeys(
-				serviceReference);
-
-			Predicate<FeatureFlag> predicate = featureFlag ->
-				featureFlagKeys.contains(featureFlag.getKey()) ||
-				featureFlagKeys.contains("*");
+			Predicate<FeatureFlag> predicate =
+				featureFlag ->
+					key.equals("*") || key.equals(featureFlag.getKey());
 
 			UnsafeConsumer<Long, Exception> unsafeConsumer = companyId -> {
 				FeatureFlagsBag featureFlagsBag = getOrCreateFeatureFlagsBag(
@@ -476,31 +484,15 @@ public class FeatureFlagsBagProviderImpl
 			catch (Exception exception) {
 				_log.error(exception);
 			}
-
-			return featureFlagListener;
 		}
 
 		@Override
-		public void modifiedService(
-			ServiceReference<FeatureFlagListener> serviceReference,
-			FeatureFlagListener featureFlagListener) {
+		public void keyRemoved(
+			ServiceTrackerMap<String, List<FeatureFlagListener>>
+				serviceTrackerMap,
+			String key, FeatureFlagListener featureFlagListener,
+			List<FeatureFlagListener> featureFlagListeners) {
 		}
-
-		@Override
-		public void removedService(
-			ServiceReference<FeatureFlagListener> serviceReference,
-			FeatureFlagListener featureFlagListener) {
-
-			_bundleContext.ungetService(serviceReference);
-		}
-
-		private FeatureFlagListenerEagerServiceTrackerCustomizer(
-			BundleContext bundleContext) {
-
-			_bundleContext = bundleContext;
-		}
-
-		private final BundleContext _bundleContext;
 
 	}
 

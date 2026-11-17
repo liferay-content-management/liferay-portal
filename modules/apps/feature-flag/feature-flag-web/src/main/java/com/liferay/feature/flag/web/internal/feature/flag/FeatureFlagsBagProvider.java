@@ -10,6 +10,8 @@ package com.liferay.feature.flag.web.internal.feature.flag;
  */
 public interface FeatureFlagsBagProvider {
 
+	public void activateFeatureFlagListeners();
+
 	public void clearCache();
 
 	public FeatureFlagsBag getOrCreateFeatureFlagsBag(long companyId);
