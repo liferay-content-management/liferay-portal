@@ -13,6 +13,8 @@ import com.liferay.depot.service.DepotEntryService;
 import com.liferay.document.library.configuration.DLConfiguration;
 import com.liferay.frontend.data.set.action.FDSItemsActions;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
+import com.liferay.frontend.data.set.view.FDSView;
+import com.liferay.frontend.data.set.view.FDSViewRegistry;
 import com.liferay.learn.LearnMessageUtil;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFolderConstants;
@@ -60,7 +62,7 @@ public class ViewDashboardDisplayContext {
 		AnalyticsSettingsManager analyticsSettingsManager,
 		DepotEntryLocalService depotEntryLocalService,
 		DepotEntryService depotEntryService, DLConfiguration dlConfiguration,
-		GroupLocalService groupLocalService,
+		FDSViewRegistry fdsViewRegistry, GroupLocalService groupLocalService,
 		HttpServletRequest httpServletRequest,
 		ObjectDefinitionService objectDefinitionService,
 		RoleLocalService roleLocalService, ThemeDisplay themeDisplay,
@@ -74,6 +76,7 @@ public class ViewDashboardDisplayContext {
 		_depotEntryLocalService = depotEntryLocalService;
 		_depotEntryService = depotEntryService;
 		_dlConfiguration = dlConfiguration;
+		_fdsViewRegistry = fdsViewRegistry;
 		_groupLocalService = groupLocalService;
 		_httpServletRequest = httpServletRequest;
 		_objectDefinitionService = objectDefinitionService;
@@ -300,7 +303,17 @@ public class ViewDashboardDisplayContext {
 		).put(
 			"redirect", _themeDisplay.getURLCurrent()
 		).put(
-			"tasksSectionFDSName", CMSSiteInitializerFDSNames.TASKS_SECTION
+			"tasksSectionFDSName",
+			() -> {
+				List<FDSView> fdsViews = _fdsViewRegistry.getFDSViews(
+					_CMP_WORKFLOW_TASKS_FDS_NAME);
+
+				if (fdsViews.isEmpty()) {
+					return CMSSiteInitializerFDSNames.TASKS_SECTION;
+				}
+
+				return _CMP_WORKFLOW_TASKS_FDS_NAME;
+			}
 		).put(
 			"unlinkedContentFDSActionDropdownItems",
 			() ->
@@ -364,6 +377,9 @@ public class ViewDashboardDisplayContext {
 			true);
 	}
 
+	private static final String _CMP_WORKFLOW_TASKS_FDS_NAME =
+		"com.liferay.content.marketing.platform.web-workflow-tasks";
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		ViewDashboardDisplayContext.class);
 
@@ -372,6 +388,7 @@ public class ViewDashboardDisplayContext {
 	private final DepotEntryLocalService _depotEntryLocalService;
 	private final DepotEntryService _depotEntryService;
 	private final DLConfiguration _dlConfiguration;
+	private final FDSViewRegistry _fdsViewRegistry;
 	private final GroupLocalService _groupLocalService;
 	private final HttpServletRequest _httpServletRequest;
 	private final ObjectDefinitionService _objectDefinitionService;
