@@ -13,7 +13,6 @@ import com.liferay.depot.service.DepotEntryService;
 import com.liferay.document.library.configuration.DLConfiguration;
 import com.liferay.frontend.data.set.action.FDSItemsActions;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
-import com.liferay.frontend.data.set.view.FDSView;
 import com.liferay.frontend.data.set.view.FDSViewRegistry;
 import com.liferay.learn.LearnMessageUtil;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
@@ -46,6 +45,7 @@ import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.site.cms.site.initializer.internal.constants.CMSSiteInitializerFDSNames;
 import com.liferay.site.cms.site.initializer.internal.util.CommentUtil;
 import com.liferay.site.cms.site.initializer.internal.util.PermissionUtil;
+import com.liferay.site.cms.site.initializer.internal.util.TasksSectionUtil;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -304,16 +304,7 @@ public class ViewDashboardDisplayContext {
 			"redirect", _themeDisplay.getURLCurrent()
 		).put(
 			"tasksSectionFDSName",
-			() -> {
-				List<FDSView> fdsViews = _fdsViewRegistry.getFDSViews(
-					_CMP_WORKFLOW_TASKS_FDS_NAME);
-
-				if (fdsViews.isEmpty()) {
-					return CMSSiteInitializerFDSNames.TASKS_SECTION;
-				}
-
-				return _CMP_WORKFLOW_TASKS_FDS_NAME;
-			}
+			() -> TasksSectionUtil.getFDSName(_fdsViewRegistry)
 		).put(
 			"unlinkedContentFDSActionDropdownItems",
 			() ->
@@ -376,9 +367,6 @@ public class ViewDashboardDisplayContext {
 			_themeDisplay.getUserId(), _themeDisplay.getCompanyId(), roleName,
 			true);
 	}
-
-	private static final String _CMP_WORKFLOW_TASKS_FDS_NAME =
-		"com.liferay.content.marketing.platform.web-workflow-tasks";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ViewDashboardDisplayContext.class);
