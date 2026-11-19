@@ -257,6 +257,8 @@ public class AssetPublisherUtilTest {
 
 		Assert.assertEquals(
 			url, AssetPublisherUtil.getRedirect(portletRequest));
+
+		_testGetRedirectWithoutCurrentURL();
 	}
 
 	private void _assertGetAssetListEntry(
@@ -455,6 +457,11 @@ public class AssetPublisherUtilTest {
 		).thenReturn(
 			assetListEntry
 		);
+	}
+
+	private void _testGetRedirectWithoutCurrentURL() {
+		Assert.assertNull(
+			AssetPublisherUtil.getRedirect(Mockito.mock(PortletRequest.class)));
 	}
 
 	private static final long _COMPANY_ID = RandomTestUtil.randomLong();
