@@ -11,6 +11,7 @@ import com.liferay.depot.service.DepotEntryService;
 import com.liferay.document.library.configuration.DLConfiguration;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.frontend.data.set.action.FDSItemsActions;
+import com.liferay.frontend.data.set.view.FDSViewRegistry;
 import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.service.RoleLocalService;
@@ -57,8 +58,9 @@ public class ViewDashboardJSPSectionFragmentRenderer
 
 		return new ViewDashboardDisplayContext(
 			_analyticsSettingsManager, _depotEntryLocalService,
-			_depotEntryService, _dlConfiguration, groupLocalService,
-			httpServletRequest, _objectDefinitionService, _roleLocalService,
+			_depotEntryService, _dlConfiguration, _fdsViewRegistry,
+			groupLocalService, httpServletRequest, _objectDefinitionService,
+			_roleLocalService,
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY),
 			_translationInfoItemFieldValuesExporterRegistry,
@@ -82,6 +84,9 @@ public class ViewDashboardJSPSectionFragmentRenderer
 	private DepotEntryService _depotEntryService;
 
 	private volatile DLConfiguration _dlConfiguration;
+
+	@Reference
+	private FDSViewRegistry _fdsViewRegistry;
 
 	@Reference
 	private ObjectDefinitionService _objectDefinitionService;

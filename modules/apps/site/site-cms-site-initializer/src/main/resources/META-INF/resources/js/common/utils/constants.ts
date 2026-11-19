@@ -18,6 +18,8 @@ export const ERC_MAX_LENGTH = 75;
 
 export const EXPIRING_SOON_THRESHOLD_DAYS = 7;
 
+export const FDS_EVENT_ACTION_PERFORMED = 'fds-action-performed';
+
 export const FDS_EVENT_DISPLAY_UPDATED = 'fds-display-updated';
 
 export const FDS_EVENT_UPDATE_DISPLAY = 'fds-update-display';
@@ -99,6 +101,7 @@ export type ItemSelectorItemType =
 
 export const CMSSiteInitializerFDSNames = {
 	ALL_SECTION: '-allSection',
+	TASKS_SECTION: '-tasksSection',
 } as const;
 
 export const WORKFLOW_STATUS = {
