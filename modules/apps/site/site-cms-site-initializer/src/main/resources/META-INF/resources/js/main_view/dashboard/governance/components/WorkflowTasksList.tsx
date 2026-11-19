@@ -28,6 +28,7 @@ export type WorkflowTask = {
 		dateDue?: string;
 		label?: string;
 		objectReviewed?: {assetTitle?: string};
+		slaOverdueDate?: string;
 	};
 };
 

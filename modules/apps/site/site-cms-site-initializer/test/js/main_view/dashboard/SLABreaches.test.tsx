@@ -42,7 +42,7 @@ function renderCard({loadingStatistics = false} = {}) {
 				} as React.ContextType<typeof GovernanceContext>
 			}
 		>
-			<SLABreachesCard />
+			<SLABreachesCard expanded={false} onClick={jest.fn()} />
 		</GovernanceContext.Provider>
 	);
 }

@@ -371,22 +371,42 @@ function getLongStandingDraftsURL(filter: string, groupIds: number[]) {
 	);
 }
 
-function getOverdueTasksURL(groupIds: number[]) {
+function getOpenWorkflowTasksURL(
+	filter: string,
+	groupIds: number[],
+	sort: string
+) {
 	const searchParams = new URLSearchParams({
 		emptySearch: 'true',
 		entryClassNames: WORKFLOW_TASK_CLASS_NAME,
 		filter: getScopedFilter(
-			`completed eq false and dueDate le ${new Date().toISOString()}`,
+			`completed eq false and ${filter}`,
 			groupIds,
 			(groupId) => `scopeGroupId eq ${groupId}`
 		),
 		nestedFields: 'embedded,embedded.objectReviewed',
 		nestedFieldsDepth: '2',
 		pageSize: String(GOVERNANCE_ASSET_LIST_PAGE_SIZE),
-		sort: 'dueDate:asc',
+		sort,
 	});
 
 	return `${SEARCH_URL}?${searchParams}`;
+}
+
+function getOverdueTasksURL(groupIds: number[]) {
+	return getOpenWorkflowTasksURL(
+		`dueDate le ${new Date().toISOString()}`,
+		groupIds,
+		'dueDate:asc'
+	);
+}
+
+function getSLABreachedTasksURL(groupIds: number[]) {
+	return getOpenWorkflowTasksURL(
+		'slaBreached eq true',
+		groupIds,
+		'slaOverdueDate:asc'
+	);
 }
 
 export default {
@@ -400,5 +420,6 @@ export default {
 	getLongStandingDraftsURL,
 	getMissingRequiredFieldsAssetsURL,
 	getOverdueTasksURL,
+	getSLABreachedTasksURL,
 	getUnlinkedAssetsURL,
 };
