@@ -12,20 +12,32 @@ import com.liferay.headless.delivery.dto.v1_0.NavigationMenuItem;
 import com.liferay.headless.delivery.dto.v1_0.util.CreatorUtil;
 import com.liferay.headless.delivery.internal.odata.entity.v1_0.NavigationMenuEntityModel;
 import com.liferay.headless.delivery.resource.v1_0.NavigationMenuResource;
+import com.liferay.info.exception.NoSuchInfoItemException;
+import com.liferay.info.item.ClassPKInfoItemIdentifier;
+import com.liferay.info.item.ERCInfoItemIdentifier;
+import com.liferay.info.item.InfoItemIdentifier;
+import com.liferay.info.item.InfoItemServiceRegistry;
+import com.liferay.info.item.provider.InfoItemObjectProvider;
+import com.liferay.info.item.provider.InfoItemPermissionProvider;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PermissionService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -33,6 +45,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.custom.field.CustomFieldsUtil;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
@@ -294,6 +307,52 @@ public class NavigationMenuResourceImpl extends BaseNavigationMenuResourceImpl {
 		}
 	}
 
+	private Object _getInfoItem(SiteNavigationMenuItem siteNavigationMenuItem) {
+		InfoItemObjectProvider<?> infoItemObjectProvider =
+			_infoItemServiceRegistry.getFirstInfoItemService(
+				InfoItemObjectProvider.class, siteNavigationMenuItem.getType(),
+				ClassPKInfoItemIdentifier.INFO_ITEM_SERVICE_FILTER);
+
+		if (infoItemObjectProvider == null) {
+			return null;
+		}
+
+		UnicodeProperties unicodeProperties = _getUnicodeProperties(
+			siteNavigationMenuItem);
+
+		InfoItemIdentifier infoItemIdentifier = null;
+
+		String externalReferenceCode = unicodeProperties.get(
+			"externalReferenceCode");
+
+		if (Validator.isNotNull(externalReferenceCode)) {
+			infoItemIdentifier = new ERCInfoItemIdentifier(
+				externalReferenceCode,
+				unicodeProperties.get("scopeExternalReferenceCode"));
+		}
+		else {
+			long classPK = GetterUtil.getLong(unicodeProperties.get("classPK"));
+
+			if (classPK <= 0) {
+				return null;
+			}
+
+			infoItemIdentifier = new ClassPKInfoItemIdentifier(classPK);
+		}
+
+		try {
+			return infoItemObjectProvider.getInfoItem(
+				siteNavigationMenuItem.getGroupId(), infoItemIdentifier);
+		}
+		catch (NoSuchInfoItemException noSuchInfoItemException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(noSuchInfoItemException);
+			}
+
+			return null;
+		}
+	}
+
 	private Layout _getLayout(SiteNavigationMenuItem siteNavigationMenuItem) {
 		UnicodeProperties unicodeProperties = _getUnicodeProperties(
 			siteNavigationMenuItem);
@@ -380,6 +439,28 @@ public class NavigationMenuResourceImpl extends BaseNavigationMenuResourceImpl {
 		return unicodeProperties.getProperty("title");
 	}
 
+	private List<SiteNavigationMenuItem> _getSiteNavigationMenuItems(
+			SiteNavigationMenu siteNavigationMenu)
+		throws Exception {
+
+		List<SiteNavigationMenuItem> siteNavigationMenuItems =
+			new ArrayList<>();
+
+		for (SiteNavigationMenuItem siteNavigationMenuItem :
+				_siteNavigationMenuItemService.getSiteNavigationMenuItems(
+					siteNavigationMenu.getSiteNavigationMenuId(),
+					SiteNavigationMenuItemOrderComparator.getInstance(true))) {
+
+			if (!_hasViewPermission(siteNavigationMenuItem)) {
+				continue;
+			}
+
+			siteNavigationMenuItems.add(siteNavigationMenuItem);
+		}
+
+		return siteNavigationMenuItems;
+	}
+
 	private Map<Long, List<SiteNavigationMenuItem>>
 		_getSiteNavigationMenuItemsMap(
 			List<SiteNavigationMenuItem> siteNavigationMenuItems) {
@@ -436,6 +517,58 @@ public class NavigationMenuResourceImpl extends BaseNavigationMenuResourceImpl {
 		).build();
 	}
 
+	private boolean _hasViewPermission(
+			SiteNavigationMenuItem siteNavigationMenuItem)
+		throws Exception {
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		if (Objects.equals(siteNavigationMenuItem.getType(), "layout")) {
+			Layout layout = _getLayout(siteNavigationMenuItem);
+
+			if (layout == null) {
+				UnicodeProperties unicodeProperties = _getUnicodeProperties(
+					siteNavigationMenuItem);
+
+				String externalReferenceCode = unicodeProperties.get(
+					"externalReferenceCode");
+
+				if (Validator.isNotNull(externalReferenceCode)) {
+					layout =
+						_layoutLocalService.fetchLayoutByExternalReferenceCode(
+							externalReferenceCode,
+							siteNavigationMenuItem.getGroupId());
+				}
+			}
+
+			if (layout == null) {
+				return true;
+			}
+
+			return LayoutPermissionUtil.contains(
+				permissionChecker, layout, ActionKeys.VIEW);
+		}
+
+		InfoItemPermissionProvider<Object> infoItemPermissionProvider =
+			_infoItemServiceRegistry.getFirstInfoItemService(
+				InfoItemPermissionProvider.class,
+				siteNavigationMenuItem.getType());
+
+		if (infoItemPermissionProvider == null) {
+			return true;
+		}
+
+		Object infoItem = _getInfoItem(siteNavigationMenuItem);
+
+		if (infoItem == null) {
+			return true;
+		}
+
+		return infoItemPermissionProvider.hasPermission(
+			permissionChecker, infoItem, ActionKeys.VIEW);
+	}
+
 	private boolean _isNameProperty(Map.Entry<String, String> entry) {
 		String key = entry.getKey();
 
@@ -477,12 +610,8 @@ public class NavigationMenuResourceImpl extends BaseNavigationMenuResourceImpl {
 						Map<Long, List<SiteNavigationMenuItem>>
 							siteNavigationMenuItemsMap =
 								_getSiteNavigationMenuItemsMap(
-									_siteNavigationMenuItemService.
-										getSiteNavigationMenuItems(
-											siteNavigationMenu.
-												getSiteNavigationMenuId(),
-											SiteNavigationMenuItemOrderComparator.
-												getInstance(true)));
+									_getSiteNavigationMenuItems(
+										siteNavigationMenu));
 
 						return transformToArray(
 							siteNavigationMenuItemsMap.getOrDefault(
@@ -725,8 +854,14 @@ public class NavigationMenuResourceImpl extends BaseNavigationMenuResourceImpl {
 		}
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		NavigationMenuResourceImpl.class);
+
 	private static final EntityModel _entityModel =
 		new NavigationMenuEntityModel();
+
+	@Reference
+	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	@Reference
 	private JSONFactory _jsonFactory;
