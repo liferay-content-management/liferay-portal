@@ -320,10 +320,10 @@ public class NavigationMenuResourceImpl extends BaseNavigationMenuResourceImpl {
 		UnicodeProperties unicodeProperties = _getUnicodeProperties(
 			siteNavigationMenuItem);
 
-		InfoItemIdentifier infoItemIdentifier = null;
-
 		String externalReferenceCode = unicodeProperties.get(
 			"externalReferenceCode");
+
+		InfoItemIdentifier infoItemIdentifier = null;
 
 		if (Validator.isNotNull(externalReferenceCode)) {
 			infoItemIdentifier = new ERCInfoItemIdentifier(
