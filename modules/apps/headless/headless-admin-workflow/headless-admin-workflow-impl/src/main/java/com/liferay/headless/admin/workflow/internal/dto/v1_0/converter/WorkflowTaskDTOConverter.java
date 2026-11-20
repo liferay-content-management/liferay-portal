@@ -6,15 +6,18 @@
 package com.liferay.headless.admin.workflow.internal.dto.v1_0.converter;
 
 import com.liferay.headless.admin.workflow.dto.v1_0.Role;
+import com.liferay.headless.admin.workflow.dto.v1_0.SLAResult;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowTask;
 import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.CreatorUtil;
 import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.ObjectReviewedUtil;
 import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.RoleUtil;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -27,8 +30,10 @@ import com.liferay.portal.kernel.workflow.WorkflowTaskAssignee;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
+import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
 import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResultProvider;
 
 import java.io.Serializable;
 
@@ -111,6 +116,27 @@ public class WorkflowTaskDTOConverter
 		}
 	}
 
+	private SLAResult[] _toSLAResults(long workflowTaskId) {
+		WorkflowTaskSLAResultProvider workflowTaskSLAResultProvider =
+			_workflowTaskSLAResultProviderSnapshot.get();
+
+		if (workflowTaskSLAResultProvider == null) {
+			return null;
+		}
+
+		return TransformUtil.transformToArray(
+			workflowTaskSLAResultProvider.getWorkflowTaskSLAResults(
+				workflowTaskId),
+			workflowTaskSLAResult -> new SLAResult() {
+				{
+					setBreached(workflowTaskSLAResult::isBreached);
+					setDateOverdue(workflowTaskSLAResult::getOverdueDate);
+					setId(workflowTaskSLAResult::getSLADefinitionId);
+				}
+			},
+			SLAResult.class);
+	}
+
 	private WorkflowTask _toWorkflowTask(
 			DTOConverterContext dtoConverterContext,
 			com.liferay.portal.kernel.workflow.WorkflowTask workflowTask)
@@ -188,6 +214,11 @@ public class WorkflowTaskDTOConverter
 					() -> ObjectReviewedUtil.toObjectReviewed(
 						dtoConverterContext.getLocale(),
 						workflowTask.getOptionalAttributes()));
+				setSlaResults(
+					() -> NestedFieldsSupplier.supply(
+						"slaResults",
+						nestedFieldNames -> _toSLAResults(
+							workflowTask.getWorkflowTaskId())));
 				setWorkflowDefinitionId(workflowTask::getWorkflowDefinitionId);
 				setWorkflowDefinitionName(
 					workflowTask::getWorkflowDefinitionName);
@@ -205,6 +236,11 @@ public class WorkflowTaskDTOConverter
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		WorkflowTaskDTOConverter.class);
+
+	private static final Snapshot<WorkflowTaskSLAResultProvider>
+		_workflowTaskSLAResultProviderSnapshot = new Snapshot<>(
+			WorkflowTaskDTOConverter.class, WorkflowTaskSLAResultProvider.class,
+			null, true);
 
 	@Reference
 	private Language _language;
