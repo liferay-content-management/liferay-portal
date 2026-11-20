@@ -192,17 +192,23 @@ public class ViewWorkflowTasksSectionDisplayContextTest
 	public void testGetFDSFilters() throws Exception {
 		List<FDSFilter> fdsFilters = getFDSFilters(null);
 
-		Assert.assertEquals(fdsFilters.toString(), 3, fdsFilters.size());
+		Assert.assertEquals(fdsFilters.toString(), 5, fdsFilters.size());
 
 		assertFDSFilter(
 			FDSEntityFieldTypes.STRING, "cmpAssignTo", "assignee",
 			fdsFilters.get(0));
 		assertFDSFilter(
-			FDSEntityFieldTypes.DATE_TIME, "dueDate", "due-date",
+			FDSEntityFieldTypes.INTEGER, "scopeGroupId", "space",
 			fdsFilters.get(1));
 		assertFDSFilter(
-			FDSEntityFieldTypes.BOOLEAN, "completed", "status",
+			FDSEntityFieldTypes.DATE_TIME, "dueDate", "due-date",
 			fdsFilters.get(2));
+		assertFDSFilter(
+			FDSEntityFieldTypes.BOOLEAN, "completed", "status",
+			fdsFilters.get(3));
+		assertFDSFilter(
+			FDSEntityFieldTypes.BOOLEAN, "slaBreached", "sla-status",
+			fdsFilters.get(4));
 	}
 
 	@Override
