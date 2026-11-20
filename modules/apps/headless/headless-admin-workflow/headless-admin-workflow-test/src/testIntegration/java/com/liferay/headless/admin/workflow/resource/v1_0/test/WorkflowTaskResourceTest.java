@@ -9,6 +9,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.headless.admin.workflow.client.dto.v1_0.Assignee;
 import com.liferay.headless.admin.workflow.client.dto.v1_0.ChangeTransition;
 import com.liferay.headless.admin.workflow.client.dto.v1_0.ObjectReviewed;
+import com.liferay.headless.admin.workflow.client.dto.v1_0.SLAResult;
 import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowDefinition;
 import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowInstance;
 import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTask;
@@ -42,14 +43,18 @@ import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.workflow.constants.WorkflowActionKeys;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResult;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResultProvider;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,6 +68,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * @author Javier Gamarra
@@ -296,6 +306,102 @@ public class WorkflowTaskResourceTest extends BaseWorkflowTaskResourceTestCase {
 			pagination ->
 				workflowTaskResource.getWorkflowInstanceWorkflowTasksPage(
 					_workflowInstance.getId(), null, pagination));
+	}
+
+	@Override
+	@Test
+	public void testGetWorkflowTask() throws Exception {
+		WorkflowTask workflowTask1 = testGetWorkflowTask_addWorkflowTask();
+		WorkflowTask workflowTask2 = testGetWorkflowTask_addWorkflowTask();
+
+		long time = (System.currentTimeMillis() / Time.SECOND) * Time.SECOND;
+
+		WorkflowTaskSLAResult workflowTaskSLAResult1 =
+			new WorkflowTaskSLAResult(
+				true, new Date(time - Time.HOUR), RandomTestUtil.randomLong());
+		WorkflowTaskSLAResult workflowTaskSLAResult2 =
+			new WorkflowTaskSLAResult(
+				false, new Date(time + Time.HOUR), RandomTestUtil.randomLong());
+
+		Bundle bundle = FrameworkUtil.getBundle(WorkflowTaskResourceTest.class);
+
+		BundleContext bundleContext = bundle.getBundleContext();
+
+		ServiceRegistration<WorkflowTaskSLAResultProvider> serviceRegistration =
+			bundleContext.registerService(
+				WorkflowTaskSLAResultProvider.class,
+				workflowTaskId -> {
+					if (workflowTaskId == workflowTask1.getId()) {
+						return Arrays.asList(
+							workflowTaskSLAResult1, workflowTaskSLAResult2);
+					}
+
+					return Collections.emptyList();
+				},
+				new HashMapDictionary<>(
+					Collections.singletonMap(
+						"service.ranking", Integer.MAX_VALUE)));
+
+		try {
+			WorkflowTask getWorkflowTask = workflowTaskResource.getWorkflowTask(
+				workflowTask1.getId());
+
+			assertEquals(workflowTask1, getWorkflowTask);
+			assertValid(getWorkflowTask);
+			Assert.assertNull(getWorkflowTask.getSlaResults());
+
+			WorkflowTaskResource slaResultsWorkflowTaskResource =
+				WorkflowTaskResource.builder(
+				).authentication(
+					"test@liferay.com", PropsValues.DEFAULT_ADMIN_PASSWORD
+				).endpoint(
+					testCompany.getVirtualHostname(),
+					PortalUtil.getPortalServerPort(false), "http"
+				).locale(
+					LocaleUtil.getDefault()
+				).parameter(
+					"nestedFields", "slaResults"
+				).build();
+
+			getWorkflowTask = slaResultsWorkflowTaskResource.getWorkflowTask(
+				workflowTask1.getId());
+
+			SLAResult[] slaResults = getWorkflowTask.getSlaResults();
+
+			Assert.assertEquals(
+				Arrays.toString(slaResults), 2, slaResults.length);
+
+			SLAResult slaResult = slaResults[0];
+
+			Assert.assertTrue(slaResult.getBreached());
+			Assert.assertEquals(
+				workflowTaskSLAResult1.getOverdueDate(),
+				slaResult.getDateOverdue());
+			Assert.assertEquals(
+				Long.valueOf(workflowTaskSLAResult1.getSLADefinitionId()),
+				slaResult.getId());
+
+			slaResult = slaResults[1];
+
+			Assert.assertFalse(slaResult.getBreached());
+			Assert.assertEquals(
+				workflowTaskSLAResult2.getOverdueDate(),
+				slaResult.getDateOverdue());
+			Assert.assertEquals(
+				Long.valueOf(workflowTaskSLAResult2.getSLADefinitionId()),
+				slaResult.getId());
+
+			getWorkflowTask = slaResultsWorkflowTaskResource.getWorkflowTask(
+				workflowTask2.getId());
+
+			slaResults = getWorkflowTask.getSlaResults();
+
+			Assert.assertEquals(
+				Arrays.toString(slaResults), 0, slaResults.length);
+		}
+		finally {
+			serviceRegistration.unregister();
+		}
 	}
 
 	@Override
