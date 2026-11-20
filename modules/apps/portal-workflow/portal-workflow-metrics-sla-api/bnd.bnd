@@ -3,4 +3,5 @@ Bundle-SymbolicName: com.liferay.portal.workflow.metrics.sla.api
 Bundle-Version: 7.0.13
 Export-Package:\
 	com.liferay.portal.workflow.metrics.sla.calendar,\
-	com.liferay.portal.workflow.metrics.sla.processor
+	com.liferay.portal.workflow.metrics.sla.processor,\
+	com.liferay.portal.workflow.metrics.sla.task
