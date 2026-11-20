@@ -319,6 +319,27 @@ public class WorkflowTask implements Cloneable, Serializable {
 
 	protected ObjectReviewed objectReviewed;
 
+	public SLAResult[] getSlaResults() {
+		return slaResults;
+	}
+
+	public void setSlaResults(SLAResult[] slaResults) {
+		this.slaResults = slaResults;
+	}
+
+	public void setSlaResults(
+		UnsafeSupplier<SLAResult[], Exception> slaResultsUnsafeSupplier) {
+
+		try {
+			slaResults = slaResultsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected SLAResult[] slaResults;
+
 	public Long getWorkflowDefinitionId() {
 		return workflowDefinitionId;
 	}
@@ -482,4 +503,4 @@ public class WorkflowTask implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-727829056
+// LIFERAY-REST-BUILDER-HASH:-892370803

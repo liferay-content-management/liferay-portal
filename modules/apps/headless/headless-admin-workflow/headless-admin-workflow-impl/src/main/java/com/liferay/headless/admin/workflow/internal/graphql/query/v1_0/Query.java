@@ -466,7 +466,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {workflowTask(workflowTaskId: ___){actions, assignedToMe, assigneePerson, assigneeRoles, completed, creator, dateCompletion, dateCreated, dateDue, description, id, label, name, objectReviewed, workflowDefinitionId, workflowDefinitionName, workflowDefinitionTitle, workflowDefinitionVersion, workflowInstanceId, workflowLogs}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {workflowTask(workflowTaskId: ___){actions, assignedToMe, assigneePerson, assigneeRoles, completed, creator, dateCompletion, dateCreated, dateDue, description, id, label, name, objectReviewed, slaResults, workflowDefinitionId, workflowDefinitionName, workflowDefinitionTitle, workflowDefinitionVersion, workflowInstanceId, workflowLogs}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public WorkflowTask workflowTask(
@@ -1383,4 +1383,4 @@ public class Query {
 	private com.liferay.portal.kernel.model.User _user;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-126854025
+// LIFERAY-REST-BUILDER-HASH:1944110741
