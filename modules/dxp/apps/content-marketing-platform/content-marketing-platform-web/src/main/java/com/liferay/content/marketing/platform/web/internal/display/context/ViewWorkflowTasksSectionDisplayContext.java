@@ -9,6 +9,7 @@ import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.content.marketing.platform.web.internal.frontend.data.set.filter.AssigneeSelectionFDSFilter;
 import com.liferay.content.marketing.platform.web.internal.frontend.data.set.filter.SpaceSelectionFDSFilter;
 import com.liferay.content.marketing.platform.web.internal.frontend.data.set.filter.WorkflowTaskDueDateRangeFDSFilter;
+import com.liferay.content.marketing.platform.web.internal.frontend.data.set.filter.WorkflowTaskSLAStatusSelectionFDSFilter;
 import com.liferay.content.marketing.platform.web.internal.frontend.data.set.filter.WorkflowTaskStatusSelectionFDSFilter;
 import com.liferay.content.marketing.platform.web.internal.util.WorkflowTaskSearchURLUtil;
 import com.liferay.depot.service.DepotEntryLocalService;
@@ -150,7 +151,8 @@ public class ViewWorkflowTasksSectionDisplayContext
 				cmpProjectObjectDefinition.getCompanyId(), roleService),
 			new SpaceSelectionFDSFilter(),
 			new WorkflowTaskDueDateRangeFDSFilter(),
-			new WorkflowTaskStatusSelectionFDSFilter());
+			new WorkflowTaskStatusSelectionFDSFilter(),
+			new WorkflowTaskSLAStatusSelectionFDSFilter());
 	}
 
 }
