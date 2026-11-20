@@ -31,14 +31,16 @@ function getDescription() {
 }
 
 function getSLABreachStatus(task: WorkflowTask) {
-	const slaOverdueDate = task.embedded?.slaOverdueDate;
+	const slaResult = task.embedded?.slaResults?.find(
+		(slaResult) => slaResult.breached
+	);
 
-	if (!slaOverdueDate) {
+	if (!slaResult?.dateOverdue) {
 		return '';
 	}
 
 	return formatDaysSince(
-		slaOverdueDate,
+		slaResult.dateOverdue,
 		Liferay.Language.get('x-day-past-sla'),
 		Liferay.Language.get('x-days-past-sla')
 	);
@@ -116,6 +118,18 @@ export function SLABreachesList({
 						...toFDSConfigFilters(
 							TASK_QUICK_FILTER_UPDATES.pending()
 						),
+						{
+							id: 'slaBreached',
+							selectedData: {
+								exclude: false,
+								selectedItems: [
+									{
+										label: Liferay.Language.get('breached'),
+										value: 'true',
+									},
+								],
+							},
+						},
 						...getSpaceFilters(space),
 					],
 				}

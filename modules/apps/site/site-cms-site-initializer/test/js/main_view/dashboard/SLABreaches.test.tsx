@@ -67,6 +67,7 @@ const ADDITIONAL_PROPS = {
 const LANGUAGE_KEYS: Record<string, string> = {
 	'all-workflow-tasks-are-within-their-sla':
 		'All workflow tasks are within their SLA.',
+	'breached': 'Breached',
 	'no-sla-breaches': 'No SLA Breaches',
 	'pending': 'Pending',
 	'showing-x-of-x-items': 'Showing {0} of {1} Items',
@@ -212,6 +213,9 @@ describe('[CMS Dashboard] SLABreaches', () => {
 		expect(getSearchParams().get('filter')).toBe(
 			'completed eq false and slaBreached eq true and (scopeGroupId eq 111 or scopeGroupId eq 222)'
 		);
+		expect(getSearchParams().get('nestedFields')).toBe(
+			'embedded,embedded.objectReviewed,slaResults'
+		);
 		expect(getSearchParams().get('sort')).toBe('slaOverdueDate:asc');
 	});
 
@@ -265,9 +269,26 @@ describe('[CMS Dashboard] SLABreaches', () => {
 		await expandList();
 
 		renderTask({
-			slaOverdueDate: new Date(
-				NOW - 12 * MILLISECONDS_PER_DAY
-			).toISOString(),
+			slaResults: [
+				{
+					breached: false,
+					dateOverdue: new Date(
+						NOW - 20 * MILLISECONDS_PER_DAY
+					).toISOString(),
+				},
+				{
+					breached: true,
+					dateOverdue: new Date(
+						NOW - 12 * MILLISECONDS_PER_DAY
+					).toISOString(),
+				},
+				{
+					breached: true,
+					dateOverdue: new Date(
+						NOW - 5 * MILLISECONDS_PER_DAY
+					).toISOString(),
+				},
+			],
 		});
 
 		expect(
@@ -284,7 +305,14 @@ describe('[CMS Dashboard] SLABreaches', () => {
 		await expandList();
 
 		renderTask({
-			slaOverdueDate: new Date(NOW - MILLISECONDS_PER_DAY).toISOString(),
+			slaResults: [
+				{
+					breached: true,
+					dateOverdue: new Date(
+						NOW - MILLISECONDS_PER_DAY
+					).toISOString(),
+				},
+			],
 		});
 
 		expect(
@@ -292,19 +320,28 @@ describe('[CMS Dashboard] SLABreaches', () => {
 		).toBeInTheDocument();
 	});
 
-	it('leaves out the days past SLA when the task has no SLA overdue date', async () => {
+	it('leaves out the days past SLA when the task has no breached SLA', async () => {
 		renderOperations();
 
 		await expandList();
 
-		renderTask({});
+		renderTask({
+			slaResults: [
+				{
+					breached: false,
+					dateOverdue: new Date(
+						NOW + MILLISECONDS_PER_DAY
+					).toISOString(),
+				},
+			],
+		});
 
 		expect(
 			screen.getByText('Legal Review · Iris Chen')
 		).toBeInTheDocument();
 	});
 
-	it('opens the pending workflow tasks of the selected space from View All', async () => {
+	it('opens the pending SLA breached workflow tasks of the selected space from View All', async () => {
 		renderOperations({
 			space: {label: 'My Space', siteId: 12345, value: '999'},
 		});
@@ -328,6 +365,13 @@ describe('[CMS Dashboard] SLABreaches', () => {
 				selectedData: {
 					exclude: false,
 					selectedItems: [{label: 'Pending', value: 'false'}],
+				},
+			},
+			{
+				id: 'slaBreached',
+				selectedData: {
+					exclude: false,
+					selectedItems: [{label: 'Breached', value: 'true'}],
 				},
 			},
 			{

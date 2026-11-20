@@ -374,7 +374,8 @@ function getLongStandingDraftsURL(filter: string, groupIds: number[]) {
 function getOpenWorkflowTasksURL(
 	filter: string,
 	groupIds: number[],
-	sort: string
+	sort: string,
+	nestedFields: string = 'embedded,embedded.objectReviewed'
 ) {
 	const searchParams = new URLSearchParams({
 		emptySearch: 'true',
@@ -384,7 +385,7 @@ function getOpenWorkflowTasksURL(
 			groupIds,
 			(groupId) => `scopeGroupId eq ${groupId}`
 		),
-		nestedFields: 'embedded,embedded.objectReviewed',
+		nestedFields,
 		nestedFieldsDepth: '2',
 		pageSize: String(GOVERNANCE_ASSET_LIST_PAGE_SIZE),
 		sort,
@@ -405,7 +406,8 @@ function getSLABreachedTasksURL(groupIds: number[]) {
 	return getOpenWorkflowTasksURL(
 		'slaBreached eq true',
 		groupIds,
-		'slaOverdueDate:asc'
+		'slaOverdueDate:asc',
+		'embedded,embedded.objectReviewed,slaResults'
 	);
 }
 
