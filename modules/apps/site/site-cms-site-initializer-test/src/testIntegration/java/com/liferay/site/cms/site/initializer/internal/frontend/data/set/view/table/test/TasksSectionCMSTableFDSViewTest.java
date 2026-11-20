@@ -39,19 +39,20 @@ public class TasksSectionCMSTableFDSViewTest
 			"asset-title", "embedded.objectReviewed.assetTitle");
 		assertFDSTableSchemaField(
 			null, null, "asset-type", "embedded.objectReviewed.assetType");
-		assertFDSTableSchemaField(
-			null, "authorTableCellRenderer", "author", "embedded.creator.name");
 		assertFDSTableSchemaField(null, null, "task", "embedded.label");
 		assertFDSTableSchemaField(
-			null, "dueDateTableCellRenderer", "due-date", "dueDate");
+			null, "assigneeTableCellRenderer", "assignee",
+			"embedded.assigneePerson.name");
 		assertFDSTableSchemaField(
-			null, "taskStatusTableCellRenderer", "status", "completed");
+			null, "dueDateTableCellRenderer", "due-date", "embedded.dateDue");
+		assertFDSTableSchemaField(
+			null, "workflowStateTableCellRenderer", "status", "completed");
 		assertFDSTableSchemaField(
 			null, "dateTime", "last-activity-date", "dateModified");
 
 		Assert.assertFalse(_isSortable("completed"));
 		Assert.assertTrue(_isSortable("dateModified"));
-		Assert.assertFalse(_isSortable("dueDate"));
+		Assert.assertFalse(_isSortable("embedded.dateDue"));
 	}
 
 	@Override
