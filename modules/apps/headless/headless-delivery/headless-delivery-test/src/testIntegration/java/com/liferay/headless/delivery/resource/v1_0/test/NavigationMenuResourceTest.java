@@ -47,7 +47,6 @@ import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
@@ -242,117 +241,7 @@ public class NavigationMenuResourceTest
 		_testGetNavigationMenuWithChildNavigationMenusAndNavigationMenuItems();
 		_testGetNavigationMenuWithNestedFields();
 		_testGetNavigationMenuWithoutNestedFields();
-	}
-
-	@Test
-	@TestInfo("LPD-116079")
-	public void testGetNavigationMenuWithoutViewPermission() throws Exception {
-		NavigationMenu navigationMenu =
-			testGetNavigationMenu_addNavigationMenu();
-
-		Role userRole = _roleLocalService.getRole(
-			testCompany.getCompanyId(), RoleConstants.USER);
-
-		_resourcePermissionLocalService.setResourcePermissions(
-			testCompany.getCompanyId(), SiteNavigationMenu.class.getName(),
-			ResourceConstants.SCOPE_INDIVIDUAL,
-			String.valueOf(navigationMenu.getId()), userRole.getRoleId(),
-			new String[] {ActionKeys.VIEW});
-
-		BlogsEntry blogsEntry = _blogsEntryLocalService.addEntry(
-			TestPropsValues.getUserId(), StringUtil.randomString(),
-			StringUtil.randomString(), new Date(),
-			ServiceContextTestUtil.getServiceContext(
-				testGroup.getGroupId(), TestPropsValues.getUserId()));
-
-		Role guestRole = _roleLocalService.getRole(
-			testCompany.getCompanyId(), RoleConstants.GUEST);
-
-		_resourcePermissionLocalService.removeResourcePermission(
-			testCompany.getCompanyId(), BlogsEntry.class.getName(),
-			ResourceConstants.SCOPE_INDIVIDUAL,
-			String.valueOf(blogsEntry.getEntryId()), guestRole.getRoleId(),
-			ActionKeys.VIEW);
-
-		_addSiteNavigationMenuItem(
-			navigationMenu.getId(), BlogsEntry.class.getName(),
-			UnicodePropertiesBuilder.create(
-				true
-			).put(
-				"className", BlogsEntry.class.getName()
-			).put(
-				"classNameId",
-				String.valueOf(_portal.getClassNameId(BlogsEntry.class))
-			).put(
-				"classPK", String.valueOf(blogsEntry.getEntryId())
-			).put(
-				"title", blogsEntry.getTitle()
-			).buildString());
-
-		Layout privateLayout = LayoutTestUtil.addTypePortletLayout(
-			testGroup.getGroupId(), true);
-
-		_addSiteNavigationMenuItem(
-			navigationMenu.getId(), "layout",
-			UnicodePropertiesBuilder.create(
-				true
-			).put(
-				"externalReferenceCode",
-				privateLayout.getExternalReferenceCode()
-			).put(
-				"privateLayout", "true"
-			).buildString());
-		_addSiteNavigationMenuItem(
-			navigationMenu.getId(), "layout",
-			UnicodePropertiesBuilder.create(
-				true
-			).put(
-				"layoutUuid", privateLayout.getUuid()
-			).put(
-				"privateLayout", "true"
-			).buildString());
-
-		Layout publicLayout = LayoutTestUtil.addTypePortletLayout(
-			testGroup.getGroupId(), false);
-
-		SiteNavigationMenuItem siteNavigationMenuItem =
-			_addSiteNavigationMenuItem(
-				navigationMenu.getId(), "layout",
-				UnicodePropertiesBuilder.create(
-					true
-				).put(
-					"layoutUuid", publicLayout.getUuid()
-				).put(
-					"privateLayout", "false"
-				).buildString());
-
-		String password = RandomTestUtil.randomString();
-
-		User user = UserTestUtil.addUser(testCompany, password);
-
-		NavigationMenuResource userNavigationMenuResource =
-			NavigationMenuResource.builder(
-			).authentication(
-				user.getEmailAddress(), password
-			).endpoint(
-				testCompany.getVirtualHostname(),
-				_portal.getPortalServerPort(false), "http"
-			).locale(
-				LocaleUtil.getDefault()
-			).build();
-
-		navigationMenu = userNavigationMenuResource.getNavigationMenu(
-			navigationMenu.getId());
-
-		NavigationMenuItem[] navigationMenuItems =
-			navigationMenu.getNavigationMenuItems();
-
-		Assert.assertEquals(
-			Arrays.toString(navigationMenuItems), 1,
-			navigationMenuItems.length);
-		Assert.assertEquals(
-			siteNavigationMenuItem.getSiteNavigationMenuItemId(),
-			GetterUtil.getLong(navigationMenuItems[0].getId()));
+		_testGetNavigationMenuWithoutViewPermission();
 	}
 
 	@Override
@@ -1069,6 +958,117 @@ public class NavigationMenuResourceTest
 				postNavigationMenu.getId());
 
 		Assert.assertNull(getNavigationMenu.getPermissions());
+	}
+
+	private void _testGetNavigationMenuWithoutViewPermission()
+		throws Exception {
+
+		NavigationMenu navigationMenu =
+			testGetNavigationMenu_addNavigationMenu();
+
+		Role userRole = _roleLocalService.getRole(
+			testCompany.getCompanyId(), RoleConstants.USER);
+
+		_resourcePermissionLocalService.setResourcePermissions(
+			testCompany.getCompanyId(), SiteNavigationMenu.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(navigationMenu.getId()), userRole.getRoleId(),
+			new String[] {ActionKeys.VIEW});
+
+		BlogsEntry blogsEntry = _blogsEntryLocalService.addEntry(
+			TestPropsValues.getUserId(), StringUtil.randomString(),
+			StringUtil.randomString(), new Date(),
+			ServiceContextTestUtil.getServiceContext(
+				testGroup.getGroupId(), TestPropsValues.getUserId()));
+
+		Role guestRole = _roleLocalService.getRole(
+			testCompany.getCompanyId(), RoleConstants.GUEST);
+
+		_resourcePermissionLocalService.removeResourcePermission(
+			testCompany.getCompanyId(), BlogsEntry.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(blogsEntry.getEntryId()), guestRole.getRoleId(),
+			ActionKeys.VIEW);
+
+		_addSiteNavigationMenuItem(
+			navigationMenu.getId(), BlogsEntry.class.getName(),
+			UnicodePropertiesBuilder.create(
+				true
+			).put(
+				"className", BlogsEntry.class.getName()
+			).put(
+				"classNameId",
+				String.valueOf(_portal.getClassNameId(BlogsEntry.class))
+			).put(
+				"classPK", String.valueOf(blogsEntry.getEntryId())
+			).put(
+				"title", blogsEntry.getTitle()
+			).buildString());
+
+		Layout privateLayout = LayoutTestUtil.addTypePortletLayout(
+			testGroup.getGroupId(), true);
+
+		_addSiteNavigationMenuItem(
+			navigationMenu.getId(), "layout",
+			UnicodePropertiesBuilder.create(
+				true
+			).put(
+				"externalReferenceCode",
+				privateLayout.getExternalReferenceCode()
+			).put(
+				"privateLayout", "true"
+			).buildString());
+		_addSiteNavigationMenuItem(
+			navigationMenu.getId(), "layout",
+			UnicodePropertiesBuilder.create(
+				true
+			).put(
+				"layoutUuid", privateLayout.getUuid()
+			).put(
+				"privateLayout", "true"
+			).buildString());
+
+		Layout publicLayout = LayoutTestUtil.addTypePortletLayout(
+			testGroup.getGroupId(), false);
+
+		SiteNavigationMenuItem siteNavigationMenuItem =
+			_addSiteNavigationMenuItem(
+				navigationMenu.getId(), "layout",
+				UnicodePropertiesBuilder.create(
+					true
+				).put(
+					"layoutUuid", publicLayout.getUuid()
+				).put(
+					"privateLayout", "false"
+				).buildString());
+
+		String password = RandomTestUtil.randomString();
+
+		User user = UserTestUtil.addUser(testCompany, password);
+
+		NavigationMenuResource userNavigationMenuResource =
+			NavigationMenuResource.builder(
+			).authentication(
+				user.getEmailAddress(), password
+			).endpoint(
+				testCompany.getVirtualHostname(),
+				_portal.getPortalServerPort(false), "http"
+			).locale(
+				LocaleUtil.getDefault()
+			).build();
+
+		navigationMenu = userNavigationMenuResource.getNavigationMenu(
+			navigationMenu.getId());
+
+		NavigationMenuItem[] navigationMenuItems =
+			navigationMenu.getNavigationMenuItems();
+
+		Assert.assertEquals(
+			Arrays.toString(navigationMenuItems), 1,
+			navigationMenuItems.length);
+		Assert.assertEquals(
+			siteNavigationMenuItem.getSiteNavigationMenuItemId(),
+			GetterUtil.getLong(navigationMenuItems[0].getId()));
 	}
 
 	private void _testGetSiteNavigationMenusPage(
