@@ -29,6 +29,8 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.site.navigation.model.SiteNavigationMenuItem;
+import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 
 import org.junit.Assert;
 import org.junit.Assume;
@@ -105,6 +107,36 @@ public class AddDefaultLayoutInitialRequestPortalInstanceLifecycleListenerTest {
 		Assert.assertEquals(
 			"Attività", layout.getName(LocaleUtil.ITALY, false));
 
+		Assert.assertNull(
+			_siteNavigationMenuItemLocalService.
+				fetchSiteNavigationMenuItemByExternalReferenceCode(
+					"CMPPRIMARYNAVIGATION1", group.getGroupId()));
+
+		SiteNavigationMenuItem planningSiteNavigationMenuItem =
+			_siteNavigationMenuItemLocalService.
+				fetchSiteNavigationMenuItemByExternalReferenceCode(
+					"CMSPRIMARYNAVIGATION11", group.getGroupId());
+
+		Assert.assertNotNull(planningSiteNavigationMenuItem);
+
+		SiteNavigationMenuItem tasksSiteNavigationMenuItem =
+			_siteNavigationMenuItemLocalService.
+				fetchSiteNavigationMenuItemByExternalReferenceCode(
+					"CMSPRIMARYNAVIGATION12", group.getGroupId());
+
+		Assert.assertEquals(
+			planningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
+			tasksSiteNavigationMenuItem.getParentSiteNavigationMenuItemId());
+
+		SiteNavigationMenuItem projectsSiteNavigationMenuItem =
+			_siteNavigationMenuItemLocalService.
+				fetchSiteNavigationMenuItemByExternalReferenceCode(
+					"CMPPRIMARYNAVIGATION2", group.getGroupId());
+
+		Assert.assertEquals(
+			planningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
+			projectsSiteNavigationMenuItem.getParentSiteNavigationMenuItemId());
+
 		AssetCategory assetCategory =
 			_assetCategoryLocalService.
 				fetchAssetCategoryByExternalReferenceCode(
@@ -137,5 +169,9 @@ public class AddDefaultLayoutInitialRequestPortalInstanceLifecycleListenerTest {
 		filter = "component.name=com.liferay.content.marketing.platform.web.internal.instance.lifecycle.AddDefaultLayoutInitialRequestPortalInstanceLifecycleListener"
 	)
 	private PortalInstanceLifecycleListener _portalInstanceLifecycleListener;
+
+	@Inject
+	private SiteNavigationMenuItemLocalService
+		_siteNavigationMenuItemLocalService;
 
 }
