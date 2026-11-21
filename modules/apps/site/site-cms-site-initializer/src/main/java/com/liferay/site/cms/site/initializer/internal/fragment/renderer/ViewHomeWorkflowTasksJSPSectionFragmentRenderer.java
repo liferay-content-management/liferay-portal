@@ -6,6 +6,7 @@
 package com.liferay.site.cms.site.initializer.internal.fragment.renderer;
 
 import com.liferay.fragment.renderer.FragmentRenderer;
+import com.liferay.frontend.data.set.view.FDSViewRegistry;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -35,7 +36,8 @@ public class ViewHomeWorkflowTasksJSPSectionFragmentRenderer
 		HttpServletRequest httpServletRequest) {
 
 		return new ViewHomeWorkflowTasksDisplayContext(
-			httpServletRequest, _jsonFactory, _objectDefinitionResourceFactory,
+			_fdsViewRegistry, httpServletRequest, _jsonFactory,
+			_objectDefinitionResourceFactory,
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY));
 	}
@@ -44,6 +46,9 @@ public class ViewHomeWorkflowTasksJSPSectionFragmentRenderer
 	protected String getJSPPath() {
 		return "/view_home_workflow_tasks.jsp";
 	}
+
+	@Reference
+	private FDSViewRegistry _fdsViewRegistry;
 
 	@Reference
 	private JSONFactory _jsonFactory;

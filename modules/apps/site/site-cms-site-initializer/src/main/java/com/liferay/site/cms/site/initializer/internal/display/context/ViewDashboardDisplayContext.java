@@ -13,6 +13,7 @@ import com.liferay.depot.service.DepotEntryService;
 import com.liferay.document.library.configuration.DLConfiguration;
 import com.liferay.frontend.data.set.action.FDSItemsActions;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
+import com.liferay.frontend.data.set.view.FDSViewRegistry;
 import com.liferay.learn.LearnMessageUtil;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFolderConstants;
@@ -44,6 +45,7 @@ import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.site.cms.site.initializer.internal.constants.CMSSiteInitializerFDSNames;
 import com.liferay.site.cms.site.initializer.internal.util.CommentUtil;
 import com.liferay.site.cms.site.initializer.internal.util.PermissionUtil;
+import com.liferay.site.cms.site.initializer.internal.util.TasksSectionUtil;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -60,7 +62,7 @@ public class ViewDashboardDisplayContext {
 		AnalyticsSettingsManager analyticsSettingsManager,
 		DepotEntryLocalService depotEntryLocalService,
 		DepotEntryService depotEntryService, DLConfiguration dlConfiguration,
-		GroupLocalService groupLocalService,
+		FDSViewRegistry fdsViewRegistry, GroupLocalService groupLocalService,
 		HttpServletRequest httpServletRequest,
 		ObjectDefinitionService objectDefinitionService,
 		RoleLocalService roleLocalService, ThemeDisplay themeDisplay,
@@ -74,6 +76,7 @@ public class ViewDashboardDisplayContext {
 		_depotEntryLocalService = depotEntryLocalService;
 		_depotEntryService = depotEntryService;
 		_dlConfiguration = dlConfiguration;
+		_fdsViewRegistry = fdsViewRegistry;
 		_groupLocalService = groupLocalService;
 		_httpServletRequest = httpServletRequest;
 		_objectDefinitionService = objectDefinitionService;
@@ -300,10 +303,18 @@ public class ViewDashboardDisplayContext {
 		).put(
 			"redirect", _themeDisplay.getURLCurrent()
 		).put(
+			"tasksSectionFDSName",
+			() -> TasksSectionUtil.getFDSName(_fdsViewRegistry)
+		).put(
 			"unlinkedContentFDSActionDropdownItems",
 			() ->
 				_viewUnlinkedContentSectionFDSItemsActions.
 					getFDSActionDropdownItems(_httpServletRequest)
+		).put(
+			"workflowTaskFDSActionDropdownItems",
+			() -> new ViewTasksDisplayContext(
+				_httpServletRequest
+			).getFDSActionDropdownItems()
 		).build();
 	}
 
@@ -365,6 +376,7 @@ public class ViewDashboardDisplayContext {
 	private final DepotEntryLocalService _depotEntryLocalService;
 	private final DepotEntryService _depotEntryService;
 	private final DLConfiguration _dlConfiguration;
+	private final FDSViewRegistry _fdsViewRegistry;
 	private final GroupLocalService _groupLocalService;
 	private final HttpServletRequest _httpServletRequest;
 	private final ObjectDefinitionService _objectDefinitionService;
