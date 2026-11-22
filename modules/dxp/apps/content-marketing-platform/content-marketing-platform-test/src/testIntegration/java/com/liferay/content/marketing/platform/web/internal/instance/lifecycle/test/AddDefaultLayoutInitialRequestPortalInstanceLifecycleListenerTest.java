@@ -67,6 +67,36 @@ public class AddDefaultLayoutInitialRequestPortalInstanceLifecycleListenerTest {
 			_layoutLocalService.fetchLayoutByFriendlyURL(
 				group.getGroupId(), false, "/dashboard"));
 
+		Assert.assertNull(
+			_siteNavigationMenuItemLocalService.
+				fetchSiteNavigationMenuItemByExternalReferenceCode(
+					"CMPPRIMARYNAVIGATION1", group.getGroupId()));
+
+		SiteNavigationMenuItem planningSiteNavigationMenuItem =
+			_siteNavigationMenuItemLocalService.
+				fetchSiteNavigationMenuItemByExternalReferenceCode(
+					"CMSPRIMARYNAVIGATION11", group.getGroupId());
+
+		Assert.assertNotNull(planningSiteNavigationMenuItem);
+
+		SiteNavigationMenuItem tasksSiteNavigationMenuItem =
+			_siteNavigationMenuItemLocalService.
+				fetchSiteNavigationMenuItemByExternalReferenceCode(
+					"CMSPRIMARYNAVIGATION12", group.getGroupId());
+
+		Assert.assertEquals(
+			planningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
+			tasksSiteNavigationMenuItem.getParentSiteNavigationMenuItemId());
+
+		SiteNavigationMenuItem projectsSiteNavigationMenuItem =
+			_siteNavigationMenuItemLocalService.
+				fetchSiteNavigationMenuItemByExternalReferenceCode(
+					"CMPPRIMARYNAVIGATION2", group.getGroupId());
+
+		Assert.assertEquals(
+			planningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
+			projectsSiteNavigationMenuItem.getParentSiteNavigationMenuItemId());
+
 		ObjectDefinition cmpObjectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
@@ -106,36 +136,6 @@ public class AddDefaultLayoutInitialRequestPortalInstanceLifecycleListenerTest {
 
 		Assert.assertEquals(
 			"Attività", layout.getName(LocaleUtil.ITALY, false));
-
-		Assert.assertNull(
-			_siteNavigationMenuItemLocalService.
-				fetchSiteNavigationMenuItemByExternalReferenceCode(
-					"CMPPRIMARYNAVIGATION1", group.getGroupId()));
-
-		SiteNavigationMenuItem planningSiteNavigationMenuItem =
-			_siteNavigationMenuItemLocalService.
-				fetchSiteNavigationMenuItemByExternalReferenceCode(
-					"CMSPRIMARYNAVIGATION11", group.getGroupId());
-
-		Assert.assertNotNull(planningSiteNavigationMenuItem);
-
-		SiteNavigationMenuItem tasksSiteNavigationMenuItem =
-			_siteNavigationMenuItemLocalService.
-				fetchSiteNavigationMenuItemByExternalReferenceCode(
-					"CMSPRIMARYNAVIGATION12", group.getGroupId());
-
-		Assert.assertEquals(
-			planningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
-			tasksSiteNavigationMenuItem.getParentSiteNavigationMenuItemId());
-
-		SiteNavigationMenuItem projectsSiteNavigationMenuItem =
-			_siteNavigationMenuItemLocalService.
-				fetchSiteNavigationMenuItemByExternalReferenceCode(
-					"CMPPRIMARYNAVIGATION2", group.getGroupId());
-
-		Assert.assertEquals(
-			planningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
-			projectsSiteNavigationMenuItem.getParentSiteNavigationMenuItemId());
 
 		AssetCategory assetCategory =
 			_assetCategoryLocalService.
