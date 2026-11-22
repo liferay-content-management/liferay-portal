@@ -7,7 +7,9 @@ package com.liferay.content.marketing.platform.web.internal.fragment.renderer.te
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.content.marketing.platform.test.util.CMPTestUtil;
+import com.liferay.fragment.renderer.DefaultFragmentRendererContext;
 import com.liferay.fragment.renderer.FragmentRenderer;
+import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
@@ -23,7 +25,6 @@ import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,12 +46,12 @@ public class ViewTasksJSPSectionFragmentRendererTest {
 			new LiferayIntegrationTestRule(),
 			PermissionCheckerMethodTestRule.INSTANCE);
 
-	@Before
-	public void setUp() throws Exception {
+	@Test
+	public void testRender() throws Exception {
 		Group group = CMPTestUtil.getOrAddGroup(
 			ViewTasksJSPSectionFragmentRendererTest.class);
 
-		_themeDisplay = new ThemeDisplay() {
+		ThemeDisplay themeDisplay = new ThemeDisplay() {
 			{
 				setCompany(
 					_companyLocalService.getCompany(
@@ -60,16 +61,15 @@ public class ViewTasksJSPSectionFragmentRendererTest {
 				setUser(TestPropsValues.getUser());
 			}
 		};
-	}
 
-	@Test
-	public void testIsCMPEnabled() throws Exception {
 		HttpServletRequest httpServletRequest = new MockHttpServletRequest();
 
-		httpServletRequest.setAttribute(WebKeys.THEME_DISPLAY, _themeDisplay);
+		httpServletRequest.setAttribute(WebKeys.THEME_DISPLAY, themeDisplay);
 
 		_fragmentRenderer.render(
-			null, httpServletRequest, new MockHttpServletResponse());
+			new DefaultFragmentRendererContext(
+				_fragmentEntryLinkLocalService.createFragmentEntryLink(0)),
+			httpServletRequest, new MockHttpServletResponse());
 
 		Object viewTasksDisplayContext = httpServletRequest.getAttribute(
 			"com.liferay.site.cms.site.initializer.internal.display.context." +
@@ -86,11 +86,12 @@ public class ViewTasksJSPSectionFragmentRendererTest {
 	@Inject
 	private CompanyLocalService _companyLocalService;
 
+	@Inject
+	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
+
 	@Inject(
 		filter = "component.name=com.liferay.site.cms.site.initializer.internal.fragment.renderer.ViewTasksJSPSectionFragmentRenderer"
 	)
 	private FragmentRenderer _fragmentRenderer;
-
-	private ThemeDisplay _themeDisplay;
 
 }
