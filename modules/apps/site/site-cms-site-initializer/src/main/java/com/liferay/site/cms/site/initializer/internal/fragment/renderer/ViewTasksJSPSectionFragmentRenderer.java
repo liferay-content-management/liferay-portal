@@ -49,6 +49,12 @@ public class ViewTasksJSPSectionFragmentRenderer
 			HttpServletResponse httpServletResponse)
 		throws IOException {
 
+		if (fragmentRendererContext.isDisablePortletRender() ||
+			fragmentRendererContext.isIndexMode()) {
+
+			return;
+		}
+
 		try {
 			RequestDispatcher requestDispatcher =
 				servletContext.getRequestDispatcher(getJSPPath());
