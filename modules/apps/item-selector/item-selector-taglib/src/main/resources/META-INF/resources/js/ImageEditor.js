@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import ClayAlert from '@clayui/alert';
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import {ClayInput, ClaySelectWithOption} from '@clayui/form';
 import ClayToolbar from '@clayui/toolbar';
+import {readContentCredentials} from '@liferay/frontend-js-image-editor-web/content-credentials';
 import Cropper from 'cropperjs';
 import {fetch} from 'frontend-js-web';
 import PropTypes from 'prop-types';
@@ -62,6 +64,7 @@ function ImageEditor({
 
 	const [disabledZoomIn, setDisabledZoomIn] = useState(false);
 	const [disabledZoomOut, setDisabledZoomOut] = useState(false);
+	const [image, setImage] = useState(null);
 
 	const handleAspectRationChange = (event) => {
 		const value = event.target.value;
@@ -120,9 +123,44 @@ function ImageEditor({
 	};
 
 	useEffect(() => {
+		let objectURL;
+		let unmounted = false;
+
+		fetch(imageSrc)
+			.then((response) => response.arrayBuffer())
+			.then((arrayBuffer) => {
+				if (unmounted) {
+					return;
+				}
+
+				objectURL = URL.createObjectURL(new Blob([arrayBuffer]));
+
+				setImage({
+					aiGenerated:
+						readContentCredentials(new Uint8Array(arrayBuffer))
+							?.aiGenerated === true,
+					src: objectURL,
+				});
+			})
+			.catch(() => {
+				if (!unmounted) {
+					setImage({aiGenerated: false, src: imageSrc});
+				}
+			});
+
+		return () => {
+			unmounted = true;
+
+			if (objectURL) {
+				URL.revokeObjectURL(objectURL);
+			}
+		};
+	}, [imageSrc]);
+
+	useEffect(() => {
 		const imageElement = ref.current;
 
-		if (imageElement !== null) {
+		if (image && imageElement) {
 			new Cropper(imageElement, {
 				autoCrop: false,
 				autoCropArea: 1,
@@ -184,20 +222,37 @@ function ImageEditor({
 				imageElement?.cropper?.destroy();
 			};
 		}
-	}, []);
+	}, [image]);
 
 	return (
 		<div className="image-editor">
-			<div style={{height: '100%'}}>
-				<img
-					ref={ref}
-					src={imageSrc}
-					style={{
-						display: 'block',
-						maxWidth: '100%',
-						opacity: 0,
-					}}
-				/>
+			<div className="image-editor-content">
+				{image?.aiGenerated && (
+					<ClayAlert
+						className="image-editor-ai-disclaimer"
+						displayType="warning"
+						title={Liferay.Language.get('warning')}
+						variant="inline"
+					>
+						{Liferay.Language.get(
+							'the-image-editor-is-not-intended-for-use-with-ai-generated-content'
+						)}
+					</ClayAlert>
+				)}
+
+				<div className="image-editor-workspace">
+					{image && (
+						<img
+							ref={ref}
+							src={image.src}
+							style={{
+								display: 'block',
+								maxWidth: '100%',
+								opacity: 0,
+							}}
+						/>
+					)}
+				</div>
 			</div>
 
 			<ClayToolbar>

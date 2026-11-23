@@ -6,6 +6,21 @@ html#{$cadmin-selector}:not(._) {
 		height: calc(100% - 56px);
 		position: relative;
 
+		.image-editor-ai-disclaimer {
+			margin: 0;
+		}
+
+		.image-editor-content {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+
+		.image-editor-workspace {
+			flex-grow: 1;
+			min-height: 0;
+		}
+
 		.cropper-container {
 			font-size: 0;
 			line-height: 0;

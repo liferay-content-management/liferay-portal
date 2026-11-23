@@ -7,29 +7,10 @@ import {Page, expect} from '@playwright/test';
 
 import {checkAccessibility} from '../../../utils/checkAccessibility';
 import {imageEditorSamplePageTest as test} from './fixtures/imageEditorSamplePageTest';
+import addContentCredentials from './utils/addContentCredentials';
 
 const DISCLAIMER =
 	'The image editor is not intended for use with AI-generated content.';
-
-function manifestSegment(sourceType: string): Buffer {
-	const store = Buffer.from(
-		`jumb c2pa http://cv.iptc.org/newscodes/digitalsourcetype/${sourceType}`,
-		'latin1'
-	);
-
-	const header = Buffer.alloc(12);
-
-	header.write('JP', 0, 'ascii');
-	header.writeUInt16BE(1, 2);
-	header.writeUInt32BE(1, 4);
-	header.writeUInt32BE(store.length + 4, 8);
-
-	const marker = Buffer.from([0xff, 0xeb, 0, 0]);
-
-	marker.writeUInt16BE(header.length + store.length + 2, 2);
-
-	return Buffer.concat([marker, header, store]);
-}
 
 async function serveSampleImageWithManifest(page: Page, sourceType: string) {
 	await page.route(
@@ -40,11 +21,7 @@ async function serveSampleImageWithManifest(page: Page, sourceType: string) {
 			const body = await response.body();
 
 			await route.fulfill({
-				body: Buffer.concat([
-					body.subarray(0, 2),
-					manifestSegment(sourceType),
-					body.subarray(2),
-				]),
+				body: addContentCredentials(body, sourceType),
 				response,
 			});
 		}

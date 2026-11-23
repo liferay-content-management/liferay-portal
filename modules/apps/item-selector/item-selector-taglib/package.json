@@ -9,6 +9,7 @@
 		"@clayui/progress-bar": "^3.167.0",
 		"@clayui/tabs": "^3.167.0",
 		"@clayui/toolbar": "^3.167.0",
+		"@liferay/frontend-js-image-editor-web": "*",
 		"@liferay/frontend-js-react-web": "*",
 		"@liferay/frontend-js-state-web": "*",
 		"classnames": "2.3.1",

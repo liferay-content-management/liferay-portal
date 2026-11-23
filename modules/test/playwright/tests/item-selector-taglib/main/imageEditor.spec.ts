@@ -4,14 +4,16 @@
  */
 
 import {Page, expect, mergeTests} from '@playwright/test';
-import {createReadStream} from 'fs';
+import {createReadStream, readFileSync} from 'fs';
 import path from 'path';
 
 import {apiHelpersTest} from '../../../fixtures/apiHelpersTest';
 import {documentLibraryPagesTest} from '../../../fixtures/documentLibraryPages.fixtures';
 import {isolatedSiteTest} from '../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../fixtures/loginTest';
+import {checkAccessibility} from '../../../utils/checkAccessibility';
 import {blogsPagesTest} from '../../blogs-web/main/fixtures/blogsPagesTest';
+import addContentCredentials from '../../frontend-js-image-editor-web/main/utils/addContentCredentials';
 
 const DOCUMENT_2 = path.join(__dirname, 'dependencies/Document_2.jpg');
 
@@ -223,4 +225,82 @@ test('Resizing an image from the item selector preview saves a copy', async ({
 		height: 312,
 		width: 500,
 	});
+});
+
+const DISCLAIMER =
+	'The image editor is not intended for use with AI-generated content.';
+
+test('An AI generated image opens with the disclaimer above the editor', async ({
+	apiHelpers,
+	documentLibraryPage,
+	page,
+	site,
+}) => {
+	await apiHelpers.headlessDelivery.postDocument(
+		site.id,
+		{
+			buffer: addContentCredentials(
+				readFileSync(DOCUMENT_2),
+				'trainedAlgorithmicMedia'
+			),
+			mimeType: 'image/jpeg',
+			name: 'Document_2.jpg',
+		},
+		{
+			documentFolderId: 0,
+			fileName: 'Document_2.jpg',
+			title: 'Document_2.jpg',
+		}
+	);
+
+	await documentLibraryPage.goto(site.friendlyUrlPath);
+
+	await openImageEditor(page);
+
+	const dialog = page.getByRole('dialog');
+
+	await expect(dialog.getByRole('alert')).toContainText(DISCLAIMER);
+	await expect(
+		dialog.locator('.image-editor-content > :first-child')
+	).toHaveClass(/image-editor-ai-disclaimer/);
+	await expect(dialog.locator('.cropper-container')).toBeVisible();
+
+	await checkAccessibility({
+		page,
+		selectors: ['.image-editor-ai-disclaimer'],
+	});
+});
+
+test('An image whose credentials do not claim AI opens without the disclaimer', async ({
+	apiHelpers,
+	documentLibraryPage,
+	page,
+	site,
+}) => {
+	await apiHelpers.headlessDelivery.postDocument(
+		site.id,
+		{
+			buffer: addContentCredentials(
+				readFileSync(DOCUMENT_2),
+				'digitalCapture'
+			),
+			mimeType: 'image/jpeg',
+			name: 'Document_2.jpg',
+		},
+		{
+			documentFolderId: 0,
+			fileName: 'Document_2.jpg',
+			title: 'Document_2.jpg',
+		}
+	);
+
+	await documentLibraryPage.goto(site.friendlyUrlPath);
+
+	await openImageEditor(page);
+
+	const dialog = page.getByRole('dialog');
+
+	await expect(dialog.locator('.cropper-container')).toBeVisible();
+
+	await expect(dialog.locator('.image-editor-ai-disclaimer')).toHaveCount(0);
 });
