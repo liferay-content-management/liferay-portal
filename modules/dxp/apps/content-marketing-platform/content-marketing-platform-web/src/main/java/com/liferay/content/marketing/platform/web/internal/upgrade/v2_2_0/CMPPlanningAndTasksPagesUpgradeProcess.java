@@ -35,6 +35,7 @@ import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -69,6 +70,16 @@ public class CMPPlanningAndTasksPagesUpgradeProcess extends UpgradeProcess {
 	@Override
 	protected void doUpgrade() throws Exception {
 		_companyLocalService.forEachCompanyId(this::_upgradeCompany);
+	}
+
+	private String _getLayoutTypeSettings(Layout layout) {
+		return UnicodePropertiesBuilder.put(
+			"displayIcon", "paste"
+		).put(
+			"externalReferenceCode", layout.getExternalReferenceCode()
+		).put(
+			"privateLayout", String.valueOf(layout.isPrivateLayout())
+		).buildString();
 	}
 
 	private String _getNodeTypeSettings(long companyId) throws Exception {
@@ -110,22 +121,37 @@ public class CMPPlanningAndTasksPagesUpgradeProcess extends UpgradeProcess {
 					_getNodeTypeSettings(serviceContext.getCompanyId()),
 					serviceContext);
 
+		Layout tasksLayout = _layoutLocalService.fetchLayoutByFriendlyURL(
+			group.getGroupId(), false, "/tasks");
+
+		if (tasksLayout != null) {
+			_siteNavigationMenuItemLocalService.
+				addOrUpdateSiteNavigationMenuItem(
+					"CMSPRIMARYNAVIGATION12", serviceContext.getUserId(),
+					group.getGroupId(),
+					planningSiteNavigationMenuItem.getSiteNavigationMenuId(),
+					planningSiteNavigationMenuItem.
+						getSiteNavigationMenuItemId(),
+					SiteNavigationMenuItemTypeConstants.LAYOUT,
+					_getLayoutTypeSettings(tasksLayout), serviceContext);
+		}
+
 		SiteNavigationMenuItem projectsSiteNavigationMenuItem =
 			_siteNavigationMenuItemLocalService.
 				fetchSiteNavigationMenuItemByExternalReferenceCode(
 					"CMPPRIMARYNAVIGATION2", group.getGroupId());
 
 		if (projectsSiteNavigationMenuItem != null) {
-			_siteNavigationMenuItemLocalService.
-				addOrUpdateSiteNavigationMenuItem(
-					"CMPPRIMARYNAVIGATION2", serviceContext.getUserId(),
-					group.getGroupId(),
-					projectsSiteNavigationMenuItem.getSiteNavigationMenuId(),
+			List<SiteNavigationMenuItem> planningChildSiteNavigationMenuItems =
+				_siteNavigationMenuItemLocalService.getSiteNavigationMenuItems(
+					planningSiteNavigationMenuItem.getSiteNavigationMenuId(),
 					planningSiteNavigationMenuItem.
-						getSiteNavigationMenuItemId(),
-					projectsSiteNavigationMenuItem.getType(),
-					projectsSiteNavigationMenuItem.getTypeSettings(),
-					serviceContext);
+						getSiteNavigationMenuItemId());
+
+			_siteNavigationMenuItemLocalService.updateSiteNavigationMenuItem(
+				projectsSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
+				planningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
+				planningChildSiteNavigationMenuItems.size());
 		}
 
 		_siteNavigationMenuItemLocalService.deleteSiteNavigationMenuItem(
