@@ -44,6 +44,7 @@ import com.liferay.portal.workflow.metrics.exception.WorkflowMetricsSLADefinitio
 import com.liferay.portal.workflow.metrics.exception.WorkflowMetricsSLADefinitionTimeframeException;
 import com.liferay.portal.workflow.metrics.internal.petra.executor.WorkflowMetricsPortalExecutor;
 import com.liferay.portal.workflow.metrics.internal.search.index.SLAInstanceResultWorkflowMetricsIndexer;
+import com.liferay.portal.workflow.metrics.internal.search.index.SLAKaleoTaskInstanceTokenReindexer;
 import com.liferay.portal.workflow.metrics.internal.search.index.SLATaskResultWorkflowMetricsIndexer;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinitionVersion;
@@ -164,8 +165,13 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 				companyId, processId, workflowMetricsSLADefinitionId));
 
 		_workflowMetricsPortalExecutor.execute(
-			() -> _slaTaskResultWorkflowMetricsIndexer.deleteDocuments(
-				companyId, processId, workflowMetricsSLADefinitionId));
+			() -> {
+				_slaTaskResultWorkflowMetricsIndexer.deleteDocuments(
+					companyId, processId, workflowMetricsSLADefinitionId);
+
+				_slaKaleoTaskInstanceTokenReindexer.reindex(
+					companyId, processId);
+			});
 	}
 
 	@Override
@@ -306,8 +312,13 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 		}
 
 		_workflowMetricsPortalExecutor.execute(
-			() -> _slaTaskResultWorkflowMetricsIndexer.deleteDocuments(
-				companyId, processId, workflowMetricsSLADefinitionId));
+			() -> {
+				_slaTaskResultWorkflowMetricsIndexer.deleteDocuments(
+					companyId, processId, workflowMetricsSLADefinitionId);
+
+				_slaKaleoTaskInstanceTokenReindexer.reindex(
+					companyId, processId);
+			});
 
 		return workflowMetricsSLADefinition;
 	}
@@ -590,6 +601,10 @@ public class WorkflowMetricsSLADefinitionLocalServiceImpl
 	@Reference
 	private SLAInstanceResultWorkflowMetricsIndexer
 		_slaInstanceResultWorkflowMetricsIndexer;
+
+	@Reference
+	private SLAKaleoTaskInstanceTokenReindexer
+		_slaKaleoTaskInstanceTokenReindexer;
 
 	@Reference
 	private SLATaskResultWorkflowMetricsIndexer

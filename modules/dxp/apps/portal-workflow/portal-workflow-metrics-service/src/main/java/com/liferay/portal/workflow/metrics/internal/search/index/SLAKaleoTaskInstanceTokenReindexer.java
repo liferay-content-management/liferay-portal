@@ -5,11 +5,20 @@
 
 package com.liferay.portal.workflow.metrics.internal.search.index;
 
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.search.indexer.IndexerDocumentBuilder;
+import com.liferay.portal.search.indexer.IndexerWriter;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
+import com.liferay.portal.workflow.kaleo.service.KaleoInstanceLocalService;
 import com.liferay.portal.workflow.kaleo.service.KaleoTaskInstanceTokenLocalService;
 
 import java.util.Collection;
@@ -46,8 +55,50 @@ public class SLAKaleoTaskInstanceTokenReindexer {
 		}
 	}
 
+	public void reindex(long companyId, long processId) {
+		IndexableActionableDynamicQuery indexableActionableDynamicQuery =
+			_indexerWriter.getIndexableActionableDynamicQuery();
+
+		indexableActionableDynamicQuery.setAddCriteriaMethod(
+			dynamicQuery -> {
+				DynamicQuery kaleoInstanceDynamicQuery =
+					_kaleoInstanceLocalService.dynamicQuery();
+
+				kaleoInstanceDynamicQuery.add(
+					RestrictionsFactoryUtil.eq("kaleoDefinitionId", processId));
+				kaleoInstanceDynamicQuery.add(
+					RestrictionsFactoryUtil.eq("completed", false));
+				kaleoInstanceDynamicQuery.setProjection(
+					ProjectionFactoryUtil.property("kaleoInstanceId"));
+
+				Property kaleoInstanceIdProperty = PropertyFactoryUtil.forName(
+					"kaleoInstanceId");
+
+				dynamicQuery.add(
+					kaleoInstanceIdProperty.in(kaleoInstanceDynamicQuery));
+			});
+		indexableActionableDynamicQuery.setCompanyId(companyId);
+		indexableActionableDynamicQuery.setPerformActionMethod(
+			_indexerDocumentBuilder::getDocument);
+
+		indexableActionableDynamicQuery.performActions();
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		SLAKaleoTaskInstanceTokenReindexer.class);
+
+	@Reference(
+		target = "(indexer.class.name=com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken)"
+	)
+	private IndexerDocumentBuilder _indexerDocumentBuilder;
+
+	@Reference(
+		target = "(indexer.class.name=com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken)"
+	)
+	private IndexerWriter<KaleoTaskInstanceToken> _indexerWriter;
+
+	@Reference
+	private KaleoInstanceLocalService _kaleoInstanceLocalService;
 
 	@Reference
 	private KaleoTaskInstanceTokenLocalService
