@@ -138,6 +138,16 @@ public class CMPPlanningAndTasksPagesUpgradeProcessTest {
 
 		Assert.assertNotNull(planningSiteNavigationMenuItem);
 
+		SiteNavigationMenuItem tasksSiteNavigationMenuItem =
+			_siteNavigationMenuItemLocalService.
+				fetchSiteNavigationMenuItemByExternalReferenceCode(
+					"CMSPRIMARYNAVIGATION12", group.getGroupId());
+
+		Assert.assertEquals(
+			planningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
+			tasksSiteNavigationMenuItem.getParentSiteNavigationMenuItemId());
+		Assert.assertEquals(0, tasksSiteNavigationMenuItem.getOrder());
+
 		SiteNavigationMenuItem projectsSiteNavigationMenuItem =
 			_siteNavigationMenuItemLocalService.
 				fetchSiteNavigationMenuItemByExternalReferenceCode(
@@ -146,6 +156,7 @@ public class CMPPlanningAndTasksPagesUpgradeProcessTest {
 		Assert.assertEquals(
 			planningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
 			projectsSiteNavigationMenuItem.getParentSiteNavigationMenuItemId());
+		Assert.assertEquals(1, projectsSiteNavigationMenuItem.getOrder());
 
 		_assertTasksFragmentReplaced(layout, oldFragmentEntryLink);
 		_assertTasksFragmentReplaced(
@@ -211,8 +222,7 @@ public class CMPPlanningAndTasksPagesUpgradeProcessTest {
 			group.getGroupId(),
 			projectsSiteNavigationMenuItem.getSiteNavigationMenuId(),
 			oldPlanningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
-			projectsSiteNavigationMenuItem.getType(),
-			projectsSiteNavigationMenuItem.getOrder(),
+			projectsSiteNavigationMenuItem.getType(), 0,
 			projectsSiteNavigationMenuItem.getTypeSettings());
 
 		_siteNavigationMenuItemLocalService.addSiteNavigationMenuItem(
@@ -222,6 +232,12 @@ public class CMPPlanningAndTasksPagesUpgradeProcessTest {
 			oldPlanningSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
 			SiteNavigationMenuItemTypeConstants.LAYOUT, StringPool.BLANK,
 			serviceContext);
+
+		_siteNavigationMenuItemLocalService.deleteSiteNavigationMenuItem(
+			"CMSPRIMARYNAVIGATION12", group.getGroupId());
+
+		_siteNavigationMenuItemLocalService.deleteSiteNavigationMenuItem(
+			"CMSPRIMARYNAVIGATION11", group.getGroupId());
 	}
 
 	private void _upgrade() throws Exception {
