@@ -35,6 +35,31 @@ import java.util.Stack;
  */
 public class WorkflowMetricsSLAProcessor {
 
+	public boolean isBreached(
+		Document document, LocalDateTime nowLocalDateTime,
+		LocalDateTime overdueLocalDateTime) {
+
+		if (nowLocalDateTime.isBefore(overdueLocalDateTime)) {
+			return false;
+		}
+
+		LocalDateTime createDateLocalDateTime = LocalDateTime.parse(
+			document.getDate("createDate"), _dateTimeFormatter);
+
+		if (createDateLocalDateTime.isAfter(overdueLocalDateTime)) {
+			return false;
+		}
+
+		if (Validator.isNull(document.getDate("completionDate"))) {
+			return true;
+		}
+
+		LocalDateTime completionDateLocalDateTime = LocalDateTime.parse(
+			document.getDate("completionDate"), _dateTimeFormatter);
+
+		return completionDateLocalDateTime.isAfter(overdueLocalDateTime);
+	}
+
 	public WorkflowMetricsSLAInstanceResult process(
 		LocalDateTime completionLocalDateTime,
 		LocalDateTime createLocalDateTime, List<Document> documents,
@@ -128,31 +153,6 @@ public class WorkflowMetricsSLAProcessor {
 			completionLocalDateTime, documents, elapsedTime, endLocalDateTime,
 			instanceId, nowLocalDateTime, workflowMetricsSLACalendar,
 			workflowMetricsSLADefinitionVersion, workflowMetricsSLAStatus);
-	}
-
-	protected boolean isBreached(
-		Document document, LocalDateTime nowLocalDateTime,
-		LocalDateTime overdueLocalDateTime) {
-
-		if (nowLocalDateTime.isBefore(overdueLocalDateTime)) {
-			return false;
-		}
-
-		LocalDateTime createDateLocalDateTime = LocalDateTime.parse(
-			document.getDate("createDate"), _dateTimeFormatter);
-
-		if (createDateLocalDateTime.isAfter(overdueLocalDateTime)) {
-			return false;
-		}
-
-		if (Validator.isNull(document.getDate("completionDate"))) {
-			return true;
-		}
-
-		LocalDateTime completionDateLocalDateTime = LocalDateTime.parse(
-			document.getDate("completionDate"), _dateTimeFormatter);
-
-		return completionDateLocalDateTime.isAfter(overdueLocalDateTime);
 	}
 
 	protected boolean isOnTime(
