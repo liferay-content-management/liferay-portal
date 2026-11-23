@@ -4,6 +4,7 @@
  */
 
 import {RedactLevel} from '../state/types';
+import {ContentCredentials, readContentCredentials} from './contentCredentials';
 
 export const MAX_IMAGE_BYTES = 25 * 1024 * 1024;
 
@@ -50,6 +51,7 @@ export interface LoadedImage {
 	 */
 	blob: Blob;
 
+	contentCredentials?: ContentCredentials | null;
 	fileName: string;
 	height: number;
 
@@ -108,10 +110,15 @@ export async function loadImage(
 	// load leaks what the successful path would have owned.
 
 	try {
+		const contentCredentials = readContentCredentials(
+			new Uint8Array(await blob.arrayBuffer())
+		);
+
 		previewUrl = await createPreviewUrl(bitmap, blob);
 
 		return {
 			blob,
+			contentCredentials,
 			fileName,
 			height: bitmap.height,
 			pixelUrls: {

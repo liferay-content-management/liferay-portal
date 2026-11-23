@@ -8,6 +8,18 @@ if (!globalThis.URL.createObjectURL) {
 	globalThis.URL.revokeObjectURL = () => {};
 }
 
+if (!Blob.prototype.arrayBuffer) {
+	Blob.prototype.arrayBuffer = function () {
+		return new Promise((resolve) => {
+			const fileReader = new FileReader();
+
+			fileReader.onload = () => resolve(fileReader.result as ArrayBuffer);
+
+			fileReader.readAsArrayBuffer(this);
+		});
+	};
+}
+
 if (!globalThis.ResizeObserver) {
 	globalThis.ResizeObserver = class {
 		disconnect() {}

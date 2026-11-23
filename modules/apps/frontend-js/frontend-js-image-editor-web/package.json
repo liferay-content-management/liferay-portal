@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@clayui/alert": "^3.167.0",
 		"@clayui/button": "^3.167.0",
 		"@clayui/drop-down": "^3.167.0",
 		"@clayui/form": "^3.167.0",

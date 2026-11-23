@@ -128,3 +128,43 @@ describe('the overlay bitmap lifecycle', () => {
 		getContext.mockRestore();
 	});
 });
+
+describe('the content credentials', () => {
+	function pngWithManifest(manifest: string) {
+		const data = Uint8Array.from(manifest, (character) =>
+			character.charCodeAt(0)
+		);
+
+		const bytes = new Uint8Array(8 + 12 + data.length);
+
+		bytes.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+		new DataView(bytes.buffer).setUint32(8, data.length);
+
+		bytes.set([0x63, 0x61, 0x42, 0x58], 12);
+		bytes.set(data, 16);
+
+		return new Blob([bytes], {type: 'image/png'});
+	}
+
+	it('reads them from the original bytes', async () => {
+		decoder.mockResolvedValue(bitmapOf(120, 80));
+
+		const image = await loadImage(
+			pngWithManifest(
+				'c2pa http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia'
+			),
+			'generated.png'
+		);
+
+		expect(image.contentCredentials).toEqual({aiGenerated: true});
+	});
+
+	it('leaves them empty for an image without a manifest', async () => {
+		decoder.mockResolvedValue(bitmapOf(120, 80));
+
+		const image = await loadImage(new Blob(['x']), 'plain.jpg');
+
+		expect(image.contentCredentials).toBeNull();
+	});
+});

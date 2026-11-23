@@ -5,6 +5,7 @@
 
 import '../css/ImageEditor.scss';
 
+import ClayAlert from '@clayui/alert';
 import {ClayIconSpriteContext} from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import {sub} from 'frontend-js-web';
@@ -189,17 +190,25 @@ function Editor({
 		stageBoundsRef.current = rotatedSize(state);
 	});
 
+	const aiGenerated = image.contentCredentials?.aiGenerated === true;
+
 	useEffect(() => {
-		announce(
-			sub(
-				Liferay.Language.get(
-					'the-image-editor-was-opened-the-image-is-x-by-x-pixels'
-				),
-				image.width,
-				image.height
-			)
+		const message = sub(
+			Liferay.Language.get(
+				'the-image-editor-was-opened-the-image-is-x-by-x-pixels'
+			),
+			image.width,
+			image.height
 		);
-	}, [announce, image]);
+
+		announce(
+			aiGenerated
+				? `${message} ${Liferay.Language.get(
+						'the-image-editor-is-not-intended-for-use-with-ai-generated-content'
+					)}`
+				: message
+		);
+	}, [aiGenerated, announce, image]);
 
 	const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
@@ -468,6 +477,20 @@ function Editor({
 						onKeyDown={handleUndoShortcut}
 						ref={editorRef}
 					>
+						{aiGenerated && (
+							<ClayAlert
+								className="editor-ai-disclaimer"
+								displayType="warning"
+								role={null}
+								title={Liferay.Language.get('warning')}
+								variant="inline"
+							>
+								{Liferay.Language.get(
+									'the-image-editor-is-not-intended-for-use-with-ai-generated-content'
+								)}
+							</ClayAlert>
+						)}
+
 						<div className="editor-main">
 							<Workspace
 								aspectLocked={aspectLocked}

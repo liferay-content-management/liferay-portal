@@ -290,3 +290,52 @@ describe('the view', () => {
 		);
 	});
 });
+
+describe('the AI content disclaimer', () => {
+	const DISCLAIMER =
+		'the-image-editor-is-not-intended-for-use-with-ai-generated-content';
+
+	it('opens with the disclaimer when the image claims to be AI generated', async () => {
+		const {container} = render(
+			<ImageEditor
+				image={{
+					...image('blob:a'),
+					contentCredentials: {aiGenerated: true},
+				}}
+				{...HOST}
+				spritemap="/icons.svg"
+			/>
+		);
+
+		const alert = screen.getByText(DISCLAIMER).closest('.alert');
+
+		expect(alert).toBe(
+			container.querySelector('.image-editor')?.firstElementChild
+		);
+		expect(alert).not.toHaveAttribute('role');
+
+		await waitFor(() =>
+			expect(screen.getByRole('status')).toHaveTextContent(DISCLAIMER)
+		);
+	});
+
+	it.each([
+		['credentials that do not claim AI', {aiGenerated: false}],
+		['no credentials', null],
+	])('stays out of the way for %s', async (_, contentCredentials) => {
+		render(
+			<ImageEditor
+				image={{...image('blob:a'), contentCredentials}}
+				{...HOST}
+				spritemap="/icons.svg"
+			/>
+		);
+
+		await waitFor(() =>
+			expect(screen.getByRole('status')).not.toBeEmptyDOMElement()
+		);
+
+		expect(screen.queryByText(DISCLAIMER)).toBeNull();
+		expect(screen.getByRole('status')).not.toHaveTextContent(DISCLAIMER);
+	});
+});
