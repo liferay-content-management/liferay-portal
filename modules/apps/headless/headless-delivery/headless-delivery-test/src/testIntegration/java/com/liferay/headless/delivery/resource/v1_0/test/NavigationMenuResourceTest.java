@@ -6,6 +6,8 @@
 package com.liferay.headless.delivery.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryLocalService;
 import com.liferay.depot.constants.DepotConstants;
@@ -997,10 +999,7 @@ public class NavigationMenuResourceTest
 			).put(
 				"className", BlogsEntry.class.getName()
 			).put(
-				"classNameId",
-				String.valueOf(_portal.getClassNameId(BlogsEntry.class))
-			).put(
-				"classPK", String.valueOf(blogsEntry.getEntryId())
+				"externalReferenceCode", blogsEntry.getExternalReferenceCode()
 			).put(
 				"title", blogsEntry.getTitle()
 			).buildString());
@@ -1028,16 +1027,93 @@ public class NavigationMenuResourceTest
 				"privateLayout", "true"
 			).buildString());
 
+		AssetVocabulary assetVocabulary =
+			_assetVocabularyLocalService.addVocabulary(
+				TestPropsValues.getUserId(), testGroup.getGroupId(),
+				RandomTestUtil.randomString(),
+				ServiceContextTestUtil.getServiceContext(
+					testGroup.getGroupId(), TestPropsValues.getUserId()));
+
+		_resourcePermissionLocalService.removeResourcePermission(
+			testCompany.getCompanyId(), AssetVocabulary.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(assetVocabulary.getVocabularyId()),
+			guestRole.getRoleId(), ActionKeys.VIEW);
+
+		_addSiteNavigationMenuItem(
+			navigationMenu.getId(), "asset_vocabulary",
+			UnicodePropertiesBuilder.create(
+				true
+			).put(
+				"externalReferenceCode",
+				assetVocabulary.getExternalReferenceCode()
+			).buildString());
+
+		_addSiteNavigationMenuItem(
+			navigationMenu.getId(), "layout",
+			UnicodePropertiesBuilder.create(
+				true
+			).put(
+				"externalReferenceCode", RandomTestUtil.randomString()
+			).put(
+				"privateLayout", "false"
+			).buildString());
+		_addSiteNavigationMenuItem(
+			navigationMenu.getId(), "layout",
+			UnicodePropertiesBuilder.create(
+				true
+			).put(
+				"layoutUuid", RandomTestUtil.randomString()
+			).put(
+				"privateLayout", "false"
+			).buildString());
+
+		BlogsEntry viewableBlogsEntry = _blogsEntryLocalService.addEntry(
+			TestPropsValues.getUserId(), StringUtil.randomString(),
+			StringUtil.randomString(), new Date(),
+			ServiceContextTestUtil.getServiceContext(
+				testGroup.getGroupId(), TestPropsValues.getUserId()));
+
+		_addSiteNavigationMenuItem(
+			navigationMenu.getId(), BlogsEntry.class.getName(),
+			UnicodePropertiesBuilder.create(
+				true
+			).put(
+				"className", BlogsEntry.class.getName()
+			).put(
+				"classNameId",
+				String.valueOf(_portal.getClassNameId(BlogsEntry.class))
+			).put(
+				"classPK", String.valueOf(viewableBlogsEntry.getEntryId())
+			).put(
+				"title", viewableBlogsEntry.getTitle()
+			).buildString());
+
+		SiteNavigationMenuItem blogsEntrySiteNavigationMenuItem =
+			_addSiteNavigationMenuItem(
+				navigationMenu.getId(), BlogsEntry.class.getName(),
+				UnicodePropertiesBuilder.create(
+					true
+				).put(
+					"className", BlogsEntry.class.getName()
+				).put(
+					"externalReferenceCode",
+					viewableBlogsEntry.getExternalReferenceCode()
+				).put(
+					"title", viewableBlogsEntry.getTitle()
+				).buildString());
+
 		Layout publicLayout = LayoutTestUtil.addTypePortletLayout(
 			testGroup.getGroupId(), false);
 
-		SiteNavigationMenuItem siteNavigationMenuItem =
+		SiteNavigationMenuItem layoutSiteNavigationMenuItem =
 			_addSiteNavigationMenuItem(
 				navigationMenu.getId(), "layout",
 				UnicodePropertiesBuilder.create(
 					true
 				).put(
-					"layoutUuid", publicLayout.getUuid()
+					"externalReferenceCode",
+					publicLayout.getExternalReferenceCode()
 				).put(
 					"privateLayout", "false"
 				).buildString());
@@ -1064,11 +1140,23 @@ public class NavigationMenuResourceTest
 			navigationMenu.getNavigationMenuItems();
 
 		Assert.assertEquals(
-			Arrays.toString(navigationMenuItems), 1,
+			Arrays.toString(navigationMenuItems), 2,
 			navigationMenuItems.length);
 		Assert.assertEquals(
-			siteNavigationMenuItem.getSiteNavigationMenuItemId(),
+			blogsEntrySiteNavigationMenuItem.getSiteNavigationMenuItemId(),
 			GetterUtil.getLong(navigationMenuItems[0].getId()));
+		Assert.assertEquals(
+			layoutSiteNavigationMenuItem.getSiteNavigationMenuItemId(),
+			GetterUtil.getLong(navigationMenuItems[1].getId()));
+
+		navigationMenu = navigationMenuResource.getNavigationMenu(
+			navigationMenu.getId());
+
+		navigationMenuItems = navigationMenu.getNavigationMenuItems();
+
+		Assert.assertEquals(
+			Arrays.toString(navigationMenuItems), 9,
+			navigationMenuItems.length);
 	}
 
 	private void _testGetSiteNavigationMenusPage(
@@ -1215,6 +1303,9 @@ public class NavigationMenuResourceTest
 	private static ExpandoTableLocalService _expandoTableLocalService;
 
 	private static ExpandoTable _originalExpandoTable;
+
+	@Inject
+	private AssetVocabularyLocalService _assetVocabularyLocalService;
 
 	@Inject
 	private BlogsEntryLocalService _blogsEntryLocalService;
