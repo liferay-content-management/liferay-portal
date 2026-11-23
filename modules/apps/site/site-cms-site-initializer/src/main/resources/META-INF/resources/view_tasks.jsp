@@ -21,67 +21,27 @@ ViewTasksDisplayContext viewTasksDisplayContext = (ViewTasksDisplayContext)reque
 
 	<c:choose>
 		<c:when test="<%= viewTasksDisplayContext.isCMPEnabled() %>">
-			<ul class="nav nav-underline" id="tasksSectionTabs" role="tablist">
-				<li class="nav-item" role="presentation">
-					<button aria-controls="tasksSectionTabPanelAllTasks" class="active nav-link" data-target="tasksSectionTabPanelAllTasks" role="tab" type="button">
-						<liferay-ui:message key="all-tasks" />
-					</button>
-				</li>
-				<li class="nav-item" role="presentation">
-					<button aria-controls="tasksSectionTabPanelProjectTasks" class="nav-link" data-target="tasksSectionTabPanelProjectTasks" role="tab" type="button">
-						<liferay-ui:message key="project-tasks" />
-					</button>
-				</li>
-				<li class="nav-item" role="presentation">
-					<button aria-controls="tasksSectionTabPanelWorkflowTasks" class="nav-link" data-target="tasksSectionTabPanelWorkflowTasks" role="tab" type="button">
-						<liferay-ui:message key="workflow-tasks" />
-					</button>
-				</li>
-			</ul>
+			<div class="component-tabs">
+				<div>
+					<react:component
+						module="{TasksTabs} from site-cms-site-initializer"
+					/>
+				</div>
 
-			<div class="tab-content">
-				<div class="active cms-section tab-pane" id="tasksSectionTabPanelAllTasks" role="tabpanel">
+				<div class="tab-panel-item" hidden id="cmsAllTasksPanel">
 					<%= viewTasksDisplayContext.getAllTasksHTML() %>
 				</div>
 
-				<div class="cms-section tab-pane" id="tasksSectionTabPanelProjectTasks" role="tabpanel">
+				<div class="tab-panel-item" hidden id="cmsProjectTasksPanel">
 					<%= viewTasksDisplayContext.getProjectTasksHTML() %>
 				</div>
 
-				<div class="cms-section tab-pane" id="tasksSectionTabPanelWorkflowTasks" role="tabpanel">
+				<div class="tab-panel-item" hidden id="cmsWorkflowTasksPanel">
 					<%= viewTasksDisplayContext.getWorkflowTasksOverviewHTML() %>
 
 					<%= viewTasksDisplayContext.getWorkflowTasksHTML() %>
 				</div>
 			</div>
-
-			<aui:script>
-				(function () {
-					var tabs = document.querySelectorAll('#tasksSectionTabs .nav-link');
-
-					Array.prototype.forEach.call(tabs, function (tab) {
-						tab.addEventListener('click', function () {
-							Array.prototype.forEach.call(tabs, function (otherTab) {
-								otherTab.classList.remove('active');
-							});
-
-							tab.classList.add('active');
-
-							var panels = document.querySelectorAll(
-								'#tasksSectionTabs ~ .tab-content .tab-pane'
-							);
-
-							Array.prototype.forEach.call(panels, function (panel) {
-								panel.classList.remove('active');
-							});
-
-							document
-								.getElementById(tab.getAttribute('data-target'))
-								.classList.add('active');
-						});
-					});
-				})();
-			</aui:script>
 		</c:when>
 		<c:otherwise>
 			<c:if test="<%= viewTasksDisplayContext.isCMPMarketplaceBannerVisible() %>">

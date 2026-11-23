@@ -126,6 +126,7 @@ export {default as SpaceSummaryHeader} from './main_view/spaces/SpaceSummaryHead
 export {default as SpacesNavigation} from './main_view/spaces_navigation/SpacesNavigation';
 export {default as CMPMarketplaceBanner} from './main_view/tasks/CMPMarketplaceBanner';
 export {default as TasksQuickFilters} from './main_view/tasks/TasksQuickFilters';
+export {default as TasksTabs} from './main_view/tasks/TasksTabs';
 export {default as VersionHistoryToolbar} from './main_view/version_history/VersionHistoryToolbar';
 export {default as ViewAsset} from './main_view/view_asset/ViewAsset';
 
