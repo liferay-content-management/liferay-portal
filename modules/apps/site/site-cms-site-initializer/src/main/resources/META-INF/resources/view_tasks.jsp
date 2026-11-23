@@ -19,22 +19,6 @@ ViewTasksDisplayContext viewTasksDisplayContext = (ViewTasksDisplayContext)reque
 		/>
 	</div>
 
-	<c:if test="<%= viewTasksDisplayContext.isCMPMarketplaceBannerVisible() %>">
-		<div>
-			<react:component
-				module="{CMPMarketplaceBanner} from site-cms-site-initializer"
-				props="<%= viewTasksDisplayContext.getCMPMarketplaceBannerProps() %>"
-			/>
-		</div>
-	</c:if>
-
-	<div>
-		<react:component
-			module="{TasksQuickFilters} from site-cms-site-initializer"
-			props="<%= viewTasksDisplayContext.getTasksQuickFiltersProps() %>"
-		/>
-	</div>
-
 	<c:choose>
 		<c:when test="<%= viewTasksDisplayContext.isCMPEnabled() %>">
 			<ul class="nav nav-underline" id="tasksSectionTabs" role="tablist">
@@ -100,6 +84,22 @@ ViewTasksDisplayContext viewTasksDisplayContext = (ViewTasksDisplayContext)reque
 			</aui:script>
 		</c:when>
 		<c:otherwise>
+			<c:if test="<%= viewTasksDisplayContext.isCMPMarketplaceBannerVisible() %>">
+				<div>
+					<react:component
+						module="{CMPMarketplaceBanner} from site-cms-site-initializer"
+						props="<%= viewTasksDisplayContext.getCMPMarketplaceBannerProps() %>"
+					/>
+				</div>
+			</c:if>
+
+			<div>
+				<react:component
+					module="{TasksQuickFilters} from site-cms-site-initializer"
+					props="<%= viewTasksDisplayContext.getTasksQuickFiltersProps() %>"
+				/>
+			</div>
+
 			<div class="cms-section custom-empty-state">
 				<frontend-data-set:headless-display
 					apiURL="<%= viewTasksDisplayContext.getAPIURL() %>"
