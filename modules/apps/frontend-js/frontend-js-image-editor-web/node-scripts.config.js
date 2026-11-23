@@ -5,4 +5,8 @@
 
 module.exports = {
 	main: './src/main/resources/META-INF/resources/js/index.ts',
+	submodules: {
+		'content-credentials':
+			'./src/main/resources/META-INF/resources/js/content-credentials/index.ts',
+	},
 };

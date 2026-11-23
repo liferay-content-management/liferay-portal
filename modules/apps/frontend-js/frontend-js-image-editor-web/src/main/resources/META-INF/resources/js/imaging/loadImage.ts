@@ -3,8 +3,11 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {
+	ContentCredentials,
+	readContentCredentials,
+} from '../content-credentials/index';
 import {RedactLevel} from '../state/types';
-import {ContentCredentials, readContentCredentials} from './contentCredentials';
 
 export const MAX_IMAGE_BYTES = 25 * 1024 * 1024;
 
