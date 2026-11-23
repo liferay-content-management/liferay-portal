@@ -1,5 +1,5 @@
 {
-	"@generated": "6b948870ed5230d63ac9f6f93e4b689e305f8387",
+	"@generated": "01cda394c9b792cd1b4f222611e448b27d2297ad",
 	"@readonly": "** AUTO-GENERATED: DO NOT EDIT **",
 	"compilerOptions": {
 		"allowSyntheticDefaultImports": true,
@@ -31,6 +31,9 @@
 			],
 			"@liferay/frontend-js-image-editor-web": [
 				"../../../frontend-js/frontend-js-image-editor-web/src/main/resources/META-INF/resources/js/index.ts"
+			],
+			"@liferay/frontend-js-image-editor-web/content-credentials": [
+				"../../../frontend-js/frontend-js-image-editor-web/src/main/resources/META-INF/resources/js/content-credentials/index.ts"
 			],
 			"@liferay/frontend-js-item-selector-web": [
 				"../../../frontend-js/frontend-js-item-selector-web/src/main/resources/META-INF/resources/index.ts"

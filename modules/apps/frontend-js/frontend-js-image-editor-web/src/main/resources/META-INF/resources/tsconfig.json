@@ -1,5 +1,5 @@
 {
-	"@generated": "898c3b2b58085e0b57761546252e0036ae65fa24",
+	"@generated": "5d60dd87d87e00a441060cdd890b2202ee79d196",
 	"@readonly": "** AUTO-GENERATED: DO NOT EDIT **",
 	"compilerOptions": {
 		"allowSyntheticDefaultImports": true,
@@ -11,6 +11,9 @@
 		"module": "es2022",
 		"moduleResolution": "node",
 		"paths": {
+			"@liferay/frontend-js-image-editor-web/content-credentials": [
+				"./js/content-credentials/index.ts"
+			],
 			"frontend-js-web": [
 				"../../../../../../frontend-js-web/src/main/resources/META-INF/resources/main/index.d.ts"
 			],
