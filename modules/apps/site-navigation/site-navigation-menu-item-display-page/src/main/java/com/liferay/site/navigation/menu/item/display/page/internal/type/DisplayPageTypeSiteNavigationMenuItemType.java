@@ -423,6 +423,7 @@ public class DisplayPageTypeSiteNavigationMenuItemType
 				ClassPKInfoItemIdentifier.INFO_ITEM_SERVICE_FILTER);
 
 		Object infoItem = infoItemObjectProvider.getInfoItem(
+			siteNavigationMenuItem.getGroupId(),
 			new ERCInfoItemIdentifier(
 				typeSettingsUnicodeProperties.get("externalReferenceCode"),
 				typeSettingsUnicodeProperties.get(
