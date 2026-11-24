@@ -12,10 +12,12 @@ import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFolderConstants;
+import com.liferay.object.entry.folder.subscription.util.ObjectEntryFolderSubscriptionUtil;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -24,6 +26,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
@@ -39,6 +42,7 @@ import com.liferay.sharing.service.SharingEntryLocalService;
 import com.liferay.site.cms.site.initializer.contributor.CMSStructureObjectFolderContributor;
 import com.liferay.site.cms.site.initializer.internal.constants.CMSSiteInitializerFDSNames;
 import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
+import com.liferay.subscription.service.SubscriptionLocalService;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 import com.liferay.trash.TrashHelper;
 
@@ -64,6 +68,7 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 		ObjectDefinitionService objectDefinitionService,
 		ObjectEntryFolderLocalService objectEntryFolderLocalService,
 		Portal portal, SharingEntryLocalService sharingEntryLocalService,
+		SubscriptionLocalService subscriptionLocalService,
 		TranslationInfoItemFieldValuesExporterRegistry
 			translationInfoItemFieldValuesExporterRegistry,
 		TrashHelper trashHelper) {
@@ -78,6 +83,7 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 		_depotEntryModelResourcePermission = depotEntryModelResourcePermission;
 		_objectEntryFolderLocalService = objectEntryFolderLocalService;
 		_sharingEntryLocalService = sharingEntryLocalService;
+		_subscriptionLocalService = subscriptionLocalService;
 		_trashHelper = trashHelper;
 	}
 
@@ -102,8 +108,47 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 				return !_isContentsFolder();
 			}
 		).put(
+			"isSubscribed", _isSubscribed()
+		).put(
 			"rootObjectEntryFolderExternalReferenceCode",
 			getRootObjectEntryFolderExternalReferenceCode()
+		).put(
+			"subscribedToParentFolder",
+			() -> {
+				if (objectEntryFolder == null) {
+					return false;
+				}
+
+				try {
+					return !_isSubscribed() &&
+						   ObjectEntryFolderSubscriptionUtil.
+							   isSubscribedToObjectEntryFolder(
+								   themeDisplay.getCompanyId(),
+								   objectEntryFolder.getGroupId(),
+								   objectEntryFolder.getObjectEntryFolderId(),
+								   themeDisplay.getUserId());
+				}
+				catch (PortalException portalException) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(portalException);
+					}
+
+					return false;
+				}
+			}
+		).put(
+			"subscribeURL",
+			() -> {
+				if (objectEntryFolder == null) {
+					return null;
+				}
+
+				return StringBundler.concat(
+					themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
+					GroupConstants.CMS_FRIENDLY_URL,
+					"/subscribe_folder?classPK=",
+					objectEntryFolder.getObjectEntryFolderId());
+			}
 		).put(
 			"trashEnabled",
 			() -> {
@@ -532,6 +577,17 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 			ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS);
 	}
 
+	private boolean _isSubscribed() {
+		if (objectEntryFolder == null) {
+			return false;
+		}
+
+		return _subscriptionLocalService.isSubscribed(
+			themeDisplay.getCompanyId(), themeDisplay.getUserId(),
+			ObjectEntryFolder.class.getName(),
+			objectEntryFolder.getObjectEntryFolderId());
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		ViewFolderSectionDisplayContext.class);
 
@@ -543,6 +599,7 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 	private String _objectFolderExternalReferenceCode;
 	private String _rootObjectEntryFolderExternalReferenceCode;
 	private final SharingEntryLocalService _sharingEntryLocalService;
+	private final SubscriptionLocalService _subscriptionLocalService;
 	private final TrashHelper _trashHelper;
 
 }

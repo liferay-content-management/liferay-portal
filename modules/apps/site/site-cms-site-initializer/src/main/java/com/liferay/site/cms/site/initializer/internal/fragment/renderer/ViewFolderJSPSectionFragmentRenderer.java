@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.sharing.service.SharingEntryLocalService;
 import com.liferay.site.cms.site.initializer.contributor.CMSStructureObjectFolderContributor;
 import com.liferay.site.cms.site.initializer.internal.display.context.ViewFolderSectionDisplayContext;
+import com.liferay.subscription.service.SubscriptionLocalService;
 import com.liferay.trash.TrashHelper;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,7 +64,7 @@ public class ViewFolderJSPSectionFragmentRenderer
 			_depotEntryModelResourcePermission, _dlConfiguration,
 			_groupLocalService, httpServletRequest, language,
 			_objectDefinitionService, _objectEntryFolderLocalService, _portal,
-			_sharingEntryLocalService,
+			_sharingEntryLocalService, _subscriptionLocalService,
 			translationInfoItemFieldValuesExporterRegistry, _trashHelper);
 	}
 
@@ -102,6 +103,9 @@ public class ViewFolderJSPSectionFragmentRenderer
 
 	@Reference
 	private SharingEntryLocalService _sharingEntryLocalService;
+
+	@Reference
+	private SubscriptionLocalService _subscriptionLocalService;
 
 	@Reference
 	private TrashHelper _trashHelper;
