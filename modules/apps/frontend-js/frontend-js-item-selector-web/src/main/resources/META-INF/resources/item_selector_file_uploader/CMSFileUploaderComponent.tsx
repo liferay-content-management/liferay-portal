@@ -125,7 +125,17 @@ const CMSFileUploaderComponent: FilesUploaderComponent<{
 			}
 		);
 
-		return await response.json();
+		const data = await response.json();
+
+		if (!response.ok) {
+			return {
+				error:
+					data.title ??
+					Liferay.Language.get('an-unexpected-error-occurred'),
+			};
+		}
+
+		return data;
 	};
 
 	const onUploadComplete = ({
