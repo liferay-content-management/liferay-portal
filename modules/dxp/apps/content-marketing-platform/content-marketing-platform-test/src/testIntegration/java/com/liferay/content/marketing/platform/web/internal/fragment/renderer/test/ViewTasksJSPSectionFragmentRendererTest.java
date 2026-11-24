@@ -13,6 +13,7 @@ import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -47,6 +48,7 @@ public class ViewTasksJSPSectionFragmentRendererTest {
 			PermissionCheckerMethodTestRule.INSTANCE);
 
 	@Test
+	@TestInfo("LPD-112720")
 	public void testRender() throws Exception {
 		Group group = CMPTestUtil.getOrAddGroup(
 			ViewTasksJSPSectionFragmentRendererTest.class);

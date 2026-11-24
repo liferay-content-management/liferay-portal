@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -53,6 +54,7 @@ public class CMPPlanningAndTasksPagesUpgradeProcessTest {
 			PermissionCheckerMethodTestRule.INSTANCE);
 
 	@Test
+	@TestInfo("LPD-112720")
 	public void testUpgradeCompanyWithNewPlanningStructure() throws Exception {
 		Company company = CompanyTestUtil.addCompany(false);
 
@@ -103,6 +105,7 @@ public class CMPPlanningAndTasksPagesUpgradeProcessTest {
 	}
 
 	@Test
+	@TestInfo("LPD-112720")
 	public void testUpgradeCompanyWithOldPlanningStructure() throws Exception {
 		Company company = CompanyTestUtil.addCompany(false);
 

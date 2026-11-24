@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -53,6 +54,7 @@ public class AddDefaultLayoutInitialRequestPortalInstanceLifecycleListenerTest {
 			PermissionCheckerMethodTestRule.INSTANCE);
 
 	@Test
+	@TestInfo("LPD-112720")
 	public void testPortalInstanceRegistered() throws Exception {
 		Assume.assumeTrue(LicenseManagerUtil.isAppEnabled(App.CMP));
 
