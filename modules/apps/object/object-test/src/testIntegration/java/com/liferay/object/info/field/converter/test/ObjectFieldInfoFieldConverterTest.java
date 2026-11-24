@@ -9,14 +9,18 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
 import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.info.field.InfoField;
+import com.liferay.info.field.type.FileInfoFieldType;
 import com.liferay.info.field.type.PhoneNumberInfoFieldType;
 import com.liferay.info.field.type.RelationshipInfoFieldType;
 import com.liferay.info.item.InfoItemReference;
 import com.liferay.layout.display.page.LayoutDisplayPageProvider;
 import com.liferay.layout.display.page.LayoutDisplayPageProviderRegistry;
 import com.liferay.layout.display.page.constants.LayoutDisplayPageWebKeys;
+import com.liferay.object.configuration.ObjectConfiguration;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
+import com.liferay.object.field.attachment.AttachmentManager;
+import com.liferay.object.field.builder.AttachmentObjectFieldBuilder;
 import com.liferay.object.field.builder.IntegerObjectFieldBuilder;
 import com.liferay.object.field.builder.PhoneNumberObjectFieldBuilder;
 import com.liferay.object.field.builder.TextObjectFieldBuilder;
@@ -39,12 +43,15 @@ import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.object.test.util.ObjectRelationshipTestUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
@@ -52,9 +59,12 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
@@ -129,7 +139,7 @@ public class ObjectFieldInfoFieldConverterTest {
 
 		ObjectFieldInfoFieldConverter objectFieldInfoFieldConverter =
 			new ObjectFieldInfoFieldConverter(
-				null, null, null, _objectDefinitionLocalService,
+				null, null, null, null, _objectDefinitionLocalService,
 				_objectFieldLocalService, _objectRelationshipLocalService,
 				_objectScopeProviderRegistry, null, null, _portal,
 				_restContextPathResolverRegistry, null, null);
@@ -211,7 +221,7 @@ public class ObjectFieldInfoFieldConverterTest {
 
 		ObjectFieldInfoFieldConverter objectFieldInfoFieldConverter =
 			new ObjectFieldInfoFieldConverter(
-				null, null, null, _objectDefinitionLocalService,
+				null, null, null, null, _objectDefinitionLocalService,
 				_objectFieldLocalService, _objectRelationshipLocalService,
 				_objectScopeProviderRegistry, null, null, _portal,
 				_restContextPathResolverRegistry,
@@ -237,8 +247,8 @@ public class ObjectFieldInfoFieldConverterTest {
 	public void testGetInfoField() throws Exception {
 		ObjectFieldInfoFieldConverter objectFieldInfoFieldConverter =
 			new ObjectFieldInfoFieldConverter(
-				_ddmExpressionFactory, null, null, null, null, null, null, null,
-				null, null, null, null, null);
+				null, _ddmExpressionFactory, null, null, null, null, null, null,
+				null, null, null, null, null, null);
 
 		InfoField<?> infoField = objectFieldInfoFieldConverter.getInfoField(
 			true, ObjectField.class.getSimpleName(), _objectField);
@@ -285,6 +295,88 @@ public class ObjectFieldInfoFieldConverterTest {
 	}
 
 	@Test
+	@TestInfo("LPD-107933")
+	public void testGetInfoFieldWithCMSBasicDocumentFileSource()
+		throws Exception {
+
+		ObjectField objectField = ObjectFieldUtil.addCustomObjectField(
+			new AttachmentObjectFieldBuilder(
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+			).name(
+				"a" + RandomTestUtil.randomString()
+			).objectDefinitionId(
+				_objectDefinition.getObjectDefinitionId()
+			).objectFieldSettings(
+				Arrays.asList(
+					new ObjectFieldSettingBuilder(
+					).name(
+						ObjectFieldSettingConstants.
+							NAME_ACCEPTED_FILE_EXTENSIONS
+					).value(
+						"txt"
+					).build(),
+					new ObjectFieldSettingBuilder(
+					).name(
+						ObjectFieldSettingConstants.NAME_FILE_SOURCE
+					).value(
+						ObjectFieldSettingConstants.VALUE_CMS_BASIC_DOCUMENT
+					).build(),
+					new ObjectFieldSettingBuilder(
+					).name(
+						ObjectFieldSettingConstants.NAME_MAX_FILE_SIZE
+					).value(
+						"100"
+					).build())
+			).userId(
+				TestPropsValues.getUserId()
+			).build());
+
+		ObjectFieldInfoFieldConverter objectFieldInfoFieldConverter =
+			new ObjectFieldInfoFieldConverter(
+				_attachmentManager, null, null,
+				_configurationProvider.getSystemConfiguration(
+					ObjectConfiguration.class),
+				null, null, null, null, null, null, null, null, null,
+				_userLocalService);
+
+		try {
+			ServiceContextThreadLocal.pushServiceContext(
+				ServiceContextTestUtil.getServiceContext());
+
+			InfoField<FileInfoFieldType> infoField =
+				(InfoField<FileInfoFieldType>)
+					objectFieldInfoFieldConverter.getInfoField(
+						true, ObjectField.class.getSimpleName(), objectField);
+
+			ObjectDefinition cmsBasicDocumentObjectDefinition =
+				_objectDefinitionLocalService.
+					getObjectDefinitionByExternalReferenceCode(
+						"L_CMS_BASIC_DOCUMENT", TestPropsValues.getCompanyId());
+
+			ObjectField fileObjectField =
+				_objectFieldLocalService.fetchObjectField(
+					cmsBasicDocumentObjectDefinition.getObjectDefinitionId(),
+					"file");
+
+			long jsonStringMaxLength = GetterUtil.getLong(
+				PropsUtil.get(PropsKeys.JSON_STRING_MAX_LENGTH));
+
+			long maximumFileSize = Math.min(
+				_attachmentManager.getMaximumFileSize(
+					fileObjectField.getObjectFieldId(), true),
+				jsonStringMaxLength / 4 * 3);
+
+			Assert.assertEquals(
+				Long.valueOf(maximumFileSize / (1024 * 1024)),
+				infoField.getAttribute(FileInfoFieldType.MAX_FILE_SIZE));
+		}
+		finally {
+			ServiceContextThreadLocal.popServiceContext();
+		}
+	}
+
+	@Test
 	public void testGetInfoFieldWithUnavailableDefaultLocale()
 		throws Exception {
 
@@ -299,8 +391,8 @@ public class ObjectFieldInfoFieldConverterTest {
 
 			ObjectFieldInfoFieldConverter objectFieldInfoFieldConverter =
 				new ObjectFieldInfoFieldConverter(
-					_ddmExpressionFactory, null, null, null, null, null, null,
-					null, null, null, null, null, null);
+					null, _ddmExpressionFactory, null, null, null, null, null,
+					null, null, null, null, null, null, null);
 
 			InfoField<?> infoField = objectFieldInfoFieldConverter.getInfoField(
 				true, ObjectField.class.getSimpleName(), _objectField);
@@ -340,8 +432,8 @@ public class ObjectFieldInfoFieldConverterTest {
 
 		ObjectFieldInfoFieldConverter objectFieldInfoFieldConverter =
 			new ObjectFieldInfoFieldConverter(
-				_ddmExpressionFactory, null, null, null, null, null, null, null,
-				null, null, null, null, null);
+				null, _ddmExpressionFactory, null, null, null, null, null, null,
+				null, null, null, null, null, null);
 
 		InfoField<PhoneNumberInfoFieldType> infoField =
 			(InfoField<PhoneNumberInfoFieldType>)
@@ -439,6 +531,12 @@ public class ObjectFieldInfoFieldConverterTest {
 	}
 
 	@Inject
+	private AttachmentManager _attachmentManager;
+
+	@Inject
+	private ConfigurationProvider _configurationProvider;
+
+	@Inject
 	private DDMExpressionFactory _ddmExpressionFactory;
 
 	@Inject
@@ -480,5 +578,8 @@ public class ObjectFieldInfoFieldConverterTest {
 	@Inject
 	private SystemObjectDefinitionManagerRegistry
 		_systemObjectDefinitionManagerRegistry;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 }
