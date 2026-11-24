@@ -489,6 +489,7 @@ export default function AttachmentBase({
 			{isCMSBasicDocument && (
 				<CMSFilesItemSelectorModal
 					items={cmsFiles}
+					maxFileSize={Number(maximumFileSize)}
 					observer={spaceItemSelectorObserver}
 					onItemsChange={handleCMSItemsChange}
 					onOpenChange={onSpaceItemSelectorOpenChange}
