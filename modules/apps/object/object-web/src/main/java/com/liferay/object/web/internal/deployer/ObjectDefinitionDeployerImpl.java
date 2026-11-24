@@ -218,11 +218,11 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 		ObjectFieldInfoFieldConverter objectFieldInfoFieldConverter =
 			new ObjectFieldInfoFieldConverter(
-				_ddmExpressionFactory, _listTypeEntryLocalService,
-				_objectConfiguration, _objectDefinitionLocalService,
-				_objectFieldLocalService, _objectRelationshipLocalService,
-				_objectScopeProviderRegistry, _objectStateFlowLocalService,
-				_objectStateLocalService, _portal,
+				_attachmentManager, _ddmExpressionFactory,
+				_listTypeEntryLocalService, _objectConfiguration,
+				_objectDefinitionLocalService, _objectFieldLocalService,
+				_objectRelationshipLocalService, _objectScopeProviderRegistry,
+				_objectStateFlowLocalService, _objectStateLocalService, _portal,
 				_restContextPathResolverRegistry,
 				_systemObjectDefinitionManagerRegistry, _userLocalService);
 

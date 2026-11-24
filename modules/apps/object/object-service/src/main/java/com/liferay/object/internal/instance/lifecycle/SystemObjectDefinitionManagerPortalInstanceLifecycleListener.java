@@ -25,6 +25,7 @@ import com.liferay.notification.handler.NotificationHandler;
 import com.liferay.notification.term.evaluator.NotificationTermEvaluator;
 import com.liferay.object.configuration.ObjectConfiguration;
 import com.liferay.object.definition.util.ObjectDefinitionUtil;
+import com.liferay.object.field.attachment.AttachmentManager;
 import com.liferay.object.info.field.converter.ObjectFieldInfoFieldConverter;
 import com.liferay.object.internal.item.selector.SystemObjectEntryItemSelectorView;
 import com.liferay.object.internal.notification.handler.ObjectDefinitionNotificationHandler;
@@ -254,9 +255,10 @@ public class SystemObjectDefinitionManagerPortalInstanceLifecycleListener
 
 			ObjectFieldInfoFieldConverter objectFieldInfoFieldConverter =
 				new ObjectFieldInfoFieldConverter(
-					_ddmExpressionFactory, _listTypeEntryLocalService,
-					_objectConfiguration, _objectDefinitionLocalService,
-					_objectFieldLocalService, _objectRelationshipLocalService,
+					_attachmentManager, _ddmExpressionFactory,
+					_listTypeEntryLocalService, _objectConfiguration,
+					_objectDefinitionLocalService, _objectFieldLocalService,
+					_objectRelationshipLocalService,
 					_objectScopeProviderRegistry, _objectStateFlowLocalService,
 					_objectStateLocalService, _portal,
 					_restContextPathResolverRegistry,
@@ -391,6 +393,9 @@ public class SystemObjectDefinitionManagerPortalInstanceLifecycleListener
 			SystemObjectDefinitionManagerPortalInstanceLifecycleListener.class.
 				getName() + "._opening",
 			() -> Boolean.FALSE);
+
+	@Reference
+	private AttachmentManager _attachmentManager;
 
 	private BundleContext _bundleContext;
 

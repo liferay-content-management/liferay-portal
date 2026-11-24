@@ -30,6 +30,7 @@ import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectFieldValidationConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
+import com.liferay.object.field.attachment.AttachmentManager;
 import com.liferay.object.field.setting.util.ObjectFieldSettingUtil;
 import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.info.field.type.util.ObjectFieldInfoFieldTypeUtil;
@@ -92,6 +93,7 @@ import java.util.Set;
 public class ObjectFieldInfoFieldConverter {
 
 	public ObjectFieldInfoFieldConverter(
+		AttachmentManager attachmentManager,
 		DDMExpressionFactory ddmExpressionFactory,
 		ListTypeEntryLocalService listTypeEntryLocalService,
 		ObjectConfiguration objectConfiguration,
@@ -106,6 +108,7 @@ public class ObjectFieldInfoFieldConverter {
 			systemObjectDefinitionManagerRegistry,
 		UserLocalService userLocalService) {
 
+		_attachmentManager = attachmentManager;
 		_ddmExpressionFactory = ddmExpressionFactory;
 		_listTypeEntryLocalService = listTypeEntryLocalService;
 		_objectConfiguration = objectConfiguration;
@@ -487,19 +490,36 @@ public class ObjectFieldInfoFieldConverter {
 		String maximumFileSizeValue = ObjectFieldSettingUtil.getValue(
 			ObjectFieldSettingConstants.NAME_MAX_FILE_SIZE, objectField);
 
-		if (maximumFileSizeValue == null) {
-			return maximumFileSizeForGuestUsers;
+		long maximumFileSize = maximumFileSizeForGuestUsers;
+
+		if (maximumFileSizeValue != null) {
+			maximumFileSize = GetterUtil.getLong(maximumFileSizeValue);
+
+			if ((maximumFileSizeForGuestUsers < maximumFileSize) &&
+				_isGuestUser()) {
+
+				maximumFileSize = maximumFileSizeForGuestUsers;
+			}
 		}
 
-		long maximumFileSize = GetterUtil.getLong(maximumFileSizeValue);
+		if (!Objects.equals(
+				ObjectFieldSettingUtil.getValue(
+					ObjectFieldSettingConstants.NAME_FILE_SOURCE, objectField),
+				ObjectFieldSettingConstants.VALUE_CMS_BASIC_DOCUMENT)) {
 
-		if ((maximumFileSizeForGuestUsers < maximumFileSize) &&
-			_isGuestUser()) {
-
-			maximumFileSize = maximumFileSizeForGuestUsers;
+			return maximumFileSize;
 		}
 
-		return maximumFileSize;
+		long cmsBasicDocumentMaximumFileSize =
+			_attachmentManager.getCMSBasicDocumentMaximumFileSize(
+				objectField.getCompanyId(), !_isGuestUser());
+
+		if (maximumFileSize == 0) {
+			return cmsBasicDocumentMaximumFileSize / (1024 * 1024);
+		}
+
+		return Math.min(
+			maximumFileSize, cmsBasicDocumentMaximumFileSize / (1024 * 1024));
 	}
 
 	private ObjectEntry _getObjectEntry(ServiceContext serviceContext) {
@@ -762,6 +782,7 @@ public class ObjectFieldInfoFieldConverter {
 	private static final Log _log = LogFactoryUtil.getLog(
 		ObjectFieldInfoFieldConverter.class);
 
+	private final AttachmentManager _attachmentManager;
 	private final DDMExpressionFactory _ddmExpressionFactory;
 	private final ListTypeEntryLocalService _listTypeEntryLocalService;
 	private final ObjectConfiguration _objectConfiguration;
