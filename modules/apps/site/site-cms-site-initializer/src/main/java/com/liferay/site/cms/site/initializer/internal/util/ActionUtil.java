@@ -96,7 +96,6 @@ import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.ScopeUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -1366,30 +1365,10 @@ public class ActionUtil {
 	}
 
 	public static long getUploadMaximumFileSize(ThemeDisplay themeDisplay) {
-		long maximumFileSize = PropsValues.JSON_STRING_MAX_LENGTH / 4 * 3;
-
-		ObjectDefinition objectDefinition =
-			ObjectDefinitionLocalServiceUtil.
-				fetchObjectDefinitionByExternalReferenceCode(
-					"L_CMS_BASIC_DOCUMENT", themeDisplay.getCompanyId());
-
-		if (objectDefinition == null) {
-			return maximumFileSize;
-		}
-
-		ObjectField objectField = ObjectFieldLocalServiceUtil.fetchObjectField(
-			objectDefinition.getObjectDefinitionId(), "file");
-
-		if (objectField == null) {
-			return maximumFileSize;
-		}
-
 		AttachmentManager attachmentManager = _attachmentManagerSnapshot.get();
 
-		return Math.min(
-			attachmentManager.getMaximumFileSize(
-				objectField.getObjectFieldId(), themeDisplay.isSignedIn()),
-			maximumFileSize);
+		return attachmentManager.getCMSBasicDocumentMaximumFileSize(
+			themeDisplay.getCompanyId(), themeDisplay.isSignedIn());
 	}
 
 	public static DropdownItem getUploadMultipleFilesDropdownItem(
