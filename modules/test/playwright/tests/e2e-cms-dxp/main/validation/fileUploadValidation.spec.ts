@@ -7,6 +7,8 @@ import {expect, mergeTests} from '@playwright/test';
 
 import {dataApiHelpersTest} from '../../../../fixtures/dataApiHelpersTest';
 import {loginTest} from '../../../../fixtures/loginTest';
+import {clickAndExpectToBeVisible} from '../../../../utils/clickAndExpectToBeVisible';
+import createTempFile from '../../../../utils/createTempFile';
 import getRandomString from '../../../../utils/getRandomString';
 import {cmsPagesTest} from '../../../site-cms-site-initializer/main/fixtures/cmsPagesTest';
 import {structureBuilderPagesTest} from '../../../site-cms-site-initializer/structure-builder/fixtures/structureBuilderPagesTest';
@@ -17,6 +19,8 @@ const test = mergeTests(
 	loginTest(),
 	structureBuilderPagesTest
 );
+
+const CMS_MAXIMUM_FILE_SIZE_MB = 71;
 
 const MAXIMUM_FILE_SIZE_MB = 1;
 
@@ -155,6 +159,81 @@ test(
 			await expect(
 				page.getByRole('heading', {name: 'New'})
 			).toBeVisible();
+		});
+	}
+);
+
+test(
+	'Uploading a file larger than a basic document can store from the file selector of an upload field is blocked',
+	{tag: '@LPD-107933'},
+	async ({apiHelpers, contentsPage, page, structureBuilderPage}) => {
+		const space = await apiHelpers.headlessAssetLibrary.createSpace();
+
+		const structureLabel = getRandomString();
+
+		await structureBuilderPage.createStructureFromData({
+			label: structureLabel,
+			page: structureBuilderPage,
+			publish: false,
+			spaces: [space.name],
+		});
+
+		await structureBuilderPage.addField('Upload');
+
+		await structureBuilderPage.changeFieldSettings({
+			requestFile: 'document-library',
+		});
+
+		await structureBuilderPage.publishStructure();
+
+		const dialog = page.getByRole('dialog');
+		const fileName = `${getRandomString()}.png`;
+
+		await test.step('The field help shows the size a basic document can store', async () => {
+			await contentsPage.goto();
+
+			await contentsPage.createContent(structureLabel, space.name);
+
+			await expect(
+				page.getByText(`no larger than ${CMS_MAXIMUM_FILE_SIZE_MB} MB.`)
+			).toBeVisible();
+		});
+
+		await test.step('Upload a png larger than that size from the file selector', async () => {
+			const uploadFilesButton = dialog.getByRole('button', {
+				name: 'Upload Files',
+			});
+
+			await clickAndExpectToBeVisible({
+				target: uploadFilesButton,
+				trigger: page.getByRole('button', {
+					exact: true,
+					name: 'Select File',
+				}),
+			});
+
+			await uploadFilesButton.click();
+
+			await dialog
+				.locator('input[type="file"]')
+				.setInputFiles(
+					createTempFile(
+						fileName,
+						Buffer.alloc(
+							(CMS_MAXIMUM_FILE_SIZE_MB + 1) * 1024 * 1024
+						)
+					)
+				);
+		});
+
+		await test.step('A size error naming the limit is shown and the file is not listed', async () => {
+			await expect(
+				dialog.getByText(
+					`Please enter a file with a valid file size no larger than ${CMS_MAXIMUM_FILE_SIZE_MB.toFixed(1)}MB.`
+				)
+			).toBeVisible();
+
+			await expect(dialog.getByText(fileName)).toBeHidden();
 		});
 	}
 );
