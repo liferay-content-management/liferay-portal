@@ -13,6 +13,7 @@ import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.site.cms.site.initializer.util.CMSDefaultValueUtil;
 
 import java.util.List;
 
@@ -34,6 +35,11 @@ public class DepotEntryModelListener extends BaseModelListener<DepotEntry> {
 				(depotEntry.getType() != DepotConstants.TYPE_SPACE)) {
 
 				return;
+			}
+
+			if (depotEntry.getType() == DepotConstants.TYPE_SPACE) {
+				CMSDefaultValueUtil.deleteObjectEntries(
+					depotEntry.getCompanyId(), depotEntry.getGroupId());
 			}
 
 			List<AssetVocabularyGroupRel> assetVocabularyGroupRels =

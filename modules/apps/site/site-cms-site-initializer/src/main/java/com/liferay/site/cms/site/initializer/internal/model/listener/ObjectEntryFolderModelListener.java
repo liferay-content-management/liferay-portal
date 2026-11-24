@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.sharing.service.SharingEntryLocalService;
 import com.liferay.site.cms.site.initializer.util.CMSDefaultPermissionUtil;
+import com.liferay.site.cms.site.initializer.util.CMSDefaultValueUtil;
 
 import java.util.Objects;
 
@@ -75,12 +76,32 @@ public class ObjectEntryFolderModelListener
 					objectEntryFolder.getExternalReferenceCode(),
 					objectEntryFolder,
 					originalObjectEntryFolder.getExternalReferenceCode());
+
+				if (objectEntryFolder.getGroupId() != 0) {
+					CMSDefaultValueUtil.updateClassExternalReferenceCode(
+						objectEntryFolder.getExternalReferenceCode(),
+						ObjectEntryFolder.class.getName(),
+						objectEntryFolder.getCompanyId(), _filterFactory,
+						objectEntryFolder.getGroupId(),
+						originalObjectEntryFolder.getExternalReferenceCode(),
+						objectEntryFolder.getUserId());
+				}
 			}
 
 			if (originalObjectEntryFolder.getParentObjectEntryFolderId() !=
 					objectEntryFolder.getParentObjectEntryFolderId()) {
 
 				_updateCMSDefaultPermissions(objectEntryFolder);
+			}
+
+			if ((objectEntryFolder.getGroupId() != 0) &&
+				!Objects.equals(
+					originalObjectEntryFolder.getTreePath(),
+					objectEntryFolder.getTreePath())) {
+
+				CMSDefaultValueUtil.updateTreePath(
+					_filterFactory, objectEntryFolder,
+					objectEntryFolder.getUserId());
 			}
 		}
 		catch (Exception exception) {
@@ -101,6 +122,14 @@ public class ObjectEntryFolderModelListener
 		_sharingEntryLocalService.deleteSharingEntries(
 			_portal.getClassNameId(ObjectEntryFolder.class.getName()),
 			objectEntryFolder.getObjectEntryFolderId());
+
+		if (objectEntryFolder.getGroupId() != 0) {
+			CMSDefaultValueUtil.deleteObjectEntry(
+				objectEntryFolder.getExternalReferenceCode(),
+				ObjectEntryFolder.class.getName(),
+				objectEntryFolder.getCompanyId(), _filterFactory,
+				objectEntryFolder.getGroupId());
+		}
 
 		ObjectDefinition cmsDefaultPermissionObjectDefinition =
 			_objectDefinitionLocalService.

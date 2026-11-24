@@ -56,8 +56,8 @@ public class CMSDefaultValueUtil {
 
 		return _addOrUpdateObjectEntry(
 			group.getExternalReferenceCode(), DepotEntry.class.getName(),
-			defaultValuesJSONArray, filterFactory, group.getGroupId(),
-			StringPool.BLANK, userId);
+			group.getCompanyId(), defaultValuesJSONArray, filterFactory,
+			group.getGroupId(), StringPool.BLANK, userId);
 	}
 
 	public static ObjectEntry addOrUpdateObjectEntry(
@@ -68,9 +68,67 @@ public class CMSDefaultValueUtil {
 
 		return _addOrUpdateObjectEntry(
 			objectEntryFolder.getExternalReferenceCode(),
-			ObjectEntryFolder.class.getName(), defaultValuesJSONArray,
-			filterFactory, objectEntryFolder.getGroupId(),
-			objectEntryFolder.getTreePath(), userId);
+			ObjectEntryFolder.class.getName(), objectEntryFolder.getCompanyId(),
+			defaultValuesJSONArray, filterFactory,
+			objectEntryFolder.getGroupId(), objectEntryFolder.getTreePath(),
+			userId);
+	}
+
+	public static ObjectEntry copyObjectEntry(
+			FilterFactory<Predicate> filterFactory,
+			ObjectEntryFolder sourceObjectEntryFolder,
+			ObjectEntryFolder targetObjectEntryFolder, long userId)
+		throws PortalException {
+
+		ObjectEntry objectEntry = fetchObjectEntry(
+			sourceObjectEntryFolder.getExternalReferenceCode(),
+			ObjectEntryFolder.class.getName(),
+			sourceObjectEntryFolder.getCompanyId(), filterFactory,
+			sourceObjectEntryFolder.getGroupId());
+
+		if (objectEntry == null) {
+			return null;
+		}
+
+		return addOrUpdateObjectEntry(
+			JSONFactoryUtil.createJSONArray(
+				MapUtil.getString(
+					objectEntry.getValues(), "defaultValues", "[]")),
+			filterFactory, targetObjectEntryFolder, userId);
+	}
+
+	public static void deleteObjectEntries(long companyId, long groupId)
+		throws PortalException {
+
+		ObjectDefinition objectDefinition = fetchObjectDefinition(companyId);
+
+		if (objectDefinition == null) {
+			return;
+		}
+
+		for (ObjectEntry objectEntry :
+				ObjectEntryLocalServiceUtil.getObjectEntries(
+					groupId, objectDefinition.getObjectDefinitionId(),
+					QueryUtil.ALL_POS, QueryUtil.ALL_POS)) {
+
+			ObjectEntryLocalServiceUtil.deleteObjectEntry(objectEntry);
+		}
+	}
+
+	public static ObjectEntry deleteObjectEntry(
+			String classExternalReferenceCode, String className, long companyId,
+			FilterFactory<Predicate> filterFactory, long groupId)
+		throws PortalException {
+
+		ObjectEntry objectEntry = fetchObjectEntry(
+			classExternalReferenceCode, className, companyId, filterFactory,
+			groupId);
+
+		if (objectEntry == null) {
+			return null;
+		}
+
+		return ObjectEntryLocalServiceUtil.deleteObjectEntry(objectEntry);
 	}
 
 	public static ObjectDefinition fetchObjectDefinition(long companyId) {
@@ -80,21 +138,18 @@ public class CMSDefaultValueUtil {
 	}
 
 	public static ObjectEntry fetchObjectEntry(
-			String classExternalReferenceCode, String className,
+			String classExternalReferenceCode, String className, long companyId,
 			FilterFactory<Predicate> filterFactory, long groupId)
 		throws PortalException {
 
-		Group group = GroupLocalServiceUtil.getGroup(groupId);
-
-		ObjectDefinition objectDefinition = fetchObjectDefinition(
-			group.getCompanyId());
+		ObjectDefinition objectDefinition = fetchObjectDefinition(companyId);
 
 		if (objectDefinition == null) {
 			return null;
 		}
 
 		List<Long> primaryKeys = ObjectEntryLocalServiceUtil.getPrimaryKeys(
-			new Long[] {groupId}, group.getCompanyId(), 0,
+			new Long[] {groupId}, companyId, 0,
 			objectDefinition.getObjectDefinitionId(),
 			filterFactory.create(
 				_getFilterString(
@@ -110,12 +165,13 @@ public class CMSDefaultValueUtil {
 	}
 
 	public static JSONArray getDefaultValuesJSONArray(
-			String classExternalReferenceCode, String className,
+			String classExternalReferenceCode, String className, long companyId,
 			FilterFactory<Predicate> filterFactory, long groupId)
 		throws PortalException {
 
 		ObjectEntry objectEntry = fetchObjectEntry(
-			classExternalReferenceCode, className, filterFactory, groupId);
+			classExternalReferenceCode, className, companyId, filterFactory,
+			groupId);
 
 		if (objectEntry == null) {
 			return JSONFactoryUtil.createJSONArray();
@@ -258,12 +314,53 @@ public class CMSDefaultValueUtil {
 			StringPool.POUND, name, StringPool.POUND, type);
 	}
 
+	public static ObjectEntry updateClassExternalReferenceCode(
+			String classExternalReferenceCode, String className, long companyId,
+			FilterFactory<Predicate> filterFactory, long groupId,
+			String originalClassExternalReferenceCode, long userId)
+		throws PortalException {
+
+		ObjectEntry objectEntry = fetchObjectEntry(
+			originalClassExternalReferenceCode, className, companyId,
+			filterFactory, groupId);
+
+		if (objectEntry == null) {
+			return null;
+		}
+
+		return _partialUpdateObjectEntry(
+			"classExternalReferenceCode", objectEntry, userId,
+			classExternalReferenceCode);
+	}
+
+	public static ObjectEntry updateTreePath(
+			FilterFactory<Predicate> filterFactory,
+			ObjectEntryFolder objectEntryFolder, long userId)
+		throws PortalException {
+
+		ObjectEntry objectEntry = fetchObjectEntry(
+			objectEntryFolder.getExternalReferenceCode(),
+			ObjectEntryFolder.class.getName(), objectEntryFolder.getCompanyId(),
+			filterFactory, objectEntryFolder.getGroupId());
+
+		if (objectEntry == null) {
+			return null;
+		}
+
+		return _partialUpdateObjectEntry(
+			"treePath", objectEntry, userId, objectEntryFolder.getTreePath());
+	}
+
 	private static ObjectEntry _addOrUpdateObjectEntry(
-			String classExternalReferenceCode, String className,
+			String classExternalReferenceCode, String className, long companyId,
 			JSONArray defaultValuesJSONArray,
 			FilterFactory<Predicate> filterFactory, long groupId,
 			String treePath, long userId)
 		throws PortalException {
+
+		ObjectEntry objectEntry = fetchObjectEntry(
+			classExternalReferenceCode, className, companyId, filterFactory,
+			groupId);
 
 		Map<String, Serializable> values =
 			HashMapBuilder.<String, Serializable>put(
@@ -276,9 +373,6 @@ public class CMSDefaultValueUtil {
 				"treePath", treePath
 			).build();
 
-		ObjectEntry objectEntry = fetchObjectEntry(
-			classExternalReferenceCode, className, filterFactory, groupId);
-
 		if (objectEntry != null) {
 			return ObjectEntryLocalServiceUtil.updateObjectEntry(
 				userId, objectEntry.getObjectEntryId(),
@@ -286,12 +380,10 @@ public class CMSDefaultValueUtil {
 				new ServiceContext());
 		}
 
-		Group group = GroupLocalServiceUtil.getGroup(groupId);
-
 		ObjectDefinition objectDefinition =
 			ObjectDefinitionLocalServiceUtil.
 				getObjectDefinitionByExternalReferenceCode(
-					"L_CMS_DEFAULT_VALUE", group.getCompanyId());
+					"L_CMS_DEFAULT_VALUE", companyId);
 
 		return ObjectEntryLocalServiceUtil.addObjectEntry(
 			groupId, userId, objectDefinition.getObjectDefinitionId(),
@@ -359,6 +451,20 @@ public class CMSDefaultValueUtil {
 		}
 
 		return true;
+	}
+
+	private static ObjectEntry _partialUpdateObjectEntry(
+			String name, ObjectEntry objectEntry, long userId,
+			Serializable value)
+		throws PortalException {
+
+		return ObjectEntryLocalServiceUtil.partialUpdateObjectEntry(
+			userId, objectEntry.getObjectEntryId(),
+			objectEntry.getObjectEntryFolderId(),
+			HashMapBuilder.<String, Serializable>put(
+				name, value
+			).build(),
+			new ServiceContext());
 	}
 
 }
