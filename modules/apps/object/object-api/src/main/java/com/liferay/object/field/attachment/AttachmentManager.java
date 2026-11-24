@@ -20,6 +20,9 @@ public interface AttachmentManager {
 
 	public String[] getAcceptedFileExtensions(long objectFieldId);
 
+	public long getCMSBasicDocumentMaximumFileSize(
+		long companyId, boolean signedIn);
+
 	public DLFolder getDLFolder(
 			long companyId, long groupId, long objectFieldId,
 			ServiceContext serviceContext, long userId)

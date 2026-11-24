@@ -26,6 +26,7 @@ import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFieldSetting;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectFieldSettingLocalService;
+import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -44,6 +45,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MimeTypes;
+import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.documentlibrary.util.DLAppUtil;
 
@@ -78,6 +80,32 @@ public class AttachmentManagerImpl implements AttachmentManager {
 		String value = objectFieldSetting.getValue();
 
 		return value.split("\\s*,\\s*");
+	}
+
+	@Override
+	public long getCMSBasicDocumentMaximumFileSize(
+		long companyId, boolean signedIn) {
+
+		long maximumFileSize = PropsValues.JSON_STRING_MAX_LENGTH / 4 * 3;
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionPersistence.fetchByERC_C(
+				"L_CMS_BASIC_DOCUMENT", companyId);
+
+		if (objectDefinition == null) {
+			return maximumFileSize;
+		}
+
+		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
+			objectDefinition.getObjectDefinitionId(), "file");
+
+		if (objectField == null) {
+			return maximumFileSize;
+		}
+
+		return Math.min(
+			getMaximumFileSize(objectField.getObjectFieldId(), signedIn),
+			maximumFileSize);
 	}
 
 	@Override
@@ -442,6 +470,9 @@ public class AttachmentManagerImpl implements AttachmentManager {
 	private MimeTypes _mimeTypes;
 
 	private volatile ObjectConfiguration _objectConfiguration;
+
+	@Reference
+	private ObjectDefinitionPersistence _objectDefinitionPersistence;
 
 	@Reference
 	private ObjectFieldLocalService _objectFieldLocalService;
