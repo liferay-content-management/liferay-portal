@@ -10,7 +10,7 @@ import {imageEditorSamplePageTest as test} from './fixtures/imageEditorSamplePag
 import addContentCredentials from './utils/addContentCredentials';
 
 const DISCLAIMER =
-	'The image editor is not intended for use with AI-generated content.';
+	'The image editor is not intended for use with AI generated content.';
 
 async function serveSampleImageWithManifest(page: Page, sourceType: string) {
 	await page.route(

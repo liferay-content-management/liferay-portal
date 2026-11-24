@@ -228,7 +228,7 @@ test('Resizing an image from the item selector preview saves a copy', async ({
 });
 
 const DISCLAIMER =
-	'The image editor is not intended for use with AI-generated content.';
+	'The image editor is not intended for use with AI generated content.';
 
 test('An AI generated image opens with the disclaimer above the editor', async ({
 	apiHelpers,
