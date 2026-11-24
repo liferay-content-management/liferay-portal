@@ -5,10 +5,18 @@
 
 package com.liferay.site.cms.site.initializer.internal.fragment.renderer;
 
+import com.liferay.info.constants.InfoDisplayWebKeys;
+import com.liferay.object.model.ObjectEntryFolder;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
+import com.liferay.subscription.service.SubscriptionLocalService;
 
 import java.util.Map;
 
@@ -41,10 +49,86 @@ public class EditFolderComponentSectionFragmentRendererTest {
 		PortalUtil portalUtil = new PortalUtil();
 
 		portalUtil.setPortal(_portal);
+
+		ReflectionTestUtil.setFieldValue(
+			_editFolderComponentSectionFragmentRenderer,
+			"_subscriptionLocalService", _subscriptionLocalService);
 	}
 
 	@Test
-	public void testGetProps() {
+	public void testGetProps() throws Exception {
+		_testGetPropsWithoutObjectEntryFolder();
+		_testGetPropsSubscribed();
+	}
+
+	private void _testGetPropsSubscribed() throws Exception {
+		long companyId = RandomTestUtil.randomLong();
+		long objectEntryFolderId = RandomTestUtil.randomLong();
+		long userId = RandomTestUtil.randomLong();
+
+		ObjectEntryFolder objectEntryFolder = Mockito.mock(
+			ObjectEntryFolder.class);
+
+		Mockito.when(
+			objectEntryFolder.getObjectEntryFolderId()
+		).thenReturn(
+			objectEntryFolderId
+		);
+
+		ThemeDisplay themeDisplay = Mockito.mock(ThemeDisplay.class);
+
+		Mockito.when(
+			themeDisplay.getCompanyId()
+		).thenReturn(
+			companyId
+		);
+
+		Mockito.when(
+			themeDisplay.getPathMain()
+		).thenReturn(
+			StringPool.BLANK
+		);
+
+		Mockito.when(
+			themeDisplay.getPortalURL()
+		).thenReturn(
+			StringPool.BLANK
+		);
+
+		Mockito.when(
+			themeDisplay.getUserId()
+		).thenReturn(
+			userId
+		);
+
+		Mockito.when(
+			_subscriptionLocalService.isSubscribed(
+				companyId, userId, ObjectEntryFolder.class.getName(),
+				objectEntryFolderId)
+		).thenReturn(
+			true
+		);
+
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
+		mockHttpServletRequest.setAttribute(
+			InfoDisplayWebKeys.INFO_ITEM, objectEntryFolder);
+		mockHttpServletRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, themeDisplay);
+
+		Map<String, Object> props =
+			_editFolderComponentSectionFragmentRenderer.getProps(
+				null, mockHttpServletRequest);
+
+		Assert.assertEquals(Boolean.TRUE, props.get("isSubscribed"));
+		Assert.assertEquals(
+			GroupConstants.CMS_FRIENDLY_URL + "/subscribe_folder?classPK=" +
+				objectEntryFolderId,
+			props.get("subscribeURL"));
+	}
+
+	private void _testGetPropsWithoutObjectEntryFolder() throws Exception {
 		String redirect = "javascript:alert(1)";
 
 		String escapedRedirect = RandomTestUtil.randomString();
@@ -65,6 +149,8 @@ public class EditFolderComponentSectionFragmentRendererTest {
 				null, mockHttpServletRequest);
 
 		Assert.assertEquals(escapedRedirect, props.get("backURL"));
+		Assert.assertEquals(Boolean.FALSE, props.get("isSubscribed"));
+		Assert.assertNull(props.get("subscribeURL"));
 	}
 
 	private final EditFolderComponentSectionFragmentRenderer
@@ -73,5 +159,8 @@ public class EditFolderComponentSectionFragmentRendererTest {
 
 	@Mock
 	private Portal _portal;
+
+	@Mock
+	private SubscriptionLocalService _subscriptionLocalService;
 
 }
