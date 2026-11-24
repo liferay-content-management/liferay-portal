@@ -184,6 +184,29 @@ public class AttachmentDDMFormFieldTemplateContextContributorTest
 	}
 
 	@Test
+	@TestInfo("LPD-107933")
+	public void testGetParametersMaximumFileSize() {
+		Mockito.when(
+			_attachmentManager.getCMSBasicDocumentMaximumFileSize(
+				Mockito.anyLong(), Mockito.anyBoolean())
+		).thenReturn(
+			1L
+		);
+
+		Mockito.when(
+			_attachmentManager.getMaximumFileSize(
+				Mockito.anyLong(), Mockito.anyBoolean())
+		).thenReturn(
+			2L
+		);
+
+		_testGetParametersMaximumFileSize(
+			1, ObjectFieldSettingConstants.VALUE_CMS_BASIC_DOCUMENT);
+		_testGetParametersMaximumFileSize(
+			2, ObjectFieldSettingConstants.VALUE_DOCS_AND_MEDIA);
+	}
+
+	@Test
 	public void testGetParametersTip() {
 		Mockito.when(
 			_attachmentManager.getMaximumFileSize(
@@ -549,6 +572,20 @@ public class AttachmentDDMFormFieldTemplateContextContributorTest
 				)
 			).toString(),
 			String.valueOf(parameters.get("fileEntryProperties")), false);
+	}
+
+	private void _testGetParametersMaximumFileSize(
+		long expectedMaximumFileSize, String fileSource) {
+
+		_ddmFormField.setProperty(
+			ObjectFieldSettingConstants.NAME_FILE_SOURCE, fileSource);
+
+		Assert.assertEquals(
+			expectedMaximumFileSize,
+			MapUtil.getLong(
+				_attachmentDDMFormFieldTemplateContextContributor.getParameters(
+					_ddmFormField, createDDMFormFieldRenderingContext()),
+				"maximumFileSize"));
 	}
 
 	private void _testGetParametersTip(Locale locale) {
