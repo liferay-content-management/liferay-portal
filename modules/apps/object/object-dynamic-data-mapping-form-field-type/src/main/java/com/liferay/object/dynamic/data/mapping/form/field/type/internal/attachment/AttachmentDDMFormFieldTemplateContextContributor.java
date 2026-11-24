@@ -88,9 +88,7 @@ public class AttachmentDDMFormFieldTemplateContextContributor
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		long maximumFileSize = _attachmentManager.getMaximumFileSize(
-			GetterUtil.getLong(ddmFormField.getProperty("objectFieldId")),
-			themeDisplay.isSignedIn());
+		long maximumFileSize = _getMaximumFileSize(ddmFormField, themeDisplay);
 
 		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
 			GetterUtil.getLong(ddmFormField.getProperty("objectFieldId")));
@@ -317,6 +315,28 @@ public class AttachmentDDMFormFieldTemplateContextContributor
 				_groupLocalService.fetchGroup(groupId), groupId,
 				portletNamespace + "selectAttachmentEntry",
 				fileItemSelectorCriterion));
+	}
+
+	private long _getMaximumFileSize(
+		DDMFormField ddmFormField, ThemeDisplay themeDisplay) {
+
+		long maximumFileSize = _attachmentManager.getMaximumFileSize(
+			GetterUtil.getLong(ddmFormField.getProperty("objectFieldId")),
+			themeDisplay.isSignedIn());
+
+		if (!Objects.equals(
+				GetterUtil.getString(
+					ddmFormField.getProperty(
+						ObjectFieldSettingConstants.NAME_FILE_SOURCE)),
+				ObjectFieldSettingConstants.VALUE_CMS_BASIC_DOCUMENT)) {
+
+			return maximumFileSize;
+		}
+
+		return Math.min(
+			maximumFileSize,
+			_attachmentManager.getCMSBasicDocumentMaximumFileSize(
+				themeDisplay.getCompanyId(), themeDisplay.isSignedIn()));
 	}
 
 	private PermissionChecker _getPermissionChecker(ThemeDisplay themeDisplay) {
