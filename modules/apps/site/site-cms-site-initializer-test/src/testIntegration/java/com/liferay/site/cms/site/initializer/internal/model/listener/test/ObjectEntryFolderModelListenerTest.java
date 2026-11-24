@@ -41,14 +41,18 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.sharing.security.permission.SharingEntryAction;
 import com.liferay.sharing.service.SharingEntryLocalService;
+import com.liferay.site.cms.site.initializer.test.util.CMSDefaultValueTestUtil;
 import com.liferay.site.cms.site.initializer.util.CMSDefaultPermissionUtil;
+import com.liferay.site.cms.site.initializer.util.CMSDefaultValueUtil;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -65,6 +69,7 @@ import org.junit.runner.RunWith;
  * @author Jürgen Kappler
  * @author Roberto Díaz
  */
+@FeatureFlag("LPD-112761")
 @RunWith(Arquillian.class)
 public class ObjectEntryFolderModelListenerTest {
 
@@ -77,6 +82,9 @@ public class ObjectEntryFolderModelListenerTest {
 
 	@Before
 	public void setUp() throws Exception {
+		CMSDefaultValueTestUtil.processBatchEngineUnits(
+			ObjectEntryFolderModelListenerTest.class);
+
 		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
 			HashMapBuilder.put(
 				LocaleUtil.getDefault(), StringUtil.randomString()
@@ -183,6 +191,23 @@ public class ObjectEntryFolderModelListenerTest {
 			sharingEntriesCount + 1,
 			_sharingEntryLocalService.getSharingEntriesCount());
 
+		_addCMSDefaultValueObjectEntry(objectEntryFolder);
+
+		ObjectEntryFolder childObjectEntryFolder = _addObjectEntryFolder(
+			objectEntryFolder.getObjectEntryFolderId());
+
+		_addCMSDefaultValueObjectEntry(childObjectEntryFolder);
+
+		objectEntryFolder =
+			_objectEntryFolderLocalService.moveObjectEntryFolderToTrash(
+				TestPropsValues.getUserId(), objectEntryFolder,
+				ServiceContextTestUtil.getServiceContext());
+
+		Assert.assertNotNull(
+			_fetchCMSDefaultValueObjectEntry(childObjectEntryFolder));
+		Assert.assertNotNull(
+			_fetchCMSDefaultValueObjectEntry(objectEntryFolder));
+
 		_objectEntryFolderLocalService.deleteObjectEntryFolder(
 			objectEntryFolder.getObjectEntryFolderId());
 
@@ -190,6 +215,9 @@ public class ObjectEntryFolderModelListenerTest {
 			sharingEntriesCount,
 			_sharingEntryLocalService.getSharingEntriesCount());
 
+		Assert.assertNull(
+			_fetchCMSDefaultValueObjectEntry(childObjectEntryFolder));
+		Assert.assertNull(_fetchCMSDefaultValueObjectEntry(objectEntryFolder));
 		Assert.assertNull(_fetchObjectEntry(objectEntryFolder));
 	}
 
@@ -198,6 +226,22 @@ public class ObjectEntryFolderModelListenerTest {
 	public void testOnAfterUpdate() throws Exception {
 		_testOnAfterUpdateWithExternalReferenceCode();
 		_testOnAfterUpdateWithParentObjectEntryFolder();
+	}
+
+	private void _addCMSDefaultValueObjectEntry(
+			ObjectEntryFolder objectEntryFolder)
+		throws Exception {
+
+		CMSDefaultValueUtil.addOrUpdateObjectEntry(
+			JSONUtil.put(
+				JSONUtil.put(
+					"name", "title"
+				).put(
+					"type", "Text"
+				).put(
+					"value", RandomTestUtil.randomString()
+				)),
+			_filterFactory, objectEntryFolder, TestPropsValues.getUserId());
 	}
 
 	private ObjectEntryFolder _addObjectEntryFolder(
@@ -265,6 +309,16 @@ public class ObjectEntryFolderModelListenerTest {
 		}
 	}
 
+	private ObjectEntry _fetchCMSDefaultValueObjectEntry(
+			ObjectEntryFolder objectEntryFolder)
+		throws Exception {
+
+		return CMSDefaultValueUtil.fetchObjectEntry(
+			objectEntryFolder.getExternalReferenceCode(),
+			ObjectEntryFolder.class.getName(), objectEntryFolder.getCompanyId(),
+			_filterFactory, objectEntryFolder.getGroupId());
+	}
+
 	private ObjectEntry _fetchObjectEntry(ObjectEntryFolder objectEntryFolder)
 		throws Exception {
 
@@ -305,6 +359,8 @@ public class ObjectEntryFolderModelListenerTest {
 
 		Assert.assertNotNull(_fetchObjectEntry(objectEntryFolder));
 
+		_addCMSDefaultValueObjectEntry(objectEntryFolder);
+
 		objectEntryFolder.setExternalReferenceCode(
 			RandomTestUtil.randomString());
 
@@ -319,6 +375,14 @@ public class ObjectEntryFolderModelListenerTest {
 				objectEntryFolder.getModelClassName(), _filterFactory));
 
 		Assert.assertNotNull(_fetchObjectEntry(objectEntryFolder));
+		Assert.assertNull(
+			CMSDefaultValueUtil.fetchObjectEntry(
+				originalExternalReferenceCode,
+				ObjectEntryFolder.class.getName(),
+				objectEntryFolder.getCompanyId(), _filterFactory,
+				objectEntryFolder.getGroupId()));
+		Assert.assertNotNull(
+			_fetchCMSDefaultValueObjectEntry(objectEntryFolder));
 	}
 
 	private void _testOnAfterUpdateWithParentObjectEntryFolder()
@@ -344,6 +408,8 @@ public class ObjectEntryFolderModelListenerTest {
 			objectEntryFolder1.getObjectEntryFolderId());
 
 		_assertResourcePermissions(null, jsonObject, objectEntryFolder3);
+
+		_addCMSDefaultValueObjectEntry(objectEntryFolder3);
 
 		ObjectEntry objectEntry = _fetchObjectEntry(objectEntryFolder2);
 
@@ -375,6 +441,14 @@ public class ObjectEntryFolderModelListenerTest {
 				ServiceContextTestUtil.getServiceContext());
 
 		_assertResourcePermissions(actionId, jsonObject, objectEntryFolder3);
+
+		ObjectEntry cmsDefaultValueObjectEntry =
+			_fetchCMSDefaultValueObjectEntry(objectEntryFolder3);
+
+		Assert.assertEquals(
+			objectEntryFolder3.getTreePath(),
+			MapUtil.getString(
+				cmsDefaultValueObjectEntry.getValues(), "treePath"));
 	}
 
 	@Inject

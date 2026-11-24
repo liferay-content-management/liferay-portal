@@ -291,8 +291,8 @@ public class CMSDefaultValueObjectEntryLocalServiceWrapperTest {
 	public void testPartialUpdateObjectEntry() throws Exception {
 		ObjectEntry objectEntry = CMSDefaultValueUtil.fetchObjectEntry(
 			_parentObjectEntryFolder.getExternalReferenceCode(),
-			ObjectEntryFolder.class.getName(), _filterFactory,
-			_group.getGroupId());
+			ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+			_filterFactory, _group.getGroupId());
 
 		_objectEntryLocalService.partialUpdateObjectEntry(
 			TestPropsValues.getUserId(), objectEntry.getObjectEntryId(),
@@ -309,7 +309,7 @@ public class CMSDefaultValueObjectEntryLocalServiceWrapperTest {
 	public void testUpdateObjectEntry() throws Exception {
 		ObjectEntry objectEntry = CMSDefaultValueUtil.fetchObjectEntry(
 			_group.getExternalReferenceCode(), DepotEntry.class.getName(),
-			_filterFactory, _group.getGroupId());
+			_group.getCompanyId(), _filterFactory, _group.getGroupId());
 
 		_objectEntryLocalService.updateObjectEntry(
 			TestPropsValues.getUserId(), objectEntry.getObjectEntryId(),

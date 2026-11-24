@@ -147,6 +147,85 @@ public class CMSDefaultValueUtilTest {
 	}
 
 	@Test
+	public void testCopyObjectEntry() throws Exception {
+		Assert.assertNull(
+			CMSDefaultValueUtil.copyObjectEntry(
+				_filterFactory, _objectEntryFolder, _parentObjectEntryFolder,
+				TestPropsValues.getUserId()));
+
+		ObjectEntry objectEntry = CMSDefaultValueUtil.addOrUpdateObjectEntry(
+			JSONUtil.put(
+				_createJSONObject(
+					"title", "Text", RandomTestUtil.randomString())),
+			_filterFactory, _objectEntryFolder, TestPropsValues.getUserId());
+
+		ObjectEntry copyObjectEntry = CMSDefaultValueUtil.copyObjectEntry(
+			_filterFactory, _objectEntryFolder, _parentObjectEntryFolder,
+			TestPropsValues.getUserId());
+
+		Map<String, Serializable> copyValues = copyObjectEntry.getValues();
+
+		Assert.assertEquals(
+			_parentObjectEntryFolder.getExternalReferenceCode(),
+			MapUtil.getString(copyValues, "classExternalReferenceCode"));
+		Assert.assertEquals(
+			MapUtil.getString(objectEntry.getValues(), "defaultValues"),
+			MapUtil.getString(copyValues, "defaultValues"));
+		Assert.assertEquals(
+			_parentObjectEntryFolder.getTreePath(),
+			MapUtil.getString(copyValues, "treePath"));
+	}
+
+	@Test
+	public void testDeleteObjectEntries() throws Exception {
+		CMSDefaultValueUtil.addOrUpdateObjectEntry(
+			JSONFactoryUtil.createJSONArray(), _depotEntry, _filterFactory,
+			TestPropsValues.getUserId());
+		CMSDefaultValueUtil.addOrUpdateObjectEntry(
+			JSONFactoryUtil.createJSONArray(), _filterFactory,
+			_objectEntryFolder, TestPropsValues.getUserId());
+
+		CMSDefaultValueUtil.deleteObjectEntries(
+			_group.getCompanyId(), _group.getGroupId());
+
+		Assert.assertNull(
+			CMSDefaultValueUtil.fetchObjectEntry(
+				_group.getExternalReferenceCode(), DepotEntry.class.getName(),
+				_group.getCompanyId(), _filterFactory, _group.getGroupId()));
+		Assert.assertNull(
+			CMSDefaultValueUtil.fetchObjectEntry(
+				_objectEntryFolder.getExternalReferenceCode(),
+				ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+				_filterFactory, _group.getGroupId()));
+	}
+
+	@Test
+	public void testDeleteObjectEntry() throws Exception {
+		Assert.assertNull(
+			CMSDefaultValueUtil.deleteObjectEntry(
+				_objectEntryFolder.getExternalReferenceCode(),
+				ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+				_filterFactory, _group.getGroupId()));
+
+		ObjectEntry objectEntry = CMSDefaultValueUtil.addOrUpdateObjectEntry(
+			JSONFactoryUtil.createJSONArray(), _filterFactory,
+			_objectEntryFolder, TestPropsValues.getUserId());
+
+		Assert.assertEquals(
+			objectEntry,
+			CMSDefaultValueUtil.deleteObjectEntry(
+				_objectEntryFolder.getExternalReferenceCode(),
+				ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+				_filterFactory, _group.getGroupId()));
+
+		Assert.assertNull(
+			CMSDefaultValueUtil.fetchObjectEntry(
+				_objectEntryFolder.getExternalReferenceCode(),
+				ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+				_filterFactory, _group.getGroupId()));
+	}
+
+	@Test
 	public void testFetchObjectDefinition() throws Exception {
 		ObjectDefinition objectDefinition =
 			CMSDefaultValueUtil.fetchObjectDefinition(
@@ -168,8 +247,8 @@ public class CMSDefaultValueUtilTest {
 		Assert.assertNull(
 			CMSDefaultValueUtil.fetchObjectEntry(
 				_objectEntryFolder.getExternalReferenceCode(),
-				ObjectEntryFolder.class.getName(), _filterFactory,
-				_group.getGroupId()));
+				ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+				_filterFactory, _group.getGroupId()));
 
 		ObjectEntry objectEntry = CMSDefaultValueUtil.addOrUpdateObjectEntry(
 			JSONUtil.put(
@@ -181,19 +260,19 @@ public class CMSDefaultValueUtilTest {
 			objectEntry,
 			CMSDefaultValueUtil.fetchObjectEntry(
 				_objectEntryFolder.getExternalReferenceCode(),
-				ObjectEntryFolder.class.getName(), _filterFactory,
-				_group.getGroupId()));
+				ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+				_filterFactory, _group.getGroupId()));
 
 		Assert.assertNull(
 			CMSDefaultValueUtil.fetchObjectEntry(
 				_objectEntryFolder.getExternalReferenceCode(),
-				DepotEntry.class.getName(), _filterFactory,
-				_group.getGroupId()));
+				DepotEntry.class.getName(), _group.getCompanyId(),
+				_filterFactory, _group.getGroupId()));
 		Assert.assertNull(
 			CMSDefaultValueUtil.fetchObjectEntry(
 				_parentObjectEntryFolder.getExternalReferenceCode(),
-				ObjectEntryFolder.class.getName(), _filterFactory,
-				_group.getGroupId()));
+				ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+				_filterFactory, _group.getGroupId()));
 
 		String externalReferenceCode = StringBundler.concat(
 			RandomTestUtil.randomString(), StringPool.APOSTROPHE,
@@ -221,15 +300,15 @@ public class CMSDefaultValueUtilTest {
 			objectEntry,
 			CMSDefaultValueUtil.fetchObjectEntry(
 				externalReferenceCode, ObjectEntryFolder.class.getName(),
-				_filterFactory, _group.getGroupId()));
+				_group.getCompanyId(), _filterFactory, _group.getGroupId()));
 	}
 
 	@Test
 	public void testGetDefaultValuesJSONArray() throws Exception {
 		JSONArray jsonArray = CMSDefaultValueUtil.getDefaultValuesJSONArray(
 			_objectEntryFolder.getExternalReferenceCode(),
-			ObjectEntryFolder.class.getName(), _filterFactory,
-			_group.getGroupId());
+			ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+			_filterFactory, _group.getGroupId());
 
 		Assert.assertEquals(0, jsonArray.length());
 
@@ -241,8 +320,8 @@ public class CMSDefaultValueUtilTest {
 
 		jsonArray = CMSDefaultValueUtil.getDefaultValuesJSONArray(
 			_objectEntryFolder.getExternalReferenceCode(),
-			ObjectEntryFolder.class.getName(), _filterFactory,
-			_group.getGroupId());
+			ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+			_filterFactory, _group.getGroupId());
 
 		JSONObject jsonObject = jsonArray.getJSONObject(0);
 
@@ -283,7 +362,7 @@ public class CMSDefaultValueUtilTest {
 				_createJSONObject(
 					"description", "LongText",
 					JSONUtil.put(
-						"en_US", "Space description"
+						"en_US", RandomTestUtil.randomString()
 					).put(
 						"it_IT", RandomTestUtil.randomString()
 					)),
@@ -395,6 +474,38 @@ public class CMSDefaultValueUtilTest {
 			"list#category#Picklist",
 			CMSDefaultValueUtil.getObjectFieldKey(
 				"list", "category", "Picklist"));
+	}
+
+	@Test
+	public void testUpdateClassExternalReferenceCode() throws Exception {
+		String externalReferenceCode = RandomTestUtil.randomString();
+
+		Assert.assertNull(
+			CMSDefaultValueUtil.updateClassExternalReferenceCode(
+				externalReferenceCode, ObjectEntryFolder.class.getName(),
+				_group.getCompanyId(), _filterFactory, _group.getGroupId(),
+				_objectEntryFolder.getExternalReferenceCode(),
+				TestPropsValues.getUserId()));
+
+		CMSDefaultValueUtil.addOrUpdateObjectEntry(
+			JSONFactoryUtil.createJSONArray(), _filterFactory,
+			_objectEntryFolder, TestPropsValues.getUserId());
+
+		CMSDefaultValueUtil.updateClassExternalReferenceCode(
+			externalReferenceCode, ObjectEntryFolder.class.getName(),
+			_group.getCompanyId(), _filterFactory, _group.getGroupId(),
+			_objectEntryFolder.getExternalReferenceCode(),
+			TestPropsValues.getUserId());
+
+		Assert.assertNotNull(
+			CMSDefaultValueUtil.fetchObjectEntry(
+				externalReferenceCode, ObjectEntryFolder.class.getName(),
+				_group.getCompanyId(), _filterFactory, _group.getGroupId()));
+		Assert.assertNull(
+			CMSDefaultValueUtil.fetchObjectEntry(
+				_objectEntryFolder.getExternalReferenceCode(),
+				ObjectEntryFolder.class.getName(), _group.getCompanyId(),
+				_filterFactory, _group.getGroupId()));
 	}
 
 	private ObjectEntryFolder _addObjectEntryFolder(
