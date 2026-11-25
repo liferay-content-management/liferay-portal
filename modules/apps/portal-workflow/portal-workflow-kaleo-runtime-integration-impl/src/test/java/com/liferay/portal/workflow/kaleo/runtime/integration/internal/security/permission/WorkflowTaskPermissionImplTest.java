@@ -26,6 +26,7 @@ import com.liferay.portal.security.permission.SimplePermissionChecker;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 import com.liferay.portal.workflow.kaleo.service.KaleoTaskInstanceTokenLocalService;
 import com.liferay.portal.workflow.security.permission.WorkflowTaskPermission;
+import com.liferay.portal.workflow.security.permission.WorkflowTaskPermissionContributor;
 
 import java.io.Serializable;
 
@@ -36,6 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -45,6 +47,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -63,6 +66,20 @@ public class WorkflowTaskPermissionImplTest {
 		_setUpGroupLocalService();
 		_setUpKaleoTaskInstanceTokenLocalService();
 		_setUpWorkflowHandlerRegistryUtil();
+
+		WorkflowTaskPermissionImpl workflowTaskPermissionImpl =
+			(WorkflowTaskPermissionImpl)_workflowTaskPermissionChecker;
+
+		workflowTaskPermissionImpl.activate(
+			SystemBundleUtil.getBundleContext());
+	}
+
+	@After
+	public void tearDown() {
+		WorkflowTaskPermissionImpl workflowTaskPermissionImpl =
+			(WorkflowTaskPermissionImpl)_workflowTaskPermissionChecker;
+
+		workflowTaskPermissionImpl.deactivate();
 	}
 
 	@Test
@@ -153,6 +170,38 @@ public class WorkflowTaskPermissionImplTest {
 					RandomTestUtil.randomLong()),
 				_mockWorkflowTask(User.class.getName(), assigneeUserId),
 				assigneeUserId));
+	}
+
+	@Test
+	public void testNotAssigneeHasPermissionGrantedByWorkflowTaskPermissionContributor() {
+		WorkflowTask workflowTask = _mockWorkflowTask();
+
+		BundleContext bundleContext = SystemBundleUtil.getBundleContext();
+
+		ServiceRegistration<WorkflowTaskPermissionContributor>
+			serviceRegistration = bundleContext.registerService(
+				WorkflowTaskPermissionContributor.class,
+				(permissionChecker, curWorkflowTask, groupId) ->
+					curWorkflowTask == workflowTask,
+				null);
+
+		try {
+			PermissionChecker permissionChecker =
+				_mockContentReviewerPermissionChecker(
+					RandomTestUtil.randomLong());
+
+			Assert.assertTrue(
+				_workflowTaskPermissionChecker.contains(
+					permissionChecker, workflowTask,
+					RandomTestUtil.randomLong()));
+			Assert.assertFalse(
+				_workflowTaskPermissionChecker.contains(
+					permissionChecker, _mockWorkflowTask(),
+					RandomTestUtil.randomLong()));
+		}
+		finally {
+			serviceRegistration.unregister();
+		}
 	}
 
 	@Test
