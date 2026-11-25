@@ -34,13 +34,19 @@ import com.liferay.portal.workflow.kaleo.model.KaleoInstance;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
 import com.liferay.portal.workflow.kaleo.service.KaleoTaskInstanceTokenLocalService;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
+import com.liferay.portal.workflow.metrics.search.index.constants.WorkflowMetricsIndexNameConstants;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionLocalService;
 import com.liferay.portal.workflow.metrics.service.util.BaseWorkflowMetricsIndexerTestCase;
 import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResultProvider;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
@@ -162,6 +168,92 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 		}
 	}
 
+	@Test
+	public void testReindexWhenSLABreachIsUnchanged() throws Exception {
+		Bundle bundle = FrameworkUtil.getBundle(
+			SLAKaleoTaskInstanceTokenReindexerTest.class);
+
+		BundleContext bundleContext = bundle.getBundleContext();
+
+		Map<Long, Integer> reindexCounts = new ConcurrentHashMap<>();
+
+		ServiceRegistration<ModelDocumentContributor<?>> serviceRegistration =
+			bundleContext.registerService(
+				(Class<ModelDocumentContributor<?>>)
+					(Class<?>)ModelDocumentContributor.class,
+				(ModelDocumentContributor<KaleoTaskInstanceToken>)
+					(document, kaleoTaskInstanceToken) -> {
+						reindexCounts.merge(
+							kaleoTaskInstanceToken.
+								getKaleoTaskInstanceTokenId(),
+							1, Integer::sum);
+
+						document.addKeyword(
+							"breachedSLADefinitionIds",
+							_getBreachedSLADefinitionIds(
+								kaleoTaskInstanceToken.
+									getKaleoTaskInstanceTokenId()));
+					},
+				new HashMapDictionary<>(
+					Collections.singletonMap(
+						"indexer.class.name",
+						KaleoTaskInstanceToken.class.getName())));
+
+		try {
+			WorkflowMetricsSLADefinition workflowMetricsSLADefinition =
+				_addWorkflowMetricsSLADefinition(Time.SECOND * 3);
+
+			KaleoTaskInstanceToken kaleoTaskInstanceToken =
+				_getKaleoTaskInstanceToken();
+
+			Thread.sleep(Time.SECOND * 4);
+
+			UnsafeRunnable<Exception> jobExecutorUnsafeRunnable =
+				_schedulerJobConfiguration.getJobExecutorUnsafeRunnable();
+
+			jobExecutorUnsafeRunnable.run();
+
+			_testReindex(
+				Arrays.asList(
+					workflowMetricsSLADefinition.
+						getWorkflowMetricsSLADefinitionId()),
+				kaleoTaskInstanceToken);
+
+			Integer reindexCount = reindexCounts.get(
+				kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
+
+			Thread.sleep(Time.SECOND * 2);
+
+			LocalDateTime localDateTime = LocalDateTime.now();
+
+			jobExecutorUnsafeRunnable.run();
+
+			String indexName = _indexNameBuilder.getIndexName(
+				kaleoTaskInstanceToken.getCompanyId());
+
+			retryAssertCount(
+				booleanQuery -> booleanQuery.addMustQueryClauses(
+					QueriesUtil.rangeTerm(
+						"modifiedDate", true, true,
+						_dateTimeFormatter.format(localDateTime), null)),
+				1,
+				indexName +
+					WorkflowMetricsIndexNameConstants.
+						SUFFIX_SLA_INSTANCE_RESULT,
+				"WorkflowMetricsSLAInstanceResultType", "slaDefinitionId",
+				workflowMetricsSLADefinition.
+					getWorkflowMetricsSLADefinitionId());
+
+			Assert.assertEquals(
+				reindexCount,
+				reindexCounts.get(
+					kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId()));
+		}
+		finally {
+			serviceRegistration.unregister();
+		}
+	}
+
 	private WorkflowMetricsSLADefinition _addWorkflowMetricsSLADefinition(
 			long duration)
 		throws Exception {
@@ -268,6 +360,9 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 				expectedBreachedSLADefinitionIds, kaleoTaskInstanceToken);
 		}
 	}
+
+	private final DateTimeFormatter _dateTimeFormatter =
+		DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
 	@Inject
 	private IndexNameBuilder _indexNameBuilder;
