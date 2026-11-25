@@ -327,7 +327,7 @@ describe('MultipleFileUploader', () => {
 		expect(
 			await screen.findByText('1-files-could-not-be-uploaded')
 		).toBeInTheDocument();
-		expect(screen.getByText('network down')).toBeInTheDocument();
+		expect(screen.getByRole('alert')).toHaveTextContent('network down');
 		expect(mockUploadComplete).toHaveBeenCalledWith({
 			failedFiles: ['upload1.png'],
 			successFiles: [],

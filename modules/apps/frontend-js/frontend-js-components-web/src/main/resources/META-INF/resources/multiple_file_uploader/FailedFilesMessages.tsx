@@ -19,7 +19,7 @@ export default function FailedFilesMessages({
 	failedFiles: FailedFile[];
 }) {
 	return (
-		<div className="has-error">
+		<div className="has-error" role="alert">
 			<p className="text-3 text-danger text-weight-semi-bold">
 				<ClayIcon className="mr-1" symbol="times-circle-full" />
 
