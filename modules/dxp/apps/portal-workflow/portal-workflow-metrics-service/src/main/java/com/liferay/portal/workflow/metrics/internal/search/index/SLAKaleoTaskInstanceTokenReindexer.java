@@ -65,9 +65,9 @@ public class SLAKaleoTaskInstanceTokenReindexer {
 					_kaleoInstanceLocalService.dynamicQuery();
 
 				kaleoInstanceDynamicQuery.add(
-					RestrictionsFactoryUtil.eq("kaleoDefinitionId", processId));
-				kaleoInstanceDynamicQuery.add(
 					RestrictionsFactoryUtil.eq("completed", false));
+				kaleoInstanceDynamicQuery.add(
+					RestrictionsFactoryUtil.eq("kaleoDefinitionId", processId));
 				kaleoInstanceDynamicQuery.setProjection(
 					ProjectionFactoryUtil.property("kaleoInstanceId"));
 
