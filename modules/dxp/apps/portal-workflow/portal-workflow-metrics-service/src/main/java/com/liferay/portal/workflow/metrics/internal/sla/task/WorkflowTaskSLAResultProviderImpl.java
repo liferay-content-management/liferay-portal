@@ -6,8 +6,10 @@
 package com.liferay.portal.workflow.metrics.internal.sla.task;
 
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.search.capabilities.SearchCapabilities;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
@@ -21,6 +23,7 @@ import com.liferay.portal.search.query.QueriesUtil;
 import com.liferay.portal.search.query.TermsQuery;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
 import com.liferay.portal.workflow.kaleo.service.KaleoTaskInstanceTokenLocalService;
+import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
 import com.liferay.portal.workflow.metrics.search.index.constants.WorkflowMetricsIndexNameConstants;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionLocalService;
 import com.liferay.portal.workflow.metrics.sla.processor.WorkflowMetricsSLAStatus;
@@ -130,13 +133,15 @@ public class WorkflowTaskSLAResultProviderImpl
 			return Collections.emptyList();
 		}
 
-		int workflowMetricsSLADefinitionsCount =
+		List<WorkflowMetricsSLADefinition> workflowMetricsSLADefinitions =
 			_workflowMetricsSLADefinitionLocalService.
-				getWorkflowMetricsSLADefinitionsCount(
+				getWorkflowMetricsSLADefinitions(
 					kaleoTaskInstanceToken.getCompanyId(), true,
-					kaleoTaskInstanceToken.getKaleoDefinitionId());
+					kaleoTaskInstanceToken.getKaleoDefinitionId(),
+					WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS, null);
 
-		if (workflowMetricsSLADefinitionsCount == 0) {
+		if (workflowMetricsSLADefinitions.isEmpty()) {
 			return Collections.emptyList();
 		}
 
@@ -151,22 +156,32 @@ public class WorkflowTaskSLAResultProviderImpl
 
 		BooleanQuery booleanQuery = QueriesUtil.booleanQuery();
 
+		TermsQuery termsQuery = QueriesUtil.terms("slaDefinitionId");
+
+		termsQuery.addValues(
+			TransformUtil.transformToArray(
+				workflowMetricsSLADefinitions,
+				workflowMetricsSLADefinition -> String.valueOf(
+					workflowMetricsSLADefinition.
+						getWorkflowMetricsSLADefinitionId()),
+				String.class));
+
 		booleanQuery.addFilterQueryClauses(
 			QueriesUtil.term(
 				"companyId", kaleoTaskInstanceToken.getCompanyId()),
 			QueriesUtil.term("deleted", false),
 			QueriesUtil.term(
-				"taskId",
-				kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId()));
+				"taskId", kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId()),
+			termsQuery);
+
 		booleanQuery.addMustNotQueryClauses(
-			QueriesUtil.term("slaDefinitionId", 0),
 			QueriesUtil.term("status", WorkflowMetricsSLAStatus.NEW.name()));
 
 		searchSearchRequest.setQuery(booleanQuery);
 
 		searchSearchRequest.setSelectedFieldNames(
 			"breached", "slaDefinitionId");
-		searchSearchRequest.setSize(workflowMetricsSLADefinitionsCount);
+		searchSearchRequest.setSize(workflowMetricsSLADefinitions.size());
 
 		SearchSearchResponse searchSearchResponse =
 			_searchEngineAdapter.execute(searchSearchRequest);
