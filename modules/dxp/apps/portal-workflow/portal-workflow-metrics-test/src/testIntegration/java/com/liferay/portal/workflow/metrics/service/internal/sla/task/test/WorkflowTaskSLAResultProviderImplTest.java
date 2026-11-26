@@ -106,6 +106,84 @@ public class WorkflowTaskSLAResultProviderImplTest
 			});
 	}
 
+	@Test
+	public void testGetWorkflowTaskSLAResultsWhenSLADefinitionIsDeactivated()
+		throws Exception {
+
+		WorkflowMetricsSLADefinition workflowMetricsSLADefinition1 =
+			_addWorkflowMetricsSLADefinition(Time.DAY);
+		WorkflowMetricsSLADefinition workflowMetricsSLADefinition2 =
+			_addWorkflowMetricsSLADefinition(Time.DAY);
+
+		KaleoInstance kaleoInstance = getKaleoInstance(addBlogsEntry());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		serviceContext.setUserId(0);
+
+		List<KaleoTaskInstanceToken> kaleoTaskInstanceTokens =
+			_kaleoTaskInstanceTokenLocalService.getKaleoTaskInstanceTokens(
+				kaleoInstance.getKaleoInstanceId(), false, -1, -1, null,
+				serviceContext);
+
+		KaleoTaskInstanceToken kaleoTaskInstanceToken =
+			kaleoTaskInstanceTokens.get(0);
+
+		completeKaleoTaskInstanceToken(kaleoInstance);
+
+		completeKaleoInstanceToken(kaleoInstance);
+
+		completeKaleoInstance(kaleoInstance);
+
+		UnsafeRunnable<Exception> jobExecutorUnsafeRunnable =
+			_schedulerJobConfiguration.getJobExecutorUnsafeRunnable();
+
+		jobExecutorUnsafeRunnable.run();
+
+		IdempotentRetryAssert.retryAssert(
+			10, TimeUnit.SECONDS,
+			() -> {
+				List<WorkflowTaskSLAResult> workflowTaskSLAResults =
+					_workflowTaskSLAResultProvider.getWorkflowTaskSLAResults(
+						kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
+
+				Assert.assertEquals(
+					workflowTaskSLAResults.toString(), 2,
+					workflowTaskSLAResults.size());
+
+				return null;
+			});
+
+		_workflowMetricsSLADefinitionLocalService.
+			deactivateWorkflowMetricsSLADefinition(
+				workflowMetricsSLADefinition1.
+					getWorkflowMetricsSLADefinitionId(),
+				ServiceContextTestUtil.getServiceContext());
+
+		IdempotentRetryAssert.retryAssert(
+			10, TimeUnit.SECONDS,
+			() -> {
+				List<WorkflowTaskSLAResult> workflowTaskSLAResults =
+					_workflowTaskSLAResultProvider.getWorkflowTaskSLAResults(
+						kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
+
+				Assert.assertEquals(
+					workflowTaskSLAResults.toString(), 1,
+					workflowTaskSLAResults.size());
+
+				WorkflowTaskSLAResult workflowTaskSLAResult =
+					workflowTaskSLAResults.get(0);
+
+				Assert.assertEquals(
+					workflowMetricsSLADefinition2.
+						getWorkflowMetricsSLADefinitionId(),
+					workflowTaskSLAResult.getSLADefinitionId());
+
+				return null;
+			});
+	}
+
 	private WorkflowMetricsSLADefinition _addWorkflowMetricsSLADefinition(
 			long duration)
 		throws Exception {
