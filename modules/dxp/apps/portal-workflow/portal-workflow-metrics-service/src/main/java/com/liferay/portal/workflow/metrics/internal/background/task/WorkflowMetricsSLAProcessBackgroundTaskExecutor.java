@@ -29,6 +29,7 @@ import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.document.BulkDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.UpdateByQueryDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.UpdateDocumentRequest;
+import com.liferay.portal.search.engine.adapter.index.RefreshIndexRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
 import com.liferay.portal.search.hits.SearchHit;
@@ -732,7 +733,19 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 			_searchEngineAdapter.execute(bulkDocumentRequest);
 		}
 
-		_slaKaleoTaskInstanceTokenReindexer.reindex(slaBreachChangedTaskIds);
+		if (!slaBreachChangedTaskIds.isEmpty()) {
+			_searchEngineAdapter.execute(
+				new RefreshIndexRequest(
+					indexName +
+						WorkflowMetricsIndexNameConstants.
+							SUFFIX_SLA_INSTANCE_RESULT,
+					indexName +
+						WorkflowMetricsIndexNameConstants.
+							SUFFIX_SLA_TASK_RESULT));
+
+			_slaKaleoTaskInstanceTokenReindexer.reindex(
+				slaBreachChangedTaskIds);
+		}
 
 		if (completed) {
 			_updateInstances(
