@@ -41,11 +41,11 @@ import java.util.function.Supplier;
  */
 @Generated("")
 @GraphQLName(
-	description = "The result of a Workflow Metrics SLA for a workflow task.",
+	description = "Represents the result of a Workflow Metrics SLA for a workflow task.",
 	value = "SLAResult"
 )
 @io.swagger.v3.oas.annotations.media.Schema(
-	description = "The result of a Workflow Metrics SLA for a workflow task."
+	description = "Represents the result of a Workflow Metrics SLA for a workflow task."
 )
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "SLAResult")
@@ -60,7 +60,7 @@ public class SLAResult implements Serializable {
 	}
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "Whether the task breached the SLA, which happens when the SLA becomes overdue while the task is open."
+		description = "A flag that indicates whether the task breached the SLA, which happens when the SLA becomes overdue while the task is open."
 	)
 	public Boolean getBreached() {
 		if (_breachedSupplier != null) {
@@ -96,7 +96,7 @@ public class SLAResult implements Serializable {
 	}
 
 	@GraphQLField(
-		description = "Whether the task breached the SLA, which happens when the SLA becomes overdue while the task is open."
+		description = "A flag that indicates whether the task breached the SLA, which happens when the SLA becomes overdue while the task is open."
 	)
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected Boolean breached;
@@ -380,4 +380,4 @@ public class SLAResult implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1977610323
+// LIFERAY-REST-BUILDER-HASH:20099561
