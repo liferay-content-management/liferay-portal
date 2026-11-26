@@ -112,4 +112,4 @@ public interface SiteNavigationMenuItemService extends BaseService {
 		throws PortalException;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-407147332
+// LIFERAY-SERVICE-BUILDER-HASH:1677699595
