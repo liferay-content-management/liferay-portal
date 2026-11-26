@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
@@ -90,9 +91,9 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 
 		try {
 			WorkflowMetricsSLADefinition workflowMetricsSLADefinition1 =
-				_addWorkflowMetricsSLADefinition(Time.SECOND);
+				_addWorkflowMetricsSLADefinition(Time.SECOND * 10);
 			WorkflowMetricsSLADefinition workflowMetricsSLADefinition2 =
-				_addWorkflowMetricsSLADefinition(Time.SECOND * 2);
+				_addWorkflowMetricsSLADefinition(Time.SECOND * 11);
 
 			_addWorkflowMetricsSLADefinition(Time.DAY);
 
@@ -105,10 +106,16 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 				Collections.emptyList(), kaleoTaskInstanceToken1,
 				kaleoTaskInstanceToken2);
 
-			Thread.sleep(Time.SECOND * 3);
-
 			UnsafeRunnable<Exception> jobExecutorUnsafeRunnable =
 				_schedulerJobConfiguration.getJobExecutorUnsafeRunnable();
+
+			jobExecutorUnsafeRunnable.run();
+
+			_testReindex(
+				Collections.emptyList(), kaleoTaskInstanceToken1,
+				kaleoTaskInstanceToken2);
+
+			Thread.sleep(Time.SECOND * 12);
 
 			jobExecutorUnsafeRunnable.run();
 
@@ -154,9 +161,14 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 				kaleoTaskInstanceToken1, kaleoTaskInstanceToken2);
 
 			_workflowMetricsSLADefinitionLocalService.
-				deactivateWorkflowMetricsSLADefinition(
+				updateWorkflowMetricsSLADefinition(
 					workflowMetricsSLADefinition2.
 						getWorkflowMetricsSLADefinitionId(),
+					StringPool.BLANK, StringPool.BLANK, Time.DAY,
+					workflowMetricsSLADefinition2.getName(), new String[0],
+					new String[] {getInitialNodeKey(workflowDefinition)},
+					new String[] {getTerminalNodeKey(workflowDefinition)},
+					WorkflowConstants.STATUS_APPROVED,
 					ServiceContextTestUtil.getServiceContext());
 
 			_testReindex(
