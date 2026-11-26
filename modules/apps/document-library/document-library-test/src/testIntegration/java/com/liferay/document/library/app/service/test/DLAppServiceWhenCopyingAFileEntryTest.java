@@ -184,7 +184,6 @@ public class DLAppServiceWhenCopyingAFileEntryTest extends BaseDLAppTestCase {
 		_assertStatus(sourceFileEntry, WorkflowConstants.STATUS_DRAFT);
 		Assert.assertEquals(
 			sourceFileEntry.getTitle(), targetFileEntry.getTitle());
-
 		_assertStatus(targetFileEntry, WorkflowConstants.STATUS_APPROVED);
 	}
 
