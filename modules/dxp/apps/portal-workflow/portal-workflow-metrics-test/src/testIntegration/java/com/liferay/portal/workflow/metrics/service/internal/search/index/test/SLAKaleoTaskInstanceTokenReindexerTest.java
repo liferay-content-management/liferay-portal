@@ -38,7 +38,7 @@ import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
 import com.liferay.portal.workflow.metrics.search.index.constants.WorkflowMetricsIndexNameConstants;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionLocalService;
 import com.liferay.portal.workflow.metrics.service.util.BaseWorkflowMetricsIndexerTestCase;
-import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResultProvider;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowMetricsSLATaskResultProvider;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -280,14 +280,14 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 
 	private long[] _getBreachedSLADefinitionIds(long workflowTaskId) {
 		return TransformUtil.transformToLongArray(
-			_workflowTaskSLAResultProvider.getWorkflowTaskSLAResults(
-				workflowTaskId),
-			workflowTaskSLAResult -> {
-				if (!workflowTaskSLAResult.isBreached()) {
+			_workflowMetricsSLATaskResultProvider.
+				getWorkflowMetricsSLATaskResults(workflowTaskId),
+			workflowMetricsSLATaskResult -> {
+				if (!workflowMetricsSLATaskResult.isBreached()) {
 					return null;
 				}
 
-				return workflowTaskSLAResult.getSLADefinitionId();
+				return workflowMetricsSLATaskResult.getSLADefinitionId();
 			});
 	}
 
@@ -391,6 +391,7 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 		_workflowMetricsSLADefinitionLocalService;
 
 	@Inject
-	private WorkflowTaskSLAResultProvider _workflowTaskSLAResultProvider;
+	private WorkflowMetricsSLATaskResultProvider
+		_workflowMetricsSLATaskResultProvider;
 
 }

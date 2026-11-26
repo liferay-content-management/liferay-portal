@@ -10,9 +10,9 @@ import java.util.Date;
 /**
  * @author Mikel Lorza
  */
-public class WorkflowTaskSLAResult {
+public class WorkflowMetricsSLATaskResult {
 
-	public WorkflowTaskSLAResult(
+	public WorkflowMetricsSLATaskResult(
 		boolean breached, Date overdueDate, long slaDefinitionId) {
 
 		_breached = breached;

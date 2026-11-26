@@ -10,9 +10,9 @@ import java.util.List;
 /**
  * @author Mikel Lorza
  */
-public interface WorkflowTaskSLAResultProvider {
+public interface WorkflowMetricsSLATaskResultProvider {
 
-	public List<WorkflowTaskSLAResult> getWorkflowTaskSLAResults(
+	public List<WorkflowMetricsSLATaskResult> getWorkflowMetricsSLATaskResults(
 		long workflowTaskId);
 
 }

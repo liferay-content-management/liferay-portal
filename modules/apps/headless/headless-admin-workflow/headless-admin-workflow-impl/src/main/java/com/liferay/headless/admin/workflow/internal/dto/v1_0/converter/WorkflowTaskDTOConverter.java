@@ -33,7 +33,7 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
 import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
-import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResultProvider;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowMetricsSLATaskResultProvider;
 
 import java.io.Serializable;
 
@@ -117,21 +117,23 @@ public class WorkflowTaskDTOConverter
 	}
 
 	private SLAResult[] _toSLAResults(long workflowTaskId) {
-		WorkflowTaskSLAResultProvider workflowTaskSLAResultProvider =
-			_workflowTaskSLAResultProviderSnapshot.get();
+		WorkflowMetricsSLATaskResultProvider
+			workflowMetricsSLATaskResultProvider =
+				_workflowMetricsSLATaskResultProviderSnapshot.get();
 
-		if (workflowTaskSLAResultProvider == null) {
+		if (workflowMetricsSLATaskResultProvider == null) {
 			return null;
 		}
 
 		return TransformUtil.transformToArray(
-			workflowTaskSLAResultProvider.getWorkflowTaskSLAResults(
-				workflowTaskId),
-			workflowTaskSLAResult -> new SLAResult() {
+			workflowMetricsSLATaskResultProvider.
+				getWorkflowMetricsSLATaskResults(workflowTaskId),
+			workflowMetricsSLATaskResult -> new SLAResult() {
 				{
-					setBreached(workflowTaskSLAResult::isBreached);
-					setDateOverdue(workflowTaskSLAResult::getOverdueDate);
-					setId(workflowTaskSLAResult::getSLADefinitionId);
+					setBreached(workflowMetricsSLATaskResult::isBreached);
+					setDateOverdue(
+						workflowMetricsSLATaskResult::getOverdueDate);
+					setId(workflowMetricsSLATaskResult::getSLADefinitionId);
 				}
 			},
 			SLAResult.class);
@@ -237,10 +239,10 @@ public class WorkflowTaskDTOConverter
 	private static final Log _log = LogFactoryUtil.getLog(
 		WorkflowTaskDTOConverter.class);
 
-	private static final Snapshot<WorkflowTaskSLAResultProvider>
-		_workflowTaskSLAResultProviderSnapshot = new Snapshot<>(
-			WorkflowTaskDTOConverter.class, WorkflowTaskSLAResultProvider.class,
-			null, true);
+	private static final Snapshot<WorkflowMetricsSLATaskResultProvider>
+		_workflowMetricsSLATaskResultProviderSnapshot = new Snapshot<>(
+			WorkflowTaskDTOConverter.class,
+			WorkflowMetricsSLATaskResultProvider.class, null, true);
 
 	@Reference
 	private Language _language;

@@ -52,8 +52,8 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.workflow.constants.WorkflowActionKeys;
-import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResult;
-import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResultProvider;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowMetricsSLATaskResult;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowMetricsSLATaskResultProvider;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -315,24 +315,25 @@ public class WorkflowTaskResourceTest extends BaseWorkflowTaskResourceTestCase {
 
 		long time = (System.currentTimeMillis() / Time.SECOND) * Time.SECOND;
 
-		WorkflowTaskSLAResult workflowTaskSLAResult1 =
-			new WorkflowTaskSLAResult(
+		WorkflowMetricsSLATaskResult workflowMetricsSLATaskResult1 =
+			new WorkflowMetricsSLATaskResult(
 				true, new Date(time - Time.HOUR), RandomTestUtil.randomLong());
-		WorkflowTaskSLAResult workflowTaskSLAResult2 =
-			new WorkflowTaskSLAResult(
+		WorkflowMetricsSLATaskResult workflowMetricsSLATaskResult2 =
+			new WorkflowMetricsSLATaskResult(
 				false, new Date(time + Time.HOUR), RandomTestUtil.randomLong());
 
 		Bundle bundle = FrameworkUtil.getBundle(WorkflowTaskResourceTest.class);
 
 		BundleContext bundleContext = bundle.getBundleContext();
 
-		ServiceRegistration<WorkflowTaskSLAResultProvider> serviceRegistration =
-			bundleContext.registerService(
-				WorkflowTaskSLAResultProvider.class,
+		ServiceRegistration<WorkflowMetricsSLATaskResultProvider>
+			serviceRegistration = bundleContext.registerService(
+				WorkflowMetricsSLATaskResultProvider.class,
 				workflowTaskId -> {
 					if (workflowTaskId == workflowTask1.getId()) {
 						return Arrays.asList(
-							workflowTaskSLAResult1, workflowTaskSLAResult2);
+							workflowMetricsSLATaskResult1,
+							workflowMetricsSLATaskResult2);
 					}
 
 					return Collections.emptyList();
@@ -373,20 +374,22 @@ public class WorkflowTaskResourceTest extends BaseWorkflowTaskResourceTestCase {
 
 			Assert.assertTrue(slaResult.getBreached());
 			Assert.assertEquals(
-				workflowTaskSLAResult1.getOverdueDate(),
+				workflowMetricsSLATaskResult1.getOverdueDate(),
 				slaResult.getDateOverdue());
 			Assert.assertEquals(
-				Long.valueOf(workflowTaskSLAResult1.getSLADefinitionId()),
+				Long.valueOf(
+					workflowMetricsSLATaskResult1.getSLADefinitionId()),
 				slaResult.getId());
 
 			slaResult = slaResults[1];
 
 			Assert.assertFalse(slaResult.getBreached());
 			Assert.assertEquals(
-				workflowTaskSLAResult2.getOverdueDate(),
+				workflowMetricsSLATaskResult2.getOverdueDate(),
 				slaResult.getDateOverdue());
 			Assert.assertEquals(
-				Long.valueOf(workflowTaskSLAResult2.getSLADefinitionId()),
+				Long.valueOf(
+					workflowMetricsSLATaskResult2.getSLADefinitionId()),
 				slaResult.getId());
 
 			getWorkflowTask = slaResultsWorkflowTaskResource.getWorkflowTask(

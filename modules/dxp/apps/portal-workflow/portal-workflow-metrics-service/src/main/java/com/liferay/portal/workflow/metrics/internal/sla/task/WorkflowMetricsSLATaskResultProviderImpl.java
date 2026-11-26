@@ -27,8 +27,8 @@ import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
 import com.liferay.portal.workflow.metrics.search.index.constants.WorkflowMetricsIndexNameConstants;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionLocalService;
 import com.liferay.portal.workflow.metrics.sla.processor.WorkflowMetricsSLAStatus;
-import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResult;
-import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResultProvider;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowMetricsSLATaskResult;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowMetricsSLATaskResultProvider;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -47,12 +47,12 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Mikel Lorza
  */
-@Component(service = WorkflowTaskSLAResultProvider.class)
-public class WorkflowTaskSLAResultProviderImpl
-	implements WorkflowTaskSLAResultProvider {
+@Component(service = WorkflowMetricsSLATaskResultProvider.class)
+public class WorkflowMetricsSLATaskResultProviderImpl
+	implements WorkflowMetricsSLATaskResultProvider {
 
 	@Override
-	public List<WorkflowTaskSLAResult> getWorkflowTaskSLAResults(
+	public List<WorkflowMetricsSLATaskResult> getWorkflowMetricsSLATaskResults(
 		long workflowTaskId) {
 
 		KaleoTaskInstanceToken kaleoTaskInstanceToken =
@@ -64,7 +64,7 @@ public class WorkflowTaskSLAResultProviderImpl
 		}
 
 		try {
-			return _getWorkflowTaskSLAResults(kaleoTaskInstanceToken);
+			return _getWorkflowMetricsSLATaskResults(kaleoTaskInstanceToken);
 		}
 		catch (Exception exception) {
 			_log.error(exception);
@@ -126,8 +126,9 @@ public class WorkflowTaskSLAResultProviderImpl
 		return overdueDates;
 	}
 
-	private List<WorkflowTaskSLAResult> _getWorkflowTaskSLAResults(
-		KaleoTaskInstanceToken kaleoTaskInstanceToken) {
+	private List<WorkflowMetricsSLATaskResult>
+		_getWorkflowMetricsSLATaskResults(
+			KaleoTaskInstanceToken kaleoTaskInstanceToken) {
 
 		if (!_searchCapabilities.isWorkflowMetricsSupported()) {
 			return Collections.emptyList();
@@ -205,7 +206,7 @@ public class WorkflowTaskSLAResultProviderImpl
 					return document.getString("slaDefinitionId");
 				}));
 
-		List<WorkflowTaskSLAResult> workflowTaskSLAResults =
+		List<WorkflowMetricsSLATaskResult> workflowMetricsSLATaskResults =
 			TransformUtil.transform(
 				searchHitsList,
 				searchHit -> {
@@ -218,19 +219,19 @@ public class WorkflowTaskSLAResultProviderImpl
 						return null;
 					}
 
-					return new WorkflowTaskSLAResult(
+					return new WorkflowMetricsSLATaskResult(
 						document.getBoolean("breached"), overdueDate,
 						document.getLong("slaDefinitionId"));
 				});
 
-		workflowTaskSLAResults.sort(
-			Comparator.comparing(WorkflowTaskSLAResult::getOverdueDate));
+		workflowMetricsSLATaskResults.sort(
+			Comparator.comparing(WorkflowMetricsSLATaskResult::getOverdueDate));
 
-		return workflowTaskSLAResults;
+		return workflowMetricsSLATaskResults;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		WorkflowTaskSLAResultProviderImpl.class);
+		WorkflowMetricsSLATaskResultProviderImpl.class);
 
 	private final DateTimeFormatter _dateTimeFormatter =
 		DateTimeFormatter.ofPattern("yyyyMMddHHmmss");

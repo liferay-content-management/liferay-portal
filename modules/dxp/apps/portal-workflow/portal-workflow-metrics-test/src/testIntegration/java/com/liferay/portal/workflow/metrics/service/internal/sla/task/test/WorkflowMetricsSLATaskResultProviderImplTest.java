@@ -22,8 +22,8 @@ import com.liferay.portal.workflow.kaleo.service.KaleoTaskInstanceTokenLocalServ
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionLocalService;
 import com.liferay.portal.workflow.metrics.service.util.BaseWorkflowMetricsIndexerTestCase;
-import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResult;
-import com.liferay.portal.workflow.metrics.sla.task.WorkflowTaskSLAResultProvider;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowMetricsSLATaskResult;
+import com.liferay.portal.workflow.metrics.sla.task.WorkflowMetricsSLATaskResultProvider;
 
 import java.util.Date;
 import java.util.List;
@@ -38,11 +38,11 @@ import org.junit.runner.RunWith;
  */
 @DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
-public class WorkflowTaskSLAResultProviderImplTest
+public class WorkflowMetricsSLATaskResultProviderImplTest
 	extends BaseWorkflowMetricsIndexerTestCase {
 
 	@Test
-	public void testGetWorkflowTaskSLAResults() throws Exception {
+	public void testGetWorkflowMetricsSLATaskResults() throws Exception {
 		WorkflowMetricsSLADefinition workflowMetricsSLADefinition1 =
 			_addWorkflowMetricsSLADefinition(Time.DAY);
 		WorkflowMetricsSLADefinition workflowMetricsSLADefinition2 =
@@ -73,41 +73,47 @@ public class WorkflowTaskSLAResultProviderImplTest
 		IdempotentRetryAssert.retryAssert(
 			10, TimeUnit.SECONDS,
 			() -> {
-				List<WorkflowTaskSLAResult> workflowTaskSLAResults =
-					_workflowTaskSLAResultProvider.getWorkflowTaskSLAResults(
-						kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
+				List<WorkflowMetricsSLATaskResult>
+					workflowMetricsSLATaskResults =
+						_workflowMetricsSLATaskResultProvider.
+							getWorkflowMetricsSLATaskResults(
+								kaleoTaskInstanceToken.
+									getKaleoTaskInstanceTokenId());
 
 				Assert.assertEquals(
-					workflowTaskSLAResults.toString(), 2,
-					workflowTaskSLAResults.size());
+					workflowMetricsSLATaskResults.toString(), 2,
+					workflowMetricsSLATaskResults.size());
 
-				WorkflowTaskSLAResult workflowTaskSLAResult =
-					workflowTaskSLAResults.get(0);
+				WorkflowMetricsSLATaskResult workflowMetricsSLATaskResult =
+					workflowMetricsSLATaskResults.get(0);
 
-				Assert.assertTrue(workflowTaskSLAResult.isBreached());
+				Assert.assertTrue(workflowMetricsSLATaskResult.isBreached());
 				Assert.assertEquals(
 					workflowMetricsSLADefinition2.
 						getWorkflowMetricsSLADefinitionId(),
-					workflowTaskSLAResult.getSLADefinitionId());
+					workflowMetricsSLATaskResult.getSLADefinitionId());
 
-				Date overdueDate = workflowTaskSLAResult.getOverdueDate();
+				Date overdueDate =
+					workflowMetricsSLATaskResult.getOverdueDate();
 
-				workflowTaskSLAResult = workflowTaskSLAResults.get(1);
+				workflowMetricsSLATaskResult =
+					workflowMetricsSLATaskResults.get(1);
 
-				Assert.assertFalse(workflowTaskSLAResult.isBreached());
+				Assert.assertFalse(workflowMetricsSLATaskResult.isBreached());
 				Assert.assertEquals(
 					workflowMetricsSLADefinition1.
 						getWorkflowMetricsSLADefinitionId(),
-					workflowTaskSLAResult.getSLADefinitionId());
+					workflowMetricsSLATaskResult.getSLADefinitionId());
 				Assert.assertTrue(
-					overdueDate.before(workflowTaskSLAResult.getOverdueDate()));
+					overdueDate.before(
+						workflowMetricsSLATaskResult.getOverdueDate()));
 
 				return null;
 			});
 	}
 
 	@Test
-	public void testGetWorkflowTaskSLAResultsWhenSLADefinitionIsDeactivated()
+	public void testGetWorkflowMetricsSLATaskResultsWhenSLADefinitionIsDeactivated()
 		throws Exception {
 
 		WorkflowMetricsSLADefinition workflowMetricsSLADefinition1 =
@@ -144,13 +150,16 @@ public class WorkflowTaskSLAResultProviderImplTest
 		IdempotentRetryAssert.retryAssert(
 			10, TimeUnit.SECONDS,
 			() -> {
-				List<WorkflowTaskSLAResult> workflowTaskSLAResults =
-					_workflowTaskSLAResultProvider.getWorkflowTaskSLAResults(
-						kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
+				List<WorkflowMetricsSLATaskResult>
+					workflowMetricsSLATaskResults =
+						_workflowMetricsSLATaskResultProvider.
+							getWorkflowMetricsSLATaskResults(
+								kaleoTaskInstanceToken.
+									getKaleoTaskInstanceTokenId());
 
 				Assert.assertEquals(
-					workflowTaskSLAResults.toString(), 2,
-					workflowTaskSLAResults.size());
+					workflowMetricsSLATaskResults.toString(), 2,
+					workflowMetricsSLATaskResults.size());
 
 				return null;
 			});
@@ -164,21 +173,24 @@ public class WorkflowTaskSLAResultProviderImplTest
 		IdempotentRetryAssert.retryAssert(
 			10, TimeUnit.SECONDS,
 			() -> {
-				List<WorkflowTaskSLAResult> workflowTaskSLAResults =
-					_workflowTaskSLAResultProvider.getWorkflowTaskSLAResults(
-						kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
+				List<WorkflowMetricsSLATaskResult>
+					workflowMetricsSLATaskResults =
+						_workflowMetricsSLATaskResultProvider.
+							getWorkflowMetricsSLATaskResults(
+								kaleoTaskInstanceToken.
+									getKaleoTaskInstanceTokenId());
 
 				Assert.assertEquals(
-					workflowTaskSLAResults.toString(), 1,
-					workflowTaskSLAResults.size());
+					workflowMetricsSLATaskResults.toString(), 1,
+					workflowMetricsSLATaskResults.size());
 
-				WorkflowTaskSLAResult workflowTaskSLAResult =
-					workflowTaskSLAResults.get(0);
+				WorkflowMetricsSLATaskResult workflowMetricsSLATaskResult =
+					workflowMetricsSLATaskResults.get(0);
 
 				Assert.assertEquals(
 					workflowMetricsSLADefinition2.
 						getWorkflowMetricsSLADefinitionId(),
-					workflowTaskSLAResult.getSLADefinitionId());
+					workflowMetricsSLATaskResult.getSLADefinitionId());
 
 				return null;
 			});
@@ -212,6 +224,7 @@ public class WorkflowTaskSLAResultProviderImplTest
 		_workflowMetricsSLADefinitionLocalService;
 
 	@Inject
-	private WorkflowTaskSLAResultProvider _workflowTaskSLAResultProvider;
+	private WorkflowMetricsSLATaskResultProvider
+		_workflowMetricsSLATaskResultProvider;
 
 }
