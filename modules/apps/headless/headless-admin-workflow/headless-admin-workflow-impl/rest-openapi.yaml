@@ -180,11 +180,11 @@ components:
             type: object
         SLAResult:
             description:
-                The result of a Workflow Metrics SLA for a workflow task.
+                Represents the result of a Workflow Metrics SLA for a workflow task.
             properties:
                 breached:
                     description:
-                        Whether the task breached the SLA, which happens when the SLA becomes overdue while the task is open.
+                        A flag that indicates whether the task breached the SLA, which happens when the SLA becomes overdue while the task is open.
                     readOnly: true
                     type: boolean
                 dateOverdue:
