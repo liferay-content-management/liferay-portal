@@ -392,9 +392,9 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 	}
 
 	private boolean _isSLABreachChanged(
+		List<Document> documents,
 		WorkflowMetricsSLAInstanceResult
 			previousWorkflowMetricsSLAInstanceResult,
-		List<Document> taskDocuments,
 		WorkflowMetricsSLATaskResult workflowMetricsSLATaskResult) {
 
 		boolean breached = workflowMetricsSLATaskResult.isBreached();
@@ -403,15 +403,15 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 			return breached;
 		}
 
-		for (Document taskDocument : taskDocuments) {
-			if (taskDocument.getLong("taskId") !=
+		for (Document document : documents) {
+			if (document.getLong("taskId") !=
 					workflowMetricsSLATaskResult.getTaskId()) {
 
 				continue;
 			}
 
 			boolean previousBreached = _workflowMetricsSLAProcessor.isBreached(
-				taskDocument,
+				document,
 				previousWorkflowMetricsSLAInstanceResult.
 					getModifiedLocalDateTime(),
 				previousWorkflowMetricsSLAInstanceResult.
@@ -620,9 +620,9 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 		}
 
 		BulkDocumentRequest bulkDocumentRequest = new BulkDocumentRequest();
+		Set<Long> slaBreachChangedTaskIds = new HashSet<>();
 		List<Document> slaInstanceResultDocuments = new ArrayList<>();
 		List<Document> slaTaskResultDocuments = new ArrayList<>();
-		Set<Long> slaBreachChangedTaskIds = new HashSet<>();
 
 		for (Document document : instanceDocuments) {
 			WorkflowMetricsSLAInstanceResult
@@ -658,8 +658,8 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 						workflowMetricsSLATaskResult));
 
 				if (!_isSLABreachChanged(
-						previousWorkflowMetricsSLAInstanceResult,
 						taskDocuments.get(document.getLong("instanceId")),
+						previousWorkflowMetricsSLAInstanceResult,
 						workflowMetricsSLATaskResult)) {
 
 					continue;
