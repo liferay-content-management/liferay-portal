@@ -104,6 +104,10 @@ $toolbarZIndex: 971;
 		a.link-secondary {
 			color: $dark;
 		}
+
+		&.treeview-link .knowledge-base-navigation-item-active {
+			background-color: transparent;
+		}
 	}
 
 	.knowledge-base-admin-content {
