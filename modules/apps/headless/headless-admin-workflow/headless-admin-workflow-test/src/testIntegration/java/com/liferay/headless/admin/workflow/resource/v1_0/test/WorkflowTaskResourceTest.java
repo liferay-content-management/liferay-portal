@@ -43,7 +43,6 @@ import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -338,9 +337,8 @@ public class WorkflowTaskResourceTest extends BaseWorkflowTaskResourceTestCase {
 
 					return Collections.emptyList();
 				},
-				new HashMapDictionary<>(
-					Collections.singletonMap(
-						"service.ranking", Integer.MAX_VALUE)));
+				MapUtil.singletonDictionary(
+					"service.ranking", Integer.MAX_VALUE));
 
 		try {
 			WorkflowTask getWorkflowTask = workflowTaskResource.getWorkflowTask(

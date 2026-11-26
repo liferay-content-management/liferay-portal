@@ -17,7 +17,7 @@ import com.liferay.portal.kernel.test.rule.DataGuard;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
-import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.search.document.Document;
@@ -84,10 +84,9 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 						_getBreachedSLADefinitionIds(
 							kaleoTaskInstanceToken.
 								getKaleoTaskInstanceTokenId())),
-				new HashMapDictionary<>(
-					Collections.singletonMap(
-						"indexer.class.name",
-						KaleoTaskInstanceToken.class.getName())));
+				MapUtil.singletonDictionary(
+					"indexer.class.name",
+					KaleoTaskInstanceToken.class.getName()));
 
 		try {
 			WorkflowMetricsSLADefinition workflowMetricsSLADefinition1 =
@@ -187,7 +186,7 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 
 		BundleContext bundleContext = bundle.getBundleContext();
 
-		Map<Long, Integer> reindexCounts = new ConcurrentHashMap<>();
+		Map<Long, Integer> reindexesCounts = new ConcurrentHashMap<>();
 
 		ServiceRegistration<ModelDocumentContributor<?>> serviceRegistration =
 			bundleContext.registerService(
@@ -195,7 +194,7 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 					(Class<?>)ModelDocumentContributor.class,
 				(ModelDocumentContributor<KaleoTaskInstanceToken>)
 					(document, kaleoTaskInstanceToken) -> {
-						reindexCounts.merge(
+						reindexesCounts.merge(
 							kaleoTaskInstanceToken.
 								getKaleoTaskInstanceTokenId(),
 							1, Integer::sum);
@@ -206,10 +205,9 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 								kaleoTaskInstanceToken.
 									getKaleoTaskInstanceTokenId()));
 					},
-				new HashMapDictionary<>(
-					Collections.singletonMap(
-						"indexer.class.name",
-						KaleoTaskInstanceToken.class.getName())));
+				MapUtil.singletonDictionary(
+					"indexer.class.name",
+					KaleoTaskInstanceToken.class.getName()));
 
 		try {
 			WorkflowMetricsSLADefinition workflowMetricsSLADefinition =
@@ -231,7 +229,7 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 						getWorkflowMetricsSLADefinitionId()),
 				kaleoTaskInstanceToken);
 
-			Integer reindexCount = reindexCounts.get(
+			Integer reindexesCount = reindexesCounts.get(
 				kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
 
 			Thread.sleep(Time.SECOND * 2);
@@ -257,8 +255,8 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 					getWorkflowMetricsSLADefinitionId());
 
 			Assert.assertEquals(
-				reindexCount,
-				reindexCounts.get(
+				reindexesCount,
+				reindexesCounts.get(
 					kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId()));
 		}
 		finally {
