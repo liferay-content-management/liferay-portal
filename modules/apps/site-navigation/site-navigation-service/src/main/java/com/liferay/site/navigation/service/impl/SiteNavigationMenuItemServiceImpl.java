@@ -5,15 +5,20 @@
 
 package com.liferay.site.navigation.service.impl;
 
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.site.navigation.model.SiteNavigationMenu;
 import com.liferay.site.navigation.model.SiteNavigationMenuItem;
 import com.liferay.site.navigation.service.base.SiteNavigationMenuItemServiceBaseImpl;
+import com.liferay.site.navigation.type.SiteNavigationMenuItemType;
+import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
 
 import java.util.List;
 
@@ -141,6 +146,14 @@ public class SiteNavigationMenuItemServiceImpl
 				getPermissionChecker(),
 				siteNavigationMenuItem.getSiteNavigationMenuId(),
 				ActionKeys.VIEW);
+
+			if (!_hasPermission(siteNavigationMenuItem)) {
+				throw new PrincipalException.MustHavePermission(
+					getPermissionChecker(),
+					SiteNavigationMenuItem.class.getName(),
+					siteNavigationMenuItem.getSiteNavigationMenuItemId(),
+					ActionKeys.VIEW);
+			}
 		}
 
 		return siteNavigationMenuItem;
@@ -154,8 +167,9 @@ public class SiteNavigationMenuItemServiceImpl
 		_siteNavigationMenuModelResourcePermission.check(
 			getPermissionChecker(), siteNavigationMenuId, ActionKeys.VIEW);
 
-		return siteNavigationMenuItemLocalService.getSiteNavigationMenuItems(
-			siteNavigationMenuId);
+		return _filterSiteNavigationMenuItems(
+			siteNavigationMenuItemLocalService.getSiteNavigationMenuItems(
+				siteNavigationMenuId));
 	}
 
 	@Override
@@ -166,8 +180,9 @@ public class SiteNavigationMenuItemServiceImpl
 		_siteNavigationMenuModelResourcePermission.check(
 			getPermissionChecker(), siteNavigationMenuId, ActionKeys.VIEW);
 
-		return siteNavigationMenuItemLocalService.getSiteNavigationMenuItems(
-			siteNavigationMenuId, parentSiteNavigationMenuItemId);
+		return _filterSiteNavigationMenuItems(
+			siteNavigationMenuItemLocalService.getSiteNavigationMenuItems(
+				siteNavigationMenuId, parentSiteNavigationMenuItemId));
 	}
 
 	@Override
@@ -179,8 +194,9 @@ public class SiteNavigationMenuItemServiceImpl
 		_siteNavigationMenuModelResourcePermission.check(
 			getPermissionChecker(), siteNavigationMenuId, ActionKeys.VIEW);
 
-		return siteNavigationMenuItemLocalService.getSiteNavigationMenuItems(
-			siteNavigationMenuId, orderByComparator);
+		return _filterSiteNavigationMenuItems(
+			siteNavigationMenuItemLocalService.getSiteNavigationMenuItems(
+				siteNavigationMenuId, orderByComparator));
 	}
 
 	@Override
@@ -221,6 +237,53 @@ public class SiteNavigationMenuItemServiceImpl
 			getUserId(), siteNavigationMenuItemId, typeSettings,
 			serviceContext);
 	}
+
+	private List<SiteNavigationMenuItem> _filterSiteNavigationMenuItems(
+			List<SiteNavigationMenuItem> siteNavigationMenuItems)
+		throws PortalException {
+
+		return TransformUtil.transform(
+			siteNavigationMenuItems,
+			siteNavigationMenuItem -> {
+				if (_hasPermission(siteNavigationMenuItem)) {
+					return siteNavigationMenuItem;
+				}
+
+				return null;
+			});
+	}
+
+	private boolean _hasPermission(
+			SiteNavigationMenuItem siteNavigationMenuItem)
+		throws PortalException {
+
+		PermissionChecker permissionChecker = getPermissionChecker();
+
+		if (_siteNavigationMenuModelResourcePermission.contains(
+				permissionChecker,
+				siteNavigationMenuItem.getSiteNavigationMenuId(),
+				ActionKeys.UPDATE)) {
+
+			return true;
+		}
+
+		SiteNavigationMenuItemType siteNavigationMenuItemType =
+			_siteNavigationMenuItemTypeRegistry.getSiteNavigationMenuItemType(
+				siteNavigationMenuItem.getType());
+
+		if ((siteNavigationMenuItemType != null) &&
+			siteNavigationMenuItemType.hasPermission(
+				permissionChecker, siteNavigationMenuItem)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Reference
+	private SiteNavigationMenuItemTypeRegistry
+		_siteNavigationMenuItemTypeRegistry;
 
 	@Reference(
 		target = "(model.class.name=com.liferay.site.navigation.model.SiteNavigationMenu)"

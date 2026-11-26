@@ -6,10 +6,12 @@
 package com.liferay.site.navigation.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
@@ -20,14 +22,17 @@ import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUti
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.AssertUtils;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
@@ -194,6 +199,62 @@ public class SiteNavigationMenuItemServiceTest {
 	}
 
 	@Test
+	@TestInfo("LPD-117357")
+	public void testGetSiteNavigationMenuItemsWithSiteMemberUser()
+		throws Exception {
+
+		Layout layout = LayoutTestUtil.addTypePortletLayout(_group);
+
+		SiteNavigationMenuItem siteNavigationMenuItem =
+			_addSiteNavigationMenuItem(layout);
+
+		Layout restrictedLayout = LayoutTestUtil.addTypePortletLayout(_group);
+
+		RoleTestUtil.removeResourcePermission(
+			RoleConstants.GUEST, Layout.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(restrictedLayout.getPlid()), ActionKeys.VIEW);
+		RoleTestUtil.removeResourcePermission(
+			RoleConstants.SITE_MEMBER, Layout.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(restrictedLayout.getPlid()), ActionKeys.VIEW);
+
+		SiteNavigationMenuItem restrictedSiteNavigationMenuItem =
+			_addSiteNavigationMenuItem(restrictedLayout);
+
+		_siteMemberUser = UserTestUtil.addGroupUser(
+			_group, RoleConstants.SITE_MEMBER);
+
+		_setUser(_siteMemberUser);
+
+		List<SiteNavigationMenuItem> siteNavigationMenuItems =
+			_siteNavigationMenuItemService.getSiteNavigationMenuItems(
+				_siteNavigationMenu.getSiteNavigationMenuId());
+
+		Assert.assertFalse(
+			siteNavigationMenuItems.contains(restrictedSiteNavigationMenuItem));
+		Assert.assertTrue(
+			siteNavigationMenuItems.contains(siteNavigationMenuItem));
+
+		try {
+			_siteNavigationMenuItemService.
+				getSiteNavigationMenuItemByExternalReferenceCode(
+					restrictedSiteNavigationMenuItem.getExternalReferenceCode(),
+					_group.getGroupId());
+
+			Assert.fail();
+		}
+		catch (PrincipalException.MustHavePermission principalException) {
+			String message = principalException.getMessage();
+
+			Assert.assertTrue(
+				message.contains(
+					"User " + _siteMemberUser.getUserId() +
+						" must have VIEW permission for"));
+		}
+	}
+
+	@Test
 	public void testUpdateSiteNavigationMenuItem() throws Exception {
 		try {
 			_testUpdateSiteNavigationMenuItemOrder(_guestUser);
@@ -226,6 +287,19 @@ public class SiteNavigationMenuItemServiceTest {
 		}
 
 		_testUpdateSiteNavigationMenuItemParent(_user);
+	}
+
+	private SiteNavigationMenuItem _addSiteNavigationMenuItem(Layout layout)
+		throws Exception {
+
+		return _siteNavigationMenuItemService.addSiteNavigationMenuItem(
+			StringUtil.randomString(), _group.getGroupId(),
+			_siteNavigationMenu.getSiteNavigationMenuId(), 0,
+			SiteNavigationMenuItemTypeConstants.LAYOUT,
+			UnicodePropertiesBuilder.put(
+				"externalReferenceCode", layout.getExternalReferenceCode()
+			).buildString(),
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 	}
 
 	private void _setUser(User user) {
@@ -385,6 +459,10 @@ public class SiteNavigationMenuItemServiceTest {
 	private Group _group;
 
 	private User _guestUser;
+
+	@DeleteAfterTestRun
+	private User _siteMemberUser;
+
 	private SiteNavigationMenu _siteNavigationMenu;
 	private SiteNavigationMenuItem _siteNavigationMenuItem;
 
