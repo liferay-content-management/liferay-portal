@@ -116,15 +116,10 @@ public class DLAppServiceWhenCopyingAFileEntryTest extends BaseDLAppTestCase {
 	}
 
 	@Test
-	@TestInfo({"LPS-182709", "LPS-187945"})
 	public void testShouldSucceedFromRootFolderToRootFolderInDifferentSite()
 		throws Exception {
 
 		_copy(group, targetGroup);
-
-		_testShouldSucceedWithCheckedOutFileEntry();
-		_testShouldSucceedWithoutGuestPermissions();
-		_testShouldSucceedWithPendingFileEntry();
 	}
 
 	@Test
@@ -164,6 +159,36 @@ public class DLAppServiceWhenCopyingAFileEntryTest extends BaseDLAppTestCase {
 	}
 
 	@Test
+	@TestInfo({"LPS-182709", "LPS-187945"})
+	public void testShouldSucceedWithCheckedOutFileEntry() throws Exception {
+		FileEntry sourceFileEntry = DLAppServiceTestUtil.addFileEntry(
+			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString());
+
+		dlAppService.checkOutFileEntry(
+			sourceFileEntry.getFileEntryId(),
+			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+
+		FileEntry targetFileEntry = dlAppService.copyFileEntry(
+			sourceFileEntry.getFileEntryId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			targetGroup.getGroupId(),
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
+			ServiceContextTestUtil.getServiceContext(targetGroup.getGroupId()));
+
+		sourceFileEntry = dlAppService.getFileEntry(
+			sourceFileEntry.getFileEntryId());
+
+		Assert.assertTrue(sourceFileEntry.isCheckedOut());
+
+		_assertStatus(sourceFileEntry, WorkflowConstants.STATUS_DRAFT);
+		Assert.assertEquals(
+			sourceFileEntry.getTitle(), targetFileEntry.getTitle());
+
+		_assertStatus(targetFileEntry, WorkflowConstants.STATUS_APPROVED);
+	}
+
+	@Test
 	public void testShouldSucceedWithDifferentNameAndTitleToDifferentSite()
 		throws Exception {
 
@@ -196,6 +221,85 @@ public class DLAppServiceWhenCopyingAFileEntryTest extends BaseDLAppTestCase {
 			group.getGroupId(),
 			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
 			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+	}
+
+	@Test
+	@TestInfo("LPS-182709")
+	public void testShouldSucceedWithPendingFileEntry() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		serviceContext.setAttribute(
+			"restrictionType", DLFolderConstants.RESTRICTION_TYPE_WORKFLOW);
+		serviceContext.setAttribute(
+			"workflowDefinition" +
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL,
+			"Single Approver@1");
+
+		dlAppService.updateFolder(
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, StringPool.BLANK,
+			StringPool.BLANK, serviceContext);
+
+		FileEntry sourceFileEntry = DLAppServiceTestUtil.addFileEntry(
+			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString());
+
+		FileEntry targetFileEntry = dlAppService.copyFileEntry(
+			sourceFileEntry.getFileEntryId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			targetGroup.getGroupId(),
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
+			ServiceContextTestUtil.getServiceContext(targetGroup.getGroupId()));
+
+		_assertStatus(sourceFileEntry, WorkflowConstants.STATUS_PENDING);
+		Assert.assertEquals(
+			sourceFileEntry.getTitle(), targetFileEntry.getTitle());
+		_assertStatus(targetFileEntry, WorkflowConstants.STATUS_APPROVED);
+	}
+
+	@Test
+	@TestInfo("LPS-187945")
+	public void testShouldSucceedWithoutGuestPermissions() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		serviceContext.setAddGuestPermissions(false);
+
+		FileEntry sourceFileEntry = dlAppService.addFileEntry(
+			null, group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
+			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
+			StringPool.BLANK, null, 0, null, null, null, serviceContext);
+
+		FileEntry targetFileEntry = dlAppService.copyFileEntry(
+			sourceFileEntry.getFileEntryId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			targetGroup.getGroupId(),
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
+			ServiceContextTestUtil.getServiceContext(targetGroup.getGroupId()));
+
+		Assert.assertFalse(
+			_hasResourcePermission(
+				ActionKeys.ADD_DISCUSSION, targetFileEntry,
+				RoleConstants.GUEST));
+		Assert.assertTrue(
+			_hasResourcePermission(
+				ActionKeys.ADD_DISCUSSION, targetFileEntry,
+				RoleConstants.SITE_MEMBER));
+		Assert.assertFalse(
+			_hasResourcePermission(
+				ActionKeys.DOWNLOAD, targetFileEntry, RoleConstants.GUEST));
+		Assert.assertTrue(
+			_hasResourcePermission(
+				ActionKeys.DOWNLOAD, targetFileEntry,
+				RoleConstants.SITE_MEMBER));
+		Assert.assertFalse(
+			_hasResourcePermission(
+				ActionKeys.VIEW, targetFileEntry, RoleConstants.GUEST));
+		Assert.assertTrue(
+			_hasResourcePermission(
+				ActionKeys.VIEW, targetFileEntry, RoleConstants.SITE_MEMBER));
 	}
 
 	protected Folder newParentFolder;
@@ -296,109 +400,6 @@ public class DLAppServiceWhenCopyingAFileEntryTest extends BaseDLAppTestCase {
 				ResourceConstants.SCOPE_INDIVIDUAL, String.valueOf(fileEntryId),
 				role.getRoleId(), actionId);
 		}
-	}
-
-	private void _testShouldSucceedWithCheckedOutFileEntry() throws Exception {
-		FileEntry sourceFileEntry = DLAppServiceTestUtil.addFileEntry(
-			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			RandomTestUtil.randomString());
-
-		dlAppService.checkOutFileEntry(
-			sourceFileEntry.getFileEntryId(),
-			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
-
-		FileEntry targetFileEntry = dlAppService.copyFileEntry(
-			sourceFileEntry.getFileEntryId(),
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			targetGroup.getGroupId(),
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
-			ServiceContextTestUtil.getServiceContext(targetGroup.getGroupId()));
-
-		sourceFileEntry = dlAppService.getFileEntry(
-			sourceFileEntry.getFileEntryId());
-
-		Assert.assertTrue(sourceFileEntry.isCheckedOut());
-
-		_assertStatus(sourceFileEntry, WorkflowConstants.STATUS_DRAFT);
-		Assert.assertEquals(
-			sourceFileEntry.getTitle(), targetFileEntry.getTitle());
-
-		_assertStatus(targetFileEntry, WorkflowConstants.STATUS_APPROVED);
-	}
-
-	private void _testShouldSucceedWithPendingFileEntry() throws Exception {
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(group.getGroupId());
-
-		serviceContext.setAttribute(
-			"restrictionType", DLFolderConstants.RESTRICTION_TYPE_WORKFLOW);
-		serviceContext.setAttribute(
-			"workflowDefinition" +
-				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL,
-			"Single Approver@1");
-
-		dlAppService.updateFolder(
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, StringPool.BLANK,
-			StringPool.BLANK, serviceContext);
-
-		FileEntry sourceFileEntry = DLAppServiceTestUtil.addFileEntry(
-			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			RandomTestUtil.randomString());
-
-		FileEntry targetFileEntry = dlAppService.copyFileEntry(
-			sourceFileEntry.getFileEntryId(),
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			targetGroup.getGroupId(),
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
-			ServiceContextTestUtil.getServiceContext(targetGroup.getGroupId()));
-
-		_assertStatus(sourceFileEntry, WorkflowConstants.STATUS_PENDING);
-		Assert.assertEquals(
-			sourceFileEntry.getTitle(), targetFileEntry.getTitle());
-		_assertStatus(targetFileEntry, WorkflowConstants.STATUS_APPROVED);
-	}
-
-	private void _testShouldSucceedWithoutGuestPermissions() throws Exception {
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(group.getGroupId());
-
-		serviceContext.setAddGuestPermissions(false);
-
-		FileEntry sourceFileEntry = dlAppService.addFileEntry(
-			null, group.getGroupId(),
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
-			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
-			StringPool.BLANK, null, 0, null, null, null, serviceContext);
-
-		FileEntry targetFileEntry = dlAppService.copyFileEntry(
-			sourceFileEntry.getFileEntryId(),
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			targetGroup.getGroupId(),
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
-			ServiceContextTestUtil.getServiceContext(targetGroup.getGroupId()));
-
-		Assert.assertFalse(
-			_hasResourcePermission(
-				ActionKeys.ADD_DISCUSSION, targetFileEntry,
-				RoleConstants.GUEST));
-		Assert.assertTrue(
-			_hasResourcePermission(
-				ActionKeys.ADD_DISCUSSION, targetFileEntry,
-				RoleConstants.SITE_MEMBER));
-		Assert.assertFalse(
-			_hasResourcePermission(
-				ActionKeys.DOWNLOAD, targetFileEntry, RoleConstants.GUEST));
-		Assert.assertTrue(
-			_hasResourcePermission(
-				ActionKeys.DOWNLOAD, targetFileEntry,
-				RoleConstants.SITE_MEMBER));
-		Assert.assertFalse(
-			_hasResourcePermission(
-				ActionKeys.VIEW, targetFileEntry, RoleConstants.GUEST));
-		Assert.assertTrue(
-			_hasResourcePermission(
-				ActionKeys.VIEW, targetFileEntry, RoleConstants.SITE_MEMBER));
 	}
 
 }
