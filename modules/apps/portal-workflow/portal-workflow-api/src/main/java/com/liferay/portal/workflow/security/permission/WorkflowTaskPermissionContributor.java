@@ -9,9 +9,6 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 
 /**
- * Grants access to workflow tasks that the default workflow task permission
- * does not grant. A contributor can only grant access, never revoke it.
- *
  * @author Mikel Lorza
  */
 public interface WorkflowTaskPermissionContributor {
