@@ -44,6 +44,7 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.struts.StrutsAction;
+import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -105,6 +106,44 @@ public class GetContentItemMentionUsersStrutsActionTest {
 		_testExecuteWithoutAddDiscussionPermission();
 	}
 
+	@Test
+	@TestInfo("LPD-116811")
+	public void testExecuteWithClassName() throws Exception {
+		DepotEntry depotEntry = _addDepotEntry();
+
+		ObjectEntry objectEntry = _addObjectEntry(depotEntry);
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		MockHttpServletRequest mockHttpServletRequest =
+			_getMockHttpServletRequest(layout, objectEntry);
+
+		mockHttpServletRequest.setParameter(
+			"className", RandomTestUtil.randomString());
+
+		User user = UserTestUtil.addUser(depotEntry.getGroupId());
+
+		PrincipalException.MustHavePermission mustHavePermission =
+			Assert.assertThrows(
+				PrincipalException.MustHavePermission.class,
+				() -> _execute(mockHttpServletRequest, user));
+
+		Assert.assertArrayEquals(
+			new String[] {ActionKeys.ADD_DISCUSSION},
+			mustHavePermission.actionId);
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(), mustHavePermission.resourceId);
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectEntry.getObjectDefinitionId());
+
+		Assert.assertEquals(
+			objectDefinition.getClassName(), mustHavePermission.resourceName);
+	}
+
 	@FeatureFlag(enable = false, value = "LPD-104086")
 	@Test
 	public void testExecuteWithoutFeatureFlag() throws Exception {
@@ -120,6 +159,50 @@ public class GetContentItemMentionUsersStrutsActionTest {
 			UnsupportedOperationException.class,
 			() -> _execute(
 				null, layout, objectEntry, TestPropsValues.getUser()));
+	}
+
+	@Test
+	@TestInfo("LPD-116811")
+	public void testExecuteWithoutViewPermission() throws Exception {
+		DepotEntry depotEntry = _addDepotEntry();
+
+		ObjectEntry objectEntry = _addObjectEntry(depotEntry);
+
+		User user1 = UserTestUtil.addUser(depotEntry.getGroupId());
+
+		_addViewRole(objectEntry, user1);
+
+		Role role = RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectEntry.getObjectDefinitionId());
+
+		_resourcePermissionLocalService.setResourcePermissions(
+			TestPropsValues.getCompanyId(), objectDefinition.getClassName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(objectEntry.getObjectEntryId()), role.getRoleId(),
+			new String[] {ActionKeys.ADD_DISCUSSION});
+
+		User user2 = UserTestUtil.addUser();
+
+		_userLocalService.addRoleUser(role.getRoleId(), user2);
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			_groupLocalService.getGroup(
+				TestPropsValues.getCompanyId(), GroupConstants.CMS));
+
+		PrincipalException.MustHavePermission mustHavePermission =
+			Assert.assertThrows(
+				PrincipalException.MustHavePermission.class,
+				() -> _execute(null, layout, objectEntry, user2));
+
+		Assert.assertArrayEquals(
+			new String[] {ActionKeys.VIEW}, mustHavePermission.actionId);
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(), mustHavePermission.resourceId);
+		Assert.assertEquals(
+			objectDefinition.getClassName(), mustHavePermission.resourceName);
 	}
 
 	private void _addComment(ObjectEntry objectEntry, User user)
