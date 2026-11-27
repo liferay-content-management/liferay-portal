@@ -11,6 +11,7 @@ import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.object.entry.folder.subscription.util.ObjectEntryFolderSubscriptionUtil;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -81,7 +82,10 @@ public class EditFolderComponentSectionFragmentRenderer
 		).put(
 			"isSubscribed",
 			() -> {
-				if (objectEntryFolder == null) {
+				if ((objectEntryFolder == null) ||
+					!FeatureFlagManagerUtil.isEnabled(
+						themeDisplay.getCompanyId(), "LPD-103654")) {
+
 					return false;
 				}
 
@@ -93,7 +97,10 @@ public class EditFolderComponentSectionFragmentRenderer
 		).put(
 			"subscribedToParentFolder",
 			() -> {
-				if (objectEntryFolder == null) {
+				if ((objectEntryFolder == null) ||
+					!FeatureFlagManagerUtil.isEnabled(
+						themeDisplay.getCompanyId(), "LPD-103654")) {
+
 					return false;
 				}
 
@@ -111,14 +118,17 @@ public class EditFolderComponentSectionFragmentRenderer
 		).put(
 			"subscribeURL",
 			() -> {
-				if (objectEntryFolder == null) {
+				if ((objectEntryFolder == null) ||
+					!FeatureFlagManagerUtil.isEnabled(
+						themeDisplay.getCompanyId(), "LPD-103654")) {
+
 					return null;
 				}
 
 				return StringBundler.concat(
 					themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
 					GroupConstants.CMS_FRIENDLY_URL,
-					"/subscribe_folder?classPK=",
+					"/subscribe_folder?objectEntryFolderId=",
 					objectEntryFolder.getObjectEntryFolderId());
 			}
 		).build();

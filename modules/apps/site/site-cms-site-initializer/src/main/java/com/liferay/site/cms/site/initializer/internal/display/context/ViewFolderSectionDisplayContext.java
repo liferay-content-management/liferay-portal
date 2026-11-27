@@ -19,6 +19,7 @@ import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -115,7 +116,9 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 		).put(
 			"subscribedToParentFolder",
 			() -> {
-				if (objectEntryFolder == null) {
+				if ((objectEntryFolder == null) ||
+					!_isSubscriptionFeatureEnabled()) {
+
 					return false;
 				}
 
@@ -139,14 +142,16 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 		).put(
 			"subscribeURL",
 			() -> {
-				if (objectEntryFolder == null) {
+				if ((objectEntryFolder == null) ||
+					!_isSubscriptionFeatureEnabled()) {
+
 					return null;
 				}
 
 				return StringBundler.concat(
 					themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
 					GroupConstants.CMS_FRIENDLY_URL,
-					"/subscribe_folder?classPK=",
+					"/subscribe_folder?objectEntryFolderId=",
 					objectEntryFolder.getObjectEntryFolderId());
 			}
 		).put(
@@ -578,7 +583,7 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 	}
 
 	private boolean _isSubscribed() {
-		if (objectEntryFolder == null) {
+		if ((objectEntryFolder == null) || !_isSubscriptionFeatureEnabled()) {
 			return false;
 		}
 
@@ -586,6 +591,11 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 			themeDisplay.getCompanyId(), themeDisplay.getUserId(),
 			ObjectEntryFolder.class.getName(),
 			objectEntryFolder.getObjectEntryFolderId());
+	}
+
+	private boolean _isSubscriptionFeatureEnabled() {
+		return FeatureFlagManagerUtil.isEnabled(
+			themeDisplay.getCompanyId(), "LPD-103654");
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
