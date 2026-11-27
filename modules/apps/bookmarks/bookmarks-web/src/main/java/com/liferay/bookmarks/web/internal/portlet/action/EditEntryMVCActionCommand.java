@@ -273,7 +273,9 @@ public class EditEntryMVCActionCommand extends BaseMVCActionCommand {
 
 			// Update entry
 
-			long newFolderId = ParamUtil.getLong(actionRequest, "newFolderId");
+			long newFolderId = ParamUtil.getLong(
+				actionRequest, "newFolderId",
+				ParamUtil.getLong(actionRequest, "folderId"));
 
 			entry = _bookmarksEntryService.updateEntry(
 				entryId, groupId, newFolderId, name, url, description,

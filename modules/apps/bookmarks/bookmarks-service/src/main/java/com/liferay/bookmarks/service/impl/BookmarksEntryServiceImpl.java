@@ -325,8 +325,17 @@ public class BookmarksEntryServiceImpl extends BookmarksEntryServiceBaseImpl {
 			String description, ServiceContext serviceContext)
 		throws PortalException {
 
+		BookmarksEntry entry = bookmarksEntryPersistence.findByPrimaryKey(
+			entryId);
+
 		_bookmarksEntryModelResourcePermission.check(
-			getPermissionChecker(), entryId, ActionKeys.UPDATE);
+			getPermissionChecker(), entry, ActionKeys.UPDATE);
+
+		if (entry.getFolderId() != folderId) {
+			ModelResourcePermissionUtil.check(
+				_bookmarksFolderModelResourcePermission, getPermissionChecker(),
+				entry.getGroupId(), folderId, ActionKeys.ADD_ENTRY);
+		}
 
 		return bookmarksEntryLocalService.updateEntry(
 			getUserId(), entryId, groupId, folderId, name, url, description,

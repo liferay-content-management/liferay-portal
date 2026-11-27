@@ -8,6 +8,7 @@ package com.liferay.bookmarks.service.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.bookmarks.model.BookmarksEntry;
 import com.liferay.bookmarks.model.BookmarksFolder;
+import com.liferay.bookmarks.service.BookmarksEntryServiceUtil;
 import com.liferay.bookmarks.service.BookmarksFolderLocalServiceUtil;
 import com.liferay.bookmarks.service.BookmarksFolderServiceUtil;
 import com.liferay.bookmarks.test.util.BookmarksTestUtil;
@@ -299,6 +300,65 @@ public class BookmarksFolderServiceTest {
 		Document[] documents = hits.getDocs();
 
 		Assert.assertEquals(Arrays.toString(documents), 2, documents.length);
+	}
+
+	@Test
+	@TestInfo("LPD-117356")
+	public void testUpdateEntry() throws Exception {
+		BookmarksEntry entry = BookmarksTestUtil.addEntry(
+			_group.getGroupId(), true);
+
+		Role role = RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
+
+		_resourcePermissionLocalService.setResourcePermissions(
+			TestPropsValues.getCompanyId(), BookmarksEntry.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(entry.getEntryId()), role.getRoleId(),
+			new String[] {ActionKeys.UPDATE});
+
+		User user = UserTestUtil.addUser();
+
+		_userLocalService.addRoleUser(role.getRoleId(), user.getUserId());
+
+		BookmarksFolder folder = BookmarksTestUtil.addFolder(
+			_group.getGroupId(), RandomTestUtil.randomString());
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				user, PermissionCheckerFactoryUtil.create(user))) {
+
+			_assertMustHavePermission(
+				ActionKeys.ADD_ENTRY,
+				() -> BookmarksEntryServiceUtil.updateEntry(
+					entry.getEntryId(), _group.getGroupId(),
+					folder.getFolderId(), entry.getName(), entry.getUrl(),
+					entry.getDescription(),
+					ServiceContextTestUtil.getServiceContext(
+						_group.getGroupId(), user.getUserId())));
+		}
+	}
+
+	@Test
+	@TestInfo("LPD-117356")
+	public void testUpdateFolder() throws Exception {
+		BookmarksFolder folder = BookmarksTestUtil.addFolder(
+			_group.getGroupId(), RandomTestUtil.randomString());
+
+		User user = _addUser(folder);
+
+		BookmarksFolder parentFolder = BookmarksTestUtil.addFolder(
+			_group.getGroupId(), RandomTestUtil.randomString());
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				user, PermissionCheckerFactoryUtil.create(user))) {
+
+			_assertMustHavePermission(
+				ActionKeys.ADD_FOLDER,
+				() -> BookmarksFolderServiceUtil.updateFolder(
+					folder.getFolderId(), parentFolder.getFolderId(),
+					folder.getName(), folder.getDescription(),
+					ServiceContextTestUtil.getServiceContext(
+						_group.getGroupId(), user.getUserId())));
+		}
 	}
 
 	@Rule

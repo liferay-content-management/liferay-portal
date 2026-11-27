@@ -331,10 +331,17 @@ public class BookmarksFolderServiceImpl extends BookmarksFolderServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
+		BookmarksFolder folder = bookmarksFolderPersistence.findByPrimaryKey(
+			folderId);
+
 		_bookmarksFolderModelResourcePermission.check(
-			getPermissionChecker(),
-			bookmarksFolderPersistence.findByPrimaryKey(folderId),
-			ActionKeys.UPDATE);
+			getPermissionChecker(), folder, ActionKeys.UPDATE);
+
+		if (folder.getParentFolderId() != parentFolderId) {
+			ModelResourcePermissionUtil.check(
+				_bookmarksFolderModelResourcePermission, getPermissionChecker(),
+				folder.getGroupId(), parentFolderId, ActionKeys.ADD_FOLDER);
+		}
 
 		return bookmarksFolderLocalService.updateFolder(
 			getUserId(), folderId, parentFolderId, name, description,
