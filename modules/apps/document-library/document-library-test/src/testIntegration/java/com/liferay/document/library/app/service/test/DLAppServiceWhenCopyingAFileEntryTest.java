@@ -19,11 +19,13 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -31,6 +33,7 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import org.junit.Assert;
@@ -156,6 +159,36 @@ public class DLAppServiceWhenCopyingAFileEntryTest extends BaseDLAppTestCase {
 	}
 
 	@Test
+	@TestInfo({"LPS-182709", "LPS-187945"})
+	public void testShouldSucceedWithCheckedOutFileEntry() throws Exception {
+		FileEntry sourceFileEntry = DLAppServiceTestUtil.addFileEntry(
+			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString());
+
+		dlAppService.checkOutFileEntry(
+			sourceFileEntry.getFileEntryId(),
+			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+
+		FileEntry targetFileEntry = dlAppService.copyFileEntry(
+			sourceFileEntry.getFileEntryId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			targetGroup.getGroupId(),
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
+			ServiceContextTestUtil.getServiceContext(targetGroup.getGroupId()));
+
+		sourceFileEntry = dlAppService.getFileEntry(
+			sourceFileEntry.getFileEntryId());
+
+		Assert.assertTrue(sourceFileEntry.isCheckedOut());
+
+		_assertStatus(sourceFileEntry, WorkflowConstants.STATUS_DRAFT);
+		Assert.assertEquals(
+			sourceFileEntry.getTitle(), targetFileEntry.getTitle());
+
+		_assertStatus(targetFileEntry, WorkflowConstants.STATUS_APPROVED);
+	}
+
+	@Test
 	public void testShouldSucceedWithDifferentNameAndTitleToDifferentSite()
 		throws Exception {
 
@@ -190,8 +223,95 @@ public class DLAppServiceWhenCopyingAFileEntryTest extends BaseDLAppTestCase {
 			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
 	}
 
+	@Test
+	@TestInfo("LPS-182709")
+	public void testShouldSucceedWithPendingFileEntry() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		serviceContext.setAttribute(
+			"restrictionType", DLFolderConstants.RESTRICTION_TYPE_WORKFLOW);
+		serviceContext.setAttribute(
+			"workflowDefinition" +
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL,
+			"Single Approver@1");
+
+		dlAppService.updateFolder(
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, StringPool.BLANK,
+			StringPool.BLANK, serviceContext);
+
+		FileEntry sourceFileEntry = DLAppServiceTestUtil.addFileEntry(
+			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString());
+
+		FileEntry targetFileEntry = dlAppService.copyFileEntry(
+			sourceFileEntry.getFileEntryId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			targetGroup.getGroupId(),
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
+			ServiceContextTestUtil.getServiceContext(targetGroup.getGroupId()));
+
+		_assertStatus(sourceFileEntry, WorkflowConstants.STATUS_PENDING);
+		Assert.assertEquals(
+			sourceFileEntry.getTitle(), targetFileEntry.getTitle());
+		_assertStatus(targetFileEntry, WorkflowConstants.STATUS_APPROVED);
+	}
+
+	@Test
+	@TestInfo("LPS-187945")
+	public void testShouldSucceedWithoutGuestPermissions() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		serviceContext.setAddGuestPermissions(false);
+
+		FileEntry sourceFileEntry = dlAppService.addFileEntry(
+			null, group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
+			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
+			StringPool.BLANK, null, 0, null, null, null, serviceContext);
+
+		FileEntry targetFileEntry = dlAppService.copyFileEntry(
+			sourceFileEntry.getFileEntryId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			targetGroup.getGroupId(),
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
+			ServiceContextTestUtil.getServiceContext(targetGroup.getGroupId()));
+
+		Assert.assertFalse(
+			_hasResourcePermission(
+				ActionKeys.ADD_DISCUSSION, targetFileEntry,
+				RoleConstants.GUEST));
+		Assert.assertTrue(
+			_hasResourcePermission(
+				ActionKeys.ADD_DISCUSSION, targetFileEntry,
+				RoleConstants.SITE_MEMBER));
+		Assert.assertFalse(
+			_hasResourcePermission(
+				ActionKeys.DOWNLOAD, targetFileEntry, RoleConstants.GUEST));
+		Assert.assertTrue(
+			_hasResourcePermission(
+				ActionKeys.DOWNLOAD, targetFileEntry,
+				RoleConstants.SITE_MEMBER));
+		Assert.assertFalse(
+			_hasResourcePermission(
+				ActionKeys.VIEW, targetFileEntry, RoleConstants.GUEST));
+		Assert.assertTrue(
+			_hasResourcePermission(
+				ActionKeys.VIEW, targetFileEntry, RoleConstants.SITE_MEMBER));
+	}
+
 	protected Folder newParentFolder;
 	protected Folder targetParentFolder;
+
+	private void _assertStatus(FileEntry fileEntry, int status)
+		throws Exception {
+
+		FileVersion fileVersion = fileEntry.getLatestFileVersion(true);
+
+		Assert.assertEquals(status, fileVersion.getStatus());
+	}
 
 	private void _copy(
 			FileEntry fileEntry, long targetGroupId, long targetFolderId)
@@ -251,6 +371,20 @@ public class DLAppServiceWhenCopyingAFileEntryTest extends BaseDLAppTestCase {
 			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT, null,
 			ServiceContextTestUtil.getServiceContext(
 				targetParentFolder.getGroupId()));
+	}
+
+	private boolean _hasResourcePermission(
+			String actionId, FileEntry fileEntry, String roleName)
+		throws Exception {
+
+		Role role = RoleLocalServiceUtil.getRole(
+			group.getCompanyId(), roleName);
+
+		return ResourcePermissionLocalServiceUtil.hasResourcePermission(
+			group.getCompanyId(), DLFileEntry.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(fileEntry.getFileEntryId()), role.getRoleId(),
+			actionId);
 	}
 
 	private void _removeResourcePermission(
