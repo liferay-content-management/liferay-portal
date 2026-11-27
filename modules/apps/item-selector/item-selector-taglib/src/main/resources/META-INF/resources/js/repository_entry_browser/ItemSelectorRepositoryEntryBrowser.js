@@ -46,6 +46,8 @@ export default function ItemSelectorRepositoryEntryBrowser({
 				'click',
 				'.item-preview',
 				(event) => {
+					event.preventDefault();
+
 					handleSelectedItem(event.delegateTarget.dataset);
 				}
 			)
