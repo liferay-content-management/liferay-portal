@@ -136,44 +136,34 @@ public class CMSWorkflowTaskPermissionContributorTest {
 				_permissionCheckerFactory.create(user3),
 				kaleoTaskInstanceToken1, ActionKeys.VIEW));
 
-		PermissionChecker originalPermissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
 		PermissionThreadLocal.setPermissionChecker(permissionChecker1);
 
-		try {
-			PrincipalException.MustHavePermission mustHavePermission =
-				Assert.assertThrows(
-					PrincipalException.MustHavePermission.class,
-					() -> _workflowTaskManager.completeWorkflowTask(
-						TestPropsValues.getCompanyId(), user1.getUserId(),
-						kaleoTaskInstanceToken1.getKaleoTaskInstanceTokenId(),
-						"approve", RandomTestUtil.randomString(),
-						new HashMap<>()));
+		PrincipalException.MustHavePermission mustHavePermission =
+			Assert.assertThrows(
+				PrincipalException.MustHavePermission.class,
+				() -> _workflowTaskManager.completeWorkflowTask(
+					TestPropsValues.getCompanyId(), user1.getUserId(),
+					kaleoTaskInstanceToken1.getKaleoTaskInstanceTokenId(),
+					"approve", RandomTestUtil.randomString(), new HashMap<>()));
 
-			Assert.assertArrayEquals(
-				new String[] {ActionKeys.VIEW}, mustHavePermission.actionId);
-			Assert.assertEquals(
-				kaleoTaskInstanceToken1.getKaleoTaskInstanceTokenId(),
-				mustHavePermission.resourceId);
-			Assert.assertEquals(
-				WorkflowTask.class.getName(), mustHavePermission.resourceName);
-			Assert.assertEquals(user1.getUserId(), mustHavePermission.userId);
+		Assert.assertArrayEquals(
+			new String[] {ActionKeys.VIEW}, mustHavePermission.actionId);
+		Assert.assertEquals(
+			kaleoTaskInstanceToken1.getKaleoTaskInstanceTokenId(),
+			mustHavePermission.resourceId);
+		Assert.assertEquals(
+			WorkflowTask.class.getName(), mustHavePermission.resourceName);
+		Assert.assertEquals(user1.getUserId(), mustHavePermission.userId);
 
-			_workflowTaskManager.assignWorkflowTaskToUser(
-				TestPropsValues.getCompanyId(), user1.getUserId(),
-				kaleoTaskInstanceToken1.getKaleoTaskInstanceTokenId(),
-				user1.getUserId(), RandomTestUtil.randomString(), null,
-				new HashMap<>());
-			_workflowTaskManager.completeWorkflowTask(
-				TestPropsValues.getCompanyId(), user1.getUserId(),
-				kaleoTaskInstanceToken1.getKaleoTaskInstanceTokenId(),
-				"approve", RandomTestUtil.randomString(), new HashMap<>());
-		}
-		finally {
-			PermissionThreadLocal.setPermissionChecker(
-				originalPermissionChecker);
-		}
+		_workflowTaskManager.assignWorkflowTaskToUser(
+			TestPropsValues.getCompanyId(), user1.getUserId(),
+			kaleoTaskInstanceToken1.getKaleoTaskInstanceTokenId(),
+			user1.getUserId(), RandomTestUtil.randomString(), null,
+			new HashMap<>());
+		_workflowTaskManager.completeWorkflowTask(
+			TestPropsValues.getCompanyId(), user1.getUserId(),
+			kaleoTaskInstanceToken1.getKaleoTaskInstanceTokenId(), "approve",
+			RandomTestUtil.randomString(), new HashMap<>());
 
 		objectEntry1 = _objectEntryLocalService.getObjectEntry(
 			objectEntry1.getObjectEntryId());

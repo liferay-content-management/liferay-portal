@@ -47,7 +47,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -178,30 +177,22 @@ public class WorkflowTaskPermissionImplTest {
 
 		BundleContext bundleContext = SystemBundleUtil.getBundleContext();
 
-		ServiceRegistration<WorkflowTaskPermissionContributor>
-			serviceRegistration = bundleContext.registerService(
-				WorkflowTaskPermissionContributor.class,
-				(permissionChecker, curWorkflowTask, groupId) ->
-					curWorkflowTask == workflowTask,
-				null);
+		bundleContext.registerService(
+			WorkflowTaskPermissionContributor.class,
+			(permissionChecker, curWorkflowTask, groupId) ->
+				curWorkflowTask == workflowTask,
+			null);
 
-		try {
-			PermissionChecker permissionChecker =
-				_mockContentReviewerPermissionChecker(
-					RandomTestUtil.randomLong());
+		PermissionChecker permissionChecker =
+			_mockContentReviewerPermissionChecker(RandomTestUtil.randomLong());
 
-			Assert.assertTrue(
-				_workflowTaskPermissionChecker.contains(
-					permissionChecker, workflowTask,
-					RandomTestUtil.randomLong()));
-			Assert.assertFalse(
-				_workflowTaskPermissionChecker.contains(
-					permissionChecker, _mockWorkflowTask(),
-					RandomTestUtil.randomLong()));
-		}
-		finally {
-			serviceRegistration.unregister();
-		}
+		Assert.assertTrue(
+			_workflowTaskPermissionChecker.contains(
+				permissionChecker, workflowTask, RandomTestUtil.randomLong()));
+		Assert.assertFalse(
+			_workflowTaskPermissionChecker.contains(
+				permissionChecker, _mockWorkflowTask(),
+				RandomTestUtil.randomLong()));
 	}
 
 	@Test
