@@ -17,6 +17,7 @@ import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.feature.flag.constants.FeatureFlagConstants;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Group;
@@ -36,6 +37,8 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.props.test.util.PropsTemporarySwapper;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -132,6 +135,7 @@ public class ViewFolderSectionDisplayContextTest
 		_serviceRegistration.unregister();
 	}
 
+	@FeatureFlag("LPD-103654")
 	@Test
 	public void testGetAdditionalProps() throws Exception {
 
@@ -197,7 +201,8 @@ public class ViewFolderSectionDisplayContextTest
 			additionalProps.toString(),
 			StringBundler.concat(
 				"http://localhost:", PortalUtil.getPortalServerPort(false),
-				portal.getPathMain(), "/cms/subscribe_folder?classPK=",
+				portal.getPathMain(),
+				"/cms/subscribe_folder?objectEntryFolderId=",
 				objectEntryFolder.getObjectEntryFolderId()),
 			additionalProps.get("subscribeURL"));
 
@@ -225,6 +230,23 @@ public class ViewFolderSectionDisplayContextTest
 		Assert.assertEquals(Boolean.FALSE, additionalProps.get("isSubscribed"));
 		Assert.assertEquals(
 			Boolean.TRUE, additionalProps.get("subscribedToParentFolder"));
+
+		// Without the feature flag
+
+		try (PropsTemporarySwapper propsTemporarySwapper =
+				new PropsTemporarySwapper(
+					FeatureFlagConstants.getKey("LPD-103654"),
+					Boolean.FALSE.toString())) {
+
+			additionalProps = _getAdditionalProps(
+				getMockHttpServletRequest(objectEntryFolder));
+
+			Assert.assertEquals(
+				Boolean.FALSE, additionalProps.get("isSubscribed"));
+			Assert.assertEquals(
+				Boolean.FALSE, additionalProps.get("subscribedToParentFolder"));
+			Assert.assertNull(additionalProps.get("subscribeURL"));
+		}
 	}
 
 	@Test

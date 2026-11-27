@@ -8,6 +8,7 @@ package com.liferay.site.cms.site.initializer.internal.fragment.renderer;
 import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -27,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
@@ -59,6 +61,7 @@ public class EditFolderComponentSectionFragmentRendererTest {
 	public void testGetProps() throws Exception {
 		_testGetPropsWithoutObjectEntryFolder();
 		_testGetPropsSubscribed();
+		_testGetPropsSubscribedWithoutFeatureFlag();
 	}
 
 	private void _testGetPropsSubscribed() throws Exception {
@@ -117,15 +120,90 @@ public class EditFolderComponentSectionFragmentRendererTest {
 		mockHttpServletRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, themeDisplay);
 
-		Map<String, Object> props =
-			_editFolderComponentSectionFragmentRenderer.getProps(
-				null, mockHttpServletRequest);
+		try (MockedStatic<FeatureFlagManagerUtil>
+				featureFlagManagerUtilMockedStatic = Mockito.mockStatic(
+					FeatureFlagManagerUtil.class)) {
 
-		Assert.assertEquals(Boolean.TRUE, props.get("isSubscribed"));
-		Assert.assertEquals(
-			GroupConstants.CMS_FRIENDLY_URL + "/subscribe_folder?classPK=" +
-				objectEntryFolderId,
-			props.get("subscribeURL"));
+			featureFlagManagerUtilMockedStatic.when(
+				() -> FeatureFlagManagerUtil.isEnabled(companyId, "LPD-103654")
+			).thenReturn(
+				true
+			);
+
+			Map<String, Object> props =
+				_editFolderComponentSectionFragmentRenderer.getProps(
+					null, mockHttpServletRequest);
+
+			Assert.assertEquals(Boolean.TRUE, props.get("isSubscribed"));
+			Assert.assertEquals(
+				GroupConstants.CMS_FRIENDLY_URL +
+					"/subscribe_folder?objectEntryFolderId=" +
+						objectEntryFolderId,
+				props.get("subscribeURL"));
+		}
+	}
+
+	private void _testGetPropsSubscribedWithoutFeatureFlag() throws Exception {
+		long companyId = RandomTestUtil.randomLong();
+		long objectEntryFolderId = RandomTestUtil.randomLong();
+		long userId = RandomTestUtil.randomLong();
+
+		ObjectEntryFolder objectEntryFolder = Mockito.mock(
+			ObjectEntryFolder.class);
+
+		Mockito.when(
+			objectEntryFolder.getObjectEntryFolderId()
+		).thenReturn(
+			objectEntryFolderId
+		);
+
+		ThemeDisplay themeDisplay = Mockito.mock(ThemeDisplay.class);
+
+		Mockito.when(
+			themeDisplay.getCompanyId()
+		).thenReturn(
+			companyId
+		);
+
+		Mockito.when(
+			themeDisplay.getUserId()
+		).thenReturn(
+			userId
+		);
+
+		Mockito.when(
+			_subscriptionLocalService.isSubscribed(
+				companyId, userId, ObjectEntryFolder.class.getName(),
+				objectEntryFolderId)
+		).thenReturn(
+			true
+		);
+
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
+		mockHttpServletRequest.setAttribute(
+			InfoDisplayWebKeys.INFO_ITEM, objectEntryFolder);
+		mockHttpServletRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, themeDisplay);
+
+		try (MockedStatic<FeatureFlagManagerUtil>
+				featureFlagManagerUtilMockedStatic = Mockito.mockStatic(
+					FeatureFlagManagerUtil.class)) {
+
+			featureFlagManagerUtilMockedStatic.when(
+				() -> FeatureFlagManagerUtil.isEnabled(companyId, "LPD-103654")
+			).thenReturn(
+				false
+			);
+
+			Map<String, Object> props =
+				_editFolderComponentSectionFragmentRenderer.getProps(
+					null, mockHttpServletRequest);
+
+			Assert.assertEquals(Boolean.FALSE, props.get("isSubscribed"));
+			Assert.assertNull(props.get("subscribeURL"));
+		}
 	}
 
 	private void _testGetPropsWithoutObjectEntryFolder() throws Exception {
