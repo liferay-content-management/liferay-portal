@@ -35,12 +35,12 @@ const DEFAULT_PROPS = {
 };
 
 describe('NavigationPanel', () => {
-	it('highlights the selected item without the Clay active style', () => {
-		render(<NavigationPanel {...DEFAULT_PROPS} />);
+	it('expands the tree to the selected item and highlights it', () => {
+		render(<NavigationPanel {...DEFAULT_PROPS} selectedItemId="2" />);
 
-		const treeItem = screen.getByRole('treeitem', {name: 'Home'});
+		const treeItem = screen.getByRole('treeitem', {name: 'Article'});
 
-		expect(treeItem).toHaveClass('knowledge-base-navigation-item-active');
-		expect(treeItem).not.toHaveClass('active');
+		expect(treeItem).toBeVisible();
+		expect(treeItem).toHaveClass('active');
 	});
 });

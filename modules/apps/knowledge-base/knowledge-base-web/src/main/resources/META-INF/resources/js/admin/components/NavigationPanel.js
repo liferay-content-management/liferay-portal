@@ -136,10 +136,10 @@ export default function NavigationPanel({
 			{!searchActive && (
 				<ClayTreeView
 					defaultItems={items}
+					defaultSelectedKeys={new Set([selectedItemId])}
 					dragAndDrop
 					nestedKey="children"
 					onItemMove={handleItemMove}
-					selectionMode={null}
 					showExpanderOnHover={false}
 				>
 					{(item) => {
