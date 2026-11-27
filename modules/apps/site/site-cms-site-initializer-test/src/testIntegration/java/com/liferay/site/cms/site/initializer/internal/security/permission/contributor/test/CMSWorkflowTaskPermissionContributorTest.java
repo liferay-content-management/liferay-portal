@@ -10,12 +10,20 @@ import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.constants.DepotRolesConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.constants.ObjectDefinitionSettingConstants;
+import com.liferay.object.constants.ObjectFieldConstants;
+import com.liferay.object.constants.ObjectFolderConstants;
+import com.liferay.object.definition.setting.builder.ObjectDefinitionSettingBuilder;
+import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
-import com.liferay.object.model.ObjectEntryFolder;
+import com.liferay.object.model.ObjectFolder;
 import com.liferay.object.service.ObjectDefinitionLocalService;
-import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.service.ObjectFolderLocalService;
+import com.liferay.object.test.util.ObjectDefinitionTestUtil;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Role;
@@ -29,6 +37,7 @@ import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
@@ -45,6 +54,7 @@ import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
 import com.liferay.portal.workflow.kaleo.service.KaleoTaskInstanceTokenLocalService;
 
@@ -53,6 +63,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -75,23 +86,59 @@ public class CMSWorkflowTaskPermissionContributorTest {
 
 	@Test
 	public void testContains() throws Exception {
-		DepotEntry depotEntry1 = _addSpaceDepotEntry();
-		DepotEntry depotEntry2 = _addSpaceDepotEntry();
+		DepotEntry depotEntry1 = _addDepotEntry(DepotConstants.TYPE_SPACE);
+		DepotEntry depotEntry2 = _addDepotEntry(DepotConstants.TYPE_SPACE);
+		DepotEntry depotEntry3 = _addDepotEntry(
+			DepotConstants.TYPE_ASSET_LIBRARY);
 
-		ObjectDefinition objectDefinition =
+		ObjectDefinition objectDefinition1 =
 			_objectDefinitionLocalService.
 				getObjectDefinitionByExternalReferenceCode(
 					"L_CMS_BASIC_WEB_CONTENT", TestPropsValues.getCompanyId());
 
+		Map<String, Serializable> values =
+			HashMapBuilder.<String, Serializable>put(
+				"content_i18n",
+				HashMapBuilder.put(
+					"en_US", RandomTestUtil.randomString()
+				).build()
+			).put(
+				"title_i18n",
+				HashMapBuilder.put(
+					"en_US", RandomTestUtil.randomString()
+				).build()
+			).build();
+
 		ObjectEntry objectEntry1 = _addObjectEntry(
-			depotEntry1, objectDefinition);
+			depotEntry1, objectDefinition1, values);
 		ObjectEntry objectEntry2 = _addObjectEntry(
-			depotEntry2, objectDefinition);
+			depotEntry2, objectDefinition1, values);
+
+		ObjectFolder objectFolder =
+			_objectFolderLocalService.getObjectFolderByExternalReferenceCode(
+				ObjectFolderConstants.
+					EXTERNAL_REFERENCE_CODE_CONTENT_STRUCTURES,
+				TestPropsValues.getCompanyId());
+
+		ObjectDefinition objectDefinition2 = _publishObjectDefinition(
+			objectFolder.getObjectFolderId());
+
+		ObjectEntry objectEntry3 = _addObjectEntry(
+			depotEntry3, objectDefinition2, Collections.emptyMap());
+
+		ObjectDefinition objectDefinition3 = _publishObjectDefinition(0);
+
+		ObjectEntry objectEntry4 = _addObjectEntry(
+			depotEntry1, objectDefinition3, Collections.emptyMap());
 
 		KaleoTaskInstanceToken kaleoTaskInstanceToken1 =
-			_assignKaleoTaskInstanceToken(objectDefinition, objectEntry1);
+			_assignKaleoTaskInstanceToken(objectDefinition1, objectEntry1);
 		KaleoTaskInstanceToken kaleoTaskInstanceToken2 =
-			_assignKaleoTaskInstanceToken(objectDefinition, objectEntry2);
+			_assignKaleoTaskInstanceToken(objectDefinition1, objectEntry2);
+		KaleoTaskInstanceToken kaleoTaskInstanceToken3 =
+			_assignKaleoTaskInstanceToken(objectDefinition2, objectEntry3);
+		KaleoTaskInstanceToken kaleoTaskInstanceToken4 =
+			_assignKaleoTaskInstanceToken(objectDefinition3, objectEntry4);
 
 		User user1 = UserTestUtil.addUser();
 
@@ -111,6 +158,17 @@ public class CMSWorkflowTaskPermissionContributorTest {
 		_userLocalService.addGroupUser(
 			depotEntry1.getGroupId(), user3.getUserId());
 
+		User user4 = UserTestUtil.addUser();
+
+		_addUserGroupRole(
+			depotEntry2, DepotRolesConstants.ASSET_LIBRARY_OWNER, user4);
+
+		User user5 = UserTestUtil.addUser();
+
+		_addUserGroupRole(
+			depotEntry3, DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR,
+			user5);
+
 		PermissionChecker permissionChecker2 = _permissionCheckerFactory.create(
 			user2);
 
@@ -120,6 +178,9 @@ public class CMSWorkflowTaskPermissionContributorTest {
 		Assert.assertTrue(
 			_kaleoTaskInstanceTokenModelResourcePermission.contains(
 				permissionChecker2, kaleoTaskInstanceToken2, ActionKeys.VIEW));
+		Assert.assertFalse(
+			_kaleoTaskInstanceTokenModelResourcePermission.contains(
+				permissionChecker2, kaleoTaskInstanceToken4, ActionKeys.VIEW));
 
 		PermissionChecker permissionChecker1 = _permissionCheckerFactory.create(
 			user1);
@@ -130,11 +191,29 @@ public class CMSWorkflowTaskPermissionContributorTest {
 		Assert.assertFalse(
 			_kaleoTaskInstanceTokenModelResourcePermission.contains(
 				permissionChecker1, kaleoTaskInstanceToken2, ActionKeys.VIEW));
+		Assert.assertFalse(
+			_kaleoTaskInstanceTokenModelResourcePermission.contains(
+				permissionChecker1, kaleoTaskInstanceToken4, ActionKeys.VIEW));
 
 		Assert.assertFalse(
 			_kaleoTaskInstanceTokenModelResourcePermission.contains(
 				_permissionCheckerFactory.create(user3),
 				kaleoTaskInstanceToken1, ActionKeys.VIEW));
+
+		PermissionChecker permissionChecker4 = _permissionCheckerFactory.create(
+			user4);
+
+		Assert.assertFalse(
+			_kaleoTaskInstanceTokenModelResourcePermission.contains(
+				permissionChecker4, kaleoTaskInstanceToken1, ActionKeys.VIEW));
+		Assert.assertTrue(
+			_kaleoTaskInstanceTokenModelResourcePermission.contains(
+				permissionChecker4, kaleoTaskInstanceToken2, ActionKeys.VIEW));
+
+		Assert.assertFalse(
+			_kaleoTaskInstanceTokenModelResourcePermission.contains(
+				_permissionCheckerFactory.create(user5),
+				kaleoTaskInstanceToken3, ActionKeys.VIEW));
 
 		PermissionThreadLocal.setPermissionChecker(permissionChecker1);
 
@@ -172,8 +251,20 @@ public class CMSWorkflowTaskPermissionContributorTest {
 			WorkflowConstants.STATUS_APPROVED, objectEntry1.getStatus());
 	}
 
+	private DepotEntry _addDepotEntry(int type) throws Exception {
+		Group group = _groupLocalService.getGroup(
+			TestPropsValues.getCompanyId(), GroupConstants.CMS);
+
+		return _depotEntryLocalService.addDepotEntry(
+			Collections.singletonMap(
+				LocaleUtil.getDefault(), RandomTestUtil.randomString()),
+			null, type,
+			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+	}
+
 	private ObjectEntry _addObjectEntry(
-			DepotEntry depotEntry, ObjectDefinition objectDefinition)
+			DepotEntry depotEntry, ObjectDefinition objectDefinition,
+			Map<String, Serializable> values)
 		throws Exception {
 
 		_workflowDefinitionLinkLocalService.updateWorkflowDefinitionLink(
@@ -181,39 +272,10 @@ public class CMSWorkflowTaskPermissionContributorTest {
 			depotEntry.getGroupId(), objectDefinition.getClassName(), 0, 0,
 			"Single Approver", 1);
 
-		ObjectEntryFolder objectEntryFolder =
-			_objectEntryFolderLocalService.
-				getObjectEntryFolderByExternalReferenceCode(
-					"L_CONTENTS", depotEntry.getGroupId(),
-					depotEntry.getCompanyId());
-
 		return _objectEntryLocalService.addObjectEntry(
 			depotEntry.getGroupId(), TestPropsValues.getUserId(),
-			objectDefinition.getObjectDefinitionId(),
-			objectEntryFolder.getObjectEntryFolderId(), "en_US",
-			HashMapBuilder.<String, Serializable>put(
-				"content_i18n",
-				HashMapBuilder.put(
-					"en_US", RandomTestUtil.randomString()
-				).build()
-			).put(
-				"title_i18n",
-				HashMapBuilder.put(
-					"en_US", RandomTestUtil.randomString()
-				).build()
-			).build(),
+			objectDefinition.getObjectDefinitionId(), 0, "en_US", values,
 			ServiceContextTestUtil.getServiceContext(depotEntry.getGroupId()));
-	}
-
-	private DepotEntry _addSpaceDepotEntry() throws Exception {
-		Group group = _groupLocalService.getGroup(
-			TestPropsValues.getCompanyId(), GroupConstants.CMS);
-
-		return _depotEntryLocalService.addDepotEntry(
-			Collections.singletonMap(
-				LocaleUtil.getDefault(), RandomTestUtil.randomString()),
-			null, DepotConstants.TYPE_SPACE,
-			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
 	}
 
 	private void _addUserGroupRole(
@@ -253,6 +315,38 @@ public class CMSWorkflowTaskPermissionContributorTest {
 			kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
 	}
 
+	private ObjectDefinition _publishObjectDefinition(long objectFolderId)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.addCustomObjectDefinition(
+				null, TestPropsValues.getUserId(), objectFolderId, null, null,
+				true, false, true, false, true, false, false, false, false,
+				null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				ObjectDefinitionTestUtil.getRandomName(), null, null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				true, ObjectDefinitionConstants.SCOPE_DEPOT,
+				ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
+				Collections.singletonList(
+					new ObjectDefinitionSettingBuilder(
+					).name(
+						ObjectDefinitionSettingConstants.NAME_ACCEPT_ALL_GROUPS
+					).value(
+						StringPool.TRUE
+					).build()),
+				Collections.singletonList(
+					ObjectFieldUtil.createObjectField(
+						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+						ObjectFieldConstants.DB_TYPE_STRING,
+						RandomTestUtil.randomString(), "text")),
+				Collections.emptyList(), new ServiceContext());
+
+		return _objectDefinitionLocalService.publishCustomObjectDefinition(
+			TestPropsValues.getUserId(),
+			objectDefinition.getObjectDefinitionId());
+	}
+
 	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;
 
@@ -273,10 +367,10 @@ public class CMSWorkflowTaskPermissionContributorTest {
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	@Inject
-	private ObjectEntryFolderLocalService _objectEntryFolderLocalService;
+	private ObjectEntryLocalService _objectEntryLocalService;
 
 	@Inject
-	private ObjectEntryLocalService _objectEntryLocalService;
+	private ObjectFolderLocalService _objectFolderLocalService;
 
 	@Inject
 	private PermissionCheckerFactory _permissionCheckerFactory;
