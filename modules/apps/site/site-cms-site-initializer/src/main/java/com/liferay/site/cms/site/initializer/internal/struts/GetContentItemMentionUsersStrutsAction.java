@@ -16,7 +16,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
@@ -76,41 +75,33 @@ public class GetContentItemMentionUsersStrutsAction implements StrutsAction {
 			throw new UnsupportedOperationException();
 		}
 
-		String className1 = ParamUtil.getString(
-			httpServletRequest, "className", null);
-
-		if (className1 == null) {
-			long classNameId = ParamUtil.getLong(
-				httpServletRequest, "classNameId");
-
-			ClassName className2 = _classNameLocalService.getClassName(
-				classNameId);
-
-			className1 = className2.getClassName();
-		}
-
 		long classPK = ParamUtil.getLong(httpServletRequest, "classPK");
-
-		_discussionPermission.checkAddPermission(
-			themeDisplay.getPermissionChecker(), themeDisplay.getCompanyId(),
-			themeDisplay.getScopeGroupId(), className1, classPK);
-
-		List<Comment> comments = ListUtil.copy(
-			_commentManager.getComments(
-				className1, classPK, WorkflowConstants.STATUS_APPROVED,
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS));
-
-		Collections.reverse(comments);
 
 		ObjectEntry objectEntry = _objectEntryLocalService.getObjectEntry(
 			classPK);
+
+		String className = objectEntry.getModelClassName();
+
+		_discussionPermission.checkAddPermission(
+			themeDisplay.getPermissionChecker(), themeDisplay.getCompanyId(),
+			themeDisplay.getScopeGroupId(), className, classPK);
+		_discussionPermission.checkViewPermission(
+			themeDisplay.getPermissionChecker(), themeDisplay.getCompanyId(),
+			themeDisplay.getScopeGroupId(), className, classPK);
+
+		List<Comment> comments = ListUtil.copy(
+			_commentManager.getComments(
+				className, classPK, WorkflowConstants.STATUS_APPROVED,
+				QueryUtil.ALL_POS, QueryUtil.ALL_POS));
+
+		Collections.reverse(comments);
 
 		long groupId = objectEntry.getGroupId();
 
 		if (groupId == 0) {
 			Group group = _groupLocalService.fetchGroup(
 				themeDisplay.getCompanyId(),
-				_classNameLocalService.getClassNameId(className1), classPK);
+				_classNameLocalService.getClassNameId(className), classPK);
 
 			if (group == null) {
 				ServletResponseUtil.write(
@@ -141,7 +132,7 @@ public class GetContentItemMentionUsersStrutsAction implements StrutsAction {
 				!_isMatch(keywords, user) || !userIds.add(user.getUserId()) ||
 				!_groupLocalService.hasUserGroup(
 					user.getUserId(), groupId, true) ||
-				!_isMentionable(className1, classPK, themeDisplay, user)) {
+				!_isMentionable(className, classPK, themeDisplay, user)) {
 
 				continue;
 			}
@@ -171,7 +162,7 @@ public class GetContentItemMentionUsersStrutsAction implements StrutsAction {
 			for (User groupUser : groupUsers) {
 				if (!userIds.add(groupUser.getUserId()) ||
 					!_isMentionable(
-						className1, classPK, themeDisplay, groupUser)) {
+						className, classPK, themeDisplay, groupUser)) {
 
 					continue;
 				}
