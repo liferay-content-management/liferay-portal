@@ -53,11 +53,11 @@ public class WorkflowMetricsSLATaskResultProviderImpl
 
 	@Override
 	public List<WorkflowMetricsSLATaskResult> getWorkflowMetricsSLATaskResults(
-		long workflowTaskId) {
+		long taskId) {
 
 		KaleoTaskInstanceToken kaleoTaskInstanceToken =
 			_kaleoTaskInstanceTokenLocalService.fetchKaleoTaskInstanceToken(
-				workflowTaskId);
+				taskId);
 
 		if (kaleoTaskInstanceToken == null) {
 			return Collections.emptyList();

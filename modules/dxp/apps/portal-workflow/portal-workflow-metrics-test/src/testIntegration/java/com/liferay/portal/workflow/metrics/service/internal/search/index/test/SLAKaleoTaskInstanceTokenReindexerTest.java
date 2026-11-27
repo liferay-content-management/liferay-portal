@@ -278,10 +278,10 @@ public class SLAKaleoTaskInstanceTokenReindexerTest
 				ServiceContextTestUtil.getServiceContext());
 	}
 
-	private long[] _getBreachedSLADefinitionIds(long workflowTaskId) {
+	private long[] _getBreachedSLADefinitionIds(long taskId) {
 		return TransformUtil.transformToLongArray(
 			_workflowMetricsSLATaskResultProvider.
-				getWorkflowMetricsSLATaskResults(workflowTaskId),
+				getWorkflowMetricsSLATaskResults(taskId),
 			workflowMetricsSLATaskResult -> {
 				if (!workflowMetricsSLATaskResult.isBreached()) {
 					return null;

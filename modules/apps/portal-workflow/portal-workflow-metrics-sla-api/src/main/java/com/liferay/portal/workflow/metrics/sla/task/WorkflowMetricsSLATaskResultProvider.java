@@ -13,6 +13,6 @@ import java.util.List;
 public interface WorkflowMetricsSLATaskResultProvider {
 
 	public List<WorkflowMetricsSLATaskResult> getWorkflowMetricsSLATaskResults(
-		long workflowTaskId);
+		long taskId);
 
 }
