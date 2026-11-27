@@ -34,6 +34,7 @@ public class SearchResultEntityModel implements EntityModel {
 			new BooleanEntityField("completed", locale -> "completed"),
 			new BooleanEntityField(
 				"rootDescendantNode", locale -> "rootDescendantNode"),
+			new BooleanEntityField("slaBreached", locale -> "slaBreached"),
 			new CollectionEntityField(
 				new IntegerEntityField(
 					"assigneeClassPKs", locale -> "assigneeClassPKs")),
@@ -100,6 +101,10 @@ public class SearchResultEntityModel implements EntityModel {
 			new DateTimeEntityField(
 				"dueDate", locale -> Field.getSortableFieldName("dueDate"),
 				locale -> "dueDate"),
+			new DateTimeEntityField(
+				"slaOverdueDate",
+				locale -> Field.getSortableFieldName("slaOverdueDate"),
+				locale -> "slaOverdueDate"),
 			new EntityField(
 				"classNameId", EntityField.Type.INTEGER,
 				locale -> Field.ENTRY_CLASS_NAME,

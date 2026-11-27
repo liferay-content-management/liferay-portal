@@ -2293,6 +2293,14 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("slaResults", additionalAssertFieldName)) {
+				if (workflowTask.getSlaResults() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals(
 					"workflowDefinitionId", additionalAssertFieldName)) {
 
@@ -2616,6 +2624,17 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 				if (!Objects.deepEquals(
 						workflowTask1.getObjectReviewed(),
 						workflowTask2.getObjectReviewed())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("slaResults", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						workflowTask1.getSlaResults(),
+						workflowTask2.getSlaResults())) {
 
 					return false;
 				}
@@ -3067,6 +3086,11 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 		}
 
 		if (entityFieldName.equals("objectReviewed")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("slaResults")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
@@ -3536,4 +3560,4 @@ public abstract class BaseWorkflowTaskResourceTestCase {
 		_vulcanCRUDItemDelegateBuilderRegistry;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1052208513
+// LIFERAY-REST-BUILDER-HASH:1847060943
