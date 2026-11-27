@@ -15,9 +15,13 @@ import {
 	LongStandingDraftsList,
 } from './LongStandingDrafts';
 import {OverdueTasksCard, OverdueTasksList} from './OverdueTasks';
-import {SLABreachesCard} from './SLABreaches';
+import {SLABreachesCard, SLABreachesList} from './SLABreaches';
 
-type ExpandedList = 'longStandingDrafts' | 'overdueTasks' | null;
+type ExpandedList =
+	| 'longStandingDrafts'
+	| 'overdueTasks'
+	| 'slaBreaches'
+	| null;
 
 export function Operations({
 	additionalProps,
@@ -51,7 +55,10 @@ export function Operations({
 				</ClayLayout.Col>
 
 				<ClayLayout.Col className="mb-4" md={4}>
-					<SLABreachesCard />
+					<SLABreachesCard
+						expanded={expandedList === 'slaBreaches'}
+						onClick={() => toggleList('slaBreaches')}
+					/>
 				</ClayLayout.Col>
 
 				{expandedList === 'overdueTasks' ? (
@@ -65,6 +72,12 @@ export function Operations({
 						<LongStandingDraftsList
 							additionalProps={additionalProps}
 						/>
+					</ClayLayout.Col>
+				) : null}
+
+				{expandedList === 'slaBreaches' ? (
+					<ClayLayout.Col className="mb-4" size={12}>
+						<SLABreachesList additionalProps={additionalProps} />
 					</ClayLayout.Col>
 				) : null}
 			</ClayLayout.Row>

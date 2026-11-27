@@ -1377,7 +1377,7 @@ test.describe('Operations section', () => {
 					overdueTasksList.getByRole('link', {name: overdueTitle})
 				).toBeVisible();
 				await expect(overdueTasksList).toContainText(
-					`Review · ${userAccount.name} · 0 Days Overdue`
+					`Review · ${userAccount.name} · 0 days overdue`
 				);
 				await expect(overdueTasksList).toContainText(
 					'Showing 1 of 1 Items'

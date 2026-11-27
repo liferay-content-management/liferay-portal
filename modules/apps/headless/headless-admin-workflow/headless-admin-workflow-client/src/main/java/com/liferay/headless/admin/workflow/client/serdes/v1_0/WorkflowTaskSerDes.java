@@ -6,6 +6,7 @@
 package com.liferay.headless.admin.workflow.client.serdes.v1_0;
 
 import com.liferay.headless.admin.workflow.client.dto.v1_0.Role;
+import com.liferay.headless.admin.workflow.client.dto.v1_0.SLAResult;
 import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowLog;
 import com.liferay.headless.admin.workflow.client.dto.v1_0.WorkflowTask;
 import com.liferay.headless.admin.workflow.client.json.BaseJSONParser;
@@ -233,6 +234,26 @@ public class WorkflowTaskSerDes {
 			sb.append(String.valueOf(workflowTask.getObjectReviewed()));
 		}
 
+		if (workflowTask.getSlaResults() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"slaResults\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < workflowTask.getSlaResults().length; i++) {
+				sb.append(String.valueOf(workflowTask.getSlaResults()[i]));
+
+				if ((i + 1) < workflowTask.getSlaResults().length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		if (workflowTask.getWorkflowDefinitionId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -450,6 +471,13 @@ public class WorkflowTaskSerDes {
 				String.valueOf(workflowTask.getObjectReviewed()));
 		}
 
+		if (workflowTask.getSlaResults() == null) {
+			map.put("slaResults", null);
+		}
+		else {
+			map.put("slaResults", String.valueOf(workflowTask.getSlaResults()));
+		}
+
 		if (workflowTask.getWorkflowDefinitionId() == null) {
 			map.put("workflowDefinitionId", null);
 		}
@@ -561,6 +589,9 @@ public class WorkflowTaskSerDes {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "objectReviewed")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "slaResults")) {
 				return false;
 			}
 			else if (Objects.equals(
@@ -688,6 +719,22 @@ public class WorkflowTaskSerDes {
 					workflowTask.setObjectReviewed(
 						ObjectReviewedSerDes.toDTO(
 							(String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "slaResults")) {
+				if (jsonParserFieldValue != null) {
+					Object[] jsonParserFieldValues =
+						(Object[])jsonParserFieldValue;
+
+					SLAResult[] slaResultsArray =
+						new SLAResult[jsonParserFieldValues.length];
+
+					for (int i = 0; i < slaResultsArray.length; i++) {
+						slaResultsArray[i] = SLAResultSerDes.toDTO(
+							(String)jsonParserFieldValues[i]);
+					}
+
+					workflowTask.setSlaResults(slaResultsArray);
 				}
 			}
 			else if (Objects.equals(
@@ -833,4 +880,4 @@ public class WorkflowTaskSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-50972930
+// LIFERAY-REST-BUILDER-HASH:2108303470

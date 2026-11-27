@@ -662,6 +662,52 @@ public class WorkflowTask implements Serializable {
 	@JsonIgnore
 	private Supplier<ObjectReviewed> _objectReviewedSupplier;
 
+	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The results of the active SLAs that measure the task, sorted by overdue date. The value is returned only when requested with nestedFields=slaResults. Workflow Metrics SLAs are only available in Liferay DXP."
+	)
+	@Valid
+	public SLAResult[] getSlaResults() {
+		if (_slaResultsSupplier != null) {
+			slaResults = _slaResultsSupplier.get();
+
+			_slaResultsSupplier = null;
+		}
+
+		return slaResults;
+	}
+
+	public void setSlaResults(SLAResult[] slaResults) {
+		this.slaResults = slaResults;
+
+		_slaResultsSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setSlaResults(
+		UnsafeSupplier<SLAResult[], Exception> slaResultsUnsafeSupplier) {
+
+		_slaResultsSupplier = () -> {
+			try {
+				return slaResultsUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(
+		description = "The results of the active SLAs that measure the task, sorted by overdue date. The value is returned only when requested with nestedFields=slaResults. Workflow Metrics SLAs are only available in Liferay DXP."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected SLAResult[] slaResults;
+
+	@JsonIgnore
+	private Supplier<SLAResult[]> _slaResultsSupplier;
+
 	@io.swagger.v3.oas.annotations.media.Schema
 	public Long getWorkflowDefinitionId() {
 		if (_workflowDefinitionIdSupplier != null) {
@@ -1151,6 +1197,28 @@ public class WorkflowTask implements Serializable {
 			sb.append(String.valueOf(objectReviewed));
 		}
 
+		SLAResult[] slaResults = getSlaResults();
+
+		if (slaResults != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"slaResults\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < slaResults.length; i++) {
+				sb.append(String.valueOf(slaResults[i]));
+
+				if ((i + 1) < slaResults.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		Long workflowDefinitionId = getWorkflowDefinitionId();
 
 		if (workflowDefinitionId != null) {
@@ -1367,4 +1435,4 @@ public class WorkflowTask implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-78143899
+// LIFERAY-REST-BUILDER-HASH:-325265279

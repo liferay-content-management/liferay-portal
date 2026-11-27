@@ -9,6 +9,7 @@ dependencies {
 	testIntegrationImplementation project(":apps:portal-workflow:portal-workflow-kaleo-api")
 	testIntegrationImplementation project(":apps:portal-workflow:portal-workflow-kaleo-definition-api")
 	testIntegrationImplementation project(":apps:portal-workflow:portal-workflow-kaleo-runtime-api")
+	testIntegrationImplementation project(":apps:portal-workflow:portal-workflow-metrics-sla-api")
 	testIntegrationImplementation project(":dxp:apps:portal-workflow:portal-workflow-metrics-api")
 	testIntegrationImplementation project(":test:arquillian-extension-junit-bridge")
 }

@@ -178,6 +178,28 @@ components:
                     readOnly: true
                     type: string
             type: object
+        SLAResult:
+            description:
+                Represents the result of a Workflow Metrics SLA for a workflow task.
+            properties:
+                breached:
+                    description:
+                        A flag that indicates whether the task breached the SLA, which happens when the SLA becomes overdue while the task is open.
+                    readOnly: true
+                    type: boolean
+                dateOverdue:
+                    description:
+                        The SLA's overdue date for the workflow instance of the task.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                id:
+                    description:
+                        The SLA's ID.
+                    format: int64
+                    readOnly: true
+                    type: integer
+            type: object
         Transition:
             description:
                 Represents the transition to be launched by the task's workflow.
@@ -519,6 +541,13 @@ components:
                     description:
                         The object/asset that the task's workflow is managing.
                     readOnly: true
+                slaResults:
+                    description:
+                        The results of the active SLAs that measure the task, sorted by overdue date. The value is returned only when requested with nestedFields=slaResults. Workflow Metrics SLAs are only available in Liferay DXP.
+                    items:
+                        $ref: "#/components/schemas/SLAResult"
+                    readOnly: true
+                    type: array
                 workflowDefinitionId:
                     format: int64
                     readOnly: true

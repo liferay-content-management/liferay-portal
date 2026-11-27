@@ -77,8 +77,8 @@ const LANGUAGE_KEYS: Record<string, string> = {
 	'these-are-workflow-tasks-that-have-passed-their-due-date':
 		'These are workflow tasks that have passed their due date.',
 	'view-all-x': 'View All {0}',
-	'x-day-overdue': '{0} Day Overdue',
-	'x-days-overdue': '{0} Days Overdue',
+	'x-day-overdue': '{0} day overdue',
+	'x-days-overdue': '{0} days overdue',
 	'x-of-x-workflow-tasks': '{0} of {1} Workflow Tasks',
 };
 
@@ -274,7 +274,7 @@ describe('[CMS Dashboard] OverdueTasks', () => {
 			screen.getByRole('link', {name: 'Spring Campaign'})
 		).toHaveAttribute('href', '/task?id=42');
 		expect(
-			screen.getByText('Review · Iris Chen · 3 Days Overdue')
+			screen.getByText('Review · Iris Chen · 3 days overdue')
 		).toBeInTheDocument();
 	});
 
@@ -289,7 +289,7 @@ describe('[CMS Dashboard] OverdueTasks', () => {
 		});
 
 		expect(
-			screen.getByText('Review · Iris Chen · 1 Day Overdue')
+			screen.getByText('Review · Iris Chen · 1 day overdue')
 		).toBeInTheDocument();
 	});
 
@@ -304,7 +304,7 @@ describe('[CMS Dashboard] OverdueTasks', () => {
 		});
 
 		expect(
-			screen.getByText('Review · Reviewer, Editor · 3 Days Overdue')
+			screen.getByText('Review · Reviewer, Editor · 3 days overdue')
 		).toBeInTheDocument();
 	});
 

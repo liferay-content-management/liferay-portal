@@ -29,6 +29,7 @@ import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.document.BulkDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.UpdateByQueryDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.UpdateDocumentRequest;
+import com.liferay.portal.search.engine.adapter.index.RefreshIndexRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
 import com.liferay.portal.search.hits.SearchHit;
@@ -44,6 +45,7 @@ import com.liferay.portal.search.sort.SortOrder;
 import com.liferay.portal.search.sort.Sorts;
 import com.liferay.portal.workflow.metrics.internal.search.constants.WorkflowMetricsIndexTypeConstants;
 import com.liferay.portal.workflow.metrics.internal.search.index.SLAInstanceResultWorkflowMetricsIndexer;
+import com.liferay.portal.workflow.metrics.internal.search.index.SLAKaleoTaskInstanceTokenReindexer;
 import com.liferay.portal.workflow.metrics.internal.search.index.SLATaskResultWorkflowMetricsIndexer;
 import com.liferay.portal.workflow.metrics.internal.search.index.WorkflowMetricsIndex;
 import com.liferay.portal.workflow.metrics.internal.search.index.util.WorkflowMetricsIndexerUtil;
@@ -67,9 +69,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -388,6 +392,42 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 		return workflowMetricsSLAInstanceResults;
 	}
 
+	private boolean _isSLABreachChanged(
+		List<Document> documents,
+		WorkflowMetricsSLAInstanceResult
+			previousWorkflowMetricsSLAInstanceResult,
+		WorkflowMetricsSLATaskResult workflowMetricsSLATaskResult) {
+
+		boolean breached = workflowMetricsSLATaskResult.isBreached();
+
+		if (previousWorkflowMetricsSLAInstanceResult == null) {
+			return breached;
+		}
+
+		for (Document document : documents) {
+			if (document.getLong("taskId") !=
+					workflowMetricsSLATaskResult.getTaskId()) {
+
+				continue;
+			}
+
+			boolean previousBreached = _workflowMetricsSLAProcessor.isBreached(
+				document,
+				previousWorkflowMetricsSLAInstanceResult.
+					getModifiedLocalDateTime(),
+				previousWorkflowMetricsSLAInstanceResult.
+					getOverdueLocalDateTime());
+
+			if (breached != previousBreached) {
+				return true;
+			}
+
+			break;
+		}
+
+		return false;
+	}
+
 	private long _populateTaskDocuments(
 		long companyId, long endInstanceId,
 		LocalDateTime lastCheckLocalDateTime, long processId,
@@ -581,10 +621,16 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 		}
 
 		BulkDocumentRequest bulkDocumentRequest = new BulkDocumentRequest();
+		Set<Long> slaBreachChangedTaskIds = new HashSet<>();
 		List<Document> slaInstanceResultDocuments = new ArrayList<>();
 		List<Document> slaTaskResultDocuments = new ArrayList<>();
 
 		for (Document document : instanceDocuments) {
+			WorkflowMetricsSLAInstanceResult
+				previousWorkflowMetricsSLAInstanceResult =
+					workflowMetricsSLAInstanceResults.get(
+						document.getLong("instanceId"));
+
 			WorkflowMetricsSLAInstanceResult workflowMetricsSLAInstanceResult =
 				_workflowMetricsSLAProcessor.process(
 					_getCompletionLocalDateTime(document),
@@ -594,8 +640,7 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 					document.getLong("instanceId"), nowLocalDateTime,
 					startNodeId, _workflowMetricsSLACalendarRegistry,
 					workflowMetricsSLADefinitionVersion,
-					workflowMetricsSLAInstanceResults.get(
-						document.getLong("instanceId")));
+					previousWorkflowMetricsSLAInstanceResult);
 
 			if (workflowMetricsSLAInstanceResult == null) {
 				continue;
@@ -612,6 +657,17 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 				slaTaskResultDocuments.add(
 					_slaTaskResultWorkflowMetricsIndexer.createDocument(
 						workflowMetricsSLATaskResult));
+
+				if (!_isSLABreachChanged(
+						taskDocuments.get(document.getLong("instanceId")),
+						previousWorkflowMetricsSLAInstanceResult,
+						workflowMetricsSLATaskResult)) {
+
+					continue;
+				}
+
+				slaBreachChangedTaskIds.add(
+					workflowMetricsSLATaskResult.getTaskId());
 			}
 
 			ScriptBuilder scriptBuilder = Scripts.INSTANCE.builder();
@@ -675,6 +731,20 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 				bulkDocumentRequest.getBulkableDocumentRequests())) {
 
 			_searchEngineAdapter.execute(bulkDocumentRequest);
+		}
+
+		if (!slaBreachChangedTaskIds.isEmpty()) {
+			_searchEngineAdapter.execute(
+				new RefreshIndexRequest(
+					indexName +
+						WorkflowMetricsIndexNameConstants.
+							SUFFIX_SLA_INSTANCE_RESULT,
+					indexName +
+						WorkflowMetricsIndexNameConstants.
+							SUFFIX_SLA_TASK_RESULT));
+
+			_slaKaleoTaskInstanceTokenReindexer.reindex(
+				slaBreachChangedTaskIds);
 		}
 
 		if (completed) {
@@ -741,6 +811,10 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 	@Reference
 	private SLAInstanceResultWorkflowMetricsIndexer
 		_slaInstanceResultWorkflowMetricsIndexer;
+
+	@Reference
+	private SLAKaleoTaskInstanceTokenReindexer
+		_slaKaleoTaskInstanceTokenReindexer;
 
 	@Reference
 	private SLATaskResultWorkflowMetricsIndexer

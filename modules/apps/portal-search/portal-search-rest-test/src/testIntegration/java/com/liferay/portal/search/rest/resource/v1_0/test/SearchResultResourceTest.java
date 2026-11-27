@@ -48,6 +48,8 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -62,10 +64,12 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.search.rest.client.pagination.Page;
@@ -73,6 +77,7 @@ import com.liferay.portal.search.rest.dto.v1_0.FacetConfiguration;
 import com.liferay.portal.search.rest.dto.v1_0.SearchRequestBody;
 import com.liferay.portal.search.rest.dto.v1_0.SearchResult;
 import com.liferay.portal.search.rest.pagination.SearchPage;
+import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -111,6 +116,11 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -203,6 +213,7 @@ public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 			LayoutPageTemplateEntryTypeConstants.MASTER_LAYOUT,
 			WorkflowConstants.STATUS_APPROVED);
 
+		_testGetSearchPageSLABreached();
 		_testGetSearchPageType();
 		_testGetSearchPageTypeFilter();
 		_testGetSearchPageTypeNotIndexed();
@@ -770,6 +781,89 @@ public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 				"scope", String.valueOf(testGroup.getGroupId())
 			).build(),
 			searchRequestBody);
+	}
+
+	private void _testGetSearchPageSLABreached() throws Exception {
+		JournalArticle journalArticle1 = JournalTestUtil.addArticle(
+			testGroup.getGroupId(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString());
+		JournalArticle journalArticle2 = JournalTestUtil.addArticle(
+			testGroup.getGroupId(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString());
+		JournalArticle journalArticle3 = JournalTestUtil.addArticle(
+			testGroup.getGroupId(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString());
+
+		long time = System.currentTimeMillis();
+
+		Map<Long, Date> slaOverdueDates = HashMapBuilder.<Long, Date>put(
+			journalArticle1.getResourcePrimKey(), new Date(time - Time.HOUR)
+		).put(
+			journalArticle2.getResourcePrimKey(), new Date(time - Time.DAY)
+		).build();
+
+		Bundle bundle = FrameworkUtil.getBundle(SearchResultResourceTest.class);
+
+		BundleContext bundleContext = bundle.getBundleContext();
+
+		ServiceRegistration<ModelDocumentContributor<?>> serviceRegistration =
+			bundleContext.registerService(
+				(Class<ModelDocumentContributor<?>>)
+					(Class<?>)ModelDocumentContributor.class,
+				(ModelDocumentContributor<JournalArticle>)
+					(document, journalArticle) -> {
+						Date slaOverdueDate = slaOverdueDates.get(
+							journalArticle.getResourcePrimKey());
+
+						document.addKeyword(
+							"slaBreached", slaOverdueDate != null);
+
+						if (slaOverdueDate != null) {
+							document.addDate("slaOverdueDate", slaOverdueDate);
+						}
+					},
+				new HashMapDictionary<>(
+					Collections.singletonMap(
+						"indexer.class.name", JournalArticle.class.getName())));
+
+		try {
+			Indexer<JournalArticle> indexer =
+				IndexerRegistryUtil.nullSafeGetIndexer(JournalArticle.class);
+
+			indexer.reindex(journalArticle1);
+			indexer.reindex(journalArticle2);
+			indexer.reindex(journalArticle3);
+
+			Page<com.liferay.portal.search.rest.client.dto.v1_0.SearchResult>
+				page = searchResultResource.getSearchPage(
+					null, true, JournalArticle.class.getName(),
+					String.valueOf(testGroup.getGroupId()), null,
+					"slaBreached eq true", null, "slaOverdueDate:asc");
+
+			Assert.assertEquals(
+				Arrays.asList(
+					journalArticle2.getTitle(), journalArticle1.getTitle()),
+				TransformUtil.transform(
+					page.getItems(), searchResult -> searchResult.getTitle()));
+
+			page = searchResultResource.getSearchPage(
+				null, true, JournalArticle.class.getName(),
+				String.valueOf(testGroup.getGroupId()), null,
+				"slaBreached eq false", null, null);
+
+			List<String> titles = TransformUtil.transform(
+				page.getItems(), searchResult -> searchResult.getTitle());
+
+			Assert.assertFalse(
+				titles.toString(), titles.contains(journalArticle1.getTitle()));
+			Assert.assertFalse(
+				titles.toString(), titles.contains(journalArticle2.getTitle()));
+			Assert.assertTrue(
+				titles.toString(), titles.contains(journalArticle3.getTitle()));
+		}
+		finally {
+			serviceRegistration.unregister();
+		}
 	}
 
 	private void _testGetSearchPageType() throws Exception {
@@ -1688,8 +1782,8 @@ public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 		"extension", "dateDisplay", "dateExpiration", "datePublish",
 		"dateReview", "dueDate", "folderId",
 		"objectDefinitionExternalReferenceCode",
-		"objectFolderExternalReferenceCode", "rootDescendantNode", "treePath",
-		"type"
+		"objectFolderExternalReferenceCode", "rootDescendantNode",
+		"slaBreached", "slaOverdueDate", "treePath", "type"
 	};
 
 	private AssetCategory _assetCategory;
