@@ -7,6 +7,7 @@ package com.liferay.content.marketing.platform.web.internal.upgrade.registry;
 
 import com.liferay.content.marketing.platform.web.internal.upgrade.v2_0_0.CMPDescriptionObjectFieldUpgradeProcess;
 import com.liferay.content.marketing.platform.web.internal.upgrade.v2_1_0.CMPDescriptionDisplayPageTemplateUpgradeProcess;
+import com.liferay.content.marketing.platform.web.internal.upgrade.v2_2_0.CMPPlanningAndTasksPagesUpgradeProcess;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
@@ -16,8 +17,10 @@ import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
+import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -48,6 +51,15 @@ public class CMPSiteInitializerUpgradeStepRegistrator
 				_layoutPageTemplateStructureLocalService,
 				_objectDefinitionLocalService,
 				_segmentsExperienceLocalService));
+
+		registry.register(
+			"2.1.0", "2.2.0",
+			new CMPPlanningAndTasksPagesUpgradeProcess(
+				_companyLocalService, _fragmentEntryLinkLocalService,
+				_groupLocalService, _layoutLocalService,
+				_layoutPageTemplateStructureLocalService,
+				_segmentsExperienceLocalService,
+				_siteNavigationMenuItemLocalService, _userLocalService));
 	}
 
 	@Reference
@@ -81,5 +93,12 @@ public class CMPSiteInitializerUpgradeStepRegistrator
 
 	@Reference
 	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
+
+	@Reference
+	private SiteNavigationMenuItemLocalService
+		_siteNavigationMenuItemLocalService;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }
